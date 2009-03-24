@@ -1,0 +1,15 @@
+Directory Structure
+-------------------
+
+- This is a drafted structure it can be changed in the (near) future
+  The following directories are fixed. Only their name may change:
+  -gui
+  -dataHandler
+  -graphicsEngine
+  -math
+  -plugins
+  The following directories provisional. The might be renamed or
+  deleted:
+  -common
+  -kernel
+  -parallel
