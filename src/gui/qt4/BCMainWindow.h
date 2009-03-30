@@ -53,21 +53,28 @@ public:
 		actionLoad = new QAction(MainWindow);
 		actionLoad->setObjectName(QString::fromUtf8("actionLoad"));
 	    actionLoad->setIcon(loadIcon);
+		actionLoad->setText(QApplication::translate("MainWindow", "Load", 0, QApplication::UnicodeUTF8));
+		actionLoad->setShortcut(QApplication::translate("MainWindow", "Ctrl+L", 0, QApplication::UnicodeUTF8));
 
 		actionSave = new QAction(MainWindow);
 		actionSave->setObjectName(QString::fromUtf8("actionSave"));
 	    actionSave->setIcon(saveIcon);
+		actionSave->setText(QApplication::translate("MainWindow", "Save", 0, QApplication::UnicodeUTF8));
 
 		actionPreferences = new QAction(MainWindow);
 		actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
+		actionPreferences->setText(QApplication::translate("MainWindow", "Preferences", 0, QApplication::UnicodeUTF8));
 
 		actionExit = new QAction(MainWindow);
 		actionExit->setObjectName(QString::fromUtf8("actionExit"));
 	    actionExit->setIcon(quitIcon);
+		actionExit->setText(QApplication::translate("MainWindow", "E&xit", 0, QApplication::UnicodeUTF8));
+		actionExit->setShortcut(QApplication::translate("MainWindow", "Ctrl+Q", 0, QApplication::UnicodeUTF8));
 
 		actionAbout_BrainCognize = new QAction(MainWindow);
 		actionAbout_BrainCognize->setObjectName(QString::fromUtf8("actionAbout_BrainCognize"));
 	    actionAbout_BrainCognize->setIcon(aboutIcon);
+		actionAbout_BrainCognize->setText(QApplication::translate("MainWindow", "About BrainCognize", 0, QApplication::UnicodeUTF8));
 
 		centralwidget = new QWidget(MainWindow);
 		centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
@@ -94,22 +101,20 @@ public:
 		menuFile->addAction(actionLoad);
 		menuFile->addAction(actionSave);
 		menuFile->addSeparator();
+		menuFile->addAction(actionPreferences);
+		menuFile->addSeparator();
 		menuFile->addAction(actionExit);
+		menuFile->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
 
 		menuHelp->addAction(actionAbout_BrainCognize);
+		menuHelp->setTitle(QApplication::translate("MainWindow", "&Help", 0, QApplication::UnicodeUTF8));
 		toolBar->addSeparator();
 
 		MainWindow->setWindowTitle( QApplication::translate("MainWindow", "BrainCognize", 0, QApplication::UnicodeUTF8) );
-		actionLoad->setText(QApplication::translate("MainWindow", "Load", 0, QApplication::UnicodeUTF8));
-		actionLoad->setShortcut(QApplication::translate("MainWindow", "Ctrl+L", 0, QApplication::UnicodeUTF8));
-		actionSave->setText(QApplication::translate("MainWindow", "Save", 0, QApplication::UnicodeUTF8));
-		actionExit->setText(QApplication::translate("MainWindow", "E&xit", 0, QApplication::UnicodeUTF8));
-		actionExit->setShortcut(QApplication::translate("MainWindow", "Ctrl+Q", 0, QApplication::UnicodeUTF8));
-		actionAbout_BrainCognize->setText(QApplication::translate("MainWindow", "About BrainCognize", 0, QApplication::UnicodeUTF8));
-		menuFile->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
-		menuHelp->setTitle(QApplication::translate("MainWindow", "&Help", 0, QApplication::UnicodeUTF8));
 		toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", 0, QApplication::UnicodeUTF8));
+
 		QObject::connect(actionExit, SIGNAL(activated()), MainWindow, SLOT(close()));
+
 		QMetaObject::connectSlotsByName(MainWindow);
 	} // setupUi
 
