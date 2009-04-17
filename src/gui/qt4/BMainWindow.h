@@ -18,10 +18,16 @@
 #include <QtGui/QWidget>
 
 #include "../icons/icons.h"
-
+/**
+ * This class contains the main window and the layout
+ * of the widgets within the window.
+ */
 class BMainWindow
 {
 public:
+    /**
+     * Set up all widgets menus an buttons in the main window.
+     */
     void setupGUI( QMainWindow *MainWindow );
 private:
     QAction* m_actionLoad;
