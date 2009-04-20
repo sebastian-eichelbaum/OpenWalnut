@@ -18,6 +18,7 @@ mark_as_advanced( LIBRARY_OUTPUT_PATH )
 set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin )
 mark_as_advanced( EXECUTABLE_OUTPUT_PATH )
 
+set( CMAKE_CXX_FLAGS   "-Wall -pedantic " )
 
 add_executable( bCognize bCognize.cpp )	
 
