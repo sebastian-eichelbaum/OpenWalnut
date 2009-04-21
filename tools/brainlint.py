@@ -2,8 +2,8 @@
 #
 # cpplint.py is Copyright (C) 2009 Google Inc.
 #
-# It is free software; you can redistribute it and/or modify it under the
-# terms of either:
+# It is free software; you can redistribute it and/or modify it under the terms
+# of either:
 #
 # a) the GNU General Public License as published by the Free Software
 # Foundation; either version 1, or (at your option) any later version, or
@@ -11,54 +11,43 @@
 # b) the "Artistic License".
 
 # Here are some issues that I've had people identify in my code during reviews,
-# that I think are possible to flag automatically in a lint tool.  If these were
-# caught by lint, it would save time both for myself and that of my reviewers.
-# Most likely, some of these are beyond the scope of the current lint framework,
-# but I think it is valuable to retain these wish-list items even if they cannot
-# be immediately implemented.
+# that I think are possible to flag automatically in a lint tool.  If these
+# were caught by lint, it would save time both for myself and that of my
+# reviewers.  Most likely, some of these are beyond the scope of the current
+# lint framework, but I think it is valuable to retain these wish-list items
+# even if they cannot be immediately implemented.
 #
-#  Suggestions
-#  -----------
-#  - Check for no 'explicit' for multi-arg ctor
-#  - Check for boolean assign RHS in parens
-#  - Check for ctor initializer-list colon position and spacing
-#  - Check that if there's a ctor, there should be a dtor
-#  - Check accessors that return non-pointer member variables are
-#    declared const
-#  - Check accessors that return non-const pointer member vars are
-#    *not* declared const
-#  - Check for using public includes for testing
-#  - Check for spaces between brackets in one-line inline method
-#  - Check for no assert()
-#  - Check for spaces surrounding operators
-#  - Check for 0 in pointer context (should be NULL)
-#  - Check for 0 in char context (should be '\0')
-#  - Check for camel-case method name conventions for methods
-#    that are not simple inline getters and setters
-#  - Check that base classes have virtual destructors
-#    put "  // namespace" after } that closes a namespace, with
-#    namespace's name after 'namespace' if it is named.
-#  - Do not indent namespace contents
-#  - Avoid inlining non-trivial constructors in header files
-#    include base/basictypes.h if DISALLOW_EVIL_CONSTRUCTORS is used
-#  - Check for old-school (void) cast for call-sites of functions
-#    ignored return value
-#  - Check gUnit usage of anonymous namespace
-#  - Check for class declaration order (typedefs, consts, enums,
-#    ctor(s?), dtor, friend declarations, methods, member vars)
+#  Suggestions ----------- - Check for no 'explicit' for multi-arg ctor - Check
+#  for boolean assign RHS in parens - Check for ctor initializer-list colon
+#  position and spacing - Check that if there's a ctor, there should be a dtor
+#  - Check accessors that return non-pointer member variables are declared
+#  const - Check accessors that return non-const pointer member vars are *not*
+#  declared const - Check for using public includes for testing - Check for
+#  spaces between brackets in one-line inline method - Check for no assert() -
+#  Check for spaces surrounding operators - Check for 0 in pointer context
+#  (should be NULL) - Check for 0 in char context (should be '\0') - Check for
+#  camel-case method name conventions for methods that are not simple inline
+#  getters and setters - Check that base classes have virtual destructors put "
+#  // namespace" after } that closes a namespace, with namespace's name after
+#  'namespace' if it is named.  - Do not indent namespace contents - Avoid
+#  inlining non-trivial constructors in header files include base/basictypes.h
+#  if DISALLOW_EVIL_CONSTRUCTORS is used - Check for old-school (void) cast for
+#  call-sites of functions ignored return value - Check gUnit usage of
+#  anonymous namespace - Check for class declaration order (typedefs, consts,
+#  enums, ctor(s?), dtor, friend declarations, methods, member vars)
 #
 
-"""Does google-lint on c++ files.
+"""Does brain-lint on c++ files.
 
-The goal of this script is to identify places in the code that *may*
-be in non-compliance with google style.  It does not attempt to fix
-up these problems -- the point is to educate.  It does also not
-attempt to find all problems, or to ensure that everything it does
-find is legitimately a problem.
+The goal of this script is to identify places in the code that *may* be in
+non-compliance with our CodingStandard (see wiki). It does not attempt to fix
+up these problems -- the point is to educate.  It does also not attempt to find
+all problems, or to ensure that everything it does find is legitimately a
+problem.
 
-In particular, we can get very confused by /* and // inside strings!
-We do a small hack, which is to ignore //'s with "'s after them on the
-same line, but it is far from perfect (in either direction).
+In particular, we can get very confused by /* and // inside strings!  We do a
+small hack, which is to ignore //'s with "'s after them on the same line, but
+it is far from perfect (in either direction).
 """
 
 import codecs
@@ -77,7 +66,7 @@ Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
         <file> [file] ...
 
   The style guidelines this tries to follow are those in
-    http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
+    http://aristoteles.informatik.uni-leipzig.de/trac/BrainCognize/wiki/CodingStandard
 
   Every problem is given a confidence score from 1-5, with 5 meaning we are
   certain of the problem, and 1 meaning it could be a legitimate construct.
@@ -131,7 +120,7 @@ _ERROR_CATEGORIES = '''\
   build/namespaces
   build/printf_format
   build/storage_class
-  legal/copyright
+  legal/comment_header
   readability/braces
   readability/casting
   readability/check
@@ -832,17 +821,17 @@ def CloseExpression(clean_lines, linenum, pos):
   return (line, linenum, endpos + 1)
 
 
-def CheckForCopyright(filename, lines, error):
-  """Logs an error if no Copyright message appears at the top of the file."""
+def CheckForCommentHeader(filename, lines, error):
+  """Logs an error if no CommentHeader appears at the top of the file."""
 
   # We'll say it should occur by line 10. Don't forget there's a
   # dummy line at the front.
   for line in xrange(1, min(len(lines), 11)):
-    if re.search(r'Copyright', lines[line], re.I): break
-  else:                       # means no copyright line was found
-    error(filename, 0, 'legal/copyright', 5,
-          'No copyright message found.  '
-          'You should have a line: "Copyright [year] <Copyright Owner>"')
+      if re.search(r'// Project: BrainCognize', lines[line], re.I): break
+  else:
+    error(filename, 0, 'legal/comment_header', 5,
+          'No valid comment header found.  '
+          'You should have at least a line: "// Project: BrainCognize"')
 
 
 def GetHeaderGuardCPPVariable(filename):
@@ -2592,7 +2581,7 @@ def ProcessFileData(filename, file_extension, lines, error):
   function_state = _FunctionState()
   class_state = _ClassState()
 
-  CheckForCopyright(filename, lines, error)
+  CheckForCommentHeader(filename, lines, error)
 
   if file_extension == 'h':
     CheckForHeaderGuard(filename, lines, error)
@@ -2614,7 +2603,7 @@ def ProcessFileData(filename, file_extension, lines, error):
 
 
 def ProcessFile(filename, vlevel):
-  """Does google-lint on a single file.
+  """Does brain-lint on a single file.
 
   Args:
     filename: The name of the file to parse.
