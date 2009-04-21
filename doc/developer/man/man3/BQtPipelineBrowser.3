@@ -1,0 +1,73 @@
+.TH "BQtPipelineBrowser" 3 "21 Apr 2009" "Version 0.1" "BrainCognize" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+BQtPipelineBrowser \- Represents the browser showing the loaded data sets and applied filter/methods/algorithms/plugins.  
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <BQtPipelineBrowser.h>\fP
+.PP
+Inherits \fBQDockWidget\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBBQtPipelineBrowser\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~BQtPipelineBrowser\fP ()"
+.br
+.ti -1c
+.RI "QSize \fBsizeHint\fP () const "
+.br
+.RI "\fIreturns the recommended size for the widget to allow parent widgets to give it a proper initial layout \fP"
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "QSize \fBm_recommendedSize\fP"
+.br
+.RI "\fIholds the recommended size for the widget \fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+Represents the browser showing the loaded data sets and applied filter/methods/algorithms/plugins. 
+.PP
+Definition at line 16 of file BQtPipelineBrowser.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "BQtPipelineBrowser::BQtPipelineBrowser ()"
+.PP
+Definition at line 9 of file BQtPipelineBrowser.cpp.
+.PP
+References m_recommendedSize.
+.SS "BQtPipelineBrowser::~BQtPipelineBrowser ()\fC [virtual]\fP"
+.PP
+Definition at line 18 of file BQtPipelineBrowser.cpp.
+.SH "Member Function Documentation"
+.PP 
+.SS "QSize BQtPipelineBrowser::sizeHint () const"
+.PP
+returns the recommended size for the widget to allow parent widgets to give it a proper initial layout 
+.PP
+Definition at line 23 of file BQtPipelineBrowser.cpp.
+.PP
+References m_recommendedSize.
+.SH "Member Data Documentation"
+.PP 
+.SS "QSize \fBBQtPipelineBrowser::m_recommendedSize\fP\fC [private]\fP"
+.PP
+holds the recommended size for the widget 
+.PP
+Definition at line 32 of file BQtPipelineBrowser.h.
+.PP
+Referenced by BQtPipelineBrowser(), and sizeHint().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for BrainCognize from the source code.

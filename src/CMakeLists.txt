@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 2.6)
 PROJECT( BrainCognize )
 
 find_package( Qt4 REQUIRED )
+find_package( OpenGL REQUIRED )
+find_package( Boost REQUIRED )
 include_directories( ${QT_INCLUDE_DIR} )
+include_directories( ${OPENGL_INCLUDE_DIR} )
 
 set( 
   QT_LINK_LIBRARIES 

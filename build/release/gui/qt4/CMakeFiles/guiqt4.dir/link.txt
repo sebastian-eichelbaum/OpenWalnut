@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC   -shared -Wl,-soname,libguiqt4.so -o libguiqt4.so CMakeFiles/guiqt4.dir/BMainWindow.cpp.o CMakeFiles/guiqt4.dir/BQtGLWidget.cpp.o CMakeFiles/guiqt4.dir/BQtPipelineBrowser.cpp.o 

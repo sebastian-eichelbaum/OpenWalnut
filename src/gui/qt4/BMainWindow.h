@@ -17,6 +17,10 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QWidget>
 
+//forward declarations
+class BQtGLWidget;
+class BQtPipelineBrowser;
+
 #include "../icons/icons.h"
 /**
  * This class contains the main window and the layout
@@ -25,10 +29,12 @@
 class BMainWindow
 {
 public:
+
     /**
      * Set up all widgets menus an buttons in the main window.
      */
     void setupGUI( QMainWindow *MainWindow );
+
 private:
     QAction* m_actionLoad;
     QAction* m_actionSave;
@@ -39,8 +45,16 @@ private:
     QMenuBar* m_menubar;
     QMenu* m_menuFile;
     QMenu* m_menuHelp;
-    //  QStatusBar* m_statusBar;
+    QStatusBar* m_statusBar;
     QToolBar* m_toolBar;
+
+    BQtGLWidget* m_glWidget;
+    BQtPipelineBrowser* m_pipelineBrowser;
+
+    /**
+     * Helper routine for adding new docks with GL content
+     */
+    void addDockableGLWidget( QMainWindow *MainWindow );
 };
 
 #endif // BMAINWINDOW_H

@@ -9,6 +9,9 @@
 
 #include "gui/qt4/BMainWindow.h"
 
+/**
+ * The main routine starting up the whole application.
+ */
 int main( int argc, char* argv[] )
 {
     QApplication appl( argc, argv );
