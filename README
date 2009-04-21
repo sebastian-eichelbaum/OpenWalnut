@@ -5,8 +5,6 @@ See the "doc" directory for more information.
 Directory Structure:
   -build
      The place where the code from "src" will be built
-  -development
-     some informations for devlopers (e.g. ToDo lists)
   -doc
      Documentation for users and devlopers
   -src
