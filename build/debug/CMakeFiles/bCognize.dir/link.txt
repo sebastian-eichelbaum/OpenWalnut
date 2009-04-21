@@ -1,1 +1,0 @@
-/usr/bin/c++   -Wall -pedantic   -fPIC CMakeFiles/bCognize.dir/bCognize.cpp.o  -o bin/bCognize -rdynamic gui/qt4/libguiqt4.so -lQtCore -lQtGui -lQtOpenGL -Wl,-rpath,/local/eclipse_workspace/BrainCognize/trunk/build/debug/gui/qt4 
