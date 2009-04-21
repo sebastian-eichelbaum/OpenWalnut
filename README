@@ -11,3 +11,5 @@ Directory Structure:
      Documentation for users and devlopers
   -src
      The sources, i.e. code, icons, ...
+  -tools
+     Tools working on the source code (e.g. style checker)
