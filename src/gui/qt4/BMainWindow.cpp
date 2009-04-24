@@ -139,3 +139,8 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
 
     QMetaObject::connectSlotsByName( MainWindow );
 }
+
+void BMainWindow::setEnabled (bool enable)
+{
+    // NOTE implement here
+}

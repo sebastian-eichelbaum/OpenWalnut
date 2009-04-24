@@ -17,16 +17,19 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QWidget>
 
+#include "../BGUI.h"
+
 //forward declarations
 class BQtGLWidget;
 class BQtPipelineBrowser;
 
 #include "../icons/icons.h"
 /**
+ * \ingroup gui
  * This class contains the main window and the layout
  * of the widgets within the window.
  */
-class BMainWindow
+class BMainWindow : public BGUI
 {
 public:
 
@@ -34,6 +37,15 @@ public:
      * Set up all widgets menus an buttons in the main window.
      */
     void setupGUI( QMainWindow *MainWindow );
+
+    /**
+     * \brief
+     * enable/disable the access to the GUI
+     * \post
+     * GUI enabled/disabeld
+     * \param enable true iff gui should be enabled
+     */
+    void setEnabled( bool enable );
 
 private:
     QAction* m_actionLoad;

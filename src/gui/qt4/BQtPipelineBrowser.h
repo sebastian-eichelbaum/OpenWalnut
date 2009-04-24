@@ -10,6 +10,7 @@
 #include <QtGui/QDockWidget>
 
 /**
+ * \ingroup gui
  * Represents the browser showing the loaded data sets
  * and applied filter/methods/algorithms/plugins
  */

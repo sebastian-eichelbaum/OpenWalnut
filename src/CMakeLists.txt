@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( BrainCognize )
 
+set( QT_INCLUDE_DIR /local/install )
+
 # Package dependencies
 FIND_PACKAGE( Qt4 REQUIRED )
 FIND_PACKAGE( OpenGL REQUIRED )
@@ -17,7 +19,6 @@ SET(
   ${QT_QTOPENGL_LIBRARY}
   )
 
-ADD_SUBDIRECTORY( gui )
 
 SET( LIBRARY_OUTPUT_PATH    ${PROJECT_BINARY_DIR}/lib )
 MARK_AS_ADVANCED( LIBRARY_OUTPUT_PATH )
@@ -28,8 +29,13 @@ MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
 #-----------------------
 # -Wno-long-long is used since on Ubuntu 8.10 it won't compile without it
 
-SET( CMAKE_CXX_FLAGS   "-Wall -pedantic -Wno-long-long" )
+SET( CMAKE_CXX_FLAGS   "-Wall -pedantic -ansi -Wno-long-long" )
 
+ADD_SUBDIRECTORY( math )
+ADD_SUBDIRECTORY( dataHandler )
+ADD_SUBDIRECTORY( graphicsEngine )
+ADD_SUBDIRECTORY( gui )
+ADD_SUBDIRECTORY( plugins )
 ADD_EXECUTABLE( bCognize bCognize.cpp )
 
 TARGET_LINK_LIBRARIES(
@@ -45,6 +51,13 @@ ADD_CUSTOM_TARGET(doc
                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig > ${PROJECT_SOURCE_DIR}/../doc/developer/docErr.txt 2>&1
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
                   COMMENT "Build doxygen documentation"
+                  VERBATIM
+                  )
+ADD_CUSTOM_TARGET(docs
+                  COMMAND echo "If you would like to build the documentation issue 'make doc', i.e. remove the trailing 's'."
+                  COMMAND exit 1 
+                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                  COMMENT "Hint for for peope who are used to using 'make docs' instead of 'make doc'."
                   VERBATIM
                   )
 
