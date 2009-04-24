@@ -196,6 +196,10 @@ _CPP_HEADERS = frozenset([
     'strstream', 'strstream.h', 'tempbuf.h', 'tree.h', 'typeinfo', 'valarray',
     ])
 
+# Other heders which are include like system headers, starting with a '<'
+_OTHER_HEADERS = frozenset([
+    'QtGui'
+    ])
 
 # Assertion macros.  These are defined in base/logging.h and
 # testing/base/gunit.h.  Note that the _M versions need to come first
@@ -233,9 +237,9 @@ for op, inv_replacement in [('==', 'NE'), ('!=', 'EQ'),
 # _IncludeState.CheckNextIncludeOrder().
 _C_SYS_HEADER = 1
 _CPP_SYS_HEADER = 2
-_LIKELY_MY_HEADER = 3
-_POSSIBLE_MY_HEADER = 4
-_OTHER_HEADER = 5
+_OTHER_HEADER = 3
+_LIKELY_MY_HEADER = 4
+_POSSIBLE_MY_HEADER = 5
 
 
 _regexp_compile_cache = {}
@@ -272,10 +276,10 @@ class _IncludeState(dict):
   # self._section will move monotonically through this set. If it ever
   # needs to move backwards, CheckNextIncludeOrder will raise an error.
   _INITIAL_SECTION = 0
-  _MY_H_SECTION = 1
-  _C_SECTION = 2
-  _CPP_SECTION = 3
-  _OTHER_H_SECTION = 4
+  _C_SECTION = 1
+  _CPP_SECTION = 2
+  _OTHER_H_SECTION = 3
+  _MY_H_SECTION = 4
 
   _TYPE_NAMES = {
       _C_SYS_HEADER: 'C system header',
@@ -847,7 +851,7 @@ def GetHeaderGuardCPPVariable(filename):
   """
 
   fileinfo = FileInfo(filename)
-  return re.sub(r'[-./\s]', '_', fileinfo.RepositoryName()).upper() + '_'
+  return re.sub(r'[-./\s]', '_', fileinfo.BaseName()+'_H').upper()
 
 
 def CheckForHeaderGuard(filename, lines, error):
@@ -893,10 +897,7 @@ def CheckForHeaderGuard(filename, lines, error):
   # The guard should be PATH_FILE_H_, but we also allow PATH_FILE_H__
   # for backward compatibility.
   if ifndef != cppvar:
-    error_level = 0
-    if ifndef != cppvar + '_':
-      error_level = 5
-
+    error_level = 5
     error(filename, ifndef_linenum, 'build/header_guard', error_level,
           '#ifndef header guard has wrong style, please use: %s' % cppvar)
 
@@ -1293,21 +1294,20 @@ def CheckSpacingForFunctionCall(filename, line, linenum, error):
       not Search(r' \([^)]+\)\([^)]*(\)|,$)', fncall) and
       # Ignore pointers/references to arrays.
       not Search(r' \([^)]+\)\[[^\]]+\]', fncall)):
-    if Search(r'\w\s*\(\s(?!\s*\\$)', fncall):      # a ( used for a fn call
-      error(filename, linenum, 'whitespace/parens', 4,
-            'Extra space after ( in function call')
-    elif Search(r'\(\s+(?!(\s*\\)|\()', fncall):
-      error(filename, linenum, 'whitespace/parens', 2,
-            'Extra space after (')
-    if (Search(r'\w\s+\(', fncall) and
-        not Search(r'#\s*define|typedef', fncall)):
-      error(filename, linenum, 'whitespace/parens', 4,
-            'Extra space before ( in function call')
+    if Search(r'\([^\s\)]', fncall):
+      error(filename, linenum, 'whitespace/parens', 4, 'Missing space after ( in function call')
+    elif Search('r\(\w\w', fncall):
+      error(filename, linenum, 'whitespace/parens', 4, 'Missing space after (')
+#    if Search(r'\w\s*\(\s(?!\s*\\$)', fncall):      # a ( used for a fn call
+#      error(filename, linenum, 'whitespace/parens', 4, 'Extra space after ( in function call')
+#    elif Search(r'\(\s+(?!(\s*\\)|\()', fncall):
+#      error(filename, linenum, 'whitespace/parens', 2, 'Extra space after (')
+    if (Search(r'\w\s+\(', fncall) and not Search(r'#\s*define|typedef', fncall)):
+      error(filename, linenum, 'whitespace/parens', 4, 'Extra space before ( in function call')
     # If the ) is followed only by a newline or a { + newline, assume it's
     # part of a control statement (if/while/etc), and don't complain
-    if Search(r'[^)]\s+\)\s*[^{\s]', fncall):
-      error(filename, linenum, 'whitespace/parens', 2,
-            'Extra space before )')
+    if Search(r'[^\( ]\)', fncall):
+      error(filename, linenum, 'whitespace/parens', 2, 'Missing space before )')
 
 
 def IsBlankLine(line):
@@ -1586,12 +1586,6 @@ def CheckSpacing(filename, clean_lines, linenum, error):
     error(filename, linenum, 'whitespace/operators', 4,
           'Extra space for operator %s' % match.group(1))
 
-  # A pet peeve of mine: no spaces after an if, while, switch, or for
-  match = Search(r' (if\(|for\(|while\(|switch\()', line)
-  if match:
-    error(filename, linenum, 'whitespace/parens', 5,
-          'Missing space before ( in %s' % match.group(1))
-
   # For if/for/while/switch, the left and right parens should be
   # consistent about how many spaces are inside the parens, and
   # there should either be zero or one spaces inside the parens.
@@ -1689,40 +1683,13 @@ def CheckBraces(filename, clean_lines, linenum, error):
 
   line = clean_lines.elided[linenum]        # get rid of comments and strings
 
-  if Match(r'\s*{\s*$', line):
-    # We allow an open brace to start a line in the case where someone
-    # is using braces in a block to explicitly create a new scope,
-    # which is commonly used to control the lifetime of
-    # stack-allocated variables.  We don't detect this perfectly: we
-    # just don't complain if the last non-whitespace character on the
-    # previous non-blank line is ';', ':', '{', or '}'.
-    prevline = GetPreviousNonBlankLine(clean_lines, linenum)[0]
-    if not Search(r'[;:}{]\s*$', prevline):
-      error(filename, linenum, 'whitespace/braces', 4,
-            '{ should almost always be at the end of the previous line')
+  if Match(r'{', line):
+    if not Match(r'^\s*{\s*$', line):
+      error(filename, linenum, 'readability/braces', 5, 'Starting braces have a line for themselfs.')
 
-  # An else clause should be on the same line as the preceding closing brace.
-  if Match(r'\s*else\s*', line):
-    prevline = GetPreviousNonBlankLine(clean_lines, linenum)[0]
-    if Match(r'\s*}\s*$', prevline):
-      error(filename, linenum, 'whitespace/newline', 4,
-            'An else should appear on the same line as the preceding }')
-
-  # If braces come on one side of an else, they should be on both.
-  # However, we have to worry about "else if" that spans multiple lines!
-  if Search(r'}\s*else[^{]*$', line) or Match(r'[^}]*else\s*{', line):
-    if Search(r'}\s*else if([^{]*)$', line):       # could be multi-line if
-      # find the ( after the if
-      pos = line.find('else if')
-      pos = line.find('(', pos)
-      if pos > 0:
-        (endline, _, endpos) = CloseExpression(clean_lines, linenum, pos)
-        if endline[endpos:].find('{') == -1:    # must be brace after if
-          error(filename, linenum, 'readability/braces', 5,
-                'If an else has a brace on one side, it should have it on both')
-    else:            # common case: else not followed by a multi-line if
-      error(filename, linenum, 'readability/braces', 5,
-            'If an else has a brace on one side, it should have it on both')
+  if Search(r'}', line):
+    if not Match(r'^\s*};?$', line):
+      error(filename, linenum, 'readability/braces', 5, 'Closing braces have a line for themselfs.')
 
   # Likewise, an else should never have the else clause on the same line
   if Search(r'\belse [^\s{]', line) and not Search(r'\belse if\b', line):
@@ -1912,12 +1879,12 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, error):
   if (not line.startswith('#include') and not is_header_guard and
       not Match(r'^\s*//.*http(s?)://\S*$', line)):
     line_width = GetLineWidth(line)
-    if line_width > 100:
+    if line_width > 120:
       error(filename, linenum, 'whitespace/line_length', 4,
-            'Lines should very rarely be longer than 100 characters')
-    elif line_width > 80:
+            'Lines should very rarely be longer than 120 characters')
+    elif line_width > 100:
       error(filename, linenum, 'whitespace/line_length', 2,
-            'Lines should be <= 80 characters long')
+            'Lines should be <= 100 characters long')
 
   if (cleansed_line.count(';') > 1 and
       # for loops are allowed two ;'s (and may run over two lines).
@@ -2017,12 +1984,12 @@ def _ClassifyInclude(fileinfo, include, is_system):
   """
   # This is a list of all standard c++ header files, except
   # those already checked for above.
-  is_stl_h = include in _STL_HEADERS
-  is_cpp_h = is_stl_h or include in _CPP_HEADERS
 
   if is_system:
-    if is_cpp_h:
+    if ((include in _STL_HEADERS) or (include in _CPP_HEADERS)):
       return _CPP_SYS_HEADER
+    elif include.split("/")[0] in _OTHER_HEADERS:
+      return _OTHER_HEADER
     else:
       return _C_SYS_HEADER
 
@@ -2072,11 +2039,6 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
   # get rid of comments
   comment_elided_line = clean_lines.lines[linenum]
 
-  # "include" should use the new style "foo/bar.h" instead of just "bar.h"
-  if _RE_PATTERN_INCLUDE_NEW_STYLE.search(comment_elided_line):
-    error(filename, linenum, 'build/include', 4,
-          'Include the directory when naming .h files')
-
   # we shouldn't include a file more than once. actually, there are a
   # handful of instances where doing so is okay, but in general it's
   # not.
@@ -2106,7 +2068,7 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
           _ClassifyInclude(fileinfo, include, is_system))
       if error_message:
         error(filename, linenum, 'build/include_order', 4,
-              '%s. Should be: %s.h, c system, c++ system, other.' %
+              '%s. Should be: c system, c++ system, other %s.h.' %
               (error_message, fileinfo.BaseName()))
 
   # If the line is empty or consists of entirely a comment, no need to
