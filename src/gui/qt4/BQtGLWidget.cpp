@@ -27,12 +27,12 @@ BQtGLWidget::BQtGLWidget( QWidget *parent )
 
 BQtGLWidget::~BQtGLWidget()
 {
-    // TODO Auto-generated destructor stub
+    // TODO(wiebel): Auto-generated destructor stub
 }
 
 void BQtGLWidget::paintGL()
 {
-    // TODO we have to have something automatic in here in the future
+    // TODO(wiebel): we have to have something automatic in here in the future
     m_scenePainter->paintGL();
 }
 

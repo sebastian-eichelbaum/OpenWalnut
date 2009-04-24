@@ -8,10 +8,10 @@
 
 BGUI::BGUI()
 {
-    // TODO Auto-generated constructor stub
+    // TODO(wiebel): Auto-generated constructor stub
 }
 
 BGUI::~BGUI()
 {
-    // TODO Auto-generated destructor stub
+    // TODO(wiebel): Auto-generated destructor stub
 }

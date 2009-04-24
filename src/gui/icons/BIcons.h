@@ -3,8 +3,8 @@
 // Project: BrainCognize
 //
 //---------------------------------------------------------------------------
-#ifndef ICONS_H
-#define ICONS_H
+#ifndef BICONS_H
+#define BICONS_H
 
 /**
  * This file is provided to allow to get access to all used icons by one include.
@@ -14,4 +14,4 @@
 #include "fileopen.xpm"
 #include "quit.xpm"
 
-#endif  // ICONS_H
+#endif  // BICONS_H

@@ -1,7 +1,5 @@
-add_subdirectory( qt4 )
+ADD_SUBDIRECTORY( qt4 )
 
-list( APPEND GUI_SRC 
-  BGUI.cpp
-)
+FILE(GLOB GUI_SRC "*.cpp")
 
-add_library( gui SHARED ${GUI_SRC} )
+ADD_LIBRARY( gui SHARED ${GUI_SRC} )

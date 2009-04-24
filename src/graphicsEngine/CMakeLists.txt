@@ -1,5 +1,3 @@
-list( APPEND GE_SRC 
-  BGLScenePainter.cpp
-)
+FILE(GLOB GE_SRC "*.cpp")
 
-add_library( ge SHARED ${GE_SRC} )
+ADD_LIBRARY( ge SHARED ${GE_SRC} )

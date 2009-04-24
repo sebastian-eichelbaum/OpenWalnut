@@ -11,12 +11,12 @@
 
 BGLScenePainter::BGLScenePainter()
 {
-    // TODO Auto-generated constructor stub
+    // TODO(wiebel): Auto-generated constructor stub
 }
 
 BGLScenePainter::~BGLScenePainter()
 {
-    // TODO Auto-generated destructor stub
+    // TODO(wiebel): Auto-generated destructor stub
 }
 
 void BGLScenePainter::initGL()

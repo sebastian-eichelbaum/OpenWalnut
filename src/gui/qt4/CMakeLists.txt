@@ -1,8 +1,5 @@
-list( APPEND GUI_QT4_SRC 
-  BMainWindow.cpp
-  BQtGLWidget.cpp
-  BQtPipelineBrowser.cpp
-  )
-  
-add_library( guiqt4 SHARED ${GUI_QT4_SRC} )
-target_link_libraries( guiqt4 gui ge )
+FILE(GLOB GUI_QT4_SRC "*.cpp")
+
+ADD_LIBRARY( guiqt4 SHARED ${GUI_QT4_SRC} )
+
+TARGET_LINK_LIBRARIES( guiqt4 gui ge )
