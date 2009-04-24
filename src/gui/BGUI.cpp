@@ -9,7 +9,6 @@
 BGUI::BGUI()
 {
     // TODO Auto-generated constructor stub
-
 }
 
 BGUI::~BGUI()

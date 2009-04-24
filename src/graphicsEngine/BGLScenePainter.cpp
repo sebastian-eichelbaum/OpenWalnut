@@ -44,10 +44,6 @@ void BGLScenePainter::paintGL()
     glEnd();
 }
 
-void BGLScenePainter::resizeGL(int w, int h)
+void BGLScenePainter::resizeGL( int w, int h )
 {
 }
-
-
-
-

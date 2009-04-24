@@ -6,13 +6,13 @@
 
 #include "BQtPipelineBrowser.h"
 
-BQtPipelineBrowser::BQtPipelineBrowser() :
-    QDockWidget( "Pipeline Browser" ), m_recommendedSize()
+BQtPipelineBrowser::BQtPipelineBrowser()
+    : QDockWidget( "Pipeline Browser" ),
+      m_recommendedSize()
 {
     setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 300 );
-
 }
 
 BQtPipelineBrowser::~BQtPipelineBrowser()

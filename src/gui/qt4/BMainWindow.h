@@ -19,7 +19,7 @@
 
 #include "../BGUI.h"
 
-//forward declarations
+// forward declarations
 class BQtGLWidget;
 class BQtPipelineBrowser;
 
@@ -31,42 +31,42 @@ class BQtPipelineBrowser;
  */
 class BMainWindow : public BGUI
 {
-public:
+    public:
 
-    /**
-     * Set up all widgets menus an buttons in the main window.
-     */
-    void setupGUI( QMainWindow *MainWindow );
+        /**
+         * Set up all widgets menus an buttons in the main window.
+         */
+        void setupGUI( QMainWindow *MainWindow );
 
-    /**
-     * \brief
-     * enable/disable the access to the GUI
-     * \post
-     * GUI enabled/disabeld
-     * \param enable true iff gui should be enabled
-     */
-    void setEnabled( bool enable );
+        /**
+         * \brief
+         * enable/disable the access to the GUI
+         * \post
+         * GUI enabled/disabeld
+         * \param enable true iff gui should be enabled
+         */
+        void setEnabled( bool enable );
 
-private:
-    QAction* m_actionLoad;
-    QAction* m_actionSave;
-    QAction* m_actionPreferences;
-    QAction* m_actionExit;
-    QAction* m_actionAbout_BrainCognize;
-    QWidget* m_centralwidget;
-    QMenuBar* m_menubar;
-    QMenu* m_menuFile;
-    QMenu* m_menuHelp;
-    QStatusBar* m_statusBar;
-    QToolBar* m_toolBar;
+    private:
+        QAction* m_actionLoad;
+        QAction* m_actionSave;
+        QAction* m_actionPreferences;
+        QAction* m_actionExit;
+        QAction* m_actionAbout_BrainCognize;
+        QWidget* m_centralwidget;
+        QMenuBar* m_menubar;
+        QMenu* m_menuFile;
+        QMenu* m_menuHelp;
+        QStatusBar* m_statusBar;
+        QToolBar* m_toolBar;
 
-    BQtGLWidget* m_glWidget;
-    BQtPipelineBrowser* m_pipelineBrowser;
+        BQtGLWidget* m_glWidget;
+        BQtPipelineBrowser* m_pipelineBrowser;
 
-    /**
-     * Helper routine for adding new docks with GL content
-     */
-    void addDockableGLWidget( QMainWindow *MainWindow );
+        /**
+         * Helper routine for adding new docks with GL content
+         */
+        void addDockableGLWidget( QMainWindow *MainWindow );
 };
 
-#endif // BMAINWINDOW_H
+#endif  // BMAINWINDOW_H

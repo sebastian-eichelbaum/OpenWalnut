@@ -16,21 +16,21 @@
  */
 class BQtPipelineBrowser: public QDockWidget
 {
-public:
-    BQtPipelineBrowser();
-    virtual ~BQtPipelineBrowser();
+    public:
+        BQtPipelineBrowser();
+        virtual ~BQtPipelineBrowser();
 
-    /**
-     * returns the recommended size for the widget to allow
-     * parent widgets to give it a proper initial layout
-     */
-    QSize sizeHint() const;
-private:
+        /**
+         * returns the recommended size for the widget to allow
+         * parent widgets to give it a proper initial layout
+         */
+        QSize sizeHint() const;
 
-    /**
-     * Holds the recommended size for the widget
-     */
-    QSize m_recommendedSize;
+    private:
+        /**
+         * Holds the recommended size for the widget
+         */
+        QSize m_recommendedSize;
 };
 
-#endif /* BQTPIPELINEBROWSER_H */
+#endif  // BQTPIPELINEBROWSER_H

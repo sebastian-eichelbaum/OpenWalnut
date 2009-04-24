@@ -121,7 +121,7 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     m_glWidget = new BQtGLWidget();
     MainWindow->setCentralWidget( m_glWidget );
 
-    //initially 3 views
+    // initially 3 views
     addDockableGLWidget( MainWindow );
     addDockableGLWidget( MainWindow );
     addDockableGLWidget( MainWindow );
@@ -134,13 +134,13 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     m_toolBar->setWindowTitle( QApplication::translate( "MainWindow",
             "toolBar", 0, QApplication::UnicodeUTF8 ) );
 
-    QObject::connect( m_actionExit, SIGNAL(activated()), MainWindow,
-            SLOT(close()) );
+    QObject::connect( m_actionExit, SIGNAL( activated() ), MainWindow,
+            SLOT( close() ) );
 
     QMetaObject::connectSlotsByName( MainWindow );
 }
 
-void BMainWindow::setEnabled (bool enable)
+void BMainWindow::setEnabled( bool enable )
 {
     // NOTE implement here
 }

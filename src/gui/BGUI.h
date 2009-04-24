@@ -13,19 +13,18 @@
  */
 class BGUI
 {
-public:
-    BGUI();
-    virtual ~BGUI();
+    public:
+        BGUI();
+        virtual ~BGUI();
 
-    /**
-     * \brief
-     * enable/disable the access to the GUI
-     * \post
-     * GUI enabled/disabled
-     * \param enable true iff gui should be enabled
-     */
-    virtual void setEnabled (bool enable) = 0;
-
+        /**
+         * \brief
+         * enable/disable the access to the GUI
+         * \post
+         * GUI enabled/disabled
+         * \param enable true iff gui should be enabled
+         */
+        virtual void setEnabled( bool enable ) = 0;
 };
 
 /**
@@ -36,4 +35,4 @@ public:
 
 */
 
-#endif /* BGUI_H */
+#endif  // BGUI_H

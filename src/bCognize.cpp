@@ -4,7 +4,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 #include <QtGui/QApplication>
 
 #include "gui/qt4/BMainWindow.h"

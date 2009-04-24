@@ -1,3 +1,11 @@
+//---------------------------------------------------------------------------
+//
+// Project: BrainCognize
+//
+//---------------------------------------------------------------------------
+#ifndef ICONS_H
+#define ICONS_H
+
 /**
  * This file is provided to allow to get access to all used icons by one include.
  */
@@ -5,3 +13,5 @@
 #include "disc.xpm"
 #include "fileopen.xpm"
 #include "quit.xpm"
+
+#endif  // ICONS_H
