@@ -8,8 +8,8 @@
 #include "../../graphicsEngine/BGLScenePainter.h"
 
 BQtGLWidget::BQtGLWidget( BGLScenePainter* scenePainter, QWidget *parent )
-    : m_scenePainter( scenePainter ),
-      QGLWidget( parent ),
+    : QGLWidget( parent ),
+      m_scenePainter( scenePainter ),
       m_recommendedSize()
 {
     m_recommendedSize.setWidth( 200 );
