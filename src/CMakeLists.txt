@@ -1,8 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( BrainCognize )
 
-set( QT_INCLUDE_DIR /local/install )
-
 # Package dependencies
 FIND_PACKAGE( Qt4 REQUIRED )
 FIND_PACKAGE( OpenGL REQUIRED )
@@ -59,5 +57,12 @@ ADD_CUSTOM_TARGET(docs
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
                   COMMENT "Hint for for peope who are used to using 'make docs' instead of 'make doc'."
                   VERBATIM
+                  )
+
+
+ADD_CUSTOM_TARGET(stylecheck
+                  COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${PROJECT_SOURCE_DIR}/**/*.{cpp,h}
+                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                  COMMENT "Check if code complies to CodingStandard"                  
                   )
 
