@@ -10,6 +10,8 @@
 #include "BQtGLWidget.h"
 #include "BQtPipelineBrowser.h"
 
+#include "../icons/BIcons.h"
+
 void BMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
 {
     m_glWidget = new BQtGLWidget();

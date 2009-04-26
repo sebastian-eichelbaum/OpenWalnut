@@ -23,7 +23,6 @@
 class BQtGLWidget;
 class BQtPipelineBrowser;
 
-#include "../icons/BIcons.h"
 /**
  * \ingroup gui
  * This class contains the main window and the layout
