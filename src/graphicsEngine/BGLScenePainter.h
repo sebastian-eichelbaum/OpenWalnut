@@ -31,7 +31,7 @@ class BGLScenePainter
          * Called, when the window is resized and re-initialization of the
          * window parameters and matrices may need to be done.
          */
-        virtual void resizeGL( int w, int h );
+        virtual void resizeGL( int width, int height );
 };
 
 

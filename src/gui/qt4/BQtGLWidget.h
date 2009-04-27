@@ -28,6 +28,21 @@ class BQtGLWidget: public QGLWidget
          * parent widgets to give it a proper initial layout
          */
         QSize sizeHint() const;
+
+        /**
+         * This virtual function is called whenever the widget has been
+         * resized. The new size is passed in width and height.
+         */
+        void resizeGL( int width, int height );
+
+    protected:
+        /**
+         * This function is called once before the first
+         * call to paintGL() or resizeGL(), and then once whenever
+         * the widget has been assigned a new QGLContext.
+         */
+        void initializeGL();
+
     private:
         /**
          * This function is called whenever the widget needs to be painted.

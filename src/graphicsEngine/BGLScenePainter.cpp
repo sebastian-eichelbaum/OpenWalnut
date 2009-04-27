@@ -4,10 +4,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include "BGLScenePainter.h"
-
+#include <cassert>
 #include <GL/gl.h>
 #include <GL/glu.h>
+
+#include "BGLScenePainter.h"
 
 BGLScenePainter::BGLScenePainter()
 {
@@ -21,6 +22,11 @@ BGLScenePainter::~BGLScenePainter()
 
 void BGLScenePainter::initGL()
 {
+    GLenum error = glGetError();
+    assert( error == GL_NO_ERROR );
+
+    // Set clear color
+    glClearColor( 0, 0, 0, 0 );
 }
 
 void BGLScenePainter::paintGL()
@@ -44,6 +50,7 @@ void BGLScenePainter::paintGL()
     glEnd();
 }
 
-void BGLScenePainter::resizeGL( int w, int h )
+void BGLScenePainter::resizeGL( int width, int height )
 {
+    glViewport( 0, 0, width, height );
 }

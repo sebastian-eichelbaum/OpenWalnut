@@ -41,3 +41,12 @@ QSize BQtGLWidget::sizeHint() const
     return m_recommendedSize;
 }
 
+void BQtGLWidget::resizeGL( int width, int height )
+{
+    m_scenePainter->resizeGL( width, height );
+}
+
+void BQtGLWidget:: initializeGL()
+{
+    m_scenePainter->initGL();
+}
