@@ -3,3 +3,7 @@ ADD_SUBDIRECTORY( qt4 )
 FILE(GLOB GUI_SRC "*.cpp")
 
 ADD_LIBRARY( gui SHARED ${GUI_SRC} )
+
+# Unit tests
+CXXTEST_ADD_TEST( unittest_BGUI BGUI_test.cc ${CMAKE_CURRENT_SOURCE_DIR}/test/BGUI_test.h )
+
