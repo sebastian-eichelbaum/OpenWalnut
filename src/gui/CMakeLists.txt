@@ -5,5 +5,6 @@ FILE(GLOB GUI_SRC "*.cpp")
 ADD_LIBRARY( gui SHARED ${GUI_SRC} )
 
 # Unit tests
-CXXTEST_ADD_TEST( unittest_BGUI BGUI_test.cc ${CMAKE_CURRENT_SOURCE_DIR}/test/BGUI_test.h )
-
+IF( CXXTEST_FOUND )
+  CXXTEST_ADD_TEST( unittest_BGUI BGUI_test.cc ${CMAKE_CURRENT_SOURCE_DIR}/test/BGUI_test.h )
+ENDIF( CXXTEST_FOUND )
