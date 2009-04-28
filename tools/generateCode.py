@@ -62,30 +62,32 @@ class HeaderCode(RawCode):
     def renderSignatures(self):
         result = ""
         for sig in self.signatures("get"):
-            result += self.indent(2, self._doxy)
-            result += self.indent(2, ''.join(sig) + ";" ) + "\n\n"
+            result += self._doxy
+            result += ''.join(sig) + ";" + "\n\n"
         for sig in self.signatures("set"):
-            result += self.indent(2, self._doxy)
-            result += self.indent(2, ''.join(sig) + ";" ) + "\n\n"
+            result += self._doxy
+            result += ''.join(sig) + ";" + "\n\n"
         return result
 
     def renderMemberVariables(self):
         result = ""
         for attribute in self._attr:
-            result += self.indent(2, self._doxy)
-            result += self.indent(2, attribute[0] + " m_" + attribute[1] + ";") + "\n";
+            result += self._doxy
+            result += attribute[0] + " m_" + attribute[1] + ";" + "\n\n";
         return result
 
     def __str__(self):
+        modifier_level = 0
+        member_level = 1
         result = self._header
         result += self.indent(0, self._doxy)
         result += "class " + self._name + " : public \n"
         result += "{\n"
-        result += self.indent(1, "public:\n")
-        result += self.renderSignatures()
-        result += self.indent(1, "protected:\n\n")
-        result += self.indent(1, "private:\n")
-        result += self.renderMemberVariables()
+        result += self.indent(modifier_level, "public:\n")
+        result += self.indent(member_level, self.renderSignatures())
+        result += self.indent(modifier_level, "protected:\n\n")
+        result += self.indent(modifier_level, "private:\n")
+        result += self.indent(member_level, self.renderMemberVariables())
         result += "};\n\n"
         result += self._footer
         return result
@@ -115,15 +117,48 @@ class ImplementationCode(RawCode):
         result += self._footer
         return result
 
-#def main():
-#    usage = "Usage: %prog [options] arg"
-#    parser = OptionParser(usage)
-#
-#
-#if __name__ == '__main__':
-#    main()
+class TestCode(RawCode):
+    def __init__(self, name):
+        RawCode.__init__(self, name, [])
 
-c = HeaderCode("BGUI", [["int", "someInt"], ["char*", "message"]])
-b = ImplementationCode("BGUI", [["int", "someInt"], ["char*", "message"]])
-print c
-print b
+    def __str__(self):
+        result = "TestCode"
+        return result
+
+def main():
+    synopsis  = "\n\t%prog [options] Classname\n"
+    synopsis += "Example:"
+    synopsis += "\n\t%prog --class --header --member=int,plistId --member=BSomeOtherClass,myMemeberVar BSomeClass"
+    parser = OptionParser(usage=synopsis, version="%prog 0.0_pre_alpha (USE AT YOUR OWN RISK)")
+    parser.add_option("--test", action="store_true", help="Generates test stub", dest="testsuite", default=False)
+    parser.add_option("--class", action="store_true", help="Generates class stub", dest="cls", default=False)
+    parser.add_option("--header", action="store_true", help="Generates header stub", dest="header", default=False)
+    parser.add_option("--member", action="append", help="Adds member to class with public getter and setter methods", dest="members", type="string")
+    (options, args) = parser.parse_args()
+
+    attributes = []
+    classname = ""
+    for m in options.members:
+        if len(m.split(',')) != 2:
+            parser.error("parsing option: '" + m + "'\nStrings defining type and name of the member are required and separated by a comma, e.g.: 'int,counter'")
+        elif (len(m.split(',')[0]) < 1) or (len(m.split(',')[1]) < 1):
+            parser.error("parsing option: '" + m + "'\nEmpty type or name string. Member definitions must have the form: type_string,name_string, e.g. 'int,counter'")
+        else:
+            attributes.append(m.split(','))
+    if len(args) != 1:
+        parser.error("Invalid number of arguments, Classname required")
+    else:
+        classname = args[0]
+
+    if not options.cls and not options.header and not options.testsuite:
+        parser.error("No code should be generated?, use at least one option: --class, --header or --test")
+
+    if options.cls:
+        print ImplementationCode(classname, attributes)
+    if options.header:
+        print HeaderCode(classname, attributes)
+    if options.testsuite:
+        print TestCode(classname)
+
+if __name__ == '__main__':
+    main()
