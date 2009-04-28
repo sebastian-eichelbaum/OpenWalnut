@@ -24,7 +24,7 @@ class RawCode(object):
         if os.environ['USER']:
             self._author = os.environ['USER']
         elif os.environ['LOGNAME']:
-            self._author = os.environ['USER']
+            self._author = os.environ['LOGNAME']
         else:
             self._author = "Unkown"
         self._doxy = "/**\n * TODO(" + self._author + "): Document this!\n */\n"
