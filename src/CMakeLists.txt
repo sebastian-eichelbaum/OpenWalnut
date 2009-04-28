@@ -1,6 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( BrainCognize )
 
+# Include local CMake modules
+LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
+
 # First of all find out which platform we are on
 # and set our own platform variable
 SET( BRAINCOGNIZE_PLATFORM_LINUX "Linux" )
