@@ -20,18 +20,18 @@ class BGLScenePainter
         /**
          * Initialize the OpenGL context, e.g., set main transformation matrices.
          */
-        virtual void initGL();
+        virtual void initGL() const;
 
         /**
          * Do the OpenGL painting in every frame.
          */
-        virtual void paintGL();
+        virtual void paintGL() const;
 
         /**
          * Called, when the window is resized and re-initialization of the
          * window parameters and matrices may need to be done.
          */
-        virtual void resizeGL( int width, int height );
+        virtual void resizeGL( int width, int height ) const;
 };
 
 

@@ -17,7 +17,7 @@ BQtPipelineBrowser::BQtPipelineBrowser()
 
 BQtPipelineBrowser::~BQtPipelineBrowser()
 {
-    // NOTE Auto-generated destructor stub
+    // TODO(wiebel) Auto-generated destructor stub
 }
 
 QSize BQtPipelineBrowser::sizeHint() const

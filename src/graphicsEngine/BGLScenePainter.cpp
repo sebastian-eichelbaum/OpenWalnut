@@ -19,16 +19,16 @@ BGLScenePainter::~BGLScenePainter()
     // TODO(wiebel): Auto-generated destructor stub
 }
 
-void BGLScenePainter::initGL()
+void BGLScenePainter::initGL() const
 {
     GLenum error = glGetError();
     assert( error == GL_NO_ERROR );
 
     // Set clear color
-    glClearColor( 0, 0, 0, 0 );
+    glClearColor( 1., 1., 1., 0 );
 }
 
-void BGLScenePainter::paintGL()
+void BGLScenePainter::paintGL() const
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glLoadIdentity();
@@ -49,7 +49,7 @@ void BGLScenePainter::paintGL()
     glEnd();
 }
 
-void BGLScenePainter::resizeGL( int width, int height )
+void BGLScenePainter::resizeGL( int width, int height ) const
 {
     glViewport( 0, 0, width, height );
 }

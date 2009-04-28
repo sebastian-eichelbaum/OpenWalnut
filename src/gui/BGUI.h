@@ -14,7 +14,6 @@
 class BGUI
 {
     public:
-        BGUI();
         virtual ~BGUI();
 
         /**

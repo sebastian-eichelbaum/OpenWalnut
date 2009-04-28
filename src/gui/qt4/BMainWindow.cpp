@@ -144,5 +144,5 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
 
 void BMainWindow::setEnabled( bool enable )
 {
-    // NOTE implement here
+    // TODO(wiebel) implement here
 }

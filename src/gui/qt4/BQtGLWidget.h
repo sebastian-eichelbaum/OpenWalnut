@@ -32,6 +32,9 @@ class BQtGLWidget: public QGLWidget
         /**
          * This virtual function is called whenever the widget has been
          * resized. The new size is passed in width and height.
+         *
+         * \note It seem that the function is not called if declared const, so it
+         * is not const.
          */
         void resizeGL( int width, int height );
 
@@ -40,12 +43,18 @@ class BQtGLWidget: public QGLWidget
          * This function is called once before the first
          * call to paintGL() or resizeGL(), and then once whenever
          * the widget has been assigned a new QGLContext.
+         *
+         * \note It seem that the function is not called if declared const, so it
+         * is not const.
          */
         void initializeGL();
 
     private:
         /**
          * This function is called whenever the widget needs to be painted.
+         *
+         * \note It seem that the function is not called if declared const, so it
+         * is not const.
          */
         void paintGL();
 
