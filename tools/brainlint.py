@@ -825,17 +825,40 @@ def CloseExpression(clean_lines, linenum, pos):
   return (line, linenum, endpos + 1)
 
 
-def CheckForCommentHeader(filename, lines, error):
-  """Logs an error if no CommentHeader appears at the top of the file."""
+def CheckForCompleteCommentHeader(filename, lines, error):
+  """Logs an error if the prescribed CommentHeader does not appear at the top of the file."""
 
   # We'll say it should occur by line 10. Don't forget there's a
   # dummy line at the front.
-  for line in xrange(1, min(len(lines), 11)):
-      if re.search(r'// Project: BrainCognize', lines[line], re.I): break
-  else:
+  if ( not (re.match(r'//---------------------------------------------------------------------------', lines[1])
+            and re.match(r'//', lines[2])
+            and re.match(r'// Project: BrainCognize', lines[3])
+            and re.match(r'//', lines[4])
+            and re.match(r'// Copyright 2009 ', lines[5])
+            and re.match(r'//', lines[6])
+            and re.match(r'// This file is part of BrainCognize.', lines[7])
+            and re.match(r'//', lines[8])
+            and re.match(r'// BrainCognize is free software: you can redistribute it and/or modify', lines[9])
+            and re.match(r'// it under the terms of the GNU Lesser General Public License as published by', lines[10])
+            and re.match(r'// the Free Software Foundation, either version 3 of the License, or', lines[11])
+            and re.match(r'// \(at your option\) any later version.', lines[12])
+            and re.match(r'//', lines[13])
+            and re.match(r'// BrainCognize is distributed in the hope that it will be useful,', lines[14])
+            and re.match(r'// but WITHOUT ANY WARRANTY; without even the implied warranty of', lines[15])
+            and re.match(r'// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the', lines[16])
+            and re.match(r'// GNU Lesser General Public License for more details.', lines[17])
+            and re.match(r'//', lines[18])
+            and re.match(r'// You should have received a copy of the GNU Lesser General Public License', lines[19])
+            and re.match(r'// along with BrainCognize. If not, see <http://www.gnu.org/licenses/>.', lines[20])
+            and re.match(r'//', lines[21])
+            and re.match(r'//---------------------------------------------------------------------------', lines[22])
+            and re.match(r'$', lines[23])
+            )
+       ): 
     error(filename, 0, 'legal/comment_header', 5,
-          'No valid comment header found.  '
-          'You should have at least a line: "// Project: BrainCognize"')
+          'No valid comment header found. '
+          'Have a look at the CodingStandard for the appropriate header. '
+          'Do not forget to check for trailing whitespaces and similar hidden problems.')
 
 
 def GetHeaderGuardCPPVariable(filename):
@@ -2543,7 +2566,7 @@ def ProcessFileData(filename, file_extension, lines, error):
   function_state = _FunctionState()
   class_state = _ClassState()
 
-  CheckForCommentHeader(filename, lines, error)
+  CheckForCompleteCommentHeader(filename, lines, error)
 
   if file_extension == 'h':
     CheckForHeaderGuard(filename, lines, error)
