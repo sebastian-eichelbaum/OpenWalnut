@@ -41,6 +41,7 @@ int main( int argc, char* argv[] )
     "under the terms of the GNU Lesser General Public License.\n"
     "You should have received a copy of the GNU Lesser General Public License\n"
     "along with BrainCognize. If not, see <http://www.gnu.org/licenses/>." << std::endl;
+    std::cout << std::endl;  // Create new line after message for clarity.
 
     BOptionHandler h( argc, argv );
     return h.takeActions();
