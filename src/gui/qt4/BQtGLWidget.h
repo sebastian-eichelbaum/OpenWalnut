@@ -35,55 +35,55 @@ class BGLScenePainter;
  */
 class BQtGLWidget: public QGLWidget
 {
-    public:
-        explicit BQtGLWidget( QWidget *parent = 0 );
-        BQtGLWidget( BGLScenePainter* scenePainter, QWidget *parent = 0 );
-        virtual ~BQtGLWidget();
+public:
+    explicit BQtGLWidget( QWidget *parent = 0 );
+    BQtGLWidget( BGLScenePainter* scenePainter, QWidget *parent = 0 );
+    virtual ~BQtGLWidget();
 
-        /**
-         * returns the recommended size for the widget to allow
-         * parent widgets to give it a proper initial layout
-         */
-        QSize sizeHint() const;
+    /**
+     * returns the recommended size for the widget to allow
+     * parent widgets to give it a proper initial layout
+     */
+    QSize sizeHint() const;
 
-        /**
-         * This virtual function is called whenever the widget has been
-         * resized. The new size is passed in width and height.
-         *
-         * \note It seem that the function is not called if declared const, so it
-         * is not const.
-         */
-        void resizeGL( int width, int height );
+    /**
+     * This virtual function is called whenever the widget has been
+     * resized. The new size is passed in width and height.
+     *
+     * \note It seem that the function is not called if declared const, so it
+     * is not const.
+     */
+    void resizeGL( int width, int height );
 
-    protected:
-        /**
-         * This function is called once before the first
-         * call to paintGL() or resizeGL(), and then once whenever
-         * the widget has been assigned a new QGLContext.
-         *
-         * \note It seem that the function is not called if declared const, so it
-         * is not const.
-         */
-        void initializeGL();
+protected:
+    /**
+     * This function is called once before the first
+     * call to paintGL() or resizeGL(), and then once whenever
+     * the widget has been assigned a new QGLContext.
+     *
+     * \note It seem that the function is not called if declared const, so it
+     * is not const.
+     */
+    void initializeGL();
 
-    private:
-        /**
-         * This function is called whenever the widget needs to be painted.
-         *
-         * \note It seem that the function is not called if declared const, so it
-         * is not const.
-         */
-        void paintGL();
+private:
+    /**
+     * This function is called whenever the widget needs to be painted.
+     *
+     * \note It seem that the function is not called if declared const, so it
+     * is not const.
+     */
+    void paintGL();
 
-        /**
-         * Holds the GL scene painter of the widget
-         */
-        BGLScenePainter* m_scenePainter;
+    /**
+     * Holds the GL scene painter of the widget
+     */
+    BGLScenePainter* m_scenePainter;
 
-        /**
-         * Holds the recommended size for the widget
-         */
-        QSize m_recommendedSize;
+    /**
+     * Holds the recommended size for the widget
+     */
+    QSize m_recommendedSize;
 };
 
 #endif  // BQTGLWIDGET_H

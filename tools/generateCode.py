@@ -2,6 +2,7 @@
 
 from optparse import OptionParser
 import os
+import sys
 
 class RawCode(object):
     def __init__(self, name, attr, structors):
@@ -49,7 +50,11 @@ class RawCode(object):
     def indent(self, level, str):
         result = ""
         for line in str.splitlines( True ):
-            result += (level*self._indent) + line
+            if line.strip() == "":
+                # don't indent empty lines
+                result += line
+            else:
+                result += (level*self._indent) + line
         return result
 
     def signatures(self, accessor):
@@ -111,7 +116,7 @@ class HeaderCode(RawCode):
         member_level = 1
         result = self._header
         result += self.indent(0, self._doxy)
-        result += "class " + self._name + " : public \n"
+        result += "class " + self._name + "\n"
         result += "{\n"
         result += self.indent(modifier_level, "public:\n")
         if self._structors:
@@ -144,15 +149,15 @@ class ImplementationCode(RawCode):
     def renderSignatures(self):
         result = ""
         for sig in self.signatures("get"):
-            result += "\n" + sig[0] + self._name + "::" + sig[1] + "\n"
+            result += sig[0] + self._name + "::" + sig[1] + "\n"
             result += "{\n"
             result += self.indent(1, "return m_" + sig[1][3].lower() + sig[1][4:-8]) + ";\n"
-            result += "}\n"
+            result += "}\n\n"
         for sig in self.signatures("set"):
-            result += "\n" + sig[0] + self._name + "::" + sig[1] + "\n"
+            result += sig[0] + self._name + "::" + sig[1] + "\n"
             result += "{\n"
             result += self.indent(1, "m_" + sig[1].split()[-2] + " = " + sig[1].split()[-2] + ";\n")
-            result += "}\n"
+            result += "}\n\n"
         return result
 
     def __str__(self):
@@ -172,11 +177,29 @@ class TestCode(RawCode):
         result = "TestCode"
         return result
 
+def exists( fname ):
+    return os.path.exists( fname )
+
+def writeToFile( fname, payload ):
+    file = open(fname, 'w')
+    file.write( payload )
+    file.close()
+
+def writeIfNotExists( code, extension ):
+    fname  = code._name + extension
+    if exists( fname ):
+        sys.stderr.write("Error: file " + fname + " already exists.\n")
+        sys.exit(1)
+    else:
+        writeToFile( fname, str(code) )
+
 def main():
     synopsis  = "\n\t%prog [options] Classname"
     synopsis += "\n\t%prog --help\n"
     synopsis += "Example:"
     synopsis += "\n\t%prog --class --header --member=int,plistId --member=BSomeOtherClass,myMemeberVar BSomeClass"
+    synopsis += "\n\n%prog automatically writes the code to the corresponding files"
+    synopsis += "\n(cpp, h) and exists if it already exists."
     parser = OptionParser(usage=synopsis, version="%prog 0.0_pre_alpha (USE AT YOUR OWN RISK)")
     parser.set_defaults(testsuite=False)
     parser.set_defaults(cls=False)
@@ -207,9 +230,9 @@ def main():
         parser.error("No code should be generated?, use at least one option: --class, --header or --test")
 
     if options.cls:
-        print ImplementationCode(classname, attributes, options.structors)
+        writeIfNotExists( ImplementationCode(classname, attributes, options.structors), ".cpp" )
     if options.header:
-        print HeaderCode(classname, attributes, options.structors)
+        writeIfNotExists( HeaderCode(classname, attributes, options.structors), ".h" )
     if options.testsuite:
         print TestCode(classname)
 
