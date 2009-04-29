@@ -23,25 +23,38 @@
 
 #include <iostream>
 
-#include "gui/qt4/BMainApplication.h"
-#include "utils/BOptionHandler.h"
+#include "BOptionHandler.h"
 
-/**
- * The main routine starting up the whole application.
- *
- * \mainpage BrainCognize Inline Documentation
- *
- * For a list of the current modules see the "Modules" tab in the naviagtion bar above.
- */
-int main( int argc, char* argv[] )
+BOptionHandler::BOptionHandler( int argc, char* argv[] )
+    : m_argc( argc ),
+      m_argv( argv ),
+      m_desc( "Allowed options" ),
+      m_map()
 {
-    std::cout << "BrainCognize  Copyright (C) 2009  SomeCopyrightowner\n"
-    "This program comes with ABSOLUTELY NO WARRANTY.\n"
-    "This is free software, and you are welcome to redistribute it\n"
-    "under the terms of the GNU Lesser General Public License.\n"
-    "You should have received a copy of the GNU Lesser General Public License\n"
-    "along with BrainCognize. If not, see <http://www.gnu.org/licenses/>." << std::endl;
-
-    BOptionHandler h( argc, argv );
-    return h.takeActions();
+    createOptions();
+    parseOptions();
 }
+
+void BOptionHandler::createOptions()
+{
+    // This is not our CodingStandard, but this is a special overloaded operator()
+    m_desc.add_options()
+        ( "help,h", "prints this help message" );
+}
+
+void BOptionHandler::parseOptions()
+{
+    po::store( po::parse_command_line( m_argc, m_argv, m_desc ), m_map );
+}
+
+int BOptionHandler::takeActions()
+{
+    if( m_map.count( "help" ) ) {
+        std::cout << m_desc << std::endl;
+        return 0;
+    }
+
+    BMainApplication app;
+    return app.runQT( m_argc, m_argv );
+}
+

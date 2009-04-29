@@ -22,7 +22,7 @@ ENDIF( CMAKE_HOST_SYSTEM MATCHES Windows )
 
 
 # Package dependencies:
-FIND_PACKAGE( Boost REQUIRED )
+FIND_PACKAGE( Boost REQUIRED COMPONENTS program_options )
 FIND_PACKAGE( CxxTest QUIET )
 
 
@@ -62,9 +62,9 @@ ADD_SUBDIRECTORY( dataHandler )
 ADD_SUBDIRECTORY( graphicsEngine )
 ADD_SUBDIRECTORY( gui )
 ADD_SUBDIRECTORY( plugins )
-ADD_EXECUTABLE( BCognize BCognize.cpp )
+ADD_EXECUTABLE( BCognize BCognize.cpp utils/BOptionHandler.cpp )
 
-TARGET_LINK_LIBRARIES( BCognize guiqt4 )
+TARGET_LINK_LIBRARIES( BCognize guiqt4 ${Boost_LIBRARIES} )
 
 
 # Special targets:
