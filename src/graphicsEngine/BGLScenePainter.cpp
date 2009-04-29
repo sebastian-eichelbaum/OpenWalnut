@@ -38,6 +38,7 @@ BGLScenePainter::~BGLScenePainter()
 
 void BGLScenePainter::initGL() const
 {
+    GLenum glewError = glewInit();
     GLenum error = glGetError();
     assert( error == GL_NO_ERROR );
 
