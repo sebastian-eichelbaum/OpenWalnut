@@ -34,12 +34,12 @@
  */
 int main( int argc, char* argv[] )
 {
-    std::cout << "BrainCognize  Copyright (C) 2009  SomeCopyrightowner\n\
-    This program comes with ABSOLUTELY NO WARRANTY.\n\
-    This is free software, and you are welcome to redistribute it\n\
-    under the terms of the GNU Lesser General Public License.\n\
-    You should have received a copy of the GNU Lesser General Public License\n\
-    along with BrainCognize. If not, see <http://www.gnu.org/licenses/>." << std::endl;
+    std::cout << "BrainCognize  Copyright (C) 2009  SomeCopyrightowner" << std::endl
+              << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl
+              << "This is free software, and you are welcome to redistribute it" << std::endl
+              << "under the terms of the GNU Lesser General Public License." << std::endl
+              << "You should have received a copy of the GNU Lesser General Public License" << std::endl
+              << "along with BrainCognize. If not, see <http://www.gnu.org/licenses/>." << std::endl;
 
     BMainApplication app;
     return app.runQT( argc, argv );
