@@ -48,7 +48,7 @@ public:
      *
      * \return Exitcode for main()
      */
-    int takeActions();
+    int takeActions() const;
 
 protected:
 private:

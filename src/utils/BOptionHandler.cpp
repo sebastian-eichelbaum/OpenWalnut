@@ -68,7 +68,7 @@ void BOptionHandler::parseOptions()
     po::store( po::parse_command_line( m_argc, m_argv, m_desc ), m_map );
 }
 
-int BOptionHandler::takeActions()
+int BOptionHandler::takeActions() const
 {
     if( m_errorOccured )
     {
