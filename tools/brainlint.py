@@ -2113,16 +2113,6 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
 
   # TODO(unknown): figure out if they're using default arguments in fn proto.
 
-  # Look for any of the stream classes that are part of standard C++.
-  match = _RE_PATTERN_INCLUDE.match(line)
-  if match:
-    include = match.group(2)
-    if Match(r'(f|ind|io|i|o|parse|pf|stdio|str|)?stream$', include):
-      # Many unit tests use cout, so we exempt them.
-      if not _IsTestFilename(filename):
-        error(filename, linenum, 'readability/streams', 3,
-              'Streams are highly discouraged.')
-
   # Check for non-const references in functions.  This is tricky because &
   # is also used to take the address of something.  We allow <> for templates,
   # (ignoring whatever is between the braces) and : for classes.
