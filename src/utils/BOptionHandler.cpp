@@ -25,11 +25,11 @@
 
 #include "BOptionHandler.h"
 
-BOptionHandler::BOptionHandler( int argc, char* argv[] ) 
-    : m_argc( argc ), 
-      m_argv( argv ), 
-      m_errorOccured( false ), 
-      m_desc( "Allowed options" ), 
+BOptionHandler::BOptionHandler( int argc, char* argv[] )
+    : m_argc( argc ),
+      m_argv( argv ),
+      m_errorOccured( false ),
+      m_desc( "Allowed options" ),
       m_map()
 {
     createOptions();
