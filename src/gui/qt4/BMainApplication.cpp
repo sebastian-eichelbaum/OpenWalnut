@@ -21,26 +21,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include <QtGui/QApplication>
 
-#include "gui/qt4/BMainApplication.h"
+#include "BMainApplication.h"
+#include "BMainWindow.h"
 
-/**
- * The main routine starting up the whole application.
- *
- * \mainpage BrainCognize Inline Documentation
- *
- * For a list of the current modules see the "Modules" tab in the naviagtion bar above.
- */
-int main( int argc, char* argv[] )
+int BMainApplication::runQT( int argc, char* argv[] )
 {
-    std::cout << "BrainCognize  Copyright (C) 2009  SomeCopyrightowner\n\
-    This program comes with ABSOLUTELY NO WARRANTY.\n\
-    This is free software, and you are welcome to redistribute it\n\
-    under the terms of the GNU Lesser General Public License.\n\
-    You should have received a copy of the GNU Lesser General Public License\n\
-    along with BrainCognize. If not, see <http://www.gnu.org/licenses/>." << std::endl;
+    QApplication appl( argc, argv );
+    QMainWindow *widget = new QMainWindow;
+    BMainWindow gui;
+    gui.setupGUI( widget );
 
-    BMainApplication app;
-    return app.runQT( argc, argv );
+    widget->show();
+    int qtExecResult;
+    qtExecResult = appl.exec();
+    return qtExecResult;
 }
+

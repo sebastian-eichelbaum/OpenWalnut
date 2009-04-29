@@ -1,56 +1,52 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( BrainCognize )
 
+
 # Include local CMake modules
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
 
-# First of all find out which platform we are on
-# and set our own platform variable
+
+# First of all find out which platform we are on and set our own platform variable
 SET( BRAINCOGNIZE_PLATFORM_LINUX "Linux" )
 SET( BRAINCOGNIZE_PLATFORM_WINDOWS "Windows" )
-
 IF( CMAKE_HOST_SYSTEM MATCHES Linux )
-  SET( BRAINCOGNIZE_PLATFORM 
-       ${BRAINCOGNIZE_PLATFORM_LINUX} 
+  SET( BRAINCOGNIZE_PLATFORM
+       ${BRAINCOGNIZE_PLATFORM_LINUX}
        CACHE STRING "The platform we are building on." )
 ENDIF( CMAKE_HOST_SYSTEM MATCHES Linux )
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
-  SET( BRAINCOGNIZE_PLATFORM 
+  SET( BRAINCOGNIZE_PLATFORM
     ${BRAINCOGNIZE_PLATFORM_WINDOWS}
     CACHE STRING "The platform we are building on." )
 ENDIF( CMAKE_HOST_SYSTEM MATCHES Windows )
 
+
 # Package dependencies:
-FIND_PACKAGE( Qt4 REQUIRED )
-FIND_PACKAGE( OpenGL REQUIRED )
 FIND_PACKAGE( Boost REQUIRED )
 FIND_PACKAGE( CxxTest QUIET )
 
 
 # Includes:
-INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES( ${OPENGL_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES( ${GLEW_INCLUDE_PATH} )
 
-# Libraries for linking:
-SET( QT_LINK_LIBRARIES ${QT_QTCORE_LIBRARY}
-                       ${QT_QTGUI_LIBRARY}
-                       ${QT_QTOPENGL_LIBRARY} )
 
+# Platform dependencies
 IF( BRAINCOGNIZE_PLATFORM MATCHES ${BRAINCOGNIZE_PLATFORM_WINDOWS} )
-  SET( LIBRARY_OUTPUT_PATH 
-       ${PROJECT_BINARY_DIR}/bin 
+  SET( LIBRARY_OUTPUT_PATH
+       ${PROJECT_BINARY_DIR}/bin
        CACHE PATH "The libraries will be put into this directory.")
 ELSE( BRAINCOGNIZE_PLATFORM MATCHES ${BRAINCOGNIZE_PLATFORM_WINDOWS} )
-  SET( LIBRARY_OUTPUT_PATH 
-       ${PROJECT_BINARY_DIR}/lib 
+  SET( LIBRARY_OUTPUT_PATH
+       ${PROJECT_BINARY_DIR}/lib
        CACHE PATH "The libraries will be put into this directory.")
 ENDIF( BRAINCOGNIZE_PLATFORM MATCHES ${BRAINCOGNIZE_PLATFORM_WINDOWS} )
 MARK_AS_ADVANCED( LIBRARY_OUTPUT_PATH )
-
 SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The executables will be put into this directory.")
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
 
-IF( CXXTEST_FOUND )  
+
+# Enable unit tests via CxxTest
+IF( CXXTEST_FOUND )
   INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIR} )
   # Package settings:
   SET( CXXTEST_USE_PYTHON 1 )
@@ -63,7 +59,7 @@ ENDIF( CXXTEST_FOUND )
 #-----------------------
 # -Wno-long-long    since on Ubuntu 8.10 it won't compile without it
 # -ansi             force ISO-C++98 compliance (not GNU++98)
-SET( CMAKE_CXX_FLAGS   "-Wall -pedantic -ansi -Wno-long-long" )
+SET( CMAKE_CXX_FLAGS "-Wall -pedantic -ansi -Wno-long-long" )
 
 ADD_SUBDIRECTORY( math )
 ADD_SUBDIRECTORY( dataHandler )
@@ -72,7 +68,7 @@ ADD_SUBDIRECTORY( gui )
 ADD_SUBDIRECTORY( plugins )
 ADD_EXECUTABLE( BCognize BCognize.cpp )
 
-TARGET_LINK_LIBRARIES( BCognize guiqt4 ${QT_LINK_LIBRARIES} )
+TARGET_LINK_LIBRARIES( BCognize guiqt4 )
 
 
 # Special targets:
