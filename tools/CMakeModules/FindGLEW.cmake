@@ -1,5 +1,3 @@
-# The NVIDIA Texture Tools 2 are licensed under the MIT license.
-#
 # Copyright (c) 2007 NVIDIA Corporation
 #
 # Permission is hereby granted, free of charge, to any person
@@ -24,13 +22,10 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 #
-# Try to find GLEW library and include path.
-# Once done this will define
-#
+# Try to find GLEW library and include pathi. Once done this will define:
 # GLEW_FOUND
 # GLEW_INCLUDE_PATH
 # GLEW_LIBRARY
-#
 
 IF (WIN32)
     FIND_PATH( GLEW_INCLUDE_PATH GL/glew.h
