@@ -25,14 +25,35 @@
 
 #include "BOptionHandler.h"
 
-BOptionHandler::BOptionHandler( int argc, char* argv[] )
-    : m_argc( argc ),
-      m_argv( argv ),
-      m_desc( "Allowed options" ),
+BOptionHandler::BOptionHandler( int argc, char* argv[] ) 
+    : m_argc( argc ), 
+      m_argv( argv ), 
+      m_errorOccured( false ), 
+      m_desc( "Allowed options" ), 
       m_map()
 {
     createOptions();
-    parseOptions();
+    try
+    {
+        parseOptions();
+    }
+    catch( po::multiple_occurrences error )
+    {
+        m_errorOccured = true;
+        std::cout << "Command-line option error: each option is allowed only once" << std::endl;
+    }
+    catch( po::unknown_option error )
+    {
+        m_errorOccured = true;
+        std::cout << "Command-line option error: " << error.what() << std::endl;
+        std::cout << m_desc << std::endl;
+    }
+    catch( po::error error )
+    {
+        m_errorOccured = true;
+        std::cout << "Unknown command-line option error: " << error.what() << std::endl;
+        std::cout << m_desc << std::endl;
+    }
 }
 
 void BOptionHandler::createOptions()
@@ -49,7 +70,13 @@ void BOptionHandler::parseOptions()
 
 int BOptionHandler::takeActions()
 {
-    if( m_map.count( "help" ) ) {
+    if( m_errorOccured )
+    {
+        return 1;
+    }
+
+    if( m_map.count( "help" ) )
+    {
         std::cout << m_desc << std::endl;
         return 0;
     }

@@ -54,6 +54,7 @@ protected:
 private:
     int m_argc;
     char** m_argv;
+    bool m_errorOccured;
 
     /**
      * Stores the option definition such as type, name and description.
