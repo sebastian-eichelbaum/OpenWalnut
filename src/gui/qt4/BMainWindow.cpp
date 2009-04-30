@@ -1,23 +1,23 @@
 //---------------------------------------------------------------------------
 //
-// Project: BrainCognize
+// Project: OpenWalnut
 //
 // Copyright 2009 SomeCopyrightowner
 //
-// This file is part of BrainCognize.
+// This file is part of OpenWalnut.
 //
-// BrainCognize is free software: you can redistribute it and/or modify
+// OpenWalnut is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// BrainCognize is distributed in the hope that it will be useful,
+// OpenWalnut is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with BrainCognize. If not, see <http://www.gnu.org/licenses/>.
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -85,12 +85,12 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     m_actionExit->setShortcut( QApplication::translate( "MainWindow", "Ctrl+Q",
             0, QApplication::UnicodeUTF8 ) );
 
-    m_actionAbout_BrainCognize = new QAction( MainWindow );
-    m_actionAbout_BrainCognize->setObjectName( QString::fromUtf8(
-            "actionAbout_BrainCognize" ) );
-    m_actionAbout_BrainCognize->setIcon( aboutIcon );
-    m_actionAbout_BrainCognize->setText( QApplication::translate( "MainWindow",
-            "About BrainCognize", 0, QApplication::UnicodeUTF8 ) );
+    m_actionAbout_OpenWalnut = new QAction( MainWindow );
+    m_actionAbout_OpenWalnut->setObjectName( QString::fromUtf8(
+            "actionAbout_OpenWalnut" ) );
+    m_actionAbout_OpenWalnut->setIcon( aboutIcon );
+    m_actionAbout_OpenWalnut->setText( QApplication::translate( "MainWindow",
+            "About OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
 
     m_centralwidget = new QWidget( MainWindow );
     m_centralwidget->setObjectName( QString::fromUtf8( "centralwidget" ) );
@@ -113,7 +113,7 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     m_toolBar->addAction( m_actionSave );
     m_toolBar->addAction( m_actionLoad );
     m_toolBar->addSeparator();
-    m_toolBar->addAction( m_actionAbout_BrainCognize );
+    m_toolBar->addAction( m_actionAbout_OpenWalnut );
     MainWindow->addToolBar( Qt::TopToolBarArea, m_toolBar );
 
     m_statusBar = new QStatusBar( MainWindow );
@@ -133,7 +133,7 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     m_menuFile->setTitle( QApplication::translate( "MainWindow", "&File", 0,
             QApplication::UnicodeUTF8 ) );
 
-    m_menuHelp->addAction( m_actionAbout_BrainCognize );
+    m_menuHelp->addAction( m_actionAbout_OpenWalnut );
     m_menuHelp->setTitle( QApplication::translate( "MainWindow", "&Help", 0,
             QApplication::UnicodeUTF8 ) );
 
@@ -149,7 +149,7 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     MainWindow->addDockWidget( Qt::RightDockWidgetArea, m_pipelineBrowser );
 
     MainWindow->setWindowTitle( QApplication::translate( "MainWindow",
-            "BrainCognize", 0, QApplication::UnicodeUTF8 ) );
+            "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
     m_toolBar->setWindowTitle( QApplication::translate( "MainWindow",
             "toolBar", 0, QApplication::UnicodeUTF8 ) );
 
