@@ -21,21 +21,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BGUI_TEST_H
-#define BGUI_TEST_H
+#ifndef WGUI_TEST_H
+#define WGUI_TEST_H
 
 #include <cxxtest/TestSuite.h>
 
-#include "../BGUI.h"
+#include "../WGUI.h"
 
-class BGUITest : public CxxTest::TestSuite
+class WGUITest : public CxxTest::TestSuite
 {
 public:
-    // Since BGUI is abstrac no test are here to define
+    // Since WGUI is abstrac no test are here to define
     void testInstanziation( void )
     {
         TS_ASSERT( true );
     }
 };
 
-#endif  // BGUI_TEST_H
+#endif  // WGUI_TEST_H

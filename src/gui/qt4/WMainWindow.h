@@ -21,8 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BMAINWINDOW_H
-#define BMAINWINDOW_H
+#ifndef WMAINWINDOW_H
+#define WMAINWINDOW_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -35,18 +35,18 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QWidget>
 
-#include "../BGUI.h"
+#include "../WGUI.h"
 
 // forward declarations
-class BQtGLWidget;
-class BQtPipelineBrowser;
+class WQtGLWidget;
+class WQtPipelineBrowser;
 
 /**
  * \ingroup gui
  * This class contains the main window and the layout
  * of the widgets within the window.
  */
-class BMainWindow : public BGUI
+class WMainWindow : public WGUI
 {
 public:
 
@@ -77,8 +77,8 @@ private:
     QStatusBar* m_statusBar;
     QToolBar* m_toolBar;
 
-    BQtGLWidget* m_glWidget;
-    BQtPipelineBrowser* m_pipelineBrowser;
+    WQtGLWidget* m_glWidget;
+    WQtPipelineBrowser* m_pipelineBrowser;
 
     /**
      * Helper routine for adding new docks with GL content
@@ -86,4 +86,4 @@ private:
     void addDockableGLWidget( QMainWindow *MainWindow );
 };
 
-#endif  // BMAINWINDOW_H
+#endif  // WMAINWINDOW_H

@@ -21,23 +21,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include "BQtPipelineBrowser.h"
+#include <QtGui/QApplication>
 
-BQtPipelineBrowser::BQtPipelineBrowser()
-    : QDockWidget( "Pipeline Browser" ),
-      m_recommendedSize()
+#include "WMainApplication.h"
+#include "WMainWindow.h"
+
+int WMainApplication::runQT( int argc, char* argv[] )
 {
-    setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-    m_recommendedSize.setWidth( 200 );
-    m_recommendedSize.setHeight( 300 );
+    QApplication appl( argc, argv );
+    QMainWindow *widget = new QMainWindow;
+    WMainWindow gui;
+    gui.setupGUI( widget );
+
+    widget->show();
+    int qtExecResult;
+    qtExecResult = appl.exec();
+    return qtExecResult;
 }
 
-BQtPipelineBrowser::~BQtPipelineBrowser()
-{
-    // TODO(wiebel) Auto-generated destructor stub
-}
-
-QSize BQtPipelineBrowser::sizeHint() const
-{
-    return m_recommendedSize;
-}

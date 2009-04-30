@@ -21,43 +21,23 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BGLSCENEPAINTER_H
-#define BGLSCENEPAINTER_H
+#include "WQtPipelineBrowser.h"
 
-/**
- * \ingroup ge
- * This is the base class for rendering the scene graph.
- */
-class BGLScenePainter
+WQtPipelineBrowser::WQtPipelineBrowser()
+    : QDockWidget( "Pipeline Browser" ),
+      m_recommendedSize()
 {
-public:
-    BGLScenePainter();
-    virtual ~BGLScenePainter();
+    setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+    m_recommendedSize.setWidth( 200 );
+    m_recommendedSize.setHeight( 300 );
+}
 
-    /**
-     * Initialize the OpenGL context, e.g., set main transformation matrices.
-     */
-    virtual void initGL() const;
+WQtPipelineBrowser::~WQtPipelineBrowser()
+{
+    // TODO(wiebel) Auto-generated destructor stub
+}
 
-    /**
-     * Do the OpenGL painting in every frame.
-     */
-    virtual void paintGL() const;
-
-    /**
-     * Called, when the window is resized and re-initialization of the
-     * window parameters and matrices may need to be done.
-     */
-    virtual void resizeGL( int width, int height ) const;
-};
-
-
-/**
-  \defgroup ge GraphicsEngine
-
-  \brief
-  This module implements the graphics engine for OpenWalnut.
-
-*/
-
-#endif  // BGLSCENEPAINTER_H
+QSize WQtPipelineBrowser::sizeHint() const
+{
+    return m_recommendedSize;
+}

@@ -21,12 +21,12 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BOPTIONHANDLER_H
-#define BOPTIONHANDLER_H
+#ifndef WOPTIONHANDLER_H
+#define WOPTIONHANDLER_H
 
 #include <boost/program_options.hpp>
 
-#include "../gui/qt4/BMainApplication.h"
+#include "../gui/qt4/WMainApplication.h"
 
 // since the namespace is far to big we use a shortcut here:
 namespace po = boost::program_options;
@@ -34,14 +34,14 @@ namespace po = boost::program_options;
 /**
  * Parses commandline options, print usage and issue other appropriate actions.
  */
-class BOptionHandler
+class WOptionHandler
 {
 public:
     /**
      * Initiate the handling of the commandline parameter given via argc and
      * argv with the ProgramOptions library from boost.
      */
-    BOptionHandler( int argc, char* argv[] );
+    WOptionHandler( int argc, char* argv[] );
 
     /**
      * Evaluates the given options and initiate the appropriate actions.
@@ -77,5 +77,5 @@ private:
     void parseOptions();
 };
 
-#endif  // BOPTIONHANDLER_H
+#endif  // WOPTIONHANDLER_H
 

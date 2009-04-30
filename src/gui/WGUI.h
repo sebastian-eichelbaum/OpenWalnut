@@ -21,25 +21,34 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BMAINAPPLICATION_H
-#define BMAINAPPLICATION_H
+#ifndef WGUI_H
+#define WGUI_H
 
 /**
- * Starts up the QT GUI.
+ * This class prescribes the interface to the GUI.
+ * \ingroup gui
  */
-class BMainApplication
+class WGUI
 {
 public:
-    /**
-     * QT GUI needs a QApplication instance with passed argc and argv.
-     *
-     * \return Exitcode of QT GUI.
-     */
-    int runQT( int argc, char* argv[] );
+    virtual ~WGUI();
 
-protected:
-private:
+    /**
+     * \brief
+     * enable/disable the access to the GUI
+     * \post
+     * GUI enabled/disabled
+     * \param enable true iff gui should be enabled
+     */
+    virtual void setEnabled( bool enable ) = 0;
 };
 
-#endif  // BMAINAPPLICATION_H
+/**
+  \defgroup gui GUI
 
+  \brief
+  This module implements the graphical user interface for OpenWalnut.
+
+*/
+
+#endif  // WGUI_H

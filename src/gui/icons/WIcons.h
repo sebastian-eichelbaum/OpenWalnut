@@ -21,34 +21,15 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BGUI_H
-#define BGUI_H
+#ifndef WICONS_H
+#define WICONS_H
 
 /**
- * This class prescribes the interface to the GUI.
- * \ingroup gui
+ * This file is provided to allow to get access to all used icons by one include.
  */
-class BGUI
-{
-public:
-    virtual ~BGUI();
+#include "logoIcon.xpm"
+#include "disc.xpm"
+#include "fileopen.xpm"
+#include "quit.xpm"
 
-    /**
-     * \brief
-     * enable/disable the access to the GUI
-     * \post
-     * GUI enabled/disabled
-     * \param enable true iff gui should be enabled
-     */
-    virtual void setEnabled( bool enable ) = 0;
-};
-
-/**
-  \defgroup gui GUI
-
-  \brief
-  This module implements the graphical user interface for OpenWalnut.
-
-*/
-
-#endif  // BGUI_H
+#endif  // WICONS_H

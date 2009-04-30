@@ -21,24 +21,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BQTGLWIDGET_H
-#define BQTGLWIDGET_H
+#ifndef WQTGLWIDGET_H
+#define WQTGLWIDGET_H
 
 #include <QtOpenGL/QGLWidget>
 
 
-class BGLScenePainter;
+class WGLScenePainter;
 
 /**
  * \ingroup gui
  * A widget containing an open gl display area.
  */
-class BQtGLWidget: public QGLWidget
+class WQtGLWidget: public QGLWidget
 {
 public:
-    explicit BQtGLWidget( QWidget *parent = 0 );
-    BQtGLWidget( BGLScenePainter* scenePainter, QWidget *parent = 0 );
-    virtual ~BQtGLWidget();
+    explicit WQtGLWidget( QWidget *parent = 0 );
+    WQtGLWidget( WGLScenePainter* scenePainter, QWidget *parent = 0 );
+    virtual ~WQtGLWidget();
 
     /**
      * returns the recommended size for the widget to allow
@@ -78,7 +78,7 @@ private:
     /**
      * Holds the GL scene painter of the widget
      */
-    BGLScenePainter* m_scenePainter;
+    WGLScenePainter* m_scenePainter;
 
     /**
      * Holds the recommended size for the widget
@@ -86,4 +86,4 @@ private:
     QSize m_recommendedSize;
 };
 
-#endif  // BQTGLWIDGET_H
+#endif  // WQTGLWIDGET_H

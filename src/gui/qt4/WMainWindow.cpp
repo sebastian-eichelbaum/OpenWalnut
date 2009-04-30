@@ -23,15 +23,15 @@
 
 #include <QtGui/QDockWidget>
 
-#include "BMainWindow.h"
-#include "BQtGLWidget.h"
-#include "BQtPipelineBrowser.h"
+#include "WMainWindow.h"
+#include "WQtGLWidget.h"
+#include "WQtPipelineBrowser.h"
 
-#include "../icons/BIcons.h"
+#include "../icons/WIcons.h"
 
-void BMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
+void WMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
 {
-    m_glWidget = new BQtGLWidget();
+    m_glWidget = new WQtGLWidget();
     QDockWidget *dockWidget = new QDockWidget( "Graphics Display" );
     dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea
             | Qt::RightDockWidgetArea );
@@ -39,7 +39,7 @@ void BMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
     MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
 }
 
-void BMainWindow::setupGUI( QMainWindow *MainWindow )
+void WMainWindow::setupGUI( QMainWindow *MainWindow )
 {
     QIcon mainWindowIcon;
     QIcon quitIcon;
@@ -137,7 +137,7 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     m_menuHelp->setTitle( QApplication::translate( "MainWindow", "&Help", 0,
             QApplication::UnicodeUTF8 ) );
 
-    m_glWidget = new BQtGLWidget();
+    m_glWidget = new WQtGLWidget();
     MainWindow->setCentralWidget( m_glWidget );
 
     // initially 3 views
@@ -145,7 +145,7 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     addDockableGLWidget( MainWindow );
     addDockableGLWidget( MainWindow );
 
-    m_pipelineBrowser = new BQtPipelineBrowser();
+    m_pipelineBrowser = new WQtPipelineBrowser();
     MainWindow->addDockWidget( Qt::RightDockWidgetArea, m_pipelineBrowser );
 
     MainWindow->setWindowTitle( QApplication::translate( "MainWindow",
@@ -159,7 +159,7 @@ void BMainWindow::setupGUI( QMainWindow *MainWindow )
     QMetaObject::connectSlotsByName( MainWindow );
 }
 
-void BMainWindow::setEnabled( bool enable )
+void WMainWindow::setEnabled( bool enable )
 {
     // TODO(wiebel) implement here
 }

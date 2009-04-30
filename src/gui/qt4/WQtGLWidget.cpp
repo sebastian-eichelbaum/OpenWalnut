@@ -21,10 +21,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include "BQtGLWidget.h"
-#include "../../graphicsEngine/BGLScenePainter.h"
+#include "WQtGLWidget.h"
+#include "../../graphicsEngine/WGLScenePainter.h"
 
-BQtGLWidget::BQtGLWidget( BGLScenePainter* scenePainter, QWidget *parent )
+WQtGLWidget::WQtGLWidget( WGLScenePainter* scenePainter, QWidget *parent )
     : QGLWidget( parent ),
       m_scenePainter( scenePainter ),
       m_recommendedSize()
@@ -33,37 +33,37 @@ BQtGLWidget::BQtGLWidget( BGLScenePainter* scenePainter, QWidget *parent )
     m_recommendedSize.setHeight( 200 );
 }
 
-BQtGLWidget::BQtGLWidget( QWidget *parent )
+WQtGLWidget::WQtGLWidget( QWidget *parent )
     : QGLWidget( parent ),
       m_recommendedSize()
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
-    m_scenePainter = new BGLScenePainter();
+    m_scenePainter = new WGLScenePainter();
 }
 
-BQtGLWidget::~BQtGLWidget()
+WQtGLWidget::~WQtGLWidget()
 {
     // TODO(wiebel): Auto-generated destructor stub
 }
 
-void BQtGLWidget::paintGL()
+void WQtGLWidget::paintGL()
 {
     // TODO(wiebel): we have to have something automatic in here in the future
     m_scenePainter->paintGL();
 }
 
-QSize BQtGLWidget::sizeHint() const
+QSize WQtGLWidget::sizeHint() const
 {
     return m_recommendedSize;
 }
 
-void BQtGLWidget::resizeGL( int width, int height )
+void WQtGLWidget::resizeGL( int width, int height )
 {
     m_scenePainter->resizeGL( width, height );
 }
 
-void BQtGLWidget:: initializeGL()
+void WQtGLWidget:: initializeGL()
 {
     m_scenePainter->initGL();
 }

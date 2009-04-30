@@ -23,9 +23,9 @@
 
 #include <iostream>
 
-#include "BOptionHandler.h"
+#include "WOptionHandler.h"
 
-BOptionHandler::BOptionHandler( int argc, char* argv[] )
+WOptionHandler::WOptionHandler( int argc, char* argv[] )
     : m_argc( argc ),
       m_argv( argv ),
       m_errorOccured( false ),
@@ -56,19 +56,19 @@ BOptionHandler::BOptionHandler( int argc, char* argv[] )
     }
 }
 
-void BOptionHandler::createOptions()
+void WOptionHandler::createOptions()
 {
     // This is not our CodingStandard, but this is a special overloaded operator()
     m_desc.add_options()
         ( "help,h", "prints this help message" );
 }
 
-void BOptionHandler::parseOptions()
+void WOptionHandler::parseOptions()
 {
     po::store( po::parse_command_line( m_argc, m_argv, m_desc ), m_map );
 }
 
-int BOptionHandler::takeActions() const
+int WOptionHandler::takeActions() const
 {
     if( m_errorOccured )
     {
@@ -81,7 +81,7 @@ int BOptionHandler::takeActions() const
         return 0;
     }
 
-    BMainApplication app;
+    WMainApplication app;
     return app.runQT( m_argc, m_argv );
 }
 

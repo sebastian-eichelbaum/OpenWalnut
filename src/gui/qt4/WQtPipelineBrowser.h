@@ -21,28 +21,33 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef WQTPIPELINEBROWSER_H
+#define WQTPIPELINEBROWSER_H
 
-#include "gui/qt4/BMainApplication.h"
-#include "utils/BOptionHandler.h"
+#include <QtGui/QDockWidget>
 
 /**
- * The main routine starting up the whole application.
- *
- * \mainpage OpenWalnut Inline Documentation
- *
- * For a list of the current modules see the "Modules" tab in the naviagtion bar above.
+ * \ingroup gui
+ * Represents the browser showing the loaded data sets
+ * and applied filter/methods/algorithms/plugins
  */
-int main( int argc, char* argv[] )
+class WQtPipelineBrowser: public QDockWidget
 {
-    std::cout << "OpenWalnut  Copyright (C) 2009  SomeCopyrightowner\n"
-    "This program comes with ABSOLUTELY NO WARRANTY.\n"
-    "This is free software, and you are welcome to redistribute it\n"
-    "under the terms of the GNU Lesser General Public License.\n"
-    "You should have received a copy of the GNU Lesser General Public License\n"
-    "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>." << std::endl;
-    std::cout << std::endl;  // Create new line after message for clarity.
+public:
+    WQtPipelineBrowser();
+    virtual ~WQtPipelineBrowser();
 
-    BOptionHandler h( argc, argv );
-    return h.takeActions();
-}
+    /**
+     * returns the recommended size for the widget to allow
+     * parent widgets to give it a proper initial layout
+     */
+    QSize sizeHint() const;
+
+private:
+    /**
+     * Holds the recommended size for the widget
+     */
+    QSize m_recommendedSize;
+};
+
+#endif  // WQTPIPELINEBROWSER_H

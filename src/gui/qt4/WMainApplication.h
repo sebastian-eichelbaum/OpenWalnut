@@ -21,8 +21,25 @@
 //
 //---------------------------------------------------------------------------
 
-#include "BGUI.h"
+#ifndef WMAINAPPLICATION_H
+#define WMAINAPPLICATION_H
 
-BGUI::~BGUI()
+/**
+ * Starts up the QT GUI.
+ */
+class WMainApplication
 {
-}
+public:
+    /**
+     * QT GUI needs a QApplication instance with passed argc and argv.
+     *
+     * \return Exitcode of QT GUI.
+     */
+    int runQT( int argc, char* argv[] );
+
+protected:
+private:
+};
+
+#endif  // WMAINAPPLICATION_H
+

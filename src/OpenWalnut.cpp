@@ -21,15 +21,28 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef BICONS_H
-#define BICONS_H
+#include <iostream>
+
+#include "gui/qt4/WMainApplication.h"
+#include "utils/WOptionHandler.h"
 
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * The main routine starting up the whole application.
+ *
+ * \mainpage OpenWalnut Inline Documentation
+ *
+ * For a list of the current modules see the "Modules" tab in the naviagtion bar above.
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "quit.xpm"
+int main( int argc, char* argv[] )
+{
+    std::cout << "OpenWalnut  Copyright (C) 2009  SomeCopyrightowner\n"
+    "This program comes with ABSOLUTELY NO WARRANTY.\n"
+    "This is free software, and you are welcome to redistribute it\n"
+    "under the terms of the GNU Lesser General Public License.\n"
+    "You should have received a copy of the GNU Lesser General Public License\n"
+    "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>." << std::endl;
+    std::cout << std::endl;  // Create new line after message for clarity.
 
-#endif  // BICONS_H
+    WOptionHandler h( argc, argv );
+    return h.takeActions();
+}

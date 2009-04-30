@@ -24,19 +24,19 @@
 #include <cassert>
 #include <GL/glew.h>
 
-#include "BGLScenePainter.h"
+#include "WGLScenePainter.h"
 
-BGLScenePainter::BGLScenePainter()
+WGLScenePainter::WGLScenePainter()
 {
     // TODO(wiebel): Auto-generated constructor stub
 }
 
-BGLScenePainter::~BGLScenePainter()
+WGLScenePainter::~WGLScenePainter()
 {
     // TODO(wiebel): Auto-generated destructor stub
 }
 
-void BGLScenePainter::initGL() const
+void WGLScenePainter::initGL() const
 {
     GLenum glewError = glewInit();
     assert( glewError == GL_NO_ERROR );
@@ -47,7 +47,7 @@ void BGLScenePainter::initGL() const
     glClearColor( 1., 1., 1., 0 );
 }
 
-void BGLScenePainter::paintGL() const
+void WGLScenePainter::paintGL() const
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glLoadIdentity();
@@ -68,7 +68,7 @@ void BGLScenePainter::paintGL() const
     glEnd();
 }
 
-void BGLScenePainter::resizeGL( int width, int height ) const
+void WGLScenePainter::resizeGL( int width, int height ) const
 {
     glViewport( 0, 0, width, height );
 }
