@@ -28,37 +28,79 @@
 
 #include "../WOptionHandler.h"
 
+/**
+ * Basic testing facilities for our OptionHandler.
+ */
 class WOptionHandlerTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * Even if invalid options are given the instantiation should not fail.
+     */
     void testInstanziation( void )
     {
         const int argc = 2;
         char* arg[argc];
         arg[1] = const_cast<char *>( "--thisoptiondoesnotexist" );
 
-        WOptionHandler th( argc, arg );
+        TS_ASSERT_THROWS_NOTHING( WOptionHandler th( argc, arg ) );
     }
 
-    void testParsing( void )
+    /**
+     * If there are incorrect options then:
+     *  1. the internal error flag should be set
+     *  2. takeActions() should return 1
+     */
+    void testCorrectSetErrorFlag( void )
+    {
+        const int argc = 2;
+        char* arg[argc];
+        arg[1] = const_cast<char *>( "--thisoptiondoesnotexist" );
+        WOptionHandler th( argc, arg );
+
+        TS_ASSERT_EQUALS( th.m_errorOccured, true );
+        TS_ASSERT_EQUALS( th.takeActions(), 1 );
+    }
+
+    /**
+     * If there are incorrect options a meaningful error message should be
+     * written to std::cerr
+     */
+    void testParsingUnkownOption( void )
     {
         const int argc = 2;
         char* arg[argc];
         arg[1] = const_cast<char *>( "--thisoptiondoesnotexist" );
 
-        bool exceptionCaught = false;
         WOptionHandler th( argc, arg );
-        try
-        {
-            th.parseOptions();
-        }
-        catch( po::error )
-        {
-            exceptionCaught = true;
-        }
-
-        TS_ASSERT( exceptionCaught );
+        TS_ASSERT_THROWS_EQUALS( th.parseOptions(), po::error &e, std::string( e.what() ),
+                                 "unknown option thisoptiondoesnotexist");
     }
+
+    /**
+     * Using the help option (for example) should result in:
+     * 1. printing help to stdout (which we cannot check here)
+     * 2. Return immediately (don't start GUI) with exit code 0
+     */
+    void testValidHelpOption( void )
+    {
+        const int argc = 2;
+        char* arg[argc];
+        arg[1] = const_cast<char *>( "--help" );
+
+        WOptionHandler th( argc, arg );
+        TS_ASSERT_EQUALS( th.takeActions(), 0 );
+    }
+
+    /**
+     * TODO(math): use QTTestLib for checking the QT-start.
+     *
+     * We cannot check if WMainApplication::runQT starts and return properly since
+     * it won't return unless we close the Window. At this point we should
+     * introduce QTTestLib to simulate the closing. But this isn't also a good
+     * idea since there must not be a display to which the window may connect.
+     * (e.g. consider automated testing without an X display)
+     */
 };
 
 #endif  // WOPTIONHANDLER_TEST_H

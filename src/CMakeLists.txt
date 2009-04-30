@@ -84,3 +84,7 @@ ADD_CUSTOM_TARGET(stylecheck
                   COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLE_CPP} ${STYLE_H}
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                   COMMENT "Check if code complies to CodingStandard" )
+
+ADD_CUSTOM_TARGET(vtest
+                  COMMAND make test ARGS="-V"
+                  COMMENT "Runs the test in verboseness to see what actually went wrong" )

@@ -37,22 +37,11 @@ WOptionHandler::WOptionHandler( int argc, char* argv[] )
     {
         parseOptions();
     }
-    catch( po::multiple_occurrences error )
-    {
-        m_errorOccured = true;
-        std::cout << "Command-line option error: each option is allowed only once" << std::endl;
-    }
-    catch( po::unknown_option error )
-    {
-        m_errorOccured = true;
-        std::cout << "Command-line option error: " << error.what() << std::endl;
-        std::cout << m_desc << std::endl;
-    }
     catch( po::error error )
     {
         m_errorOccured = true;
-        std::cout << "Unknown command-line option error: " << error.what() << std::endl;
-        std::cout << m_desc << std::endl;
+        std::cerr << "Error parsing command-line options: " << error.what() << std::endl;
+        std::cerr << "Try option: --help for more information." << std::endl;
     }
 }
 
