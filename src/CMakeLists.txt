@@ -71,7 +71,7 @@ TARGET_LINK_LIBRARIES( BCognize guiqt4 ${Boost_LIBRARIES} )
 #-----------------
 # Creates API via Doxygen
 ADD_CUSTOM_TARGET(doc
-                  COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig > ${PROJECT_SOURCE_DIR}/../doc/developer/docErr.txt 2>&1
+                  COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
                   COMMENT "Build doxygen documentation"
                   VERBATIM )
