@@ -85,6 +85,13 @@ ADD_CUSTOM_TARGET(stylecheck
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                   COMMENT "Check if code complies to CodingStandard" )
 
+# Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET(vtest
                   COMMAND make test ARGS="-V"
                   COMMENT "Runs the test in verboseness to see what actually went wrong" )
+
+# Checks if all is well to commit (aka commitCheck, cocheck)
+ADD_CUSTOM_TARGET(cocheck
+                  COMMAND make test && make stylecheck
+                  COMMENT "Checks if all is well to commit" )
+

@@ -24,6 +24,8 @@
 #ifndef WOPTIONHANDLER_TEST_H
 #define WOPTIONHANDLER_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WOptionHandler.h"
@@ -74,7 +76,7 @@ public:
 
         WOptionHandler th( argc, arg );
         TS_ASSERT_THROWS_EQUALS( th.parseOptions(), po::error &e, std::string( e.what() ),
-                                 "unknown option thisoptiondoesnotexist");
+                                 "unknown option thisoptiondoesnotexist" );
     }
 
     /**
