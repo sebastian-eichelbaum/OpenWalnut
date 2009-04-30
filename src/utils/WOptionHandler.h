@@ -36,6 +36,8 @@ namespace po = boost::program_options;
  */
 class WOptionHandler
 {
+friend class WOptionHandlerTest;
+
 public:
     /**
      * Initiate the handling of the commandline parameter given via argc and

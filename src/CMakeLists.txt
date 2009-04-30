@@ -62,6 +62,7 @@ ADD_SUBDIRECTORY( dataHandler )
 ADD_SUBDIRECTORY( graphicsEngine )
 ADD_SUBDIRECTORY( gui )
 ADD_SUBDIRECTORY( plugins )
+ADD_SUBDIRECTORY( utils )
 ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
 
 TARGET_LINK_LIBRARIES( walnut guiqt4 ${Boost_LIBRARIES} )
