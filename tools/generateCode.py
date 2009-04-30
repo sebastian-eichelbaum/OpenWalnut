@@ -7,31 +7,31 @@ import sys
 class RawCode(object):
     def __init__(self, name, attr, structors):
         self._structors = structors
-        self._name = "B" + name
+        self._name = "W" + name
         self._attr = attr
         self._indent = "    "
         self._header = \
 """\
 //---------------------------------------------------------------------------
 //
-// Project: BrainCognize
+// Project: OpenWalnut
 //
 // Copyright 2009 SomeCopyrightowner
 //
-// This file is part of BrainCognize.
+// This file is part of OpenWalnut.
 //
-// BrainCognize is free software: you can redistribute it and/or modify
+// OpenWalnut is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// BrainCognize is distributed in the hope that it will be useful,
+// OpenWalnut is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with BrainCognize. If not, see <http://www.gnu.org/licenses/>.
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -197,7 +197,7 @@ def main():
     synopsis  = "\n\t%prog [options] Classname"
     synopsis += "\n\t%prog --help\n"
     synopsis += "Example:"
-    synopsis += "\n\t%prog --class --header --member=int,plistId --member=BSomeOtherClass,myMemeberVar BSomeClass"
+    synopsis += "\n\t%prog --class --header --member=int,plistId --member=WSomeOtherClass,myMemeberVar WSomeClass"
     synopsis += "\n\n%prog automatically writes the code to the corresponding files"
     synopsis += "\n(cpp, h) and exists if it already exists."
     parser = OptionParser(usage=synopsis, version="%prog 0.0_pre_alpha (USE AT YOUR OWN RISK)")
