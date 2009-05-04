@@ -90,8 +90,8 @@ ADD_CUSTOM_TARGET(vtest
                   COMMAND make test ARGS="-V"
                   COMMENT "Runs the test in verboseness to see what actually went wrong" )
 
-# Checks if all is well to commit (aka commitCheck, cocheck)
-ADD_CUSTOM_TARGET(cocheck
+# Checks if all is well to commit (aka commitCheck, cicheck)
+ADD_CUSTOM_TARGET(cicheck
                   COMMAND make test && make stylecheck
                   COMMENT "Checks if all is well to commit" )
 
