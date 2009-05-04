@@ -32,7 +32,7 @@ class WGUITest : public CxxTest::TestSuite
 {
 public:
     // Since WGUI is abstrac no test are here to define
-    void testInstanziation( void )
+    void testInstantiation( void )
     {
         TS_ASSERT( true );
     }

@@ -39,7 +39,7 @@ public:
     /**
      * Even if invalid options are given the instantiation should not fail.
      */
-    void testInstanziation( void )
+    void testInstantiation( void )
     {
         const int argc = 2;
         char* arg[argc];
