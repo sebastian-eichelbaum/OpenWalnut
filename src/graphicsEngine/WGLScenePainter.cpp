@@ -39,7 +39,7 @@ WGLScenePainter::~WGLScenePainter()
 void WGLScenePainter::initGL() const
 {
     GLenum glewError = glewInit();
-    assert( glewError == GL_NO_ERROR );
+    assert( glewError == GLEW_OK);
     GLenum error = glGetError();
     assert( error == GL_NO_ERROR );
 
