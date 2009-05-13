@@ -84,6 +84,10 @@ ADD_CUSTOM_TARGET(stylecheck
                   COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLE_CPP} ${STYLE_H}
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                   COMMENT "Check if code complies to CodingStandard" )
+ADD_CUSTOM_TARGET(stylecheckcolored
+                  COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py --color ${STYLE_CPP} ${STYLE_H}
+                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                  COMMENT "Check if code complies to CodingStandard and use colored output for violation messages" )
 
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET(vtest
