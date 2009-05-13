@@ -62,7 +62,7 @@ import unicodedata
 
 
 _USAGE = """
-Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
+Syntax: brainlint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
         <file> [file] ...
 
   The style guidelines this tries to follow are those in
@@ -87,6 +87,10 @@ Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
     verbose=#
       Specify a number 0-5 to restrict errors to certain verbosity levels.
 
+    color
+      If this flag is present the output will be colored using ANSI
+      escape sequences for coloring output on text terminals
+
     filter=-x,+y,...
       Specify a comma-separated list of category-filters to apply: only
       error messages whose category names pass the filters will be printed.
@@ -99,7 +103,7 @@ Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
                 --filter=whitespace,runtime/printf,+runtime/printf_format
                 --filter=-,+build/include_what_you_use
 
-      To see a list of all the categories used in cpplint, pass no arg:
+      To see a list of all the categories used in brainlint, pass no arg:
          --filter=
 """
 
@@ -353,6 +357,7 @@ class _CppLintState(object):
   def __init__(self):
     self.verbose_level = 1  # global setting.
     self.error_count = 0    # global count of reported errors
+    self.useColorFlag = False   # flag defining whether to color output by escape sequences
     self.filters = []       # filters to apply when emitting error messages
 
     # output format:
@@ -369,6 +374,10 @@ class _CppLintState(object):
     last_verbose_level = self.verbose_level
     self.verbose_level = level
     return last_verbose_level
+
+  def SetUseColor(self, useColor):
+    """Sets whether to use escape sequences for colored output."""
+    self.useColorFlag = useColor
 
   def SetFilters(self, filters):
     """Sets the error-message filters.
@@ -424,6 +433,14 @@ def _SetVerboseLevel(level):
   """Sets the module's verbosity, and returns the previous setting."""
   return _cpplint_state.SetVerboseLevel(level)
 
+def _UseColor():
+  """Returns the whether escape sequences for coloring messages should be used."""
+  return _cpplint_state.useColorFlag
+
+
+def _SetUseColor(useColor):
+  """Sets the module's verbosity, and returns the previous setting."""
+  return _cpplint_state.SetUseColor(useColor)
 
 def _Filters():
   """Returns the module's list of output filters, as a list."""
@@ -630,6 +647,26 @@ def Error(filename, linenum, category, confidence, message):
       and 1 meaning that it could be a legitimate construct.
     message: The error message.
   """
+  # Here we give some names to the ANSI escape sequences for colors
+  # These escape sequences are interpreted as colors in most
+  # unix-like console emulators. If coloring is not supported
+  # the sequnces just appear as characters.
+  # http://en.wikipedia.org/wiki/ANSI_escape_code
+  red   = "\033[31m"
+  green = "\033[32m"
+  yellow= "\033[33m"
+  blue  = "\033[34m"
+  magenta= "\033[35m"
+  cyan = "\033[36m"
+  white = "\033[37m"
+  default= "\033[0m"
+  color=green
+  colorStop=default
+
+  # if requested to do so write the color code
+  if _UseColor():
+    sys.stderr.write(color)
+
   # There are two ways we might decide not to print an error message:
   # the verbosity level isn't high enough, or the filters filter it out.
   if _ShouldPrintError(category, confidence):
@@ -640,6 +677,11 @@ def Error(filename, linenum, category, confidence, message):
     else:
       sys.stderr.write('%s:%s:  %s  [%s] [%d]\n' % (
           filename, linenum, message, category, confidence))
+
+  # restore default color if coloring has been switched on
+  if _UseColor():
+    sys.stderr.write(colorStop)
+
 
 
 # Matches standard C++ escape esequences per 2.13.2.3 of the C++ standard.
@@ -2672,13 +2714,14 @@ def ParseArguments(args):
   """
   try:
     (opts, filenames) = getopt.getopt(args, '', ['help', 'output=', 'verbose=',
-                                                 'filter='])
+                                                 'filter=', 'color'])
   except getopt.GetoptError:
     PrintUsage('Invalid arguments.')
 
   verbosity = _VerboseLevel()
   output_format = _OutputFormat()
   filters = ''
+  useColor = _UseColor()
 
   for (opt, val) in opts:
     if opt == '--help':
@@ -2689,6 +2732,8 @@ def ParseArguments(args):
       output_format = val
     elif opt == '--verbose':
       verbosity = int(val)
+    elif opt == '--color':
+      useColor = True
     elif opt == '--filter':
       filters = val
       if not filters:
@@ -2699,6 +2744,7 @@ def ParseArguments(args):
 
   _SetOutputFormat(output_format)
   _SetVerboseLevel(verbosity)
+  _SetUseColor(useColor)
   _SetFilters(filters)
 
   return filenames
