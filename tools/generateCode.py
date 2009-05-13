@@ -197,7 +197,7 @@ def main():
     synopsis  = "\n\t%prog [options] Classname"
     synopsis += "\n\t%prog --help\n"
     synopsis += "Example:"
-    synopsis += "\n\t%prog --class --header --member=int,plistId --member=WSomeOtherClass,myMemeberVar WSomeClass"
+    synopsis += "\n\t%prog --class --header --member=int,plistId --member=SomeOtherClass,myMemeberVar SomeClass"
     synopsis += "\n\n%prog automatically writes the code to the corresponding files"
     synopsis += "\n(cpp, h) and exists if it already exists."
     parser = OptionParser(usage=synopsis, version="%prog 0.0_pre_alpha (USE AT YOUR OWN RISK)")
