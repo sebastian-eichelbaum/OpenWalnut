@@ -24,6 +24,8 @@
 #ifndef WNOSUCHDATASETEXCEPTION_TEST_H
 #define WNOSUCHDATASETEXCEPTION_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WNoSuchDataSetException.h"
@@ -40,7 +42,7 @@ public:
     void testInstantiation( void )
     {
         TS_ASSERT_THROWS_NOTHING( WNoSuchDataSetException e() );
-        TS_ASSERT_THROWS_NOTHING( WNoSuchDataSetException e("Some message") );
+        TS_ASSERT_THROWS_NOTHING( WNoSuchDataSetException e( "Some message" ) );
     }
 
     /**
@@ -54,7 +56,7 @@ public:
         std::string expected = "Dummy exception\n\ntrace: first\ntrace: second";
         TS_ASSERT_EQUALS( expected, e.getMessage() );
         WNoSuchDataSetException f;
-        TS_ASSERT_EQUALS( std::string(""), f.getMessage() );
+        TS_ASSERT_EQUALS( std::string(), f.getMessage() );
     }
 };
 
