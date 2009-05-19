@@ -39,7 +39,7 @@
 #               enable_testing()
 #
 #               CXXTEST_ADD_TEST(unittest_foo foo_test.cc
-#                                 ${CMAKE_CURRENT_SOURCE_DIR}/foo_test.h)
+#                                 ${CMAKE_CURRENT_SOURCE_DIR}/foo_test.h other.cpp)
 #               target_link_libraries(unittest_foo foo) # as needed
 #           endif()
 #
@@ -47,6 +47,7 @@
 #              1. Invoke the testgen executable to autogenerate foo_test.cc in the
 #                 binary tree from "foo_test.h" in the current source directory.
 #              2. Create an executable and test called unittest_foo.
+#              3. Link additionally against other.cpp
 #
 #      #=============
 #      Example foo_test.h:
@@ -87,7 +88,7 @@
 #=============================================================
 # CXXTEST_ADD_TEST (public macro)
 #=============================================================
-macro(CXXTEST_ADD_TEST _cxxtest_testname _cxxtest_outfname)
+macro( CXXTEST_ADD_TEST _cxxtest_testname _cxxtest_outfname _cxxtest_testsuite )
     set(_cxxtest_real_outfname ${CMAKE_CURRENT_BINARY_DIR}/${_cxxtest_outfname})
     if(CXXTEST_USE_PYTHON)
         set(_cxxtest_executable ${CXXTEST_PYTHON_TESTGEN_EXECUTABLE})
@@ -99,11 +100,11 @@ macro(CXXTEST_ADD_TEST _cxxtest_testname _cxxtest_outfname)
         OUTPUT  ${_cxxtest_real_outfname}
         DEPENDS ${ARGN}
         COMMAND ${_cxxtest_executable}
-        --error-printer -o ${_cxxtest_real_outfname} ${ARGN}
+        --error-printer -o ${_cxxtest_real_outfname} ${_cxxtest_testsuite}
     )
 
     set_source_files_properties(${_cxxtest_real_outfname} PROPERTIES GENERATED true)
-    add_executable(${_cxxtest_testname} ${_cxxtest_real_outfname})
+    add_executable(${_cxxtest_testname} ${_cxxtest_real_outfname} ${ARGN})
 
     if(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
         add_test(${_cxxtest_testname} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_cxxtest_testname})
