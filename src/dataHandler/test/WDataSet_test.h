@@ -32,18 +32,24 @@
 class WDataSetTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * Instatiation should throw nothing.
+     */
     void testInstantiation( void )
     {
         boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr< WMetaInfo >( new WMetaInfo() );
         TS_ASSERT_THROWS_NOTHING( WDataSet dataSet( metaInfo ) );
     }
+
+    /**
+     * Retrival should return the same address as stored internally.
+     */
     void testGetMetaInfo( void )
     {
-        boost::shared_ptr< WMetaInfo > metaInfo  =
-            boost::shared_ptr< WMetaInfo >( new WMetaInfo() );
+        boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr< WMetaInfo >( new WMetaInfo() );
         metaInfo->setName( "testGetMetaInfo Meta Info" );
         WDataSet dataSet( metaInfo );
-        TS_ASSERT_EQUALS( dataSet.getMetaInfo(), metaInfo )
+        TS_ASSERT_EQUALS( dataSet.getMetaInfo(), metaInfo );
     }
 };
 

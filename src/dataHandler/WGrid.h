@@ -25,16 +25,27 @@
 #define WGRID_H
 
 /**
- * Base class for all different grid types. The first and most
- * important will be some kind of regular grid.
+ * Base class to all grid types, e.g. a regular grid.
  */
 class WGrid
 {
 public:
+    /**
+     * Constructs a new WGrid instance.
+     */
     WGrid();
+
+    /**
+     * \return The number of position in this grid.
+     */
     unsigned int getNumberOfPositions() const;
+
 protected:
+
 private:
+    /**
+     * Stores the number of positions.
+     */
     unsigned int m_numberOfPositions;
 };
 

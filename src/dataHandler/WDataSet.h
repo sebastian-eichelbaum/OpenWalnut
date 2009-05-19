@@ -29,21 +29,29 @@
 class WMetaInfo;
 
 /**
- * Base class for all data set types. This class has a number of
- * subclasses specifying the different types of data sets.
- * Two of dataset type reprent single and time-dependent
- * datasets (compound of several time steps) respectively.
- * This bas class contains the pointer to the meta information.
- *
+ * Base class for all data set types. This class has a number of subclasses
+ * specifying the different types of data sets. Two of dataset type reprent
+ * single and time-dependent datasets (compound of several time steps)
+ * respectively. This base class contains the pointer to the meta information.
  */
 class WDataSet
 {
 public:
+    /**
+     * Since every DataSet should have a MetaInfo, we ensure hereby you never
+     * go without one.
+     */
     explicit WDataSet( boost::shared_ptr< WMetaInfo > newMetaInfo );
 
+    /**
+     * Returns the MetaInfo object for this DataSet.
+     */
     boost::shared_ptr< WMetaInfo > getMetaInfo() const;
 
 protected:
+    /**
+     * Stores meta information like name, dimension, etc. for this DataSet.
+     */
     boost::shared_ptr< WMetaInfo > m_metaInfo;
 private:
 };

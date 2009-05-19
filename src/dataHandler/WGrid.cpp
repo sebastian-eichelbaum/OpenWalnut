@@ -24,7 +24,7 @@
 #include "WGrid.h"
 
 WGrid::WGrid()
-:m_numberOfPositions( 0 )
+    : m_numberOfPositions( 0 )
 {
 }
 

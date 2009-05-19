@@ -29,13 +29,24 @@
 #include <string>
 
 /**
- * TODO(wiebel): Document this!
+ * Should be thrown when an invalid index is used to get a WDataSet from the
+ * WDataHandler. An index is invalid if it's greater or equal than the number
+ * of WDataSets in that WDataHandler.
+ *
+ * It's subclassed from std::logic_error since it represents a mistake by a
+ * programmer, not by the runtime system (e.g. allocation memory) or other
+ * libraries.
  */
-class WNoSuchDataSetException : public std::runtime_error
+class WNoSuchDataSetException : public std::logic_error
 {
+/**
+ * Only UnitTests are allowed to be a friend of this class.
+ */
+friend class WNoSuchDataSetExceptionTest;
+
 public:
     WNoSuchDataSetException( const std::string &s = std::string() ) throw()
-        : std::runtime_error( s )
+        : std::logic_error( s )
     {
     }
 
@@ -46,8 +57,12 @@ public:
     std::string getMessage( ) const;
 
 protected:
+
 private:
-    std::list< std::string > trace;
+    /**
+     * Stack trace for identifying the source where this exception came from
+     */
+    std::list< std::string > m_trace;
 };
 
 #endif  // WNOSUCHDATASETEXCEPTION_H

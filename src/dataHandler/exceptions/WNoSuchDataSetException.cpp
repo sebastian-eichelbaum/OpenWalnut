@@ -25,17 +25,17 @@
 #include <stdexcept>
 #include <string>
 
+#include <boost/algorithm/string.hpp>
+
 #include "WNoSuchDataSetException.h"
-
-
 
 std::string WNoSuchDataSetException::getMessage() const
 {
-  std::string out;
-  out+=what();
-  out+="\n\n";
-  for( std::list<std::string>::const_iterator i = trace.begin();
-       i != trace.end(); ++i )
-    out+= "trace: "+*i+"\n";
-  return out;
+  std::string result( what() );
+  result += "\n\n";
+  std::list< std::string >::const_iterator citer;
+  for( citer = m_trace.begin(); citer != m_trace.end(); ++citer )
+    result += "trace: " + *citer + "\n";
+  boost::trim( result );
+  return result;
 }

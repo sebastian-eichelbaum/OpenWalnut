@@ -24,7 +24,7 @@
 #include "WValueSet.h"
 
 WValueSet::WValueSet()
-:m_numberOfValues( 0 )
+    : m_numberOfValues( 0 )
 {
 }
 

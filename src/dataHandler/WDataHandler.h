@@ -24,26 +24,46 @@
 #ifndef WDATAHANDLER_H
 #define WDATAHANDLER_H
 
-#include <boost/shared_ptr.hpp>
-
 #include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 class WDataSet;
 
 /**
- * Provides the environment for storing and accessing data sets.
+ * Provides the environment for storing and accessing DataSets.
  * \ingroup dataHandler
  */
 class WDataHandler
 {
+/**
+ * Only UnitTests may be friends.
+ */
+friend class WDataHandlerTest;
+
 public:
-    boost::shared_ptr< WDataSet > getDataSet( unsigned int dataSetId ) const;
+    /**
+     * Get the pointer to the i'th DataSet. The return type is const since we
+     * want to ensure that each DataSet cannot modified after retrival.
+     */
+    boost::shared_ptr< const WDataSet > getDataSet( const unsigned int dataSetId ) const;
+
+    /**
+     * Insert a new DataSet referenced by a pointer.
+     */
     void addDataSet( boost::shared_ptr< WDataSet > newDataSet );
+
+    /**
+     * Get the number of DataSets which are actually handled by our DataHandler.
+     */
     unsigned int getNumberOfDataSets() const;
 
 protected:
 
 private:
+    /**
+     * A container for all DataSets.
+     */
     std::vector< boost::shared_ptr< WDataSet > > m_dataSets;
 };
 
@@ -54,6 +74,5 @@ private:
   This module implements the data storage facility of OpenWalnut.
 
 */
-
 
 #endif  // WDATAHANDLER_H

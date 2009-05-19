@@ -24,6 +24,8 @@
 #ifndef WMETAINFO_TEST_H
 #define WMETAINFO_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WMetaInfo.h"
@@ -31,23 +33,52 @@
 class WMetaInfoTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * As normal an instantiation should never throw anything.
+     */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WMetaInfo metaInfo );
+        TS_ASSERT_THROWS_NOTHING( WMetaInfo metaInfo() );
     }
-    void testGetAndSetName( void )
+
+    /**
+     * The name returned is the same which is used internally
+     */
+    void testGetName( void )
+    {
+        WMetaInfo metaInfo;
+        metaInfo.m_name = std::string( "TestName" );
+        TS_ASSERT_EQUALS( metaInfo.getName(), "TestName" )
+    }
+
+    /**
+     * When the name will be reset, the one used internally is equal.
+     */
+    void testSetName( void )
     {
         WMetaInfo metaInfo;
         TS_ASSERT_THROWS_NOTHING( metaInfo.setName( "TestName" ) );
-        TS_ASSERT_THROWS_NOTHING( metaInfo.getName() );
-        TS_ASSERT_EQUALS( metaInfo.getName(), "TestName" )
+        TS_ASSERT_EQUALS( metaInfo.m_name, "TestName" )
     }
-    void testGetAndSetFileName( void )
+
+    /**
+     * The file name returned is the same which is used internally
+     */
+    void testGetFileName( void )
+    {
+        WMetaInfo metaInfo;
+        metaInfo.m_fileName = std::string( "TestFileName" );
+        TS_ASSERT_EQUALS( metaInfo.getFileName(), "TestFileName" )
+    }
+
+    /**
+     * When the file name will be reset, the one used internally is equal.
+     */
+    void testSetFileName( void )
     {
         WMetaInfo metaInfo;
         TS_ASSERT_THROWS_NOTHING( metaInfo.setFileName( "TestFileName" ) );
-        TS_ASSERT_THROWS_NOTHING( metaInfo.getFileName() );
-        TS_ASSERT_EQUALS( metaInfo.getFileName(), "TestFileName" )
+        TS_ASSERT_EQUALS( metaInfo.m_fileName, "TestFileName" )
     }
 };
 

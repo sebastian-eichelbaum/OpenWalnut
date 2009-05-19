@@ -34,32 +34,49 @@
 class WDataSetSingleTest : public CxxTest::TestSuite
 {
 public:
+    boost::shared_ptr< WGrid > gridDummy;
+    boost::shared_ptr< WValueSet > valueSetDummy;
+    boost::shared_ptr< WMetaInfo > metaInfoDummy;
+
+    /**
+     * Constructs unit test environment.
+     */
+    void setUp( void )
+    {
+        // create dummies, since they are needed in almost every test
+        metaInfoDummy = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
+        gridDummy = boost::shared_ptr< WGrid >( new WGrid );
+        valueSetDummy = boost::shared_ptr< WValueSet >( new WValueSet );
+    }
+
+    /**
+     * During instantiation nothing should be thrown.
+     */
     void testInstantiation( void )
     {
-        boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGrid );
-        boost::shared_ptr< WValueSet > valueSet = boost::shared_ptr< WValueSet >( new WValueSet );
-        TS_ASSERT_THROWS_NOTHING( WDataSetSingle dataSetSingle( valueSet, grid, metaInfo ) )
+        TS_ASSERT_THROWS_NOTHING( WDataSetSingle ds( valueSetDummy, gridDummy, metaInfoDummy ) );
     }
+
+    /**
+     * Retrive a WValueSet should always give the original pointer.
+     */
     void testGetValueSet( void )
     {
-        boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGrid );
-        boost::shared_ptr< WValueSet > valueSet = boost::shared_ptr< WValueSet >( new WValueSet );
-        boost::shared_ptr< WValueSet > valueSet2 = boost::shared_ptr< WValueSet >( new WValueSet );
-        WDataSetSingle dataSetSingle( valueSet, grid, metaInfo );
-        TS_ASSERT_EQUALS( dataSetSingle.getValueSet(), valueSet )
-        TS_ASSERT_DIFFERS( dataSetSingle.getValueSet(), valueSet2 )
+        boost::shared_ptr< WValueSet > other = boost::shared_ptr< WValueSet >( new WValueSet );
+        WDataSetSingle dataSetSingle( valueSetDummy, gridDummy, metaInfoDummy );
+        TS_ASSERT_EQUALS( dataSetSingle.getValueSet(), valueSetDummy )
+        TS_ASSERT_DIFFERS( dataSetSingle.getValueSet(), other )
     }
+
+    /**
+     * Retrive a WGrid should always give the original pointer.
+     */
     void testGetGrid( void )
     {
-        boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGrid );
-        boost::shared_ptr< WGrid > grid2 = boost::shared_ptr< WGrid >( new WGrid );
-        boost::shared_ptr< WValueSet > valueSet = boost::shared_ptr< WValueSet >( new WValueSet );
-        WDataSetSingle dataSetSingle( valueSet, grid, metaInfo );
-        TS_ASSERT_EQUALS( dataSetSingle.getGrid(), grid )
-        TS_ASSERT_DIFFERS( dataSetSingle.getGrid(), grid2 )
+        boost::shared_ptr< WGrid > other = boost::shared_ptr< WGrid >( new WGrid );
+        WDataSetSingle dataSetSingle( valueSetDummy, gridDummy, metaInfoDummy );
+        TS_ASSERT_EQUALS( dataSetSingle.getGrid(), gridDummy );
+        TS_ASSERT_DIFFERS( dataSetSingle.getGrid(), other )
     }
 };
 

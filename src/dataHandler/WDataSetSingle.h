@@ -25,6 +25,7 @@
 #define WDATASETSINGLE_H
 
 #include <boost/shared_ptr.hpp>
+
 #include "WDataSet.h"
 
 class WValueSet;
@@ -33,18 +34,40 @@ class WGrid;
 /**
  * A data set consisting of a set of values based on a grid.
  */
-class WDataSetSingle : WDataSet
+class WDataSetSingle : public WDataSet
 {
 public:
+    /**
+     * Constructs an instance out of a value set, grid and meta information.
+     */
     WDataSetSingle( boost::shared_ptr<WValueSet> newValueSet,
                     boost::shared_ptr<WGrid> newGrid,
                     boost::shared_ptr<WMetaInfo> newMetaInfo );
+
+    /**
+     * Destroys this DataSet instance
+     */
     virtual ~WDataSetSingle();
+
+    /**
+     * \return Reference to its WValueSet
+     */
     boost::shared_ptr<WValueSet> getValueSet() const;
+
+    /**
+     * \return Reference to its WGrid
+     */
     boost::shared_ptr<WGrid> getGrid() const;
 
 private:
+    /**
+     * Stores the reference of the WGrid of this DataSetSingle instance.
+     */
     boost::shared_ptr< WGrid > m_grid;
+
+    /**
+     * Stores the reference of the WValueSet of this DataSetSingle instance.
+     */
     boost::shared_ptr< WValueSet > m_valueSet;
 };
 

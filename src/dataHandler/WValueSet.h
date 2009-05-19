@@ -29,11 +29,28 @@
  */
 class WValueSet
 {
+/**
+ * Only UnitTests are allowed to be friends
+ */
+friend class WValueSetTest;
+
 public:
+    /**
+     * Constructs an empty WValueSet instance
+     */
     WValueSet();
+
+    /**
+     * \return The number of values stored in this set.
+     */
     unsigned int getNumberOfValues() const;
+
 protected:
+
 private:
+    /**
+     * Stores the number of values in this set
+     */
     unsigned int m_numberOfValues;
 };
 

@@ -28,17 +28,29 @@
 
 #include "../WValueSet.h"
 
+/**
+ * UnitTests the WValueSet class
+ */
 class WValueSetTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * An instantiation should never throw an exception
+     */
     void testInstantiation( void )
     {
         TS_ASSERT_THROWS_NOTHING( WValueSet valueSet() );
     }
+
+    /**
+     * The number of values retrieved is the same used internally
+     */
     void testGetNumberOfValues( void )
     {
         WValueSet valueSet;
         TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 0 )
+        valueSet.m_numberOfValues = 42;
+        TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 42 )
     }
 };
 

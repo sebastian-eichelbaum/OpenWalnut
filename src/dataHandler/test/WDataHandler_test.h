@@ -34,50 +34,82 @@
 class WDataHandlerTest : public CxxTest::TestSuite
 {
 public:
-    void testInstantiation( void )
+    boost::shared_ptr< WDataSet > dummyDataSet;
+
+    /**
+     * Constructs unit test environment.
+     */
+    void setUp( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WDataHandler dh );
-    }
-    void testAddDataSets( void )
-    {
-        WDataHandler dataHandler;
+        // create a DataSet dummy, since this is needed in almost every test
         boost::shared_ptr< WMetaInfo > metaInfo =
             boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        boost::shared_ptr< WDataSet > dataSet =
-            boost::shared_ptr< WDataSet >( new WDataSet( metaInfo ) );
-        TS_ASSERT_THROWS_NOTHING( dataHandler.addDataSet( dataSet ) )
+        dummyDataSet = boost::shared_ptr< WDataSet >( new WDataSet( metaInfo ) );
     }
+
+    /**
+     * An instantiation should never ever throw anything.
+     * ToDo(math): What about insufficient memory? Is it then still true?
+     */
+    void testInstatiation( void )
+    {
+        TS_ASSERT_THROWS_NOTHING( WDataHandler dh() );
+    }
+
+    /**
+     * When a DataSet is added the size of our container increments by one.
+     */
+    void testAddDataSet( void )
+    {
+        WDataHandler dataHandler;
+        TS_ASSERT_EQUALS( dataHandler.m_dataSets.size(), 0 );
+        TS_ASSERT_THROWS_NOTHING( dataHandler.addDataSet( dummyDataSet ) )
+        TS_ASSERT_EQUALS( dataHandler.m_dataSets.size(), 1 );
+    }
+
+    /**
+     * Checks if the size (meaning the number of elements) of our container
+     * works properly.
+     */
     void testGetNumberOfDataSets( void )
     {
         WDataHandler dataHandler;
-        boost::shared_ptr< WMetaInfo > metaInfo =
-            boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        boost::shared_ptr< WDataSet > dataSet =
-            boost::shared_ptr< WDataSet >( new WDataSet( metaInfo ) );
-        dataHandler.addDataSet( dataSet );
+        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 0 )
+        dataHandler.addDataSet( dummyDataSet );
         TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 1 )
-        dataHandler.addDataSet( dataSet );
+        dataHandler.addDataSet( dummyDataSet );
         TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 2 )
     }
+
+    /**
+     * When retrieving a DataSet only valid indices are allowed.
+     */
     void testGetDataSets( void )
     {
         WDataHandler dataHandler;
-        boost::shared_ptr< WMetaInfo > metaInfo0 = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        boost::shared_ptr< WMetaInfo > metaInfo1 = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        metaInfo0->setName( "Data Set 0" );
-        metaInfo1->setName( "Data Set 1" );
-        boost::shared_ptr< WDataSet > dataSet0 =
-            boost::shared_ptr< WDataSet >( new WDataSet( metaInfo0 ) );
-        boost::shared_ptr< WDataSet > dataSet1 =
-            boost::shared_ptr< WDataSet >( new WDataSet( metaInfo1 ) );
-        dataHandler.addDataSet( dataSet0 );
-        dataHandler.addDataSet( dataSet1 );
+        boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
+        metaInfo->setName( "Other Data Set" );
+        boost::shared_ptr< WDataSet > otherDataSet =
+            boost::shared_ptr< WDataSet >( new WDataSet( metaInfo ) );
+        dataHandler.addDataSet( dummyDataSet );
+        dataHandler.addDataSet( otherDataSet );
         TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 0 ) )
         TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 1 ) )
-        TS_ASSERT_EQUALS( dataHandler.getDataSet( 0 ), dataSet0 )
-        TS_ASSERT_EQUALS( dataHandler.getDataSet( 1 ), dataSet1 )
-        TS_ASSERT_DIFFERS( dataHandler.getDataSet( 1 ), dataSet0 )
+        TS_ASSERT_EQUALS( dataHandler.getDataSet( 0 ), dummyDataSet )
+        TS_ASSERT_EQUALS( dataHandler.getDataSet( 1 ), otherDataSet )
+        TS_ASSERT_DIFFERS( dataHandler.getDataSet( 1 ), dummyDataSet )
         TS_ASSERT_THROWS( dataHandler.getDataSet( 2 ), WNoSuchDataSetException )
+    }
+
+    /**
+     * Test prevention of modification of a retrieved DataSet.
+     */
+    void testConstnessOnDataSet( void )
+    {
+        WDataHandler dh;
+        dh.addDataSet( dummyDataSet );
+        boost::shared_ptr< const WDataSet > dataSet = dh.getDataSet( 0 );
+        // ToDo(math): I need to try to modify dataSet in order to test
     }
 };
 

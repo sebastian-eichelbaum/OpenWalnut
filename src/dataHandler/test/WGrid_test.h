@@ -28,13 +28,23 @@
 
 #include "../WGrid.h"
 
+/**
+ * Tests the WGrid class.
+ */
 class WGridTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * Ensure that nothing is thrown when an instance is created.
+     */
     void testInstantiation( void )
     {
         TS_ASSERT_THROWS_NOTHING( WGrid grid() );
     }
+
+    /**
+     * After instantiation there should be no positions.
+     */
     void testGetNumberOfPositions( void )
     {
         WGrid grid;

@@ -25,11 +25,11 @@
 #include "WDataSet.h"
 #include "exceptions/WNoSuchDataSetException.h"
 
-boost::shared_ptr< WDataSet > WDataHandler::getDataSet( unsigned int dataSetId ) const
+boost::shared_ptr< const WDataSet > WDataHandler::getDataSet( const unsigned int dataSetId ) const
 {
     if( dataSetId >= m_dataSets.size() )
-        throw WNoSuchDataSetException( "Index to large." );
-    return m_dataSets[dataSetId];
+        throw WNoSuchDataSetException( "Index too large." );
+    return m_dataSets.at(dataSetId);
 }
 
 void WDataHandler::addDataSet( boost::shared_ptr< WDataSet > newDataSet )

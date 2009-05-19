@@ -27,19 +27,48 @@
 #include <string>
 
 /**
- * Stores meta information for data sets loaded into OpenWalnut
+ * Stores meta information such as types, file names, etc. associated with a
+ * WDataSet loaded into OpenWalnut.
  */
 class WMetaInfo
 {
+/**
+ * Only UnitTests are allowed to be friends of this class
+ */
+friend class WMetaInfoTest;
+
 public:
+    /**
+     * \return Name of the WDataSet
+     */
     std::string getName() const;
+
+    /**
+     * Reset the name of the DataSet
+     */
     void setName( std::string name );
+
+    /**
+     * \return The file name from which the DataSet got its data.
+     */
     std::string getFileName() const;
+
+    /**
+     * Reset the file name from which the data is gathered for the WDataSet.
+     */
     void setFileName( std::string fileName );
 
 protected:
+
 private:
+    /**
+     * Stores the name of the WDataSet this MetaInfo is associated with
+     */
     std::string m_name;
+
+    /**
+     * Stores the name of the input file from which this DataSet gets its data.
+     */
     std::string m_fileName;
 };
 
