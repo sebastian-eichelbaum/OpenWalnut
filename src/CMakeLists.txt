@@ -78,16 +78,21 @@ ADD_CUSTOM_TARGET(doc
                   VERBATIM )
 
 # Checks style guide lines via the BrainLint tool against all source code files
+#    The output is colored when variable CMAKE_COLOR_MAKEFILE is set to ON,
+#    noncolored if it is set to OFF
 FILE(GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp)
 FILE(GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h)
-ADD_CUSTOM_TARGET(stylecheck
-                  COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLE_CPP} ${STYLE_H}
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                  COMMENT "Check if code complies to CodingStandard" )
-ADD_CUSTOM_TARGET(stylecheckcolored
-                  COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py --color ${STYLE_CPP} ${STYLE_H}
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                  COMMENT "Check if code complies to CodingStandard and use colored output for violation messages" )
+IF( CMAKE_COLOR_MAKEFILE )
+    ADD_CUSTOM_TARGET(stylecheck
+        COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py --color ${STYLE_CPP} ${STYLE_H}
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        COMMENT "Check if code complies to CodingStandard" )
+ELSE( CMAKE_COLOR_MAKEFILE )
+    ADD_CUSTOM_TARGET(stylecheck
+        COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLE_CPP} ${STYLE_H}
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        COMMENT "Check if code complies to CodingStandard and use noncolored output for violation messages" )
+ENDIF( CMAKE_COLOR_MAKEFILE )
 
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET(vtest
@@ -98,4 +103,3 @@ ADD_CUSTOM_TARGET(vtest
 ADD_CUSTOM_TARGET(cicheck
                   COMMAND make test && make stylecheck
                   COMMENT "Checks if all is well to commit" )
-
