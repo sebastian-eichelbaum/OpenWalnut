@@ -48,9 +48,9 @@ public:
     void testGetNumberOfValues( void )
     {
         WValueSet valueSet;
-        TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 0 )
+        TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 0 );
         valueSet.m_numberOfValues = 42;
-        TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 42 )
+        TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 42 );
     }
 };
 

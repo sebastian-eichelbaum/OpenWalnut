@@ -48,7 +48,7 @@ public:
     void testGetNumberOfPositions( void )
     {
         WGrid grid;
-        TS_ASSERT_EQUALS( grid.getNumberOfPositions(), 0 )
+        TS_ASSERT_EQUALS( grid.getNumberOfPositions(), 0 );
     }
 };
 

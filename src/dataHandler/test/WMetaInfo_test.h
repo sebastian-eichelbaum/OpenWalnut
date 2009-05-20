@@ -48,7 +48,7 @@ public:
     {
         WMetaInfo metaInfo;
         metaInfo.m_name = std::string( "TestName" );
-        TS_ASSERT_EQUALS( metaInfo.getName(), "TestName" )
+        TS_ASSERT_EQUALS( metaInfo.getName(), "TestName" );
     }
 
     /**
@@ -58,7 +58,7 @@ public:
     {
         WMetaInfo metaInfo;
         TS_ASSERT_THROWS_NOTHING( metaInfo.setName( "TestName" ) );
-        TS_ASSERT_EQUALS( metaInfo.m_name, "TestName" )
+        TS_ASSERT_EQUALS( metaInfo.m_name, "TestName" );
     }
 
     /**
@@ -68,7 +68,7 @@ public:
     {
         WMetaInfo metaInfo;
         metaInfo.m_fileName = std::string( "TestFileName" );
-        TS_ASSERT_EQUALS( metaInfo.getFileName(), "TestFileName" )
+        TS_ASSERT_EQUALS( metaInfo.getFileName(), "TestFileName" );
     }
 
     /**
@@ -78,7 +78,7 @@ public:
     {
         WMetaInfo metaInfo;
         TS_ASSERT_THROWS_NOTHING( metaInfo.setFileName( "TestFileName" ) );
-        TS_ASSERT_EQUALS( metaInfo.m_fileName, "TestFileName" )
+        TS_ASSERT_EQUALS( metaInfo.m_fileName, "TestFileName" );
     }
 };
 

@@ -63,7 +63,7 @@ public:
     {
         WDataHandler dataHandler;
         TS_ASSERT_EQUALS( dataHandler.m_dataSets.size(), 0 );
-        TS_ASSERT_THROWS_NOTHING( dataHandler.addDataSet( dummyDataSet ) )
+        TS_ASSERT_THROWS_NOTHING( dataHandler.addDataSet( dummyDataSet ) );
         TS_ASSERT_EQUALS( dataHandler.m_dataSets.size(), 1 );
     }
 
@@ -74,11 +74,11 @@ public:
     void testGetNumberOfDataSets( void )
     {
         WDataHandler dataHandler;
-        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 0 )
+        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 0 );
         dataHandler.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 1 )
+        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 1 );
         dataHandler.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 2 )
+        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 2 );
     }
 
     /**
@@ -93,12 +93,12 @@ public:
             boost::shared_ptr< WDataSet >( new WDataSet( metaInfo ) );
         dataHandler.addDataSet( dummyDataSet );
         dataHandler.addDataSet( otherDataSet );
-        TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 0 ) )
-        TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 1 ) )
-        TS_ASSERT_EQUALS( dataHandler.getDataSet( 0 ), dummyDataSet )
-        TS_ASSERT_EQUALS( dataHandler.getDataSet( 1 ), otherDataSet )
-        TS_ASSERT_DIFFERS( dataHandler.getDataSet( 1 ), dummyDataSet )
-        TS_ASSERT_THROWS( dataHandler.getDataSet( 2 ), WNoSuchDataSetException )
+        TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 0 ) );
+        TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 1 ) );
+        TS_ASSERT_EQUALS( dataHandler.getDataSet( 0 ), dummyDataSet );
+        TS_ASSERT_EQUALS( dataHandler.getDataSet( 1 ), otherDataSet );
+        TS_ASSERT_DIFFERS( dataHandler.getDataSet( 1 ), dummyDataSet );
+        TS_ASSERT_THROWS( dataHandler.getDataSet( 2 ), WNoSuchDataSetException );
     }
 
     /**

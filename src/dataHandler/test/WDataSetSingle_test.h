@@ -64,8 +64,8 @@ public:
     {
         boost::shared_ptr< WValueSet > other = boost::shared_ptr< WValueSet >( new WValueSet );
         WDataSetSingle dataSetSingle( valueSetDummy, gridDummy, metaInfoDummy );
-        TS_ASSERT_EQUALS( dataSetSingle.getValueSet(), valueSetDummy )
-        TS_ASSERT_DIFFERS( dataSetSingle.getValueSet(), other )
+        TS_ASSERT_EQUALS( dataSetSingle.getValueSet(), valueSetDummy );
+        TS_ASSERT_DIFFERS( dataSetSingle.getValueSet(), other );
     }
 
     /**
@@ -76,7 +76,7 @@ public:
         boost::shared_ptr< WGrid > other = boost::shared_ptr< WGrid >( new WGrid );
         WDataSetSingle dataSetSingle( valueSetDummy, gridDummy, metaInfoDummy );
         TS_ASSERT_EQUALS( dataSetSingle.getGrid(), gridDummy );
-        TS_ASSERT_DIFFERS( dataSetSingle.getGrid(), other )
+        TS_ASSERT_DIFFERS( dataSetSingle.getGrid(), other );
     }
 };
 

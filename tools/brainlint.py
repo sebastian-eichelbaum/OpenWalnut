@@ -214,6 +214,7 @@ _CHECK_MACROS = [
     'ASSERT_TRUE_M', 'ASSERT_TRUE',
     'EXPECT_FALSE_M', 'EXPECT_FALSE',
     'ASSERT_FALSE_M', 'ASSERT_FALSE',
+    'TS_ASSERT',
     ]
 
 # Replacement macros for CHECK/EXPECT_TRUE/EXPECT_FALSE
@@ -1849,6 +1850,11 @@ def CheckCheck(filename, clean_lines, linenum, error):
                 _CHECK_REPLACEMENT[current_macro][operator],
                 current_macro, operator))
       break
+
+  # Encourage the use of a semicolon at each end of the macro
+  if Search(r'\)\s*$', line):
+    error(filename, linenum, 'readability/check', 3,
+          'Each macro (esp. TS_ASSERT...) should be terminated by a ";" char.')
 
 
 def GetLineWidth(line):
