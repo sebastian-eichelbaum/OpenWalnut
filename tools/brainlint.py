@@ -1748,8 +1748,8 @@ def CheckBraces(filename, clean_lines, linenum, error):
 
   line = clean_lines.elided[linenum]        # get rid of comments and strings
 
-  if Match(r'{', line):
-    if not Match(r'^\s*{\s*$', line):
+  if Search(r'{', line):
+    if not Match(r'^\s*{$', line):
       error(filename, linenum, 'readability/braces', 5, 'Starting braces have a line for themselfs.')
 
   if Search(r'}', line):
