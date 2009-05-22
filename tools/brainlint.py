@@ -1462,7 +1462,7 @@ def CheckForFunctionLengths(filename, clean_lines, linenum,
     function_state.Count()  # Count non-blank/non-comment lines.
 
 
-_RE_PATTERN_TODO = re.compile(r'^//(\s*)TODO(\(.+?\))?:?(\s|$)?')
+_RE_PATTERN_TODO = re.compile(r'^//(\s*)TODO(\(.+?\))?(:)?(\s|$)?')
 
 
 def CheckComment(comment, filename, linenum, error):
@@ -1488,7 +1488,12 @@ def CheckComment(comment, filename, linenum, error):
             'Missing username in TODO; it should look like '
             '"// TODO(my_username): Stuff."')
 
-    middle_whitespace = match.group(3)
+    if not match.group(3):
+      error(filename, linenum, 'readability/todo', 2,
+            'Missing colon after user name; it should look like '
+            '"// TODO(my_username): Stuff."')
+
+    middle_whitespace = match.group(4)
     # Comparisons made explicit for correctness -- pylint: disable-msg=C6403
     if middle_whitespace != ' ' and middle_whitespace != '':
       error(filename, linenum, 'whitespace/todo', 2,

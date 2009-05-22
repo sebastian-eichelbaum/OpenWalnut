@@ -25,10 +25,10 @@
 
 WDataSetTimeDependent::WDataSetTimeDependent()
 {
-    // TODO(wiebel) Auto-generated constructor stub
+    // TODO(wiebel): Auto-generated constructor stub
 }
 
 WDataSetTimeDependent::~WDataSetTimeDependent()
 {
-    // TODO(wiebel) Auto-generated destructor stub
+    // TODO(wiebel): Auto-generated destructor stub
 }

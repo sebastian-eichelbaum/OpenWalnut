@@ -34,7 +34,7 @@ WQtPipelineBrowser::WQtPipelineBrowser()
 
 WQtPipelineBrowser::~WQtPipelineBrowser()
 {
-    // TODO(wiebel) Auto-generated destructor stub
+    // TODO(wiebel): Auto-generated destructor stub
 }
 
 QSize WQtPipelineBrowser::sizeHint() const

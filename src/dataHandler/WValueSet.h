@@ -54,10 +54,4 @@ private:
     unsigned int m_numberOfValues;
 };
 
-
-
-
-
-
-
 #endif  // WVALUESET_H
