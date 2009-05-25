@@ -29,7 +29,7 @@
 
 #include "WNoSuchDataSetException.h"
 
-std::string WNoSuchDataSetException::getMessage() const
+std::string WNoSuchDataSetException::getTrace() const
 {
   std::string result( what() );
   result += "\n\n";

@@ -45,22 +45,31 @@ class WNoSuchDataSetException : public std::logic_error
 friend class WNoSuchDataSetExceptionTest;
 
 public:
+    /**
+     * Constructs new exception.
+     */
     WNoSuchDataSetException( const std::string &s = std::string() ) throw()
         : std::logic_error( s )
     {
     }
 
+    /**
+     * Destroys this exception
+     */
     virtual ~WNoSuchDataSetException() throw()
     {
     };
 
-    std::string getMessage( ) const;
+    /**
+     * Prints the trace of the call chain which caused this exception.
+     */
+    std::string getTrace( ) const;
 
 protected:
 
 private:
     /**
-     * Stack trace for identifying the source where this exception came from
+     * Stack trace for identifying the source where this exception came from.
      */
     std::list< std::string > m_trace;
 };

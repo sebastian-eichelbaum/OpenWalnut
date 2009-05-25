@@ -54,9 +54,9 @@ public:
         e.m_trace.push_back( "first" );
         e.m_trace.push_back( "second" );
         std::string expected = "Dummy exception\n\ntrace: first\ntrace: second";
-        TS_ASSERT_EQUALS( expected, e.getMessage() );
+        TS_ASSERT_EQUALS( expected, e.getTrace() );
         WNoSuchDataSetException f;
-        TS_ASSERT_EQUALS( std::string(), f.getMessage() );
+        TS_ASSERT_EQUALS( std::string(), f.getTrace() );
     }
 };
 
