@@ -75,12 +75,41 @@ class RawCode(object):
         return result
 
 class HeaderCode(RawCode):
-    def __init__(self, name, attr, structors):
+    def __init__(self, name, attr, structors, implementation=False):
         RawCode.__init__(self, name, attr, structors)
-        guard = self._name.upper() + "_H"
-        self._header += "#ifndef " + guard + "\n"
-        self._header += "#define " + guard + "\n\n"
-        self._footer += "#endif  // " + self._name.upper() + "_H\n"
+        self._guard = self._name.upper() + "_H"
+        self._implementation = implementation
+        self._fname = self._name + ".h"
+
+    def renderHeader(self):
+        result = ""
+        result = self._header
+        result += "#ifndef " + self._guard + "\n"
+        result += "#define " + self._guard + "\n\n"
+        return result
+
+    def renderClass(self):
+        modifier_level = 0
+        member_level = 1
+        result = ""
+        result += self.indent(0, self._doxy)
+        result += "class " + self._name + "\n"
+        result += "{\n"
+        result += self.indent(modifier_level, "public:\n")
+        if self._structors:
+            result += self.indent(member_level, self.structor("con"))
+            result += self.indent(member_level, self.structor("de"))
+        result += self.indent(member_level, self.renderSignatures())
+        result += self.indent(modifier_level, "protected:\n")
+        result += self.indent(modifier_level, "private:\n")
+        result += self.indent(member_level, self.renderMemberVariables())
+        result += "};\n\n"
+        return result
+
+    def renderFooter(self):
+        result = ""
+        result += "#endif  // " + self._guard + "\n"
+        return result
 
     def renderSignatures(self):
         result = ""
@@ -112,28 +141,16 @@ class HeaderCode(RawCode):
         return result
 
     def __str__(self):
-        modifier_level = 0
-        member_level = 1
-        result = self._header
-        result += self.indent(0, self._doxy)
-        result += "class " + self._name + "\n"
-        result += "{\n"
-        result += self.indent(modifier_level, "public:\n")
-        if self._structors:
-            result += self.indent(member_level, self.structor("con"))
-            result += self.indent(member_level, self.structor("de"))
-        result += self.indent(member_level, self.renderSignatures())
-        result += self.indent(modifier_level, "protected:\n")
-        result += self.indent(modifier_level, "private:\n")
-        result += self.indent(member_level, self.renderMemberVariables())
-        result += "};\n\n"
-        result += self._footer
+        result = self.renderHeader()
+        result += self.renderClass()
+        result += self.renderFooter()
         return result
 
 class ImplementationCode(RawCode):
     def __init__(self, name, attr, structors):
         RawCode.__init__(self, name, attr, structors)
         self._header += "#include \"" + self._name + ".h\"\n\n"
+        self._fname = self._name + ".cpp"
 
     def structor(self, type):
         result = self._name + "::"
@@ -169,37 +186,56 @@ class ImplementationCode(RawCode):
             result += self.indent(member_level, self.structor("de"))
         return result
 
-class TestCode(RawCode):
+class TestCode(HeaderCode):
     def __init__(self, name):
-        RawCode.__init__(self, name, [], False)
+        HeaderCode.__init__(self, name, [], structors=False, implementation=True)
+        self._guard = self._name.upper() + "_TEST_H"
+        self._fname = "test/" + self._name + "_test.h"
 
-    def __str__(self):
-        result = "TestCode"
+    def renderClass(self):
+        modifier_level = 0
+        member_level = 1
+        result = ""
+        result += self.indent(0, self._doxy)
+        result += "class " + self._name + "Test : public CxxTest::TestSuite\n"
+        result += "{\n"
+        result += self.indent(modifier_level, "public:\n")
+        result += self.indent(member_level, self._doxy + "void testSomething( void )\n{\n}\n")
+        result += "};\n\n"
         return result
 
-def exists( fname ):
-    return os.path.exists( fname )
+    def __str__(self):
+        result = self.renderHeader()
+        result += "#include <cxxtest/TestSuite.h>\n\n"
+        result += "#include \"../" + self._name + ".h\"\n\n"
+        result += self.renderClass()
+        result += self.renderFooter()
+        return result
 
 def writeToFile( fname, payload ):
     file = open(fname, 'w')
     file.write( payload )
     file.close()
 
-def writeIfNotExists( code, extension ):
-    fname  = code._name + extension
-    if exists( fname ):
-        sys.stderr.write("Error: file " + fname + " already exists.\n")
+def writeIfNotExists( code, nofile):
+    if os.path.exists( code._fname ):
+        sys.stderr.write("Error: file " + code._fname + " already exists.\n")
         sys.exit(1)
     else:
-        writeToFile( fname, str(code) )
+        if nofile:
+            print str(code)
+        else:
+            if (code._fname.split("/")[0] == "test") and not os.path.exists( "test/"):
+                sys.stderr.write("Error: test dir does not exists for " + code._fname + "\n")
+                sys.exit(1)
+            writeToFile( code._fname, str(code) )
 
 def main():
     synopsis  = "\n\t%prog [options] Classname"
     synopsis += "\n\t%prog --help\n"
     synopsis += "Example:"
     synopsis += "\n\t%prog --class --header --member=int,plistId --member=SomeOtherClass,myMemeberVar SomeClass"
-    synopsis += "\n\n%prog automatically writes the code to the corresponding files"
-    synopsis += "\n(cpp, h) and exists if it already exists."
+    synopsis += "\n\nWARNING %prog automatically writes the code to the corresponding files if they not exist"
     parser = OptionParser(usage=synopsis, version="%prog 0.0_pre_alpha (USE AT YOUR OWN RISK)")
     parser.set_defaults(testsuite=False)
     parser.set_defaults(cls=False)
@@ -210,6 +246,7 @@ def main():
     parser.add_option("-H","--header", action="store_true", help="Generates header stub", dest="header")
     parser.add_option("-m","--member", action="append", help="Adds member to class with public getter and setter methods", dest="members", type="string", metavar="TYPE,NAME")
     parser.add_option("-s","--structors", action="store_true", help="Adds default construtor and destructor.", dest="structors")
+    parser.add_option("--nofile", action="store_true", help="Writes all to stdout", dest="nofile")
     (options, args) = parser.parse_args()
     attributes = []
     classname = ""
@@ -230,11 +267,11 @@ def main():
         parser.error("No code should be generated?, use at least one option: --class, --header or --test")
 
     if options.cls:
-        writeIfNotExists( ImplementationCode(classname, attributes, options.structors), ".cpp" )
+        writeIfNotExists( ImplementationCode(classname, attributes, options.structors), options.nofile )
     if options.header:
-        writeIfNotExists( HeaderCode(classname, attributes, options.structors), ".h" )
+        writeIfNotExists( HeaderCode(classname, attributes, options.structors), options.nofile )
     if options.testsuite:
-        print TestCode(classname)
+        writeIfNotExists( TestCode(classname), options.nofile )
 
 if __name__ == '__main__':
     main()
