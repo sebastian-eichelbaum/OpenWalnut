@@ -5,10 +5,10 @@ import os
 import sys
 
 class RawCode(object):
-    def __init__(self, name, attr, structors):
-        self._structors = structors
+    def __init__(self, name, attr=None, structors=None, subclass=None, includes=None):
+        self._attr = [] if not attr else attr
+        self._structors = False if not structors else structors
         self._name = "W" + name
-        self._attr = attr
         self._indent = "    "
         self._header = \
 """\
@@ -38,6 +38,8 @@ class RawCode(object):
 """
         self._body = ""
         self._footer = ""
+        self._subclass = "" if not subclass else subclass
+        self._includes = [] if not includes else includes
 
         if os.environ['USER']:
             self._author = os.environ['USER']
@@ -46,6 +48,24 @@ class RawCode(object):
         else:
             self._author = "Unkown"
         self._doxy = "/**\n * TODO(" + self._author + "): Document this!\n */\n"
+
+    def renderHeader(self):
+        return self._header
+
+    def renderIncludes(self):
+        result = ""
+        for include in self._includes:
+            result += "#include " + include + "\n"
+        return result
+
+    def renderStructors(self):
+        return ""
+
+    def renderBody(self):
+        return self._body
+
+    def renderFooter(self):
+        return self._footer
 
     def indent(self, level, str):
         result = ""
@@ -74,31 +94,49 @@ class RawCode(object):
             result.append(sig)
         return result
 
+    def structor(self, type):
+        assert type == "con" or type == "de"
+        result = "~" if type == "de" else ""
+        result += self._name
+        return result
+
+    def __str__(self):
+        result = ""
+        result += self.renderHeader()
+        result += self.renderIncludes()
+        result += self.renderBody()
+        result += self.renderFooter()
+        return result
+
 class HeaderCode(RawCode):
-    def __init__(self, name, attr, structors, implementation=False):
-        RawCode.__init__(self, name, attr, structors)
+    def __init__(self, name, attr=None, structors=None, subclass=None, includes=None):
+        RawCode.__init__(self, name, attr, structors, subclass, includes)
         self._guard = self._name.upper() + "_H"
-        self._implementation = implementation
         self._fname = self._name + ".h"
 
     def renderHeader(self):
-        result = ""
-        result = self._header
+        result = RawCode.renderHeader(self)
         result += "#ifndef " + self._guard + "\n"
         result += "#define " + self._guard + "\n\n"
         return result
 
-    def renderClass(self):
+    def renderStructors(self):
+        result = self.indent(1, self._doxy + self.structor("con") + "();\n\n")
+        result += self.indent(1, self._doxy + self.structor("de") + "();\n\n")
+        return result
+
+    def renderBody(self):
         modifier_level = 0
         member_level = 1
-        result = ""
-        result += self.indent(0, self._doxy)
-        result += "class " + self._name + "\n"
+        result = self.indent(0, self._doxy)
+        result += "class " + self._name
+        if self._subclass != "":
+            result += " : " + self._subclass
+        result += "\n"
         result += "{\n"
         result += self.indent(modifier_level, "public:\n")
         if self._structors:
-            result += self.indent(member_level, self.structor("con"))
-            result += self.indent(member_level, self.structor("de"))
+            result += self.renderStructors()
         result += self.indent(member_level, self.renderSignatures())
         result += self.indent(modifier_level, "protected:\n")
         result += self.indent(modifier_level, "private:\n")
@@ -107,9 +145,7 @@ class HeaderCode(RawCode):
         return result
 
     def renderFooter(self):
-        result = ""
-        result += "#endif  // " + self._guard + "\n"
-        return result
+        return "#endif  // " + self._guard + "\n"
 
     def renderSignatures(self):
         result = ""
@@ -128,40 +164,20 @@ class HeaderCode(RawCode):
             result += attribute[0] + " m_" + attribute[1] + ";" + "\n\n";
         return result
 
-    def structor(self, type):
-        result = ""
-        result += self._doxy
-        if type == "con":
-            result += ""
-        elif type == "de":
-            result += "~"
-        else:
-            assert 1 == 0 and "Neither Constructor nor Destructor are requested but: " + type
-        result += self._name + "();\n\n"
-        return result
-
-    def __str__(self):
-        result = self.renderHeader()
-        result += self.renderClass()
-        result += self.renderFooter()
-        return result
 
 class ImplementationCode(RawCode):
-    def __init__(self, name, attr, structors):
-        RawCode.__init__(self, name, attr, structors)
-        self._header += "#include \"" + self._name + ".h\"\n\n"
+    def __init__(self, name, attr=None, structors=None, subclass=None, includes=None):
+        RawCode.__init__(self, name, attr, structors, subclass, includes)
+        self._includes.append("\"" + self._name + ".h\"\n")
         self._fname = self._name + ".cpp"
 
     def structor(self, type):
-        result = self._name + "::"
-        if type == "con":
-            result += ""
-        elif type == "de":
-            result += "~"
-        else:
-            assert 1 == 0 and "Neither Constructor nor Destructor are requested but: " + type
-        result += self._name + "()\n{\n}\n"
-        return result + "\n"
+        return self._name + "::" + RawCode.structor(self, type)
+
+    def renderStructors(self):
+        result = self.indent(0, self.structor("con") + "()\n{\n}\n\n")
+        result += self.indent(0, self.structor("de") + "()\n{\n}\n\n")
+        return result
 
     def renderSignatures(self):
         result = ""
@@ -177,22 +193,23 @@ class ImplementationCode(RawCode):
             result += "}\n\n"
         return result
 
-    def __str__(self):
+    def renderBody(self):
         member_level = 0
-        result = self._header
-        result += self.renderSignatures()
+        result = ""
         if self._structors:
-            result += self.indent(member_level, self.structor("con"))
-            result += self.indent(member_level, self.structor("de"))
+            result += self.renderStructors()
+        result += self.renderSignatures()
         return result
 
 class TestCode(HeaderCode):
     def __init__(self, name):
-        HeaderCode.__init__(self, name, [], structors=False, implementation=True)
+        HeaderCode.__init__(self, name, [], structors=False)
         self._guard = self._name.upper() + "_TEST_H"
         self._fname = "test/" + self._name + "_test.h"
+        self._includes.append("<cxxtest/TestSuite.h>\n")
+        self._includes.append("\"../" + self._name + ".h\"\n")
 
-    def renderClass(self):
+    def renderBody(self):
         modifier_level = 0
         member_level = 1
         result = ""
@@ -204,13 +221,35 @@ class TestCode(HeaderCode):
         result += "};\n\n"
         return result
 
-    def __str__(self):
-        result = self.renderHeader()
-        result += "#include <cxxtest/TestSuite.h>\n\n"
-        result += "#include \"../" + self._name + ".h\"\n\n"
-        result += self.renderClass()
-        result += self.renderFooter()
+class ExceptionHeader(HeaderCode):
+    def __init__(self, name, structors=None):
+        HeaderCode.__init__(self, name + "Exception",
+                            structors=structors,
+                            subclass="public std::logic_error",
+                            includes=["<stdexcept>", "<string>\n"]
+                           )
+
+    def renderStructors(self):
+        result = self.indent(1, self._doxy + self.structor("con") + "( const std::string &s = std::string() ) throw();\n\n")
+        result += self.indent(1, self._doxy + self.structor("de") + "();\n\n")
         return result
+
+class ExceptionImplementation(ImplementationCode):
+    def __init__(self, name, structors=None):
+        ImplementationCode.__init__(self, name + "Exception",
+                                    structors=structors,
+                                    includes=["<stdexcept>", "<string>\n"]
+                                   )
+
+    def renderStructors(self):
+        result = self.indent(0, self.structor("con") + "( const std::string &s = std::string() ) throw()\n" + self._indent + ": std::logic_error( s )\n{\n}\n\n")
+        result += self.indent(0, self.structor("de") + "()\n{\n}\n\n")
+        return result
+
+class ExceptionTest(TestCode):
+    def __init__(self, name):
+        TestCode.__init__(self, name + "Exception")
+
 
 def writeToFile( fname, payload ):
     file = open(fname, 'w')
@@ -246,6 +285,7 @@ def main():
     parser.add_option("-H","--header", action="store_true", help="Generates header stub", dest="header")
     parser.add_option("-m","--member", action="append", help="Adds member to class with public getter and setter methods", dest="members", type="string", metavar="TYPE,NAME")
     parser.add_option("-s","--structors", action="store_true", help="Adds default construtor and destructor.", dest="structors")
+    parser.add_option("-e","--exception", action="store_true", help="Generates class, header and test stub for an exception", dest="exception")
     parser.add_option("--nofile", action="store_true", help="Writes all to stdout", dest="nofile")
     (options, args) = parser.parse_args()
     attributes = []
@@ -263,8 +303,11 @@ def main():
     else:
         classname = args[0]
 
-    if not options.cls and not options.header and not options.testsuite:
+    if not options.cls and not options.header and not options.testsuite and not options.exception:
         parser.error("No code should be generated?, use at least one option: --class, --header or --test")
+
+    if options.exception and (options.header or options.cls or options.testsuite):
+        parser.error("To generate exception code is exceptional, hence, please don't use other generators like --class, --header or --test here")
 
     if options.cls:
         writeIfNotExists( ImplementationCode(classname, attributes, options.structors), options.nofile )
@@ -272,6 +315,10 @@ def main():
         writeIfNotExists( HeaderCode(classname, attributes, options.structors), options.nofile )
     if options.testsuite:
         writeIfNotExists( TestCode(classname), options.nofile )
+    if options.exception:
+        writeIfNotExists( ExceptionHeader(classname, structors=options.structors), options.nofile )
+        writeIfNotExists( ExceptionImplementation(classname, structors=options.structors), options.nofile )
+        writeIfNotExists( ExceptionTest(classname), options.nofile )
 
 if __name__ == '__main__':
     main()
