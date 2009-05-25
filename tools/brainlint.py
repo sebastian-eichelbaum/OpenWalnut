@@ -1633,7 +1633,7 @@ def CheckSpacing(filename, clean_lines, linenum, error):
   # Alas, we can't test < or > because they're legitimately used sans spaces
   # (a->b, vector<int> a).  The only time we can tell is a < with no >, and
   # only if it's not template params list spilling into the next line.
-  match = Search(r'[^<>=!\s](==|!=|<=|>=)[^<>=!\s]', line)
+  match = Search(r'([^<>=!\+\-/\s])?([<>=!\+\-/]=)([^<>=!\+\-/\s])?', line)
   if not match:
     # Note that while it seems that the '<[^<]*' term in the following
     # regexp could be simplified to '<.*', which would indeed match
@@ -1641,15 +1641,15 @@ def CheckSpacing(filename, clean_lines, linenum, error):
     # regexp takes linear rather than quadratic time.
     if not Search(r'<[^<]*,\s*$', line):  # template params spill
       match = Search(r'[^<>=!\s](<)[^<>=!\s]([^>]|->)*$', line)
-  if match:
+  if match and (match.group(1) or match.group(3)):
     error(filename, linenum, 'whitespace/operators', 3,
-          'Missing spaces around %s' % match.group(1))
+          'Missing spaces around %s' % match.group(2))
   # We allow no-spaces around << and >> when used like this: 10<<20, but
   # not otherwise (particularly, not when used as streams)
   match = Search(r'[^0-9\s](<<|>>)[^0-9\s]', line)
   if match:
     error(filename, linenum, 'whitespace/operators', 3,
-          'Missing spaces around %s' % match.group(1))
+          'Missing spaces around %s' % match.group(2))
 
   # There shouldn't be space around unary operators
   match = Search(r'(!\s|~\s|[\s]--[\s;]|[\s]\+\+[\s;])', line)
