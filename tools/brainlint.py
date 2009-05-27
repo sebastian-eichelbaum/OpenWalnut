@@ -1755,12 +1755,16 @@ def CheckBraces(filename, clean_lines, linenum, error):
   line = clean_lines.elided[linenum]        # get rid of comments and strings
 
   if Search(r'{', line):
-    if not Match(r'^\s*{$', line):
-      error(filename, linenum, 'readability/braces', 5, 'Starting braces have a line for themselfs.')
+    # braces may also occur as array initializers so we include an option
+    # '=' char which may indicate an initializer list for an array
+    if not Match(r'^\s*{$', line) and not Search(r'\s*=\s*{', line):
+        error(filename, linenum, 'readability/braces', 5, 'Starting braces have a line for themselfs.')
 
   if Search(r'}', line):
-    if not Match(r'^\s*};?$', line):
-      error(filename, linenum, 'readability/braces', 5, 'Closing braces have a line for themselfs.')
+    # the second term is for detecting that the closing brace is part of an array
+    # initalizer list. Attention ';' must occur at the end of class definitions
+    if not Match(r'^\s*};?$', line) and not Search(r'\[.*\]\s+=\s+{.*};', line):
+        error(filename, linenum, 'readability/braces', 5, 'Closing braces have a line for themselfs.')
 
   # Likewise, an else should never have the else clause on the same line
   if Search(r'\belse [^\s{]', line) and not Search(r'\belse if\b', line):
