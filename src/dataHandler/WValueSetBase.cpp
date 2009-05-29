@@ -21,14 +21,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WValueSet.h"
+#include <cstddef>
 
-WValueSet::WValueSet()
-    : m_numberOfValues( 0 )
+#include "WValueSetBase.h"
+
+
+WValueSetBase::WValueSetBase( char order, char dimension )
+    : m_order( order ),
+      m_dimension( dimension )
 {
 }
 
-unsigned int WValueSet::getNumberOfValues() const
+WValueSetBase::~WValueSetBase()
 {
-    return m_numberOfValues;
+    // empty since WValueSetBase is an abstract class
 }

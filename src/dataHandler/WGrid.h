@@ -24,6 +24,8 @@
 #ifndef WGRID_H
 #define WGRID_H
 
+#include <cstddef>
+
 /**
  * Base class to all grid types, e.g. a regular grid.
  */
@@ -33,12 +35,12 @@ public:
     /**
      * Constructs a new WGrid instance.
      */
-    WGrid();
+    explicit WGrid( size_t size );
 
     /**
      * \return The number of position in this grid.
      */
-    unsigned int getNumberOfPositions() const;
+    size_t size() const;
 
 protected:
 
@@ -46,7 +48,7 @@ private:
     /**
      * Stores the number of positions.
      */
-    unsigned int m_numberOfPositions;
+    size_t m_size;
 };
 
 #endif  // WGRID_H

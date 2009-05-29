@@ -39,16 +39,16 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WGrid grid() );
+        TS_ASSERT_THROWS_NOTHING( WGrid grid( 1 ) );
     }
 
     /**
      * After instantiation there should be no positions.
      */
-    void testGetNumberOfPositions( void )
+    void testSize( void )
     {
-        WGrid grid;
-        TS_ASSERT_EQUALS( grid.getNumberOfPositions(), 0 );
+        WGrid grid( 1 );
+        TS_ASSERT_EQUALS( grid.size(), 1 );
     }
 };
 

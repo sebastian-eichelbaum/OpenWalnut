@@ -21,37 +21,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WVALUESET_H
-#define WVALUESET_H
+#ifndef WVALUESETBASE_TEST_H
+#define WVALUESETBASE_TEST_H
+
+#include <cxxtest/TestSuite.h>
+
+#include "../WValueSetBase.h"
 
 /**
- * Base Class for all value set types.
+ * TODO(lmath): Document this!
  */
-class WValueSet
+class WValueSetBaseTest : public CxxTest::TestSuite
 {
-/**
- * Only UnitTests are allowed to be friends
- */
-friend class WValueSetTest;
-
 public:
     /**
-     * Constructs an empty WValueSet instance
+     * TODO(lmath): Document this!
      */
-    WValueSet();
-
-    /**
-     * \return The number of values stored in this set.
-     */
-    unsigned int getNumberOfValues() const;
-
-protected:
-
-private:
-    /**
-     * Stores the number of values in this set
-     */
-    unsigned int m_numberOfValues;
+    void testSomething( void )
+    {
+    }
 };
 
-#endif  // WVALUESET_H
+#endif  // WVALUESETBASE_TEST_H

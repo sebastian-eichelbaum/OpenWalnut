@@ -24,9 +24,11 @@
 #ifndef WVALUESET_TEST_H
 #define WVALUESET_TEST_H
 
+#include <vector>
+
 #include <cxxtest/TestSuite.h>
 
-#include "../WValueSet.h"
+#include "../WValueSet.hpp"
 
 /**
  * UnitTests the WValueSet class
@@ -39,18 +41,51 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WValueSet valueSet() );
+        double a[2] = { 0.0, 3.1415 };
+        const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
+        TS_ASSERT_THROWS_NOTHING( WValueSet< double > valueSet( 0, 1, v ) );
     }
 
     /**
-     * The number of values retrieved is the same used internally
+     * The number of values retrieved is correct
      */
     void testGetNumberOfValues( void )
     {
-        WValueSet valueSet;
-        TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 0 );
-        valueSet.m_numberOfValues = 42;
-        TS_ASSERT_EQUALS( valueSet.getNumberOfValues(), 42 );
+        int a[4] = { 0, -5, 1, 2 };
+        const std::vector< int > v( a, a + sizeof( a ) / sizeof( int ) );
+        WValueSet< int > first( 0, 1, v );
+        TS_ASSERT_EQUALS( first.size(), 4 );
+        WValueSet< int > second( 1, 2, v );
+        TS_ASSERT_EQUALS( second.size(), 2 );
+        WValueSet< int > third( 2, 2, v );
+        TS_ASSERT_EQUALS( third.size(), 1 );
+    }
+
+    /**
+     * The raw size is the size of the number of integral elements inside
+     * this ValueSet.
+     */
+    void testRawSize( void )
+    {
+        int a[4] = { 0, -5, 1, 2 };
+        const std::vector< int > v( a, a + sizeof( a ) / sizeof( int ) );
+        WValueSet< int > first( 0, 1, v );
+        TS_ASSERT_EQUALS( first.rawSize(), 4 );
+        WValueSet< int > second( 2, 2, v );
+        TS_ASSERT_EQUALS( first.rawSize(), 4 );
+    }
+
+    /**
+     * Raw Access should provide data access to the underlying array.
+     */
+    void testReadOnlyRawAccess( void )
+    {
+        double a[2] = { 0.0, 3.1415 };
+        const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
+        WValueSet< double > valueSet( 0, 1, v );
+        const double * const b = valueSet.rawData();
+        TS_ASSERT_EQUALS( b[0], 0.0 );
+        TS_ASSERT_EQUALS( b[1], 3.1415 );
     }
 };
 

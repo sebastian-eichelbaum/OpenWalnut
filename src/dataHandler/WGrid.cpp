@@ -21,17 +21,18 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cstddef>
+
 #include "WGrid.h"
 
-WGrid::WGrid()
-    : m_numberOfPositions( 0 )
+WGrid::WGrid( size_t size )
+    : m_size( size )
 {
 }
 
-unsigned int WGrid::getNumberOfPositions() const
+size_t WGrid::size() const
 {
-    return m_numberOfPositions;
+    return m_size;
 }
-
 
 

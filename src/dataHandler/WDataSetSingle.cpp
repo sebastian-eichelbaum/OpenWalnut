@@ -22,10 +22,10 @@
 //---------------------------------------------------------------------------
 
 #include "WDataSetSingle.h"
-#include "WValueSet.h"
+#include "WValueSet.hpp"
 #include "WGrid.h"
 
-WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSet> newValueSet,
+WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSetBase> newValueSet,
                                 boost::shared_ptr<WGrid> newGrid,
                                 boost::shared_ptr< WMetaInfo > newMetaInfo )
     : WDataSet( newMetaInfo )
@@ -33,8 +33,7 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSet> newValueSet,
     assert( newValueSet );
     assert( newGrid );
     assert( newMetaInfo );
-
-    assert( newValueSet->getNumberOfValues() == newGrid->getNumberOfPositions() );
+    assert( newValueSet->size() == newGrid->size() );
 
     m_valueSet = newValueSet;
     m_grid = newGrid;
@@ -45,7 +44,7 @@ WDataSetSingle::~WDataSetSingle()
     // TODO(wiebel): Auto-generated destructor stub
 }
 
-boost::shared_ptr<WValueSet> WDataSetSingle::getValueSet() const
+boost::shared_ptr<WValueSetBase> WDataSetSingle::getValueSet() const
 {
     return m_valueSet;
 }

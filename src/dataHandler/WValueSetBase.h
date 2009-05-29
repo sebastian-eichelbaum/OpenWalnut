@@ -21,54 +21,50 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETSINGLE_H
-#define WDATASETSINGLE_H
+#ifndef WVALUESETBASE_H
+#define WVALUESETBASE_H
 
-#include <boost/shared_ptr.hpp>
-
-#include "WDataSet.h"
-
-class WValueSetBase;
-class WGrid;
+#include <cstddef>
 
 /**
- * A data set consisting of a set of values based on a grid.
+ * Abstract base class to all WValueSets. This class doesn't provide any genericness.
  */
-class WDataSetSingle : public WDataSet
+class WValueSetBase
 {
 public:
     /**
-     * Constructs an instance out of a value set, grid and meta information.
+     * Despite this is an abstract class all subclasses should have an order
+     * and dimension.
      */
-    WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
-                    boost::shared_ptr< WGrid > newGrid,
-                    boost::shared_ptr< WMetaInfo > newMetaInfo );
+    WValueSetBase( char order, char dimension );
 
     /**
-     * Destroys this DataSet instance
+     * Dummy since each class with virtual member functions needs one.
      */
-    virtual ~WDataSetSingle();
+    virtual ~WValueSetBase() = 0;
 
     /**
-     * \return Reference to its WValueSet
+     * \return The number of tensors in this ValueSet.
      */
-    boost::shared_ptr< WValueSetBase > getValueSet() const;
+    virtual size_t size() const = 0;
 
     /**
-     * \return Reference to its WGrid
+     * \return The number of integrals (POD like int, double) in this ValueSet.
      */
-    boost::shared_ptr< WGrid > getGrid() const;
+    virtual size_t rawSize() const = 0;
+
+protected:
+    /**
+     * The order of the tensors for this ValueSet
+     */
+    char m_order;
+
+    /**
+     * The dimension of the tensors for this ValueSet
+     */
+    char m_dimension;
 
 private:
-    /**
-     * Stores the reference of the WGrid of this DataSetSingle instance.
-     */
-    boost::shared_ptr< WGrid > m_grid;
-
-    /**
-     * Stores the reference of the WValueSet of this DataSetSingle instance.
-     */
-    boost::shared_ptr< WValueSetBase > m_valueSet;
 };
 
-#endif  // WDATASETSINGLE_H
+#endif  // WVALUESETBASE_H
