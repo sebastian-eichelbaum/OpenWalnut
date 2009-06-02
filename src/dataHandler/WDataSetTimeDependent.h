@@ -24,14 +24,14 @@
 #ifndef WDATASETTIMEDEPENDENT_H
 #define WDATASETTIMEDEPENDENT_H
 
+#include "WDataSet.h"
+
 /*
- *
+ * TODO(math): Document this
  */
-class WDataSetTimeDependent
+class WDataSetTimeDependent : public WDataSet
 {
 public:
-    WDataSetTimeDependent();
-    virtual ~WDataSetTimeDependent();
 };
 
 #endif  // WDATASETTIMEDEPENDENT_H

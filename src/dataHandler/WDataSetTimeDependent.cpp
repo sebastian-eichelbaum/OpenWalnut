@@ -22,13 +22,3 @@
 //---------------------------------------------------------------------------
 
 #include "WDataSetTimeDependent.h"
-
-WDataSetTimeDependent::WDataSetTimeDependent()
-{
-    // TODO(wiebel): Auto-generated constructor stub
-}
-
-WDataSetTimeDependent::~WDataSetTimeDependent()
-{
-    // TODO(wiebel): Auto-generated destructor stub
-}

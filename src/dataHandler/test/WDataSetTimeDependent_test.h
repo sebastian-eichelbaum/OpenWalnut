@@ -31,9 +31,8 @@
 class WDataSetTimeDependentTest : public CxxTest::TestSuite
 {
 public:
-    void testInstantiation( void )
+    void testSomething( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WDataSetTimeDependent tdds );
     }
 };
 
