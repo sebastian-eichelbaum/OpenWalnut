@@ -117,6 +117,58 @@ macro( CXXTEST_ADD_TEST _cxxtest_testname _cxxtest_outfname _cxxtest_testsuite )
 endmacro(CXXTEST_ADD_TEST)
 
 #=============================================================
+# CXXTEST_ADD_TEST_FROM_LIST (public macro)
+#=============================================================
+#
+# Usage:
+#   CXXTEST_ADD_TESTS_FROM_LIST( A, B, ... )
+#
+#   1. A is a list of cpp files where the class name is stripped of
+#   2. then out of the class name the test targets and testsuite names are generated
+#   3. finally they are linked with all libs present in parameter B
+#   4. If there are more arguments (ARGN) then they are exclude from A before 1-3 starts)
+#
+MACRO( CXXTEST_ADD_TESTS_FROM_LIST _SourceLst _TestLbs )
+    # transform parameters into variables, since macro parameters aren't variables
+    SET( _SourceList ${_SourceLst} )
+    SET( _TestLibs ${_TestLbs} )
+
+    # remove unwanted tests
+    IF( ${ARGC} GREATER 2 )
+        FOREACH( fname ${ARGN} )
+            LIST( REMOVE_ITEM _SourceList ${CMAKE_CURRENT_SOURCE_DIR}/${fname} )
+        ENDFOREACH( fname )
+    ENDIF()
+
+    # extract class names from source files
+    FOREACH( _File ${_SourceList} )
+      STRING( REGEX REPLACE "^.*/" "" _StrippedPath "${_File}" )
+      STRING( REGEX REPLACE "\\..*$" "" _StrippedExtension "${_StrippedPath}" )
+      LIST( APPEND _TestList ${_StrippedExtension} )
+    ENDFOREACH( _File )
+
+    # generate for each class a unit test if there is a testsiute for it
+    FOREACH( _ClassName ${_TestList} )
+        SET( _TestName ${_ClassName}_test )
+        SET( _TestTarget unittest_${_ClassName} )
+        SET( _TestSuitePath "${CMAKE_CURRENT_SOURCE_DIR}/test/${_TestName}.h" )
+
+        # check if testsuite is present and generate code if true
+        IF( EXISTS ${_TestSuitePath} )
+            CXXTEST_ADD_TEST( ${_TestTarget}
+                ${_TestName}.cc
+                ${_TestSuitePath}
+                )
+            FOREACH( _LIB ${_TestLibs} )
+                TARGET_LINK_LIBRARIES( ${_TestTarget} ${_LIB} )
+            ENDFOREACH( _LIB )
+        ELSE()
+            MESSAGE( STATUS "WARNING: Skipping ${_ClassName}, no unit test available." )
+        ENDIF()
+    ENDFOREACH( _ClassName )
+ENDMACRO( CXXTEST_ADD_TESTS_FROM_LIST )
+
+#=============================================================
 # main()
 #=============================================================
 

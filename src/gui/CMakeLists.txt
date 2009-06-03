@@ -6,5 +6,7 @@ ADD_LIBRARY( gui SHARED ${GUI_SRC} )
 
 # Unit tests
 IF( CXXTEST_FOUND )
-  CXXTEST_ADD_TEST( unittest_WGUI WGUI_test.cc ${CMAKE_CURRENT_SOURCE_DIR}/test/WGUI_test.h )
+  CXXTEST_ADD_TESTS_FROM_LIST( "${GUI_SRC}"
+                               ""  # no libs for linking required
+                             )
 ENDIF( CXXTEST_FOUND )
