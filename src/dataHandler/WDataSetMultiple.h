@@ -24,6 +24,8 @@
 #ifndef WDATASETMULTIPLE_H
 #define WDATASETMULTIPLE_H
 
+#include "WDataSet.h"
+
 /**
  * TODO(math): Document this!
  */
