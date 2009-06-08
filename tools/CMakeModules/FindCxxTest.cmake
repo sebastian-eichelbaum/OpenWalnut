@@ -128,11 +128,7 @@ endmacro(CXXTEST_ADD_TEST)
 #   3. finally they are linked with all libs present in parameter B
 #   4. If there are more arguments (ARGN) then they are exclude from A before 1-3 starts)
 #
-MACRO( CXXTEST_ADD_TESTS_FROM_LIST _SourceLst _TestLbs )
-    # transform parameters into variables, since macro parameters aren't variables
-    SET( _SourceList ${_SourceLst} )
-    SET( _TestLibs ${_TestLbs} )
-
+FUNCTION( CXXTEST_ADD_TESTS_FROM_LIST _SourceList _TestLibs )
     # remove unwanted tests
     IF( ${ARGC} GREATER 2 )
         FOREACH( fname ${ARGN} )
@@ -166,7 +162,7 @@ MACRO( CXXTEST_ADD_TESTS_FROM_LIST _SourceLst _TestLbs )
             MESSAGE( STATUS "WARNING: Skipping ${_ClassName}, no unit test available." )
         ENDIF()
     ENDFOREACH( _ClassName )
-ENDMACRO( CXXTEST_ADD_TESTS_FROM_LIST )
+ENDFUNCTION( CXXTEST_ADD_TESTS_FROM_LIST )
 
 #=============================================================
 # main()
