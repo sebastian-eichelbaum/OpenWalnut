@@ -73,6 +73,7 @@ TARGET_LINK_LIBRARIES( walnut guiqt4 ${Boost_LIBRARIES} )
 # Creates API via Doxygen
 ADD_CUSTOM_TARGET(doc
                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
+                  COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
                   COMMENT "Build doxygen documentation"
                   VERBATIM )
