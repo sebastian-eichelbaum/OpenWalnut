@@ -1,6 +1,6 @@
 ADD_SUBDIRECTORY( qt4 )
 
-FILE(GLOB GUI_SRC "*.cpp")
+FILE( GLOB GUI_SRC "*.cpp" )
 
 ADD_LIBRARY( gui SHARED ${GUI_SRC} )
 
