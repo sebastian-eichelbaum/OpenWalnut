@@ -32,6 +32,7 @@
 
 /**
  * Base Class for all value set types.
+ * \ingroup dataHandler
  */
 template< typename T > class WValueSet : public WValueSetBase
 {

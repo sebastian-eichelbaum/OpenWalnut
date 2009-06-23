@@ -28,6 +28,7 @@
 
 /**
  * Abstract base class to all WValueSets. This class doesn't provide any genericness.
+ * \ingroup dataHandler
  */
 class WValueSetBase
 {

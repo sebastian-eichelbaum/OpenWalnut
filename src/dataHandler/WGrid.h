@@ -28,6 +28,7 @@
 
 /**
  * Base class to all grid types, e.g. a regular grid.
+ * \ingroup dataHandler
  */
 class WGrid
 {

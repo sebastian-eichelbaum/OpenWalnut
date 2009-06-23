@@ -28,6 +28,7 @@
 
 /**
  * TODO(math): Document this!
+ * \ingroup dataHandler
  */
 class WDataSetMultiple : public WDataSet
 {

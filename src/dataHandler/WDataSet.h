@@ -33,6 +33,7 @@ class WMetaInfo;
  * specifying the different types of data sets. Two of dataset type reprent
  * single and time-dependent datasets (compound of several time steps)
  * respectively. This base class contains the pointer to the meta information.
+ * \ingroup dataHandler
  */
 class WDataSet
 {

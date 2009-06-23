@@ -33,6 +33,7 @@ class WGrid;
 
 /**
  * A data set consisting of a set of values based on a grid.
+ * \ingroup dataHandler
  */
 class WDataSetSingle : public WDataSet
 {
