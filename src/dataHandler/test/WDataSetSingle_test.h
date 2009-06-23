@@ -61,7 +61,7 @@ public:
     }
 
     /**
-     * Retrive a WValueSetBase should always give the original pointer.
+     * Retrieving a WValueSetBase should always give the original pointer.
      */
     void testGetValueSet( void )
     {
@@ -74,7 +74,7 @@ public:
     }
 
     /**
-     * Retrive a WGrid should always give the original pointer.
+     * Retrieving a WGrid should always give the original pointer.
      */
     void testGetGrid( void )
     {
