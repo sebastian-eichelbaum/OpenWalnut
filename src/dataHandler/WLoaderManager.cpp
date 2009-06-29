@@ -21,5 +21,46 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+#include <string>
+#include <boost/thread.hpp>
+
 #include "WLoaderManager.h"
+#include "WDataSet.h"
+#include "WLoaderNIfTI.h"
+
+std::string getSuffix( std::string name )
+{
+    size_t position = name.find_last_of( '.' );
+    if( position == std::string::npos )
+        return "";
+    else
+        return name.substr( position + 1 );
+}
+
+void WLoaderManager::load( std::string fileName,
+                                                      boost::shared_ptr< WDataHandler > dataHandler )
+{
+    std::string suffix = getSuffix( fileName );
+
+    if( suffix == "nii" || suffix == "gz" )
+    {
+        WLoaderNIfTI niiLoader( fileName, dataHandler );
+        boost::thread loaderThread( niiLoader );
+    }
+    else if( suffix == "vtk" )
+    {
+        // This is a dummy implementation.
+        // You need to provide a real implementation here if you want to load vtk.
+        std::cout << "VTK not implemented yet" << std::endl;
+        assert( 0 );
+    }
+    else
+    {
+        std::cout << "Unknown file type." << std::endl;
+        assert( 0 );
+    }
+}
+
+
 

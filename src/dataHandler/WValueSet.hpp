@@ -43,7 +43,8 @@ friend class WValueSetTest;
 
 public:
     /**
-     * Constructs an empty WValueSet instance holding size many values.
+     * Constructs a value set with values of type T. Sets order and dimension
+     * to allow to interprete the values as tensors of a certain order and dimension.
      */
     WValueSet( char order, char dimension, const std::vector< T > data )
         : WValueSetBase( order, dimension ),

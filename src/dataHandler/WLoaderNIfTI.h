@@ -24,7 +24,14 @@
 #ifndef WLOADERNIFTI_H
 #define WLOADERNIFTI_H
 
+#include <string>
+#include <boost/shared_ptr.hpp>
+
 #include "WLoader.h"
+
+class WDataSet;
+class WDataHandler;
+
 
 /**
  * Loader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
@@ -32,8 +39,22 @@
 class WLoaderNIfTI : public WLoader
 {
 public:
+    /**
+     * Constructs a loader to be executed in its own thread and ets the data needed
+     * for the loader when executed in its own thread.
+     */
+    WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+
+    /**
+     * This function is automatically called when creating a new thread for the
+     * loader with boost::thread. It calls the methods of the NIfTI I/O library.
+     */
+    void operator()();
+
 protected:
 private:
+    std::string m_fileName;
+    boost::shared_ptr< WDataHandler > m_dataHandler;
 };
 
 #endif  // WLOADERNIFTI_H

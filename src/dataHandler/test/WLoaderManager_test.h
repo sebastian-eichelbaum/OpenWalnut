@@ -24,21 +24,36 @@
 #ifndef WLOADERMANAGER_TEST_H
 #define WLOADERMANAGER_TEST_H
 
+#include <string>
+#include <iostream>
+
+#include <boost/shared_ptr.hpp>
 #include <cxxtest/TestSuite.h>
 
+
+#include "../WDataHandler.h"
 #include "../WLoaderManager.h"
+#include "../WDataSet.h"
 
 /**
- * TODO(math): Document this!
+ * Testsuite for WLoaderManager.
  */
 class WLoaderManagerTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(math): Document this!
+     * Test the loading routine.
      */
-    void testSomething( void )
+    void testLoad( void )
     {
+        std::string fileName = "fixtures/scalar_signed_short.nii.gz";
+        std::cout << "Test loading of " << fileName << "." << std::endl;
+        boost::shared_ptr< WDataHandler > dataHandler =
+            boost::shared_ptr< WDataHandler >( new WDataHandler() );
+        WLoaderManager testLoaderManager;
+        testLoaderManager.load( fileName, dataHandler );
+        sleep( 4 );  // we need this to allow the thread to terminate
+        TS_ASSERT( dataHandler->getNumberOfDataSets() );
     }
 };
 

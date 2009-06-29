@@ -27,6 +27,7 @@
 /**
  * Base class to all WLoaders which imports data from a given file and generate
  * a WDataSet out of it.
+ * \ingroup dataHandler
  */
 class WLoader
 {
