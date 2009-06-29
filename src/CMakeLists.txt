@@ -104,3 +104,9 @@ ADD_CUSTOM_TARGET(vtest
 ADD_CUSTOM_TARGET(cicheck
                   COMMAND make test && make stylecheck
                   COMMENT "Checks if all is well to commit" )
+
+# Copies fixtures used for tests to the binary directory (where they are expected).
+ADD_CUSTOM_TARGET( fixtures
+                   ALL
+                   COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
+                   COMMENT "Copy fixtures to the right place." )
