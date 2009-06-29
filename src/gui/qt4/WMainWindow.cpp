@@ -31,6 +31,7 @@
 
 #include "../icons/WIcons.h"
 
+
 void WMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
 {
     m_glWidget = new WQtGLWidget();
@@ -40,6 +41,15 @@ void WMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
     dockWidget->setWidget( m_glWidget );
     MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
 }
+
+
+void WMainWindow::connectSlots( QMainWindow *MainWindow )
+{
+    QObject::connect( m_actionExit, SIGNAL( activated() ), MainWindow, SLOT( close() ) );
+    QObject::connect( m_actionLoad, SIGNAL( activated() ), this, SLOT( load() ) );
+    QMetaObject::connectSlotsByName( MainWindow );
+}
+
 
 void WMainWindow::setupGUI( QMainWindow *MainWindow )
 {
@@ -155,13 +165,7 @@ void WMainWindow::setupGUI( QMainWindow *MainWindow )
     m_toolBar->setWindowTitle( QApplication::translate( "MainWindow",
             "toolBar", 0, QApplication::UnicodeUTF8 ) );
 
-    QObject::connect( m_actionExit, SIGNAL( activated() ), MainWindow,
-            SLOT( close() ) );
-
-    QObject::connect( m_actionLoad, SIGNAL( activated() ), this,
-            SLOT( load() ) );
-
-    QMetaObject::connectSlotsByName( MainWindow );
+    connectSlots( MainWindow );
 }
 
 void WMainWindow::setEnabled( bool enable )

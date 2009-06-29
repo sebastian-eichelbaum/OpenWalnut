@@ -72,6 +72,11 @@ private:
      */
     void addDockableGLWidget( QMainWindow *MainWindow );
 
+    /**
+     * Connects some signals with some slots
+     */
+    void connectSlots( QMainWindow *MainWindow );
+
     QAction* m_actionLoad;
     QAction* m_actionSave;
     QAction* m_actionPreferences;
