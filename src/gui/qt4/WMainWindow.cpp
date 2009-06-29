@@ -21,6 +21,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
 #include <QtGui/QDockWidget>
 
 #include "WMainWindow.h"
@@ -156,10 +158,18 @@ void WMainWindow::setupGUI( QMainWindow *MainWindow )
     QObject::connect( m_actionExit, SIGNAL( activated() ), MainWindow,
             SLOT( close() ) );
 
+    QObject::connect( m_actionLoad, SIGNAL( activated() ), this,
+            SLOT( load() ) );
+
     QMetaObject::connectSlotsByName( MainWindow );
 }
 
 void WMainWindow::setEnabled( bool enable )
 {
     // TODO(wiebel): implement here
+}
+
+void WMainWindow::load()
+{
+    std::cout << "test output: load function" << std::endl;
 }

@@ -46,8 +46,10 @@ class WQtPipelineBrowser;
  * This class contains the main window and the layout
  * of the widgets within the window.
  */
-class WMainWindow : public WGUI
+class WMainWindow : public QObject, public WGUI
 {
+    Q_OBJECT
+
 public:
 
     /**
@@ -65,6 +67,11 @@ public:
     void setEnabled( bool enable );
 
 private:
+    /**
+     * Helper routine for adding new docks with GL content
+     */
+    void addDockableGLWidget( QMainWindow *MainWindow );
+
     QAction* m_actionLoad;
     QAction* m_actionSave;
     QAction* m_actionPreferences;
@@ -80,10 +87,12 @@ private:
     WQtGLWidget* m_glWidget;
     WQtPipelineBrowser* m_pipelineBrowser;
 
+
+private slots:
     /**
-     * Helper routine for adding new docks with GL content
+     * gets called when menu option or toolbar button load is activated
      */
-    void addDockableGLWidget( QMainWindow *MainWindow );
+    void load();
 };
 
 #endif  // WMAINWINDOW_H
