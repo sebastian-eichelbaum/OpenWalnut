@@ -22,7 +22,8 @@ ENDIF( CMAKE_HOST_SYSTEM MATCHES Windows )
 
 
 # Package dependencies:
-FIND_PACKAGE( Boost REQUIRED COMPONENTS program_options )
+SET(Boost_USE_MULTITHREAD ON)
+FIND_PACKAGE( Boost 1.36.0 REQUIRED program_options thread )
 FIND_PACKAGE( CxxTest QUIET )
 
 
