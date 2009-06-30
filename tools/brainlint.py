@@ -1940,7 +1940,11 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, error):
     error(filename, linenum, 'whitespace/labels', 4,
           'Labels should never be indented.  '
           'If this is a member-initializer list in a constructor, '
-          'the colon should be on the line after the definition header.')
+          'the colon should be indented on the line after the definition header.')
+  # initializer lists should be indented too!
+  elif not ( initial_spaces > 0 and initial_spaces % 4 == 0 ) and Search(r'^\s*:', line):
+    error(filename, linenum, 'whitespace/lables', 4,
+          'Initializer lists should always be indented.')
   # Case stmts should always be indented 4 spaces
   elif (initial_spaces % 4 != 0)  and Search(r'\s*(case|default).*:$', line):
     error(filename, linenum, 'whitespace/labels', 4,
