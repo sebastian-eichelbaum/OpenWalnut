@@ -1,0 +1,3 @@
+FILE( GLOB MATH_SRC "*.cpp" )
+
+ADD_LIBRARY( math SHARED ${MATH_SRC} )

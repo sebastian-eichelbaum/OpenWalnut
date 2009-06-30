@@ -37,7 +37,7 @@
 #include "io/nifti/nifti1_io.h"
 
 WLoaderNIfTI::WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-: m_fileName( fileName ), m_dataHandler( dataHandler )
+    : m_fileName( fileName ), m_dataHandler( dataHandler )
 {
 }
 

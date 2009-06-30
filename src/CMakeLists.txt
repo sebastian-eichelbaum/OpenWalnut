@@ -61,7 +61,7 @@ ENDIF( CXXTEST_FOUND )
 # -ansi             force ISO-C++98 compliance (not GNU++98)
 SET( CMAKE_CXX_FLAGS "-Wall -pedantic -ansi -Wno-long-long" )
 
-ADD_SUBDIRECTORY( math )
+#ADD_SUBDIRECTORY( math )
 ADD_SUBDIRECTORY( dataHandler )
 ADD_SUBDIRECTORY( graphicsEngine )
 ADD_SUBDIRECTORY( gui )
