@@ -51,12 +51,12 @@ void WLoaderNIfTI::operator()()
                     << std::endl;
     switch( image->datatype )
     {
-    case DT_SIGNED_SHORT:
-        std::cout << "data type: DT_SIGNED_SHORT" << std::endl;
-        break;
-    default:
-        std::cout << "unknown data type " << image->datatype << std::endl;
-        assert( 0 );
+        case DT_SIGNED_SHORT:
+            std::cout << "data type: DT_SIGNED_SHORT" << std::endl;
+            break;
+        default:
+            std::cout << "unknown data type " << image->datatype << std::endl;
+            assert( 0 );
     }
     boost::shared_ptr< WValueSetBase > newValueSet;
     boost::shared_ptr<WGrid> newGrid;

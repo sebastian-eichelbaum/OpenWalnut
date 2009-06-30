@@ -1935,13 +1935,16 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, error):
     error(filename, linenum, 'whitespace/indent', 3,
           'Weird number of spaces at line-start.  '
           'Are you using a 2-space indent?')
-  # Labels should always be indented at least one space.
-  elif initial_spaces and line[:2] != '//' and Search(r'[^:]:\s*$',
-                                                          line):
+  # Labels should never be indented
+  elif initial_spaces and line[:2] != '//' and Search(r'[^:]:\s*$', line) and not Search(r'(case|default)', line):
     error(filename, linenum, 'whitespace/labels', 4,
           'Labels should never be indented.  '
           'If this is a member-initializer list in a constructor, '
           'the colon should be on the line after the definition header.')
+  # Case stmts should always be indented 4 spaces
+  elif (initial_spaces % 4 != 0)  and Search(r'\s*(case|default).*:$', line):
+    error(filename, linenum, 'whitespace/labels', 4,
+          'Cases/Defaults of a switch stmt should always be indented regular.')
 
   # Check if the line is a header guard.
   is_header_guard = False
