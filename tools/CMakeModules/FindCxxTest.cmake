@@ -155,9 +155,8 @@ FUNCTION( CXXTEST_ADD_TESTS_FROM_LIST _SourceList _TestLibs )
                 ${_TestName}.cc
                 ${_TestSuitePath}
                 )
-            FOREACH( _LIB ${_TestLibs} )
-                TARGET_LINK_LIBRARIES( ${_TestTarget} ${_LIB} )
-            ENDFOREACH( _LIB )
+
+            TARGET_LINK_LIBRARIES( ${_TestTarget} ${_TestLibs} )
         ELSE()
             MESSAGE( STATUS "WARNING: Skipping ${_ClassName}, no unit test available." )
         ENDIF()
