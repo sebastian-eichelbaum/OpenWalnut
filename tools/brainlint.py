@@ -660,8 +660,8 @@ def Error(filename, linenum, category, confidence, message):
   magenta= "\033[35m"
   cyan = "\033[36m"
   white = "\033[37m"
-  default= "\033[0m"
-  color=green
+  default = "\033[0m"
+  color = red
   colorStop=default
 
   # if requested to do so write the color code
@@ -2698,7 +2698,8 @@ def ProcessFile(filename, vlevel):
             'One or more unexpected \\r (^M) found;'
             'better to use only a \\n')
 
-  sys.stderr.write('Done processing %s\n' % filename)
+  if _cpplint_state.verbose_level > 1:
+    sys.stderr.write('Done processing %s\n' % filename)
 
 
 def PrintUsage(message):
