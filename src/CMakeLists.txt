@@ -96,11 +96,11 @@ FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
     
     FOREACH( fname ${EXCLUDE_H} )
-        LIST ( REMOVE_ITEM STYLE_H ${EXCLUDE_H} )
+        LIST ( REMOVE_ITEM STYLE_H ${fname} )
     ENDFOREACH( fname )
 
     FOREACH( fname ${EXCLUDE_CPP} )
-        LIST ( REMOVE_ITEM STYLE_CPP ${EXCLUDE_CPP} )
+        LIST ( REMOVE_ITEM STYLE_CPP ${fname} )
     ENDFOREACH( fname )
 ENDFOREACH( dirname )
 
