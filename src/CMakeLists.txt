@@ -87,6 +87,24 @@ ADD_CUSTOM_TARGET(doc
 #    noncolored if it is set to OFF
 FILE(GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp)
 FILE(GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h)
+
+#Set dirs to exclude from stylecheck
+SET ( EXCLUDE_DIRS /dataHandler/io/nifti/ )
+
+FOREACH( dirname ${EXCLUDE_DIRS} )
+    FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
+    FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
+    
+    FOREACH( fname ${EXCLUDE_H} )
+        LIST ( REMOVE_ITEM STYLE_H ${EXCLUDE_H} )
+    ENDFOREACH( fname )
+
+    FOREACH( fname ${EXCLUDE_CPP} )
+        LIST ( REMOVE_ITEM STYLE_CPP ${EXCLUDE_CPP} )
+    ENDFOREACH( fname )
+ENDFOREACH( dirname )
+
+
 IF( CMAKE_COLOR_MAKEFILE )
     ADD_CUSTOM_TARGET(stylecheck
         COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py --color ${STYLE_CPP} ${STYLE_H}
