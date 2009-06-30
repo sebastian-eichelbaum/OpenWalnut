@@ -73,7 +73,7 @@ TARGET_LINK_LIBRARIES( walnut guiqt4 ${Boost_LIBRARIES} )
 
 
 # Special targets:
-#-----------------
+#-----------------------------------------------------------------------------
 # Creates API via Doxygen
 ADD_CUSTOM_TARGET(doc
                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
@@ -88,6 +88,7 @@ ADD_CUSTOM_TARGET(doc
 FILE(GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp)
 FILE(GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h)
 
+#-----------------------------------------------------------------------------
 #Set dirs to exclude from stylecheck
 SET ( EXCLUDE_DIRS /dataHandler/io/nifti/ )
 
@@ -117,16 +118,19 @@ ELSE( CMAKE_COLOR_MAKEFILE )
         COMMENT "Check if code complies to CodingStandard and use noncolored output for violation messages" )
 ENDIF( CMAKE_COLOR_MAKEFILE )
 
+#-----------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET(vtest
                   COMMAND make test ARGS="-V"
                   COMMENT "Runs the test in verboseness to see what actually went wrong" )
 
+#-----------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET(cicheck
                   COMMAND make test && make stylecheck
                   COMMENT "Checks if all is well to commit" )
 
+#-----------------------------------------------------------------------------
 # Copies fixtures used for tests to the binary directory (where they are expected).
 ADD_CUSTOM_TARGET( fixtures
                    ALL
