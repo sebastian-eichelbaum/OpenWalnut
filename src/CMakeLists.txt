@@ -22,12 +22,13 @@ ENDIF( CMAKE_HOST_SYSTEM MATCHES Windows )
 
 
 # Package dependencies:
-SET(Boost_USE_MULTITHREAD ON)
+SET( Boost_USE_MULTITHREAD ON )
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f -and -not -name '*svn*'` | grep boost | awk '{print $2}' | sort | uniq
 FIND_PACKAGE( Boost 1.36.0 REQUIRED program_options thread )
 FIND_PACKAGE( CxxTest QUIET )
+MARK_AS_ADVANCED ( CXXTEST_PERL_TESTGEN_EXECUTABLE )
 
 
 # Platform dependencies
@@ -41,8 +42,17 @@ ELSE( OPENWALNUT_PLATFORM MATCHES ${OPENWALNUT_PLATFORM_WINDOWS} )
        CACHE PATH "The libraries will be put into this directory.")
 ENDIF( OPENWALNUT_PLATFORM MATCHES ${OPENWALNUT_PLATFORM_WINDOWS} )
 MARK_AS_ADVANCED( LIBRARY_OUTPUT_PATH )
-SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The executables will be put into this directory.")
+SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH 
+        "The executables will be put into this directory.")
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
+
+
+# Set default build type
+IF ( NOT CMAKE_BUILD_TYPE )
+    SET( CMAKE_BUILD_TYPE Release CACHE STRING
+    "Choose the type of build, options are: Debug Release RelWithDebInfo Static" 
+    FORCE )
+ENDIF ( NOT CMAKE_BUILD_TYPE )
 
 
 # Enable unit tests via CxxTest
@@ -56,24 +66,59 @@ ENDIF( CXXTEST_FOUND )
 
 
 # Global compiler flags:
-#-----------------------
+#-------------------------------------------------------------------------------------------------------------
 # -Wno-long-long    since on Ubuntu 8.10 it won't compile without it
 # -ansi             force ISO-C++98 compliance (not GNU++98)
-SET( CMAKE_CXX_FLAGS "-Wall -pedantic -ansi -Wno-long-long" )
+SET( CMAKE_CXX_FLAGS "-Wall -pedantic -ansi -Wno-long-long" CACHE STRING "" FORCE )
+SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
+SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
+SET( CMAKE_CXX_FLAGS_STATIC "-O3" CACHE STRING "" FORCE )
+MARK_AS_ADVANCED( CMAKE_CXX_FLAGS_STATIC )
+SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 
-#ADD_SUBDIRECTORY( math )
-ADD_SUBDIRECTORY( dataHandler )
-ADD_SUBDIRECTORY( graphicsEngine )
-ADD_SUBDIRECTORY( gui )
-ADD_SUBDIRECTORY( plugins )
-ADD_SUBDIRECTORY( utils )
-ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
+IF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
+    #ADD_SUBDIRECTORY( math )
+    ADD_SUBDIRECTORY( dataHandler )
+    ADD_SUBDIRECTORY( graphicsEngine )
+    ADD_SUBDIRECTORY( gui )
+    ADD_SUBDIRECTORY( plugins )
+    ADD_SUBDIRECTORY( utils )
+    ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
+    TARGET_LINK_LIBRARIES( walnut guiqt4 ${Boost_LIBRARIES} )
+    
+ELSE ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
+    FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.cpp )
+    FILE( GLOB NIFTI_SRC "dataHandler/io/nifti/*.c" )
+    ADD_DEFINITIONS(-DHAVE_ZLIB)
 
-TARGET_LINK_LIBRARIES( walnut guiqt4 ${Boost_LIBRARIES} )
+    # Package dependencies:
+    FIND_PACKAGE( Qt4 REQUIRED )
+    FIND_PACKAGE( GLEW REQUIRED )
+
+    # Includes:
+    INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
+
+    # Libraries for linking:
+    SET( QT_LINK_LIBRARIES ${QT_QTCORE_LIBRARY}
+                       ${QT_QTGUI_LIBRARY}
+                       ${QT_QTOPENGL_LIBRARY} )
+
+    # add here all classes that inherit from QObject 
+    SET(GUI_QT4_MOC_HDRS
+        gui/qt4/WMainWindow.h
+    )
+
+    QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
+    
+    ADD_EXECUTABLE( walnut ${ALL_SRC}  ${NIFTI_SRC} ${GUI_QT4_MOC_SRCS} )
+    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${QT_LINK_LIBRARIES} ${GLEW_LIBRARY} )
+ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
+
+
 
 
 # Special targets:
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------
 # Creates API via Doxygen
 ADD_CUSTOM_TARGET(doc
                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
@@ -82,13 +127,14 @@ ADD_CUSTOM_TARGET(doc
                   COMMENT "Build doxygen documentation"
                   VERBATIM )
 
+
 # Checks style guide lines via the BrainLint tool against all source code files
 #    The output is colored when variable CMAKE_COLOR_MAKEFILE is set to ON,
 #    noncolored if it is set to OFF
 FILE(GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp)
 FILE(GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h)
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------
 #Set dirs to exclude from stylecheck
 SET ( EXCLUDE_DIRS /dataHandler/io/nifti/ )
 
@@ -118,21 +164,25 @@ ELSE( CMAKE_COLOR_MAKEFILE )
         COMMENT "Check if code complies to CodingStandard and use noncolored output for violation messages" )
 ENDIF( CMAKE_COLOR_MAKEFILE )
 
-#-----------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET(vtest
                   COMMAND make test ARGS="-V"
                   COMMENT "Runs the test in verboseness to see what actually went wrong" )
 
-#-----------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET(cicheck
                   COMMAND make test && make stylecheck
                   COMMENT "Checks if all is well to commit" )
 
-#-----------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------------------------------------
 # Copies fixtures used for tests to the binary directory (where they are expected).
 ADD_CUSTOM_TARGET( fixtures
                    ALL
-                   COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
+                   COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures 
+                        ${PROJECT_BINARY_DIR}/dataHandler/
                    COMMENT "Copy fixtures to the right place." )
