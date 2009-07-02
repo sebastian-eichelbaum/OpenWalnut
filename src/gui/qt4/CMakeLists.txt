@@ -5,9 +5,9 @@ FIND_PACKAGE( Qt4 REQUIRED )
 INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
 
 # Libraries for linking:
-SET( QT_LIBS optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG}
-                       optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG}
-                       optimized ${QT_QTOPENGL_LIBRARY} debug ${QT_QTOPENGL_LIBRARY_DEBUG} )
+SET( QT_LIBS ${QT_QTCORE_LIBRARY}
+             ${QT_QTGUI_LIBRARY}
+             ${QT_QTOPENGL_LIBRARY} )
 
 # add here all classes that inherit from QObject 
 SET(GUI_QT4_MOC_HDRS
