@@ -128,6 +128,7 @@ _ERROR_CATEGORIES = '''\
   readability/braces
   readability/casting
   readability/check
+  readability/comments
   readability/constructors
   readability/fn_size
   readability/function
@@ -759,6 +760,9 @@ def RemoveMultiLineComments(filename, lines, error):
     lineix_begin = FindNextMultiLineCommentStart(lines, lineix)
     if lineix_begin >= len(lines):
       return
+    if not Search(r'/\*\*', lines[lineix_begin]):
+      error(filename, lineix_begin, 'readability/comments', 4, 'Multiline comment allowed only for doxygen comments, use "//".')
+    
     lineix_end = FindNextMultiLineCommentEnd(lines, lineix_begin)
     if lineix_end >= len(lines):
       error(filename, lineix_begin + 1, 'readability/multiline_comment', 5,
