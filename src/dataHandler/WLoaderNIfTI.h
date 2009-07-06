@@ -28,6 +28,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WLoader.h"
+#include "WMetaInfo.h"
+
+#include "io/nifti/nifti1_io.h"
 
 class WDataSet;
 class WDataHandler;
@@ -53,6 +56,8 @@ public:
 
 protected:
 private:
+    void fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header );
+
     std::string m_fileName;
     boost::shared_ptr< WDataHandler > m_dataHandler;
 };
