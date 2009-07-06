@@ -26,7 +26,7 @@
 
 #include "WDataSet.h"
 
-/*
+/**
  * TODO(math): Document this
  * \ingroup dataHandler
  */

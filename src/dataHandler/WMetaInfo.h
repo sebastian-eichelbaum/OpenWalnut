@@ -178,9 +178,9 @@ private:
      */
     float m_dz;
 
-    /*
-     * TODO do we want to keep these fields?
-     */
+    //
+    // TODO(schurade): do we want to keep these fields?
+    //
 
     /**
      * code of the scale unit used
@@ -192,10 +192,10 @@ private:
      */
     std::string m_xyzUnitsName;
 
-    /*
-     * TODO qforms will take some learning on how to use them
-     * for now we just keep them, better explanation will follow
-     */
+    //
+    // TODO(schurade): qforms will take some learning on how to use them
+    // for now we just keep them, better explanation will follow
+    //
 
     /**
      * qform code
