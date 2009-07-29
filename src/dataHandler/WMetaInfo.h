@@ -50,6 +50,9 @@ public:
     int getDataType() const;
     void setDataType( int dataType );
 
+    int getValueDim() const;
+    void setValueDim( int valueDim );
+
     int getNx() const;
     void setNx( int nx );
 
@@ -147,6 +150,11 @@ private:
      *
      */
     int m_dataType;
+
+    /**
+     *
+     */
+    int m_valueDim;
 
     /**
      * count voxels in x direction

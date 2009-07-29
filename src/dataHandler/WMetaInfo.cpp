@@ -31,6 +31,7 @@ WMetaInfo::WMetaInfo() :
     m_name( "" ),
     m_fileName( "" ),
     m_dataType( 0 ),
+    m_valueDim( 0 ),
     m_nx( 0 ),
     m_ny( 0 ),
     m_nz( 0 ),
@@ -88,6 +89,17 @@ void WMetaInfo::setDataType( int dataType )
 {
     m_dataType = dataType;
 }
+
+int WMetaInfo::getValueDim() const
+{
+    return m_valueDim;
+}
+
+void WMetaInfo::setValueDim( int valueDim )
+{
+    m_valueDim = valueDim;
+}
+
 
 int WMetaInfo::WMetaInfo::getNx() const
 {

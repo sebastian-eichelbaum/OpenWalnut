@@ -41,52 +41,75 @@ WLoaderNIfTI::WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandle
 {
 }
 
+
+template< typename T > std::vector< T > WLoaderNIfTI::copyArray( const T* dataArray, const size_t nbValues,
+        const size_t vDim )
+{
+    std::vector< T > data( nbValues * vDim );
+    for( unsigned int i = 0; i < nbValues; ++i )
+    {
+        for ( unsigned int j = 0; j < vDim; ++j )
+        {
+            data[i * vDim + j] = dataArray[( j * nbValues ) + i];
+        }
+    }
+    return data;
+}
+
+
 void WLoaderNIfTI::operator()()
 {
     nifti_image* header = nifti_image_read( m_fileName.c_str(), 0 );
     int columns = header->dim[1];
     int rows = header->dim[2];
     int frames = header->dim[3];
-    std::cout << "grid dimensions: " << columns << " " << rows << " " << frames
-                    << std::endl;
-    switch( header->datatype )
-    {
-        case DT_SIGNED_SHORT:
-            std::cout << "data type: DT_SIGNED_SHORT" << std::endl;
-            break;
-        default:
-            std::cout << "unknown data type " << header->datatype << std::endl;
-            assert( 0 );
-    }
+
     boost::shared_ptr< WValueSetBase > newValueSet;
     boost::shared_ptr<WGrid> newGrid;
 
     nifti_image* filedata = nifti_image_read( m_fileName.c_str(), 1 );
 
-    unsigned int valueDim = header->dim[4];
+    unsigned int vDim = header->dim[4];
     unsigned int nbTens = columns * rows * frames;
-    unsigned int nbValues = nbTens * valueDim;
+    unsigned int nbValues = nbTens * vDim;
 
     nifti_image_infodump( header );
 
-    if( header->datatype == DT_SIGNED_SHORT && valueDim == 1 )
+    switch( header->datatype )
     {
-        std::cout << "DataType SIGNED_SHORT: " << header->datatype << std::endl;
-        int16_t* myImage = reinterpret_cast<int16_t*>( filedata->data );
-        std::vector< int16_t > data( nbValues );
-        for( unsigned int i = 0; i < nbValues; i++ )
+        case DT_UNSIGNED_CHAR:
         {
-            data[i] = myImage[i];
+            std::vector< int8_t > data =
+                copyArray( reinterpret_cast<int8_t*>( filedata->data ), nbValues, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase > ( new WValueSet< int8_t >( 0, vDim, data ) );
+            newGrid = boost::shared_ptr< WGrid >( new WGrid( nbValues ) );
+            break;
         }
-        newValueSet = boost::shared_ptr< WValueSetBase > ( new WValueSet< int16_t >( 0, valueDim, data ) );
-        newGrid = boost::shared_ptr< WGrid >( new WGrid( nbValues ) );
+
+        case DT_SIGNED_SHORT:
+        {
+           std::vector< int16_t > data =
+               copyArray( reinterpret_cast<int16_t*>( filedata->data ), nbValues, vDim );
+           newValueSet = boost::shared_ptr< WValueSetBase > ( new WValueSet< int16_t >( 0, vDim, data ) );
+           newGrid = boost::shared_ptr< WGrid >( new WGrid( nbValues ) );
+           break;
+        }
+
+        case DT_FLOAT:
+        {
+            std::vector< float > data =
+                copyArray( reinterpret_cast<float*>( filedata->data ), nbValues, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase > ( new WValueSet< float >( 0, vDim, data ) );
+            newGrid = boost::shared_ptr< WGrid >( new WGrid( nbValues ) );
+            break;
+        }
+
+        default:
+            std::cout << "unknown data type " << header->datatype << std::endl;
+            newValueSet = boost::shared_ptr< WValueSetBase >();
+            newGrid = boost::shared_ptr< WGrid >();
     }
-    else
-    {
-        std::cout << "unknown data type " << header->datatype << std::endl;
-        newValueSet = boost::shared_ptr< WValueSetBase >();
-        newGrid = boost::shared_ptr< WGrid >();
-    }
+
 
     boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr<WMetaInfo>( new WMetaInfo() );
     fillMetaInfo( metaInfo, header );
@@ -102,6 +125,7 @@ void WLoaderNIfTI::fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_
     metaInfo->setName( m_fileName );
     metaInfo->setFileName( m_fileName );
     metaInfo->setDataType( header->datatype );
+    metaInfo->setValueDim( header->dim[4] );
     metaInfo->setNx( header->nx );
     metaInfo->setNy( header->ny );
     metaInfo->setNz( header->nz );

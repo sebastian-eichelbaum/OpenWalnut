@@ -25,6 +25,7 @@
 #define WLOADERNIFTI_H
 
 #include <string>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 
 #include "WLoader.h"
@@ -56,6 +57,8 @@ public:
 
 protected:
 private:
+    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues,
+            const size_t vDim );
     void fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header );
 
     std::string m_fileName;
