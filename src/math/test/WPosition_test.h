@@ -38,7 +38,6 @@ public:
     {
         TS_TRACE( "Nothing to test for WPosition. See the tests of WVector3D." );
     }
-
 };
 
 #endif  // WPOSITION_TEST_H

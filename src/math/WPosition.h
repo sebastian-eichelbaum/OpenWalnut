@@ -26,7 +26,8 @@
 
 #include "WVector3D.h"
 
-/*!\class WPosition
+/**
+ * \class WPosition
  * The file %WPosition.h just includes %WVector3D.h.
  * There is "typedef WVector3D WPosition;" in %WVector3D.h.
  * WPosition such is just another name for WVector3D to indicate the specific use
