@@ -33,12 +33,20 @@ template< typename T > class WValue
 {
 public:
     /*
-     * Create a WValue wit the given number of components.
+     * Create a WValue with the given number of components.
      * The components will be set to zero if T is a type representing numbers.
      */
     WValue( size_t nbComponents )
+    : m_components( nbComponents )
     {
-        m_components.resize( nbComponents );
+    }
+
+    /*
+     * Create a WValue as copy of the one given as parameter.
+     */
+    WValue( const WValue& newValue )
+    : m_components( newValue.m_components )
+    {
     }
 
     /**

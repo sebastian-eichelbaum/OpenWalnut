@@ -31,6 +31,10 @@
  */
 class WVector3D : public WValue<double>
 {
+    /**
+     * Only UnitTests are allowed to be friends of this class
+     */
+    friend class WVector3DTest;
 public:
     /**
      * Produces a zero vector.
@@ -45,20 +49,32 @@ public:
      */
     WVector3D( const WVector3D& newVector );
 
-#warning how about constness, returning a reference and so on regarding the following operators.
     /**
-     * Returns a reference to to the i-th component.
+     * Returns a reference to the i-th component in order
+     * to provide access to the component.
      */
-    double& operator[]( size_t i ) const;
-    WVector3D operator+( const WVector3D& summand2 ) const;
-    WVector3D operator-( const WVector3D& subtrahend ) const;
-    double operator*( const WVector3D &factor2 ) const;
-    WVector3D crossproduct( const WVector3D& factor2 ) const;
-    bool operator==( const WVector3D& rhs ) const;
-    bool operator!=( const WVector3D& rhs ) const;
-    double norm() const;
-    void normalize();
-    WVector3D normalized() const;
+    double& operator[]( size_t i );
+
+    /**
+     * Returns a const reference to the i-th component in order
+     * to provide read-only access to the component.
+     */
+    const double& operator[]( size_t i ) const;
+
+//
+// These functions will come soon. Together with their tests.
+//
+// TODO(wiebel): implement the following member functions!
+//
+//    WVector3D operator+( const WVector3D& summand2 ) const;
+//    WVector3D operator-( const WVector3D& subtrahend ) const;
+//    double operator*( const WVector3D &factor2 ) const;
+//    WVector3D crossproduct( const WVector3D& factor2 ) const;
+//    bool operator==( const WVector3D& rhs ) const;
+//    bool operator!=( const WVector3D& rhs ) const;
+//    double norm() const;
+//    void normalize();
+//    WVector3D normalized() const;
 
 protected:
 private:

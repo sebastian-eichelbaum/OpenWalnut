@@ -37,6 +37,25 @@ WVector3D::WVector3D( double x, double y, double z )
     m_components[2] = z;
 }
 
+WVector3D::WVector3D( const WVector3D & newVector )
+    : WValue<double>( newVector )
+{
+}
+
+double& WVector3D::operator[]( size_t i )
+{
+    return m_components[i];
+}
+
+const double& WVector3D::operator[]( size_t i ) const
+{
+    return m_components[i];
+}
+
+
+
+
+
 
 
 

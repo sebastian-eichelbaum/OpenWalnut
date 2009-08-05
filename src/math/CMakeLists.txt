@@ -5,6 +5,6 @@ ADD_LIBRARY( math SHARED ${MATH_SRC} )
 # Unit tests
 IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${MATH_SRC}" 
-                               "" #no modules to link against yet 
+                               "math" 
                               )
 ENDIF( CXXTEST_FOUND )
