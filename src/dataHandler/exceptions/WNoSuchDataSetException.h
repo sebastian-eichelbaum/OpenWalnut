@@ -24,9 +24,9 @@
 #ifndef WNOSUCHDATASETEXCEPTION_H
 #define WNOSUCHDATASETEXCEPTION_H
 
-#include <list>
-#include <stdexcept>
 #include <string>
+
+#include "../../common/WException.h"
 
 /**
  * Should be thrown when an invalid index is used to get a WDataSet from the
@@ -37,19 +37,14 @@
  * programmer, not by the runtime system (e.g. allocation memory) or other
  * libraries.
  */
-class WNoSuchDataSetException : public std::logic_error
+class WNoSuchDataSetException : public WException
 {
-/**
- * Only UnitTests are allowed to be a friend of this class.
- */
-friend class WNoSuchDataSetExceptionTest;
-
 public:
     /**
      * Constructs new exception.
      */
-    WNoSuchDataSetException( const std::string &s = std::string() ) throw()
-        : std::logic_error( s )
+    WNoSuchDataSetException( const std::string& s = std::string() ) throw()
+        : WException( s )
     {
     }
 
@@ -60,18 +55,9 @@ public:
     {
     };
 
-    /**
-     * Prints the trace of the call chain which caused this exception.
-     */
-    std::string getTrace( ) const;
-
 protected:
 
 private:
-    /**
-     * Stack trace for identifying the source where this exception came from.
-     */
-    std::list< std::string > m_trace;
 };
 
 #endif  // WNOSUCHDATASETEXCEPTION_H

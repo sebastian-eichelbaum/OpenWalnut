@@ -21,21 +21,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
-#include <stdexcept>
-#include <string>
-
-#include <boost/algorithm/string.hpp>
 
 #include "WNoSuchDataSetException.h"
 
-std::string WNoSuchDataSetException::getTrace() const
-{
-  std::string result( what() );
-  result += "\n\n";
-  std::list< std::string >::const_iterator citer;
-  for( citer = m_trace.begin(); citer != m_trace.end(); ++citer )
-    result += "trace: " + *citer + "\n";
-  boost::trim( result );
-  return result;
-}
