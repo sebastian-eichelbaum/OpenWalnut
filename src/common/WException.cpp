@@ -21,7 +21,15 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef __linux__
+// This is highly platform dependent. Used for backtrace functionality.
+#include <execinfo.h>
+#include <cxxabi.h>
+#endif  // __linux__
+
+#include <iostream>
 #include <list>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -33,7 +41,11 @@ WException::WException( const std::string& msg ): exception()
 {
     // initialize members
     m_Msg = msg;
+
+    // print stacktrace and message
+    std::cerr << "Exception thrown! Backtrace:" << std::endl << getBacktrace() << std::endl;
 }
+
 
 WException::~WException() throw()
 {
@@ -42,6 +54,7 @@ WException::~WException() throw()
 
 const char* WException::what() const throw()
 {
+    // return it
     return m_Msg.c_str();
 }
 
@@ -54,5 +67,95 @@ std::string WException::getTrace() const
         result += "trace: " + *citer + "\n";
     boost::trim( result );
     return result;
+}
+
+std::string WException::getBacktrace() const
+{
+    // print trace here
+    std::ostringstream o;
+
+#ifndef __linux__
+    o << "Backtrace not supported on your platform. Currently just works on Linux. Sorry!";
+#endif  // __linux__
+
+#ifdef __linux__
+
+    // This is highly platform dependent. It MIGHT also work on BSD and other unix.
+
+    // Automatic callstack backtrace
+    const size_t maxDepth = 100;
+    size_t stackDepth;
+    void* stackAddrs[maxDepth];
+    char** stackSymbols;
+
+    // acquire stacktrace
+    stackDepth = backtrace( stackAddrs, maxDepth );
+    stackSymbols = backtrace_symbols( stackAddrs, stackDepth );
+
+    // for each stack element -> demangle and print
+    for ( size_t i = 1; i < stackDepth; i++ )
+    {
+        // need some space for function name
+        // just a guess, especially template names might be even longer
+        size_t functionLength = 512;
+        char* function = new char[functionLength];
+
+        // find mangled function name in stackSymbols[i]
+        char* begin = 0;
+        char* end = 0;
+
+        // find the parentheses and address offset surrounding the mangled name
+        for ( char* j = stackSymbols[i]; *j; ++j )
+        {
+            if ( *j == '(' )
+            {
+                begin = j;
+            }
+            else if ( *j == '+' )
+            {
+                end = j;
+            }
+        }
+
+        // found?
+        if ( begin && end )
+        {
+            *begin++ = '(';
+            *end = '\0';    // temporarily end string there (since \0 is string delimiter)
+
+            // found our mangled name, now in [begin, end)
+            int status;
+            char* ret = abi::__cxa_demangle( begin, function, &functionLength, &status );
+
+            if ( ret )
+            {
+                // return value may be a realloc() of the input
+                function = ret;
+            }
+            else
+            {
+                // demangling failed, just pretend it's a C function with no args
+                std::strncpy( function, begin, functionLength );
+                std::strncat( function, "()", functionLength );
+                function[functionLength-1] = '\0';
+            }
+            *end = '+';
+            o << function << "\t->\t" << stackSymbols[i] << std::endl;
+        }
+        else
+        {
+            // didn't find the mangled name, just print the whole line
+            o <<  "???\t->\t" << stackSymbols[i] << std::endl;
+        }
+
+        delete[] function;
+    }
+
+    // backtrace_symbols malloc()ed some mem -> we NEED to use free()
+    free( stackSymbols );
+
+#endif  // __linux__
+
+    return o.str();
 }
 

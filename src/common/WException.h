@@ -69,6 +69,13 @@ public:
      */
     std::string getTrace( ) const;
 
+    /** 
+     * \par Description
+     * Returns a call stacktrace.
+     * \return The backtrace at the moment of "throw".
+     */
+    std::string getBacktrace() const;
+
 protected:
     /**
      * Message given during throw.

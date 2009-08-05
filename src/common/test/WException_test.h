@@ -60,6 +60,32 @@ public:
         WException f;
         TS_ASSERT_EQUALS( std::string(), f.getTrace() );
     }
+
+    /**
+     * Test backtrace. This test always passes on platforms other than Linux!
+     */
+    void testBacktrace( void )
+    {
+#ifndef __linux__           // every platform not Linux will pass this test since only Linux is supported
+        TS_ASSERT( true );
+#endif  // __linux__
+#ifdef __linux__
+        try
+        {
+            new WException();
+        }
+        catch( const WException& e )
+        {
+            std::string bt = e.getBacktrace();
+            // how to test this? Since the trace is different in release and debug mode, we simply test for
+            // non empty string here.
+
+            // TODO(ebaum): better test! (maybe use find to search for some texts like CxxTest::TestRunner or
+            // something similar which only will work in debug mode)
+            TS_ASSERT( bt.length() );
+        }
+#endif  // __linux__
+    }
 };
 
 #endif  // WEXCEPTION_TEST_H
