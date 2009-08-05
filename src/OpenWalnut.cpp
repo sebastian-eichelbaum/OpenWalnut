@@ -31,7 +31,7 @@
  *
  * \mainpage OpenWalnut Inline Documentation
  *
- * For a list of the current modules see the "Modules" tab in the naviagtion bar above.
+ * For a list of the current modules see the "Modules" tab in the navigation bar above.
  */
 int main( int argc, char* argv[] )
 {
