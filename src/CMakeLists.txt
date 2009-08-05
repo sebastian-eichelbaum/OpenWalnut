@@ -83,8 +83,10 @@ IF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     ADD_SUBDIRECTORY( gui )
     ADD_SUBDIRECTORY( plugins )
     ADD_SUBDIRECTORY( utils )
+    ADD_SUBDIRECTORY( kernel )
+    ADD_SUBDIRECTORY( common )
     ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
-    TARGET_LINK_LIBRARIES( walnut guiqt4 ${Boost_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( walnut kernel guiqt4 ${Boost_LIBRARIES} )
     
 ELSE ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.cpp )
@@ -127,6 +129,25 @@ ADD_CUSTOM_TARGET(doc
                   COMMENT "Build doxygen documentation"
                   VERBATIM )
 
+# Uses ctags to create source tags, usable in many editors like VIM or Emacs
+ADD_CUSTOM_COMMAND(OUTPUT ctags
+                   COMMAND ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/
+                   COMMENT "Build ctags tagfile"
+                  )
+
+# Uses cscope to create several source graphs (dependency, call, caller, ...), usable in many editors like VIM or Emacs
+ADD_CUSTOM_COMMAND(OUTPUT cscope
+                   COMMAND cscope -R -b
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/
+                   COMMENT "Build cscope tagfile"
+                  )
+
+# The command "make tags" creates ctags and cscope tag files
+ADD_CUSTOM_TARGET(tags
+                  DEPENDS ctags
+                  DEPENDS cscope
+                  )
 
 # Checks style guide lines via the BrainLint tool against all source code files
 #    The output is colored when variable CMAKE_COLOR_MAKEFILE is set to ON,
