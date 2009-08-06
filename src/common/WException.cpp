@@ -40,7 +40,7 @@
 WException::WException( const std::string& msg ): exception()
 {
     // initialize members
-    m_Msg = msg;
+    m_msg = msg;
 
     // print stacktrace and message
     std::cerr << "Exception thrown! Backtrace:" << std::endl << getBacktrace() << std::endl;
@@ -55,7 +55,7 @@ WException::~WException() throw()
 const char* WException::what() const throw()
 {
     // return it
-    return m_Msg.c_str();
+    return m_msg.c_str();
 }
 
 std::string WException::getTrace() const

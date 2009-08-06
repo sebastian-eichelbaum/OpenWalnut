@@ -28,7 +28,6 @@
 #include <list>
 #include <string>
 
-
 /**
  * \par Description:
  * Basic exception handler.
@@ -80,7 +79,7 @@ protected:
     /**
      * Message given during throw.
      */
-    std::string m_Msg;
+    std::string m_msg;
 
     /**
      * Stack trace for identifying the source where this exception came from.

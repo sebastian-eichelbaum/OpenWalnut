@@ -79,9 +79,6 @@ public:
             std::string bt = e.getBacktrace();
             // how to test this? Since the trace is different in release and debug mode, we simply test for
             // non empty string here.
-
-            // TODO(ebaum): better test! (maybe use find to search for some texts like CxxTest::TestRunner or
-            // something similar which only will work in debug mode)
             TS_ASSERT( bt.length() );
         }
 #endif  // __linux__

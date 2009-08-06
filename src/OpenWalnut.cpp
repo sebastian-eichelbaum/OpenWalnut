@@ -26,6 +26,9 @@
 #include "gui/qt4/WMainApplication.h"
 #include "utils/WOptionHandler.h"
 
+#include "common/WException.h"
+#include "common/WSegmentationFault.h"
+
 /**
  * The main routine starting up the whole application.
  *
@@ -43,6 +46,10 @@ int main( int argc, char* argv[] )
     "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>." << std::endl;
     std::cout << std::endl;  // Create new line after message for clarity.
 
+    // install signal handler as early as possible
+    WSegmentationFault::installSignalHandler();
+
+    // start application
     WOptionHandler h( argc, argv );
     return h.takeActions();
 }
