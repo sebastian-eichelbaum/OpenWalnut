@@ -25,7 +25,7 @@
 
 #include "WSegmentationFault.h"
 
-WSegmentationFault::WSegmentationFault( const std::string& msg )
+WSegmentationFault::WSegmentationFault( const std::string& msg ): WException( msg )
 {
     // initialize members
     // will the user ever have the chance to set msg?

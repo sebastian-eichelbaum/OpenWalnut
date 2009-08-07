@@ -66,10 +66,7 @@ public:
      */
     void testBacktrace( void )
     {
-#ifndef __linux__           // every platform not Linux will pass this test since only Linux is supported
-        TS_ASSERT( true );
-#endif  // __linux__
-#ifdef __linux__
+#if ( defined( __linux__ ) && defined( __GNUC__ ) )
         try
         {
             new WException();
@@ -81,7 +78,10 @@ public:
             // non empty string here.
             TS_ASSERT( bt.length() );
         }
-#endif  // __linux__
+#else
+        // every platform not Linux will pass this test since only Linux is supported
+        TS_ASSERT( true );
+#endif
     }
 };
 

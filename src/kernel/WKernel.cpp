@@ -22,7 +22,6 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
-#include <boost/exception.hpp>
 
 #include "WKernel.h"
 #include "../common/WException.h"

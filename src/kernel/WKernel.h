@@ -52,10 +52,10 @@ public:
     WKernel( const WKernel& other );
 
 private:
-    /** 
+    /**
      * \par Description
      * Loads all the modules it can find.
-     * \exception 
+     * \exception
      */
     void loadModules();
 };

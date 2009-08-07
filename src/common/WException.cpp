@@ -21,11 +21,11 @@
 //
 //---------------------------------------------------------------------------
 
-#ifdef __linux__
+#if ( defined( __linux__ ) && defined( __GNUC__ ) )
 // This is highly platform dependent. Used for backtrace functionality.
 #include <execinfo.h>
 #include <cxxabi.h>
-#endif  // __linux__
+#endif
 
 #include <iostream>
 #include <list>
@@ -43,7 +43,7 @@ WException::WException( const std::string& msg ): exception()
     m_msg = msg;
 
     // print stacktrace and message
-    std::cerr << "Exception thrown! Backtrace:" << std::endl << getBacktrace() << std::endl;
+    std::cerr << "Exception thrown! Callstack's backtrace:" << std::endl << getBacktrace() << std::endl;
 }
 
 
@@ -74,12 +74,7 @@ std::string WException::getBacktrace() const
     // print trace here
     std::ostringstream o;
 
-#ifndef __linux__
-    o << "Backtrace not supported on your platform. Currently just works on Linux. Sorry!";
-#endif  // __linux__
-
-#ifdef __linux__
-
+#if ( defined( __linux__ ) && defined( __GNUC__ ) )
     // This is highly platform dependent. It MIGHT also work on BSD and other unix.
 
     // Automatic callstack backtrace
@@ -140,12 +135,12 @@ std::string WException::getBacktrace() const
                 function[functionLength-1] = '\0';
             }
             *end = '+';
-            o << function << "\t->\t" << stackSymbols[i] << std::endl;
+            o << "trace: " << function << "\t->\t" << stackSymbols[i] << std::endl;
         }
         else
         {
             // didn't find the mangled name, just print the whole line
-            o <<  "???\t->\t" << stackSymbols[i] << std::endl;
+            o <<  "trace: " << "???\t->\t" << stackSymbols[i] << std::endl;
         }
 
         delete[] function;
@@ -153,8 +148,9 @@ std::string WException::getBacktrace() const
 
     // backtrace_symbols malloc()ed some mem -> we NEED to use free()
     free( stackSymbols );
-
-#endif  // __linux__
+#else
+    o << "Backtrace not supported on your platform. Currently just works on Linux with GCC. Sorry!";
+#endif
 
     return o.str();
 }
