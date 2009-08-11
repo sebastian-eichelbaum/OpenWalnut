@@ -21,24 +21,27 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../math/WPosition.h"
+#include "../math/WVector3D.h"
+
 #include "WGridRegular3D.h"
 
 WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
                                 unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double offsetX, double offsetY, double offsetZ )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
-      m_originX( originX ), m_originY( originY ), m_originZ( originZ ),
+      m_origin( WPosition( originX, originY, originZ ) ),
       m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
-      m_offsetX( offsetX ) , m_offsetY( offsetY ) , m_offsetZ( offsetZ )
+      m_offset( WVector3D( offsetX, offsetY, offsetZ ) )
 {
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double offsetX, double offsetY, double offsetZ )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
-      m_originX( 0. ), m_originY( 0. ), m_originZ( 0. ),
+      m_origin( WPosition( 0., 0., 0. ) ),
       m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
-      m_offsetX( offsetX ) , m_offsetY( offsetY ) , m_offsetZ( offsetZ )
+      m_offset( WVector3D( offsetX, offsetY, offsetZ ) )
 {
 }
 

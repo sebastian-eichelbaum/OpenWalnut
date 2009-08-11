@@ -24,6 +24,9 @@
 #ifndef WGRIDREGULAR3D_H
 #define WGRIDREGULAR3D_H
 
+#include "../math/WPosition.h"
+#include "../math/WVector3D.h"
+
 #include "WGrid.h"
 
 /**
@@ -51,17 +54,68 @@ public:
     WGridRegular3D(
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                    double offsetX, double offsetY, double offsetZ );
+
+    /**
+     * Returns the number of samples in x direction.
+     */
+    unsigned int getNbCoordsX() const
+    {
+        return m_nbPosX;
+    }
+    /**
+     * Returns the number of samples in y direction.
+     */
+    unsigned int getNbCoordsY() const
+    {
+        return m_nbPosY;
+    }
+    /**
+     * Returns the number of samples in z direction.
+     */
+    unsigned int getNbCoordsZ() const
+    {
+        return m_nbPosZ;
+    }
+
+    /**
+     * Returns the distance between samples in x direction.
+     */
+    double getOffsetX() const
+    {
+        return m_offset[0];
+    }
+    /**
+     * Returns the distance between samples in y direction.
+     */
+    double getOffsetY() const
+    {
+        return m_offset[1];
+    }
+    /**
+     * Returns the distance between samples in z direction.
+     */
+    double getOffsetZ() const
+    {
+        return m_offset[2];
+    }
+
+    /**
+     * Returns the position of the origin of the grid.
+     */
+    WPosition getOrigin() const
+    {
+        return m_origin;
+    }
+
 protected:
 private:
-    double m_originX;
-    double m_originY;
-    double m_originZ;
+    WPosition m_origin;
+
     unsigned int m_nbPosX;
     unsigned int m_nbPosY;
     unsigned int m_nbPosZ;
-    double m_offsetX;
-    double m_offsetY;
-    double m_offsetZ;
+
+    WVector3D m_offset;
 };
 
 #endif  // WGRIDREGULAR3D_H

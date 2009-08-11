@@ -4,7 +4,7 @@ ADD_SUBDIRECTORY( exceptions )
 FILE( GLOB DATAHANDLER_SRC "*.cpp" "*.hpp" )
 FILE( GLOB DATAHANDLER_EXCEPTIONS_SRC "exceptions/*.cpp" )
 ADD_LIBRARY( dataHandler SHARED ${DATAHANDLER_SRC} ${DATAHANDLER_EXCEPTIONS_SRC} )
-TARGET_LINK_LIBRARIES( dataHandler niftiio common ${Boost_LIBRARIES} )
+TARGET_LINK_LIBRARIES( dataHandler niftiio common math ${Boost_LIBRARIES} )
 
 # Unit tests
 IF( CXXTEST_FOUND )
