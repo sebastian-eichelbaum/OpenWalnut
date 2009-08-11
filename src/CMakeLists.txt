@@ -192,6 +192,11 @@ ADD_CUSTOM_TARGET(vtest
                   COMMAND make test ARGS="-V"
                   COMMENT "Runs the test in verboseness to see what actually went wrong" )
 
+#-------------------------------------------------------------------------------------------------------------
+# Removes all tests thus forcing them to be recompiled during the next "make"
+ADD_CUSTOM_TARGET(cleantest
+                  COMMAND rm -f ${PROJECT_BINARY_DIR}/*/*_test.cc
+                  COMMENT "Remove all tests to force them to be recompiled" )
 
 #-------------------------------------------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
