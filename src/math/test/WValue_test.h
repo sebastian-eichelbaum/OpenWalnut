@@ -48,6 +48,34 @@ public:
         WValue< double > value( size );
         TS_ASSERT_EQUALS( value.getNbComponents(), size );
     }
+
+    /**
+     * Element access operator should return the right values
+     */
+    void testElementAccessOperator( void )
+    {
+        const size_t size = 3;
+        WValue< double > value( size );
+        TS_ASSERT_EQUALS( value[0], 0. );
+        TS_ASSERT_EQUALS( value[1], 0. );
+        TS_ASSERT_EQUALS( value[2], 0. );
+
+        const double a = 3.14;
+        value[1] = a;
+        TS_ASSERT_EQUALS( value[1], a );
+    }
+
+    /**
+     * Const element access operator should return the right values
+     */
+    void testConstElementAccessOperator( void )
+    {
+        const size_t size = 3;
+        const WValue< double > value( size );
+        TS_ASSERT_EQUALS( value[0], 0. );
+        TS_ASSERT_EQUALS( value[1], 0. );
+        TS_ASSERT_EQUALS( value[2], 0. );
+    }
 };
 
 #endif  // WVALUE_TEST_H
