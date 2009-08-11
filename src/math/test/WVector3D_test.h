@@ -61,9 +61,9 @@ public:
     void testInitializationWithStandardConstructor( void )
     {
         WVector3D vec;
-        TS_ASSERT_EQUALS( vec.m_components[0], 0. );
-        TS_ASSERT_EQUALS( vec.m_components[1], 0. );
-        TS_ASSERT_EQUALS( vec.m_components[2], 0. );
+        TS_ASSERT_EQUALS( vec[0], 0. );
+        TS_ASSERT_EQUALS( vec[1], 0. );
+        TS_ASSERT_EQUALS( vec[2], 0. );
     }
 
     /**
@@ -75,9 +75,9 @@ public:
         double b = 42.42;
         double c = 23.23;
         WVector3D vec( a, b, c );
-        TS_ASSERT_EQUALS( vec.m_components[0], a );
-        TS_ASSERT_EQUALS( vec.m_components[1], b );
-        TS_ASSERT_EQUALS( vec.m_components[2], c );
+        TS_ASSERT_EQUALS( vec[0], a );
+        TS_ASSERT_EQUALS( vec[1], b );
+        TS_ASSERT_EQUALS( vec[2], c );
     }
 
     /**
@@ -87,9 +87,9 @@ public:
     {
         WVector3D vecToCopy( 32.32, 42.42, 23.23 );
         WVector3D vec( vecToCopy );
-        TS_ASSERT_EQUALS( vec.m_components[0], vecToCopy.m_components[0] );
-        TS_ASSERT_EQUALS( vec.m_components[1], vecToCopy.m_components[1] );
-        TS_ASSERT_EQUALS( vec.m_components[2], vecToCopy.m_components[2] );
+        TS_ASSERT_EQUALS( vec[0], vecToCopy[0] );
+        TS_ASSERT_EQUALS( vec[1], vecToCopy[1] );
+        TS_ASSERT_EQUALS( vec[2], vecToCopy[2] );
     }
 
     /**

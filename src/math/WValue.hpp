@@ -58,12 +58,31 @@ public:
     }
 
 
+    /**
+     * Returns a reference to the i-th component in order
+     * to provide access to the component.
+     */
+    T& operator[]( size_t i )
+    {
+        return m_components[i];
+    }
+
+    /**
+     * Returns a const reference to the i-th component in order
+     * to provide read-only access to the component.
+     */
+    const T& operator[]( size_t i ) const
+    {
+        return m_components[i];
+    }
+
+
 protected:
+private:
     /**
      * The components the value is composed of. This contains the actual data
      */
     std::vector< T > m_components;
-private:
 };
 
 #endif  // WVALUE_H

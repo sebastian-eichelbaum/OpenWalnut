@@ -49,18 +49,6 @@ public:
      */
     WVector3D( const WVector3D& newVector );
 
-    /**
-     * Returns a reference to the i-th component in order
-     * to provide access to the component.
-     */
-    double& operator[]( size_t i );
-
-    /**
-     * Returns a const reference to the i-th component in order
-     * to provide read-only access to the component.
-     */
-    const double& operator[]( size_t i ) const;
-
 //
 // These functions will come soon. Together with their tests.
 //
