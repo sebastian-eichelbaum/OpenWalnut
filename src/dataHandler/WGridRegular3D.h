@@ -107,6 +107,17 @@ public:
         return m_origin;
     }
 
+    /**
+     * Returns the i-th position on the grid.
+     */
+    WPosition getPosition( unsigned int i ) const;
+
+    /**
+     * Returns the position that is the iX-th in x direction, the iY-th in
+     * y direction and the iZ-th in z direction.
+     */
+    WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
+
 protected:
 private:
     WPosition m_origin;

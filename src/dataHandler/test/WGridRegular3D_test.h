@@ -78,7 +78,7 @@ public:
         double x = 1.2;
         double y = 3.4;
         double z = 5.6;
-        WGridRegular3D grid( 10., 10., 10., x, y, z );
+        WGridRegular3D grid( 10, 10, 10, x, y, z );
         TS_ASSERT_EQUALS( grid.getOffsetX(), x );
         TS_ASSERT_EQUALS( grid.getOffsetY(), y );
         TS_ASSERT_EQUALS( grid.getOffsetZ(), z );
@@ -91,12 +91,29 @@ public:
     void testGetOrigin( void )
     {
         WVector3D zeroOrigin( 0., 0., 0. );
-        WGridRegular3D grid( 10., 10., 10., 1., 1., 1. );
+        WGridRegular3D grid( 10, 10, 10, 1., 1., 1. );
         TS_ASSERT_EQUALS( grid.getOrigin(), zeroOrigin );
 
         WVector3D origin( 1.2, 3.4, 5.6 );
-        WGridRegular3D grid2( origin[0], origin[1], origin[2], 10., 10., 10., 1., 1., 1. );
+        WGridRegular3D grid2( origin[0], origin[1], origin[2], 10, 10, 10, 1., 1., 1. );
         TS_ASSERT_EQUALS( grid2.getOrigin(), origin );
+    }
+
+    /**
+     * getPosition should return the correct position
+     */
+    void testGetPositionOneParam( void )
+    {
+        unsigned int nX = 10, nY = 11, nZ = 12;
+        unsigned int iX = 8, iY = 9, iZ = 5;
+        unsigned int i = iX + iY * nX + iZ * nX * nY;
+
+        WPosition expected( 10., 23.2, 22.1 );
+        WGridRegular3D grid( 1.2, 3.4, 5.6, nX, nY, nZ, 1.1, 2.2, 3.3 );
+
+
+        TS_ASSERT_EQUALS( grid.getPosition( iX, iY, iZ ), expected );
+        TS_ASSERT_EQUALS( grid.getPosition( i ), expected );
     }
 };
 
