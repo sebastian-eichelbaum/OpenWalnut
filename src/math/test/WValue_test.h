@@ -66,7 +66,7 @@ public:
     }
 
     /**
-     * Const element access operator should return the right values
+     * Const element access operator should return the right values.
      */
     void testConstElementAccessOperator( void )
     {
@@ -75,6 +75,31 @@ public:
         TS_ASSERT_EQUALS( value[0], 0. );
         TS_ASSERT_EQUALS( value[1], 0. );
         TS_ASSERT_EQUALS( value[2], 0. );
+    }
+
+    /**
+     * == operator should return true if the WValues have contain the same elements and false if the don't.
+     */
+    void testEqualityOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a;
+        value2[1] = b;
+        value2[2] = c;
+
+        TS_ASSERT_EQUALS( value1 == value2, true );
+
+        value2[0] += 1;
+
+        TS_ASSERT_EQUALS( value1 == value2, false );
     }
 };
 

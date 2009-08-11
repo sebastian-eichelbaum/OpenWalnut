@@ -75,6 +75,13 @@ public:
     {
         return m_components[i];
     }
+    /**
+     * Compares two WValues and returns true if they contain the same data.
+     */
+    bool operator==( const WValue& rhs ) const
+    {
+        return ( m_components == rhs.m_components );
+    }
 
 
 protected:
