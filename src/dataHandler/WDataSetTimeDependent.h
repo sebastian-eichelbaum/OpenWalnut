@@ -33,6 +33,15 @@
 class WDataSetTimeDependent : public WDataSet
 {
 public:
+    /**
+     * Dummy constructor.
+     * TODO(wiebel): implement this
+     */
+    explicit WDataSetTimeDependent( boost::shared_ptr< WMetaInfo > newMetaInfo )
+    : WDataSet( newMetaInfo )
+    {
+        // TODO(wiebel): implement this
+    };
 };
 
 #endif  // WDATASETTIMEDEPENDENT_H
