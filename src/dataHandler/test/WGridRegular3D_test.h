@@ -121,7 +121,7 @@ public:
         unsigned int iX = 8, iY = 9, iZ = 5;
         unsigned int i = iX + iY * nX + iZ * nX * nY;
 
-        WPosition expected( 10., 23.2, 22.2 );
+        WPosition expected( 10., 23.2, 22.1 );
         WGridRegular3D grid( 1.2, 3.4, 5.6, nX, nY, nZ, 1.1, 2.2, 3.3 );
 
 
