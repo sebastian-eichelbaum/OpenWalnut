@@ -29,6 +29,19 @@
 #include "../WGridRegular3D.h"
 #include "../../math/WVector3D.h"
 
+namespace CxxTest
+{
+    CXXTEST_TEMPLATE_INSTANTIATION
+    class ValueTraits<WVector3D>
+    {
+        char _s[256];
+
+    public:
+        ValueTraits( const WVector3D &m ) { sprintf( _s, "WVector3D( %f %f %f )", m[0], m[1], m[2] ); }
+        const char *asString() const { return _s; }
+    };
+}
+
 /**
  * Tests the WGridRegular3D class.
  */
@@ -108,7 +121,7 @@ public:
         unsigned int iX = 8, iY = 9, iZ = 5;
         unsigned int i = iX + iY * nX + iZ * nX * nY;
 
-        WPosition expected( 10., 23.2, 22.1 );
+        WPosition expected( 10., 23.2, 22.2 );
         WGridRegular3D grid( 1.2, 3.4, 5.6, nX, nY, nZ, 1.1, 2.2, 3.3 );
 
 
