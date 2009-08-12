@@ -37,7 +37,7 @@ namespace CxxTest
         char _s[256];
 
     public:
-        ValueTraits( const WVector3D &m ) { sprintf( _s, "WVector3D( %f %f %f )", m[0], m[1], m[2] ); }
+        ValueTraits( const WVector3D &m ) { sprintf( _s, "WVector3D( %.18f %.18f %.18f )",m[0], m[1], m[2] ); }
         const char *asString() const { return _s; }
     };
 }
@@ -121,9 +121,20 @@ public:
         unsigned int iX = 8, iY = 9, iZ = 5;
         unsigned int i = iX + iY * nX + iZ * nX * nY;
 
-        WPosition expected( 10., 23.2, 22.1 );
-        WGridRegular3D grid( 1.2, 3.4, 5.6, nX, nY, nZ, 1.1, 2.2, 3.3 );
+        double orX = 1.2;
+        double orY = 3.4;
+        double orZ = 5.6;
 
+        double ofX = 1.1;
+        double ofY = 2.2;
+        double ofZ = 3.3;
+
+        double x = orX + iX * ofX;
+        double y = orY + iY * ofY;
+        double z = orZ + iZ * ofZ;
+
+        WPosition expected( x, y, z );
+        WGridRegular3D grid( orX, orY, orZ, nX, nY, nZ, ofX, ofY, ofZ );
 
         TS_ASSERT_EQUALS( grid.getPosition( iX, iY, iZ ), expected );
         TS_ASSERT_EQUALS( grid.getPosition( i ), expected );
