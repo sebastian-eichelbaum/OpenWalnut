@@ -22,11 +22,18 @@ ENDIF( CMAKE_HOST_SYSTEM MATCHES Windows )
 
 
 # Package dependencies:
+### BOOST ###
 SET( Boost_USE_MULTITHREAD ON )
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f -and -not -name '*svn*'` | grep boost | awk '{print $2}' | sort | uniq
 FIND_PACKAGE( Boost 1.36.0 REQUIRED program_options thread )
+include_directories( ${Boost_INCLUDE_DIR} )
+
+### OpenGL ###
+FIND_PACKAGE( OpenGL REQUIRED )
+
+### CxxTest ###
 FIND_PACKAGE( CxxTest QUIET )
 MARK_AS_ADVANCED ( CXXTEST_PERL_TESTGEN_EXECUTABLE )
 
