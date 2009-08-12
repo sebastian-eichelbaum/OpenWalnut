@@ -136,8 +136,14 @@ public:
         WPosition expected( x, y, z );
         WGridRegular3D grid( orX, orY, orZ, nX, nY, nZ, ofX, ofY, ofZ );
 
-        TS_ASSERT_EQUALS( grid.getPosition( iX, iY, iZ ), expected );
-        TS_ASSERT_EQUALS( grid.getPosition( i ), expected );
+        double delta = 1e-14;
+
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[0], expected[0], delta );
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[1], expected[1], delta );
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[2], expected[2], delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[0], expected[0], delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[1], expected[1], delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[2], expected[2], delta );
     }
 };
 
