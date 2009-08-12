@@ -31,15 +31,21 @@
 
 namespace CxxTest
 {
-    CXXTEST_TEMPLATE_INSTANTIATION
-    class ValueTraits<WVector3D>
-    {
-        char _s[256];
+CXXTEST_TEMPLATE_INSTANTIATION
+class ValueTraits<WVector3D>
+{
+    char _s[256];
 
-    public:
-        ValueTraits( const WVector3D &m ) { sprintf( _s, "WVector3D( %.18f %.18f %.18f )",m[0], m[1], m[2] ); }
-        const char *asString() const { return _s; }
-    };
+public:
+    explicit ValueTraits( const WVector3D &m )
+    {
+        snprintf( _s, sizeof( _s ), "WVector3D( %.18f %.18f %.18f )", m[0], m[1], m[2] );
+    }
+    const char *asString() const
+    {
+        return _s;
+    }
+};
 }
 
 /**
