@@ -29,7 +29,19 @@
 
 class WValueTest : public CxxTest::TestSuite
 {
+private:
+    double delta;
+
 public:
+    
+    /**
+     * Called before every test.
+     */
+    void setUp( void )
+    {
+        delta = 1e-14;
+    }
+    
     /**
      * Instatiation should throw nothing.
      */
@@ -100,6 +112,236 @@ public:
         value2[0] += 1;
 
         TS_ASSERT_EQUALS( value1 == value2, false );
+    }
+
+    /**
+     * assignment operator= should assign the correct values
+     */
+    void testAssignmentOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a + 1;
+        value2[1] = b + 2;
+        value2[2] = c + 3;
+
+        //this should be the precondition for the test
+        TS_ASSERT_EQUALS( value1 == value2, false );
+
+        //test simple assignement
+        value1 = value2;
+        TS_ASSERT_EQUALS( value1 == value2, true );
+
+        WValue< double > value3( size );
+        WValue< double > value4( size );
+
+        //this should be the precondition for the test
+        TS_ASSERT_EQUALS( value2 == value3, false );
+        TS_ASSERT_EQUALS( value2 == value4, false );
+
+        //test whether return the reference to self works
+        //for multiple assignment
+        value4 = value3 = value2;
+        TS_ASSERT_EQUALS( value2 == value3, true );
+        TS_ASSERT_EQUALS( value2 == value4, true );
+        TS_ASSERT_EQUALS( value3 == value4, true );        
+    }
+
+    /**
+     * plus assignment operator-= should assign the correct values
+     */
+    void testPlusAssignmentOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a + 1;
+        value2[1] = b + 2;
+        value2[2] = c + 3;
+
+        //this should be the precondition for the test
+        TS_ASSERT_EQUALS( value1 == value2, false );
+
+        //test simple plus assignement
+        value1 += value2;
+        TS_ASSERT_DELTA( value1[0], 1. + 2. * a, delta );
+        TS_ASSERT_DELTA( value1[1], 2. + 2. * b, delta );
+        TS_ASSERT_DELTA( value1[2], 3. + 2. * c, delta );
+
+        WValue< double > value3( size );
+        WValue< double > value4( size );
+
+        //this should be the precondition for the test
+        TS_ASSERT_EQUALS( value2 == value3, false );
+        TS_ASSERT_EQUALS( value2 == value4, false );
+
+        //test whether return the reference to self works
+        //for multiple plus assignment
+        value4 += value3 += value2;
+        TS_ASSERT_EQUALS( value2 == value3, true );
+        TS_ASSERT_EQUALS( value2 == value4, true );
+        TS_ASSERT_EQUALS( value3 == value4, true );        
+    }
+
+    /**
+     * minus assignment operator-= should assign the correct values
+     */
+    void testMinusAssignmentOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a + 1;
+        value2[1] = b + 2;
+        value2[2] = c + 3;
+
+        //this should be the precondition for the test
+        TS_ASSERT_EQUALS( value1 == value2, false );
+
+        //test simple minus assignement
+        value1 -= value2;
+        TS_ASSERT_DELTA( value1[0], -1., delta );
+        TS_ASSERT_DELTA( value1[1], -2., delta );
+        TS_ASSERT_DELTA( value1[2], -3., delta );
+
+        WValue< double > value3( size );
+        WValue< double > value4( size );
+
+        //this should be the precondition for the test
+        TS_ASSERT_EQUALS( value2 == value3, false );
+        TS_ASSERT_EQUALS( value2 == value4, false );
+
+        //test whether return the reference to self works
+        //for multiple minus assignment
+        value4 -= value3 -= value2;
+        TS_ASSERT_DELTA( value3[0], -value2[0], delta );
+        TS_ASSERT_DELTA( value3[1], -value2[1], delta );
+        TS_ASSERT_DELTA( value3[2], -value2[2], delta );
+        TS_ASSERT_DELTA( value4[0], value2[0], delta );
+        TS_ASSERT_DELTA( value4[1], value2[1], delta );
+        TS_ASSERT_DELTA( value4[2], value2[2], delta );
+    }
+
+    /**
+     * plus operator+
+     */
+    void testPlusOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+        WValue< double > value3( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a + 1;
+        value2[1] = b + 2;
+        value2[2] = c + 3;
+
+        //test addition
+        value3 = value1 + value2;
+            
+        TS_ASSERT_DELTA( value3[0], 2 * a + 1, delta );
+        TS_ASSERT_DELTA( value3[1], 2 * b + 2, delta );
+        TS_ASSERT_DELTA( value3[2], 2 * c + 3, delta );
+
+        //Ensure that value1 and value2 have not been altered
+        TS_ASSERT_EQUALS( value1[0], a );
+        TS_ASSERT_EQUALS( value1[1], b );
+        TS_ASSERT_EQUALS( value1[2], c );
+        TS_ASSERT_EQUALS( value2[0], a + 1 );
+        TS_ASSERT_EQUALS( value2[1], b + 2 );
+        TS_ASSERT_EQUALS( value2[2], c + 3 );        
+    }
+
+    /**
+     * plus operator+ 
+     */
+    void testMinusOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+        WValue< double > value3( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a + 1;
+        value2[1] = b + 2;
+        value2[2] = c + 3;
+
+        //test subtraction
+        value3 = value1 - value2;
+            
+        TS_ASSERT_DELTA( value3[0], -1, delta );
+        TS_ASSERT_DELTA( value3[1], -2, delta );
+        TS_ASSERT_DELTA( value3[2], -3, delta );
+
+        //Ensure that value1 and value2 have not been altered
+        TS_ASSERT_EQUALS( value1[0], a );
+        TS_ASSERT_EQUALS( value1[1], b );
+        TS_ASSERT_EQUALS( value1[2], c );
+        TS_ASSERT_EQUALS( value2[0], a + 1 );
+        TS_ASSERT_EQUALS( value2[1], b + 2 );
+        TS_ASSERT_EQUALS( value2[2], c + 3 );  
+    }
+
+    /**
+     * norm
+     */
+    void testNorm( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+        TS_ASSERT_DELTA( value1.norm(), 6.660330322, 1e-7 );
+
+        
+    }
+
+    /**
+     * normsquare
+     */
+    void testNormSquare( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+        TS_ASSERT_DELTA( value1.normSquare(), 44.36, delta );
+
     }
 };
 

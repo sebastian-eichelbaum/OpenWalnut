@@ -53,14 +53,10 @@ public:
 // These functions will come soon. Together with their tests.
 //
 // TODO(wiebel): implement the following member functions!
-//
-//    WVector3D operator+( const WVector3D& summand2 ) const;
-//    WVector3D operator-( const WVector3D& subtrahend ) const;
 //    double operator*( const WVector3D &factor2 ) const;
 //    WVector3D crossproduct( const WVector3D& factor2 ) const;
 //    bool operator==( const WVector3D& rhs ) const;
 //    bool operator!=( const WVector3D& rhs ) const;
-//    double norm() const;
 //    void normalize();
 //    WVector3D normalized() const;
 

@@ -25,6 +25,7 @@
 #define WVALUE_H
 
 #include <vector>
+#include <cmath>
 
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.
@@ -37,18 +38,18 @@ public:
      * The components will be set to zero if T is a type representing numbers.
      */
     WValue( size_t nbComponents )
-    : m_components( nbComponents )
+        : m_components( nbComponents )
     {
     }
-
+    
     /*
      * Create a WValue as copy of the one given as parameter.
      */
     WValue( const WValue& newValue )
-    : m_components( newValue.m_components )
+        : m_components( newValue.m_components )
     {
     }
-
+    
     /**
      * Get number of components the value consists of.
      */
@@ -56,7 +57,6 @@ public:
     {
         return m_components.size();
     }
-
 
     /**
      * Returns a reference to the i-th component in order
@@ -74,7 +74,8 @@ public:
     const T& operator[]( size_t i ) const
     {
         return m_components[i];
-    }
+    } 
+
     /**
      * Compares two WValues and returns true if they contain the same data.
      */
@@ -83,6 +84,80 @@ public:
         return ( m_components == rhs.m_components );
     }
 
+    /**
+     * Assigns the contents of its argument to the contents of this WValue.
+     */
+    WValue& operator=( const WValue& rhs )
+    {
+        m_components = rhs.m_components;
+        return *this;
+    }
+    
+    /**
+     * Adds a the argument componentwise to the components of this WValue
+     */
+    WValue& operator+=( const WValue& rhs )
+    {
+        for( unsigned int i=0; i < m_components.size(); i++ )
+            m_components[i] += rhs.m_components[i];
+        return *this;
+    }
+
+    /**
+     * Subtracts a the argument componentwise to the components of this WValue
+     */
+    WValue& operator-=( const WValue& rhs )
+    {
+        for( unsigned int i=0; i < m_components.size(); i++ )
+            m_components[i] -= rhs.m_components[i];
+        return *this;
+    }
+
+    /**
+     * Componentwise addition.
+     */
+    WValue operator+( const WValue& summand2 ) const
+    {
+        WValue result( *this );
+        result += summand2;
+        return result;
+    }
+
+    /**
+     * Componentwise subtraction.
+     */
+    WValue operator-( const WValue& subtrahend ) const
+    {
+        WValue result( *this );
+        result -= subtrahend;
+        return result;
+    }
+
+    /**
+     * Square root of sum of squares of elements.
+     */
+    double norm() const
+    {
+        double normSquare = 0.0;
+        
+        for( unsigned int i = 0; i < m_components.size(); i++ )
+            normSquare += m_components[i] * m_components[i];
+        
+        return sqrt( normSquare );
+    }
+
+    /**
+     * Sum of squares of elements.
+     */
+    double normSquare() const
+    {
+        double normSquare = 0.0;
+        
+        for( unsigned int i = 0; i < m_components.size(); i++ )
+            normSquare += m_components[i] * m_components[i];
+        
+        return normSquare;
+    }
 
 protected:
 private:
