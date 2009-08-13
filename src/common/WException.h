@@ -27,6 +27,7 @@
 #include <exception>
 #include <list>
 #include <string>
+#include <sstream>
 
 /**
  * \par Description:
@@ -65,6 +66,7 @@ public:
      * \par Description
      * Prints the trace of the call chain which caused this exception.
      * \return Calltrace as string
+     * \note Isn't this useless? Should be removed.
      */
     std::string getTrace( ) const;
 
@@ -83,6 +85,7 @@ protected:
 
     /**
      * Stack trace for identifying the source where this exception came from.
+     * \note Isn't this useless? Should be removed.
      */
     std::list< std::string > m_trace;
 

@@ -82,7 +82,7 @@ public:
      * \par Description
      * Default constructor.
      */
-    explicit WSegmentationFault( const std::string& msg = std::string() );
+    explicit WSegmentationFault( const std::string& msg = "Segmentation Fault" );
 
     /**
      * \par Description

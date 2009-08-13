@@ -6,5 +6,6 @@ ADD_LIBRARY( common SHARED ${COMMON_SRC} )
 IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
                                "common"  # no libs for linking required
+                               "WSegmentationFault.cpp"
                              )
 ENDIF( CXXTEST_FOUND )
