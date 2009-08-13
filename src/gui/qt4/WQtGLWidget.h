@@ -24,11 +24,12 @@
 #ifndef WQTGLWIDGET_H
 #define WQTGLWIDGET_H
 
-#include <boost/shared_ptr.hpp>
 
+#include <QtCore/QTimer>
 #include <QtOpenGL/QGLWidget>
 #include <QtGui/QWidget>
-#include <QtCore/QTimer>
+
+#include <boost/shared_ptr.hpp>
 
 #include "../../graphicsEngine/WGEGraphicsWindow.h"
 #include "../../graphicsEngine/WGEViewer.h"

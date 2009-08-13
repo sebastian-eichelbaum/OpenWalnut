@@ -33,7 +33,7 @@ private:
     double delta;
 
 public:
-    
+
     /**
      * Called before every test.
      */
@@ -41,7 +41,7 @@ public:
     {
         delta = 1e-14;
     }
-    
+
     /**
      * Instatiation should throw nothing.
      */
@@ -132,26 +132,26 @@ public:
         value2[1] = b + 2;
         value2[2] = c + 3;
 
-        //this should be the precondition for the test
+        // this should be the precondition for the test
         TS_ASSERT_EQUALS( value1 == value2, false );
 
-        //test simple assignement
+        // test simple assignement
         value1 = value2;
         TS_ASSERT_EQUALS( value1 == value2, true );
 
         WValue< double > value3( size );
         WValue< double > value4( size );
 
-        //this should be the precondition for the test
+        // this should be the precondition for the test
         TS_ASSERT_EQUALS( value2 == value3, false );
         TS_ASSERT_EQUALS( value2 == value4, false );
 
-        //test whether return the reference to self works
-        //for multiple assignment
+        // test whether return the reference to self works
+        // for multiple assignment
         value4 = value3 = value2;
         TS_ASSERT_EQUALS( value2 == value3, true );
         TS_ASSERT_EQUALS( value2 == value4, true );
-        TS_ASSERT_EQUALS( value3 == value4, true );        
+        TS_ASSERT_EQUALS( value3 == value4, true );
     }
 
     /**
@@ -172,10 +172,10 @@ public:
         value2[1] = b + 2;
         value2[2] = c + 3;
 
-        //this should be the precondition for the test
+        // this should be the precondition for the test
         TS_ASSERT_EQUALS( value1 == value2, false );
 
-        //test simple plus assignement
+        // test simple plus assignement
         value1 += value2;
         TS_ASSERT_DELTA( value1[0], 1. + 2. * a, delta );
         TS_ASSERT_DELTA( value1[1], 2. + 2. * b, delta );
@@ -184,16 +184,16 @@ public:
         WValue< double > value3( size );
         WValue< double > value4( size );
 
-        //this should be the precondition for the test
+        // this should be the precondition for the test
         TS_ASSERT_EQUALS( value2 == value3, false );
         TS_ASSERT_EQUALS( value2 == value4, false );
 
-        //test whether return the reference to self works
-        //for multiple plus assignment
+        // test whether return the reference to self works
+        // for multiple plus assignment
         value4 += value3 += value2;
         TS_ASSERT_EQUALS( value2 == value3, true );
         TS_ASSERT_EQUALS( value2 == value4, true );
-        TS_ASSERT_EQUALS( value3 == value4, true );        
+        TS_ASSERT_EQUALS( value3 == value4, true );
     }
 
     /**
@@ -214,10 +214,10 @@ public:
         value2[1] = b + 2;
         value2[2] = c + 3;
 
-        //this should be the precondition for the test
+        // this should be the precondition for the test
         TS_ASSERT_EQUALS( value1 == value2, false );
 
-        //test simple minus assignement
+        // test simple minus assignement
         value1 -= value2;
         TS_ASSERT_DELTA( value1[0], -1., delta );
         TS_ASSERT_DELTA( value1[1], -2., delta );
@@ -226,12 +226,12 @@ public:
         WValue< double > value3( size );
         WValue< double > value4( size );
 
-        //this should be the precondition for the test
+        // this should be the precondition for the test
         TS_ASSERT_EQUALS( value2 == value3, false );
         TS_ASSERT_EQUALS( value2 == value4, false );
 
-        //test whether return the reference to self works
-        //for multiple minus assignment
+        // test whether return the reference to self works
+        // for multiple minus assignment
         value4 -= value3 -= value2;
         TS_ASSERT_DELTA( value3[0], -value2[0], delta );
         TS_ASSERT_DELTA( value3[1], -value2[1], delta );
@@ -260,20 +260,20 @@ public:
         value2[1] = b + 2;
         value2[2] = c + 3;
 
-        //test addition
+        // test addition
         value3 = value1 + value2;
-            
+
         TS_ASSERT_DELTA( value3[0], 2 * a + 1, delta );
         TS_ASSERT_DELTA( value3[1], 2 * b + 2, delta );
         TS_ASSERT_DELTA( value3[2], 2 * c + 3, delta );
 
-        //Ensure that value1 and value2 have not been altered
+        // Ensure that value1 and value2 have not been altered
         TS_ASSERT_EQUALS( value1[0], a );
         TS_ASSERT_EQUALS( value1[1], b );
         TS_ASSERT_EQUALS( value1[2], c );
         TS_ASSERT_EQUALS( value2[0], a + 1 );
         TS_ASSERT_EQUALS( value2[1], b + 2 );
-        TS_ASSERT_EQUALS( value2[2], c + 3 );        
+        TS_ASSERT_EQUALS( value2[2], c + 3 );
     }
 
     /**
@@ -295,20 +295,20 @@ public:
         value2[1] = b + 2;
         value2[2] = c + 3;
 
-        //test subtraction
+        // test subtraction
         value3 = value1 - value2;
-            
+
         TS_ASSERT_DELTA( value3[0], -1, delta );
         TS_ASSERT_DELTA( value3[1], -2, delta );
         TS_ASSERT_DELTA( value3[2], -3, delta );
 
-        //Ensure that value1 and value2 have not been altered
+        // Ensure that value1 and value2 have not been altered
         TS_ASSERT_EQUALS( value1[0], a );
         TS_ASSERT_EQUALS( value1[1], b );
         TS_ASSERT_EQUALS( value1[2], c );
         TS_ASSERT_EQUALS( value2[0], a + 1 );
         TS_ASSERT_EQUALS( value2[1], b + 2 );
-        TS_ASSERT_EQUALS( value2[2], c + 3 );  
+        TS_ASSERT_EQUALS( value2[2], c + 3 );
     }
 
     /**
@@ -324,8 +324,6 @@ public:
         value1[1] = b;
         value1[2] = c;
         TS_ASSERT_DELTA( value1.norm(), 6.660330322, 1e-7 );
-
-        
     }
 
     /**
@@ -341,7 +339,6 @@ public:
         value1[1] = b;
         value1[2] = c;
         TS_ASSERT_DELTA( value1.normSquare(), 44.36, delta );
-
     }
 };
 

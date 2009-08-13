@@ -24,11 +24,13 @@
 #ifndef WGRAPHICSENGINE_H
 #define WGRAPHICSENGINE_H
 
+
+#include <osg/Camera>
+#include <osgViewer/Viewer>
+
 #include <list>
 
 #include <boost/shared_ptr.hpp>
-#include <osg/Camera>
-#include <osgViewer/Viewer>
 
 /**
  * \par Description:

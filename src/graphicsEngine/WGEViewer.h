@@ -24,8 +24,6 @@
 #ifndef WGEVIEWER_H
 #define WGEVIEWER_H
 
-#include <boost/shared_ptr.hpp>
-
 #include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
@@ -35,6 +33,9 @@
 #include <osgViewer/Viewer>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
+
+#include <boost/shared_ptr.hpp>
+
 
 #include "WGEGraphicsWindow.h"
 
