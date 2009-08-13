@@ -21,7 +21,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
@@ -38,6 +37,8 @@
 #include <osgViewer/ViewerEventHandlers>
 
 #include <osgDB/ReadFile>
+
+#include <iostream>
 
 #include "WGEViewer.h"
 #include "exceptions/WGEInitFailed.h"
