@@ -21,6 +21,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
@@ -34,14 +35,12 @@
 #include <osgGA/AnimationPathManipulator>
 #include <osgGA/TerrainManipulator>
 
-#include <osgViewer/ViewerEventHandlers>
-
 #include <osgDB/ReadFile>
 
-#include <iostream>
+#include <osgViewer/ViewerEventHandlers>
 
-#include "WGEViewer.h"
 #include "exceptions/WGEInitFailed.h"
+#include "WGEViewer.h"
 
 WGEViewer::WGEViewer( boost::shared_ptr<WindowData> wdata, int x, int y, int width, int height ):
     WGEGraphicsWindow( wdata, x, y, width, height )
