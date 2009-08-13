@@ -21,21 +21,22 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QApplication>
+#include "exceptions/WGEInitFailed.h"
+#include "WGraphicsEngine.h"
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
-
-int WMainApplication::runQT( int argc, char* argv[] )
+WGraphicsEngine::WGraphicsEngine()
 {
-    QApplication appl( argc, argv );
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
-
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
-    return qtExecResult;
+    // initialize members
 }
+
+WGraphicsEngine::~WGraphicsEngine()
+{
+    // cleanup
+}
+
+WGraphicsEngine::WGraphicsEngine( const WGraphicsEngine& other )
+{
+    *this = other;
+}
+
 

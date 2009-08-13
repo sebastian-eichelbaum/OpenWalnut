@@ -21,21 +21,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QApplication>
+#include "WGEScene.h"
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
-
-int WMainApplication::runQT( int argc, char* argv[] )
+WGEScene::WGEScene()
 {
-    QApplication appl( argc, argv );
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
+    // initialize members
+}
 
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
-    return qtExecResult;
+WGEScene::~WGEScene()
+{
+    // cleanup
 }
 

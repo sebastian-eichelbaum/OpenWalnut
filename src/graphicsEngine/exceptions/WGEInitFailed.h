@@ -21,71 +21,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WKERNEL_H
-#define WKERNEL_H
+#ifndef WGEINITFAILED_H
+#define WGEINITFAILED_H
 
-#include <list>
+#include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include "WModule.h"
-#include "../graphicsEngine/WGraphicsEngine.h"
+#include "WGEException.h"
 
 /**
  * \par Description:
- * OpenWalnut kernel, managing modules and interaction between GUI, GE and DataHandler
+ * Exception thrown if initialization of the graphics engine fails.
  */
-class WKernel
+class WGEInitFailed: public WGEException
 {
 public:
 
     /**
      * \par Description
-     * Default constructor. Also initializes Graphics Engine.
+     * Default constructor.
+     * \param msg the exception message.
      */
-    WKernel();
+    explicit WGEInitFailed( const std::string& msg = "Graphics Engine Initialization failed" );
 
     /**
      * \par Description
      * Destructor.
      */
-    virtual ~WKernel();
-
-    /**
-     * \par Description
-     * Copy constructor
-     * \param other Reference on object to copy.
-     */
-    WKernel( const WKernel& other );
+    virtual ~WGEInitFailed() throw();
 
 protected:
 
-    /**
-     * \par Description
-     * All the loaded modules.
-     */
-    std::list<WModule> m_modules;
-
-    /**
-     * \par Description
-     * Pointer to an initialized graphics engine.
-     */
-    boost::shared_ptr<WGraphicsEngine> m_GraphicsEngine;
-
 private:
-    /**
-     * \par Description
-     * Loads all the modules it can find.
-     * \exception
-     */
-    void loadModules();
-
-    /**
-     * \par Description
-     * Initializes the graphics engine, data handler and so on.
-     */
-    void init();
 };
 
-#endif  // WKERNEL_H
+#endif  // WGEINITFAILED_H
 

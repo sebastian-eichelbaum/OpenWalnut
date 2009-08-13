@@ -21,71 +21,58 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WKERNEL_H
-#define WKERNEL_H
+#ifndef WTESTMODULE_H
+#define WTESTMODULE_H
 
-#include <list>
-
-#include <boost/shared_ptr.hpp>
+#include <string>
 
 #include "WModule.h"
-#include "../graphicsEngine/WGraphicsEngine.h"
 
 /**
  * \par Description:
- * OpenWalnut kernel, managing modules and interaction between GUI, GE and DataHandler
+ * Simple module for testing some WKernel functionality.
  */
-class WKernel
+class WTestModule: public WModule
 {
 public:
 
     /**
      * \par Description
-     * Default constructor. Also initializes Graphics Engine.
+     * Default constructor.
      */
-    WKernel();
+    WTestModule();
 
     /**
      * \par Description
      * Destructor.
      */
-    virtual ~WKernel();
+    virtual ~WTestModule();
 
     /**
      * \par Description
      * Copy constructor
      * \param other Reference on object to copy.
      */
-    WKernel( const WKernel& other );
+    WTestModule( const WTestModule& other );
+
+    /**
+     * \par Description
+     * Gives back the name of this module.
+     * \return the module's name.
+     */
+     virtual std::string getName() const;
+
+    /**
+     * \par Description
+     * Gives bach a description of this module.
+     * \return description to module.
+     */
+    virtual std::string getDescription() const;
 
 protected:
 
-    /**
-     * \par Description
-     * All the loaded modules.
-     */
-    std::list<WModule> m_modules;
-
-    /**
-     * \par Description
-     * Pointer to an initialized graphics engine.
-     */
-    boost::shared_ptr<WGraphicsEngine> m_GraphicsEngine;
-
 private:
-    /**
-     * \par Description
-     * Loads all the modules it can find.
-     * \exception
-     */
-    void loadModules();
-
-    /**
-     * \par Description
-     * Initializes the graphics engine, data handler and so on.
-     */
-    void init();
 };
 
-#endif  // WKERNEL_H
+#endif  // WTESTMODULE_H
 

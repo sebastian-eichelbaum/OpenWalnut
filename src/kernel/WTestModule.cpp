@@ -21,21 +21,32 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QApplication>
+#include <string>
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
+#include "WTestModule.h"
 
-int WMainApplication::runQT( int argc, char* argv[] )
+WTestModule::WTestModule(): WModule()
 {
-    QApplication appl( argc, argv );
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
+    // initialize members
+}
 
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
-    return qtExecResult;
+WTestModule::~WTestModule()
+{
+    // cleanup
+}
+
+WTestModule::WTestModule( const WTestModule& other )
+{
+    *this = other;
+}
+
+std::string WTestModule::getName() const
+{
+    return "Test Module";
+}
+
+std::string WTestModule::getDescription() const
+{
+    return "This module is for testing and development";
 }
 

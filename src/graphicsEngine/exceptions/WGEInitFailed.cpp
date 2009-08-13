@@ -21,21 +21,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QApplication>
+#include <string>
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
+#include "WGEInitFailed.h"
 
-int WMainApplication::runQT( int argc, char* argv[] )
+WGEInitFailed::WGEInitFailed( const std::string& msg ): WGEException( msg )
 {
-    QApplication appl( argc, argv );
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
+    // initialize members
+}
 
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
-    return qtExecResult;
+WGEInitFailed::~WGEInitFailed() throw()
+{
+    // cleanup
 }
 

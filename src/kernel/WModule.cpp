@@ -21,21 +21,32 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QApplication>
+#include <string>
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
+#include "WModule.h"
 
-int WMainApplication::runQT( int argc, char* argv[] )
+WModule::WModule()
 {
-    QApplication appl( argc, argv );
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
+    // initialize members
+}
 
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
-    return qtExecResult;
+WModule::~WModule()
+{
+    // cleanup
+}
+
+WModule::WModule( const WModule& other )
+{
+    *this = other;
+}
+
+std::string WModule::getName() const
+{
+    return "WModule";
+}
+
+std::string WModule::getDescription() const
+{
+    return "Plain module without functionality";
 }
 

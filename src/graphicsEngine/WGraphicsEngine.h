@@ -21,71 +21,52 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WKERNEL_H
-#define WKERNEL_H
+#ifndef WGRAPHICSENGINE_H
+#define WGRAPHICSENGINE_H
 
 #include <list>
 
 #include <boost/shared_ptr.hpp>
-
-#include "WModule.h"
-#include "../graphicsEngine/WGraphicsEngine.h"
+#include <osg/Camera>
+#include <osgViewer/Viewer>
 
 /**
  * \par Description:
- * OpenWalnut kernel, managing modules and interaction between GUI, GE and DataHandler
+ * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
+ * engine.
  */
-class WKernel
+class WGraphicsEngine
 {
 public:
 
     /**
      * \par Description
-     * Default constructor. Also initializes Graphics Engine.
+     * Default constructor.
      */
-    WKernel();
+    WGraphicsEngine();
 
     /**
      * \par Description
      * Destructor.
      */
-    virtual ~WKernel();
+    virtual ~WGraphicsEngine();
 
     /**
      * \par Description
      * Copy constructor
      * \param other Reference on object to copy.
      */
-    WKernel( const WKernel& other );
+    WGraphicsEngine( const WGraphicsEngine& other );
 
 protected:
 
     /**
      * \par Description
-     * All the loaded modules.
+     * List of all OSG views.
      */
-    std::list<WModule> m_modules;
-
-    /**
-     * \par Description
-     * Pointer to an initialized graphics engine.
-     */
-    boost::shared_ptr<WGraphicsEngine> m_GraphicsEngine;
-
+    std::list<boost::shared_ptr<osgViewer::Viewer> > m_Views;
 private:
-    /**
-     * \par Description
-     * Loads all the modules it can find.
-     * \exception
-     */
-    void loadModules();
-
-    /**
-     * \par Description
-     * Initializes the graphics engine, data handler and so on.
-     */
-    void init();
 };
 
-#endif  // WKERNEL_H
+#endif  // WGRAPHICSENGINE_H
 

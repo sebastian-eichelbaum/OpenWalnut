@@ -21,21 +21,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QApplication>
+#include <string>
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
+#include "WGEException.h"
 
-int WMainApplication::runQT( int argc, char* argv[] )
+WGEException::WGEException( const std::string& msg ): WException( msg )
 {
-    QApplication appl( argc, argv );
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
-
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
-    return qtExecResult;
+    // initialize members
 }
+
+WGEException::~WGEException() throw()
+{
+    // cleanup
+}
+
 

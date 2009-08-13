@@ -22,11 +22,11 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
-
 #include <QtGui/QDockWidget>
 
 #include "WMainWindow.h"
 #include "WQtGLWidget.h"
+
 #include "WQtPipelineBrowser.h"
 
 #include "../icons/WIcons.h"
@@ -34,10 +34,10 @@
 
 void WMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
 {
-    m_glWidget = new WQtGLWidget();
     QDockWidget *dockWidget = new QDockWidget( "Graphics Display" );
     dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea
             | Qt::RightDockWidgetArea );
+    m_glWidget = new WQtGLWidget( dockWidget );
     dockWidget->setWidget( m_glWidget );
     MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
 }
@@ -149,7 +149,7 @@ void WMainWindow::setupGUI( QMainWindow *MainWindow )
     m_menuHelp->setTitle( QApplication::translate( "MainWindow", "&Help", 0,
             QApplication::UnicodeUTF8 ) );
 
-    m_glWidget = new WQtGLWidget();
+    m_glWidget = new WQtGLWidget( MainWindow );
     MainWindow->setCentralWidget( m_glWidget );
 
     // initially 3 views

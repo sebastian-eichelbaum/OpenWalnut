@@ -21,36 +21,48 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
+#include <QtGui/QKeyEvent>
+
 #include "WQtGLWidget.h"
-#include "../../graphicsEngine/WGLScenePainter.h"
 
-WQtGLWidget::WQtGLWidget( WGLScenePainter* scenePainter, QWidget *parent )
-    : QGLWidget( parent ),
-      m_scenePainter( scenePainter ),
+WQtGLWidget::WQtGLWidget( QWidget* parent )
+    : QWidget( parent ),
       m_recommendedSize()
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
-}
 
-WQtGLWidget::WQtGLWidget( QWidget *parent )
-    : QGLWidget( parent ),
-      m_recommendedSize()
-{
-    m_recommendedSize.setWidth( 200 );
-    m_recommendedSize.setHeight( 200 );
-    m_scenePainter = new WGLScenePainter();
+    // initialize OpenGL context and OpenSceneGraph
+
+#if defined(__APPLE__)
+    // Extract a WindowPtr from the HIViewRef that QWidget::winId() returns.
+    // Without this change, the peer tries to call GetWindowPort on the HIViewRef
+    // which returns 0 and we only render white.
+    wdata = boost::shared_ptr<WindowData>(
+            new WindowData( HIViewGetWindow( static_cast<HIViewRef>winId() ) )
+    );
+#else  // all others
+    wdata = boost::shared_ptr<WindowData>( new WindowData( winId() ) );
+#endif
+
+    // create viewer
+    m_Viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x(), y(), width(), height() ) );
+
+    // timer
+    m_Timer.start( 10 );
+    connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( repaint() ) );
+
+    // required
+    setAttribute( Qt::WA_PaintOnScreen );
+    setAttribute( Qt::WA_NoSystemBackground );
+    setFocusPolicy( Qt::ClickFocus );
 }
 
 WQtGLWidget::~WQtGLWidget()
 {
-    // TODO(wiebel): Auto-generated destructor stub
-}
-
-void WQtGLWidget::paintGL()
-{
-    // TODO(wiebel): we have to have something automatic in here in the future
-    m_scenePainter->paintGL();
+    m_Timer.stop();
 }
 
 QSize WQtGLWidget::sizeHint() const
@@ -58,12 +70,79 @@ QSize WQtGLWidget::sizeHint() const
     return m_recommendedSize;
 }
 
-void WQtGLWidget::resizeGL( int width, int height )
+void WQtGLWidget::paintEvent( QPaintEvent* event )
 {
-    m_scenePainter->resizeGL( width, height );
+    m_Viewer->paint();
 }
 
-void WQtGLWidget:: initializeGL()
+#ifndef WIN32
+void WQtGLWidget::destroyEvent( bool destroyWindow, bool destroySubWindows )
 {
-    m_scenePainter->initGL();
+    // forward events
+    m_Viewer->close();
 }
+
+
+void WQtGLWidget::closeEvent( QCloseEvent* event )
+{
+    event->accept();
+
+    // forward events
+    m_Viewer->close();
+}
+
+
+void WQtGLWidget::resizeEvent( QResizeEvent* event )
+{
+    m_Viewer->resize( event->size().width(), event->size().height() );
+}
+
+int WQtGLWidget::translateButton( QMouseEvent* event )
+{
+    switch( event->button() )
+    {
+        case( Qt::LeftButton ):
+            return 1;
+        case( Qt::MidButton ):
+            return 2;
+        case( Qt::RightButton ):
+            return 3;
+        case( Qt::NoButton ):
+            return 0;
+        default:
+            return 0;
+    }
+}
+
+void WQtGLWidget::keyPressEvent( QKeyEvent* event )
+{
+    m_Viewer->keyEvent( WGEViewer::KEYPRESS, *event->text().toAscii().data() );
+}
+
+void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
+{
+    m_Viewer->keyEvent( WGEViewer::KEYRELEASE, *event->text().toAscii().data() );
+}
+
+
+void WQtGLWidget::mousePressEvent( QMouseEvent* event )
+{
+    m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
+}
+
+void WQtGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
+{
+    m_Viewer->mouseEvent( WGEViewer::MOUSEDOUBLECLICK, event->x(), event->y(), translateButton( event ) );
+}
+
+void WQtGLWidget::mouseReleaseEvent( QMouseEvent* event )
+{
+    m_Viewer->mouseEvent( WGEViewer::MOUSERELEASE, event->x(), event->y(), translateButton( event ) );
+}
+
+void WQtGLWidget::mouseMoveEvent( QMouseEvent* event )
+{
+    m_Viewer->mouseEvent( WGEViewer::MOUSEMOVE, event->x(), event->y(), 0 );
+}
+#endif
+

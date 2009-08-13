@@ -8,5 +8,8 @@ TARGET_LINK_LIBRARIES( kernel common )
 IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${KERNEL_SRC}"
                                ""  # no libs for linking required
+                               "WKernel.cpp"
+                               "WModule.cpp"
+                               "WTestModule.cpp"
                              )
 ENDIF( CXXTEST_FOUND )

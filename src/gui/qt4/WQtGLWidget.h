@@ -24,20 +24,37 @@
 #ifndef WQTGLWIDGET_H
 #define WQTGLWIDGET_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtOpenGL/QGLWidget>
+#include <QtGui/QWidget>
+#include <QtCore/QTimer>
 
-
-class WGLScenePainter;
+#include "../../graphicsEngine/WGEGraphicsWindow.h"
+#include "../../graphicsEngine/WGEViewer.h"
 
 /**
  * \ingroup gui
- * A widget containing an open gl display area.
+ * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
+ * engine.
  */
-class WQtGLWidget: public QGLWidget
+class WQtGLWidget: public QWidget
 {
 public:
-    explicit WQtGLWidget( QWidget *parent = 0 );
-    WQtGLWidget( WGLScenePainter* scenePainter, QWidget *parent = 0 );
+    /**
+     * \par Description
+     * Default constructor.
+     *
+     * \param parent Parent widget.
+     *
+     * \return
+     */
+    explicit WQtGLWidget( QWidget* parent = 0 );
+
+    /**
+     * \par Description
+     * Destructor.
+     */
     virtual ~WQtGLWidget();
 
     /**
@@ -46,44 +63,126 @@ public:
      */
     QSize sizeHint() const;
 
-    /**
-     * This virtual function is called whenever the widget has been
-     * resized. The new size is passed in width and height.
-     *
-     * \note It seem that the function is not called if declared const, so it
-     * is not const.
-     */
-    void resizeGL( int width, int height );
-
 protected:
     /**
-     * This function is called once before the first
-     * call to paintGL() or resizeGL(), and then once whenever
-     * the widget has been assigned a new QGLContext.
-     *
-     * \note It seem that the function is not called if declared const, so it
-     * is not const.
+     * \par Description
+     * The viewer to the scene.
      */
-    void initializeGL();
+    boost::shared_ptr<WGEViewer> m_Viewer;
+
+    //  The GraphincsWindowWin32 implementation already takes care of message handling.
+    //  We don't want to relay these on Windows, it will just cause duplicate messages
+    //  with further problems downstream (i.e. not being able to throw the trackball
+#ifndef WIN32
+    /** 
+     * \par Description
+     * Event handler for double clicks.
+     * 
+     * \param event the event description.
+     */
+    virtual void mouseDoubleClickEvent( QMouseEvent* event );
+
+    /** 
+     * \par Description
+     * Event handler for close events.
+     * 
+     * \param event the event description.
+     */
+    virtual void closeEvent( QCloseEvent* event );
+
+    /** 
+     * \par Description
+     * Event handler for destroy events (called after close).
+     * 
+     * \param event the event description.
+     */
+    virtual void destroyEvent( bool destroyWindow = true, bool destroySubWindows = true );
+
+    /** 
+     * \par Description
+     * Event handler for  resize events.
+     * 
+     * \param event the event description.
+     */
+    virtual void resizeEvent( QResizeEvent* event );
+
+    /** 
+     * \par Description
+     * Event handler for key press.
+     * 
+     * \param event the event description.
+     */
+    virtual void keyPressEvent( QKeyEvent* event );
+
+    /** 
+     * \par Description
+     * Event handler for key release.
+     * 
+     * \param event the event description.
+     */
+    virtual void keyReleaseEvent( QKeyEvent* event );
+
+    /** 
+     * \par Description
+     * Event handler for mouse button press.
+     * 
+     * \param event the event description.
+     */
+    virtual void mousePressEvent( QMouseEvent* event );
+
+    /** 
+     * \par Description
+     * Event handler for mouse button release.
+     * 
+     * \param event the event description.
+     */
+    virtual void mouseReleaseEvent( QMouseEvent* event );
+
+    /** 
+     * \par Description
+     * Event handler for mouse moves.
+     * 
+     * \param event the event description.
+     */
+    virtual void mouseMoveEvent( QMouseEvent* event );
+#endif
+
+    /** 
+     * \par Description
+     * QT Callback for handling repaints.
+     * 
+     * \param event event descriptor.
+     */
+    virtual void paintEvent( QPaintEvent* event );
+
+    /** 
+     * \par Description
+     * Simply translate the mouse button from an event to an int.
+     * 
+     * \param event the QT Event.
+     * 
+     * \return the translated button number.
+     */
+    int translateButton( QMouseEvent* event );
 
 private:
-    /**
-     * This function is called whenever the widget needs to be painted.
-     *
-     * \note It seem that the function is not called if declared const, so it
-     * is not const.
-     */
-    void paintGL();
-
-    /**
-     * Holds the GL scene painter of the widget
-     */
-    WGLScenePainter* m_scenePainter;
-
     /**
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
+
+    /** 
+     * \par Description
+     * Window Data for this widget needed by OpenSceneGraph.
+     */
+    boost::shared_ptr<WindowData> wdata;
+
+    /** 
+     * \par Description
+     * Timer used for permanent redraw of all views. This is just a hack and will be improved
+     * so that redraws are done by separate threads.
+     */
+    QTimer m_Timer;
 };
 
 #endif  // WQTGLWIDGET_H

@@ -24,11 +24,16 @@
 #include <iostream>
 
 #include "WKernel.h"
+#include "WModule.h"
+#include "WTestModule.h"
 #include "../common/WException.h"
 
 WKernel::WKernel()
 {
     // initialize members
+
+    // init GE, DataHandler, ...
+    init();
 
     // load modules
     loadModules();
@@ -46,6 +51,15 @@ WKernel::WKernel( const WKernel& other )
 
 void WKernel::loadModules()
 {
-    throw WException( "Not yet implemented" );
+    // TODO(ebaum): add dynamic loading here
+    m_modules.clear();
+
+    m_modules.push_back( WTestModule() );
+    m_modules.push_back( WTestModule() );
+}
+
+void WKernel::init()
+{
+    // initialize
 }
 
