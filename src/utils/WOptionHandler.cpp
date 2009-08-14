@@ -70,7 +70,9 @@ int WOptionHandler::takeActions() const
         return 0;
     }
 
-    WMainApplication app;
-    return app.runQT( m_argc, m_argv );
+    // this code is outdated. It will be removed/rewritten.
+    // WMainApplication app;
+    return 0;
+    // return app.runQT( m_argc, m_argv );
 }
 

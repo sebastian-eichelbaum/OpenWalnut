@@ -24,13 +24,20 @@
 #ifndef WGUI_H
 #define WGUI_H
 
+#include "../common/WThreadedRunner.h"
+
 /**
  * This class prescribes the interface to the GUI.
  * \ingroup gui
  */
-class WGUI
+class WGUI: public WThreadedRunner
 {
 public:
+
+    /** 
+     * \par Description 
+     * Default destructor.
+     */
     virtual ~WGUI();
 
     /**

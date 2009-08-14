@@ -21,25 +21,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGRAPHICSENGINE_H
-#define WGRAPHICSENGINE_H
+#ifndef WTHREADEDRUNNER_H
+#define WTHREADEDRUNNER_H
 
-#include <list>
-
-#include <boost/shared_ptr.hpp>
-
-#include <osg/Camera>
-#include <osgViewer/Viewer>
-
-#include "WGEScene.h"
-#include "../common/WThreadedRunner.h"
+#include <boost/thread/thread.hpp>
 
 /**
  * \par Description:
- * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
- * engine.
+ * Base class for alle classes needing to be executed in a separate thread.
  */
-class WGraphicsEngine: public WThreadedRunner
+class WThreadedRunner
 {
 public:
 
@@ -47,45 +38,65 @@ public:
      * \par Description
      * Default constructor.
      */
-    WGraphicsEngine();
+    WThreadedRunner();
 
     /**
      * \par Description
      * Destructor.
      */
-    virtual ~WGraphicsEngine();
+    virtual ~WThreadedRunner();
 
     /**
      * \par Description
-     * Copy constructor
-     * \param other Reference on object to copy.
+     * Run thread.
      */
-    WGraphicsEngine( const WGraphicsEngine& other );
+    void run();
 
-    /** 
+    /**
      * \par Description
-     * Returns the root node of the OSG.
-     * 
-     * \return the root node.
+     * Wait for the thread to be finished.
+     *
+     * \param requestFinish true if the thread should be notified.
      */
-    WGEScene* getScene();
+    void wait( bool requestFinish = false );
 
 protected:
 
-    /** 
+    /**
      * \par Description
-     * OpenSceneGraph root node.
-     */
-    WGEScene* m_RootNode;
-
-    /** 
-     * \par Description
-     * Handler for repainting and event handling. Gets executed in separate thread.
+     * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
+     * has been called.
      */
     virtual void threadMain();
+
+    /**
+     * \par Description
+     * Thread instance.
+     */
+    boost::thread* m_Thread;
+
+    /**
+     * \par Description
+     * True if thread should end execution.
+     */
+    bool m_FinishRequested;
+
+    /**
+     * \par Description
+     * Give remaining execution timeslice to another thread.
+     */
+    void yield() const;
+
+    /**
+     * \par Description
+     * Sets thread asleep.
+     *
+     * \param t time to sleep in seconds.
+     */
+    void sleep( const int t ) const;
 
 private:
 };
 
-#endif  // WGRAPHICSENGINE_H
+#endif  // WTHREADEDRUNNER_H
 

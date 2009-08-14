@@ -31,6 +31,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../graphicsEngine/WGECamera.h"
 #include "../../graphicsEngine/WGEGraphicsWindow.h"
 #include "../../graphicsEngine/WGEViewer.h"
 
@@ -63,6 +64,32 @@ public:
      * parent widgets to give it a proper initial layout
      */
     QSize sizeHint() const;
+
+
+    /** 
+     * \par Description
+     * List of currently possible camera manipulators.
+     */
+    enum CameraManipulators
+    {
+        TRACKBALL, TERRAIN, UFO, DRIVE, FLIGHT
+    };
+
+    /** 
+     * \par Description
+     * Sets the camera manipulator to use.
+     * 
+     * \param manipulator the manipulator.
+     */
+    void setCameraManipulator( CameraManipulators manipulator );
+
+    /** 
+     * \par Description 
+     * Returns the actually set camera manipulator.
+     * 
+     * \return the manipulator.
+     */
+    CameraManipulators getCameraManipulators();
 
 protected:
     /**
@@ -166,6 +193,11 @@ protected:
      */
     int translateButton( QMouseEvent* event );
 
+    /** 
+     * \par Description
+     * Stores the current manipulator.
+     */
+    CameraManipulators m_CurrentManipulator;
 private:
     /**
      * Holds the recommended size for the widget

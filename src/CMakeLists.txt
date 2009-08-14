@@ -100,7 +100,7 @@ IF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     ADD_SUBDIRECTORY( kernel )
     ADD_SUBDIRECTORY( common )
     ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
-    TARGET_LINK_LIBRARIES( walnut kernel guiqt4 ${Boost_LIBRARIES} ${OPENTHREADS_LIBRARY} )
+    TARGET_LINK_LIBRARIES( walnut kernel guiqt4 common ${Boost_LIBRARIES} ${OPENTHREADS_LIBRARY} )
     
 ELSE ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.cpp )

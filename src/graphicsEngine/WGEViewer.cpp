@@ -34,10 +34,9 @@
 #include <osgGA/StateSetManipulator>
 #include <osgGA/AnimationPathManipulator>
 #include <osgGA/TerrainManipulator>
+#include <osgViewer/ViewerEventHandlers>
 
 #include <osgDB/ReadFile>
-
-#include <osgViewer/ViewerEventHandlers>
 
 #include "exceptions/WGEInitFailed.h"
 #include "WGEViewer.h"
@@ -61,67 +60,12 @@ WGEViewer::WGEViewer( boost::shared_ptr<WindowData> wdata, int x, int y, int wid
         m_View->addEventHandler( new osgViewer::StatsHandler );
 
         // camera manipulator
-        m_Manipulator = new osgGA::TrackballManipulator();
-        m_View->setCameraManipulator( m_Manipulator );
+        m_View->setCameraManipulator( new osgGA::TrackballManipulator() );
 
         // finally add view
         // there is the possibility to use ONE single composite viewer instance for every view, but
         // currently this possibility is not used.
         m_Viewer->addView( m_View.get() );
-
-
-        // load the sample scene.
-        osg::Geode* sceneDataGeode = new osg::Geode();
-
-        // 20 units into the screen
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, 5, -20 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, 5, -20 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, 5, -20 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, 5, -20 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, 5, -20 ), 1.0, 1.0 ) ) );
-
-        // 25 units into the screen
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, 0, -25 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, 0, -25 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, 0, -25 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, 0, -25 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, 0, -25 ), 1.0, 1.0 ) ) );
-
-        // 30 units into the screen
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, -5, -30 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, -5, -30 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, -5, -30 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, -5, -30 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, -5, -30 ), 1.0, 1.0 ) ) );
-
-        // 35 units into the screen
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, -10, -35 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, -10, -35 ), 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, -10, -35 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, -10, -35 ), 1.0, 1.0 ) ) );
-        sceneDataGeode->addDrawable(
-                new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, -10, -35 ), 1.0, 1.0 ) ) );
-
-        m_View->setSceneData( sceneDataGeode );
     }
     catch( ... )
     {
@@ -141,13 +85,34 @@ boost::shared_ptr<osgViewer::CompositeViewer> WGEViewer::getViewer()
 
 void WGEViewer::setCameraManipulator( osgGA::MatrixManipulator* manipulator )
 {
-    m_Manipulator = manipulator;
-    m_View->setCameraManipulator( m_Manipulator );
+    m_View->setCameraManipulator( manipulator );
+    // redraw request?? no since it redraws permanently and uses the new settings
 }
 
 osgGA::MatrixManipulator* WGEViewer::getCameraManipulator()
 {
-    return m_Manipulator;
+    return m_View->getCameraManipulator();
+}
+
+void WGEViewer::setCamera( osg::Camera* camera )
+{
+    m_View->setCamera( camera );
+    // redraw request?? no since it redraws permanently and uses the new settings
+}
+
+osg::Camera* WGEViewer::getCamera()
+{
+    return m_View->getCamera();
+}
+
+void WGEViewer::setScene( osg::Node* node )
+{
+    m_View->setSceneData( node );
+}
+
+osg::Node* WGEViewer::getNode()
+{
+    return m_View->getSceneData();
 }
 
 void WGEViewer::paint()

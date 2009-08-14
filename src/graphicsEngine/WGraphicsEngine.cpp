@@ -21,17 +21,26 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
 #include "exceptions/WGEInitFailed.h"
+#include "../kernel/WKernel.h"
 #include "WGraphicsEngine.h"
 
-WGraphicsEngine::WGraphicsEngine()
+WGraphicsEngine::WGraphicsEngine():
+    WThreadedRunner()
 {
+    std::cout << "Initializing Graphics Engine" << std::endl;
+
     // initialize members
+    m_RootNode = new WGEScene();
 }
 
 WGraphicsEngine::~WGraphicsEngine()
 {
     // cleanup
+    std::cout << "Shutting down Graphics Engine" << std::endl;
+    delete m_RootNode;
 }
 
 WGraphicsEngine::WGraphicsEngine( const WGraphicsEngine& other )
@@ -39,4 +48,18 @@ WGraphicsEngine::WGraphicsEngine( const WGraphicsEngine& other )
     *this = other;
 }
 
+WGEScene* WGraphicsEngine::getScene()
+{
+    return m_RootNode;
+}
+
+void WGraphicsEngine::threadMain()
+{
+    while( !m_FinishRequested )
+    {
+        // currently a dummy
+        // TODO(ebaum): add drawing and event handling here
+        sleep( 1 );
+    }
+}
 

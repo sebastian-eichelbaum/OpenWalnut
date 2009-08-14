@@ -21,35 +21,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGESCENE_H
-#define WGESCENE_H
+#include <iostream>
 
-#include <osg/Group>
+#include "WThreadedRunner.h"
 
-/**
- * \par Description:
- * Class for managing the OpenSceneGraph root node. It can handle new nodes, removing nodes and so on.
- */
-class WGEScene: public osg::Group
+WThreadedRunner::WThreadedRunner()
 {
-public:
+    // initialize members
+    m_FinishRequested = false;
+    m_Thread = NULL;
+}
 
-    /**
-     * \par Description
-     * Default constructor.
-     */
-    WGEScene();
+WThreadedRunner::~WThreadedRunner()
+{
+    // cleanup
+    // XXX is this working if thread already has finished?
+    // wait( true ); <-- no
+}
 
-    /**
-     * \par Description
-     * Destructor.
-     */
-    virtual ~WGEScene();
+void WThreadedRunner::run()
+{
+    m_Thread = new boost::thread( boost::bind( &WThreadedRunner::threadMain, this ) );
+}
 
-protected:
+void WThreadedRunner::wait( bool requestFinish )
+{
+    if( requestFinish )
+    {
+        m_FinishRequested = requestFinish;
+    }
+    m_Thread->join();
+}
 
-private:
-};
+void WThreadedRunner::threadMain()
+{
+}
 
-#endif  // WGESCENE_H
+void WThreadedRunner::yield() const
+{
+    m_Thread->yield();
+}
+
+void WThreadedRunner::sleep( const int t ) const
+{
+    boost::this_thread::sleep( boost::posix_time::seconds( t ) );
+}
 

@@ -23,11 +23,10 @@
 
 #include <iostream>
 
-#include "gui/qt4/WMainApplication.h"
-#include "utils/WOptionHandler.h"
-
 #include "common/WException.h"
 #include "common/WSegmentationFault.h"
+
+#include "kernel/WKernel.h"
 
 /**
  * The main routine starting up the whole application.
@@ -49,7 +48,8 @@ int main( int argc, char* argv[] )
     // install signal handler as early as possible
     WSegmentationFault::installSignalHandler();
 
-    // start application
-    WOptionHandler h( argc, argv );
-    return h.takeActions();
+    // init the kernel
+    WKernel kernel = WKernel( argc, argv );
+    int code = kernel.run();
+    return code;
 }

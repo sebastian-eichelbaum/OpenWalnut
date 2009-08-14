@@ -24,20 +24,35 @@
 #ifndef WMAINAPPLICATION_H
 #define WMAINAPPLICATION_H
 
+#include "../../common/WThreadedRunner.h"
+
 /**
  * Starts up the QT GUI.
  */
-class WMainApplication
+class WMainApplication: public WThreadedRunner
 {
 public:
-    /**
-     * QT GUI needs a QApplication instance with passed argc and argv.
-     *
-     * \return Exitcode of QT GUI.
+
+    /** 
+     * \par Description
+     * Default Constructor.
      */
-    int runQT( int argc, char* argv[] );
+    WMainApplication();
+
+    /** 
+     * \par Description
+     * Default destructor.
+     */
+    virtual ~WMainApplication();
 
 protected:
+
+    /** 
+     * \par Description
+     * Execution loop.
+     */
+    virtual void threadMain();
+
 private:
 };
 

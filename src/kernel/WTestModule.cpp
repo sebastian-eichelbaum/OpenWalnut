@@ -21,11 +21,18 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <string>
 
-#include "WTestModule.h"
+#include <osg/ShapeDrawable>
+#include <osg/Group>
+#include <osg/Geode>
 
-WTestModule::WTestModule(): WModule()
+#include "WTestModule.h"
+#include "WKernel.h"
+
+WTestModule::WTestModule():
+    WModule()
 {
     // initialize members
 }
@@ -48,5 +55,70 @@ std::string WTestModule::getName() const
 std::string WTestModule::getDescription() const
 {
     return "This module is for testing and development";
+}
+
+void WTestModule::threadMain()
+{
+    // load the sample scene.
+    osg::Geode* sceneDataGeode = new osg::Geode();
+
+    // 20 units into the screen
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, 5, -20 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, 5, -20 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, 5, -20 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, 5, -20 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, 5, -20 ), 1.0, 1.0 ) ) );
+
+    // 25 units into the screen
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, 0, -25 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, 0, -25 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, 0, -25 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, 0, -25 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, 0, -25 ), 1.0, 1.0 ) ) );
+
+    // 30 units into the screen
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, -5, -30 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, -5, -30 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, -5, -30 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, -5, -30 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, -5, -30 ), 1.0, 1.0 ) ) );
+
+    // 35 units into the screen
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Box( osg::Vec3( -6, -10, -35 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( -3, -10, -35 ), 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cone( osg::Vec3(  0, -10, -35 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Cylinder( osg::Vec3(  3, -10, -35 ), 1.0, 1.0 ) ) );
+    sceneDataGeode->addDrawable(
+            new osg::ShapeDrawable( new osg::Capsule( osg::Vec3(  6, -10, -35 ), 1.0, 1.0 ) ) );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( sceneDataGeode );
+
+    // Since the modules run in a separate thread: such loops are possible
+    while ( !m_FinishRequested )
+    {
+        // do fancy stuff
+        sleep( 1 );
+    }
+
+    // clean up stuff
 }
 

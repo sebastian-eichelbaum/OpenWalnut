@@ -21,35 +21,31 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGESCENE_H
-#define WGESCENE_H
+#include "WGECamera.h"
 
-#include <osg/Group>
-
-/**
- * \par Description:
- * Class for managing the OpenSceneGraph root node. It can handle new nodes, removing nodes and so on.
- */
-class WGEScene: public osg::Group
+WGECamera::WGECamera():
+    osg::Camera()
 {
-public:
+    // initialize members
+}
 
-    /**
-     * \par Description
-     * Default constructor.
-     */
-    WGEScene();
+WGECamera::~WGECamera()
+{
+    // cleanup
+}
 
-    /**
-     * \par Description
-     * Destructor.
-     */
-    virtual ~WGEScene();
+void WGECamera::setDefaultProjectionMode( WGECamera::ProjectionMode mode )
+{
+    m_DefProjMode = mode;
+}
 
-protected:
+WGECamera::ProjectionMode WGECamera::getDefaultProjectionMode()
+{
+    return m_DefProjMode;
+}
 
-private:
-};
-
-#endif  // WGESCENE_H
+void WGECamera::reset()
+{
+    // not yet implemented
+}
 

@@ -25,7 +25,10 @@
 
 #include <QtGui/QKeyEvent>
 
+#include "../../kernel/WKernel.h"
+
 #include "WQtGLWidget.h"
+
 
 WQtGLWidget::WQtGLWidget( QWidget* parent )
     : QWidget( parent ),
@@ -49,8 +52,10 @@ WQtGLWidget::WQtGLWidget( QWidget* parent )
 
     // create viewer
     m_Viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x(), y(), width(), height() ) );
+    m_Viewer->setScene( WKernel::getRunningKernel()->getGraphicsEngine()->getScene() );
 
     // timer
+    // XXX this will be done by a separate thread in the future. For prototyping it is enough.
     m_Timer.start( 10 );
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( repaint() ) );
 
@@ -68,6 +73,45 @@ WQtGLWidget::~WQtGLWidget()
 QSize WQtGLWidget::sizeHint() const
 {
     return m_recommendedSize;
+}
+
+void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipulator )
+{
+    m_CurrentManipulator = manipulator;
+    switch ( manipulator )
+    {
+        case DRIVE:
+            std::cout << "selected drive manipulator" << std::endl;
+
+            m_Viewer->setCameraManipulator( new( osgGA::DriveManipulator ) );
+            break;
+        case FLIGHT:
+            std::cout << "selected flight manipulator" << std::endl;
+
+            m_Viewer->setCameraManipulator( new( osgGA::FlightManipulator ) );
+            break;
+        case TERRAIN:
+            std::cout << "selected terrain manipulator" << std::endl;
+
+            m_Viewer->setCameraManipulator( new( osgGA::TerrainManipulator ) );
+            break;
+        case UFO:
+            std::cout << "selected ufo manipulator" << std::endl;
+
+            m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
+            break;
+        case TRACKBALL:
+        default:
+            std::cout << "selected trackball manipulator" << std::endl;
+
+            m_Viewer->setCameraManipulator( new( osgGA::TrackballManipulator ) );
+            break;
+    }
+}
+
+WQtGLWidget::CameraManipulators WQtGLWidget::getCameraManipulators()
+{
+    return m_CurrentManipulator;
 }
 
 void WQtGLWidget::paintEvent( QPaintEvent* event )
@@ -121,6 +165,25 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 
 void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 {
+    switch( event->key() )
+    {
+        case Qt::Key_1:
+            setCameraManipulator( TRACKBALL );
+            break;
+        case Qt::Key_2:
+            setCameraManipulator( FLIGHT );
+            break;
+        case Qt::Key_3:
+            setCameraManipulator( DRIVE );
+            break;
+        case Qt::Key_4:
+            setCameraManipulator( TERRAIN );
+            break;
+        case Qt::Key_5:
+            setCameraManipulator( UFO );
+            break;
+    }
+
     m_Viewer->keyEvent( WGEViewer::KEYRELEASE, *event->text().toAscii().data() );
 }
 

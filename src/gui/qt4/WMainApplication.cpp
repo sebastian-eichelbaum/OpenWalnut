@@ -21,14 +21,29 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
 #include <QtGui/QApplication>
 
 #include "WMainApplication.h"
 #include "WMainWindow.h"
 
-int WMainApplication::runQT( int argc, char* argv[] )
+#include "../../kernel/WKernel.h"
+
+WMainApplication::WMainApplication():
+    WThreadedRunner()
 {
-    QApplication appl( argc, argv );
+}
+
+WMainApplication::~WMainApplication()
+{
+}
+
+void WMainApplication::threadMain()
+{
+    // TODO(ebaum): currently removed argument stuff. will be done later in conjunction with a better
+    // option handler.
+    QApplication appl( 0, NULL );
     QMainWindow* widget = new QMainWindow;
     WMainWindow gui;
     gui.setupGUI( widget );
@@ -36,6 +51,7 @@ int WMainApplication::runQT( int argc, char* argv[] )
     widget->show();
     int qtExecResult;
     qtExecResult = appl.exec();
-    return qtExecResult;
+
+    // TODO(ebaum): how to handle return codes?
 }
 

@@ -30,6 +30,7 @@
 
 #include "WModule.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
+#include "../gui/qt4/WMainApplication.h"
 
 /**
  * \par Description:
@@ -42,8 +43,11 @@ public:
     /**
      * \par Description
      * Default constructor. Also initializes Graphics Engine.
+     *
+     * \param argc number of arguments
+     * \param argv arguments
      */
-    WKernel();
+    WKernel( int argc, char* argv[] );
 
     /**
      * \par Description
@@ -58,19 +62,73 @@ public:
      */
     WKernel( const WKernel& other );
 
+    /** 
+     * \par Description
+     * Starts execution.
+     *
+     * \return Execution code.
+     */
+    int run();
+
+    /** 
+     * \par Description
+     * Returns pointer to currently running instance of graphics engine.
+     * 
+     * \return the ge instance.
+     */
+    boost::shared_ptr<WGraphicsEngine> getGraphicsEngine();
+
+    /** 
+     * \par Description
+     * Returns pointer to the currently running kernel.
+     * 
+     * \return the kernel instance.
+     */
+    static WKernel* getRunningKernel();
+
+    /** 
+     * \par Description
+     * Returns argument count.
+     * 
+     * \return argument count.
+     */
+    int getArgumentCount();
+
+    /** 
+     * \par Description
+     * Returns argument array specified to the app.
+     * 
+     * \return the argument array.
+     */
+    char** getArguments();
+
+    /** 
+     * \par Description
+     * Determines whether all threads should finish.
+     * 
+     * \return true if so.
+     */
+    bool isFinishRequested();
+
 protected:
 
     /**
      * \par Description
      * All the loaded modules.
      */
-    std::list<WModule> m_modules;
+    std::list<WModule*> m_modules;
 
     /**
      * \par Description
      * Pointer to an initialized graphics engine.
      */
     boost::shared_ptr<WGraphicsEngine> m_GraphicsEngine;
+
+    /** 
+     * \par Description
+     * The Gui.
+     */
+    boost::shared_ptr<WMainApplication> m_Gui;
 
 private:
     /**
@@ -85,6 +143,24 @@ private:
      * Initializes the graphics engine, data handler and so on.
      */
     void init();
+
+    /** 
+     * \par Description
+     * Number of arguments given to application.
+     */
+    int m_ArgC;
+
+    /** 
+     * \par Description 
+     * Arguments given to application
+     */
+    char** m_ArgV;
+
+    /** 
+     * \par Description
+     * true if threads should finish.
+     */
+    bool m_FinishRequested;
 };
 
 #endif  // WKERNEL_H

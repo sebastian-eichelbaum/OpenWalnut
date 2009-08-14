@@ -20,4 +20,4 @@ FILE(GLOB GUI_QT4_SRC "*.cpp")
 
 ADD_LIBRARY( guiqt4 SHARED ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 
-TARGET_LINK_LIBRARIES( guiqt4 gui ge ${QT_LIBS} )
+TARGET_LINK_LIBRARIES( guiqt4 common gui ge kernel ${QT_LIBS} )

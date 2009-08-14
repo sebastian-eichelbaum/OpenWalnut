@@ -26,11 +26,13 @@
 
 #include <string>
 
+#include "../common/WThreadedRunner.h"
+
 /**
  * \par Description:
  * Class representing a single module of OpenWalnut.
  */
-class WModule
+class WModule: public WThreadedRunner
 {
 public:
 
@@ -69,6 +71,12 @@ public:
     virtual std::string getDescription() const;
 
 protected:
+
+    /** 
+     * \par Description
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void threadMain();
 
 private:
 };

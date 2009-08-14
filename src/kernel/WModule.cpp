@@ -25,7 +25,8 @@
 
 #include "WModule.h"
 
-WModule::WModule()
+WModule::WModule():
+    WThreadedRunner()
 {
     // initialize members
 }
@@ -48,5 +49,9 @@ std::string WModule::getName() const
 std::string WModule::getDescription() const
 {
     return "Plain module without functionality";
+}
+
+void WModule::threadMain()
+{
 }
 

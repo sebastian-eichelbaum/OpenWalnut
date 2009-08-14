@@ -24,6 +24,8 @@
 #ifndef WGEVIEWER_H
 #define WGEVIEWER_H
 
+#include <osg/Node>
+
 #include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
@@ -106,6 +108,38 @@ public:
      */
     osgGA::MatrixManipulator* getCameraManipulator();
 
+    /** 
+     * \par Description
+     * Sets the current camera.
+     * 
+     * \param camera the OSG camera instance.
+     */
+    void setCamera( osg::Camera* camera );
+
+    /** 
+     * \par Description
+     * Returns the camera currently in use.
+     * 
+     * \return the camera currently in use.
+     */
+    osg::Camera* getCamera();
+
+    /** 
+     * \par Description
+     * Sets the scene graph node to be used for rendering.
+     * 
+     * \param node part of the scene graph
+     */
+    void setScene( osg::Node* node );
+
+    /** 
+     * \par Description
+     * Returns the currently set OSG node.
+     * 
+     * \return the node.
+     */
+    osg::Node* getNode();
+
 protected:
 
     /**
@@ -120,11 +154,6 @@ protected:
      */
     boost::shared_ptr<osgViewer::View> m_View;
 
-    /**
-     * \par Description
-     * The manipulator currently acitve.
-     */
-    osgGA::MatrixManipulator* m_Manipulator;
 private:
 };
 

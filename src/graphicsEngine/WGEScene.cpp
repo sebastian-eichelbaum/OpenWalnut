@@ -21,15 +21,26 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
+#include <osg/ShapeDrawable>
+#include <osg/Group>
+#include <osg/Geode>
+
 #include "WGEScene.h"
 
-WGEScene::WGEScene()
+WGEScene::WGEScene():
+    osg::Group()
 {
+    std::cout << "Initializing OpenSceneGraph Root Node" << std::endl;
+
     // initialize members
 }
 
 WGEScene::~WGEScene()
 {
+    std::cout << "Shutting down OpenSceneGraph Root Node" << std::endl;
     // cleanup
 }
+
 

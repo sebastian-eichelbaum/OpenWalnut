@@ -60,7 +60,7 @@ public:
      * Gives back the name of this module.
      * \return the module's name.
      */
-     virtual std::string getName() const;
+    virtual std::string getName() const;
 
     /**
      * \par Description
@@ -70,6 +70,12 @@ public:
     virtual std::string getDescription() const;
 
 protected:
+
+    /**
+     * \par Description
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void threadMain();
 
 private:
 };
