@@ -121,8 +121,6 @@ protected:
     /** 
      * \par Description
      * Event handler for destroy events (called after close).
-     * 
-     * \param event the event description.
      */
     virtual void destroyEvent( bool destroyWindow = true, bool destroySubWindows = true );
 

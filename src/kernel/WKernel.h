@@ -134,7 +134,6 @@ private:
     /**
      * \par Description
      * Loads all the modules it can find.
-     * \exception
      */
     void loadModules();
 

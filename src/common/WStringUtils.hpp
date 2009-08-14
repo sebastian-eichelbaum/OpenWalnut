@@ -34,65 +34,88 @@
  * Some utilities for string manipulation and output operations. Please note
  * that the overloaded ostream output operators aren't in a separate namespace
  * but the string manipulation functions. This is because of short use of e.g.
- * the "<<" operator instead of string_utils::operator(cout, myVector).
+ * the <tt><<</tt> operator instead of <tt>string_utils::operator(cout,
+ * myVector)</tt>.
  *
  * The reason for not using the Boost trimming functions is, that Boost
  * providing just Whitespace trimming depending on the current locale, but we
  * might want to trim other character sets too.
  *
  * The reason for not using the Boost case switching functions is that we want
- * those functions to return a std::string copy which is modified to make some
- * call chains ala: foo( rTrim( toLower( str ), "bar" ) );
- *
+ * those functions to return a <tt>std::string</tt> copy which is modified to
+ * make some call chains ala: <tt>foo( rTrim( toLower( str ), "bar" ) );</tt>.
+ * 
  * The reason for not using Boosts Tokenizer is, that this tokenizer, is much
  * most simplest to use :).
  */
 namespace string_utils {
-    /**
-     * We consider the following characters as whitespace:
-     * \r  carriage return
-     * \n  newline
-     * \t  tab
-     * ' ' space
+    /** We consider the following characters as whitespace:
+     *  - <tt>\\r</tt> carriage return
+     *  - <tt>\\n</tt> newline
+     *  - <tt>\\t</tt> tab
+     *  - <tt>' '</tt> space
      */
     extern const std::string WHITESPACE;
 
     /**
-     * Trims any character in \param t from the end (or right side) of the
-     * string. A modified copy of the original is returned.
+     * Trims any occurence of each character given in parameter t from the end
+     * (or right side) of the given string.
+     *
+     * \param source String to trim
+     * \param t String representing a set containg all trimmable characters
+     * \return A copy of the trimmed string
      */
-    std::string rTrim(const std::string &source, const std::string& t = WHITESPACE );
+
+    std::string rTrim(const std::string& source, const std::string& t = WHITESPACE );
 
     /**
-     * Trims any character in \param t from the beginnig (or leftt side) of the
-     * string. A modified copy of the original is returned.
+     * Trims any occurence of each character given in parameter t from the
+     * start (or left side) of the given string.
+     *
+     * \param source String to trim
+     * \param t String representing a set containg all trimmable characters
+     * \return A copy of the trimmed string
      */
-    std::string lTrim( const std::string& source, const std::string& t = WHITESPACE );
+    std::string lTrim( const std::string& source, const std::string& t =
+            WHITESPACE );
 
     /**
-     * Trims any character in \param t from both sides (beginnig and end) of
-     * the string. A modified copy of the original is returned.
+     * Trims any occurence of each character given in parameter t from both
+     * ends (right and left side) of the given string.
+     *
+     * \param source String to trim
+     * \param t String representing a set containg all trimmable characters
+     * \return A copy of the trimmed string
      */
     std::string trim(const std::string& source, const std::string& t = WHITESPACE );
 
     /**
-     * Transforms all characters into upper case characters. A modified copy of
-     * the original is returned.
+     * Transforms all characters in the given string into upper case
+     * characters.
+     *
+     * \param source String to transpose.
+     * \return A copy of the upper case only string
      */
     std::string toUpper(const std::string& source);
 
     /**
-     * Transforms all characters into lower case characters. A modified copy of
-     * the original is returned.
+     * Transforms all characters in the given string into lower case
+     * characters.
+     *
+     * \param source String to transpose.
+     * \return A copy of the lower case only string
      */
     std::string toLower(const std::string& source);
 
     /**
-     * Split a string into a vector of strings (so called tokens). If compress
-     * parameter is true, charactes matching between two tokens are collapsed.
-     * The t parameter defines a character set of characters which are
-     * considered as whitespace between the tokens. The orignial string remains
-     * intact.
+     * Splits the given string into a vector of strings (so called tokens).
+     *
+     * \param source String to tokenize
+     * \param compress If true, charactes matching between two tokens are
+     * collapsed and handled as just one character.
+     * \param t String representing a set containg all characters considered
+     * as whitespace.
+     * \return A vector of strings containing the tokens.
      */
     std::vector< std::string > tokenize( const std::string& source,
                                          bool compress = true,
@@ -100,8 +123,12 @@ namespace string_utils {
 }
 
 /**
- * Writes every vector to an output stream such as cout, if its elements
- * have an output operator defined.
+ * Writes the given vector to an output stream such as cout, if and only if
+ * its elements have an output operator defined.
+ *
+ * \param os The output stream where the elements are written to
+ * \param v Vector containing the elements
+ * \return The output stream again.
  */
 template< class T > std::ostream& operator<<( std::ostream& os,
                                               const std::vector< T >& v )

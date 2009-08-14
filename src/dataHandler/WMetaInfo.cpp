@@ -101,7 +101,7 @@ void WMetaInfo::setValueDim( int valueDim )
 }
 
 
-int WMetaInfo::WMetaInfo::getNx() const
+int WMetaInfo::getNx() const
 {
     return m_nx;
 }
@@ -111,7 +111,7 @@ void WMetaInfo::setNx( int nx )
     m_nx = nx;
 }
 
-int WMetaInfo::WMetaInfo::getNy() const
+int WMetaInfo::getNy() const
 {
     return m_ny;
 }
@@ -121,7 +121,7 @@ void WMetaInfo::setNy( int ny )
     m_ny = ny;
 }
 
-int WMetaInfo::WMetaInfo::getNz() const
+int WMetaInfo::getNz() const
 {
     return m_nz;
 }

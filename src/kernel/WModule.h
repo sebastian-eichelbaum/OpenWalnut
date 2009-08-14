@@ -38,8 +38,7 @@ public:
 
     /** 
      * \par Description 
-     * 
-     * \param name name of the module
+     * Constructs a new WModule instance
      */
     WModule();
 
