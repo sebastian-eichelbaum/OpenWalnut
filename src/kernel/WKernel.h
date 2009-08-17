@@ -108,7 +108,7 @@ public:
      *
      * \return true if so.
      */
-    bool isFinishRequested() const ;
+    bool isFinishRequested() const;
 
 protected:
 
