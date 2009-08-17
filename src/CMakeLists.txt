@@ -226,3 +226,9 @@ ADD_CUSTOM_TARGET( fixtures
                    COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures 
                         ${PROJECT_BINARY_DIR}/dataHandler/
                    COMMENT "Copy fixtures to the right place." )
+
+#-------------------------------------------------------------------------------------------------------------
+# Makes many special make targets in comination.
+ADD_CUSTOM_TARGET( many
+                   make all && make fixtures && make stylecheck && make test && make doc
+                   COMMENT "Make many special make targets n combination." )
