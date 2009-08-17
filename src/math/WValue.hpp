@@ -140,7 +140,7 @@ public:
      * its computation automatically results in a
      * floating point number.
      */
-    const double norm() const
+    double norm() const
     {
         double normSquare = 0.0;
         
@@ -158,7 +158,7 @@ public:
      * T's range of values. Double prevents an overflow.
      * Additionally this is consistent with norm().
      */
-    const double normSquare() const
+    double normSquare() const
     {
         double normSquare = 0.0;
         

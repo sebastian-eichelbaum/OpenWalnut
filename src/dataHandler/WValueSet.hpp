@@ -87,7 +87,7 @@ public:
     /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.
      */
-    const T * const rawData() const
+    const T * rawData() const
     {
         return &m_data[0];
     }
