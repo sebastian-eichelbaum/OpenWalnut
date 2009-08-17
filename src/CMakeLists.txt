@@ -81,7 +81,7 @@ ENDIF( CXXTEST_FOUND )
 #-------------------------------------------------------------------------------------------------------------
 # -Wno-long-long    since on Ubuntu 8.10 it won't compile without it
 # -ansi             force ISO-C++98 compliance (not GNU++98)
-SET( CMAKE_CXX_FLAGS "-Wall -pedantic -ansi -Wno-long-long" CACHE STRING "" FORCE )
+SET( CMAKE_CXX_FLAGS "-pedantic -ansi -Wall -Wextra -Wno-long-long" CACHE STRING "" FORCE )
 SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
 SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
 SET( CMAKE_CXX_FLAGS_STATIC "-O3" CACHE STRING "" FORCE )

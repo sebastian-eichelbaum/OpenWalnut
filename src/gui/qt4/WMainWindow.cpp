@@ -168,7 +168,7 @@ void WMainWindow::setupGUI( QMainWindow *MainWindow )
     connectSlots( MainWindow );
 }
 
-void WMainWindow::setEnabled( bool enable )
+void WMainWindow::setEnabled( bool /* enable */ )
 {
     // TODO(wiebel): implement here
 }

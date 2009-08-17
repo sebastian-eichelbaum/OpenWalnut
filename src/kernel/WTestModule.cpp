@@ -43,6 +43,7 @@ WTestModule::~WTestModule()
 }
 
 WTestModule::WTestModule( const WTestModule& other )
+    : WModule()
 {
     *this = other;
 }
