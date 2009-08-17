@@ -114,6 +114,27 @@ public:
     }
 
     /**
+     * Scales each component of this WValue with the given scalar argument
+     */
+    WValue& operator*=( double rhs )
+    {
+        for( unsigned int i=0; i < m_components.size(); i++ )
+            m_components[i] *= rhs;
+        return *this;
+    }
+
+    /**
+     * Scales each component of this WValue with the coressponding
+     * component of the given argument WValue
+     */
+    WValue& operator*=( const WValue& rhs )
+    {
+        for( unsigned int i=0; i < m_components.size(); i++ )
+            m_components[i] *= rhs.m_components[i];
+        return *this;
+    }
+
+    /**
      * Componentwise addition.
      */
     const WValue operator+( const WValue& summand2 ) const
@@ -130,6 +151,16 @@ public:
     {
         WValue result( *this );
         result -= subtrahend;
+        return result;
+    }
+
+    /**
+     * Componentwise multiplication.
+     */
+    const WValue operator*( const WValue& factor2 ) const
+    {
+        WValue result( *this );
+        result *= factor2;
         return result;
     }
 
@@ -175,5 +206,24 @@ private:
      */
     std::vector< T > m_components;
 };
+
+namespace WValueOperators
+{
+    template< typename T >
+    const WValue< T > operator*( const WValue< T >& lhs, double rhs )
+    {    
+        WValue< T > result( lhs );
+        result *= rhs;
+        return result;
+    }
+    
+    template< typename T >
+    const WValue< T > operator*( double lhs, const WValue< T >& rhs )
+    {
+        WValue< T > result( rhs );
+        result *= lhs;
+        return result;
+    }
+}
 
 #endif  // WVALUE_H

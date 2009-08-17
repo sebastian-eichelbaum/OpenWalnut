@@ -242,6 +242,96 @@ public:
     }
 
     /**
+     * product with scalar assignment operator*= should assign the correct values
+     */
+    void testProductWithScalarAssignmentOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        const double scalar = 32.32;
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        // test simple product with scalar assignement
+        value1 *= scalar;
+        double expected[] = { 38.784, 109.888, 180.992 };
+        TS_ASSERT_DELTA( value1[0], expected[0], delta );
+        TS_ASSERT_DELTA( value1[1], expected[1], delta );
+        TS_ASSERT_DELTA( value1[2], expected[2], delta );
+
+        WValue< double > value2( size );
+
+        // reinitialize value
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        // this should be the precondition for the test
+        TS_ASSERT_EQUALS( value2 == value1, false );
+
+        // test whether return the reference to self works
+        // for multiple assignments
+        value2 = value1 *= scalar;
+        TS_ASSERT_DELTA( value1[0], expected[0], delta );
+        TS_ASSERT_DELTA( value1[1], expected[1], delta );
+        TS_ASSERT_DELTA( value1[2], expected[2], delta );
+        TS_ASSERT_DELTA( value2[0], value1[0], delta );
+        TS_ASSERT_DELTA( value2[1], value1[1], delta );
+        TS_ASSERT_DELTA( value2[2], value1[2], delta );
+    }
+    /**
+     * componentwise product assignment operator*= should assign the correct values
+     */
+    void testComponentWiseProductAssignmentOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a + 1;
+        value2[1] = b + 2;
+        value2[2] = c + 3;
+
+        // test simple componentwise product assignement
+        value1 *= value2;
+        double expected[] = { 2.64, 18.36, 48.16 };
+        TS_ASSERT_DELTA( value1[0], expected[0], delta );
+        TS_ASSERT_DELTA( value1[1], expected[1], delta );
+        TS_ASSERT_DELTA( value1[2], expected[2], delta );
+
+        // reinitialize value
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        WValue< double > value3( size );
+
+        value3[0] = a + 1.1;
+        value3[1] = b + 2.2;
+        value3[2] = c + 3.3;
+
+        double expected2[] = { 6.072, 102.816, 428.624 };
+
+        // test whether return the reference to self works
+        // for multiple assignments
+        value3 *= value1 *= value2;
+        TS_ASSERT_DELTA( value1[0], expected[0], delta );
+        TS_ASSERT_DELTA( value1[1], expected[1], delta );
+        TS_ASSERT_DELTA( value1[2], expected[2], delta );
+        TS_ASSERT_DELTA( value3[0], expected2[0], delta );
+        TS_ASSERT_DELTA( value3[1], expected2[1], delta );
+        TS_ASSERT_DELTA( value3[2], expected2[2], 1e-13 );  // does not work with 1e-14
+    }
+
+    /**
      * plus operator+
      */
     void testPlusOperator( void )
@@ -277,7 +367,7 @@ public:
     }
 
     /**
-     * plus operator+ 
+     * minus operator+-
      */
     void testMinusOperator( void )
     {
@@ -301,6 +391,42 @@ public:
         TS_ASSERT_DELTA( value3[0], -1, delta );
         TS_ASSERT_DELTA( value3[1], -2, delta );
         TS_ASSERT_DELTA( value3[2], -3, delta );
+
+        // Ensure that value1 and value2 have not been altered
+        TS_ASSERT_EQUALS( value1[0], a );
+        TS_ASSERT_EQUALS( value1[1], b );
+        TS_ASSERT_EQUALS( value1[2], c );
+        TS_ASSERT_EQUALS( value2[0], a + 1 );
+        TS_ASSERT_EQUALS( value2[1], b + 2 );
+        TS_ASSERT_EQUALS( value2[2], c + 3 );
+    }
+
+    /**
+     * componentwise multiplication operator*
+     */
+    void testComponentWiseProductOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+        WValue< double > value3( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a + 1;
+        value2[1] = b + 2;
+        value2[2] = c + 3;
+
+        // test subtraction
+        value3 = value1 * value2;
+
+        double expected[] = { 2.64, 18.36, 48.16 };
+        TS_ASSERT_DELTA( value3[0], expected[0], delta );
+        TS_ASSERT_DELTA( value3[1], expected[1], delta );
+        TS_ASSERT_DELTA( value3[2], expected[2], delta );
 
         // Ensure that value1 and value2 have not been altered
         TS_ASSERT_EQUALS( value1[0], a );
@@ -354,6 +480,84 @@ public:
         value1[1] = b;
         value1[2] = c;
         TS_ASSERT_DELTA( value1.normSquare(), 44.36, delta );
+    }
+
+    /**
+     * scaling operator, scalar left hand side
+     */
+    void testScalingLeftHandSide( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+        const double scalar = 32.32;
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        // test scaling with scalar left hand side
+        {
+            using WValueOperators::operator*;
+            value2 = scalar * value1;
+        }
+        double expected[] = { 38.784, 109.888, 180.992 };
+        TS_ASSERT_DELTA( value2[0], expected[0], delta );
+        TS_ASSERT_DELTA( value2[1], expected[1], delta );
+        TS_ASSERT_DELTA( value2[2], expected[2], delta );
+    }
+
+    /**
+     * scaling operator, scalar right hand side
+     */
+    void testScalingRightHandSide( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+        const double scalar = 32.32;
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        // test scaling with scalar right hand side
+        {
+            using WValueOperators::operator*;
+            value2 = value1 * scalar;
+        }
+        double expected[] = { 38.784, 109.888, 180.992 };
+        TS_ASSERT_DELTA( value2[0], expected[0], delta );
+        TS_ASSERT_DELTA( value2[1], expected[1], delta );
+        TS_ASSERT_DELTA( value2[2], expected[2], delta );
+    }
+
+    /**
+     * ensure scaling operator commutativity
+     */
+    void testScalingCommutativity( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+        WValue< double > value3( size );
+        const double scalar = 32.32;
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+
+        // test scaling with scalar right hand side
+        {
+            using WValueOperators::operator*;
+            value2 = value1 * scalar;
+            value3 = scalar * value1;
+        }
+        TS_ASSERT_EQUALS( value2, value3 );
     }
 };
 
