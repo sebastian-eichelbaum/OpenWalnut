@@ -33,7 +33,7 @@
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
-/** 
+/**
  * \par Description
  * Used for program wide access to the kernel.
  */
@@ -73,17 +73,17 @@ WKernel* WKernel::getRunningKernel()
     return kernel;
 }
 
-boost::shared_ptr<WGraphicsEngine> WKernel::getGraphicsEngine()
+boost::shared_ptr<WGraphicsEngine> WKernel::getGraphicsEngine() const
 {
     return m_GraphicsEngine;
 }
 
-int WKernel::getArgumentCount()
+int WKernel::getArgumentCount() const
 {
     return m_ArgC;
 }
 
-char** WKernel::getArguments()
+char** WKernel::getArguments() const
 {
     return m_ArgV;
 }
@@ -156,7 +156,7 @@ void WKernel::init()
     m_Gui = boost::shared_ptr<WMainApplication>( new WMainApplication() );
 }
 
-bool WKernel::isFinishRequested()
+bool WKernel::isFinishRequested() const
 {
     return m_FinishRequested;
 }

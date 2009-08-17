@@ -36,8 +36,8 @@ class WModule: public WThreadedRunner
 {
 public:
 
-    /** 
-     * \par Description 
+    /**
+     * \par Description
      * Constructs a new WModule instance
      */
     WModule();
@@ -55,23 +55,23 @@ public:
      */
     WModule( const WModule& other );
 
-    /** 
-     * \par Description 
-     * Gives back the name of this module. 
+    /**
+     * \par Description
+     * Gives back the name of this module.
      * \return the module's name.
      */
-    virtual std::string getName() const;
+    virtual const std::string getName() const;
 
-    /** 
-     * \par Description 
-     * Gives bach a description of this module.
+    /**
+     * \par Description
+     * Gives back a description of this module.
      * \return description to module.
      */
-    virtual std::string getDescription() const;
+    virtual const std::string getDescription() const;
 
 protected:
 
-    /** 
+    /**
      * \par Description
      * Entry point after loading the module. Runs in separate thread.
      */

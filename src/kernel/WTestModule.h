@@ -60,14 +60,14 @@ public:
      * Gives back the name of this module.
      * \return the module's name.
      */
-    virtual std::string getName() const;
+    virtual const std::string getName() const;
 
     /**
      * \par Description
-     * Gives bach a description of this module.
+     * Gives back a description of this module.
      * \return description to module.
      */
-    virtual std::string getDescription() const;
+    virtual const std::string getDescription() const;
 
 protected:
 

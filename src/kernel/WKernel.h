@@ -62,7 +62,7 @@ public:
      */
     WKernel( const WKernel& other );
 
-    /** 
+    /**
      * \par Description
      * Starts execution.
      *
@@ -70,45 +70,45 @@ public:
      */
     int run();
 
-    /** 
+    /**
      * \par Description
      * Returns pointer to currently running instance of graphics engine.
-     * 
+     *
      * \return the ge instance.
      */
-    boost::shared_ptr<WGraphicsEngine> getGraphicsEngine();
+    boost::shared_ptr<WGraphicsEngine> getGraphicsEngine() const;
 
-    /** 
+    /**
      * \par Description
      * Returns pointer to the currently running kernel.
-     * 
+     *
      * \return the kernel instance.
      */
     static WKernel* getRunningKernel();
 
-    /** 
+    /**
      * \par Description
      * Returns argument count.
-     * 
+     *
      * \return argument count.
      */
-    int getArgumentCount();
+    int getArgumentCount() const;
 
-    /** 
+    /**
      * \par Description
      * Returns argument array specified to the app.
-     * 
+     *
      * \return the argument array.
      */
-    char** getArguments();
+    char** getArguments() const;
 
-    /** 
+    /**
      * \par Description
      * Determines whether all threads should finish.
-     * 
+     *
      * \return true if so.
      */
-    bool isFinishRequested();
+    bool isFinishRequested() const ;
 
 protected:
 
@@ -124,7 +124,7 @@ protected:
      */
     boost::shared_ptr<WGraphicsEngine> m_GraphicsEngine;
 
-    /** 
+    /**
      * \par Description
      * The Gui.
      */
@@ -143,19 +143,19 @@ private:
      */
     void init();
 
-    /** 
+    /**
      * \par Description
      * Number of arguments given to application.
      */
     int m_ArgC;
 
-    /** 
-     * \par Description 
+    /**
+     * \par Description
      * Arguments given to application
      */
     char** m_ArgV;
 
-    /** 
+    /**
      * \par Description
      * true if threads should finish.
      */

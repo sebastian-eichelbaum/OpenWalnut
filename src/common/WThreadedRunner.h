@@ -28,7 +28,7 @@
 
 /**
  * \par Description:
- * Base class for alle classes needing to be executed in a separate thread.
+ * Base class for all classes needing to be executed in a separate thread.
  */
 class WThreadedRunner
 {

@@ -47,12 +47,12 @@ WTestModule::WTestModule( const WTestModule& other )
     *this = other;
 }
 
-std::string WTestModule::getName() const
+const std::string WTestModule::getName() const
 {
     return "Test Module";
 }
 
-std::string WTestModule::getDescription() const
+const std::string WTestModule::getDescription() const
 {
     return "This module is for testing and development";
 }
