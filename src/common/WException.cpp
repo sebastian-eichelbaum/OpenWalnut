@@ -88,7 +88,7 @@ std::string WException::getBacktrace() const
     stackSymbols = backtrace_symbols( stackAddrs, stackDepth );
 
     // for each stack element -> demangle and print
-    for ( size_t i = 1; i < stackDepth; i++ )
+    for ( size_t i = 1; i < stackDepth; ++i )
     {
         // need some space for function name
         // just a guess, especially template names might be even longer

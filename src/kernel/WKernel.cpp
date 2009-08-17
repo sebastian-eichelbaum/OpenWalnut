@@ -106,7 +106,7 @@ int WKernel::run()
     // currently this is just the test module
     std::cout << "Starting modules:" << std::endl;
     for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
-            list_iter++ )
+            ++list_iter )
     {
         std::cout << "Starting Module: " << ( *list_iter )->getName() << std::endl;
         ( *list_iter )->run();
@@ -118,7 +118,7 @@ int WKernel::run()
 
     // wait for modules to finish
     for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
-            list_iter++ )
+            ++list_iter )
     {
         ( *list_iter )->wait( true );
     }

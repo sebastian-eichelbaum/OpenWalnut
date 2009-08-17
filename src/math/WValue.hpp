@@ -37,7 +37,7 @@ public:
      * Create a WValue with the given number of components.
      * The components will be set to zero if T is a type representing numbers.
      */
-    WValue( size_t nbComponents )
+    explicit WValue( size_t nbComponents )
         : m_components( nbComponents )
     {
     }
@@ -98,7 +98,7 @@ public:
      */
     WValue& operator+=( const WValue& rhs )
     {
-        for( unsigned int i=0; i < m_components.size(); i++ )
+        for( unsigned int i=0; i < m_components.size(); ++i )
             m_components[i] += rhs.m_components[i];
         return *this;
     }
@@ -108,7 +108,7 @@ public:
      */
     WValue& operator-=( const WValue& rhs )
     {
-        for( unsigned int i=0; i < m_components.size(); i++ )
+        for( unsigned int i=0; i < m_components.size(); ++i )
             m_components[i] -= rhs.m_components[i];
         return *this;
     }
@@ -118,7 +118,7 @@ public:
      */
     WValue& operator*=( double rhs )
     {
-        for( unsigned int i=0; i < m_components.size(); i++ )
+        for( unsigned int i=0; i < m_components.size(); ++i )
             m_components[i] *= rhs;
         return *this;
     }
@@ -129,7 +129,7 @@ public:
      */
     WValue& operator*=( const WValue& rhs )
     {
-        for( unsigned int i=0; i < m_components.size(); i++ )
+        for( unsigned int i=0; i < m_components.size(); ++i )
             m_components[i] *= rhs.m_components[i];
         return *this;
     }
@@ -175,7 +175,7 @@ public:
     {
         double normSquare = 0.0;
         
-        for( unsigned int i = 0; i < m_components.size(); i++ )
+        for( unsigned int i = 0; i < m_components.size(); ++i )
             normSquare += m_components[i] * m_components[i];
         
         return sqrt( normSquare );
@@ -193,7 +193,7 @@ public:
     {
         double normSquare = 0.0;
         
-        for( unsigned int i = 0; i < m_components.size(); i++ )
+        for( unsigned int i = 0; i < m_components.size(); ++i )
             normSquare += m_components[i] * m_components[i];
         
         return normSquare;
