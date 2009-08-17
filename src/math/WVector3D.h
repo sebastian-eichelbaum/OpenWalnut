@@ -53,12 +53,12 @@ public:
 // These functions will come soon. Together with their tests.
 //
 // TODO(wiebel): implement the following member functions!
-//    double operator*( const WVector3D &factor2 ) const;
-//    WVector3D crossproduct( const WVector3D& factor2 ) const;
-//    bool operator==( const WVector3D& rhs ) const;
-//    bool operator!=( const WVector3D& rhs ) const;
+//    const double operator*( const WVector3D &factor2 ) const;
+//    const WVector3D crossproduct( const WVector3D& factor2 ) const;
+//    const bool operator==( const WVector3D& rhs ) const;
+//    const bool operator!=( const WVector3D& rhs ) const;
 //    void normalize();
-//    WVector3D normalized() const;
+//    const WVector3D normalized() const;
 
 protected:
 private:

@@ -25,7 +25,7 @@
 #define WVALUE_H
 
 #include <vector>
-#include <cmath>
+#include <tr1/cmath>
 
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.
@@ -116,7 +116,7 @@ public:
     /**
      * Componentwise addition.
      */
-    WValue operator+( const WValue& summand2 ) const
+    const WValue operator+( const WValue& summand2 ) const
     {
         WValue result( *this );
         result += summand2;
@@ -126,7 +126,7 @@ public:
     /**
      * Componentwise subtraction.
      */
-    WValue operator-( const WValue& subtrahend ) const
+    const WValue operator-( const WValue& subtrahend ) const
     {
         WValue result( *this );
         result -= subtrahend;
@@ -135,8 +135,12 @@ public:
 
     /**
      * Square root of sum of squares of elements.
+     * This function return double instead of T
+     * because norm includes a square root and thus
+     * its computation automatically results in a
+     * floating point number.
      */
-    double norm() const
+    const double norm() const
     {
         double normSquare = 0.0;
         
@@ -148,8 +152,13 @@ public:
 
     /**
      * Sum of squares of elements.
+     * This function returns double instead of T
+     * because normSquare includes many squares and thus
+     * might return large values that might not fit into
+     * T's range of values. Double prevents an overflow.
+     * Additionally this is consistent with norm().
      */
-    double normSquare() const
+    const double normSquare() const
     {
         double normSquare = 0.0;
         

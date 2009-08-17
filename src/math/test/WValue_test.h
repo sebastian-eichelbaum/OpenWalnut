@@ -312,9 +312,9 @@ public:
     }
 
     /**
-     * norm
+     * norm with doubles
      */
-    void testNorm( void )
+    void testNormDouble( void )
     {
         const size_t size = 3;
         const double a = 1.2, b = 3.4, c = 5.6;
@@ -324,6 +324,21 @@ public:
         value1[1] = b;
         value1[2] = c;
         TS_ASSERT_DELTA( value1.norm(), 6.660330322, 1e-7 );
+    }
+
+    /**
+     * norm int
+     */
+    void testNormInt( void )
+    {
+        const size_t size = 3;
+        const int a = 1, b = 2, c = 3;
+        WValue< int > value1( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+        TS_ASSERT_DELTA( value1.norm(), 3.74165738677, 1e-7 );
     }
 
     /**
