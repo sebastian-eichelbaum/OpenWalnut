@@ -39,7 +39,7 @@ public:
      */
     void setUp( void )
     {
-        delta = 1e-14;
+        delta = 1e-12;
     }
 
     /**
@@ -328,7 +328,7 @@ public:
         TS_ASSERT_DELTA( value1[2], expected[2], delta );
         TS_ASSERT_DELTA( value3[0], expected2[0], delta );
         TS_ASSERT_DELTA( value3[1], expected2[1], delta );
-        TS_ASSERT_DELTA( value3[2], expected2[2], 1e-13 );  // does not work with 1e-14
+        TS_ASSERT_DELTA( value3[2], expected2[2], delta );
     }
 
     /**
