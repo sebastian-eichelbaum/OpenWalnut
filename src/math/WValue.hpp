@@ -27,6 +27,9 @@
 #include <vector>
 #include <tr1/cmath>
 
+namespace wmath
+{
+
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.
  */
@@ -41,7 +44,7 @@ public:
         : m_components( nbComponents )
     {
     }
-    
+
     /*
      * Create a WValue as copy of the one given as parameter.
      */
@@ -49,7 +52,7 @@ public:
         : m_components( newValue.m_components )
     {
     }
-    
+
     /**
      * Get number of components the value consists of.
      */
@@ -74,7 +77,7 @@ public:
     const T& operator[]( size_t i ) const
     {
         return m_components[i];
-    } 
+    }
 
     /**
      * Compares two WValues and returns true if they contain the same data.
@@ -92,7 +95,7 @@ public:
         m_components = rhs.m_components;
         return *this;
     }
-    
+
     /**
      * Adds a the argument componentwise to the components of this WValue
      */
@@ -174,10 +177,10 @@ public:
     double norm() const
     {
         double normSquare = 0.0;
-        
+
         for( unsigned int i = 0; i < m_components.size(); ++i )
             normSquare += m_components[i] * m_components[i];
-        
+
         return sqrt( normSquare );
     }
 
@@ -192,10 +195,10 @@ public:
     double normSquare() const
     {
         double normSquare = 0.0;
-        
+
         for( unsigned int i = 0; i < m_components.size(); ++i )
             normSquare += m_components[i] * m_components[i];
-        
+
         return normSquare;
     }
 
@@ -207,23 +210,21 @@ private:
     std::vector< T > m_components;
 };
 
-namespace WValueOperators
+template< typename T >
+const WValue< T > operator*( const WValue< T >& lhs, double rhs )
 {
-    template< typename T >
-    const WValue< T > operator*( const WValue< T >& lhs, double rhs )
-    {    
-        WValue< T > result( lhs );
-        result *= rhs;
-        return result;
-    }
-    
-    template< typename T >
-    const WValue< T > operator*( double lhs, const WValue< T >& rhs )
-    {
-        WValue< T > result( rhs );
-        result *= lhs;
-        return result;
-    }
+    WValue< T > result( lhs );
+    result *= rhs;
+    return result;
 }
 
+template< typename T >
+const WValue< T > operator*( double lhs, const WValue< T >& rhs )
+{
+    WValue< T > result( rhs );
+    result *= lhs;
+    return result;
+}
+}
+// End of namepsace
 #endif  // WVALUE_H

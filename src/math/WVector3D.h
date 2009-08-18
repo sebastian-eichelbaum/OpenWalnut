@@ -26,6 +26,8 @@
 
 #include "WValue.hpp"
 
+namespace wmath
+{
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations
  */
@@ -68,6 +70,6 @@ private:
  * Define WPosition as an alias for WVector3D
  */
 typedef WVector3D WPosition;
-
-
+}
+// End of namespace
 #endif  // WVECTOR3D_H

@@ -27,6 +27,8 @@
 #include <cxxtest/TestSuite.h>
 #include "../WVector3D.h"
 
+using wmath::WVector3D;
+
 class WVector3DTest : public CxxTest::TestSuite
 {
 public:

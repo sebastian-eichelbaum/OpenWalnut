@@ -102,7 +102,7 @@ public:
     /**
      * Returns the position of the origin of the grid.
      */
-    WPosition getOrigin() const
+    wmath::WPosition getOrigin() const
     {
         return m_origin;
     }
@@ -110,23 +110,23 @@ public:
     /**
      * Returns the i-th position on the grid.
      */
-    WPosition getPosition( unsigned int i ) const;
+    wmath::WPosition getPosition( unsigned int i ) const;
 
     /**
      * Returns the position that is the iX-th in x direction, the iY-th in
      * y direction and the iZ-th in z direction.
      */
-    WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
+    wmath::WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
 
 protected:
 private:
-    WPosition m_origin;
+    wmath::WPosition m_origin;
 
     unsigned int m_nbPosX;
     unsigned int m_nbPosY;
     unsigned int m_nbPosZ;
 
-    WVector3D m_offset;
+    wmath::WVector3D m_offset;
 };
 
 #endif  // WGRIDREGULAR3D_H

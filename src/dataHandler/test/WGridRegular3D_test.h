@@ -29,6 +29,9 @@
 #include "../WGridRegular3D.h"
 #include "../../math/WVector3D.h"
 
+using wmath::WVector3D;
+using wmath::WPosition;
+
 namespace CxxTest
 {
 CXXTEST_TEMPLATE_INSTANTIATION

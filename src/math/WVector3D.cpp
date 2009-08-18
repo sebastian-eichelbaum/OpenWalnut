@@ -24,6 +24,8 @@
 #include "WVector3D.h"
 #include "WValue.hpp"
 
+using wmath::WVector3D;
+
 WVector3D::WVector3D()
     : WValue<double>( 3 )
 {

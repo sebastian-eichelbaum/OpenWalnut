@@ -27,6 +27,8 @@
 #include <cxxtest/TestSuite.h>
 #include "../WValue.hpp"
 
+using wmath::WValue;
+
 class WValueTest : public CxxTest::TestSuite
 {
 private:
@@ -498,10 +500,8 @@ public:
         value1[2] = c;
 
         // test scaling with scalar left hand side
-        {
-            using WValueOperators::operator*;
-            value2 = scalar * value1;
-        }
+        value2 = scalar * value1;
+
         double expected[] = { 38.784, 109.888, 180.992 };
         TS_ASSERT_DELTA( value2[0], expected[0], delta );
         TS_ASSERT_DELTA( value2[1], expected[1], delta );
@@ -524,10 +524,8 @@ public:
         value1[2] = c;
 
         // test scaling with scalar right hand side
-        {
-            using WValueOperators::operator*;
-            value2 = value1 * scalar;
-        }
+        value2 = value1 * scalar;
+
         double expected[] = { 38.784, 109.888, 180.992 };
         TS_ASSERT_DELTA( value2[0], expected[0], delta );
         TS_ASSERT_DELTA( value2[1], expected[1], delta );
@@ -552,11 +550,9 @@ public:
 
 
         // test scaling with scalar right hand side
-        {
-            using WValueOperators::operator*;
-            value2 = value1 * scalar;
-            value3 = scalar * value1;
-        }
+        value2 = value1 * scalar;
+        value3 = scalar * value1;
+
         TS_ASSERT_EQUALS( value2, value3 );
     }
 };
