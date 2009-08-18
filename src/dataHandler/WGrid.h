@@ -39,6 +39,14 @@ public:
     explicit WGrid( size_t size );
 
     /**
+     * Since WGrid is a base class and thus should be polymorphic we add
+     * virtual destructor.
+     */
+    virtual ~WGrid()
+    {
+    }
+
+    /**
      * \return The number of position in this grid.
      */
     size_t size() const;

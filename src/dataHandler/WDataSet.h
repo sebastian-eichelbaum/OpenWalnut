@@ -45,6 +45,14 @@ public:
     explicit WDataSet( boost::shared_ptr< WMetaInfo > newMetaInfo );
 
     /**
+     * Since WDataSet is a base class and thus should be polymorphic we add
+     * virtual destructor.
+     */
+    virtual ~WDataSet()
+    {
+    }
+
+    /**
      * Returns the MetaInfo object for this DataSet.
      */
     boost::shared_ptr< WMetaInfo > getMetaInfo() const;
