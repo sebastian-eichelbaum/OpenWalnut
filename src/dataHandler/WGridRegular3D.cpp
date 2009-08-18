@@ -26,6 +26,9 @@
 
 #include "WGridRegular3D.h"
 
+using wmath::WVector3D;
+using wmath::WPosition;
+
 WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
                                 unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double offsetX, double offsetY, double offsetZ )
