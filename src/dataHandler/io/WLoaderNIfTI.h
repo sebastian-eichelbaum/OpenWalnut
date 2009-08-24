@@ -28,10 +28,10 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "WLoader.h"
-#include "WMetaInfo.h"
+#include "../WLoader.h"
+#include "../WMetaInfo.h"
 
-#include "io/nifti/nifti1_io.h"
+#include "nifti/nifti1_io.h"
 
 class WDataSet;
 class WDataHandler;

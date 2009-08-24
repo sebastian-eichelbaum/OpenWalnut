@@ -24,7 +24,7 @@
 #ifndef WLOADERVTK_H
 #define WLOADERVTK_H
 
-#include "WLoader.h"
+#include "../WLoader.h"
 
 /**
  * Loader for the VTK file formats. For VTK just see http://www.vtk.org

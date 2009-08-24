@@ -27,13 +27,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WLoaderNIfTI.h"
-#include "WDataHandler.h"
-#include "WDataSet.h"
-#include "WDataSetSingle.h"
-#include "WGrid.h"
-#include "WGridRegular3D.h"
-#include "WValueSetBase.h"
-#include "WValueSet.hpp"
+#include "../WDataHandler.h"
+#include "../WDataSet.h"
+#include "../WDataSetSingle.h"
+#include "../WGrid.h"
+#include "../WGridRegular3D.h"
+#include "../WValueSetBase.h"
+#include "../WValueSet.hpp"
 
 
 WLoaderNIfTI::WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
