@@ -655,6 +655,7 @@ def Error(filename, linenum, category, confidence, message):
   # the sequnces just appear as characters.
   # http://en.wikipedia.org/wiki/ANSI_escape_code
   red   = "\033[31m"
+  lred   = "\033[1;31m"
   green = "\033[32m"
   yellow= "\033[33m"
   blue  = "\033[34m"
@@ -662,7 +663,7 @@ def Error(filename, linenum, category, confidence, message):
   cyan = "\033[36m"
   white = "\033[37m"
   default = "\033[0m"
-  color = red
+  color = lred
   colorStop=default
 
   # if requested to do so write the color code
