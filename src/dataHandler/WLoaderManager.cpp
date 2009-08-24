@@ -27,7 +27,7 @@
 
 #include "WLoaderManager.h"
 #include "WDataSet.h"
-#include "WLoaderNIfTI.h"
+#include "io/WLoaderNIfTI.h"
 
 std::string getSuffix( std::string name )
 {
