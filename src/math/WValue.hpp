@@ -27,6 +27,8 @@
 #include <vector>
 #include <tr1/cmath>
 
+#include <cassert>
+
 namespace wmath
 {
 
@@ -56,7 +58,7 @@ public:
     /**
      * Get number of components the value consists of.
      */
-    size_t getNbComponents()
+    size_t size()
     {
         return m_components.size();
     }
@@ -67,6 +69,7 @@ public:
      */
     T& operator[]( size_t i )
     {
+        assert( i <  m_components.size() );
         return m_components[i];
     }
 
@@ -76,6 +79,7 @@ public:
      */
     const T& operator[]( size_t i ) const
     {
+        assert( i <  m_components.size() );
         return m_components[i];
     }
 
@@ -101,6 +105,7 @@ public:
      */
     WValue& operator+=( const WValue& rhs )
     {
+        assert( m_components.size() == rhs.m_components.size());
         for( unsigned int i=0; i < m_components.size(); ++i )
             m_components[i] += rhs.m_components[i];
         return *this;
@@ -111,6 +116,7 @@ public:
      */
     WValue& operator-=( const WValue& rhs )
     {
+        assert( m_components.size() == rhs.m_components.size());
         for( unsigned int i=0; i < m_components.size(); ++i )
             m_components[i] -= rhs.m_components[i];
         return *this;
@@ -132,6 +138,7 @@ public:
      */
     WValue& operator*=( const WValue& rhs )
     {
+        assert( m_components.size() == rhs.m_components.size());
         for( unsigned int i=0; i < m_components.size(); ++i )
             m_components[i] *= rhs.m_components[i];
         return *this;
@@ -142,6 +149,7 @@ public:
      */
     const WValue operator+( const WValue& summand2 ) const
     {
+        assert( m_components.size() == summand2.m_components.size());
         WValue result( *this );
         result += summand2;
         return result;
@@ -152,6 +160,7 @@ public:
      */
     const WValue operator-( const WValue& subtrahend ) const
     {
+        assert( m_components.size() == subtrahend.m_components.size());
         WValue result( *this );
         result -= subtrahend;
         return result;
@@ -162,6 +171,7 @@ public:
      */
     const WValue operator*( const WValue& factor2 ) const
     {
+        assert( m_components.size() == factor2.m_components.size());
         WValue result( *this );
         result *= factor2;
         return result;

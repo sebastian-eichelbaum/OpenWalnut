@@ -54,13 +54,13 @@ public:
     }
 
     /**
-     * getNbComponents should give the value we hav put into the constructor
+     * size should give the value we have put into the constructor
      */
-    void testGetNbComponents( void )
+    void testSize( void )
     {
         const size_t size = 3;
         WValue< double > value( size );
-        TS_ASSERT_EQUALS( value.getNbComponents(), size );
+        TS_ASSERT_EQUALS( value.size(), size );
     }
 
     /**
