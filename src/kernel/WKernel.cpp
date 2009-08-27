@@ -23,6 +23,8 @@
 
 #include <iostream>
 #include <list>
+#include <string>
+#include <vector>
 
 #include <boost/thread/xtime.hpp>
 
@@ -77,6 +79,12 @@ boost::shared_ptr<WGraphicsEngine> WKernel::getGraphicsEngine() const
 {
     return m_GraphicsEngine;
 }
+
+boost::shared_ptr<WDataHandler> WKernel::getDataHandler() const
+{
+    return m_DataHandler;
+}
+
 
 int WKernel::getArgumentCount() const
 {
@@ -154,10 +162,18 @@ void WKernel::init()
     // initialize GUI
     // TODO(all): clean up this option handler mess
     m_Gui = boost::shared_ptr<WMainApplication>( new WMainApplication() );
+
+    // initialize Datahandler
+    m_DataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
 }
 
 bool WKernel::isFinishRequested() const
 {
     return m_FinishRequested;
+}
+
+void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
+{
+    m_DataHandler->loadDataSets( fileNames );
 }
 

@@ -22,12 +22,16 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <string>
+#include <vector>
 #include <QtGui/QDockWidget>
+#include <QtGui/QFileDialog>
 
 #include "WMainWindow.h"
 #include "WQtGLWidget.h"
 
 #include "WQtPipelineBrowser.h"
+#include "../../kernel/WKernel.h"
 
 #include "../icons/WIcons.h"
 
@@ -176,4 +180,23 @@ void WMainWindow::setEnabled( bool /* enable */ )
 void WMainWindow::load()
 {
     std::cout << "test output: load function" << std::endl;
+    QFileDialog fd;
+    fd.setFileMode( QFileDialog::ExistingFiles );
+    fd.setNameFilter( tr( "Niftii ( *.nii *.nii.gz )" ) );
+    fd.setViewMode( QFileDialog::Detail );
+    QStringList fileNames;
+    if ( fd.exec() )
+    {
+        fileNames = fd.selectedFiles();
+    }
+
+    std::vector< std::string >stdFileNames;
+
+    QStringList::const_iterator constIterator;
+    for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    {
+        stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
+    }
+
+    WKernel::getRunningKernel()->doLoadDataSets( stdFileNames );
 }

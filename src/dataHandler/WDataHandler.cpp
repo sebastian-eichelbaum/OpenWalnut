@@ -21,9 +21,18 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "WDataHandler.h"
 #include "WDataSet.h"
 #include "exceptions/WNoSuchDataSetException.h"
+#include "WLoaderManager.h"
+
+WDataHandler::WDataHandler()
+{
+}
+
 
 boost::shared_ptr< const WDataSet > WDataHandler::getDataSet( const unsigned int dataSetId ) const
 {
@@ -32,10 +41,12 @@ boost::shared_ptr< const WDataSet > WDataHandler::getDataSet( const unsigned int
     return m_dataSets.at(dataSetId);
 }
 
+
 void WDataHandler::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
 {
     m_dataSets.push_back( newDataSet );
 }
+
 
 unsigned int WDataHandler::getNumberOfDataSets() const
 {
@@ -43,8 +54,11 @@ unsigned int WDataHandler::getNumberOfDataSets() const
 }
 
 
-
-
-
-
-
+void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
+{
+    WLoaderManager lm;
+    for ( size_t i = 0 ; i < fileNames.size() ; ++i)
+    {
+        lm.load( fileNames[i], ( boost::shared_ptr<WDataHandler> )this );
+    }
+}

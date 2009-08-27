@@ -38,8 +38,7 @@ std::string getSuffix( std::string name )
         return name.substr( position + 1 );
 }
 
-void WLoaderManager::load( std::string fileName,
-                                                      boost::shared_ptr< WDataHandler > dataHandler )
+void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
 {
     std::string suffix = getSuffix( fileName );
 

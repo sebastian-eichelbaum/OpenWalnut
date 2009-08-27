@@ -25,12 +25,15 @@
 #define WKERNEL_H
 
 #include <list>
+#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include "WModule.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/qt4/WMainApplication.h"
+#include "../dataHandler/WDataHandler.h"
 
 /**
  * \par Description:
@@ -80,6 +83,14 @@ public:
 
     /**
      * \par Description
+     * Returns pointer to the DataHandler.
+     *
+     * \return the dh instance.
+     */
+    boost::shared_ptr<WDataHandler> getDataHandler() const;
+
+    /**
+     * \par Description
      * Returns pointer to the currently running kernel.
      *
      * \return the kernel instance.
@@ -110,6 +121,11 @@ public:
      */
     bool isFinishRequested() const;
 
+    /**
+     *
+     */
+    void doLoadDataSets( std::vector< std::string > fileNames );
+
 protected:
 
     /**
@@ -129,6 +145,12 @@ protected:
      * The Gui.
      */
     boost::shared_ptr<WMainApplication> m_Gui;
+
+    /**
+     * \par Description
+     * The Datahandler.
+     */
+    boost::shared_ptr<WDataHandler> m_DataHandler;
 
 private:
     /**

@@ -24,6 +24,9 @@ ENDIF( CMAKE_HOST_SYSTEM MATCHES Windows )
 # Package dependencies:
 ### BOOST ###
 SET( Boost_USE_MULTITHREAD ON )
+IF ( CMAKE_BUILD_TYPE STREQUAL "Static" )
+    SET( Boost_USE_STATIC_LIBS ON )
+ENDIF ( CMAKE_BUILD_TYPE STREQUAL "Static" )
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f -and -not -name '*svn*'` | grep boost | awk '{print $2}' | sort | uniq
@@ -100,7 +103,7 @@ IF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     ADD_SUBDIRECTORY( kernel )
     ADD_SUBDIRECTORY( common )
     ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
-    TARGET_LINK_LIBRARIES( walnut kernel guiqt4 common ${Boost_LIBRARIES} ${OPENTHREADS_LIBRARY} )
+    TARGET_LINK_LIBRARIES( walnut kernel dataHandler guiqt4 common ${Boost_LIBRARIES} ${OPENTHREADS_LIBRARY} )
     
 ELSE ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.cpp )

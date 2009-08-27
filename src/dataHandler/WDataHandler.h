@@ -24,6 +24,7 @@
 #ifndef WDATAHANDLER_H
 #define WDATAHANDLER_H
 
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -43,6 +44,11 @@ friend class WDataHandlerTest;
 
 public:
     /**
+     *
+     */
+    WDataHandler();
+
+    /**
      * Get the pointer to the i'th DataSet. The return type is const since we
      * want to ensure that each DataSet cannot modified after retrival.
      */
@@ -57,6 +63,11 @@ public:
      * Get the number of DataSets which are actually handled by our DataHandler.
      */
     unsigned int getNumberOfDataSets() const;
+
+    /**
+     *
+     */
+    void loadDataSets( std::vector< std::string > fileNames );
 
 protected:
 
