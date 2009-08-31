@@ -31,6 +31,8 @@
 
 #include <string>
 
+#include <boost/lexical_cast.hpp>
+
 #include "WException.h"
 
 #ifdef __linux__
@@ -61,7 +63,8 @@ private:
 
         static void SignalHandler( int signum )
         {
-            throw SignalExceptionClass();
+            throw SignalExceptionClass( std::string( "SIGNAL: " ) +
+                                        boost::lexical_cast<std::string>( signum ) );
         }
     };
 };
