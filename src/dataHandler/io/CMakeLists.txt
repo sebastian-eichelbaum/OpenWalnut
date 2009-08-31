@@ -1,6 +1,7 @@
 ADD_SUBDIRECTORY( test )
 
 ADD_SUBDIRECTORY( nifti )
+ADD_SUBDIRECTORY( biosig )
 
 # Unit tests
 IF( CXXTEST_FOUND )
