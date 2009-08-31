@@ -174,7 +174,7 @@ FILE(GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h)
 
 #-------------------------------------------------------------------------------------------------------------
 #Set dirs to exclude from stylecheck
-SET ( EXCLUDE_DIRS /dataHandler/io/nifti/ )
+SET ( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosig/XMLParser/" )
 
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
