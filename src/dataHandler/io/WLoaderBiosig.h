@@ -34,6 +34,7 @@ class WDataHandler;
 /**
  * Loader for several formats for biological signal.
  * Uses BiosigC++ 4.
+ * \ingroup dataHandler
  */
 class WLoaderBiosig : public WLoader
 {

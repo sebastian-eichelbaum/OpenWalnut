@@ -53,7 +53,8 @@ private:
 //================================================
 
 /**
- * TODO(wiebel): Document this!
+ * Contains EEG recording data.
+ * \ingroup dataHandler
  */
 class WEEG : public WRecording
 {

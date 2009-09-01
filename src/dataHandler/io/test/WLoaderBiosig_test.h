@@ -32,7 +32,7 @@
 #include "../../WDataHandler.h"
 
 /**
- * TODO(wiebel): Document this!
+ * Tests for the biosignal loader that uses biosig library.
  */
 class WLoaderBiosigTest : public CxxTest::TestSuite
 {

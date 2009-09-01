@@ -27,7 +27,9 @@
 #include "WDataSet.h"
 
 /**
- * TODO(wiebel): Document this!
+ * Base class for all recorded data and results with events
+ * and sensor positions.
+ * \ingroup dataHandler
  */
 class WRecording : public WDataSet
 {
