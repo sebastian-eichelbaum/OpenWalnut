@@ -474,9 +474,6 @@ EXTERN_C int sopen_SCP_read(HDRTYPE* hdr) {
 		if (len != leu32p(PtrCurSect+4))
 			fprintf(stderr,"Warning SOPEN(SCP-READ): length field in pointer section (%i) does not match length field in sections (%i %i)\n",K,len,leu32p(PtrCurSect+4)); 
 
-		uint8_t versionSection  = *(ptr+sectionStart+8);
-		uint8_t versionProtocol = *(ptr+sectionStart+9);
-
 		curSectPos = 16;
 
 		/**** SECTION 0 ****/
@@ -1022,8 +1019,6 @@ EXTERN_C int sopen_SCP_read(HDRTYPE* hdr) {
 		else if (curSect==7)  {
 			uint16_t N_QRS = *(uint8_t*)(PtrCurSect+curSectPos)-1;
 			uint8_t  N_PaceMaker = *(uint8_t*)(PtrCurSect+curSectPos+1);
-			uint16_t RRI = leu16p(PtrCurSect+curSectPos+2);
-			uint16_t PPI = leu16p(PtrCurSect+curSectPos+4);
 			curSectPos += 6;
 			size_t curSectPos0 = curSectPos; // backup of pointer 
 			

@@ -10592,7 +10592,7 @@ int hdr2ascii(HDRTYPE* hdr, FILE *fid, int VERBOSE)
 			fprintf(fid,"%e %e %s\t%5f\t%5f\t%5f\t%5f\t%5f\t%5f\t%5f\t%5f\t%5f\t%5f",
 				cp->Cal, cp->Off, cp->PhysDim,  
 				cp->PhysMax, cp->PhysMin, cp->DigMax, cp->DigMin,cp->HighPass,cp->LowPass,cp->Notch,
-				cp->XYZ[0],cp->XYZ[1],cp->XYZ[2]);
+				cp->XYZ[0],cp->XYZ[1],cp->XYZ[2]); 
 			//fprintf(fid,"\t %3i", cp->SPR);
 		}
 	}

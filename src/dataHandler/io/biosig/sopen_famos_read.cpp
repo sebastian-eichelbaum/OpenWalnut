@@ -41,7 +41,7 @@ EXTERN_C int sopen_FAMOS_read(HDRTYPE* hdr) {
 
 		size_t count = hdr->HeadLen;
 	    	
-		char *t, *t1, *t2;
+		char *t, *t2;
 		const char EOL[] = "|;\xA\xD";
 		size_t pos, l1, len;
 		pos  = strspn(Header1, EOL);
