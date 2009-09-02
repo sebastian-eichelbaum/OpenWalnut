@@ -28,6 +28,7 @@
 #include "WLoaderManager.h"
 #include "WDataSet.h"
 #include "io/WLoaderNIfTI.h"
+#include "io/WLoaderBiosig.h"
 
 std::string getSuffix( std::string name )
 {
@@ -47,6 +48,11 @@ void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler
         WLoaderNIfTI niiLoader( fileName, dataHandler );
         boost::thread loaderThread( niiLoader );
     }
+    else if( suffix == "edf" )
+    {
+        WLoaderBiosig biosigLoader( fileName, dataHandler );
+        boost::thread loaderThread( biosigLoader );
+    }
     else if( suffix == "vtk" )
     {
         // This is a dummy implementation.
@@ -56,7 +62,7 @@ void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler
     }
     else
     {
-        std::cout << "Unknown file type." << std::endl;
+        std::cout << "Unknown file type: \"" << suffix << "\"" << std::endl;
         assert( 0 );
     }
 }
