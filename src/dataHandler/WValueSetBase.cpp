@@ -22,6 +22,7 @@
 //---------------------------------------------------------------------------
 
 #include <cstddef>
+#include <cassert>
 
 #include "WValueSetBase.h"
 
@@ -30,6 +31,8 @@ WValueSetBase::WValueSetBase( char order, char dimension )
     : m_order( order ),
       m_dimension( dimension )
 {
+        assert( order <= 2 );
+        assert( dimension >= 1 );
 }
 
 WValueSetBase::~WValueSetBase()

@@ -50,8 +50,6 @@ public:
         : WValueSetBase( order, dimension ),
           m_data( data )
     {
-        assert( m_dimension >= 1 );
-        assert( m_order <= 2 );
     }
 
     /**
@@ -62,7 +60,7 @@ public:
         switch( m_order )
         {
             case 0  : // scalar
-                      assert( m_dimension == 1 && "but m_order was 0");
+                      assert( m_dimension == 1 && "but m_order was 0" );
                       return rawSize();
             case 1  : // vector
                       assert( rawSize() % m_dimension == 0 );
