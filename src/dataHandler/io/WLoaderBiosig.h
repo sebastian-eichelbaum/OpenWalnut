@@ -53,7 +53,6 @@ public:
 protected:
 private:
     void biosigLoader();
-    std::string m_fileName;
     boost::shared_ptr< WDataHandler > m_dataHandler;
 };
 

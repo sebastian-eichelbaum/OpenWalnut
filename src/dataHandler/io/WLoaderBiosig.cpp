@@ -36,8 +36,8 @@
 #include "../WEEG.h"
 
 WLoaderBiosig::WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-    : m_fileName( fileName ),
-    m_dataHandler( dataHandler )
+    : WLoader( fileName ),
+      m_dataHandler( dataHandler )
 {
 }
 

@@ -61,7 +61,6 @@ private:
             const size_t vDim );
     void fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header );
 
-    std::string m_fileName;
     boost::shared_ptr< WDataHandler > m_dataHandler;
 };
 

@@ -21,5 +21,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WLoader.h"
 
+
+WLoader::WLoader( std::string fileName )
+    : m_fileName( fileName )
+{
+}

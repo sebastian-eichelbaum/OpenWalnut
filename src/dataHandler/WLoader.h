@@ -24,6 +24,8 @@
 #ifndef WLOADER_H
 #define WLOADER_H
 
+#include <string>
+
 /**
  * Base class to all WLoaders which imports data from a given file and generate
  * a WDataSet out of it.
@@ -32,7 +34,21 @@
 class WLoader
 {
 public:
+    explicit WLoader( std::string fileName );
+
+    virtual ~WLoader()
+    {
+    };
+
+    /**
+     * This function is automatically called when creating a new thread for the
+     * loader with boost::thread. The method is pure virtual here to ensure
+     * that subclasses implement it.
+     */
+    virtual void operator()() = 0;
+
 protected:
+    std::string m_fileName;
 private:
 };
 
