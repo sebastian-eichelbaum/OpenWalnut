@@ -66,11 +66,11 @@ public:
     /**
      * TODO(wiebel): Document this!
      */
-    explicit WEEG( boost::shared_ptr< WMetaInfo > metaInfo, const WEEGSegmentArray& data )
-        : WRecording( metaInfo ), m_segments( data )
-    {
-    }
+    explicit WEEG( boost::shared_ptr< WMetaInfo > metaInfo, const WEEGSegmentArray& data );
 
+    /**
+     * Access operator for single samples.
+     */
     const double& operator()( size_t segment, size_t signal, size_t sample ) const
     {
         return m_segments[segment][signal][sample];
@@ -94,7 +94,7 @@ private:
 
     /**
      * Contains the EEG data as an arry of segements
-     * of data which consist of an array of electrodes 
+     * of data which consist of an array of electrodes
      * which again consist of an array of samples over time.
      */
     WEEGSegmentArray m_segments;

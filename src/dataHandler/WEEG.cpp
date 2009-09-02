@@ -22,4 +22,20 @@
 //---------------------------------------------------------------------------
 
 #include "WEEG.h"
+#include "../common/WLimits.h"
 
+
+WEEG::WEEG( boost::shared_ptr< WMetaInfo > metaInfo, const WEEGSegmentArray& data )
+    : WRecording( metaInfo )
+{
+    assert( data.size() <= wlimits::MAX_RECORDING_SEGMENTS );
+    for( WEEGSegmentArray::const_iterator it1 = data.begin(); it1 != data.end(); ++it1 )
+    {
+        assert( it1->size() <= wlimits::MAX_RECORDING_CHANNELS );
+        for( WEEGSegment::const_iterator it2 = it1->begin(); it2 != it1->end(); ++it2 )
+        {
+            assert( it2->size() <= wlimits::MAX_RECORDING_SAMPLES );
+        }
+    }
+    m_segments = data;
+}
