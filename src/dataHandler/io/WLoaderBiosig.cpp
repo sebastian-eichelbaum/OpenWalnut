@@ -101,6 +101,10 @@ void WLoaderBiosig::biosigLoader()
 
     boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr<WMetaInfo>( new WMetaInfo() );
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( metaInfo, segments ) );
+
+    m_dataHandler->addDataSet( eeg );
+
+    std::cout << "BIOSIG loading done." << std::endl;
 }
 
 void WLoaderBiosig::operator()()
