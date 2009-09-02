@@ -125,7 +125,6 @@ void WMainWindow::setupGUI( QMainWindow *MainWindow )
 
     m_toolBar = new QToolBar( MainWindow );
     m_toolBar->setObjectName( QString::fromUtf8( "toolBar" ) );
-    m_toolBar->addAction( m_actionExit );
     m_toolBar->addAction( m_actionSave );
     m_toolBar->addAction( m_actionLoad );
     m_toolBar->addSeparator();
@@ -182,7 +181,13 @@ void WMainWindow::load()
     std::cout << "test output: load function" << std::endl;
     QFileDialog fd;
     fd.setFileMode( QFileDialog::ExistingFiles );
-    fd.setNameFilter( tr( "Niftii ( *.nii *.nii.gz )" ) );
+
+    QStringList filters;
+    filters << "Any files (*)"
+            << "EEG files (*.cnt *.edf)"
+            << "NIfTI (*.nii *.nii.gz)"
+            << "VTK (*.vtk)";
+    fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
     QStringList fileNames;
     if ( fd.exec() )
