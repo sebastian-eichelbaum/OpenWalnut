@@ -1,0 +1,47 @@
+\documentclass[a4paper,12pt]{scrbook}
+\usepackage[bookmarks=true,colorlinks=true]{hyperref} 
+\hypersetup{
+ pdfauthor = {Alexander Wiebel},
+ pdftitle = {OpenWalnut Design},
+ pdfsubject = {Design Document},
+ pdfkeywords = {Visualization System, Medical Visualization},
+ pdfcreator = {LaTeX with hyperref package},
+ pdfproducer = {pdflatex}}
+
+\usepackage[latin1]{inputenc}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{pst-grad,pstricks}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\bibliographystyle{alpha} 
+
+\begin{document}
+\titlehead{
+  OpenWalnut Project\\
+  www.openwalnut.org}
+
+\subject{Documentation}
+\title{
+%  \includegraphics{Pictures/FAnToM-logo}\\[.2cm]
+  OpenWalnut Design
+}
+\author{ Alexander Wiebel }
+\publishers{Leipzig}
+\maketitle
+
+\tableofcontents
+
+\chapter{DataHandler}
+The sections in this chapter are organized according to different
+types od recording or imaging data.
+\section{EEG}
+\subsection{Note}
+ sread in BIOSIG C++ toolbox provides start and length parameters ... these should be used as EEG might not fit or at least is not intended to be completely in the main memory. This should also be reflected in the design of the data structure.
+ Is segment-wise loading a good solution?
+
+
+\end{document}
