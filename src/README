@@ -9,7 +9,6 @@ Directory Structure:
     -dataHandler
     -graphicsEngine
     -math
-    -plugins
   The following directories provisional. The might be renamed or
   deleted:
     -common
