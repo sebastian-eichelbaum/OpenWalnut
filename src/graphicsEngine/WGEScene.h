@@ -35,13 +35,11 @@ class WGEScene: public osg::Group
 public:
 
     /**
-     * \par Description
      * Default constructor.
      */
     WGEScene();
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WGEScene();

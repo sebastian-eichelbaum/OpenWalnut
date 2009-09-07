@@ -32,7 +32,6 @@
 #include "../WException.h"
 
 /** 
- * \par Description
  * Test WException
  */
 class WExceptionTest : public CxxTest::TestSuite

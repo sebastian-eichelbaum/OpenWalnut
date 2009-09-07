@@ -45,7 +45,6 @@ class WKernel
 public:
 
     /**
-     * \par Description
      * Default constructor. Also initializes Graphics Engine.
      *
      * \param argc number of arguments
@@ -54,20 +53,17 @@ public:
     WKernel( int argc, char* argv[] );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WKernel();
 
     /**
-     * \par Description
      * Copy constructor
      * \param other Reference on object to copy.
      */
     WKernel( const WKernel& other );
 
     /**
-     * \par Description
      * Starts execution.
      *
      * \return Execution code.
@@ -75,7 +71,6 @@ public:
     int run();
 
     /**
-     * \par Description
      * Returns pointer to currently running instance of graphics engine.
      *
      * \return the ge instance.
@@ -83,7 +78,6 @@ public:
     boost::shared_ptr<WGraphicsEngine> getGraphicsEngine() const;
 
     /**
-     * \par Description
      * Returns pointer to the DataHandler.
      *
      * \return the dh instance.
@@ -91,7 +85,6 @@ public:
     boost::shared_ptr<WDataHandler> getDataHandler() const;
 
     /**
-     * \par Description
      * Returns pointer to the currently running kernel.
      *
      * \return the kernel instance.
@@ -99,7 +92,6 @@ public:
     static WKernel* getRunningKernel();
 
     /**
-     * \par Description
      * Returns argument count.
      *
      * \return argument count.
@@ -107,7 +99,6 @@ public:
     int getArgumentCount() const;
 
     /**
-     * \par Description
      * Returns argument array specified to the app.
      *
      * \return the argument array.
@@ -115,7 +106,6 @@ public:
     char** getArguments() const;
 
     /**
-     * \par Description
      * Determines whether all threads should finish.
      *
      * \return true if so.
@@ -130,56 +120,47 @@ public:
 protected:
 
     /**
-     * \par Description
      * All the loaded modules.
      */
     std::list<WModule*> m_modules;
 
     /**
-     * \par Description
      * Pointer to an initialized graphics engine.
      */
     boost::shared_ptr<WGraphicsEngine> m_GraphicsEngine;
 
     /**
-     * \par Description
      * The Gui.
      */
     boost::shared_ptr<WMainApplication> m_Gui;
 
     /**
-     * \par Description
      * The Datahandler.
      */
     boost::shared_ptr<WDataHandler> m_DataHandler;
 
 private:
     /**
-     * \par Description
      * Loads all the modules it can find.
      */
     void loadModules();
 
     /**
-     * \par Description
      * Initializes the graphics engine, data handler and so on.
      */
     void init();
 
     /**
-     * \par Description
      * Number of arguments given to application.
      */
     int m_ArgC;
 
     /**
-     * \par Description
      * Arguments given to application
      */
     char** m_ArgV;
 
     /**
-     * \par Description
      * true if threads should finish.
      */
     bool m_FinishRequested;

@@ -29,7 +29,6 @@
 #include "WGEException.h"
 
 /**
- * \par Description:
  * Exception thrown if initialization of the graphics engine fails.
  */
 class WGEInitFailed: public WGEException
@@ -37,14 +36,12 @@ class WGEInitFailed: public WGEException
 public:
 
     /**
-     * \par Description
      * Default constructor.
      * \param msg the exception message.
      */
     explicit WGEInitFailed( const std::string& msg = "Graphics Engine Initialization failed" );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WGEInitFailed() throw();

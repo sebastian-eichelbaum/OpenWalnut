@@ -49,7 +49,6 @@ class WGEGraphicsWindow
 public:
 
     /**
-     * \par Description
      * Default constructor.
      *
      * \param wdata the WindowData instance for the widget to use as render widget
@@ -62,13 +61,11 @@ public:
     WGEGraphicsWindow( boost::shared_ptr<WindowData> wdata, int x, int y, int width, int height );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WGEGraphicsWindow();
 
     /**
-     * \par Description
      * Getter for m_GraphicsWindow.
      *
      * \return the OSG GraphicsWindow instance.
@@ -76,7 +73,6 @@ public:
     boost::shared_ptr<osgViewer::GraphicsWindow> getGraphicsWindow();
 
     /** 
-     * \par Description
      * Event types for the keyEvent() handler.
      */
     enum KeyEvents
@@ -85,7 +81,6 @@ public:
     };
 
     /** 
-     * \par Description
      * Mouse event types for the mouseEvent() handler.
      */
     enum MouseEvents
@@ -94,7 +89,6 @@ public:
     };
 
     /**
-     * \par Description
      * Updates size information.
      *
      * \param width new width.
@@ -103,14 +97,12 @@ public:
     virtual void resize( int width, int height );
 
     /** 
-     * \par Description
      * Initiates a close event for this viewer. It destroys the graphics context and invalidates the viewer.
      * This should be called whenever a QT Widget closes to also free its OSG Viewer resources.
      */
     virtual void close();
 
     /** 
-     * \par Description
      * Handles key events (if forwarded to this Viewer instance).
      * 
      * \param key the key code.
@@ -119,7 +111,6 @@ public:
     virtual void keyEvent( KeyEvents eventType, int key );
 
     /** 
-     * \par Description
      * Handles mouse events forwarded from widget.
      * 
      * \param eventType the event type.
@@ -132,7 +123,6 @@ public:
 protected:
 
     /**
-     * \par Description
      * Creates a new OpenGL context in the calling thread. Needs to be called before any other OpenGL operation.
      *
      * \param x X coordinate of widget where to create the context.
@@ -143,20 +133,17 @@ protected:
     void createContext( int x, int y, int width, int height );
 
     /**
-     * \par Description
      * OpenSceneGraph render window.
      */
     boost::shared_ptr<osgViewer::GraphicsWindow> m_GraphicsWindow;
 
     /**
-     * \par Description
      * OpenSceneGraph render context. This is required to be a "normal" pointer since using shared_ptr causes
      * the code not to work (unknown reason for now). But since we do not offer a getter for it -> no prob.
      */
     osg::GraphicsContext* m_GraphicsContext;
 
     /**
-     * \par Description
      * Widget window data.
      */
     boost::shared_ptr<WindowData> m_WindowData;

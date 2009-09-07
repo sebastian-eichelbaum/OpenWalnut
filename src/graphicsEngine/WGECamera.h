@@ -36,7 +36,6 @@ class WGECamera: public osg::Camera
 public:
 
     /** 
-     * \par Description
      * List of possible camera modes.
      */
     enum ProjectionMode
@@ -45,13 +44,11 @@ public:
     };
 
     /**
-     * \par Description
      * Default constructor.
      */
     WGECamera();
 
-    /** 
-     * \par Description 
+    /**
      * Sets the default projection mode used for cameras getting reset.
      *
      * \param mode the mode to set.
@@ -59,7 +56,6 @@ public:
     void setDefaultProjectionMode( ProjectionMode mode );
 
     /** 
-     * \par Description
      * Returns the current default projection mode.
      * 
      * \return the currently set mode.
@@ -67,7 +63,6 @@ public:
     ProjectionMode getDefaultProjectionMode();
 
     /** 
-     * \par Description
      * Resets the camera and activates the prior set defaults.
      */
     void reset();
@@ -77,7 +72,6 @@ public:
 protected:
 
     /**
-     * \par Description
      * Destructor. This desctructor is protected to avoid accidentally deleting a instance of WGECamera.
      * This follows the philosophy of OSG to avoid problems in multithreaded environments, since these camera
      * pointers are used deep in the OSG where an deletion could cause a segfault.
@@ -85,7 +79,6 @@ protected:
     virtual ~WGECamera();
 
     /** 
-     * \par Description
      * The projection mode used as default.
      */
     ProjectionMode m_DefProjMode;

@@ -30,7 +30,6 @@
 #include <sstream>
 
 /**
- * \par Description:
  * Basic exception handler.
  */
 class WException: public std::exception
@@ -43,35 +42,30 @@ friend class WExceptionTest;
 public:
 
     /**
-     * \par Description
      * Default constructor.
      * \param msg Exception description.
      */
     explicit WException( const std::string& msg = std::string() );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WException() throw();
 
     /** 
-     * \par Description
      * Returns the message string set on throw
      * \return Message text
      */
     virtual const char* what() const throw();
 
     /**
-     * \par Description
      * Prints the trace of the call chain which caused this exception.
      * \return Calltrace as string
      * \note Isn't this useless? Should be removed.
      */
     std::string getTrace( ) const;
 
-    /** 
-     * \par Description
+    /**
      * Returns a call stacktrace.
      * \return The backtrace at the moment of "throw".
      */

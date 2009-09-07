@@ -29,7 +29,6 @@
 #include "../../common/WException.h"
 
 /**
- * \par Description:
  * General purpose exception and therefore base class for all graphics engine related exceptions.
  */
 class WGEException: public WException
@@ -37,14 +36,12 @@ class WGEException: public WException
 public:
 
     /**
-     * \par Description
      * Default constructor.
      * \param msg the exception message.
      */
     explicit WGEException( const std::string& msg = "Graphics Engine Exception" );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WGEException() throw();

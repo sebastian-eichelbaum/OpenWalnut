@@ -35,7 +35,6 @@ class WGUI: public WThreadedRunner
 public:
 
     /**
-     * \par Description
      * Default destructor.
      */
     virtual ~WGUI();

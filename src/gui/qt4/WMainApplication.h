@@ -35,13 +35,11 @@ class WMainApplication: public WThreadedRunner
 public:
 
     /** 
-     * \par Description
      * Default Constructor.
      */
     WMainApplication();
 
     /** 
-     * \par Description
      * Default destructor.
      */
     virtual ~WMainApplication();
@@ -49,7 +47,6 @@ public:
 protected:
 
     /** 
-     * \par Description
      * Execution loop.
      */
     virtual void threadMain();

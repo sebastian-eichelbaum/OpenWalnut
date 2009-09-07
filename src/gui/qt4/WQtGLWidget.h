@@ -44,7 +44,6 @@ class WQtGLWidget: public QWidget
 {
 public:
     /**
-     * \par Description
      * Default constructor.
      *
      * \param parent Parent widget.
@@ -54,7 +53,6 @@ public:
     explicit WQtGLWidget( QWidget* parent = 0 );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WQtGLWidget();
@@ -67,7 +65,6 @@ public:
 
 
     /** 
-     * \par Description
      * List of currently possible camera manipulators.
      */
     enum CameraManipulators
@@ -76,7 +73,6 @@ public:
     };
 
     /** 
-     * \par Description
      * Sets the camera manipulator to use.
      * 
      * \param manipulator the manipulator.
@@ -84,7 +80,6 @@ public:
     void setCameraManipulator( CameraManipulators manipulator );
 
     /** 
-     * \par Description 
      * Returns the actually set camera manipulator.
      * 
      * \return the manipulator.
@@ -93,7 +88,6 @@ public:
 
 protected:
     /**
-     * \par Description
      * The viewer to the scene.
      */
     boost::shared_ptr<WGEViewer> m_Viewer;
@@ -103,7 +97,6 @@ protected:
     //  with further problems downstream (i.e. not being able to throw the trackball
 #ifndef WIN32
     /** 
-     * \par Description
      * Event handler for double clicks.
      * 
      * \param event the event description.
@@ -111,7 +104,6 @@ protected:
     virtual void mouseDoubleClickEvent( QMouseEvent* event );
 
     /** 
-     * \par Description
      * Event handler for close events.
      * 
      * \param event the event description.
@@ -119,13 +111,11 @@ protected:
     virtual void closeEvent( QCloseEvent* event );
 
     /** 
-     * \par Description
      * Event handler for destroy events (called after close).
      */
     virtual void destroyEvent( bool destroyWindow = true, bool destroySubWindows = true );
 
     /** 
-     * \par Description
      * Event handler for  resize events.
      * 
      * \param event the event description.
@@ -133,7 +123,6 @@ protected:
     virtual void resizeEvent( QResizeEvent* event );
 
     /** 
-     * \par Description
      * Event handler for key press.
      * 
      * \param event the event description.
@@ -141,7 +130,6 @@ protected:
     virtual void keyPressEvent( QKeyEvent* event );
 
     /** 
-     * \par Description
      * Event handler for key release.
      * 
      * \param event the event description.
@@ -149,7 +137,6 @@ protected:
     virtual void keyReleaseEvent( QKeyEvent* event );
 
     /** 
-     * \par Description
      * Event handler for mouse button press.
      * 
      * \param event the event description.
@@ -157,7 +144,6 @@ protected:
     virtual void mousePressEvent( QMouseEvent* event );
 
     /** 
-     * \par Description
      * Event handler for mouse button release.
      * 
      * \param event the event description.
@@ -165,7 +151,6 @@ protected:
     virtual void mouseReleaseEvent( QMouseEvent* event );
 
     /** 
-     * \par Description
      * Event handler for mouse moves.
      * 
      * \param event the event description.
@@ -174,7 +159,6 @@ protected:
 #endif
 
     /** 
-     * \par Description
      * QT Callback for handling repaints.
      * 
      * \param event event descriptor.
@@ -182,7 +166,6 @@ protected:
     virtual void paintEvent( QPaintEvent* event );
 
     /** 
-     * \par Description
      * Simply translate the mouse button from an event to an int.
      * 
      * \param event the QT Event.
@@ -192,7 +175,6 @@ protected:
     int translateButton( QMouseEvent* event );
 
     /** 
-     * \par Description
      * Stores the current manipulator.
      */
     CameraManipulators m_CurrentManipulator;
@@ -203,13 +185,11 @@ private:
     QSize m_recommendedSize;
 
     /** 
-     * \par Description
      * Window Data for this widget needed by OpenSceneGraph.
      */
     boost::shared_ptr<WindowData> wdata;
 
     /** 
-     * \par Description
      * Timer used for permanent redraw of all views. This is just a hack and will be improved
      * so that redraws are done by separate threads.
      */

@@ -51,7 +51,6 @@ class WGEViewer: public WGEGraphicsWindow
 public:
 
     /**
-     * \par Description
      * Default constructor.
      *
      * \param wdata the WindowData instance for the widget to use as render widget
@@ -64,19 +63,16 @@ public:
     WGEViewer( boost::shared_ptr<WindowData> wdata, int x, int y, int width, int height );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WGEViewer();
 
     /**
-     * \par Description
      * Paints this view to the window specified in constructor.
      */
     void paint();
 
     /**
-     * \par Description
      * Updates size information. Also updates camera.
      *
      * \param width new width.
@@ -85,7 +81,6 @@ public:
     virtual void resize( int width, int height );
 
     /**
-     * \par Description
      * Getter for OpenSceneGraph Viewer instance.
      *
      * \return the OSG Viewer instance.
@@ -93,7 +88,6 @@ public:
     boost::shared_ptr<osgViewer::CompositeViewer> getViewer();
 
     /**
-     * \par Description
      * Sets the camera manipulator to use.
      *
      * \param manipulator the manipulator to use.
@@ -101,7 +95,6 @@ public:
     void setCameraManipulator( osgGA::MatrixManipulator* manipulator );
 
     /**
-     * \par Description
      * Returns current active camera manipulator
      *
      * \return the active camera manipulator.
@@ -109,7 +102,6 @@ public:
     osgGA::MatrixManipulator* getCameraManipulator();
 
     /** 
-     * \par Description
      * Sets the current camera.
      * 
      * \param camera the OSG camera instance.
@@ -117,7 +109,6 @@ public:
     void setCamera( osg::Camera* camera );
 
     /** 
-     * \par Description
      * Returns the camera currently in use.
      * 
      * \return the camera currently in use.
@@ -125,7 +116,6 @@ public:
     osg::Camera* getCamera();
 
     /** 
-     * \par Description
      * Sets the scene graph node to be used for rendering.
      * 
      * \param node part of the scene graph
@@ -133,7 +123,6 @@ public:
     void setScene( osg::Node* node );
 
     /** 
-     * \par Description
      * Returns the currently set OSG node.
      * 
      * \return the node.
@@ -143,13 +132,11 @@ public:
 protected:
 
     /**
-     * \par Description
      * OpenSceneGraph viewer.
      */
     boost::shared_ptr<osgViewer::CompositeViewer> m_Viewer;
 
     /**
-     * \par Description
      * The OpenSceneGraph view used in this (Composite)Viewer.
      */
     boost::shared_ptr<osgViewer::View> m_View;

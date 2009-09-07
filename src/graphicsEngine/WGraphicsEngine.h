@@ -44,26 +44,22 @@ class WGraphicsEngine: public WThreadedRunner
 public:
 
     /**
-     * \par Description
      * Default constructor.
      */
     WGraphicsEngine();
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WGraphicsEngine();
 
     /**
-     * \par Description
      * Copy constructor
      * \param other Reference on object to copy.
      */
     WGraphicsEngine( const WGraphicsEngine& other );
 
     /**
-     * \par Description
      * Returns the root node of the OSG.
      *
      * \return the root node.
@@ -73,13 +69,11 @@ public:
 protected:
 
     /**
-     * \par Description
      * OpenSceneGraph root node.
      */
     WGEScene* m_RootNode;
 
     /**
-     * \par Description
      * Handler for repainting and event handling. Gets executed in separate thread.
      */
     virtual void threadMain();

@@ -39,7 +39,6 @@
 // This is highly platform dependent. Used for backtrace functionality.
 
 /** 
- * \par Description
  * Template class for every signal which can be handled.
  */
 template <class SignalExceptionClass> class SignalTranslator
@@ -71,7 +70,6 @@ private:
 #endif  // __linux__
 
 /**
- * \par Description:
  * Base exception class for handling segmentation faults.
  * It throws segmentation faults as exceptions. Please remember that SIGSEGV is not
  * recoverable, which means it can NOT be catched!
@@ -82,26 +80,22 @@ class WSegmentationFault: public WException
 public:
 
     /**
-     * \par Description
      * Default constructor.
      */
     explicit WSegmentationFault( const std::string& msg = "Segmentation Fault" );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WSegmentationFault() throw();
 
     /** 
-     * \par Description
      * Defines signal type to handle. 
      * @return The signal number.
      */
     static int getSignalNumber() throw();
 
     /** 
-     * \par Description
      * Installs this exception as signal handler for SIGSEGV. 
      * This will just work on Linux.
      */

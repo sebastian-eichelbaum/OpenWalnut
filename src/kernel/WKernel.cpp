@@ -36,7 +36,6 @@
 #include "../graphicsEngine/WGraphicsEngine.h"
 
 /**
- * \par Description
  * Used for program wide access to the kernel.
  */
 WKernel* kernel = NULL;

@@ -27,7 +27,6 @@
 #include <boost/thread/thread.hpp>
 
 /**
- * \par Description:
  * Base class for all classes needing to be executed in a separate thread.
  */
 class WThreadedRunner
@@ -35,25 +34,21 @@ class WThreadedRunner
 public:
 
     /**
-     * \par Description
      * Default constructor.
      */
     WThreadedRunner();
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WThreadedRunner();
 
     /**
-     * \par Description
      * Run thread.
      */
     void run();
 
     /**
-     * \par Description
      * Wait for the thread to be finished.
      *
      * \param requestFinish true if the thread should be notified.
@@ -63,32 +58,27 @@ public:
 protected:
 
     /**
-     * \par Description
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
      * has been called.
      */
     virtual void threadMain();
 
     /**
-     * \par Description
      * Thread instance.
      */
     boost::thread* m_Thread;
 
     /**
-     * \par Description
      * True if thread should end execution.
      */
     bool m_FinishRequested;
 
     /**
-     * \par Description
      * Give remaining execution timeslice to another thread.
      */
     void yield() const;
 
     /**
-     * \par Description
      * Sets thread asleep.
      *
      * \param t time to sleep in seconds.
