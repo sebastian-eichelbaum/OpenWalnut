@@ -29,8 +29,8 @@
 #include "../common/WThreadedRunner.h"
 
 /**
- * \par Description:
  * Class representing a single module of OpenWalnut.
+ * \ingroup kernel
  */
 class WModule: public WThreadedRunner
 {

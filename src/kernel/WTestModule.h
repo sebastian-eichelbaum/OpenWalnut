@@ -29,8 +29,8 @@
 #include "WModule.h"
 
 /**
- * \par Description:
  * Simple module for testing some WKernel functionality.
+ * \ingroup kernel
  */
 class WTestModule: public WModule
 {

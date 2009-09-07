@@ -36,8 +36,9 @@
 #include "../dataHandler/WDataHandler.h"
 
 /**
- * \par Description:
- * OpenWalnut kernel, managing modules and interaction between GUI, GE and DataHandler
+ * OpenWalnut kernel, managing modules and interaction between
+ * GUI, GE and DataHandler
+ * \ingroup kernel
  */
 class WKernel
 {
@@ -183,6 +184,14 @@ private:
      */
     bool m_FinishRequested;
 };
+
+/**
+ * \defgroup kernel Kernel
+ *
+ * \brief
+ * This module implements the central part of OpenWalnut that manages
+ * the interaction between GUI, GraphicsEngine and DataHandler.
+ */
 
 #endif  // WKERNEL_H
 
