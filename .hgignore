@@ -1,0 +1,9 @@
+# use glob syntax.
+syntax: glob
+
+# switch to regexp syntax.
+syntax: regexp
+
+^doc/developer/html
+^doc/developer/man
+^build
