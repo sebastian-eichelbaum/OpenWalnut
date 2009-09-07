@@ -35,7 +35,6 @@
 #include "../common/WThreadedRunner.h"
 
 /**
- * \par Description:
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
  * engine.
  * \ingroup ge

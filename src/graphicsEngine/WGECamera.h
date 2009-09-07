@@ -27,7 +27,6 @@
 #include <osg/Camera>
 
 /**
- * \par Description:
  * Class for wrapping around the OSG Camera class. It adds some utility functions for simply setting some
  * camera defaults.
  * \ingroup ge

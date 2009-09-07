@@ -41,7 +41,6 @@ typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
 #include <boost/shared_ptr.hpp>
 
 /**
- * \par Description:
  * Class managing a single graphics context and OSG GraphicsWindow.
  * \ingroup ge
  */

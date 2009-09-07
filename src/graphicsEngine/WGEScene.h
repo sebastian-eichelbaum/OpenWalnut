@@ -27,7 +27,6 @@
 #include <osg/Group>
 
 /**
- * \par Description:
  * Class for managing the OpenSceneGraph root node. It can handle new nodes, removing nodes and so on.
  * \ingroup ge
  */
