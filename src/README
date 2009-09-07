@@ -3,13 +3,9 @@ See the "doc" directory for more information, e.g. on build and installation pro
 ------------------------------------------------------
 
 Directory Structure:
-  This is a drafted structure it can be changed in the (near) future
-  The following directories are fixed. Only their name may change:
     -gui
     -dataHandler
     -graphicsEngine
     -math
-  The following directories provisional. The might be renamed or
-  deleted:
     -common
     -kernel
