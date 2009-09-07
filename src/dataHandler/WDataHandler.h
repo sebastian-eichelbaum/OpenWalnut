@@ -44,7 +44,7 @@ friend class WDataHandlerTest;
 
 public:
     /**
-     *
+     * Empty standard constructor.
      */
     WDataHandler();
 
@@ -65,7 +65,7 @@ public:
     unsigned int getNumberOfDataSets() const;
 
     /**
-     *
+     * Calls WLoaderManager to load the given input file.
      */
     void loadDataSets( std::vector< std::string > fileNames );
 
