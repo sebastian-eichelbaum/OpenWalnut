@@ -25,8 +25,8 @@
 #define WGLSCENEPAINTER_H
 
 /**
- * \ingroup ge
  * This is the base class for rendering the scene graph.
+ * \ingroup ge
  */
 class WGLScenePainter
 {
@@ -50,14 +50,5 @@ public:
      */
     virtual void resizeGL( int width, int height ) const;
 };
-
-
-/**
-  \defgroup ge GraphicsEngine
-
-  \brief
-  This module implements the graphics engine for OpenWalnut.
-
-*/
 
 #endif  // WGLSCENEPAINTER_H

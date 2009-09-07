@@ -33,6 +33,7 @@
  * A grid that has axis aligned cuboid cells which all have the same width,
  * the same height and the same depth. I.e. the samples along a single axis
  * are equidistant. The distance of samples may vary between axes.
+ * \ingroup dataHandler
  */
 class WGridRegular3D : public WGrid
 {

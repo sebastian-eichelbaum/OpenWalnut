@@ -43,6 +43,7 @@ typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
 /**
  * \par Description:
  * Class managing a single graphics context and OSG GraphicsWindow.
+ * \ingroup ge
  */
 class WGEGraphicsWindow
 {

@@ -34,8 +34,8 @@ class WGUI: public WThreadedRunner
 {
 public:
 
-    /** 
-     * \par Description 
+    /**
+     * \par Description
      * Default destructor.
      */
     virtual ~WGUI();
@@ -51,11 +51,11 @@ public:
 };
 
 /**
-  \defgroup gui GUI
-
-  \brief
-  This module implements the graphical user interface for OpenWalnut.
-
-*/
+ * \defgroup gui GUI
+ *
+ * \brief
+ * This module implements the graphical user interface for OpenWalnut.
+ *
+ */
 
 #endif  // WGUI_H

@@ -36,9 +36,9 @@
 #include "../../graphicsEngine/WGEViewer.h"
 
 /**
- * \ingroup gui
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
  * engine.
+ * \ingroup gui
  */
 class WQtGLWidget: public QWidget
 {

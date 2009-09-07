@@ -79,11 +79,10 @@ private:
 };
 
 /**
-  \defgroup dataHandler Data Handler
-
-  \brief
-  This module implements the data storage facility of OpenWalnut.
-
-*/
+ * \defgroup dataHandler Data Handler
+ *
+ * \brief
+ * This module implements the data storage facility of OpenWalnut.
+ */
 
 #endif  // WDATAHANDLER_H

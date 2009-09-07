@@ -28,6 +28,7 @@
 
 /**
  * Starts up the QT GUI.
+ * \ingroup gui
  */
 class WMainApplication: public WThreadedRunner
 {

@@ -38,6 +38,7 @@
  * \par Description:
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
  * engine.
+ * \ingroup ge
  */
 class WGraphicsEngine: public WThreadedRunner
 {
@@ -62,23 +63,23 @@ public:
      */
     WGraphicsEngine( const WGraphicsEngine& other );
 
-    /** 
+    /**
      * \par Description
      * Returns the root node of the OSG.
-     * 
+     *
      * \return the root node.
      */
     WGEScene* getScene();
 
 protected:
 
-    /** 
+    /**
      * \par Description
      * OpenSceneGraph root node.
      */
     WGEScene* m_RootNode;
 
-    /** 
+    /**
      * \par Description
      * Handler for repainting and event handling. Gets executed in separate thread.
      */
@@ -86,6 +87,13 @@ protected:
 
 private:
 };
+
+/**
+ * \defgroup ge GraphicsEngine
+ *
+ * \brief
+ * This module implements the graphics engine for OpenWalnut.
+ */
 
 #endif  // WGRAPHICSENGINE_H
 

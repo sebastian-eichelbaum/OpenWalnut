@@ -27,6 +27,7 @@
 /**
  *  Dataset types and number values taken from the nifti1.h, at this point it's unknown if it makes sense
  *  to keep the bit coding, but it doesn't hurt either
+ * \ingroup dataHandler
  */
 enum dataType
 {

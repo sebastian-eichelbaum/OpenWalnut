@@ -32,6 +32,7 @@ class WDataHandler;
 
 /**
  * Decouples file loading from the rest of OpenWalnut into a single thread.
+ * \ingroup dataHandler
  */
 class WLoaderManager
 {

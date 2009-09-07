@@ -30,6 +30,7 @@
 /**
  * Stores meta information such as types, file names, etc. associated with a
  * WDataSet loaded into OpenWalnut.
+ * \ingroup dataHandler
  */
 class WMetaInfo
 {

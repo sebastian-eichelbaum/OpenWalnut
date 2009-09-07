@@ -30,6 +30,7 @@
  * \par Description:
  * Class for wrapping around the OSG Camera class. It adds some utility functions for simply setting some
  * camera defaults.
+ * \ingroup ge
  */
 class WGECamera: public osg::Camera
 {
