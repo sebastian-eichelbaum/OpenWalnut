@@ -76,6 +76,30 @@ public:
         return m_segments[segment][signal][sample];
     }
 
+    /**
+     * Returns number of samples of a given segment.
+     */
+    const size_t getNumberOfSamples( size_t segmentId )
+    {
+        return m_segments[segmentId][0].size();
+    }
+
+    /**
+     * Return the number of channels this EEG has.
+     */
+    const size_t getNumberOfChannels()
+    {
+        return m_segments[0].size();
+    }
+
+    /**
+     * Return the number of segments this EEG consists of.
+     */
+    const size_t getNumberOfSegments()
+    {
+        return m_segments.size();
+    }
+
 protected:
 private:
     /**

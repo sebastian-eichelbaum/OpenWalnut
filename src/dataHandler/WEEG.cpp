@@ -29,12 +29,15 @@ WEEG::WEEG( boost::shared_ptr< WMetaInfo > metaInfo, const WEEGSegmentArray& dat
     : WRecording( metaInfo )
 {
     assert( data.size() <= wlimits::MAX_RECORDING_SEGMENTS );
+    assert( data.size() > 0 );  // ensure that ther is really data
     for( WEEGSegmentArray::const_iterator it1 = data.begin(); it1 != data.end(); ++it1 )
     {
         assert( it1->size() <= wlimits::MAX_RECORDING_CHANNELS );
+        assert( it1->size() > 0 );  // ensure that ther is really data
         for( WEEGSegment::const_iterator it2 = it1->begin(); it2 != it1->end(); ++it2 )
         {
             assert( it2->size() <= wlimits::MAX_RECORDING_SAMPLES );
+            assert( it2->size() > 0 );  // ensure that ther is really data
         }
     }
     m_segments = data;

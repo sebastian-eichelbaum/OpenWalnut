@@ -42,7 +42,6 @@ public:
      */
     void testSomething( void )
     {
-        //  THIS IS INTENTIONALLY NOT STYLECONFORM AS IT SHOULD NOT  BE COMMITED yet
         //  std::string fileName = "/dargb/bv_data/Medical/MPI-CBS/ASA/A1_alex_Segment_1.edf";
         std::string fileName = "/windows/C/Users/wiebel/Documents/ASA/Export/A1_alex_Segment_1.edf";
         //  std::string fileName = "/home/wiebel/Data/EEG/A1.cnt";
@@ -51,9 +50,9 @@ public:
             boost::shared_ptr< WDataHandler >( new WDataHandler() );
         TS_ASSERT_EQUALS( dataHandler->getNumberOfDataSets(), 0 );
 
-        WLoaderBiosig biosigLoader( fileName, dataHandler );
-        boost::thread loaderThread( biosigLoader );
-        sleep( 3 );
+//         WLoaderBiosig biosigLoader( fileName, dataHandler );
+//         boost::thread loaderThread( biosigLoader );
+//         sleep( 3 );
 //        TS_FAIL( "Try to test EDF" );
     }
 };
