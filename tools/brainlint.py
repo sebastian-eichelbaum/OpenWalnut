@@ -551,7 +551,6 @@ class FileInfo:
 
     if os.path.exists(fullname):
       project_dir = os.path.dirname(fullname)
-
       if os.path.exists(os.path.join(project_dir, ".svn")):
         # If there's a .svn file in the current directory, we recursively look
         # up the directory tree for the top of the SVN checkout
@@ -564,8 +563,17 @@ class FileInfo:
         prefix = os.path.commonprefix([root_dir, project_dir])
         return fullname[len(prefix) + 1:]
 
-      # Not SVN? Try to find a git top level directory by searching up from the
-      # current path.
+      # Maybe its a Mercurial repository
+      root_dir = os.path.dirname(fullname)
+      while (root_dir != os.path.dirname(root_dir) and
+             not os.path.exists(os.path.join(root_dir, ".hg"))):
+        root_dir = os.path.dirname(root_dir)
+        if os.path.exists(os.path.join(root_dir, ".hg")):
+          prefix = os.path.commonprefix([root_dir, project_dir])
+          return fullname[len(prefix) + 1:]
+
+      # Not SVN or Mercurial? Try to find a git top level directory
+      # by searching up from the current path.
       root_dir = os.path.dirname(fullname)
       while (root_dir != os.path.dirname(root_dir) and
              not os.path.exists(os.path.join(root_dir, ".git"))):
