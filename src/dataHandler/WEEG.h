@@ -90,6 +90,7 @@ private:
      * Description of electrodes
      */
     std::map< std::string, size_t > m_electrodeDescriptions;
+#warning no docu
     std::vector< WEEGElectrodeObject > m_electrodeLibrary;
 
     /**
