@@ -25,9 +25,11 @@
 #define WLOADERBIOSIG_H
 
 #include <string>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 
 #include "../WLoader.h"
+#include "biosig/biosig.h"
 
 class WDataHandler;
 
@@ -53,7 +55,11 @@ public:
 protected:
 private:
     void biosigLoader();
+    void fillSegment( std::vector<std::vector<double> >* segment, biosig_data_type* data, size_t nbSamples );
     boost::shared_ptr< WDataHandler > m_dataHandler;
+
+    size_t m_columns;
+    size_t m_rows;
 };
 
 #endif  // WLOADERBIOSIG_H
