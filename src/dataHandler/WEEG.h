@@ -79,7 +79,7 @@ public:
     /**
      * Returns number of samples of a given segment.
      */
-    const size_t getNumberOfSamples( size_t segmentId )
+    size_t getNumberOfSamples( size_t segmentId ) const
     {
         return m_segments[segmentId][0].size();
     }
@@ -87,7 +87,7 @@ public:
     /**
      * Return the number of channels this EEG has.
      */
-    const size_t getNumberOfChannels()
+    size_t getNumberOfChannels() const
     {
         return m_segments[0].size();
     }
@@ -95,7 +95,7 @@ public:
     /**
      * Return the number of segments this EEG consists of.
      */
-    const size_t getNumberOfSegments()
+    size_t getNumberOfSegments() const
     {
         return m_segments.size();
     }
