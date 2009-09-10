@@ -25,7 +25,10 @@
 #include "../common/WLimits.h"
 
 
-WEEG::WEEG( boost::shared_ptr< WMetaInfo > metaInfo, const WEEGSegmentArray& data )
+WEEG::WEEG( boost::shared_ptr< WMetaInfo > metaInfo,
+            const WEEGSegmentArray& data,
+            const WEEGElectrodeLibrary& electrodeLib,
+            const WEEGChannelLabels& channelLabels )
     : WRecording( metaInfo )
 {
     assert( data.size() <= wlimits::MAX_RECORDING_SEGMENTS );
@@ -41,4 +44,6 @@ WEEG::WEEG( boost::shared_ptr< WMetaInfo > metaInfo, const WEEGSegmentArray& dat
         }
     }
     m_segments = data;
+    m_electrodeLibrary = electrodeLib;
+    m_channelLabels = channelLabels;
 }

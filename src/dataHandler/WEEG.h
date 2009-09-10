@@ -30,7 +30,9 @@
 #include "WRecording.h"
 
 
+
 ///======================================
+// TODO( wiebel ): use this szuff or remove it
 #include "../math/WPosition.h"
 typedef double dummyType;
 class WEEGElectrodeObject
@@ -52,6 +54,12 @@ private:
 };
 //================================================
 
+typedef std::vector< double > WEEGElectrode;
+typedef std::vector< WEEGElectrode > WEEGSegment;
+typedef std::vector< WEEGSegment > WEEGSegmentArray;
+
+typedef std::vector< WEEGElectrodeObject > WEEGElectrodeLibrary;
+typedef std::vector< std::pair< std::string, std::string > > WEEGChannelLabels;
 /**
  * Contains EEG recording data.
  * \ingroup dataHandler
@@ -59,14 +67,15 @@ private:
 class WEEG : public WRecording
 {
 public:
-    typedef std::vector< double > WEEGElectrode;
-    typedef std::vector< WEEGElectrode > WEEGSegment;
-    typedef std::vector< WEEGSegment > WEEGSegmentArray;
+
 
     /**
      * TODO(wiebel): Document this!
      */
-    explicit WEEG( boost::shared_ptr< WMetaInfo > metaInfo, const WEEGSegmentArray& data );
+    explicit WEEG( boost::shared_ptr< WMetaInfo > metaInfo,
+                   const WEEGSegmentArray& data,
+                   const WEEGElectrodeLibrary& electrodeLib,
+                   const WEEGChannelLabels& channelLabels );
 
     /**
      * Access operator for single samples.
@@ -100,6 +109,14 @@ public:
         return m_segments.size();
     }
 
+    /**
+     * Return the label of a certain channel.
+     */
+    std::string getChannelLabel( size_t channelId ) const
+    {
+        return  m_channelLabels[channelId].first;
+    }
+
 protected:
 private:
     /**
@@ -114,8 +131,11 @@ private:
      * Description of electrodes
      */
     std::map< std::string, size_t > m_electrodeDescriptions;
-#warning no docu
-    std::vector< WEEGElectrodeObject > m_electrodeLibrary;
+
+    /**
+     * Information about the electrodes.
+     */
+    WEEGElectrodeLibrary m_electrodeLibrary;
 
     /**
      * Contains the EEG data as an arry of segements
@@ -123,6 +143,16 @@ private:
      * which again consist of an array of samples over time.
      */
     WEEGSegmentArray m_segments;
+
+    /**
+     * Label for each channel.
+     */
+    WEEGChannelLabels m_channelLabels;
+
+    /**
+     * Is the channel enabled?
+     */
+    std::vector< bool > m_channelEnabled;
 };
 
 
