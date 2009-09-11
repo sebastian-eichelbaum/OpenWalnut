@@ -42,7 +42,7 @@ class WLoaderBiosig : public WLoader
 {
 public:
     /**
-     * Constructs a loader to be executed in its own thread and ets the data needed
+     * Constructs a loader to be executed in its own thread and sets the data needed
      * for the loader when executed in its own thread.
      */
     WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );

@@ -55,6 +55,7 @@ void WLoaderBiosig::fillSegment( std::vector<std::vector<double> >* segment, bio
         segment->push_back( channel );
     }
 }
+
 void WLoaderBiosig::biosigLoader()
 {
     std::cout << "BIOSIGLOADER" << std::endl;
