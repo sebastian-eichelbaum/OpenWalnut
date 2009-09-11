@@ -29,6 +29,7 @@
 #include "WDataSet.h"
 #include "io/WLoaderNIfTI.h"
 #include "io/WLoaderBiosig.h"
+#include "io/WLoaderEEGASCII.h"
 
 std::string getSuffix( std::string name )
 {
@@ -52,6 +53,11 @@ void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler
     {
         WLoaderBiosig biosigLoader( fileName, dataHandler );
         boost::thread loaderThread( biosigLoader );
+    }
+    else if( suffix == "asc" )
+    {
+        WLoaderEEGASCII eegAsciiLoader( fileName, dataHandler );
+        boost::thread loaderThread( eegAsciiLoader );
     }
     else if( suffix == "vtk" )
     {
