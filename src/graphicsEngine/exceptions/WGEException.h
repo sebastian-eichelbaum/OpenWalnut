@@ -30,6 +30,7 @@
 
 /**
  * General purpose exception and therefore base class for all graphics engine related exceptions.
+ * \ingroup ge
  */
 class WGEException: public WException
 {

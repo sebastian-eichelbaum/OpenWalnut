@@ -28,6 +28,7 @@
 
 /**
  * Loader for the VTK file formats. For VTK just see http://www.vtk.org
+ * \ingroup dataHandler
  */
 class WLoaderVTK : public WLoader
 {

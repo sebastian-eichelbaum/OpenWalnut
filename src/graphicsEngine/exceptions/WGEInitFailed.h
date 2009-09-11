@@ -30,6 +30,7 @@
 
 /**
  * Exception thrown if initialization of the graphics engine fails.
+ * \ingroup ge
  */
 class WGEInitFailed: public WGEException
 {

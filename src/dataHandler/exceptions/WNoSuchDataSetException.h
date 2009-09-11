@@ -36,6 +36,8 @@
  * It's subclassed from std::logic_error since it represents a mistake by a
  * programmer, not by the runtime system (e.g. allocation memory) or other
  * libraries.
+ *
+ * \ingroup dataHandler
  */
 class WNoSuchDataSetException : public WException
 {

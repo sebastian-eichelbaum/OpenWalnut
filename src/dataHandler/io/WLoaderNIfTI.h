@@ -39,6 +39,7 @@ class WDataHandler;
 
 /**
  * Loader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
+ * \ingroup dataHandler
  */
 class WLoaderNIfTI : public WLoader
 {
