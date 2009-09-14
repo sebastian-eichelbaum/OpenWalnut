@@ -29,6 +29,7 @@
 #include "WLoaderNIfTI.h"
 #include "../WDataHandler.h"
 #include "../WDataSet.h"
+#include "../WSubject.h"
 #include "../WDataSetSingle.h"
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
@@ -132,7 +133,12 @@ void WLoaderNIfTI::operator()()
 
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >(
                     new WDataSetSingle( newValueSet, newGrid, metaInfo ) );
-    m_dataHandler->addDataSet( newDataSet );
+
+    // TODO( wiebel ): this is a dummy
+    boost::shared_ptr< WSubject > subject = boost::shared_ptr< WSubject >( new WSubject );
+    subject->addDataSet( newDataSet );
+
+    m_dataHandler->addSubject( subject );
 }
 
 

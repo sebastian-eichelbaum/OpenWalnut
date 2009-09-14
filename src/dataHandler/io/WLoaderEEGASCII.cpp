@@ -28,6 +28,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "WLoaderEEGASCII.h"
+#include "../WSubject.h"
 #include "../WEEG.h"
 #include "../WMetaInfo.h"
 #include "../../common/WException.h"
@@ -84,5 +85,10 @@ void WLoaderEEGASCII::operator()()
     WEEGElectrodeLibrary lib;  // TODO( wiebel ): this is a dummy
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( metaInfo, segments, lib, labels ) );
-    m_dataHandler->addDataSet( eeg );
+
+    // TODO( wiebel ): this is a dummy
+    boost::shared_ptr< WSubject > subject = boost::shared_ptr< WSubject >( new WSubject );
+    subject->addDataSet( eeg );
+
+    m_dataHandler->addSubject( subject );
 }

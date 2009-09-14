@@ -27,24 +27,21 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WDataHandler.h"
-#include "../WDataSet.h"
-#include "../WMetaInfo.h"
+#include "../WSubject.h"
 #include "../exceptions/WNoSuchDataSetException.h"
 
 class WDataHandlerTest : public CxxTest::TestSuite
 {
 public:
-    boost::shared_ptr< WDataSet > dummyDataSet;
+    boost::shared_ptr< WSubject > dummySubject;
 
     /**
      * Constructs unit test environment.
      */
     void setUp( void )
     {
-        // create a DataSet dummy, since this is needed in almost every test
-        boost::shared_ptr< WMetaInfo > metaInfo =
-            boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        dummyDataSet = boost::shared_ptr< WDataSet >( new WDataSet( metaInfo ) );
+        // create a subject dummy, since this is needed in almost every test
+        dummySubject = boost::shared_ptr< WSubject >( new WSubject() );
     }
 
     /**
@@ -62,54 +59,52 @@ public:
     void testAddDataSet( void )
     {
         WDataHandler dataHandler;
-        TS_ASSERT_EQUALS( dataHandler.m_dataSets.size(), 0 );
-        TS_ASSERT_THROWS_NOTHING( dataHandler.addDataSet( dummyDataSet ) );
-        TS_ASSERT_EQUALS( dataHandler.m_dataSets.size(), 1 );
+        TS_ASSERT_EQUALS( dataHandler.m_subjects.size(), 0 );
+        TS_ASSERT_THROWS_NOTHING( dataHandler.addSubject( dummySubject ) );
+        TS_ASSERT_EQUALS( dataHandler.m_subjects.size(), 1 );
     }
 
     /**
      * Checks if the size (meaning the number of elements) of our container
      * works properly.
      */
-    void testGetNumberOfDataSets( void )
+    void testGetNumberOfSubjects( void )
     {
         WDataHandler dataHandler;
-        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 0 );
-        dataHandler.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 1 );
-        dataHandler.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( dataHandler.getNumberOfDataSets(), 2 );
+        TS_ASSERT_EQUALS( dataHandler.getNumberOfSubjects(), 0 );
+        dataHandler.addSubject( dummySubject );
+        TS_ASSERT_EQUALS( dataHandler.getNumberOfSubjects(), 1 );
+        dataHandler.addSubject( dummySubject );
+        TS_ASSERT_EQUALS( dataHandler.getNumberOfSubjects(), 2 );
     }
 
     /**
-     * When retrieving a DataSet only valid indices are allowed.
+     * When retrieving a subject only valid indices are allowed.
      */
-    void testGetDataSets( void )
+    void testGetSubjects( void )
     {
         WDataHandler dataHandler;
-        boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr< WMetaInfo >( new WMetaInfo );
-        metaInfo->setName( "Other Data Set" );
-        boost::shared_ptr< WDataSet > otherDataSet =
-            boost::shared_ptr< WDataSet >( new WDataSet( metaInfo ) );
-        dataHandler.addDataSet( dummyDataSet );
-        dataHandler.addDataSet( otherDataSet );
-        TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 0 ) );
-        TS_ASSERT_THROWS_NOTHING( dataHandler.getDataSet( 1 ) );
-        TS_ASSERT_EQUALS( dataHandler.getDataSet( 0 ), dummyDataSet );
-        TS_ASSERT_EQUALS( dataHandler.getDataSet( 1 ), otherDataSet );
-        TS_ASSERT_DIFFERS( dataHandler.getDataSet( 1 ), dummyDataSet );
-        TS_ASSERT_THROWS( dataHandler.getDataSet( 2 ), WNoSuchDataSetException );
+        boost::shared_ptr< WSubject > otherSubject =
+            boost::shared_ptr< WSubject >( new WSubject );
+        dataHandler.addSubject( dummySubject );
+        dataHandler.addSubject( otherSubject );
+        TS_ASSERT_THROWS_NOTHING( dataHandler.getSubject( 0 ) );
+        TS_ASSERT_THROWS_NOTHING( dataHandler.getSubject( 1 ) );
+        TS_ASSERT_EQUALS( dataHandler.getSubject( 0 ), dummySubject );
+        TS_ASSERT_EQUALS( dataHandler.getSubject( 1 ), otherSubject );
+        TS_ASSERT_DIFFERS( dataHandler.getSubject( 1 ), dummySubject );
+        TS_ASSERT_THROWS( dataHandler.getSubject( 2 ), WNoSuchDataSetException );
     }
 
     /**
-     * Test prevention of modification of a retrieved DataSet.
+     * Test prevention of modification of a retrieved subject.
      */
-    void testConstnessOnDataSet( void )
+    void testConstnessOnSubject( void )
     {
         WDataHandler dh;
-        dh.addDataSet( dummyDataSet );
-        boost::shared_ptr< const WDataSet > dataSet = dh.getDataSet( 0 );
-        // ToDo(math): I need to try to modify dataSet in order to test
+        dh.addSubject( dummySubject );
+        boost::shared_ptr< const WSubject > dataSet = dh.getSubject( 0 );
+        // ToDo(math): I need to try to modify subject in order to test
     }
 };
 

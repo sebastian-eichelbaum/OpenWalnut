@@ -21,46 +21,48 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WNOSUCHDATASETEXCEPTION_H
-#define WNOSUCHDATASETEXCEPTION_H
+#ifndef WSUBJECT_H
+#define WSUBJECT_H
 
 #include <string>
+#include <vector>
+#include <boost/shared_ptr.hpp>
 
-#include "../../common/WException.h"
+class WDataSet;
 
 /**
- * Should be thrown when an invalid index is used to get a WSubject from
- * the WDataHandler or a WDataSet from the
- * WSubject. An index is invalid if it's greater or equal than the number
- * of WDataSets in that WDataHandler.
- *
- * It's subclassed from std::logic_error since it represents a mistake by a
- * programmer, not by the runtime system (e.g. allocation memory) or other
- * libraries.
- *
+ * Container for all WDataSets belonging to one subject.
  * \ingroup dataHandler
  */
-class WNoSuchDataSetException : public WException
+class WSubject
 {
 public:
     /**
-     * Constructs new exception.
+     * Empty standard constructor.
      */
-    WNoSuchDataSetException( const std::string& s = std::string() ) throw()
-        : WException( s )
-    {
-    }
+    WSubject();
 
     /**
-     * Destroys this exception
+     * Get the pointer to the i'th WDataSet. The return type is const since we
+     * want to ensure that each DataSet cannot modified after retrival.
      */
-    virtual ~WNoSuchDataSetException() throw()
-    {
-    };
+    boost::shared_ptr< const WDataSet > getDataSet( const unsigned int subjectId ) const;
 
+    /**
+     * Insert a new DataSet referenced by a pointer.
+     */
+    void addDataSet( boost::shared_ptr< WDataSet > newDataSet );
+
+    /**
+     * Get the number of DataSets which are actually handled by our subject.
+     */
+    unsigned int getNumberOfDataSets() const;
 protected:
-
 private:
+    /**
+     * A container for all WDataSets belonging to the subject.
+     */
+    std::vector< boost::shared_ptr< WDataSet > > m_dataSets;
 };
 
-#endif  // WNOSUCHDATASETEXCEPTION_H
+#endif  // WSUBJECT_H
