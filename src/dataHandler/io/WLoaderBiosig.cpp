@@ -33,6 +33,7 @@
 #include "../WDataHandler.h"
 #include "../WMetaInfo.h"
 #include "../WEEG.h"
+#include "../WSubject.h"
 #include "../../common/WException.h"
 
 WLoaderBiosig::WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
@@ -127,7 +128,10 @@ void WLoaderBiosig::biosigLoader()
     }
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( metaInfo, segments, lib, labels ) );
-    m_dataHandler->addDataSet( eeg );
+    boost::shared_ptr< WSubject > subject;  // TODO( wiebel ): this is a dummy
+    subject->addDataSet( eeg );
+
+    m_dataHandler->addSubject( subject );
 
     std::cout << "BIOSIG loading done." << std::endl;
     std::cout << "===================================" << std::endl;

@@ -48,7 +48,7 @@ public:
         std::cout << std::endl << "Test loading of " << fileName << "." << std::endl;
         boost::shared_ptr< WDataHandler > dataHandler =
             boost::shared_ptr< WDataHandler >( new WDataHandler() );
-        TS_ASSERT_EQUALS( dataHandler->getNumberOfDataSets(), 0 );
+        TS_ASSERT_EQUALS( dataHandler->getNumberOfSubjects(), 0 );
 
 //         WLoaderBiosig biosigLoader( fileName, dataHandler );
 //         boost::thread loaderThread( biosigLoader );

@@ -53,7 +53,9 @@ public:
         WLoaderManager testLoaderManager;
         testLoaderManager.load( fileName, dataHandler );
         sleep( 4 );  // we need this to allow the thread to terminate
-        TS_ASSERT( dataHandler->getNumberOfDataSets() );
+        // TODO( wiebel ): we need to change this because loading, in the end,
+        // should not always increase the number of subjects.
+        TS_ASSERT( dataHandler->getNumberOfSubjects() );
     }
 };
 

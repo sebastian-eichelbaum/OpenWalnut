@@ -21,45 +21,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <vector>
-
-#include "WDataHandler.h"
 #include "WSubject.h"
 #include "exceptions/WNoSuchDataSetException.h"
-#include "WLoaderManager.h"
 
-WDataHandler::WDataHandler()
+
+WSubject::WSubject()
 {
 }
 
-
-boost::shared_ptr< const WSubject > WDataHandler::getSubject( const unsigned int subjectId ) const
+boost::shared_ptr< const WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
 {
-    if( subjectId >= m_subjects.size() )
+    if( dataSetId >= m_dataSets.size() )
         throw WNoSuchDataSetException( "Index too large." );
-    return m_subjects.at( subjectId );
+    return m_dataSets.at( dataSetId );
 }
 
 
-void WDataHandler::addSubject( boost::shared_ptr< WSubject > newSubject )
+void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
 {
-    m_subjects.push_back( newSubject );
+    m_dataSets.push_back( newDataSet );
 }
 
 
-unsigned int WDataHandler::getNumberOfSubjects() const
+unsigned int WSubject::getNumberOfDataSets() const
 {
-    return m_subjects.size();
-}
-
-
-void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
-{
-    WLoaderManager lm;
-    for ( size_t i = 0 ; i < fileNames.size() ; ++i)
-    {
-        // TODO( wiebel ): need to associate the dataset to its subject
-        lm.load( fileNames[i], ( boost::shared_ptr< WDataHandler > )this );
-    }
+    return m_dataSets.size();
 }

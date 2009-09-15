@@ -21,46 +21,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WNOSUCHDATASETEXCEPTION_H
-#define WNOSUCHDATASETEXCEPTION_H
+#ifndef WSUBJECT_TEST_H
+#define WSUBJECT_TEST_H
 
-#include <string>
+#include <cxxtest/TestSuite.h>
 
-#include "../../common/WException.h"
+#include "../WSubject.h"
 
 /**
- * Should be thrown when an invalid index is used to get a WSubject from
- * the WDataHandler or a WDataSet from the
- * WSubject. An index is invalid if it's greater or equal than the number
- * of WDataSets in that WDataHandler.
- *
- * It's subclassed from std::logic_error since it represents a mistake by a
- * programmer, not by the runtime system (e.g. allocation memory) or other
- * libraries.
- *
- * \ingroup dataHandler
+ * TODO(wiebel): Document this!
  */
-class WNoSuchDataSetException : public WException
+class WSubjectTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Constructs new exception.
+     * TODO(wiebel): Document this!
      */
-    WNoSuchDataSetException( const std::string& s = std::string() ) throw()
-        : WException( s )
+    void testSomething( void )
     {
     }
-
-    /**
-     * Destroys this exception
-     */
-    virtual ~WNoSuchDataSetException() throw()
-    {
-    };
-
-protected:
-
-private:
 };
 
-#endif  // WNOSUCHDATASETEXCEPTION_H
+#endif  // WSUBJECT_TEST_H

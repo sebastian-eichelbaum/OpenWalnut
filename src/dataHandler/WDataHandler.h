@@ -29,10 +29,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-class WDataSet;
+class WSubject;
 
 /**
- * Provides the environment for storing and accessing DataSets.
+ * Provides the environment for storing and accessing different subjects.
+ * As all measured data belongs to one subject, this is the main access point
+ * to our data.
  * \ingroup dataHandler
  */
 class WDataHandler
@@ -49,20 +51,20 @@ public:
     WDataHandler();
 
     /**
-     * Get the pointer to the i'th DataSet. The return type is const since we
-     * want to ensure that each DataSet cannot modified after retrival.
+     * Get the pointer to the i'th WSubject. The return type is const since we
+     * want to ensure that each subject cannot modified after retrival.
      */
-    boost::shared_ptr< const WDataSet > getDataSet( const unsigned int dataSetId ) const;
+    boost::shared_ptr< const WSubject > getSubject( const unsigned int subjectId ) const;
 
     /**
-     * Insert a new DataSet referenced by a pointer.
+     * Insert a new WSubject referenced by a pointer.
      */
-    void addDataSet( boost::shared_ptr< WDataSet > newDataSet );
+    void addSubject( boost::shared_ptr< WSubject > newSubject );
 
     /**
-     * Get the number of DataSets which are actually handled by our DataHandler.
+     * Get the number of subjects which are actually handled by our WDataHandler.
      */
-    unsigned int getNumberOfDataSets() const;
+    unsigned int getNumberOfSubjects() const;
 
     /**
      * Calls WLoaderManager to load the given input file.
@@ -73,9 +75,9 @@ protected:
 
 private:
     /**
-     * A container for all DataSets.
+     * A container for all WSubjects.
      */
-    std::vector< boost::shared_ptr< WDataSet > > m_dataSets;
+    std::vector< boost::shared_ptr< WSubject > > m_subjects;
 };
 
 /**
