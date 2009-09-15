@@ -117,6 +117,12 @@ public:
      */
     void doLoadDataSets( std::vector< std::string > fileNames );
 
+    /**
+     *
+     */
+    boost::shared_ptr<WDataHandler> getDataHandler();
+
+
 protected:
 
     /**
