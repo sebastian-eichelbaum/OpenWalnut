@@ -232,5 +232,5 @@ ADD_CUSTOM_TARGET( fixtures
 #-------------------------------------------------------------------------------------------------------------
 # Makes many special make targets in comination.
 ADD_CUSTOM_TARGET( many
-                   make all && make fixtures && make stylecheck && make test && make doc
-                   COMMENT "Make many special make targets n combination." )
+                   cmake . && make all -j4 && make fixtures && make stylecheck && make test && make doc
+                   COMMENT "Make many special make targets in combination." )
