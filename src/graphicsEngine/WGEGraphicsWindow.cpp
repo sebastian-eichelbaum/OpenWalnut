@@ -27,7 +27,7 @@
 
 #include "exceptions/WGEInitFailed.h"
 
-WGEGraphicsWindow::WGEGraphicsWindow( boost::shared_ptr<WindowData> wdata,
+WGEGraphicsWindow::WGEGraphicsWindow(  osg::ref_ptr<WindowData> wdata,
                                       int x,
                                       int y,
                                       int width,
@@ -52,7 +52,7 @@ WGEGraphicsWindow::~WGEGraphicsWindow()
     // cleanup
 }
 
-boost::shared_ptr<osgViewer::GraphicsWindow> WGEGraphicsWindow::getGraphicsWindow()
+osg::ref_ptr<osgViewer::GraphicsWindow> WGEGraphicsWindow::getGraphicsWindow()
 {
     return m_GraphicsWindow;
 }
@@ -60,7 +60,7 @@ boost::shared_ptr<osgViewer::GraphicsWindow> WGEGraphicsWindow::getGraphicsWindo
 void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
 {
     // Create traits for graphics contest request
-    osg::DisplaySettings* ds = osg::DisplaySettings::instance();
+    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
     osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
 
     // ensure correct $DISPLAY variable
@@ -108,11 +108,10 @@ void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
     // finally create graphics context and window
     m_GraphicsContext = osg::GraphicsContext::createGraphicsContext( traits.get() );
 
-    m_GraphicsWindow = boost::shared_ptr<osgViewer::GraphicsWindow>(
-            static_cast<osgViewer::GraphicsWindow*>( m_GraphicsContext ) );
+    m_GraphicsWindow = osg::ref_ptr<osgViewer::GraphicsWindow>(
+            static_cast<osgViewer::GraphicsWindow*>( m_GraphicsContext.get() ) );
 
-
-    // get around dearanged traits on X11 (MTCompositeViewer only)
+    // get around dearranged traits on X11 (MTCompositeViewer only)
     traits->x = x;
     traits->y = x;
     traits->width = width;

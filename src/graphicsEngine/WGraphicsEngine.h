@@ -64,14 +64,14 @@ public:
      *
      * \return the root node.
      */
-    WGEScene* getScene();
+    osg::ref_ptr<WGEScene> getScene();
 
 protected:
 
     /**
      * OpenSceneGraph root node.
      */
-    WGEScene* m_RootNode;
+    osg::ref_ptr<WGEScene> m_RootNode;
 
     /**
      * Handler for repainting and event handling. Gets executed in separate thread.

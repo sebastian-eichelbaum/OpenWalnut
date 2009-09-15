@@ -24,6 +24,10 @@
 #ifndef WMAINWINDOW_H
 #define WMAINWINDOW_H
 
+#include <list>
+
+#include <boost/shared_ptr.hpp>
+
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -66,6 +70,11 @@ public:
      */
     void setEnabled( bool enable );
 
+    /** 
+     * Destructor.
+     */
+    virtual ~WMainWindow();
+
 private:
     /**
      * Helper routine for adding new docks with GL content
@@ -89,7 +98,7 @@ private:
     QStatusBar* m_statusBar;
     QToolBar* m_toolBar;
 
-    WQtGLWidget* m_glWidget;
+    std::list<boost::shared_ptr<WQtGLWidget> > m_glWidgets;
     WQtPipelineBrowser* m_pipelineBrowser;
 
 

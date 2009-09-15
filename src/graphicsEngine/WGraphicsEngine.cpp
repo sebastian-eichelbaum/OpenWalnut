@@ -40,7 +40,6 @@ WGraphicsEngine::~WGraphicsEngine()
 {
     // cleanup
     std::cout << "Shutting down Graphics Engine" << std::endl;
-    delete m_RootNode;
 }
 
 WGraphicsEngine::WGraphicsEngine( const WGraphicsEngine& other )
@@ -48,7 +47,7 @@ WGraphicsEngine::WGraphicsEngine( const WGraphicsEngine& other )
     *this = other;
 }
 
-WGEScene* WGraphicsEngine::getScene()
+osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
 {
     return m_RootNode;
 }

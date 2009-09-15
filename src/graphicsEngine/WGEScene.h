@@ -39,12 +39,12 @@ public:
      */
     WGEScene();
 
+protected:
+
     /**
      * Destructor.
      */
-    virtual ~WGEScene();
-
-protected:
+     virtual ~WGEScene();
 
 private:
 };

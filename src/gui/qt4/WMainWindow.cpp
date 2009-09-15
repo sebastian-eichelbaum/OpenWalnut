@@ -35,14 +35,20 @@
 
 #include "../icons/WIcons.h"
 
+WMainWindow::~WMainWindow()
+{
+    // clean up list with views
+    m_glWidgets.clear();
+}
 
 void WMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
 {
     QDockWidget *dockWidget = new QDockWidget( "Graphics Display" );
     dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea
             | Qt::RightDockWidgetArea );
-    m_glWidget = new WQtGLWidget( dockWidget );
-    dockWidget->setWidget( m_glWidget );
+    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( dockWidget ) );
+    m_glWidgets.push_back( widget );
+    dockWidget->setWidget( widget.get() );
     MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
 }
 
@@ -152,8 +158,9 @@ void WMainWindow::setupGUI( QMainWindow *MainWindow )
     m_menuHelp->setTitle( QApplication::translate( "MainWindow", "&Help", 0,
             QApplication::UnicodeUTF8 ) );
 
-    m_glWidget = new WQtGLWidget( MainWindow );
-    MainWindow->setCentralWidget( m_glWidget );
+    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( MainWindow ) );
+    m_glWidgets.push_back( widget );
+    MainWindow->setCentralWidget( widget.get() );
 
     // initially 3 views
     addDockableGLWidget( MainWindow );

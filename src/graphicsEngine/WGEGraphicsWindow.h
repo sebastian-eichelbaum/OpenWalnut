@@ -58,7 +58,7 @@ public:
      * \param height Height of the Widget.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEGraphicsWindow( boost::shared_ptr<WindowData> wdata, int x, int y, int width, int height );
+    WGEGraphicsWindow( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height );
 
     /**
      * Destructor.
@@ -70,9 +70,9 @@ public:
      *
      * \return the OSG GraphicsWindow instance.
      */
-    boost::shared_ptr<osgViewer::GraphicsWindow> getGraphicsWindow();
+    osg::ref_ptr<osgViewer::GraphicsWindow> getGraphicsWindow();
 
-    /** 
+    /**
      * Event types for the keyEvent() handler.
      */
     enum KeyEvents
@@ -80,7 +80,7 @@ public:
         KEYPRESS, KEYRELEASE
     };
 
-    /** 
+    /**
      * Mouse event types for the mouseEvent() handler.
      */
     enum MouseEvents
@@ -96,23 +96,23 @@ public:
      */
     virtual void resize( int width, int height );
 
-    /** 
+    /**
      * Initiates a close event for this viewer. It destroys the graphics context and invalidates the viewer.
      * This should be called whenever a QT Widget closes to also free its OSG Viewer resources.
      */
     virtual void close();
 
-    /** 
+    /**
      * Handles key events (if forwarded to this Viewer instance).
-     * 
+     *
      * \param key the key code.
      * \param eventType the type of event.
      */
     virtual void keyEvent( KeyEvents eventType, int key );
 
-    /** 
+    /**
      * Handles mouse events forwarded from widget.
-     * 
+     *
      * \param eventType the event type.
      * \param x x coordinate of event.
      * \param y y coordinate of event.
@@ -135,18 +135,17 @@ protected:
     /**
      * OpenSceneGraph render window.
      */
-    boost::shared_ptr<osgViewer::GraphicsWindow> m_GraphicsWindow;
+    osg::ref_ptr<osgViewer::GraphicsWindow> m_GraphicsWindow;
 
     /**
-     * OpenSceneGraph render context. This is required to be a "normal" pointer since using shared_ptr causes
-     * the code not to work (unknown reason for now). But since we do not offer a getter for it -> no prob.
+     * OpenSceneGraph render context.
      */
-    osg::GraphicsContext* m_GraphicsContext;
+    osg::ref_ptr<osg::GraphicsContext> m_GraphicsContext;
 
     /**
      * Widget window data.
      */
-    boost::shared_ptr<WindowData> m_WindowData;
+    osg::ref_ptr<WindowData> m_WindowData;
 private:
 };
 

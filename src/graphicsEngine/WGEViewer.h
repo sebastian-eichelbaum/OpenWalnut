@@ -60,7 +60,7 @@ public:
      * \param height Height of the Widget.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEViewer( boost::shared_ptr<WindowData> wdata, int x, int y, int width, int height );
+    WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height );
 
     /**
      * Destructor.
@@ -85,61 +85,61 @@ public:
      *
      * \return the OSG Viewer instance.
      */
-    boost::shared_ptr<osgViewer::CompositeViewer> getViewer();
+    osg::ref_ptr<osgViewer::CompositeViewer> getViewer();
 
     /**
      * Sets the camera manipulator to use.
      *
      * \param manipulator the manipulator to use.
      */
-    void setCameraManipulator( osgGA::MatrixManipulator* manipulator );
+    void setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator );
 
     /**
      * Returns current active camera manipulator
      *
      * \return the active camera manipulator.
      */
-    osgGA::MatrixManipulator* getCameraManipulator();
+    osg::ref_ptr<osgGA::MatrixManipulator> getCameraManipulator();
 
-    /** 
+    /**
      * Sets the current camera.
-     * 
+     *
      * \param camera the OSG camera instance.
      */
-    void setCamera( osg::Camera* camera );
+    void setCamera( osg::ref_ptr<osg::Camera> camera );
 
-    /** 
+    /**
      * Returns the camera currently in use.
-     * 
+     *
      * \return the camera currently in use.
      */
-    osg::Camera* getCamera();
+    osg::ref_ptr<osg::Camera> getCamera();
 
-    /** 
+    /**
      * Sets the scene graph node to be used for rendering.
-     * 
+     *
      * \param node part of the scene graph
      */
-    void setScene( osg::Node* node );
+    void setScene( osg::ref_ptr<osg::Node> node );
 
-    /** 
+    /**
      * Returns the currently set OSG node.
-     * 
+     *
      * \return the node.
      */
-    osg::Node* getNode();
+    osg::ref_ptr<osg::Node> getNode();
 
 protected:
 
     /**
      * OpenSceneGraph viewer.
      */
-    boost::shared_ptr<osgViewer::CompositeViewer> m_Viewer;
+    osg::ref_ptr<osgViewer::CompositeViewer> m_Viewer;
 
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
      */
-    boost::shared_ptr<osgViewer::View> m_View;
+    osg::ref_ptr<osgViewer::View> m_View;
 
 private:
 };

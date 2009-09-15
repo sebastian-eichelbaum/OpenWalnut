@@ -43,11 +43,11 @@ WQtGLWidget::WQtGLWidget( QWidget* parent )
     // Extract a WindowPtr from the HIViewRef that QWidget::winId() returns.
     // Without this change, the peer tries to call GetWindowPort on the HIViewRef
     // which returns 0 and we only render white.
-    wdata = boost::shared_ptr<WindowData>(
+    wdata = osg::ref_ptr<WindowData>(
             new WindowData( HIViewGetWindow( static_cast<HIViewRef>winId() ) )
     );
 #else  // all others
-    wdata = boost::shared_ptr<WindowData>( new WindowData( winId() ) );
+    wdata = osg::ref_ptr<WindowData>( new WindowData( winId() ) );
 #endif
 
     // create viewer

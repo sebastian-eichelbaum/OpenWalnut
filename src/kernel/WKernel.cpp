@@ -133,7 +133,6 @@ int WKernel::run()
     // finally GE
     m_GraphicsEngine->wait( true );
 
-
     // how to get QT return code from its thread?
     return 0;
 }

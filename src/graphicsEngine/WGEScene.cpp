@@ -40,6 +40,7 @@ WGEScene::WGEScene():
 WGEScene::~WGEScene()
 {
     std::cout << "Shutting down OpenSceneGraph Root Node" << std::endl;
+
     // cleanup
 }
 
