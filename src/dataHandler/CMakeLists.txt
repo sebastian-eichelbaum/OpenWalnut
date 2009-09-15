@@ -6,7 +6,7 @@ FILE( GLOB DATAHANDLER_EXCEPTIONS_SRC "exceptions/*.cpp" )
 FILE( GLOB DATAHANDLER_LOADERS_SRC "io/WLoader*.cpp" )
 
 ADD_LIBRARY( dataHandler SHARED ${DATAHANDLER_SRC} ${DATAHANDLER_EXCEPTIONS_SRC} ${DATAHANDLER_LOADERS_SRC} )
-TARGET_LINK_LIBRARIES( dataHandler kernel common math ${Boost_LIBRARIES} niftiio biosig)
+TARGET_LINK_LIBRARIES( dataHandler common math ${Boost_LIBRARIES} niftiio biosig)
 
 # Unit tests
 IF( CXXTEST_FOUND )

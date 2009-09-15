@@ -28,7 +28,6 @@
 #include "WSubject.h"
 #include "exceptions/WNoSuchDataSetException.h"
 #include "WLoaderManager.h"
-#include "../kernel/WKernel.h"
 
 WDataHandler::WDataHandler()
 {
@@ -61,6 +60,6 @@ void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
     for ( size_t i = 0 ; i < fileNames.size() ; ++i)
     {
         // TODO( wiebel ): need to associate the dataset to its subject
-        lm.load( fileNames[i], WKernel::getRunningKernel()->getDataHandler() );
+        lm.load( fileNames[i], shared_from_this() );
     }
 }

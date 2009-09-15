@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 class WSubject;
 
@@ -37,7 +38,7 @@ class WSubject;
  * to our data.
  * \ingroup dataHandler
  */
-class WDataHandler
+class WDataHandler : public boost::enable_shared_from_this< WDataHandler >
 {
 /**
  * Only UnitTests may be friends.
