@@ -64,7 +64,7 @@ public:
     QSize sizeHint() const;
 
 
-    /** 
+    /**
      * List of currently possible camera manipulators.
      */
     enum CameraManipulators
@@ -72,16 +72,16 @@ public:
         TRACKBALL, TERRAIN, UFO, DRIVE, FLIGHT
     };
 
-    /** 
+    /**
      * Sets the camera manipulator to use.
-     * 
+     *
      * \param manipulator the manipulator.
      */
     void setCameraManipulator( CameraManipulators manipulator );
 
-    /** 
+    /**
      * Returns the actually set camera manipulator.
-     * 
+     *
      * \return the manipulator.
      */
     CameraManipulators getCameraManipulators();
@@ -96,85 +96,85 @@ protected:
     //  We don't want to relay these on Windows, it will just cause duplicate messages
     //  with further problems downstream (i.e. not being able to throw the trackball
 #ifndef WIN32
-    /** 
+    /**
      * Event handler for double clicks.
-     * 
+     *
      * \param event the event description.
      */
     virtual void mouseDoubleClickEvent( QMouseEvent* event );
 
-    /** 
+    /**
      * Event handler for close events.
-     * 
+     *
      * \param event the event description.
      */
     virtual void closeEvent( QCloseEvent* event );
 
-    /** 
+    /**
      * Event handler for destroy events (called after close).
      */
     virtual void destroyEvent( bool destroyWindow = true, bool destroySubWindows = true );
 
-    /** 
+    /**
      * Event handler for  resize events.
-     * 
+     *
      * \param event the event description.
      */
     virtual void resizeEvent( QResizeEvent* event );
 
-    /** 
+    /**
      * Event handler for key press.
-     * 
+     *
      * \param event the event description.
      */
     virtual void keyPressEvent( QKeyEvent* event );
 
-    /** 
+    /**
      * Event handler for key release.
-     * 
+     *
      * \param event the event description.
      */
     virtual void keyReleaseEvent( QKeyEvent* event );
 
-    /** 
+    /**
      * Event handler for mouse button press.
-     * 
+     *
      * \param event the event description.
      */
     virtual void mousePressEvent( QMouseEvent* event );
 
-    /** 
+    /**
      * Event handler for mouse button release.
-     * 
+     *
      * \param event the event description.
      */
     virtual void mouseReleaseEvent( QMouseEvent* event );
 
-    /** 
+    /**
      * Event handler for mouse moves.
-     * 
+     *
      * \param event the event description.
      */
     virtual void mouseMoveEvent( QMouseEvent* event );
 #endif
 
-    /** 
+    /**
      * QT Callback for handling repaints.
-     * 
+     *
      * \param event event descriptor.
      */
     virtual void paintEvent( QPaintEvent* event );
 
-    /** 
+    /**
      * Simply translate the mouse button from an event to an int.
-     * 
+     *
      * \param event the QT Event.
-     * 
+     *
      * \return the translated button number.
      */
     int translateButton( QMouseEvent* event );
 
-    /** 
+    /**
      * Stores the current manipulator.
      */
     CameraManipulators m_CurrentManipulator;
@@ -184,12 +184,12 @@ private:
      */
     QSize m_recommendedSize;
 
-    /** 
+    /**
      * Window Data for this widget needed by OpenSceneGraph.
      */
-    boost::shared_ptr<WindowData> wdata;
+    osg::ref_ptr<WindowData> wdata;
 
-    /** 
+    /**
      * Timer used for permanent redraw of all views. This is just a hack and will be improved
      * so that redraws are done by separate threads.
      */

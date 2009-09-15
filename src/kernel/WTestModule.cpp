@@ -61,7 +61,7 @@ const std::string WTestModule::getDescription() const
 void WTestModule::threadMain()
 {
     // load the sample scene.
-    osg::Geode* sceneDataGeode = new osg::Geode();
+    osg::ref_ptr<osg::Geode> sceneDataGeode = new osg::Geode();
 
     // 20 units into the screen
     sceneDataGeode->addDrawable(

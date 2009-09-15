@@ -9,3 +9,5 @@ syntax: regexp
 ^doc/developer/html
 ^doc/developer/man
 ^build
+syntax: glob
+.project

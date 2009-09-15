@@ -41,17 +41,17 @@
 #include "exceptions/WGEInitFailed.h"
 #include "WGEViewer.h"
 
-WGEViewer::WGEViewer( boost::shared_ptr<WindowData> wdata, int x, int y, int width, int height ):
+WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height ):
     WGEGraphicsWindow( wdata, x, y, width, height )
 {
     try
     {
         // initialize OSG render window
-        m_Viewer = boost::shared_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
+        m_Viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
         m_Viewer->setThreadingModel( osgViewer::Viewer::DrawThreadPerContext );
         // m_Viewer->setThreadingModel( osgViewer::Viewer::SingleThreaded );
 
-        m_View = boost::shared_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
+        m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
         m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
         m_View->getCamera()->setViewport( new osg::Viewport( 0, 0, 10, 10 ) );
@@ -78,39 +78,39 @@ WGEViewer::~WGEViewer()
     // cleanup
 }
 
-boost::shared_ptr<osgViewer::CompositeViewer> WGEViewer::getViewer()
+osg::ref_ptr<osgViewer::CompositeViewer> WGEViewer::getViewer()
 {
     return m_Viewer;
 }
 
-void WGEViewer::setCameraManipulator( osgGA::MatrixManipulator* manipulator )
+void WGEViewer::setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator )
 {
     m_View->setCameraManipulator( manipulator );
     // redraw request?? no since it redraws permanently and uses the new settings
 }
 
-osgGA::MatrixManipulator* WGEViewer::getCameraManipulator()
+osg::ref_ptr<osgGA::MatrixManipulator> WGEViewer::getCameraManipulator()
 {
     return m_View->getCameraManipulator();
 }
 
-void WGEViewer::setCamera( osg::Camera* camera )
+void WGEViewer::setCamera( osg::ref_ptr<osg::Camera> camera )
 {
     m_View->setCamera( camera );
     // redraw request?? no since it redraws permanently and uses the new settings
 }
 
-osg::Camera* WGEViewer::getCamera()
+osg::ref_ptr<osg::Camera> WGEViewer::getCamera()
 {
     return m_View->getCamera();
 }
 
-void WGEViewer::setScene( osg::Node* node )
+void WGEViewer::setScene( osg::ref_ptr<osg::Node> node )
 {
     m_View->setSceneData( node );
 }
 
-osg::Node* WGEViewer::getNode()
+osg::ref_ptr<osg::Node> WGEViewer::getNode()
 {
     return m_View->getSceneData();
 }
