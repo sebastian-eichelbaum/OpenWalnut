@@ -31,6 +31,7 @@
 #include "WKernel.h"
 #include "WModule.h"
 #include "WTestModule.h"
+#include "WNavigationSliceModule.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
@@ -144,7 +145,7 @@ void WKernel::loadModules()
     std::cout << "Loading modules:" << std::endl;
     m_modules.clear();
 
-    WModule* m = new WTestModule();
+    WModule* m = new WNavigationSliceModule();
     std::cout << "Loading Module: " << m->getName() << std::endl;
 
     m_modules.push_back( m );
@@ -174,5 +175,10 @@ bool WKernel::isFinishRequested() const
 void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 {
     m_DataHandler->loadDataSets( fileNames );
+}
+
+boost::shared_ptr<WDataHandler> WKernel::getDataHandler()
+{
+    return m_DataHandler;
 }
 
