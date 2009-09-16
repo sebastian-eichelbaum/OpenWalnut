@@ -32,7 +32,7 @@
 
 
 ///======================================
-// TODO( wiebel ): use this szuff or remove it
+// TODO(wiebel): use this szuff or remove it
 #include "../math/WPosition.h"
 typedef double dummyType;
 class WEEGElectrodeObject

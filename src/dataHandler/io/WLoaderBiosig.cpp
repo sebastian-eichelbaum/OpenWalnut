@@ -122,11 +122,11 @@ void WLoaderBiosig::biosigLoader()
     {
         std::cout << "BIOSIG Channel Label    : " << hd->CHANNEL[i].Label << std::endl;
         labels[i].first = hd->CHANNEL[i].Label;
-        // TODO( wiebel ): set second channel
+        // TODO(wiebel): set second channel
     }
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
-    // TODO( wiebel ): this is a dummy implementation. We need to fix
+    // TODO(wiebel): this is a dummy implementation. We need to fix
     // this as soon as we can distinguish which data belongs to which subject.
     boost::shared_ptr< WSubject > subject;
     if( m_dataHandler->getNumberOfSubjects() == 0 )

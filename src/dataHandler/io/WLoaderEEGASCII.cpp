@@ -54,7 +54,7 @@ void WLoaderEEGASCII::operator()()
     for( unsigned int i = 0; i < nbChannels; ++i )
     {
         labels[i].first = tokens[3*i] + " " + tokens[3*i+1] + " " + tokens[3*i+2];
-        // TODO( wiebel ): set second channel
+        // TODO(wiebel): set second channel
     }
 
     WEEGSegmentArray segments( 1 );
@@ -79,11 +79,11 @@ void WLoaderEEGASCII::operator()()
     in.close();
 
 
-    WEEGElectrodeLibrary lib;  // TODO( wiebel ): this is a dummy
+    WEEGElectrodeLibrary lib;  // TODO(wiebel): this is a dummy
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
 
-    // TODO( wiebel ): this is a dummy implementation. We need to fix
+    // TODO(wiebel): this is a dummy implementation. We need to fix
     // this as soon as we can distinguish which data belongs to which subject.
     boost::shared_ptr< WSubject > subject;
     if( m_dataHandler->getNumberOfSubjects() == 0 )
