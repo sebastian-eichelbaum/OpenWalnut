@@ -36,6 +36,11 @@ boost::shared_ptr< const WDataSet > WSubject::getDataSet( const unsigned int dat
     return m_dataSets.at( dataSetId );
 }
 
+boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
+{
+    return getDataSet( dataSetId );
+}
+
 
 void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
 {

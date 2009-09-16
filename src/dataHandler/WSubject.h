@@ -46,7 +46,13 @@ public:
      * Get the pointer to the i'th WDataSet. The return type is const since we
      * want to ensure that each DataSet cannot modified after retrival.
      */
-    boost::shared_ptr< const WDataSet > getDataSet( const unsigned int subjectId ) const;
+    boost::shared_ptr< const WDataSet > getDataSet( const unsigned int dataSetId ) const;
+
+    /**
+     * Returns a  to the i'th WSubject. The return type is const since we
+     * want to ensure that each subject cannot modified after retrival.
+     */
+    boost::shared_ptr< const WDataSet > operator[]( const unsigned int dataSetId ) const;
 
     /**
      * Insert a new DataSet referenced by a pointer.

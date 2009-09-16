@@ -41,6 +41,10 @@ boost::shared_ptr< const WSubject > WDataHandler::getSubject( const unsigned int
     return m_subjects.at( subjectId );
 }
 
+boost::shared_ptr< const WSubject >  WDataHandler::operator[]( size_t subjectId ) const
+{
+    return getSubject( subjectId );
+}
 
 void WDataHandler::addSubject( boost::shared_ptr< WSubject > newSubject )
 {
