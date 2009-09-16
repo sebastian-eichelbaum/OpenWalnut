@@ -3,7 +3,6 @@
 
 MESSAGE( STATUS "Inlcuded NIfTI lib building information." )
 
-INCLUDE_DIRECTORIES(.)
 OPTION ( BUILD_SHARED_LIBS "Toggle building shared libraries" ON)
 
 # Zlib support currently only on Linux 
