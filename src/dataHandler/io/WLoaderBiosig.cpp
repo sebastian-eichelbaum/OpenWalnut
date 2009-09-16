@@ -138,6 +138,7 @@ void WLoaderBiosig::biosigLoader()
     {
         subject = m_dataHandler->getSubject( 0 );
     }
+    eeg->setFileName( m_fileName );
     subject->addDataSet( eeg );
 
     std::cout << "BIOSIG loading done." << std::endl;

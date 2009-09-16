@@ -24,6 +24,7 @@
 #ifndef WDATASET_H
 #define WDATASET_H
 
+#include <string>
 #include <boost/shared_ptr.hpp>
 
 /**
@@ -40,7 +41,7 @@ public:
      * Since every DataSet should have a MetaInfo, we ensure hereby you never
      * go without one.
      */
-    explicit WDataSet();
+    WDataSet();
 
     /**
      * Since WDataSet is a base class and thus should be polymorphic we add
@@ -49,8 +50,24 @@ public:
     virtual ~WDataSet()
     {
     }
+
+    /**
+     * Set the name of the file that this data set stems from.
+     */
+    void setFileName( const std::string fileName );
+
+    /**
+     * Get the name of the file that this data set stems from.
+     */
+    std::string getFileName() const;
+
 protected:
 private:
+    /**
+     * Name of the file this data set was loaded from. This information
+     * may allow hollowing data sets later.
+     */
+    std::string m_fileName;
 };
 
 #endif  // WDATASET_H

@@ -127,13 +127,13 @@ void WLoaderNIfTI::operator()()
             newGrid = boost::shared_ptr< WGrid >();
     }
 
-// TODO( wiebel ): fill this info into the subject instead
+// TODO(wiebel): fill this info into the subject instead
 //     fillMetaInfo( metaInfo, header );
 
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >(
                     new WDataSetSingle( newValueSet, newGrid ) );
 
-    // TODO( wiebel ): this is a dummy implementation. We need to fix
+    // TODO(wiebel): this is a dummy implementation. We need to fix
     // this as soon as we can distinguish which data belongs to which subject.
     boost::shared_ptr< WSubject > subject;
     if( m_dataHandler->getNumberOfSubjects() == 0 )
@@ -145,15 +145,14 @@ void WLoaderNIfTI::operator()()
     {
         subject = m_dataHandler->getSubject( 0 );
     }
+    newDataSet->setFileName( m_fileName );
     subject->addDataSet( newDataSet );
 }
 
 
-// TODO( wiebel ): fill this info into the subject instead
+// TODO(wiebel): fill this info into the subject instead
 // void WLoaderNIfTI::fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header )
 // {
-//     metaInfo->setName( m_fileName );
-//     metaInfo->setFileName( m_fileName );
 //     metaInfo->setDataType( header->datatype );
 //     metaInfo->setValueDim( header->dim[4] );
 //     metaInfo->setNx( header->nx );

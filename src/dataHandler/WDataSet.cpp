@@ -21,9 +21,23 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WDataSet.h"
 
 WDataSet::WDataSet()
+    : m_fileName( "" )
 {
+}
+
+void WDataSet::setFileName( const std::string fileName )
+{
+    assert( fileName != "" );
+    m_fileName = fileName;
+}
+
+std::string WDataSet::getFileName() const
+{
+    return m_fileName;
 }
 

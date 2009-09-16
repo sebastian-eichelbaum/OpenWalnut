@@ -43,6 +43,16 @@ public:
     WSubject();
 
     /**
+     * Allows to give the subject a name during construction
+     */
+    explicit WSubject( std::string name );
+
+    /**
+     * Returns the name of the subject. See WSubject::m_name for details on the name.
+     */
+    std::string getName() const;
+
+    /**
      * Get the pointer to the i'th WDataSet. The return type is const since we
      * want to ensure that each DataSet cannot modified after retrival.
      */
@@ -65,6 +75,12 @@ public:
     unsigned int getNumberOfDataSets() const;
 protected:
 private:
+    /**
+     * Name of subject. As not all data formats contain real names
+     * this may also be some kind of id (e.g. initials).
+     */
+    std::string m_name;
+
     /**
      * A container for all WDataSets belonging to the subject.
      */
