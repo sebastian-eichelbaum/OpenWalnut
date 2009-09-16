@@ -1,8 +1,8 @@
 FILE( GLOB KERNEL_SRC "*.cpp" )
 FILE( GLOB MODULES_SRC "../modules/navigationSlices/*.cpp" )
 
-ADD_LIBRARY( kernel SHARED ${KERNEL_SRC} ${MODULES_SRC})
-TARGET_LINK_LIBRARIES( kernel common ge )
+ADD_LIBRARY( kernel SHARED ${KERNEL_SRC} ${MODULES_SRC} )
+TARGET_LINK_LIBRARIES( kernel common ge ${OPENSCENEGRAPH_LIBRARIES} )
 
 
 # Unit tests
