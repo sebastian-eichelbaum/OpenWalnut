@@ -132,8 +132,9 @@ ELSE ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} ${GLEW_LIBRARY} )
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
-
-
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navigationSlices/slice.vs ${CMAKE_BINARY_DIR}/bin/shaders/)
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navigationSlices/slice.fs ${CMAKE_BINARY_DIR}/bin/shaders/)
 
 # Special targets:
 #-------------------------------------------------------------------------------------------------------------

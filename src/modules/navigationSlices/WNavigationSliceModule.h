@@ -26,7 +26,8 @@
 
 #include <string>
 
-#include "WModule.h"
+#include "../../kernel/WModule.h"
+#include <osg/Node>
 
 /**
  * \par Description:
@@ -78,6 +79,11 @@ protected:
     virtual void threadMain();
 
 private:
+    /**
+     *
+     */
+    osg::Geode* m_sliceNode;
+
     /**
      *
      */
