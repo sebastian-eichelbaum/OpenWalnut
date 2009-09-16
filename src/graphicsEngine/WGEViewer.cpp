@@ -76,6 +76,7 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
 WGEViewer::~WGEViewer()
 {
     // cleanup
+    wait( true );
 }
 
 osg::ref_ptr<osgViewer::CompositeViewer> WGEViewer::getViewer()
@@ -127,5 +128,22 @@ void WGEViewer::resize( int width, int height )
     // also update the camera
     m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
     m_View->getCamera()->setViewport( new osg::Viewport( 0, 0, width, height ) );
+}
+
+void WGEViewer::close()
+{
+    // wait for thread to finish
+    wait( true );
+
+    // forward close event
+    WGEGraphicsWindow::close();
+}
+
+void WGEViewer::threadMain()
+{
+    while( !m_FinishRequested )
+    {
+        paint();
+    }
 }
 

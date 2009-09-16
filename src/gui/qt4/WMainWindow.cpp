@@ -47,6 +47,7 @@ void WMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
     dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea
             | Qt::RightDockWidgetArea );
     boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( dockWidget ) );
+    // TODO(all): add some way to remove QtGLWidgets on destruction to delete QtGLWidget
     m_glWidgets.push_back( widget );
     dockWidget->setWidget( widget.get() );
     MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );

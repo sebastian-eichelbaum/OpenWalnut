@@ -27,12 +27,17 @@
 #include <list>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include <osg/Camera>
 #include <osgViewer/Viewer>
 
 #include "WGEScene.h"
+#include "WGEGraphicsWindow.h"
+#include "WGEViewer.h"
 #include "../common/WThreadedRunner.h"
+
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
@@ -54,17 +59,24 @@ public:
     virtual ~WGraphicsEngine();
 
     /**
-     * Copy constructor
-     * \param other Reference on object to copy.
-     */
-    WGraphicsEngine( const WGraphicsEngine& other );
-
-    /**
      * Returns the root node of the OSG.
      *
      * \return the root node.
      */
     osg::ref_ptr<WGEScene> getScene();
+
+    /** 
+     * Creates a new viewer. Does basic initialization and sets the default scene.
+     * 
+     * \param wdata the WindowData instance for the widget to use as render widget
+     * \param x X coordinate of widget where to create the context.
+     * \param y Y coordinate of widget where to create the context.
+     * \param width Width of the widget.
+     * \param height Height of the Widget.
+     * \return the new instance, ready to be used.
+     * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
+     */
+    boost::shared_ptr<WGEViewer> createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height );
 
 protected:
 
@@ -77,6 +89,16 @@ protected:
      * Handler for repainting and event handling. Gets executed in separate thread.
      */
     virtual void threadMain();
+
+    /** 
+     * All registered viewer.
+     */
+    std::list<boost::shared_ptr<WGEViewer> > m_Viewer;
+
+    /** 
+     * Mutex used to lock the list of viewers.
+     */
+    boost::mutex m_ViewerLock;
 
 private:
 };

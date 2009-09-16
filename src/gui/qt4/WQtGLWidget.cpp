@@ -25,9 +25,10 @@
 
 #include <QtGui/QKeyEvent>
 
-#include "../../kernel/WKernel.h"
-
 #include "WQtGLWidget.h"
+
+#include "../../graphicsEngine/WGEViewer.h"
+#include "../../kernel/WKernel.h"
 
 
 WQtGLWidget::WQtGLWidget( QWidget* parent )
@@ -43,21 +44,15 @@ WQtGLWidget::WQtGLWidget( QWidget* parent )
     // Extract a WindowPtr from the HIViewRef that QWidget::winId() returns.
     // Without this change, the peer tries to call GetWindowPort on the HIViewRef
     // which returns 0 and we only render white.
-    wdata = osg::ref_ptr<WindowData>(
+    osg::ref_ptr<WindowData> wdata = osg::ref_ptr<WindowData>(
             new WindowData( HIViewGetWindow( static_cast<HIViewRef>winId() ) )
     );
 #else  // all others
-    wdata = osg::ref_ptr<WindowData>( new WindowData( winId() ) );
+    osg::ref_ptr<WindowData> wdata = osg::ref_ptr<WindowData>( new WindowData( winId() ) );
 #endif
 
     // create viewer
-    m_Viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x(), y(), width(), height() ) );
-    m_Viewer->setScene( WKernel::getRunningKernel()->getGraphicsEngine()->getScene() );
-
-    // timer
-    // XXX this will be done by a separate thread in the future. For prototyping it is enough.
-    m_Timer.start( 10 );
-    connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( repaint() ) );
+    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer( wdata, x(), y(), width(), height() );
 
     // required
     setAttribute( Qt::WA_PaintOnScreen );
@@ -67,7 +62,7 @@ WQtGLWidget::WQtGLWidget( QWidget* parent )
 
 WQtGLWidget::~WQtGLWidget()
 {
-    m_Timer.stop();
+    // cleanup
 }
 
 QSize WQtGLWidget::sizeHint() const
@@ -116,7 +111,7 @@ WQtGLWidget::CameraManipulators WQtGLWidget::getCameraManipulators()
 
 void WQtGLWidget::paintEvent( QPaintEvent* event )
 {
-    m_Viewer->paint();
+    // m_Viewer->paint();
 }
 
 #ifndef WIN32

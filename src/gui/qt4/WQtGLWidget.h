@@ -25,15 +25,14 @@
 #define WQTGLWIDGET_H
 
 
-#include <QtCore/QTimer>
 #include <QtOpenGL/QGLWidget>
 #include <QtGui/QWidget>
 
 #include <boost/shared_ptr.hpp>
 
 #include "../../graphicsEngine/WGECamera.h"
-#include "../../graphicsEngine/WGEGraphicsWindow.h"
-#include "../../graphicsEngine/WGEViewer.h"
+
+class WGEViewer;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -183,17 +182,6 @@ private:
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
-
-    /**
-     * Window Data for this widget needed by OpenSceneGraph.
-     */
-    osg::ref_ptr<WindowData> wdata;
-
-    /**
-     * Timer used for permanent redraw of all views. This is just a hack and will be improved
-     * so that redraws are done by separate threads.
-     */
-    QTimer m_Timer;
 };
 
 #endif  // WQTGLWIDGET_H

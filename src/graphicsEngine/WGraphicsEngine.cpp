@@ -23,9 +23,15 @@
 
 #include <iostream>
 
+#include <list>
+
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/locks.hpp>
+
 #include "exceptions/WGEInitFailed.h"
 #include "../kernel/WKernel.h"
 #include "WGraphicsEngine.h"
+#include "WGEViewer.h"
 
 WGraphicsEngine::WGraphicsEngine():
     WThreadedRunner()
@@ -42,11 +48,6 @@ WGraphicsEngine::~WGraphicsEngine()
     std::cout << "Shutting down Graphics Engine" << std::endl;
 }
 
-WGraphicsEngine::WGraphicsEngine( const WGraphicsEngine& other )
-{
-    *this = other;
-}
-
 osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
 {
     return m_RootNode;
@@ -54,11 +55,28 @@ osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
 
 void WGraphicsEngine::threadMain()
 {
-    while( !m_FinishRequested )
-    {
+    // TODO(ebaum): is this thread actually needed since each viewer runs in separate thread
+    // while( !m_FinishRequested )
+    // {
         // currently a dummy
-        // TODO(ebaum): add drawing and event handling here
-        sleep( 1 );
-    }
+        // sleep( 1 );
+    // }
+}
+
+boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height )
+{
+    boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x, y, width, height ) );
+    viewer->setScene( WKernel::getRunningKernel()->getGraphicsEngine()->getScene() );
+
+    // start rendering
+    viewer->run();
+
+    // store it in viewer list
+    // XXX is this list needed? If yes someone has to care about a deregisterViewer function
+    // boost::mutex::scoped_lock lock(m_ViewerLock);
+
+    // m_Viewer.push_back( viewer );
+
+    return viewer;
 }
 

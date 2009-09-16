@@ -24,6 +24,8 @@
 #ifndef WGEVIEWER_H
 #define WGEVIEWER_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <osg/Node>
 
 #include <osgGA/TrackballManipulator>
@@ -36,8 +38,7 @@
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
 
-#include <boost/shared_ptr.hpp>
-
+#include "../common/WThreadedRunner.h"
 
 #include "WGEGraphicsWindow.h"
 
@@ -46,7 +47,8 @@
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
-class WGEViewer: public WGEGraphicsWindow
+class WGEViewer: public WGEGraphicsWindow,
+                 public WThreadedRunner
 {
 public:
 
@@ -79,6 +81,11 @@ public:
      * \param height new height.
      */
     virtual void resize( int width, int height );
+
+    /** 
+     * Close the viewer, but wait for the rendering thread to finish.
+     */
+    virtual void close();
 
     /**
      * Getter for OpenSceneGraph Viewer instance.
@@ -130,6 +137,10 @@ public:
     osg::ref_ptr<osg::Node> getNode();
 
 protected:
+    /**
+     * Handler for repainting and event handling. Gets executed in separate thread.
+     */
+    virtual void threadMain();
 
     /**
      * OpenSceneGraph viewer.
