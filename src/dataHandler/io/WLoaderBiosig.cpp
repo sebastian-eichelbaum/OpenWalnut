@@ -31,7 +31,6 @@
 
 #include "WLoaderBiosig.h"
 #include "../WDataHandler.h"
-#include "../WMetaInfo.h"
 #include "../WEEG.h"
 #include "../WSubject.h"
 #include "../../common/WException.h"
@@ -116,7 +115,6 @@ void WLoaderBiosig::biosigLoader()
     segments.push_back( segment );
 
 
-    boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr<WMetaInfo>( new WMetaInfo() );
     WEEGElectrodeLibrary lib;
 
     WEEGChannelLabels labels( hd->NS );
@@ -127,7 +125,7 @@ void WLoaderBiosig::biosigLoader()
         // TODO( wiebel ): set second channel
     }
 
-    boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( metaInfo, segments, lib, labels ) );
+    boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
     boost::shared_ptr< WSubject > subject;  // TODO( wiebel ): this is a dummy
     subject->addDataSet( eeg );
 

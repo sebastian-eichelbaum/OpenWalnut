@@ -26,13 +26,11 @@
 #include "WGrid.h"
 
 WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSetBase> newValueSet,
-                                boost::shared_ptr<WGrid> newGrid,
-                                boost::shared_ptr< WMetaInfo > newMetaInfo )
-    : WDataSet( newMetaInfo )
+                                boost::shared_ptr<WGrid> newGrid )
+    : WDataSet()
 {
     assert( newValueSet );
     assert( newGrid );
-    assert( newMetaInfo );
     assert( newValueSet->size() == newGrid->size() );
 
     m_valueSet = newValueSet;

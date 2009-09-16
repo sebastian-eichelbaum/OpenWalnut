@@ -23,14 +23,7 @@
 
 #include "WDataSet.h"
 
-WDataSet::WDataSet( boost::shared_ptr<WMetaInfo> newMetaInfo )
-    : m_metaInfo( newMetaInfo )
+WDataSet::WDataSet()
 {
-    assert( newMetaInfo );
-}
-
-boost::shared_ptr<WMetaInfo> WDataSet::getMetaInfo() const
-{
-    return m_metaInfo;
 }
 

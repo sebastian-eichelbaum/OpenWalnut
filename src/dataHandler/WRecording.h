@@ -37,8 +37,8 @@ public:
     /**
      * TODO(wiebel): Document this!
      */
-    explicit WRecording( boost::shared_ptr< WMetaInfo > metaInfo )
-        : WDataSet( metaInfo )
+    explicit WRecording()
+        : WDataSet()
     {
     }
 

@@ -26,8 +26,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-class WMetaInfo;
-
 /**
  * Base class for all data set types. This class has a number of subclasses
  * specifying the different types of data sets. Two of dataset type reprent
@@ -42,7 +40,7 @@ public:
      * Since every DataSet should have a MetaInfo, we ensure hereby you never
      * go without one.
      */
-    explicit WDataSet( boost::shared_ptr< WMetaInfo > newMetaInfo );
+    explicit WDataSet();
 
     /**
      * Since WDataSet is a base class and thus should be polymorphic we add
@@ -51,17 +49,7 @@ public:
     virtual ~WDataSet()
     {
     }
-
-    /**
-     * Returns the MetaInfo object for this DataSet.
-     */
-    boost::shared_ptr< WMetaInfo > getMetaInfo() const;
-
 protected:
-    /**
-     * Stores meta information like name, dimension, etc. for this DataSet.
-     */
-    boost::shared_ptr< WMetaInfo > m_metaInfo;
 private:
 };
 

@@ -127,12 +127,11 @@ void WLoaderNIfTI::operator()()
             newGrid = boost::shared_ptr< WGrid >();
     }
 
-
-    boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr<WMetaInfo>( new WMetaInfo() );
-    fillMetaInfo( metaInfo, header );
+// TODO( wiebel ): fill this info into the subject instead
+//     fillMetaInfo( metaInfo, header );
 
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >(
-                    new WDataSetSingle( newValueSet, newGrid, metaInfo ) );
+                    new WDataSetSingle( newValueSet, newGrid ) );
 
     // TODO( wiebel ): this is a dummy
     boost::shared_ptr< WSubject > subject = boost::shared_ptr< WSubject >( new WSubject );
@@ -142,48 +141,49 @@ void WLoaderNIfTI::operator()()
 }
 
 
-void WLoaderNIfTI::fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header )
-{
-    metaInfo->setName( m_fileName );
-    metaInfo->setFileName( m_fileName );
-    metaInfo->setDataType( header->datatype );
-    metaInfo->setValueDim( header->dim[4] );
-    metaInfo->setNx( header->nx );
-    metaInfo->setNy( header->ny );
-    metaInfo->setNz( header->nz );
-    metaInfo->setDx( header->dx );
-    metaInfo->setDy( header->dy );
-    metaInfo->setDz( header->dz );
-    metaInfo->setXyzUnits( header->xyz_units );
-    metaInfo->setQformCode( header->qform_code );
-    metaInfo->setQuaternB( header->quatern_b );
-    metaInfo->setQuaternC( header->quatern_c );
-    metaInfo->setQuaternD( header->quatern_d );
-    metaInfo->setQoffsetX( header->qoffset_x );
-    metaInfo->setQoffsetY( header->qoffset_y );
-    metaInfo->setQoffsetZ( header->qoffset_z );
-    metaInfo->setQfac( header->qfac );
-    metaInfo->setFreqDim( header->freq_dim );
-    metaInfo->setPhaseDim( header->phase_dim );
-    metaInfo->setSliceDim( header->slice_dim );
+// TODO( wiebel ): fill this info into the subject instead
+// void WLoaderNIfTI::fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header )
+// {
+//     metaInfo->setName( m_fileName );
+//     metaInfo->setFileName( m_fileName );
+//     metaInfo->setDataType( header->datatype );
+//     metaInfo->setValueDim( header->dim[4] );
+//     metaInfo->setNx( header->nx );
+//     metaInfo->setNy( header->ny );
+//     metaInfo->setNz( header->nz );
+//     metaInfo->setDx( header->dx );
+//     metaInfo->setDy( header->dy );
+//     metaInfo->setDz( header->dz );
+//     metaInfo->setXyzUnits( header->xyz_units );
+//     metaInfo->setQformCode( header->qform_code );
+//     metaInfo->setQuaternB( header->quatern_b );
+//     metaInfo->setQuaternC( header->quatern_c );
+//     metaInfo->setQuaternD( header->quatern_d );
+//     metaInfo->setQoffsetX( header->qoffset_x );
+//     metaInfo->setQoffsetY( header->qoffset_y );
+//     metaInfo->setQoffsetZ( header->qoffset_z );
+//     metaInfo->setQfac( header->qfac );
+//     metaInfo->setFreqDim( header->freq_dim );
+//     metaInfo->setPhaseDim( header->phase_dim );
+//     metaInfo->setSliceDim( header->slice_dim );
 
-    std::vector<float>xyzMatrix( 16, 0 );
-    for ( int i = 0; i < 4; ++i )
-    {
-        for ( int j = 0; j < 4; ++j)
-        {
-            xyzMatrix[ i * 4 + j ] = header->qto_xyz.m[i][j];
-        }
-    }
-    metaInfo->setQtoXyzMatrix( xyzMatrix );
+//     std::vector<float>xyzMatrix( 16, 0 );
+//     for ( int i = 0; i < 4; ++i )
+//     {
+//         for ( int j = 0; j < 4; ++j)
+//         {
+//             xyzMatrix[ i * 4 + j ] = header->qto_xyz.m[i][j];
+//         }
+//     }
+//     metaInfo->setQtoXyzMatrix( xyzMatrix );
 
-    std::vector<float>ijkMatrix( 16, 0 );
-    for ( int i = 0; i < 4; ++i )
-    {
-        for ( int j = 0; j < 4; ++j)
-        {
-            ijkMatrix[ i * 4 + j ] = header->qto_ijk.m[i][j];
-        }
-    }
-    metaInfo->setQtoIjkMatrix( ijkMatrix );
-}
+//     std::vector<float>ijkMatrix( 16, 0 );
+//     for ( int i = 0; i < 4; ++i )
+//     {
+//         for ( int j = 0; j < 4; ++j)
+//         {
+//             ijkMatrix[ i * 4 + j ] = header->qto_ijk.m[i][j];
+//         }
+//     }
+//     metaInfo->setQtoIjkMatrix( ijkMatrix );
+// }

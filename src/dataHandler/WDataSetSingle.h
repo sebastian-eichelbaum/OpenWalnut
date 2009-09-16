@@ -39,11 +39,10 @@ class WDataSetSingle : public WDataSet
 {
 public:
     /**
-     * Constructs an instance out of a value set, grid and meta information.
+     * Constructs an instance out of a value set and a grid.
      */
     WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
-                    boost::shared_ptr< WGrid > newGrid,
-                    boost::shared_ptr< WMetaInfo > newMetaInfo );
+                    boost::shared_ptr< WGrid > newGrid );
 
     /**
      * Destroys this DataSet instance

@@ -72,8 +72,7 @@ public:
     /**
      * TODO(wiebel): Document this!
      */
-    explicit WEEG( boost::shared_ptr< WMetaInfo > metaInfo,
-                   const WEEGSegmentArray& data,
+    explicit WEEG( const WEEGSegmentArray& data,
                    const WEEGElectrodeLibrary& electrodeLib,
                    const WEEGChannelLabels& channelLabels );
 
