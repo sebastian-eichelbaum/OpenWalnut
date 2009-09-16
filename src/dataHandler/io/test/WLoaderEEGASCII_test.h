@@ -51,7 +51,7 @@ public:
         WLoaderEEGASCII eegASCIILoader( fileName, dataHandler );
         boost::thread loaderThread( eegASCIILoader );
         sleep( 3 );
-        // TODO( wiebel ): we need to change this because loading, in the end,
+        // TODO(wiebel): we need to change this because loading, in the end,
         // should not always increase the number of subjects.
         TS_ASSERT_EQUALS( dataHandler->getNumberOfSubjects(), 1 );
     }

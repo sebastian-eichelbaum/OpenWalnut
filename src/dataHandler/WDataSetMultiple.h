@@ -37,8 +37,8 @@ public:
      * Dummy constructor.
      * TODO(wiebel): implement this
      */
-    explicit WDataSetMultiple( boost::shared_ptr< WMetaInfo > newMetaInfo )
-    : WDataSet( newMetaInfo )
+    explicit WDataSetMultiple()
+    : WDataSet()
     {
         // TODO(wiebel): implement this
     };

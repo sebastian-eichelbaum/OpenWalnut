@@ -1,7 +1,8 @@
 FILE( GLOB KERNEL_SRC "*.cpp" )
+FILE( GLOB MODULES_SRC "../modules/navigationSlices/*.cpp" )
 
-ADD_LIBRARY( kernel SHARED ${KERNEL_SRC} )
-TARGET_LINK_LIBRARIES( kernel common ge )
+ADD_LIBRARY( kernel SHARED ${KERNEL_SRC} ${MODULES_SRC} )
+TARGET_LINK_LIBRARIES( kernel common ge ${OPENSCENEGRAPH_LIBRARIES} )
 
 
 # Unit tests
@@ -10,7 +11,6 @@ IF( CXXTEST_FOUND )
                                ""  # no libs for linking required
                                "WKernel.cpp"
                                "WModule.cpp"
-                               "WTestModule.cpp"
-                               "WNavigationSliceModule.cpp"
+                               "../modules/navigationSlices/WNavigationSliceModule.cpp"
                              )
 ENDIF( CXXTEST_FOUND )

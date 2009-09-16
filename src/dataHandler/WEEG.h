@@ -32,7 +32,7 @@
 
 
 ///======================================
-// TODO( wiebel ): use this szuff or remove it
+// TODO(wiebel): use this szuff or remove it
 #include "../math/WPosition.h"
 typedef double dummyType;
 class WEEGElectrodeObject
@@ -72,8 +72,7 @@ public:
     /**
      * TODO(wiebel): Document this!
      */
-    explicit WEEG( boost::shared_ptr< WMetaInfo > metaInfo,
-                   const WEEGSegmentArray& data,
+    explicit WEEG( const WEEGSegmentArray& data,
                    const WEEGElectrodeLibrary& electrodeLib,
                    const WEEGChannelLabels& channelLabels );
 

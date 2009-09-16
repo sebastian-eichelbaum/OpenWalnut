@@ -30,7 +30,7 @@
 #include <osg/Geometry>
 
 #include "WNavigationSliceModule.h"
-#include "WKernel.h"
+#include "../../kernel/WKernel.h"
 
 WNavigationSliceModule::WNavigationSliceModule():
     WModule()
@@ -51,12 +51,12 @@ WNavigationSliceModule::WNavigationSliceModule( const WNavigationSliceModule& ot
 
 const std::string WNavigationSliceModule::getName() const
 {
-    return "Test Module";
+    return "Navigation Slice Module";
 }
 
 const std::string WNavigationSliceModule::getDescription() const
 {
-    return "This module is for testing and development";
+    return "This module shows 3 orthogonal navigation slices.";
 }
 
 void WNavigationSliceModule::threadMain()
@@ -75,10 +75,10 @@ void WNavigationSliceModule::threadMain()
 
 void WNavigationSliceModule::createSlices()
 {
-    osg::Geode* sliceGeode = new osg::Geode();
+    osg::Geode* m_sliceNode = new osg::Geode();
 
     osg::Geometry* sliceGeometry = new osg::Geometry();
-    sliceGeode->addDrawable( sliceGeometry );
+    m_sliceNode->addDrawable( sliceGeometry );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
     sliceVertices->push_back( osg::Vec3( 0, 50, 0 ) );
@@ -138,5 +138,54 @@ void WNavigationSliceModule::createSlices()
     sliceGeometry->addPrimitiveSet( slice1 );
     sliceGeometry->addPrimitiveSet( slice2 );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( sliceGeode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_sliceNode );
+
+
+    // FIXME (schurade)
+    // code taken from http://www.linuxquestions.org/questions/programming-9/get-full-path-of-a-command-in-c-117965/
+    // move it to somewhere else and execute it on startup and store the app path somewhere central
+
+    int length;
+    char appPath[255];
+
+    length = readlink( "/proc/self/exe", appPath, sizeof( appPath ) );
+
+    // Catch some errors
+    if ( length < 0 )
+    {
+        fprintf( stderr, "Error resolving symlink /proc/self/exe.\n" );
+        exit( EXIT_FAILURE );
+    }
+    if ( length >= 255 )
+    {
+        fprintf( stderr, "Path too long. Truncated.\n" );
+        exit( EXIT_FAILURE );
+    }
+
+    // I don't know why, but the string this readlink() function
+    // returns is appended with a '@'.
+
+    appPath[length] = '\0';
+
+    // strip off the executable name
+    while ( appPath[length] != '/' )
+    {
+        appPath[length] = '\0';
+        --length;
+    }
+
+    std::string shaderPath( appPath );
+    shaderPath += "shaders/";
+
+    std::cout << "Full path is: " << shaderPath << std::endl;
+
+    osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
+
+    osg::Program* sliceProgramObject = new osg::Program;
+    osg::Shader* sliceVertexObject = osg::Shader::readShaderFile( osg::Shader::VERTEX, shaderPath + "slice.vs" );
+    osg::Shader* sliceFragmentObject = osg::Shader::readShaderFile( osg::Shader::FRAGMENT, shaderPath + "slice.fs" );
+    sliceProgramObject->addShader( sliceFragmentObject );
+    sliceProgramObject->addShader( sliceVertexObject );
+
+    sliceState->setAttributeAndModes( sliceProgramObject, osg::StateAttribute::ON );
 }

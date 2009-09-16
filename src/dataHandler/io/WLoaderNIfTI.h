@@ -29,7 +29,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../WLoader.h"
-#include "../WMetaInfo.h"
 
 #include "nifti/nifti1_io.h"
 
@@ -60,7 +59,6 @@ protected:
 private:
     template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues,
             const size_t vDim );
-    void fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header );
 
     boost::shared_ptr< WDataHandler > m_dataHandler;
 };

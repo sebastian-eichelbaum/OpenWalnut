@@ -31,7 +31,6 @@
 
 #include "WLoaderBiosig.h"
 #include "../WDataHandler.h"
-#include "../WMetaInfo.h"
 #include "../WEEG.h"
 #include "../WSubject.h"
 #include "../../common/WException.h"
@@ -116,7 +115,6 @@ void WLoaderBiosig::biosigLoader()
     segments.push_back( segment );
 
 
-    boost::shared_ptr< WMetaInfo > metaInfo = boost::shared_ptr<WMetaInfo>( new WMetaInfo() );
     WEEGElectrodeLibrary lib;
 
     WEEGChannelLabels labels( hd->NS );
@@ -124,14 +122,24 @@ void WLoaderBiosig::biosigLoader()
     {
         std::cout << "BIOSIG Channel Label    : " << hd->CHANNEL[i].Label << std::endl;
         labels[i].first = hd->CHANNEL[i].Label;
-        // TODO( wiebel ): set second channel
+        // TODO(wiebel): set second channel
     }
 
-    boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( metaInfo, segments, lib, labels ) );
-    boost::shared_ptr< WSubject > subject;  // TODO( wiebel ): this is a dummy
+    boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
+    // TODO(wiebel): this is a dummy implementation. We need to fix
+    // this as soon as we can distinguish which data belongs to which subject.
+    boost::shared_ptr< WSubject > subject;
+    if( m_dataHandler->getNumberOfSubjects() == 0 )
+    {
+        subject = boost::shared_ptr< WSubject >( new WSubject );
+        m_dataHandler->addSubject( subject );
+    }
+    else
+    {
+        subject = m_dataHandler->getSubject( 0 );
+    }
+    eeg->setFileName( m_fileName );
     subject->addDataSet( eeg );
-
-    m_dataHandler->addSubject( subject );
 
     std::cout << "BIOSIG loading done." << std::endl;
     std::cout << "===================================" << std::endl;

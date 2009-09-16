@@ -27,7 +27,6 @@
 #include <boost/shared_ptr.hpp>
 #include <cxxtest/TestSuite.h>
 #include "../WEEG.h"
-#include "../WMetaInfo.h"
 
 class WEEGTest : public CxxTest::TestSuite
 {

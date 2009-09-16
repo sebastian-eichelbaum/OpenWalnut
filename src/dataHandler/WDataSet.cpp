@@ -21,16 +21,23 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WDataSet.h"
 
-WDataSet::WDataSet( boost::shared_ptr<WMetaInfo> newMetaInfo )
-    : m_metaInfo( newMetaInfo )
+WDataSet::WDataSet()
+    : m_fileName( "" )
 {
-    assert( newMetaInfo );
 }
 
-boost::shared_ptr<WMetaInfo> WDataSet::getMetaInfo() const
+void WDataSet::setFileName( const std::string fileName )
 {
-    return m_metaInfo;
+    assert( fileName != "" );
+    m_fileName = fileName;
+}
+
+std::string WDataSet::getFileName() const
+{
+    return m_fileName;
 }
 

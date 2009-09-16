@@ -24,9 +24,8 @@
 #ifndef WDATASET_H
 #define WDATASET_H
 
+#include <string>
 #include <boost/shared_ptr.hpp>
-
-class WMetaInfo;
 
 /**
  * Base class for all data set types. This class has a number of subclasses
@@ -42,7 +41,7 @@ public:
      * Since every DataSet should have a MetaInfo, we ensure hereby you never
      * go without one.
      */
-    explicit WDataSet( boost::shared_ptr< WMetaInfo > newMetaInfo );
+    WDataSet();
 
     /**
      * Since WDataSet is a base class and thus should be polymorphic we add
@@ -53,16 +52,22 @@ public:
     }
 
     /**
-     * Returns the MetaInfo object for this DataSet.
+     * Set the name of the file that this data set stems from.
      */
-    boost::shared_ptr< WMetaInfo > getMetaInfo() const;
+    void setFileName( const std::string fileName );
+
+    /**
+     * Get the name of the file that this data set stems from.
+     */
+    std::string getFileName() const;
 
 protected:
-    /**
-     * Stores meta information like name, dimension, etc. for this DataSet.
-     */
-    boost::shared_ptr< WMetaInfo > m_metaInfo;
 private:
+    /**
+     * Name of the file this data set was loaded from. This information
+     * may allow hollowing data sets later.
+     */
+    std::string m_fileName;
 };
 
 #endif  // WDATASET_H

@@ -21,12 +21,27 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WSubject.h"
 #include "exceptions/WNoSuchDataSetException.h"
 
 
 WSubject::WSubject()
+    : m_name( "Not named yet" ),
+      m_dataSets( 0 )
 {
+}
+
+WSubject::WSubject( std::string name )
+    : m_name( name ),
+      m_dataSets( 0 )
+{
+}
+
+std::string WSubject::getName() const
+{
+    return m_name;
 }
 
 boost::shared_ptr< const WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
@@ -36,12 +51,15 @@ boost::shared_ptr< const WDataSet > WSubject::getDataSet( const unsigned int dat
     return m_dataSets.at( dataSetId );
 }
 
+boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
+{
+    return getDataSet( dataSetId );
+}
 
 void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
 {
     m_dataSets.push_back( newDataSet );
 }
-
 
 unsigned int WSubject::getNumberOfDataSets() const
 {

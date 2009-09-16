@@ -30,8 +30,7 @@
 
 #include "WKernel.h"
 #include "WModule.h"
-#include "WTestModule.h"
-#include "WNavigationSliceModule.h"
+#include "../modules/navigationSlices/WNavigationSliceModule.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
