@@ -31,6 +31,21 @@ using wmath::WVector3D;
 
 class WVector3DTest : public CxxTest::TestSuite
 {
+private:
+    double delta;
+    double deltaLarge;
+
+public:
+
+    /**
+     * Called before every test.
+     */
+    void setUp( void )
+    {
+        delta = 1e-12;
+        deltaLarge = 1e-10;
+    }
+
 public:
     /**
      * Instatiation should throw nothing.
@@ -120,6 +135,63 @@ public:
         TS_ASSERT_EQUALS( vec[0], a );
         TS_ASSERT_EQUALS( vec[1], b );
         TS_ASSERT_EQUALS( vec[2], c );
+    }
+
+    /**
+     * Test cross product
+     */
+    void testCrossProduct( void )
+    {
+        double a = 32.32;
+        double b = 42.42;
+        double c = 23.23;
+        const WVector3D vec( a, b, c );
+        const WVector3D vec2( a + 1.1, b + 2.2, c + 3.3 );
+
+        WVector3D tmp;
+
+        // product with self should be zero vector
+        tmp = vec.crossProduct( vec );
+        TS_ASSERT_DELTA( tmp[0], 0., delta );
+        TS_ASSERT_DELTA( tmp[1], 0., delta );
+        TS_ASSERT_DELTA( tmp[2], 0., delta );
+
+        // test for some example
+        tmp = vec.crossProduct( vec2 );
+        TS_ASSERT_DELTA( tmp[0], 88.88, delta );
+        TS_ASSERT_DELTA( tmp[1], -81.103, delta );
+        TS_ASSERT_DELTA( tmp[2], 24.442, delta );
+
+        // ensure orthogonality
+        TS_ASSERT_DELTA( tmp.dotProduct( vec ), 0., deltaLarge );
+        TS_ASSERT_DELTA( tmp.dotProduct( vec2 ), 0., deltaLarge );
+    }
+
+    /**
+     * Test dot product
+     */
+    void testDotProduct( void )
+    {
+        double a = 32.32;
+        double b = 42.42;
+        double c = 23.23;
+        const WVector3D vec( a, b, c );
+        const WVector3D vec2( a + 1.1, b + 2.2, c + 3.3 );
+
+        double tmp;
+
+        // product with self has to be squared norm
+        tmp = vec.dotProduct( vec );
+        TS_ASSERT_EQUALS( tmp, vec.normSquare() );
+
+        // test for some example
+        tmp = vec.dotProduct( vec2 );
+        TS_ASSERT_DELTA( tmp, 3589.2067, delta );
+
+        // product with orthogonal vector has to be zero
+        WVector3D tmpOrtho( 88.88, -81.103, 24.442 );
+        tmp = vec.dotProduct( tmpOrtho );
+        TS_ASSERT_DELTA( tmp, 0., delta );
     }
 };
 

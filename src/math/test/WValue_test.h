@@ -92,7 +92,7 @@ public:
     }
 
     /**
-     * == operator should return true if the WValues have contain the same elements and false if the don't.
+     * == operator should return true if the WValues contain the same elements and false if the don't.
      */
     void testEqualityOperator( void )
     {
@@ -114,6 +114,31 @@ public:
         value2[0] += 1;
 
         TS_ASSERT_EQUALS( value1 == value2, false );
+    }
+
+    /**
+     * != operator should return false if the WValues contain the same elements and false if the don't.
+     */
+    void testInEqualityOperator( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+        WValue< double > value2( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        value2[0] = a;
+        value2[1] = b;
+        value2[2] = c;
+
+        TS_ASSERT_EQUALS( value1 != value2, false );
+
+        value2[0] += 1;
+
+        TS_ASSERT_EQUALS( value1 != value2, true );
     }
 
     /**
@@ -482,6 +507,49 @@ public:
         value1[1] = b;
         value1[2] = c;
         TS_ASSERT_DELTA( value1.normSquare(), 44.36, delta );
+    }
+
+    /**
+     * test normalization of the current WValue
+     */
+    void testNormalize( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+
+        TS_ASSERT( std::abs( value1.norm() - 1. ) > 1e-9 );
+        value1.normalize();
+        TS_ASSERT_DELTA( value1.norm(), 1., delta );
+    }
+
+    /**
+     * test returning normalized version
+     */
+    void testNormalized( void )
+    {
+        const size_t size = 3;
+        const double a = 1.2, b = 3.4, c = 5.6;
+        WValue< double > value1( size );
+
+        value1[0] = a;
+        value1[1] = b;
+        value1[2] = c;
+        WValue< double > valueCopy = value1;
+
+        TS_ASSERT( std::abs( value1.norm() - 1. ) > 1e-9 );
+        WValue< double > value2 = value1.normalized();
+
+        // value1 should not have been changed
+        TS_ASSERT( std::abs( value1.norm() - 1. ) > 1e-9 );
+        TS_ASSERT_EQUALS( value1, valueCopy );
+
+        // value2 should contain the normalized version
+        TS_ASSERT_DELTA( value2.norm(), 1., delta );
     }
 
     /**

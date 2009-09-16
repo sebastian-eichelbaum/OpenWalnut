@@ -42,25 +42,39 @@ public:
      * Produces a zero vector.
      */
     WVector3D();
+
     /**
      * Produces a vector consisting of the given components.
      */
     WVector3D( double x, double y, double z );
+
     /**
      * Copies the values of the given WVector3D.
      */
     WVector3D( const WVector3D& newVector );
 
-//
-// These functions will come soon. Together with their tests.
-//
-// TODO(wiebel): implement the following member functions!
-//    const double operator*( const WVector3D &factor2 ) const;
-//    const WVector3D crossproduct( const WVector3D& factor2 ) const;
-//    const bool operator==( const WVector3D& rhs ) const;
-//    const bool operator!=( const WVector3D& rhs ) const;
-//    void normalize();
-//    const WVector3D normalized() const;
+    /**
+     * Compute the cross product of the current WValue with the parameter.
+     */
+    WVector3D crossProduct( const WVector3D& factor2 ) const
+    {
+        WVector3D result;
+        result[0] = (*this)[1] * factor2[2] - (*this)[2] * factor2[1];
+        result[1] = (*this)[2] * factor2[0] - (*this)[0] * factor2[2];
+        result[2] = (*this)[0] * factor2[1] - (*this)[1] * factor2[0];
+        return result;
+    }
+
+    /**
+     * Compute the dot product of the current WValue with the parameter.
+     */
+    double dotProduct( const WVector3D& factor2 ) const
+    {
+        double result = 0.0;
+        for ( unsigned int i = 0; i < 3; ++i )
+            result += (*this)[i] * factor2[i];
+        return result;
+    }
 
 protected:
 private:

@@ -92,6 +92,14 @@ public:
     }
 
     /**
+     * Compares two WValues and returns true if they contain the different data.
+     */
+    bool operator!=( const WValue& rhs ) const
+    {
+        return ( m_components != rhs.m_components );
+    }
+
+    /**
      * Assigns the contents of its argument to the contents of this WValue.
      */
     WValue& operator=( const WValue& rhs )
@@ -112,7 +120,7 @@ public:
     }
 
     /**
-     * Subtracts a the argument componentwise to the components of this WValue
+     * Subtracts the argument componentwise from the components of this WValue
      */
     WValue& operator-=( const WValue& rhs )
     {
@@ -210,6 +218,26 @@ public:
             normSquare += m_components[i] * m_components[i];
 
         return normSquare;
+    }
+
+    /**
+     * Make the norm of this WValue be 1 by dividing by WValue::norm()
+     */
+    void normalize()
+    {
+        double currentNorm = norm();
+        for( unsigned int i = 0; i < m_components.size(); ++i )
+            m_components[i] /= currentNorm;
+    }
+
+    /**
+     * Return a normalized version of the current WValue without modifying it.
+     */
+    WValue normalized() const
+    {
+        WValue result = *this;
+        result.normalize();
+        return result;
     }
 
 protected:
