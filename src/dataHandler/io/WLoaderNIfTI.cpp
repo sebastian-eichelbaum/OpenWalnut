@@ -133,11 +133,19 @@ void WLoaderNIfTI::operator()()
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >(
                     new WDataSetSingle( newValueSet, newGrid ) );
 
-    // TODO( wiebel ): this is a dummy
-    boost::shared_ptr< WSubject > subject = boost::shared_ptr< WSubject >( new WSubject );
+    // TODO( wiebel ): this is a dummy implementation. We need to fix
+    // this as soon as we can distinguish which data belongs to which subject.
+    boost::shared_ptr< WSubject > subject;
+    if( m_dataHandler->getNumberOfSubjects() == 0 )
+    {
+        subject = boost::shared_ptr< WSubject >( new WSubject );
+        m_dataHandler->addSubject( subject );
+    }
+    else
+    {
+        subject = m_dataHandler->getSubject( 0 );
+    }
     subject->addDataSet( newDataSet );
-
-    m_dataHandler->addSubject( subject );
 }
 
 

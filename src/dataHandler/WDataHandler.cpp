@@ -34,14 +34,14 @@ WDataHandler::WDataHandler()
 }
 
 
-boost::shared_ptr< const WSubject > WDataHandler::getSubject( const unsigned int subjectId ) const
+boost::shared_ptr< WSubject > WDataHandler::getSubject( const unsigned int subjectId ) const
 {
     if( subjectId >= m_subjects.size() )
         throw WNoSuchDataSetException( "Index too large." );
     return m_subjects.at( subjectId );
 }
 
-boost::shared_ptr< const WSubject >  WDataHandler::operator[]( size_t subjectId ) const
+boost::shared_ptr< WSubject >  WDataHandler::operator[]( size_t subjectId ) const
 {
     return getSubject( subjectId );
 }
