@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <boost/thread.hpp>
+#include <boost/filesystem.hpp>
 
 #include "WLoaderManager.h"
 #include "WDataSet.h"
@@ -33,33 +34,30 @@
 
 std::string getSuffix( std::string name )
 {
-    size_t position = name.find_last_of( '.' );
-    if( position == std::string::npos )
-        return "";
-    else
-        return name.substr( position + 1 );
+    boost::filesystem::path p( name );
+    return p.extension();
 }
 
 void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
 {
     std::string suffix = getSuffix( fileName );
 
-    if( suffix == "nii" || suffix == "gz" )
+    if( suffix == ".nii" || suffix == ".gz" )
     {
         WLoaderNIfTI niiLoader( fileName, dataHandler );
         boost::thread loaderThread( niiLoader );
     }
-    else if( suffix == "edf" )
+    else if( suffix == ".edf" )
     {
         WLoaderBiosig biosigLoader( fileName, dataHandler );
         boost::thread loaderThread( biosigLoader );
     }
-    else if( suffix == "asc" )
+    else if( suffix == ".asc" )
     {
         WLoaderEEGASCII eegAsciiLoader( fileName, dataHandler );
         boost::thread loaderThread( eegAsciiLoader );
     }
-    else if( suffix == "vtk" )
+    else if( suffix == ".vtk" )
     {
         // This is a dummy implementation.
         // You need to provide a real implementation here if you want to load vtk.
