@@ -19,3 +19,6 @@ syntax: regexp
 
 syntax: glob
 .project
+.cproject
+syntax: regexp
+^Debug$

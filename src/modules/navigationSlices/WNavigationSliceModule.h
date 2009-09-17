@@ -26,8 +26,11 @@
 
 #include <string>
 
-#include "../../kernel/WModule.h"
 #include <osg/Node>
+
+#include "../../kernel/WModule.h"
+#include "../../graphicsEngine/WShader.h"
+
 
 /**
  * \par Description:
@@ -82,12 +85,17 @@ private:
     /**
      *
      */
+    void createSlices();
+
+    /**
+     *
+     */
     osg::Geode* m_sliceNode;
 
     /**
      *
      */
-    void createSlices();
+    boost::shared_ptr< WShader >m_shader;
 };
 
 #endif  // WNAVIGATIONSLICEMODULE_H

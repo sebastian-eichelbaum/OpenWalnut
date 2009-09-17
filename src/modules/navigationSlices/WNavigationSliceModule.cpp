@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-#include <osg/ShapeDrawable>
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -33,10 +32,13 @@
 #include "WNavigationSliceModule.h"
 #include "../../kernel/WKernel.h"
 
+#include "../../graphicsEngine/WShader.h"
+
 WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
     // initialize members
+    m_shader = boost::shared_ptr< WShader > ( new WShader( "slice" ) );
 }
 
 WNavigationSliceModule::~WNavigationSliceModule()
@@ -141,25 +143,7 @@ void WNavigationSliceModule::createSlices()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_sliceNode );
 
-    std::string shaderPath = WKernel::getRunningKernel()->getShaderPath();
-
-    std::cout << "Full path is: " << shaderPath << std::endl;
-
     osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
 
-    osg::Program* sliceProgramObject = new osg::Program;
-    osg::Shader* sliceVertexObject = osg::Shader::readShaderFile( osg::Shader::VERTEX, shaderPath + "slice.vs" );
-    osg::Shader* sliceFragmentObject = osg::Shader::readShaderFile( osg::Shader::FRAGMENT, shaderPath + "slice.fs" );
-
-    if ( sliceFragmentObject )
-    {
-        sliceProgramObject->addShader( sliceFragmentObject );
-    }
-
-    if ( sliceVertexObject )
-    {
-        sliceProgramObject->addShader( sliceVertexObject );
-    }
-
-    sliceState->setAttributeAndModes( sliceProgramObject, osg::StateAttribute::ON );
+    sliceState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 }
