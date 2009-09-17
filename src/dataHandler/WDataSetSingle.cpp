@@ -1,8 +1,9 @@
 //---------------------------------------------------------------------------
 //
-// Project: OpenWalnut
+// Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 SomeCopyrightowner
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
 //

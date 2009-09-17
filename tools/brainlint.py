@@ -888,27 +888,28 @@ def CheckForCompleteCommentHeader(filename, lines, error):
   # dummy line at the front.
   if ( not (re.match(r'//---------------------------------------------------------------------------', lines[1])
             and re.match(r'//', lines[2])
-            and re.match(r'// Project: OpenWalnut', lines[3])
+            and re.match(r'// Project: OpenWalnut \( http://www.openwalnut.org \)', lines[3])
             and re.match(r'//', lines[4])
             and re.match(r'// Copyright 2009 ', lines[5])
-            and re.match(r'//', lines[6])
-            and re.match(r'// This file is part of OpenWalnut.', lines[7])
-            and re.match(r'//', lines[8])
-            and re.match(r'// OpenWalnut is free software: you can redistribute it and/or modify', lines[9])
-            and re.match(r'// it under the terms of the GNU Lesser General Public License as published by', lines[10])
-            and re.match(r'// the Free Software Foundation, either version 3 of the License, or', lines[11])
-            and re.match(r'// \(at your option\) any later version.', lines[12])
-            and re.match(r'//', lines[13])
-            and re.match(r'// OpenWalnut is distributed in the hope that it will be useful,', lines[14])
-            and re.match(r'// but WITHOUT ANY WARRANTY; without even the implied warranty of', lines[15])
-            and re.match(r'// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the', lines[16])
-            and re.match(r'// GNU Lesser General Public License for more details.', lines[17])
-            and re.match(r'//', lines[18])
-            and re.match(r'// You should have received a copy of the GNU Lesser General Public License', lines[19])
-            and re.match(r'// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.', lines[20])
-            and re.match(r'//', lines[21])
-            and re.match(r'//---------------------------------------------------------------------------', lines[22])
-            and re.match(r'$', lines[23])
+            and re.match(r'// For more information see http://www.openwalnut.org/copying', lines[6])
+            and re.match(r'//', lines[7])
+            and re.match(r'// This file is part of OpenWalnut.', lines[8])
+            and re.match(r'//', lines[9])
+            and re.match(r'// OpenWalnut is free software: you can redistribute it and/or modify', lines[10])
+            and re.match(r'// it under the terms of the GNU Lesser General Public License as published by', lines[11])
+            and re.match(r'// the Free Software Foundation, either version 3 of the License, or', lines[12])
+            and re.match(r'// \(at your option\) any later version.', lines[13])
+            and re.match(r'//', lines[14])
+            and re.match(r'// OpenWalnut is distributed in the hope that it will be useful,', lines[15])
+            and re.match(r'// but WITHOUT ANY WARRANTY; without even the implied warranty of', lines[16])
+            and re.match(r'// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the', lines[17])
+            and re.match(r'// GNU Lesser General Public License for more details.', lines[18])
+            and re.match(r'//', lines[19])
+            and re.match(r'// You should have received a copy of the GNU Lesser General Public License', lines[20])
+            and re.match(r'// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.', lines[21])
+            and re.match(r'//', lines[22])
+            and re.match(r'//---------------------------------------------------------------------------', lines[23])
+            and re.match(r'$', lines[24])
             )
        ): 
     error(filename, 0, 'legal/comment_header', 5,
@@ -2334,10 +2335,9 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
           % (match.group(1), match.group(2)))
 
   if Search(r'\busing namespace\b', line):
-    if( not file_extension == "cpp" ):
-      error(filename, linenum, 'build/namespaces', 5,
-                               'Do not use namespace using-directives.  '
-                               'Use using-declarations instead.')
+    error(filename, linenum, 'build/namespaces', 5,
+          'Do not use namespace using-directives.  '
+          'Use using-declarations instead.')
 
   # Detect variable-length arrays.
   match = Match(r'\s*(.+::)?(\w+) [a-z]\w*\[(.+)];', line)
