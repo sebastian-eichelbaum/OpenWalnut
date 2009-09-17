@@ -44,11 +44,13 @@ void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler
 
     if( suffix == ".nii" || suffix == ".gz" )
     {
-        // enforce that a gzipped file is has also a "nii" sub suffix
-        boost::filesystem::path p( fileName );
-        p.replace_extension( "" );
-        suffix = getSuffix( p.string() );
-        assert( suffix == ".nii" && "currently only nii files may be gzipped" );
+        if( suffix == ".gz" )  // it may be a NIfTI file too
+        {
+            boost::filesystem::path p( fileName );
+            p.replace_extension( "" );
+            suffix = getSuffix( p.string() );
+            assert( suffix == ".nii" && "currently only nii files may be gzipped" );
+        }
         WLoaderNIfTI niiLoader( fileName, dataHandler );
         boost::thread loaderThread( niiLoader );
     }
