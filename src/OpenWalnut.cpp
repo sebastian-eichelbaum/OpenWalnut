@@ -38,7 +38,9 @@
  */
 int main( int argc, char* argv[] )
 {
-    std::cout << "OpenWalnut  Copyright (C) 2009  SomeCopyrightowner\n"
+    std::cout << "OpenWalnut ( http://www.openwalnut.org )\n"
+    "Copyright (C) 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
+    "For more information see http://www.openwalnut.org/copying\n"
     "This program comes with ABSOLUTELY NO WARRANTY.\n"
     "This is free software, and you are welcome to redistribute it\n"
     "under the terms of the GNU Lesser General Public License.\n"
