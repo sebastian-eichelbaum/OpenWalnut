@@ -163,6 +163,48 @@ void WKernel::init()
 
     // initialize Datahandler
     m_DataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
+
+    findAppPath();
+}
+
+bool WKernel::findAppPath()
+{
+    // FIXME (schurade)
+    // this should work on linux, have to implement it for windows and mac later
+
+    int length;
+    char appPath[255];
+
+    length = readlink( "/proc/self/exe", appPath, sizeof( appPath ) );
+
+    // Catch some errors
+    if ( length < 0 )
+    {
+        fprintf( stderr, "Error resolving symlink /proc/self/exe.\n" );
+        return false;
+    }
+    if ( length >= 255 )
+    {
+        fprintf( stderr, "Path too long. Truncated.\n" );
+        return false;
+    }
+
+    // the string this readlink() function returns is appended with a '@'.
+    appPath[length] = '\0';
+
+    // strip off the executable name
+    while ( appPath[length] != '/' )
+    {
+        appPath[length] = '\0';
+        --length;
+    }
+
+    m_AppPath = appPath;
+
+    std::string shaderPath( appPath );
+    m_ShaderPath = shaderPath + "shaders/";
+
+    return true;
 }
 
 bool WKernel::isFinishRequested() const
@@ -180,3 +222,12 @@ boost::shared_ptr<WDataHandler> WKernel::getDataHandler()
     return m_DataHandler;
 }
 
+std::string WKernel::getAppPath()
+{
+    return m_AppPath;
+}
+
+std::string WKernel::getShaderPath()
+{
+    return m_ShaderPath;
+}

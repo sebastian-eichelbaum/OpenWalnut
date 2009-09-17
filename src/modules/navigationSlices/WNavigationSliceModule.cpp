@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <osg/ShapeDrawable>
 #include <osg/Group>
@@ -141,41 +142,15 @@ void WNavigationSliceModule::createSlices()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_sliceNode );
 
 
-    // FIXME (schurade)
-    // code taken from http://www.linuxquestions.org/questions/programming-9/get-full-path-of-a-command-in-c-117965/
-    // move it to somewhere else and execute it on startup and store the app path somewhere central
+    std::vector< std::string >fnames;
+    fnames.push_back( std::string( "/SCR/schurade/data/mr188_t1_pl.nii.gz" ) );
+    WKernel::getRunningKernel()->doLoadDataSets( fnames );
 
-    int length;
-    char appPath[255];
 
-    length = readlink( "/proc/self/exe", appPath, sizeof( appPath ) );
+//    osg::Texture3D* testTexture = new osg::Texture3D;
 
-    // Catch some errors
-    if ( length < 0 )
-    {
-        fprintf( stderr, "Error resolving symlink /proc/self/exe.\n" );
-        exit( EXIT_FAILURE );
-    }
-    if ( length >= 255 )
-    {
-        fprintf( stderr, "Path too long. Truncated.\n" );
-        exit( EXIT_FAILURE );
-    }
 
-    // I don't know why, but the string this readlink() function
-    // returns is appended with a '@'.
-
-    appPath[length] = '\0';
-
-    // strip off the executable name
-    while ( appPath[length] != '/' )
-    {
-        appPath[length] = '\0';
-        --length;
-    }
-
-    std::string shaderPath( appPath );
-    shaderPath += "shaders/";
+    std::string shaderPath = WKernel::getRunningKernel()->getShaderPath();
 
     std::cout << "Full path is: " << shaderPath << std::endl;
 
@@ -184,8 +159,16 @@ void WNavigationSliceModule::createSlices()
     osg::Program* sliceProgramObject = new osg::Program;
     osg::Shader* sliceVertexObject = osg::Shader::readShaderFile( osg::Shader::VERTEX, shaderPath + "slice.vs" );
     osg::Shader* sliceFragmentObject = osg::Shader::readShaderFile( osg::Shader::FRAGMENT, shaderPath + "slice.fs" );
-    sliceProgramObject->addShader( sliceFragmentObject );
-    sliceProgramObject->addShader( sliceVertexObject );
+
+    if ( sliceFragmentObject )
+    {
+        sliceProgramObject->addShader( sliceFragmentObject );
+    }
+
+    if ( sliceVertexObject )
+    {
+        sliceProgramObject->addShader( sliceVertexObject );
+    }
 
     sliceState->setAttributeAndModes( sliceProgramObject, osg::StateAttribute::ON );
 }

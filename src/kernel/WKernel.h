@@ -122,6 +122,15 @@ public:
      */
     boost::shared_ptr<WDataHandler> getDataHandler();
 
+    /**
+     *
+     */
+    std::string getAppPath();
+
+    /**
+     *
+     */
+    std::string getShaderPath();
 
 protected:
 
@@ -157,6 +166,11 @@ private:
     void init();
 
     /**
+     * Determine and store the application path
+     */
+    bool findAppPath();
+
+    /**
      * Number of arguments given to application.
      */
     int m_ArgC;
@@ -170,6 +184,16 @@ private:
      * true if threads should finish.
      */
     bool m_FinishRequested;
+
+    /**
+     * the location of the openwalnut executable
+     */
+    std::string m_AppPath;
+
+    /**
+     * the location of the openwalnut executable
+     */
+    std::string m_ShaderPath;
 };
 
 /**
