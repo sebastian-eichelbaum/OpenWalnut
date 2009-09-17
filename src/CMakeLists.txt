@@ -200,7 +200,7 @@ ADD_CUSTOM_TARGET( vtest
 #-------------------------------------------------------------------------------------------------------------
 # Removes all tests thus forcing them to be recompiled during the next "make"
 ADD_CUSTOM_TARGET( cleantest
-                   COMMAND rm -f ${PROJECT_BINARY_DIR}/*/*_test.cc
+                   COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/../tools/CMakeModules/RemoveGeneratedTests.cmake
                    COMMENT "Remove all tests to force them to be recompiled"
                  )
 
