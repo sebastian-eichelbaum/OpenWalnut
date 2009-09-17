@@ -141,15 +141,6 @@ void WNavigationSliceModule::createSlices()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_sliceNode );
 
-
-    std::vector< std::string >fnames;
-    fnames.push_back( std::string( "/SCR/schurade/data/mr188_t1_pl.nii.gz" ) );
-    WKernel::getRunningKernel()->doLoadDataSets( fnames );
-
-
-//    osg::Texture3D* testTexture = new osg::Texture3D;
-
-
     std::string shaderPath = WKernel::getRunningKernel()->getShaderPath();
 
     std::cout << "Full path is: " << shaderPath << std::endl;
