@@ -22,46 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WNOSUCHDATASETEXCEPTION_H
-#define WNOSUCHDATASETEXCEPTION_H
-
+#include <stdexcept>
 #include <string>
 
-#include "../../common/WException.h"
+#include "WDHIOFailure.h"
 
-/**
- * Should be thrown when an invalid index is used to get a WSubject from
- * the WDataHandler or a WDataSet from the
- * WSubject. An index is invalid if it's greater or equal than the number
- * of WDataSets in that WDataHandler.
- *
- * It's subclassed from std::logic_error since it represents a mistake by a
- * programmer, not by the runtime system (e.g. allocation memory) or other
- * libraries.
- *
- * \ingroup dataHandler
- */
-class WNoSuchDataSetException : public WException
+WDHIOFailure::WDHIOFailure( const std::string& msg )
+    : WDHException( msg )
 {
-public:
-    /**
-     * Constructs new exception.
-     */
-    WNoSuchDataSetException( const std::string& s = std::string() ) throw()
-        : WException( s )
-    {
-    }
+    // initialize members
+}
 
-    /**
-     * Destroys this exception
-     */
-    virtual ~WNoSuchDataSetException() throw()
-    {
-    };
+WDHIOFailure::~WDHIOFailure() throw()
+{
+    // cleanup
+}
 
-protected:
-
-private:
-};
-
-#endif  // WNOSUCHDATASETEXCEPTION_H

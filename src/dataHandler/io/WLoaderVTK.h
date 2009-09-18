@@ -25,7 +25,14 @@
 #ifndef WLOADERVTK_H
 #define WLOADERVTK_H
 
+#include <string>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+
 #include "../WLoader.h"
+#include "../exceptions/WDHIOFailure.h"
+
+class WDataHandler;
 
 /**
  * Loader for the VTK file formats. For VTK just see http://www.vtk.org
@@ -33,9 +40,44 @@
  */
 class WLoaderVTK : public WLoader
 {
+friend class WLoaderVTKTest;
 public:
+    /**
+     * Constructs and makes a new VTK loader for separate thread start.
+     */
+    WLoaderVTK( std::string fname, boost::shared_ptr< WDataHandler > dataHandler );
+
+    /**
+     * This function is automatically called when creating a new thread for the
+     * loader with boost::thread. It calls the methods of the NIfTI I/O library.
+     */
+    virtual void operator()();
+
 protected:
+    /**
+     * Read header from file.
+     */
+    void readHeader() throw( WDHIOFailure );
+
+    /**
+     * Checks if the header defines the specified VTK DATASET type.
+     *
+     * \param type VTK DATASET type as string, to check for.
+     */
+    bool datasetTypeIs( const std::string& type ) const;
+
+    /**
+     * Returns true if the VTK file is in BINARY format, otherwise false.
+     */
+    bool isBinary() const;
+
+    /**
+     * First four lines of ASCII text describing this file
+     */
+    std::vector< std::string > m_header;
+
 private:
+    boost::shared_ptr< WDataHandler > m_dataHandler;
 };
 
 #endif  // WLOADERVTK_H

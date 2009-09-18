@@ -33,9 +33,7 @@
 
 #include "nifti/nifti1_io.h"
 
-class WDataSet;
 class WDataHandler;
-
 
 /**
  * Loader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
@@ -54,7 +52,7 @@ public:
      * This function is automatically called when creating a new thread for the
      * loader with boost::thread. It calls the methods of the NIfTI I/O library.
      */
-    void operator()();
+    virtual void operator()();
 
 protected:
 private:

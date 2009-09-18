@@ -29,7 +29,7 @@
 
 #include "../WDataHandler.h"
 #include "../WSubject.h"
-#include "../exceptions/WNoSuchDataSetException.h"
+#include "../exceptions/WDHNoSuchDataSet.h"
 
 class WDataHandlerTest : public CxxTest::TestSuite
 {
@@ -94,7 +94,7 @@ public:
         TS_ASSERT_EQUALS( dataHandler.getSubject( 0 ), dummySubject );
         TS_ASSERT_EQUALS( dataHandler.getSubject( 1 ), otherSubject );
         TS_ASSERT_DIFFERS( dataHandler.getSubject( 1 ), dummySubject );
-        TS_ASSERT_THROWS( dataHandler.getSubject( 2 ), WNoSuchDataSetException );
+        TS_ASSERT_THROWS( dataHandler.getSubject( 2 ), WDHNoSuchDataSet );
     }
 
     /**

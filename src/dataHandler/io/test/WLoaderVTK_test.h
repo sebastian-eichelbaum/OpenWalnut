@@ -25,22 +25,101 @@
 #ifndef WLOADERVTK_TEST_H
 #define WLOADERVTK_TEST_H
 
+#include <string>
+#include <vector>
+
+#include <boost/filesystem.hpp>
 #include <cxxtest/TestSuite.h>
 
 #include "../WLoaderVTK.h"
+#include "../../WDataHandler.h"
 
 /**
- * TODO(math): Document this!
+ * Unit tests the WLoaderVTK class.
  */
 class WLoaderVTKTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(math): Document this!
+     * Create test environment.
      */
-    void testSomething( void )
+    void setUp( void )
     {
+        m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
+        m_vtkFile = boost::filesystem::path( "fixtures/VTK/ascii-2nd-order-tensor.vtk" );
+        assert( boost::filesystem::exists( m_vtkFile ) );
     }
+
+    /**
+     * A valid "header" of a VTK file consists of 4 lines of text (this is
+     * arbitrary specified by me, the author of this class)
+     * 1. VTK version stuff
+     * 2. VTK description header stuff (max 256 chars)
+     * 3. BINARY or ASCII
+     * 4. DATASET type
+     * 
+     * Further description about the DATASET e.g. ORIGIN in case of
+     * STRUCTURED_POINTS does not belong to the header.
+     *
+     * FYI: It makes really sense to restrict the header to 4 lines since since
+     * every VTK file must have at least 4 lines describing in ASCII what comes
+     * next.
+     */
+    void testReadHeader( void )
+    {
+        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
+        loader.readHeader();
+        std::vector< std::string > expected;
+        expected.push_back( "# vtk DataFile Version 3.0" );
+        expected.push_back( "vtk output" );
+        expected.push_back( "ASCII" );
+        expected.push_back( "DATASET STRUCTURED_POINTS" );
+        TS_ASSERT_EQUALS( loader.m_header, expected );
+    }
+
+    /**
+     * If the path is not valid there should be thrown an exception
+     */
+    void testReadHeaderOnInvalidFile( void )
+    {
+        WLoaderVTK loader( "no/such/file", m_dataHandler );
+        TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
+                                 const WDHIOFailure &e,
+                                 e.what(),
+                                 std::string( "Invalid file or filename: no/such/file" ) );
+    }
+
+    /**
+     * If the header introduces a STRUCTURED_POINTS VTK DATASET then true
+     * should be returned.
+     */
+    void testCheckDatasetType( void )
+    {
+        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
+        loader.readHeader();
+        TS_ASSERT_EQUALS( loader.datasetTypeIs( "STRUCTURED_POINTS" ), true );
+    }
+
+    /**
+     * A VTK file is typically either in BINARY or ASCII format.
+     */
+    void testBinaryOrAscii( void )
+    {
+        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
+        loader.readHeader();
+        TS_ASSERT_EQUALS( loader.isBinary(), false );
+    }
+
+private:
+    /**
+     * Dummy DataHandler instance
+     */
+    boost::shared_ptr< WDataHandler > m_dataHandler;
+
+    /**
+     * A standard VTK file.
+     */
+    boost::filesystem::path m_vtkFile;
 };
 
 #endif  // WLOADERVTK_TEST_H

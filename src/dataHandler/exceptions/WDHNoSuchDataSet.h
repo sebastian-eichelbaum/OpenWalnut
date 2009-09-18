@@ -22,6 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WDHNOSUCHDATASET_H
+#define WDHNOSUCHDATASET_H
 
-#include "WNoSuchDataSetException.h"
+#include <string>
 
+#include "WDHException.h"
+
+/**
+ * Should be thrown when an invalid index is used to get a WSubject from
+ * the WDataHandler or a WDataSet from the
+ * WSubject. An index is invalid if it's greater or equal than the number
+ * of WDataSets in that WDataHandler.
+ *
+ * \ingroup dataHandler
+ */
+class WDHNoSuchDataSet : public WDHException
+{
+public:
+    /**
+     * Constructs new exception.
+     */
+    explicit WDHNoSuchDataSet( const std::string& msg = "DataHandler Exception: Invalid DataSet Access" );
+
+    /**
+     * Destroys this exception
+     */
+    virtual ~WDHNoSuchDataSet() throw();
+
+protected:
+
+private:
+};
+
+#endif  // WDHNOSUCHDATASET_H

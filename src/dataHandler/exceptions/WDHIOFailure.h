@@ -22,27 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERMANAGER_H
-#define WLOADERMANAGER_H
+#ifndef WDHIOFAILURE_H
+#define WDHIOFAILURE_H
 
+#include <stdexcept>
 #include <string>
-#include <boost/shared_ptr.hpp>
 
-class WDataHandler;
+#include "WDHException.h"
 
 /**
- * Decouples file loading from the rest of OpenWalnut into a single thread.
- * \ingroup dataHandler
+ * Use this for IO error handling.
  */
-class WLoaderManager
+class WDHIOFailure : public WDHException
 {
 public:
     /**
-     * Selects correct loader for fileName and creates loader thread.
+     * Default constructor.
+     * \param msg the exception message.
      */
-    void load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    explicit WDHIOFailure( const std::string& msg = "DataHandler Exception: IO error occured." );
+
+    /**
+     * Destructor
+     */
+    virtual ~WDHIOFailure() throw();
+
 protected:
 private:
 };
 
-#endif  // WLOADERMANAGER_H
+#endif  // WDHIOFAILURE_H

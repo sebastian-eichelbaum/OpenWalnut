@@ -22,27 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERMANAGER_H
-#define WLOADERMANAGER_H
-
 #include <string>
-#include <boost/shared_ptr.hpp>
 
-class WDataHandler;
+#include "WDHNoSuchDataSet.h"
 
-/**
- * Decouples file loading from the rest of OpenWalnut into a single thread.
- * \ingroup dataHandler
- */
-class WLoaderManager
+WDHNoSuchDataSet::WDHNoSuchDataSet( const std::string& msg )
+    : WDHException( msg )
 {
-public:
-    /**
-     * Selects correct loader for fileName and creates loader thread.
-     */
-    void load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
-protected:
-private:
-};
+    // initialize members
+}
 
-#endif  // WLOADERMANAGER_H
+WDHNoSuchDataSet::~WDHNoSuchDataSet() throw()
+{
+    // cleanup
+}

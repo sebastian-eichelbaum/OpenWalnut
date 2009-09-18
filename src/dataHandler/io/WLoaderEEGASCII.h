@@ -48,7 +48,7 @@ public:
      * This  function is automatically called when creating a new thread for the
      * loader with boost::thread.
      */
-    void operator()();
+    virtual void operator()();
 
 protected:
 private:

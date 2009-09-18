@@ -27,18 +27,17 @@
 
 #include "WDataHandler.h"
 #include "WSubject.h"
-#include "exceptions/WNoSuchDataSetException.h"
+#include "exceptions/WDHNoSuchDataSet.h"
 #include "WLoaderManager.h"
 
 WDataHandler::WDataHandler()
 {
 }
 
-
 boost::shared_ptr< WSubject > WDataHandler::getSubject( const unsigned int subjectId ) const
 {
     if( subjectId >= m_subjects.size() )
-        throw WNoSuchDataSetException( "Index too large." );
+        throw WDHNoSuchDataSet( "Index too large." );
     return m_subjects.at( subjectId );
 }
 

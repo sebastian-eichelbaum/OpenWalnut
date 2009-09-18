@@ -28,10 +28,10 @@
 #include <boost/filesystem.hpp>
 
 #include "WLoaderManager.h"
-#include "WDataSet.h"
 #include "io/WLoaderNIfTI.h"
 #include "io/WLoaderBiosig.h"
 #include "io/WLoaderEEGASCII.h"
+#include "io/WLoaderVTK.h"
 
 std::string getSuffix( std::string name )
 {
@@ -71,6 +71,11 @@ void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler
         // You need to provide a real implementation here if you want to load vtk.
         std::cout << "VTK not implemented yet" << std::endl;
         assert( 0 );
+    }
+    else if( suffix == ".fib" )
+    {
+        WLoaderVTK vtkLoader( fileName, dataHandler );
+        boost::thread loaderThread( vtkLoader );
     }
     else
     {

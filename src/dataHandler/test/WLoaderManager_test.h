@@ -43,14 +43,14 @@ class WLoaderManagerTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Test the loading routine.
+     * The load routine should manage to select the appropriate WLoader class
+     * for a file type.
      */
     void testLoad( void )
     {
         std::string fileName = "fixtures/scalar_signed_short.nii.gz";
         std::cout << "Test loading of " << fileName << "." << std::endl;
-        boost::shared_ptr< WDataHandler > dataHandler =
-            boost::shared_ptr< WDataHandler >( new WDataHandler() );
+        boost::shared_ptr< WDataHandler > dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
         TS_ASSERT_EQUALS( dataHandler->getNumberOfSubjects(), 0 );
         WLoaderManager testLoaderManager;
         testLoaderManager.load( fileName, dataHandler );

@@ -217,6 +217,7 @@ ADD_CUSTOM_TARGET( cicheck
 ADD_CUSTOM_TARGET( fixtures
                    ALL
                    COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
+                   COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/io/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/io
                    COMMENT "Copy fixtures to the right place."
                  )
 

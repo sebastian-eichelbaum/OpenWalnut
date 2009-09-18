@@ -22,27 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERMANAGER_H
-#define WLOADERMANAGER_H
+#ifndef WDHEXCEPTION_H
+#define WDHEXCEPTION_H
 
+#include <stdexcept>
 #include <string>
-#include <boost/shared_ptr.hpp>
 
-class WDataHandler;
+#include "../../common/WException.h"
 
 /**
- * Decouples file loading from the rest of OpenWalnut into a single thread.
+ * General purpose exception and therefore base class for all DataHanlder
+ * related exceptions.
  * \ingroup dataHandler
  */
-class WLoaderManager
+class WDHException: public WException
 {
 public:
     /**
-     * Selects correct loader for fileName and creates loader thread.
+     * Default constructor.
+     * \param msg the exception message.
      */
-    void load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    explicit WDHException( const std::string& msg = "DataHandler Exception" );
+
+    /**
+     * Destructor.
+     */
+    virtual ~WDHException() throw();
+
 protected:
+
 private:
 };
 
-#endif  // WLOADERMANAGER_H
+#endif  // WDHEXCEPTION_H
