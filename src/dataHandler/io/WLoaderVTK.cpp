@@ -38,43 +38,55 @@ WLoaderVTK::WLoaderVTK( std::string fname, boost::shared_ptr< WDataHandler > dat
 {
 }
 
-void WLoaderVTK::operator()()
+WLoaderVTK::~WLoaderVTK() throw()
 {
-    readHeader();
-    if( !datasetTypeIs( "POLYDATA" ) )
-    {
-        throw WDHException( "Loading VTK files with DATASET != POLYDATA not implemented" );
-    }
-    if( !isBinary() )
-    {
-        throw WDHException( "Loading VTK files in ASCII format is not yet supported" );
-    }
 }
 
-void WLoaderVTK::readHeader() throw( WDHIOFailure )
+void WLoaderVTK::operator()() throw()
 {
     std::ifstream in( m_fileName.c_str(), std::ifstream::in | std::ifstream::binary );
-    if( !in || in.bad() )
+    try
     {
-        throw WDHIOFailure( "Invalid file or filename: " + m_fileName );
+        if( !in || in.bad() )
+        {
+            throw WDHIOFailure( "Load broken file '" + m_fileName + "'" );
+        }
+        readHeader( &in );
+        if( !datasetTypeIs( "POLYDATA" ) )
+        {
+            throw WDHException( "Invalid VTK DATASET type: DATASET != POLYDATA not implemented" );
+        }
+        if( !isBinary() )
+        {
+            throw WDHException( "VTK files in ASCII format is not yet supported" );
+        }
+        readPoints( &in );
     }
+    catch( WDHException e )
+    {
+        in.close();
+        std::cerr << "Error :: DataHandler :: Abort loading VTK file due to: " << e.what() << std::endl;
+    }
+    in.close();
+}
 
+void WLoaderVTK::readHeader( std::ifstream* ifs ) throw( WDHIOFailure )
+{
     std::string line;
     try
     {
         for( int i = 0; i < 4; ++i )  // strip first four lines
         {
-            std::getline( in, line );
+            std::getline( *ifs, line );
             m_header.push_back( line );
         }
     }
     catch( std::ios_base::failure e )
     {
-        throw WDHIOFailure( "Error while reading first four lines of " + m_fileName + ": " + e.what() );
+        throw WDHIOFailure( "Reading first 4 lines of '" + m_fileName + "': " + e.what() );
     }
 
     assert( m_header.size() == 4 );
-    in.close();
 }
 
 bool WLoaderVTK::datasetTypeIs( const std::string& type ) const
@@ -90,5 +102,13 @@ bool WLoaderVTK::isBinary() const
 {
     assert( m_header.size() == 4 );
     std::string thirdLine = string_utils::toUpper( string_utils::trim( m_header[2] ) );
+    if( thirdLine != "BINARY" )
+    {
+        assert( thirdLine == "ASCII" );
+    }
     return "BINARY" == thirdLine;
+}
+
+void WLoaderVTK::readPoints( std::ifstream* ifs )
+{
 }

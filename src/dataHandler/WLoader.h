@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include "exceptions/WDHIOFailure.h"
+
 /**
  * Base class to all WLoaders which imports data from a given file and generate
  * a WDataSet out of it. The WLoader subclasses will also have to determine
@@ -36,7 +38,7 @@
 class WLoader
 {
 public:
-    explicit WLoader( std::string fileName );
+    explicit WLoader( std::string fileName ) throw( WDHIOFailure );
 
     virtual ~WLoader()
     {

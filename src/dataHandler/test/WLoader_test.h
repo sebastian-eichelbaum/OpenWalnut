@@ -25,21 +25,44 @@
 #ifndef WLOADER_TEST_H
 #define WLOADER_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WLoader.h"
 
 /**
- * TODO(math): Document this!
+ * Just a dummy for testing the base class
+ */
+class DummyLoader : public WLoader
+{
+public:
+    explicit DummyLoader( std::string fileName )
+        : WLoader( fileName )
+    {
+    }
+
+    virtual void operator()()
+    {
+    }
+};
+
+/**
+ * Unit tests the Loader base class.
  */
 class WLoaderTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(math): Document this!
+     * If the given file name is invalid an exception should be thrown.
      */
-    void testSomething( void )
+    void testExceptionOnInvalidFilename( void )
     {
+        TS_ASSERT_THROWS_EQUALS( DummyLoader( "no such file" ),
+                                 const WDHIOFailure &e,
+                                 e.what(),
+                                 std::string( "file 'no such file' doesn't exists." ) );
+        TS_ASSERT_THROWS_NOTHING( DummyLoader( "fixtures/scalar_float.nii.gz" ) );
     }
 };
 

@@ -25,14 +25,40 @@
 #ifndef WLOADERVTK_TEST_H
 #define WLOADERVTK_TEST_H
 
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include <boost/filesystem.hpp>
 #include <cxxtest/TestSuite.h>
+#include <cxxtest/ValueTraits.h>
 
 #include "../WLoaderVTK.h"
 #include "../../WDataHandler.h"
+
+// New value trait for std::streampos
+#ifdef CXXTEST_RUNNING
+namespace CxxTest
+{
+    CXXTEST_TEMPLATE_INSTANTIATION
+    class ValueTraits< std::streampos >
+    {
+        char _s[256];
+
+        public:  // NOLINT
+        explicit ValueTraits( const std::streampos &pos )
+        {
+            std::stringstream ss;
+            ss << pos;
+            snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
+        }
+        const char *asString() const
+        {
+            return _s;
+        }
+    };
+}
+#endif  // CXXTEST_RUNNING
 
 /**
  * Unit tests the WLoaderVTK class.
@@ -68,7 +94,9 @@ public:
     void testReadHeader( void )
     {
         WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
-        loader.readHeader();
+        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
+        loader.readHeader( &ifs );
+        ifs.close();
         std::vector< std::string > expected;
         expected.push_back( "# vtk DataFile Version 3.0" );
         expected.push_back( "vtk output" );
@@ -78,15 +106,16 @@ public:
     }
 
     /**
-     * If the path is not valid there should be thrown an exception
+     * After reading the header the position in the stream should have
+     * changed
      */
-    void testReadHeaderOnInvalidFile( void )
+    void testReadHeaderReturnsCorrectStreamPosistion( void )
     {
-        WLoaderVTK loader( "no/such/file", m_dataHandler );
-        TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
-                                 const WDHIOFailure &e,
-                                 e.what(),
-                                 std::string( "Invalid file or filename: no/such/file" ) );
+        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
+        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
+        loader.readHeader( &ifs );
+        TS_ASSERT_EQUALS( ifs.tellg(), 70 );
+        ifs.close();
     }
 
     /**
@@ -96,7 +125,9 @@ public:
     void testCheckDatasetType( void )
     {
         WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
-        loader.readHeader();
+        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
+        loader.readHeader( &ifs );
+        ifs.close();
         TS_ASSERT_EQUALS( loader.datasetTypeIs( "STRUCTURED_POINTS" ), true );
     }
 
@@ -106,7 +137,9 @@ public:
     void testBinaryOrAscii( void )
     {
         WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
-        loader.readHeader();
+        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
+        loader.readHeader( &ifs );
+        ifs.close();
         TS_ASSERT_EQUALS( loader.isBinary(), false );
     }
 
