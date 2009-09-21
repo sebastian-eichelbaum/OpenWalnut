@@ -63,7 +63,6 @@ void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
     WLoaderManager lm;
     for ( size_t i = 0 ; i < fileNames.size() ; ++i)
     {
-        // TODO(wiebel): need to associate the dataset to its subject
         lm.load( fileNames[i], shared_from_this() );
     }
 }

@@ -36,7 +36,6 @@ class WDataSetMultiple : public WDataSet
 public:
     /**
      * Dummy constructor.
-     * TODO(wiebel): implement this
      */
     explicit WDataSetMultiple()
     : WDataSet()
