@@ -47,12 +47,6 @@ WNavigationSliceModule::~WNavigationSliceModule()
     // cleanup
 }
 
-WNavigationSliceModule::WNavigationSliceModule( const WNavigationSliceModule& other )
-    : WModule()
-{
-    *this = other;
-}
-
 const std::string WNavigationSliceModule::getName() const
 {
     return "Navigation Slice Module";

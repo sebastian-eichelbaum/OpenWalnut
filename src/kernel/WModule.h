@@ -27,6 +27,9 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
+
 #include "../common/WThreadedRunner.h"
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
@@ -51,44 +54,51 @@ public:
     virtual ~WModule();
 
     /**
-     * Copy constructor
-     * \param other Reference on object to copy.
-     */
-    WModule( const WModule& other );
-
-    /**
      * Gives back the name of this module.
      * \return the module's name.
      */
-    virtual const std::string getName() const;
+    virtual const std::string getName() const = 0;
 
     /**
      * Gives back a description of this module.
      * \return description to module.
      */
-    virtual const std::string getDescription() const;
-
-    /** 
-     * Adds the specified connector to the list of inputs.
-     * 
-     * \param con the connector.
-     */
-    virtual void addInput( boost::shared_ptr<WModuleInputConnector> con );
-
-    /** 
-     * Adds the specified connector to the list of outputs.
-     * 
-     * \param con the connector.
-     */
-    virtual void addOutput( boost::shared_ptr<WModuleOutputConnector> con );
+    virtual const std::string getDescription() const = 0;
 
 protected:
 
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
-    virtual void threadMain();
+    virtual void threadMain() = 0;
 
+    /** 
+     * Set of input connectors associated with this module.
+     */
+    std::set<boost::shared_ptr<WModuleInputConnector> > m_InputConnectors;
+
+    /** 
+     * Set of output connectors associated with this module.
+     */
+    std::set<boost::shared_ptr<WModuleOutputConnector> > m_OutputConnectors;
+
+    /** 
+     * Adds the specified connector to the list of inputs. This function is NOT thread-safe which is not needed since modules
+     * should never add/remove connectors outside their constructor.
+     * 
+     * \param con the connector.
+     */
+    void addConnector( boost::shared_ptr<WModuleInputConnector> con );
+
+    /** 
+     * Adds the specified connector to the list of outputs. This function is NOT thread-safe which is not needed since modules
+     * should never add/remove connectors outside their constructor. 
+     * 
+     * \param con the connector.
+     */
+    void addConnector( boost::shared_ptr<WModuleOutputConnector> con );
+
+    // XXX corresponding removeConnector methods should not be needed
 private:
 };
 

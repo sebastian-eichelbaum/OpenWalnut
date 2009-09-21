@@ -55,13 +55,6 @@ public:
 
     /**
      * \par Description
-     * Copy constructor
-     * \param other Reference on object to copy.
-     */
-    WNavigationSliceModule( const WNavigationSliceModule& other );
-
-    /**
-     * \par Description
      * Gives back the name of this module.
      * \return the module's name.
      */

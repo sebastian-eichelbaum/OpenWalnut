@@ -37,22 +37,13 @@ WModule::~WModule()
     // cleanup
 }
 
-WModule::WModule( const WModule& other )
+void WModule::addConnector( boost::shared_ptr<WModuleInputConnector> con )
 {
-    *this = other;
+   m_InputConnectors.insert( con ); 
 }
 
-const std::string WModule::getName() const
+void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
 {
-    return "WModule";
-}
-
-const std::string WModule::getDescription() const
-{
-    return "Plain module without functionality";
-}
-
-void WModule::threadMain()
-{
+    m_OutputConnectors.insert( con );
 }
 

@@ -43,12 +43,6 @@ WTestModule::~WTestModule()
     // cleanup
 }
 
-WTestModule::WTestModule( const WTestModule& other )
-    : WModule()
-{
-    *this = other;
-}
-
 const std::string WTestModule::getName() const
 {
     return "Test Module";

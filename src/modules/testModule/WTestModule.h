@@ -48,12 +48,6 @@ public:
     virtual ~WTestModule();
 
     /**
-     * Copy constructor
-     * \param other Reference on object to copy.
-     */
-    WTestModule( const WTestModule& other );
-
-    /**
      * Gives back the name of this module.
      * \return the module's name.
      */
