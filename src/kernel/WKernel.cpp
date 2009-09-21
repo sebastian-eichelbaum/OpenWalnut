@@ -93,6 +93,7 @@ int WKernel::getArgumentCount() const
 
 char** WKernel::getArguments() const
 {
+    // TODO( ebaum ): dasfdsf
     return m_ArgV;
 }
 
@@ -121,6 +122,7 @@ int WKernel::run()
     }
 
     // wait
+    // TODO(ebaum): this is not the optimal. It would be better to quit OSG, GE and so on in the right order.
     m_Gui->wait( false );
     m_FinishRequested = true;
 

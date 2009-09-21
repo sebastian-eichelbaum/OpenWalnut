@@ -28,6 +28,9 @@
 #include <string>
 
 #include "../common/WThreadedRunner.h"
+#include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
+
 
 /**
  * Class representing a single module of OpenWalnut.
@@ -64,6 +67,20 @@ public:
      * \return description to module.
      */
     virtual const std::string getDescription() const;
+
+    /** 
+     * Adds the specified connector to the list of inputs.
+     * 
+     * \param con the connector.
+     */
+    virtual void addInput( boost::shared_ptr<WModuleInputConnector> con );
+
+    /** 
+     * Adds the specified connector to the list of outputs.
+     * 
+     * \param con the connector.
+     */
+    virtual void addOutput( boost::shared_ptr<WModuleOutputConnector> con );
 
 protected:
 
