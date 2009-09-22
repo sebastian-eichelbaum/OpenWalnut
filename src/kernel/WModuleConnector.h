@@ -26,11 +26,14 @@
 #define WMODULECONNECTOR_H
 
 #include <set>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
+
+#include "WModule.h"
 
 /**
  * Base class for modelling connections between kernel modules. It contains several pure virtual member functions and can
@@ -43,22 +46,12 @@ public:
     /**
      * Default constructor.
      */
-    WModuleConnector();
+    WModuleConnector( WModule* module, std::string name="", std::string description="" );
 
     /**
      * Destructor.
      */
     virtual ~WModuleConnector();
-
-    /** 
-     * Connects this Module Connector with another one. During connection process, just the connectibility flag from
-     * WModuleConnector::connectable is used to determine whether the connection is possible or not.
-     * 
-     * \param con the connector to connect.
-     * 
-     * \return true if successful
-     */
-    virtual bool connect( boost::shared_ptr<WModuleConnector> con );
 
     /** 
      * Disconnects this connector if connected. If it is not connected: nothing happens.
@@ -68,15 +61,32 @@ public:
     virtual void disconnect( boost::shared_ptr<WModuleConnector> con );
 
     /** 
-     * Checks whether the specified module is compatible for connection. Please not that this does not take into account how
-     * useful or senseless a connection would be. This member is pure virtual to ensure nobody can instantiate WModuleConnector
-     * directly. Every derived class has to implement this method to specify the right anti-part.
+     * Gives information about this connection.
      * 
-     * \param con the module to check compatibility with.
-     * 
-     * \return true if compatible.
+     * \return The connection's description.
      */
-    virtual bool connectable( boost::shared_ptr<WModuleConnector> con )=0;
+    const std::string getDescription() const;
+
+    /** 
+     * Sets the connector's description. This is not thread-safe! Do not use it outside the WModule thread.
+     * 
+     * \param desc the new description.
+     */
+    void setDescription( std::string desc );
+
+    /** 
+     * Gives name of connection.
+     * 
+     * \return The name of this connection
+     */
+    const std::string getName() const;
+
+    /** 
+     * Sets the connector's name. This is not thread-safe! Do not use it outside the WModule thread.
+     * 
+     * \param name the new name.
+     */
+    void setName( std::string name );
 
     /**
      * Define the signals common to all connectors here.
@@ -88,6 +98,16 @@ public:
     typedef boost::signals2::signal<void ( boost::shared_ptr<WModuleConnector> sender )>  ModuleConnectorSignal;
 
 protected:
+
+    /** 
+     * Connects this Module Connector with another one. During connection process, just the connectibility flag from
+     * WModuleConnector::connectable is used to determine whether the connection is possible or not.
+     * 
+     * \param con the connector to connect.
+     * 
+     * \return true if successful
+     */
+    virtual bool connect( boost::shared_ptr<WModuleConnector> con );
 
     /** 
      * Disconnects ALL connected connectors.
@@ -116,6 +136,11 @@ private:
      * The connections description.
      */
     std::string m_Description;
+
+    /** 
+     * The Module this connector belongs to
+     */
+    WModule* m_Module;
 };
 
 #endif  // WMODULECONNECTOR_H

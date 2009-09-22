@@ -25,6 +25,9 @@
 #ifndef WMODULEINPUTCONNECTOR_H
 #define WMODULEINPUTCONNECTOR_H
 
+#include <string>
+
+#include "WModule.h"
 #include "WModuleConnector.h"
 
 class WModuleOutputConnector;
@@ -39,23 +42,12 @@ public:
     /**
      * Default constructor.
      */
-    WModuleInputConnector();
+    WModuleInputConnector( WModule* module, std::string name="", std::string description="" );
 
     /**
      * Destructor.
      */
     virtual ~WModuleInputConnector();
-
-    /** 
-     * Checks whether the specified module is an input connector.
-     * 
-     * \param con the connector to check.
-     * 
-     * \return true if con is an input connector.
-     */
-    virtual bool connectable( boost::shared_ptr<WModuleInputConnector> con );
-    
-    virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
 
 protected:
 

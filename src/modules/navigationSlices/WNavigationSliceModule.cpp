@@ -43,9 +43,14 @@ WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
     // initialize connectors
-    // XXX to add a new connector and to offer it these simple steps need to be done:
-     m_Input= boost::shared_ptr<WModuleInputConnector>( new WModuleInputConnector() );
+    // XXX to add a new connector and to offer it these simple steps need to be done
 
+    // initialize it first
+    m_Input= boost::shared_ptr<WModuleInputConnector>(
+            new WModuleInputConnector( this, "data1", "Dataset to show on the slices." )
+    );
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work.
+    addConnector( m_Input );
 
 
     // initialize members

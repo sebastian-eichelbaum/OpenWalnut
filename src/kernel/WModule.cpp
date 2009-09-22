@@ -22,7 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
 #include <string>
+
+#include <boost/shared_ptr.hpp>
+
+#include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
 
 #include "WModule.h"
 
@@ -39,11 +45,40 @@ WModule::~WModule()
 
 void WModule::addConnector( boost::shared_ptr<WModuleInputConnector> con )
 {
-   m_InputConnectors.insert( con ); 
+    m_InputConnectors.insert( con );
 }
 
 void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
 {
     m_OutputConnectors.insert( con );
+}
+
+const std::set<boost::shared_ptr<WModuleInputConnector> >& WModule::getInputConnectors() const
+{
+    return m_InputConnectors;
+}
+
+const std::set<boost::shared_ptr<WModuleOutputConnector> >& WModule::getOutputConnectors() const
+{
+    return m_OutputConnectors;
+}
+
+void WModule::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
+                                           boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // By default this callback does nothing. Overwrite it in your module.
+}
+
+
+void WModule::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
+                                      boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // By default this callback does nothing. Overwrite it in your module.
+}
+
+void WModule::notifyDataChange( boost::shared_ptr<WModuleInputConnector> /*input*/,
+                                boost::shared_ptr<WModuleOutputConnector> /*output*/ )
+{
+    // By default this callback does nothing. Overwrite it in your module.
 }
 

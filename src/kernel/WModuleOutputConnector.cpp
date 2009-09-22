@@ -22,12 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WModuleOutputConnector.h"
+#include <string>
 
+#include "WModule.h"
 #include "WModuleInputConnector.h"
 
-WModuleOutputConnector::WModuleOutputConnector():
-    WModuleConnector()
+#include "WModuleOutputConnector.h"
+
+WModuleOutputConnector::WModuleOutputConnector( WModule* module, std::string name, std::string description ):
+    WModuleConnector( module, name, description )
 {
     // initialize members
 }
@@ -36,14 +39,13 @@ WModuleOutputConnector::~WModuleOutputConnector()
 {
     // cleanup
 }
- 
-bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleInputConnector> con )
-{
-    return true;
-}
 
-bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleConnector> con )
+bool WModuleOutputConnector::connect( boost::shared_ptr<WModuleInputConnector> con )
 {
-    return false;
+    // let WModuleConnector do the list management
+    if (!WModuleConnector::connect( con ) )
+        return false;
+
+    // connect signals
 }
 

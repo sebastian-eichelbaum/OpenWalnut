@@ -22,12 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WModuleInputConnector.h"
+#include <string>
 
+#include "WModule.h"
 #include "WModuleOutputConnector.h"
 
-WModuleInputConnector::WModuleInputConnector():
-    WModuleConnector()
+#include "WModuleInputConnector.h"
+
+WModuleInputConnector::WModuleInputConnector( WModule* module, std::string name, std::string description ):
+    WModuleConnector( module, name, description )
 {
     // initialize members
 }
@@ -35,15 +38,5 @@ WModuleInputConnector::WModuleInputConnector():
 WModuleInputConnector::~WModuleInputConnector()
 {
     // cleanup
-}
-
-bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleInputConnector> con )
-{
-    return true;
-}
-
-bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleConnector> con )
-{
-    return false;
 }
 

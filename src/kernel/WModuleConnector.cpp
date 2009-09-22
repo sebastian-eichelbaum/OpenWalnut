@@ -22,14 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WModuleConnector.h"
-
 #include <iostream>
 #include <list>
+#include <string>
 
-WModuleConnector::WModuleConnector()
+#include "WModule.h"
+
+#include "WModuleConnector.h"
+
+WModuleConnector::WModuleConnector( WModule* module, std::string name, std::string description )
 {
     // initialize members
+    m_Module = module;
+
+    m_Name = name;
+    m_Description = description;
 }
 
 WModuleConnector::~WModuleConnector()
@@ -40,12 +47,6 @@ WModuleConnector::~WModuleConnector()
 
 bool WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
-    // check
-    if ( !connectable( con ) )
-    {
-        return false;
-    }
-
     // add to list
     boost::unique_lock<boost::shared_mutex> lock( m_ConnectionListLock );
     m_Connected.insert( con );
@@ -63,12 +64,32 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con )
     m_Connected.erase( con );
     lock.unlock();
 }
-    
+
 void WModuleConnector::disconnectAll()
 {
     // remove from list
     boost::unique_lock<boost::shared_mutex> lock( m_ConnectionListLock );
     m_Connected.clear();
     lock.unlock();
+}
+
+const std::string WModuleConnector::getDescription() const
+{
+    return m_Description;
+}
+
+const std::string WModuleConnector::getName() const
+{
+    return m_Name;
+}
+
+void WModuleConnector::setDescription( std::string desc )
+{
+    m_Description = desc;
+}
+
+void WModuleConnector::setName( std::string name )
+{
+    m_Name = name;
 }
 
