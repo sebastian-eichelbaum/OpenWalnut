@@ -42,3 +42,8 @@ bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleInputConnecto
     return true;
 }
 
+bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleConnector> con )
+{
+    return false;
+}
+

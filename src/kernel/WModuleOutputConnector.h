@@ -55,6 +55,15 @@ public:
      */
     virtual bool connectable( boost::shared_ptr<WModuleInputConnector> con );
 
+    /** 
+     * Checks whether the specified module is an input connector.
+     * 
+     * \param con the connector to check.
+     * 
+     * \return false since it whenever connectable is called with an WModuleInputConnector the above one is used instead.
+     */
+    virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
+
 protected:
 
 private:

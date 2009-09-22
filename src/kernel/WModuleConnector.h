@@ -70,7 +70,7 @@ public:
     /** 
      * Checks whether the specified module is compatible for connection. Please not that this does not take into account how
      * useful or senseless a connection would be. This member is pure virtual to ensure nobody can instantiate WModuleConnector
-     * directly. Every derived class has to implement this method.
+     * directly. Every derived class has to implement this method to specify the right anti-part.
      * 
      * \param con the module to check compatibility with.
      * 
@@ -106,6 +106,16 @@ protected:
     boost::shared_mutex m_ConnectionListLock;
 
 private:
+
+    /** 
+     * The connections name.
+     */
+    std::string m_Name;
+
+    /** 
+     * The connections description.
+     */
+    std::string m_Description;
 };
 
 #endif  // WMODULECONNECTOR_H

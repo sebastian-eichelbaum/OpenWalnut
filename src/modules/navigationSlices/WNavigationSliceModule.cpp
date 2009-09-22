@@ -26,18 +26,28 @@
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
 
 #include "WNavigationSliceModule.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleInputConnector.h"
+
 
 #include "../../graphicsEngine/WShader.h"
 
 WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
+    // initialize connectors
+    // XXX to add a new connector and to offer it these simple steps need to be done:
+     m_Input= boost::shared_ptr<WModuleInputConnector>( new WModuleInputConnector() );
+
+
+
     // initialize members
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice" ) );
 }

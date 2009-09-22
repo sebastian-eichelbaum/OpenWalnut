@@ -53,7 +53,9 @@ public:
      * 
      * \return true if con is an input connector.
      */
-    virtual bool connectable( boost::shared_ptr<WModuleOutputConnector> con );
+    virtual bool connectable( boost::shared_ptr<WModuleInputConnector> con );
+    
+    virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
 
 protected:
 

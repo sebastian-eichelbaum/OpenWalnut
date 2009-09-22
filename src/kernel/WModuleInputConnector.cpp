@@ -37,8 +37,13 @@ WModuleInputConnector::~WModuleInputConnector()
     // cleanup
 }
 
-bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleOutputConnector> con )
+bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleInputConnector> con )
 {
     return true;
+}
+
+bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleConnector> con )
+{
+    return false;
 }
 

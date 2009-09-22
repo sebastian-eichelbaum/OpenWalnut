@@ -30,6 +30,7 @@
 #include <osg/Node>
 
 #include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputConnector.h"
 #include "../../graphicsEngine/WShader.h"
 
 
@@ -90,6 +91,11 @@ private:
      *
      */
     boost::shared_ptr< WShader >m_shader;
+
+    /** 
+     * Input connector required by this module.
+     */
+    boost::shared_ptr<WModuleInputConnector> m_Input;
 };
 
 #endif  // WNAVIGATIONSLICEMODULE_H
