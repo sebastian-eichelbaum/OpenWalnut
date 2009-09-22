@@ -29,7 +29,8 @@
 
 /**
  * Base class to all WLoaders which imports data from a given file and generate
- * a WDataSet out of it.
+ * a WDataSet out of it. The WLoader subclasses will also have to determine
+ * the subject a new dataSet belongs to.
  * \ingroup dataHandler
  */
 class WLoader

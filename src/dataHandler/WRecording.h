@@ -36,7 +36,7 @@ class WRecording : public WDataSet
 {
 public:
     /**
-     * TODO(wiebel): Document this!
+     * Empty standard constructor for recordings
      */
     explicit WRecording()
         : WDataSet()

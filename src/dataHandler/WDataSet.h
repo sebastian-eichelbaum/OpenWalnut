@@ -30,17 +30,17 @@
 
 /**
  * Base class for all data set types. This class has a number of subclasses
- * specifying the different types of data sets. Two of dataset type reprent
- * single and time-dependent datasets (compound of several time steps)
- * respectively. This base class contains the pointer to the meta information.
+ * specifying the different types of data sets. Two of the dataset types
+ * represent single and time-dependent datasets (compound of several time
+ * steps) respectively.
  * \ingroup dataHandler
  */
 class WDataSet
 {
 public:
     /**
-     * Since every DataSet should have a MetaInfo, we ensure hereby you never
-     * go without one.
+     * This constructor shoul be used if a dataSet does not stem from a file.
+     * It presets the its correpsonding fileName as empty string.
      */
     WDataSet();
 
@@ -66,7 +66,8 @@ protected:
 private:
     /**
      * Name of the file this data set was loaded from. This information
-     * may allow hollowing data sets later.
+     * may allow hollowing data sets later. DataSets that were not loaded
+     * from a file should have the empty string stored here.
      */
     std::string m_fileName;
 };
