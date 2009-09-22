@@ -57,7 +57,8 @@ public:
 protected:
 private:
     /**
-     * TODO(wiebel): Document this: Alex, why do we need this Function?
+     * This function allows to copy the data given as a T*
+     * by niftilibio into a std::vector< T >
      */
     template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues, const size_t vDim );
 };

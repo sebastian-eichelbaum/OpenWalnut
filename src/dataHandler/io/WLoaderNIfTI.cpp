@@ -82,42 +82,27 @@ void WLoaderNIfTI::operator()()
         case DT_UNSIGNED_CHAR:
         {
             std::vector< int8_t > data =
-                copyArray( reinterpret_cast<int8_t*>( filedata->data ), nbValues, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase > ( new WValueSet< int8_t >( 0, vDim, data ) );
-            newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns,
-                                                                               rows,
-                                                                               frames,
-                                                                               1.,
-                                                                               1.,
-                                                                               1. ) );
+                copyArray( reinterpret_cast< int8_t* >( filedata->data ), nbValues, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( 0, vDim, data ) );
+            newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
             break;
         }
 
         case DT_SIGNED_SHORT:
         {
            std::vector< int16_t > data =
-               copyArray( reinterpret_cast<int16_t*>( filedata->data ), nbValues, vDim );
-           newValueSet = boost::shared_ptr< WValueSetBase > ( new WValueSet< int16_t >( 0, vDim, data ) );
-           newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns,
-                                                                              rows,
-                                                                              frames,
-                                                                              1.,
-                                                                              1.,
-                                                                              1. ) );
+               copyArray( reinterpret_cast< int16_t* >( filedata->data ), nbValues, vDim );
+           newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 0, vDim, data ) );
+           newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
            break;
         }
 
         case DT_FLOAT:
         {
             std::vector< float > data =
-                copyArray( reinterpret_cast<float*>( filedata->data ), nbValues, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase > ( new WValueSet< float >( 0, vDim, data ) );
-            newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns,
-                            rows,
-                            frames,
-                            1.,
-                            1.,
-                            1. ) );
+                copyArray( reinterpret_cast< float* >( filedata->data ), nbValues, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 0, vDim, data ) );
+            newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
             break;
         }
 
@@ -127,11 +112,10 @@ void WLoaderNIfTI::operator()()
             newGrid = boost::shared_ptr< WGrid >();
     }
 
-// TODO(wiebel): fill this info into the subject instead
-//     fillMetaInfo( metaInfo, header );
+    // TODO(wiebel): fill this info into the subject instead
+    // fillMetaInfo( metaInfo, header );
 
-    boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >(
-                    new WDataSetSingle( newValueSet, newGrid ) );
+    boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
 
     // TODO(wiebel): this is a dummy implementation. We need to fix
     // this as soon as we can distinguish which data belongs to which subject.
