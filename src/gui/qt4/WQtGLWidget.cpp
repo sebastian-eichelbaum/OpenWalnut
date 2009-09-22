@@ -110,13 +110,13 @@ WQtGLWidget::CameraManipulators WQtGLWidget::getCameraManipulators()
     return m_CurrentManipulator;
 }
 
-void WQtGLWidget::paintEvent( QPaintEvent* event )
+void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 {
     // m_Viewer->paint();
 }
 
 #ifndef WIN32
-void WQtGLWidget::destroyEvent( bool destroyWindow, bool destroySubWindows )
+void WQtGLWidget::destroyEvent( bool /*destroyWindow*/, bool /*destroySubWindows*/ )
 {
     // forward events
     m_Viewer->close();
