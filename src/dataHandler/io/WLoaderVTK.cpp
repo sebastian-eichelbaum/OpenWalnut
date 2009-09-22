@@ -33,8 +33,7 @@
 #include "../../common/WStringUtils.hpp"
 
 WLoaderVTK::WLoaderVTK( std::string fname, boost::shared_ptr< WDataHandler > dataHandler )
-    : WLoader( fname ),
-      m_dataHandler( dataHandler )
+    : WLoader( fname, dataHandler )
 {
 }
 

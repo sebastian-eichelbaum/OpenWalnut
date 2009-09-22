@@ -37,8 +37,7 @@
 #include "../../common/WException.h"
 
 WLoaderBiosig::WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-    : WLoader( fileName ),
-      m_dataHandler( dataHandler ),
+    : WLoader( fileName, dataHandler ),
       m_columns( 0 ),
       m_rows( 0 )
 {

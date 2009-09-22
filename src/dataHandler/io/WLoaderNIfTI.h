@@ -56,10 +56,10 @@ public:
 
 protected:
 private:
-    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues,
-            const size_t vDim );
-
-    boost::shared_ptr< WDataHandler > m_dataHandler;
+    /**
+     * TODO(wiebel): Document this: Alex, why do we need this Function?
+     */
+    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues, const size_t vDim );
 };
 
 #endif  // WLOADERNIFTI_H

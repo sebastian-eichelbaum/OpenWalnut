@@ -95,7 +95,6 @@ protected:
     std::vector< std::string > m_header;
 
 private:
-    boost::shared_ptr< WDataHandler > m_dataHandler;
 };
 
 #endif  // WLOADERVTK_H

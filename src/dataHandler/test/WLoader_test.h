@@ -37,8 +37,8 @@
 class DummyLoader : public WLoader
 {
 public:
-    explicit DummyLoader( std::string fileName )
-        : WLoader( fileName )
+    explicit DummyLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
+        : WLoader( fileName, dataHandler )
     {
     }
 
@@ -58,11 +58,12 @@ public:
      */
     void testExceptionOnInvalidFilename( void )
     {
-        TS_ASSERT_THROWS_EQUALS( DummyLoader( "no such file" ),
+        boost::shared_ptr< WDataHandler > dummyDH = boost::shared_ptr< WDataHandler >( new WDataHandler() );
+        TS_ASSERT_THROWS_EQUALS( DummyLoader( "no such file", dummyDH ),
                                  const WDHIOFailure &e,
                                  e.what(),
                                  std::string( "file 'no such file' doesn't exists." ) );
-        TS_ASSERT_THROWS_NOTHING( DummyLoader( "fixtures/scalar_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( DummyLoader( "fixtures/scalar_float.nii.gz", dummyDH ) );
     }
 };
 

@@ -27,7 +27,10 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include "exceptions/WDHIOFailure.h"
+#include "WDataHandler.h"
 
 /**
  * Base class to all WLoaders which imports data from a given file and generate
@@ -38,7 +41,11 @@
 class WLoader
 {
 public:
-    explicit WLoader( std::string fileName ) throw( WDHIOFailure );
+    /**
+     * Constructs basic Loader with access to the DataHandler (for inserting
+     * new stuff) and a file name.
+     */
+    explicit WLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHanlder ) throw( WDHIOFailure );
 
     virtual ~WLoader()
     {
@@ -52,7 +59,15 @@ public:
     virtual void operator()() = 0;
 
 protected:
+    /**
+     * Name of file to load.
+     */
     std::string m_fileName;
+
+    /**
+     * Reference to DataHandler
+     */
+    boost::shared_ptr< WDataHandler > m_dataHandler;
 private:
 };
 

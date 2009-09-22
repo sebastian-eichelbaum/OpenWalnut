@@ -52,7 +52,6 @@ public:
 
 protected:
 private:
-    boost::shared_ptr< WDataHandler > m_dataHandler;
 };
 
 #endif  // WLOADEREEGASCII_H

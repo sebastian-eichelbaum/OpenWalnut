@@ -39,8 +39,7 @@
 
 
 WLoaderNIfTI::WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-    : WLoader( fileName ),
-      m_dataHandler( dataHandler )
+    : WLoader( fileName, dataHandler )
 {
 }
 
