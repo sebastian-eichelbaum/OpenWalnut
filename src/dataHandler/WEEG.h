@@ -116,7 +116,7 @@ public:
      */
     std::string getChannelLabel( size_t channelId ) const
     {
-        // TODO(wiebel) what is done with the second string of the label?
+        // TODO(wiebel): what is done with the second string of the label?
         return  m_channelLabels[channelId].first;
     }
 

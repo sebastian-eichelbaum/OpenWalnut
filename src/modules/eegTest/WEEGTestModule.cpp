@@ -99,12 +99,11 @@ void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg
 
     wmath::WPosition textPos( basePos[0] - 20 * scaleX, basePos[1], basePos[2] + (*eegData)( 0, channelId, 0 ) * scaleZ );
     osgText::Text* textOne = new osgText::Text();
-    textOne->setCharacterSize(25);
+    textOne->setCharacterSize( 25 );
     textOne->setText( eegData->getChannelLabel( channelId ) );
-    textOne->setAxisAlignment(osgText::Text::SCREEN);
+    textOne->setAxisAlignment( osgText::Text::SCREEN );
     textOne->setPosition( osg::Vec3( textPos[0], textPos[1], textPos[2] ) );
     sceneDataGeode->addDrawable( textOne );
-
 }
 
 void WEEGTestModule::threadMain()
@@ -113,7 +112,7 @@ void WEEGTestModule::threadMain()
     osg::Geode* sceneDataGeode = new osg::Geode();
 
     std::string fileName = "dataHandler/fixtures/eeg_testData.asc";
-//    std::string fileName = "/dargb/bv_data/Medical/MPI-CBS/EEG-Test/Alex_Segment_1.edf";
+    //    std::string fileName = "/dargb/bv_data/Medical/MPI-CBS/EEG-Test/Alex_Segment_1.edf";
     std::cout << "Test loading of " << fileName << "." << std::endl;
     boost::shared_ptr< WDataHandler > dataHandler =
         boost::shared_ptr< WDataHandler >( new WDataHandler() );
