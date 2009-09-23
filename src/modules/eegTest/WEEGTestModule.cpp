@@ -29,6 +29,8 @@
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osgText/Font>
+#include <osgText/Text>
 
 #include "WEEGTestModule.h"
 #include "../../kernel/WKernel.h"
@@ -66,6 +68,7 @@ const std::string WEEGTestModule::getDescription() const
 
 void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg::Geode* sceneDataGeode )
 {
+    const wmath::WPosition basePos( 0., 0., 0. );
     // create Geometry object to store all the vetices and lines primtive.
     osg::Geometry* linesGeom = new osg::Geometry();
 
@@ -80,7 +83,7 @@ void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg
 
     for( unsigned int i = 0; i < nbSamples; ++i )
     {
-        (vitr++)->set( i * scaleX, 0 * scaleY, (*eegData)( 0, channelId, i ) * scaleZ );
+        (vitr++)->set( basePos[0] + i * scaleX, basePos[1] + 0 * scaleY, basePos[2] + (*eegData)( 0, channelId, i ) * scaleZ );
     }
 
     linesGeom->setVertexArray( vertices );
@@ -92,6 +95,16 @@ void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg
 
     linesGeom->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, nbSamples ) );
     sceneDataGeode ->addDrawable( linesGeom );
+
+
+    wmath::WPosition textPos( basePos[0] - 20 * scaleX, basePos[1], basePos[2] + (*eegData)( 0, channelId, 0 ) * scaleZ );
+    osgText::Text* textOne = new osgText::Text();
+    textOne->setCharacterSize(25);
+    textOne->setText( eegData->getChannelLabel( channelId ) );
+    textOne->setAxisAlignment(osgText::Text::SCREEN);
+    textOne->setPosition( osg::Vec3( textPos[0], textPos[1], textPos[2] ) );
+    sceneDataGeode->addDrawable( textOne );
+
 }
 
 void WEEGTestModule::threadMain()
@@ -100,6 +113,7 @@ void WEEGTestModule::threadMain()
     osg::Geode* sceneDataGeode = new osg::Geode();
 
     std::string fileName = "dataHandler/fixtures/eeg_testData.asc";
+//    std::string fileName = "/dargb/bv_data/Medical/MPI-CBS/EEG-Test/Alex_Segment_1.edf";
     std::cout << "Test loading of " << fileName << "." << std::endl;
     boost::shared_ptr< WDataHandler > dataHandler =
         boost::shared_ptr< WDataHandler >( new WDataHandler() );
