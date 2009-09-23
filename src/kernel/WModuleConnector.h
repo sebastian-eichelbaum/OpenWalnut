@@ -39,14 +39,18 @@
  * Base class for modelling connections between kernel modules. It contains several pure virtual member functions and can
  * therefore not instantiated directly.
  */
-class WModuleConnector
+class WModuleConnector: public boost::enable_shared_from_this<WModuleConnector>
 {
 public:
 
-    /**
-     * Default constructor.
-     */
-    WModuleConnector( WModule* module, std::string name="", std::string description="" );
+    /** 
+     * Constructor.
+     * 
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     */    
+    WModuleConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
 
     /**
      * Destructor.
@@ -88,15 +92,6 @@ public:
      */
     void setName( std::string name );
 
-    /**
-     * Define the signals common to all connectors here.
-     */
-
-    /** 
-     * Type specifying standard signal callback functions.
-     */
-    typedef boost::signals2::signal<void ( boost::shared_ptr<WModuleConnector> sender )>  ModuleConnectorSignal;
-
 protected:
 
     /** 
@@ -125,6 +120,17 @@ protected:
      */
     boost::shared_mutex m_ConnectionListLock;
 
+    // Define the signals common to all connectors here.
+
+    /** 
+     * Generic signal type used in the most signals involving a sender and receiver.
+     * 
+     * \param recv The connector receiving the signal.
+     * \param sender The counterpart (sender).
+     */
+    typedef boost::signals2::signal<void ( boost::shared_ptr<WModuleConnector>,
+                                           boost::shared_ptr<WModuleConnector> )>  t_GenericSignalType;
+
 private:
 
     /** 
@@ -140,7 +146,18 @@ private:
     /** 
      * The Module this connector belongs to
      */
-    WModule* m_Module;
+    boost::shared_ptr<WModule> m_Module;
+
+    /** 
+     * Signal emitted whenever connection has been established.
+     */
+    t_GenericSignalType signal_ConnectionEstablished;
+
+    /** 
+     * Signal emitted whenever connection has been closed.
+     */
+    t_GenericSignalType signal_ConnectionClosed;
+
 };
 
 #endif  // WMODULECONNECTOR_H

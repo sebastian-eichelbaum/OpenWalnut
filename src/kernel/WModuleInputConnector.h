@@ -40,14 +40,27 @@ class WModuleInputConnector: public WModuleConnector
 public:
 
     /**
-     * Default constructor.
-     */
-    WModuleInputConnector( WModule* module, std::string name="", std::string description="" );
+     * Constructor.
+     * 
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     */    
+    WModuleInputConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
 
     /**
      * Destructor.
      */
     virtual ~WModuleInputConnector();
+
+    /** 
+     * Connect an input to this output.
+     * 
+     * \param con the input connector to connect to.
+     * 
+     * \return true if succeeded.
+     */
+    virtual bool connect( boost::shared_ptr<WModuleOutputConnector> con );
 
 protected:
 

@@ -39,10 +39,14 @@ class WModuleOutputConnector: public WModuleConnector
 {
 public:
 
-    /**
-     * Default constructor.
-     */
-    WModuleOutputConnector( WModule* module, std::string name="", std::string description="" );
+    /** 
+     * Constructor.
+     * 
+     * \param module the module which is owner of this connector.
+     * \param name The name of this connector.
+     * \param description Short description of this connector.
+     */    
+    WModuleOutputConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
 
     /**
      * Destructor.

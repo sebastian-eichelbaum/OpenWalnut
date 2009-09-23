@@ -41,8 +41,11 @@ class WModuleOutputConnector;
  * Class representing a single module of OpenWalnut.
  * \ingroup kernel
  */
-class WModule: public WThreadedRunner
+class WModule: public WThreadedRunner,
+               public boost::enable_shared_from_this<WModule>
 {
+friend class WModuleConnector;  // requires access to notify members
+
 public:
 
     /**
@@ -127,7 +130,6 @@ protected:
      */
     virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
                                               boost::shared_ptr<WModuleConnector> there );
-
     /** 
      * Gets called whenever a connection between a remote and local connector gets closed.
      * 
@@ -143,6 +145,7 @@ protected:
      */
     virtual void notifyDataChange( boost::shared_ptr<WModuleInputConnector> input,
                                    boost::shared_ptr<WModuleOutputConnector> output );
+
 
 private:
 

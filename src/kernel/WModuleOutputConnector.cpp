@@ -29,7 +29,7 @@
 
 #include "WModuleOutputConnector.h"
 
-WModuleOutputConnector::WModuleOutputConnector( WModule* module, std::string name, std::string description ):
+WModuleOutputConnector::WModuleOutputConnector( boost::shared_ptr<WModule> module, std::string name, std::string description ):
     WModuleConnector( module, name, description )
 {
     // initialize members
@@ -46,6 +46,9 @@ bool WModuleOutputConnector::connect( boost::shared_ptr<WModuleInputConnector> c
     if (!WModuleConnector::connect( con ) )
         return false;
 
-    // connect signals
+    // connect additional WModuleInput/OutputConnector specific signals
+    // There are currently no signals from an input we want to receive here.
+
+    return true;
 }
 

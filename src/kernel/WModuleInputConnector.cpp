@@ -29,7 +29,7 @@
 
 #include "WModuleInputConnector.h"
 
-WModuleInputConnector::WModuleInputConnector( WModule* module, std::string name, std::string description ):
+WModuleInputConnector::WModuleInputConnector( boost::shared_ptr<WModule> module, std::string name, std::string description ):
     WModuleConnector( module, name, description )
 {
     // initialize members
@@ -38,5 +38,18 @@ WModuleInputConnector::WModuleInputConnector( WModule* module, std::string name,
 WModuleInputConnector::~WModuleInputConnector()
 {
     // cleanup
+}
+
+bool WModuleInputConnector::connect( boost::shared_ptr<WModuleOutputConnector> con )
+{
+    // let the output connector do the job
+    // NOTE: the dynamic cast should never fail since we are an input connector but the smart_ptr is of type WModuleConnector.
+    if (!con->connect( boost::shared_dynamic_cast<WModuleInputConnector>( shared_from_this() ) ) )
+        return false;
+
+    // connect additional WModuleInput/OutputConnector specific signals
+    //con->subscribe
+
+    return true;
 }
 

@@ -47,7 +47,7 @@ WNavigationSliceModule::WNavigationSliceModule():
 
     // initialize it first
     m_Input= boost::shared_ptr<WModuleInputConnector>(
-            new WModuleInputConnector( this, "data1", "Dataset to show on the slices." )
+            new WModuleInputConnector( shared_from_this(), "data1", "Dataset to show on the slices." )
     );
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work.
     addConnector( m_Input );

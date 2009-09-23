@@ -30,19 +30,29 @@
 
 #include "WModuleConnector.h"
 
-WModuleConnector::WModuleConnector( WModule* module, std::string name, std::string description )
+WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::string name, std::string description )
 {
     // initialize members
     m_Module = module;
 
     m_Name = name;
     m_Description = description;
+
+    // connect standard signals
+    // NOTE: these signals are NOT emitted by the connector this one is connected to, since a module can't send a "connection
+    // closed" message if the connection is closed.
+    signal_ConnectionEstablished.connect( boost::bind( &WModule::notifyConnectionEstablished, m_Module.get(), _1, _2 ) );
+    signal_ConnectionClosed.connect( boost::bind( &WModule::notifyConnectionClosed, m_Module.get(), _1, _2 ) );
+
 }
 
 WModuleConnector::~WModuleConnector()
 {
     disconnectAll();
+
     // cleanup
+    signal_ConnectionEstablished.disconnect( boost::bind( &WModule::notifyConnectionEstablished, m_Module.get(), _1, _2 ) );
+    signal_ConnectionClosed.disconnect( boost::bind( &WModule::notifyConnectionClosed, m_Module.get(), _1, _2 ) );
 }
 
 bool WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
@@ -51,6 +61,16 @@ bool WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     boost::unique_lock<boost::shared_mutex> lock( m_ConnectionListLock );
     m_Connected.insert( con );
     lock.unlock();
+
+    // add to list of partner
+    boost::unique_lock<boost::shared_mutex> lockRemote( con->m_ConnectionListLock );
+    con->m_Connected.insert( shared_from_this() );
+    lockRemote.unlock();
+    
+    // signalling
+    signal_ConnectionEstablished( shared_from_this(), con );
+    // signal to my partner, of course with the parameters the other way round
+    con->signal_ConnectionEstablished( con, shared_from_this() );
 
     return true;
 }
