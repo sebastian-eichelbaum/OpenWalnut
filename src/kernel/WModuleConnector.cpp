@@ -90,6 +90,15 @@ void WModuleConnector::disconnectAll()
 {
     // remove from list
     boost::unique_lock<boost::shared_mutex> lock( m_ConnectionListLock );
+
+    // each connector needs to be notified and disconnected properly
+    for( std::set<boost::shared_ptr<WModuleConnector> >::iterator listIter = m_Connected.begin(); listIter != m_Connected.end();
+         ++listIter )
+    {
+        // 
+        //( *listiter )->
+    }
+
     m_Connected.clear();
     lock.unlock();
 }

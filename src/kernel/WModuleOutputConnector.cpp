@@ -53,3 +53,13 @@ bool WModuleOutputConnector::connect( boost::shared_ptr<WModuleInputConnector> c
     return true;
 }
 
+bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleConnector> con )
+{
+    // output connectors are just allowed to get connected with input connectors
+    if ( dynamic_cast<WModuleInputConnector*>( con.get() ) )
+    {
+        return true;
+    }
+    return false;
+}
+

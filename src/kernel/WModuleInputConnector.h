@@ -64,6 +64,15 @@ public:
 
 protected:
 
+    /** 
+     * Checks whether the specified connector is an output connector.
+     * 
+     * \param con the connector to check against.
+     * 
+     * \return true if compatible.
+     */
+    virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
+
 private:
 };
 

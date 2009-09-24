@@ -65,6 +65,11 @@ public:
     virtual void disconnect( boost::shared_ptr<WModuleConnector> con );
 
     /** 
+     * Disconnects ALL connected connectors.
+     */
+    virtual void disconnectAll();
+
+    /** 
      * Gives information about this connection.
      * 
      * \return The connection's description.
@@ -95,6 +100,15 @@ public:
 protected:
 
     /** 
+     * Checks whether the specified connector is connectable to this one.
+     * 
+     * \param con the connector to check against.
+     * 
+     * \return true if compatible.
+     */
+    virtual bool connectable( boost::shared_ptr<WModuleConnector> con )=0;
+
+    /** 
      * Connects this Module Connector with another one. During connection process, just the connectibility flag from
      * WModuleConnector::connectable is used to determine whether the connection is possible or not.
      * 
@@ -103,11 +117,6 @@ protected:
      * \return true if successful
      */
     virtual bool connect( boost::shared_ptr<WModuleConnector> con );
-
-    /** 
-     * Disconnects ALL connected connectors.
-     */
-    virtual void disconnectAll();
 
     /** 
      * List of connectors connected to this connector.

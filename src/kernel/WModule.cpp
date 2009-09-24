@@ -56,7 +56,24 @@ void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
 
 void WModule::removeConnectors()
 {
-    // TODO(ebaum): remove connections and signals 
+    m_Initialized=false;
+
+    // remove connections and their signals 
+    for( std::set<boost::shared_ptr<WModuleInputConnector> >::iterator listIter = m_InputConnectors.begin(); 
+         listIter != m_InputConnectors.end(); ++listIter )
+    {
+        ( *listIter )->disconnectAll();
+    }
+    for( std::set<boost::shared_ptr<WModuleOutputConnector> >::iterator listIter = m_OutputConnectors.begin(); 
+         listIter != m_OutputConnectors.end(); ++listIter )
+    {
+        ( *listIter )->disconnectAll();
+    }
+
+    // clean up list
+    // this should delete the connector since nobody else *should* have another shared_ptr to them
+    m_InputConnectors.clear();
+    m_OutputConnectors.clear();
 }
 
 void WModule::initializeConnectors()
