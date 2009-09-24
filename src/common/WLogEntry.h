@@ -22,29 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef WLOGENTRY_H
+#define WLOGENTRY_H
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
-#include <osg/Geode>
+#include <string>
 
-#include "../kernel/WKernel.h"
-
-#include "WGEScene.h"
-
-WGEScene::WGEScene():
-    osg::Group()
+typedef enum
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
-
-    // initialize members
+    LL_DEBUG = 0,
+    LL_INFO,
+    LL_WARNING,
+    LL_ERROR
 }
+LogLevel;
 
-WGEScene::~WGEScene()
+/**
+ * TODO(schurade): Document this!
+ */
+class WLogEntry
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
+public:
+    WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source );
+    virtual ~WLogEntry();
 
-    // cleanup
-}
+    std::string getLogString( std::string format = "[%t] *%l* %m \n" );
+
+    LogLevel getLogLevel();
+
+protected:
+    /**
+     *
+     */
+    std::string m_time;
+
+    /**
+     *
+     */
+    std::string m_message;
+
+    /**
+     *
+     */
+    LogLevel m_level;
+
+    /**
+     *
+     */
+    std::string m_source;
 
 
+private:
+    WLogEntry();
+};
+
+#endif  // WLOGENTRY_H

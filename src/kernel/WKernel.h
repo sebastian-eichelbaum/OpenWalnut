@@ -35,6 +35,7 @@
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/qt4/WMainApplication.h"
 #include "../dataHandler/WDataHandler.h"
+#include "../common/WLogger.h"
 
 /**
  * OpenWalnut kernel, managing modules and interaction between
@@ -126,6 +127,11 @@ public:
     /**
      *
      */
+    boost::shared_ptr<WLogger> getLogger();
+
+    /**
+     *
+     */
     std::string getAppPath();
 
     /**
@@ -154,6 +160,11 @@ protected:
      * The Datahandler.
      */
     boost::shared_ptr<WDataHandler> m_DataHandler;
+
+    /**
+     * The logging device
+     */
+    boost::shared_ptr<WLogger> m_Logger;
 
 private:
     /**

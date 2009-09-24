@@ -37,7 +37,7 @@
 WGraphicsEngine::WGraphicsEngine():
     WThreadedRunner()
 {
-    std::cout << "Initializing Graphics Engine" << std::endl;
+    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
 
     // initialize members
     m_RootNode = new WGEScene();
@@ -46,7 +46,7 @@ WGraphicsEngine::WGraphicsEngine():
 WGraphicsEngine::~WGraphicsEngine()
 {
     // cleanup
-    std::cout << "Shutting down Graphics Engine" << std::endl;
+    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_DEBUG );
 }
 
 osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()

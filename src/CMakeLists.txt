@@ -30,7 +30,7 @@ ENDIF( CMAKE_BUILD_TYPE STREQUAL "Static" )
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
-FIND_PACKAGE( Boost REQUIRED program_options thread filesystem )
+FIND_PACKAGE( Boost REQUIRED program_options thread filesystem date_time )
 ASSERT_GE_VERSION( "Boost" "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" 1.36.0 )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
