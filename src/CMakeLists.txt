@@ -15,6 +15,8 @@ IF( CMAKE_HOST_SYSTEM MATCHES Linux )
   SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
 ELSEIF( CMAKE_HOST_SYSTEM MATCHES Windows )
   SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The libraries will be put into this directory." )
+ELSEIF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+  SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
 ELSE()
   MESSAGE( FATAL_ERROR "Could not determine platform type! (expected Linux or Windows)!" )
 ENDIF()
@@ -30,7 +32,7 @@ ENDIF( CMAKE_BUILD_TYPE STREQUAL "Static" )
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
-FIND_PACKAGE( Boost REQUIRED program_options thread filesystem )
+FIND_PACKAGE( Boost REQUIRED program_options thread filesystem system )
 ASSERT_GE_VERSION( "Boost" "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" 1.36.0 )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
@@ -104,7 +106,6 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
     # Package dependencies:
     FIND_PACKAGE( Qt4 REQUIRED )
-    FIND_PACKAGE( GLEW REQUIRED )
 
     # Includes:
     INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
@@ -118,7 +119,7 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     QT4_WRAP_CPP( GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
     
     ADD_EXECUTABLE( walnut ${ALL_SRC}  ${NIFTI_SRC} ${GUI_QT4_MOC_SRCS} )
-    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} ${GLEW_LIBRARY} )
+    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} )
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
