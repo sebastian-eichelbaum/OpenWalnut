@@ -35,7 +35,7 @@
 ///======================================
 // TODO(wiebel): use this szuff or remove it
 #include "../math/WPosition.h"
-typedef double dummyType;
+typedef double WDummyType;
 class WEEGElectrodeObject
 {
 public:
@@ -51,9 +51,9 @@ class WEEGSegementInfo
 public:
 protected:
 private:
-    dummyType m_startSample;
-    dummyType m_endSample;
-    dummyType m_segmentStartDate;
+    WDummyType m_startSample;
+    WDummyType m_endSample;
+    WDummyType m_segmentStartDate;
 };
 //================================================
 
