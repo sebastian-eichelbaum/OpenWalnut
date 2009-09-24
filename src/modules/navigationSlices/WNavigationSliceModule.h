@@ -76,19 +76,33 @@ protected:
      */
     virtual void threadMain();
 
+    /** 
+     * Initialize the connectors this module is using.
+     */
+    virtual void initializeConnectors();
+
+    /** 
+     * Receive DATA_CHANGE notifications.
+     * 
+     * \param input the input connector that got the change signal. Typically it is one of the input connectors from this module.
+     * \param output the output connector that sent the signal. Not part of this module instance.
+     */
+    virtual void notifyDataChange( boost::shared_ptr<WModuleInputConnector> input,
+                                   boost::shared_ptr<WModuleOutputConnector> output );
+
 private:
     /**
-     *
+     * TODO(schurade): add comment
      */
     void createSlices();
 
     /**
-     *
+     * TODO(schurade): add comment
      */
     osg::Geode* m_sliceNode;
 
     /**
-     *
+     * TODO(schurade): add comment
      */
     boost::shared_ptr< WShader >m_shader;
 

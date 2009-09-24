@@ -110,11 +110,16 @@ int WKernel::run()
 
     // run? data handler stuff?
 
+    // **************************************************************************************************************************
+    // This part will be exchanged by some kind of ModuleContainer managing module execution.
+    // TODO(ebaum): replace by ModuleContainer
+    // **************************************************************************************************************************
+    
     // run module execution threads
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module
     std::cout << "Starting modules:" << std::endl;
-    for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
         std::cout << "Starting Module: " << ( *list_iter )->getName() << std::endl;
@@ -127,7 +132,7 @@ int WKernel::run()
     m_FinishRequested = true;
 
     // wait for modules to finish
-    for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
         ( *list_iter )->wait( true );
@@ -146,7 +151,7 @@ void WKernel::loadModules()
     std::cout << "Loading modules:" << std::endl;
     m_modules.clear();
 
-    WModule* m = new WNavigationSliceModule();
+    boost::shared_ptr<WModule> m = boost::shared_ptr<WModule>( new WNavigationSliceModule() );
     std::cout << "Loading Module: " << m->getName() << std::endl;
 
     m_modules.push_back( m );

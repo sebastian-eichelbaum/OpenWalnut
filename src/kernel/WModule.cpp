@@ -36,6 +36,7 @@ WModule::WModule():
     WThreadedRunner()
 {
     // initialize members
+    m_Initialized=false;
 }
 
 WModule::~WModule()
@@ -53,6 +54,16 @@ void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
     m_OutputConnectors.insert( con );
 }
 
+void WModule::removeConnectors()
+{
+    // TODO(ebaum): remove connections and signals 
+}
+
+void WModule::initializeConnectors()
+{
+    m_Initialized=true;
+}
+
 const std::set<boost::shared_ptr<WModuleInputConnector> >& WModule::getInputConnectors() const
 {
     return m_InputConnectors;
@@ -63,12 +74,16 @@ const std::set<boost::shared_ptr<WModuleOutputConnector> >& WModule::getOutputCo
     return m_OutputConnectors;
 }
 
+bool WModule::isInitialized() const
+{
+    return m_Initialized;
+}
+
 void WModule::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
                                            boost::shared_ptr<WModuleConnector> /*there*/ )
 {
     // By default this callback does nothing. Overwrite it in your module.
 }
-
 
 void WModule::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
                                       boost::shared_ptr<WModuleConnector> /*there*/ )

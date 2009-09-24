@@ -30,7 +30,8 @@
 
 #include "WModuleConnector.h"
 
-WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::string name, std::string description )
+WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::string name, std::string description ):
+    boost::enable_shared_from_this<WModuleConnector>()
 {
     // initialize members
     m_Module = module;

@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <iostream>
 
 #include "WModule.h"
 #include "WModuleInputConnector.h"

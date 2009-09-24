@@ -36,23 +36,14 @@
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleInputConnector.h"
 
-
 #include "../../graphicsEngine/WShader.h"
 
 WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
-    // initialize connectors
-    // XXX to add a new connector and to offer it these simple steps need to be done
-
-    // initialize it first
-    m_Input= boost::shared_ptr<WModuleInputConnector>(
-            new WModuleInputConnector( shared_from_this(), "data1", "Dataset to show on the slices." )
-    );
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work.
-    addConnector( m_Input );
-
-
+    // WARNING: initializing connectors inside the constructor will lead to an exception.
+    // Implement WModule::initializeConnectors instead.
+    
     // initialize members
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice" ) );
 }
@@ -60,6 +51,7 @@ WNavigationSliceModule::WNavigationSliceModule():
 WNavigationSliceModule::~WNavigationSliceModule()
 {
     // cleanup
+    removeConnectors();
 }
 
 const std::string WNavigationSliceModule::getName() const
@@ -70,6 +62,27 @@ const std::string WNavigationSliceModule::getName() const
 const std::string WNavigationSliceModule::getDescription() const
 {
     return "This module shows 3 orthogonal navigation slices.";
+}
+
+void WNavigationSliceModule::initializeConnectors()
+{
+    // initialize connectors
+    // XXX to add a new connector and to offer it, these simple steps need to be done
+    // initialize it first
+    m_Input= boost::shared_ptr<WModuleInputConnector>(
+            new WModuleInputConnector( shared_from_this(), "in1", "Dataset to show on the slices." )
+    );
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_Input );
+
+    // call WModules initialization
+    WModule::initializeConnectors();
+}
+
+virtual void notifyDataChange( boost::shared_ptr<WModuleInputConnector> input,
+                               boost::shared_ptr<WModuleOutputConnector> output )
+{
+    // in this case input==m_Input
 }
 
 void WNavigationSliceModule::threadMain()

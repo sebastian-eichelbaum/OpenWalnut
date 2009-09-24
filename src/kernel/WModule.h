@@ -84,12 +84,30 @@ public:
      */
     const std::set<boost::shared_ptr<WModuleOutputConnector> >& getOutputConnectors() const;
 
+    /** 
+     * Determines whether the module instance is properly initialized.
+     * 
+     * \return true if properly initialized.
+     */
+     bool isInitialized() const;
+
 protected:
 
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void threadMain() = 0;
+
+    // **************************************************************************************************************************
+    //
+    // Connector Management
+    //
+    // **************************************************************************************************************************
+    
+    /** 
+     * Initialize connectors in this function. It is pure virtual to enforce its implementation.
+     */
+    virtual void initializeConnectors();
 
     /** 
      * Set of input connectors associated with this module.
@@ -116,11 +134,18 @@ protected:
      */
     void addConnector( boost::shared_ptr<WModuleOutputConnector> con );
 
-    // XXX corresponding removeConnector methods should not be needed
+    /** 
+     * Removes all connectors properly. It disconnects the connectors and cleans the connectors list.
+     */
+    void removeConnectors();
 
 
-    // Signal handlers that HAVE to be in every module. By default they do nothing. You should overwrite them to get notified with
-    // the corresponding signal
+    // **************************************************************************************************************************
+    //
+    // Signal handlers that HAVE to be in every module. By default they do nothing. You should overwrite them to get notified
+    // with the corresponding signal
+    //
+    // **************************************************************************************************************************
 
     /** 
      * Gets called whenever a connector gets connected to the specified input.
@@ -149,6 +174,11 @@ protected:
 
 private:
 
+    /** 
+     * True if everything is initialized and ready to be used.
+     */
+    bool m_Initialized;
+    
     /** 
      * Lock for m_InputConnectors.
      */
