@@ -1,0 +1,5 @@
+
+# Unit tests
+# IF( CXXTEST_FOUND )
+
+# ENDIF( CXXTEST_FOUND )
