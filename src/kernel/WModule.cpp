@@ -29,6 +29,8 @@
 
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
+#include "WModuleConnectorSignals.h"
+#include "exceptions/WModuleSignalUnknown.h"
 
 #include "WModule.h"
 
@@ -91,6 +93,23 @@ const std::set<boost::shared_ptr<WModuleOutputConnector> >& WModule::getOutputCo
     return m_OutputConnectors;
 }
 
+const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
+{
+    switch ( signal )
+    {
+        case CONNECTION_ESTABLISHED:
+            return  boost::bind( &WModule::notifyConnectionEstablished, this, _1, _2 );
+        case CONNECTION_CLOSED:
+            return  boost::bind( &WModule::notifyConnectionClosed, this, _1, _2 );
+        case DATA_CHANGED:
+            return  boost::bind( &WModule::notifyDataChange, this, _1, _2 );
+        default:
+            throw new WModuleSignalUnknown( "Could not subscribe to unknown signal. You need to implement this signal type\
+                                             explicitly in your module." );
+            break;
+    }
+}
+
 bool WModule::isInitialized() const
 {
     return m_Initialized;
@@ -108,8 +127,8 @@ void WModule::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here
     // By default this callback does nothing. Overwrite it in your module.
 }
 
-void WModule::notifyDataChange( boost::shared_ptr<WModuleInputConnector> /*input*/,
-                                boost::shared_ptr<WModuleOutputConnector> /*output*/ )
+void WModule::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
+                                boost::shared_ptr<WModuleConnector> /*output*/ )
 {
     // By default this callback does nothing. Overwrite it in your module.
 }

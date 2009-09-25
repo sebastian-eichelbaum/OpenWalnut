@@ -53,15 +53,6 @@ public:
      */
     virtual ~WModuleInputConnector();
 
-    /** 
-     * Connect an input to this output.
-     * 
-     * \param con the input connector to connect to.
-     * 
-     * \return true if succeeded.
-     */
-    virtual bool connect( boost::shared_ptr<WModuleOutputConnector> con );
-
 protected:
 
     /** 
@@ -73,7 +64,27 @@ protected:
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
 
+    /** 
+     * Connect additional signals.
+     * 
+     * \param con the connector that requests connection.
+     * 
+     */
+    virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
+
+    /** 
+     * Disconnect all signals subscribed by this connector from "con".
+     * 
+     * \param con the connector that gets disconnected.
+     */
+    virtual void disconnectSignals( boost::shared_ptr<WModuleConnector> con );
+
 private:
+
+    /** 
+     * Connection for Data Changed signal.
+     */
+    boost::signals2::connection m_DataChangedConnection;
 };
 
 #endif  // WMODULEINPUTCONNECTOR_H

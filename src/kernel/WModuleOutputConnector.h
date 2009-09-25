@@ -27,8 +27,12 @@
 
 #include <string>
 
+#include "boost/signals2/signal.hpp"
+#include "boost/signals2/connection.hpp"
+
 #include "WModule.h"
 #include "WModuleConnector.h"
+#include "WModuleConnectorSignals.h"
 
 class WModuleInputConnector;
 
@@ -38,6 +42,20 @@ class WModuleInputConnector;
 class WModuleOutputConnector: public WModuleConnector
 {
 public:
+
+    // **************************************************************************************************************************
+    // Types
+    // **************************************************************************************************************************
+
+    /** 
+     * Enumerate all signals this module connector is offering.
+     * TODO(ebaum): this is quite dirty. Find a better way to propagate slots.
+     */
+    typedef enum {DATA_CHANGED} e_OUTBUT_BASE_SIGNALS;
+
+    // **************************************************************************************************************************
+    // Methods
+    // **************************************************************************************************************************
 
     /** 
      * Constructor.
@@ -54,13 +72,14 @@ public:
     virtual ~WModuleOutputConnector();
 
     /** 
-     * Connect an input to this output.
+     * Connects (subscribes) a specified notify function with a signal this module instance is offering.
      * 
-     * \param con the input connector to connect to.
-     * 
-     * \return true if succeeded.
+     * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
+     *
+     * \param signal the signal to connect to.
+     * \param notifier the notifier function to bind.
      */
-    virtual bool connect( boost::shared_ptr<WModuleInputConnector> con );
+     boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier);
 
 protected:
 
@@ -73,7 +92,22 @@ protected:
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
 
+    /** 
+     * Connect additional signals.
+     * 
+     * \param con the connector that requests connection.
+     * 
+     */
+    // If you want to add additional signals an output connector should subscrie FROM an input connector overwrite connectSignals
+    // virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
+
 private:
+
+    /** 
+     * Signal fired whenever new data should be propagated. Represented by DATA_CHANGED enum- element.
+     */
+    t_GenericSignalType signal_DataChanged;
+
 };
 
 #endif  // WMODULEOUTPUTCONNECTOR_H

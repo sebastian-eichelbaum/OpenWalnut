@@ -26,6 +26,7 @@
 
 #include "WModule.h"
 #include "WModuleOutputConnector.h"
+#include "WModuleConnectorSignals.h"
 
 #include "WModuleInputConnector.h"
 
@@ -38,19 +39,7 @@ WModuleInputConnector::WModuleInputConnector( boost::shared_ptr<WModule> module,
 WModuleInputConnector::~WModuleInputConnector()
 {
     // cleanup
-}
-
-bool WModuleInputConnector::connect( boost::shared_ptr<WModuleOutputConnector> con )
-{
-    // let the output connector do the job
-    // NOTE: the dynamic cast should never fail since we are an input connector but the smart_ptr is of type WModuleConnector.
-    if (!con->connect( boost::shared_dynamic_cast<WModuleInputConnector>( shared_from_this() ) ) )
-        return false;
-
-    // connect additional WModuleInput/OutputConnector specific signals
-    //con->subscribe
-
-    return true;
+    m_DataChangedConnection.disconnect();
 }
 
 bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleConnector> con )
@@ -61,5 +50,21 @@ bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleConnector> con
         return true;
     }
     return false;
+}
+
+void WModuleInputConnector::connectSignals( boost::shared_ptr<WModuleConnector> con )
+{
+    WModuleConnector::connectSignals( con );
+
+    // connect dataChange signal
+    // NOTE: con will be an WModuleOutputConnector
+    m_DataChangedConnection = con->subscribeSignal( DATA_CHANGED, getSignalHandler( DATA_CHANGED ) );
+}
+
+void WModuleInputConnector::disconnectSignals( boost::shared_ptr<WModuleConnector> con )
+{
+    m_DataChangedConnection.disconnect();
+
+    WModuleConnector::disconnectSignals( con );
 }
 

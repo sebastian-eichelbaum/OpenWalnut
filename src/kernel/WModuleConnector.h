@@ -30,10 +30,12 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
-#include <boost/signals2/signal.hpp>
+#include "boost/signals2/signal.hpp"
+#include "boost/signals2/connection.hpp"
 #include <boost/bind.hpp>
 
 #include "WModule.h"
+#include "WModuleConnectorSignals.h"
 
 /**
  * Base class for modelling connections between kernel modules. It contains several pure virtual member functions and can
@@ -61,13 +63,38 @@ public:
      * Disconnects this connector if connected. If it is not connected: nothing happens.
      *
      * \param con the connector to disconnect.
+     * \param removeFromOwnList if true the specified connection is also removed from the own connection list. If false it won't.
      */
-    virtual void disconnect( boost::shared_ptr<WModuleConnector> con );
+    virtual void disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList=true );
 
     /** 
      * Disconnects ALL connected connectors.
      */
     virtual void disconnectAll();
+
+    /** 
+     * Connects this Module Connector with another one. During connection process, just the connectibility flag from
+     * WModuleConnector::connectable is used to determine whether the connection is possible or not.
+     * 
+     * \param con the connector to connect.
+     * 
+     * \exception WModuleConnectionFailed if connection can not be established.
+     *
+     * \return true if successful
+     */
+    virtual void connect( boost::shared_ptr<WModuleConnector> con );
+
+    /** 
+     * Connects a specified notify function with a signal this module instance is offering.
+     * 
+     * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
+     *
+     * \param signal the signal to connect to.
+     * \param notifier the notifier function to bind.
+     *
+     * \return connection descriptor.
+     */
+    virtual boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier);
 
     /** 
      * Gives information about this connection.
@@ -91,6 +118,13 @@ public:
     const std::string getName() const;
 
     /** 
+     * Gives canonical name of connection. The canonical name is a descriptor including module name.
+     * 
+     * \return The name of this connection
+     */
+    const std::string getCanonicalName() const;
+
+    /** 
      * Sets the connector's name. This is not thread-safe! Do not use it outside the WModule thread.
      * 
      * \param name the new name.
@@ -109,16 +143,6 @@ protected:
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )=0;
 
     /** 
-     * Connects this Module Connector with another one. During connection process, just the connectibility flag from
-     * WModuleConnector::connectable is used to determine whether the connection is possible or not.
-     * 
-     * \param con the connector to connect.
-     * 
-     * \return true if successful
-     */
-    virtual bool connect( boost::shared_ptr<WModuleConnector> con );
-
-    /** 
      * List of connectors connected to this connector.
      */
     std::set<boost::shared_ptr<WModuleConnector> > m_Connected;
@@ -129,16 +153,36 @@ protected:
      */
     boost::shared_mutex m_ConnectionListLock;
 
-    // Define the signals common to all connectors here.
+    /** 
+     * Connect additional signals.
+     * 
+     * \param con the connector that requests connection.
+     * 
+     */
+    virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
 
     /** 
-     * Generic signal type used in the most signals involving a sender and receiver.
+     * Disconnect all signals subscribed by this connector from "con".
      * 
-     * \param recv The connector receiving the signal.
-     * \param sender The counterpart (sender).
+     * \param con the connector that gets disconnected.
      */
-    typedef boost::signals2::signal<void ( boost::shared_ptr<WModuleConnector>,
-                                           boost::shared_ptr<WModuleConnector> )>  t_GenericSignalType;
+    virtual void disconnectSignals( boost::shared_ptr<WModuleConnector> con );
+
+    /**
+     * Gives the signal handler function responsible for a given signal. Modules defining own signal handlers should overwrite
+     * this function. This function is protected since boost::functions are callable, which is what is not wanted here. Just
+     * signals should call them.
+     * 
+     * \param signal the signal to get the handler for.
+     * 
+     * \return the signal handler for "signal".
+     */
+    virtual const t_GenericSignalHandlerType getSignalHandler( MODULE_CONNECTOR_SIGNAL signal );
+
+    /** 
+     * The Module this connector belongs to
+     */
+    boost::shared_ptr<WModule> m_Module;
 
 private:
 
@@ -151,11 +195,6 @@ private:
      * The connections description.
      */
     std::string m_Description;
-
-    /** 
-     * The Module this connector belongs to
-     */
-    boost::shared_ptr<WModule> m_Module;
 
     /** 
      * Signal emitted whenever connection has been established.

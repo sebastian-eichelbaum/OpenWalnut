@@ -25,8 +25,12 @@
 #include <string>
 #include <iostream>
 
+#include "boost/signals2/signal.hpp"
+#include "boost/signals2/connection.hpp"
+
 #include "WModule.h"
 #include "WModuleInputConnector.h"
+#include "WModuleConnectorSignals.h"
 
 #include "WModuleOutputConnector.h"
 
@@ -41,18 +45,6 @@ WModuleOutputConnector::~WModuleOutputConnector()
     // cleanup
 }
 
-bool WModuleOutputConnector::connect( boost::shared_ptr<WModuleInputConnector> con )
-{
-    // let WModuleConnector do the list management
-    if (!WModuleConnector::connect( con ) )
-        return false;
-
-    // connect additional WModuleInput/OutputConnector specific signals
-    // There are currently no signals from an input we want to receive here.
-
-    return true;
-}
-
 bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleConnector> con )
 {
     // output connectors are just allowed to get connected with input connectors
@@ -61,5 +53,17 @@ bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleConnector> co
         return true;
     }
     return false;
+}
+
+boost::signals2::connection WModuleOutputConnector::subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier)
+{
+    // connect DataChanged signal
+    switch ( signal )
+    {
+        case DATA_CHANGED:
+            return signal_DataChanged.connect( notifier );
+        default:    // we do not know this signal: maybe the base class knows it
+            return WModuleConnector::subscribeSignal( signal, notifier );
+    }
 }
 

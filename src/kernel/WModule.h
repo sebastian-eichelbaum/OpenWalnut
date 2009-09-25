@@ -32,6 +32,7 @@
 #include <boost/thread.hpp>
 
 #include "../common/WThreadedRunner.h"
+#include "WModuleConnectorSignals.h"
 
 class WModuleConnector;
 class WModuleInputConnector;
@@ -148,6 +149,18 @@ protected:
     // **************************************************************************************************************************
 
     /** 
+     * Gives the signal handler function responsible for a given signal. Modules defining own signal handlers should overwrite
+     * this function. This function is protected since boost::functions are callable, which is what is not wanted here. Just
+     * signals should call them.
+     * 
+     * \param signal the signal to get the handler for.
+     * 
+     * \return the signal handler for "signal".
+     */
+    virtual const t_GenericSignalHandlerType getSignalHandler( MODULE_CONNECTOR_SIGNAL signal );
+
+
+    /** 
      * Gets called whenever a connector gets connected to the specified input.
      * 
      * \param here the connector of THIS module that got connected to "there"
@@ -166,10 +179,11 @@ protected:
     /** 
      * Gets called when the data on one input connector changed.
      * 
-     * \param input 
+     * \param input the input connector receiving the change.
+     * \param output the output connector sending the change notification.
      */
-    virtual void notifyDataChange( boost::shared_ptr<WModuleInputConnector> input,
-                                   boost::shared_ptr<WModuleOutputConnector> output );
+    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+                                   boost::shared_ptr<WModuleConnector> output );
 
 
 private:

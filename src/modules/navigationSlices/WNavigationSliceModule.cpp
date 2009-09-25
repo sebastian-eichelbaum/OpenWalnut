@@ -79,8 +79,8 @@ void WNavigationSliceModule::initializeConnectors()
     WModule::initializeConnectors();
 }
 
-void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleInputConnector> input,
-                                               boost::shared_ptr<WModuleOutputConnector> output )
+void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+                                               boost::shared_ptr<WModuleConnector> output )
 {
     WModule::notifyDataChange( input, output );
 
