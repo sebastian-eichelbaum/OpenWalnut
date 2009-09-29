@@ -24,6 +24,7 @@
 
 #include <set>
 #include <string>
+#include <sstream>
 
 #include <boost/shared_ptr.hpp>
 
@@ -31,12 +32,14 @@
 #include "WModuleOutputConnector.h"
 #include "WModuleConnectorSignals.h"
 #include "exceptions/WModuleSignalUnknown.h"
+#include "exceptions/WModuleConnectorInitFailed.h"
 
 #include "WModule.h"
 
 WModule::WModule():
     WThreadedRunner()
 {
+   
     // initialize members
     m_Initialized=false;
 }
@@ -78,9 +81,25 @@ void WModule::removeConnectors()
     m_OutputConnectors.clear();
 }
 
+void WModule::connectors()
+{
+}
+
 void WModule::initializeConnectors()
 {
+    // doing it twice is not allowed
+    if ( isInitialized() )
+    {
+        // TODO(ebaum): is this really needed?
+        std::ostringstream s;
+        s << "Could not initialize connectors for Module " << getName() << ". Reason: already initialized.";
+
+        throw WModuleConnectorInitFailed( s.str() );
+    }
+
     m_Initialized=true;
+
+    connectors();
 }
 
 const std::set<boost::shared_ptr<WModuleInputConnector> >& WModule::getInputConnectors() const
@@ -98,11 +117,11 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
     switch ( signal )
     {
         case CONNECTION_ESTABLISHED:
-            return  boost::bind( &WModule::notifyConnectionEstablished, this, _1, _2 );
+            return boost::bind( &WModule::notifyConnectionEstablished, this, _1, _2 );
         case CONNECTION_CLOSED:
-            return  boost::bind( &WModule::notifyConnectionClosed, this, _1, _2 );
+            return boost::bind( &WModule::notifyConnectionClosed, this, _1, _2 );
         case DATA_CHANGED:
-            return  boost::bind( &WModule::notifyDataChange, this, _1, _2 );
+            return boost::bind( &WModule::notifyDataChange, this, _1, _2 );
         default:
             throw new WModuleSignalUnknown( "Could not subscribe to unknown signal. You need to implement this signal type\
                                              explicitly in your module." );

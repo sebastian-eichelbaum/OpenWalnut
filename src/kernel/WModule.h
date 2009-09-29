@@ -106,9 +106,17 @@ protected:
     // **************************************************************************************************************************
     
     /** 
-     * Initialize connectors in this function. It is pure virtual to enforce its implementation.
+     * Initialize connectors in this function. This function must not be called multiple times for one module instance.
+     * The module container manages calling those functions -> so just implement it.
      */
-    virtual void initializeConnectors();
+    virtual void connectors();
+
+    /** 
+     * Manages connector initialization. Gets called by module container.
+     *
+     * \throw WModuleConnectorInitFailed if called multiple times.
+     */
+    void initializeConnectors();
 
     /** 
      * Set of input connectors associated with this module.

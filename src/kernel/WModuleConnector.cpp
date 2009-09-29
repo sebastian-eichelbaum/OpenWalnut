@@ -152,7 +152,7 @@ boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_
 const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
 {
     // the module instance knows that
-    m_Module->getSignalHandler( signal );
+    return m_Module->getSignalHandler( signal );
 }
 
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )

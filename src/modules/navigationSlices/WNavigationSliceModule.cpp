@@ -64,7 +64,7 @@ const std::string WNavigationSliceModule::getDescription() const
     return "This module shows 3 orthogonal navigation slices.";
 }
 
-void WNavigationSliceModule::initializeConnectors()
+void WNavigationSliceModule::connectors()
 {
     // initialize connectors
     // XXX to add a new connector and to offer it, these simple steps need to be done
@@ -72,11 +72,12 @@ void WNavigationSliceModule::initializeConnectors()
     m_Input= boost::shared_ptr<WModuleInputConnector>(
             new WModuleInputConnector( shared_from_this(), "in1", "Dataset to show on the slices." )
     );
+
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_Input );
 
     // call WModules initialization
-    WModule::initializeConnectors();
+    WModule::connectors();
 }
 
 void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,

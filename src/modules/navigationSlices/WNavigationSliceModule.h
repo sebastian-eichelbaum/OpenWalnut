@@ -79,7 +79,7 @@ protected:
     /** 
      * Initialize the connectors this module is using.
      */
-    virtual void initializeConnectors();
+    virtual void connectors();
 
     /** 
      * Receive DATA_CHANGE notifications.
