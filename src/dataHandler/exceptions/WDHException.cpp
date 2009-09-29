@@ -22,36 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADEREEGASCII_H
-#define WLOADEREEGASCII_H
-
-
+#include <stdexcept>
 #include <string>
-#include <boost/shared_ptr.hpp>
-#include "../WDataHandler.h"
-#include "../WLoader.h"
 
-/**
- * Loader for EEG data in ASCII fromat.
- * \ingroup dataHandler
- */
-class WLoaderEEGASCII : public WLoader
+#include "WDHException.h"
+
+WDHException::WDHException( const std::string& msg ): WException( msg )
 {
-public:
-    /**
-     * Constructs a loader to be executed in its own thread and sets the data needed
-     * for the loader when executed in its own thread.
-     */
-    WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    // initialize members
+}
 
-    /**
-     * This  function is automatically called when creating a new thread for the
-     * loader with boost::thread.
-     */
-    virtual void operator()();
-
-protected:
-private:
-};
-
-#endif  // WLOADEREEGASCII_H
+WDHException::~WDHException() throw()
+{
+    // cleanup
+}

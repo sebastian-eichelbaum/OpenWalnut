@@ -24,10 +24,19 @@
 
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include "WLoader.h"
+#include "exceptions/WDHIOFailure.h"
 
 
-WLoader::WLoader( std::string fileName )
-    : m_fileName( fileName )
+WLoader::WLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )
+    : m_fileName( fileName ),
+      m_dataHandler( dataHandler )
 {
+    boost::filesystem::path  p( m_fileName );
+    if( !boost::filesystem::exists( p ) )
+    {
+        throw WDHIOFailure( "file '" + m_fileName + "' doesn't exists." );
+    }
 }

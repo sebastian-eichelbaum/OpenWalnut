@@ -35,8 +35,7 @@
 #include "../../common/WStringUtils.hpp"
 
 WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-    : WLoader( fileName ),
-      m_dataHandler( dataHandler )
+    : WLoader( fileName, dataHandler )
 {
 }
 

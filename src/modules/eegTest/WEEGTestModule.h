@@ -22,36 +22,58 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADEREEGASCII_H
-#define WLOADEREEGASCII_H
-
+#ifndef WEEGTESTMODULE_H
+#define WEEGTESTMODULE_H
 
 #include <string>
-#include <boost/shared_ptr.hpp>
-#include "../WDataHandler.h"
-#include "../WLoader.h"
+
+#include "../../kernel/WModule.h"
 
 /**
- * Loader for EEG data in ASCII fromat.
- * \ingroup dataHandler
+ * Simple module for testing Eeg loading stuff.
+ * \ingroup kernel
  */
-class WLoaderEEGASCII : public WLoader
+class WEEGTestModule: public WModule
 {
 public:
-    /**
-     * Constructs a loader to be executed in its own thread and sets the data needed
-     * for the loader when executed in its own thread.
-     */
-    WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
 
     /**
-     * This  function is automatically called when creating a new thread for the
-     * loader with boost::thread.
+     * Default constructor.
      */
-    virtual void operator()();
+    WEEGTestModule();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WEEGTestModule();
+
+    /**
+     * Copy constructor
+     * \param other Reference on object to copy.
+     */
+    WEEGTestModule( const WEEGTestModule& other );
+
+    /**
+     * Gives back the name of this module.
+     * \return the module's name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gives back a description of this module.
+     * \return description to module.
+     */
+    virtual const std::string getDescription() const;
 
 protected:
+
+    /**
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void threadMain();
+
 private:
 };
 
-#endif  // WLOADEREEGASCII_H
+#endif  // WEEGTESTMODULE_H
+

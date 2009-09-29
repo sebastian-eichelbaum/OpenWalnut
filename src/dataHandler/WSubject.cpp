@@ -25,7 +25,7 @@
 #include <string>
 
 #include "WSubject.h"
-#include "exceptions/WNoSuchDataSetException.h"
+#include "exceptions/WDHNoSuchDataSet.h"
 
 
 WSubject::WSubject()
@@ -48,7 +48,7 @@ std::string WSubject::getName() const
 boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
 {
     if( dataSetId >= m_dataSets.size() )
-        throw WNoSuchDataSetException( "Index too large." );
+        throw WDHNoSuchDataSet( "Index too large." );
     return m_dataSets.at( dataSetId );
 }
 

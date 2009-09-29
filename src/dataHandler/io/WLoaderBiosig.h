@@ -52,12 +52,11 @@ public:
      * This  function is automatically called when creating a new thread for the
      * loader with boost::thread.
      */
-    void operator()();
+    virtual void operator()();
 protected:
 private:
     void biosigLoader();
     void fillSegment( std::vector<std::vector<double> >* segment, biosig_data_type* data );
-    boost::shared_ptr< WDataHandler > m_dataHandler;
 
     /**
      * Header of file

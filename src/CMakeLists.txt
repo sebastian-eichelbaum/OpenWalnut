@@ -15,6 +15,8 @@ IF( CMAKE_HOST_SYSTEM MATCHES Linux )
   SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
 ELSEIF( CMAKE_HOST_SYSTEM MATCHES Windows )
   SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The libraries will be put into this directory." )
+ELSEIF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+  SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
 ELSE()
   MESSAGE( FATAL_ERROR "Could not determine platform type! (expected Linux or Windows)!" )
 ENDIF()
@@ -54,10 +56,11 @@ FIND_PACKAGE( osg ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgUtil ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgDB ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgViewer ${MIN_OSG_VERSION} REQUIRED )
+FIND_PACKAGE( osgText ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgGA ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( OpenThreads ${MIN_OSG_VERSION} REQUIRED )
-SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OPENTHREADS_LIBRARY} )
-SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
+SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGTEXT_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OPENTHREADS_LIBRARY} )
+SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGTEXT_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
 # When new cmake version available >=2.6.4 we may use this the line below instead the stuff above
 # FIND_PACKAGE( OpenSceneGraph 2.8.0 REQUIRED osgDB osgUtil osgGA osgViewer OpenThreads )
 INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
@@ -104,7 +107,6 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
     # Package dependencies:
     FIND_PACKAGE( Qt4 REQUIRED )
-    FIND_PACKAGE( GLEW REQUIRED )
 
     # Includes:
     INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
@@ -118,7 +120,7 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     QT4_WRAP_CPP( GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
     
     ADD_EXECUTABLE( walnut ${ALL_SRC}  ${NIFTI_SRC} ${GUI_QT4_MOC_SRCS} )
-    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} ${GLEW_LIBRARY} )
+    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} )
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
@@ -200,7 +202,7 @@ ADD_CUSTOM_TARGET( vtest
 #-------------------------------------------------------------------------------------------------------------
 # Removes all tests thus forcing them to be recompiled during the next "make"
 ADD_CUSTOM_TARGET( cleantest
-                   COMMAND rm -f ${PROJECT_BINARY_DIR}/*/*_test.cc
+                   COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/../tools/CMakeModules/RemoveGeneratedTests.cmake
                    COMMENT "Remove all tests to force them to be recompiled"
                  )
 
@@ -217,6 +219,7 @@ ADD_CUSTOM_TARGET( cicheck
 ADD_CUSTOM_TARGET( fixtures
                    ALL
                    COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
+                   COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/io/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/io
                    COMMENT "Copy fixtures to the right place."
                  )
 

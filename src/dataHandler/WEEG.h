@@ -35,23 +35,25 @@
 ///======================================
 // TODO(wiebel): use this szuff or remove it
 #include "../math/WPosition.h"
-typedef double dummyType;
+typedef double WDummyType;
 class WEEGElectrodeObject
 {
 public:
 protected:
 private:
     wmath::WPosition m_position;
-    //  WColor color;
+    // TODO(wiebel): The following is suggested in the
+    // eemagine design document
+    // WColor color;
 };
 class WEEGSegementInfo
 {
 public:
 protected:
 private:
-    dummyType m_startSample;
-    dummyType m_endSample;
-    dummyType m_segmentStartDate;
+    WDummyType m_startSample;
+    WDummyType m_endSample;
+    WDummyType m_segmentStartDate;
 };
 //================================================
 
@@ -114,6 +116,7 @@ public:
      */
     std::string getChannelLabel( size_t channelId ) const
     {
+        // TODO(wiebel): what is done with the second string of the label?
         return  m_channelLabels[channelId].first;
     }
 

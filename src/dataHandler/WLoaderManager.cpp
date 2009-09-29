@@ -24,14 +24,16 @@
 
 #include <iostream>
 #include <string>
+
 #include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
 
 #include "WLoaderManager.h"
-#include "WDataSet.h"
+#include "exceptions/WDHException.h"
 #include "io/WLoaderNIfTI.h"
 #include "io/WLoaderBiosig.h"
 #include "io/WLoaderEEGASCII.h"
+#include "io/WLoaderVTK.h"
 
 std::string getSuffix( std::string name )
 {
@@ -39,7 +41,7 @@ std::string getSuffix( std::string name )
     return p.extension();
 }
 
-void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
+void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHException )
 {
     std::string suffix = getSuffix( fileName );
 
@@ -72,10 +74,14 @@ void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler
         std::cout << "VTK not implemented yet" << std::endl;
         assert( 0 );
     }
+    else if( suffix == ".fib" )
+    {
+        WLoaderVTK vtkLoader( fileName, dataHandler );
+        boost::thread loaderThread( vtkLoader );
+    }
     else
     {
-        std::cout << "Unknown file type: \"" << suffix << "\"" << std::endl;
-        assert( 0 );
+        throw WDHException( "Unknown file type: '" + suffix + "'" );
     }
 }
 

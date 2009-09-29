@@ -22,6 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WDHIOFAILURE_H
+#define WDHIOFAILURE_H
 
-#include "WNoSuchDataSetException.h"
+#include <stdexcept>
+#include <string>
 
+#include "WDHException.h"
+
+/**
+ * Use this for IO error handling.
+ */
+class WDHIOFailure : public WDHException
+{
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WDHIOFailure( const std::string& msg = "DataHandler Exception: IO error occured." );
+
+    /**
+     * Destructor
+     */
+    virtual ~WDHIOFailure() throw();
+
+protected:
+private:
+};
+
+#endif  // WDHIOFAILURE_H

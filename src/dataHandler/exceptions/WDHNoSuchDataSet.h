@@ -22,12 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WNOSUCHDATASETEXCEPTION_H
-#define WNOSUCHDATASETEXCEPTION_H
+#ifndef WDHNOSUCHDATASET_H
+#define WDHNOSUCHDATASET_H
 
 #include <string>
 
-#include "../../common/WException.h"
+#include "WDHException.h"
 
 /**
  * Should be thrown when an invalid index is used to get a WSubject from
@@ -35,33 +35,24 @@
  * WSubject. An index is invalid if it's greater or equal than the number
  * of WDataSets in that WDataHandler.
  *
- * It's subclassed from std::logic_error since it represents a mistake by a
- * programmer, not by the runtime system (e.g. allocation memory) or other
- * libraries.
- *
  * \ingroup dataHandler
  */
-class WNoSuchDataSetException : public WException
+class WDHNoSuchDataSet : public WDHException
 {
 public:
     /**
      * Constructs new exception.
      */
-    WNoSuchDataSetException( const std::string& s = std::string() ) throw()
-        : WException( s )
-    {
-    }
+    explicit WDHNoSuchDataSet( const std::string& msg = "DataHandler Exception: Invalid DataSet Access" );
 
     /**
      * Destroys this exception
      */
-    virtual ~WNoSuchDataSetException() throw()
-    {
-    };
+    virtual ~WDHNoSuchDataSet() throw();
 
 protected:
 
 private:
 };
 
-#endif  // WNOSUCHDATASETEXCEPTION_H
+#endif  // WDHNOSUCHDATASET_H

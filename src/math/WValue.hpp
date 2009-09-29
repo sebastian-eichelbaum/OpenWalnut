@@ -26,7 +26,7 @@
 #define WVALUE_H
 
 #include <vector>
-#include <tr1/cmath>
+#include <cmath>
 
 #include <cassert>
 

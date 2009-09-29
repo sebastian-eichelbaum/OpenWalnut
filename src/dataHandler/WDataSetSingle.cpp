@@ -40,7 +40,6 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSetBase> newValueSet,
 
 WDataSetSingle::~WDataSetSingle()
 {
-    // TODO(wiebel): Auto-generated destructor stub
 }
 
 boost::shared_ptr<WValueSetBase> WDataSetSingle::getValueSet() const

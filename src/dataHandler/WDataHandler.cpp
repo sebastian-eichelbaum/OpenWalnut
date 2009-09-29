@@ -22,23 +22,23 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <string>
 #include <vector>
 
 #include "WDataHandler.h"
 #include "WSubject.h"
-#include "exceptions/WNoSuchDataSetException.h"
+#include "exceptions/WDHNoSuchDataSet.h"
 #include "WLoaderManager.h"
 
 WDataHandler::WDataHandler()
 {
 }
 
-
 boost::shared_ptr< WSubject > WDataHandler::getSubject( const unsigned int subjectId ) const
 {
     if( subjectId >= m_subjects.size() )
-        throw WNoSuchDataSetException( "Index too large." );
+        throw WDHNoSuchDataSet( "Index too large." );
     return m_subjects.at( subjectId );
 }
 
@@ -64,7 +64,13 @@ void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
     WLoaderManager lm;
     for ( size_t i = 0 ; i < fileNames.size() ; ++i)
     {
-        // TODO(wiebel): need to associate the dataset to its subject
-        lm.load( fileNames[i], shared_from_this() );
+        try
+        {
+            lm.load( fileNames[i], shared_from_this() );
+        }
+        catch( WDHException e )
+        {
+            std::cerr << "Error :: DataHandler :: " << e.what() << std::endl;
+        }
     }
 }

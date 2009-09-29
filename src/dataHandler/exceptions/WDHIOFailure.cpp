@@ -22,34 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGLSCENEPAINTER_H
-#define WGLSCENEPAINTER_H
+#include <stdexcept>
+#include <string>
 
-/**
- * This is the base class for rendering the scene graph.
- * \ingroup ge
- */
-class WGLScenePainter
+#include "WDHIOFailure.h"
+
+WDHIOFailure::WDHIOFailure( const std::string& msg )
+    : WDHException( msg )
 {
-public:
-    WGLScenePainter();
-    virtual ~WGLScenePainter();
+    // initialize members
+}
 
-    /**
-     * Initialize the OpenGL context, e.g., set main transformation matrices.
-     */
-    virtual void initGL() const;
+WDHIOFailure::~WDHIOFailure() throw()
+{
+    // cleanup
+}
 
-    /**
-     * Do the OpenGL painting in every frame.
-     */
-    virtual void paintGL() const;
-
-    /**
-     * Called, when the window is resized and re-initialization of the
-     * window parameters and matrices may need to be done.
-     */
-    virtual void resizeGL( int width, int height ) const;
-};
-
-#endif  // WGLSCENEPAINTER_H
