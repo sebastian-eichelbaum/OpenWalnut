@@ -32,6 +32,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
 #include "../common/WThreadedRunner.h"
 
 #include "WLogEntry.h"
@@ -43,14 +44,9 @@ class WLogger: public WThreadedRunner
 {
 public:
     /**
-     * Default constructor.
-     */
-    WLogger();
-
-    /**
      * Constructor
      */
-    WLogger( std::string fileName, LogLevel level = LL_DEBUG );
+    WLogger( std::string fileName = "walnut.log", LogLevel level = LL_DEBUG );
 
     /**
      * Destructor.
@@ -93,7 +89,15 @@ public:
      */
     void processQueue();
 
+    /**
+     * \par Description
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void threadMain();
+
 protected:
+
+private:
     /**
      *
      */
@@ -130,11 +134,15 @@ protected:
      */
     std::queue< WLogEntry > m_LogQueue;
 
-private:
     /**
      *
      */
-    bool init();
+    boost::mutex m_QueueMutex;
+
+    /**
+     *
+     */
+    bool m_FinishRequested;
 };
 
 #endif  // WLOGGER_H

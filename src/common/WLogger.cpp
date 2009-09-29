@@ -30,12 +30,6 @@
 
 #include "WLogger.h"
 
-WLogger::WLogger():
-    WThreadedRunner()
-{
-    init();
-}
-
 
 WLogger::WLogger( std::string fileName, LogLevel level ):
     WThreadedRunner(),
@@ -44,8 +38,13 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
     m_STDOUTLevel( level ),
     m_STDERRLevel( LL_ERROR ),
     m_LogFileLevel( level ),
-    m_LogFileName( fileName )
+    m_LogFileName( fileName ),
+    m_FinishRequested( false )
 {
+    addLogMessage( "Initalizing Logger", "Logger", LL_DEBUG );
+    addLogMessage( "===============================================================================", "Logger", LL_INFO );
+    addLogMessage( "=                          Starting Log Session                               =", "Logger", LL_INFO );
+    addLogMessage( "===============================================================================", "Logger", LL_INFO );
 }
 
 WLogger::~WLogger()
@@ -86,23 +85,6 @@ void WLogger::setLogFileName( std::string fileName )
 }
 
 
-bool WLogger::init()
-{
-    m_LogLevel = LL_DEBUG;
-    m_STDOUTLevel = LL_DEBUG;
-    m_STDERRLevel = LL_ERROR;
-    m_LogFileLevel = LL_DEBUG;
-    m_LogFileName = "walnut.log";
-
-    addLogMessage( "Initalizing Logger", "Logger", LL_DEBUG );
-    addLogMessage( "===============================================================================", "Logger", LL_INFO );
-    addLogMessage( "=                          Starting Log Session                               =", "Logger", LL_INFO );
-    addLogMessage( "===============================================================================", "Logger", LL_INFO );
-
-    return true;
-}
-
-
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
     if ( m_LogLevel > level )
@@ -113,15 +95,19 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
     boost::posix_time::ptime t( boost::posix_time::second_clock::local_time() );
     std::string timeString( to_simple_string( t ) );
     WLogEntry entry( timeString, message, level, source );
+
+    boost::mutex::scoped_lock l( m_QueueMutex );
     m_LogQueue.push( entry );
 
-    // TODO(schurade): this must be called from the kernel and made thread safe
-    processQueue();
+    // TODO(schurade): this must be called from the kernel
+    // processQueue();
 }
 
 
 void WLogger::processQueue()
 {
+    boost::mutex::scoped_lock l( m_QueueMutex );
+
     while ( !m_LogQueue.empty() )
     {
         WLogEntry entry = m_LogQueue.front();
@@ -146,4 +132,18 @@ void WLogger::processQueue()
             ofs << entry.getLogString();
         }
     }
+}
+
+
+void WLogger::threadMain()
+{
+    // Since the modules run in a separate thread: such loops are possible
+    while ( !m_FinishRequested )
+    {
+        processQueue();
+        // do fancy stuff
+        sleep( 1 );
+    }
+
+    // clean up stuff
 }

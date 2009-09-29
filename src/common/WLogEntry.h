@@ -42,14 +42,34 @@ LogLevel;
 class WLogEntry
 {
 public:
+    /**
+     *
+     */
     WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source );
+
+    /**
+     *
+     */
     virtual ~WLogEntry();
 
+    /**
+     *
+     */
     std::string getLogString( std::string format = "[%t] *%l* %m \n" );
 
+    /**
+     *
+     */
     LogLevel getLogLevel();
 
 protected:
+
+private:
+    /**
+     * Private standard constructor to prevent empty log entries
+     */
+    WLogEntry();
+
     /**
      *
      */
@@ -69,10 +89,6 @@ protected:
      *
      */
     std::string m_source;
-
-
-private:
-    WLogEntry();
 };
 
 #endif  // WLOGENTRY_H
