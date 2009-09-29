@@ -209,7 +209,7 @@ ADD_CUSTOM_TARGET( cleantest
 #-------------------------------------------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET( cicheck
-                   COMMAND make test && make stylecheck
+                   COMMAND make stylecheck && make test
                    COMMENT "Checks if all is well to commit"
                  )
 
