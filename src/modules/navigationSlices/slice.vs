@@ -1,7 +1,12 @@
 varying vec4 VaryingTexCoord0;
 
+uniform sampler3D tex0;
+
 void main()
 {
-    VaryingTexCoord0 = gl_MultiTexCoord0;
-    gl_Position = ftransform();
+    vec4 color = texture3D(tex0, VaryingTexCoord0);
+
+    if ( ( color.r + color.g + color.b )  < 0.01 )
+        discard;
+    gl_FragColor = color;
 }
