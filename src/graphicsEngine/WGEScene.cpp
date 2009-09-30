@@ -28,21 +28,21 @@
 #include <osg/Group>
 #include <osg/Geode>
 
-#include "../kernel/WKernel.h"
+#include "../common/WLogger.h"
 
 #include "WGEScene.h"
 
 WGEScene::WGEScene():
     osg::Group()
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
 
     // initialize members
 }
 
 WGEScene::~WGEScene()
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
 
     // cleanup
 }

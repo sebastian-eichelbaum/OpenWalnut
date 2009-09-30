@@ -39,8 +39,8 @@ WShader::WShader()
 {
 }
 
-
-WShader::WShader( std::string fileName )
+WShader::WShader( std::string fileName, std::string shaderPath ):
+    m_shaderPath( shaderPath )
 {
     m_VertexObject = readShaderFromFile( fileName + ".vs", osg::Shader::VERTEX );
     m_FragmentObject = readShaderFromFile( fileName + ".fs", osg::Shader::FRAGMENT );
@@ -80,7 +80,7 @@ std::string WShader::readTextFile( std::string fileName )
 {
     std::string fileText;
 
-    std::ifstream ifs( (  WKernel::getRunningKernel()->getShaderPath() + fileName ).c_str() );
+    std::ifstream ifs( (  m_shaderPath + fileName ).c_str() );
     std::string line;
 
     std::map< std::string, float >::const_iterator mi = m_defines.begin();

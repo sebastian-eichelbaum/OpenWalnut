@@ -24,15 +24,13 @@
 
 #include <iostream>
 
-#include <QtGui/QApplication>
-
 #include "WMainApplication.h"
 #include "WMainWindow.h"
 
 #include "../../kernel/WKernel.h"
 
 WMainApplication::WMainApplication():
-    WThreadedRunner()
+    WGUI()
 {
 }
 
@@ -43,8 +41,14 @@ WMainApplication::~WMainApplication()
 void WMainApplication::threadMain()
 {
     // TODO(ebaum): currently removed argument stuff. will be done later in conjunction with a better
-    // option handler.
+    // option handler.+
+#ifdef __APPLE__
+    char * dummy = "";
+    int dummyInt = 0;
+    QApplication appl( dummyInt, &dummy, 0 );
+#else
     QApplication appl( 0, NULL );
+#endif
     QMainWindow* widget = new QMainWindow;
     WMainWindow gui;
     gui.setupGUI( widget );

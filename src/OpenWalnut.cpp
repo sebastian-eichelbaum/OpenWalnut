@@ -26,6 +26,9 @@
 
 #include "common/WException.h"
 #include "common/WSegmentationFault.h"
+#include "common/WLogger.h"
+
+#include "gui/WGUI.h"
 
 #include "kernel/WKernel.h"
 
@@ -51,8 +54,16 @@ int main( int argc, char* argv[] )
     // install signal handler as early as possible
     WSegmentationFault::installSignalHandler();
 
+    // initialize GUI
+    boost::shared_ptr< WGUI > gui = boost::shared_ptr< WGUI >( new WMainApplication() );
+
+    // init logger
+    WLogger logger;
+    logger.run();
+
     // init the kernel
-    WKernel kernel = WKernel( argc, argv );
+    WKernel kernel = WKernel( argc, argv, gui );
+
     int code = kernel.run();
     return code;
 }

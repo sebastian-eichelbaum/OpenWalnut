@@ -25,19 +25,21 @@
 #include <iostream>
 
 #include <list>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/locks.hpp>
 
 #include "exceptions/WGEInitFailed.h"
-#include "../kernel/WKernel.h"
+#include "../common/WLogger.h"
 #include "WGraphicsEngine.h"
 #include "WGEViewer.h"
 
-WGraphicsEngine::WGraphicsEngine():
-    WThreadedRunner()
+WGraphicsEngine::WGraphicsEngine( std::string shaderPath ):
+    WThreadedRunner(),
+    m_shaderPath( shaderPath )
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
 
     // initialize members
     m_RootNode = new WGEScene();
@@ -46,12 +48,17 @@ WGraphicsEngine::WGraphicsEngine():
 WGraphicsEngine::~WGraphicsEngine()
 {
     // cleanup
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_DEBUG );
 }
 
 osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
 {
     return m_RootNode;
+}
+
+std::string WGraphicsEngine::getShaderPath()
+{
+    return m_shaderPath;
 }
 
 void WGraphicsEngine::threadMain()
@@ -67,7 +74,7 @@ void WGraphicsEngine::threadMain()
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height )
 {
     boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x, y, width, height ) );
-    viewer->setScene( WKernel::getRunningKernel()->getGraphicsEngine()->getScene() );
+    viewer->setScene( this->getScene() );
 
     // start rendering
     viewer->run();

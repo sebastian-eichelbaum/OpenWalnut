@@ -54,6 +54,13 @@ public:
     virtual ~WLogger();
 
     /**
+     * Returns pointer to the currently running logger.
+     *
+     * \return pointer to logger instance.
+     */
+    static WLogger* getLogger();
+
+    /**
      *
      */
     void setLogLevel( LogLevel level );
@@ -98,6 +105,14 @@ public:
 protected:
 
 private:
+
+    /**
+     * We do not want a copy constructor, so we define it private.
+     */
+    WLogger( const WLogger& )
+    {
+    };
+
     /**
      *
      */

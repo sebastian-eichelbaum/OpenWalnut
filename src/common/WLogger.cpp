@@ -30,6 +30,10 @@
 
 #include "WLogger.h"
 
+/**
+ * Used for program wide access to the logger.
+ */
+WLogger* logger = NULL;
 
 WLogger::WLogger( std::string fileName, LogLevel level ):
     WThreadedRunner(),
@@ -41,6 +45,8 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
     m_LogFileName( fileName ),
     m_QueueMutex()
 {
+    logger = this;
+
     addLogMessage( "Initalizing Logger", "Logger", LL_DEBUG );
     addLogMessage( "===============================================================================", "Logger", LL_INFO );
     addLogMessage( "=                          Starting Log Session                               =", "Logger", LL_INFO );
@@ -49,6 +55,11 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
 
 WLogger::~WLogger()
 {
+}
+
+WLogger* WLogger::getLogger()
+{
+    return logger;
 }
 
 
