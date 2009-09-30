@@ -22,31 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGUI_H
-#define WGUI_H
+#ifndef WQTRIBBONMENU_H
+#define WQTRIBBONMENU_H
 
-#include "../common/WThreadedRunner.h"
-
+#include <QtGui/QPushButton>
+#include <QtGui/QToolBar>
 /**
- * This class prescribes the interface to the GUI.
- * \ingroup gui
+ * TODO(schurade): Document this!
  */
-class WGUI: public WThreadedRunner
+class WQtRibbonMenu  : public QToolBar
 {
 public:
+    explicit WQtRibbonMenu( QWidget* parent );
+    virtual ~WQtRibbonMenu();
 
-    /**
-     * Default destructor.
-     */
-    virtual ~WGUI();
+    QPushButton* getLoadButton();
+    QPushButton* getQuitButton();
+protected:
+private:
+    void setup();
+
+    QIcon m_quitIcon;
+    QIcon m_saveIcon;
+    QIcon m_loadIcon;
+    QIcon m_aboutIcon;
+
+    QPushButton* m_loadButton;
+    QPushButton* m_saveButton;
+    QPushButton* m_quitButton;
 };
 
-/**
- * \defgroup gui GUI
- *
- * \brief
- * This module implements the graphical user interface for OpenWalnut.
- *
- */
-
-#endif  // WGUI_H
+#endif  // WQTRIBBONMENU_H

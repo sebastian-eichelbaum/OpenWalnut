@@ -85,6 +85,11 @@ boost::shared_ptr<WDataHandler> WKernel::getDataHandler() const
     return m_DataHandler;
 }
 
+boost::shared_ptr<WMainApplication> WKernel::getGui()
+{
+    return m_Gui;
+}
+
 
 int WKernel::getArgumentCount() const
 {

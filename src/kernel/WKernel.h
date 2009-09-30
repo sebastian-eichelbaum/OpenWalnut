@@ -127,6 +127,11 @@ public:
     /**
      *
      */
+    boost::shared_ptr<WMainApplication> getGui();
+
+    /**
+     *
+     */
     boost::shared_ptr<WLogger> getLogger();
 
     /**

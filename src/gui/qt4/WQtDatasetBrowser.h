@@ -22,31 +22,60 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGUI_H
-#define WGUI_H
+#ifndef WQTDATASETBROWSER_H
+#define WQTDATASETBROWSER_H
 
-#include "../common/WThreadedRunner.h"
+#include <string>
 
+#include <QtGui/QDockWidget>
+#include <QtGui/QTabWidget>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QWidget>
+
+#include "WQtSubjectTreeItem.h"
 /**
- * This class prescribes the interface to the GUI.
- * \ingroup gui
+ * TODO(schurade): Document this!
  */
-class WGUI: public WThreadedRunner
+class WQtDatasetBrowser : public QDockWidget
 {
 public:
+    /**
+     * Default constructor.
+     *
+     * \param parent Parent widget.
+     *
+     * \return
+     */
+    explicit WQtDatasetBrowser( QWidget* parent = 0 );
 
     /**
-     * Default destructor.
+     * Destructor.
      */
-    virtual ~WGUI();
+    virtual ~WQtDatasetBrowser();
+
+    /**
+     *
+     */
+    WQtSubjectTreeItem* addSubject( std::string name );
+
+    /**
+     *
+     */
+    WQtDatasetTreeItem* addDataset( int subjectId, std::string name );
+
+protected:
+
+
+private:
+    QTreeWidget* m_treeWidget;
+    QTabWidget* m_tabWidget;
+
+    QWidget* m_tab1;
+    QWidget* m_tab2;
+    QWidget* m_tab3;
+    QWidget* m_panel;
+    QVBoxLayout* m_layout;
 };
 
-/**
- * \defgroup gui GUI
- *
- * \brief
- * This module implements the graphical user interface for OpenWalnut.
- *
- */
-
-#endif  // WGUI_H
+#endif  // WQTDATASETBROWSER_H

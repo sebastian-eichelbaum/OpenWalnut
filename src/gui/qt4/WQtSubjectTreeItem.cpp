@@ -22,31 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGUI_H
-#define WGUI_H
+#include <string>
 
-#include "../common/WThreadedRunner.h"
+#include "WQtSubjectTreeItem.h"
 
-/**
- * This class prescribes the interface to the GUI.
- * \ingroup gui
- */
-class WGUI: public WThreadedRunner
+WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
+    : QTreeWidgetItem( parent )
 {
-public:
+}
 
-    /**
-     * Default destructor.
-     */
-    virtual ~WGUI();
-};
 
-/**
- * \defgroup gui GUI
- *
- * \brief
- * This module implements the graphical user interface for OpenWalnut.
- *
- */
+WQtSubjectTreeItem::~WQtSubjectTreeItem()
+{
+}
 
-#endif  // WGUI_H
+
+WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( std::string name )
+{
+    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this );
+    ds->setText( 0, QString( name.c_str() ) );
+
+    return ds;
+}
