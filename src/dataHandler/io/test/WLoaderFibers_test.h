@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERVTK_TEST_H
-#define WLOADERVTK_TEST_H
+#ifndef WLOADERFIBERS_TEST_H
+#define WLOADERFIBERS_TEST_H
 
 #include <sstream>
 #include <string>
@@ -33,7 +33,7 @@
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
-#include "../WLoaderVTK.h"
+#include "../WLoaderFibers.h"
 #include "../../WDataHandler.h"
 
 // New value trait for std::streampos
@@ -61,9 +61,9 @@ namespace CxxTest
 #endif  // CXXTEST_RUNNING
 
 /**
- * Unit tests the WLoaderVTK class.
+ * Unit tests the WLoaderFibers class.
  */
-class WLoaderVTKTest : public CxxTest::TestSuite
+class WLoaderFibersTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -73,7 +73,23 @@ public:
     {
         m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
         m_vtkFile = boost::filesystem::path( "fixtures/VTK/ascii-2nd-order-tensor.vtk" );
+        m_ifs_ptr = NULL;
+        m_ifs_ptr = new std::ifstream( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
+        assert( m_ifs_ptr );
+        m_fibLoader = new WLoaderFibers( m_vtkFile.string(), m_dataHandler );
         assert( boost::filesystem::exists( m_vtkFile ) );
+    }
+
+    /**
+     * Tidy up things as e.g. open file streams.
+     */
+    void tearDown( void )
+    {
+        assert( m_ifs_ptr );
+        (*m_ifs_ptr).close();
+        delete( m_ifs_ptr );
+        m_ifs_ptr = NULL;
+        delete( m_fibLoader );
     }
 
     /**
@@ -93,16 +109,13 @@ public:
      */
     void testReadHeader( void )
     {
-        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
-        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
-        loader.readHeader( &ifs );
-        ifs.close();
+        m_fibLoader->readHeader( m_ifs_ptr );
         std::vector< std::string > expected;
         expected.push_back( "# vtk DataFile Version 3.0" );
         expected.push_back( "vtk output" );
         expected.push_back( "ASCII" );
         expected.push_back( "DATASET STRUCTURED_POINTS" );
-        TS_ASSERT_EQUALS( loader.m_header, expected );
+        TS_ASSERT_EQUALS( m_fibLoader->m_header, expected );
     }
 
     /**
@@ -111,11 +124,8 @@ public:
      */
     void testReadHeaderReturnsCorrectStreamPosistion( void )
     {
-        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
-        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
-        loader.readHeader( &ifs );
-        TS_ASSERT_EQUALS( ifs.tellg(), 70 );
-        ifs.close();
+        m_fibLoader->readHeader( m_ifs_ptr );
+        TS_ASSERT_EQUALS( m_ifs_ptr->tellg(), 70 );
     }
 
     /**
@@ -124,11 +134,8 @@ public:
      */
     void testCheckDatasetType( void )
     {
-        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
-        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
-        loader.readHeader( &ifs );
-        ifs.close();
-        TS_ASSERT_EQUALS( loader.datasetTypeIs( "STRUCTURED_POINTS" ), true );
+        m_fibLoader->readHeader( m_ifs_ptr );
+        TS_ASSERT_EQUALS( m_fibLoader->datasetTypeIs( "STRUCTURED_POINTS" ), true );
     }
 
     /**
@@ -136,11 +143,8 @@ public:
      */
     void testBinaryOrAscii( void )
     {
-        WLoaderVTK loader( m_vtkFile.string(), m_dataHandler );
-        std::ifstream ifs( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
-        loader.readHeader( &ifs );
-        ifs.close();
-        TS_ASSERT_EQUALS( loader.isBinary(), false );
+        m_fibLoader->readHeader( m_ifs_ptr );
+        TS_ASSERT_EQUALS( m_fibLoader->isBinary(), false );
     }
 
 private:
@@ -153,6 +157,16 @@ private:
      * A standard VTK file.
      */
     boost::filesystem::path m_vtkFile;
+
+    /**
+     * Emulation of ifstream
+     */
+    std::ifstream *m_ifs_ptr;
+
+    /**
+     * Instanciating an loader
+     */
+    WLoaderFibers *m_fibLoader;
 };
 
-#endif  // WLOADERVTK_TEST_H
+#endif  // WLOADERFIBERS_TEST_H

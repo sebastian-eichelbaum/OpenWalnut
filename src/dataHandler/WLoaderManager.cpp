@@ -33,7 +33,7 @@
 #include "io/WLoaderNIfTI.h"
 #include "io/WLoaderBiosig.h"
 #include "io/WLoaderEEGASCII.h"
-#include "io/WLoaderVTK.h"
+#include "io/WLoaderFibers.h"
 
 std::string getSuffix( std::string name )
 {
@@ -76,8 +76,8 @@ void WLoaderManager::load( std::string fileName, boost::shared_ptr< WDataHandler
     }
     else if( suffix == ".fib" )
     {
-        WLoaderVTK vtkLoader( fileName, dataHandler );
-        boost::thread loaderThread( vtkLoader );
+        WLoaderFibers fibLoader( fileName, dataHandler );
+        boost::thread loaderThread( fibLoader );
     }
     else
     {

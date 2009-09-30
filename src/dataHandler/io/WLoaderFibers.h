@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERVTK_H
-#define WLOADERVTK_H
+#ifndef WLOADERFIBERS_H
+#define WLOADERFIBERS_H
 
 #include <fstream>
 #include <string>
@@ -43,20 +43,20 @@ class WDataHandler;
  *
  * \ingroup dataHandler
  */
-class WLoaderVTK : public WLoader
+class WLoaderFibers : public WLoader
 {
-friend class WLoaderVTKTest;
+friend class WLoaderFibersTest;
 public:
     /**
      * Constructs and makes a new VTK loader for separate thread start.
      */
-    WLoaderVTK( std::string fname, boost::shared_ptr< WDataHandler >
+    WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler >
             dataHandler );
 
     /**
      * Destroys this instance and closes the file.
      */
-    virtual ~WLoaderVTK() throw();
+    virtual ~WLoaderFibers() throw();
 
     /**
      * This function is automatically called when creating a new thread for the
@@ -97,4 +97,4 @@ protected:
 private:
 };
 
-#endif  // WLOADERVTK_H
+#endif  // WLOADERFIBERS_H

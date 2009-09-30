@@ -28,20 +28,20 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "WLoaderVTK.h"
+#include "WLoaderFibers.h"
 #include "../WDataHandler.h"
 #include "../../common/WStringUtils.hpp"
 
-WLoaderVTK::WLoaderVTK( std::string fname, boost::shared_ptr< WDataHandler > dataHandler )
+WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler )
     : WLoader( fname, dataHandler )
 {
 }
 
-WLoaderVTK::~WLoaderVTK() throw()
+WLoaderFibers::~WLoaderFibers() throw()
 {
 }
 
-void WLoaderVTK::operator()() throw()
+void WLoaderFibers::operator()() throw()
 {
     std::ifstream in( m_fileName.c_str(), std::ifstream::in | std::ifstream::binary );
     try
@@ -69,7 +69,7 @@ void WLoaderVTK::operator()() throw()
     in.close();
 }
 
-void WLoaderVTK::readHeader( std::ifstream* ifs ) throw( WDHIOFailure )
+void WLoaderFibers::readHeader( std::ifstream* ifs ) throw( WDHIOFailure )
 {
     std::string line;
     try
@@ -88,7 +88,7 @@ void WLoaderVTK::readHeader( std::ifstream* ifs ) throw( WDHIOFailure )
     assert( m_header.size() == 4 );
 }
 
-bool WLoaderVTK::datasetTypeIs( const std::string& type ) const
+bool WLoaderFibers::datasetTypeIs( const std::string& type ) const
 {
     assert( m_header.size() == 4 );
     std::string lastLine = m_header.back();
@@ -97,7 +97,7 @@ bool WLoaderVTK::datasetTypeIs( const std::string& type ) const
     return tokens[1] == type;
 }
 
-bool WLoaderVTK::isBinary() const
+bool WLoaderFibers::isBinary() const
 {
     assert( m_header.size() == 4 );
     std::string thirdLine = string_utils::toUpper( string_utils::trim( m_header[2] ) );
@@ -108,6 +108,6 @@ bool WLoaderVTK::isBinary() const
     return "BINARY" == thirdLine;
 }
 
-void WLoaderVTK::readPoints( std::ifstream* ifs )
+void WLoaderFibers::readPoints( std::ifstream* ifs )
 {
 }
