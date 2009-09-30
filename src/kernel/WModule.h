@@ -116,7 +116,12 @@ protected:
      *
      * \throw WModuleConnectorInitFailed if called multiple times.
      */
-    void initializeConnectors();
+    void initialize();
+
+    /** 
+     * Removes connectors and cleans up.
+     */
+    void cleanup();
 
     /** 
      * Set of input connectors associated with this module.

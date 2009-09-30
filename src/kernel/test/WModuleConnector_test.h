@@ -37,6 +37,9 @@
 #include "../WModule.h"
 #include "../../common/WSegmentationFault.h"
 #include "../exceptions/WModuleConnectorInitFailed.h"
+#include "../exceptions/WModuleConnectionFailed.h"
+#include "../exceptions/WModuleConnectorsIncompatible.h"
+#include "../exceptions/WModuleException.h"
 
 /** 
  * Class implementing a simple mod    // required since pure virtualule, since proper testing of WModuleConnector itself is not usable.
@@ -52,6 +55,7 @@ public:
 
     virtual ~WModuleImpl()
     {
+        std::cout << "jhhhhhhhhhhhhH" << std::endl;
     }
 
     // required since pure virtual
@@ -66,7 +70,7 @@ public:
         return "testdesc";
     }
 
-    virtual void initializeConnectors()
+    virtual void connectors()
     {
         m_Input= boost::shared_ptr<WModuleInputConnector>(
                 new WModuleInputConnector( shared_from_this(), "in1", "desc1" )
@@ -80,7 +84,7 @@ public:
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
         addConnector( m_Output );
 
-        WModule::initializeConnectors();
+        WModule::connectors();
     }
 
 protected:
@@ -95,16 +99,16 @@ protected:
         }
     }
 
-    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
-                                              boost::shared_ptr<WModuleConnector> /*there*/ )
+    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
+                                              boost::shared_ptr<WModuleConnector> there )
     {
-        std::cout << "hallo est" << std::endl;
+        std::cout << "connection established between " << here->getCanonicalName() << " and " << there->getCanonicalName() << std::endl;
     }
 
-    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
-                                              boost::shared_ptr<WModuleConnector> /*there*/ )
+    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here,
+                                              boost::shared_ptr<WModuleConnector> there )
     {
-        std::cout << "hallo clo" << std::endl;
+        std::cout << "connection closed between " << here->getCanonicalName() << " and " << there->getCanonicalName() << std::endl;
     }
 
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
@@ -153,8 +157,8 @@ public:
         // TODO(ebaum): replace this with the module container, since the module container should manage this
         // well actually this also tests the WModule::addConnector method and instantiation of WModuleInputConnector and
         // WModuleOutputConnector.
-        TS_ASSERT_THROWS_NOTHING( m1->initializeConnectors() );
-        TS_ASSERT_THROWS_NOTHING( m2->initializeConnectors() );
+        TS_ASSERT_THROWS_NOTHING( m1->initialize() );
+        TS_ASSERT_THROWS_NOTHING( m2->initialize() );
 
         // now there should be 1 everywhere
         TS_ASSERT( m1->m_InputConnectors.size() == 1 );
@@ -163,20 +167,27 @@ public:
         TS_ASSERT( m2->m_OutputConnectors.size() == 1 );
 
         // try initializing twice
-        TS_ASSERT_THROWS( m1->initializeConnectors(), WModuleConnectorInitFailed );
+        TS_ASSERT_THROWS( m1->initialize(), WModuleConnectorInitFailed );
 
         // now we have 2 properly initialized modules?
         TS_ASSERT( m1->isInitialized() );
         TS_ASSERT( m2->isInitialized() );
 
-        // initialize connector
-        
+        // connect input with input and output with output should fail
+        TS_ASSERT_THROWS( m1->m_Input->connect( m2->m_Input ), WModuleConnectorsIncompatible );
+        TS_ASSERT_THROWS( m1->m_Output->connect( m2->m_Output ), WModuleConnectorsIncompatible );
 
+        // connect output with input (cyclic)
+        TS_ASSERT_THROWS_NOTHING( m1->m_Output->connect( m2->m_Input ) );
+        TS_ASSERT_THROWS_NOTHING( m1->m_Input->connect( m2->m_Output ) );
 
+        // try to connect twice
 
+        // propagate change
 
+        // test disconnect
 
-
+        // test cleanup
     }
 
     /** 

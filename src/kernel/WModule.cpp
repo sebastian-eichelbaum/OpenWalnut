@@ -46,6 +46,7 @@ WModule::WModule():
 
 WModule::~WModule()
 {
+    std::cout << "jhhhhhhhhhhhhH" << std::endl;
     // cleanup
 }
 
@@ -85,7 +86,7 @@ void WModule::connectors()
 {
 }
 
-void WModule::initializeConnectors()
+void WModule::initialize()
 {
     // doing it twice is not allowed
     if ( isInitialized() )
@@ -100,6 +101,12 @@ void WModule::initializeConnectors()
     m_Initialized=true;
 
     connectors();
+}
+
+void WModule::cleanup()
+{
+    // currently just removes connectors
+    removeConnectors();
 }
 
 const std::set<boost::shared_ptr<WModuleInputConnector> >& WModule::getInputConnectors() const

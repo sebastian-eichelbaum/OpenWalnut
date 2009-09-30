@@ -35,6 +35,7 @@
 #include "exceptions/WModuleConnectionFailed.h"
 #include "exceptions/WModuleDisconnectFailed.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
+#include "exceptions/WModuleConnectorsIncompatible.h"
 #include "WModuleConnectorSignals.h"
 
 #include "WModuleConnector.h"
@@ -71,7 +72,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     {
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
-        throw new WModuleConnectionFailed( s.str() );
+        throw WModuleConnectorsIncompatible( s.str() );
     }
 
     boost::unique_lock<boost::shared_mutex> lock;
@@ -97,7 +98,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
-        throw new WModuleConnectionFailed( s.str() );
+        throw WModuleConnectionFailed( s.str() );
     }
     catch ( boost::exception& e )
     {
@@ -109,7 +110,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
-        throw new WModuleConnectionFailed( s.str() );
+        throw WModuleConnectionFailed( s.str() );
     }
 
     // let them connect their signals
@@ -165,7 +166,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         disconnectSignals( con );
        
         // remove from list
-        if (removeFromOwnList)
+        if ( removeFromOwnList )
         {
             lock = boost::unique_lock<boost::shared_mutex>( m_ConnectionListLock );
             // since we use shared pointers, erasing the item should be enough
