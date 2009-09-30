@@ -138,11 +138,6 @@ private:
      *
      */
     boost::mutex m_QueueMutex;
-
-    /**
-     *
-     */
-    bool m_FinishRequested;
 };
 
 #endif  // WLOGGER_H

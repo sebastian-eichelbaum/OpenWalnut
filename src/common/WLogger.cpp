@@ -39,7 +39,7 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
     m_STDERRLevel( LL_ERROR ),
     m_LogFileLevel( level ),
     m_LogFileName( fileName ),
-    m_FinishRequested( false )
+    m_QueueMutex()
 {
     addLogMessage( "Initalizing Logger", "Logger", LL_DEBUG );
     addLogMessage( "===============================================================================", "Logger", LL_INFO );
@@ -87,7 +87,7 @@ void WLogger::setLogFileName( std::string fileName )
 
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
-    if ( m_LogLevel > level )
+    if ( m_LogLevel > level || m_FinishRequested )
     {
         return;
     }
@@ -98,9 +98,6 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
 
     boost::mutex::scoped_lock l( m_QueueMutex );
     m_LogQueue.push( entry );
-
-    // TODO(schurade): this must be called from the kernel
-    // processQueue();
 }
 
 

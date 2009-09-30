@@ -63,6 +63,11 @@ WKernel::~WKernel()
 {
     // cleanup
     m_Logger->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
+
+    // finish running thread
+    m_Logger->wait( true );
+    // write remaining log messages
+    m_Logger->processQueue();
 }
 
 WKernel::WKernel( const WKernel& other )
@@ -163,6 +168,7 @@ void WKernel::init()
 
     // initalize Logger
     m_Logger = boost::shared_ptr<WLogger>( new WLogger() );
+    m_Logger->run();
 
     // initialize graphics engine
     // this also includes initialization of WGEScene and OpenSceneGraph
