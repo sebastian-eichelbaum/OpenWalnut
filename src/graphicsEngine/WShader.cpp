@@ -31,8 +31,6 @@
 #include "boost/lexical_cast.hpp"
 #include <boost/tokenizer.hpp>
 
-#include "../kernel/WKernel.h"
-
 #include "WShader.h"
 
 WShader::WShader()

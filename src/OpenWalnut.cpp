@@ -29,6 +29,7 @@
 #include "common/WLogger.h"
 
 #include "gui/WGUI.h"
+#include "gui/qt4/WMainApplication.h"
 
 #include "kernel/WKernel.h"
 

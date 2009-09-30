@@ -33,9 +33,9 @@
 
 #include "WModule.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
-#include "../gui/qt4/WMainApplication.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../common/WLogger.h"
+#include "../gui/WGUI.h"
 
 /**
  * OpenWalnut kernel, managing modules and interaction between
@@ -51,6 +51,7 @@ public:
      *
      * \param argc number of arguments
      * \param argv arguments
+     * \param gui pointer to the gui interface
      */
     WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui );
 
