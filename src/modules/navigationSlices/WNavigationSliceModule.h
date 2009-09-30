@@ -97,6 +97,8 @@ private:
      *
      */
     boost::shared_ptr< WShader >m_shader;
+
+    bool m_textureAssigned;
 };
 
 #endif  // WNAVIGATIONSLICEMODULE_H

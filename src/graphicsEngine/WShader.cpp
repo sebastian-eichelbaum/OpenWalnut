@@ -24,7 +24,12 @@
 
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <string>
+
+#include <boost/algorithm/string.hpp>
+#include "boost/lexical_cast.hpp"
+#include <boost/tokenizer.hpp>
 
 #include "../kernel/WKernel.h"
 
@@ -33,6 +38,7 @@
 WShader::WShader()
 {
 }
+
 
 WShader::WShader( std::string fileName )
 {
@@ -52,20 +58,23 @@ WShader::WShader( std::string fileName )
     }
 }
 
+
 WShader::~WShader()
 {
 }
+
 
 osg::Shader* WShader::readShaderFromFile( std::string fileName, osg::Shader::Type type )
 {
     std::string fileText = readTextFile( fileName );
 
-    std::cout << fileText << std::endl;
+    // std::cout << fileText << std::endl;
 
     osg::Shader* shader = new osg::Shader( type, fileText );
 
     return shader;
 }
+
 
 std::string WShader::readTextFile( std::string fileName )
 {
@@ -73,6 +82,17 @@ std::string WShader::readTextFile( std::string fileName )
 
     std::ifstream ifs( (  WKernel::getRunningKernel()->getShaderPath() + fileName ).c_str() );
     std::string line;
+
+    std::map< std::string, float >::const_iterator mi = m_defines.begin();
+
+    while ( mi != m_defines.end() )
+    {
+        fileText += "#define ";
+        fileText += mi->first;
+        fileText += " ";
+        fileText += boost::lexical_cast< std::string, float >( mi->second );
+        fileText += '\n';
+    }
 
     while ( getline( ifs, line ) )
     {
@@ -90,34 +110,61 @@ std::string WShader::readTextFile( std::string fileName )
     return fileText;
 }
 
+
 bool WShader::isIncludeLine( std::string line )
 {
-    if ( line.substr( 0, 8 ) == "#include" )
+    if ( boost::find_first( line, "#include" ) )
     {
         return true;
     }
     return false;
 }
 
+
 std::string WShader::getIncludeFileName( std::string line )
 {
-    size_t pos = 0;
     std::string fileName;
 
-    while ( line[pos++] != '\"' )
+    int count = 0;
+    for ( size_t i = 0 ; i < line.length() ; ++i )
     {
+        if ( line[i] == '\"' )
+        {
+           ++count;
+        }
+    }
+    if ( count < 2 )
+    {
+        // TODO(schurade): here we could throw an exception
+        return 0;
     }
 
-    while ( ( pos < line.length() ) &&  ( line[pos] != '\"' ) )
-    {
-        fileName += line[pos];
-        ++pos;
-    }
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
-    return fileName;
+    boost::char_separator<char> sep( "\"" );
+    tokenizer tok( line, sep );
+    tokenizer::iterator it = tok.begin();
+    ++it;
+    return *it;
 }
+
 
 osg::Program* WShader::getProgramObject()
 {
     return m_ProgramObject;
 }
+
+void WShader::setDefine( std::string key, float value )
+{
+    if ( key.length() > 0 )
+    {
+        m_defines[key] = value;
+    }
+}
+
+
+void WShader::eraseDefine( std::string key )
+{
+    m_defines.erase( key );
+}
+

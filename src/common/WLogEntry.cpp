@@ -23,46 +23,58 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <boost/algorithm/string.hpp>
 
-#include "WSubject.h"
-#include "exceptions/WDHNoSuchDataSet.h"
+#include "WLogEntry.h"
 
-
-WSubject::WSubject()
-    : m_name( "Not named yet" ),
-      m_dataSets( 0 )
+WLogEntry:: WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source ) :
+    m_time( logTime ),
+    m_message( message ),
+    m_level( level ),
+    m_source( source )
 {
 }
 
-WSubject::WSubject( std::string name )
-    : m_name( name ),
-      m_dataSets( 0 )
+
+WLogEntry::~WLogEntry()
 {
 }
 
-std::string WSubject::getName() const
+
+std::string WLogEntry::getLogString( std::string format )
 {
-    return m_name;
+    std::string s = format;
+
+    boost::ireplace_first( s, "%t", m_time );
+
+    switch ( m_level )
+    {
+        case LL_DEBUG:
+            boost::ireplace_first( s, "%l", "DEBUG  " );
+            break;
+        case LL_INFO:
+            boost::ireplace_first( s, "%l", "INFO   " );
+            break;
+        case LL_WARNING:
+            boost::ireplace_first( s, "%l", "WARNING" );
+            break;
+        case LL_ERROR:
+            boost::ireplace_first( s, "%l", "ERROR  " );
+            break;
+        default:
+            break;
+    }
+
+    boost::ireplace_first( s, "%m", m_message );
+
+    boost::ireplace_first( s, "%s", m_source );
+
+
+    return s;
 }
 
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
-{
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
-}
 
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
+LogLevel WLogEntry::getLogLevel()
 {
-    return getDataSet( dataSetId );
-}
-
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
-{
-    m_dataSets.push_back( newDataSet );
-}
-
-unsigned int WSubject::getNumberOfDataSets() const
-{
-    return m_dataSets.size();
+    return m_level;
 }

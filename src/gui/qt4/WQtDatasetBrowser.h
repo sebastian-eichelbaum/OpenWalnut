@@ -22,29 +22,60 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef WQTDATASETBROWSER_H
+#define WQTDATASETBROWSER_H
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
-#include <osg/Geode>
+#include <string>
 
-#include "../kernel/WKernel.h"
+#include <QtGui/QDockWidget>
+#include <QtGui/QTabWidget>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QWidget>
 
-#include "WGEScene.h"
-
-WGEScene::WGEScene():
-    osg::Group()
+#include "WQtSubjectTreeItem.h"
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtDatasetBrowser : public QDockWidget
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
+public:
+    /**
+     * Default constructor.
+     *
+     * \param parent Parent widget.
+     *
+     * \return
+     */
+    explicit WQtDatasetBrowser( QWidget* parent = 0 );
 
-    // initialize members
-}
+    /**
+     * Destructor.
+     */
+    virtual ~WQtDatasetBrowser();
 
-WGEScene::~WGEScene()
-{
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
+    /**
+     *
+     */
+    WQtSubjectTreeItem* addSubject( std::string name );
 
-    // cleanup
-}
+    /**
+     *
+     */
+    WQtDatasetTreeItem* addDataset( int subjectId, std::string name );
+
+protected:
 
 
+private:
+    QTreeWidget* m_treeWidget;
+    QTabWidget* m_tabWidget;
+
+    QWidget* m_tab1;
+    QWidget* m_tab2;
+    QWidget* m_tab3;
+    QWidget* m_panel;
+    QVBoxLayout* m_layout;
+};
+
+#endif  // WQTDATASETBROWSER_H

@@ -22,29 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef WQTDATASETTREEITEM_H
+#define WQTDATASETTREEITEM_H
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
-#include <osg/Geode>
+#include <QtGui/QTreeWidgetItem>
 
-#include "../kernel/WKernel.h"
-
-#include "WGEScene.h"
-
-WGEScene::WGEScene():
-    osg::Group()
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtDatasetTreeItem : public QTreeWidgetItem
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
+public:
+    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent );
+    virtual ~WQtDatasetTreeItem();
+protected:
+private:
+};
 
-    // initialize members
-}
-
-WGEScene::~WGEScene()
-{
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
-
-    // cleanup
-}
-
-
+#endif  // WQTDATASETTREEITEM_H

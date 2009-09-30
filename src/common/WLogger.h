@@ -22,91 +22,127 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSHADER_H
-#define WSHADER_H
+#ifndef WLOGGER_H
+#define WLOGGER_H
 
+#include <queue>
 #include <string>
-#include <map>
-
-#include <osg/Geometry>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
+#include "../common/WThreadedRunner.h"
 
-class WShader
+#include "WLogEntry.h"
+
+/**
+ * TODO(schurade): Document this!
+ */
+class WLogger: public WThreadedRunner
 {
 public:
     /**
-     * default constructor
+     * Constructor
      */
-    WShader();
+    WLogger( std::string fileName = "walnut.log", LogLevel level = LL_DEBUG );
+
+    /**
+     * Destructor.
+     */
+    virtual ~WLogger();
 
     /**
      *
      */
-    explicit WShader( std::string fileName );
+    void setLogLevel( LogLevel level );
 
     /**
-     * destructor
+     *
      */
-    virtual ~WShader();
+    void setSTDOUTLevel( LogLevel level );
 
+    /**
+     *
+     */
+    void setSTDERRLevel( LogLevel level );
+
+    /**
+     *
+     */
+    void setLogFileLevel( LogLevel level );
 
 
     /**
      *
      */
-    osg::Program* getProgramObject();
+    void setLogFileName( std::string fileName );
 
     /**
      *
      */
-    void setDefine( std::string key, float value );
+    void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
 
     /**
      *
      */
-    void eraseDefine( std::string key );
+    void processQueue();
+
+    /**
+     * \par Description
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void threadMain();
+
+protected:
 
 private:
     /**
      *
      */
-    osg::Shader* readShaderFromFile( std::string fileName, osg::Shader::Type type );
+    LogLevel m_LogLevel;
 
     /**
      *
      */
-    std::string readTextFile( std::string fileName );
+    LogLevel m_STDOUTLevel;
 
     /**
      *
      */
-    bool isIncludeLine( std::string line );
+    LogLevel m_STDERRLevel;
 
     /**
      *
      */
-    std::string getIncludeFileName( std::string line );
+    LogLevel m_LogFileLevel;
+
 
     /**
      *
      */
-    osg::Shader* m_VertexObject;
+    std::string m_LogFileName;
 
     /**
      *
      */
-    osg::Shader* m_FragmentObject;
+    std::vector< WLogEntry > m_SessionLog;
 
     /**
      *
      */
-    osg::Program* m_ProgramObject;
+    std::queue< WLogEntry > m_LogQueue;
 
     /**
      *
      */
-    std::map< std::string, float>m_defines;
+    boost::mutex m_QueueMutex;
+
+    /**
+     *
+     */
+    bool m_FinishRequested;
 };
 
-#endif  // WSHADER_H
+#endif  // WLOGGER_H

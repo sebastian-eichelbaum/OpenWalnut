@@ -62,7 +62,7 @@ WKernel::WKernel( int argc, char* argv[] )
 WKernel::~WKernel()
 {
     // cleanup
-    std::cout << "Shutting down Kernel" << std::endl;
+    m_Logger->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
 }
 
 WKernel::WKernel( const WKernel& other )
@@ -85,6 +85,11 @@ boost::shared_ptr<WDataHandler> WKernel::getDataHandler() const
     return m_DataHandler;
 }
 
+boost::shared_ptr<WMainApplication> WKernel::getGui()
+{
+    return m_Gui;
+}
+
 
 int WKernel::getArgumentCount() const
 {
@@ -98,7 +103,7 @@ char** WKernel::getArguments() const
 
 int WKernel::run()
 {
-    std::cout << "Starting Kernel" << std::endl;
+    m_Logger->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
 
     // TODO(ebaum): add separate graphics thread here
     m_GraphicsEngine->run();
@@ -112,11 +117,11 @@ int WKernel::run()
     // run module execution threads
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module
-    std::cout << "Starting modules:" << std::endl;
+    m_Logger->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
     for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
-        std::cout << "Starting Module: " << ( *list_iter )->getName() << std::endl;
+        m_Logger->addLogMessage( "Starting module: " + ( *list_iter )->getName(), "Kernel", LL_DEBUG );
         ( *list_iter )->run();
     }
 
@@ -141,11 +146,12 @@ int WKernel::run()
 void WKernel::loadModules()
 {
     // TODO(ebaum): add dynamic loading here
-    std::cout << "Loading modules:" << std::endl;
+    m_Logger->addLogMessage( "*** Loading Modules: ", "Kernel", LL_DEBUG );
     m_modules.clear();
 
     WModule* m = new WNavigationSliceModule();
-    std::cout << "Loading Module: " << m->getName() << std::endl;
+    m_Logger->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
+
 
     m_modules.push_back( m );
 }
@@ -153,6 +159,10 @@ void WKernel::loadModules()
 void WKernel::init()
 {
     // initialize
+    findAppPath();
+
+    // initalize Logger
+    m_Logger = boost::shared_ptr<WLogger>( new WLogger() );
 
     // initialize graphics engine
     // this also includes initialization of WGEScene and OpenSceneGraph
@@ -164,8 +174,6 @@ void WKernel::init()
 
     // initialize Datahandler
     m_DataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
-
-    findAppPath();
 }
 
 bool WKernel::findAppPath()
@@ -231,4 +239,9 @@ std::string WKernel::getAppPath()
 std::string WKernel::getShaderPath()
 {
     return m_ShaderPath;
+}
+
+boost::shared_ptr<WLogger> WKernel::getLogger()
+{
+    return m_Logger;
 }

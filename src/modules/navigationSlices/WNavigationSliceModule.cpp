@@ -29,9 +29,16 @@
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/Texture3D>
+
+#include "boost/smart_ptr.hpp"
 
 #include "WNavigationSliceModule.h"
 #include "../../kernel/WKernel.h"
+
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WValueSet.hpp"
 
 #include "../../graphicsEngine/WShader.h"
 
@@ -40,6 +47,7 @@ WNavigationSliceModule::WNavigationSliceModule():
 {
     // initialize members
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice" ) );
+    m_textureAssigned = false;
 }
 
 WNavigationSliceModule::~WNavigationSliceModule()
@@ -70,6 +78,44 @@ void WNavigationSliceModule::threadMain()
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
     {
+        if ( WKernel::getRunningKernel()->getDataHandler()->getNumberOfSubjects() > 0 )
+        {
+            if ( WKernel::getRunningKernel()->getDataHandler()->getSubject(0)->getNumberOfDataSets() > 0 )
+            {
+                if ( !m_textureAssigned )
+                {
+                    boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >(
+                            WKernel::getRunningKernel()->getDataHandler()->getSubject( 0 )->getDataSet( 0 ) );
+                    boost::shared_ptr< WValueSet< int8_t > > vs = boost::shared_dynamic_cast< WValueSet<
+                            int8_t > >( ds->getValueSet() );
+                    int8_t* source = const_cast< int8_t* > ( vs->rawData() );
+
+                    std::cout << "hier gehts los" << std::endl;
+
+                    osg::ref_ptr< osg::Image > ima = new osg::Image;
+                    ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+
+                    unsigned char* data = ima->data();
+
+                    for ( unsigned int i = 0; i < 160* 200* 160 ; ++i )
+                    {
+                        data[i] = source[i];
+                    }
+                    osg::Texture3D* texture3D = new osg::Texture3D;
+                    texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+                    texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+                    texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
+                    texture3D->setImage( ima );
+                    texture3D->setResizeNonPowerOfTwoHint( false );
+
+                    osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
+
+                    sliceState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+
+                    m_textureAssigned = true;
+                }
+            }
+        }
         // do fancy stuff
         sleep( 1 );
     }
@@ -79,26 +125,26 @@ void WNavigationSliceModule::threadMain()
 
 void WNavigationSliceModule::createSlices()
 {
-    osg::Geode* m_sliceNode = new osg::Geode();
+    m_sliceNode = new osg::Geode();
 
     osg::Geometry* sliceGeometry = new osg::Geometry();
     m_sliceNode->addDrawable( sliceGeometry );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
-    sliceVertices->push_back( osg::Vec3( 0, 50, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 0, 50, 100 ) );
-    sliceVertices->push_back( osg::Vec3( 100, 50, 100 ) );
-    sliceVertices->push_back( osg::Vec3( 100, 50, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, 100, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, 100, 160 ) );
+    sliceVertices->push_back( osg::Vec3( 160, 100, 160 ) );
+    sliceVertices->push_back( osg::Vec3( 160, 100, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 50, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 50, 0, 100 ) );
-    sliceVertices->push_back( osg::Vec3( 50, 100, 100 ) );
-    sliceVertices->push_back( osg::Vec3( 50, 100, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 80, 0, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 80, 0, 160 ) );
+    sliceVertices->push_back( osg::Vec3( 80, 200, 160 ) );
+    sliceVertices->push_back( osg::Vec3( 80, 200, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 0, 0, 50 ) );
-    sliceVertices->push_back( osg::Vec3( 0, 100, 50 ) );
-    sliceVertices->push_back( osg::Vec3( 100, 100, 50 ) );
-    sliceVertices->push_back( osg::Vec3( 100, 0, 50 ) );
+    sliceVertices->push_back( osg::Vec3( 0, 0, 80 ) );
+    sliceVertices->push_back( osg::Vec3( 0, 200, 80 ) );
+    sliceVertices->push_back( osg::Vec3( 160, 200, 80 ) );
+    sliceVertices->push_back( osg::Vec3( 160, 0, 80 ) );
 
     sliceGeometry->setVertexArray( sliceVertices );
 

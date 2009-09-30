@@ -22,29 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include <string>
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
-#include <osg/Geode>
+#include "WQtSubjectTreeItem.h"
 
-#include "../kernel/WKernel.h"
-
-#include "WGEScene.h"
-
-WGEScene::WGEScene():
-    osg::Group()
+WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
+    : QTreeWidgetItem( parent )
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
-
-    // initialize members
-}
-
-WGEScene::~WGEScene()
-{
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
-
-    // cleanup
 }
 
 
+WQtSubjectTreeItem::~WQtSubjectTreeItem()
+{
+}
+
+
+WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( std::string name )
+{
+    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this );
+    ds->setText( 0, QString( name.c_str() ) );
+
+    return ds;
+}

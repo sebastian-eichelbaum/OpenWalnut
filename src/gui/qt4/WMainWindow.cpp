@@ -28,13 +28,19 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
 
+#include <QtGui/QSlider>
+
+#include <QtGui/QVBoxLayout>
+
+
 #include "WMainWindow.h"
 #include "WQtGLWidget.h"
+#include "WQtRibbonMenu.h"
 
-#include "WQtPipelineBrowser.h"
+#include "WQtDatasetBrowser.h"
 #include "../../kernel/WKernel.h"
 
-#include "../icons/WIcons.h"
+#include "../icons/logoIcon.xpm"
 
 WMainWindow::~WMainWindow()
 {
@@ -42,148 +48,84 @@ WMainWindow::~WMainWindow()
     m_glWidgets.clear();
 }
 
-void WMainWindow::addDockableGLWidget( QMainWindow *MainWindow )
-{
-    QDockWidget *dockWidget = new QDockWidget( "Graphics Display" );
-    dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea
-            | Qt::RightDockWidgetArea );
-    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( dockWidget ) );
-    // TODO(all): add some way to remove QtGLWidgets on destruction to delete QtGLWidget
-    m_glWidgets.push_back( widget );
-    dockWidget->setWidget( widget.get() );
-    MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
-}
-
 
 void WMainWindow::connectSlots( QMainWindow *MainWindow )
 {
-    QObject::connect( m_actionExit, SIGNAL( activated() ), MainWindow, SLOT( close() ) );
-    QObject::connect( m_actionLoad, SIGNAL( activated() ), this, SLOT( load() ) );
+    QObject::connect( m_toolBar->getQuitButton(), SIGNAL( pressed() ), MainWindow, SLOT( close() ) );
+    QObject::connect( m_toolBar->getLoadButton(), SIGNAL( pressed() ), this, SLOT( load() ) );
     QMetaObject::connectSlotsByName( MainWindow );
 }
 
 
 void WMainWindow::setupGUI( QMainWindow *MainWindow )
 {
-    QIcon mainWindowIcon;
-    QIcon quitIcon;
-    QIcon saveIcon;
-    QIcon loadIcon;
-    QIcon aboutIcon;
-
-    mainWindowIcon.addPixmap( QPixmap( logoIcon_xpm ) );
-    quitIcon.addPixmap( QPixmap( quit_xpm ) );
-    saveIcon.addPixmap( QPixmap( disc_xpm ) );
-    loadIcon.addPixmap( QPixmap( fileopen_xpm ) );
-    aboutIcon.addPixmap( QPixmap( logoIcon_xpm ) );
+    m_mainWindowIcon.addPixmap( QPixmap( logoIcon_xpm ) );
 
     if( MainWindow->objectName().isEmpty() )
+    {
         MainWindow->setObjectName( QString::fromUtf8( "MainWindow" ) );
+    }
     MainWindow->resize( 946, 632 );
-    MainWindow->setWindowIcon( mainWindowIcon );
+    MainWindow->setWindowIcon( m_mainWindowIcon );
 
-    m_actionLoad = new QAction( MainWindow );
-    m_actionLoad->setObjectName( QString::fromUtf8( "actionLoad" ) );
-    m_actionLoad->setIcon( loadIcon );
-    m_actionLoad->setText( QApplication::translate( "MainWindow", "Load", 0,
-            QApplication::UnicodeUTF8 ) );
-    m_actionLoad->setShortcut( QApplication::translate( "MainWindow", "Ctrl+L",
-            0, QApplication::UnicodeUTF8 ) );
-
-    m_actionSave = new QAction( MainWindow );
-    m_actionSave->setObjectName( QString::fromUtf8( "actionSave" ) );
-    m_actionSave->setIcon( saveIcon );
-    m_actionSave->setText( QApplication::translate( "MainWindow", "Save", 0,
-            QApplication::UnicodeUTF8 ) );
-
-    m_actionPreferences = new QAction( MainWindow );
-    m_actionPreferences->setObjectName( QString::fromUtf8( "actionPreferences" ) );
-    m_actionPreferences->setText( QApplication::translate( "MainWindow",
-            "Preferences", 0, QApplication::UnicodeUTF8 ) );
-
-    m_actionExit = new QAction( MainWindow );
-    m_actionExit->setObjectName( QString::fromUtf8( "actionExit" ) );
-    m_actionExit->setIcon( quitIcon );
-    m_actionExit->setText( QApplication::translate( "MainWindow", "E&xit", 0,
-            QApplication::UnicodeUTF8 ) );
-    m_actionExit->setShortcut( QApplication::translate( "MainWindow", "Ctrl+Q",
-            0, QApplication::UnicodeUTF8 ) );
-
-    m_actionAbout_OpenWalnut = new QAction( MainWindow );
-    m_actionAbout_OpenWalnut->setObjectName( QString::fromUtf8(
-            "actionAbout_OpenWalnut" ) );
-    m_actionAbout_OpenWalnut->setIcon( aboutIcon );
-    m_actionAbout_OpenWalnut->setText( QApplication::translate( "MainWindow",
-            "About OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
 
     m_centralwidget = new QWidget( MainWindow );
     m_centralwidget->setObjectName( QString::fromUtf8( "centralwidget" ) );
     MainWindow->setCentralWidget( m_centralwidget );
 
-    m_menubar = new QMenuBar( MainWindow );
-    m_menubar->setObjectName( QString::fromUtf8( "menubar" ) );
-    m_menubar->setGeometry( QRect( 0, 0, 946, 24 ) );
-
-    m_menuFile = new QMenu( m_menubar );
-    m_menuFile->setObjectName( QString::fromUtf8( "menuFile" ) );
-
-    m_menuHelp = new QMenu( m_menubar );
-    m_menuHelp->setObjectName( QString::fromUtf8( "menuHelp" ) );
-    MainWindow->setMenuBar( m_menubar );
-
-    m_toolBar = new QToolBar( MainWindow );
-    m_toolBar->setObjectName( QString::fromUtf8( "toolBar" ) );
-    m_toolBar->addAction( m_actionSave );
-    m_toolBar->addAction( m_actionLoad );
-    m_toolBar->addSeparator();
-    m_toolBar->addAction( m_actionAbout_OpenWalnut );
+    m_toolBar = new WQtRibbonMenu( MainWindow );
     MainWindow->addToolBar( Qt::TopToolBarArea, m_toolBar );
-
-    m_statusBar = new QStatusBar( MainWindow );
-    m_statusBar->setObjectName( QString::fromUtf8( "statusBar" ) );
-    m_statusBar->showMessage( "No status message yet." );
-    MainWindow->setStatusBar( m_statusBar );
-
-    m_menubar->addAction( m_menuFile->menuAction() );
-    m_menubar->addAction( m_menuHelp->menuAction() );
-
-    m_menuFile->addAction( m_actionLoad );
-    m_menuFile->addAction( m_actionSave );
-    m_menuFile->addSeparator();
-    m_menuFile->addAction( m_actionPreferences );
-    m_menuFile->addSeparator();
-    m_menuFile->addAction( m_actionExit );
-    m_menuFile->setTitle( QApplication::translate( "MainWindow", "&File", 0,
-            QApplication::UnicodeUTF8 ) );
-
-    m_menuHelp->addAction( m_actionAbout_OpenWalnut );
-    m_menuHelp->setTitle( QApplication::translate( "MainWindow", "&Help", 0,
-            QApplication::UnicodeUTF8 ) );
 
     boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( MainWindow ) );
     m_glWidgets.push_back( widget );
     MainWindow->setCentralWidget( widget.get() );
 
     // initially 3 views
-    addDockableGLWidget( MainWindow );
-    addDockableGLWidget( MainWindow );
-    addDockableGLWidget( MainWindow );
+    addNavigationGLWidget( MainWindow, QString( "axial" ) );
+    addNavigationGLWidget( MainWindow, QString( "coronal" ) );
+    addNavigationGLWidget( MainWindow, QString( "sagittal" ) );
 
-    m_pipelineBrowser = new WQtPipelineBrowser();
-    MainWindow->addDockWidget( Qt::RightDockWidgetArea, m_pipelineBrowser );
+    m_datasetBrowser = new WQtDatasetBrowser();
+    MainWindow->addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
+
+    m_datasetBrowser->addSubject( "subject1" );
+    m_datasetBrowser->addDataset( 0, "mr188_t1" );
+    m_datasetBrowser->addDataset( 0, "mr188_evec" );
 
     MainWindow->setWindowTitle( QApplication::translate( "MainWindow",
             "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
-    m_toolBar->setWindowTitle( QApplication::translate( "MainWindow",
-            "toolBar", 0, QApplication::UnicodeUTF8 ) );
 
     connectSlots( MainWindow );
 }
 
-void WMainWindow::setEnabled( bool /* enable */ )
+
+QSlider* WMainWindow::addNavigationGLWidget( QMainWindow *MainWindow, QString title )
 {
-    // TODO(wiebel): implement here
+    QDockWidget *dockWidget = new QDockWidget( title );
+    dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+    dockWidget->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
+
+    QSlider *slider = new QSlider( Qt::Horizontal );
+    QWidget* panel = new QWidget( dockWidget );
+
+    QVBoxLayout* layout = new QVBoxLayout();
+
+    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( panel ) );
+    // TODO(all): add some way to remove QtGLWidgets on destruction to delete QtGLWidget
+    m_glWidgets.push_back( widget );
+
+    layout->addWidget( widget.get() );
+    layout->addWidget( slider );
+
+    panel->setLayout( layout );
+
+    dockWidget->setWidget( panel );
+
+    MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
+
+    return slider;
 }
+
 
 void WMainWindow::load()
 {
@@ -213,4 +155,10 @@ void WMainWindow::load()
     }
 
     WKernel::getRunningKernel()->doLoadDataSets( stdFileNames );
+}
+
+
+WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
+{
+    return m_datasetBrowser;
 }

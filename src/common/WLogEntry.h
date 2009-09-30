@@ -22,33 +22,73 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTPIPELINEBROWSER_H
-#define WQTPIPELINEBROWSER_H
+#ifndef WLOGENTRY_H
+#define WLOGENTRY_H
 
-#include <QtGui/QDockWidget>
+#include <string>
+
+typedef enum
+{
+    LL_DEBUG = 0,
+    LL_INFO,
+    LL_WARNING,
+    LL_ERROR
+}
+LogLevel;
 
 /**
- * Represents the browser showing the loaded data sets
- * and applied filter/methods/algorithms/plugins
- * \ingroup gui
+ * TODO(schurade): Document this!
  */
-class WQtPipelineBrowser: public QDockWidget
+class WLogEntry
 {
 public:
-    WQtPipelineBrowser();
-    virtual ~WQtPipelineBrowser();
+    /**
+     *
+     */
+    WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source );
 
     /**
-     * returns the recommended size for the widget to allow
-     * parent widgets to give it a proper initial layout
+     *
      */
-    QSize sizeHint() const;
+    virtual ~WLogEntry();
+
+    /**
+     *
+     */
+    std::string getLogString( std::string format = "[%t] *%l* %m \n" );
+
+    /**
+     *
+     */
+    LogLevel getLogLevel();
+
+protected:
 
 private:
     /**
-     * Holds the recommended size for the widget
+     * Private standard constructor to prevent empty log entries
      */
-    QSize m_recommendedSize;
+    WLogEntry();
+
+    /**
+     *
+     */
+    std::string m_time;
+
+    /**
+     *
+     */
+    std::string m_message;
+
+    /**
+     *
+     */
+    LogLevel m_level;
+
+    /**
+     *
+     */
+    std::string m_source;
 };
 
-#endif  // WQTPIPELINEBROWSER_H
+#endif  // WLOGENTRY_H

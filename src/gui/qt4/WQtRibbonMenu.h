@@ -22,29 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef WQTRIBBONMENU_H
+#define WQTRIBBONMENU_H
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
-#include <osg/Geode>
-
-#include "../kernel/WKernel.h"
-
-#include "WGEScene.h"
-
-WGEScene::WGEScene():
-    osg::Group()
+#include <QtGui/QPushButton>
+#include <QtGui/QToolBar>
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtRibbonMenu  : public QToolBar
 {
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
+public:
+    explicit WQtRibbonMenu( QWidget* parent );
+    virtual ~WQtRibbonMenu();
 
-    // initialize members
-}
+    QPushButton* getLoadButton();
+    QPushButton* getQuitButton();
+protected:
+private:
+    void setup();
 
-WGEScene::~WGEScene()
-{
-    WKernel::getRunningKernel()->getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
+    QIcon m_quitIcon;
+    QIcon m_saveIcon;
+    QIcon m_loadIcon;
+    QIcon m_aboutIcon;
 
-    // cleanup
-}
+    QPushButton* m_loadButton;
+    QPushButton* m_saveButton;
+    QPushButton* m_quitButton;
+};
 
-
+#endif  // WQTRIBBONMENU_H
