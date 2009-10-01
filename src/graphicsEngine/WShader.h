@@ -43,7 +43,7 @@ public:
     /**
      *
      */
-    explicit WShader( std::string fileName );
+    explicit WShader( std::string fileName, std::string shaderPath );
 
     /**
      * destructor
@@ -88,6 +88,7 @@ private:
      */
     std::string getIncludeFileName( std::string line );
 
+    std::string m_shaderPath;
     /**
      *
      */

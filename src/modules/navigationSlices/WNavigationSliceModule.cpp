@@ -46,7 +46,8 @@ WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
     // initialize members
-    m_shader = boost::shared_ptr< WShader > ( new WShader( "slice" ) );
+    std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
+    m_shader = boost::shared_ptr< WShader > ( new WShader( "slice", shaderPath ) );
     m_textureAssigned = false;
 }
 

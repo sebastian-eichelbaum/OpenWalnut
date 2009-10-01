@@ -30,6 +30,10 @@
 
 #include "WLogger.h"
 
+/**
+ * Used for program wide access to the logger.
+ */
+WLogger* logger = NULL;
 
 WLogger::WLogger( std::string fileName, LogLevel level ):
     WThreadedRunner(),
@@ -39,8 +43,10 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
     m_STDERRLevel( LL_ERROR ),
     m_LogFileLevel( level ),
     m_LogFileName( fileName ),
-    m_FinishRequested( false )
+    m_QueueMutex()
 {
+    logger = this;
+
     addLogMessage( "Initalizing Logger", "Logger", LL_DEBUG );
     addLogMessage( "===============================================================================", "Logger", LL_INFO );
     addLogMessage( "=                          Starting Log Session                               =", "Logger", LL_INFO );
@@ -49,6 +55,11 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
 
 WLogger::~WLogger()
 {
+}
+
+WLogger* WLogger::getLogger()
+{
+    return logger;
 }
 
 
@@ -87,7 +98,7 @@ void WLogger::setLogFileName( std::string fileName )
 
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
-    if ( m_LogLevel > level )
+    if ( m_LogLevel > level || m_FinishRequested )
     {
         return;
     }
@@ -98,9 +109,6 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
 
     boost::mutex::scoped_lock l( m_QueueMutex );
     m_LogQueue.push( entry );
-
-    // TODO(schurade): this must be called from the kernel
-    // processQueue();
 }
 
 

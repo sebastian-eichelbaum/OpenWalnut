@@ -25,29 +25,30 @@
 #ifndef WMAINAPPLICATION_H
 #define WMAINAPPLICATION_H
 
-#include "../../common/WThreadedRunner.h"
+#include "../WGUI.h"
+
 
 /**
  * Starts up the QT GUI.
  * \ingroup gui
  */
-class WMainApplication: public WThreadedRunner
+class WMainApplication : public WGUI
 {
 public:
 
-    /** 
+    /**
      * Default Constructor.
      */
     WMainApplication();
 
-    /** 
+    /**
      * Default destructor.
      */
     virtual ~WMainApplication();
 
 protected:
 
-    /** 
+    /**
      * Execution loop.
      */
     virtual void threadMain();

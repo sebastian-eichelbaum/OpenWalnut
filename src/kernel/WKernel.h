@@ -33,9 +33,9 @@
 
 #include "WModule.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
-#include "../gui/qt4/WMainApplication.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../common/WLogger.h"
+#include "../gui/WGUI.h"
 
 /**
  * OpenWalnut kernel, managing modules and interaction between
@@ -51,8 +51,9 @@ public:
      *
      * \param argc number of arguments
      * \param argv arguments
+     * \param gui pointer to the gui interface
      */
-    WKernel( int argc, char* argv[] );
+    WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui );
 
     /**
      * Destructor.
@@ -127,12 +128,12 @@ public:
     /**
      *
      */
-    boost::shared_ptr<WMainApplication> getGui();
+    boost::shared_ptr<WGUI> getGui();
 
     /**
      *
      */
-    boost::shared_ptr<WLogger> getLogger();
+    void setGui( boost::shared_ptr< WGUI > gui );
 
     /**
      *
@@ -159,17 +160,12 @@ protected:
     /**
      * The Gui.
      */
-    boost::shared_ptr<WMainApplication> m_Gui;
+    boost::shared_ptr<WGUI> m_Gui;
 
     /**
      * The Datahandler.
      */
     boost::shared_ptr<WDataHandler> m_DataHandler;
-
-    /**
-     * The logging device
-     */
-    boost::shared_ptr<WLogger> m_Logger;
 
 private:
     /**
@@ -210,7 +206,7 @@ private:
     /**
      * the location of the openwalnut executable
      */
-    std::string m_ShaderPath;
+    std::string m_shaderPath;
 };
 
 /**
