@@ -86,7 +86,7 @@ public:
     void tearDown( void )
     {
         assert( m_ifs_ptr );
-        (*m_ifs_ptr).close();
+        m_ifs_ptr->close();
         delete( m_ifs_ptr );
         m_ifs_ptr = NULL;
         delete( m_fibLoader );
