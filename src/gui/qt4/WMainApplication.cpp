@@ -27,6 +27,8 @@
 #include "WMainApplication.h"
 #include "WMainWindow.h"
 
+#include <QtGui/QApplication>
+
 #include "../../kernel/WKernel.h"
 
 WMainApplication::WMainApplication():

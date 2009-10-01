@@ -25,8 +25,6 @@
 #ifndef WMAINAPPLICATION_H
 #define WMAINAPPLICATION_H
 
-#include <QtGui/QApplication>
-
 #include "../WGUI.h"
 
 
@@ -38,19 +36,19 @@ class WMainApplication : public WGUI
 {
 public:
 
-    /** 
+    /**
      * Default Constructor.
      */
     WMainApplication();
 
-    /** 
+    /**
      * Default destructor.
      */
     virtual ~WMainApplication();
 
 protected:
 
-    /** 
+    /**
      * Execution loop.
      */
     virtual void threadMain();
