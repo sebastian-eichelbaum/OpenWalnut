@@ -69,7 +69,7 @@ public:
      * \param signal the signal to connect to.
      * \param notifier the notifier function to bind.
      */
-     boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier);
+     boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
 
 protected:
 
@@ -97,7 +97,6 @@ private:
      * Signal fired whenever new data should be propagated. Represented by DATA_CHANGED enum- element.
      */
     t_GenericSignalType signal_DataChanged;
-
 };
 
 #endif  // WMODULEOUTPUTCONNECTOR_H

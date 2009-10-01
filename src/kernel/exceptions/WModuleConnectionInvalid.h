@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULESIGNALSUBSCRIPTIONFAILED_H
-#define WMODULESIGNALSUBSCRIPTIONFAILED_H
+#ifndef WMODULECONNECTIONINVALID_H
+#define WMODULECONNECTIONINVALID_H
 
 #include <string>
 
@@ -33,7 +33,7 @@
  * General purpose exception and therefore base class for all kernel related exceptions.
  * \ingroup ge
  */
-class WModuleSignalSubscriptionFailed: public WModuleException
+class WModuleConnectionInvalid: public WModuleException
 {
 public:
 
@@ -41,17 +41,17 @@ public:
      * Default constructor.
      * \param msg the exception message.
      */
-    explicit WModuleSignalSubscriptionFailed( const std::string& msg = "Signal Subscription Failed" );
+    explicit WModuleConnectionInvalid( const std::string& msg = "Module Connection invalid." );
 
     /**
      * Destructor.
      */
-    virtual ~WModuleSignalSubscriptionFailed() throw();
+    virtual ~WModuleConnectionInvalid() throw();
 
 protected:
 
 private:
 };
 
-#endif  // WMODULESIGNALSUBSCRIPTIONFAILED_H
+#endif  // WMODULECONNECTIONINVALID_H
 

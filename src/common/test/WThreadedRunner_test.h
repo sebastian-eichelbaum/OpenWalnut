@@ -74,7 +74,7 @@ public:
     {
         WThreadedRunnerImpl t;
 
-        TS_ASSERT_THROWS_NOTHING( t.sleep(1) );
+        TS_ASSERT_THROWS_NOTHING( t.sleep( 1 ) );
     }
 
     /**

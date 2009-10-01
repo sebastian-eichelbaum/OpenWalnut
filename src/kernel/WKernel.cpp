@@ -114,7 +114,7 @@ int WKernel::run()
     // This part will be exchanged by some kind of ModuleContainer managing module execution.
     // TODO(ebaum): replace by ModuleContainer
     // **************************************************************************************************************************
-    
+
     // run module execution threads
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module

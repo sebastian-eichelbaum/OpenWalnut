@@ -49,13 +49,13 @@ class WModuleImpl: public WModule
 friend class WModuleConnectorTest;
 
 public:
-    WModuleImpl(): WModule()
+    explicit WModuleImpl( std::string n ): WModule()
     {
+        this->n = n;
     }
 
     virtual ~WModuleImpl()
     {
-        std::cout << "jhhhhhhhhhhhhH" << std::endl;
     }
 
     // required since pure virtual
@@ -77,7 +77,7 @@ public:
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
         addConnector( m_Input );
-        
+
         m_Output= boost::shared_ptr<WModuleOutputConnector>(
                 new WModuleOutputConnector( shared_from_this(), "out1", "desc2" )
         );
@@ -88,6 +88,10 @@ public:
     }
 
 protected:
+    /** 
+     * temporary name string
+     */
+    std::string n;
 
     virtual void threadMain()
     {
@@ -102,13 +106,15 @@ protected:
     virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
                                               boost::shared_ptr<WModuleConnector> there )
     {
-        std::cout << "connection established between " << here->getCanonicalName() << " and " << there->getCanonicalName() << std::endl;
+        // std::cout << "connection established between " << n << ":" << here->getCanonicalName() << " and "
+        //           << there->getCanonicalName() << std::endl;
     }
 
     virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here,
                                               boost::shared_ptr<WModuleConnector> there )
     {
-        std::cout << "connection closed between " << here->getCanonicalName() << " and " << there->getCanonicalName() << std::endl;
+        // std::cout << "connection closed between " << n << ":" <<  here->getCanonicalName() << " and "
+        //           <<  there->getCanonicalName() << std::endl;
     }
 
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
@@ -121,7 +127,6 @@ private:
 
     boost::shared_ptr<WModuleInputConnector> m_Input;
     boost::shared_ptr<WModuleOutputConnector> m_Output;
-
 };
 
 
@@ -134,84 +139,233 @@ class WModuleConnectorTest : public CxxTest::TestSuite
 {
 public:
 
-    /** 
-     * Tests the signal handler management.
+    /**
+     * Simple module to test with.
      */
-    void testModuleConnectors( void )
-    {
-        // install signal handler as early as possible
-        //WSegmentationFault::installSignalHandler();
+    boost::shared_ptr<WModuleImpl> m1;
 
+    /**
+     * Simple module to test with.
+     */
+    boost::shared_ptr<WModuleImpl> m2;
+
+    /**
+     * Simple module to test with.
+     */
+    boost::shared_ptr<WModuleImpl> m3;
+
+    /**
+     * Initialized the test modules.
+     */
+    void createModules( void )
+    {
         // init 2 separate test modules
-        boost::shared_ptr<WModuleImpl> m1 = boost::shared_ptr<WModuleImpl>( new WModuleImpl() );
-        boost::shared_ptr<WModuleImpl> m2 = boost::shared_ptr<WModuleImpl>( new WModuleImpl() );
+        m1 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m1" ) );
+        m2 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m2" ) );
+        m3 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m3" ) );
+    }
+
+    /**
+     * Initializes modules. This is normally done by the module container.
+     */
+    void initModules( void )
+    {
+        m1->initialize();
+        m2->initialize();
+        m3->initialize();
+    }
+
+    void initConnections( void )
+    {
+        // connect output with input (cyclic)
+        m1->m_Output->connect( m2->m_Input );
+        m1->m_Input->connect( m2->m_Output );
+    }
+
+    /**
+     * Test whether modules can be created without exception and proper initialization of connection lists.
+     */
+    void testModuleCreation( void )
+    {
+        TS_ASSERT_THROWS_NOTHING( createModules() );
 
         // check whether there are NO connectors.
         // The constructor should now create connectors since shared_ptr are needed -> init in constructor leads to exception
+        // (its enough to test one of them)
         TS_ASSERT( m1->m_InputConnectors.size() == 0 );
         TS_ASSERT( m1->m_OutputConnectors.size() == 0 );
-        TS_ASSERT( m2->m_InputConnectors.size() == 0 );
-        TS_ASSERT( m2->m_OutputConnectors.size() == 0 );
+    }
 
-        // init connectors
-        // TODO(ebaum): replace this with the module container, since the module container should manage this
-        // well actually this also tests the WModule::addConnector method and instantiation of WModuleInputConnector and
-        // WModuleOutputConnector.
-        TS_ASSERT_THROWS_NOTHING( m1->initialize() );
-        TS_ASSERT_THROWS_NOTHING( m2->initialize() );
+    /**
+     * Test whether modules can be initialized without problems.
+     */
+    void testModuleInitialization( void )
+    {
+        createModules();
+
+        TS_ASSERT_THROWS_NOTHING( initModules() );
 
         // now there should be 1 everywhere
         TS_ASSERT( m1->m_InputConnectors.size() == 1 );
         TS_ASSERT( m1->m_OutputConnectors.size() == 1 );
         TS_ASSERT( m2->m_InputConnectors.size() == 1 );
         TS_ASSERT( m2->m_OutputConnectors.size() == 1 );
-
-        // try initializing twice
-        TS_ASSERT_THROWS( m1->initialize(), WModuleConnectorInitFailed );
+        TS_ASSERT( m3->m_InputConnectors.size() == 1 );
+        TS_ASSERT( m3->m_OutputConnectors.size() == 1 );
 
         // now we have 2 properly initialized modules?
         TS_ASSERT( m1->isInitialized() );
         TS_ASSERT( m2->isInitialized() );
+        TS_ASSERT( m3->isInitialized() );
+    }
+
+    /**
+     * Test whether module initialization is robust against double init.
+     */
+    void testModuleTwiceInitialization( void )
+    {
+        createModules();
+        initModules();
+
+        // init connectors
+        // TODO(ebaum): replace this with the module container, since the module container should manage this
+        // well actually this also tests the WModule::addConnector method and instantiation of WModuleInputConnector and
+        // WModuleOutputConnector.
+
+        // try initializing twice
+        TS_ASSERT_THROWS( m1->initialize(), WModuleConnectorInitFailed );
+        TS_ASSERT( m1->isInitialized() );
+    }
+
+    /**
+     * Test whether automatic compatibility check works.
+     */
+    void testModuleConnectorCompatibility( void )
+    {
+        createModules();
+        initModules();
 
         // connect input with input and output with output should fail
         TS_ASSERT_THROWS( m1->m_Input->connect( m2->m_Input ), WModuleConnectorsIncompatible );
         TS_ASSERT_THROWS( m1->m_Output->connect( m2->m_Output ), WModuleConnectorsIncompatible );
 
-        // connect output with input (cyclic)
+        // there should be nothing connected.
+        TS_ASSERT( m1->m_Output->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_Input->m_Connected.size() == 0 );
+        TS_ASSERT( m2->m_Output->m_Connected.size() == 0 );
+        TS_ASSERT( m2->m_Input->m_Connected.size() == 0 );
+    }
+
+    /** 
+     * Test whether connection works properly
+     */
+    void testModuleConnection( void )
+    {
+        createModules();
+        initModules();
+        
+        TS_ASSERT_THROWS_NOTHING( initConnections() );
+
+        // check that every connector has an connection count of 1
+        TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_Input->m_Connected.size() == 1 );
+        
+    }
+
+    /** 
+     * Test whether connecting twice is not possible.
+     */
+    void testModuleTwiceConnection( void )
+    {
+        createModules();
+        initModules();
+        initConnections();
+        
+        // try to connect twice
         TS_ASSERT_THROWS_NOTHING( m1->m_Output->connect( m2->m_Input ) );
         TS_ASSERT_THROWS_NOTHING( m1->m_Input->connect( m2->m_Output ) );
+        TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_Input->m_Connected.size() == 1 );
 
-        // try to connect twice
+    }
+
+    /** 
+     * Test whether the connection can properly be disconnected.
+     */
+    void testModuleDisconnect( void )
+    {
+        createModules();
+        initModules();
+        initConnections();
+        
+        // Disconnect something not connected
+        TS_ASSERT_THROWS_NOTHING( m1->m_Output->disconnect( m1->m_Input ) );
+        TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
+
+        // Disconnect a connected
+        TS_ASSERT_THROWS_NOTHING( m1->m_Output->disconnect( m2->m_Input ) );
+        TS_ASSERT( m1->m_Output->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_Input->m_Connected.size() == 0 );
+    }
+
+    /** 
+     * Test whether all connections can be removed in one step.
+     */
+    void testModuleDisconnectAll( void )
+    {
+        createModules();
+        initModules();
+        initConnections();
+
+        // connect m3
+        TS_ASSERT_THROWS_NOTHING( m3->m_Input->connect( m2->m_Output ) );
+
+        // now m2->out should have 2 connections
+        TS_ASSERT( m2->m_Output->m_Connected.size() == 2 );
+        TS_ASSERT( m3->m_Input->m_Connected.size() == 1 );
+
+        // remove both connections
+        m2->m_Output->disconnectAll();
+        TS_ASSERT( m2->m_Output->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_Input->m_Connected.size() == 0 );
+        TS_ASSERT( m3->m_Input->m_Connected.size() == 0 );
+    }
+
+    /** 
+     * Test whether module clean up is working properly.
+     */
+    void testModuleCleanup( void )
+    {
+        createModules();
+        initModules();
+        initConnections();
+
+        TS_ASSERT_THROWS_NOTHING( m1->cleanup() );
+        TS_ASSERT( m1->m_InputConnectors.size() == 0 );
+        TS_ASSERT( m1->m_OutputConnectors.size() == 0 );
+    }
+    
+    /**
+     * Tests the signal handler management.
+     */
+    void testModulePropagateDataChange( void )
+    {
+        createModules();
+        initModules();
+        initConnections();
 
         // propagate change
 
-        // test disconnect
+        // Disconnect all
 
         // test cleanup
-    }
-
-    /** 
-     * Test proper subscription to signals.
-     */
-    void testSignalSubscription( void )
-    {
-        TS_ASSERT( true );
-    }
-
-    /**
-     * Connect/Disconnect Modules.
-     */
-    void testConnection( void )
-    {
-        TS_ASSERT( true );
-    }
-
-    /** 
-     * Tests disconnection of multiple connections.
-     */
-    void testDisconnectAll( void )
-    {
-        TS_ASSERT( true );
     }
 
 };

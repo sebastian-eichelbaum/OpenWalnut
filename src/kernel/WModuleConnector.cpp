@@ -26,6 +26,7 @@
 #include <list>
 #include <string>
 #include <sstream>
+#include <set>
 
 #include "boost/exception.hpp"
 #include "boost/signals2/signal.hpp"
@@ -33,6 +34,7 @@
 
 #include "WModule.h"
 #include "exceptions/WModuleConnectionFailed.h"
+#include "exceptions/WModuleConnectionInvalid.h"
 #include "exceptions/WModuleDisconnectFailed.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleConnectorsIncompatible.h"
@@ -65,6 +67,28 @@ WModuleConnector::~WModuleConnector()
     signal_ConnectionClosed.disconnect_all_slots();
 }
 
+bool WModuleConnector::isConnectedTo( boost::shared_ptr<WModuleConnector> con )
+{
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_ConnectionListLock );
+    int c1 = m_Connected.count( con );
+    slock.unlock();
+
+    slock = boost::shared_lock<boost::shared_mutex>( con->m_ConnectionListLock );
+    int c2 = con->m_Connected.count( shared_from_this() );
+    slock.unlock();
+
+    // if the count is different the connection is invalid
+    if ( c1 != c2 )
+    {
+        std::ostringstream s;
+        s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
+        throw WModuleConnectionInvalid( s.str() );
+    }
+
+    return ( c1 == 1 );
+}
+
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
     // are both partners compatible to each other?
@@ -73,6 +97,13 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
         throw WModuleConnectorsIncompatible( s.str() );
+    }
+
+    // check whether they are already connected
+    if ( isConnectedTo( con ) )
+    {
+        // is this worth an exception?
+        return;
     }
 
     boost::unique_lock<boost::shared_mutex> lock;
@@ -88,19 +119,19 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
         con->m_Connected.insert( shared_from_this() );
         lock.unlock();
     }
-    catch ( std::exception& e )
+    catch( const std::exception& e )
     {
         lock.unlock();
 
         // undo changes
         m_Connected.erase( con );
         con->m_Connected.erase( con );
-    
+
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
         throw WModuleConnectionFailed( s.str() );
     }
-    catch ( boost::exception& e )
+    catch( const boost::exception& e )
     {
         lock.unlock();
 
@@ -135,7 +166,8 @@ void WModuleConnector::disconnectSignals( boost::shared_ptr<WModuleConnector> /*
     // The base module does not subscribe to any signal -> no disconnection needed here
 }
 
-boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier)
+boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_SIGNAL signal,
+                                                               t_GenericSignalHandlerType notifier )
 {
     switch (signal)
     {
@@ -144,8 +176,9 @@ boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_
         case CONNECTION_CLOSED:
             return signal_ConnectionClosed.connect( notifier );
         default:
-            throw new WModuleSignalSubscriptionFailed( "Could not subscribe to unknown signal. You need to implement this signal type\
-                    explicitly." );
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal. You need to implement this signal type explicitly.";
+            throw new WModuleSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -158,13 +191,19 @@ const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONN
 
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
 {
+    if ( !isConnectedTo( con ) )
+    {
+        return;
+    }
+
+    // write lock
     boost::unique_lock<boost::shared_mutex> lock;
     try
     {
         // disconnect all signals
         con->disconnectSignals( shared_from_this() );
         disconnectSignals( con );
-       
+
         // remove from list
         if ( removeFromOwnList )
         {
@@ -183,7 +222,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         signal_ConnectionClosed( shared_from_this(), con );
         con->signal_ConnectionClosed( con, shared_from_this() );
     }
-    catch ( std::exception& e )
+    catch( const std::exception& e )
     {
         lock.unlock();
 
@@ -191,7 +230,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         s << "Unable to disconnect " << getCanonicalName() << " from " << con->getCanonicalName() << ".";
         throw new WModuleDisconnectFailed( s.str() );
     }
-    catch ( boost::exception& e )
+    catch( const boost::exception& e )
     {
         lock.unlock();
 
@@ -204,7 +243,9 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
 void WModuleConnector::disconnectAll()
 {
     // remove from list
-    boost::unique_lock<boost::shared_mutex> lock( m_ConnectionListLock );
+
+    // acquire read lock
+    boost::shared_lock<boost::shared_mutex> rlock( m_ConnectionListLock );
 
     // each connector needs to be notified and disconnected properly
     for( std::set<boost::shared_ptr<WModuleConnector> >::iterator listIter = m_Connected.begin(); listIter != m_Connected.end();
@@ -212,7 +253,10 @@ void WModuleConnector::disconnectAll()
     {
         disconnect( *listIter, false );
     }
+    rlock.unlock();
 
+    // lock it for writing
+    boost::unique_lock<boost::shared_mutex> lock( m_ConnectionListLock );
     m_Connected.clear();
     lock.unlock();
 }

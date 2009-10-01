@@ -39,14 +39,12 @@
 WModule::WModule():
     WThreadedRunner()
 {
-   
     // initialize members
-    m_Initialized=false;
+    m_Initialized = false;
 }
 
 WModule::~WModule()
 {
-    std::cout << "jhhhhhhhhhhhhH" << std::endl;
     // cleanup
 }
 
@@ -62,15 +60,15 @@ void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
 
 void WModule::removeConnectors()
 {
-    m_Initialized=false;
+    m_Initialized = false;
 
-    // remove connections and their signals 
-    for( std::set<boost::shared_ptr<WModuleInputConnector> >::iterator listIter = m_InputConnectors.begin(); 
+    // remove connections and their signals
+    for( std::set<boost::shared_ptr<WModuleInputConnector> >::iterator listIter = m_InputConnectors.begin();
          listIter != m_InputConnectors.end(); ++listIter )
     {
         ( *listIter )->disconnectAll();
     }
-    for( std::set<boost::shared_ptr<WModuleOutputConnector> >::iterator listIter = m_OutputConnectors.begin(); 
+    for( std::set<boost::shared_ptr<WModuleOutputConnector> >::iterator listIter = m_OutputConnectors.begin();
          listIter != m_OutputConnectors.end(); ++listIter )
     {
         ( *listIter )->disconnectAll();
@@ -98,7 +96,7 @@ void WModule::initialize()
         throw WModuleConnectorInitFailed( s.str() );
     }
 
-    m_Initialized=true;
+    m_Initialized = true;
 
     connectors();
 }
@@ -130,8 +128,9 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
         case DATA_CHANGED:
             return boost::bind( &WModule::notifyDataChange, this, _1, _2 );
         default:
-            throw new WModuleSignalUnknown( "Could not subscribe to unknown signal. You need to implement this signal type\
-                                             explicitly in your module." );
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal. You need to implement this signal type explicitly in your module.";
+            throw new WModuleSignalUnknown( s.str() );
             break;
     }
 }

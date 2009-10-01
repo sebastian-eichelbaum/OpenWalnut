@@ -43,7 +43,7 @@ WNavigationSliceModule::WNavigationSliceModule():
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
-    
+
     // initialize members
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice" ) );
 }

@@ -43,6 +43,7 @@
  */
 class WModuleConnector: public boost::enable_shared_from_this<WModuleConnector>
 {
+friend class WModuleConnectorTest;
 public:
 
     /** 
@@ -65,7 +66,7 @@ public:
      * \param con the connector to disconnect.
      * \param removeFromOwnList if true the specified connection is also removed from the own connection list. If false it won't.
      */
-    virtual void disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList=true );
+    virtual void disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList = true );
 
     /** 
      * Disconnects ALL connected connectors.
@@ -85,6 +86,18 @@ public:
     virtual void connect( boost::shared_ptr<WModuleConnector> con );
 
     /** 
+     * Checks whether this connector is connected to the given one. If there is the strange case where one connector is connected
+     * with the other one but not vice versa it will throw an exception.
+     * 
+     * \param con the connector to check connection with.
+     * 
+     * \return true if connected
+     *
+     * \throw WModuleConnectionInvalid thrown if one connector thinks it is connected but the other one not.
+     */
+    bool isConnectedTo( boost::shared_ptr<WModuleConnector> con );
+
+    /** 
      * Connects a specified notify function with a signal this module instance is offering.
      * 
      * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
@@ -94,7 +107,7 @@ public:
      *
      * \return connection descriptor.
      */
-    virtual boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier);
+    virtual boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
 
     /** 
      * Gives information about this connection.
@@ -205,7 +218,6 @@ private:
      * Signal emitted whenever connection has been closed.
      */
     t_GenericSignalType signal_ConnectionClosed;
-
 };
 
 #endif  // WMODULECONNECTOR_H
