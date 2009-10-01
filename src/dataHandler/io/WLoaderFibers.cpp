@@ -26,88 +26,124 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "WLoaderFibers.h"
 #include "../WDataHandler.h"
 #include "../../common/WStringUtils.hpp"
+#include "../../math/WPosition.h"
 
-WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler )
+WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )
     : WLoader( fname, dataHandler )
 {
+    m_ifs = new std::ifstream( fname.c_str(), std::ifstream::in | std::ifstream::binary );
+    if( !( *m_ifs ) || m_ifs->bad() )
+    {
+        throw WDHIOFailure( "Load broken file '" + m_fileName + "'" );
+    }
 }
 
 WLoaderFibers::~WLoaderFibers() throw()
 {
+    if( m_ifs )
+    {
+        m_ifs->close();
+    }
+    delete( m_ifs );
 }
 
 void WLoaderFibers::operator()() throw()
 {
-    std::ifstream in( m_fileName.c_str(), std::ifstream::in | std::ifstream::binary );
     try
     {
-        if( !in || in.bad() )
-        {
-            throw WDHIOFailure( "Load broken file '" + m_fileName + "'" );
-        }
-        readHeader( &in );
-        if( !datasetTypeIs( "POLYDATA" ) )
-        {
-            throw WDHException( "Invalid VTK DATASET type: DATASET != POLYDATA not implemented" );
-        }
-        if( !isBinary() )
-        {
-            throw WDHException( "VTK files in ASCII format is not yet supported" );
-        }
-        readPoints( &in );
+        readHeader();
+        readPoints();
     }
     catch( WDHException e )
     {
-        in.close();
+        m_ifs->close();
+        // TODO(math): we should print the file name also, since knowing that
+        // the file was malformated, doesn't give you the hint that there
+        // could be thousands of them
         std::cerr << "Error :: DataHandler :: Abort loading VTK file due to: " << e.what() << std::endl;
     }
-    in.close();
 }
 
-void WLoaderFibers::readHeader( std::ifstream* ifs ) throw( WDHIOFailure )
+void WLoaderFibers::readHeader() throw( WDHIOFailure, WDHException )
 {
     std::string line;
     try
     {
         for( int i = 0; i < 4; ++i )  // strip first four lines
         {
-            std::getline( *ifs, line );
+            std::getline( *m_ifs, line );
+            if( !m_ifs->good() )
+            {
+                throw WDHException( "Unexpected end of file: " + m_fileName );
+            }
             m_header.push_back( line );
         }
     }
-    catch( std::ios_base::failure e )
+    catch( const std::ios_base::failure &e )
     {
         throw WDHIOFailure( "Reading first 4 lines of '" + m_fileName + "': " + e.what() );
     }
+    std::cout << m_fileName << std::endl;
+    std::cout << m_header << std::endl;
 
-    assert( m_header.size() == 4 );
-}
-
-bool WLoaderFibers::datasetTypeIs( const std::string& type ) const
-{
-    assert( m_header.size() == 4 );
-    std::string lastLine = m_header.back();
-    std::vector< std::string > tokens = string_utils::tokenize( lastLine );
-    assert( tokens.size() >= 2 );
-    return tokens[1] == type;
-}
-
-bool WLoaderFibers::isBinary() const
-{
-    assert( m_header.size() == 4 );
-    std::string thirdLine = string_utils::toUpper( string_utils::trim( m_header[2] ) );
-    if( thirdLine != "BINARY" )
+    // check if the header may be valid for the .fib format
+    if( m_header.at(0) != "# vtk DataFile Version 3.0" )
     {
-        assert( thirdLine == "ASCII" );
+        throw WDHIOFailure( "Unsupported format version string: " + m_header.at( 0 ) );
     }
-    return "BINARY" == thirdLine;
+    if( m_header.at(1).size() > 256 )
+    {
+        // TODO(math): This should be just a warning
+        throw WDHException( "VTK header too big: " + boost::lexical_cast< std::string >( m_header.at( 1 ).size() ) );
+    }
+    namespace su = string_utils;
+    if( su::toUpper( su::trim( m_header.at( 2 ) ) ) != "BINARY" )
+    {
+        throw WDHException( "VTK files in '" + m_header.at( 2 ) + "' format are not yet supported" );
+    }
+    if(  su::tokenize( m_header.at( 3 ) ).size() < 2 ||
+         su::toUpper( su::tokenize( m_header.at( 3 ) )[1] ) != "POLYDATA" )
+    {
+        throw WDHException( "Invalid VTK DATASET type: " + su::tokenize( m_header.back() )[1] );
+    }
 }
 
-void WLoaderFibers::readPoints( std::ifstream* ifs )
+void WLoaderFibers::readPoints()
 {
+    std::string line;
+    try
+    {
+        std::getline( *m_ifs, line );
+    }
+    catch( const std::ios_base::failure &e )
+    {
+        throw WDHIOFailure( "Error reading POINTS declaration '" + m_fileName + "': " + e.what() );
+    }
+// TODO(math): fix this since stylecheckers complains about long, and we want
+//             int64 not W_DT_INT64 so see dataHandler/WDataHandlerEnums.h:
+//             line 49: W_DT_INT64 = 1024,  /* long long (64 bits) */
+//    namespace su = string_utils;
+//    long numPoints = 0;
+//    std::vector< std::string > tokens = su::tokenize( line );
+//    if( tokens.size() < 3 || su::toLower( tokens.at( 2 ) ) != "float" )
+//    {
+//        throw WDHException( "Invalid VTK POINTS declaration: " + line );
+//    }
+//    try
+//    {
+//        numPoints = boost::lexical_cast< long >( tokens.at( 1 ) );
+//    }
+//    catch( const boost::bad_lexical_cast &e )
+//    {
+//        throw WDHException( "Invalid number of points: " + tokens.at( 1 ) );
+//    }
+//
+//    std::vector< wmath::WPosition > points( numPoints );
 }

@@ -28,6 +28,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include "../WLoader.h"
@@ -51,7 +52,7 @@ public:
      * Constructs and makes a new VTK loader for separate thread start.
      */
     WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler >
-            dataHandler );
+            dataHandler ) throw( WDHIOFailure );
 
     /**
      * Destroys this instance and closes the file.
@@ -70,29 +71,22 @@ protected:
      *
      * \return The offset where header ends, so we may skip this next operation.
      */
-    void readHeader( std::ifstream* ifs ) throw( WDHIOFailure );
-
-    /**
-     * Checks if the header defines the specified VTK DATASET type.
-     *
-     * \param type VTK DATASET type as string, to check for.
-     */
-    bool datasetTypeIs( const std::string& type ) const;
-
-    /**
-     * Returns true if the VTK file is marked as BINARY format, otherwise false.
-     */
-    bool isBinary() const;
+    void readHeader() throw( WDHIOFailure, WDHException );
 
     /**
      * Read points from file while starting at the given position.
      */
-    void readPoints( std::ifstream* ifs );
+    void readPoints();
 
     /**
      * First four lines of ASCII text describing this file
      */
     std::vector< std::string > m_header;
+
+    /**
+     * Pointer to the input file stream reader.
+     */
+    std::ifstream *m_ifs;
 
 private:
 };
