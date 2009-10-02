@@ -91,8 +91,6 @@ void WNavigationSliceModule::threadMain()
                             int8_t > >( ds->getValueSet() );
                     int8_t* source = const_cast< int8_t* > ( vs->rawData() );
 
-                    std::cout << "hier gehts los" << std::endl;
-
                     osg::ref_ptr< osg::Image > ima = new osg::Image;
                     ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_UNSIGNED_BYTE );
 

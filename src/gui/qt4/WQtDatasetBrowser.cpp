@@ -24,6 +24,10 @@
 
 #include <string>
 
+#include <QtCore/QList>
+
+#include "../../common/WLogger.h"
+
 #include "WQtDatasetBrowser.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
@@ -35,15 +39,16 @@ WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     m_treeWidget->setHeaderLabel( QString( "Dataset Browser" ) );
     m_tabWidget = new QTabWidget( m_panel );
 
-    m_tab1 = new QWidget();
-    m_tab2 = new QWidget();
-    m_tab3 = new QWidget();
-
-    m_tabWidget->addTab( m_tab1, QString( "tab1" ) );
-    m_tabWidget->addTab( m_tab2, QString( "tab2" ) );
-    m_tabWidget->addTab( m_tab3, QString( "tab3" ) );
-
     m_layout = new QVBoxLayout();
+
+    WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
+    tab1->addPushButton( "button1" );
+    tab1->addPushButton( "button2" );
+    tab1->addCheckBox( "box1:", true );
+    tab1->addCheckBox( "box2:", false );
+    tab1->addLineEdit( "text:", "some text" );
+    tab1->addSliderInt( "slider:" , 50, 0, 100 );
+    addTabWidgetContent( tab1 );
 
     m_layout->addWidget( m_treeWidget );
     m_layout->addWidget( m_tabWidget );
@@ -53,10 +58,18 @@ WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     this->setWidget( m_panel );
+
+    connectSlots();
 }
 
 WQtDatasetBrowser::~WQtDatasetBrowser()
 {
+}
+
+
+void WQtDatasetBrowser::connectSlots()
+{
+    connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
 }
 
 
@@ -73,4 +86,15 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( int subjectId, std::string na
 {
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId );
     return subject->addDatasetItem( name );
+}
+
+void WQtDatasetBrowser::selectTreeItem()
+{
+    WLogger::getLogger()->addLogMessage( "tree item clicked: " );
+    WLogger::getLogger()->addLogMessage( std::string( m_treeWidget->selectedItems().at( 0 )->text( 0 ).toAscii() ) );
+}
+
+void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
+{
+    m_tabWidget->addTab( content, content->getName() );
 }

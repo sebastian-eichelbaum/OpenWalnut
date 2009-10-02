@@ -22,79 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETBROWSER_H
-#define WQTDATASETBROWSER_H
+#ifndef WQTNUMBEREDIT_H
+#define WQTNUMBEREDIT_H
 
-#include <string>
+#include <QtGui/QLineEdit>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QTabWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
-
-#include "WQtDSBWidget.h"
-#include "WQtSubjectTreeItem.h"
 /**
  * TODO(schurade): Document this!
  */
-class WQtDatasetBrowser : public QDockWidget
+class WQtNumberEdit : public QLineEdit
 {
     Q_OBJECT
 
 public:
     /**
-     * Default constructor.
-     *
-     * \param parent Parent widget.
-     *
-     * \return
+     * default constructor
      */
-    explicit WQtDatasetBrowser( QWidget* parent = 0 );
+    explicit WQtNumberEdit( QWidget* parent = 0 );
 
     /**
-     * Destructor.
+     * destructor
      */
-    virtual ~WQtDatasetBrowser();
+    virtual ~WQtNumberEdit();
 
-    /**
-     *
-     */
-    void addTabWidgetContent( WQtDSBWidget* content );
+public slots:
+    void setInt( int number );
+    void numberChanged();
 
-    /**
-     *
-     */
-    WQtSubjectTreeItem* addSubject( std::string name );
+signals:
+    void signalNumber( int );
 
-    /**
-     *
-     */
-    WQtDatasetTreeItem* addDataset( int subjectId, std::string name );
-
-    /**
-     *
-     */
-    void connectSlots();
 
 protected:
-
-
 private:
-    QTreeWidget* m_treeWidget;
-    QTabWidget* m_tabWidget;
-
-    QWidget* m_tab1;
-    QWidget* m_tab2;
-    QWidget* m_tab3;
-    QWidget* m_panel;
-    QVBoxLayout* m_layout;
-
-private slots:
-    /**
-     *
-     */
-    void selectTreeItem();
 };
 
-#endif  // WQTDATASETBROWSER_H
+#endif  // WQTNUMBEREDIT_H

@@ -12,6 +12,9 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 # add here all classes that inherit from QObject 
 SET(GUI_QT4_MOC_HDRS
   WMainWindow.h
+  WQtDatasetBrowser.h
+  WQtDSBWidget.h
+  WQtNumberEdit.h
 )
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
