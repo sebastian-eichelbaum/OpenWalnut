@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include "WLogger.h"
@@ -62,39 +62,34 @@ WLogger* WLogger::getLogger()
     return logger;
 }
 
-
 void WLogger::setLogLevel( LogLevel level )
 {
     m_LogLevel = level;
 }
-
 
 void WLogger::setSTDOUTLevel( LogLevel level )
 {
     m_STDOUTLevel = level;
 }
 
-
 void WLogger::setSTDERRLevel( LogLevel level )
 {
     m_STDERRLevel = level;
 }
-
 
 void WLogger::setLogFileLevel( LogLevel level )
 {
     m_LogFileLevel = level;
 }
 
-
 void WLogger::setLogFileName( std::string fileName )
 {
-    /**
-     * TODO (schurade) check if it's a valid filename
-     */
+    boost::filesystem::path p( fileName );
+
+    // TODO(schurade): check if this is a _VALID_ path (existence is not needed)
+
     m_LogFileName = fileName;
 }
-
 
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
@@ -110,7 +105,6 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
     boost::mutex::scoped_lock l( m_QueueMutex );
     m_LogQueue.push( entry );
 }
-
 
 void WLogger::processQueue()
 {
@@ -135,13 +129,14 @@ void WLogger::processQueue()
 
         if ( entry.getLogLevel() >= m_LogFileLevel )
         {
+            // TODO(schurade): first open file, then write to file, then close the file
+            // for atomic file usage.
             boost::filesystem::path p( "walnut.log" );
             boost::filesystem::ofstream ofs( p, boost::filesystem::ofstream::app );
             ofs << entry.getLogString();
         }
     }
 }
-
 
 void WLogger::threadMain()
 {
