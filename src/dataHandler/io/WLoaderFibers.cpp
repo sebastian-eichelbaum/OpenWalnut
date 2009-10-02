@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <stdint.h>
 #include <cassert>
 #include <fstream>
 #include <string>
@@ -31,6 +32,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "WLoaderFibers.h"
+#include "WIOTools.hpp"
 #include "../WDataHandler.h"
 #include "../../common/WStringUtils.hpp"
 #include "../../math/WPosition.h"
@@ -90,8 +92,6 @@ void WLoaderFibers::readHeader() throw( WDHIOFailure, WDHException )
     {
         throw WDHIOFailure( "Reading first 4 lines of '" + m_fileName + "': " + e.what() );
     }
-    std::cout << m_fileName << std::endl;
-    std::cout << m_header << std::endl;
 
     // check if the header may be valid for the .fib format
     if( m_header.at(0) != "# vtk DataFile Version 3.0" )
@@ -126,24 +126,34 @@ void WLoaderFibers::readPoints()
     {
         throw WDHIOFailure( "Error reading POINTS declaration '" + m_fileName + "': " + e.what() );
     }
-// TODO(math): fix this since stylecheckers complains about long, and we want
-//             int64 not W_DT_INT64 so see dataHandler/WDataHandlerEnums.h:
-//             line 49: W_DT_INT64 = 1024,  /* long long (64 bits) */
-//    namespace su = string_utils;
-//    long numPoints = 0;
-//    std::vector< std::string > tokens = su::tokenize( line );
-//    if( tokens.size() < 3 || su::toLower( tokens.at( 2 ) ) != "float" )
-//    {
-//        throw WDHException( "Invalid VTK POINTS declaration: " + line );
-//    }
-//    try
-//    {
-//        numPoints = boost::lexical_cast< long >( tokens.at( 1 ) );
-//    }
-//    catch( const boost::bad_lexical_cast &e )
-//    {
-//        throw WDHException( "Invalid number of points: " + tokens.at( 1 ) );
-//    }
-//
-//    std::vector< wmath::WPosition > points( numPoints );
+    namespace su = string_utils;
+    size_t numPoints = 0;
+    std::vector< std::string > tokens = su::tokenize( line );
+    if( tokens.size() < 3 || su::toLower( tokens.at( 2 ) ) != "float" )
+    {
+        throw WDHException( "Invalid VTK POINTS declaration: " + line );
+    }
+    try
+    {
+        numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+    }
+    catch( const boost::bad_lexical_cast &e )
+    {
+        throw WDHException( "Invalid number of points: " + tokens.at( 1 ) );
+    }
+
+    m_points.reserve( numPoints );
+    float *pointData = new float[ 3 * numPoints ];
+    m_ifs->read( reinterpret_cast< char* >( pointData ), 3 * sizeof( float ) * numPoints );
+
+    // all 4 bytes of each float are in wrong order we need to reorder them
+    wiotools::switchByteOrderOfArray( pointData, 3 * numPoints );
+
+    for( size_t i = 0; i < numPoints; ++i )
+    {
+        m_points.push_back( wmath::WPosition( pointData[i * 3],
+                                              pointData[i * 3 + 1],
+                                              pointData[i * 3 + 2] ) );
+    }
+    delete[] pointData;
 }

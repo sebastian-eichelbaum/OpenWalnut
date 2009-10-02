@@ -182,7 +182,22 @@ public:
                                  std::string( "Unexpected end of file: fixtures/Fibers/crippled_header.fib" ) );
     }
 
-
+    /**
+     * After reading the points the point vector of WLoaderFibers should be
+     * filled with valid numbers.
+     */
+    void testReadPoints( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        loader.readHeader();
+        loader.readPoints();
+        double delta = 0.0001;
+        TS_ASSERT_EQUALS( loader.m_points.size(), 1224 );
+        TS_ASSERT_DELTA( loader.m_points.at( 1223 )[2], 60.4135, delta );
+        TS_ASSERT_DELTA( loader.m_points.at( 0 )[0], 46.2582, delta );
+        TS_ASSERT_DELTA( loader.m_points.at( 0 )[1], 36.7184, delta );
+        TS_ASSERT_DELTA( loader.m_points.at( 0 )[2], 65.7245, delta );
+    }
 
 private:
     /**

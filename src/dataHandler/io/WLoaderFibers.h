@@ -33,6 +33,7 @@
 
 #include "../WLoader.h"
 #include "../exceptions/WDHIOFailure.h"
+#include "../../math/WPosition.h"
 
 class WDataHandler;
 
@@ -82,6 +83,11 @@ protected:
      * First four lines of ASCII text describing this file
      */
     std::vector< std::string > m_header;
+
+    /**
+     * Point vector for all fibers
+     */
+    std::vector< wmath::WPosition > m_points;
 
     /**
      * Pointer to the input file stream reader.
