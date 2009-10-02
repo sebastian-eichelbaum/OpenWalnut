@@ -362,10 +362,6 @@ public:
         initConnections();
 
         // propagate change
-
-        // Disconnect all
-
-        // test cleanup
     }
 
 };

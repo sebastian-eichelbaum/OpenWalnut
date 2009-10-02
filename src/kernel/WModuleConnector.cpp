@@ -178,7 +178,7 @@ boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal. You need to implement this signal type explicitly.";
-            throw new WModuleSignalSubscriptionFailed( s.str() );
+            throw WModuleSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -228,7 +228,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
 
         std::ostringstream s;
         s << "Unable to disconnect " << getCanonicalName() << " from " << con->getCanonicalName() << ".";
-        throw new WModuleDisconnectFailed( s.str() );
+        throw WModuleDisconnectFailed( s.str() );
     }
     catch( const boost::exception& e )
     {
@@ -236,7 +236,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
 
         std::ostringstream s;
         s << "Unable to disconnect " << getCanonicalName() << " from " << con->getCanonicalName() << ".";
-        throw new WModuleDisconnectFailed( s.str() );
+        throw WModuleDisconnectFailed( s.str() );
     }
 }
 

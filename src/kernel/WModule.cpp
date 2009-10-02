@@ -130,7 +130,7 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal. You need to implement this signal type explicitly in your module.";
-            throw new WModuleSignalUnknown( s.str() );
+            throw WModuleSignalUnknown( s.str() );
             break;
     }
 }
