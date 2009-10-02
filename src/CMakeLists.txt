@@ -229,3 +229,12 @@ ADD_CUSTOM_TARGET( many
                    cmake . && make all -j4 && make fixtures && make stylecheck && make test && make doc
                    COMMENT "Make many special make targets in combination."
                  )
+
+#-------------------------------------------------------------------------------------------------------------
+# Make target for MacOS. The difference to the normal one is that we need to fix some paths in libraries.
+IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+ADD_CUSTOM_TARGET( macos
+                   make all && ${PROJECT_SOURCE_DIR}/../tools/MacOS/macOS_install_tool 
+                   COMMENT "Make on MacOS. This incudes fixing paths in libraries."
+                 )
+ENDIF()
