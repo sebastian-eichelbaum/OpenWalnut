@@ -72,24 +72,6 @@ public:
     void setUp( void )
     {
         m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
-        m_vtkFile = boost::filesystem::path( "fixtures/VTK/ascii-2nd-order-tensor.vtk" );
-        m_ifs_ptr = NULL;
-        m_ifs_ptr = new std::ifstream( m_vtkFile.string().c_str(), std::ifstream::in | std::ifstream::binary );
-        assert( m_ifs_ptr );
-        m_fibLoader = new WLoaderFibers( m_vtkFile.string(), m_dataHandler );
-        assert( boost::filesystem::exists( m_vtkFile ) );
-    }
-
-    /**
-     * Tidy up things as e.g. open file streams.
-     */
-    void tearDown( void )
-    {
-        assert( m_ifs_ptr );
-        m_ifs_ptr->close();
-        delete( m_ifs_ptr );
-        m_ifs_ptr = NULL;
-        delete( m_fibLoader );
     }
 
     /**
@@ -109,42 +91,112 @@ public:
      */
     void testReadHeader( void )
     {
-        m_fibLoader->readHeader( m_ifs_ptr );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
         std::vector< std::string > expected;
         expected.push_back( "# vtk DataFile Version 3.0" );
-        expected.push_back( "vtk output" );
-        expected.push_back( "ASCII" );
-        expected.push_back( "DATASET STRUCTURED_POINTS" );
-        TS_ASSERT_EQUALS( m_fibLoader->m_header, expected );
+        expected.push_back( "Neural Pathways aka as fibers." );
+        expected.push_back( "BINARY" );
+        expected.push_back( "DATASET POLYDATA" );
+        loader.readHeader();
+        TS_ASSERT_EQUALS( loader.m_header, expected );
+    }
+
+    /**
+     * A valid .fib header starts with "# vtk DataFile Version 3.0".
+     */
+    void testUnsupportedVTKFileFormatString( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/unsupported_format_version_string.fib", m_dataHandler );
+        TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
+                                 const WDHException &e,
+                                 e.what(),
+                                 std::string( "Unsupported format version string: # vtk DataFile Version 9.0" ) );
+    }
+
+    /**
+     * If the internal VTK header is too big an error is thrown
+     */
+    void testReadHeaderOnTooBigVTKHeader( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/invalid_header_length.fib", m_dataHandler );
+        TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
+                                 const WDHException &e,
+                                 e.what(),
+                                 std::string( "VTK header too big: 261" ) );
+    }
+
+    /**
+     * ATM we only support BINARY VTK files.
+     */
+    void testBinaryOrAscii( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/ascii.fib", m_dataHandler );
+        TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
+                                 const WDHException &e,
+                                 e.what(),
+                                 std::string( "VTK files in 'ASCII' format are not yet supported" ) );
+    }
+
+    /**
+     * If the header not introduces a POLYDATA DATASET an exception should be
+     * thrown.
+     */
+    void testCheckDatasetType( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/invalid_dataset.fib", m_dataHandler );
+        TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
+                                 const WDHException &e,
+                                 e.what(),
+                                 std::string( "Invalid VTK DATASET type: STRUCTURED_POINTS" ) );
     }
 
     /**
      * After reading the header the position in the stream should have
      * changed
      */
-    void testReadHeaderReturnsCorrectStreamPosistion( void )
+    void testStreamPosIsValidAfterReadHeaderCall( void )
     {
-        m_fibLoader->readHeader( m_ifs_ptr );
-        TS_ASSERT_EQUALS( m_ifs_ptr->tellg(), 70 );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        loader.readHeader();
+        TS_ASSERT_EQUALS( loader.m_ifs->tellg(), 82 );
     }
 
     /**
-     * If the header introduces a STRUCTURED_POINTS VTK DATASET then true
-     * should be returned.
+     * If there is no header at all an exception should be thrown.
      */
-    void testCheckDatasetType( void )
+    void testNoHeaderThere( void )
     {
-        m_fibLoader->readHeader( m_ifs_ptr );
-        TS_ASSERT_EQUALS( m_fibLoader->datasetTypeIs( "STRUCTURED_POINTS" ), true );
+        WLoaderFibers loader( "fixtures/Fibers/no_header.fib", m_dataHandler );
+        TS_ASSERT_THROWS( loader.readHeader(), WDHException );
     }
 
     /**
-     * A VTK file is typically either in BINARY or ASCII format.
+     * If there is a crippled header then an exception should be thrown
      */
-    void testBinaryOrAscii( void )
+    void testOnAbruptHeader( void )
     {
-        m_fibLoader->readHeader( m_ifs_ptr );
-        TS_ASSERT_EQUALS( m_fibLoader->isBinary(), false );
+        WLoaderFibers loader( "fixtures/Fibers/crippled_header.fib", m_dataHandler );
+        TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
+                                 const WDHException &e,
+                                 e.what(),
+                                 std::string( "Unexpected end of file: fixtures/Fibers/crippled_header.fib" ) );
+    }
+
+    /**
+     * After reading the points the point vector of WLoaderFibers should be
+     * filled with valid numbers.
+     */
+    void testReadPoints( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        loader.readHeader();
+        loader.readPoints();
+        double delta = 0.0001;
+        TS_ASSERT_EQUALS( loader.m_points.size(), 1224 );
+        TS_ASSERT_DELTA( loader.m_points.at( 1223 )[2], 60.4135, delta );
+        TS_ASSERT_DELTA( loader.m_points.at( 0 )[0], 46.2582, delta );
+        TS_ASSERT_DELTA( loader.m_points.at( 0 )[1], 36.7184, delta );
+        TS_ASSERT_DELTA( loader.m_points.at( 0 )[2], 65.7245, delta );
     }
 
 private:
@@ -152,21 +204,6 @@ private:
      * Dummy DataHandler instance
      */
     boost::shared_ptr< WDataHandler > m_dataHandler;
-
-    /**
-     * A standard VTK file.
-     */
-    boost::filesystem::path m_vtkFile;
-
-    /**
-     * Emulation of ifstream
-     */
-    std::ifstream *m_ifs_ptr;
-
-    /**
-     * Instanciating an loader
-     */
-    WLoaderFibers *m_fibLoader;
 };
 
 #endif  // WLOADERFIBERS_TEST_H

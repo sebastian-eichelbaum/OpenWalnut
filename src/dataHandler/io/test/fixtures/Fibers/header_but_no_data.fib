@@ -1,0 +1,6 @@
+# vtk DataFile Version 3.0
+Neural Pathways aka as fibers.
+BINARY
+DATASET POLYDATA
+POINTS 1224 float
+

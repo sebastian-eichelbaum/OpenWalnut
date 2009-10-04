@@ -22,70 +22,26 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOGENTRY_H
-#define WLOGENTRY_H
+#ifndef WLOGGER_TEST_H
+#define WLOGGER_TEST_H
 
-#include <string>
+#include <cxxtest/TestSuite.h>
 
-/**
- * Various log levels, to distinguish output on its level.
- */
-typedef enum
-{
-    LL_DEBUG = 0,
-    LL_INFO,
-    LL_WARNING,
-    LL_ERROR
-}
-LogLevel;
+#include "../WLogger.h"
 
 /**
- * Represents a simple log message with some attributes.
+ * Unit tests our WLogger facility.
  */
-class WLogEntry
+class WLoggerTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Construtcs a log message entry
+     * If the logger is set to do logging only on errors and warnings then
+     * no debug messages or infos should be logged.
      */
-    WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source = "" );
-
-    /**
-     * Destroys a log message entry.
-     */
-    virtual ~WLogEntry();
-
-    /**
-     * \return String of this log entry.
-     */
-    std::string getLogString( std::string format = "[%t] *%l* %m \n" );
-
-    /**
-     * \return log level of this entry.
-     */
-    LogLevel getLogLevel();
-
-protected:
-private:
-    /**
-     * The time the log message was received
-     */
-    std::string m_time;
-
-    /**
-     * The actual message
-     */
-    std::string m_message;
-
-    /**
-     * Log level
-     */
-    LogLevel m_level;
-
-    /**
-     * Source (e.g. module name) where this log message comes from.
-     */
-    std::string m_source;
+    void testSomething( void )
+    {
+    }
 };
 
-#endif  // WLOGENTRY_H
+#endif  // WLOGGER_TEST_H
