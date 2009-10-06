@@ -142,9 +142,11 @@ void WGEViewer::close()
 
 void WGEViewer::threadMain()
 {
+    // TODO(ebaum): Ticket #125 (synchronize GUI and GraphicsEngine)
+    sleep( 1 );
+
     while( !m_FinishRequested )
     {
         paint();
     }
 }
-
