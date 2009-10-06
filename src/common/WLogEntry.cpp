@@ -23,23 +23,22 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+
 #include <boost/algorithm/string.hpp>
 
 #include "WLogEntry.h"
 
-WLogEntry:: WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source ) :
-    m_time( logTime ),
-    m_message( message ),
-    m_level( level ),
-    m_source( source )
+WLogEntry:: WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source )
+    : m_time( logTime ),
+      m_message( message ),
+      m_level( level ),
+      m_source( source )
 {
 }
-
 
 WLogEntry::~WLogEntry()
 {
 }
-
 
 std::string WLogEntry::getLogString( std::string format )
 {
@@ -69,10 +68,8 @@ std::string WLogEntry::getLogString( std::string format )
 
     boost::ireplace_first( s, "%s", m_source );
 
-
     return s;
 }
-
 
 LogLevel WLogEntry::getLogLevel()
 {

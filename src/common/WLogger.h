@@ -38,7 +38,7 @@
 #include "WLogEntry.h"
 
 /**
- * TODO(schurade): Document this!
+ * Does actual logging of WLogEntries down to stdout or something similar.
  */
 class WLogger: public WThreadedRunner
 {
@@ -54,50 +54,50 @@ public:
     virtual ~WLogger();
 
     /**
-     * Returns pointer to the currently running logger.
+     * Returns pointer to the currently running logger instance.
      *
      * \return pointer to logger instance.
      */
     static WLogger* getLogger();
 
     /**
-     *
+     * Sets the global log level
      */
     void setLogLevel( LogLevel level );
 
     /**
-     *
+     * Sets the log level for stdout.
      */
     void setSTDOUTLevel( LogLevel level );
 
     /**
-     *
+     * Sets the log level for stderr.
      */
     void setSTDERRLevel( LogLevel level );
 
     /**
-     *
+     * Sets the log level for the given log file.
      */
     void setLogFileLevel( LogLevel level );
 
-
     /**
-     *
+     * Specifies the path for logging to this file and checks if the path
+     * exists by an assertion.
      */
     void setLogFileName( std::string fileName );
 
     /**
-     *
+     * Appends a log message to the logging queue.
      */
     void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
 
     /**
-     *
+     * Locks this logging instance for threadsafeness and prints the
+     * items of the queue.
      */
     void processQueue();
 
     /**
-     * \par Description
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void threadMain();
@@ -105,52 +105,49 @@ public:
 protected:
 
 private:
-
     /**
      * We do not want a copy constructor, so we define it private.
      */
-    WLogger( const WLogger& )
-    {
-    };
+    WLogger( const WLogger& );
 
     /**
-     *
+     * The actual level of logging so messages with a lower level will be
+     * discarded.
      */
     LogLevel m_LogLevel;
 
     /**
-     *
+     * LogLevel for stdout
      */
     LogLevel m_STDOUTLevel;
 
     /**
-     *
+     * LogLevel for stderr
      */
     LogLevel m_STDERRLevel;
 
     /**
-     *
+     * LogLevel for the given log file
      */
     LogLevel m_LogFileLevel;
 
-
     /**
-     *
+     * Filename of the log file
      */
     std::string m_LogFileName;
 
     /**
-     *
+     * Storage for all WLogEntries that were given to our logging instance
      */
     std::vector< WLogEntry > m_SessionLog;
 
     /**
-     *
+     * Queue for storing pending WLogEntries.
      */
     std::queue< WLogEntry > m_LogQueue;
 
     /**
-     *
+     * Mutex for doing locking due to thread-safety.
      */
     boost::mutex m_QueueMutex;
 };
