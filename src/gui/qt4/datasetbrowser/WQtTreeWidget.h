@@ -22,34 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtNumberEdit.h"
+#ifndef WQTTREEWIDGET_H
+#define WQTTREEWIDGET_H
 
-WQtNumberEdit::WQtNumberEdit( QWidget* parent )
-    : QLineEdit( parent )
-{
-    connect( this, SIGNAL( returnPressed() ), this, SLOT( numberChanged() ) );
-}
+#include <QtGui/QTreeWidget>
 
-WQtNumberEdit::~WQtNumberEdit()
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtTreeWidget  : public QTreeWidget
 {
-}
+    Q_OBJECT
 
-void WQtNumberEdit::setInt( int number )
-{
-    setText( QString::number( number ) );
-}
+public:
+    explicit WQtTreeWidget( QWidget* parent = 0 );
+    virtual ~WQtTreeWidget();
 
-void WQtNumberEdit::numberChanged()
-{
-    bool ok;
-    int number = text().toInt( &ok, 10 );
-    if ( ok )
-    {
-        emit signalNumber( number );
-    }
-    else
-    {
-        setText( QString::number( 0 ) );
-        emit signalNumber( 0 );
-    }
-}
+public slots:
+    void moveTreeItemDown();
+    void moveTreeItemUp();
+protected:
+private:
+};
+
+#endif  // WQTTREEWIDGET_H

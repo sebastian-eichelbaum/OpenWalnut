@@ -22,13 +22,48 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtDatasetTreeItem.h"
+#ifndef WQTNUMBEREDIT_H
+#define WQTNUMBEREDIT_H
 
-WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent )
-    : QTreeWidgetItem( parent )
-{
-}
+#include "signalslib.hpp"
+#include <QtGui/QLineEdit>
 
-WQtDatasetTreeItem::~WQtDatasetTreeItem()
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtNumberEdit : public QLineEdit
 {
-}
+    Q_OBJECT
+
+public:
+    /**
+     * default constructor
+     */
+    explicit WQtNumberEdit( QWidget* parent = 0 );
+
+    /**
+     * destructor
+     */
+    virtual ~WQtNumberEdit();
+
+    /**
+     *
+     */
+    boost::signal1< void, int >* getboostSignalObject();
+
+
+
+public slots:
+    void setInt( int number );
+    void numberChanged();
+
+signals:
+    void signalNumber( int );
+
+
+protected:
+private:
+    boost::signal1< void, int > m_boostSignalObject;
+};
+
+#endif  // WQTNUMBEREDIT_H

@@ -22,35 +22,54 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <string>
 
 #include <QtCore/QList>
 
-#include "../../common/WLogger.h"
+#include "../../../common/WLogger.h"
 
 #include "WQtDatasetBrowser.h"
+#include "WQtNumberEdit.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     : QDockWidget( parent )
 {
     m_panel = new QWidget( this );
-    m_treeWidget = new QTreeWidget( m_panel );
+    m_treeWidget = new WQtTreeWidget( m_panel );
 
     m_treeWidget->setHeaderLabel( QString( "Dataset Browser" ) );
+    m_treeWidget->setDragEnabled( true );
+    m_treeWidget->viewport()->setAcceptDrops( true );
+    m_treeWidget->setDropIndicatorShown( true );
+    m_treeWidget->setDragDropMode( QAbstractItemView::InternalMove );
+
     m_tabWidget = new QTabWidget( m_panel );
 
     m_layout = new QVBoxLayout();
 
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+    m_downButton = new QPushButton();
+    m_downButton->setText( QString( "down" ) );
+    m_upButton = new QPushButton();
+    m_upButton->setText( QString( "up" ) );
+    buttonLayout->addWidget( m_downButton );
+    buttonLayout->addWidget( m_upButton );
+
+    //========================================================================
+    // TODO(Schurade): only for testing, will be removed soon
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
     tab1->addPushButton( "button1" );
     tab1->addPushButton( "button2" );
     tab1->addCheckBox( "box1:", true );
     tab1->addCheckBox( "box2:", false );
     tab1->addLineEdit( "text:", "some text" );
-    tab1->addSliderInt( "slider:" , 50, 0, 100 );
+    WQtSliderWithEdit* slider = tab1->addSliderInt( "slider:" , 50, 0, 100 );
     addTabWidgetContent( tab1 );
+    //========================================================================
 
     m_layout->addWidget( m_treeWidget );
+    m_layout->addLayout( buttonLayout );
     m_layout->addWidget( m_tabWidget );
 
     m_panel->setLayout( m_layout );
@@ -58,6 +77,8 @@ WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     this->setWidget( m_panel );
+
+    slider->getboostSignalObject()->connect( boost::bind( &WQtDatasetBrowser::testBoostSignal, this, _1 ) );
 
     connectSlots();
 }
@@ -69,7 +90,9 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 
 void WQtDatasetBrowser::connectSlots()
 {
-    connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    connect( m_treeWidget, SIGNAL( itemDoubleClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
+    connect( m_upButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemUp() ) );
+    connect( m_downButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemDown() ) );
 }
 
 
@@ -97,4 +120,9 @@ void WQtDatasetBrowser::selectTreeItem()
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
     m_tabWidget->addTab( content, content->getName() );
+}
+
+void WQtDatasetBrowser::testBoostSignal( int test )
+{
+    std::cout << "huhu ich bin ein boost signal: " << test << std::endl;
 }

@@ -22,79 +22,69 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETBROWSER_H
-#define WQTDATASETBROWSER_H
+#ifndef WQTDSBWIDGET_H
+#define WQTDSBWIDGET_H
 
 #include <string>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QTabWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QVBoxLayout>
+#include <QtGui/QCheckBox>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
+#include <QtGui/QPushButton>
+#include <QtGui/QSlider>
 #include <QtGui/QWidget>
+#include <QtGui/QLCDNumber>
 
-#include "WQtDSBWidget.h"
-#include "WQtSubjectTreeItem.h"
+#include "WQtSliderWithEdit.h"
+
 /**
  * TODO(schurade): Document this!
  */
-class WQtDatasetBrowser : public QDockWidget
+class WQtDSBWidget : public QWidget
 {
     Q_OBJECT
 
 public:
     /**
-     * Default constructor.
-     *
-     * \param parent Parent widget.
-     *
-     * \return
+     * default constructor
      */
-    explicit WQtDatasetBrowser( QWidget* parent = 0 );
+    explicit WQtDSBWidget( std::string name, QWidget* parent = 0 );
 
     /**
-     * Destructor.
+     * destructor
      */
-    virtual ~WQtDatasetBrowser();
+    virtual ~WQtDSBWidget();
 
     /**
      *
      */
-    void addTabWidgetContent( WQtDSBWidget* content );
+    QPushButton* addPushButton( std::string label = "button" );
 
     /**
      *
      */
-    WQtSubjectTreeItem* addSubject( std::string name );
+    QCheckBox* addCheckBox( std::string label = "checkbox:", bool isChecked = false );
 
     /**
      *
      */
-    WQtDatasetTreeItem* addDataset( int subjectId, std::string name );
+    QLineEdit* addLineEdit( std::string label = "edit text:", std::string text = "" );
 
     /**
      *
      */
-    void connectSlots();
+    WQtSliderWithEdit* addSliderInt( std::string label = "", int value = 0, int min = 0, int max = 100 );
+
+    /**
+     *
+     */
+    QString getName();
 
 protected:
-
-
 private:
-    QTreeWidget* m_treeWidget;
-    QTabWidget* m_tabWidget;
-
-    QWidget* m_tab1;
-    QWidget* m_tab2;
-    QWidget* m_tab3;
-    QWidget* m_panel;
-    QVBoxLayout* m_layout;
-
-private slots:
-    /**
-     *
-     */
-    void selectTreeItem();
+    QString m_name;
+    QGridLayout m_layout;
 };
 
-#endif  // WQTDATASETBROWSER_H
+#endif  // WQTDSBWIDGET_H

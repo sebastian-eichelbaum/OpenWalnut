@@ -37,7 +37,7 @@
 #include "WQtGLWidget.h"
 #include "WQtRibbonMenu.h"
 
-#include "WQtDatasetBrowser.h"
+#include "datasetbrowser/WQtDatasetBrowser.h"
 #include "../../kernel/WKernel.h"
 
 #include "../icons/logoIcon.xpm"
@@ -91,6 +91,8 @@ void WMainWindow::setupGUI( QMainWindow *MainWindow )
     m_datasetBrowser->addSubject( "subject1" );
     m_datasetBrowser->addDataset( 0, "mr188_t1" );
     m_datasetBrowser->addDataset( 0, "mr188_evec" );
+    m_datasetBrowser->addDataset( 0, "mr188_t2" );
+    m_datasetBrowser->addDataset( 0, "mr188_rgb" );
 
     MainWindow->setWindowTitle( QApplication::translate( "MainWindow",
             "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );

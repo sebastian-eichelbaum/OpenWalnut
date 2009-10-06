@@ -22,39 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTNUMBEREDIT_H
-#define WQTNUMBEREDIT_H
+#include "WQtNumberEdit.h"
 
-#include <QtGui/QLineEdit>
-
-/**
- * TODO(schurade): Document this!
- */
-class WQtNumberEdit : public QLineEdit
+WQtNumberEdit::WQtNumberEdit( QWidget* parent )
+    : QLineEdit( parent ),
+    m_boostSignalObject()
 {
-    Q_OBJECT
+    connect( this, SIGNAL( returnPressed() ), this, SLOT( numberChanged() ) );
+}
 
-public:
-    /**
-     * default constructor
-     */
-    explicit WQtNumberEdit( QWidget* parent = 0 );
+WQtNumberEdit::~WQtNumberEdit()
+{
+}
 
-    /**
-     * destructor
-     */
-    virtual ~WQtNumberEdit();
+void WQtNumberEdit::setInt( int number )
+{
+    setText( QString::number( number ) );
+    m_boostSignalObject( number );
+}
 
-public slots:
-    void setInt( int number );
-    void numberChanged();
+void WQtNumberEdit::numberChanged()
+{
+    bool ok;
+    int number = text().toInt( &ok, 10 );
+    if ( ok )
+    {
+        emit signalNumber( number );
+        m_boostSignalObject( number );
+    }
+    else
+    {
+        setText( QString::number( 0 ) );
+        emit signalNumber( 0 );
+        m_boostSignalObject( 0 );
+    }
+}
 
-signals:
-    void signalNumber( int );
-
-
-protected:
-private:
-};
-
-#endif  // WQTNUMBEREDIT_H
+boost::signal1< void, int >*WQtNumberEdit::getboostSignalObject()
+{
+    return &m_boostSignalObject;
+}

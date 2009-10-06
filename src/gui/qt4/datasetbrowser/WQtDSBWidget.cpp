@@ -30,9 +30,9 @@
 
 WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
     : QWidget( parent ),
-    m_name( name.c_str() )
+    m_name( name.c_str() ),
+    m_layout()
 {
-    m_layout = new QGridLayout();
 }
 
 
@@ -43,30 +43,30 @@ WQtDSBWidget::~WQtDSBWidget()
 
 QPushButton* WQtDSBWidget::addPushButton( std::string label )
 {
-    int row = m_layout->rowCount();
+    int row = m_layout.rowCount();
 
     QPushButton* button = new QPushButton();
     button->setText( QString( label.c_str() ) );
 
-    m_layout->addWidget( button, row, 0 );
+    m_layout.addWidget( button, row, 0 );
 
-    setLayout( m_layout );
+    setLayout( &m_layout );
     return button;
 }
 
 
 QCheckBox* WQtDSBWidget::addCheckBox( std::string label, bool isChecked )
 {
-    int row = m_layout->rowCount();
+    int row = m_layout.rowCount();
     QLabel* qlabel = new QLabel( label.c_str() );
 
     QCheckBox* checkBox = new QCheckBox();
     checkBox->setChecked( isChecked );
 
-    m_layout->addWidget( qlabel, row, 0 );
-    m_layout->addWidget( checkBox, row, 1 );
+    m_layout.addWidget( qlabel, row, 0 );
+    m_layout.addWidget( checkBox, row, 1 );
 
-    setLayout( m_layout );
+    setLayout( &m_layout );
 
     return checkBox;
 }
@@ -74,41 +74,36 @@ QCheckBox* WQtDSBWidget::addCheckBox( std::string label, bool isChecked )
 
 QLineEdit* WQtDSBWidget::addLineEdit( std::string label, std::string text )
 {
-    int row = m_layout->rowCount();
+    int row = m_layout.rowCount();
     QLabel* qlabel = new QLabel( label.c_str() );
 
     QLineEdit* lineEdit = new QLineEdit();
     lineEdit->setText( QString( text.c_str() ) );
 
-    m_layout->addWidget( qlabel, row, 0 );
-    m_layout->addWidget( lineEdit, row, 1 );
+    m_layout.addWidget( qlabel, row, 0 );
+    m_layout.addWidget( lineEdit, row, 1 );
 
-    setLayout( m_layout );
+    setLayout( &m_layout );
 
     return lineEdit;
 }
 
 
-QSlider* WQtDSBWidget::addSliderInt( std::string label, int value, int min, int max )
+WQtSliderWithEdit* WQtDSBWidget::addSliderInt( std::string label, int value, int min, int max )
 {
-    int row = m_layout->rowCount();
+    int row = m_layout.rowCount();
     QLabel* qlabel = new QLabel( label.c_str() );
 
-    QSlider* slider = new QSlider( Qt::Horizontal );
-    slider->setMinimum( min );
-    slider->setMaximum( max );
+    WQtSliderWithEdit* slider = new WQtSliderWithEdit();
+
+    slider->setMin( min );
+    slider->setMax( max );
     slider->setValue( value );
 
-    WQtNumberEdit* numberEdit = new WQtNumberEdit();
+    m_layout.addWidget( qlabel, row, 0 );
+    m_layout.addWidget( slider, row, 1 );
 
-    m_layout->addWidget( qlabel, row, 0 );
-    m_layout->addWidget( slider, row, 1 );
-    m_layout->addWidget( numberEdit, row+1, 1 );
-
-    setLayout( m_layout );
-
-    connect( slider, SIGNAL( valueChanged( int ) ), numberEdit, SLOT( setInt( int ) ) );
-    connect( numberEdit, SIGNAL( signalNumber( int ) ), slider, SLOT( setValue( int ) ) );
+    setLayout( &m_layout );
 
     return slider;
 }
