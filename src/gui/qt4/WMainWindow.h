@@ -54,7 +54,7 @@ class WQtRibbonMenu;
  * of the widgets within the window.
  * \ingroup gui
  */
-class WMainWindow : public QObject, public WGUI
+class WMainWindow : public QObject
 {
     Q_OBJECT
 
