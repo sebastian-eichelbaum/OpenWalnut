@@ -22,25 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_TEST_H
-#define WLOADERNIFTI_TEST_H
+#ifndef WLINE_H
+#define WLINE_H
 
-#include <cxxtest/TestSuite.h>
+#include <iostream>
+#include <vector>
 
-#include "../WLoaderNIfTI.h"
+#include "WPosition.h"
+#include "../common/WStringUtils.hpp"
 
-/**
- * TODO(schurade): Document this!
- */
-class WLoaderNIfTITest : public CxxTest::TestSuite
+// we need this to find the WLineTest class which is not inside wmath namespace
+class WLineTest;
+
+namespace wmath
 {
+/**
+ * A line is an ordered sequence of WPositions.
+ */
+class WLine
+{
+friend class ::WLineTest;
 public:
     /**
-     * TODO(schurade): Document this!
+     * Constructs a new line with the given points in the given order
      */
-    void testSomething( void )
-    {
-    }
-};
+    explicit WLine( const std::vector< WPosition > &points );
 
-#endif  // WLOADERNIFTI_TEST_H
+    /**
+     * \return true if both lines have a same point vector
+     */
+    bool operator==( const WLine &rhs ) const;
+
+    /**
+     * \return false if both lines have a same point vector
+     */
+    bool operator!=( const WLine &rhs ) const;
+
+    /**
+     * Gives a meaningful representation of this object to the given
+     * output stream.
+     */
+    friend std::ostream& operator<<( std::ostream& os, const WLine &rhs )
+    {
+        using string_utils::operator<<;
+        os << rhs.m_points;
+        return os;
+    }
+
+protected:
+private:
+    std::vector< WPosition > m_points;
+};
+}
+
+#endif  // WLINE_H

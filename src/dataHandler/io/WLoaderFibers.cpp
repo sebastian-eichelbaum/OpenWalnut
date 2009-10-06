@@ -62,6 +62,7 @@ void WLoaderFibers::operator()() throw()
     {
         readHeader();
         readPoints();
+        readLines();
     }
     catch( WDHException e )
     {
@@ -129,7 +130,7 @@ void WLoaderFibers::readPoints()
     namespace su = string_utils;
     size_t numPoints = 0;
     std::vector< std::string > tokens = su::tokenize( line );
-    if( tokens.size() < 3 || su::toLower( tokens.at( 2 ) ) != "float" )
+    if( tokens.size() != 3 || su::toLower( tokens.at( 2 ) ) != "float" )
     {
         throw WDHException( "Invalid VTK POINTS declaration: " + line );
     }
@@ -156,4 +157,67 @@ void WLoaderFibers::readPoints()
                                               pointData[i * 3 + 2] ) );
     }
     delete[] pointData;
+
+    // also eat the remaining newline
+    std::getline( *m_ifs, line );
+    assert( std::string( "" ) == line );
+}
+
+void WLoaderFibers::readLines()
+{
+    std::string line;
+    try
+    {
+        std::getline( *m_ifs, line );
+    }
+    catch( const std::ios_base::failure &e )
+    {
+        throw WDHIOFailure( "Error reading LINES declaration '" + m_fileName + "': " + e.what() );
+    }
+    namespace su = string_utils;
+    size_t numLines = 0;
+    size_t linesSize = 0;
+    std::vector< std::string > tokens = su::tokenize( line );
+    if( tokens.size() != 3 || su::toUpper( tokens.at( 0 ) ) != "LINES" )
+    {
+        throw WDHException( "Invalid VTK LINES declaration: " + line );
+    }
+    try
+    {
+        numLines = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+        linesSize = boost::lexical_cast< size_t >( tokens.at( 2 ) );
+    }
+    catch( const boost::bad_lexical_cast &e )
+    {
+        throw WDHException( "Invalid number of lines or size of lines: " + line );
+    }
+
+    m_fibers.reserve( numLines );
+    uint32_t *lineData = new uint32_t[ linesSize ];
+    m_ifs->read( reinterpret_cast<char*>( lineData ), linesSize * sizeof( uint32_t ) );
+
+    wiotools::switchByteOrderOfArray( lineData, linesSize );
+
+    // now convert lines with point numbers to real fibers
+    size_t linesSoFar = 0;
+    size_t pos = 0;
+    while( linesSoFar < numLines )
+    {
+        std::vector< wmath::WPosition > fib;
+        size_t fiberLength = lineData[pos];
+        ++pos;
+        for( size_t i = 0; i < fiberLength; ++i )
+        {
+            fib.push_back( m_points[ lineData[pos] ] );
+            ++pos;
+        }
+        ++linesSoFar;
+        m_fibers.push_back( wmath::WFiber( fib ) );
+    }
+
+    delete[] lineData;
+
+    // also eat the remaining newline
+    std::getline( *m_ifs, line );
+    assert( std::string( "" ) == line );
 }

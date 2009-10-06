@@ -40,23 +40,49 @@
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
 {
-    CXXTEST_TEMPLATE_INSTANTIATION
-    class ValueTraits< std::streampos >
-    {
-        char _s[256];
+CXXTEST_TEMPLATE_INSTANTIATION
+class ValueTraits< std::streampos >
+{
+private:
+    char _s[256];
 
-        public:  // NOLINT
-        explicit ValueTraits( const std::streampos &pos )
-        {
-            std::stringstream ss;
-            ss << pos;
-            snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
-        }
-        const char *asString() const
-        {
-            return _s;
-        }
-    };
+public:
+    explicit ValueTraits( const std::streampos &pos )
+    {
+        std::stringstream ss;
+        ss << pos;
+        snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
+    }
+    const char *asString() const
+    {
+        return _s;
+    }
+};
+}
+#endif  // CXXTEST_RUNNING
+
+// New value trait for wmath::WFiber
+#ifdef CXXTEST_RUNNING
+namespace CxxTest
+{
+CXXTEST_TEMPLATE_INSTANTIATION
+class ValueTraits< wmath::WFiber >
+{
+private:
+    char _s[10240];
+
+public:
+    explicit ValueTraits( const wmath::WFiber &fib )
+    {
+        std::stringstream ss;
+        ss << fib;
+        snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
+    }
+    const char *asString() const
+    {
+        return _s;
+    }
+};
 }
 #endif  // CXXTEST_RUNNING
 
@@ -197,6 +223,30 @@ public:
         TS_ASSERT_DELTA( loader.m_points.at( 0 )[0], 46.2582, delta );
         TS_ASSERT_DELTA( loader.m_points.at( 0 )[1], 36.7184, delta );
         TS_ASSERT_DELTA( loader.m_points.at( 0 )[2], 65.7245, delta );
+    }
+
+    /**
+     * Every line is stored in fib files with
+     * 1. Its number of points (length)
+     * 2. All references to the points its using
+     */
+    void testReadAllLines( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/small_example_one_fiber.fib", m_dataHandler );
+        loader.readHeader();
+        loader.readPoints();
+        loader.readLines();
+        TS_ASSERT_EQUALS( loader.m_fibers.size(), 1 );
+        using wmath::WPosition;
+        using wmath::WFiber;
+        std::vector< WPosition > pointList;
+        // CAUTION: we use here floats since the positions are stored with
+        // floats as well. If we would use doubles here, the both vectors are
+        // different then.
+        pointList.push_back( WPosition( 1.2f, 3.4f, 5.6f ) );
+        pointList.push_back( WPosition( 7.8f, 9.0f, -1.2f ) );
+        WFiber expected( pointList );
+        TS_ASSERT_EQUALS( expected, loader.m_fibers.back() );
     }
 
 private:

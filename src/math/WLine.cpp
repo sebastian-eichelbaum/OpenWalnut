@@ -22,25 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_TEST_H
-#define WLOADERNIFTI_TEST_H
+#include <iostream>
+#include <vector>
 
-#include <cxxtest/TestSuite.h>
+#include "WLine.h"
+#include "WPosition.h"
+#include "../common/WStringUtils.hpp"
 
-#include "../WLoaderNIfTI.h"
+using wmath::WLine;
 
-/**
- * TODO(schurade): Document this!
- */
-class WLoaderNIfTITest : public CxxTest::TestSuite
+
+WLine::WLine( const std::vector< WPosition > &points )
+    : m_points( points )
 {
-public:
-    /**
-     * TODO(schurade): Document this!
-     */
-    void testSomething( void )
-    {
-    }
-};
+}
 
-#endif  // WLOADERNIFTI_TEST_H
+bool WLine::operator==( const WLine &rhs ) const
+{
+    return m_points == rhs.m_points;
+}
+
+bool WLine::operator!=( const WLine &rhs ) const
+{
+    return m_points != rhs.m_points;
+}

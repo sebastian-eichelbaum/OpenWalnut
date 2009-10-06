@@ -22,25 +22,31 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_TEST_H
-#define WLOADERNIFTI_TEST_H
+#ifndef WFIBER_H
+#define WFIBER_H
 
-#include <cxxtest/TestSuite.h>
+#include <vector>
 
-#include "../WLoaderNIfTI.h"
+#include "WLine.h"
 
-/**
- * TODO(schurade): Document this!
- */
-class WLoaderNIfTITest : public CxxTest::TestSuite
+// we need this to find the WFiberTest class which is not inside wmath namespace
+// Additionally I found no way to put the WFiberTest class into wmath and CXXTest
+// finds it by it self. Hence this is the only solution that might work
+class WFiberTest;
+
+namespace wmath
 {
+/**
+ * Represents a neural pathway.
+ */
+class WFiber : public WLine
+{
+friend class WFiberTest;
 public:
-    /**
-     * TODO(schurade): Document this!
-     */
-    void testSomething( void )
-    {
-    }
-};
+    explicit WFiber( const std::vector< WPosition > &points );
 
-#endif  // WLOADERNIFTI_TEST_H
+protected:
+private:
+};
+}
+#endif  // WFIBER_H

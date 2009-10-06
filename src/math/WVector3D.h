@@ -32,7 +32,7 @@ namespace wmath
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations
  */
-class WVector3D : public WValue<double>
+class WVector3D : public WValue< double >
 {
     /**
      * Only UnitTests are allowed to be friends of this class
@@ -85,6 +85,5 @@ private:
  * Define WPosition as an alias for WVector3D
  */
 typedef WVector3D WPosition;
-}
-// End of namespace
+}  // End of namespace
 #endif  // WVECTOR3D_H

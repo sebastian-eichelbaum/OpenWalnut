@@ -48,13 +48,14 @@ public:
     {
         std::stringstream ss;
         std::vector< double > pansen;
+        using string_utils::operator<<;
         ss << pansen;
         TS_ASSERT_EQUALS( ss.str(), "[]" );
         ss.str( "" );
         ss.clear();
-        pansen = std::vector< double >( 4, 3.1415 );
-        pansen[2] = 1.414;
-        std::string expected( "[3.1415, 3.1415, 1.414, 3.1415]" );
+        pansen = std::vector< double >( 2, 3.1415 );
+        pansen[1] = 1.414;
+        std::string expected( "[3.1415000000000002e+00, 1.4139999999999999e+00]" );
         ss << pansen;
         TS_ASSERT_EQUALS( ss.str(), expected );
     }

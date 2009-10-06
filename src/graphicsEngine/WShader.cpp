@@ -137,7 +137,7 @@ std::string WShader::getIncludeFileName( std::string line )
         return 0;
     }
 
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    typedef boost::tokenizer< boost::char_separator< char > > tokenizer;
 
     boost::char_separator<char> sep( "\"" );
     tokenizer tok( line, sep );
