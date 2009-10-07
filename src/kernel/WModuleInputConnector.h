@@ -30,8 +30,6 @@
 #include "WModule.h"
 #include "WModuleConnector.h"
 
-class WModuleOutputConnector;
-
 /**
  * Class implementing input connection functionality between modules.
  */

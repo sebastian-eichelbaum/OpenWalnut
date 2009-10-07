@@ -203,7 +203,7 @@ _CPP_HEADERS = frozenset([
 
 # Other heders which are include like system headers, starting with a '<'
 _OTHER_HEADERS = frozenset([
-    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA'
+    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA'
     ])
 
 # Assertion macros.  These are defined in base/logging.h and
@@ -1661,9 +1661,9 @@ def CheckSpacing(filename, clean_lines, linenum, error):
   # We allow no-spaces around << and >> when used like this: 10<<20, but
   # not otherwise (particularly, not when used as streams)
   match = Search(r'[^0-9\s](<<|>>)[^0-9\s]', line)
-  if match:
+  if match and not Search(r'operator(<<|>>)', line):
     error(filename, linenum, 'whitespace/operators', 3,
-          'Missing spaces around %s' % match.group(2))
+          'Missing spaces around %s' % match.group(1))
 
   # There shouldn't be space around unary operators
   match = Search(r'(!\s|~\s|[\s]--[\s;]|[\s]\+\+[\s;])', line)
@@ -1777,7 +1777,10 @@ def CheckBraces(filename, clean_lines, linenum, error):
   if Search(r'}', line):
     # the second term is for detecting that the closing brace is part of an array
     # initalizer list. Attention ';' must occur at the end of class definitions
-    if not Match(r'^\s*};?$', line) and not Search(r'\[.*\]\s+=\s+{.*};', line):
+    # but we will ignore comments when there is a closing brace ( third term )
+    if( not Match(r'^\s*};?$', line) and
+        not Search(r'\[.*\]\s+=\s+{.*};', line) and
+        not Search(r'}\s+//', clean_lines.raw_lines[linenum]) ):
         error(filename, linenum, 'readability/braces', 5, 'Closing braces have a line for themselfs.')
 
   # Likewise, an else should never have the else clause on the same line
@@ -1867,7 +1870,7 @@ def CheckCheck(filename, clean_lines, linenum, error):
 
   # Encourage replacing plain CHECKs with CHECK_EQ/CHECK_NE/etc.
   for operator in ['==', '!=', '>=', '>', '<=', '<']:
-    if ReplaceableCheck(operator, current_macro, line):
+    if ReplaceableCheck(operator, current_macro, line) and not Search(r'^TS_ASSERT', current_macro):
       error(filename, linenum, 'readability/check', 2,
             'Consider using %s instead of %s(a %s b)' % (
                 _CHECK_REPLACEMENT[current_macro][operator],

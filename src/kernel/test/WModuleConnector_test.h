@@ -26,14 +26,17 @@
 #define WMODULECONNECTOR_TEST_H
 
 #include <iostream>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
 #include <cxxtest/TestSuite.h>
 
 #include "../WModuleConnector.h"
-#include "../WModuleOutputConnector.h"
+#include "../WModuleInputData.hpp"
+#include "../WModuleOutputData.hpp"
 #include "../WModuleInputConnector.h"
+#include "../WModuleOutputConnector.h"
 #include "../WModule.h"
 #include "../../common/WSegmentationFault.h"
 #include "../exceptions/WModuleConnectorInitFailed.h"
@@ -72,19 +75,32 @@ public:
 
     virtual void connectors()
     {
-        m_Input= boost::shared_ptr<WModuleInputConnector>(
-                new WModuleInputConnector( shared_from_this(), "in1", "desc1" )
+        m_Input= boost::shared_ptr<WModuleInputData<int> >(
+                new WModuleInputData<int> ( shared_from_this(), "in1", "desc1" )
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
         addConnector( m_Input );
 
-        m_Output= boost::shared_ptr<WModuleOutputConnector>(
-                new WModuleOutputConnector( shared_from_this(), "out1", "desc2" )
+        m_Output= boost::shared_ptr<WModuleOutputData<int> >(
+                new WModuleOutputData<int> ( shared_from_this(), "out1", "desc2" )
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
         addConnector( m_Output );
+/*
 
+        m_Input= boost::shared_ptr<WModuleInputConnector >(
+                new WModuleInputConnector ( shared_from_this(), "in1", "desc1" )
+        );
+        // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+        addConnector( m_Input );
+
+        m_Output= boost::shared_ptr<WModuleOutputConnector >(
+                new WModuleOutputConnector ( shared_from_this(), "out1", "desc2" )
+        );
+        // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+        addConnector( m_Output );
         WModule::connectors();
+        */
     }
 
 protected:
@@ -125,8 +141,11 @@ protected:
 
 private:
 
+    boost::shared_ptr<WModuleInputData<int> > m_Input;
+    boost::shared_ptr<WModuleOutputData<int> > m_Output;
+    /*
     boost::shared_ptr<WModuleInputConnector> m_Input;
-    boost::shared_ptr<WModuleOutputConnector> m_Output;
+    boost::shared_ptr<WModuleOutputConnector> m_Output;*/
 };
 
 
@@ -213,7 +232,7 @@ public:
         TS_ASSERT( m3->m_InputConnectors.size() == 1 );
         TS_ASSERT( m3->m_OutputConnectors.size() == 1 );
 
-        // now we have 2 properly initialized modules?
+        // now we have 3 properly initialized modules?
         TS_ASSERT( m1->isInitialized() );
         TS_ASSERT( m2->isInitialized() );
         TS_ASSERT( m3->isInitialized() );
@@ -263,7 +282,7 @@ public:
     {
         createModules();
         initModules();
-        
+
         TS_ASSERT_THROWS_NOTHING( initConnections() );
 
         // check that every connector has an connection count of 1
@@ -271,7 +290,6 @@ public:
         TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
         TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
         TS_ASSERT( m2->m_Input->m_Connected.size() == 1 );
-        
     }
 
     /** 
@@ -282,7 +300,7 @@ public:
         createModules();
         initModules();
         initConnections();
-        
+
         // try to connect twice
         TS_ASSERT_THROWS_NOTHING( m1->m_Output->connect( m2->m_Input ) );
         TS_ASSERT_THROWS_NOTHING( m1->m_Input->connect( m2->m_Output ) );
@@ -290,7 +308,6 @@ public:
         TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
         TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
         TS_ASSERT( m2->m_Input->m_Connected.size() == 1 );
-
     }
 
     /** 
@@ -301,7 +318,7 @@ public:
         createModules();
         initModules();
         initConnections();
-        
+
         // Disconnect something not connected
         TS_ASSERT_THROWS_NOTHING( m1->m_Output->disconnect( m1->m_Input ) );
         TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
@@ -351,7 +368,7 @@ public:
         TS_ASSERT( m1->m_InputConnectors.size() == 0 );
         TS_ASSERT( m1->m_OutputConnectors.size() == 0 );
     }
-    
+
     /**
      * Tests the signal handler management.
      */
@@ -360,12 +377,9 @@ public:
         createModules();
         initModules();
         initConnections();
-
         // propagate change
     }
-
 };
 
 #endif  // WMODULECONNECTOR_TEST_H
-
 

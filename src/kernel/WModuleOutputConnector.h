@@ -34,8 +34,6 @@
 #include "WModuleConnector.h"
 #include "WModuleConnectorSignals.h"
 
-class WModuleInputConnector;
-
 /**
  * Class implementing output connection functionality between modules.
  */
@@ -88,8 +86,13 @@ protected:
      * \param con the connector that requests connection.
      * 
      */
-    // If you want to add additional signals an output connector should subscrie FROM an input connector overwrite connectSignals
+    // If you want to add additional signals an output connector should subscribe FROM an input connector, overwrite connectSignals
     // virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
+
+    /** 
+     * Propagates the signal "DATA_CHANGED" to all connected items.
+     */
+    virtual void propagateDataChange();
 
 private:
 

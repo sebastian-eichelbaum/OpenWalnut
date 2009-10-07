@@ -34,13 +34,13 @@ class WModuleConnector;
  * Enum of all possible signals between WModuleConnector instances.
  * TODO(ebaum): Replace this by an automatic mapping class also able to allow varying function signatures.
  */
-typedef enum {
-
+typedef enum
+{
 CONNECTION_ESTABLISHED,                             // a connection has been established
 CONNECTION_CLOSED,                                  // a connection has been closed
 DATA_CHANGED                                        // data on an output connector has been changed
-
-} MODULE_CONNECTOR_SIGNAL;
+}
+MODULE_CONNECTOR_SIGNAL;
 
 // **************************************************************************************************************************
 // Types

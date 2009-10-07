@@ -1,4 +1,4 @@
-FILE( GLOB KERNEL_SRC "*.cpp" )
+FILE( GLOB KERNEL_SRC "*.cpp" "*.hpp" )
 FILE( GLOB MODULES_SRC "../modules/navigationSlices/*.cpp" )
 
 ADD_SUBDIRECTORY( exceptions )
@@ -16,6 +16,12 @@ IF( CXXTEST_FOUND )
                                ${testLibs}
                                "WKernel.cpp"
                                "WModule.cpp"
+                               "WModuleInputConnector.cpp"
+                               "WModuleOutputConnector.cpp"
+                               "WModuleInputData.hpp"
+                               "WModuleOutputData.hpp"
+                               "WModuleInputData.cpp"
+                               "WModuleOutputData.cpp"
                                "../modules/navigationSlices/WNavigationSliceModule.cpp"
                              )
 ENDIF( CXXTEST_FOUND )

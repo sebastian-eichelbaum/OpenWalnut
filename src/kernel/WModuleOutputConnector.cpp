@@ -52,6 +52,7 @@ bool WModuleOutputConnector::connectable( boost::shared_ptr<WModuleConnector> co
     {
         return true;
     }
+
     return false;
 }
 
@@ -68,3 +69,7 @@ boost::signals2::connection WModuleOutputConnector::subscribeSignal( MODULE_CONN
     }
 }
 
+void WModuleOutputConnector::propagateDataChange()
+{
+    //signal_DataChanged();
+}

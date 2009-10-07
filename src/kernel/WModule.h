@@ -104,7 +104,7 @@ protected:
     // Connector Management
     //
     // **************************************************************************************************************************
-    
+
     /** 
      * Initialize connectors in this function. This function must not be called multiple times for one module instance.
      * The module container manages calling those functions -> so just implement it.
@@ -153,7 +153,6 @@ protected:
      */
     void removeConnectors();
 
-
     // **************************************************************************************************************************
     //
     // Signal handlers that HAVE to be in every module. By default they do nothing. You should overwrite them to get notified
@@ -171,7 +170,6 @@ protected:
      * \return the signal handler for "signal".
      */
     virtual const t_GenericSignalHandlerType getSignalHandler( MODULE_CONNECTOR_SIGNAL signal );
-
 
     /** 
      * Gets called whenever a connector gets connected to the specified input.
@@ -198,14 +196,13 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                    boost::shared_ptr<WModuleConnector> output );
 
-
 private:
 
     /** 
      * True if everything is initialized and ready to be used.
      */
     bool m_Initialized;
-    
+
     /** 
      * Lock for m_InputConnectors.
      */
