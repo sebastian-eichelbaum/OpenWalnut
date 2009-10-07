@@ -107,5 +107,21 @@ public:
         line2.m_points.back()[1] += 0.0000000001;
         TS_ASSERT_DIFFERS( line1, line2 );
     }
+
+    /**
+     * When accessing an item within 0..length-1 a const reference to the 
+     * WPosition object should be returned.
+     */
+    void testAccessOperatorWithinValidBounds( void )
+    {
+        using wmath::WPosition;
+        std::vector< WPosition > lineData;
+        lineData.push_back( WPosition( 1., 1., 3.1415 ) );
+        lineData.push_back( WPosition( 0., 0., .44 ) );
+        lineData.push_back( WPosition( 1., 1., 1. ) );
+        wmath::WLine line( lineData );
+        WPosition expected( 1., 1., 1. );
+        TS_ASSERT_EQUALS( expected, line[2] );
+    }
 };
 #endif  // WLINE_TEST_H

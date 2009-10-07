@@ -40,7 +40,7 @@ namespace wmath
 template< typename T > class WValue
 {
 public:
-    /*
+    /**
      * Create a WValue with the given number of components.
      * The components will be set to zero if T is a type representing numbers.
      */
@@ -49,7 +49,7 @@ public:
     {
     }
 
-    /*
+    /**
      * Create a WValue as copy of the one given as parameter.
      */
     WValue( const WValue& newValue )

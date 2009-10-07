@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/shared_ptr.hpp>
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
@@ -232,21 +233,23 @@ public:
      */
     void testReadAllLines( void )
     {
+        using boost::shared_ptr;
+        using std::vector;
+        using wmath::WFiber;
+        using wmath::WPosition;
         WLoaderFibers loader( "fixtures/Fibers/small_example_one_fiber.fib", m_dataHandler );
         loader.readHeader();
         loader.readPoints();
-        loader.readLines();
-        TS_ASSERT_EQUALS( loader.m_fibers.size(), 1 );
-        using wmath::WPosition;
-        using wmath::WFiber;
-        std::vector< WPosition > pointList;
+        shared_ptr< vector< WFiber > > actual = loader.readLines();
+        TS_ASSERT_EQUALS( actual->size(), 1 );
+        vector< WPosition > pointList;
         // CAUTION: we use here floats since the positions are stored with
         // floats as well. If we would use doubles here, the both vectors are
         // different then.
         pointList.push_back( WPosition( 1.2f, 3.4f, 5.6f ) );
         pointList.push_back( WPosition( 7.8f, 9.0f, -1.2f ) );
         WFiber expected( pointList );
-        TS_ASSERT_EQUALS( expected, loader.m_fibers.back() );
+        TS_ASSERT_EQUALS( expected, actual->back() );
     }
 
 private:

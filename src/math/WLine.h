@@ -36,6 +36,7 @@ class WLineTest;
 
 namespace wmath
 {
+// Please notice that many small member functions are inlined for performance issues
 /**
  * A line is an ordered sequence of WPositions.
  */
@@ -46,17 +47,51 @@ public:
     /**
      * Constructs a new line with the given points in the given order
      */
-    explicit WLine( const std::vector< WPosition > &points );
+    explicit WLine( const std::vector< WPosition > &points )
+        : m_points( points )
+    {
+    }
+
+    /**
+     * Copy constructor
+     */
+    WLine( const WLine& other ) : m_points( other.m_points )
+    {
+    }
 
     /**
      * \return true if both lines have a same point vector
      */
-    bool operator==( const WLine &rhs ) const;
+    bool operator==( const WLine &rhs ) const
+    {
+        return m_points == rhs.m_points;
+    }
 
     /**
      * \return false if both lines have a same point vector
      */
-    bool operator!=( const WLine &rhs ) const;
+    bool operator!=( const WLine &rhs ) const
+    {
+        return m_points != rhs.m_points;
+    }
+
+    /**
+     * Get number of points (length) the value consists of.
+     */
+    size_t size()
+    {
+        return m_points.size();
+    }
+
+    /**
+     * \return Const reference to the i'th position. This is const since
+     * we want an read only access.
+     */
+    const WPosition& operator[]( size_t index ) const
+    {
+        assert( index < m_points.size() );
+        return m_points[index];
+    }
 
     /**
      * Gives a meaningful representation of this object to the given

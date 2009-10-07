@@ -22,4 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WLine.h"
+#ifndef WDATASETFIBERS_H
+#define WDATASETFIBERS_H
+
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
+
+#include "WDataSet.h"
+#include "../math/WFiber.h"
+
+/**
+ * Represents a simple set of WFibers.
+ */
+class WDataSetFibers : public WDataSet
+{
+public:
+    /**
+     * Constructs a new set of WFibers
+     */
+    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
+    {
+    }
+
+    /**
+     * Get number of fibers in this data set.
+     */
+    size_t size()
+    {
+        return m_fibers->size();
+    }
+
+    /**
+     * \return The i'th fiber.
+     */
+    const wmath::WFiber& operator[]( const size_t index ) const
+    {
+        assert( index < m_fibers->size() );
+        return (*m_fibers)[index];
+    }
+
+protected:
+private:
+    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
+};
+
+#endif  // WDATASETFIBERS_H

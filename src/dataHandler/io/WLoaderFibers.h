@@ -83,7 +83,7 @@ protected:
     /**
      * Read lines from input stream and use the points for constructing fibers.
      */
-    void readLines();
+    boost::shared_ptr< std::vector< wmath::WFiber > > readLines();
 
     /**
      * First four lines of ASCII text describing this file
@@ -94,11 +94,6 @@ protected:
      * Point vector for all fibers
      */
     std::vector< wmath::WPosition > m_points;
-
-    /**
-     * All Fibers build up with their positions.
-     */
-    std::vector< wmath::WFiber > m_fibers;
 
     /**
      * Pointer to the input file stream reader.
