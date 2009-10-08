@@ -31,7 +31,7 @@
 
 /**
  * General purpose exception and therefore base class for all kernel related exceptions.
- * \ingroup ge
+ * \ingroup kernel 
  */
 class WModuleSignalSubscriptionFailed: public WModuleException
 {

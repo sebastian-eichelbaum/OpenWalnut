@@ -22,18 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULECONNECTIONFAILED_H
-#define WMODULECONNECTIONFAILED_H
+#ifndef WMODULECONNECTORUNCONNECTED_H
+#define WMODULECONNECTORUNCONNECTED_H
 
 #include <string>
 
 #include "WModuleException.h"
 
 /**
- * General purpose exception and therefore base class for all kernel related exceptions.
+ * Exception thrown whenever something is requested from an connector which is not connected.
  * \ingroup kernel
  */
-class WModuleConnectionFailed: public WModuleException
+class WModuleConnectorUnconnected: public WModuleException
 {
 public:
 
@@ -41,17 +41,18 @@ public:
      * Default constructor.
      * \param msg the exception message.
      */
-    explicit WModuleConnectionFailed( const std::string& msg = "Module Connection Failed" );
+    explicit WModuleConnectorUnconnected( const std::string& msg =
+            "Operation needs a connected Connector, but this one is unconnected." );
 
     /**
      * Destructor.
      */
-    virtual ~WModuleConnectionFailed() throw();
+    virtual ~WModuleConnectorUnconnected() throw();
 
 protected:
 
 private:
 };
 
-#endif  // WMODULECONNECTIONFAILED_H
+#endif  // WMODULECONNECTORUNCONNECTED_H
 

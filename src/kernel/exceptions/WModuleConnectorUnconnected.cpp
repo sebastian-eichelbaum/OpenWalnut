@@ -22,36 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULECONNECTIONFAILED_H
-#define WMODULECONNECTIONFAILED_H
-
 #include <string>
 
-#include "WModuleException.h"
+#include "WModuleConnectorUnconnected.h"
 
-/**
- * General purpose exception and therefore base class for all kernel related exceptions.
- * \ingroup kernel
- */
-class WModuleConnectionFailed: public WModuleException
+WModuleConnectorUnconnected::WModuleConnectorUnconnected( const std::string& msg ): WModuleException( msg )
 {
-public:
+    // initialize members
+}
 
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WModuleConnectionFailed( const std::string& msg = "Module Connection Failed" );
+WModuleConnectorUnconnected::~WModuleConnectorUnconnected() throw()
+{
+    // cleanup
+}
 
-    /**
-     * Destructor.
-     */
-    virtual ~WModuleConnectionFailed() throw();
-
-protected:
-
-private:
-};
-
-#endif  // WMODULECONNECTIONFAILED_H
 
