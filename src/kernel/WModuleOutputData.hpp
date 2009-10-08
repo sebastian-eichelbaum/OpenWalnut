@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-// this seems to be necessary
+// this is necessary since we have some kind of cyclic includes
 template < typename T > class WModuleOutputData;
 #include "WModuleInputData.hpp"
 
@@ -54,6 +54,7 @@ public:
     WModuleOutputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" ):
             WModuleOutputConnector( module, name, description )
     {
+        m_data = boost::shared_ptr<T>();
     };
 
     /**

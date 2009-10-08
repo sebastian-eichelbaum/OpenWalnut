@@ -26,10 +26,15 @@
 #define WMODULEINPUTDATA_H
 
 #include <string>
+#include <sstream>
 
-// this seems to be necessary
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/locks.hpp>
+
+// this is necessary since we have some kind of cyclic includes
 template < typename T > class WModuleInputData;
 #include "WModuleOutputData.hpp"
+#include "exceptions/WModuleConnectorUnconnected.h"
 
 #include "WModuleInputConnector.h"
 
@@ -64,11 +69,34 @@ public:
     /** 
      * Gives the currently set data.
      * 
+     * \throw WModuleConnectorUnconnected if someone is requesting data but this connector is not connected.
+     *
      * \return the data currently set.
      */
-    const boost::shared_ptr<T> getData() const
+    const boost::shared_ptr<T> getData()
     {
-        //return m_data;
+        // get a lock
+        boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_ConnectionListLock );
+
+        // is there something in the list?
+        if ( m_Connected.begin()==m_Connected.end() )
+        {
+            lock.unlock();
+
+            // throw an exception
+            std::ostringstream s;
+            s << "Unable to acquire data from unconnected input \"" << getCanonicalName() << "\".";
+
+            throw WModuleConnectorUnconnected( s.str() );
+        }
+
+        // get data
+        boost::shared_ptr<T> dat = boost::shared_dynamic_cast<WModuleOutputData<T> >( *m_Connected.begin() )->getData();
+        
+        // unlock and return
+        lock.unlock();
+
+        return dat;
     };
 
 protected:

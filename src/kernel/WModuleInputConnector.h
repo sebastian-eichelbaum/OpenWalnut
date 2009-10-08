@@ -29,6 +29,7 @@
 
 #include "WModule.h"
 #include "WModuleConnector.h"
+#include "WModuleConnectorSignals.h"
 
 /**
  * Class implementing input connection functionality between modules.
@@ -77,10 +78,26 @@ protected:
      */
     virtual void disconnectSignals( boost::shared_ptr<WModuleConnector> con );
 
+    /** 
+     * Gets called when the data on this input connector changed.
+     * 
+     * \param input the input connector receiving the change.
+     * \param output the output connector sending the change notification.
+     */
+    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+                                   boost::shared_ptr<WModuleConnector> output );
+
 private:
 
     /** 
-     * Connection for Data Changed signal.
+     * Signal for "DATA_CHANGED" Events. We use a separate signal here (instead of using the signal send by the connected output)
+     * since the output can not determine the receiver when signalling. So we use an own signal handler and signal to "forward"
+     * the message and complete the information with a this-pointer.
+     */
+    t_GenericSignalType signal_DataChanged;
+
+    /** 
+     * Connection for Data Changed signal of the connected output connector.
      */
     boost::signals2::connection m_DataChangedConnection;
 };

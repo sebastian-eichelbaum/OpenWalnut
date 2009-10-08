@@ -46,6 +46,13 @@ MODULE_CONNECTOR_SIGNAL;
 // Types
 // **************************************************************************************************************************
 
+/** 
+ * Signal transmitting sender and receiver.
+ * 
+ * \param boost::shared_ptr<WModuleConnector> this should be the receiver, depending on specific signal.
+ * \param boost::shared_ptr<WModuleConnector> this should be the sender, depending on specific signal.
+ *
+ */
 typedef boost::function<void ( boost::shared_ptr<WModuleConnector>,
                                boost::shared_ptr<WModuleConnector> )> t_GenericSignalHandlerType;
 
@@ -57,7 +64,6 @@ typedef boost::function<void ( boost::shared_ptr<WModuleConnector>,
  */
 typedef boost::signals2::signal<void ( boost::shared_ptr<WModuleConnector>,
                                        boost::shared_ptr<WModuleConnector> )>  t_GenericSignalType;
-
 
 #endif  // WMODULECONNECTORSIGNALS_H
 

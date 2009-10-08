@@ -34,6 +34,10 @@ WModuleInputConnector::WModuleInputConnector( boost::shared_ptr<WModule> module,
     WModuleConnector( module, name, description )
 {
     // initialize members
+
+    // connect some signals
+    // This signal is some kind of "forwarder" for the data_changed signal of an output connector.
+    signal_DataChanged.connect( getSignalHandler( DATA_CHANGED ) );
 }
 
 WModuleInputConnector::~WModuleInputConnector()
@@ -56,9 +60,12 @@ void WModuleInputConnector::connectSignals( boost::shared_ptr<WModuleConnector> 
 {
     WModuleConnector::connectSignals( con );
 
-    // connect dataChange signal
+    // connect dataChange signal with an internal handler to ensure we can add the "input" connector pointer, since the output
+    // connector does not set this information.
     // NOTE: con will be an WModuleOutputConnector
-    m_DataChangedConnection = con->subscribeSignal( DATA_CHANGED, getSignalHandler( DATA_CHANGED ) );
+    m_DataChangedConnection = con->subscribeSignal( DATA_CHANGED,
+            boost::bind( &WModuleInputConnector::notifyDataChange, this, _1, _2 ) 
+    );
 }
 
 void WModuleInputConnector::disconnectSignals( boost::shared_ptr<WModuleConnector> con )
@@ -66,5 +73,13 @@ void WModuleInputConnector::disconnectSignals( boost::shared_ptr<WModuleConnecto
     m_DataChangedConnection.disconnect();
 
     WModuleConnector::disconnectSignals( con );
+}
+
+void WModuleInputConnector::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
+                                              boost::shared_ptr<WModuleConnector> output )
+{
+    // since the output connector is not able to fill the parameter "input" we need to forward this message and fill it with the
+    // proper information
+    signal_DataChanged( shared_from_this(), output );
 }
 

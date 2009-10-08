@@ -71,5 +71,6 @@ boost::signals2::connection WModuleOutputConnector::subscribeSignal( MODULE_CONN
 
 void WModuleOutputConnector::propagateDataChange()
 {
-    //signal_DataChanged();
+    signal_DataChanged( boost::shared_ptr<WModuleConnector>(), shared_from_this() );
 }
+

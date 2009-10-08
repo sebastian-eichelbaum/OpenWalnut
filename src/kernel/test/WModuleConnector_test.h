@@ -43,6 +43,7 @@
 #include "../exceptions/WModuleConnectionFailed.h"
 #include "../exceptions/WModuleConnectorsIncompatible.h"
 #include "../exceptions/WModuleException.h"
+#include "../exceptions/WModuleConnectorUnconnected.h"
 
 /** 
  * Class implementing a simple mod    // required since pure virtualule, since proper testing of WModuleConnector itself is not usable.
@@ -104,6 +105,7 @@ public:
     }
 
 protected:
+
     /** 
      * temporary name string
      */
@@ -119,33 +121,45 @@ protected:
         }
     }
 
-    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
-                                              boost::shared_ptr<WModuleConnector> there )
+    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
+                                              boost::shared_ptr<WModuleConnector> /*there*/ )
     {
         // std::cout << "connection established between " << n << ":" << here->getCanonicalName() << " and "
         //           << there->getCanonicalName() << std::endl;
     }
 
-    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here,
-                                              boost::shared_ptr<WModuleConnector> there )
+    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
+                                              boost::shared_ptr<WModuleConnector> /*there*/ )
     {
         // std::cout << "connection closed between " << n << ":" <<  here->getCanonicalName() << " and "
         //           <<  there->getCanonicalName() << std::endl;
     }
 
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
-                                   boost::shared_ptr<WModuleConnector> /*output*/ )
+                                   boost::shared_ptr<WModuleConnector> output )
     {
-        std::cout << "hallo change" << std::endl;
+        // just copy the data
+        data=*( boost::shared_dynamic_cast<WModuleOutputData<int> >( output )->getData() ) + 1;
+
+        //std::cout << "change to " << data << " in " << input->getCanonicalName() << " from " << output->getCanonicalName() << std::endl;
     }
 
 private:
 
+    /** 
+     * The data lastly submitted.
+     */
+    int data;
+
+    /** 
+     * Input connection.
+     */
     boost::shared_ptr<WModuleInputData<int> > m_Input;
+    
+    /** 
+     * Output connection.
+     */
     boost::shared_ptr<WModuleOutputData<int> > m_Output;
-    /*
-    boost::shared_ptr<WModuleInputConnector> m_Input;
-    boost::shared_ptr<WModuleOutputConnector> m_Output;*/
 };
 
 
@@ -243,6 +257,8 @@ public:
      */
     void testModuleTwiceInitialization( void )
     {
+        WException::disableBacktrace();
+
         createModules();
         initModules();
 
@@ -261,6 +277,8 @@ public:
      */
     void testModuleConnectorCompatibility( void )
     {
+        WException::disableBacktrace();
+
         createModules();
         initModules();
 
@@ -370,14 +388,41 @@ public:
     }
 
     /**
-     * Tests the signal handler management.
+     * Tests the propagation of data.
      */
     void testModulePropagateDataChange( void )
     {
         createModules();
         initModules();
         initConnections();
-        // propagate change
+
+        // set some data, propagate change
+        int d=5;
+        TS_ASSERT_THROWS_NOTHING( m1->m_Output->updateData( boost::shared_ptr<int>( &d ) ) );
+
+        // got the data transferred?
+        TS_ASSERT( *(m1->m_Output->getData()) == d );
+        TS_ASSERT( *(m2->m_Input->getData()) == d );
+        TS_ASSERT( m2->data == d + 1 );
+    }
+
+    /**
+     * Tests several cases of unset data.
+     */
+    void testModuleInvalidData( void )
+    {
+        WException::disableBacktrace();
+
+        createModules();
+        initModules();
+        initConnections();
+
+        // try to get data from an unconnected connector
+        TS_ASSERT_THROWS( m3->m_Input->getData(), WModuleConnectorUnconnected );
+
+        // try to get uninitialized data:
+        // should return an "NULL" Pointer
+        TS_ASSERT( m2->m_Input->getData() == boost::shared_ptr<int>() );
     }
 };
 
