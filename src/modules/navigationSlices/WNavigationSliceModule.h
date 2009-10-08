@@ -29,13 +29,17 @@
 
 #include <osg/Node>
 
+#include "../../dataHandler/WDataSet.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputConnector.h"
+#include "../../kernel/WModuleConnector.h"
+#include "../../kernel/WModuleInputData.hpp"
 #include "../../graphicsEngine/WShader.h"
 
 
+// TODO(schurade): fix description
 /**
  * \par Description:
+ * 
  * Simple module for testing some WKernel functionality.
  */
 class WNavigationSliceModule: public WModule
@@ -114,7 +118,7 @@ private:
     /** 
      * Input connector required by this module.
      */
-    boost::shared_ptr<WModuleInputConnector> m_Input;
+    boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > > m_Input;
 };
 
 #endif  // WNAVIGATIONSLICEMODULE_H
