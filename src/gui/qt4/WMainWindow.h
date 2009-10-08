@@ -36,6 +36,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
+
+#include <QtGui/QSlider>
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QWidget>
@@ -44,14 +46,15 @@
 
 // forward declarations
 class WQtGLWidget;
-class WQtPipelineBrowser;
+class WQtDatasetBrowser;
+class WQtRibbonMenu;
 
 /**
  * This class contains the main window and the layout
  * of the widgets within the window.
  * \ingroup gui
  */
-class WMainWindow : public QObject, public WGUI
+class WMainWindow : public QObject
 {
     Q_OBJECT
 
@@ -63,44 +66,35 @@ public:
     void setupGUI( QMainWindow *MainWindow );
 
     /**
-     * \brief
-     * enable/disable the access to the GUI
-     * \post
-     * GUI enabled/disabeld
-     * \param enable true iff gui should be enabled
-     */
-    void setEnabled( bool enable );
-
-    /** 
      * Destructor.
      */
     virtual ~WMainWindow();
+
+    /**
+     *
+     */
+    WQtDatasetBrowser* getDatasetBrowser();
 
 private:
     /**
      * Helper routine for adding new docks with GL content
      */
-    void addDockableGLWidget( QMainWindow *MainWindow );
+    QSlider* addNavigationGLWidget( QMainWindow *MainWindow, QString title );
+
 
     /**
      * Connects some signals with some slots
      */
     void connectSlots( QMainWindow *MainWindow );
 
-    QAction* m_actionLoad;
-    QAction* m_actionSave;
-    QAction* m_actionPreferences;
-    QAction* m_actionExit;
-    QAction* m_actionAbout_OpenWalnut;
+    QIcon m_mainWindowIcon;
+
     QWidget* m_centralwidget;
-    QMenuBar* m_menubar;
-    QMenu* m_menuFile;
-    QMenu* m_menuHelp;
     QStatusBar* m_statusBar;
-    QToolBar* m_toolBar;
+    WQtRibbonMenu* m_toolBar;
 
     std::list<boost::shared_ptr<WQtGLWidget> > m_glWidgets;
-    WQtPipelineBrowser* m_pipelineBrowser;
+    WQtDatasetBrowser* m_datasetBrowser;
 
 
 private slots:

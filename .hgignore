@@ -23,3 +23,7 @@ syntax: glob
 .cproject
 syntax: regexp
 ^Debug$
+syntax: glob
+.settings
+syntax: glob
+Release

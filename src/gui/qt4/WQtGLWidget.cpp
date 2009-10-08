@@ -45,9 +45,11 @@ WQtGLWidget::WQtGLWidget( QWidget* parent )
     // Extract a WindowPtr from the HIViewRef that QWidget::winId() returns.
     // Without this change, the peer tries to call GetWindowPort on the HIViewRef
     // which returns 0 and we only render white.
-    osg::ref_ptr<WindowData> wdata = osg::ref_ptr<WindowData>(
-            new WindowData( HIViewGetWindow( static_cast<HIViewRef>winId() ) )
-    );
+    osg::ref_ptr<WindowData> wdata;
+#warning This must be commented back in soon
+    //  wdata = osg::ref_ptr<WindowData>(
+    //        new WindowData( HIViewGetWindow( static_cast<HIViewRef>winId() ) )
+    //  );
 #else  // all others
     osg::ref_ptr<WindowData> wdata = osg::ref_ptr<WindowData>( new WindowData( winId() ) );
 #endif

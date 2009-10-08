@@ -39,7 +39,7 @@ class WDataSet
 {
 public:
     /**
-     * This constructor shoul be used if a dataSet does not stem from a file.
+     * This constructor should be used if a dataSet does not stem from a file.
      * It presets the its correpsonding fileName as empty string.
      */
     WDataSet();

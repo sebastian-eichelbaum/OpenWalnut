@@ -22,11 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSTRINGUTILS_H
-#define WSTRINGUTILS_H
+#ifndef WSTRINGUTILS_HPP
+#define WSTRINGUTILS_HPP
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
+#include <iterator>
+#include <list>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -121,29 +124,41 @@ namespace string_utils {
     std::vector< std::string > tokenize( const std::string& source,
                                          bool compress = true,
                                          const std::string& t = WHITESPACE );
-}
 
-/**
- * Writes the given vector to an output stream such as cout, if and only if
- * its elements have an output operator defined.
- *
- * \param os The output stream where the elements are written to
- * \param v Vector containing the elements
- * \return The output stream again.
- */
-template< class T > std::ostream& operator<<( std::ostream& os,
-                                              const std::vector< T >& v )
-{
-    std::stringstream result;
-    result << "[";
-    // typename, since const_iterator is a so called "dependent name"
-    typename std::vector< T >::const_iterator citer;
-    for( citer = v.begin(); citer != v.end(); ++citer )
+    /**
+     * Writes every vector to an output stream such as cout, if its elements
+     * have an output operator defined.
+     *
+     * \param os The output stream where the elements are written to
+     * \param v Vector containing the elements
+     * \return The output stream again.
+     */
+    template< class T > std::ostream& operator<<( std::ostream& os, const std::vector< T >& v )
     {
-        result << *citer << ", ";
+        std::stringstream result;
+        result << "[" << std::scientific << std::setprecision(16);
+        std::copy( v.begin(), v.end(), std::ostream_iterator< T >(result, ", ") );
+        os << rTrim( result.str(), ", " ) << "]";
+        return os;
     }
-    os << string_utils::rTrim( result.str(), ", " ) << "]";
-    return os;
-}
+    
+    /**
+     * Writes every list to an output stream such as cout, if its elements have
+     * an output operator defined.
+     *
+     * \param os The output stream where the elements are written to
+     * \param l List containing the elements
+     * \return The output stream again.
+     */
+    template< class T > std::ostream& operator<<( std::ostream& os, const std::list< T >& l )
+    {
+        std::stringstream result;
+        result << "<" << std::scientific;
+        std::copy( l.begin(), l.end(), std::ostream_iterator< T >(result, ", ") );
+        os << rTrim( result.str(), ", " ) << ">";
+        return os;
+    }
 
-#endif  // WSTRINGUTILS_H
+} // end of namespace 
+
+#endif  // WSTRINGUTILS_HPP

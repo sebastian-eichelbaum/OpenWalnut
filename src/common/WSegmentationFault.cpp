@@ -50,7 +50,7 @@ int WSegmentationFault::getSignalNumber() throw()
 void WSegmentationFault::installSignalHandler() throw()
 {
 #ifdef __linux__
-    SignalTranslator<WSegmentationFault> segmentationFaultTranslator;
+    SignalTranslator< WSegmentationFault > segmentationFaultTranslator;
 #endif  // __linux__
 }
 

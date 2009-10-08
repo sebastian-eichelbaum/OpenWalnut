@@ -15,6 +15,8 @@ IF( CMAKE_HOST_SYSTEM MATCHES Linux )
   SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
 ELSEIF( CMAKE_HOST_SYSTEM MATCHES Windows )
   SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The libraries will be put into this directory." )
+ELSEIF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+  SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
 ELSE()
   MESSAGE( FATAL_ERROR "Could not determine platform type! (expected Linux or Windows)!" )
 ENDIF()
@@ -30,7 +32,7 @@ ENDIF( CMAKE_BUILD_TYPE STREQUAL "Static" )
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
-FIND_PACKAGE( Boost REQUIRED program_options thread filesystem signals )
+FIND_PACKAGE( Boost REQUIRED program_options thread system filesystem date_time signals )
 ASSERT_GE_VERSION( "Boost" "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" 1.36.0 )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
@@ -54,10 +56,11 @@ FIND_PACKAGE( osg ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgUtil ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgDB ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgViewer ${MIN_OSG_VERSION} REQUIRED )
+FIND_PACKAGE( osgText ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( osgGA ${MIN_OSG_VERSION} REQUIRED )
 FIND_PACKAGE( OpenThreads ${MIN_OSG_VERSION} REQUIRED )
-SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OPENTHREADS_LIBRARY} )
-SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
+SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGTEXT_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OPENTHREADS_LIBRARY} )
+SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGTEXT_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
 # When new cmake version available >=2.6.4 we may use this the line below instead the stuff above
 # FIND_PACKAGE( OpenSceneGraph 2.8.0 REQUIRED osgDB osgUtil osgGA osgViewer OpenThreads )
 INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
@@ -95,7 +98,7 @@ IF( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     ADD_SUBDIRECTORY( kernel )
     ADD_SUBDIRECTORY( common )
     ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
-    TARGET_LINK_LIBRARIES( walnut kernel dataHandler guiqt4 common ${Boost_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( walnut kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
     
 ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.cpp )
@@ -104,7 +107,6 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
     # Package dependencies:
     FIND_PACKAGE( Qt4 REQUIRED )
-    FIND_PACKAGE( GLEW REQUIRED )
 
     # Includes:
     INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
@@ -118,7 +120,7 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     QT4_WRAP_CPP( GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
     
     ADD_EXECUTABLE( walnut ${ALL_SRC}  ${NIFTI_SRC} ${GUI_QT4_MOC_SRCS} )
-    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} ${GLEW_LIBRARY} )
+    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} )
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
@@ -207,7 +209,7 @@ ADD_CUSTOM_TARGET( cleantest
 #-------------------------------------------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET( cicheck
-                   COMMAND make test && make stylecheck
+                   COMMAND make stylecheck && make test
                    COMMENT "Checks if all is well to commit"
                  )
 
@@ -227,3 +229,12 @@ ADD_CUSTOM_TARGET( many
                    cmake . && make all -j4 && make fixtures && make stylecheck && make test && make doc
                    COMMENT "Make many special make targets in combination."
                  )
+
+#-------------------------------------------------------------------------------------------------------------
+# Make target for MacOS. The difference to the normal one is that we need to fix some paths in libraries.
+IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+ADD_CUSTOM_TARGET( macos
+                   make all && ${PROJECT_SOURCE_DIR}/../tools/MacOS/macOS_install_tool 
+                   COMMENT "Make on MacOS. This incudes fixing paths in libraries."
+                 )
+ENDIF()

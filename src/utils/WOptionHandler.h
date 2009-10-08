@@ -27,7 +27,8 @@
 
 #include <boost/program_options.hpp>
 
-#include "../gui/qt4/WMainApplication.h"
+// TODO(all): why is that include here?
+// #include "../gui/qt4/WMainApplication.h"
 
 // since the namespace is far to big we use a shortcut here:
 namespace po = boost::program_options;

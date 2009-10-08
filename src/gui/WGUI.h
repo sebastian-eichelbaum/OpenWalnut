@@ -39,15 +39,6 @@ public:
      * Default destructor.
      */
     virtual ~WGUI();
-
-    /**
-     * \brief
-     * enable/disable the access to the GUI
-     * \post
-     * GUI enabled/disabled
-     * \param enable true iff gui should be enabled
-     */
-    virtual void setEnabled( bool enable ) = 0;
 };
 
 /**

@@ -26,6 +26,8 @@
 #define WGRAPHICSENGINE_H
 
 #include <list>
+#include <string>
+
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
@@ -52,7 +54,7 @@ public:
     /**
      * Default constructor.
      */
-    WGraphicsEngine();
+    explicit WGraphicsEngine( std::string shaderPath );
 
     /**
      * Destructor.
@@ -65,6 +67,13 @@ public:
      * \return the root node.
      */
     osg::ref_ptr<WGEScene> getScene();
+
+    /**
+     * Return the path where the shaders are expected to be located.
+     * 
+     * \return shader path
+     */
+    std::string getShaderPath();
 
     /** 
      * Creates a new viewer. Does basic initialization and sets the default scene.
@@ -102,6 +111,7 @@ protected:
     boost::mutex m_ViewerLock;
 
 private:
+    std::string m_shaderPath;
 };
 
 /**

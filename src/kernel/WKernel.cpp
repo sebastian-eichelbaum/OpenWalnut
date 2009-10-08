@@ -41,7 +41,8 @@
  */
 WKernel* kernel = NULL;
 
-WKernel::WKernel( int argc, char* argv[] )
+WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
+    : m_Gui( gui )
 {
     std::cout << "Initializing Kernel" << std::endl;
 
@@ -62,7 +63,12 @@ WKernel::WKernel( int argc, char* argv[] )
 WKernel::~WKernel()
 {
     // cleanup
-    std::cout << "Shutting down Kernel" << std::endl;
+    WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
+
+    // finish running thread
+    WLogger::getLogger()->wait( true );
+    // write remaining log messages
+    WLogger::getLogger()->processQueue();
 }
 
 WKernel::WKernel( const WKernel& other )
@@ -85,6 +91,15 @@ boost::shared_ptr<WDataHandler> WKernel::getDataHandler() const
     return m_DataHandler;
 }
 
+boost::shared_ptr< WGUI > WKernel::getGui()
+{
+    return m_Gui;
+}
+
+void WKernel::setGui( boost::shared_ptr< WGUI > gui )
+{
+    m_Gui = gui;
+}
 
 int WKernel::getArgumentCount() const
 {
@@ -93,13 +108,12 @@ int WKernel::getArgumentCount() const
 
 char** WKernel::getArguments() const
 {
-    // TODO( ebaum ): dasfdsf
     return m_ArgV;
 }
 
 int WKernel::run()
 {
-    std::cout << "Starting Kernel" << std::endl;
+    WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
 
     // TODO(ebaum): add separate graphics thread here
     m_GraphicsEngine->run();
@@ -118,11 +132,11 @@ int WKernel::run()
     // run module execution threads
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module
-    std::cout << "Starting modules:" << std::endl;
+    WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
     for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
-        std::cout << "Starting Module: " << ( *list_iter )->getName() << std::endl;
+        WLogger::getLogger()->addLogMessage( "Starting module: " + ( *list_iter )->getName(), "Kernel", LL_DEBUG );
         ( *list_iter )->run();
     }
 
@@ -148,11 +162,11 @@ int WKernel::run()
 void WKernel::loadModules()
 {
     // TODO(ebaum): add dynamic loading here
-    std::cout << "Loading modules:" << std::endl;
+    WLogger::getLogger()->addLogMessage( "*** Loading Modules: ", "Kernel", LL_DEBUG );
     m_modules.clear();
 
     boost::shared_ptr<WModule> m = boost::shared_ptr<WModule>( new WNavigationSliceModule() );
-    std::cout << "Loading Module: " << m->getName() << std::endl;
+    WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
 
     m_modules.push_back( m );
 }
@@ -160,19 +174,14 @@ void WKernel::loadModules()
 void WKernel::init()
 {
     // initialize
+    findAppPath();
 
     // initialize graphics engine
     // this also includes initialization of WGEScene and OpenSceneGraph
-    m_GraphicsEngine = boost::shared_ptr<WGraphicsEngine>( new WGraphicsEngine );
-
-    // initialize GUI
-    // TODO(all): clean up this option handler mess
-    m_Gui = boost::shared_ptr<WMainApplication>( new WMainApplication() );
+    m_GraphicsEngine = boost::shared_ptr<WGraphicsEngine>( new WGraphicsEngine( m_shaderPath ) );
 
     // initialize Datahandler
     m_DataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
-
-    findAppPath();
 }
 
 bool WKernel::findAppPath()
@@ -210,7 +219,7 @@ bool WKernel::findAppPath()
     m_AppPath = appPath;
 
     std::string shaderPath( appPath );
-    m_ShaderPath = shaderPath + "shaders/";
+    m_shaderPath = shaderPath + "shaders/";
 
     return true;
 }
@@ -237,5 +246,5 @@ std::string WKernel::getAppPath()
 
 std::string WKernel::getShaderPath()
 {
-    return m_ShaderPath;
+    return m_shaderPath;
 }

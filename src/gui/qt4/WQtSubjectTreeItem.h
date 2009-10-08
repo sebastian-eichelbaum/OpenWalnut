@@ -22,22 +22,28 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtPipelineBrowser.h"
+#ifndef WQTSUBJECTTREEITEM_H
+#define WQTSUBJECTTREEITEM_H
 
-WQtPipelineBrowser::WQtPipelineBrowser()
-    : QDockWidget( "Pipeline Browser" ),
-      m_recommendedSize()
-{
-    setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-    m_recommendedSize.setWidth( 200 );
-    m_recommendedSize.setHeight( 300 );
-}
+#include <string>
 
-WQtPipelineBrowser::~WQtPipelineBrowser()
-{
-}
+#include <QtGui/QTreeWidgetItem>
 
-QSize WQtPipelineBrowser::sizeHint() const
+#include "WQtDatasetTreeItem.h"
+
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtSubjectTreeItem : public QTreeWidgetItem
 {
-    return m_recommendedSize;
-}
+public:
+    explicit WQtSubjectTreeItem( QTreeWidget * parent );
+    virtual ~WQtSubjectTreeItem();
+
+    WQtDatasetTreeItem* addDatasetItem( std::string name );
+
+protected:
+private:
+};
+
+#endif  // WQTSUBJECTTREEITEM_H

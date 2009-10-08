@@ -26,6 +26,7 @@
 #define WSHADER_H
 
 #include <string>
+#include <map>
 
 #include <osg/Geometry>
 
@@ -42,7 +43,7 @@ public:
     /**
      *
      */
-    explicit WShader( std::string fileName );
+    explicit WShader( std::string fileName, std::string shaderPath );
 
     /**
      * destructor
@@ -56,6 +57,15 @@ public:
      */
     osg::Program* getProgramObject();
 
+    /**
+     *
+     */
+    void setDefine( std::string key, float value );
+
+    /**
+     *
+     */
+    void eraseDefine( std::string key );
 
 private:
     /**
@@ -78,6 +88,7 @@ private:
      */
     std::string getIncludeFileName( std::string line );
 
+    std::string m_shaderPath;
     /**
      *
      */
@@ -92,6 +103,11 @@ private:
      *
      */
     osg::Program* m_ProgramObject;
+
+    /**
+     *
+     */
+    std::map< std::string, float>m_defines;
 };
 
 #endif  // WSHADER_H

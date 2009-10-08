@@ -30,7 +30,7 @@
 #include <osg/Geode>
 
 #include "WTestModule.h"
-#include "WKernel.h"
+#include "../../kernel/WKernel.h"
 
 WTestModule::WTestModule():
     WModule()

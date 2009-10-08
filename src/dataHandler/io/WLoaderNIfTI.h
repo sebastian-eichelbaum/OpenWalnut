@@ -56,10 +56,11 @@ public:
 
 protected:
 private:
-    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues,
-            const size_t vDim );
-
-    boost::shared_ptr< WDataHandler > m_dataHandler;
+    /**
+     * This function allows to copy the data given as a T*
+     * by niftilibio into a std::vector< T >
+     */
+    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues, const size_t vDim );
 };
 
 #endif  // WLOADERNIFTI_H

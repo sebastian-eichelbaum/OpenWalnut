@@ -1,12 +1,11 @@
 FILE( GLOB KERNEL_SRC "*.cpp" "*.hpp" )
-FILE( GLOB MODULES_SRC "../modules/navigationSlices/*.cpp" )
+FILE( GLOB_RECURSE MODULES_SRC "../modules/*.cpp" )
 
 ADD_SUBDIRECTORY( exceptions )
 FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.cpp" )
 
 ADD_LIBRARY( kernel SHARED ${KERNEL_SRC} ${MODULES_SRC} ${KERNEL_EXCEPTIONS_SRC} )
-
-TARGET_LINK_LIBRARIES( kernel dataHandler gui common ge ${OPENSCENEGRAPH_LIBRARIES} )
+TARGET_LINK_LIBRARIES( kernel common dataHandler ge math ${OPENSCENEGRAPH_LIBRARIES} )
 
 
 # Unit tests
@@ -23,5 +22,6 @@ IF( CXXTEST_FOUND )
                                "WModuleInputData.cpp"
                                "WModuleOutputData.cpp"
                                "../modules/navigationSlices/WNavigationSliceModule.cpp"
+                               "../modules/eegTest/WEEGTestModule.cpp"
                              )
 ENDIF( CXXTEST_FOUND )

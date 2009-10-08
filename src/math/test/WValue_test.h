@@ -25,7 +25,10 @@
 #ifndef WVALUE_TEST_H
 #define WVALUE_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
+
 #include "../WValue.hpp"
 
 using wmath::WValue;
@@ -623,6 +626,20 @@ public:
         value3 = scalar * value1;
 
         TS_ASSERT_EQUALS( value2, value3 );
+    }
+
+    /**
+     * Every WValue should have an operator<< for writing to ostreams
+     */
+    void testOutputStreamOperator( void )
+    {
+        WValue< double > val( 2 );
+        val[0] = 1.;
+        val[1] = 5.;
+        std::string expected( "[1.0000000000000000e+00, 5.0000000000000000e+00]" );
+        std::stringstream ss;
+        ss << val;
+        TS_ASSERT_EQUALS( ss.str(), expected );
     }
 };
 

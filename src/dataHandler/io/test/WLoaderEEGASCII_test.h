@@ -25,6 +25,7 @@
 #ifndef WLOADEREEGASCII_TEST_H
 #define WLOADEREEGASCII_TEST_H
 
+#include <ctime>
 #include <string>
 #include <cxxtest/TestSuite.h>
 #include <boost/thread.hpp>
@@ -51,7 +52,16 @@ public:
 
         WLoaderEEGASCII eegASCIILoader( fileName, dataHandler );
         boost::thread loaderThread( eegASCIILoader );
-        sleep( 3 );
+
+        std::clock_t startTime;
+        startTime = std::clock();
+        std::clock_t elapsedTime = 0;
+
+        while( dataHandler->getNumberOfSubjects() == 0 && ( elapsedTime / static_cast< double >( CLOCKS_PER_SEC ) ) < 4 )
+        {
+            elapsedTime = std::clock() - startTime;
+        }
+
         // TODO(wiebel): we need to change this because loading, in the end,
         // should not always increase the number of subjects.
         TS_ASSERT_EQUALS( dataHandler->getNumberOfSubjects(), 1 );

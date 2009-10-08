@@ -26,7 +26,10 @@
 #define WLOADERMANAGER_H
 
 #include <string>
+
 #include <boost/shared_ptr.hpp>
+
+#include "exceptions/WDHException.h"
 
 class WDataHandler;
 
@@ -40,7 +43,7 @@ public:
     /**
      * Selects correct loader for fileName and creates loader thread.
      */
-    void load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    void load( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHException );
 protected:
 private:
 };

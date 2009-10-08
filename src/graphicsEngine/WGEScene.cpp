@@ -28,19 +28,21 @@
 #include <osg/Group>
 #include <osg/Geode>
 
+#include "../common/WLogger.h"
+
 #include "WGEScene.h"
 
 WGEScene::WGEScene():
     osg::Group()
 {
-    std::cout << "Initializing OpenSceneGraph Root Node" << std::endl;
+    WLogger::getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
 
     // initialize members
 }
 
 WGEScene::~WGEScene()
 {
-    std::cout << "Shutting down OpenSceneGraph Root Node" << std::endl;
+    WLogger::getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
 
     // cleanup
 }

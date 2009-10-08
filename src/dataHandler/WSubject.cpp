@@ -45,7 +45,7 @@ std::string WSubject::getName() const
     return m_name;
 }
 
-boost::shared_ptr< const WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
+boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
 {
     if( dataSetId >= m_dataSets.size() )
         throw WDHNoSuchDataSet( "Index too large." );

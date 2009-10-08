@@ -106,6 +106,11 @@ private:
      */
     boost::shared_ptr< WShader >m_shader;
 
+    /**
+     * TODO(schurade): add comment
+     */
+    bool m_textureAssigned;
+
     /** 
      * Input connector required by this module.
      */

@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -63,6 +64,13 @@ void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
     WLoaderManager lm;
     for ( size_t i = 0 ; i < fileNames.size() ; ++i)
     {
-        lm.load( fileNames[i], shared_from_this() );
+        try
+        {
+            lm.load( fileNames[i], shared_from_this() );
+        }
+        catch( WDHException e )
+        {
+            std::cerr << "Error :: DataHandler :: " << e.what() << std::endl;
+        }
     }
 }

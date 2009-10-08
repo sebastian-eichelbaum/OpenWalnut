@@ -24,16 +24,17 @@
 
 #include "WVector3D.h"
 #include "WValue.hpp"
+#include "../common/WStringUtils.hpp"
 
 using wmath::WVector3D;
 
 WVector3D::WVector3D()
-    : WValue<double>( 3 )
+    : WValue< double >( 3 )
 {
 }
 
 WVector3D::WVector3D( double x, double y, double z )
-    : WValue<double>( 3 )
+    : WValue< double >( 3 )
 {
     (*this)[0] = x;
     (*this)[1] = y;
@@ -41,6 +42,7 @@ WVector3D::WVector3D( double x, double y, double z )
 }
 
 WVector3D::WVector3D( const WVector3D & newVector )
-    : WValue<double>( newVector )
+    : WValue< double >( newVector )
 {
 }
+

@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include "WModule.h"
+#include "../../kernel/WModule.h"
 
 /**
  * Simple module for testing some WKernel functionality.

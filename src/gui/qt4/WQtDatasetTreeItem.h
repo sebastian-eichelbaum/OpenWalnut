@@ -22,33 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTPIPELINEBROWSER_H
-#define WQTPIPELINEBROWSER_H
+#ifndef WQTDATASETTREEITEM_H
+#define WQTDATASETTREEITEM_H
 
-#include <QtGui/QDockWidget>
+#include <QtGui/QTreeWidgetItem>
 
 /**
- * Represents the browser showing the loaded data sets
- * and applied filter/methods/algorithms/plugins
- * \ingroup gui
+ * TODO(schurade): Document this!
  */
-class WQtPipelineBrowser: public QDockWidget
+class WQtDatasetTreeItem : public QTreeWidgetItem
 {
 public:
-    WQtPipelineBrowser();
-    virtual ~WQtPipelineBrowser();
-
-    /**
-     * returns the recommended size for the widget to allow
-     * parent widgets to give it a proper initial layout
-     */
-    QSize sizeHint() const;
-
+    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent );
+    virtual ~WQtDatasetTreeItem();
+protected:
 private:
-    /**
-     * Holds the recommended size for the widget
-     */
-    QSize m_recommendedSize;
 };
 
-#endif  // WQTPIPELINEBROWSER_H
+#endif  // WQTDATASETTREEITEM_H

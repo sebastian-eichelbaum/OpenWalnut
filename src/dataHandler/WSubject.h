@@ -37,6 +37,11 @@ class WDataSet;
  */
 class WSubject
 {
+    /**
+     * Only tests are allowed as friends.
+     */
+    friend class WSubjectTest;
+
 public:
     /**
      * Empty standard constructor.
@@ -57,11 +62,11 @@ public:
      * Get the pointer to the i'th WDataSet. The return type is const since we
      * want to ensure that each DataSet cannot modified after retrival.
      */
-    boost::shared_ptr< const WDataSet > getDataSet( const unsigned int dataSetId ) const;
+    boost::shared_ptr< WDataSet > getDataSet( const unsigned int dataSetId ) const;
 
     /**
-     * Returns a  to the i'th WSubject. The return type is const since we
-     * want to ensure that each subject cannot modified after retrival.
+     * Returns a shared_ptr to the i'th WSubject. The return type is const since we
+     * want to ensure that a subject cannot be modified after retrieval.
      */
     boost::shared_ptr< const WDataSet > operator[]( const unsigned int dataSetId ) const;
 
