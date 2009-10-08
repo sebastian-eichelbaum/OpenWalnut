@@ -41,7 +41,7 @@
 /** 
  * initialize static member.
  */
-bool WException::noBacktrace=false;
+bool WException::noBacktrace = false;
 
 WException::WException( const std::string& msg ): exception()
 {
@@ -163,5 +163,10 @@ std::string WException::getBacktrace() const
 #endif
 
     return o.str();
+}
+
+void WException::disableBacktrace()
+{
+    noBacktrace = true;
 }
 

@@ -64,7 +64,7 @@ void WModuleInputConnector::connectSignals( boost::shared_ptr<WModuleConnector> 
     // connector does not set this information.
     // NOTE: con will be an WModuleOutputConnector
     m_DataChangedConnection = con->subscribeSignal( DATA_CHANGED,
-            boost::bind( &WModuleInputConnector::notifyDataChange, this, _1, _2 ) 
+        boost::bind( &WModuleInputConnector::notifyDataChange, this, _1, _2 )
     );
 }
 

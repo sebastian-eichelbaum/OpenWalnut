@@ -87,21 +87,6 @@ public:
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
         addConnector( m_Output );
-/*
-
-        m_Input= boost::shared_ptr<WModuleInputConnector >(
-                new WModuleInputConnector ( shared_from_this(), "in1", "desc1" )
-        );
-        // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-        addConnector( m_Input );
-
-        m_Output= boost::shared_ptr<WModuleOutputConnector >(
-                new WModuleOutputConnector ( shared_from_this(), "out1", "desc2" )
-        );
-        // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-        addConnector( m_Output );
-        WModule::connectors();
-        */
     }
 
 protected:
@@ -141,7 +126,8 @@ protected:
         // just copy the data
         data=*( boost::shared_dynamic_cast<WModuleOutputData<int> >( output )->getData() ) + 1;
 
-        //std::cout << "change to " << data << " in " << input->getCanonicalName() << " from " << output->getCanonicalName() << std::endl;
+        // std::cout << "change to " << data << " in " << input->getCanonicalName() << " from " << output->getCanonicalName()
+        //          << std::endl;
     }
 
 private:
@@ -155,7 +141,7 @@ private:
      * Input connection.
      */
     boost::shared_ptr<WModuleInputData<int> > m_Input;
-    
+
     /** 
      * Output connection.
      */
@@ -397,12 +383,12 @@ public:
         initConnections();
 
         // set some data, propagate change
-        int d=5;
+        int d = 5;
         TS_ASSERT_THROWS_NOTHING( m1->m_Output->updateData( boost::shared_ptr<int>( &d ) ) );
 
         // got the data transferred?
-        TS_ASSERT( *(m1->m_Output->getData()) == d );
-        TS_ASSERT( *(m2->m_Input->getData()) == d );
+        TS_ASSERT( *( m1->m_Output->getData() ) == d );
+        TS_ASSERT( *( m2->m_Input->getData() ) == d );
         TS_ASSERT( m2->data == d + 1 );
     }
 
@@ -420,8 +406,7 @@ public:
         // try to get data from an unconnected connector
         TS_ASSERT_THROWS( m3->m_Input->getData(), WModuleConnectorUnconnected );
 
-        // try to get uninitialized data:
-        // should return an "NULL" Pointer
+        // try to get uninitialized data -> should return an "NULL" Pointer
         TS_ASSERT( m2->m_Input->getData() == boost::shared_ptr<int>() );
     }
 };

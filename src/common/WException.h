@@ -76,10 +76,7 @@ public:
      * Function disables backtraces. Please note that the backtrace can not be reactivated to avoid people from dis/enabling them
      * at will.
      */
-    static void disableBacktrace()
-    {
-        noBacktrace=true;
-    }
+    static void disableBacktrace();
 
 protected:
     /**
