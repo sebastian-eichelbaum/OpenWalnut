@@ -46,6 +46,7 @@ WModule::WModule():
 WModule::~WModule()
 {
     // cleanup
+    removeConnectors();
 }
 
 void WModule::addConnector( boost::shared_ptr<WModuleInputConnector> con )

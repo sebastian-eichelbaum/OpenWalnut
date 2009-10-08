@@ -26,6 +26,7 @@
 #define WNAVIGATIONSLICEMODULE_H
 
 #include <string>
+#include <list>
 
 #include <osg/Node>
 

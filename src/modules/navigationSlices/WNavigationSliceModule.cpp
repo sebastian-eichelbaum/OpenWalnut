@@ -25,6 +25,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 
 #include <boost/shared_ptr.hpp>
 
@@ -82,7 +83,8 @@ void WNavigationSliceModule::connectors()
     // XXX to add a new connector and to offer it, these simple steps need to be done
     // initialize it first
     m_Input= boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > >(
-            new WModuleInputData<std::list<boost::shared_ptr<WDataSet> > >( shared_from_this(), "in1", "List of datasets to show on the slices." )
+            new WModuleInputData<std::list<boost::shared_ptr<WDataSet> > >( shared_from_this(),
+                "in1", "List of datasets to show on the slices." )
     );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
