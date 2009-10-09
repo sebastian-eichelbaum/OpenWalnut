@@ -25,10 +25,11 @@
 #ifndef WVALUE_H
 #define WVALUE_H
 
-#include <vector>
-#include <cmath>
-
 #include <cassert>
+#include <cmath>
+#include <vector>
+
+#include "../common/WStringUtils.hpp"
 
 namespace wmath
 {
@@ -39,7 +40,7 @@ namespace wmath
 template< typename T > class WValue
 {
 public:
-    /*
+    /**
      * Create a WValue with the given number of components.
      * The components will be set to zero if T is a type representing numbers.
      */
@@ -48,7 +49,7 @@ public:
     {
     }
 
-    /*
+    /**
      * Create a WValue as copy of the one given as parameter.
      */
     WValue( const WValue& newValue )
@@ -241,6 +242,15 @@ public:
         return result;
     }
 
+    /**
+     * Writes a meaningful representation of that object to the given stream
+     */
+    friend std::ostream& operator<<( std::ostream& os, const WValue< T > &rhs )
+    {
+        // Caution: only directly referencing the operator<< template function will work here
+        return string_utils::operator<<( os, rhs.m_components );
+    }
+
 protected:
 private:
     /**
@@ -249,21 +259,25 @@ private:
     std::vector< T > m_components;
 };
 
-template< typename T >
-const WValue< T > operator*( const WValue< T >& lhs, double rhs )
+/**
+ * Multiplies a WValue with a scalar
+ */
+template< typename T > const WValue< T > operator*( const WValue< T >& lhs, double rhs )
 {
     WValue< T > result( lhs );
     result *= rhs;
     return result;
 }
 
-template< typename T >
-const WValue< T > operator*( double lhs, const WValue< T >& rhs )
+/**
+ * This functions only exists to make scalar multiplication commutative
+ */
+template< typename T > const WValue< T > operator*( double lhs, const WValue< T >& rhs )
 {
     WValue< T > result( rhs );
     result *= lhs;
     return result;
 }
-}
-// End of namepsace
+
+}  // End of namepsace
 #endif  // WVALUE_H

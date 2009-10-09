@@ -22,25 +22,4 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_TEST_H
-#define WLOADERNIFTI_TEST_H
-
-#include <cxxtest/TestSuite.h>
-
-#include "../WLoaderNIfTI.h"
-
-/**
- * TODO(schurade): Document this!
- */
-class WLoaderNIfTITest : public CxxTest::TestSuite
-{
-public:
-    /**
-     * TODO(schurade): Document this!
-     */
-    void testSomething( void )
-    {
-    }
-};
-
-#endif  // WLOADERNIFTI_TEST_H
+#include "WLine.h"

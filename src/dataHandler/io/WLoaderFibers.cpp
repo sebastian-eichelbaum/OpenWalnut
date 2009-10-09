@@ -34,6 +34,8 @@
 #include "WLoaderFibers.h"
 #include "WIOTools.hpp"
 #include "../WDataHandler.h"
+#include "../WDataSetFibers.h"
+#include "../WSubject.h"
 #include "../../common/WStringUtils.hpp"
 #include "../../math/WPosition.h"
 
@@ -58,10 +60,16 @@ WLoaderFibers::~WLoaderFibers() throw()
 
 void WLoaderFibers::operator()() throw()
 {
+    using boost::shared_ptr;
+    using std::vector;
+    using wmath::WFiber;
+    shared_ptr< vector< WFiber > > data;
+
     try
     {
         readHeader();
         readPoints();
+        data = readLines();
     }
     catch( WDHException e )
     {
@@ -71,6 +79,21 @@ void WLoaderFibers::operator()() throw()
         // could be thousands of them
         std::cerr << "Error :: DataHandler :: Abort loading VTK file due to: " << e.what() << std::endl;
     }
+    assert( !data->empty() && "loaded empty vector of fibers" );
+    shared_ptr< WDataSetFibers > fibers = shared_ptr< WDataSetFibers >( new WDataSetFibers( data ) );
+    fibers->setFileName( m_fileName );
+
+    boost::shared_ptr< WSubject > subject;
+    if( m_dataHandler->getNumberOfSubjects() == 0 )
+    {
+        subject = boost::shared_ptr< WSubject >( new WSubject );
+        m_dataHandler->addSubject( subject );
+    }
+    else
+    {
+        subject = m_dataHandler->getSubject( 0 );
+    }
+    subject->addDataSet( fibers );
 }
 
 void WLoaderFibers::readHeader() throw( WDHIOFailure, WDHException )
@@ -129,7 +152,7 @@ void WLoaderFibers::readPoints()
     namespace su = string_utils;
     size_t numPoints = 0;
     std::vector< std::string > tokens = su::tokenize( line );
-    if( tokens.size() < 3 || su::toLower( tokens.at( 2 ) ) != "float" )
+    if( tokens.size() != 3 || su::toLower( tokens.at( 2 ) ) != "float" )
     {
         throw WDHException( "Invalid VTK POINTS declaration: " + line );
     }
@@ -156,4 +179,74 @@ void WLoaderFibers::readPoints()
                                               pointData[i * 3 + 2] ) );
     }
     delete[] pointData;
+
+    // also eat the remaining newline
+    std::getline( *m_ifs, line );
+    assert( std::string( "" ) == line );
+}
+
+boost::shared_ptr< std::vector< wmath::WFiber > > WLoaderFibers::readLines()
+{
+    using wmath::WFiber;
+    using std::vector;
+    using boost::shared_ptr;
+    shared_ptr< vector< WFiber > > result = shared_ptr< vector< WFiber > >( new vector< WFiber > );
+
+    std::string line;
+    try
+    {
+        std::getline( *m_ifs, line );
+    }
+    catch( const std::ios_base::failure &e )
+    {
+        throw WDHIOFailure( "Error reading LINES declaration '" + m_fileName + "': " + e.what() );
+    }
+    namespace su = string_utils;
+    size_t numLines = 0;
+    size_t linesSize = 0;
+    std::vector< std::string > tokens = su::tokenize( line );
+    if( tokens.size() != 3 || su::toUpper( tokens.at( 0 ) ) != "LINES" )
+    {
+        throw WDHException( "Invalid VTK LINES declaration: " + line );
+    }
+    try
+    {
+        numLines = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+        linesSize = boost::lexical_cast< size_t >( tokens.at( 2 ) );
+    }
+    catch( const boost::bad_lexical_cast &e )
+    {
+        throw WDHException( "Invalid number of lines or size of lines: " + line );
+    }
+
+    result->reserve( numLines );
+    uint32_t *lineData = new uint32_t[ linesSize ];
+    m_ifs->read( reinterpret_cast<char*>( lineData ), linesSize * sizeof( uint32_t ) );
+
+    wiotools::switchByteOrderOfArray( lineData, linesSize );
+
+    // now convert lines with point numbers to real fibers
+    size_t linesSoFar = 0;
+    size_t pos = 0;
+    while( linesSoFar < numLines )
+    {
+        std::vector< wmath::WPosition > fib;
+        size_t fiberLength = lineData[pos];
+        ++pos;
+        for( size_t i = 0; i < fiberLength; ++i )
+        {
+            fib.push_back( m_points[ lineData[pos] ] );
+            ++pos;
+        }
+        ++linesSoFar;
+        result->push_back( wmath::WFiber( fib ) );
+    }
+
+    delete[] lineData;
+
+    // also eat the remaining newline
+    std::getline( *m_ifs, line );
+    assert( std::string( "" ) == line );
+
+    return result;
 }

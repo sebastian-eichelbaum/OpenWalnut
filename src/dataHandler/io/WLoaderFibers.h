@@ -34,6 +34,7 @@
 #include "../WLoader.h"
 #include "../exceptions/WDHIOFailure.h"
 #include "../../math/WPosition.h"
+#include "../../math/WFiber.h"
 
 class WDataHandler;
 
@@ -75,9 +76,14 @@ protected:
     void readHeader() throw( WDHIOFailure, WDHException );
 
     /**
-     * Read points from file while starting at the given position.
+     * Read points from input stream.
      */
     void readPoints();
+
+    /**
+     * Read lines from input stream and use the points for constructing fibers.
+     */
+    boost::shared_ptr< std::vector< wmath::WFiber > > readLines();
 
     /**
      * First four lines of ASCII text describing this file

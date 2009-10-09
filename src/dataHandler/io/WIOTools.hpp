@@ -42,7 +42,7 @@ namespace wiotools
         union {
             uint32_t i;
             char c[4];
-        } some = {0x01020304}; // assigning an 32 bit unsigned integer // NOLINT
+        } some = {0x01020304}; // assigning an 32 bit unsigned integer
 
         return some.c[0] == 1; 
     }

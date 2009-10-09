@@ -22,25 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_TEST_H
-#define WLOADERNIFTI_TEST_H
+#include <vector>
 
-#include <cxxtest/TestSuite.h>
+#include "WFiber.h"
 
-#include "../WLoaderNIfTI.h"
-
-/**
- * TODO(schurade): Document this!
- */
-class WLoaderNIfTITest : public CxxTest::TestSuite
+namespace wmath
 {
-public:
-    /**
-     * TODO(schurade): Document this!
-     */
-    void testSomething( void )
+    WFiber::WFiber( const std::vector< WPosition > &points )
+        : WLine( points )
     {
     }
-};
+}
 
-#endif  // WLOADERNIFTI_TEST_H

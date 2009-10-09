@@ -22,25 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_TEST_H
-#define WLOADERNIFTI_TEST_H
+#ifndef WDATASETFIBERS_H
+#define WDATASETFIBERS_H
 
-#include <cxxtest/TestSuite.h>
+#include <vector>
 
-#include "../WLoaderNIfTI.h"
+#include <boost/shared_ptr.hpp>
+
+#include "WDataSet.h"
+#include "../math/WFiber.h"
 
 /**
- * TODO(schurade): Document this!
+ * Represents a simple set of WFibers.
  */
-class WLoaderNIfTITest : public CxxTest::TestSuite
+class WDataSetFibers : public WDataSet
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * Constructs a new set of WFibers
      */
-    void testSomething( void )
+    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
     {
     }
+
+    /**
+     * Get number of fibers in this data set.
+     */
+    size_t size()
+    {
+        return m_fibers->size();
+    }
+
+    /**
+     * \return The i'th fiber.
+     */
+    const wmath::WFiber& operator[]( const size_t index ) const
+    {
+        assert( index < m_fibers->size() );
+        return (*m_fibers)[index];
+    }
+
+protected:
+private:
+    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };
 
-#endif  // WLOADERNIFTI_TEST_H
+#endif  // WDATASETFIBERS_H
