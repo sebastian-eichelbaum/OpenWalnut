@@ -64,7 +64,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     tab1->addCheckBox( "box1:", true );
     tab1->addCheckBox( "box2:", false );
     tab1->addLineEdit( "text:", "some text" );
-    WQtSliderWithEdit* slider = tab1->addSliderInt( "slider:" , 50, 0, 100 );
+    tab1->addSliderInt( "slider:" , 50, 0, 100 );
     addTabWidgetContent( tab1 );
     //========================================================================
 
@@ -77,8 +77,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     this->setWidget( m_panel );
-
-    slider->getboostSignalObject()->connect( boost::bind( &WQtDatasetBrowser::testBoostSignal, this, _1 ) );
 
     connectSlots();
 }
@@ -105,7 +103,7 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 }
 
 
-WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( int subjectId, std::string name )
+WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( std::string name, int subjectId )
 {
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId );
     return subject->addDatasetItem( name );
@@ -115,14 +113,10 @@ void WQtDatasetBrowser::selectTreeItem()
 {
     WLogger::getLogger()->addLogMessage( "tree item clicked: " );
     WLogger::getLogger()->addLogMessage( std::string( m_treeWidget->selectedItems().at( 0 )->text( 0 ).toAscii() ) );
+    ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->emitSelect();
 }
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
     m_tabWidget->addTab( content, content->getName() );
-}
-
-void WQtDatasetBrowser::testBoostSignal( int test )
-{
-    std::cout << "huhu ich bin ein boost signal: " << test << std::endl;
 }

@@ -26,39 +26,36 @@
 #define WMAINWINDOW_H
 
 #include <list>
+#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
+#include <QtGui/QIcon>
 #include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-
 #include <QtGui/QSlider>
-#include <QtGui/QStatusBar>
-#include <QtGui/QToolBar>
 #include <QtGui/QWidget>
 
-#include "../WGUI.h"
+#include "signalslib.hpp"
+#include "WQtNavGLWidget.h"
+#include "WQtRibbonMenu.h"
 
+#include "datasetbrowser/WQtDatasetBrowser.h"
 // forward declarations
 class WQtGLWidget;
-class WQtDatasetBrowser;
-class WQtRibbonMenu;
+
 
 /**
  * This class contains the main window and the layout
  * of the widgets within the window.
  * \ingroup gui
  */
-class WMainWindow : public QObject, public WGUI
+class WMainWindow : public QObject
 {
     Q_OBJECT
 
 public:
+    explicit WMainWindow();
 
     /**
      * Set up all widgets menus an buttons in the main window.
@@ -71,37 +68,56 @@ public:
     virtual ~WMainWindow();
 
     /**
-     *
+     * returns a pointer to the dataset browser object
      */
     WQtDatasetBrowser* getDatasetBrowser();
 
+    /**
+     *  returns a pointer to the toolbar object
+     */
+    WQtRibbonMenu* getToolBar();
+
+
+    /**
+     *
+     */
+    boost::signal1< void, std::vector< std::string > >* getLoaderSignal();
+    boost::signal1< void, bool >* getAxiSignal();
+    boost::signal1< void, bool >* getCorSignal();
+    boost::signal1< void, bool >* getSagSignal();
+
+
+    WQtNavGLWidget* getNavAxial();
+    WQtNavGLWidget* getNavCoronal();
+    WQtNavGLWidget* getNavSagittal();
+
+public slots:
+    /**
+     * gets called when menu option or toolbar button load is activated
+     */
+    void openLoadDialog();
+
+    void toggleAxial( bool check );
+    void toggleCoronal( bool check );
+    void toggleSagittal( bool check );
+
 private:
-    /**
-     * Helper routine for adding new docks with GL content
-     */
-    QSlider* addNavigationGLWidget( QMainWindow *MainWindow, QString title );
-
-
-    /**
-     * Connects some signals with some slots
-     */
-    void connectSlots( QMainWindow *MainWindow );
-
     QIcon m_mainWindowIcon;
 
     QWidget* m_centralwidget;
-    QStatusBar* m_statusBar;
     WQtRibbonMenu* m_toolBar;
 
     std::list<boost::shared_ptr<WQtGLWidget> > m_glWidgets;
     WQtDatasetBrowser* m_datasetBrowser;
 
+    WQtNavGLWidget* m_navAxial;
+    WQtNavGLWidget* m_navCoronal;
+    WQtNavGLWidget* m_navSagittal;
 
-private slots:
-    /**
-     * gets called when menu option or toolbar button load is activated
-     */
-    void load();
+    boost::signal1< void, std::vector< std::string > > m_loaderSignal;
+    boost::signal1< void, bool > m_axiSignal;
+    boost::signal1< void, bool > m_corSignal;
+    boost::signal1< void, bool > m_sagSignal;
 };
 
 #endif  // WMAINWINDOW_H

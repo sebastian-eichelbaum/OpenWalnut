@@ -70,8 +70,8 @@ void WQtSliderWithEdit::setValue( int value )
     m_slider.setValue( value );
 }
 
-boost::signal1< void, int >*WQtSliderWithEdit::getboostSignalObject()
+boost::signal1< void, int >*WQtSliderWithEdit::getboostSignal()
 {
-    return m_edit.getboostSignalObject();
+    return m_edit.getboostSignal();
 }
 

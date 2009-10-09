@@ -34,3 +34,13 @@ WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent )
 WQtDatasetTreeItem::~WQtDatasetTreeItem()
 {
 }
+
+boost::signal0< void >* WQtDatasetTreeItem::getSignalSelect()
+{
+    return &m_signalSelect;
+}
+
+void WQtDatasetTreeItem::emitSelect()
+{
+    m_signalSelect();
+}

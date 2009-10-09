@@ -135,6 +135,17 @@ int WKernel::run()
         ( *list_iter )->run();
     }
 
+    // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
+    while ( !m_Gui->isInitalized() )
+    {
+    }
+    m_Gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
+    for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+                ++list_iter )
+    {
+        ( *list_iter )->connectToGui();
+    }
+
     // wait
     m_Gui->wait( false );
     m_FinishRequested = true;

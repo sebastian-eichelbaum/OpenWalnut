@@ -25,11 +25,11 @@
 #ifndef WQTNUMBEREDIT_H
 #define WQTNUMBEREDIT_H
 
-#include "signalslib.hpp"
+#include "../signalslib.hpp"
 #include <QtGui/QLineEdit>
 
 /**
- * TODO(schurade): Document this!
+ * a QLineEdit modified to deal only with integer numbers
  */
 class WQtNumberEdit : public QLineEdit
 {
@@ -47,9 +47,9 @@ public:
     virtual ~WQtNumberEdit();
 
     /**
-     *
+     * getter for m_boostSignal
      */
-    boost::signal1< void, int >* getboostSignalObject();
+    boost::signal1< void, int >* getboostSignal();
 
 
 
@@ -63,7 +63,7 @@ signals:
 
 protected:
 private:
-    boost::signal1< void, int > m_boostSignalObject;
+    boost::signal1< void, int > m_boostSignal;
 };
 
 #endif  // WQTNUMBEREDIT_H

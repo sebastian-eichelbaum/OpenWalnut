@@ -22,29 +22,55 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMAINAPPLICATION_H
-#define WMAINAPPLICATION_H
+#ifndef WQT4GUI_H
+#define WQT4GUI_H
+
+#include <string>
+#include <vector>
 
 #include "../WGUI.h"
 
+class WMainWindow;
 
 /**
  * Starts up the QT GUI.
  * \ingroup gui
  */
-class WMainApplication : public WGUI
+class WQt4Gui : public WGUI
 {
 public:
 
     /**
      * Default Constructor.
      */
-    WMainApplication();
+    WQt4Gui();
 
     /**
      * Default destructor.
      */
-    virtual ~WMainApplication();
+    virtual ~WQt4Gui();
+
+    /**
+     * return trues when initialization is finished, otherwise false
+     */
+    bool isInitalized();
+
+    boost::signal0 < void >* addDatasetToBrowser( std::string name, int SubjectId = 0 );
+
+    /**
+     * getter functions for the signales proved by the gui
+     */
+    boost::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
+
+    boost::signal1< void, int >* getAxialSliderSignal();
+    boost::signal1< void, int >* getCoronalSliderSignal();
+    boost::signal1< void, int >* getSagittalSliderSignal();
+
+    boost::signal1< void, bool >* getAxialButtonSignal();
+    boost::signal1< void, bool >* getCoronalButtonSignal();
+    boost::signal1< void, bool >* getSagittalButtonSignal();
+
+
 
 protected:
 
@@ -54,7 +80,8 @@ protected:
     virtual void threadMain();
 
 private:
+    WMainWindow* m_gui;
 };
 
-#endif  // WMAINAPPLICATION_H
+#endif  // WQT4GUI_H
 

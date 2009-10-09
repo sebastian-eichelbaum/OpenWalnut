@@ -27,16 +27,39 @@
 
 #include <QtGui/QTreeWidgetItem>
 
+#include "../signalslib.hpp"
 /**
- * TODO(schurade): Document this!
+ * tree widget item to represent a dataset in the dataset browser tree widget
  */
 class WQtDatasetTreeItem : public QTreeWidgetItem
 {
 public:
+    /**
+     * standard constructor
+     */
     explicit WQtDatasetTreeItem( QTreeWidgetItem * parent );
+
+    /**
+     * destructor
+     */
     virtual ~WQtDatasetTreeItem();
+
+    /**
+     * getter for the signal object
+     */
+    boost::signal0< void >* getSignalSelect();
+
+    /**
+     * helper function to signal this item has been selected
+     */
+    void emitSelect();
 protected:
 private:
+    /**
+     * the boost signal object
+     * TODO(schurade): change this to a signal with parameters
+     */
+    boost::signal0< void > m_signalSelect;
 };
 
 #endif  // WQTDATASETTREEITEM_H

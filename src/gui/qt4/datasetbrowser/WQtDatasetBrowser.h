@@ -36,7 +36,7 @@
 #include "WQtSubjectTreeItem.h"
 #include "WQtTreeWidget.h"
 /**
- * TODO(schurade): Document this!
+ * container widget for a tree widget with context menu and some control widgets
  */
 class WQtDatasetBrowser : public QDockWidget
 {
@@ -58,29 +58,24 @@ public:
     virtual ~WQtDatasetBrowser();
 
     /**
-     *
+     * adds a page to the context widget
      */
     void addTabWidgetContent( WQtDSBWidget* content );
 
     /**
-     *
+     * adds a subject entry to the tree widget
      */
     WQtSubjectTreeItem* addSubject( std::string name );
 
     /**
-     *
+     * adds a dataset entry to any given subject in the tree widget
      */
-    WQtDatasetTreeItem* addDataset( int subjectId, std::string name );
+    WQtDatasetTreeItem* addDataset( std::string name, int subjectId = 0 );
 
     /**
-     *
+     * helper funtion to connect all qt widgets with their functions
      */
     void connectSlots();
-
-    /**
-     *
-     */
-    void testBoostSignal( int test );
 
 protected:
 

@@ -25,8 +25,7 @@
 #include "WQtNumberEdit.h"
 
 WQtNumberEdit::WQtNumberEdit( QWidget* parent )
-    : QLineEdit( parent ),
-    m_boostSignalObject()
+    : QLineEdit( parent )
 {
     connect( this, SIGNAL( returnPressed() ), this, SLOT( numberChanged() ) );
 }
@@ -38,7 +37,7 @@ WQtNumberEdit::~WQtNumberEdit()
 void WQtNumberEdit::setInt( int number )
 {
     setText( QString::number( number ) );
-    m_boostSignalObject( number );
+    m_boostSignal( number );
 }
 
 void WQtNumberEdit::numberChanged()
@@ -48,17 +47,17 @@ void WQtNumberEdit::numberChanged()
     if ( ok )
     {
         emit signalNumber( number );
-        m_boostSignalObject( number );
+        m_boostSignal( number );
     }
     else
     {
         setText( QString::number( 0 ) );
         emit signalNumber( 0 );
-        m_boostSignalObject( 0 );
+        m_boostSignal( 0 );
     }
 }
 
-boost::signal1< void, int >*WQtNumberEdit::getboostSignalObject()
+boost::signal1< void, int >*WQtNumberEdit::getboostSignal()
 {
-    return &m_boostSignalObject;
+    return &m_boostSignal;
 }

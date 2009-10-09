@@ -25,28 +25,46 @@
 #ifndef WQTSLIDERWITHEDIT_H
 #define WQTSLIDERWITHEDIT_H
 
-#include "signalslib.hpp"
+#include "../signalslib.hpp"
 
 #include "WQtNumberEdit.h"
 #include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
 
 /**
- * TODO(schurade): Document this!
+ * container widget for a slider with a connected number edit
  */
 class WQtSliderWithEdit : public QWidget
 {
 public:
+    /**
+     * default constructor
+     */
     explicit WQtSliderWithEdit( QWidget* parent = 0 );
+
+    /**
+     * destructor
+     */
     virtual ~WQtSliderWithEdit();
 
     /**
-     *
+     * \return the boost signal object from the number edit
      */
-    boost::signal1< void, int >* getboostSignalObject();
+    boost::signal1< void, int >* getboostSignal();
 
+    /**
+     * setter for min value
+     */
     void setMin( int min );
+
+    /**
+     * setter for max value
+     */
     void setMax( int max );
+
+    /**
+     * setter for current value
+     */
     void setValue( int value );
 
 

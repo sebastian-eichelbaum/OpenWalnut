@@ -65,6 +65,11 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Takes all the relevant gui signals and connects them to own member functions
+     */
+    virtual void connectToGui() = 0;
+
 protected:
 
     /**

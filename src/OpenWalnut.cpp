@@ -29,7 +29,7 @@
 #include "common/WLogger.h"
 
 #include "gui/WGUI.h"
-#include "gui/qt4/WMainApplication.h"
+#include "gui/qt4/WQt4Gui.h"
 
 #include "kernel/WKernel.h"
 
@@ -56,7 +56,7 @@ int main( int argc, char* argv[] )
     WSegmentationFault::installSignalHandler();
 
     // initialize GUI
-    boost::shared_ptr< WGUI > gui = boost::shared_ptr< WGUI >( new WMainApplication() );
+    boost::shared_ptr< WGUI > gui = boost::shared_ptr< WGUI >( new WQt4Gui() );
 
     // init logger
     WLogger logger;

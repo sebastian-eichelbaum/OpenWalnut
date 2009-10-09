@@ -32,14 +32,24 @@
 #include "WQtDatasetTreeItem.h"
 
 /**
- * TODO(schurade): Document this!
+ * tree widget item to represent a subject in the dataset brwoser tree widget
  */
 class WQtSubjectTreeItem : public QTreeWidgetItem
 {
 public:
+    /**
+     * default constructor
+     */
     explicit WQtSubjectTreeItem( QTreeWidget * parent );
+
+    /**
+     * destructor
+     */
     virtual ~WQtSubjectTreeItem();
 
+    /**
+     * add a dataset item below this subject in the tree
+     */
     WQtDatasetTreeItem* addDatasetItem( std::string name );
 
 protected:

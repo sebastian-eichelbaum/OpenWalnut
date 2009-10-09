@@ -74,6 +74,12 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Connect the listener function of the module to the gui signals
+     * this has to be called after full initialization fo the gui
+     */
+    void connectToGui();
+
 protected:
 
     /**
@@ -91,6 +97,22 @@ private:
     /**
      *
      */
+    void updateSlices();
+
+    /**
+     *
+     */
+    void sliderAxialMoved( int value );
+    void sliderCoronalMoved( int value );
+    void sliderSagittalMoved( int value );
+
+    void buttonAxialChanged( bool check );
+    void buttonCoronalChanged( bool check );
+    void buttonSagittalChanged( bool check );
+
+    /**
+     *
+     */
     osg::Geode* m_sliceNode;
 
     /**
@@ -99,6 +121,18 @@ private:
     boost::shared_ptr< WShader >m_shader;
 
     bool m_textureAssigned;
+
+    int m_axialSlice;
+    int m_coronalSlice;
+    int m_sagittalSlice;
+
+    int m_maxAxial;
+    int m_maxCoronal;
+    int m_maxSagittal;
+
+    bool m_showAxial;
+    bool m_showCoronal;
+    bool m_showSagittal;
 };
 
 #endif  // WNAVIGATIONSLICEMODULE_H

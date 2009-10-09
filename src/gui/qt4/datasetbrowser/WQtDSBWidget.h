@@ -39,7 +39,7 @@
 #include "WQtSliderWithEdit.h"
 
 /**
- * TODO(schurade): Document this!
+ * container widget to contain the context widget for the dataset browser
  */
 class WQtDSBWidget : public QWidget
 {
@@ -57,27 +57,27 @@ public:
     virtual ~WQtDSBWidget();
 
     /**
-     *
+     * helper function to add a generic button
      */
     QPushButton* addPushButton( std::string label = "button" );
 
     /**
-     *
+     * helper function to add a generic checkbox
      */
     QCheckBox* addCheckBox( std::string label = "checkbox:", bool isChecked = false );
 
     /**
-     *
+     * helper function to add a generic line edit
      */
     QLineEdit* addLineEdit( std::string label = "edit text:", std::string text = "" );
 
     /**
-     *
+     * helper function to add a slider with a connect line edit
      */
     WQtSliderWithEdit* addSliderInt( std::string label = "", int value = 0, int min = 0, int max = 100 );
 
     /**
-     *
+     * getter for m_name
      */
     QString getName();
 

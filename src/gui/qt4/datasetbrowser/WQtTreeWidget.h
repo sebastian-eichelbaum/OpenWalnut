@@ -28,18 +28,32 @@
 #include <QtGui/QTreeWidget>
 
 /**
- * TODO(schurade): Document this!
+ * tree widget for the dataset browser
  */
 class WQtTreeWidget  : public QTreeWidget
 {
     Q_OBJECT
 
 public:
+    /**
+     * default constructor
+     */
     explicit WQtTreeWidget( QWidget* parent = 0 );
+
+    /**
+     * destructor
+     */
     virtual ~WQtTreeWidget();
 
 public slots:
+    /**
+     * change order of items, move currently selected item down
+     */
     void moveTreeItemDown();
+
+    /**
+     * change order of items, move currently selected item up
+     */
     void moveTreeItemUp();
 protected:
 private:
