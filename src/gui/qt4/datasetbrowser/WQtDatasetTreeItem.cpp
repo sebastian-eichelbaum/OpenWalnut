@@ -22,21 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETTREEITEM_H
-#define WQTDATASETTREEITEM_H
+#include "WQtDatasetTreeItem.h"
 
-#include <QtGui/QTreeWidgetItem>
-
-/**
- * TODO(schurade): Document this!
- */
-class WQtDatasetTreeItem : public QTreeWidgetItem
+WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent )
+    : QTreeWidgetItem( parent )
 {
-public:
-    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent );
-    virtual ~WQtDatasetTreeItem();
-protected:
-private:
-};
+    this->setCheckState( 0, Qt::Checked );
+    this->setFlags( Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+}
 
-#endif  // WQTDATASETTREEITEM_H
+WQtDatasetTreeItem::~WQtDatasetTreeItem()
+{
+}
+
+boost::signal0< void >* WQtDatasetTreeItem::getSignalSelect()
+{
+    return &m_signalSelect;
+}
+
+void WQtDatasetTreeItem::emitSelect()
+{
+    m_signalSelect();
+}

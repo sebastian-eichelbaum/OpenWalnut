@@ -22,68 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTRIBBONMENU_H
-#define WQTRIBBONMENU_H
+#ifndef WQTDATASETTREEITEM_H
+#define WQTDATASETTREEITEM_H
 
-#include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
+#include <QtGui/QTreeWidgetItem>
+
+#include "../signalslib.hpp"
 /**
- * implementation of a ribbon menu like widget
+ * tree widget item to represent a dataset in the dataset browser tree widget
  */
-class WQtRibbonMenu  : public QToolBar
+class WQtDatasetTreeItem : public QTreeWidgetItem
 {
 public:
     /**
-     * default constructor
+     * standard constructor
      */
-    explicit WQtRibbonMenu( QWidget* parent );
+    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent );
 
     /**
      * destructor
      */
-    virtual ~WQtRibbonMenu();
+    virtual ~WQtDatasetTreeItem();
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     * getter for the signal object
      */
-    QWidget* setupFileTab();
+    boost::signal0< void >* getSignalSelect();
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     * helper function to signal this item has been selected
      */
-    QWidget* setupModuleTab();
-
-
-    /**
-     * getter for standard control widgets
-     */
-    QPushButton* getLoadButton();
-    QPushButton* getQuitButton();
-
-    QPushButton* getAxiButton();
-    QPushButton* getCorButton();
-    QPushButton* getSagButton();
-
+    void emitSelect();
 protected:
 private:
-    void setup();
-
-    QIcon m_quitIcon;
-    QIcon m_saveIcon;
-    QIcon m_loadIcon;
-    QIcon m_aboutIcon;
-
-    QIcon m_axiIcon;
-    QIcon m_corIcon;
-    QIcon m_sagIcon;
-
-    QPushButton* m_loadButton;
-    QPushButton* m_saveButton;
-    QPushButton* m_quitButton;
-
-    QPushButton* m_axiButton;
-    QPushButton* m_corButton;
-    QPushButton* m_sagButton;
+    /**
+     * the boost signal object
+     * TODO(schurade): change this to a signal with parameters
+     */
+    boost::signal0< void > m_signalSelect;
 };
 
-#endif  // WQTRIBBONMENU_H
+#endif  // WQTDATASETTREEITEM_H

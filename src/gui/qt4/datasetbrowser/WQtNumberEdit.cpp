@@ -22,28 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTSUBJECTTREEITEM_H
-#define WQTSUBJECTTREEITEM_H
+#include "WQtNumberEdit.h"
 
-#include <string>
-
-#include <QtGui/QTreeWidgetItem>
-
-#include "WQtDatasetTreeItem.h"
-
-/**
- * TODO(schurade): Document this!
- */
-class WQtSubjectTreeItem : public QTreeWidgetItem
+WQtNumberEdit::WQtNumberEdit( QWidget* parent )
+    : QLineEdit( parent )
 {
-public:
-    explicit WQtSubjectTreeItem( QTreeWidget * parent );
-    virtual ~WQtSubjectTreeItem();
+    connect( this, SIGNAL( returnPressed() ), this, SLOT( numberChanged() ) );
+}
 
-    WQtDatasetTreeItem* addDatasetItem( std::string name );
+WQtNumberEdit::~WQtNumberEdit()
+{
+}
 
-protected:
-private:
-};
+void WQtNumberEdit::setInt( int number )
+{
+    setText( QString::number( number ) );
+    m_boostSignal( number );
+}
 
-#endif  // WQTSUBJECTTREEITEM_H
+void WQtNumberEdit::numberChanged()
+{
+    bool ok;
+    int number = text().toInt( &ok, 10 );
+    if ( ok )
+    {
+        emit signalNumber( number );
+        m_boostSignal( number );
+    }
+    else
+    {
+        setText( QString::number( 0 ) );
+        emit signalNumber( 0 );
+        m_boostSignal( 0 );
+    }
+}
+
+boost::signal1< void, int >*WQtNumberEdit::getboostSignal()
+{
+    return &m_boostSignal;
+}

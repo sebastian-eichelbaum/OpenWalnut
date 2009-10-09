@@ -22,13 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WQTSUBJECTTREEITEM_H
+#define WQTSUBJECTTREEITEM_H
+
+#include <string>
+
+#include <QtGui/QTreeWidgetItem>
+
 #include "WQtDatasetTreeItem.h"
 
-WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent )
-    : QTreeWidgetItem( parent )
+/**
+ * tree widget item to represent a subject in the dataset brwoser tree widget
+ */
+class WQtSubjectTreeItem : public QTreeWidgetItem
 {
-}
+public:
+    /**
+     * default constructor
+     */
+    explicit WQtSubjectTreeItem( QTreeWidget * parent );
 
-WQtDatasetTreeItem::~WQtDatasetTreeItem()
-{
-}
+    /**
+     * destructor
+     */
+    virtual ~WQtSubjectTreeItem();
+
+    /**
+     * add a dataset item below this subject in the tree
+     */
+    WQtDatasetTreeItem* addDatasetItem( std::string name );
+
+protected:
+private:
+};
+
+#endif  // WQTSUBJECTTREEITEM_H

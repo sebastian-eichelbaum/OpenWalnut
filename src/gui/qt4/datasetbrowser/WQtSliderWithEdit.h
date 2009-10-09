@@ -22,68 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTRIBBONMENU_H
-#define WQTRIBBONMENU_H
+#ifndef WQTSLIDERWITHEDIT_H
+#define WQTSLIDERWITHEDIT_H
 
-#include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
+#include "../signalslib.hpp"
+
+#include "WQtNumberEdit.h"
+#include <QtGui/QSlider>
+#include <QtGui/QHBoxLayout>
+
 /**
- * implementation of a ribbon menu like widget
+ * container widget for a slider with a connected number edit
  */
-class WQtRibbonMenu  : public QToolBar
+class WQtSliderWithEdit : public QWidget
 {
 public:
     /**
      * default constructor
      */
-    explicit WQtRibbonMenu( QWidget* parent );
+    explicit WQtSliderWithEdit( QWidget* parent = 0 );
 
     /**
      * destructor
      */
-    virtual ~WQtRibbonMenu();
+    virtual ~WQtSliderWithEdit();
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     * \return the boost signal object from the number edit
      */
-    QWidget* setupFileTab();
+    boost::signal1< void, int >* getboostSignal();
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     * setter for min value
      */
-    QWidget* setupModuleTab();
-
+    void setMin( int min );
 
     /**
-     * getter for standard control widgets
+     * setter for max value
      */
-    QPushButton* getLoadButton();
-    QPushButton* getQuitButton();
+    void setMax( int max );
 
-    QPushButton* getAxiButton();
-    QPushButton* getCorButton();
-    QPushButton* getSagButton();
+    /**
+     * setter for current value
+     */
+    void setValue( int value );
+
 
 protected:
 private:
-    void setup();
-
-    QIcon m_quitIcon;
-    QIcon m_saveIcon;
-    QIcon m_loadIcon;
-    QIcon m_aboutIcon;
-
-    QIcon m_axiIcon;
-    QIcon m_corIcon;
-    QIcon m_sagIcon;
-
-    QPushButton* m_loadButton;
-    QPushButton* m_saveButton;
-    QPushButton* m_quitButton;
-
-    QPushButton* m_axiButton;
-    QPushButton* m_corButton;
-    QPushButton* m_sagButton;
+    QSlider m_slider;
+    WQtNumberEdit m_edit;
+    QHBoxLayout m_layout;
 };
 
-#endif  // WQTRIBBONMENU_H
+#endif  // WQTSLIDERWITHEDIT_H

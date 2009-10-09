@@ -22,68 +22,48 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTRIBBONMENU_H
-#define WQTRIBBONMENU_H
+#ifndef WQTNUMBEREDIT_H
+#define WQTNUMBEREDIT_H
 
-#include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
+#include "../signalslib.hpp"
+#include <QtGui/QLineEdit>
+
 /**
- * implementation of a ribbon menu like widget
+ * a QLineEdit modified to deal only with integer numbers
  */
-class WQtRibbonMenu  : public QToolBar
+class WQtNumberEdit : public QLineEdit
 {
+    Q_OBJECT
+
 public:
     /**
      * default constructor
      */
-    explicit WQtRibbonMenu( QWidget* parent );
+    explicit WQtNumberEdit( QWidget* parent = 0 );
 
     /**
      * destructor
      */
-    virtual ~WQtRibbonMenu();
+    virtual ~WQtNumberEdit();
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     * getter for m_boostSignal
      */
-    QWidget* setupFileTab();
-
-    /**
-     * setup functions for standard (fixed functionality) tabs
-     */
-    QWidget* setupModuleTab();
+    boost::signal1< void, int >* getboostSignal();
 
 
-    /**
-     * getter for standard control widgets
-     */
-    QPushButton* getLoadButton();
-    QPushButton* getQuitButton();
 
-    QPushButton* getAxiButton();
-    QPushButton* getCorButton();
-    QPushButton* getSagButton();
+public slots:
+    void setInt( int number );
+    void numberChanged();
+
+signals:
+    void signalNumber( int );
+
 
 protected:
 private:
-    void setup();
-
-    QIcon m_quitIcon;
-    QIcon m_saveIcon;
-    QIcon m_loadIcon;
-    QIcon m_aboutIcon;
-
-    QIcon m_axiIcon;
-    QIcon m_corIcon;
-    QIcon m_sagIcon;
-
-    QPushButton* m_loadButton;
-    QPushButton* m_saveButton;
-    QPushButton* m_quitButton;
-
-    QPushButton* m_axiButton;
-    QPushButton* m_corButton;
-    QPushButton* m_sagButton;
+    boost::signal1< void, int > m_boostSignal;
 };
 
-#endif  // WQTRIBBONMENU_H
+#endif  // WQTNUMBEREDIT_H

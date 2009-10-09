@@ -22,43 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#ifndef WQTNAVGLWIDGET_H
+#define WQTNAVGLWIDGET_H
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
+#include "signalslib.hpp"
 
-#include <QtGui/QApplication>
+#include "WQtGLWidget.h"
 
-#include "../../kernel/WKernel.h"
-
-WMainApplication::WMainApplication():
-    WGUI()
+#include <QtGui/QDockWidget>
+/**
+ * container widget to hold as GL widget and a slider
+ */
+class WQtNavGLWidget : public QDockWidget
 {
-}
+    Q_OBJECT
 
-WMainApplication::~WMainApplication()
-{
-}
+public:
+    /**
+     * default constructor
+     */
+    explicit WQtNavGLWidget( QString title, int maxValue = 100 );
 
-void WMainApplication::threadMain()
-{
-    // TODO(ebaum): currently removed argument stuff. will be done later in conjunction with a better
-    // option handler.+
-#ifdef __APPLE__
-    char * dummy = "";
-    int dummyInt = 0;
-    QApplication appl( dummyInt, &dummy, 0 );
-#else
-    QApplication appl( 0, NULL );
-#endif
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
+    /**
+     * destructor
+     */
+    virtual ~WQtNavGLWidget();
 
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
+    /**
+     * \return pointer to GL widget
+     */
+    boost::shared_ptr<WQtGLWidget>getGLWidget();
 
-    // TODO(ebaum): how to handle return codes?
-}
+    /**
+     * \return pointer to boost signal for slider value
+     */
+    boost::signal1< void, int >* getboostSignal();
 
+protected:
+private:
+    boost::shared_ptr<WQtGLWidget> m_glWidget;
+    boost::signal1< void, int > m_boostSignal;
+
+private slots:
+    void sliderValueChanged( int value );
+};
+
+#endif  // WQTNAVGLWIDGET_H

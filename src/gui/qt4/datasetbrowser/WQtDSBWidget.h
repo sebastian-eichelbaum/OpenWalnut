@@ -22,68 +22,69 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTRIBBONMENU_H
-#define WQTRIBBONMENU_H
+#ifndef WQTDSBWIDGET_H
+#define WQTDSBWIDGET_H
 
+#include <string>
+
+#include <QtGui/QCheckBox>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
+#include <QtGui/QSlider>
+#include <QtGui/QWidget>
+#include <QtGui/QLCDNumber>
+
+#include "WQtSliderWithEdit.h"
+
 /**
- * implementation of a ribbon menu like widget
+ * container widget to contain the context widget for the dataset browser
  */
-class WQtRibbonMenu  : public QToolBar
+class WQtDSBWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
     /**
      * default constructor
      */
-    explicit WQtRibbonMenu( QWidget* parent );
+    explicit WQtDSBWidget( std::string name, QWidget* parent = 0 );
 
     /**
      * destructor
      */
-    virtual ~WQtRibbonMenu();
+    virtual ~WQtDSBWidget();
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     * helper function to add a generic button
      */
-    QWidget* setupFileTab();
+    QPushButton* addPushButton( std::string label = "button" );
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     * helper function to add a generic checkbox
      */
-    QWidget* setupModuleTab();
-
+    QCheckBox* addCheckBox( std::string label = "checkbox:", bool isChecked = false );
 
     /**
-     * getter for standard control widgets
+     * helper function to add a generic line edit
      */
-    QPushButton* getLoadButton();
-    QPushButton* getQuitButton();
+    QLineEdit* addLineEdit( std::string label = "edit text:", std::string text = "" );
 
-    QPushButton* getAxiButton();
-    QPushButton* getCorButton();
-    QPushButton* getSagButton();
+    /**
+     * helper function to add a slider with a connect line edit
+     */
+    WQtSliderWithEdit* addSliderInt( std::string label = "", int value = 0, int min = 0, int max = 100 );
+
+    /**
+     * getter for m_name
+     */
+    QString getName();
 
 protected:
 private:
-    void setup();
-
-    QIcon m_quitIcon;
-    QIcon m_saveIcon;
-    QIcon m_loadIcon;
-    QIcon m_aboutIcon;
-
-    QIcon m_axiIcon;
-    QIcon m_corIcon;
-    QIcon m_sagIcon;
-
-    QPushButton* m_loadButton;
-    QPushButton* m_saveButton;
-    QPushButton* m_quitButton;
-
-    QPushButton* m_axiButton;
-    QPushButton* m_corButton;
-    QPushButton* m_sagButton;
+    QString m_name;
+    QGridLayout m_layout;
 };
 
-#endif  // WQTRIBBONMENU_H
+#endif  // WQTDSBWIDGET_H

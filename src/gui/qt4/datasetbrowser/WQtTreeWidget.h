@@ -22,60 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETBROWSER_H
-#define WQTDATASETBROWSER_H
+#ifndef WQTTREEWIDGET_H
+#define WQTTREEWIDGET_H
 
-#include <string>
-
-#include <QtGui/QDockWidget>
-#include <QtGui/QTabWidget>
 #include <QtGui/QTreeWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
 
-#include "WQtSubjectTreeItem.h"
 /**
- * TODO(schurade): Document this!
+ * tree widget for the dataset browser
  */
-class WQtDatasetBrowser : public QDockWidget
+class WQtTreeWidget  : public QTreeWidget
 {
+    Q_OBJECT
+
 public:
     /**
-     * Default constructor.
-     *
-     * \param parent Parent widget.
-     *
-     * \return
+     * default constructor
      */
-    explicit WQtDatasetBrowser( QWidget* parent = 0 );
+    explicit WQtTreeWidget( QWidget* parent = 0 );
 
     /**
-     * Destructor.
+     * destructor
      */
-    virtual ~WQtDatasetBrowser();
+    virtual ~WQtTreeWidget();
+
+public slots:
+    /**
+     * change order of items, move currently selected item down
+     */
+    void moveTreeItemDown();
 
     /**
-     *
+     * change order of items, move currently selected item up
      */
-    WQtSubjectTreeItem* addSubject( std::string name );
-
-    /**
-     *
-     */
-    WQtDatasetTreeItem* addDataset( int subjectId, std::string name );
-
+    void moveTreeItemUp();
 protected:
-
-
 private:
-    QTreeWidget* m_treeWidget;
-    QTabWidget* m_tabWidget;
-
-    QWidget* m_tab1;
-    QWidget* m_tab2;
-    QWidget* m_tab3;
-    QWidget* m_panel;
-    QVBoxLayout* m_layout;
 };
 
-#endif  // WQTDATASETBROWSER_H
+#endif  // WQTTREEWIDGET_H

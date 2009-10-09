@@ -92,6 +92,12 @@ public:
      */
      bool isInitialized() const;
 
+    /**
+     * Takes all the relevant GUI signals and connects them to own member functions.
+     * NOTE: this is only temporal. See ticket 142.
+     */
+    virtual void connectToGui() = 0;
+
 protected:
 
     /**

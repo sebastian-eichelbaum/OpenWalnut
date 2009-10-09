@@ -74,6 +74,11 @@ public:
         return "testdesc";
     }
 
+    virtual void connectToGui()
+    {
+        // do nothing here
+    }
+
     virtual void connectors()
     {
         m_Input= boost::shared_ptr<WModuleInputData<int> >(
