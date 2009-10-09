@@ -75,7 +75,7 @@ void WLoaderNIfTI::operator()()
     unsigned int nbTens = columns * rows * frames;
     unsigned int nbValues = nbTens * vDim;
 
-    nifti_image_infodump( header );
+    // nifti_image_infodump( header );
 
     switch( header->datatype )
     {
