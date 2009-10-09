@@ -101,7 +101,7 @@ IF( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     TARGET_LINK_LIBRARIES( walnut kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
     
 ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
-    FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.cpp )
+    FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.[c,h]pp )
     FILE( GLOB NIFTI_SRC "dataHandler/io/nifti/*.c" )
     ADD_DEFINITIONS( -DHAVE_ZLIB )
 
@@ -162,13 +162,13 @@ ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 # Checks style guide lines via the BrainLint tool against all source code files
 #    The output is colored when variable CMAKE_COLOR_MAKEFILE is set to ON,
 #    noncolored if it is set to OFF
-FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
+FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.[c,h]pp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
 # Set dirs to exclude from stylecheck
 SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosig/XMLParser/" )
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
-    FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
+    FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.[c,h]pp )
     
     FOREACH( fname ${EXCLUDE_H} )
         LIST( REMOVE_ITEM STYLE_H ${fname} )

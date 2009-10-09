@@ -1,8 +1,9 @@
-FILE( GLOB KERNEL_SRC "*.cpp" "*.hpp" )
-FILE( GLOB_RECURSE MODULES_SRC "../modules/*.cpp" )
+FILE( GLOB KERNEL_SRC "*.[c,h]pp" )
+
+FILE( GLOB_RECURSE MODULES_SRC "../modules/*.[c,h]pp" )
 
 ADD_SUBDIRECTORY( exceptions )
-FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.cpp" )
+FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.[c,h]pp" )
 
 ADD_LIBRARY( kernel SHARED ${KERNEL_SRC} ${MODULES_SRC} ${KERNEL_EXCEPTIONS_SRC} )
 TARGET_LINK_LIBRARIES( kernel common dataHandler ge math ${OPENSCENEGRAPH_LIBRARIES} )

@@ -1,8 +1,8 @@
 # Package dependencies:
 ADD_SUBDIRECTORY( exceptions )
 
-FILE( GLOB GE_EXCEPTIONS_SRC "exceptions/*.cpp" )
-FILE( GLOB GE_SRC "*.cpp" )
+FILE( GLOB GE_EXCEPTIONS_SRC "exceptions/*.[c,h]pp" )
+FILE( GLOB GE_SRC "*.[c,h]pp" )
 
 ADD_LIBRARY( ge SHARED ${GE_SRC} ${GE_EXCEPTIONS_SRC} )
 TARGET_LINK_LIBRARIES( ge common ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} )
