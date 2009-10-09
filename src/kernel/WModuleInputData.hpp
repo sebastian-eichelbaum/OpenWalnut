@@ -54,8 +54,8 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" ):
-        WModuleInputConnector( module, name, description )
+    WModuleInputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+        :WModuleInputConnector( module, name, description )
     {
     };
 
@@ -79,7 +79,7 @@ public:
         boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_ConnectionListLock );
 
         // is there something in the list?
-        if ( m_Connected.begin()==m_Connected.end() )
+        if ( m_Connected.begin() == m_Connected.end() )
         {
             lock.unlock();
 
@@ -92,7 +92,7 @@ public:
 
         // get data
         boost::shared_ptr<T> dat = boost::shared_dynamic_cast<WModuleOutputData<T> >( *m_Connected.begin() )->getData();
-        
+
         // unlock and return
         lock.unlock();
 
