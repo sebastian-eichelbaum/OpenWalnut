@@ -204,7 +204,7 @@ bool WKernel::findAppPath()
 {
     // FIXME (schurade)
     // this should work on linux, have to implement it for windows and mac later
-#ifdef LINUX
+#ifdef __linux__
     int length;
     char appPath[255];
 
