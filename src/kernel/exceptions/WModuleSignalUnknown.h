@@ -22,13 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtDatasetTreeItem.h"
+#ifndef WMODULESIGNALUNKNOWN_H
+#define WMODULESIGNALUNKNOWN_H
 
-WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent )
-    : QTreeWidgetItem( parent )
-{
-}
+#include <string>
 
-WQtDatasetTreeItem::~WQtDatasetTreeItem()
+#include "WModuleException.h"
+
+/**
+ * General purpose exception and therefore base class for all kernel related exceptions.
+ * \ingroup kernel
+ */
+class WModuleSignalUnknown: public WModuleException
 {
-}
+public:
+
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WModuleSignalUnknown( const std::string& msg = "Signal is not known." );
+
+    /**
+     * Destructor.
+     */
+    virtual ~WModuleSignalUnknown() throw();
+
+protected:
+
+private:
+};
+
+#endif  // WMODULESIGNALUNKNOWN_H
+

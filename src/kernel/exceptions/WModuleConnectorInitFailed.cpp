@@ -22,39 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMAINAPPLICATION_H
-#define WMAINAPPLICATION_H
+#include <string>
 
-#include "../WGUI.h"
+#include "WModuleConnectorInitFailed.h"
 
-
-/**
- * Starts up the QT GUI.
- * \ingroup gui
- */
-class WMainApplication : public WGUI
+WModuleConnectorInitFailed::WModuleConnectorInitFailed( const std::string& msg ): WModuleException( msg )
 {
-public:
+    // initialize members
+}
 
-    /**
-     * Default Constructor.
-     */
-    WMainApplication();
+WModuleConnectorInitFailed::~WModuleConnectorInitFailed() throw()
+{
+    // cleanup
+}
 
-    /**
-     * Default destructor.
-     */
-    virtual ~WMainApplication();
-
-protected:
-
-    /**
-     * Execution loop.
-     */
-    virtual void threadMain();
-
-private:
-};
-
-#endif  // WMAINAPPLICATION_H
 

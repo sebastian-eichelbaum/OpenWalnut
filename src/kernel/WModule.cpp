@@ -22,7 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
 #include <string>
+#include <sstream>
+
+#include <boost/shared_ptr.hpp>
+
+#include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
+#include "WModuleConnectorSignals.h"
+#include "exceptions/WModuleSignalUnknown.h"
+#include "exceptions/WModuleConnectorInitFailed.h"
 
 #include "WModule.h"
 
@@ -30,29 +40,122 @@ WModule::WModule():
     WThreadedRunner()
 {
     // initialize members
+    m_Initialized = false;
 }
 
 WModule::~WModule()
 {
     // cleanup
+    removeConnectors();
 }
 
-WModule::WModule( const WModule& other )
+void WModule::addConnector( boost::shared_ptr<WModuleInputConnector> con )
 {
-    *this = other;
+    m_InputConnectors.insert( con );
 }
 
-const std::string WModule::getName() const
+void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
 {
-    return "WModule";
+    m_OutputConnectors.insert( con );
 }
 
-const std::string WModule::getDescription() const
+void WModule::removeConnectors()
 {
-    return "Plain module without functionality";
+    m_Initialized = false;
+
+    // remove connections and their signals
+    for( std::set<boost::shared_ptr<WModuleInputConnector> >::iterator listIter = m_InputConnectors.begin();
+         listIter != m_InputConnectors.end(); ++listIter )
+    {
+        ( *listIter )->disconnectAll();
+    }
+    for( std::set<boost::shared_ptr<WModuleOutputConnector> >::iterator listIter = m_OutputConnectors.begin();
+         listIter != m_OutputConnectors.end(); ++listIter )
+    {
+        ( *listIter )->disconnectAll();
+    }
+
+    // clean up list
+    // this should delete the connector since nobody else *should* have another shared_ptr to them
+    m_InputConnectors.clear();
+    m_OutputConnectors.clear();
 }
 
-void WModule::threadMain()
+void WModule::connectors()
 {
+}
+
+void WModule::initialize()
+{
+    // doing it twice is not allowed
+    if ( isInitialized() )
+    {
+        // TODO(ebaum): is this really needed?
+        std::ostringstream s;
+        s << "Could not initialize connectors for Module " << getName() << ". Reason: already initialized.";
+
+        throw WModuleConnectorInitFailed( s.str() );
+    }
+
+    m_Initialized = true;
+
+    connectors();
+}
+
+void WModule::cleanup()
+{
+    // currently just removes connectors
+    removeConnectors();
+}
+
+const std::set<boost::shared_ptr<WModuleInputConnector> >& WModule::getInputConnectors() const
+{
+    return m_InputConnectors;
+}
+
+const std::set<boost::shared_ptr<WModuleOutputConnector> >& WModule::getOutputConnectors() const
+{
+    return m_OutputConnectors;
+}
+
+const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
+{
+    switch ( signal )
+    {
+        case CONNECTION_ESTABLISHED:
+            return boost::bind( &WModule::notifyConnectionEstablished, this, _1, _2 );
+        case CONNECTION_CLOSED:
+            return boost::bind( &WModule::notifyConnectionClosed, this, _1, _2 );
+        case DATA_CHANGED:
+            return boost::bind( &WModule::notifyDataChange, this, _1, _2 );
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal. You need to implement this signal type explicitly in your module.";
+            throw WModuleSignalUnknown( s.str() );
+            break;
+    }
+}
+
+bool WModule::isInitialized() const
+{
+    return m_Initialized;
+}
+
+void WModule::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
+                                           boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // By default this callback does nothing. Overwrite it in your module.
+}
+
+void WModule::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
+                                      boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // By default this callback does nothing. Overwrite it in your module.
+}
+
+void WModule::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
+                                boost::shared_ptr<WModuleConnector> /*output*/ )
+{
+    // By default this callback does nothing. Overwrite it in your module.
 }
 

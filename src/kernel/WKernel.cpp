@@ -36,6 +36,10 @@
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 /**
  * Used for program wide access to the kernel.
  */
@@ -124,23 +128,41 @@ int WKernel::run()
 
     // run? data handler stuff?
 
+    // **************************************************************************************************************************
+    // This part will be exchanged by some kind of ModuleContainer managing module execution.
+    // TODO(ebaum): replace by ModuleContainer
+    // **************************************************************************************************************************
+
     // run module execution threads
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module
     WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
-    for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
         WLogger::getLogger()->addLogMessage( "Starting module: " + ( *list_iter )->getName(), "Kernel", LL_DEBUG );
         ( *list_iter )->run();
     }
 
+    // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
+    while ( !m_Gui->isInitalized() )
+    {
+    }
+    m_Gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
+
+    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+                ++list_iter )
+    {
+        ( *list_iter )->connectToGui();
+    }
+
     // wait
+    // TODO(ebaum): this is not the optimal. It would be better to quit OSG, GE and so on in the right order.
     m_Gui->wait( false );
     m_FinishRequested = true;
 
     // wait for modules to finish
-    for( std::list<WModule*>::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
         ( *list_iter )->wait( true );
@@ -159,9 +181,8 @@ void WKernel::loadModules()
     WLogger::getLogger()->addLogMessage( "*** Loading Modules: ", "Kernel", LL_DEBUG );
     m_modules.clear();
 
-    WModule* m = new WNavigationSliceModule();
+    boost::shared_ptr<WModule> m = boost::shared_ptr<WModule>( new WNavigationSliceModule() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
-
 
     m_modules.push_back( m );
 }
@@ -175,8 +196,6 @@ void WKernel::init()
     // this also includes initialization of WGEScene and OpenSceneGraph
     m_GraphicsEngine = boost::shared_ptr<WGraphicsEngine>( new WGraphicsEngine( m_shaderPath ) );
 
-    // TODO(all): clean up this option handler mess
-
     // initialize Datahandler
     m_DataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
 }
@@ -185,7 +204,7 @@ bool WKernel::findAppPath()
 {
     // FIXME (schurade)
     // this should work on linux, have to implement it for windows and mac later
-
+#ifdef LINUX
     int length;
     char appPath[255];
 
@@ -211,6 +230,7 @@ bool WKernel::findAppPath()
     {
         appPath[length] = '\0';
         --length;
+	assert(length>=0);
     }
 
     m_AppPath = appPath;
@@ -219,6 +239,37 @@ bool WKernel::findAppPath()
     m_shaderPath = shaderPath + "shaders/";
 
     return true;
+#elif defined(__APPLE__)
+    char path[1024];
+    uint32_t size = sizeof(path);
+    if(_NSGetExecutablePath(path, &size) == 0)
+    {
+	    fprintf(stderr, "Executable path is %s\n", path);
+	    int i= strlen(path);
+	    while(path[i] != '/')
+	    {
+		    path[i] = '\0';
+		    i--;
+		    assert(i>=0);
+	    }
+	    fprintf(stderr, "Application path is %s\n", path);
+	    m_AppPath = path;
+    
+	    std::string shaderPath( path );
+	    m_shaderPath = shaderPath + "shaders/";
+
+	    return true;
+    }
+    else
+    {
+	    fprintf(stderr, "buffer too small; need size %u\n", size);
+	    assert(size <= sizeof(path));
+    }
+#else
+#error findAppPath not implemented for this platform
+#endif
+
+    return false;
 }
 
 bool WKernel::isFinishRequested() const

@@ -25,22 +25,23 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include <QtGui/QApplication>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
-
 #include <QtGui/QSlider>
-
 #include <QtGui/QVBoxLayout>
-
 
 #include "WMainWindow.h"
 #include "WQtGLWidget.h"
-#include "WQtRibbonMenu.h"
 
-#include "WQtDatasetBrowser.h"
-#include "../../kernel/WKernel.h"
+#include "WQtNavGLWidget.h"
 
 #include "../icons/logoIcon.xpm"
+
+WMainWindow::WMainWindow()
+{
+}
 
 WMainWindow::~WMainWindow()
 {
@@ -49,87 +50,69 @@ WMainWindow::~WMainWindow()
 }
 
 
-void WMainWindow::connectSlots( QMainWindow *MainWindow )
-{
-    QObject::connect( m_toolBar->getQuitButton(), SIGNAL( pressed() ), MainWindow, SLOT( close() ) );
-    QObject::connect( m_toolBar->getLoadButton(), SIGNAL( pressed() ), this, SLOT( load() ) );
-    QMetaObject::connectSlotsByName( MainWindow );
-}
-
-
-void WMainWindow::setupGUI( QMainWindow *MainWindow )
+void WMainWindow::setupGUI( QMainWindow *mainWindow )
 {
     m_mainWindowIcon.addPixmap( QPixmap( logoIcon_xpm ) );
 
-    if( MainWindow->objectName().isEmpty() )
+    if( mainWindow->objectName().isEmpty() )
     {
-        MainWindow->setObjectName( QString::fromUtf8( "MainWindow" ) );
+        mainWindow->setObjectName( QString::fromUtf8( "MainWindow" ) );
     }
-    MainWindow->resize( 946, 632 );
-    MainWindow->setWindowIcon( m_mainWindowIcon );
+    mainWindow->resize( 946, 632 );
+    mainWindow->setWindowIcon( m_mainWindowIcon );
 
 
-    m_centralwidget = new QWidget( MainWindow );
+    m_centralwidget = new QWidget( mainWindow );
     m_centralwidget->setObjectName( QString::fromUtf8( "centralwidget" ) );
-    MainWindow->setCentralWidget( m_centralwidget );
+    mainWindow->setCentralWidget( m_centralwidget );
 
-    m_toolBar = new WQtRibbonMenu( MainWindow );
-    MainWindow->addToolBar( Qt::TopToolBarArea, m_toolBar );
+    m_toolBar = new WQtRibbonMenu( mainWindow );
+    mainWindow->addToolBar( Qt::TopToolBarArea, m_toolBar );
 
-    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( MainWindow ) );
+    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( mainWindow ) );
     m_glWidgets.push_back( widget );
-    MainWindow->setCentralWidget( widget.get() );
+    mainWindow->setCentralWidget( widget.get() );
 
     // initially 3 views
-    addNavigationGLWidget( MainWindow, QString( "axial" ) );
-    addNavigationGLWidget( MainWindow, QString( "coronal" ) );
-    addNavigationGLWidget( MainWindow, QString( "sagittal" ) );
+    m_navAxial = new WQtNavGLWidget( "axial", 160 );
+    m_glWidgets.push_back( m_navAxial->getGLWidget() );
+    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial );
+
+    m_navCoronal = new WQtNavGLWidget( "coronal", 200 );
+    m_glWidgets.push_back( m_navCoronal->getGLWidget() );
+    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal );
+
+    m_navSagittal = new WQtNavGLWidget( "sagittal", 160 );
+    m_glWidgets.push_back( m_navSagittal->getGLWidget() );
+    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal );
 
     m_datasetBrowser = new WQtDatasetBrowser();
-    MainWindow->addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
+    mainWindow->addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
 
     m_datasetBrowser->addSubject( "subject1" );
-    m_datasetBrowser->addDataset( 0, "mr188_t1" );
-    m_datasetBrowser->addDataset( 0, "mr188_evec" );
 
-    MainWindow->setWindowTitle( QApplication::translate( "MainWindow",
-            "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
+    mainWindow->setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
 
-    connectSlots( MainWindow );
+    connect( m_toolBar->getQuitButton(), SIGNAL( pressed() ), mainWindow, SLOT( close() ) );
+    connect( m_toolBar->getLoadButton(), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( m_toolBar->getAxiButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleAxial( bool ) ) );
+    connect( m_toolBar->getCorButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleCoronal( bool ) ) );
+    connect( m_toolBar->getSagButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleSagittal( bool ) ) );
 }
 
 
-QSlider* WMainWindow::addNavigationGLWidget( QMainWindow *MainWindow, QString title )
+WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 {
-    QDockWidget *dockWidget = new QDockWidget( title );
-    dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-    dockWidget->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-
-    QSlider *slider = new QSlider( Qt::Horizontal );
-    QWidget* panel = new QWidget( dockWidget );
-
-    QVBoxLayout* layout = new QVBoxLayout();
-
-    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( panel ) );
-    // TODO(all): add some way to remove QtGLWidgets on destruction to delete QtGLWidget
-    m_glWidgets.push_back( widget );
-
-    layout->addWidget( widget.get() );
-    layout->addWidget( slider );
-
-    panel->setLayout( layout );
-
-    dockWidget->setWidget( panel );
-
-    MainWindow->addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
-
-    return slider;
+    return m_datasetBrowser;
 }
 
-
-void WMainWindow::load()
+WQtRibbonMenu* WMainWindow::getToolBar()
 {
-    std::cout << "test output: load function" << std::endl;
+    return m_toolBar;
+}
+
+void WMainWindow::openLoadDialog()
+{
     QFileDialog fd;
     fd.setFileMode( QFileDialog::ExistingFiles );
 
@@ -153,12 +136,59 @@ void WMainWindow::load()
     {
         stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
     }
-
-    WKernel::getRunningKernel()->doLoadDataSets( stdFileNames );
+    m_loaderSignal( stdFileNames );
 }
 
-
-WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
+void WMainWindow::toggleAxial(  bool check )
 {
-    return m_datasetBrowser;
+    m_axiSignal( check );
 }
+
+void WMainWindow::toggleCoronal(  bool check )
+{
+    m_corSignal( check );
+}
+
+void WMainWindow::toggleSagittal(  bool check )
+{
+    m_sagSignal( check );
+}
+
+boost::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
+{
+    return &m_loaderSignal;
+}
+
+
+boost::signal1< void, bool >* WMainWindow::getAxiSignal()
+{
+    return &m_axiSignal;
+}
+
+
+boost::signal1< void, bool >* WMainWindow::getCorSignal()
+{
+    return &m_corSignal;
+}
+
+
+boost::signal1< void, bool >* WMainWindow::getSagSignal()
+{
+    return &m_sagSignal;
+}
+
+WQtNavGLWidget* WMainWindow::getNavAxial()
+{
+    return m_navAxial;
+}
+
+WQtNavGLWidget* WMainWindow::getNavCoronal()
+{
+    return m_navCoronal;
+}
+
+WQtNavGLWidget* WMainWindow::getNavSagittal()
+{
+    return m_navSagittal;
+}
+

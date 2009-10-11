@@ -22,60 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETBROWSER_H
-#define WQTDATASETBROWSER_H
-
 #include <string>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QTabWidget>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
+#include "WModuleConnectorUnconnected.h"
 
-#include "WQtSubjectTreeItem.h"
-/**
- * TODO(schurade): Document this!
- */
-class WQtDatasetBrowser : public QDockWidget
+WModuleConnectorUnconnected::WModuleConnectorUnconnected( const std::string& msg ): WModuleException( msg )
 {
-public:
-    /**
-     * Default constructor.
-     *
-     * \param parent Parent widget.
-     *
-     * \return
-     */
-    explicit WQtDatasetBrowser( QWidget* parent = 0 );
+    // initialize members
+}
 
-    /**
-     * Destructor.
-     */
-    virtual ~WQtDatasetBrowser();
-
-    /**
-     *
-     */
-    WQtSubjectTreeItem* addSubject( std::string name );
-
-    /**
-     *
-     */
-    WQtDatasetTreeItem* addDataset( int subjectId, std::string name );
-
-protected:
+WModuleConnectorUnconnected::~WModuleConnectorUnconnected() throw()
+{
+    // cleanup
+}
 
 
-private:
-    QTreeWidget* m_treeWidget;
-    QTabWidget* m_tabWidget;
-
-    QWidget* m_tab1;
-    QWidget* m_tab2;
-    QWidget* m_tab3;
-    QWidget* m_panel;
-    QVBoxLayout* m_layout;
-};
-
-#endif  // WQTDATASETBROWSER_H

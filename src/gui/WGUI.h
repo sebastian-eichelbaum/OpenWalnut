@@ -25,7 +25,11 @@
 #ifndef WGUI_H
 #define WGUI_H
 
+#include <string>
+#include <vector>
+
 #include "../common/WThreadedRunner.h"
+#include "qt4/signalslib.hpp"
 
 /**
  * This class prescribes the interface to the GUI.
@@ -39,7 +43,28 @@ public:
      * Default destructor.
      */
     virtual ~WGUI();
+
+    virtual bool isInitalized() = 0;
+    /**
+     *
+     */
+    virtual boost::signal0 < void >* addDatasetToBrowser( std::string name, int subjectId ) = 0;
+
+    /**
+     * getter functions for all signals provided by the gui
+     */
+    virtual boost::signal1< void, std::vector< std::string > >* getLoadButtonSignal() = 0;
+    virtual boost::signal1< void, int >* getAxialSliderSignal() = 0;
+    virtual boost::signal1< void, int >* getCoronalSliderSignal() = 0;
+    virtual boost::signal1< void, int >* getSagittalSliderSignal() = 0;
+    virtual boost::signal1< void, bool >* getAxialButtonSignal() = 0;
+    virtual boost::signal1< void, bool >* getCoronalButtonSignal() = 0;
+    virtual boost::signal1< void, bool >* getSagittalButtonSignal() = 0;
+
+protected:
+    bool m_isInitialized;
 };
+
 
 /**
  * \defgroup gui GUI

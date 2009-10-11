@@ -1,4 +1,4 @@
-FILE( GLOB COMMON_SRC "*.cpp" "*.hpp" )
+FILE( GLOB COMMON_SRC "*.[c,h]pp" )
 
 ADD_LIBRARY( common SHARED ${COMMON_SRC} )
 TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} )

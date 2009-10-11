@@ -11,13 +11,18 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 
 # add here all classes that inherit from QObject 
 SET(GUI_QT4_MOC_HDRS
-  WMainWindow.h
+    WMainWindow.h
+    WQtNavGLWidget.h
+    datasetbrowser/WQtDatasetBrowser.h
+    datasetbrowser/WQtDSBWidget.h
+    datasetbrowser/WQtNumberEdit.h
+    datasetbrowser/WQtTreeWidget.h
 )
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.cpp")
+FILE(GLOB GUI_QT4_SRC "*.[c,h]pp" "datasetbrowser/*cpp" )
 
 ADD_LIBRARY( guiqt4 SHARED ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 
-TARGET_LINK_LIBRARIES( guiqt4 common gui ge kernel ${QT_LIBS} )
+TARGET_LINK_LIBRARIES( guiqt4 common gui ge kernel ${QT_LIBS} ${Boost_LIBRARIES} )

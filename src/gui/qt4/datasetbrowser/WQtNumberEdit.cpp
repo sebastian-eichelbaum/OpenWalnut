@@ -22,43 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include "WQtNumberEdit.h"
 
-#include "WMainApplication.h"
-#include "WMainWindow.h"
+WQtNumberEdit::WQtNumberEdit( QWidget* parent )
+    : QLineEdit( parent )
+{
+    connect( this, SIGNAL( returnPressed() ), this, SLOT( numberChanged() ) );
+}
 
-#include <QtGui/QApplication>
-
-#include "../../kernel/WKernel.h"
-
-WMainApplication::WMainApplication():
-    WGUI()
+WQtNumberEdit::~WQtNumberEdit()
 {
 }
 
-WMainApplication::~WMainApplication()
+void WQtNumberEdit::setInt( int number )
 {
+    setText( QString::number( number ) );
+    m_boostSignal( number );
 }
 
-void WMainApplication::threadMain()
+void WQtNumberEdit::numberChanged()
 {
-    // TODO(ebaum): currently removed argument stuff. will be done later in conjunction with a better
-    // option handler.+
-#ifdef __APPLE__
-    char * dummy = "";
-    int dummyInt = 0;
-    QApplication appl( dummyInt, &dummy, 0 );
-#else
-    QApplication appl( 0, NULL );
-#endif
-    QMainWindow* widget = new QMainWindow;
-    WMainWindow gui;
-    gui.setupGUI( widget );
-
-    widget->show();
-    int qtExecResult;
-    qtExecResult = appl.exec();
-
-    // TODO(ebaum): how to handle return codes?
+    bool ok;
+    int number = text().toInt( &ok, 10 );
+    if ( ok )
+    {
+        emit signalNumber( number );
+        m_boostSignal( number );
+    }
+    else
+    {
+        setText( QString::number( 0 ) );
+        emit signalNumber( 0 );
+        m_boostSignal( 0 );
+    }
 }
 
+boost::signal1< void, int >*WQtNumberEdit::getboostSignal()
+{
+    return &m_boostSignal;
+}

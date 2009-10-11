@@ -76,14 +76,14 @@ public:
     /**
      * Returns pointer to currently running instance of graphics engine.
      *
-     * \return the ge instance.
+     * \return the graphics engine instance.
      */
     boost::shared_ptr<WGraphicsEngine> getGraphicsEngine() const;
 
     /**
      * Returns pointer to the DataHandler.
      *
-     * \return the dh instance.
+     * \return the data handler instance.
      */
     boost::shared_ptr<WDataHandler> getDataHandler() const;
 
@@ -116,17 +116,17 @@ public:
     bool isFinishRequested() const;
 
     /**
-     *
+     * TODO(schurade): add comment
      */
     void doLoadDataSets( std::vector< std::string > fileNames );
 
     /**
-     *
+     * TODO(schurade): add comment
      */
     boost::shared_ptr<WDataHandler> getDataHandler();
 
     /**
-     *
+     * TODO(schurade): add comment
      */
     boost::shared_ptr<WGUI> getGui();
 
@@ -141,7 +141,7 @@ public:
     std::string getAppPath();
 
     /**
-     *
+     * TODO(schurade): add comment
      */
     std::string getShaderPath();
 
@@ -150,7 +150,7 @@ protected:
     /**
      * All the loaded modules.
      */
-    std::list<WModule*> m_modules;
+    std::list<boost::shared_ptr<WModule> > m_modules;
 
     /**
      * Pointer to an initialized graphics engine.

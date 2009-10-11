@@ -22,28 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTSUBJECTTREEITEM_H
-#define WQTSUBJECTTREEITEM_H
-
 #include <string>
 
-#include <QtGui/QTreeWidgetItem>
+#include "WModuleConnectorsIncompatible.h"
 
-#include "WQtDatasetTreeItem.h"
-
-/**
- * TODO(schurade): Document this!
- */
-class WQtSubjectTreeItem : public QTreeWidgetItem
+WModuleConnectorsIncompatible::WModuleConnectorsIncompatible( const std::string& msg ): WModuleException( msg )
 {
-public:
-    explicit WQtSubjectTreeItem( QTreeWidget * parent );
-    virtual ~WQtSubjectTreeItem();
+    // initialize members
+}
 
-    WQtDatasetTreeItem* addDatasetItem( std::string name );
+WModuleConnectorsIncompatible::~WModuleConnectorsIncompatible() throw()
+{
+    // cleanup
+}
 
-protected:
-private:
-};
 
-#endif  // WQTSUBJECTTREEITEM_H

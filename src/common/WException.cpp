@@ -38,13 +38,22 @@
 
 #include "WException.h"
 
+/** 
+ * initialize static member.
+ */
+bool WException::noBacktrace = false;
+
 WException::WException( const std::string& msg ): exception()
 {
     // initialize members
     m_msg = msg;
 
     // print stacktrace and message
-    std::cerr << "Exception thrown! Callstack's backtrace:" << std::endl << getBacktrace() << std::endl;
+    // no backtrace?
+    if ( !noBacktrace )
+    {
+        std::cerr << "Exception thrown! Callstack's backtrace:" << std::endl << getBacktrace() << std::endl;
+    }
 }
 
 
@@ -154,5 +163,10 @@ std::string WException::getBacktrace() const
 #endif
 
     return o.str();
+}
+
+void WException::disableBacktrace()
+{
+    noBacktrace = true;
 }
 

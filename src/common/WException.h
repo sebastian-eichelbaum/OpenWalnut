@@ -72,6 +72,12 @@ public:
      */
     std::string getBacktrace() const;
 
+    /** 
+     * Function disables backtraces. Please note that the backtrace can not be reactivated to avoid people from dis/enabling them
+     * at will.
+     */
+    static void disableBacktrace();
+
 protected:
     /**
      * Message given during throw.
@@ -84,6 +90,10 @@ protected:
      */
     std::list< std::string > m_trace;
 
+    /** 
+     * True if the backtrace should NOT be printed.
+     */
+    static bool noBacktrace;
 private:
 };
 

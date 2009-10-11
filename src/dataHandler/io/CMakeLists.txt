@@ -3,7 +3,7 @@ ADD_SUBDIRECTORY( test )
 ADD_SUBDIRECTORY( nifti )
 ADD_SUBDIRECTORY( biosig )
 
-FILE( GLOB DATAHANDLER_LOADERS_SRC "WLoader*.cpp" "*.hpp" )
+FILE( GLOB DATAHANDLER_LOADERS_SRC "WLoader*.[c,h]pp" )
 
 # Unit tests
 IF( CXXTEST_FOUND )

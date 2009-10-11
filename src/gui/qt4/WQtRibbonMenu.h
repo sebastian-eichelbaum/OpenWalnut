@@ -28,16 +28,42 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QToolBar>
 /**
- * TODO(schurade): Document this!
+ * implementation of a ribbon menu like widget
  */
 class WQtRibbonMenu  : public QToolBar
 {
 public:
+    /**
+     * default constructor
+     */
     explicit WQtRibbonMenu( QWidget* parent );
+
+    /**
+     * destructor
+     */
     virtual ~WQtRibbonMenu();
 
+    /**
+     * setup functions for standard (fixed functionality) tabs
+     */
+    QWidget* setupFileTab();
+
+    /**
+     * setup functions for standard (fixed functionality) tabs
+     */
+    QWidget* setupModuleTab();
+
+
+    /**
+     * getter for standard control widgets
+     */
     QPushButton* getLoadButton();
     QPushButton* getQuitButton();
+
+    QPushButton* getAxiButton();
+    QPushButton* getCorButton();
+    QPushButton* getSagButton();
+
 protected:
 private:
     void setup();
@@ -47,9 +73,17 @@ private:
     QIcon m_loadIcon;
     QIcon m_aboutIcon;
 
+    QIcon m_axiIcon;
+    QIcon m_corIcon;
+    QIcon m_sagIcon;
+
     QPushButton* m_loadButton;
     QPushButton* m_saveButton;
     QPushButton* m_quitButton;
+
+    QPushButton* m_axiButton;
+    QPushButton* m_corButton;
+    QPushButton* m_sagButton;
 };
 
 #endif  // WQTRIBBONMENU_H

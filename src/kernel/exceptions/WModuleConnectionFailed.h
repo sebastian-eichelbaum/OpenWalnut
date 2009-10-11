@@ -22,21 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETTREEITEM_H
-#define WQTDATASETTREEITEM_H
+#ifndef WMODULECONNECTIONFAILED_H
+#define WMODULECONNECTIONFAILED_H
 
-#include <QtGui/QTreeWidgetItem>
+#include <string>
+
+#include "WModuleException.h"
 
 /**
- * TODO(schurade): Document this!
+ * General purpose exception and therefore base class for all kernel related exceptions.
+ * \ingroup kernel
  */
-class WQtDatasetTreeItem : public QTreeWidgetItem
+class WModuleConnectionFailed: public WModuleException
 {
 public:
-    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent );
-    virtual ~WQtDatasetTreeItem();
+
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WModuleConnectionFailed( const std::string& msg = "Module Connection Failed" );
+
+    /**
+     * Destructor.
+     */
+    virtual ~WModuleConnectionFailed() throw();
+
 protected:
+
 private:
 };
 
-#endif  // WQTDATASETTREEITEM_H
+#endif  // WMODULECONNECTIONFAILED_H
+

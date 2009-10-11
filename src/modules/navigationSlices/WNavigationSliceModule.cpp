@@ -25,6 +25,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
+
+#include <boost/shared_ptr.hpp>
 
 #include <osg/Group>
 #include <osg/Geode>
@@ -35,7 +38,11 @@
 
 #include "WNavigationSliceModule.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleConnector.h"
+#include "../../kernel/WModuleInputData.hpp"
 
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.hpp"
@@ -45,21 +52,31 @@
 WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
+    // WARNING: initializing connectors inside the constructor will lead to an exception.
+    // Implement WModule::initializeConnectors instead.
+
     // initialize members
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice", shaderPath ) );
     m_textureAssigned = false;
+
+    m_axialSlice = 80;
+    m_coronalSlice = 100;
+    m_sagittalSlice = 80;
+
+    m_maxAxial = 160;
+    m_maxCoronal = 200;
+    m_maxSagittal = 160;
+
+    m_showAxial = true;
+    m_showCoronal = true;
+    m_showSagittal = true;
 }
 
 WNavigationSliceModule::~WNavigationSliceModule()
 {
     // cleanup
-}
-
-WNavigationSliceModule::WNavigationSliceModule( const WNavigationSliceModule& other )
-    : WModule()
-{
-    *this = other;
+    removeConnectors();
 }
 
 const std::string WNavigationSliceModule::getName() const
@@ -70,6 +87,31 @@ const std::string WNavigationSliceModule::getName() const
 const std::string WNavigationSliceModule::getDescription() const
 {
     return "This module shows 3 orthogonal navigation slices.";
+}
+
+void WNavigationSliceModule::connectors()
+{
+    // initialize connectors
+    // XXX to add a new connector and to offer it, these simple steps need to be done
+    // initialize it first
+    m_Input= boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > >(
+            new WModuleInputData<std::list<boost::shared_ptr<WDataSet> > >( shared_from_this(),
+                "in1", "List of datasets to show on the slices." )
+    );
+
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_Input );
+
+    // call WModules initialization
+    WModule::connectors();
+}
+
+void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+                                               boost::shared_ptr<WModuleConnector> output )
+{
+    WModule::notifyDataChange( input, output );
+
+    // in this case input==m_Input
 }
 
 void WNavigationSliceModule::threadMain()
@@ -90,8 +132,6 @@ void WNavigationSliceModule::threadMain()
                     boost::shared_ptr< WValueSet< int8_t > > vs = boost::shared_dynamic_cast< WValueSet<
                             int8_t > >( ds->getValueSet() );
                     int8_t* source = const_cast< int8_t* > ( vs->rawData() );
-
-                    std::cout << "hier gehts los" << std::endl;
 
                     osg::ref_ptr< osg::Image > ima = new osg::Image;
                     ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_UNSIGNED_BYTE );
@@ -114,6 +154,8 @@ void WNavigationSliceModule::threadMain()
                     sliceState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
 
                     m_textureAssigned = true;
+
+                    WKernel::getRunningKernel()->getGui()->addDatasetToBrowser( ds->getFileName(), 0 );
                 }
             }
         }
@@ -126,44 +168,49 @@ void WNavigationSliceModule::threadMain()
 
 void WNavigationSliceModule::createSlices()
 {
+    float texAxial = ( float )m_axialSlice / ( float )m_maxAxial;
+    float texCoronal = ( float )m_coronalSlice / ( float )m_maxCoronal;
+    float texSagittal = ( float )m_sagittalSlice / ( float )m_maxSagittal;
+
     m_sliceNode = new osg::Geode();
 
     osg::Geometry* sliceGeometry = new osg::Geometry();
+
     m_sliceNode->addDrawable( sliceGeometry );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
-    sliceVertices->push_back( osg::Vec3( 0, 100, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 0, 100, 160 ) );
-    sliceVertices->push_back( osg::Vec3( 160, 100, 160 ) );
-    sliceVertices->push_back( osg::Vec3( 160, 100, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 80, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 80, 0, 160 ) );
-    sliceVertices->push_back( osg::Vec3( 80, 200, 160 ) );
-    sliceVertices->push_back( osg::Vec3( 80, 200, 0 ) );
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, 0 ) );
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 0, 0, 80 ) );
-    sliceVertices->push_back( osg::Vec3( 0, 200, 80 ) );
-    sliceVertices->push_back( osg::Vec3( 160, 200, 80 ) );
-    sliceVertices->push_back( osg::Vec3( 160, 0, 80 ) );
+    sliceVertices->push_back( osg::Vec3( 0, 0, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( 0, m_maxCoronal, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_maxCoronal, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, 0, m_sagittalSlice ) );
 
     sliceGeometry->setVertexArray( sliceVertices );
 
     osg::Vec3Array* texCoords = new osg::Vec3Array;
-    texCoords->push_back( osg::Vec3( 0.0, 0.5, 0.0 ) );
-    texCoords->push_back( osg::Vec3( 0.0, 0.5, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 1.0, 0.5, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 1.0, 0.5, 0.0 ) );
+    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
+    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
+    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
+    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
 
-    texCoords->push_back( osg::Vec3( 0.5, 0.0, 0.0 ) );
-    texCoords->push_back( osg::Vec3( 0.5, 0.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 0.5, 1.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 0.5, 1.0, 0.0 ) );
+    texCoords->push_back( osg::Vec3( texAxial, 0.0, 0.0 ) );
+    texCoords->push_back( osg::Vec3( texAxial, 0.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texAxial, 1.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texAxial, 1.0, 0.0 ) );
 
-    texCoords->push_back( osg::Vec3( 0.0, 0.0, 0.5 ) );
-    texCoords->push_back( osg::Vec3( 0.0, 1.0, 0.5 ) );
-    texCoords->push_back( osg::Vec3( 1.0, 1.0, 0.5 ) );
-    texCoords->push_back( osg::Vec3( 1.0, 0.0, 0.5 ) );
+    texCoords->push_back( osg::Vec3( 0.0, 0.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 0.0, 1.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 1.0, 1.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 1.0, 0.0, texSagittal ) );
 
     sliceGeometry->setTexCoordArray( 0, texCoords );
 
@@ -195,3 +242,142 @@ void WNavigationSliceModule::createSlices()
 
     sliceState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 }
+
+void WNavigationSliceModule::updateSlices()
+{
+    float texAxial = ( float )m_axialSlice / ( float )m_maxAxial;
+    float texCoronal = ( float )m_coronalSlice / ( float ) m_maxCoronal;
+    float texSagittal = ( float )m_sagittalSlice / ( float )m_maxSagittal;
+
+    osg::Geometry* sliceGeometry = new osg::Geometry();
+
+    osg::Vec3Array* sliceVertices = new osg::Vec3Array;
+    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, 0 ) );
+
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, 0 ) );
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, m_maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, 0 ) );
+
+    sliceVertices->push_back( osg::Vec3( 0, 0, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( 0, m_maxCoronal, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_maxCoronal, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( m_maxAxial, 0, m_sagittalSlice ) );
+
+    sliceGeometry->setVertexArray( sliceVertices );
+
+    osg::Vec3Array* texCoords = new osg::Vec3Array;
+    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
+    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
+    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
+    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
+
+    texCoords->push_back( osg::Vec3( texAxial, 0.0, 0.0 ) );
+    texCoords->push_back( osg::Vec3( texAxial, 0.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texAxial, 1.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texAxial, 1.0, 0.0 ) );
+
+    texCoords->push_back( osg::Vec3( 0.0, 0.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 0.0, 1.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 1.0, 1.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 1.0, 0.0, texSagittal ) );
+
+    sliceGeometry->setTexCoordArray( 0, texCoords );
+
+    osg::DrawElementsUInt* slice0 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
+    slice0->push_back( 3 );
+    slice0->push_back( 2 );
+    slice0->push_back( 1 );
+    slice0->push_back( 0 );
+
+    osg::DrawElementsUInt* slice1 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
+    slice1->push_back( 7 );
+    slice1->push_back( 6 );
+    slice1->push_back( 5 );
+    slice1->push_back( 4 );
+
+    osg::DrawElementsUInt* slice2 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
+    slice2->push_back( 11 );
+    slice2->push_back( 10 );
+    slice2->push_back( 9 );
+    slice2->push_back( 8 );
+
+    if ( m_showAxial )
+    {
+        sliceGeometry->addPrimitiveSet( slice2 );
+    }
+
+    if ( m_showCoronal )
+    {
+        sliceGeometry->addPrimitiveSet( slice0 );
+    }
+
+    if ( m_showSagittal )
+    {
+        sliceGeometry->addPrimitiveSet( slice1 );
+    }
+
+    osg::Drawable* old = m_sliceNode->getDrawable( 0 );
+
+    m_sliceNode->replaceDrawable( old, sliceGeometry );
+
+    osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
+    sliceState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
+}
+
+void WNavigationSliceModule::connectToGui()
+{
+    WKernel::getRunningKernel()->getGui()->getAxialSliderSignal()->connect(
+            boost::bind( &WNavigationSliceModule::sliderAxialMoved, this, _1 ) );
+    WKernel::getRunningKernel()->getGui()->getCoronalSliderSignal()->connect(
+            boost::bind( &WNavigationSliceModule::sliderCoronalMoved, this, _1 ) );
+    WKernel::getRunningKernel()->getGui()->getSagittalSliderSignal()->connect(
+            boost::bind( &WNavigationSliceModule::sliderSagittalMoved, this, _1 ) );
+
+    WKernel::getRunningKernel()->getGui()->getAxialButtonSignal()->connect(
+            boost::bind( &WNavigationSliceModule::buttonAxialChanged, this, _1 ) );
+    WKernel::getRunningKernel()->getGui()->getCoronalButtonSignal()->connect(
+            boost::bind( &WNavigationSliceModule::buttonCoronalChanged, this, _1 ) );
+    WKernel::getRunningKernel()->getGui()->getSagittalButtonSignal()->connect(
+            boost::bind( &WNavigationSliceModule::buttonSagittalChanged, this, _1 ) );
+}
+
+void WNavigationSliceModule::sliderAxialMoved( int value )
+{
+    m_axialSlice = value;
+    updateSlices();
+}
+
+void WNavigationSliceModule::sliderCoronalMoved( int value )
+{
+    m_coronalSlice = value;
+    updateSlices();
+}
+
+void WNavigationSliceModule::sliderSagittalMoved( int value )
+{
+    m_sagittalSlice = value;
+    updateSlices();
+}
+
+void WNavigationSliceModule::buttonAxialChanged( bool check )
+{
+    m_showAxial = check;
+    updateSlices();
+}
+
+void WNavigationSliceModule::buttonCoronalChanged( bool check )
+{
+    m_showCoronal = check;
+    updateSlices();
+}
+
+void WNavigationSliceModule::buttonSagittalChanged( bool check )
+{
+    m_showSagittal = check;
+    updateSlices();
+}
+
