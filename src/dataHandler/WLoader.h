@@ -31,6 +31,7 @@
 
 #include "exceptions/WDHIOFailure.h"
 #include "WDataHandler.h"
+#include "WSubject.h"
 
 /**
  * Base class to all WLoaders which imports data from a given file and generate
@@ -68,6 +69,12 @@ protected:
      * Reference to DataHandler
      */
     boost::shared_ptr< WDataHandler > m_dataHandler;
+
+    /**
+     * Commit new data into the DataHandler.
+     */
+    void commitDataSet( boost::shared_ptr< WDataSet > data );
+
 private:
 };
 

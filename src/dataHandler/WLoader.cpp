@@ -40,3 +40,20 @@ WLoader::WLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHa
         throw WDHIOFailure( "file '" + m_fileName + "' doesn't exists." );
     }
 }
+
+void WLoader::commitDataSet( boost::shared_ptr< WDataSet > data )
+{
+    // TODO(wiebel): this is a dummy implementation. We need to fix
+    // this as soon as we can distinguish which data belongs to which subject.
+    boost::shared_ptr< WSubject > subject;
+    if( m_dataHandler->getNumberOfSubjects() == 0 )
+    {
+        subject = boost::shared_ptr< WSubject >( new WSubject );
+        m_dataHandler->addSubject( subject );
+    }
+    else
+    {
+        subject = m_dataHandler->getSubject( 0 );
+    }
+    subject->addDataSet( data );
+}

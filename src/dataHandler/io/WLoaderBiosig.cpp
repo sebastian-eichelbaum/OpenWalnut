@@ -126,20 +126,8 @@ void WLoaderBiosig::biosigLoader()
     }
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
-    // TODO(wiebel): this is a dummy implementation. We need to fix
-    // this as soon as we can distinguish which data belongs to which subject.
-    boost::shared_ptr< WSubject > subject;
-    if( m_dataHandler->getNumberOfSubjects() == 0 )
-    {
-        subject = boost::shared_ptr< WSubject >( new WSubject );
-        m_dataHandler->addSubject( subject );
-    }
-    else
-    {
-        subject = m_dataHandler->getSubject( 0 );
-    }
     eeg->setFileName( m_fileName );
-    subject->addDataSet( eeg );
+    commitDataSet( eeg );
 
     std::cout << "BIOSIG loading done." << std::endl;
     std::cout << "===================================" << std::endl;

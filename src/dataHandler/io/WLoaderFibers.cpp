@@ -83,17 +83,7 @@ void WLoaderFibers::operator()() throw()
     shared_ptr< WDataSetFibers > fibers = shared_ptr< WDataSetFibers >( new WDataSetFibers( data ) );
     fibers->setFileName( m_fileName );
 
-    boost::shared_ptr< WSubject > subject;
-    if( m_dataHandler->getNumberOfSubjects() == 0 )
-    {
-        subject = boost::shared_ptr< WSubject >( new WSubject );
-        m_dataHandler->addSubject( subject );
-    }
-    else
-    {
-        subject = m_dataHandler->getSubject( 0 );
-    }
-    subject->addDataSet( fibers );
+    commitDataSet( fibers );
 }
 
 void WLoaderFibers::readHeader() throw( WDHIOFailure, WDHException )

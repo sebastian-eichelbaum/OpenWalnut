@@ -116,21 +116,8 @@ void WLoaderNIfTI::operator()()
     // fillMetaInfo( metaInfo, header );
 
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
-
-    // TODO(wiebel): this is a dummy implementation. We need to fix
-    // this as soon as we can distinguish which data belongs to which subject.
-    boost::shared_ptr< WSubject > subject;
-    if( m_dataHandler->getNumberOfSubjects() == 0 )
-    {
-        subject = boost::shared_ptr< WSubject >( new WSubject );
-        m_dataHandler->addSubject( subject );
-    }
-    else
-    {
-        subject = m_dataHandler->getSubject( 0 );
-    }
     newDataSet->setFileName( m_fileName );
-    subject->addDataSet( newDataSet );
+    commitDataSet( newDataSet );
 }
 
 
