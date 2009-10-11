@@ -36,6 +36,10 @@
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 /**
  * Used for program wide access to the kernel.
  */
@@ -200,7 +204,7 @@ bool WKernel::findAppPath()
 {
     // FIXME (schurade)
     // this should work on linux, have to implement it for windows and mac later
-
+#ifdef LINUX
     int length;
     char appPath[255];
 
@@ -226,6 +230,7 @@ bool WKernel::findAppPath()
     {
         appPath[length] = '\0';
         --length;
+	assert(length>=0);
     }
 
     m_AppPath = appPath;
@@ -234,6 +239,37 @@ bool WKernel::findAppPath()
     m_shaderPath = shaderPath + "shaders/";
 
     return true;
+#elif defined(__APPLE__)
+    char path[1024];
+    uint32_t size = sizeof(path);
+    if(_NSGetExecutablePath(path, &size) == 0)
+    {
+	    fprintf(stderr, "Executable path is %s\n", path);
+	    int i= strlen(path);
+	    while(path[i] != '/')
+	    {
+		    path[i] = '\0';
+		    i--;
+		    assert(i>=0);
+	    }
+	    fprintf(stderr, "Application path is %s\n", path);
+	    m_AppPath = path;
+    
+	    std::string shaderPath( path );
+	    m_shaderPath = shaderPath + "shaders/";
+
+	    return true;
+    }
+    else
+    {
+	    fprintf(stderr, "buffer too small; need size %u\n", size);
+	    assert(size <= sizeof(path));
+    }
+#else
+#error findAppPath not implemented for this platform
+#endif
+
+    return false;
 }
 
 bool WKernel::isFinishRequested() const
