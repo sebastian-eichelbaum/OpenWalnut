@@ -33,7 +33,6 @@
 
 namespace wmath
 {
-
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.
  */
@@ -115,8 +114,8 @@ public:
      */
     WValue& operator+=( const WValue& rhs )
     {
-        assert( m_components.size() == rhs.m_components.size());
-        for( unsigned int i=0; i < m_components.size(); ++i )
+        assert( m_components.size() == rhs.m_components.size() );
+        for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] += rhs.m_components[i];
         return *this;
     }
@@ -126,8 +125,8 @@ public:
      */
     WValue& operator-=( const WValue& rhs )
     {
-        assert( m_components.size() == rhs.m_components.size());
-        for( unsigned int i=0; i < m_components.size(); ++i )
+        assert( m_components.size() == rhs.m_components.size() );
+        for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] -= rhs.m_components[i];
         return *this;
     }
@@ -137,7 +136,7 @@ public:
      */
     WValue& operator*=( double rhs )
     {
-        for( unsigned int i=0; i < m_components.size(); ++i )
+        for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] *= rhs;
         return *this;
     }
@@ -148,8 +147,8 @@ public:
      */
     WValue& operator*=( const WValue& rhs )
     {
-        assert( m_components.size() == rhs.m_components.size());
-        for( unsigned int i=0; i < m_components.size(); ++i )
+        assert( m_components.size() == rhs.m_components.size() );
+        for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] *= rhs.m_components[i];
         return *this;
     }
@@ -159,7 +158,7 @@ public:
      */
     const WValue operator+( const WValue& summand2 ) const
     {
-        assert( m_components.size() == summand2.m_components.size());
+        assert( m_components.size() == summand2.m_components.size() );
         WValue result( *this );
         result += summand2;
         return result;
@@ -170,7 +169,7 @@ public:
      */
     const WValue operator-( const WValue& subtrahend ) const
     {
-        assert( m_components.size() == subtrahend.m_components.size());
+        assert( m_components.size() == subtrahend.m_components.size() );
         WValue result( *this );
         result -= subtrahend;
         return result;
@@ -181,7 +180,7 @@ public:
      */
     const WValue operator*( const WValue& factor2 ) const
     {
-        assert( m_components.size() == factor2.m_components.size());
+        assert( m_components.size() == factor2.m_components.size() );
         WValue result( *this );
         result *= factor2;
         return result;
@@ -278,6 +277,5 @@ template< typename T > const WValue< T > operator*( double lhs, const WValue< T 
     result *= lhs;
     return result;
 }
-
 }  // End of namepsace
 #endif  // WVALUE_H
