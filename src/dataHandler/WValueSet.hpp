@@ -60,16 +60,16 @@ public:
     {
         switch( m_order )
         {
-            case 0  : // scalar
+            case 0  :  // scalar
                       assert( m_dimension == 1 && "but m_order was 0" );
                       return rawSize();
-            case 1  : // vector
+            case 1  :  // vector
                       assert( rawSize() % m_dimension == 0 );
                       return rawSize() / m_dimension;
-            case 2  : // matrix
+            case 2  :  // matrix
                       assert( rawSize() % ( m_dimension * m_dimension ) == 0 );
                       return rawSize() / ( m_dimension * m_dimension );
-            default : // other
+            default :  // other
                       assert( 1 == 0 && "Unsupported tensor order" );
                       return 0;
         }
