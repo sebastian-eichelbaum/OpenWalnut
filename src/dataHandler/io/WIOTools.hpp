@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 
+#include <algorithm>
 #include <cassert>
 
 /**
@@ -39,12 +40,13 @@ namespace wiotools
      */
     inline bool isBigEndian()
     {
-        union {
+        union
+        {
             uint32_t i;
             char c[4];
-        } some = {0x01020304}; // assigning an 32 bit unsigned integer
+        } some = {0x01020305}; // NOLINT assigning an 32 bit unsigned integer
 
-        return some.c[0] == 1; 
+        return some.c[0] == 1;
     }
 
 
@@ -56,10 +58,13 @@ namespace wiotools
         size_t numBytes = sizeof( T );
         T result = value;
         if( numBytes == 1 )
+        {
             return result;
+        }
         assert( numBytes % 2 == 0  && numBytes > 0 );
         char *s  = reinterpret_cast< char* >( &result );
-        for( size_t i = 0; i < numBytes / 2; ++i ) {
+        for( size_t i = 0; i < numBytes / 2; ++i )
+        {
             std::swap( s[i], s[ ( numBytes - 1 ) - i ] );
         }
         return result;
@@ -71,11 +76,11 @@ namespace wiotools
      */
     template< class T > void switchByteOrderOfArray( T *array, const size_t arraySize )
     {
-        for( size_t i = 0; i < arraySize; ++i ) {
+        for( size_t i = 0; i < arraySize; ++i )
+        {
             array[i] = switchByteOrder< T >( array[i] );
         }
     }
-
-}
+}  // end of namespace
 
 #endif  // WIOTOOLS_HPP

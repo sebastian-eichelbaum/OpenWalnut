@@ -38,7 +38,7 @@
  * Some utilities for string manipulation and output operations. Please note
  * that the overloaded ostream output operators aren't in a separate namespace
  * but the string manipulation functions. This is because of short use of e.g.
- * the <tt><<</tt> operator instead of <tt>string_utils::operator(cout,
+ * the <tt><<</tt> operator instead of <tt>string_utils::operator( cout,
  * myVector)</tt>.
  *
  * The reason for not using the Boost trimming functions is, that Boost
@@ -52,7 +52,8 @@
  * The reason for not using Boosts Tokenizer is, that this tokenizer, is much
  * most simplest to use :).
  */
-namespace string_utils {
+namespace string_utils
+{
     /** We consider the following characters as whitespace:
      *  - <tt>\\r</tt> carriage return
      *  - <tt>\\n</tt> newline
@@ -70,7 +71,7 @@ namespace string_utils {
      * \return A copy of the trimmed string
      */
 
-    std::string rTrim(const std::string& source, const std::string& t = WHITESPACE );
+    std::string rTrim( const std::string& source, const std::string& t = WHITESPACE );
 
     /**
      * Trims any occurence of each character given in parameter t from the
@@ -91,7 +92,7 @@ namespace string_utils {
      * \param t String representing a set containg all trimmable characters
      * \return A copy of the trimmed string
      */
-    std::string trim(const std::string& source, const std::string& t = WHITESPACE );
+    std::string trim( const std::string& source, const std::string& t = WHITESPACE );
 
     /**
      * Transforms all characters in the given string into upper case
@@ -100,7 +101,7 @@ namespace string_utils {
      * \param source String to transpose.
      * \return A copy of the upper case only string
      */
-    std::string toUpper(const std::string& source);
+    std::string toUpper( const std::string& source );
 
     /**
      * Transforms all characters in the given string into lower case
@@ -109,7 +110,7 @@ namespace string_utils {
      * \param source String to transpose.
      * \return A copy of the lower case only string
      */
-    std::string toLower(const std::string& source);
+    std::string toLower( const std::string& source );
 
     /**
      * Splits the given string into a vector of strings (so called tokens).
@@ -136,12 +137,12 @@ namespace string_utils {
     template< class T > std::ostream& operator<<( std::ostream& os, const std::vector< T >& v )
     {
         std::stringstream result;
-        result << "[" << std::scientific << std::setprecision(16);
-        std::copy( v.begin(), v.end(), std::ostream_iterator< T >(result, ", ") );
+        result << "[" << std::scientific << std::setprecision( 16 );
+        std::copy( v.begin(), v.end(), std::ostream_iterator< T >( result, ", " ) );
         os << rTrim( result.str(), ", " ) << "]";
         return os;
     }
-    
+
     /**
      * Writes every list to an output stream such as cout, if its elements have
      * an output operator defined.
@@ -154,11 +155,10 @@ namespace string_utils {
     {
         std::stringstream result;
         result << "<" << std::scientific;
-        std::copy( l.begin(), l.end(), std::ostream_iterator< T >(result, ", ") );
+        std::copy( l.begin(), l.end(), std::ostream_iterator< T >( result, ", " ) );
         os << rTrim( result.str(), ", " ) << ">";
         return os;
     }
-
-} // end of namespace 
+}  // end of namespace
 
 #endif  // WSTRINGUTILS_HPP
