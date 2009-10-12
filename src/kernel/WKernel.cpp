@@ -22,23 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 #include <iostream>
+#include <sstream>
 #include <list>
 #include <string>
 #include <vector>
 
 #include <boost/thread/xtime.hpp>
+#include <boost/lexical_cast.hpp>
 
-#include "WKernel.h"
 #include "WModule.h"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
 #include "../common/WException.h"
-
 #include "../graphicsEngine/WGraphicsEngine.h"
 
-#if defined(__APPLE__)
-#include <mach-o/dyld.h>
-#endif
+#include "WKernel.h"
 
 /**
  * Used for program wide access to the kernel.
@@ -213,12 +215,13 @@ bool WKernel::findAppPath()
     // Catch some errors
     if ( length < 0 )
     {
-        fprintf( stderr, "Error resolving symlink /proc/self/exe.\n" );
+        WLogger::getLogger()->addLogMessage( "Error resolving symlink /proc/self/exe.", "Kernel", LL_ERROR );
         return false;
     }
     if ( length >= 255 )
     {
-        fprintf( stderr, "Path too long. Truncated.\n" );
+        // TODO(schurade): replace with logger code
+        WLogger::getLogger()->addLogMessage( "Path too long. Truncated.", "Kernel", LL_ERROR );
         return false;
     }
 
@@ -230,7 +233,7 @@ bool WKernel::findAppPath()
     {
         appPath[length] = '\0';
         --length;
-	assert(length>=0);
+        assert( length >= 0 );
     }
 
     m_AppPath = appPath;
@@ -239,31 +242,33 @@ bool WKernel::findAppPath()
     m_shaderPath = shaderPath + "shaders/";
 
     return true;
-#elif defined(__APPLE__)
+#elif defined( __APPLE__ )
     char path[1024];
-    uint32_t size = sizeof(path);
-    if(_NSGetExecutablePath(path, &size) == 0)
+    uint32_t size = sizeof( path );
+    if( _NSGetExecutablePath( path, &size ) == 0 )
     {
-	    fprintf(stderr, "Executable path is %s\n", path);
-	    int i= strlen(path);
-	    while(path[i] != '/')
-	    {
-		    path[i] = '\0';
-		    i--;
-		    assert(i>=0);
-	    }
-	    fprintf(stderr, "Application path is %s\n", path);
-	    m_AppPath = path;
-    
-	    std::string shaderPath( path );
-	    m_shaderPath = shaderPath + "shaders/";
+        WLogger::getLogger()->addLogMessage( "Executable path is " + std::string( path ), "Kernel", LL_ERROR );
 
-	    return true;
+        int i = strlen( path );
+        while( path[i] != '/' )
+        {
+            path[i] = '\0';
+            i--;
+            assert( i >= 0 );
+        }
+        WLogger::getLogger()->addLogMessage( "Application path is " + std::string( path ), "Kernel", LL_ERROR );
+        m_AppPath = path;
+
+        std::string shaderPath( path );
+        m_shaderPath = shaderPath + "shaders/";
+
+        return true;
     }
     else
     {
-	    fprintf(stderr, "buffer too small; need size %u\n", size);
-	    assert(size <= sizeof(path));
+        WLogger::getLogger()->addLogMessage( "Buffer too small; need size " + boost::lexical_cast<std::string>( size ),
+                                             "Kernel", LL_ERROR );
+        assert( size <= sizeof( path ) );
     }
 #else
 #error findAppPath not implemented for this platform
@@ -296,3 +301,4 @@ std::string WKernel::getShaderPath()
 {
     return m_shaderPath;
 }
+
