@@ -36,11 +36,12 @@
 #include "../../kernel/WModuleInputData.hpp"
 #include "../../graphicsEngine/WShader.h"
 
+#include "../../kernel/WProperties.h"
 
 // TODO(schurade): fix description
 /**
  * \par Description:
- * 
+ *
  * Simple module for testing some WKernel functionality.
  */
 class WNavigationSliceModule: public WModule
@@ -87,14 +88,14 @@ protected:
      */
     virtual void threadMain();
 
-    /** 
+    /**
      * Initialize the connectors this module is using.
      */
     virtual void connectors();
 
-    /** 
+    /**
      * Receive DATA_CHANGE notifications.
-     * 
+     *
      * \param input the input connector that got the change signal. Typically it is one of the input connectors from this module.
      * \param output the output connector that sent the signal. Not part of this module instance.
      */
@@ -136,21 +137,10 @@ private:
     /**
      * TODO(schurade): add comment
      */
-    bool m_textureAssigned;
 
-    int m_axialSlice;
-    int m_coronalSlice;
-    int m_sagittalSlice;
+    WProperties m_properties;
 
-    int m_maxAxial;
-    int m_maxCoronal;
-    int m_maxSagittal;
-
-    bool m_showAxial;
-    bool m_showCoronal;
-    bool m_showSagittal;
-
-    /** 
+    /**
      * Input connector required by this module.
      */
     boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > > m_Input;

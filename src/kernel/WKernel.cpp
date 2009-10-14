@@ -230,7 +230,7 @@ bool WKernel::findAppPath()
     {
         appPath[length] = '\0';
         --length;
-	assert(length>=0);
+        assert( length >= 0 );
     }
 
     m_AppPath = appPath;
@@ -239,31 +239,31 @@ bool WKernel::findAppPath()
     m_shaderPath = shaderPath + "shaders/";
 
     return true;
-#elif defined(__APPLE__)
+#elif defined( __APPLE__ )
     char path[1024];
-    uint32_t size = sizeof(path);
-    if(_NSGetExecutablePath(path, &size) == 0)
+    uint32_t size = sizeof( path );
+    if(_NSGetExecutablePath( path, &size ) == 0 )
     {
-	    fprintf(stderr, "Executable path is %s\n", path);
-	    int i= strlen(path);
-	    while(path[i] != '/')
-	    {
-		    path[i] = '\0';
-		    i--;
-		    assert(i>=0);
-	    }
-	    fprintf(stderr, "Application path is %s\n", path);
-	    m_AppPath = path;
-    
-	    std::string shaderPath( path );
-	    m_shaderPath = shaderPath + "shaders/";
+        fprintf( stderr, "Executable path is %s\n", path );
+        int i= strlen( path );
+        while( path[i] != '/' )
+        {
+            path[i] = '\0';
+            i--;
+            assert( i >= 0 );
+        }
+        fprintf( stderr, "Application path is %s\n", path );
+        m_AppPath = path;
 
-	    return true;
+        std::string shaderPath( path );
+        m_shaderPath = shaderPath + "shaders/";
+
+        return true;
     }
     else
     {
-	    fprintf(stderr, "buffer too small; need size %u\n", size);
-	    assert(size <= sizeof(path));
+        fprintf( stderr, "buffer too small; need size %u\n", size );
+        assert( size <= sizeof( path ) );
     }
 #else
 #error findAppPath not implemented for this platform
