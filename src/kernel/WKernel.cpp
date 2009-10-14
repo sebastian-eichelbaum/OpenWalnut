@@ -22,6 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 #include <iostream>
 #include <list>
 #include <string>
@@ -29,16 +33,13 @@
 
 #include <boost/thread/xtime.hpp>
 
-#include "WKernel.h"
 #include "WModule.h"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
-#if defined(__APPLE__)
-#include <mach-o/dyld.h>
-#endif
+#include "WKernel.h"
 
 /**
  * Used for program wide access to the kernel.
@@ -213,12 +214,12 @@ bool WKernel::findAppPath()
     // Catch some errors
     if ( length < 0 )
     {
-        fprintf( stderr, "Error resolving symlink /proc/self/exe.\n" );
+        WLogger::getLogger()->addLogMessage( "Error resolving symlink /proc/self/exe.", "Kernel", LL_ERROR );
         return false;
     }
     if ( length >= 255 )
     {
-        fprintf( stderr, "Path too long. Truncated.\n" );
+        WLogger::getLogger()->addLogMessage( "Path too long. Truncated.", "Kernel", LL_ERROR );
         return false;
     }
 
@@ -242,17 +243,18 @@ bool WKernel::findAppPath()
 #elif defined( __APPLE__ )
     char path[1024];
     uint32_t size = sizeof( path );
-    if(_NSGetExecutablePath( path, &size ) == 0 )
+    if( _NSGetExecutablePath( path, &size ) == 0 )
     {
-        fprintf( stderr, "Executable path is %s\n", path );
-        int i= strlen( path );
+        WLogger::getLogger()->addLogMessage( "Executable path is " + std::string( path ), "Kernel", LL_ERROR );
+
+        int i = strlen( path );
         while( path[i] != '/' )
         {
             path[i] = '\0';
             i--;
             assert( i >= 0 );
         }
-        fprintf( stderr, "Application path is %s\n", path );
+        WLogger::getLogger()->addLogMessage( "Application path is " + std::string( path ), "Kernel", LL_ERROR );
         m_AppPath = path;
 
         std::string shaderPath( path );
@@ -262,7 +264,8 @@ bool WKernel::findAppPath()
     }
     else
     {
-        fprintf( stderr, "buffer too small; need size %u\n", size );
+        WLogger::getLogger()->addLogMessage( "Buffer too small; need size " + boost::lexical_cast<std::string>( size ),
+                                             "Kernel", LL_ERROR );
         assert( size <= sizeof( path ) );
     }
 #else
