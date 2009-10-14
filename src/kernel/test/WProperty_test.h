@@ -22,28 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WPROPERTY_TEST_H
+#define WPROPERTY_TEST_H
 
-#ifndef SIGNALSLIB_HPP_INCLUDED
-#define SIGNALSLIB_HPP_INCLUDED
+#include <cxxtest/TestSuite.h>
 
-#if defined(signals) && defined(QOBJECTDEFS_H) && \
-  !defined( QT_MOC_CPP )
-#  undef signals
-#  define signals signals
-#endif
+#include "../WProperty.h"
 
-#include <boost/signal.hpp>
-namespace boost
+/**
+ * unit tests the property class
+ */
+class WPropertyTest : public CxxTest::TestSuite
 {
-namespace signalslib = signals;
-}
+public:
+    /**
+     * Tests the property class by creating a boolean property
+     */
+    void testBool( void )
+    {
+        WProperty prop( "testProp", true );
+        TS_ASSERT_EQUALS( prop.getValue<bool>(), true );
+    }
 
-#if defined(signals) && defined(QOBJECTDEFS_H) && \
-  !defined( QT_MOC_CPP )
-#  undef signals
-// Restore the macro definition of "signals", as it was
-// defined by Qt's <qobjectdefs.h>.
-#  define signals protected
-#endif
+    void testBoolSetFalse( void )
+    {
+        WProperty prop( "testProp", true );
+        prop.setValue( false );
+        TS_ASSERT_EQUALS( prop.getValue<bool>(), false );
+    }
 
-#endif
+    void testBoolGetString( void )
+    {
+        WProperty prop( "testProp", true );
+        TS_ASSERT_EQUALS( prop.getValueString(), "1" );
+    }
+};
+
+#endif  // WPROPERTY_TEST_H

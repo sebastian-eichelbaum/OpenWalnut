@@ -22,28 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WPROPERTIES_TEST_H
+#define WPROPERTIES_TEST_H
 
-#ifndef SIGNALSLIB_HPP_INCLUDED
-#define SIGNALSLIB_HPP_INCLUDED
+#include <cxxtest/TestSuite.h>
 
-#if defined(signals) && defined(QOBJECTDEFS_H) && \
-  !defined( QT_MOC_CPP )
-#  undef signals
-#  define signals signals
-#endif
+#include "../WProperties.h"
 
-#include <boost/signal.hpp>
-namespace boost
+/**
+ * unit tests the properties class
+ */
+class WPropertiesTest : public CxxTest::TestSuite
 {
-namespace signalslib = signals;
-}
+public:
+    /**
+     * tests creating an integer property
+     */
+    void testAddProp( void )
+    {
+        WProperties props;
+        props.addInt( "test", 57, "test57", "longDesc57" );
+        TS_ASSERT_EQUALS( props.getValue<int>( "test" ), 57 );
+    }
 
-#if defined(signals) && defined(QOBJECTDEFS_H) && \
-  !defined( QT_MOC_CPP )
-#  undef signals
-// Restore the macro definition of "signals", as it was
-// defined by Qt's <qobjectdefs.h>.
-#  define signals protected
-#endif
+    /**
+     * tests creating an integer property and changing its value
+     */
+    void testChangeProp( void )
+    {
+        WProperties props;
+        props.addInt( "test", 57, "test57", "longDesc57" );
+        props.setValue( "test", 61 );
+        TS_ASSERT_EQUALS( props.getValue<int>( "test" ), 61 );
+    }
+};
 
-#endif
+#endif  // WPROPERTIES_TEST_H

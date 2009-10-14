@@ -50,7 +50,8 @@
 #include "../../graphicsEngine/WShader.h"
 
 WNavigationSliceModule::WNavigationSliceModule():
-    WModule()
+    WModule(),
+    m_properties()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -58,19 +59,19 @@ WNavigationSliceModule::WNavigationSliceModule():
     // initialize members
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice", shaderPath ) );
-    m_textureAssigned = false;
 
-    m_axialSlice = 80;
-    m_coronalSlice = 100;
-    m_sagittalSlice = 80;
+    m_properties.addBool( "textureAssigned", false );
+    m_properties.addInt( "axialPos", 80 );
+    m_properties.addInt( "coronalPos", 100 );
+    m_properties.addInt( "sagittalPos", 80 );
 
-    m_maxAxial = 160;
-    m_maxCoronal = 200;
-    m_maxSagittal = 160;
+    m_properties.addInt( "maxAxial", 160 );
+    m_properties.addInt( "maxCoronal", 200 );
+    m_properties.addInt( "maxSagittal", 160 );
 
-    m_showAxial = true;
-    m_showCoronal = true;
-    m_showSagittal = true;
+    m_properties.addBool( "showAxial", true );
+    m_properties.addBool( "showCoronal", true );
+    m_properties.addBool( "showSagittal", true );
 }
 
 WNavigationSliceModule::~WNavigationSliceModule()
@@ -125,7 +126,7 @@ void WNavigationSliceModule::threadMain()
         {
             if ( WKernel::getRunningKernel()->getDataHandler()->getSubject(0)->getNumberOfDataSets() > 0 )
             {
-                if ( !m_textureAssigned )
+                if ( !m_properties.getValue< bool >( "textureAssigned" ) )
                 {
                     boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >(
                             WKernel::getRunningKernel()->getDataHandler()->getSubject( 0 )->getDataSet( 0 ) );
@@ -153,7 +154,7 @@ void WNavigationSliceModule::threadMain()
 
                     sliceState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
 
-                    m_textureAssigned = true;
+                    m_properties.setValue( "textureAssigned", true );
 
                     WKernel::getRunningKernel()->getGui()->addDatasetToBrowser( ds->getFileName(), 0 );
                 }
@@ -168,9 +169,17 @@ void WNavigationSliceModule::threadMain()
 
 void WNavigationSliceModule::createSlices()
 {
-    float texAxial = ( float )m_axialSlice / ( float )m_maxAxial;
-    float texCoronal = ( float )m_coronalSlice / ( float )m_maxCoronal;
-    float texSagittal = ( float )m_sagittalSlice / ( float )m_maxSagittal;
+    float axialPos = ( float )( m_properties.getValue< int >( "axialPos" ) );
+    float coronalPos = ( float )( m_properties.getValue< int >( "coronalPos" ) );
+    float sagittalPos = ( float )( m_properties.getValue< int >( "sagittalPos" ) );
+
+    float maxAxial = ( float )( m_properties.getValue<int>( "maxAxial") );
+    float maxCoronal = ( float )( m_properties.getValue<int>( "maxCoronal") );
+    float maxSagittal = ( float )( m_properties.getValue<int>( "maxSagittal") );
+
+    float texAxial = axialPos / maxAxial;
+    float texCoronal = coronalPos / maxCoronal;
+    float texSagittal = sagittalPos / maxSagittal;
 
     m_sliceNode = new osg::Geode();
 
@@ -179,20 +188,20 @@ void WNavigationSliceModule::createSlices()
     m_sliceNode->addDrawable( sliceGeometry );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
-    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, 0 ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, 0, 0 ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, 0, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 0, 0, m_sagittalSlice ) );
-    sliceVertices->push_back( osg::Vec3( 0, m_maxCoronal, m_sagittalSlice ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_maxCoronal, m_sagittalSlice ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, 0, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( 0, 0, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, 0, sagittalPos ) );
 
     sliceGeometry->setVertexArray( sliceVertices );
 
@@ -245,27 +254,35 @@ void WNavigationSliceModule::createSlices()
 
 void WNavigationSliceModule::updateSlices()
 {
-    float texAxial = ( float )m_axialSlice / ( float )m_maxAxial;
-    float texCoronal = ( float )m_coronalSlice / ( float ) m_maxCoronal;
-    float texSagittal = ( float )m_sagittalSlice / ( float )m_maxSagittal;
+    float axialPos = ( float )( m_properties.getValue< int >( "axialPos" ) );
+    float coronalPos = ( float )( m_properties.getValue< int >( "coronalPos" ) );
+    float sagittalPos = ( float )( m_properties.getValue< int >( "sagittalPos" ) );
+
+    float maxAxial = ( float )( m_properties.getValue<int>( "maxAxial") );
+    float maxCoronal = ( float )( m_properties.getValue<int>( "maxCoronal") );
+    float maxSagittal = ( float )( m_properties.getValue<int>( "maxSagittal") );
+
+    float texAxial = axialPos / maxAxial;
+    float texCoronal = coronalPos / maxCoronal;
+    float texSagittal = sagittalPos / maxSagittal;
 
     osg::Geometry* sliceGeometry = new osg::Geometry();
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
-    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 0, m_coronalSlice, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_coronalSlice, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
+    sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, 0, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, m_maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( m_axialSlice, m_maxCoronal, 0 ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, 0, 0 ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, 0, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 0, 0, m_sagittalSlice ) );
-    sliceVertices->push_back( osg::Vec3( 0, m_maxCoronal, m_sagittalSlice ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, m_maxCoronal, m_sagittalSlice ) );
-    sliceVertices->push_back( osg::Vec3( m_maxAxial, 0, m_sagittalSlice ) );
+    sliceVertices->push_back( osg::Vec3( 0, 0, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, 0, sagittalPos ) );
 
     sliceGeometry->setVertexArray( sliceVertices );
 
@@ -305,17 +322,17 @@ void WNavigationSliceModule::updateSlices()
     slice2->push_back( 9 );
     slice2->push_back( 8 );
 
-    if ( m_showAxial )
+    if ( m_properties.getValue<bool>( "showAxial" ) )
     {
         sliceGeometry->addPrimitiveSet( slice2 );
     }
 
-    if ( m_showCoronal )
+    if ( m_properties.getValue<bool>( "showCoronal" ) )
     {
         sliceGeometry->addPrimitiveSet( slice0 );
     }
 
-    if ( m_showSagittal )
+    if ( m_properties.getValue<bool>( "showSagittal" ) )
     {
         sliceGeometry->addPrimitiveSet( slice1 );
     }
@@ -347,37 +364,37 @@ void WNavigationSliceModule::connectToGui()
 
 void WNavigationSliceModule::sliderAxialMoved( int value )
 {
-    m_axialSlice = value;
+    m_properties.setValue( "axialPos", value );
     updateSlices();
 }
 
 void WNavigationSliceModule::sliderCoronalMoved( int value )
 {
-    m_coronalSlice = value;
+    m_properties.setValue( "coronalPos", value );
     updateSlices();
 }
 
 void WNavigationSliceModule::sliderSagittalMoved( int value )
 {
-    m_sagittalSlice = value;
+    m_properties.setValue( "sagittalPos", value );
     updateSlices();
 }
 
 void WNavigationSliceModule::buttonAxialChanged( bool check )
 {
-    m_showAxial = check;
+    m_properties.setValue( "showAxial", check );
     updateSlices();
 }
 
 void WNavigationSliceModule::buttonCoronalChanged( bool check )
 {
-    m_showCoronal = check;
+    m_properties.setValue( "showCoronal", check );
     updateSlices();
 }
 
 void WNavigationSliceModule::buttonSagittalChanged( bool check )
 {
-    m_showSagittal = check;
+    m_properties.setValue( "showSagittal", check );
     updateSlices();
 }
 

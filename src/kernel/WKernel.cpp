@@ -27,17 +27,16 @@
 #endif
 
 #include <iostream>
-#include <sstream>
 #include <list>
 #include <string>
 #include <vector>
 
 #include <boost/thread/xtime.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "WModule.h"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
 #include "../common/WException.h"
+
 #include "../graphicsEngine/WGraphicsEngine.h"
 
 #include "WKernel.h"
@@ -220,7 +219,6 @@ bool WKernel::findAppPath()
     }
     if ( length >= 255 )
     {
-        // TODO(schurade): replace with logger code
         WLogger::getLogger()->addLogMessage( "Path too long. Truncated.", "Kernel", LL_ERROR );
         return false;
     }
@@ -301,4 +299,3 @@ std::string WKernel::getShaderPath()
 {
     return m_shaderPath;
 }
-
