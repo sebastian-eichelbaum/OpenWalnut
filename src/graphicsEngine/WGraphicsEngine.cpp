@@ -88,3 +88,27 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( osg::ref_ptr<WindowD
     return viewer;
 }
 
+osg::Texture3D* WGraphicsEngine::createTexture3D( int8_t* source, int components )
+{
+    if ( components == 1)
+    {
+        osg::ref_ptr< osg::Image > ima = new osg::Image;
+        ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+
+        unsigned char* data = ima->data();
+
+        for ( unsigned int i = 0; i < 160* 200* 160 ; ++i )
+        {
+            data[i] = source[i];
+        }
+        osg::Texture3D* texture3D = new osg::Texture3D;
+        texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
+        texture3D->setImage( ima );
+        texture3D->setResizeNonPowerOfTwoHint( false );
+
+        return texture3D;
+    }
+    return 0;
+}
