@@ -59,12 +59,22 @@ class WGridRegular3DTest : public CxxTest::TestSuite
 {
 public:
     /**
+     * Called before every test.
+     */
+    void setUp( void )
+    {
+        m_delta = 1e-14;
+    }
+
+    /**
      * Ensure that nothing is thrown when an instance is created.
      */
     void testInstantiation( void )
     {
         TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, 1., 1., 1. ) );
         TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 0., 0., 0., 3, 3, 3, 1., 1., 1. ) );
+        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 0., 0., 0., 3, 3, 3,
+                WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ) ) );
     }
 
     /**
@@ -77,6 +87,10 @@ public:
 
         WGridRegular3D grid2( 0., 0., 0., 3, 3, 3, 1., 1., 1. );
         TS_ASSERT_EQUALS( grid2.size(), 27 );
+
+        WGridRegular3D grid3( 0., 0., 0., 3, 3, 3,
+                WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ) );
+        TS_ASSERT_EQUALS( grid3.size(), 27 );
     }
 
     /**
@@ -94,9 +108,10 @@ public:
     }
 
     /**
-     * getOffset should return the offsets prescribed by the use of the constructor
+     * getOffset should return the scalar offsets prescribed by the use of the
+     * constructor
      */
-    void testGetOffset( void )
+    void testGetScalarOffset( void )
     {
         double x = 1.2;
         double y = 3.4;
@@ -105,6 +120,21 @@ public:
         TS_ASSERT_EQUALS( grid.getOffsetX(), x );
         TS_ASSERT_EQUALS( grid.getOffsetY(), y );
         TS_ASSERT_EQUALS( grid.getOffsetZ(), z );
+    }
+
+    /**
+     * getOffset should return the vector offsets prescribed by the use of the
+     * constructor
+     */
+    void testGetVectorOffset( void )
+    {
+        WVector3D x( 3., 1., 2. );
+        WVector3D y( 2., 6., 4. );
+        WVector3D z( 3., 6., 9. );
+        WGridRegular3D grid( 0., 0., 0., 10, 10, 10, x, y, z );
+        TS_ASSERT_DELTA( grid.getOffsetX(), x.norm(), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetY(), y.norm(), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetZ(), z.norm(), m_delta );
     }
 
     /**
@@ -123,9 +153,9 @@ public:
     }
 
     /**
-     * getPosition should return the correct position
+     * getPosition should return the correct position for scalar offsets
      */
-    void testGetPositionOneParam( void )
+    void testGetPositionScalarOffset( void )
     {
         unsigned int nX = 10, nY = 11, nZ = 12;
         unsigned int iX = 8, iY = 9, iZ = 5;
@@ -146,15 +176,44 @@ public:
         WPosition expected( x, y, z );
         WGridRegular3D grid( orX, orY, orZ, nX, nY, nZ, ofX, ofY, ofZ );
 
-        double delta = 1e-14;
-
-        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[0], expected[0], delta );
-        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[1], expected[1], delta );
-        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[2], expected[2], delta );
-        TS_ASSERT_DELTA( grid.getPosition( i )[0], expected[0], delta );
-        TS_ASSERT_DELTA( grid.getPosition( i )[1], expected[1], delta );
-        TS_ASSERT_DELTA( grid.getPosition( i )[2], expected[2], delta );
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[0], expected[0], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[1], expected[1], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[2], expected[2], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[0], expected[0], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[1], expected[1], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[2], expected[2], m_delta );
     }
+
+    /**
+     * getPosition should return the correct position for vector offsets
+     */
+    void testGetPositionVectorOffset( void )
+    {
+        unsigned int nX = 10, nY = 11, nZ = 12;
+        unsigned int iX = 8, iY = 9, iZ = 5;
+        unsigned int i = iX + iY * nX + iZ * nX * nY;
+
+        double orX = 1.2;
+        double orY = 3.4;
+        double orZ = 5.6;
+
+        WVector3D ofX( 3., 1., 2. );
+        WVector3D ofY( 1., 3., 2. );
+        WVector3D ofZ( 1., 2., 3. );
+
+        WPosition expected = WPosition( orX, orY, orZ ) + iX * ofX + iY * ofY + iZ * ofZ;
+        WGridRegular3D grid( orX, orY, orZ, nX, nY, nZ, ofX, ofY, ofZ );
+
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[0], expected[0], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[1], expected[1], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[2], expected[2], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[0], expected[0], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[1], expected[1], m_delta );
+        TS_ASSERT_DELTA( grid.getPosition( i )[2], expected[2], m_delta );
+    }
+
+private:
+    double m_delta;
 };
 
 #endif  // WGRIDREGULAR3D_TEST_H

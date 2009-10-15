@@ -59,7 +59,7 @@ public:
     /**
      * Get number of components the value consists of.
      */
-    size_t size()
+    size_t size() const
     {
         return m_components.size();
     }

@@ -23,8 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include "WVector3D.h"
-#include "WValue.hpp"
-#include "../common/WStringUtils.hpp"
 
 using wmath::WVector3D;
 
@@ -41,8 +39,13 @@ WVector3D::WVector3D( double x, double y, double z )
     (*this)[2] = z;
 }
 
-WVector3D::WVector3D( const WVector3D & newVector )
+WVector3D::WVector3D( const WVector3D& newVector )
     : WValue< double >( newVector )
 {
 }
 
+WVector3D::WVector3D( const WValue< double >& newVector )
+    : WValue< double >( newVector )
+{
+    assert( this->size() == 3 );
+}

@@ -49,7 +49,7 @@ public:
 
 public:
     /**
-     * Instatiation should throw nothing.
+     * Instantiation should throw nothing.
      */
     void testInstantiationStandard( void )
     {
@@ -57,7 +57,7 @@ public:
     }
 
     /**
-     * Instatiation should throw nothing.
+     * Instantiation should throw nothing.
      */
     void testInstantiationWithDoubles( void )
     {
@@ -65,12 +65,21 @@ public:
     }
 
     /**
-     * Instatiation should throw nothing.
+     * Instantiation should throw nothing.
      */
     void testInstantiationWithCopyConstructor( void )
     {
         WVector3D vecToCopy;
         TS_ASSERT_THROWS_NOTHING( WVector3D vec( vecToCopy ) );
+    }
+
+    /**
+     * Instantiation with right sized WValue should throw nothing.
+     */
+    void testInstantiationWithCastConstructor( void )
+    {
+        wmath::WValue< double > arrayToCopy( 3 );
+        TS_ASSERT_THROWS_NOTHING( WVector3D vec( arrayToCopy ) );
     }
 
     /**
@@ -108,6 +117,22 @@ public:
         TS_ASSERT_EQUALS( vec[0], vecToCopy[0] );
         TS_ASSERT_EQUALS( vec[1], vecToCopy[1] );
         TS_ASSERT_EQUALS( vec[2], vecToCopy[2] );
+    }
+
+    /**
+     * Cast constructor should copy values
+     */
+    void testInitializationWithCastConstructor( void )
+    {
+        wmath::WValue< double > arrayToCopy( 3 );
+        arrayToCopy[0] = 32.32;
+        arrayToCopy[1] = 42.42;
+        arrayToCopy[2] = 23.23;
+
+        WVector3D vec( arrayToCopy );
+        TS_ASSERT_EQUALS( vec[0], arrayToCopy[0] );
+        TS_ASSERT_EQUALS( vec[1], arrayToCopy[1] );
+        TS_ASSERT_EQUALS( vec[2], arrayToCopy[2] );
     }
 
     /**

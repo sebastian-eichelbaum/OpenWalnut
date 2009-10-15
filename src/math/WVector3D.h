@@ -55,6 +55,12 @@ public:
     WVector3D( const WVector3D& newVector );
 
     /**
+     * TODO(wiebel): Ticket #141 (How to use WValue-operators in child classes)
+     * Copies the values of the given WValue< double >. Used for casting.
+     */
+    WVector3D( const WValue< double >& newVector );  // NOLINT
+
+    /**
      * Compute the cross product of the current WValue with the parameter.
      */
     WVector3D crossProduct( const WVector3D& factor2 ) const

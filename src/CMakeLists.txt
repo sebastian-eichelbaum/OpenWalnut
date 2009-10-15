@@ -33,7 +33,7 @@ ENDIF( CMAKE_BUILD_TYPE STREQUAL "Static" )
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
 FIND_PACKAGE( Boost REQUIRED program_options thread filesystem date_time system signals )
-ASSERT_GE_VERSION( "Boost" "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" 1.36.0 )
+ASSERT_GE_VERSION( "Boost" "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" 1.39.0 )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 ### OpenGL ###
@@ -202,7 +202,7 @@ ADD_CUSTOM_TARGET( vtest
 #-------------------------------------------------------------------------------------------------------------
 # Removes all tests thus forcing them to be recompiled during the next "make"
 ADD_CUSTOM_TARGET( cleantest
-                   COMMAND ${CMAKE_COMMAND} -P ${PROJECT_BINARY_DIR}/../tools/CMakeModules/RemoveGeneratedTests.cmake
+                   COMMAND ${CMAKE_COMMAND} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/RemoveGeneratedTests.cmake
                    COMMENT "Remove all tests to force them to be recompiled"
                  )
 

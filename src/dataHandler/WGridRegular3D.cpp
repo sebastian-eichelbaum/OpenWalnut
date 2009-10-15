@@ -32,11 +32,27 @@ using wmath::WPosition;
 
 WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
                                 unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                                const WVector3D& directionX,
+                                const WVector3D& directionY,
+                                const WVector3D& directionZ )
+    : WGrid( nbPosX * nbPosY * nbPosZ ),
+      m_origin( WPosition( originX, originY, originZ ) ),
+      m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
+      m_directionX( directionX ),
+      m_directionY( directionY ),
+      m_directionZ( directionZ )
+{
+}
+
+WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
+                                unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double offsetX, double offsetY, double offsetZ )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
       m_origin( WPosition( originX, originY, originZ ) ),
       m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
-      m_offset( WVector3D( offsetX, offsetY, offsetZ ) )
+      m_directionX( WVector3D( offsetX, 0., 0. ) ),
+      m_directionY( WVector3D( 0., offsetY, 0. ) ),
+      m_directionZ( WVector3D( 0., 0., offsetZ ) )
 {
 }
 
@@ -45,24 +61,18 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     : WGrid( nbPosX * nbPosY * nbPosZ ),
       m_origin( WPosition( 0., 0., 0. ) ),
       m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
-      m_offset( WVector3D( offsetX, offsetY, offsetZ ) )
+      m_directionX( WVector3D( offsetX, 0., 0. ) ),
+      m_directionY( WVector3D( 0., offsetY, 0. ) ),
+      m_directionZ( WVector3D( 0., 0., offsetZ ) )
 {
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int i ) const
 {
-    double x = m_origin[0] + ( i % m_nbPosX ) * m_offset[0];
-    double y = m_origin[1] + ( ( i / m_nbPosX ) % m_nbPosY ) * m_offset[1];
-    double z = m_origin[2] + ( i / ( m_nbPosX * m_nbPosY ) ) * m_offset[2];
-
-    WPosition pos( x, y, z );
-    return pos;
+    return getPosition(i % m_nbPosX, ( i / m_nbPosX ) % m_nbPosY, i / ( m_nbPosX * m_nbPosY ) );
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const
 {
-    WPosition pos( m_origin[0] + iX * m_offset[0],
-                   m_origin[1] + iY * m_offset[1],
-                   m_origin[2] + iZ * m_offset[2] );
-    return pos;
+    return m_origin + iX * m_directionX + iY * m_directionY + iZ * m_directionZ;
 }

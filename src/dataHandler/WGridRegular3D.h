@@ -31,9 +31,9 @@
 #include "WGrid.h"
 
 /**
- * A grid that has axis aligned cuboid cells which all have the same width,
- * the same height and the same depth. I.e. the samples along a single axis
- * are equidistant. The distance of samples may vary between axes.
+ * A grid that has parallelepiped cells which all have the same proportion. I.e.
+ * the samples along a single axis are equidistant. The distance of samples may
+ * vary between axes.
  * \ingroup dataHandler
  */
 class WGridRegular3D : public WGrid
@@ -42,7 +42,19 @@ public:
     /**
      * Defines the position of the origin of the grid, the number of
      * samples in each coordinate direction and the offset between the
-     * samples in the different coordinate directions.
+     * samples in the different coordinate directions as vector.
+     */
+    WGridRegular3D(
+                   double originX, double originY, double originZ,
+                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                   const wmath::WVector3D& directionX,
+                   const wmath::WVector3D& directionY,
+                   const wmath::WVector3D& directionZ );
+
+    /**
+     * Defines the position of the origin of the grid, the number of
+     * samples in each coordinate direction and the offset between the
+     * samples in the different coordinate directions as scalar.
      */
     WGridRegular3D(
                    double originX, double originY, double originZ,
@@ -84,21 +96,21 @@ public:
      */
     double getOffsetX() const
     {
-        return m_offset[0];
+        return m_directionX.norm();
     }
     /**
      * Returns the distance between samples in y direction.
      */
     double getOffsetY() const
     {
-        return m_offset[1];
+        return m_directionY.norm();
     }
     /**
      * Returns the distance between samples in z direction.
      */
     double getOffsetZ() const
     {
-        return m_offset[2];
+        return m_directionZ.norm();
     }
 
     /**
@@ -128,7 +140,9 @@ private:
     unsigned int m_nbPosY;
     unsigned int m_nbPosZ;
 
-    wmath::WVector3D m_offset;
+    wmath::WVector3D m_directionX;
+    wmath::WVector3D m_directionY;
+    wmath::WVector3D m_directionZ;
 };
 
 #endif  // WGRIDREGULAR3D_H
