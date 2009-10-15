@@ -41,55 +41,55 @@ WProperties::~WProperties()
 void WProperties::addBool( std::string name, bool value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-    m_propertyList.push_back( prop );
+    m_propertyList[name] = prop;
 }
 
 void WProperties::addChar( std::string name, char value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-    m_propertyList.push_back( prop );
+    m_propertyList[name] = prop;
 }
 
 
 void WProperties::addInt( std::string name, int value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-    m_propertyList.push_back( prop );
+    m_propertyList[name] = prop;
 }
 
 
 void WProperties::addFloat( std::string name, float value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-    m_propertyList.push_back( prop );
+    m_propertyList[name] = prop;
 }
 
 
 void WProperties::addDouble( std::string name, double value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-    m_propertyList.push_back( prop );
+    m_propertyList[name] = prop;
 }
 
 
 void WProperties::addString( std::string name, std::string value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-    m_propertyList.push_back( prop );
+    m_propertyList[name] = prop;
 }
 
 WProperty* WProperties::findProp( std::string name )
 {
-    for ( size_t i = 0 ; i < m_propertyList.size(); ++i)
+    if ( m_propertyList.count( name) != 0)
     {
-        if ( m_propertyList[i]->getName() == name )
-        {
-            return m_propertyList[i];
-        }
+        return m_propertyList[name];
     }
-    WLogger::getLogger()->addLogMessage( "Property doesn't exist", "Properties", LL_ERROR );
-    std::cout << name << std::endl;
-    return 0;
+    else
+    {
+        std::string msg( "Property doesn't exist: " + name );
+        WLogger::getLogger()->addLogMessage( msg, "Properties", LL_ERROR );
+        return 0;
+    }
 }
 
 

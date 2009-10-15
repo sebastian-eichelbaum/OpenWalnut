@@ -25,6 +25,7 @@
 #ifndef WPROPERTIES_H
 #define WPROPERTIES_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -74,7 +75,7 @@ public:
 private:
     WProperty* findProp( std::string name );
 
-    std::vector < WProperty* >m_propertyList;
+    std::map < std::string, WProperty* >m_propertyList;
 };
 
 #endif  // WPROPERTIES_H
