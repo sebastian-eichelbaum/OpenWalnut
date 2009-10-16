@@ -68,12 +68,11 @@ void WQt4Gui::threadMain()
     // TODO(ebaum): how to handle return codes?
 }
 
-boost::signal0 < void >* WQt4Gui::addDatasetToBrowser( std::string name, int subjectId )
+void WQt4Gui::addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId )
 {
-    m_gui->getDatasetBrowser()->addDataset( name, subjectId );
-    // TODO(schurade): add the return here
-    return 0;
+    m_gui->getDatasetBrowser()->addDataset( module, subjectId );
 }
+
 
 bool WQt4Gui::isInitalized()
 {

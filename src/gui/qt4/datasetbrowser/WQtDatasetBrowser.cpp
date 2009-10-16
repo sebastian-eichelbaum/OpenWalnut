@@ -103,10 +103,10 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 }
 
 
-WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( std::string name, int subjectId )
+WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId );
-    return subject->addDatasetItem( name );
+    return subject->addDatasetItem( module );
 }
 
 void WQtDatasetBrowser::selectTreeItem()

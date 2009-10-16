@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "../common/WThreadedRunner.h"
+#include "../kernel/WModule.h"
 #include "qt4/signalslib.hpp"
 
 /**
@@ -45,10 +46,11 @@ public:
     virtual ~WGUI();
 
     virtual bool isInitalized() = 0;
+
     /**
      *
      */
-    virtual boost::signal0 < void >* addDatasetToBrowser( std::string name, int subjectId ) = 0;
+    virtual void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId ) = 0;
 
     /**
      * getter functions for all signals provided by the gui

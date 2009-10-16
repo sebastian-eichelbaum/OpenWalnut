@@ -31,9 +31,12 @@
 
 typedef enum
 {
-    P_BOOL = 0,
+    P_UNDEFINED,
+    P_BOOL,
     P_CHAR,
+    P_UNSIGNED_CHAR,
     P_INT,
+    P_UNSIGNED_INT,
     P_FLOAT,
     P_DOUBLE,
     P_STRING

@@ -24,9 +24,11 @@
 
 #include "WQtDatasetTreeItem.h"
 
-WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent )
+WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module )
     : QTreeWidgetItem( parent )
 {
+    m_module = module;
+
     this->setCheckState( 0, Qt::Checked );
     this->setFlags( Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
 }

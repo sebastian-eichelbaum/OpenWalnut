@@ -34,6 +34,7 @@
 #include <boost/thread/xtime.hpp>
 
 #include "WModule.h"
+#include "../modules/data/WDataModule.hpp"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
 #include "../common/WException.h"
 
@@ -47,7 +48,7 @@
 WKernel* kernel = NULL;
 
 WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
-    : m_Gui( gui )
+    : m_gui( gui )
 {
     std::cout << "Initializing Kernel" << std::endl;
 
@@ -88,22 +89,22 @@ WKernel* WKernel::getRunningKernel()
 
 boost::shared_ptr<WGraphicsEngine> WKernel::getGraphicsEngine() const
 {
-    return m_GraphicsEngine;
+    return m_graphicsEngine;
 }
 
 boost::shared_ptr<WDataHandler> WKernel::getDataHandler() const
 {
-    return m_DataHandler;
+    return m_dataHandler;
 }
 
 boost::shared_ptr< WGUI > WKernel::getGui()
 {
-    return m_Gui;
+    return m_gui;
 }
 
 void WKernel::setGui( boost::shared_ptr< WGUI > gui )
 {
-    m_Gui = gui;
+    m_gui = gui;
 }
 
 int WKernel::getArgumentCount() const
@@ -121,11 +122,11 @@ int WKernel::run()
     WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
 
     // TODO(ebaum): add separate graphics thread here
-    m_GraphicsEngine->run();
+    m_graphicsEngine->run();
 
     // run Gui
     // TODO(all): clean up this option handler mess
-    m_Gui->run();
+    m_gui->run();
 
     // run? data handler stuff?
 
@@ -146,10 +147,10 @@ int WKernel::run()
     }
 
     // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
-    while ( !m_Gui->isInitalized() )
+    while ( !m_gui->isInitalized() )
     {
     }
-    m_Gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
+    m_gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
 
     for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
                 ++list_iter )
@@ -159,7 +160,7 @@ int WKernel::run()
 
     // wait
     // TODO(ebaum): this is not the optimal. It would be better to quit OSG, GE and so on in the right order.
-    m_Gui->wait( false );
+    m_gui->wait( false );
     m_FinishRequested = true;
 
     // wait for modules to finish
@@ -170,7 +171,7 @@ int WKernel::run()
     }
 
     // finally GE
-    m_GraphicsEngine->wait( true );
+    m_graphicsEngine->wait( true );
 
     // how to get QT return code from its thread?
     return 0;
@@ -195,10 +196,10 @@ void WKernel::init()
 
     // initialize graphics engine
     // this also includes initialization of WGEScene and OpenSceneGraph
-    m_GraphicsEngine = boost::shared_ptr<WGraphicsEngine>( new WGraphicsEngine( m_shaderPath ) );
+    m_graphicsEngine = boost::shared_ptr<WGraphicsEngine>( new WGraphicsEngine( m_shaderPath ) );
 
     // initialize Datahandler
-    m_DataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
+    m_dataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
 }
 
 bool WKernel::findAppPath()
@@ -282,12 +283,16 @@ bool WKernel::isFinishRequested() const
 
 void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 {
-    m_DataHandler->loadDataSets( fileNames );
+    m_dataHandler->loadDataSets( fileNames );
+
+    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule<int>() );
+
+    m_gui->addDatasetToBrowser( module, 0 );
 }
 
 boost::shared_ptr<WDataHandler> WKernel::getDataHandler()
 {
-    return m_DataHandler;
+    return m_dataHandler;
 }
 
 std::string WKernel::getAppPath()

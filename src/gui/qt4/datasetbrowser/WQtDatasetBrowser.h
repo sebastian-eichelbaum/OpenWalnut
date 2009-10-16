@@ -70,7 +70,7 @@ public:
     /**
      * adds a dataset entry to any given subject in the tree widget
      */
-    WQtDatasetTreeItem* addDataset( std::string name, int subjectId = 0 );
+    WQtDatasetTreeItem* addDataset( boost::shared_ptr< WModule > module, int subjectId = 0 );
 
     /**
      * helper funtion to connect all qt widgets with their functions

@@ -54,7 +54,7 @@ public:
     void addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
     void addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
 
-    std::string getValueString( std::string prop );
+    std::string getValueString( const std::string prop );
 
     template < typename T >  void setValue( std::string prop, const T& arg )
     {

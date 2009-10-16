@@ -37,9 +37,11 @@ WQtSubjectTreeItem::~WQtSubjectTreeItem()
 }
 
 
-WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( std::string name )
+WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( boost::shared_ptr< WModule > module )
 {
-    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this );
+    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this, module );
+
+    std::string name = module->getProperties()->getValueString( "name" );
     ds->setText( 0, QString( name.c_str() ) );
 
     return ds;

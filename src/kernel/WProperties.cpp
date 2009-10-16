@@ -80,7 +80,7 @@ void WProperties::addString( std::string name, std::string value, std::string sh
 
 WProperty* WProperties::findProp( std::string name )
 {
-    if ( m_propertyList.count( name) != 0)
+    if ( m_propertyList.count( name) != 0 )
     {
         return m_propertyList[name];
     }
@@ -93,7 +93,7 @@ WProperty* WProperties::findProp( std::string name )
 }
 
 
-std::string WProperties::getValueString( std::string prop )
+std::string WProperties::getValueString( const std::string prop )
 {
     if ( findProp( prop ) )
     {

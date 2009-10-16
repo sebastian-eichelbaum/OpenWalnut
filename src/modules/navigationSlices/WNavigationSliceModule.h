@@ -36,7 +36,6 @@
 #include "../../kernel/WModuleInputData.hpp"
 #include "../../graphicsEngine/WShader.h"
 
-#include "../../kernel/WProperties.h"
 
 // TODO(schurade): fix description
 /**
@@ -94,6 +93,11 @@ protected:
     virtual void connectors();
 
     /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
      * Receive DATA_CHANGE notifications.
      *
      * \param input the input connector that got the change signal. Typically it is one of the input connectors from this module.
@@ -133,12 +137,6 @@ private:
      * TODO(schurade): add comment
      */
     boost::shared_ptr< WShader >m_shader;
-
-    /**
-     * TODO(schurade): add comment
-     */
-
-    WProperties m_properties;
 
     /**
      * Input connector required by this module.

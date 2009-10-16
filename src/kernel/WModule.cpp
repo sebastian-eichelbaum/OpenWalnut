@@ -37,10 +37,11 @@
 #include "WModule.h"
 
 WModule::WModule():
-    WThreadedRunner()
+    WThreadedRunner(),
+    m_properties()
 {
     // initialize members
-    m_Initialized = false;
+    m_initialized = false;
 }
 
 WModule::~WModule()
@@ -61,7 +62,7 @@ void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
 
 void WModule::removeConnectors()
 {
-    m_Initialized = false;
+    m_initialized = false;
 
     // remove connections and their signals
     for( std::set<boost::shared_ptr<WModuleInputConnector> >::iterator listIter = m_InputConnectors.begin();
@@ -85,6 +86,11 @@ void WModule::connectors()
 {
 }
 
+void WModule::properties()
+{
+}
+
+
 void WModule::initialize()
 {
     // doing it twice is not allowed
@@ -97,9 +103,9 @@ void WModule::initialize()
         throw WModuleConnectorInitFailed( s.str() );
     }
 
-    m_Initialized = true;
-
     connectors();
+
+    m_initialized = true;
 }
 
 void WModule::cleanup()
@@ -138,7 +144,7 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
 
 bool WModule::isInitialized() const
 {
-    return m_Initialized;
+    return m_initialized;
 }
 
 void WModule::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
@@ -159,3 +165,11 @@ void WModule::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
     // By default this callback does nothing. Overwrite it in your module.
 }
 
+WProperties* WModule::getProperties()
+{
+    return &m_properties;
+}
+
+void WModule::connectToGui()
+{
+}

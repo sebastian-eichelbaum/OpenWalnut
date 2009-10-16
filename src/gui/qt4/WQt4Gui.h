@@ -55,7 +55,7 @@ public:
      */
     bool isInitalized();
 
-    boost::signal0 < void >* addDatasetToBrowser( std::string name, int SubjectId = 0 );
+    void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId );
 
     /**
      * getter functions for the signales proved by the gui

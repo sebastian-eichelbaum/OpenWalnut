@@ -26,6 +26,7 @@
 #define WQTDATASETTREEITEM_H
 
 #include <QtGui/QTreeWidgetItem>
+#include "../../../kernel/WModule.h"
 
 #include "../signalslib.hpp"
 /**
@@ -37,7 +38,7 @@ public:
     /**
      * standard constructor
      */
-    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent );
+    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
     /**
      * destructor
@@ -60,6 +61,8 @@ private:
      * TODO(schurade): change this to a signal with parameters
      */
     boost::signal0< void > m_signalSelect;
+
+    boost::shared_ptr< WModule >m_module;
 };
 
 #endif  // WQTDATASETTREEITEM_H

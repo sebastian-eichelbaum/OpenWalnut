@@ -50,8 +50,7 @@
 #include "../../graphicsEngine/WShader.h"
 
 WNavigationSliceModule::WNavigationSliceModule():
-    WModule(),
-    m_properties()
+    WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -60,18 +59,7 @@ WNavigationSliceModule::WNavigationSliceModule():
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice", shaderPath ) );
 
-    m_properties.addBool( "textureAssigned", false );
-    m_properties.addInt( "axialPos", 80 );
-    m_properties.addInt( "coronalPos", 100 );
-    m_properties.addInt( "sagittalPos", 80 );
-
-    m_properties.addInt( "maxAxial", 160 );
-    m_properties.addInt( "maxCoronal", 200 );
-    m_properties.addInt( "maxSagittal", 160 );
-
-    m_properties.addBool( "showAxial", true );
-    m_properties.addBool( "showCoronal", true );
-    m_properties.addBool( "showSagittal", true );
+    properties();
 }
 
 WNavigationSliceModule::~WNavigationSliceModule()
@@ -105,6 +93,22 @@ void WNavigationSliceModule::connectors()
 
     // call WModules initialization
     WModule::connectors();
+}
+
+void WNavigationSliceModule::properties()
+{
+    m_properties.addBool( "textureAssigned", false );
+    m_properties.addInt( "axialPos", 80 );
+    m_properties.addInt( "coronalPos", 100 );
+    m_properties.addInt( "sagittalPos", 80 );
+
+    m_properties.addInt( "maxAxial", 160 );
+    m_properties.addInt( "maxCoronal", 200 );
+    m_properties.addInt( "maxSagittal", 160 );
+
+    m_properties.addBool( "showAxial", true );
+    m_properties.addBool( "showCoronal", true );
+    m_properties.addBool( "showSagittal", true );
 }
 
 void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -142,7 +146,7 @@ void WNavigationSliceModule::threadMain()
 
                     m_properties.setValue( "textureAssigned", true );
 
-                    WKernel::getRunningKernel()->getGui()->addDatasetToBrowser( ds->getFileName(), 0 );
+                    // WKernel::getRunningKernel()->getGui()->addDatasetToBrowser( ds->getFileName(), 0 );
                 }
             }
         }

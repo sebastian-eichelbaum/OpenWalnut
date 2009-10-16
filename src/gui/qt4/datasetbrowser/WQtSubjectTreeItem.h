@@ -50,7 +50,7 @@ public:
     /**
      * add a dataset item below this subject in the tree
      */
-    WQtDatasetTreeItem* addDatasetItem( std::string name );
+    WQtDatasetTreeItem* addDatasetItem( boost::shared_ptr< WModule > module );
 
 protected:
 private:

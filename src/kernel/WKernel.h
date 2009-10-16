@@ -155,17 +155,17 @@ protected:
     /**
      * Pointer to an initialized graphics engine.
      */
-    boost::shared_ptr<WGraphicsEngine> m_GraphicsEngine;
+    boost::shared_ptr<WGraphicsEngine> m_graphicsEngine;
 
     /**
      * The Gui.
      */
-    boost::shared_ptr<WGUI> m_Gui;
+    boost::shared_ptr<WGUI> m_gui;
 
     /**
      * The Datahandler.
      */
-    boost::shared_ptr<WDataHandler> m_DataHandler;
+    boost::shared_ptr<WDataHandler> m_dataHandler;
 
 private:
     /**
