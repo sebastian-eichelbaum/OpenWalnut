@@ -39,7 +39,6 @@ private:
     double delta;
 
 public:
-
     /**
      * Called before every test.
      */
@@ -49,7 +48,7 @@ public:
     }
 
     /**
-     * Instatiation should throw nothing.
+     * Instantiation should throw nothing.
      */
     void testInstantiation( void )
     {
@@ -166,7 +165,7 @@ public:
         // this should be the precondition for the test
         TS_ASSERT_EQUALS( value1 == value2, false );
 
-        // test simple assignement
+        // test simple assignment
         value1 = value2;
         TS_ASSERT_EQUALS( value1 == value2, true );
 
