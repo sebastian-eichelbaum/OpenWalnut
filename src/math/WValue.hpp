@@ -277,5 +277,5 @@ template< typename T > const WValue< T > operator*( double lhs, const WValue< T 
     result *= lhs;
     return result;
 }
-}  // End of namepsace
+}  // End of namespace
 #endif  // WVALUE_H
