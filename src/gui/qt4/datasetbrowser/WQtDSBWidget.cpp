@@ -55,12 +55,13 @@ QPushButton* WQtDSBWidget::addPushButton( std::string label )
 }
 
 
-QCheckBox* WQtDSBWidget::addCheckBox( std::string label, bool isChecked )
+WQtCheckBox* WQtDSBWidget::addCheckBox( std::string label, bool isChecked )
 {
     int row = m_layout.rowCount();
     QLabel* qlabel = new QLabel( label.c_str() );
 
-    QCheckBox* checkBox = new QCheckBox();
+    WQtCheckBox* checkBox = new WQtCheckBox();
+    checkBox->setName( label );
     checkBox->setChecked( isChecked );
 
     m_layout.addWidget( qlabel, row, 0 );
@@ -72,12 +73,13 @@ QCheckBox* WQtDSBWidget::addCheckBox( std::string label, bool isChecked )
 }
 
 
-QLineEdit* WQtDSBWidget::addLineEdit( std::string label, std::string text )
+WQtLineEdit* WQtDSBWidget::addLineEdit( std::string label, std::string text )
 {
     int row = m_layout.rowCount();
     QLabel* qlabel = new QLabel( label.c_str() );
 
-    QLineEdit* lineEdit = new QLineEdit();
+    WQtLineEdit* lineEdit = new WQtLineEdit();
+    lineEdit->setName( label );
     lineEdit->setText( QString( text.c_str() ) );
 
     m_layout.addWidget( qlabel, row, 0 );
@@ -94,7 +96,7 @@ WQtSliderWithEdit* WQtDSBWidget::addSliderInt( std::string label, int value, int
     int row = m_layout.rowCount();
     QLabel* qlabel = new QLabel( label.c_str() );
 
-    WQtSliderWithEdit* slider = new WQtSliderWithEdit();
+    WQtSliderWithEdit* slider = new WQtSliderWithEdit( label );
 
     slider->setMin( min );
     slider->setMax( max );

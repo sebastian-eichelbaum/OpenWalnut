@@ -25,6 +25,8 @@
 #ifndef WQTNUMBEREDIT_H
 #define WQTNUMBEREDIT_H
 
+#include <string>
+
 #include "../signalslib.hpp"
 #include <QtGui/QLineEdit>
 
@@ -49,8 +51,12 @@ public:
     /**
      * getter for m_boostSignal
      */
-    boost::signal1< void, int >* getboostSignal();
+    boost::signal2< void, std::string, int >* getboostSignal();
 
+    /**
+     * setter for name
+     */
+    void setName( std::string name );
 
 
 public slots:
@@ -63,7 +69,9 @@ signals:
 
 protected:
 private:
-    boost::signal1< void, int > m_boostSignal;
+    std::string m_name;
+
+    boost::signal2< void, std::string, int > m_boostSignal;
 };
 
 #endif  // WQTNUMBEREDIT_H

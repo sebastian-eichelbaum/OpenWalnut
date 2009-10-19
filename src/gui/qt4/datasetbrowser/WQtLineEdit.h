@@ -22,59 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTSLIDERWITHEDIT_H
-#define WQTSLIDERWITHEDIT_H
+#ifndef WQTLINEEDIT_H
+#define WQTLINEEDIT_H
 
 #include <string>
 
 #include "../signalslib.hpp"
-
-#include "WQtNumberEdit.h"
-#include <QtGui/QSlider>
-#include <QtGui/QHBoxLayout>
+#include <QtGui/QLineEdit>
 
 /**
- * container widget for a slider with a connected number edit
+ * implements a QLineEdit with a boost signal
  */
-class WQtSliderWithEdit : public QWidget
+class WQtLineEdit : public QLineEdit
 {
+    Q_OBJECT
+
 public:
     /**
-     * default constructor
+     * standard constructor
      */
-    explicit WQtSliderWithEdit( std::string name, QWidget* parent = 0 );
+    explicit WQtLineEdit();
 
     /**
      * destructor
      */
-    virtual ~WQtSliderWithEdit();
+    virtual ~WQtLineEdit();
 
     /**
-     * \return the boost signal object from the number edit
+     * \return the boost signal object
      */
-    boost::signal2< void, std::string, int >* getboostSignal();
+    boost::signal2< void, std::string, std::string >* getboostSignal();
 
     /**
-     * setter for min value
+     * setter for name
      */
-    void setMin( int min );
+    void setName( std::string name );
 
-    /**
-     * setter for max value
-     */
-    void setMax( int max );
-
-    /**
-     * setter for current value
-     */
-    void setValue( int value );
-
-
-protected:
 private:
-    QSlider m_slider;
-    WQtNumberEdit m_edit;
-    QHBoxLayout m_layout;
+    std::string m_name;
+
+    boost::signal2< void, std::string, std::string > m_boostSignal;
+
+public slots:
+    void emitStateChanged();
 };
 
-#endif  // WQTSLIDERWITHEDIT_H
+#endif  // WQTLINEEDIT_H

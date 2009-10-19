@@ -13,8 +13,10 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtNavGLWidget.h
+    datasetbrowser/WQtCheckBox.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h
+    datasetbrowser/WQtLineEdit.h
     datasetbrowser/WQtNumberEdit.h
     datasetbrowser/WQtTreeWidget.h
 )

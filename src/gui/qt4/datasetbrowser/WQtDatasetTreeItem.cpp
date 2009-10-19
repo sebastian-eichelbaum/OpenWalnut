@@ -46,3 +46,8 @@ void WQtDatasetTreeItem::emitSelect()
 {
     m_signalSelect();
 }
+
+boost::shared_ptr< WModule > WQtDatasetTreeItem::getModule()
+{
+    return m_module;
+}

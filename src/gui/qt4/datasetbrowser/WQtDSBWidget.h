@@ -27,16 +27,17 @@
 
 #include <string>
 
-#include <QtGui/QCheckBox>
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 #include <QtGui/QSlider>
 #include <QtGui/QWidget>
 #include <QtGui/QLCDNumber>
 
+#include "WQtCheckBox.h"
+#include "WQtLineEdit.h"
 #include "WQtSliderWithEdit.h"
+
 
 /**
  * container widget to contain the context widget for the dataset browser
@@ -64,12 +65,12 @@ public:
     /**
      * helper function to add a generic checkbox
      */
-    QCheckBox* addCheckBox( std::string label = "checkbox:", bool isChecked = false );
+    WQtCheckBox* addCheckBox( std::string label = "checkbox:", bool isChecked = false );
 
     /**
      * helper function to add a generic line edit
      */
-    QLineEdit* addLineEdit( std::string label = "edit text:", std::string text = "" );
+    WQtLineEdit* addLineEdit( std::string label = "edit text:", std::string text = "" );
 
     /**
      * helper function to add a slider with a connect line edit

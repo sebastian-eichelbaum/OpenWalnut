@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <map>
 #include <string>
 
 #include <QtCore/QList>
@@ -31,6 +32,7 @@
 
 #include "WQtDatasetBrowser.h"
 #include "WQtNumberEdit.h"
+#include "WQtCheckBox.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     : QDockWidget( parent )
@@ -55,18 +57,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     m_upButton->setText( QString( "up" ) );
     buttonLayout->addWidget( m_downButton );
     buttonLayout->addWidget( m_upButton );
-
-    //========================================================================
-    // TODO(Schurade): only for testing, will be removed soon
-    WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
-    tab1->addPushButton( "button1" );
-    tab1->addPushButton( "button2" );
-    tab1->addCheckBox( "box1:", true );
-    tab1->addCheckBox( "box2:", false );
-    tab1->addLineEdit( "text:", "some text" );
-    tab1->addSliderInt( "slider:" , 50, 0, 100 );
-    addTabWidgetContent( tab1 );
-    //========================================================================
 
     m_layout->addWidget( m_treeWidget );
     m_layout->addLayout( buttonLayout );
@@ -111,12 +101,80 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
 
 void WQtDatasetBrowser::selectTreeItem()
 {
-    WLogger::getLogger()->addLogMessage( "tree item clicked: " );
-    WLogger::getLogger()->addLogMessage( std::string( m_treeWidget->selectedItems().at( 0 )->text( 0 ).toAscii() ) );
-    ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->emitSelect();
+    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    std::map < std::string, WProperty* >*props = module->getProperties()->getProperties();
+
+    std::map < std::string, WProperty* >::const_iterator propIt = props->begin();
+
+    WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
+
+    while ( propIt != props->end() )
+    {
+        switch ( propIt->second->getType() )
+        {
+            case P_BOOL:
+            {
+                WQtCheckBox* box = tab1->addCheckBox( propIt->second->getName(), propIt->second->getValue<bool>() );
+                box->getboostSignal()->connect( boost::bind( &WQtDatasetBrowser::slotSetBoolProperty, this, _1, _2 ) );
+                break;
+            }
+            case P_CHAR:
+                break;
+            case P_UNSIGNED_CHAR:
+                break;
+            case P_INT:
+            {
+                WQtSliderWithEdit* slider = tab1->addSliderInt( propIt->second->getName(), propIt->second->getValue<int>(),
+                        propIt->second->getMin<int>(), propIt->second->getMax<int>() );
+                slider->getboostSignal()->connect( boost::bind( &WQtDatasetBrowser::slotSetIntProperty, this, _1, _2 ) );
+                break;
+            }
+            case P_UNSIGNED_INT:
+                break;
+            case P_FLOAT:
+                break;
+            case P_DOUBLE:
+                break;
+            case P_STRING:
+            {
+                WQtLineEdit* edit = tab1->addLineEdit( propIt->second->getName(), propIt->second->getValue<std::string>() );
+                edit->getboostSignal()->connect( boost::bind( &WQtDatasetBrowser::slotSetStringProperty, this, _1, _2 ) );
+                break;
+            }
+            default:
+                break;
+        }
+        ++propIt;
+    }
+    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
+    m_tabWidget->clear();
+    addTabWidgetContent( tab1 );
 }
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
     m_tabWidget->addTab( content, content->getName() );
+}
+
+void WQtDatasetBrowser::slotSetIntProperty( std::string name, int value )
+{
+    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    module->getProperties()->setValue<int>( name, value );
+}
+
+void WQtDatasetBrowser::slotSetBoolProperty( std::string name, bool value )
+{
+    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    module->getProperties()->setValue<bool>( name, value );
+}
+
+void WQtDatasetBrowser::slotSetStringProperty( std::string name, std::string value )
+{
+    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    module->getProperties()->setValue<std::string>( name, value );
+
+    if ( name == "name")
+    {
+        m_treeWidget->selectedItems().at( 0 )->setText( 0,  QString( value.c_str() ) );
+    }
 }

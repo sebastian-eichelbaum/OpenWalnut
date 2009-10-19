@@ -86,12 +86,46 @@ public:
         }
     }
 
+    template < typename T >  void  setMin( const T& arg )
+    {
+        try
+        {
+            m_min = boost::lexical_cast< std::string >( arg );
+        }
+        catch( const boost::bad_lexical_cast& e )
+        {
+            m_min = "";
+        }
+    }
+
+    template < typename T >  void  setMax( const T& arg )
+    {
+        try
+        {
+            m_max = boost::lexical_cast< std::string >( arg );
+        }
+        catch( const boost::bad_lexical_cast& e )
+        {
+            m_max = "";
+        }
+    }
+
+
 
     template < typename T >  T  getValue()
     {
         return boost::lexical_cast< T >( m_value );
     }
 
+    template < typename T >  T  getMin()
+    {
+        return boost::lexical_cast< T >( m_min );
+    }
+
+    template < typename T >  T  getMax()
+    {
+        return boost::lexical_cast< T >( m_max );
+    }
 
     std::string getValueString();
 
@@ -99,6 +133,8 @@ private:
     PropertyType m_type;
     std::string m_name;
     std::string m_value;
+    std::string m_min;
+    std::string m_max;
     std::string m_shortDesc;
     std::string m_longDesc;
 };

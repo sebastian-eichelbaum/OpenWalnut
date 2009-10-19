@@ -22,9 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WQtSliderWithEdit.h"
 
-WQtSliderWithEdit::WQtSliderWithEdit( QWidget* parent )
+WQtSliderWithEdit::WQtSliderWithEdit( std::string name, QWidget* parent )
     : QWidget( parent ),
     m_slider( Qt::Horizontal ),
     m_edit(),
@@ -35,6 +37,7 @@ WQtSliderWithEdit::WQtSliderWithEdit( QWidget* parent )
 
     m_edit.resize( 10, m_edit.size().height() );
     m_edit.setMaximumWidth( 25 );
+    m_edit.setName( name );
 
     setLayout( &m_layout );
 
@@ -70,7 +73,7 @@ void WQtSliderWithEdit::setValue( int value )
     m_slider.setValue( value );
 }
 
-boost::signal1< void, int >*WQtSliderWithEdit::getboostSignal()
+boost::signal2< void, std::string, int >*WQtSliderWithEdit::getboostSignal()
 {
     return m_edit.getboostSignal();
 }

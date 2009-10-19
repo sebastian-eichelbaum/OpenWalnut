@@ -24,6 +24,7 @@
 
 
 #include <iostream>
+#include <map>
 #include <string>
 
 #include "../common/WLogger.h"
@@ -47,6 +48,7 @@ void WProperties::addBool( std::string name, bool value, std::string shortDesc, 
 void WProperties::addChar( std::string name, char value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+
     m_propertyList[name] = prop;
 }
 
@@ -100,4 +102,9 @@ std::string WProperties::getValueString( const std::string prop )
         return findProp( prop )->getValueString();
     }
     return "";
+}
+
+std::map < std::string, WProperty* >* WProperties::getProperties()
+{
+    return &m_propertyList;
 }

@@ -22,59 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTSLIDERWITHEDIT_H
-#define WQTSLIDERWITHEDIT_H
-
 #include <string>
 
-#include "../signalslib.hpp"
+#include "WQtCheckBox.h"
 
-#include "WQtNumberEdit.h"
-#include <QtGui/QSlider>
-#include <QtGui/QHBoxLayout>
-
-/**
- * container widget for a slider with a connected number edit
- */
-class WQtSliderWithEdit : public QWidget
+WQtCheckBox::WQtCheckBox()
+    : QCheckBox()
 {
-public:
-    /**
-     * default constructor
-     */
-    explicit WQtSliderWithEdit( std::string name, QWidget* parent = 0 );
+    m_name = "";
+    connect( this, SIGNAL( toggled( bool ) ), this, SLOT( emitStateChanged() ) );
+}
 
-    /**
-     * destructor
-     */
-    virtual ~WQtSliderWithEdit();
+WQtCheckBox::~WQtCheckBox()
+{
+}
 
-    /**
-     * \return the boost signal object from the number edit
-     */
-    boost::signal2< void, std::string, int >* getboostSignal();
+boost::signal2< void, std::string, bool >*WQtCheckBox::getboostSignal()
+{
+    return &m_boostSignal;
+}
 
-    /**
-     * setter for min value
-     */
-    void setMin( int min );
+void WQtCheckBox::setName( std::string name )
+{
+    m_name = name;
+}
 
-    /**
-     * setter for max value
-     */
-    void setMax( int max );
-
-    /**
-     * setter for current value
-     */
-    void setValue( int value );
-
-
-protected:
-private:
-    QSlider m_slider;
-    WQtNumberEdit m_edit;
-    QHBoxLayout m_layout;
-};
-
-#endif  // WQTSLIDERWITHEDIT_H
+void WQtCheckBox::emitStateChanged()
+{
+    m_boostSignal( m_name, this->isChecked() );
+}

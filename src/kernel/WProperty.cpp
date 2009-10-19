@@ -27,56 +27,64 @@
 #include "WProperty.h"
 
 WProperty::WProperty( std::string name, std::string value, std::string shortDesc, std::string longDesc )
-    : m_name( name ),
+    : m_type( P_STRING ),
+    m_name( name ),
     m_value( value ),
     m_shortDesc( shortDesc ),
     m_longDesc( longDesc )
 {
-    m_type = P_STRING;
 }
 
 WProperty::WProperty( std::string name, bool value, std::string shortDesc, std::string longDesc )
-    : m_name( name ),
+    : m_type( P_BOOL ),
+    m_name( name ),
     m_shortDesc( shortDesc ),
     m_longDesc( longDesc )
 {
-    m_type = P_BOOL;
     setValue( value );
 }
 
 WProperty::WProperty( std::string name, char value, std::string shortDesc, std::string longDesc )
-    : m_name( name ),
+    : m_type( P_CHAR ),
+    m_name( name ),
     m_shortDesc( shortDesc ),
     m_longDesc( longDesc )
 {
-    m_type = P_CHAR;
+    setMin( -128 );
+    setMax( 127 );
     setValue( value );
 }
 
 WProperty::WProperty( std::string name, int value, std::string shortDesc, std::string longDesc )
-    : m_name( name ),
+    : m_type( P_INT ),
+    m_name( name ),
     m_shortDesc( shortDesc ),
     m_longDesc( longDesc )
 {
-    m_type = P_INT;
+    setMin( 0 );
+    setMax( 255 );
     setValue( value );
 }
 
 WProperty::WProperty( std::string name, float value, std::string shortDesc, std::string longDesc )
-    : m_name( name ),
+    : m_type( P_FLOAT ),
+    m_name( name ),
     m_shortDesc( shortDesc ),
     m_longDesc( longDesc )
 {
-    m_type = P_FLOAT;
+    setMin( 0.0 );
+    setMax( 100.0 );
     setValue( value );
 }
 
 WProperty::WProperty( std::string name, double value, std::string shortDesc, std::string longDesc )
-    : m_name( name ),
+    : m_type( P_DOUBLE ),
+    m_name( name ),
     m_shortDesc( shortDesc ),
     m_longDesc( longDesc )
 {
-    m_type = P_DOUBLE;
+    setMin( 0.0 );
+    setMax( 100.0 );
     setValue( value );
 }
 

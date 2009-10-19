@@ -81,6 +81,10 @@ protected:
 
 
 private:
+    void slotSetIntProperty( std::string name, int value );
+    void slotSetBoolProperty( std::string name, bool value );
+    void slotSetStringProperty( std::string name, std::string value );
+
     WQtTreeWidget* m_treeWidget;
     QTabWidget* m_tabWidget;
     QPushButton* m_downButton;

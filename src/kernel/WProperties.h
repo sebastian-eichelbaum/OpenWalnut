@@ -47,6 +47,8 @@ public:
      */
     virtual ~WProperties();
 
+    std::map < std::string, WProperty* >* getProperties();
+
     void addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
     void addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
     void addInt( std::string name, int value = 0, std::string shortDesc = "", std::string longDesc = "" );

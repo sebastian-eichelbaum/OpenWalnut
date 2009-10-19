@@ -287,6 +287,10 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 
     boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule<int>() );
 
+    module->getProperties()->addBool( "interpolation", true );
+    module->getProperties()->addInt( "threshold", 20 );
+    module->getProperties()->addInt( "alpha", 70 );
+
     m_gui->addDatasetToBrowser( module, 0 );
 }
 

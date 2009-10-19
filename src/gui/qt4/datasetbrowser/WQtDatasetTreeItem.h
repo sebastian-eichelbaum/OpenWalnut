@@ -51,6 +51,11 @@ public:
     boost::signal0< void >* getSignalSelect();
 
     /**
+     * get for the module pointer
+     */
+    boost::shared_ptr< WModule >getModule();
+
+    /**
      * helper function to signal this item has been selected
      */
     void emitSelect();
