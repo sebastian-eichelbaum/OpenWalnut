@@ -101,6 +101,11 @@ private slots:
      *
      */
     void selectTreeItem();
+
+    /**
+     *
+     */
+    void changeTreeItem();
 };
 
 #endif  // WQTDATASETBROWSER_H

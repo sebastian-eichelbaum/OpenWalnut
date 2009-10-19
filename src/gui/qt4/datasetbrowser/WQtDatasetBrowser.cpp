@@ -78,7 +78,8 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 
 void WQtDatasetBrowser::connectSlots()
 {
-    connect( m_treeWidget, SIGNAL( itemDoubleClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
+    connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
     connect( m_upButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemUp() ) );
     connect( m_downButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemDown() ) );
 }
@@ -101,9 +102,13 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
 
 void WQtDatasetBrowser::selectTreeItem()
 {
+    if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() != 1 )
+    {
+        return;
+    }
+
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     std::map < std::string, WProperty* >*props = module->getProperties()->getProperties();
-
     std::map < std::string, WProperty* >::const_iterator propIt = props->begin();
 
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
@@ -151,6 +156,25 @@ void WQtDatasetBrowser::selectTreeItem()
     addTabWidgetContent( tab1 );
 }
 
+void WQtDatasetBrowser::changeTreeItem()
+{
+    if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() != 1 )
+    {
+        return;
+    }
+    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+
+    if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
+    {
+        module->getProperties()->setValue<bool>( "active", true );
+    }
+    else
+    {
+        module->getProperties()->setValue<bool>( "active", false );
+    }
+    selectTreeItem();
+}
+
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
     m_tabWidget->addTab( content, content->getName() );
@@ -166,6 +190,18 @@ void WQtDatasetBrowser::slotSetBoolProperty( std::string name, bool value )
 {
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     module->getProperties()->setValue<bool>( name, value );
+
+    if ( name == "active")
+    {
+        if ( value )
+        {
+            m_treeWidget->selectedItems().at( 0 )->setCheckState( 0, Qt::Checked );
+        }
+        else
+        {
+            m_treeWidget->selectedItems().at( 0 )->setCheckState( 0, Qt::Unchecked );
+        }
+    }
 }
 
 void WQtDatasetBrowser::slotSetStringProperty( std::string name, std::string value )
