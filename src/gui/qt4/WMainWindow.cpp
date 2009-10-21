@@ -41,6 +41,7 @@
 
 WMainWindow::WMainWindow()
 {
+    m_propertyManager = new WPropertyManager();
 }
 
 WMainWindow::~WMainWindow()
@@ -74,15 +75,15 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
     mainWindow->setCentralWidget( widget.get() );
 
     // initially 3 views
-    m_navAxial = new WQtNavGLWidget( "axial", 160 );
+    m_navAxial = new WQtNavGLWidget( "axial", 160, "axialPos" );
     m_glWidgets.push_back( m_navAxial->getGLWidget() );
     mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial );
 
-    m_navCoronal = new WQtNavGLWidget( "coronal", 200 );
+    m_navCoronal = new WQtNavGLWidget( "coronal", 200, "coronalPos" );
     m_glWidgets.push_back( m_navCoronal->getGLWidget() );
     mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal );
 
-    m_navSagittal = new WQtNavGLWidget( "sagittal", 160 );
+    m_navSagittal = new WQtNavGLWidget( "sagittal", 160, "sagittalPos" );
     m_glWidgets.push_back( m_navSagittal->getGLWidget() );
     mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal );
 
@@ -98,6 +99,16 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
     connect( m_toolBar->getAxiButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleAxial( bool ) ) );
     connect( m_toolBar->getCorButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleCoronal( bool ) ) );
     connect( m_toolBar->getSagButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleSagittal( bool ) ) );
+
+    connect( m_navAxial, SIGNAL( navSliderValueChanged( std::string, int ) ),
+            m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
+    connect( m_navCoronal, SIGNAL( navSliderValueChanged( std::string, int ) ),
+            m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
+    connect( m_navSagittal, SIGNAL( navSliderValueChanged( std::string, int ) ),
+            m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
+
+    connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( std::string, bool ) ),
+            m_propertyManager, SLOT( slotBoolChanged( std::string, bool ) ) );
 }
 
 
@@ -141,17 +152,17 @@ void WMainWindow::openLoadDialog()
 
 void WMainWindow::toggleAxial(  bool check )
 {
-    m_axiSignal( check );
+    m_propertyManager->slotBoolChanged( "showAxial", check );
 }
 
 void WMainWindow::toggleCoronal(  bool check )
 {
-    m_corSignal( check );
+    m_propertyManager->slotBoolChanged( "showCoronal", check );
 }
 
 void WMainWindow::toggleSagittal(  bool check )
 {
-    m_sagSignal( check );
+    m_propertyManager->slotBoolChanged( "showSagittal", check );
 }
 
 boost::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
@@ -159,36 +170,7 @@ boost::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal
     return &m_loaderSignal;
 }
 
-
-boost::signal1< void, bool >* WMainWindow::getAxiSignal()
+WPropertyManager*  WMainWindow::getPropertyManager()
 {
-    return &m_axiSignal;
+    return m_propertyManager;
 }
-
-
-boost::signal1< void, bool >* WMainWindow::getCorSignal()
-{
-    return &m_corSignal;
-}
-
-
-boost::signal1< void, bool >* WMainWindow::getSagSignal()
-{
-    return &m_sagSignal;
-}
-
-WQtNavGLWidget* WMainWindow::getNavAxial()
-{
-    return m_navAxial;
-}
-
-WQtNavGLWidget* WMainWindow::getNavCoronal()
-{
-    return m_navCoronal;
-}
-
-WQtNavGLWidget* WMainWindow::getNavSagittal()
-{
-    return m_navSagittal;
-}
-

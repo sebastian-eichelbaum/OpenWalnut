@@ -39,7 +39,6 @@ WQtNumberEdit::~WQtNumberEdit()
 void WQtNumberEdit::setInt( int number )
 {
     setText( QString::number( number ) );
-    m_boostSignal( m_name, number );
 }
 
 void WQtNumberEdit::numberChanged()
@@ -49,22 +48,10 @@ void WQtNumberEdit::numberChanged()
     if ( ok )
     {
         emit signalNumber( number );
-        m_boostSignal( m_name, number );
     }
     else
     {
         setText( QString::number( 0 ) );
         emit signalNumber( 0 );
-        m_boostSignal( m_name, 0 );
     }
-}
-
-boost::signal2< void, std::string, int >*WQtNumberEdit::getboostSignal()
-{
-    return &m_boostSignal;
-}
-
-void WQtNumberEdit::setName( std::string name )
-{
-    m_name = name;
 }

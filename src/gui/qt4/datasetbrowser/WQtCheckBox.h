@@ -27,7 +27,6 @@
 
 #include <string>
 
-#include "../signalslib.hpp"
 #include <QtGui/QCheckBox>
 
 /**
@@ -49,11 +48,6 @@ public:
     virtual ~WQtCheckBox();
 
     /**
-     * \return the boost signal object
-     */
-    boost::signal2< void, std::string, bool >* getboostSignal();
-
-    /**
      * setter for name
      */
     void setName( std::string name );
@@ -61,10 +55,13 @@ public:
 private:
     std::string m_name;
 
-    boost::signal2< void, std::string, bool > m_boostSignal;
+
 
 public slots:
     void emitStateChanged();
+
+signals:
+    void checkBoxStateChanged( std::string name, bool value );
 };
 
 #endif  // WQTCHECKBOX_H

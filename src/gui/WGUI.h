@@ -58,15 +58,14 @@ public:
     virtual std::vector< boost::shared_ptr< WModule > >getDataSetList( int subjectId ) = 0;
 
     /**
-     * getter functions for all signals provided by the gui
+     * getter functions for the signales proved by the gui
      */
     virtual boost::signal1< void, std::vector< std::string > >* getLoadButtonSignal() = 0;
-    virtual boost::signal1< void, int >* getAxialSliderSignal() = 0;
-    virtual boost::signal1< void, int >* getCoronalSliderSignal() = 0;
-    virtual boost::signal1< void, int >* getSagittalSliderSignal() = 0;
-    virtual boost::signal1< void, bool >* getAxialButtonSignal() = 0;
-    virtual boost::signal1< void, bool >* getCoronalButtonSignal() = 0;
-    virtual boost::signal1< void, bool >* getSagittalButtonSignal() = 0;
+
+    /**
+     * this function allows modules to register their property object with the gui
+     */
+    virtual void connectProperties( WProperties* properties ) = 0;
 
 protected:
     bool m_isInitialized;

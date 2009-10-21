@@ -37,11 +37,6 @@ WQtLineEdit::~WQtLineEdit()
 {
 }
 
-boost::signal2< void, std::string, std::string >*WQtLineEdit::getboostSignal()
-{
-    return &m_boostSignal;
-}
-
 void WQtLineEdit::setName( std::string name )
 {
     m_name = name;
@@ -50,5 +45,5 @@ void WQtLineEdit::setName( std::string name )
 void WQtLineEdit::emitStateChanged()
 {
     std::string text = std::string( this->text().toLatin1() );
-    m_boostSignal( m_name, text );
+    emit lineEditStateChanged( m_name, text );
 }

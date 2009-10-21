@@ -22,15 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <QtGui/QDockWidget>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
 
 #include "WQtNavGLWidget.h"
 
-WQtNavGLWidget::WQtNavGLWidget( QString title, int maxValue )
+WQtNavGLWidget::WQtNavGLWidget( QString title, int maxValue, std::string sliderTitle )
     : QDockWidget( title )
 {
+    m_sliderTitle = sliderTitle;
+
     setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
 
@@ -57,18 +61,18 @@ WQtNavGLWidget::~WQtNavGLWidget()
 {
 }
 
+void WQtNavGLWidget::setSliderTitle( std::string title )
+{
+    m_sliderTitle = title;
+}
+
 boost::shared_ptr<WQtGLWidget>WQtNavGLWidget::getGLWidget()
 {
     return m_glWidget;
 }
 
-boost::signal1< void, int >*WQtNavGLWidget::getboostSignal()
-{
-    return &m_boostSignal;
-}
-
 void WQtNavGLWidget::sliderValueChanged( int value )
 {
-    m_boostSignal( value );
+    emit navSliderValueChanged( m_sliderTitle, value );
 }
 

@@ -97,7 +97,8 @@ void WNavigationSliceModule::connectors()
 
 void WNavigationSliceModule::properties()
 {
-    m_properties.addBool( "textureAssigned", false );
+    m_properties.addBool( "textureChanged", true );
+
     m_properties.addInt( "axialPos", 80 );
     m_properties.addInt( "coronalPos", 100 );
     m_properties.addInt( "sagittalPos", 80 );
@@ -126,23 +127,8 @@ void WNavigationSliceModule::threadMain()
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
     {
-        if ( !m_properties.getValue< bool >( "textureAssigned" ) && WKernel::getRunningKernel()->getGui()->isInitalized() )
-        {
-            std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
-
-            if ( datasetList.size() > 0 )
-            {
-                for ( size_t i = 0; i < datasetList.size(); ++i)
-                {
-                    osg::Texture3D* texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
-
-                    osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
-
-                    sliceState->setTextureAttributeAndModes( i, texture3D, osg::StateAttribute::ON );
-                }
-                m_properties.setValue( "textureAssigned", true );
-            }
-        }
+        updateTextures();
+        updateSlices();
         // do fancy stuff
         sleep( 1 );
     }
@@ -231,6 +217,8 @@ void WNavigationSliceModule::createSlices()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_sliceNode );
 
     osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
+
+    initUniforms( sliceState );
 
     sliceState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 }
@@ -328,56 +316,101 @@ void WNavigationSliceModule::updateSlices()
     sliceState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 }
 
+
+void WNavigationSliceModule::updateTextures()
+{
+    if ( m_properties.getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitalized() )
+    {
+        std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+
+        if ( datasetList.size() > 0 )
+        {
+            for ( int i = 0; i < 10; ++i )
+            {
+                m_typeUniforms[i]->set( 0 );
+            }
+
+            for ( size_t i = 0; i < datasetList.size(); ++i)
+            {
+                if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) )
+                {
+                    osg::Texture3D* texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
+
+                    osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
+                    sliceState->setTextureAttributeAndModes( i, texture3D, osg::StateAttribute::ON );
+
+                    float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
+                    float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
+
+                    m_typeUniforms[i]->set( 1 );
+                    m_thresholdUniforms[i]->set( t );
+                    m_alphaUniforms[i]->set( a );
+                }
+            }
+
+            m_properties.setValue( "textureChanged", false );
+        }
+    }
+}
+
+
 void WNavigationSliceModule::connectToGui()
 {
-    WKernel::getRunningKernel()->getGui()->getAxialSliderSignal()->connect(
-            boost::bind( &WNavigationSliceModule::sliderAxialMoved, this, _1 ) );
-    WKernel::getRunningKernel()->getGui()->getCoronalSliderSignal()->connect(
-            boost::bind( &WNavigationSliceModule::sliderCoronalMoved, this, _1 ) );
-    WKernel::getRunningKernel()->getGui()->getSagittalSliderSignal()->connect(
-            boost::bind( &WNavigationSliceModule::sliderSagittalMoved, this, _1 ) );
-
-    WKernel::getRunningKernel()->getGui()->getAxialButtonSignal()->connect(
-            boost::bind( &WNavigationSliceModule::buttonAxialChanged, this, _1 ) );
-    WKernel::getRunningKernel()->getGui()->getCoronalButtonSignal()->connect(
-            boost::bind( &WNavigationSliceModule::buttonCoronalChanged, this, _1 ) );
-    WKernel::getRunningKernel()->getGui()->getSagittalButtonSignal()->connect(
-            boost::bind( &WNavigationSliceModule::buttonSagittalChanged, this, _1 ) );
+    WKernel::getRunningKernel()->getGui()->connectProperties( &m_properties );
 }
 
-void WNavigationSliceModule::sliderAxialMoved( int value )
+
+void WNavigationSliceModule::initUniforms( osg::StateSet* sliceState )
 {
-    m_properties.setValue( "axialPos", value );
-    updateSlices();
-}
+    m_typeUniforms.push_back( new osg::Uniform( "type0", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type1", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type2", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type3", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type4", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type5", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type6", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type7", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type8", 0 ) );
+    m_typeUniforms.push_back( new osg::Uniform( "type9", 0 ) );
 
-void WNavigationSliceModule::sliderCoronalMoved( int value )
-{
-    m_properties.setValue( "coronalPos", value );
-    updateSlices();
-}
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha0", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha1", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha2", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha3", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha4", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha5", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha6", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha7", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha8", 1.0f ) );
+    m_alphaUniforms.push_back( new osg::Uniform( "alpha9", 1.0f ) );
 
-void WNavigationSliceModule::sliderSagittalMoved( int value )
-{
-    m_properties.setValue( "sagittalPos", value );
-    updateSlices();
-}
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold0", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold1", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold2", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold3", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold4", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold5", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold6", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold7", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold8", 0.0f ) );
+    m_thresholdUniforms.push_back( new osg::Uniform( "threshold9", 0.0f ) );
 
-void WNavigationSliceModule::buttonAxialChanged( bool check )
-{
-    m_properties.setValue( "showAxial", check );
-    updateSlices();
-}
+    m_samplerUniforms.push_back( new osg::Uniform( "tex0", 0 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex1", 1 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex2", 2 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex3", 3 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex4", 4 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex5", 5 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex6", 6 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex7", 7 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex8", 8 ) );
+    m_samplerUniforms.push_back( new osg::Uniform( "tex9", 9 ) );
 
-void WNavigationSliceModule::buttonCoronalChanged( bool check )
-{
-    m_properties.setValue( "showCoronal", check );
-    updateSlices();
+    for ( int i = 0; i < 10; ++i )
+    {
+        sliceState->addUniform( m_typeUniforms[i] );
+        sliceState->addUniform( m_thresholdUniforms[i] );
+        sliceState->addUniform( m_alphaUniforms[i] );
+        sliceState->addUniform( m_samplerUniforms[i] );
+    }
 }
-
-void WNavigationSliceModule::buttonSagittalChanged( bool check )
-{
-    m_properties.setValue( "showSagittal", check );
-    updateSlices();
-}
-

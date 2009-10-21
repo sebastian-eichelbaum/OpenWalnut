@@ -25,8 +25,9 @@
 #ifndef WNAVIGATIONSLICEMODULE_H
 #define WNAVIGATIONSLICEMODULE_H
 
-#include <string>
 #include <list>
+#include <string>
+#include <vector>
 
 #include <osg/Node>
 
@@ -37,7 +38,6 @@
 #include "../../graphicsEngine/WShader.h"
 
 
-// TODO(schurade): fix description
 /**
  * \par Description:
  *
@@ -108,33 +108,32 @@ protected:
 
 private:
     /**
-     * TODO(schurade): add comment
+     * initial creation function for the slice geometry
      */
     void createSlices();
 
     /**
-     *
+     * updates the positions of the navigation slices
      */
     void updateSlices();
 
     /**
-     * TODO(schurade): add comment
+     *  updates textures and shader parameters
      */
-    void sliderAxialMoved( int value );
-    void sliderCoronalMoved( int value );
-    void sliderSagittalMoved( int value );
-
-    void buttonAxialChanged( bool check );
-    void buttonCoronalChanged( bool check );
-    void buttonSagittalChanged( bool check );
+    void updateTextures();
 
     /**
-     * TODO(schurade): add comment
+     * creates and initializes the uniform parameters for the shader
+     */
+    void initUniforms( osg::StateSet* sliceState );
+
+    /**
+     * the root node for this module
      */
     osg::Geode* m_sliceNode;
 
     /**
-     * TODO(schurade): add comment
+     * the shader object for this module
      */
     boost::shared_ptr< WShader >m_shader;
 
@@ -142,6 +141,11 @@ private:
      * Input connector required by this module.
      */
     boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > > m_Input;
+
+    std::vector< osg::Uniform* > m_typeUniforms;
+    std::vector< osg::Uniform* > m_alphaUniforms;
+    std::vector< osg::Uniform* > m_thresholdUniforms;
+    std::vector< osg::Uniform* > m_samplerUniforms;
 };
 
 #endif  // WNAVIGATIONSLICEMODULE_H

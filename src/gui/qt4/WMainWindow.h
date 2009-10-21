@@ -40,6 +40,7 @@
 #include "WQtNavGLWidget.h"
 #include "WQtRibbonMenu.h"
 
+#include "WPropertyManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
 // forward declarations
 class WQtGLWidget;
@@ -81,15 +82,12 @@ public:
     /**
      *
      */
+    WPropertyManager* getPropertyManager();
+
+    /**
+     *
+     */
     boost::signal1< void, std::vector< std::string > >* getLoaderSignal();
-    boost::signal1< void, bool >* getAxiSignal();
-    boost::signal1< void, bool >* getCorSignal();
-    boost::signal1< void, bool >* getSagSignal();
-
-
-    WQtNavGLWidget* getNavAxial();
-    WQtNavGLWidget* getNavCoronal();
-    WQtNavGLWidget* getNavSagittal();
 
 public slots:
     /**
@@ -104,6 +102,8 @@ public slots:
 private:
     QIcon m_mainWindowIcon;
 
+    WPropertyManager* m_propertyManager;
+
     QWidget* m_centralwidget;
     WQtRibbonMenu* m_toolBar;
 
@@ -115,9 +115,6 @@ private:
     WQtNavGLWidget* m_navSagittal;
 
     boost::signal1< void, std::vector< std::string > > m_loaderSignal;
-    boost::signal1< void, bool > m_axiSignal;
-    boost::signal1< void, bool > m_corSignal;
-    boost::signal1< void, bool > m_sagSignal;
 };
 
 #endif  // WMAINWINDOW_H

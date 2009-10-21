@@ -27,7 +27,6 @@
 
 #include <string>
 
-#include "../signalslib.hpp"
 #include <QtGui/QLineEdit>
 
 /**
@@ -48,17 +47,6 @@ public:
      */
     virtual ~WQtNumberEdit();
 
-    /**
-     * getter for m_boostSignal
-     */
-    boost::signal2< void, std::string, int >* getboostSignal();
-
-    /**
-     * setter for name
-     */
-    void setName( std::string name );
-
-
 public slots:
     void setInt( int number );
     void numberChanged();
@@ -66,12 +54,8 @@ public slots:
 signals:
     void signalNumber( int );
 
-
 protected:
 private:
-    std::string m_name;
-
-    boost::signal2< void, std::string, int > m_boostSignal;
 };
 
 #endif  // WQTNUMBEREDIT_H

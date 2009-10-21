@@ -121,7 +121,8 @@ void WQtDatasetBrowser::selectTreeItem()
             case P_BOOL:
             {
                 WQtCheckBox* box = tab1->addCheckBox( propIt->second->getName(), propIt->second->getValue<bool>() );
-                box->getboostSignal()->connect( boost::bind( &WQtDatasetBrowser::slotSetBoolProperty, this, _1, _2 ) );
+                connect( box, SIGNAL( checkBoxStateChanged( std::string, bool ) ),
+                        this, SLOT( slotSetBoolProperty( std::string, bool ) ) );
                 break;
             }
             case P_CHAR:
@@ -132,7 +133,8 @@ void WQtDatasetBrowser::selectTreeItem()
             {
                 WQtSliderWithEdit* slider = tab1->addSliderInt( propIt->second->getName(), propIt->second->getValue<int>(),
                         propIt->second->getMin<int>(), propIt->second->getMax<int>() );
-                slider->getboostSignal()->connect( boost::bind( &WQtDatasetBrowser::slotSetIntProperty, this, _1, _2 ) );
+                connect( slider, SIGNAL( signalNumberWithName( std::string, int ) ),
+                        this, SLOT( slotSetIntProperty( std::string, int ) ) );
                 break;
             }
             case P_UNSIGNED_INT:
@@ -144,7 +146,8 @@ void WQtDatasetBrowser::selectTreeItem()
             case P_STRING:
             {
                 WQtLineEdit* edit = tab1->addLineEdit( propIt->second->getName(), propIt->second->getValue<std::string>() );
-                edit->getboostSignal()->connect( boost::bind( &WQtDatasetBrowser::slotSetStringProperty, this, _1, _2 ) );
+                connect( edit, SIGNAL( lineEditStateChanged( std::string, std::string ) ),
+                        this, SLOT( slotSetStringProperty( std::string, std::string ) ) );
                 break;
             }
             default:
@@ -173,6 +176,7 @@ void WQtDatasetBrowser::changeTreeItem()
     {
         module->getProperties()->setValue<bool>( "active", false );
     }
+    emit dataSetBrowserEvent( "textureChanged", true );
     selectTreeItem();
 }
 
@@ -185,6 +189,8 @@ void WQtDatasetBrowser::slotSetIntProperty( std::string name, int value )
 {
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     module->getProperties()->setValue<int>( name, value );
+
+    emit dataSetBrowserEvent( "textureChanged", true );
 }
 
 void WQtDatasetBrowser::slotSetBoolProperty( std::string name, bool value )
@@ -203,6 +209,7 @@ void WQtDatasetBrowser::slotSetBoolProperty( std::string name, bool value )
             m_treeWidget->selectedItems().at( 0 )->setCheckState( 0, Qt::Unchecked );
         }
     }
+    emit dataSetBrowserEvent( "textureChanged", true );
 }
 
 void WQtDatasetBrowser::slotSetStringProperty( std::string name, std::string value )

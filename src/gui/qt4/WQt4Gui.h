@@ -39,7 +39,6 @@ class WMainWindow;
 class WQt4Gui : public WGUI
 {
 public:
-
     /**
      * Default Constructor.
      */
@@ -67,15 +66,10 @@ public:
      */
     boost::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
 
-    boost::signal1< void, int >* getAxialSliderSignal();
-    boost::signal1< void, int >* getCoronalSliderSignal();
-    boost::signal1< void, int >* getSagittalSliderSignal();
-
-    boost::signal1< void, bool >* getAxialButtonSignal();
-    boost::signal1< void, bool >* getCoronalButtonSignal();
-    boost::signal1< void, bool >* getSagittalButtonSignal();
-
-
+    /**
+     * this function allows modules to register their property object with the gui
+     */
+    virtual void connectProperties( WProperties* properties );
 
 protected:
 
@@ -83,6 +77,7 @@ protected:
      * Execution loop.
      */
     virtual void threadMain();
+
 
 private:
     WMainWindow* m_gui;

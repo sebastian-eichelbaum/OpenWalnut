@@ -28,7 +28,6 @@
 #include <QtGui/QTreeWidgetItem>
 #include "../../../kernel/WModule.h"
 
-#include "../signalslib.hpp"
 /**
  * tree widget item to represent a dataset in the dataset browser tree widget
  */
@@ -46,11 +45,6 @@ public:
     virtual ~WQtDatasetTreeItem();
 
     /**
-     * getter for the signal object
-     */
-    boost::signal0< void >* getSignalSelect();
-
-    /**
      * get for the module pointer
      */
     boost::shared_ptr< WModule >getModule();
@@ -61,13 +55,7 @@ public:
     void emitSelect();
 protected:
 private:
-    /**
-     * the boost signal object
-     * TODO(schurade): change this to a signal with parameters
-     */
-    boost::signal0< void > m_signalSelect;
-
-    boost::shared_ptr< WModule >m_module;
+     boost::shared_ptr< WModule >m_module;
 };
 
 #endif  // WQTDATASETTREEITEM_H

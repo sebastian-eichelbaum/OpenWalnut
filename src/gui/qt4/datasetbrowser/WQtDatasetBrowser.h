@@ -85,14 +85,16 @@ public:
      */
     void connectSlots();
 
-protected:
-
-
-private:
+public slots:
     void slotSetIntProperty( std::string name, int value );
     void slotSetBoolProperty( std::string name, bool value );
     void slotSetStringProperty( std::string name, std::string value );
 
+
+protected:
+
+
+private:
     WQtTreeWidget* m_treeWidget;
     QTabWidget* m_tabWidget;
     QPushButton* m_downButton;
@@ -114,6 +116,9 @@ private slots:
      *
      */
     void changeTreeItem();
+
+signals:
+    void dataSetBrowserEvent( std::string name, bool value );
 };
 
 #endif  // WQTDATASETBROWSER_H

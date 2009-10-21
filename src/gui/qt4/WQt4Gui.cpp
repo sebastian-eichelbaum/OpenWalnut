@@ -88,32 +88,7 @@ boost::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal
     return m_gui->getLoaderSignal();
 }
 
-boost::signal1< void, int >* WQt4Gui::getAxialSliderSignal()
+void WQt4Gui::connectProperties( WProperties* properties )
 {
-    return m_gui->getNavAxial()->getboostSignal();
-}
-
-boost::signal1< void, int >* WQt4Gui::getCoronalSliderSignal()
-{
-    return m_gui->getNavCoronal()->getboostSignal();
-}
-
-boost::signal1< void, int >* WQt4Gui::getSagittalSliderSignal()
-{
-    return m_gui->getNavSagittal()->getboostSignal();
-}
-
-boost::signal1< void, bool >* WQt4Gui::getAxialButtonSignal()
-{
-    return m_gui->getAxiSignal();
-}
-
-boost::signal1< void, bool >* WQt4Gui::getCoronalButtonSignal()
-{
-    return m_gui->getCorSignal();
-}
-
-boost::signal1< void, bool >* WQt4Gui::getSagittalButtonSignal()
-{
-    return m_gui->getSagSignal();
+    m_gui->getPropertyManager()->connectProperties( properties );
 }

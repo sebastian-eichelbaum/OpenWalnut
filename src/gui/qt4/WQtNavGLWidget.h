@@ -25,7 +25,7 @@
 #ifndef WQTNAVGLWIDGET_H
 #define WQTNAVGLWIDGET_H
 
-#include "signalslib.hpp"
+#include <string>
 
 #include "WQtGLWidget.h"
 
@@ -41,7 +41,7 @@ public:
     /**
      * default constructor
      */
-    explicit WQtNavGLWidget( QString title, int maxValue = 100 );
+    explicit WQtNavGLWidget( QString title, int maxValue = 100, std::string sliderTitle="pos" );
 
     /**
      * destructor
@@ -54,17 +54,21 @@ public:
     boost::shared_ptr<WQtGLWidget>getGLWidget();
 
     /**
-     * \return pointer to boost signal for slider value
+     *
      */
-    boost::signal1< void, int >* getboostSignal();
+    void setSliderTitle( std::string title );
 
 protected:
 private:
+    std::string m_sliderTitle;
+
     boost::shared_ptr<WQtGLWidget> m_glWidget;
-    boost::signal1< void, int > m_boostSignal;
 
 private slots:
     void sliderValueChanged( int value );
+
+signals:
+    void navSliderValueChanged( std::string name, int value );
 };
 
 #endif  // WQTNAVGLWIDGET_H

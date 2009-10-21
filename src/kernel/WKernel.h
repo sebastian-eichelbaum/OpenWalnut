@@ -116,17 +116,17 @@ public:
     bool isFinishRequested() const;
 
     /**
-     * TODO(schurade): add comment
+     * function to call the datahandler load method
      */
     void doLoadDataSets( std::vector< std::string > fileNames );
 
     /**
-     * TODO(schurade): add comment
+     * getter for datahandler
      */
     boost::shared_ptr<WDataHandler> getDataHandler();
 
     /**
-     * TODO(schurade): add comment
+     * getter for gui
      */
     boost::shared_ptr<WGUI> getGui();
 
@@ -136,12 +136,12 @@ public:
     void setGui( boost::shared_ptr< WGUI > gui );
 
     /**
-     *
+     * get for application path
      */
     std::string getAppPath();
 
     /**
-     * TODO(schurade): add comment
+     * getter for shader path
      */
     std::string getShaderPath();
 

@@ -37,11 +37,6 @@ WQtCheckBox::~WQtCheckBox()
 {
 }
 
-boost::signal2< void, std::string, bool >*WQtCheckBox::getboostSignal()
-{
-    return &m_boostSignal;
-}
-
 void WQtCheckBox::setName( std::string name )
 {
     m_name = name;
@@ -49,5 +44,5 @@ void WQtCheckBox::setName( std::string name )
 
 void WQtCheckBox::emitStateChanged()
 {
-    m_boostSignal( m_name, this->isChecked() );
+    emit checkBoxStateChanged( m_name, this->isChecked() );
 }

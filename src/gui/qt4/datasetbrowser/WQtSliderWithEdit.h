@@ -27,8 +27,6 @@
 
 #include <string>
 
-#include "../signalslib.hpp"
-
 #include "WQtNumberEdit.h"
 #include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
@@ -38,6 +36,8 @@
  */
 class WQtSliderWithEdit : public QWidget
 {
+    Q_OBJECT
+
 public:
     /**
      * default constructor
@@ -50,9 +50,9 @@ public:
     virtual ~WQtSliderWithEdit();
 
     /**
-     * \return the boost signal object from the number edit
+     * setter for name
      */
-    boost::signal2< void, std::string, int >* getboostSignal();
+    void setName( std::string name );
 
     /**
      * setter for min value
@@ -69,12 +69,23 @@ public:
      */
     void setValue( int value );
 
+public slots:
+    /**
+     * emits the slider value to the outside world
+     */
+    void emitValue();
+
 
 protected:
 private:
     QSlider m_slider;
     WQtNumberEdit m_edit;
     QHBoxLayout m_layout;
+
+    std::string m_name;
+
+signals:
+    void signalNumberWithName( std::string name, int number );
 };
 
 #endif  // WQTSLIDERWITHEDIT_H

@@ -32,21 +32,28 @@ WQtSliderWithEdit::WQtSliderWithEdit( std::string name, QWidget* parent )
     m_edit(),
     m_layout()
 {
+    m_name = name;
+
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
 
     m_edit.resize( 10, m_edit.size().height() );
     m_edit.setMaximumWidth( 25 );
-    m_edit.setName( name );
 
     setLayout( &m_layout );
 
     connect( &m_slider, SIGNAL( valueChanged( int ) ), &m_edit, SLOT( setInt( int ) ) );
+    connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( emitValue() ) );
     connect( &m_edit, SIGNAL( signalNumber( int ) ), &m_slider, SLOT( setValue( int ) ) );
 }
 
 WQtSliderWithEdit::~WQtSliderWithEdit()
 {
+}
+
+void WQtSliderWithEdit::setName( std::string name )
+{
+    m_name = name;
 }
 
 void WQtSliderWithEdit::setMin( int min )
@@ -71,10 +78,10 @@ void WQtSliderWithEdit::setMax( int max )
 void WQtSliderWithEdit::setValue( int value )
 {
     m_slider.setValue( value );
+    emit signalNumberWithName( m_name, value );
 }
 
-boost::signal2< void, std::string, int >*WQtSliderWithEdit::getboostSignal()
+void WQtSliderWithEdit::emitValue()
 {
-    return m_edit.getboostSignal();
+    emit signalNumberWithName( m_name, m_slider.value() );
 }
-

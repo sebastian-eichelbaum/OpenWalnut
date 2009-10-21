@@ -22,29 +22,51 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtDatasetTreeItem.h"
+#include <string>
 
-WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module )
-    : QTreeWidgetItem( parent, 1 )
-{
-    m_module = module;
+#include "WPropertyManager.h"
 
-    if ( module->getProperties()->getValue<bool>( "active" ) )
-    {
-        this->setCheckState( 0, Qt::Checked );
-    }
-    else
-    {
-        this->setCheckState( 0, Qt::Unchecked );
-    }
-    this->setFlags( Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
-}
-
-WQtDatasetTreeItem::~WQtDatasetTreeItem()
+WPropertyManager::WPropertyManager()
 {
 }
 
-boost::shared_ptr< WModule > WQtDatasetTreeItem::getModule()
+WPropertyManager::~WPropertyManager()
 {
-    return m_module;
+}
+
+void WPropertyManager::connectProperties( WProperties* properties )
+{
+    m_connectedProperties.push_back( properties );
+}
+
+void WPropertyManager::slotBoolChanged( std::string name, bool value )
+{
+    for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
+    {
+        m_connectedProperties[i]->setValue( name, value );
+    }
+}
+
+void WPropertyManager::slotIntChanged( std::string name, int value )
+{
+    for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
+    {
+        m_connectedProperties[i]->setValue( name, value );
+    }
+}
+
+void WPropertyManager::slotFloatChanged( std::string name, float value )
+{
+    for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
+    {
+        m_connectedProperties[i]->setValue( name, value );
+    }
+}
+
+void WPropertyManager::slotStringChanged( std::string name, std::string value )
+{
+    for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
+    {
+        m_connectedProperties[i]->setValue( name, value );
+    }
 }
