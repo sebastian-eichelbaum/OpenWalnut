@@ -73,6 +73,10 @@ void WQt4Gui::addDatasetToBrowser( boost::shared_ptr< WModule > module, int subj
     m_gui->getDatasetBrowser()->addDataset( module, subjectId );
 }
 
+std::vector< boost::shared_ptr< WModule > >WQt4Gui::getDataSetList( int subjectId )
+{
+    return m_gui->getDatasetBrowser()->getDataSetList( subjectId );
+}
 
 bool WQt4Gui::isInitalized()
 {

@@ -29,7 +29,10 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include "../gui/qt4/signalslib.hpp"
 #include <boost/enable_shared_from_this.hpp>
+
+#include "WDataSet.h"
 
 class WSubject;
 
@@ -79,6 +82,16 @@ public:
      */
     void loadDataSets( std::vector< std::string > fileNames );
 
+    /**
+     * is called from a loader object and signals a pointer to the loaded object
+     */
+    void signalLoadFinished( boost::shared_ptr< WDataSet > data );
+
+    /**
+     *
+     */
+    boost::signal1< void, boost::shared_ptr< WDataSet > >* getSignalAddDataset();
+
 protected:
 
 private:
@@ -86,6 +99,11 @@ private:
      * A container for all WSubjects.
      */
     std::vector< boost::shared_ptr< WSubject > > m_subjects;
+
+    /**
+    * boost signal object for signaling the addition of a dataset to the datahandler
+    */
+    boost::signal1< void, boost::shared_ptr< WDataSet > > m_signalAddDataset;
 };
 
 /**

@@ -173,3 +173,4 @@ WProperties* WModule::getProperties()
 void WModule::connectToGui()
 {
 }
+

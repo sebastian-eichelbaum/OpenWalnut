@@ -200,6 +200,8 @@ void WKernel::init()
 
     // initialize Datahandler
     m_dataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
+
+    m_dataHandler->getSignalAddDataset()->connect( boost::bind( &WKernel::slotFinishLoadData, this, _1 ) );
 }
 
 bool WKernel::findAppPath()
@@ -284,13 +286,17 @@ bool WKernel::isFinishRequested() const
 void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 {
     m_dataHandler->loadDataSets( fileNames );
+}
 
-    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule<int>() );
+void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
+{
+    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule<int>( dataSet ) );
 
     module->getProperties()->addBool( "interpolation", true );
-    module->getProperties()->addBool( "active", false );
-    module->getProperties()->addInt( "threshold", 20 );
-    module->getProperties()->addInt( "alpha", 70 );
+    module->getProperties()->addBool( "active", true );
+    module->getProperties()->addInt( "threshold", 0 );
+    module->getProperties()->addInt( "alpha", 100 );
+    module->getProperties()->setValue( "name", dataSet->getFileName() );
 
     m_gui->addDatasetToBrowser( module, 0 );
 }

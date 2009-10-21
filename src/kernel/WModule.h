@@ -34,6 +34,10 @@
 #include "../common/WThreadedRunner.h"
 #include "WModuleConnectorSignals.h"
 
+#include "../dataHandler/WDataSet.h"
+#include "../dataHandler/WDataSetSingle.h"
+#include "../dataHandler/WValueSet.hpp"
+
 #include "WProperties.h"
 
 class WModuleConnector;
@@ -217,7 +221,7 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                    boost::shared_ptr<WModuleConnector> output );
 
-    /**
+     /**
      * the property object for the module
      */
     WProperties m_properties;

@@ -29,12 +29,13 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Texture3D>
+
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleOutputData.hpp"
 
-#include "../../dataHandler/WDataSet.h"
 
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its
@@ -49,7 +50,13 @@ public:
      * \par Description
      * Default constructor.
      */
-    WDataModule();
+    // WDataModule();
+
+    /**
+     * \par Description
+     * constructor with dataset
+     */
+    explicit WDataModule( boost::shared_ptr< WDataSet > dataSet );
 
     /**
      * \par Description
@@ -70,6 +77,21 @@ public:
      * \return description to module.
      */
     virtual const std::string getDescription() const;
+
+    /**
+     *  setter for the asociated dataset
+     */
+    virtual void setDataSet( boost::shared_ptr< WDataSet > dataSet );
+
+    /**
+     * getter for the dataset
+     */
+    virtual boost::shared_ptr< WDataSet > getDataSet();
+
+    /**
+     * getter for the 3d texture, which will be created on demand
+     */
+    virtual osg::Texture3D* getTexture3D();
 
 protected:
 
@@ -93,23 +115,60 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                    boost::shared_ptr<WModuleConnector> output );
 
+    /**
+     * Creates a 3d texture from a dataset. This function will be overloaded for the
+     * various data types. A template function is not recommended due to the different commands
+     * in the image creation.
+     *
+     * TODO(schurade): create other functions once dataset meta data is available again
+     *
+     * \param source Pointer to the raw data of a dataset
+     * \param components Number of values used in a Voxel, usually 1, 3 or 4
+     * \return Pointer to a new texture3D
+     */
+    osg::Texture3D* createTexture3D( int8_t* source, int components = 1 );
+
+
 private:
 
     /**
      * The only output of this data module.
      */
     boost::shared_ptr<WModuleOutputData<T> > m_output;
+
+    /**
+     * pointer to the dataset
+     */
+    boost::shared_ptr< WDataSet > m_dataSet;
+
+    /**
+     * pointer to the 3d texture
+     */
+    osg::Texture3D* m_texture3D;
 };
 
+// TODO(schurade, ebaum): do we still need/want that constructor?
+// template < typename T >
+// WDataModule<T>::WDataModule():
+//    WModule()
+// {
+//    // WARNING: initializing connectors inside the constructor will lead to an exception.
+//    // Implement WModule::initializeConnectors instead.
+//
+//    // initialize members
+//    m_properties.addString( "name", "not initialized" );
+// }
 
 template < typename T >
-WDataModule<T>::WDataModule():
+WDataModule<T>::WDataModule( boost::shared_ptr< WDataSet > dataSet ):
     WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
 
     // initialize members
+    m_dataSet = dataSet;
+    m_texture3D = 0;
     m_properties.addString( "name", "not initialized" );
 }
 
@@ -166,6 +225,58 @@ void WDataModule<T>::threadMain()
 
     // clean up stuff
 }
+
+template < typename T >
+void WDataModule<T>::setDataSet( boost::shared_ptr< WDataSet > dataSet )
+{
+    m_dataSet = dataSet;
+}
+
+template < typename T >
+boost::shared_ptr< WDataSet > WDataModule<T>::getDataSet()
+{
+    return m_dataSet;
+}
+
+template < typename T >
+osg::Texture3D* WDataModule<T>::getTexture3D()
+{
+    if ( !m_texture3D )
+    {
+        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+        boost::shared_ptr< WValueSet< int8_t > > vs = boost::shared_dynamic_cast< WValueSet< int8_t > >( ds->getValueSet() );
+        int8_t* source = const_cast< int8_t* > ( vs->rawData() );
+        m_texture3D = createTexture3D( source );
+    }
+    return m_texture3D;
+}
+
+template < typename T >
+osg::Texture3D* WDataModule<T>::createTexture3D( int8_t* source, int components )
+{
+    if ( components == 1)
+    {
+        osg::ref_ptr< osg::Image > ima = new osg::Image;
+        ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+
+        unsigned char* data = ima->data();
+
+        for ( unsigned int i = 0; i < 160* 200* 160 ; ++i )
+        {
+            data[i] = source[i];
+        }
+        osg::Texture3D* texture3D = new osg::Texture3D;
+        texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
+        texture3D->setImage( ima );
+        texture3D->setResizeNonPowerOfTwoHint( false );
+
+        return texture3D;
+    }
+    return 0;
+}
+
 
 #endif  // WDATAMODULE_H
 

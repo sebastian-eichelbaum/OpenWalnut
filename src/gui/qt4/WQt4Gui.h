@@ -58,6 +58,11 @@ public:
     void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId );
 
     /**
+     * returns a vector of pointers to the loaded datasets for a given subject
+     */
+    virtual std::vector< boost::shared_ptr< WModule > >getDataSetList( int subjectId );
+
+    /**
      * getter functions for the signales proved by the gui
      */
     boost::signal1< void, std::vector< std::string > >* getLoadButtonSignal();

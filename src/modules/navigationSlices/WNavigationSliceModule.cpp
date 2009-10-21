@@ -32,7 +32,6 @@
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Texture3D>
 
 #include "boost/smart_ptr.hpp"
 
@@ -46,6 +45,7 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.hpp"
+#include "../data/WDataModule.hpp"
 
 #include "../../graphicsEngine/WShader.h"
 
@@ -126,28 +126,21 @@ void WNavigationSliceModule::threadMain()
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
     {
-        if ( WKernel::getRunningKernel()->getDataHandler()->getNumberOfSubjects() > 0 )
+        if ( !m_properties.getValue< bool >( "textureAssigned" ) && WKernel::getRunningKernel()->getGui()->isInitalized() )
         {
-            if ( WKernel::getRunningKernel()->getDataHandler()->getSubject(0)->getNumberOfDataSets() > 0 )
-            {
-                if ( !m_properties.getValue< bool >( "textureAssigned" ) )
-                {
-                    boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >(
-                            WKernel::getRunningKernel()->getDataHandler()->getSubject( 0 )->getDataSet( 0 ) );
-                    boost::shared_ptr< WValueSet< int8_t > > vs = boost::shared_dynamic_cast< WValueSet<
-                            int8_t > >( ds->getValueSet() );
-                    int8_t* source = const_cast< int8_t* > ( vs->rawData() );
+            std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
 
-                    osg::Texture3D* texture3D = WKernel::getRunningKernel()->getGraphicsEngine()->createTexture3D( source );
+            if ( datasetList.size() > 0 )
+            {
+                for ( size_t i = 0; i < datasetList.size(); ++i)
+                {
+                    osg::Texture3D* texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
 
                     osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
 
-                    sliceState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-
-                    m_properties.setValue( "textureAssigned", true );
-
-                    // WKernel::getRunningKernel()->getGui()->addDatasetToBrowser( ds->getFileName(), 0 );
+                    sliceState->setTextureAttributeAndModes( i, texture3D, osg::StateAttribute::ON );
                 }
+                m_properties.setValue( "textureAssigned", true );
             }
         }
         // do fancy stuff

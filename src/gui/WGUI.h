@@ -48,9 +48,14 @@ public:
     virtual bool isInitalized() = 0;
 
     /**
-     *
+     *  adds a dataset to the dataset browser for a give subject
      */
     virtual void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId ) = 0;
+
+    /**
+     * returns a vector of pointers to the loaded datasets for a given subject
+     */
+    virtual std::vector< boost::shared_ptr< WModule > >getDataSetList( int subjectId ) = 0;
 
     /**
      * getter functions for all signals provided by the gui

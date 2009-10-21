@@ -26,6 +26,7 @@
 #define WQTDATASETBROWSER_H
 
 #include <string>
+#include <vector>
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QTabWidget>
@@ -35,6 +36,7 @@
 #include "WQtDSBWidget.h"
 #include "WQtSubjectTreeItem.h"
 #include "WQtTreeWidget.h"
+
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
@@ -71,6 +73,12 @@ public:
      * adds a dataset entry to any given subject in the tree widget
      */
     WQtDatasetTreeItem* addDataset( boost::shared_ptr< WModule > module, int subjectId = 0 );
+
+    /**
+     * returns a vector of pointers to the loaded datasets for a given subject
+     */
+    std::vector< boost::shared_ptr< WModule > >getDataSetList( int subjectId );
+
 
     /**
      * helper funtion to connect all qt widgets with their functions

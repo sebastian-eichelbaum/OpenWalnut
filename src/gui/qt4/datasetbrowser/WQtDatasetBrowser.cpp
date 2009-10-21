@@ -25,6 +25,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <QtCore/QList>
 
@@ -213,4 +214,24 @@ void WQtDatasetBrowser::slotSetStringProperty( std::string name, std::string val
     {
         m_treeWidget->selectedItems().at( 0 )->setText( 0,  QString( value.c_str() ) );
     }
+}
+
+
+std::vector< boost::shared_ptr< WModule > >WQtDatasetBrowser::getDataSetList( int subjectId )
+{
+    std::vector< boost::shared_ptr< WModule > >moduleList;
+
+    if ( m_treeWidget->invisibleRootItem()->childCount() < subjectId + 1)
+    {
+        return moduleList;
+    }
+    int count = m_treeWidget->invisibleRootItem()->child( subjectId )->childCount();
+
+    for ( int i = 0 ; i < count ; ++i )
+    {
+        moduleList.push_back( ( ( WQtDatasetTreeItem* )
+                m_treeWidget->invisibleRootItem()->child( subjectId )->child( i ) )->getModule() );
+    }
+
+    return moduleList;
 }

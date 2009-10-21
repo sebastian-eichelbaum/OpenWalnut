@@ -74,3 +74,13 @@ void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
         }
     }
 }
+
+void WDataHandler::signalLoadFinished( boost::shared_ptr< WDataSet > data )
+{
+    m_signalAddDataset( data );
+}
+
+boost::signal1< void, boost::shared_ptr< WDataSet > >* WDataHandler::getSignalAddDataset()
+{
+    return &m_signalAddDataset;
+}
