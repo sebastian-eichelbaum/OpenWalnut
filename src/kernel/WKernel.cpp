@@ -296,6 +296,7 @@ void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
     module->getProperties()->addBool( "active", true );
     module->getProperties()->addInt( "threshold", 0 );
     module->getProperties()->addInt( "alpha", 100 );
+    module->getProperties()->setMax( "alpha", 100 );
     module->getProperties()->setValue( "name", dataSet->getFileName() );
 
     m_gui->addDatasetToBrowser( module, 0 );

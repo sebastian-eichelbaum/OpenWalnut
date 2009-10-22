@@ -38,10 +38,10 @@
 
 WModule::WModule():
     WThreadedRunner(),
-    m_properties()
+    m_properties(),
+    m_initialized( false )
 {
     // initialize members
-    m_initialized = false;
 }
 
 WModule::~WModule()

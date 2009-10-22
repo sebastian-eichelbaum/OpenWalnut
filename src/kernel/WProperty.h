@@ -28,6 +28,7 @@
 #include <string>
 
 #include <boost/lexical_cast.hpp>
+#include "../gui/qt4/signalslib.hpp"
 
 typedef enum
 {
@@ -70,8 +71,13 @@ public:
     void setShortDesc( const std::string desc );
     void setLongDesc( const std::string desc );
 
+    void setHidden();
+    bool isHidden();
+
     std::string getShortDesc();
     std::string getLongDesc();
+
+    boost::signal1< void, std::string >* getSignalValueChanged();
 
 
     template < typename T >  void  setValue( const T& arg )
@@ -84,6 +90,7 @@ public:
         {
             m_value = "";
         }
+        m_signalValueChanged( m_name );
     }
 
     template < typename T >  void  setMin( const T& arg )
@@ -137,6 +144,10 @@ private:
     std::string m_max;
     std::string m_shortDesc;
     std::string m_longDesc;
+
+    bool m_isHidden;
+
+    boost::signal1< void, std::string >m_signalValueChanged;
 };
 
 #endif  // WPROPERTY_H

@@ -1983,9 +1983,9 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, error):
   if (not line.startswith('#include') and not is_header_guard and
       not Match(r'^\s*//.*http(s?)://\S*$', line)):
     line_width = GetLineWidth(line)
-    if line_width > 130:
+    if line_width > 150:
       error(filename, linenum, 'whitespace/line_length', 4,
-            'Lines should be <= 130 characters long')
+            'Lines should be <= 150 characters long')
 
   if (cleansed_line.count(';') > 1 and
       # for loops are allowed two ;'s (and may run over two lines).

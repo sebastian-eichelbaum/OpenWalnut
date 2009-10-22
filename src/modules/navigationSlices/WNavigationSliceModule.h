@@ -79,6 +79,11 @@ public:
      */
     void connectToGui();
 
+    /**
+     *
+     */
+    void slotPropertyChanged( std::string propertyName );
+
 protected:
 
     /**

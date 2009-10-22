@@ -97,19 +97,19 @@ void WNavigationSliceModule::connectors()
 
 void WNavigationSliceModule::properties()
 {
-    m_properties.addBool( "textureChanged", true );
+    ( m_properties.addBool( "textureChanged", true ) )->connect( boost::bind( &WNavigationSliceModule::slotPropertyChanged, this, _1 ) );
 
-    m_properties.addInt( "axialPos", 80 );
-    m_properties.addInt( "coronalPos", 100 );
-    m_properties.addInt( "sagittalPos", 80 );
+    ( m_properties.addInt( "axialPos", 80 ) )->connect( boost::bind( &WNavigationSliceModule::slotPropertyChanged, this, _1 ) );
+    ( m_properties.addInt( "coronalPos", 100 ) )->connect( boost::bind( &WNavigationSliceModule::slotPropertyChanged, this, _1 ) );
+    ( m_properties.addInt( "sagittalPos", 80 ) )->connect( boost::bind( &WNavigationSliceModule::slotPropertyChanged, this, _1 ) );
 
     m_properties.addInt( "maxAxial", 160 );
     m_properties.addInt( "maxCoronal", 200 );
     m_properties.addInt( "maxSagittal", 160 );
 
-    m_properties.addBool( "showAxial", true );
-    m_properties.addBool( "showCoronal", true );
-    m_properties.addBool( "showSagittal", true );
+    ( m_properties.addBool( "showAxial", true ) )->connect( boost::bind( &WNavigationSliceModule::slotPropertyChanged, this, _1 ) );
+    ( m_properties.addBool( "showCoronal", true ) )->connect( boost::bind( &WNavigationSliceModule::slotPropertyChanged, this, _1 ) );
+    ( m_properties.addBool( "showSagittal", true ) )->connect( boost::bind( &WNavigationSliceModule::slotPropertyChanged, this, _1 ) );
 }
 
 void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -412,5 +412,17 @@ void WNavigationSliceModule::initUniforms( osg::StateSet* sliceState )
         sliceState->addUniform( m_thresholdUniforms[i] );
         sliceState->addUniform( m_alphaUniforms[i] );
         sliceState->addUniform( m_samplerUniforms[i] );
+    }
+}
+
+void WNavigationSliceModule::slotPropertyChanged( std::string propertyName )
+{
+    if ( propertyName == "textureChanged" )
+    {
+        updateTextures();
+    }
+    else
+    {
+        updateSlices();
     }
 }

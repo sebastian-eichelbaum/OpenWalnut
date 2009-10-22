@@ -39,45 +39,50 @@ WProperties::~WProperties()
 {
 }
 
-void WProperties::addBool( std::string name, bool value, std::string shortDesc, std::string longDesc )
+boost::signal1< void, std::string >* WProperties::addBool( std::string name, bool value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    return prop->getSignalValueChanged();
 }
 
-void WProperties::addChar( std::string name, char value, std::string shortDesc, std::string longDesc )
-{
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-
-    m_propertyList[name] = prop;
-}
-
-
-void WProperties::addInt( std::string name, int value, std::string shortDesc, std::string longDesc )
+boost::signal1< void, std::string >* WProperties::addChar( std::string name, char value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    return prop->getSignalValueChanged();
 }
 
 
-void WProperties::addFloat( std::string name, float value, std::string shortDesc, std::string longDesc )
+boost::signal1< void, std::string >* WProperties::addInt( std::string name, int value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    return prop->getSignalValueChanged();
 }
 
 
-void WProperties::addDouble( std::string name, double value, std::string shortDesc, std::string longDesc )
+boost::signal1< void, std::string >* WProperties::addFloat( std::string name, float value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    return prop->getSignalValueChanged();
 }
 
 
-void WProperties::addString( std::string name, std::string value, std::string shortDesc, std::string longDesc )
+boost::signal1< void, std::string >* WProperties::addDouble( std::string name, double value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    return prop->getSignalValueChanged();
+}
+
+
+boost::signal1< void, std::string >* WProperties::addString( std::string name, std::string value, std::string shortDesc, std::string longDesc )
+{
+    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    m_propertyList[name] = prop;
+    return prop->getSignalValueChanged();
 }
 
 WProperty* WProperties::findProp( std::string name )

@@ -49,12 +49,12 @@ public:
 
     std::map < std::string, WProperty* >* getProperties();
 
-    void addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
-    void addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
-    void addInt( std::string name, int value = 0, std::string shortDesc = "", std::string longDesc = "" );
-    void addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
-    void addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
-    void addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addInt( std::string name, int value = 0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
 
     std::string getValueString( const std::string prop );
 
@@ -66,6 +66,22 @@ public:
         }
     }
 
+    template < typename T >  void setMin( std::string prop, const T& arg )
+    {
+        if ( findProp( prop ) )
+        {
+            findProp( prop )->setMin( arg );
+        }
+    }
+
+    template < typename T >  void setMax( std::string prop, const T& arg )
+    {
+        if ( findProp( prop ) )
+        {
+            findProp( prop )->setMax( arg );
+        }
+    }
+
     template < typename T >  T  getValue( std::string prop )
     {
         if ( findProp( prop ) )
@@ -74,6 +90,26 @@ public:
         }
         return 0;
     }
+
+    template < typename T >  T  getMin( std::string prop )
+    {
+        if ( findProp( prop ) )
+        {
+            return findProp( prop )->getMin< T >();
+        }
+        return 0;
+    }
+
+    template < typename T >  T  getMax( std::string prop )
+    {
+        if ( findProp( prop ) )
+        {
+            return findProp( prop )->getMax< T >();
+        }
+        return 0;
+    }
+
+
 private:
     WProperty* findProp( std::string name );
 

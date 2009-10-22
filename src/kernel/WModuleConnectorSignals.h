@@ -30,7 +30,7 @@
 
 class WModuleConnector;
 
-/** 
+/**
  * Enum of all possible signals between WModuleConnector instances.
  * TODO(ebaum): Replace this by an automatic mapping class also able to allow varying function signatures.
  */
@@ -46,9 +46,9 @@ MODULE_CONNECTOR_SIGNAL;
 // Types
 // **************************************************************************************************************************
 
-/** 
+/**
  * Signal transmitting sender and receiver.
- * 
+ *
  * \param boost::shared_ptr<WModuleConnector> this should be the receiver, depending on specific signal.
  * \param boost::shared_ptr<WModuleConnector> this should be the sender, depending on specific signal.
  *
@@ -56,9 +56,9 @@ MODULE_CONNECTOR_SIGNAL;
 typedef boost::function<void ( boost::shared_ptr<WModuleConnector>,
                                boost::shared_ptr<WModuleConnector> )> t_GenericSignalHandlerType;
 
-/** 
+/**
  * Generic signal type used in the most signals involving a sender and receiver.
- * 
+ *
  * \param recv The connector receiving the signal.
  * \param sender The counterpart (sender).
  */

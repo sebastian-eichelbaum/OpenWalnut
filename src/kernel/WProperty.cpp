@@ -31,7 +31,8 @@ WProperty::WProperty( std::string name, std::string value, std::string shortDesc
     m_name( name ),
     m_value( value ),
     m_shortDesc( shortDesc ),
-    m_longDesc( longDesc )
+    m_longDesc( longDesc ),
+    m_isHidden( false )
 {
 }
 
@@ -39,7 +40,8 @@ WProperty::WProperty( std::string name, bool value, std::string shortDesc, std::
     : m_type( P_BOOL ),
     m_name( name ),
     m_shortDesc( shortDesc ),
-    m_longDesc( longDesc )
+    m_longDesc( longDesc ),
+    m_isHidden( false )
 {
     setValue( value );
 }
@@ -48,7 +50,8 @@ WProperty::WProperty( std::string name, char value, std::string shortDesc, std::
     : m_type( P_CHAR ),
     m_name( name ),
     m_shortDesc( shortDesc ),
-    m_longDesc( longDesc )
+    m_longDesc( longDesc ),
+    m_isHidden( false )
 {
     setMin( -128 );
     setMax( 127 );
@@ -59,7 +62,8 @@ WProperty::WProperty( std::string name, int value, std::string shortDesc, std::s
     : m_type( P_INT ),
     m_name( name ),
     m_shortDesc( shortDesc ),
-    m_longDesc( longDesc )
+    m_longDesc( longDesc ),
+    m_isHidden( false )
 {
     setMin( 0 );
     setMax( 255 );
@@ -70,7 +74,8 @@ WProperty::WProperty( std::string name, float value, std::string shortDesc, std:
     : m_type( P_FLOAT ),
     m_name( name ),
     m_shortDesc( shortDesc ),
-    m_longDesc( longDesc )
+    m_longDesc( longDesc ),
+    m_isHidden( false )
 {
     setMin( 0.0 );
     setMax( 100.0 );
@@ -81,7 +86,8 @@ WProperty::WProperty( std::string name, double value, std::string shortDesc, std
     : m_type( P_DOUBLE ),
     m_name( name ),
     m_shortDesc( shortDesc ),
-    m_longDesc( longDesc )
+    m_longDesc( longDesc ),
+    m_isHidden( false )
 {
     setMin( 0.0 );
     setMax( 100.0 );
@@ -131,4 +137,19 @@ std::string WProperty::getLongDesc()
 std::string WProperty::getValueString()
 {
     return m_value;
+}
+
+void WProperty::setHidden()
+{
+    m_isHidden = true;
+}
+
+bool WProperty::isHidden()
+{
+    return m_isHidden;
+}
+
+boost::signal1< void, std::string >* WProperty::getSignalValueChanged()
+{
+    return &m_signalValueChanged;
 }
