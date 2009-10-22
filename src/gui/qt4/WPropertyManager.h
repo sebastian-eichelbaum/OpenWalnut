@@ -30,7 +30,7 @@
 
 #include <QtCore/QObject>
 
-#include "../../kernel/WProperties.h"
+#include "../../common/WProperties.h"
 /**
  * Class that implements a list for pointers to properties objects from modules
  * Gui elemements will connect to its slots and write values to coresponding properties

@@ -38,7 +38,7 @@
 #include "../dataHandler/WDataSetSingle.h"
 #include "../dataHandler/WValueSet.hpp"
 
-#include "WProperties.h"
+#include "../common/WProperties.h"
 
 class WModuleConnector;
 class WModuleInputConnector;
