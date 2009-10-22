@@ -105,22 +105,24 @@ void WQtDatasetBrowser::selectTreeItem()
 {
     if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() != 1 )
     {
+        m_tabWidget->clear();
         return;
     }
 
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    std::map < std::string, WProperty* >*props = module->getProperties()->getProperties();
-    std::map < std::string, WProperty* >::const_iterator propIt = props->begin();
+    std::vector < WProperty* >*props = module->getProperties()->getPropertyVector();
+
 
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
 
-    while ( propIt != props->end() )
+    for ( size_t i = 0; i < props->size(); ++i )
+
     {
-        switch ( propIt->second->getType() )
+        switch ( props->at(i)->getType() )
         {
             case P_BOOL:
             {
-                WQtCheckBox* box = tab1->addCheckBox( propIt->second->getName(), propIt->second->getValue<bool>() );
+                WQtCheckBox* box = tab1->addCheckBox( props->at(i)->getName(), props->at(i)->getValue<bool>() );
                 connect( box, SIGNAL( checkBoxStateChanged( std::string, bool ) ),
                         this, SLOT( slotSetBoolProperty( std::string, bool ) ) );
                 break;
@@ -131,8 +133,8 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_INT:
             {
-                WQtSliderWithEdit* slider = tab1->addSliderInt( propIt->second->getName(), propIt->second->getValue<int>(),
-                        propIt->second->getMin<int>(), propIt->second->getMax<int>() );
+                WQtSliderWithEdit* slider = tab1->addSliderInt( props->at(i)->getName(), props->at(i)->getValue<int>(),
+                        props->at(i)->getMin<int>(), props->at(i)->getMax<int>() );
                 connect( slider, SIGNAL( signalNumberWithName( std::string, int ) ),
                         this, SLOT( slotSetIntProperty( std::string, int ) ) );
                 break;
@@ -145,7 +147,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_STRING:
             {
-                WQtLineEdit* edit = tab1->addLineEdit( propIt->second->getName(), propIt->second->getValue<std::string>() );
+                WQtLineEdit* edit = tab1->addLineEdit( props->at(i)->getName(), props->at(i)->getValue<std::string>() );
                 connect( edit, SIGNAL( lineEditStateChanged( std::string, std::string ) ),
                         this, SLOT( slotSetStringProperty( std::string, std::string ) ) );
                 break;
@@ -153,7 +155,6 @@ void WQtDatasetBrowser::selectTreeItem()
             default:
                 break;
         }
-        ++propIt;
     }
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();

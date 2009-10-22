@@ -43,6 +43,7 @@ boost::signal1< void, std::string >* WProperties::addBool( std::string name, boo
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
@@ -50,6 +51,7 @@ boost::signal1< void, std::string >* WProperties::addChar( std::string name, cha
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
@@ -58,6 +60,7 @@ boost::signal1< void, std::string >* WProperties::addInt( std::string name, int 
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
@@ -66,6 +69,7 @@ boost::signal1< void, std::string >* WProperties::addFloat( std::string name, fl
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
@@ -74,6 +78,7 @@ boost::signal1< void, std::string >* WProperties::addDouble( std::string name, d
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
@@ -82,6 +87,7 @@ boost::signal1< void, std::string >* WProperties::addString( std::string name, s
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
@@ -112,4 +118,9 @@ std::string WProperties::getValueString( const std::string prop )
 std::map < std::string, WProperty* >* WProperties::getProperties()
 {
     return &m_propertyList;
+}
+
+std::vector< WProperty* >* WProperties::getPropertyVector()
+{
+    return &m_propertyVector;
 }

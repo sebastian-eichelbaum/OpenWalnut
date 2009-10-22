@@ -48,6 +48,7 @@ public:
     virtual ~WProperties();
 
     std::map < std::string, WProperty* >* getProperties();
+    std::vector< WProperty* >* getPropertyVector();
 
     boost::signal1< void, std::string >* addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signal1< void, std::string >* addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
@@ -114,6 +115,8 @@ private:
     WProperty* findProp( std::string name );
 
     std::map < std::string, WProperty* >m_propertyList;
+
+    std::vector< WProperty* >m_propertyVector;
 };
 
 #endif  // WPROPERTIES_H
