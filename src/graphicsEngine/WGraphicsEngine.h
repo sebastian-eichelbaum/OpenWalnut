@@ -89,19 +89,6 @@ public:
      */
     boost::shared_ptr<WGEViewer> createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height );
 
-    /**
-     * Creates a 3d texture from a dataset. This function will be overloaded for the
-     * various data types. A template function is not recommended due to the different commands
-     * in the image creation.
-     *
-     * TODO(schurade): create other functions once dataset meta data is available again
-     *
-     * \param source Pointer to the raw data of a dataset
-     * \param components Number of values used in a Voxel, usually 1, 3 or 4
-     * \return Pointer to a new texture3D
-     */
-    osg::Texture3D* createTexture3D( int8_t* source, int components = 1 );
-
 protected:
 
     /**

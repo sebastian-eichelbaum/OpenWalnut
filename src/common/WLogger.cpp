@@ -86,8 +86,6 @@ void WLogger::setLogFileName( std::string fileName )
 {
     boost::filesystem::path p( fileName );
 
-    // TODO(schurade): check if this is a _VALID_ path (existence is not needed)
-
     m_LogFileName = fileName;
 }
 

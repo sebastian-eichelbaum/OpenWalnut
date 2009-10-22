@@ -30,13 +30,13 @@
 #include "../WLoaderNIfTI.h"
 
 /**
- * TODO(schurade): Document this!
+ * test class the nifti loader class
  */
 class WLoaderNIfTITest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * this funtion tests something
      */
     void testSomething( void )
     {

@@ -162,15 +162,15 @@ void WNavigationSliceModule::createSlices()
     sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
     sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( axialPos, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( axialPos, 0, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, 0 ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 0, 0, sagittalPos ) );
-    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, sagittalPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, sagittalPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, 0, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
+    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
 
     sliceGeometry->setVertexArray( sliceVertices );
 
@@ -180,15 +180,15 @@ void WNavigationSliceModule::createSlices()
     texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
     texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
 
-    texCoords->push_back( osg::Vec3( texAxial, 0.0, 0.0 ) );
-    texCoords->push_back( osg::Vec3( texAxial, 0.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texAxial, 1.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texAxial, 1.0, 0.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
 
-    texCoords->push_back( osg::Vec3( 0.0, 0.0, texSagittal ) );
-    texCoords->push_back( osg::Vec3( 0.0, 1.0, texSagittal ) );
-    texCoords->push_back( osg::Vec3( 1.0, 1.0, texSagittal ) );
-    texCoords->push_back( osg::Vec3( 1.0, 0.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
+    texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
+    texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
+    texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
 
     sliceGeometry->setTexCoordArray( 0, texCoords );
 
@@ -245,15 +245,15 @@ void WNavigationSliceModule::updateSlices()
     sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
     sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( axialPos, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( axialPos, 0, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( axialPos, maxCoronal, 0 ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
+    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
 
-    sliceVertices->push_back( osg::Vec3( 0, 0, sagittalPos ) );
-    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, sagittalPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, sagittalPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, 0, sagittalPos ) );
+    sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
+    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
+    sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
 
     sliceGeometry->setVertexArray( sliceVertices );
 
@@ -263,15 +263,15 @@ void WNavigationSliceModule::updateSlices()
     texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
     texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
 
-    texCoords->push_back( osg::Vec3( texAxial, 0.0, 0.0 ) );
-    texCoords->push_back( osg::Vec3( texAxial, 0.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texAxial, 1.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texAxial, 1.0, 0.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
+    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
 
-    texCoords->push_back( osg::Vec3( 0.0, 0.0, texSagittal ) );
-    texCoords->push_back( osg::Vec3( 0.0, 1.0, texSagittal ) );
-    texCoords->push_back( osg::Vec3( 1.0, 1.0, texSagittal ) );
-    texCoords->push_back( osg::Vec3( 1.0, 0.0, texSagittal ) );
+    texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
+    texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
+    texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
+    texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
 
     sliceGeometry->setTexCoordArray( 0, texCoords );
 
