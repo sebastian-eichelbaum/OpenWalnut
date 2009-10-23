@@ -28,9 +28,10 @@
 #include "WValueSetBase.h"
 
 
-WValueSetBase::WValueSetBase( char order, char dimension )
+WValueSetBase::WValueSetBase( char order, char dimension, dataType inDataType )
     : m_order( order ),
-      m_dimension( dimension )
+      m_dimension( dimension ),
+      m_dataType( inDataType )
 {
         assert( order <= 2 );
         assert( dimension >= 1 );

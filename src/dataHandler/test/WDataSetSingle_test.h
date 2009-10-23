@@ -32,6 +32,7 @@
 #include "../WDataSetSingle.h"
 #include "../WValueSet.hpp"
 #include "../WGrid.h"
+#include "../WDataHandlerEnums.h"
 
 class WDataSetSingleTest : public CxxTest::TestSuite
 {
@@ -46,8 +47,8 @@ public:
     {
         // create dummies, since they are needed in almost every test
         gridDummy = boost::shared_ptr< WGrid >( new WGrid( 1 ) );
-        std::vector< int > data( 1, 1 );
-        valueSetDummy = boost::shared_ptr< WValueSet< int > >( new WValueSet< int >( 0, 1, data ) );
+        std::vector< int8_t > data( 1, 1 );
+        valueSetDummy = boost::shared_ptr< WValueSet< int8_t > >( new WValueSet< int8_t >( 0, 1, data, W_DT_INT8 ) );
     }
 
     /**
@@ -65,7 +66,7 @@ public:
     {
         std::vector< double > data( 1, 3.1415 );
         boost::shared_ptr< WValueSet< double > > other;
-        other = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, data ) );
+        other = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
         WDataSetSingle dataSetSingle( valueSetDummy, gridDummy );
         TS_ASSERT_EQUALS( dataSetSingle.getValueSet(), valueSetDummy );
         TS_ASSERT_DIFFERS( dataSetSingle.getValueSet(), other );

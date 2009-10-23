@@ -36,6 +36,7 @@
 #include "../WGridRegular3D.h"
 #include "../WValueSetBase.h"
 #include "../WValueSet.hpp"
+#include "../WDataHandlerEnums.h"
 
 
 WLoaderNIfTI::WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
@@ -83,7 +84,7 @@ void WLoaderNIfTI::operator()()
         {
             std::vector< int8_t > data =
                 copyArray( reinterpret_cast< int8_t* >( filedata->data ), nbValues, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( 0, vDim, data ) );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( 0, vDim, data, W_DT_INT8 ) );
             newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
             break;
         }
@@ -92,7 +93,7 @@ void WLoaderNIfTI::operator()()
         {
            std::vector< int16_t > data =
                copyArray( reinterpret_cast< int16_t* >( filedata->data ), nbValues, vDim );
-           newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 0, vDim, data ) );
+           newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 0, vDim, data, W_DT_INT16 ) );
            newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
            break;
         }
@@ -101,7 +102,7 @@ void WLoaderNIfTI::operator()()
         {
             std::vector< float > data =
                 copyArray( reinterpret_cast< float* >( filedata->data ), nbValues, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 0, vDim, data ) );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 0, vDim, data, W_DT_FLOAT ) );
             newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
             break;
         }

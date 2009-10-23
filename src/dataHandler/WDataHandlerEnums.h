@@ -45,6 +45,7 @@ enum dataType
     W_DT_ALL             =      255,     /* not very useful (?)          */
     W_DT_INT8            =      256,     /* signed char (8 bits)         */
     W_DT_UINT16          =      512,     /* unsigned short (16 bits)     */
+    W_DT_INT16           =        4,     /* unsigned short (16 bits) alias name for W_DT_SIGNED_SHORT */
     W_DT_UINT32          =      768,     /* unsigned int (32 bits)       */
     W_DT_INT64           =     1024,     /* long long (64 bits)          */
     W_DT_UINT64          =     1280,     /* unsigned long long (64 bits) */
