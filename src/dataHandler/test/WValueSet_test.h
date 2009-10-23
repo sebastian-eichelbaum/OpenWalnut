@@ -30,6 +30,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WValueSet.hpp"
+#include "../WDataHandlerEnums.h"
 
 /**
  * UnitTests the WValueSet class
@@ -44,7 +45,7 @@ public:
     {
         double a[2] = { 0.0, 3.1415 };
         const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
-        TS_ASSERT_THROWS_NOTHING( WValueSet< double > valueSet( 0, 1, v ) );
+        TS_ASSERT_THROWS_NOTHING( WValueSet< double > valueSet( 0, 1, v, W_DT_DOUBLE ) );
     }
 
     /**
@@ -53,12 +54,12 @@ public:
     void testGetNumberOfValues( void )
     {
         int a[4] = { 0, -5, 1, 2 };
-        const std::vector< int > v( a, a + sizeof( a ) / sizeof( int ) );
-        WValueSet< int > first( 0, 1, v );
+        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int ) );
+        WValueSet< int8_t > first( 0, 1, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( first.size(), 4 );
-        WValueSet< int > second( 1, 2, v );
+        WValueSet< int8_t > second( 1, 2, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( second.size(), 2 );
-        WValueSet< int > third( 2, 2, v );
+        WValueSet< int8_t > third( 2, 2, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( third.size(), 1 );
     }
 
@@ -69,10 +70,10 @@ public:
     void testRawSize( void )
     {
         int a[4] = { 0, -5, 1, 2 };
-        const std::vector< int > v( a, a + sizeof( a ) / sizeof( int ) );
-        WValueSet< int > first( 0, 1, v );
+        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int ) );
+        WValueSet< int8_t > first( 0, 1, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( first.rawSize(), 4 );
-        WValueSet< int > second( 2, 2, v );
+        WValueSet< int8_t > second( 2, 2, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( first.rawSize(), 4 );
     }
 
@@ -83,7 +84,7 @@ public:
     {
         double a[2] = { 0.0, 3.1415 };
         const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
-        WValueSet< double > valueSet( 0, 1, v );
+        WValueSet< double > valueSet( 0, 1, v, W_DT_DOUBLE );
         const double * const b = valueSet.rawData();
         TS_ASSERT_EQUALS( b[0], 0.0 );
         TS_ASSERT_EQUALS( b[1], 3.1415 );

@@ -28,6 +28,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WValueSetBase.h"
+#include "../WDataHandlerEnums.h"
 
 
 /**
@@ -39,12 +40,12 @@ friend class WValueSetBaseTest;
 
 public:
     Dummy()
-        : WValueSetBase( 0, 1 )
+        : WValueSetBase( 0, 1, W_DT_INT8 )
     {
     }
 
     explicit Dummy( char dimension )
-        : WValueSetBase( 0, dimension )
+        : WValueSetBase( 0, dimension, W_DT_INT8 )
     {
     }
 
@@ -80,12 +81,20 @@ public:
     /**
      *  Checks if the dimension using the dummy is right
      */
-    void testInstanziation( void )
+    void testDimension( void )
     {
         Dummy d1;
         TS_ASSERT_EQUALS( d1.dimension(), 1 );
         Dummy d2( 2 );
         TS_ASSERT_EQUALS( d2.dimension(), 2 );
+    }
+    /**
+     *  Checks if the dimension using the dummy is right
+     */
+    void testDataType( void )
+    {
+        Dummy d1;
+        TS_ASSERT_EQUALS( d1.getDataType(), W_DT_INT8 );
     }
 };
 

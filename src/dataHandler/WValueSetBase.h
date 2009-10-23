@@ -26,6 +26,7 @@
 #define WVALUESETBASE_H
 
 #include <cstddef>
+#include "WDataHandlerEnums.h"
 
 /**
  * Abstract base class to all WValueSets. This class doesn't provide any genericness.
@@ -38,7 +39,7 @@ public:
      * Despite this is an abstract class all subclasses should have an order
      * and dimension.
      */
-    WValueSetBase( char order, char dimension );
+    WValueSetBase( char order, char dimension, dataType inDataType );
 
     /**
      * Dummy since each class with virtual member functions needs one.
@@ -63,6 +64,14 @@ public:
         return m_dimension;
     }
 
+    /**
+     * \return Dimension of the values in this ValueSet
+     */
+    virtual dataType getDataType()
+    {
+        return m_dataType;
+    }
+
 protected:
     /**
      * The order of the tensors for this ValueSet
@@ -73,6 +82,11 @@ protected:
      * The dimension of the tensors for this ValueSet
      */
     char m_dimension;
+
+    /**
+     * The data type of the values' elements.
+     */
+    dataType m_dataType;
 
 private:
 };
