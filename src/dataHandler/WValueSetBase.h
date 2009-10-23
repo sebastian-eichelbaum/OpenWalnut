@@ -55,6 +55,14 @@ public:
      */
     virtual size_t rawSize() const = 0;
 
+    /**
+     * \return Dimension of the values in this ValueSet
+     */
+    virtual size_t dimension()
+    {
+        return m_dimension;
+    }
+
 protected:
     /**
      * The order of the tensors for this ValueSet

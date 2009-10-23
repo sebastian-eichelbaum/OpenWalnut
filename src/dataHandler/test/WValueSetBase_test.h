@@ -43,6 +43,11 @@ public:
     {
     }
 
+    explicit Dummy( char dimension )
+        : WValueSetBase( 0, dimension )
+    {
+    }
+
     virtual ~Dummy()
     {
     }
@@ -67,9 +72,20 @@ public:
     /**
      *  Checks if the Dummy is instanceable.
      */
-    void testInstanziation( void )
+    void testInstantiation( void )
     {
         Dummy d;
+    }
+
+    /**
+     *  Checks if the dimension using the dummy is right
+     */
+    void testInstanziation( void )
+    {
+        Dummy d1;
+        TS_ASSERT_EQUALS( d1.dimension(), 1 );
+        Dummy d2( 2 );
+        TS_ASSERT_EQUALS( d2.dimension(), 2 );
     }
 };
 
