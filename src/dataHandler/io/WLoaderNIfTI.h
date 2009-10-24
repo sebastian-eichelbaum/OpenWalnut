@@ -30,6 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../WLoader.h"
+#include "../../math/WMatrix.hpp"
 
 #include "nifti/nifti1_io.h"
 
@@ -61,6 +62,12 @@ private:
      * by niftilibio into a std::vector< T >
      */
     template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues, const size_t vDim );
+
+    /**
+     * This function converts a 4x4 matrix from the NIfTI libs into the format
+     * used by OpenWalnut.
+     */
+    wmath::WMatrix< double > convertMatrix( const mat44& in );
 };
 
 #endif  // WLOADERNIFTI_H

@@ -22,13 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../math/WPosition.h"
-#include "../math/WVector3D.h"
-
 #include "WGridRegular3D.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
+using wmath::WMatrix;
 
 WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
                                 unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -43,6 +41,23 @@ WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
       m_directionZ( directionZ )
 {
 }
+
+WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                                const WMatrix< double >& mat )
+    : WGrid( nbPosX * nbPosY * nbPosZ ),
+      m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ )
+{
+    assert( mat.getNbRows() == 4 && mat.getNbCols() == 4 );
+    // only affine transformations are allowed
+    assert( mat( 3, 0 ) == 0.0 && mat( 3, 1 ) == 0.0 && mat( 3, 2 ) == 0.0 );
+
+    m_origin = WPosition( mat( 0, 3 ) / mat( 3, 3 ), mat( 1, 3 ) / mat( 3, 3 ), mat( 2, 3 ) / mat( 3, 3 ) );
+
+    m_directionX = WVector3D( mat( 0, 0 ) / mat( 3, 3 ), mat( 1, 0 ) / mat( 3, 3 ), mat( 2, 0 ) / mat( 3, 3 ) );
+    m_directionY = WVector3D( mat( 0, 1 ) / mat( 3, 3 ), mat( 1, 1 ) / mat( 3, 3 ), mat( 2, 1 ) / mat( 3, 3 ) );
+    m_directionZ = WVector3D( mat( 0, 2 ) / mat( 3, 3 ), mat( 1, 2 ) / mat( 3, 3 ), mat( 2, 2 ) / mat( 3, 3 ) );
+}
+
 
 WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
                                 unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,

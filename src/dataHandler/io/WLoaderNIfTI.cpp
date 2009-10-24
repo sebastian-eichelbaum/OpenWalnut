@@ -60,6 +60,20 @@ template< typename T > std::vector< T > WLoaderNIfTI::copyArray( const T* dataAr
 }
 
 
+wmath::WMatrix< double > WLoaderNIfTI::convertMatrix( const mat44& in )
+{
+    wmath::WMatrix< double > out( 4, 4 );
+    for( size_t i = 0; i < 4; ++i )
+    {
+        for( size_t j = 0; j < 4; ++j )
+        {
+            out( i, j ) = in.m[i][j];
+        }
+    }
+    return out;
+}
+
+
 void WLoaderNIfTI::operator()()
 {
     nifti_image* header = nifti_image_read( m_fileName.c_str(), 0 );
@@ -85,17 +99,15 @@ void WLoaderNIfTI::operator()()
             std::vector< int8_t > data =
                 copyArray( reinterpret_cast< int8_t* >( filedata->data ), nbValues, vDim );
             newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( 0, vDim, data, W_DT_INT8 ) );
-            newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
             break;
         }
 
         case DT_SIGNED_SHORT:
         {
-           std::vector< int16_t > data =
-               copyArray( reinterpret_cast< int16_t* >( filedata->data ), nbValues, vDim );
-           newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 0, vDim, data, W_DT_INT16 ) );
-           newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
-           break;
+            std::vector< int16_t > data =
+                copyArray( reinterpret_cast< int16_t* >( filedata->data ), nbValues, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 0, vDim, data, W_DT_INT16 ) );
+            break;
         }
 
         case DT_FLOAT:
@@ -103,14 +115,31 @@ void WLoaderNIfTI::operator()()
             std::vector< float > data =
                 copyArray( reinterpret_cast< float* >( filedata->data ), nbValues, vDim );
             newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 0, vDim, data, W_DT_FLOAT ) );
-            newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( columns, rows, frames, 1., 1., 1. ) );
             break;
         }
 
         default:
             std::cout << "unknown data type " << header->datatype << std::endl;
             newValueSet = boost::shared_ptr< WValueSetBase >();
-            newGrid = boost::shared_ptr< WGrid >();
+    }
+
+    if( header->sform_code > 0 )
+    {
+        // method 3 (affine transform)
+        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
+            columns, rows, frames, convertMatrix( header->sto_xyz ) ) );
+    }
+    else if( header->qform_code > 0 )
+    {
+        // method 2 (rigid body transform)
+        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
+            columns, rows, frames, convertMatrix( header->qto_xyz ) ) );
+    }
+    else
+    {
+        // method 1 (only scaling)
+        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
+            columns, rows, frames, header->dx, header->dy, header->dz ) );
     }
 
     // TODO(wiebel): fill this info into the subject instead

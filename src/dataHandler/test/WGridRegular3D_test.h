@@ -28,10 +28,10 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WGridRegular3D.h"
-#include "../../math/WVector3D.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
+using wmath::WMatrix;
 
 namespace CxxTest
 {
@@ -75,6 +75,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 0., 0., 0., 3, 3, 3, 1., 1., 1. ) );
         TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 0., 0., 0., 3, 3, 3,
                 WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ) ) );
+        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, WMatrix< double >( 4, 4 ) ) );
     }
 
     /**
@@ -91,6 +92,9 @@ public:
         WGridRegular3D grid3( 0., 0., 0., 3, 3, 3,
                 WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ) );
         TS_ASSERT_EQUALS( grid3.size(), 27 );
+
+        WGridRegular3D grid4( 3, 3, 3, WMatrix< double >( 4, 4 ) );
+        TS_ASSERT_EQUALS( grid4.size(), 27 );
     }
 
     /**
@@ -135,6 +139,21 @@ public:
         TS_ASSERT_DELTA( grid.getOffsetX(), x.norm(), m_delta );
         TS_ASSERT_DELTA( grid.getOffsetY(), y.norm(), m_delta );
         TS_ASSERT_DELTA( grid.getOffsetZ(), z.norm(), m_delta );
+    }
+
+    /**
+     * getDirection should return the vector direction prescribed by the use of
+     * the constructor
+     */
+    void testGetDirection( void )
+    {
+        WVector3D x( 3., 1., 2. );
+        WVector3D y( 2., 6., 4. );
+        WVector3D z( 3., 6., 9. );
+        WGridRegular3D grid( 0., 0., 0., 10, 10, 10, x, y, z );
+        TS_ASSERT_EQUALS( grid.getDirectionX(), x );
+        TS_ASSERT_EQUALS( grid.getDirectionY(), y );
+        TS_ASSERT_EQUALS( grid.getDirectionZ(), z );
     }
 
     /**

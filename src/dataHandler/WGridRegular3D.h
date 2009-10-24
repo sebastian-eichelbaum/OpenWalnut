@@ -27,6 +27,7 @@
 
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
+#include "../math/WMatrix.hpp"
 
 #include "WGrid.h"
 
@@ -50,6 +51,17 @@ public:
                    const wmath::WVector3D& directionX,
                    const wmath::WVector3D& directionY,
                    const wmath::WVector3D& directionZ );
+
+    /**
+     * Defines the number of samples in each coordinate direction as ints,
+     * and the position of the origin of the grid and the offset between the
+     * samples in the different coordinate directions as one 4x4 transformation
+     * matrix using homogeneous coordinates (but only affine transformations are
+     * allowed).
+     */
+    WGridRegular3D(
+                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                   const wmath::WMatrix< double >& mat );
 
     /**
      * Defines the position of the origin of the grid, the number of
@@ -111,6 +123,28 @@ public:
     double getOffsetZ() const
     {
         return m_directionZ.norm();
+    }
+
+    /**
+     * Returns the vector determining the direction of samples in x direction.
+     */
+    const wmath::WVector3D& getDirectionX() const
+    {
+        return m_directionX;
+    }
+    /**
+     * Returns the vector determining the direction of samples in y direction.
+     */
+    const wmath::WVector3D& getDirectionY() const
+    {
+        return m_directionY;
+    }
+    /**
+     * Returns the vector determining the direction of samples in z direction.
+     */
+    const wmath::WVector3D& getDirectionZ() const
+    {
+        return m_directionZ;
     }
 
     /**
