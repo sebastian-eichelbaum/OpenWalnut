@@ -36,7 +36,7 @@
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleOutputData.hpp"
 
-
+#include "../../dataHandler/WGridRegular3D.h"
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its
  * inherited classes. This class builds a "source".
@@ -126,9 +126,9 @@ protected:
      * \param components Number of values used in a Voxel, usually 1, 3 or 4
      * \return Pointer to a new texture3D
      */
-    osg::Texture3D* createTexture3D( unsigned char* source, int components = 1 );
-    osg::Texture3D* createTexture3D( int16_t* source, int components = 1 );
-    osg::Texture3D* createTexture3D( float* source, int components = 1 );
+    osg::Texture3D* createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid,  int components = 1 );
+    osg::Texture3D* createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
+    osg::Texture3D* createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
 
 
 private:
@@ -246,43 +246,45 @@ osg::Texture3D* WDataModule<T>::getTexture3D()
     if ( !m_texture3D )
     {
         boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+
         std::cout << "type:" << ds->getValueSet()->getDataType() << std::endl;
 
         if ( ds->getValueSet()->getDataType() == 2 )
         {
             boost::shared_ptr< WValueSet< unsigned char > > vs = boost::shared_dynamic_cast< WValueSet< unsigned char > >( ds->getValueSet() );
             unsigned char* source = const_cast< unsigned char* > ( vs->rawData() );
-            m_texture3D = createTexture3D( source, ds->getValueSet()->dimension() );
+            m_texture3D = createTexture3D( source, grid, ds->getValueSet()->dimension() );
         }
 
         else if ( ds->getValueSet()->getDataType() == 4 )
         {
             boost::shared_ptr< WValueSet< int16_t > > vs = boost::shared_dynamic_cast< WValueSet< int16_t > >( ds->getValueSet() );
             int16_t* source = const_cast< int16_t* > ( vs->rawData() );
-            m_texture3D = createTexture3D( source, ds->getValueSet()->dimension() );
+            m_texture3D = createTexture3D( source, grid, ds->getValueSet()->dimension() );
         }
 
         else if ( ds->getValueSet()->getDataType() == 16 )
         {
             boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( ds->getValueSet() );
             float* source = const_cast< float* > ( vs->rawData() );
-            m_texture3D = createTexture3D( source, ds->getValueSet()->dimension() );
+            m_texture3D = createTexture3D( source, grid, ds->getValueSet()->dimension() );
         }
     }
     return m_texture3D;
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, int components )
+osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1 )
     {
         osg::ref_ptr< osg::Image > ima = new osg::Image;
-        ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+        ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
 
         unsigned char* data = ima->data();
 
-        for ( unsigned int i = 0; i < 160* 200* 160 ; ++i )
+        for ( unsigned int i = 0; i < grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ(); ++i )
         {
             data[i] = source[i];
         }
@@ -298,11 +300,11 @@ osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, int comp
     else if ( components == 3 )
     {
         osg::ref_ptr< osg::Image > ima = new osg::Image;
-        ima->allocateImage( 160, 200, 160, GL_RGB, GL_UNSIGNED_BYTE );
+        ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_RGB, GL_UNSIGNED_BYTE );
 
         unsigned char* data = ima->data();
 
-        for ( unsigned int i = 0; i < 160 * 200 * 160 * 3; ++i )
+        for ( unsigned int i = 0; i < grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() * 3; ++i )
         {
             data[i] = source[i];
         }
@@ -320,18 +322,18 @@ osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, int comp
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( int16_t* source, int components )
+osg::Texture3D* WDataModule<T>::createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1)
     {
         osg::ref_ptr< osg::Image > ima = new osg::Image;
-        ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_SHORT );
+        ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_LUMINANCE, GL_SHORT );
 
         unsigned char* data = ima->data();
 
         unsigned char* charSource = ( unsigned char* )source;
 
-        for ( unsigned int i = 0; i < 160* 200* 160* 2 ; ++i )
+        for ( unsigned int i = 0; i < grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() * 2 ; ++i )
         {
             data[i] = charSource[i];
         }
@@ -348,18 +350,18 @@ osg::Texture3D* WDataModule<T>::createTexture3D( int16_t* source, int components
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( float* source, int components )
+osg::Texture3D* WDataModule<T>::createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components )
 {
     if ( components == 1)
     {
         osg::ref_ptr< osg::Image > ima = new osg::Image;
-        ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_FLOAT );
+        ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
 
         unsigned char* data = ima->data();
 
         unsigned char* charSource = ( unsigned char* )source;
 
-        for ( unsigned int i = 0; i < 160* 200* 160* 4 ; ++i )
+        for ( unsigned int i = 0; i < grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() * 4 ; ++i )
         {
             data[i] = charSource[i];
         }
