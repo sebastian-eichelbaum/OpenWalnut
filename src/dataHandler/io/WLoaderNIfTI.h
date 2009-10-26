@@ -61,7 +61,7 @@ private:
      * This function allows to copy the data given as a T*
      * by niftilibio into a std::vector< T >
      */
-    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t nbValues, const size_t vDim );
+    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t countVoxels, const size_t vDim );
 
     /**
      * This function converts a 4x4 matrix from the NIfTI libs into the format
