@@ -78,7 +78,7 @@ public:
     /**
      * Get number of points (length) the value consists of.
      */
-    size_t size()
+    inline size_t size() const
     {
         return m_points.size();
     }

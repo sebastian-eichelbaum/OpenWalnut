@@ -25,11 +25,17 @@
 #include <string>
 
 #include <osg/Geode>
+#include <osg/Geometry>
+#include <osg/Group>
 
 #include "WFiberTestModule.h"
+#include "../../math/WFiber.h"
 #include "../../common/WLogger.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WLoaderManager.h"
+#include "../../kernel/WKernel.h"
 
 WFiberTestModule::WFiberTestModule()
     : WModule()
@@ -50,6 +56,30 @@ const std::string WFiberTestModule::getDescription() const
     return std::string( "Draws fibers out of a WDataSetFibers" );
 }
 
+void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Group *group ) const
+{
+    osg::Vec3Array* vertices = new osg::Vec3Array( fib.size() );
+    osg::Vec3Array::iterator vitr = vertices->begin();
+
+    for( size_t i = 0; i < fib.size(); ++i )
+    {
+        ( vitr++ )->set( fib[i][0], fib[i][1], fib[i][2] );
+    }
+
+    osg::Geometry* geometry = new osg::Geometry();
+    geometry->setVertexArray( vertices );
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, fib.size() ) );
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, 1.0f ) );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    osg::ref_ptr< osg::Geode > geode = new osg::Geode;
+    geode->addDrawable( geometry );
+    group->addChild( geode );
+    std::cout << "drawn fiber.. " << std::endl;
+}
+
 void WFiberTestModule::threadMain()
 {
     using boost::shared_ptr;
@@ -58,4 +88,28 @@ void WFiberTestModule::threadMain()
     shared_ptr< WDataHandler > dataHandler = shared_ptr< WDataHandler >( new WDataHandler() );
     WLoaderManager testLoaderManager;
     testLoaderManager.load( fname, dataHandler );
+    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
+    sleep( 10 );  // we need this to allow the thread to terminate
+    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
+
+    shared_ptr< const WDataSetFibers > fiberDS;
+    assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
+    const WDataSetFibers &fibers = *fiberDS;  // just an alias
+
+    // osg group node bauen
+    osg::Group *group = new osg::Group;
+
+    // osg childs an die group hängen
+    for( size_t i = 0; i < fibers.size(); ++i )
+    {
+        drawFiber( fibers[i], group );
+    }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group );
+    // Since the modules run in a separate thread: such loops are possible
+    while ( !m_FinishRequested )
+    {
+        // do fancy stuff
+        sleep( 1 );
+    }
 }

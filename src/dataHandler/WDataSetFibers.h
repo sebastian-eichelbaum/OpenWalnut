@@ -48,7 +48,7 @@ public:
     /**
      * Get number of fibers in this data set.
      */
-    size_t size()
+    inline size_t size() const
     {
         return m_fibers->size();
     }
@@ -56,7 +56,7 @@ public:
     /**
      * \return The i'th fiber.
      */
-    const wmath::WFiber& operator[]( const size_t index ) const
+    inline const wmath::WFiber& operator[]( const size_t index ) const
     {
         assert( index < m_fibers->size() );
         return (*m_fibers)[index];
