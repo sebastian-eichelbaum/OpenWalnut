@@ -96,8 +96,8 @@ void WLoaderNIfTI::operator()()
     {
         case DT_UNSIGNED_CHAR:
         {
-            std::vector< int8_t > data = copyArray( reinterpret_cast< int8_t* >( filedata->data ), countVoxels, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( 1, vDim, data, W_DT_INT8 ) );
+            std::vector< unsigned char > data = copyArray( reinterpret_cast< unsigned char* >( filedata->data ), countVoxels, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< unsigned char >( 1, vDim, data, W_DT_UNSIGNED_CHAR ) );
             break;
         }
 
