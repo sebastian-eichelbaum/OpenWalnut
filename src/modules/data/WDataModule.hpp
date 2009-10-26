@@ -126,7 +126,9 @@ protected:
      * \param components Number of values used in a Voxel, usually 1, 3 or 4
      * \return Pointer to a new texture3D
      */
-    osg::Texture3D* createTexture3D( int8_t* source, int components = 1 );
+    osg::Texture3D* createTexture3D( unsigned char* source, int components = 1 );
+    osg::Texture3D* createTexture3D( short* source, int components = 1 );
+    osg::Texture3D* createTexture3D( float* source, int components = 1 );
 
 
 private:
@@ -244,17 +246,36 @@ osg::Texture3D* WDataModule<T>::getTexture3D()
     if ( !m_texture3D )
     {
         boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
-        boost::shared_ptr< WValueSet< int8_t > > vs = boost::shared_dynamic_cast< WValueSet< int8_t > >( ds->getValueSet() );
-        int8_t* source = const_cast< int8_t* > ( vs->rawData() );
-        m_texture3D = createTexture3D( source );
+        std::cout << "type:" << ds->getValueSet()->getDataType() << std::endl;
+
+        if ( ds->getValueSet()->getDataType() == 2 )
+        {
+            boost::shared_ptr< WValueSet< unsigned char > > vs = boost::shared_dynamic_cast< WValueSet< unsigned char > >( ds->getValueSet() );
+            unsigned char* source = const_cast< unsigned char* > ( vs->rawData() );
+            m_texture3D = createTexture3D( source, ds->getValueSet()->dimension() );
+        }
+
+        else if ( ds->getValueSet()->getDataType() == 4 )
+        {
+            boost::shared_ptr< WValueSet< short > > vs = boost::shared_dynamic_cast< WValueSet< short > >( ds->getValueSet() );
+            short* source = const_cast< short* > ( vs->rawData() );
+            m_texture3D = createTexture3D( source, ds->getValueSet()->dimension() );
+        }
+
+        else if ( ds->getValueSet()->getDataType() == 16 )
+        {
+            boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( ds->getValueSet() );
+            float* source = const_cast< float* > ( vs->rawData() );
+            m_texture3D = createTexture3D( source, ds->getValueSet()->dimension() );
+        }
     }
     return m_texture3D;
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( int8_t* source, int components )
+osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, int components )
 {
-    if ( components == 1)
+    if ( components == 1 )
     {
         osg::ref_ptr< osg::Image > ima = new osg::Image;
         ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_UNSIGNED_BYTE );
@@ -274,8 +295,86 @@ osg::Texture3D* WDataModule<T>::createTexture3D( int8_t* source, int components 
 
         return texture3D;
     }
+    else if ( components == 3 )
+    {
+        osg::ref_ptr< osg::Image > ima = new osg::Image;
+        ima->allocateImage( 160, 200, 160, GL_RGB, GL_UNSIGNED_BYTE );
+
+        unsigned char* data = ima->data();
+
+        for ( unsigned int i = 0; i < 160 * 200 * 160 * 3; ++i )
+        {
+            data[i] = source[i];
+        }
+        osg::Texture3D* texture3D = new osg::Texture3D;
+        texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
+        texture3D->setImage( ima );
+        texture3D->setResizeNonPowerOfTwoHint( false );
+
+        return texture3D;
+    }
+
     return 0;
 }
+
+template < typename T >
+osg::Texture3D* WDataModule<T>::createTexture3D( short* source, int components )
+{
+    if ( components == 1)
+    {
+        osg::ref_ptr< osg::Image > ima = new osg::Image;
+        ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_SHORT );
+
+        unsigned char* data = ima->data();
+
+        unsigned char* charSource = ( unsigned char* )source;
+
+        for ( unsigned int i = 0; i < 160* 200* 160* 2 ; ++i )
+        {
+            data[i] = charSource[i];
+        }
+        osg::Texture3D* texture3D = new osg::Texture3D;
+        texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
+        texture3D->setImage( ima );
+        texture3D->setResizeNonPowerOfTwoHint( false );
+
+        return texture3D;
+    }
+    return 0;
+}
+
+template < typename T >
+osg::Texture3D* WDataModule<T>::createTexture3D( float* source, int components )
+{
+    if ( components == 1)
+    {
+        osg::ref_ptr< osg::Image > ima = new osg::Image;
+        ima->allocateImage( 160, 200, 160, GL_LUMINANCE, GL_FLOAT );
+
+        unsigned char* data = ima->data();
+
+        unsigned char* charSource = ( unsigned char* )source;
+
+        for ( unsigned int i = 0; i < 160* 200* 160* 4 ; ++i )
+        {
+            data[i] = charSource[i];
+        }
+        osg::Texture3D* texture3D = new osg::Texture3D;
+        texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+        texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
+        texture3D->setImage( ima );
+        texture3D->setResizeNonPowerOfTwoHint( false );
+
+        return texture3D;
+    }
+    return 0;
+}
+
 
 
 #endif  // WDATAMODULE_H
