@@ -25,6 +25,8 @@
 #ifndef WFIBERTESTMODULE_H
 #define WFIBERTESTMODULE_H
 
+#include <string>
+
 #include "../../kernel/WModule.h"
 
 /**

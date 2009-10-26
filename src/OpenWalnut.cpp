@@ -65,6 +65,5 @@ int main( int argc, char* argv[] )
     // init the kernel
     WKernel kernel = WKernel( argc, argv, gui );
 
-    int code = kernel.run();
-    return code;
+    return kernel.run();
 }
