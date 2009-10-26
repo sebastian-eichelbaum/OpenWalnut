@@ -98,6 +98,7 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId );
+    subject->setExpanded( true );
     return subject->addDatasetItem( module );
 }
 
@@ -112,7 +113,6 @@ void WQtDatasetBrowser::selectTreeItem()
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     std::vector < WProperty* >*props = module->getProperties()->getPropertyVector();
 
-
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
 
     for ( size_t i = 0; i < props->size(); ++i )
@@ -122,7 +122,7 @@ void WQtDatasetBrowser::selectTreeItem()
         {
             case P_BOOL:
             {
-                WQtCheckBox* box = tab1->addCheckBox( props->at(i)->getName(), props->at(i)->getValue<bool>() );
+                WQtCheckBox* box = tab1->addCheckBox( props->at( i )->getName(), props->at( i )->getValue<bool>() );
                 connect( box, SIGNAL( checkBoxStateChanged( std::string, bool ) ),
                         this, SLOT( slotSetBoolProperty( std::string, bool ) ) );
                 break;
@@ -133,8 +133,8 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_INT:
             {
-                WQtSliderWithEdit* slider = tab1->addSliderInt( props->at(i)->getName(), props->at(i)->getValue<int>(),
-                        props->at(i)->getMin<int>(), props->at(i)->getMax<int>() );
+                WQtSliderWithEdit* slider = tab1->addSliderInt( props->at( i )->getName(), props->at( i )->getValue<int>(),
+                        props->at( i )->getMin<int>(), props->at( i )->getMax<int>() );
                 connect( slider, SIGNAL( signalNumberWithName( std::string, int ) ),
                         this, SLOT( slotSetIntProperty( std::string, int ) ) );
                 break;
@@ -147,7 +147,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_STRING:
             {
-                WQtLineEdit* edit = tab1->addLineEdit( props->at(i)->getName(), props->at(i)->getValue<std::string>() );
+                WQtLineEdit* edit = tab1->addLineEdit( props->at( i )->getName(), props->at( i )->getValue<std::string>() );
                 connect( edit, SIGNAL( lineEditStateChanged( std::string, std::string ) ),
                         this, SLOT( slotSetStringProperty( std::string, std::string ) ) );
                 break;
@@ -167,6 +167,7 @@ void WQtDatasetBrowser::changeTreeItem()
     {
         return;
     }
+
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
 
     if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
@@ -178,7 +179,7 @@ void WQtDatasetBrowser::changeTreeItem()
         module->getProperties()->setValue<bool>( "active", false );
     }
     emit dataSetBrowserEvent( "textureChanged", true );
-    selectTreeItem();
+    // selectTreeItem();
 }
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
@@ -240,6 +241,5 @@ std::vector< boost::shared_ptr< WModule > >WQtDatasetBrowser::getDataSetList( in
         moduleList.push_back( ( ( WQtDatasetTreeItem* )
                 m_treeWidget->invisibleRootItem()->child( subjectId )->child( i ) )->getModule() );
     }
-
     return moduleList;
 }

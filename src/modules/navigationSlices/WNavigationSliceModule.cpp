@@ -332,7 +332,8 @@ void WNavigationSliceModule::updateTextures()
 
             for ( size_t i = 0; i < datasetList.size(); ++i)
             {
-                if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) )
+                if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
+                        boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D() )
                 {
                     osg::Texture3D* texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
 

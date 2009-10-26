@@ -100,15 +100,11 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
     connect( m_toolBar->getCorButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleCoronal( bool ) ) );
     connect( m_toolBar->getSagButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleSagittal( bool ) ) );
 
-    connect( m_navAxial, SIGNAL( navSliderValueChanged( std::string, int ) ),
-            m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
-    connect( m_navCoronal, SIGNAL( navSliderValueChanged( std::string, int ) ),
-            m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
-    connect( m_navSagittal, SIGNAL( navSliderValueChanged( std::string, int ) ),
-            m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
+    connect( m_navAxial, SIGNAL( navSliderValueChanged( std::string, int ) ), m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
+    connect( m_navCoronal, SIGNAL( navSliderValueChanged( std::string, int ) ), m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
+    connect( m_navSagittal, SIGNAL( navSliderValueChanged( std::string, int ) ), m_propertyManager, SLOT( slotIntChanged( std::string, int ) ) );
 
-    connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( std::string, bool ) ),
-            m_propertyManager, SLOT( slotBoolChanged( std::string, bool ) ) );
+    connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( std::string, bool ) ), m_propertyManager, SLOT( slotBoolChanged( std::string, bool ) ) );
 }
 
 

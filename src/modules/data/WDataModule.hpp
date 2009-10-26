@@ -127,7 +127,7 @@ protected:
      * \return Pointer to a new texture3D
      */
     osg::Texture3D* createTexture3D( unsigned char* source, int components = 1 );
-    osg::Texture3D* createTexture3D( short* source, int components = 1 );
+    osg::Texture3D* createTexture3D( int16_t* source, int components = 1 );
     osg::Texture3D* createTexture3D( float* source, int components = 1 );
 
 
@@ -257,8 +257,8 @@ osg::Texture3D* WDataModule<T>::getTexture3D()
 
         else if ( ds->getValueSet()->getDataType() == 4 )
         {
-            boost::shared_ptr< WValueSet< short > > vs = boost::shared_dynamic_cast< WValueSet< short > >( ds->getValueSet() );
-            short* source = const_cast< short* > ( vs->rawData() );
+            boost::shared_ptr< WValueSet< int16_t > > vs = boost::shared_dynamic_cast< WValueSet< int16_t > >( ds->getValueSet() );
+            int16_t* source = const_cast< int16_t* > ( vs->rawData() );
             m_texture3D = createTexture3D( source, ds->getValueSet()->dimension() );
         }
 
@@ -320,7 +320,7 @@ osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, int comp
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( short* source, int components )
+osg::Texture3D* WDataModule<T>::createTexture3D( int16_t* source, int components )
 {
     if ( components == 1)
     {
