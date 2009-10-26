@@ -53,8 +53,7 @@ public:
     /**
      * Constructs and makes a new VTK loader for separate thread start.
      */
-    WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler >
-            dataHandler ) throw( WDHIOFailure );
+    WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure );
 
     /**
      * Destroys this instance and closes the file.

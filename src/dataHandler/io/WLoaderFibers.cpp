@@ -42,7 +42,8 @@
 WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )
     : WLoader( fname, dataHandler )
 {
-    m_ifs = boost::shared_ptr< std::ifstream >( new std::ifstream( fname.c_str(), std::ifstream::in | std::ifstream::binary ) );
+    m_ifs = boost::shared_ptr< std::ifstream >( new std::ifstream() );
+    m_ifs->open( m_fileName.c_str(), std::ifstream::in | std::ifstream::binary );
     if( !m_ifs || m_ifs->bad() )
     {
         throw WDHIOFailure( "Load broken file '" + m_fileName + "'" );
@@ -51,10 +52,6 @@ WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler
 
 WLoaderFibers::~WLoaderFibers() throw()
 {
-    if( m_ifs && m_ifs->is_open() )
-    {
-        m_ifs->close();
-    }
 }
 
 void WLoaderFibers::operator()() throw()
@@ -83,6 +80,7 @@ void WLoaderFibers::operator()() throw()
     fibers->setFileName( m_fileName );
 
     commitDataSet( fibers );
+    assert( !m_ifs->is_open() );
 }
 
 void WLoaderFibers::readHeader() throw( WDHIOFailure, WDHException )
@@ -237,5 +235,6 @@ boost::shared_ptr< std::vector< wmath::WFiber > > WLoaderFibers::readLines()
     std::getline( *m_ifs, line );
     assert( std::string( "" ) == line );
 
+    m_ifs->close();  // we can't close it in the destructor since then the copy constructor won't work
     return result;
 }

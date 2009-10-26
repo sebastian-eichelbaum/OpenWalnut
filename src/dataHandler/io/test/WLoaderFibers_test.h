@@ -258,10 +258,26 @@ public:
      */
     void testDestructor( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
         std::vector< WLoaderFibers > loaders;
-        loaders.push_back( loader );  // Copy constructor invoked
+        {
+            WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+            loaders.push_back( loader );
+            // destructor invoked
+        }
+        TS_ASSERT( loaders[0].m_ifs->is_open() );
         loaders.clear();  // second destruction
+    }
+
+    /**
+     * The () operator normaly starts the thread, so we check here if every thing
+     * terminates quite well.
+     */
+    void testBracesOperatorTerminatesWell( void )
+    {
+        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 0 );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        loader();
+        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
     }
 
 private:
