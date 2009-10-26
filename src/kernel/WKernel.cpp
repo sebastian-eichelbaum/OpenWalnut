@@ -36,6 +36,7 @@
 #include "WModule.h"
 #include "../modules/data/WDataModule.hpp"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
+#include "../modules/fiberTest/WFiberTestModule.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
@@ -183,7 +184,9 @@ void WKernel::loadModules()
     WLogger::getLogger()->addLogMessage( "*** Loading Modules: ", "Kernel", LL_DEBUG );
     m_modules.clear();
 
-    boost::shared_ptr< WModule > m = boost::shared_ptr< WModule >( new WNavigationSliceModule() );
+    using boost::shared_ptr;
+    shared_ptr< WModule > m = shared_ptr< WModule >( new WNavigationSliceModule() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberTestModule() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
 
     m_modules.push_back( m );

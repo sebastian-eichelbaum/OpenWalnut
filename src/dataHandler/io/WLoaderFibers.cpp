@@ -42,8 +42,8 @@
 WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )
     : WLoader( fname, dataHandler )
 {
-    m_ifs = new std::ifstream( fname.c_str(), std::ifstream::in | std::ifstream::binary );
-    if( !( *m_ifs ) || m_ifs->bad() )
+    m_ifs = boost::shared_ptr< std::ifstream >( new std::ifstream( fname.c_str(), std::ifstream::in | std::ifstream::binary ) );
+    if( !m_ifs || m_ifs->bad() )
     {
         throw WDHIOFailure( "Load broken file '" + m_fileName + "'" );
     }
@@ -51,11 +51,10 @@ WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler
 
 WLoaderFibers::~WLoaderFibers() throw()
 {
-    if( m_ifs )
+    if( m_ifs && m_ifs->is_open() )
     {
         m_ifs->close();
     }
-    delete( m_ifs );
 }
 
 void WLoaderFibers::operator()() throw()
@@ -77,7 +76,7 @@ void WLoaderFibers::operator()() throw()
         // TODO(math): we should print the file name also, since knowing that
         // the file was malformated, doesn't give you the hint that there
         // could be thousands of them
-        std::cerr << "Error :: DataHandler :: Abort loading VTK file due to: " << e.what() << std::endl;
+        std::cerr << "Error :: DataHandler :: Abort loading Fib-VTK file due to: " << e.what() << std::endl;
     }
     assert( !data->empty() && "loaded empty vector of fibers" );
     shared_ptr< WDataSetFibers > fibers = shared_ptr< WDataSetFibers >( new WDataSetFibers( data ) );

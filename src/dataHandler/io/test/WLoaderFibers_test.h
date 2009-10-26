@@ -252,6 +252,18 @@ public:
         TS_ASSERT_EQUALS( expected, actual->back() );
     }
 
+    /**
+     * When e.g. the CopyConstructor is invoked, all internals (including)
+     * all pointers will be destructed and deleted.
+     */
+    void testDestructor( void )
+    {
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        std::vector< WLoaderFibers > loaders;
+        loaders.push_back( loader );  // Copy constructor invoked
+        loaders.clear();  // second destruction
+    }
+
 private:
     /**
      * Dummy DataHandler instance

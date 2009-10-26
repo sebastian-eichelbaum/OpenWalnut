@@ -27,6 +27,9 @@
 #include <osg/Geode>
 
 #include "WFiberTestModule.h"
+#include "../../common/WLogger.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WLoaderManager.h"
 
 WFiberTestModule::WFiberTestModule()
     : WModule()
@@ -49,4 +52,10 @@ const std::string WFiberTestModule::getDescription() const
 
 void WFiberTestModule::threadMain()
 {
+    using boost::shared_ptr;
+    std::string fname = "dataHandler/io/fixtures/Fibers/valid_small_example.fib";
+    WLogger::getLogger()->addLogMessage( "Test loading of file: " + fname, "Kernel", LL_DEBUG );
+    shared_ptr< WDataHandler > dataHandler = shared_ptr< WDataHandler >( new WDataHandler() );
+    WLoaderManager testLoaderManager;
+    testLoaderManager.load( fname, dataHandler );
 }

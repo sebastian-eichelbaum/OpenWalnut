@@ -98,7 +98,7 @@ protected:
     /**
      * Pointer to the input file stream reader.
      */
-    std::ifstream *m_ifs;
+    boost::shared_ptr< std::ifstream > m_ifs;
 
 private:
 };
