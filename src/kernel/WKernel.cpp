@@ -87,12 +87,12 @@ WKernel* WKernel::getRunningKernel()
     return kernel;
 }
 
-boost::shared_ptr<WGraphicsEngine> WKernel::getGraphicsEngine() const
+boost::shared_ptr< WGraphicsEngine > WKernel::getGraphicsEngine() const
 {
     return m_graphicsEngine;
 }
 
-boost::shared_ptr<WDataHandler> WKernel::getDataHandler() const
+boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const
 {
     return m_dataHandler;
 }
@@ -139,7 +139,7 @@ int WKernel::run()
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module
     WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
-    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+    for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
         WLogger::getLogger()->addLogMessage( "Starting module: " + ( *list_iter )->getName(), "Kernel", LL_DEBUG );
@@ -152,7 +152,7 @@ int WKernel::run()
     }
     m_gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
 
-    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+    for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
                 ++list_iter )
     {
         ( *list_iter )->connectToGui();
@@ -164,7 +164,7 @@ int WKernel::run()
     m_FinishRequested = true;
 
     // wait for modules to finish
-    for( std::list<boost::shared_ptr<WModule> >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
+    for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
         ( *list_iter )->wait( true );
@@ -183,7 +183,7 @@ void WKernel::loadModules()
     WLogger::getLogger()->addLogMessage( "*** Loading Modules: ", "Kernel", LL_DEBUG );
     m_modules.clear();
 
-    boost::shared_ptr<WModule> m = boost::shared_ptr<WModule>( new WNavigationSliceModule() );
+    boost::shared_ptr< WModule > m = boost::shared_ptr< WModule >( new WNavigationSliceModule() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
 
     m_modules.push_back( m );
@@ -196,10 +196,10 @@ void WKernel::init()
 
     // initialize graphics engine
     // this also includes initialization of WGEScene and OpenSceneGraph
-    m_graphicsEngine = boost::shared_ptr<WGraphicsEngine>( new WGraphicsEngine( m_shaderPath ) );
+    m_graphicsEngine = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine( m_shaderPath ) );
 
     // initialize Datahandler
-    m_dataHandler = boost::shared_ptr<WDataHandler>( new WDataHandler() );
+    m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
 
     m_dataHandler->getSignalAddDataset()->connect( boost::bind( &WKernel::slotFinishLoadData, this, _1 ) );
 }
@@ -267,7 +267,7 @@ bool WKernel::findAppPath()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "Buffer too small; need size " + boost::lexical_cast<std::string>( size ),
+        WLogger::getLogger()->addLogMessage( "Buffer too small; need size " + boost::lexical_cast< std::string >( size ),
                                              "Kernel", LL_ERROR );
         assert( size <= sizeof( path ) );
     }
@@ -290,7 +290,7 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 
 void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
 {
-    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule<int>( dataSet ) );
+    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule< int >( dataSet ) );
 
     module->getProperties()->addBool( "active", true );
     module->getProperties()->addBool( "interpolation", true );
@@ -302,7 +302,7 @@ void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
     m_gui->addDatasetToBrowser( module, 0 );
 }
 
-boost::shared_ptr<WDataHandler> WKernel::getDataHandler()
+boost::shared_ptr< WDataHandler > WKernel::getDataHandler()
 {
     return m_dataHandler;
 }

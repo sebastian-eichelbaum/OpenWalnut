@@ -78,14 +78,14 @@ public:
      *
      * \return the graphics engine instance.
      */
-    boost::shared_ptr<WGraphicsEngine> getGraphicsEngine() const;
+    boost::shared_ptr< WGraphicsEngine > getGraphicsEngine() const;
 
     /**
      * Returns pointer to the DataHandler.
      *
      * \return the data handler instance.
      */
-    boost::shared_ptr<WDataHandler> getDataHandler() const;
+    boost::shared_ptr< WDataHandler > getDataHandler() const;
 
     /**
      * Returns pointer to the currently running kernel.
@@ -123,12 +123,12 @@ public:
     /**
      * getter for datahandler
      */
-    boost::shared_ptr<WDataHandler> getDataHandler();
+    boost::shared_ptr< WDataHandler > getDataHandler();
 
     /**
      * getter for gui
      */
-    boost::shared_ptr<WGUI> getGui();
+    boost::shared_ptr< WGUI > getGui();
 
     /**
      *
@@ -150,22 +150,22 @@ protected:
     /**
      * All the loaded modules.
      */
-    std::list<boost::shared_ptr<WModule> > m_modules;
+    std::list< boost::shared_ptr< WModule > > m_modules;
 
     /**
      * Pointer to an initialized graphics engine.
      */
-    boost::shared_ptr<WGraphicsEngine> m_graphicsEngine;
+    boost::shared_ptr< WGraphicsEngine > m_graphicsEngine;
 
     /**
      * The Gui.
      */
-    boost::shared_ptr<WGUI> m_gui;
+    boost::shared_ptr< WGUI > m_gui;
 
     /**
      * The Datahandler.
      */
-    boost::shared_ptr<WDataHandler> m_dataHandler;
+    boost::shared_ptr< WDataHandler > m_dataHandler;
 
 private:
     /**
