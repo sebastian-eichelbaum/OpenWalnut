@@ -69,12 +69,26 @@ public:
      */
     void testRawSize( void )
     {
-        int a[4] = { 0, -5, 1, 2 };
-        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int ) );
+        int8_t a[4] = { 0, -5, 1, 2 };
+        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
         WValueSet< int8_t > first( 0, 1, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( first.rawSize(), 4 );
         WValueSet< int8_t > second( 2, 2, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( first.rawSize(), 4 );
+    }
+
+    /**
+     * This function should return the i-th value if the value set is scalar.
+     */
+    void testGetScalar( void )
+    {
+        int8_t a[4] = { 0, -5, 1, 2 };
+        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        WValueSet< int8_t > set( 0, 1, v, W_DT_INT8 );
+        TS_ASSERT_EQUALS( set.getScalar( 0 ), a[0] );
+        TS_ASSERT_EQUALS( set.getScalar( 1 ), a[1] );
+        TS_ASSERT_EQUALS( set.getScalar( 2 ), a[2] );
+        TS_ASSERT_EQUALS( set.getScalar( 3 ), a[3] );
     }
 
     /**
