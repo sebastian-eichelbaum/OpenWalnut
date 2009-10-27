@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <string>
 
 #include "WMarchingCubesModule.h"
 #include "marchingCubesCaseTables.h"
@@ -52,8 +53,13 @@ const std::string WMarchingCubesModule::getName() const
 
 const std::string WMarchingCubesModule::getDescription() const
 {
-    return "This description has to be improved when the module is completed. By now lets say the following: This module implement the marching cubes algorithm with a consisten triangulation. It allows to compute isosurfaces for a given isovalue on data given on grid only consisting of cubes. It yields the surface as triangle soup.";
+    return "This description has to be improved when the module is completed."
+" By now lets say the following: This module implement the marching cubes"
+" algorithm with a consisten triangulation. It allows to compute isosurfaces"
+" for a given isovalue on data given on grid only consisting of cubes. It yields"
+" the surface as triangle soup.";
 }
+
 
 void WMarchingCubesModule::threadMain()
 {
@@ -79,6 +85,8 @@ void WMarchingCubesModule::threadMain()
     generateSurface( 100 );
 
     std::cout << " -- THREADMAIN for Marching Cubes 2 -- " << m_dataSet->getFileName() << std::endl;
+
+    std::cout << " -- THREADMAIN for Marching Cubes 3 -- " << m_dataSet->getFileName() << std::endl;
 }
 
 void WMarchingCubesModule::connectors()
@@ -106,7 +114,7 @@ void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )
 {
     if ( propertyName == "isoValue" )
     {
-        //updateTextures();
+        // updateTextures();
     }
     else
     {
@@ -358,7 +366,7 @@ WPointXYZId WMarchingCubesModule::interpolate( double fX1, double fY1, double fZ
     WPointXYZId interpolation;
     double mu;
 
-    mu = double( ( m_tIsoLevel - tVal1 ) ) / ( tVal2 - tVal1 );
+    mu = static_cast<double>( ( m_tIsoLevel - tVal1 ) ) / ( tVal2 - tVal1 );
     interpolation.x = fX1 + mu * ( fX2 - fX1 );
     interpolation.y = fY1 + mu * ( fY2 - fY1 );
     interpolation.z = fZ1 + mu * ( fZ2 - fZ1 );

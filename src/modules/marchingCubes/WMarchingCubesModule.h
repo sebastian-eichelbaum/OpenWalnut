@@ -25,17 +25,23 @@
 #ifndef WMARCHINGCUBESMODULE_H
 #define WMARCHINGCUBESMODULE_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.hpp"
 
-struct WPointXYZId {
+struct WPointXYZId
+{
     unsigned int newID;
     double x, y, z;
 };
 
 typedef std::map< unsigned int, WPointXYZId > ID2WPointXYZId;
 
-struct WMCTriangle {
+struct WMCTriangle
+{
     unsigned int pointID[3];
 };
 
@@ -91,13 +97,13 @@ protected:
     virtual void properties();
 
 private:
-    boost::shared_ptr< WModuleInputData< boost::shared_ptr< WDataSet > > > m_input; //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< boost::shared_ptr< WDataSet > > > m_input;  //!< Input connector required by this module.
 
-    static const unsigned int m_edgeTable[256]; //!< Lookup table for edges used in the construction of the isosurface.
-    static const int m_triTable[256][16]; //!< Lookup table for triangles used in the construction of the isosurface.
+    static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
+    static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.
 
-    boost::shared_ptr< const WDataSetSingle > m_dataSet; //!< Convenience pointer to the data set we are dealing with
-    boost::shared_ptr< WValueSet< unsigned char > > m_vals; //!< Convenience pointer to the values set we are dealing with
+    boost::shared_ptr< const WDataSetSingle > m_dataSet;  //!< Convenience pointer to the data set we are dealing with
+    boost::shared_ptr< WValueSet< unsigned char > > m_vals;  //!< Convenience pointer to the values set we are dealing with
 
     /**
      * Generate the triangles for the surface
@@ -123,20 +129,20 @@ private:
     /**
      * Returns the vertex ID.
      */
-    unsigned int getVertexID(unsigned int nX, unsigned int nY, unsigned int nZ);
+    unsigned int getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ );
 
-    unsigned int m_nCellsX; //!< No. of cells in x direction.
-    unsigned int m_nCellsY; //!< No. of cells in y direction.
-    unsigned int m_nCellsZ; //!< No. of cells in z direction.
+    unsigned int m_nCellsX;  //!< No. of cells in x direction.
+    unsigned int m_nCellsY;  //!< No. of cells in y direction.
+    unsigned int m_nCellsZ;  //!< No. of cells in z direction.
 
-    double m_fCellLengthX; //!< Cell length in x direction.
-    double m_fCellLengthY; //!< Cell length in y direction.
-    double m_fCellLengthZ; //!< Cell length in z direction.
+    double m_fCellLengthX;  //!< Cell length in x direction.
+    double m_fCellLengthY;  //!< Cell length in y direction.
+    double m_fCellLengthZ;  //!< Cell length in z direction.
 
-    double m_tIsoLevel; //!< The isovalue.
+    double m_tIsoLevel;  //!< The isovalue.
 
-    ID2WPointXYZId m_idToVertices; //!< List of WPointXYZIds which form the isosurface.
-    WMCTriangleVECTOR m_trivecTriangles; //!< List of WMCTriangleS which form the triangulation of the isosurface.
+    ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
+    WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 };
 
 #endif  // WMARCHINGCUBESMODULE_H
