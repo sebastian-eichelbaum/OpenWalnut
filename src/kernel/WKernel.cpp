@@ -185,8 +185,8 @@ void WKernel::loadModules()
     m_modules.clear();
 
     using boost::shared_ptr;
-    shared_ptr< WModule > m = shared_ptr< WModule >( new WNavigationSliceModule() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberTestModule() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WNavigationSliceModule() );
+    shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberTestModule() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
 
     m_modules.push_back( m );

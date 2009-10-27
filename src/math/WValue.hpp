@@ -195,12 +195,7 @@ public:
      */
     double norm() const
     {
-        double normSquare = 0.0;
-
-        for( unsigned int i = 0; i < m_components.size(); ++i )
-            normSquare += m_components[i] * m_components[i];
-
-        return sqrt( normSquare );
+        return sqrt( this->normSquare() );
     }
 
     /**
@@ -216,7 +211,9 @@ public:
         double normSquare = 0.0;
 
         for( unsigned int i = 0; i < m_components.size(); ++i )
+        {
             normSquare += m_components[i] * m_components[i];
+        }
 
         return normSquare;
     }
@@ -228,7 +225,10 @@ public:
     {
         double currentNorm = norm();
         for( unsigned int i = 0; i < m_components.size(); ++i )
+        {
+            assert( currentNorm > 0.0 );
             m_components[i] /= currentNorm;
+        }
     }
 
     /**

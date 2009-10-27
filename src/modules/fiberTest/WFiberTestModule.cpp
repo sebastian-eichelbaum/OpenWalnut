@@ -30,11 +30,13 @@
 #include "WFiberTestModule.h"
 #include "../../math/WFiber.h"
 #include "../../common/WLogger.h"
+#include "../../common/WColor.hpp"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WLoaderManager.h"
 #include "../../kernel/WKernel.h"
+#include "../../utils/WColorUtils.h"
 
 WFiberTestModule::WFiberTestModule()
     : WModule()
@@ -58,20 +60,26 @@ const std::string WFiberTestModule::getDescription() const
 void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) const
 {
     osg::Vec3Array* vertices = new osg::Vec3Array( fib.size() );
+    osg::Vec4Array* colors = new osg::Vec4Array( fib.size() );
     osg::Vec3Array::iterator vitr = vertices->begin();
 
-    for( size_t i = 0; i < fib.size(); ++i )
+    ( vitr++ )->set( fib[0][0], fib[0][1], fib[0][2] );
+    for( size_t i = 1; i < fib.size(); ++i )
     {
         ( vitr++ )->set( fib[i][0], fib[i][1], fib[i][2] );
+        WColor c = color_utils::getRGBAColorFromDirection( wmath::WPosition( fib[i][0], fib[i][1], fib[i][2] ),
+                                                           wmath::WPosition( fib[i-1][0], fib[i-1][1], fib[i-1][2] ) );
+        assert( c.getAlpha() == 1.0 );
+        assert( c.getRed() != 0.0 || c.getBlue() != 0.0 || c.getGreen() != 0.0 );
+        colors->push_back( c.getOSGColor() );
     }
+    colors->push_back( colors->back() );
 
     osg::Geometry* geometry = new osg::Geometry();
     geometry->setVertexArray( vertices );
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, fib.size() ) );
-    osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, 1.0f ) );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, fib.size() ) );
 
     geode->addDrawable( geometry );
 }
