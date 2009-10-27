@@ -89,7 +89,7 @@ void WLoaderNIfTI::operator()()
     unsigned int vDim = header->dim[4];
     unsigned int countVoxels = columns * rows * frames;
 
-    nifti_image_infodump( header );
+    // nifti_image_infodump( header );
 
     switch( header->datatype )
     {

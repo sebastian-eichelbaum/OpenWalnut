@@ -70,22 +70,30 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
     m_toolBar = new WQtRibbonMenu( mainWindow );
     mainWindow->addToolBar( Qt::TopToolBarArea, m_toolBar );
 
+    std::cout << "init main gl" << std::endl;
     boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( mainWindow ) );
     m_glWidgets.push_back( widget );
     mainWindow->setCentralWidget( widget.get() );
 
-    // initially 3 views
-    m_navAxial = new WQtNavGLWidget( "axial", 160, "axialPos" );
-    m_glWidgets.push_back( m_navAxial->getGLWidget() );
-    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial );
-
-    m_navCoronal = new WQtNavGLWidget( "coronal", 200, "coronalPos" );
-    m_glWidgets.push_back( m_navCoronal->getGLWidget() );
-    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal );
-
-    m_navSagittal = new WQtNavGLWidget( "sagittal", 160, "sagittalPos" );
-    m_glWidgets.push_back( m_navSagittal->getGLWidget() );
-    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal );
+//    // initially 3 views
+//    std::cout << "init nav gl 1" << std::endl;
+//    m_navAxial = new WQtNavGLWidget( "axial", 160, "axialPos" );
+//    m_glWidgets.push_back( m_navAxial->getGLWidget() );
+//    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial );
+//
+//    std::cout << "init nav gl 2" << std::endl;
+//    m_navCoronal = new WQtNavGLWidget( "coronal", 200, "coronalPos" );
+//    m_glWidgets.push_back( m_navCoronal->getGLWidget() );
+//    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal );
+//
+//    std::cout << "init nav gl 3" << std::endl;
+//    m_navSagittal = new WQtNavGLWidget( "sagittal", 160, "sagittalPos" );
+//    m_glWidgets.push_back( m_navSagittal->getGLWidget() );
+//    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal );
+//
+//    connect( m_navAxial, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+//    connect( m_navCoronal, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+//    connect( m_navSagittal, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
 
     m_datasetBrowser = new WQtDatasetBrowser();
     mainWindow->addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
@@ -99,10 +107,6 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
     connect( m_toolBar->getAxiButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleAxial( bool ) ) );
     connect( m_toolBar->getCorButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleCoronal( bool ) ) );
     connect( m_toolBar->getSagButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleSagittal( bool ) ) );
-
-    connect( m_navAxial, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navCoronal, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navSagittal, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
 
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }

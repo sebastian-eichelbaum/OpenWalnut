@@ -81,8 +81,8 @@ void WQtDatasetBrowser::connectSlots()
 {
     connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
-    connect( m_upButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemUp() ) );
-    connect( m_downButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemDown() ) );
+    connect( m_upButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemUp() ) );
+    connect( m_downButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemDown() ) );
 }
 
 
@@ -245,3 +245,16 @@ std::vector< boost::shared_ptr< WModule > >WQtDatasetBrowser::getDataSetList( in
     }
     return moduleList;
 }
+
+void WQtDatasetBrowser::moveTreeItemDown()
+{
+    m_treeWidget->moveTreeItemDown();
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
+}
+
+void WQtDatasetBrowser::moveTreeItemUp()
+{
+    m_treeWidget->moveTreeItemUp();
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
+}
+

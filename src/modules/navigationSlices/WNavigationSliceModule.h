@@ -82,7 +82,7 @@ public:
     /**
      * updates the positions of the navigation slices
      */
-    void updateSlices();
+    void updateGeometry();
 
     /**
      *  updates textures and shader parameters
@@ -121,7 +121,7 @@ private:
     /**
      * initial creation function for the slice geometry
      */
-    void createSlices();
+    void createGeometry();
 
     /**
      * creates and initializes the uniform parameters for the shader
@@ -162,7 +162,7 @@ public:
     {
         if ( m_module )
         {
-            m_module->updateSlices();
+            m_module->updateGeometry();
             m_module->updateTextures();
         }
         traverse( node, nv );

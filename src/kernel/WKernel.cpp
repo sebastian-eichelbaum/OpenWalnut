@@ -51,7 +51,7 @@ WKernel* kernel = NULL;
 WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
     : m_gui( gui )
 {
-    std::cout << "Initializing Kernel" << std::endl;
+    WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_DEBUG );
 
     kernel = this;
 
@@ -194,7 +194,7 @@ void WKernel::loadModules()
 
 void WKernel::init()
 {
-    // initialize
+     // initialize
     findAppPath();
 
     // initialize graphics engine
@@ -203,6 +203,8 @@ void WKernel::init()
 
     // initialize Datahandler
     m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
+
+    // m_gui->createMainWindow();
 
     m_dataHandler->getSignalAddDataset()->connect( boost::bind( &WKernel::slotFinishLoadData, this, _1 ) );
 }

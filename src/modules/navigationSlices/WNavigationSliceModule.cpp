@@ -97,7 +97,7 @@ void WNavigationSliceModule::connectors()
 
 void WNavigationSliceModule::properties()
 {
-    ( m_properties.addBool( "textureChanged", true ) );
+    ( m_properties.addBool( "textureChanged", false ) );
 
     ( m_properties.addInt( "axialPos", 80 ) );
     ( m_properties.addInt( "coronalPos", 100 ) );
@@ -122,7 +122,7 @@ void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnecto
 
 void WNavigationSliceModule::threadMain()
 {
-    createSlices();
+    createGeometry();
 
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
@@ -134,7 +134,7 @@ void WNavigationSliceModule::threadMain()
     // clean up stuff
 }
 
-void WNavigationSliceModule::createSlices()
+void WNavigationSliceModule::createGeometry()
 {
     float axialPos = ( float )( m_properties.getValue< int >( "axialPos" ) );
     float coronalPos = ( float )( m_properties.getValue< int >( "coronalPos" ) );
@@ -223,7 +223,7 @@ void WNavigationSliceModule::createSlices()
     m_sliceNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WNavigationSliceModule>( shared_from_this() ) ) );
 }
 
-void WNavigationSliceModule::updateSlices()
+void WNavigationSliceModule::updateGeometry()
 {
     float axialPos = ( float )( m_properties.getValue< int >( "axialPos" ) );
     float coronalPos = ( float )( m_properties.getValue< int >( "coronalPos" ) );
@@ -331,7 +331,7 @@ void WNavigationSliceModule::updateTextures()
             }
 
             osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
-
+            int c = 0;
             for ( size_t i = 0; i < datasetList.size(); ++i )
             {
                 if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
@@ -339,15 +339,17 @@ void WNavigationSliceModule::updateTextures()
                 {
                     osg::Texture3D* texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
 
-                    sliceState->setTextureAttributeAndModes( i, texture3D, osg::StateAttribute::ON );
+                    sliceState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                     float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
                     float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
 
-                    m_typeUniforms[i]->set( boost::shared_dynamic_cast<WDataSetSingle>(
+                    m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>(
                             boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getDataSet() )->getValueSet()->getDataType() );
-                    m_thresholdUniforms[i]->set( t );
-                    m_alphaUniforms[i]->set( a );
+                    m_thresholdUniforms[c]->set( t );
+                    m_alphaUniforms[c]->set( a );
+
+                    ++c;
                 }
             }
 
