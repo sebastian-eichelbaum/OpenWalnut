@@ -37,7 +37,7 @@ WQtCheckBox::~WQtCheckBox()
 {
 }
 
-void WQtCheckBox::setName( std::string name )
+void WQtCheckBox::setName( QString name )
 {
     m_name = name;
 }
