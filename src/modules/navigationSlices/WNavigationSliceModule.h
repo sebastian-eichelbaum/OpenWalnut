@@ -43,7 +43,7 @@
  *
  * Simple module for testing some WKernel functionality.
  */
-class WNavigationSliceModule: public WModule
+class WNavigationSliceModule: public WModule, public osg::Referenced
 {
 public:
 
@@ -80,9 +80,14 @@ public:
     void connectToGui();
 
     /**
-     *
+     * updates the positions of the navigation slices
      */
-    void slotPropertyChanged( std::string propertyName );
+    void updateSlices();
+
+    /**
+     *  updates textures and shader parameters
+     */
+    void updateTextures();
 
 protected:
 
@@ -111,21 +116,12 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                    boost::shared_ptr<WModuleConnector> output );
 
+
 private:
     /**
      * initial creation function for the slice geometry
      */
     void createSlices();
-
-    /**
-     * updates the positions of the navigation slices
-     */
-    void updateSlices();
-
-    /**
-     *  updates textures and shader parameters
-     */
-    void updateTextures();
 
     /**
      * creates and initializes the uniform parameters for the shader
@@ -151,6 +147,28 @@ private:
     std::vector< osg::Uniform* > m_alphaUniforms;
     std::vector< osg::Uniform* > m_thresholdUniforms;
     std::vector< osg::Uniform* > m_samplerUniforms;
+};
+
+
+class sliceNodeCallback : public osg::NodeCallback
+{
+public:
+    explicit sliceNodeCallback( boost::shared_ptr< WNavigationSliceModule > module )
+    {
+        m_module = module;
+    }
+
+    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
+    {
+        if ( m_module )
+        {
+            m_module->updateSlices();
+            m_module->updateTextures();
+        }
+        traverse( node, nv );
+    }
+private:
+    boost::shared_ptr< WNavigationSliceModule > m_module;
 };
 
 #endif  // WNAVIGATIONSLICEMODULE_H
