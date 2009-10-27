@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <osg/Group>
+#include <osg/Geode>
 
 #include "../../kernel/WModule.h"
 #include "../../math/WFiber.h"
@@ -67,12 +67,12 @@ protected:
     virtual void threadMain();
 
     /**
-     * Draws the given fiber into the given osg::Groupe node.
+     * Draws the given fiber into the given OSG node.
      *
      * \param fib reference to a WFiber instance
-     * \param group OSG group node, where all fibers are drawn into
+     * \param geode OSG node, where all fibers are drawn into
      */
-    void drawFiber( const wmath::WFiber &fib, osg::Group *group ) const;
+    void drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) const;
 
 private:
 };

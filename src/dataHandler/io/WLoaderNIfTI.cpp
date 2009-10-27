@@ -87,6 +87,7 @@ void WLoaderNIfTI::operator()()
     nifti_image* filedata = nifti_image_read( m_fileName.c_str(), 1 );
 
     unsigned int vDim = header->dim[4];
+    unsigned int order = ( ( vDim == 1 ) ? 0 : 1 );  // TODO(all): Does recognize vectors and scalars only so far.
     unsigned int countVoxels = columns * rows * frames;
 
     // nifti_image_infodump( header );
@@ -96,21 +97,21 @@ void WLoaderNIfTI::operator()()
         case DT_UNSIGNED_CHAR:
         {
             std::vector< unsigned char > data = copyArray( reinterpret_cast< unsigned char* >( filedata->data ), countVoxels, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< unsigned char >( 1, vDim, data, W_DT_UNSIGNED_CHAR ) );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< unsigned char >( order, vDim, data, W_DT_UNSIGNED_CHAR ) );
             break;
         }
 
         case DT_SIGNED_SHORT:
         {
             std::vector< int16_t > data = copyArray( reinterpret_cast< int16_t* >( filedata->data ), countVoxels, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 1, vDim, data, W_DT_INT16 ) );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( order, vDim, data, W_DT_INT16 ) );
             break;
         }
 
         case DT_FLOAT:
         {
             std::vector< float > data = copyArray( reinterpret_cast< float* >( filedata->data ), countVoxels, vDim );
-            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 1, vDim, data, W_DT_FLOAT ) );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
             break;
         }
 

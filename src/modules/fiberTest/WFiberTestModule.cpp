@@ -26,7 +26,6 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Group>
 
 #include "WFiberTestModule.h"
 #include "../../math/WFiber.h"
@@ -56,7 +55,7 @@ const std::string WFiberTestModule::getDescription() const
     return std::string( "Draws fibers out of a WDataSetFibers" );
 }
 
-void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Group *group ) const
+void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) const
 {
     osg::Vec3Array* vertices = new osg::Vec3Array( fib.size() );
     osg::Vec3Array::iterator vitr = vertices->begin();
@@ -74,38 +73,38 @@ void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Group *group ) 
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-    osg::ref_ptr< osg::Geode > geode = new osg::Geode;
     geode->addDrawable( geometry );
-    group->addChild( geode );
-    std::cout << "drawn fiber.. " << std::endl;
 }
 
 void WFiberTestModule::threadMain()
 {
-    using boost::shared_ptr;
-    std::string fname = "dataHandler/io/fixtures/Fibers/valid_small_example.fib";
-    WLogger::getLogger()->addLogMessage( "Test loading of file: " + fname, "Kernel", LL_DEBUG );
-    shared_ptr< WDataHandler > dataHandler = shared_ptr< WDataHandler >( new WDataHandler() );
-    WLoaderManager testLoaderManager;
-    testLoaderManager.load( fname, dataHandler );
-    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
-    sleep( 10 );  // we need this to allow the thread to terminate
-    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
-
-    shared_ptr< const WDataSetFibers > fiberDS;
-    assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
-    const WDataSetFibers &fibers = *fiberDS;  // just an alias
-
-    // osg group node bauen
-    osg::Group *group = new osg::Group;
-
-    // osg childs an die group hängen
-    for( size_t i = 0; i < fibers.size(); ++i )
+    boost::shared_ptr< WDataHandler > dataHandler;
+    // TODO(wiebel): fix this hack when possible by using an input connector.
+    while( !WKernel::getRunningKernel() )
     {
-        drawFiber( fibers[i], group );
+        sleep( 1 );
+    }
+    while( !( dataHandler = WKernel::getRunningKernel()->getDataHandler() ) )
+    {
+        sleep( 1 );
+    }
+    while( !dataHandler->getNumberOfSubjects() )
+    {
+        sleep( 1 );
     }
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group );
+    boost::shared_ptr< const WDataSetFibers > fiberDS;
+    assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
+    const WDataSetFibers &fibers = *fiberDS;  // just an alias
+    osg::Geode *geode = new osg::Geode;
+
+    for( size_t i = 0; i < fibers.size(); ++i )
+    {
+        drawFiber( fibers[i], geode );
+    }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
+
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
     {

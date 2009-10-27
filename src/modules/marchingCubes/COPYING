@@ -1,0 +1,19 @@
+Code for this module has been take from the the following files.
+
+// Description: This is the implementation file for the CIsoSurface class.
+// File Name: CIsoSurface.h
+// Last Modified: 5/8/2000
+// Author: Raghavendra Chandrashekara (basesd on source code
+// provided by Paul Bourke and Cory Gene Bloyd)
+// Email: rc99@doc.ic.ac.uk, rchandrashekara@hotmail.com
+//
+// Description: This is the interface file for the CIsoSurface class.
+// CIsoSurface can be used to construct an isosurface from a scalar
+// field.
+
+// File Name: CIsoSurface.cpp
+// Last Modified: 5/8/2000
+// Author: Raghavendra Chandrashekara (based on source code provided
+// by Paul Bourke and Cory Gene Bloyd)
+// Email: rc99@doc.ic.ac.uk, rchandrashekara@hotmail.com
+//
