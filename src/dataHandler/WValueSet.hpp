@@ -31,6 +31,7 @@
 
 #include "WValueSetBase.h"
 #include "WDataHandlerEnums.h"
+#include "../math/WValue.hpp"
 
 /**
  * Base Class for all value set types.
@@ -83,6 +84,16 @@ public:
     {
         return m_data.size();
     }
+
+    /**
+     * \return The i-th value if the value set is of scalar type.
+     */
+    virtual T getScalar( size_t i ) const
+    {
+        assert( m_order == 0 && m_dimension == 1 );
+        return m_data[i];
+    }
+
 
     /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.

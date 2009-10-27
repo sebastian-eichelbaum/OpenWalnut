@@ -252,6 +252,34 @@ public:
         TS_ASSERT_EQUALS( expected, actual->back() );
     }
 
+    /**
+     * When e.g. the CopyConstructor is invoked, all internals (including)
+     * all pointers will be destructed and deleted.
+     */
+    void testDestructor( void )
+    {
+        std::vector< WLoaderFibers > loaders;
+        {
+            WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+            loaders.push_back( loader );
+            // destructor invoked
+        }
+        TS_ASSERT( loaders[0].m_ifs->is_open() );
+        loaders.clear();  // second destruction
+    }
+
+    /**
+     * The () operator normaly starts the thread, so we check here if every thing
+     * terminates quite well.
+     */
+    void testBracesOperatorTerminatesWell( void )
+    {
+        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 0 );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        loader();
+        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
+    }
+
 private:
     /**
      * Dummy DataHandler instance

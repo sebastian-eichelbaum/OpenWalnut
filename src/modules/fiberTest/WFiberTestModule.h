@@ -27,7 +27,10 @@
 
 #include <string>
 
+#include <osg/Group>
+
 #include "../../kernel/WModule.h"
+#include "../../math/WFiber.h"
 
 /**
  * Test module for drawing fibers
@@ -62,6 +65,14 @@ protected:
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void threadMain();
+
+    /**
+     * Draws the given fiber into the given osg::Groupe node.
+     *
+     * \param fib reference to a WFiber instance
+     * \param group OSG group node, where all fibers are drawn into
+     */
+    void drawFiber( const wmath::WFiber &fib, osg::Group *group ) const;
 
 private:
 };
