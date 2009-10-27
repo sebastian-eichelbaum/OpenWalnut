@@ -50,10 +50,10 @@ public:
     /**
      * setter for name
      */
-    void setName( std::string name );
+    void setName( QString name );
 
 private:
-    std::string m_name;
+    QString m_name;
 
 
 
@@ -61,7 +61,7 @@ public slots:
     void emitStateChanged();
 
 signals:
-    void checkBoxStateChanged( std::string name, bool value );
+    void checkBoxStateChanged( QString name, bool value );
 };
 
 #endif  // WQTCHECKBOX_H

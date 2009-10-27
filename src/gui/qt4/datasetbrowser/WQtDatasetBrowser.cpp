@@ -81,8 +81,8 @@ void WQtDatasetBrowser::connectSlots()
 {
     connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
-    connect( m_upButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemUp() ) );
-    connect( m_downButton, SIGNAL( pressed() ), m_treeWidget, SLOT( moveTreeItemDown() ) );
+    connect( m_upButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemUp() ) );
+    connect( m_downButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemDown() ) );
 }
 
 
@@ -99,6 +99,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
 {
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId );
     subject->setExpanded( true );
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     return subject->addDatasetItem( module );
 }
 
@@ -122,9 +123,9 @@ void WQtDatasetBrowser::selectTreeItem()
         {
             case P_BOOL:
             {
-                WQtCheckBox* box = tab1->addCheckBox( props->at( i )->getName(), props->at( i )->getValue<bool>() );
-                connect( box, SIGNAL( checkBoxStateChanged( std::string, bool ) ),
-                        this, SLOT( slotSetBoolProperty( std::string, bool ) ) );
+                QString name = QString( props->at( i )->getName().c_str() );
+                WQtCheckBox* box = tab1->addCheckBox( name, props->at( i )->getValue<bool>() );
+                connect( box, SIGNAL( checkBoxStateChanged( QString, bool ) ), this, SLOT( slotSetBoolProperty( QString, bool ) ) );
                 break;
             }
             case P_CHAR:
@@ -133,10 +134,10 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_INT:
             {
-                WQtSliderWithEdit* slider = tab1->addSliderInt( props->at( i )->getName(), props->at( i )->getValue<int>(),
+                QString name = QString( props->at( i )->getName().c_str() );
+                WQtSliderWithEdit* slider = tab1->addSliderInt( name, props->at( i )->getValue<int>(),
                         props->at( i )->getMin<int>(), props->at( i )->getMax<int>() );
-                connect( slider, SIGNAL( signalNumberWithName( std::string, int ) ),
-                        this, SLOT( slotSetIntProperty( std::string, int ) ) );
+                connect( slider, SIGNAL( signalNumberWithName( QString, int ) ), this, SLOT( slotSetIntProperty( QString, int ) ) );
                 break;
             }
             case P_UNSIGNED_INT:
@@ -147,9 +148,10 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_STRING:
             {
-                WQtLineEdit* edit = tab1->addLineEdit( props->at( i )->getName(), props->at( i )->getValue<std::string>() );
-                connect( edit, SIGNAL( lineEditStateChanged( std::string, std::string ) ),
-                        this, SLOT( slotSetStringProperty( std::string, std::string ) ) );
+                QString name = QString( props->at( i )->getName().c_str() );
+                QString text = QString( props->at( i )->getValue<std::string>().c_str() );
+                WQtLineEdit* edit = tab1->addLineEdit( name, text );
+                connect( edit, SIGNAL( lineEditStateChanged( QString, QString ) ), this, SLOT( slotSetStringProperty( QString, QString ) ) );
                 break;
             }
             default:
@@ -178,7 +180,7 @@ void WQtDatasetBrowser::changeTreeItem()
     {
         module->getProperties()->setValue<bool>( "active", false );
     }
-    emit dataSetBrowserEvent( "textureChanged", true );
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     // selectTreeItem();
 }
 
@@ -187,18 +189,18 @@ void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     m_tabWidget->addTab( content, content->getName() );
 }
 
-void WQtDatasetBrowser::slotSetIntProperty( std::string name, int value )
+void WQtDatasetBrowser::slotSetIntProperty( QString name, int value )
 {
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    module->getProperties()->setValue<int>( name, value );
+    module->getProperties()->setValue<int>( name.toStdString(), value );
 
-    emit dataSetBrowserEvent( "textureChanged", true );
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
-void WQtDatasetBrowser::slotSetBoolProperty( std::string name, bool value )
+void WQtDatasetBrowser::slotSetBoolProperty( QString name, bool value )
 {
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    module->getProperties()->setValue<bool>( name, value );
+    module->getProperties()->setValue<bool>( name.toStdString(), value );
 
     if ( name == "active")
     {
@@ -211,17 +213,17 @@ void WQtDatasetBrowser::slotSetBoolProperty( std::string name, bool value )
             m_treeWidget->selectedItems().at( 0 )->setCheckState( 0, Qt::Unchecked );
         }
     }
-    emit dataSetBrowserEvent( "textureChanged", true );
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
-void WQtDatasetBrowser::slotSetStringProperty( std::string name, std::string value )
+void WQtDatasetBrowser::slotSetStringProperty( QString name, QString value )
 {
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    module->getProperties()->setValue<std::string>( name, value );
+    module->getProperties()->setValue<std::string>( name.toStdString(), value.toStdString() );
 
     if ( name == "name")
     {
-        m_treeWidget->selectedItems().at( 0 )->setText( 0,  QString( value.c_str() ) );
+        m_treeWidget->selectedItems().at( 0 )->setText( 0, value );
     }
 }
 
@@ -243,3 +245,16 @@ std::vector< boost::shared_ptr< WModule > >WQtDatasetBrowser::getDataSetList( in
     }
     return moduleList;
 }
+
+void WQtDatasetBrowser::moveTreeItemDown()
+{
+    m_treeWidget->moveTreeItemDown();
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
+}
+
+void WQtDatasetBrowser::moveTreeItemUp()
+{
+    m_treeWidget->moveTreeItemUp();
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
+}
+

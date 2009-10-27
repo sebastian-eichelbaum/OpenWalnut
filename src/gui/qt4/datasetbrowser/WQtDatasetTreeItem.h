@@ -49,10 +49,6 @@ public:
      */
     boost::shared_ptr< WModule >getModule();
 
-    /**
-     * helper function to signal this item has been selected
-     */
-    void emitSelect();
 protected:
 private:
      boost::shared_ptr< WModule >m_module;

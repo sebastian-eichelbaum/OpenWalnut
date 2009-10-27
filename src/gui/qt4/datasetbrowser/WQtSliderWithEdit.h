@@ -42,7 +42,7 @@ public:
     /**
      * default constructor
      */
-    explicit WQtSliderWithEdit( std::string name, QWidget* parent = 0 );
+    explicit WQtSliderWithEdit( QString name, QWidget* parent = 0 );
 
     /**
      * destructor
@@ -52,7 +52,7 @@ public:
     /**
      * setter for name
      */
-    void setName( std::string name );
+    void setName( QString name );
 
     /**
      * setter for min value
@@ -82,10 +82,10 @@ private:
     WQtNumberEdit m_edit;
     QHBoxLayout m_layout;
 
-    std::string m_name;
+    QString m_name;
 
 signals:
-    void signalNumberWithName( std::string name, int number );
+    void signalNumberWithName( QString name, int number );
 };
 
 #endif  // WQTSLIDERWITHEDIT_H

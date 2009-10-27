@@ -48,6 +48,11 @@ public:
     virtual bool isInitalized() = 0;
 
     /**
+     * function to create a main window on demand, so it doesn't happen in the constructor
+     */
+    virtual void createMainWindow() = 0;
+
+    /**
      *  adds a dataset to the dataset browser for a give subject
      */
     virtual void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId ) = 0;

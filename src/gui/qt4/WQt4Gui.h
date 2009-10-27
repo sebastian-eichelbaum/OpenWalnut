@@ -50,6 +50,12 @@ public:
     virtual ~WQt4Gui();
 
     /**
+     * function to create a main window on demand, so it doesn't happen in the constructor
+     */
+    virtual void createMainWindow();
+
+
+    /**
      * return trues when initialization is finished, otherwise false
      */
     bool isInitalized();

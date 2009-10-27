@@ -57,7 +57,6 @@ void WQt4Gui::threadMain()
     QMainWindow* mainWindow = new QMainWindow;
     m_gui = new WMainWindow;
     m_gui->setupGUI( mainWindow );
-
     mainWindow->show();
 
     m_isInitialized = true;
@@ -65,7 +64,12 @@ void WQt4Gui::threadMain()
     int qtExecResult;
     qtExecResult = appl.exec();
 
+
     // TODO(ebaum): how to handle return codes?
+}
+
+void WQt4Gui::createMainWindow()
+{
 }
 
 void WQt4Gui::addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId )

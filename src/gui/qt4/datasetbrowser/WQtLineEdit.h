@@ -50,16 +50,16 @@ public:
     /**
      * setter for name
      */
-    void setName( std::string name );
+    void setName( QString name );
 
 private:
-    std::string m_name;
+    QString m_name;
 
 public slots:
     void emitStateChanged();
 
 signals:
-    void lineEditStateChanged( std::string name, std::string text );
+    void lineEditStateChanged( QString name, QString text );
 };
 
 #endif  // WQTLINEEDIT_H

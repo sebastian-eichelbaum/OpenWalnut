@@ -26,7 +26,7 @@
 
 #include "WQtSliderWithEdit.h"
 
-WQtSliderWithEdit::WQtSliderWithEdit( std::string name, QWidget* parent )
+WQtSliderWithEdit::WQtSliderWithEdit( QString name, QWidget* parent )
     : QWidget( parent ),
     m_slider( Qt::Horizontal ),
     m_edit(),
@@ -51,7 +51,7 @@ WQtSliderWithEdit::~WQtSliderWithEdit()
 {
 }
 
-void WQtSliderWithEdit::setName( std::string name )
+void WQtSliderWithEdit::setName( QString name )
 {
     m_name = name;
 }

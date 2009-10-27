@@ -60,7 +60,7 @@ public:
 
 protected:
 private:
-    std::string m_sliderTitle;
+    QString m_sliderTitle;
 
     boost::shared_ptr<WQtGLWidget> m_glWidget;
 
@@ -68,7 +68,7 @@ private slots:
     void sliderValueChanged( int value );
 
 signals:
-    void navSliderValueChanged( std::string name, int value );
+    void navSliderValueChanged( QString name, int value );
 };
 
 #endif  // WQTNAVGLWIDGET_H

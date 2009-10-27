@@ -29,7 +29,7 @@
 WQtLineEdit::WQtLineEdit()
     : QLineEdit()
 {
-    m_name = "";
+    m_name = QString( "" );
     connect( this, SIGNAL( textEdited( QString ) ), this, SLOT( emitStateChanged() ) );
 }
 
@@ -37,13 +37,12 @@ WQtLineEdit::~WQtLineEdit()
 {
 }
 
-void WQtLineEdit::setName( std::string name )
+void WQtLineEdit::setName( QString name )
 {
     m_name = name;
 }
 
 void WQtLineEdit::emitStateChanged()
 {
-    std::string text = std::string( this->text().toLatin1() );
-    emit lineEditStateChanged( m_name, text );
+    emit lineEditStateChanged( m_name, this->text() );
 }
