@@ -123,6 +123,7 @@ protected:
      * TODO(schurade): create other functions once dataset meta data is available again
      *
      * \param source Pointer to the raw data of a dataset
+     * \param grid The grid that gives us the dimensions information
      * \param components Number of values used in a Voxel, usually 1, 3 or 4
      * \return Pointer to a new texture3D
      */
