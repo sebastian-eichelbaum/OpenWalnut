@@ -143,6 +143,8 @@ private:
 
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
+
+    void renderSurface();
 };
 
 #endif  // WMARCHINGCUBESMODULE_H
