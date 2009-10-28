@@ -60,22 +60,22 @@ public:
     /**
      * helper function to add a generic button
      */
-    QPushButton* addPushButton( std::string label = "button" );
+    QPushButton* addPushButton( QString label );
 
     /**
      * helper function to add a generic checkbox
      */
-    WQtCheckBox* addCheckBox( std::string label = "checkbox:", bool isChecked = false );
+    WQtCheckBox* addCheckBox( QString label, bool isChecked = false );
 
     /**
      * helper function to add a generic line edit
      */
-    WQtLineEdit* addLineEdit( std::string label = "edit text:", std::string text = "" );
+    WQtLineEdit* addLineEdit( QString label, QString text = QString( "" ) );
 
     /**
      * helper function to add a slider with a connect line edit
      */
-    WQtSliderWithEdit* addSliderInt( std::string label = "", int value = 0, int min = 0, int max = 100 );
+    WQtSliderWithEdit* addSliderInt( QString label, int value = 0, int min = 0, int max = 100 );
 
     /**
      * getter for m_name

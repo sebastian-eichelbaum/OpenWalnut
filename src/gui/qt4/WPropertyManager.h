@@ -60,22 +60,22 @@ public slots:
      * slot function that writes a boolean value to all properties objects that contain an entry
      * with that name
      */
-    void slotBoolChanged( std::string name, bool value );
+    void slotBoolChanged( QString name, bool value );
     /**
      * slot function that writes a integer value to all properties objects that contain an entry
      * with that name
      */
-    void slotIntChanged( std::string name, int value );
+    void slotIntChanged( QString name, int value );
     /**
      * slot function that writes a float value to all properties objects that contain an entry
      * with that name
      */
-    void slotFloatChanged( std::string name, float value );
+    void slotFloatChanged( QString name, float value );
     /**
      * slot function that writes a string value to all properties objects that contain an entry
      * with that name
      */
-    void slotStringChanged( std::string name, std::string value );
+    void slotStringChanged( QString name, QString value );
 
 
 protected:

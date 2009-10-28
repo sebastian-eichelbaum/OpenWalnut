@@ -91,7 +91,7 @@ public:
     /**
      * getter for the 3d texture, which will be created on demand
      */
-    virtual osg::Texture3D* getTexture3D();
+    virtual osg::ref_ptr<osg::Texture3D> getTexture3D();
 
 protected:
 
@@ -127,9 +127,9 @@ protected:
      * \param components Number of values used in a Voxel, usually 1, 3 or 4
      * \return Pointer to a new texture3D
      */
-    osg::Texture3D* createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid,  int components = 1 );
-    osg::Texture3D* createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
-    osg::Texture3D* createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
+    osg::ref_ptr<osg::Texture3D> createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid,  int components = 1 );
+    osg::ref_ptr<osg::Texture3D> createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
+    osg::ref_ptr<osg::Texture3D> createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
 
 
 private:
@@ -147,7 +147,7 @@ private:
     /**
      * pointer to the 3d texture
      */
-    osg::Texture3D* m_texture3D;
+    osg::ref_ptr<osg::Texture3D> m_texture3D;
 };
 
 // TODO(schurade, ebaum): do we still need/want that constructor?
@@ -242,14 +242,12 @@ boost::shared_ptr< WDataSet > WDataModule<T>::getDataSet()
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::getTexture3D()
+osg::ref_ptr<osg::Texture3D> WDataModule<T>::getTexture3D()
 {
     if ( !m_texture3D )
     {
         boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
-
-        std::cout << "type:" << ds->getValueSet()->getDataType() << std::endl;
 
         if ( ds->getValueSet()->getDataType() == 2 )
         {
@@ -276,7 +274,7 @@ osg::Texture3D* WDataModule<T>::getTexture3D()
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid, int components )
+osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1 )
     {
@@ -289,7 +287,7 @@ osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, boost::s
         {
             data[i] = source[i];
         }
-        osg::Texture3D* texture3D = new osg::Texture3D;
+        osg::ref_ptr<osg::Texture3D> texture3D = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
         texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
         texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
         texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
@@ -309,7 +307,7 @@ osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, boost::s
         {
             data[i] = source[i];
         }
-        osg::Texture3D* texture3D = new osg::Texture3D;
+        osg::ref_ptr<osg::Texture3D> texture3D = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
         texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
         texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
         texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
@@ -323,7 +321,7 @@ osg::Texture3D* WDataModule<T>::createTexture3D( unsigned char* source, boost::s
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D> grid, int components )
+osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1)
     {
@@ -338,7 +336,7 @@ osg::Texture3D* WDataModule<T>::createTexture3D( int16_t* source, boost::shared_
         {
             data[i] = charSource[i];
         }
-        osg::Texture3D* texture3D = new osg::Texture3D;
+        osg::ref_ptr<osg::Texture3D> texture3D = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
         texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
         texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
         texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );
@@ -351,7 +349,7 @@ osg::Texture3D* WDataModule<T>::createTexture3D( int16_t* source, boost::shared_
 }
 
 template < typename T >
-osg::Texture3D* WDataModule<T>::createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components )
+osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components )
 {
     if ( components == 1)
     {
@@ -366,7 +364,7 @@ osg::Texture3D* WDataModule<T>::createTexture3D( float* source, boost::shared_pt
         {
             data[i] = charSource[i];
         }
-        osg::Texture3D* texture3D = new osg::Texture3D;
+        osg::ref_ptr<osg::Texture3D> texture3D = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
         texture3D->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
         texture3D->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
         texture3D->setWrap( osg::Texture3D::WRAP_R, osg::Texture3D::REPEAT );

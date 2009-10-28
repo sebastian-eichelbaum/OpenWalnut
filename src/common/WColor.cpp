@@ -22,27 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WColor.hpp"
 
-#include "WQtLineEdit.h"
-
-WQtLineEdit::WQtLineEdit()
-    : QLineEdit()
-{
-    m_name = QString( "" );
-    connect( this, SIGNAL( textEdited( QString ) ), this, SLOT( emitStateChanged() ) );
-}
-
-WQtLineEdit::~WQtLineEdit()
-{
-}
-
-void WQtLineEdit::setName( QString name )
-{
-    m_name = name;
-}
-
-void WQtLineEdit::emitStateChanged()
-{
-    emit lineEditStateChanged( m_name, this->text() );
-}

@@ -40,34 +40,34 @@ void WPropertyManager::connectProperties( WProperties* properties )
     m_connectedProperties.push_back( properties );
 }
 
-void WPropertyManager::slotBoolChanged( std::string name, bool value )
+void WPropertyManager::slotBoolChanged( QString name, bool value )
 {
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name, value );
+        m_connectedProperties[i]->setValue( name.toStdString(), value );
     }
 }
 
-void WPropertyManager::slotIntChanged( std::string name, int value )
+void WPropertyManager::slotIntChanged( QString name, int value )
 {
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name, value );
+        m_connectedProperties[i]->setValue( name.toStdString(), value );
     }
 }
 
-void WPropertyManager::slotFloatChanged( std::string name, float value )
+void WPropertyManager::slotFloatChanged( QString name, float value )
 {
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name, value );
+        m_connectedProperties[i]->setValue( name.toStdString(), value );
     }
 }
 
-void WPropertyManager::slotStringChanged( std::string name, std::string value )
+void WPropertyManager::slotStringChanged( QString name, QString value )
 {
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name, value );
+        m_connectedProperties[i]->setValue( name.toStdString(), value.toStdString() );
     }
 }

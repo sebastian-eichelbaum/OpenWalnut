@@ -89,9 +89,8 @@ void WLoaderNIfTI::operator()()
     unsigned int vDim = header->dim[4];
     unsigned int order = ( ( vDim == 1 ) ? 0 : 1 );  // TODO(all): Does recognize vectors and scalars only so far.
     unsigned int countVoxels = columns * rows * frames;
-    unsigned int countValues = countVoxels * vDim;
 
-    nifti_image_infodump( header );
+    // nifti_image_infodump( header );
 
     switch( header->datatype )
     {

@@ -33,7 +33,7 @@
 WQtNavGLWidget::WQtNavGLWidget( QString title, int maxValue, std::string sliderTitle )
     : QDockWidget( title )
 {
-    m_sliderTitle = sliderTitle;
+    m_sliderTitle = QString( sliderTitle.c_str() );
 
     setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
@@ -63,7 +63,7 @@ WQtNavGLWidget::~WQtNavGLWidget()
 
 void WQtNavGLWidget::setSliderTitle( std::string title )
 {
-    m_sliderTitle = title;
+    m_sliderTitle = QString( title.c_str() );
 }
 
 boost::shared_ptr<WQtGLWidget>WQtNavGLWidget::getGLWidget()

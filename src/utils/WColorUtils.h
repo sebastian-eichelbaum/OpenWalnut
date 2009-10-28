@@ -22,27 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WCOLORUTILS_H
+#define WCOLORUTILS_H
 
-#include "WQtLineEdit.h"
+#include "../common/WColor.hpp"
+#include "../math/WPosition.h"
 
-WQtLineEdit::WQtLineEdit()
-    : QLineEdit()
+/**
+ * Several helper functions for coloring stuff
+ */
+namespace color_utils
 {
-    m_name = QString( "" );
-    connect( this, SIGNAL( textEdited( QString ) ), this, SLOT( emitStateChanged() ) );
+    /**
+     * Transforms a direction given via two points into a RGB color.
+     */
+     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
 }
-
-WQtLineEdit::~WQtLineEdit()
-{
-}
-
-void WQtLineEdit::setName( QString name )
-{
-    m_name = name;
-}
-
-void WQtLineEdit::emitStateChanged()
-{
-    emit lineEditStateChanged( m_name, this->text() );
-}
+#endif  // WCOLORUTILS_H

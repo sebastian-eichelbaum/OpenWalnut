@@ -86,9 +86,9 @@ public:
     void connectSlots();
 
 public slots:
-    void slotSetIntProperty( std::string name, int value );
-    void slotSetBoolProperty( std::string name, bool value );
-    void slotSetStringProperty( std::string name, std::string value );
+    void slotSetIntProperty( QString name, int value );
+    void slotSetBoolProperty( QString name, bool value );
+    void slotSetStringProperty( QString name, QString value );
 
 
 protected:
@@ -117,8 +117,19 @@ private slots:
      */
     void changeTreeItem();
 
+    /**
+     * change order of items, move currently selected item down
+     */
+    void moveTreeItemDown();
+
+    /**
+     * change order of items, move currently selected item up
+     */
+    void moveTreeItemUp();
+
+
 signals:
-    void dataSetBrowserEvent( std::string name, bool value );
+    void dataSetBrowserEvent( QString name, bool value );
 };
 
 #endif  // WQTDATASETBROWSER_H

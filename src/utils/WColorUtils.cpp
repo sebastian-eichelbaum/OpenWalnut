@@ -22,27 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <cassert>
+#include <cmath>
 
-#include "WQtLineEdit.h"
+#include "WColorUtils.h"
+#include "../common/WColor.hpp"
+#include "../math/WPosition.h"
 
-WQtLineEdit::WQtLineEdit()
-    : QLineEdit()
+namespace color_utils
 {
-    m_name = QString( "" );
-    connect( this, SIGNAL( textEdited( QString ) ), this, SLOT( emitStateChanged() ) );
-}
-
-WQtLineEdit::~WQtLineEdit()
-{
-}
-
-void WQtLineEdit::setName( QString name )
-{
-    m_name = name;
-}
-
-void WQtLineEdit::emitStateChanged()
-{
-    emit lineEditStateChanged( m_name, this->text() );
+    WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
+    {
+        wmath::WPosition direction( ( pos2 - pos1 ) );
+        direction.normalize();
+        // take care that every comopnent is positive in range [0..1)
+        for( size_t i; i < 3; ++i )
+        {
+            direction[i] = std::abs( direction[i] );
+            assert( direction[i] >= 0.0 && direction[i] <= 1.0 );
+        }
+        return WColor( direction[0], direction[1], direction[2] );
+    }
 }
