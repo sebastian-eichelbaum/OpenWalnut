@@ -76,3 +76,24 @@ size_t WTriangleMesh::getFastAddTriangleId() const
 {
     return m_fastAddTriangleId;
 }
+
+wmath::WVector3D WTriangleMesh::getTriangleNormal( size_t i ) const
+{
+    Triangle tri = m_triangles[i];
+    wmath::WVector3D v1 = m_vertices[tri.pointID[1]] - m_vertices[tri.pointID[0]];
+    wmath::WVector3D v2 = m_vertices[tri.pointID[2]] - m_vertices[tri.pointID[0]];
+
+    wmath::WVector3D tempNormal = v1.crossProduct( v2 );
+
+    // TODO(wiebel): TM fix this hack for 0 length normals.
+    if( tempNormal.norm() < 1e-7 )
+    {
+        tempNormal = wmath::WVector3D( 1, 1, 1 );
+    }
+    else
+    {
+        tempNormal.normalize();
+    }
+
+    return tempNormal*-1;
+}

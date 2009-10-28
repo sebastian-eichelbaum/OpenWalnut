@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "../../math/WPosition.h"
+#include "../../math/WVector3D.h"
 
 struct Triangle
 {
@@ -40,14 +41,27 @@ struct Triangle
 class WTriangleMesh
 {
 public:
+    /**
+     * Initializes some members.
+     */
     WTriangleMesh();
+
+    /**
+     * Clears and destroys mesh.
+     */
     ~WTriangleMesh();
 
+    /**
+     * \return Size of the vertex container.
+     */
     size_t getNumVertices() const
     {
         return m_vertices.size();
     }
 
+    /**
+     * \return Size of the triangle container.
+     */
     size_t getNumTriangles() const
     {
         return m_triangles.size();
@@ -59,7 +73,14 @@ public:
      */
     void clearMesh();
 
+    /**
+     * Changes the size of the vertex container.
+     */
     void resizeVertices( size_t size );
+
+    /**
+     * Changes the size of the triangle container.
+     */
     void resizeTriangles( size_t size );
 
     /**
@@ -102,14 +123,20 @@ public:
         return m_triangles[triId].pointID[vertId];
     }
 
+    /**
+     * \return normal of i-th trinagle. Will be computed in the moment of the call.
+     * i.e. with no memory overhead but possibly slow.
+     */
+    wmath::WVector3D getTriangleNormal( size_t i ) const;
+
 
 protected:
 private:
-    std::vector< wmath::WPosition > m_vertices;
-    std::vector< Triangle > m_triangles;
+    std::vector< wmath::WPosition > m_vertices;  //!< All vertices of the mesh.
+    std::vector< Triangle > m_triangles;  //!< All triangles of the mesh, given as groups of vertex indices.
 
-    size_t m_fastAddVertId;
-    size_t m_fastAddTriangleId;
+    size_t m_fastAddVertId;  //!< tells fastAddVert where to insert the vertex.
+    size_t m_fastAddTriangleId;  //!< tells fastAddTriangle where to insert the triangle
 };
 
 #endif  // WTRIANGLEMESH_H
