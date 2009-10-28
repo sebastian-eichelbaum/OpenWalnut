@@ -45,6 +45,7 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.hpp"
+#include "../../dataHandler/WGridRegular3D.h"
 #include "../data/WDataModule.hpp"
 
 #include "../../graphicsEngine/WShader.h"
@@ -97,19 +98,19 @@ void WNavigationSliceModule::connectors()
 
 void WNavigationSliceModule::properties()
 {
-    ( m_properties.addBool( "textureChanged", false ) );
+    ( m_properties->addBool( "textureChanged", false ) );
 
-    ( m_properties.addInt( "axialPos", 80 ) );
-    ( m_properties.addInt( "coronalPos", 100 ) );
-    ( m_properties.addInt( "sagittalPos", 80 ) );
+    ( m_properties->addInt( "axialPos", 80 ) );
+    ( m_properties->addInt( "coronalPos", 100 ) );
+    ( m_properties->addInt( "sagittalPos", 80 ) );
 
-    m_properties.addInt( "maxAxial", 160 );
-    m_properties.addInt( "maxCoronal", 200 );
-    m_properties.addInt( "maxSagittal", 160 );
+    m_properties->addInt( "maxAxial", 160 );
+    m_properties->addInt( "maxCoronal", 200 );
+    m_properties->addInt( "maxSagittal", 160 );
 
-    ( m_properties.addBool( "showAxial", true ) );
-    ( m_properties.addBool( "showCoronal", true ) );
-    ( m_properties.addBool( "showSagittal", true ) );
+    ( m_properties->addBool( "showAxial", true ) );
+    ( m_properties->addBool( "showCoronal", true ) );
+    ( m_properties->addBool( "showSagittal", true ) );
 }
 
 void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -136,21 +137,21 @@ void WNavigationSliceModule::threadMain()
 
 void WNavigationSliceModule::createGeometry()
 {
-    float axialPos = ( float )( m_properties.getValue< int >( "axialPos" ) );
-    float coronalPos = ( float )( m_properties.getValue< int >( "coronalPos" ) );
-    float sagittalPos = ( float )( m_properties.getValue< int >( "sagittalPos" ) );
+    float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) );
+    float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) );
+    float sagittalPos = ( float )( m_properties->getValue< int >( "sagittalPos" ) );
 
-    float maxAxial = ( float )( m_properties.getValue<int>( "maxAxial") );
-    float maxCoronal = ( float )( m_properties.getValue<int>( "maxCoronal") );
-    float maxSagittal = ( float )( m_properties.getValue<int>( "maxSagittal") );
+    float maxAxial = ( float )( m_properties->getValue<int>( "maxAxial") );
+    float maxCoronal = ( float )( m_properties->getValue<int>( "maxCoronal") );
+    float maxSagittal = ( float )( m_properties->getValue<int>( "maxSagittal") );
 
     float texAxial = axialPos / maxAxial;
     float texCoronal = coronalPos / maxCoronal;
     float texSagittal = sagittalPos / maxSagittal;
 
-    m_sliceNode = new osg::Geode();
+    m_sliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
 
-    osg::Geometry* sliceGeometry = new osg::Geometry();
+    osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
     m_sliceNode->addDrawable( sliceGeometry );
 
@@ -225,19 +226,38 @@ void WNavigationSliceModule::createGeometry()
 
 void WNavigationSliceModule::updateGeometry()
 {
-    float axialPos = ( float )( m_properties.getValue< int >( "axialPos" ) );
-    float coronalPos = ( float )( m_properties.getValue< int >( "coronalPos" ) );
-    float sagittalPos = ( float )( m_properties.getValue< int >( "sagittalPos" ) );
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    float maxAxial = ( float )( m_properties.getValue<int>( "maxAxial") );
-    float maxCoronal = ( float )( m_properties.getValue<int>( "maxCoronal") );
-    float maxSagittal = ( float )( m_properties.getValue<int>( "maxSagittal") );
+    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+
+    if ( datasetList.size() > 0 )
+    {
+        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( datasetList[0] );
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+
+        float mx = grid->getNbCoordsX() * grid->getOffsetX();
+        float my = grid->getNbCoordsY() * grid->getOffsetY();
+        float mz = grid->getNbCoordsZ() * grid->getOffsetZ();
+
+        m_properties->setValue( "maxAxial", mx );
+        m_properties->setValue( "maxCoronal", my );
+        m_properties->setValue( "maxSagittal", mz );
+    }
+
+    float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) );
+    float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) );
+    float sagittalPos = ( float )( m_properties->getValue< int >( "sagittalPos" ) );
+
+    float maxAxial = ( float )( m_properties->getValue<int>( "maxAxial") );
+    float maxCoronal = ( float )( m_properties->getValue<int>( "maxCoronal") );
+    float maxSagittal = ( float )( m_properties->getValue<int>( "maxSagittal") );
 
     float texAxial = axialPos / maxAxial;
     float texCoronal = coronalPos / maxCoronal;
     float texSagittal = sagittalPos / maxSagittal;
 
-    osg::Geometry* sliceGeometry = new osg::Geometry();
+    osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
     sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
@@ -293,17 +313,17 @@ void WNavigationSliceModule::updateGeometry()
     slice2->push_back( 9 );
     slice2->push_back( 8 );
 
-    if ( m_properties.getValue<bool>( "showAxial" ) )
+    if ( m_properties->getValue<bool>( "showAxial" ) )
     {
         sliceGeometry->addPrimitiveSet( slice2 );
     }
 
-    if ( m_properties.getValue<bool>( "showCoronal" ) )
+    if ( m_properties->getValue<bool>( "showCoronal" ) )
     {
         sliceGeometry->addPrimitiveSet( slice0 );
     }
 
-    if ( m_properties.getValue<bool>( "showSagittal" ) )
+    if ( m_properties->getValue<bool>( "showSagittal" ) )
     {
         sliceGeometry->addPrimitiveSet( slice1 );
     }
@@ -314,13 +334,19 @@ void WNavigationSliceModule::updateGeometry()
 
     osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
     sliceState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
+
+    slock.unlock();
 }
 
 
 void WNavigationSliceModule::updateTextures()
 {
-    if ( m_properties.getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitalized() )
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+
+    if ( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitalized() )
     {
+        m_properties->setValue( "textureChanged", false );
         std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
 
         if ( datasetList.size() > 0 )
@@ -337,7 +363,7 @@ void WNavigationSliceModule::updateTextures()
                 if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
                         boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D() )
                 {
-                    osg::Texture3D* texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
+                    osg::ref_ptr<osg::Texture3D> texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
 
                     sliceState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
@@ -353,63 +379,64 @@ void WNavigationSliceModule::updateTextures()
                 }
             }
 
-            m_properties.setValue( "textureChanged", false );
+            m_properties->setValue( "textureChanged", false );
         }
     }
+    slock.unlock();
 }
 
 
 void WNavigationSliceModule::connectToGui()
 {
-    WKernel::getRunningKernel()->getGui()->connectProperties( &m_properties );
+    WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
 }
 
 
 void WNavigationSliceModule::initUniforms( osg::StateSet* sliceState )
 {
-    m_typeUniforms.push_back( new osg::Uniform( "type0", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type1", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type2", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type3", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type4", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type5", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type6", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type7", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type8", 0 ) );
-    m_typeUniforms.push_back( new osg::Uniform( "type9", 0 ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type2", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type3", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type4", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type5", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type6", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type7", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type8", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type9", 0 ) ) );
 
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha0", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha1", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha2", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha3", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha4", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha5", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha6", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha7", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha8", 1.0f ) );
-    m_alphaUniforms.push_back( new osg::Uniform( "alpha9", 1.0f ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha0", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha1", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha2", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha3", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha4", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha5", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha6", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha7", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha8", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha9", 1.0f ) ) );
 
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold0", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold1", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold2", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold3", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold4", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold5", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold6", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold7", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold8", 0.0f ) );
-    m_thresholdUniforms.push_back( new osg::Uniform( "threshold9", 0.0f ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold0", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold1", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold2", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold3", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold4", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold5", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold6", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold7", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold8", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold9", 0.0f ) ) );
 
-    m_samplerUniforms.push_back( new osg::Uniform( "tex0", 0 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex1", 1 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex2", 2 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex3", 3 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex4", 4 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex5", 5 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex6", 6 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex7", 7 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex8", 8 ) );
-    m_samplerUniforms.push_back( new osg::Uniform( "tex9", 9 ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 2 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex3", 3 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex4", 4 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex5", 5 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex6", 6 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex7", 7 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex8", 8 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex9", 9 ) ) );
 
     for ( int i = 0; i < 10; ++i )
     {

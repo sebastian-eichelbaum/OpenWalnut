@@ -100,6 +100,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId );
     subject->setExpanded( true );
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
+    emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
     return subject->addDatasetItem( module );
 }
 

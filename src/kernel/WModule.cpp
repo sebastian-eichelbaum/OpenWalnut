@@ -38,10 +38,10 @@
 
 WModule::WModule():
     WThreadedRunner(),
-    m_properties(),
-    m_initialized( false )
+     m_initialized( false )
 {
     // initialize members
+    m_properties = boost::shared_ptr<WProperties>( new WProperties() );
 }
 
 WModule::~WModule()
@@ -165,9 +165,9 @@ void WModule::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
     // By default this callback does nothing. Overwrite it in your module.
 }
 
-WProperties* WModule::getProperties()
+boost::shared_ptr<WProperties> WModule::getProperties()
 {
-    return &m_properties;
+    return m_properties;
 }
 
 void WModule::connectToGui()

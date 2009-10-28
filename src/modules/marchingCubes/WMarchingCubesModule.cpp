@@ -107,7 +107,7 @@ void WMarchingCubesModule::connectors()
 
 void WMarchingCubesModule::properties()
 {
-    ( m_properties.addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMarchingCubesModule::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMarchingCubesModule::slotPropertyChanged, this, _1 ) );
 }
 
 void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )

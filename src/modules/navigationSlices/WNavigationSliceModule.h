@@ -131,7 +131,7 @@ private:
     /**
      * the root node for this module
      */
-    osg::Geode* m_sliceNode;
+    osg::ref_ptr<osg::Geode> m_sliceNode;
 
     /**
      * the shader object for this module
@@ -143,10 +143,16 @@ private:
      */
     boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > > m_Input;
 
-    std::vector< osg::Uniform* > m_typeUniforms;
-    std::vector< osg::Uniform* > m_alphaUniforms;
-    std::vector< osg::Uniform* > m_thresholdUniforms;
-    std::vector< osg::Uniform* > m_samplerUniforms;
+    /**
+     * lock to prevent concurrent threads trying to update the osg node
+     */
+    boost::shared_mutex m_updateLock;
+
+
+    std::vector< osg::ref_ptr<osg::Uniform> > m_typeUniforms;
+    std::vector< osg::ref_ptr<osg::Uniform> > m_alphaUniforms;
+    std::vector< osg::ref_ptr<osg::Uniform> > m_thresholdUniforms;
+    std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
 };
 
 

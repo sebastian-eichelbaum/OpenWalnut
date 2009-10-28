@@ -70,7 +70,7 @@ public:
     /**
      * this function allows modules to register their property object with the gui
      */
-    virtual void connectProperties( WProperties* properties ) = 0;
+    virtual void connectProperties( boost::shared_ptr<WProperties> properties ) = 0;
 
 protected:
     bool m_isInitialized;

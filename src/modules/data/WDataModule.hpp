@@ -172,7 +172,7 @@ WDataModule<T>::WDataModule( boost::shared_ptr< WDataSet > dataSet ):
     // initialize members
     m_dataSet = dataSet;
     m_texture3D = 0;
-    m_properties.addString( "name", "not initialized" );
+    m_properties->addString( "name", "not initialized" );
 }
 
 template < typename T >

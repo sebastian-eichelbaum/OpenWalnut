@@ -92,7 +92,7 @@ boost::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal
     return m_gui->getLoaderSignal();
 }
 
-void WQt4Gui::connectProperties( WProperties* properties )
+void WQt4Gui::connectProperties( boost::shared_ptr<WProperties> properties )
 {
     m_gui->getPropertyManager()->connectProperties( properties );
 }

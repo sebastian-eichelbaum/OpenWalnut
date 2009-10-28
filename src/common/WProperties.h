@@ -29,6 +29,10 @@
 #include <string>
 #include <vector>
 
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
+
 #include "WProperty.h"
 
 /**

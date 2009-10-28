@@ -94,7 +94,7 @@ public:
     /**
      * Return a pointer to the properties object of the module
      */
-    WProperties* getProperties();
+    boost::shared_ptr<WProperties> getProperties();
 
     /**
      * Determines whether the module instance is properly initialized.
@@ -224,7 +224,7 @@ protected:
      /**
      * the property object for the module
      */
-    WProperties m_properties;
+    boost::shared_ptr<WProperties> m_properties;
 
     /**
      * True if everything is initialized and ready to be used.

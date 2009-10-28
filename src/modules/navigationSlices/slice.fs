@@ -235,7 +235,7 @@ void lookupTex(inout vec4 col, in int type, in sampler3D tex, in float threshold
 
     if ( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0) return;
 
-    if ( type == 3 && useColorMap != -1)
+    if ( type == 16 && useColorMap != -1)
     {
         if (threshold < 1.0)
             col1.r = (col1.r - threshold) / (1.0 - threshold);

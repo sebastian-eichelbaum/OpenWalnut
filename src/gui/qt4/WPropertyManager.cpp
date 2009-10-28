@@ -35,7 +35,7 @@ WPropertyManager::~WPropertyManager()
 {
 }
 
-void WPropertyManager::connectProperties( WProperties* properties )
+void WPropertyManager::connectProperties( boost::shared_ptr<WProperties> properties )
 {
     m_connectedProperties.push_back( properties );
 }
