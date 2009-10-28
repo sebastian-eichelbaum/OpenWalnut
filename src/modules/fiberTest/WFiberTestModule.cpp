@@ -106,7 +106,7 @@ void WFiberTestModule::threadMain()
     {
         drawFiber( fibers[i], geode );
     }
-    geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    geode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
 
