@@ -35,12 +35,8 @@ namespace color_utils
     {
         wmath::WPosition direction( ( pos2 - pos1 ) );
         direction.normalize();
-        // take care that every comopnent is positive in range [0..1)
-        for( size_t i; i < 3; ++i )
-        {
-            direction[i] = std::abs( direction[i] );
-            assert( direction[i] >= 0.0 && direction[i] <= 1.0 );
-        }
-        return WColor( direction[0], direction[1], direction[2] );
+        return WColor( std::abs( direction[0] ),
+                       std::abs( direction[1] ),
+                       std::abs( direction[2] ) );
     }
 }

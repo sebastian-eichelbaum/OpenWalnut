@@ -27,7 +27,12 @@
 
 #include "WMarchingCubesModule.h"
 #include "marchingCubesCaseTables.h"
+#include "WTriangleMesh.h"
 
+#include <osg/Geode>
+#include <osg/Geometry>
+
+#include "../../math/WVector3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
@@ -63,7 +68,7 @@ const std::string WMarchingCubesModule::getDescription() const
 
 void WMarchingCubesModule::threadMain()
 {
-    // TODO(wiebel): fix this hack when possible by using an input connector.
+    // TODO(wiebel): MC fix this hack when possible by using an input connector.
     while ( !WKernel::getRunningKernel() )
     {
         sleep( 1 );
@@ -80,13 +85,29 @@ void WMarchingCubesModule::threadMain()
     boost::shared_ptr< WSubject > subject = (*dh)[0];
     m_dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
 
-    std::cout << " -- THREADMAIN for Marching Cubes 1 -- " << m_dataSet->getFileName() << std::endl;
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    assert( grid );
+    m_vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
+    assert( m_vals );
 
+    m_fCellLengthX = grid->getOffsetX();
+    m_fCellLengthY = grid->getOffsetY();
+    m_fCellLengthZ = grid->getOffsetZ();
+
+    m_nCellsX = grid->getNbCoordsX() - 1;
+    m_nCellsY = grid->getNbCoordsY() - 1;
+    m_nCellsZ = grid->getNbCoordsZ() - 1;
+
+    WLogger::getLogger()->addLogMessage( "Computing surface ...", "Marching Cubes", LL_DEBUG );
+
+    // TODO(wiebel): MC set correct isoValue here
     generateSurface( 100 );
 
-    std::cout << " -- THREADMAIN for Marching Cubes 2 -- " << m_dataSet->getFileName() << std::endl;
+    WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Marching Cubes", LL_DEBUG );
 
-    std::cout << " -- THREADMAIN for Marching Cubes 3 -- " << m_dataSet->getFileName() << std::endl;
+    renderSurface();
+
+    WLogger::getLogger()->addLogMessage( "Done!", "Marching Cubes", LL_DEBUG );
 }
 
 void WMarchingCubesModule::connectors()
@@ -112,7 +133,7 @@ void WMarchingCubesModule::properties()
 
 void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )
 {
-    if ( propertyName == "isoValue" )
+    if( propertyName == "isoValue" )
     {
         // updateTextures();
     }
@@ -121,141 +142,134 @@ void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )
         assert( 0 && "This property name is not soppurted by this function yet." );
     }
 }
-
-
 void WMarchingCubesModule::generateSurface( double isoValue )
 {
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    m_vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
-    assert( grid );
-    assert( m_vals );
-
     m_tIsoLevel = isoValue;
 
-    unsigned int nX = grid->getNbCoordsX();
-    unsigned int nY = grid->getNbCoordsY();
-    unsigned int nZ = grid->getNbCoordsZ();
+    unsigned int nX = m_nCellsX + 1;
+    unsigned int nY = m_nCellsY + 1;
+
 
     unsigned int nPointsInSlice = nX * nY;
 
     // Generate isosurface.
-    for ( unsigned int z = 0; z < ( nZ - 1 ); z++ )
+    for( unsigned int z = 0; z < m_nCellsZ; z++ )
     {
-        for ( unsigned int y = 0; y < ( nY - 1 ); y++ )
+        for( unsigned int y = 0; y < m_nCellsY; y++ )
         {
-            for ( unsigned int x = 0; x < ( nX - 1 ); x++ )
+            for( unsigned int x = 0; x < m_nCellsX; x++ )
             {
                 // Calculate table lookup index from those
                 // vertices which are below the isolevel.
                 unsigned int tableIndex = 0;
-                if ( m_vals->getScalar( z * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
+                if( m_vals->getScalar( z * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
                     tableIndex |= 1;
-                if ( m_vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
+                if( m_vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
                     tableIndex |= 2;
-                if ( m_vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( m_vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
                     tableIndex |= 4;
-                if ( m_vals->getScalar( z * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( m_vals->getScalar( z * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
                     tableIndex |= 8;
-                if ( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
+                if( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
                     tableIndex |= 16;
-                if ( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
+                if( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
                     tableIndex |= 32;
-                if ( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
                     tableIndex |= 64;
-                if ( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( m_vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
                     tableIndex |= 128;
 
                 // Now create a triangulation of the isosurface in this
                 // cell.
-                if ( m_edgeTable[tableIndex] != 0 )
+                if( m_edgeTable[tableIndex] != 0 )
                 {
-                    if ( m_edgeTable[tableIndex] & 8 )
+                    if( m_edgeTable[tableIndex] & 8 )
                     {
                         WPointXYZId pt = calculateIntersection( x, y, z, 3 );
                         unsigned int id = getEdgeID( x, y, z, 3 );
                         m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                     }
-                    if ( m_edgeTable[tableIndex] & 1 )
+                    if( m_edgeTable[tableIndex] & 1 )
                     {
                         WPointXYZId pt = calculateIntersection( x, y, z, 0 );
                         unsigned int id = getEdgeID( x, y, z, 0 );
                         m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                     }
-                    if ( m_edgeTable[tableIndex] & 256 )
+                    if( m_edgeTable[tableIndex] & 256 )
                     {
                         WPointXYZId pt = calculateIntersection( x, y, z, 8 );
                         unsigned int id = getEdgeID( x, y, z, 8 );
                         m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                     }
 
-                    if ( x == m_nCellsX - 1 )
+                    if( x == m_nCellsX - 1 )
                     {
-                        if ( m_edgeTable[tableIndex] & 4 )
+                        if( m_edgeTable[tableIndex] & 4 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 2 );
                             unsigned int id = getEdgeID( x, y, z, 2 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                        if ( m_edgeTable[tableIndex] & 2048 )
+                        if( m_edgeTable[tableIndex] & 2048 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 11 );
                             unsigned int id = getEdgeID( x, y, z, 11 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
                     }
-                    if ( y == m_nCellsY - 1 )
+                    if( y == m_nCellsY - 1 )
                     {
-                        if ( m_edgeTable[tableIndex] & 2 )
+                        if( m_edgeTable[tableIndex] & 2 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 1 );
                             unsigned int id = getEdgeID( x, y, z, 1 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                        if ( m_edgeTable[tableIndex] & 512 )
+                        if( m_edgeTable[tableIndex] & 512 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 9 );
                             unsigned int id = getEdgeID( x, y, z, 9 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
                     }
-                    if ( z == m_nCellsZ - 1 )
+                    if( z == m_nCellsZ - 1 )
                     {
-                        if ( m_edgeTable[tableIndex] & 16 )
+                        if( m_edgeTable[tableIndex] & 16 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 4 );
                             unsigned int id = getEdgeID( x, y, z, 4 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                        if ( m_edgeTable[tableIndex] & 128 )
+                        if( m_edgeTable[tableIndex] & 128 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 7 );
                             unsigned int id = getEdgeID( x, y, z, 7 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
                     }
-                    if ( ( x == m_nCellsX - 1 ) && ( y == m_nCellsY - 1 ) )
-                        if ( m_edgeTable[tableIndex] & 1024 )
+                    if( ( x == m_nCellsX - 1 ) && ( y == m_nCellsY - 1 ) )
+                        if( m_edgeTable[tableIndex] & 1024 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 10 );
                             unsigned int id = getEdgeID( x, y, z, 10 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                    if ( ( x == m_nCellsX - 1 ) && ( z == m_nCellsZ - 1 ) )
-                        if ( m_edgeTable[tableIndex] & 64 )
+                    if( ( x == m_nCellsX - 1 ) && ( z == m_nCellsZ - 1 ) )
+                        if( m_edgeTable[tableIndex] & 64 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 6 );
                             unsigned int id = getEdgeID( x, y, z, 6 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                    if ( ( y == m_nCellsY - 1 ) && ( z == m_nCellsZ - 1 ) )
-                        if ( m_edgeTable[tableIndex] & 32 )
+                    if( ( y == m_nCellsY - 1 ) && ( z == m_nCellsZ - 1 ) )
+                        if( m_edgeTable[tableIndex] & 32 )
                         {
                             WPointXYZId pt = calculateIntersection( x, y, z, 5 );
                             unsigned int id = getEdgeID( x, y, z, 5 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
 
-                    for ( int i = 0; m_triTable[tableIndex][i] != -1; i += 3 )
+                    for( int i = 0; m_triTable[tableIndex][i] != -1; i += 3 )
                     {
                         WMCTriangle triangle;
                         unsigned int pointID0, pointID1, pointID2;
@@ -352,9 +366,10 @@ WPointXYZId WMarchingCubesModule::calculateIntersection( unsigned int nX, unsign
     y2 = v2y * m_fCellLengthY;
     z2 = v2z * m_fCellLengthZ;
 
-    unsigned int nPointsInSlice = nX * nY;
-    double val1 = m_vals->getScalar( v1z * nPointsInSlice + v1y * nX + v1x );
-    double val2 = m_vals->getScalar( v2z * nPointsInSlice + v2y * nX + v2x );
+    unsigned int nPointsInSlice = ( m_nCellsX + 1 ) * ( m_nCellsY + 1 );
+    double val1 = m_vals->getScalar( v1z * nPointsInSlice + v1y * ( m_nCellsX + 1 ) + v1x );
+    double val2 = m_vals->getScalar( v2z * nPointsInSlice + v2y * ( m_nCellsX + 1 ) + v2x );
+
     WPointXYZId intersection = interpolate( x1, y1, z1, x2, y2, z2, val1, val2 );
     intersection.newID = 0;
     return intersection;
@@ -371,6 +386,7 @@ WPointXYZId WMarchingCubesModule::interpolate( double fX1, double fY1, double fZ
     interpolation.y = fY1 + mu * ( fY2 - fY1 );
     interpolation.z = fZ1 + mu * ( fZ2 - fZ1 );
     interpolation.newID = 0;
+
     return interpolation;
 }
 
@@ -411,4 +427,95 @@ int WMarchingCubesModule::getEdgeID( unsigned int nX, unsigned int nY, unsigned 
 unsigned int WMarchingCubesModule::getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ )
 {
     return 3* (nZ *(m_nCellsY + 1)*(m_nCellsX + 1) + nY*(m_nCellsX + 1) + nX);
+}
+
+void WMarchingCubesModule::renderSurface()
+{
+    unsigned int nextID = 0;
+    WTriangleMesh triMesh;
+    triMesh.clearMesh();
+    triMesh.resizeVertices( m_idToVertices.size() );
+    triMesh.resizeTriangles( m_trivecTriangles.size() );
+
+    // TODO(wiebel): MC what is this for?
+    float xOff = 0.5f;
+    float yOff = 0.5f;
+    float zOff = 0.5f;
+
+    // Rename vertices.
+    ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
+    while ( mapIterator != m_idToVertices.end() )
+    {
+        ( *mapIterator ).second.newID = nextID;
+        triMesh.fastAddVert( wmath::WPosition( ( *mapIterator ).second.x + xOff,
+                                               ( *mapIterator ).second.y + yOff,
+                                               ( *mapIterator ).second.z + zOff ) );
+        nextID++;
+        mapIterator++;
+    }
+
+    // Now rename triangles.
+    WMCTriangleVECTOR::iterator vecIterator = m_trivecTriangles.begin();
+    while ( vecIterator != m_trivecTriangles.end() )
+    {
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            unsigned int newID = m_idToVertices[( *vecIterator ).pointID[i]].newID;
+            ( *vecIterator ).pointID[i] = newID;
+        }
+        triMesh.fastAddTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1],
+                                 ( *vecIterator ).pointID[2] );
+        vecIterator++;
+    }
+
+    // ========================
+    // drawing
+
+    osg::Geometry* surfaceGeometry = new osg::Geometry();
+
+    osg::Geode *geode = new osg::Geode;
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+    for( size_t i = 0; i < triMesh.getNumVertices(); ++i )
+    {
+        wmath::WPosition vertPos;
+        vertPos = triMesh.getVertex( i );
+        vertices->push_back( osg::Vec3( vertPos[0], vertPos[1], vertPos[2] ) );
+    }
+    surfaceGeometry->setVertexArray( vertices );
+
+    osg::DrawElementsUInt* surfaceElement;
+
+    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+    for( unsigned int triId = 0; triId < triMesh.getNumTriangles(); ++triId )
+    {
+        for( unsigned int vertId = 0; vertId < 3; ++vertId )
+        {
+            surfaceElement->push_back( triMesh.getTriangleVertexId( triId, vertId ) );
+        }
+    }
+    surfaceGeometry->addPrimitiveSet( surfaceElement );
+
+    // normals
+    osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
+    for( unsigned int triId = 0; triId < triMesh.getNumTriangles(); ++triId )
+    {
+        wmath::WVector3D tmpNormal = triMesh.getTriangleNormal( triId );
+        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[1] ) );
+    }
+
+    surfaceGeometry->setNormalArray( normals.get() );
+
+    // TODO(wiebel): MC change to BIND_PER_VERTEX to make it more beautiful.
+    surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+    osg::Vec4Array* colors = new osg::Vec4Array;
+
+    // TODO(wiebel): MC transparency is set to 0.5 here
+    colors->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, .5f ) );
+    surfaceGeometry->setColorArray( colors );
+    surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    geode->addDrawable( surfaceGeometry );
+    geode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
 }

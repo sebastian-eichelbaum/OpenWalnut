@@ -48,7 +48,8 @@ struct WMCTriangle
 typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
 
 /**
- * Module implementing the marching cubes algorithm with consistent triangulation.
+ * Module implementing the marching cubes algorithm with consistent triangulation for data
+ * given on rgualr grids with axis-aligned cells.
  */
 class WMarchingCubesModule : public WModule
 {
@@ -143,6 +144,8 @@ private:
 
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
+
+    void renderSurface();
 };
 
 #endif  // WMARCHINGCUBESMODULE_H
