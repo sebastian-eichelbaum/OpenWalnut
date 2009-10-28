@@ -27,6 +27,11 @@
 
 #include "WMarchingCubesModule.h"
 #include "marchingCubesCaseTables.h"
+#include "WTriangleMesh.h"
+
+#include <osg/Geode>
+#include <osg/Geometry>
+
 
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -85,6 +90,8 @@ void WMarchingCubesModule::threadMain()
     generateSurface( 100 );
 
     std::cout << " -- THREADMAIN for Marching Cubes 2 -- " << m_dataSet->getFileName() << std::endl;
+
+    renderSurface();
 
     std::cout << " -- THREADMAIN for Marching Cubes 3 -- " << m_dataSet->getFileName() << std::endl;
 }
@@ -411,4 +418,86 @@ int WMarchingCubesModule::getEdgeID( unsigned int nX, unsigned int nY, unsigned 
 unsigned int WMarchingCubesModule::getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ )
 {
     return 3* (nZ *(m_nCellsY + 1)*(m_nCellsX + 1) + nY*(m_nCellsX + 1) + nX);
+}
+
+void WMarchingCubesModule::renderSurface()
+{
+//     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
+//     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
+
+    std::cout << m_idToVertices.size() << " " << m_trivecTriangles.size() << std::endl;
+
+    unsigned int nextID = 0;
+    ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
+    WMCTriangleVECTOR::iterator vecIterator = m_trivecTriangles.begin();
+
+    WTriangleMesh triMesh;
+    triMesh.clearMesh();
+    triMesh.resizeVertices( m_idToVertices.size() );
+    triMesh.resizeTriangles( m_trivecTriangles.size() );
+
+    // TODO(wiebel): what is this for?
+    float xOff = 0.5f;
+    float yOff = 0.5f;
+    float zOff = 0.5f;
+
+    // Rename vertices.
+    while ( mapIterator != m_idToVertices.end() )
+    {
+        ( *mapIterator ).second.newID = nextID;
+        triMesh.fastAddVert( wmath::WPosition( ( *mapIterator ).second.x + xOff, ( *mapIterator ).second.y + yOff,
+                                               ( *mapIterator ).second.z + zOff ) );
+        nextID++;
+        mapIterator++;
+    }
+
+    // Now rename triangles.
+    while ( vecIterator != m_trivecTriangles.end() )
+    {
+        for ( unsigned int i = 0; i < 3; i++ )
+        {
+            unsigned int newID = m_idToVertices[( *vecIterator ).pointID[i]].newID;
+            ( *vecIterator ).pointID[i] = newID;
+        }
+        triMesh.fastAddTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1],
+                                 ( *vecIterator ).pointID[2] );
+        vecIterator++;
+    }
+
+    //========================
+    //drawing
+
+    osg::Geometry* surfaceGeometry = new osg::Geometry();
+
+    osg::Geode *geode = new osg::Geode;
+    osg::Vec3Array* vertices = new osg::Vec3Array;;
+    for( size_t i = 0; i < triMesh.getNumVertices(); ++i )
+    {
+        wmath::WPosition vertPos;
+        vertPos = triMesh.getVertex( i );
+        std::cout << vertPos << std::endl;
+        vertices->push_back( osg::Vec3( vertPos[0], vertPos[1], vertPos[2] ) );
+    }
+    surfaceGeometry->setVertexArray( vertices );
+
+    osg::DrawElementsUInt* surfaceElement;
+
+    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+    for( unsigned int triId = 0; triId < triMesh.getNumTriangles(); ++triId )
+    {
+        for( unsigned int vertId = 0; vertId < 3; ++vertId )
+        {
+            surfaceElement->push_back( triMesh.getTriangleVertexId( triId, vertId ) );
+        }
+    }
+    surfaceGeometry->addPrimitiveSet( surfaceElement );
+
+
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, 1.0f ) );
+    surfaceGeometry->setColorArray( colors );
+    surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    geode->addDrawable( surfaceGeometry );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
 }
