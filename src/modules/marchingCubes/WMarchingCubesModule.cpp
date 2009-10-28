@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include "WMarchingCubesModule.h"
@@ -518,4 +519,63 @@ void WMarchingCubesModule::renderSurface()
     geode->addDrawable( surfaceGeometry );
     geode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
+
+
+    // TODO(wiebel): MC make the filename set automatically
+    save( "/tmp/isosurfaceTestMesh.vtk", triMesh );
+}
+
+
+// TODO(wiebel): MC move this to a separate module in the future
+bool WMarchingCubesModule::save( std::string filename, const WTriangleMesh& triMesh ) const
+{
+    const char* c_file = filename.c_str();
+    std::ofstream dataFile( c_file );
+
+    if ( dataFile )
+    {
+        std::cout << "opening file" << std::endl;
+    }
+    else
+    {
+        std::cout << "open file failed: " << filename.c_str() << std::endl;
+        return false;
+    }
+
+    WLogger::getLogger()->addLogMessage( "start writing file", "Marching Cubes", LL_DEBUG );
+    dataFile << ( "# vtk DataFile Version 2.0\n" );
+    dataFile << ( "generated using OpenWalnut\n" );
+    dataFile << ( "ASCII\n" );
+    dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
+
+    wmath::WPosition point;
+    dataFile << "POINTS " << triMesh.getNumVertices() << " float\n";
+    for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
+    {
+        point = triMesh.getVertex( i );
+        dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
+    }
+
+    dataFile << "CELLS " << triMesh.getNumTriangles() << " " << triMesh.getNumTriangles() * 4 << "\n";
+    for ( unsigned int i = 0; i < triMesh.getNumTriangles(); ++i )
+    {
+        dataFile << "3 " << triMesh.getTriangleVertexId( i, 0 ) << " "
+                 <<  triMesh.getTriangleVertexId( i, 1 ) << " "
+                 <<  triMesh.getTriangleVertexId( i, 2 ) << "\n";
+    }
+    dataFile << "CELL_TYPES "<< triMesh.getNumTriangles() <<"\n";
+    for ( unsigned int i = 0; i < triMesh.getNumTriangles(); ++i )
+    {
+        dataFile << "5\n";
+    }
+    dataFile << "POINT_DATA " << triMesh.getNumVertices() << "\n";
+    dataFile << "SCALARS scalars float\n";
+    dataFile << "LOOKUP_TABLE default\n";
+    for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
+    {
+        dataFile << "0\n";
+    }
+    dataFile.close();
+    std::cout << " saving  done" << std::endl;
+    return true;
 }
