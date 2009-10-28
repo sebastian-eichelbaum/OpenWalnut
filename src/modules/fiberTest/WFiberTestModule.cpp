@@ -59,18 +59,15 @@ const std::string WFiberTestModule::getDescription() const
 
 void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) const
 {
-    osg::Vec3Array* vertices = new osg::Vec3Array( fib.size() );
-    osg::Vec4Array* colors = new osg::Vec4Array( fib.size() );
-    osg::Vec3Array::iterator vitr = vertices->begin();
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+    osg::Vec4Array* colors = new osg::Vec4Array;
 
-    ( vitr++ )->set( fib[0][0], fib[0][1], fib[0][2] );
+    vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
     for( size_t i = 1; i < fib.size(); ++i )
     {
-        ( vitr++ )->set( fib[i][0], fib[i][1], fib[i][2] );
+        vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
         WColor c = color_utils::getRGBAColorFromDirection( wmath::WPosition( fib[i][0], fib[i][1], fib[i][2] ),
                                                            wmath::WPosition( fib[i-1][0], fib[i-1][1], fib[i-1][2] ) );
-        assert( c.getAlpha() == 1.0 );
-        assert( c.getRed() != 0.0 || c.getBlue() != 0.0 || c.getGreen() != 0.0 );
         colors->push_back( c.getOSGColor() );
     }
     colors->push_back( colors->back() );
@@ -80,7 +77,6 @@ void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) 
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, fib.size() ) );
-
     geode->addDrawable( geometry );
 }
 
@@ -110,6 +106,7 @@ void WFiberTestModule::threadMain()
     {
         drawFiber( fibers[i], geode );
     }
+    geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
 
