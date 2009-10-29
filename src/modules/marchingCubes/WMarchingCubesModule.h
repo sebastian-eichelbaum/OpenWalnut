@@ -32,6 +32,8 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.hpp"
 
+class WTriangleMesh;
+
 struct WPointXYZId
 {
     unsigned int newID;
@@ -146,6 +148,11 @@ private:
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 
     void renderSurface();
+
+    /**
+     * Store the mesh in legacy vtk file format.
+     */
+    bool save( std::string filename, const WTriangleMesh& triMesh ) const;
 };
 
 #endif  // WMARCHINGCUBESMODULE_H
