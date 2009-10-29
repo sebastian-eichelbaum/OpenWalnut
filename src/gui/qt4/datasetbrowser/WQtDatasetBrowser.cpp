@@ -118,45 +118,47 @@ void WQtDatasetBrowser::selectTreeItem()
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
 
     for ( size_t i = 0; i < props.size(); ++i )
-
     {
-        switch ( props.at(i)->getType() )
+        if ( !props.at(i)->isHidden() )
         {
-            case P_BOOL:
+            switch ( props.at(i)->getType() )
             {
-                QString name = QString( props.at( i )->getName().c_str() );
-                WQtCheckBox* box = tab1->addCheckBox( name, props.at( i )->getValue<bool>() );
-                connect( box, SIGNAL( checkBoxStateChanged( QString, bool ) ), this, SLOT( slotSetBoolProperty( QString, bool ) ) );
-                break;
+                case P_BOOL:
+                {
+                    QString name = QString( props.at( i )->getName().c_str() );
+                    WQtCheckBox* box = tab1->addCheckBox( name, props.at( i )->getValue<bool>() );
+                    connect( box, SIGNAL( checkBoxStateChanged( QString, bool ) ), this, SLOT( slotSetBoolProperty( QString, bool ) ) );
+                    break;
+                }
+                case P_CHAR:
+                    break;
+                case P_UNSIGNED_CHAR:
+                    break;
+                case P_INT:
+                {
+                    QString name = QString( props.at( i )->getName().c_str() );
+                    WQtSliderWithEdit* slider = tab1->addSliderInt( name, props.at( i )->getValue<int>(),
+                            props.at( i )->getMin<int>(), props.at( i )->getMax<int>() );
+                    connect( slider, SIGNAL( signalNumberWithName( QString, int ) ), this, SLOT( slotSetIntProperty( QString, int ) ) );
+                    break;
+                }
+                case P_UNSIGNED_INT:
+                    break;
+                case P_FLOAT:
+                    break;
+                case P_DOUBLE:
+                    break;
+                case P_STRING:
+                {
+                    QString name = QString( props.at( i )->getName().c_str() );
+                    QString text = QString( props.at( i )->getValue<std::string>().c_str() );
+                    WQtLineEdit* edit = tab1->addLineEdit( name, text );
+                    connect( edit, SIGNAL( lineEditStateChanged( QString, QString ) ), this, SLOT( slotSetStringProperty( QString, QString ) ) );
+                    break;
+                }
+                default:
+                    break;
             }
-            case P_CHAR:
-                break;
-            case P_UNSIGNED_CHAR:
-                break;
-            case P_INT:
-            {
-                QString name = QString( props.at( i )->getName().c_str() );
-                WQtSliderWithEdit* slider = tab1->addSliderInt( name, props.at( i )->getValue<int>(),
-                        props.at( i )->getMin<int>(), props.at( i )->getMax<int>() );
-                connect( slider, SIGNAL( signalNumberWithName( QString, int ) ), this, SLOT( slotSetIntProperty( QString, int ) ) );
-                break;
-            }
-            case P_UNSIGNED_INT:
-                break;
-            case P_FLOAT:
-                break;
-            case P_DOUBLE:
-                break;
-            case P_STRING:
-            {
-                QString name = QString( props.at( i )->getName().c_str() );
-                QString text = QString( props.at( i )->getValue<std::string>().c_str() );
-                WQtLineEdit* edit = tab1->addLineEdit( name, text );
-                connect( edit, SIGNAL( lineEditStateChanged( QString, QString ) ), this, SLOT( slotSetStringProperty( QString, QString ) ) );
-                break;
-            }
-            default:
-                break;
         }
     }
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
@@ -203,17 +205,6 @@ void WQtDatasetBrowser::slotSetBoolProperty( QString name, bool value )
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     module->getProperties()->setValue<bool>( name.toStdString(), value );
 
-    if ( name == "active")
-    {
-        if ( value )
-        {
-            m_treeWidget->selectedItems().at( 0 )->setCheckState( 0, Qt::Checked );
-        }
-        else
-        {
-            m_treeWidget->selectedItems().at( 0 )->setCheckState( 0, Qt::Unchecked );
-        }
-    }
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 

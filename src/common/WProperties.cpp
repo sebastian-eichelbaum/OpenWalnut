@@ -118,12 +118,24 @@ std::string WProperties::getValueString( const std::string prop )
     return "";
 }
 
-std::map < std::string, WProperty* >& WProperties::getProperties()
-{
-    return m_propertyList;
-}
-
 std::vector< WProperty* >& WProperties::getPropertyVector()
 {
     return m_propertyVector;
 }
+
+void WProperties::hideProperty( std::string name )
+{
+    if ( findProp( name ) )
+    {
+        findProp( name )->hide();
+    }
+}
+
+void WProperties::unhideProperty( std::string name )
+{
+    if ( findProp( name ) )
+    {
+        findProp( name )->unhide();
+    }
+}
+

@@ -139,9 +139,14 @@ std::string WProperty::getValueString()
     return m_value;
 }
 
-void WProperty::setHidden()
+void WProperty::hide()
 {
     m_isHidden = true;
+}
+
+void WProperty::unhide()
+{
+    m_isHidden = false;
 }
 
 bool WProperty::isHidden()

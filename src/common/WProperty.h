@@ -71,7 +71,8 @@ public:
     void setShortDesc( const std::string desc );
     void setLongDesc( const std::string desc );
 
-    void setHidden();
+    void hide();
+    void unhide();
     bool isHidden();
 
     std::string getShortDesc();
