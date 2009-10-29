@@ -113,19 +113,19 @@ void WQtDatasetBrowser::selectTreeItem()
     }
 
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    std::vector < WProperty* >*props = module->getProperties()->getPropertyVector();
+    std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
 
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
 
-    for ( size_t i = 0; i < props->size(); ++i )
+    for ( size_t i = 0; i < props.size(); ++i )
 
     {
-        switch ( props->at(i)->getType() )
+        switch ( props.at(i)->getType() )
         {
             case P_BOOL:
             {
-                QString name = QString( props->at( i )->getName().c_str() );
-                WQtCheckBox* box = tab1->addCheckBox( name, props->at( i )->getValue<bool>() );
+                QString name = QString( props.at( i )->getName().c_str() );
+                WQtCheckBox* box = tab1->addCheckBox( name, props.at( i )->getValue<bool>() );
                 connect( box, SIGNAL( checkBoxStateChanged( QString, bool ) ), this, SLOT( slotSetBoolProperty( QString, bool ) ) );
                 break;
             }
@@ -135,9 +135,9 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_INT:
             {
-                QString name = QString( props->at( i )->getName().c_str() );
-                WQtSliderWithEdit* slider = tab1->addSliderInt( name, props->at( i )->getValue<int>(),
-                        props->at( i )->getMin<int>(), props->at( i )->getMax<int>() );
+                QString name = QString( props.at( i )->getName().c_str() );
+                WQtSliderWithEdit* slider = tab1->addSliderInt( name, props.at( i )->getValue<int>(),
+                        props.at( i )->getMin<int>(), props.at( i )->getMax<int>() );
                 connect( slider, SIGNAL( signalNumberWithName( QString, int ) ), this, SLOT( slotSetIntProperty( QString, int ) ) );
                 break;
             }
@@ -149,8 +149,8 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case P_STRING:
             {
-                QString name = QString( props->at( i )->getName().c_str() );
-                QString text = QString( props->at( i )->getValue<std::string>().c_str() );
+                QString name = QString( props.at( i )->getName().c_str() );
+                QString text = QString( props.at( i )->getValue<std::string>().c_str() );
                 WQtLineEdit* edit = tab1->addLineEdit( name, text );
                 connect( edit, SIGNAL( lineEditStateChanged( QString, QString ) ), this, SLOT( slotSetStringProperty( QString, QString ) ) );
                 break;

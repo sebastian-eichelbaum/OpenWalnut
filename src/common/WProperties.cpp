@@ -100,8 +100,10 @@ WProperty* WProperties::findProp( std::string name )
     }
     else
     {
-        std::string msg( "Property doesn't exist: " + name );
-        WLogger::getLogger()->addLogMessage( msg, "Properties", LL_ERROR );
+        // TODO(schurade): since the gui tries to set properties over all connected modules, the error
+        // message here can be misleading, removing it for now
+        // std::string msg( "Property doesn't exist: " + name );
+        // WLogger::getLogger()->addLogMessage( msg, "Properties", LL_ERROR );
         return 0;
     }
 }
@@ -116,12 +118,12 @@ std::string WProperties::getValueString( const std::string prop )
     return "";
 }
 
-std::map < std::string, WProperty* >* WProperties::getProperties()
+std::map < std::string, WProperty* >& WProperties::getProperties()
 {
-    return &m_propertyList;
+    return m_propertyList;
 }
 
-std::vector< WProperty* >* WProperties::getPropertyVector()
+std::vector< WProperty* >& WProperties::getPropertyVector()
 {
-    return &m_propertyVector;
+    return m_propertyVector;
 }
