@@ -67,12 +67,12 @@ protected:
     virtual void threadMain();
 
     /**
-     * Draws the given fiber into the given OSG node.
+     * Generates an OSG geometry for the given fiber.
      *
      * \param fib reference to a WFiber instance
-     * \param geode OSG node, where all fibers are drawn into
+     * \return OSG geometry representing the fiber.
      */
-    void drawFiber( const wmath::WFiber &fib, osg::ref_ptr< osg::Geode > geode ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib ) const;
 
 private:
 };
