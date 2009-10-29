@@ -57,10 +57,11 @@ const std::string WFiberTestModule::getDescription() const
     return std::string( "Draws fibers out of a WDataSetFibers" );
 }
 
-void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) const
+void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::ref_ptr< osg::Geode > geode ) const
 {
-    osg::Vec3Array* vertices = new osg::Vec3Array;
-    osg::Vec4Array* colors = new osg::Vec4Array;
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
 
     vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
     for( size_t i = 1; i < fib.size(); ++i )
@@ -72,12 +73,12 @@ void WFiberTestModule::drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) 
     }
     colors->push_back( colors->back() );
 
-    osg::Geometry* geometry = new osg::Geometry();
+    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, fib.size() ) );
-    geode->addDrawable( geometry );
+    geode->addDrawable( geometry.get() );
 }
 
 void WFiberTestModule::threadMain()
@@ -100,7 +101,7 @@ void WFiberTestModule::threadMain()
     boost::shared_ptr< const WDataSetFibers > fiberDS;
     assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
     const WDataSetFibers &fibers = *fiberDS;  // just an alias
-    osg::Geode *geode = new osg::Geode;
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     for( size_t i = 0; i < fibers.size(); ++i )
     {
@@ -108,7 +109,7 @@ void WFiberTestModule::threadMain()
     }
     geode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode.get() );
 
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )

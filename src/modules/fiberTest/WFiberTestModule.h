@@ -72,7 +72,7 @@ protected:
      * \param fib reference to a WFiber instance
      * \param geode OSG node, where all fibers are drawn into
      */
-    void drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) const;
+    void drawFiber( const wmath::WFiber &fib, osg::ref_ptr< osg::Geode > geode ) const;
 
 private:
 };
