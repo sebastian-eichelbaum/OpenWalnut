@@ -25,6 +25,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "WMarchingCubesModule.h"
 #include "marchingCubesCaseTables.h"
@@ -82,6 +83,8 @@ void WMarchingCubesModule::threadMain()
     {
         sleep( 1 );
     }
+    WLogger::getLogger()->addLogMessage( "Starting MC", "Marching Cubes", LL_DEBUG );
+
     boost::shared_ptr< WDataHandler > dh = WKernel::getRunningKernel()->getDataHandler();
     boost::shared_ptr< WSubject > subject = (*dh)[0];
     m_dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
@@ -102,7 +105,9 @@ void WMarchingCubesModule::threadMain()
     WLogger::getLogger()->addLogMessage( "Computing surface ...", "Marching Cubes", LL_DEBUG );
 
     // TODO(wiebel): MC set correct isoValue here
-    generateSurface( 100 );
+    generateSurface( 110 );
+    // TODO(wiebel): MC remove this from here
+    //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
 
     WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Marching Cubes", LL_DEBUG );
 
@@ -129,7 +134,7 @@ void WMarchingCubesModule::connectors()
 
 void WMarchingCubesModule::properties()
 {
-    ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMarchingCubesModule::slotPropertyChanged, this, _1 ) );
+//     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMarchingCubesModule::slotPropertyChanged, this, _1 ) );
 }
 
 void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )
@@ -469,17 +474,27 @@ void WMarchingCubesModule::renderSurface()
         vecIterator++;
     }
 
-    // ========================
-    // drawing
+    renderMesh( triMesh );
 
+    // TODO(wiebel): MC make the filename set automatically
+//     bool saved = save( "/tmp/isosurfaceTestMesh.vtk", triMesh );
+//     if( saved )
+//     {
+//         WLogger::getLogger()->addLogMessage( "File opened", "Marching Cubes", LL_DEBUG );
+//     }
+}
+
+
+void WMarchingCubesModule::renderMesh( const WTriangleMesh& mesh )
+{
     osg::Geometry* surfaceGeometry = new osg::Geometry();
 
     osg::Geode *geode = new osg::Geode;
     osg::Vec3Array* vertices = new osg::Vec3Array;
-    for( size_t i = 0; i < triMesh.getNumVertices(); ++i )
+    for( size_t i = 0; i < mesh.getNumVertices(); ++i )
     {
         wmath::WPosition vertPos;
-        vertPos = triMesh.getVertex( i );
+        vertPos = mesh.getVertex( i );
         vertices->push_back( osg::Vec3( vertPos[0], vertPos[1], vertPos[2] ) );
     }
     surfaceGeometry->setVertexArray( vertices );
@@ -487,20 +502,20 @@ void WMarchingCubesModule::renderSurface()
     osg::DrawElementsUInt* surfaceElement;
 
     surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-    for( unsigned int triId = 0; triId < triMesh.getNumTriangles(); ++triId )
+    for( unsigned int triId = 0; triId < mesh.getNumTriangles(); ++triId )
     {
         for( unsigned int vertId = 0; vertId < 3; ++vertId )
         {
-            surfaceElement->push_back( triMesh.getTriangleVertexId( triId, vertId ) );
+            surfaceElement->push_back( mesh.getTriangleVertexId( triId, vertId ) );
         }
     }
     surfaceGeometry->addPrimitiveSet( surfaceElement );
 
     // normals
     osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
-    for( unsigned int triId = 0; triId < triMesh.getNumTriangles(); ++triId )
+    for( unsigned int triId = 0; triId < mesh.getNumTriangles(); ++triId )
     {
-        wmath::WVector3D tmpNormal = triMesh.getTriangleNormal( triId );
+        wmath::WVector3D tmpNormal = mesh.getTriangleNormal( triId );
         normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[1] ) );
     }
 
@@ -511,34 +526,28 @@ void WMarchingCubesModule::renderSurface()
 
     osg::Vec4Array* colors = new osg::Vec4Array;
 
-    // TODO(wiebel): MC transparency is set to 0.5 here
-    colors->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, .5f ) );
+    colors->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, 1.0f ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     geode->addDrawable( surfaceGeometry );
     geode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
-
-
-    // TODO(wiebel): MC make the filename set automatically
-    save( "/tmp/isosurfaceTestMesh.vtk", triMesh );
 }
 
-
 // TODO(wiebel): MC move this to a separate module in the future
-bool WMarchingCubesModule::save( std::string filename, const WTriangleMesh& triMesh ) const
+bool WMarchingCubesModule::save( std::string fileName, const WTriangleMesh& triMesh ) const
 {
-    const char* c_file = filename.c_str();
+    const char* c_file = fileName.c_str();
     std::ofstream dataFile( c_file );
 
     if ( dataFile )
     {
-        std::cout << "opening file" << std::endl;
+        WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
     }
     else
     {
-        std::cout << "open file failed: " << filename.c_str() << std::endl;
+        WLogger::getLogger()->addLogMessage( "open file failed"+fileName , "Marching Cubes", LL_ERROR );
         return false;
     }
 
@@ -578,4 +587,118 @@ bool WMarchingCubesModule::save( std::string filename, const WTriangleMesh& triM
     dataFile.close();
     std::cout << " saving  done" << std::endl;
     return true;
+}
+
+WTriangleMesh WMarchingCubesModule::load( std::string fileName )
+{
+    WTriangleMesh triMesh;
+    triMesh.clearMesh();
+
+    namespace su = string_utils;
+
+    std::ifstream ifs;
+    ifs.open( fileName.c_str(), std::ifstream::in );
+    if( ifs || ifs.bad() )
+    {
+        WLogger::getLogger()->addLogMessage( "Load broken file '" + fileName + "'", "Marching Cubes", LL_ERROR );
+    }
+    std::string line;
+
+    // ------ HEADER -------
+    std::vector< std::string > header;
+    for( int i = 0; i < 4; ++i )  // strip first four lines
+    {
+        std::getline( ifs, line );
+        if( !ifs.good() )
+        {
+            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + fileName, "Marching Cubes", LL_ERROR );
+        }
+        header.push_back( line );
+    }
+
+    if( header.at(0) != "# vtk DataFile Version 2.0" )
+    {
+        WLogger::getLogger()->addLogMessage( "Unsupported format version string: " + header.at( 0 ), "Marching Cubes", LL_WARNING );
+    }
+
+    if( su::toUpper( su::trim( header.at( 2 ) ) ) != "ASCII" )
+    {
+        WLogger::getLogger()->addLogMessage( "Only ASCII files supported, not " + header.at( 2 ), "Marching Cubes", LL_ERROR );
+    }
+
+    if(  su::tokenize( header.at( 3 ) ).size() < 2 ||
+         su::toUpper( su::tokenize( header.at( 3 ) )[1] ) != "UNSTRUCTURED_GRID" )
+    {
+        WLogger::getLogger()->addLogMessage( "Invalid VTK DATASET type: " + su::tokenize( header.back() )[1], "Marching Cubes", LL_ERROR );
+    }
+
+    // ------ POINTS -------
+
+    std::getline( ifs, line );
+    size_t numPoints = 0;
+    std::vector< std::string > tokens = su::tokenize( line );
+    if( tokens.size() != 3 || su::toLower( tokens.at( 2 ) ) != "float" || su::toLower( tokens.at( 0 ) ) != "points"  )
+    {
+        WLogger::getLogger()->addLogMessage( "Invalid VTK POINTS declaration: " + line, "Marching Cubes", LL_ERROR );
+    }
+    try
+    {
+        numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+    }
+    catch( const boost::bad_lexical_cast &e )
+    {
+        WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Marching Cubes", LL_ERROR );
+    }
+
+    std::vector< wmath::WPosition > points;
+    points.reserve( numPoints );
+    float pointData[3];
+    for( unsigned int i = 0; i < numPoints; ++i )
+    {
+        ifs >> pointData[0] >>  pointData[1] >>  pointData[2];
+        points.push_back( wmath::WPosition( pointData[0], pointData[1], pointData[2] ) );
+    }
+    triMesh.setVertices( points );
+
+    // ----- Vertex Ids For Cells---------
+    char* cellsMarker = new char[30];
+    size_t nbCells;
+    size_t nbNumbers;
+    ifs >> cellsMarker >> nbCells >> nbNumbers;
+    std::cout<< cellsMarker << " " << nbCells << " " << nbNumbers << std::endl;
+
+    triMesh.resizeTriangles( nbCells );
+    unsigned int nbCellVerts;
+    for( unsigned int i = 0; i < nbCells; ++i )
+    {
+        unsigned int tri[3];
+        ifs >> nbCellVerts >> tri[0]  >> tri[1]  >> tri[2];
+        triMesh.fastAddTriangle( tri[0], tri[1], tri[2] );
+        if( nbCellVerts != 3 )
+            WLogger::getLogger()->addLogMessage( "Number of cell vertices should be 3 but found " + nbCellVerts, "Marching Cubes", LL_ERROR );
+    }
+
+
+
+
+    // ----- Cell Types ---------
+    char* cells_typesMarker = new char[30];
+    size_t nbCellTypes;
+    ifs >> cells_typesMarker >> nbCellTypes;
+    std::cout << cells_typesMarker << " .... " << nbCellTypes << std::endl;
+    unsigned int cellType;
+    for( unsigned int i = 0; i < nbCellTypes; ++i )
+    {
+        ifs >> cellType;
+        if( cellType != 5 )
+        {
+            WLogger::getLogger()->addLogMessage( "Invalid cell type: " + cellType, "Marching Cubes", LL_ERROR );
+        }
+    }
+
+    ifs.close();
+
+    // TODO(wiebel): probably load point data some time
+
+    return triMesh;
 }
