@@ -51,7 +51,19 @@ public:
      */
     virtual ~WProperties();
 
-    std::map < std::string, WProperty* >& getProperties();
+    /**
+     * sets a flag hidden, which can be used by the datasetbrowser for instance
+     */
+    void hideProperty( std::string name );
+
+    /**
+     * sets a flag hidden, which can be used by the datasetbrowser for instance
+     */
+    void unhideProperty( std::string name );
+
+    /**
+     * returns a vector to the properties sorted by their insertion order
+     */
     std::vector< WProperty* >& getPropertyVector();
 
     boost::signal1< void, std::string >* addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );

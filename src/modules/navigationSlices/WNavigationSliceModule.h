@@ -131,7 +131,16 @@ private:
     /**
      * the root node for this module
      */
-    osg::ref_ptr<osg::Geode> m_sliceNode;
+    osg::ref_ptr<osg::Group> m_rootNode;
+
+    /**
+     * nodes for each slice, to be reused in other widgets
+     */
+    osg::ref_ptr<osg::Geode> m_xSliceNode;
+    osg::ref_ptr<osg::Geode> m_ySliceNode;
+    osg::ref_ptr<osg::Geode> m_zSliceNode;
+
+
 
     /**
      * the shader object for this module

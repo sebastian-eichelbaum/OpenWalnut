@@ -298,6 +298,7 @@ void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
     boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule< int >( dataSet ) );
 
     module->getProperties()->addBool( "active", true );
+    module->getProperties()->hideProperty( "active" );
     module->getProperties()->addBool( "interpolation", true );
     module->getProperties()->addInt( "threshold", 0 );
     module->getProperties()->addInt( "alpha", 100 );
