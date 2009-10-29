@@ -229,21 +229,20 @@ void WNavigationSliceModule::updateGeometry()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
-
-    if ( datasetList.size() > 0 )
-    {
-        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( datasetList[0] );
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
-
-        float mx = grid->getNbCoordsX() * grid->getOffsetX();
-        float my = grid->getNbCoordsY() * grid->getOffsetY();
-        float mz = grid->getNbCoordsZ() * grid->getOffsetZ();
-
-        m_properties->setValue( "maxAxial", mx );
-        m_properties->setValue( "maxCoronal", my );
-        m_properties->setValue( "maxSagittal", mz );
-    }
+//    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+//    if ( datasetList.size() > 0 )
+//    {
+//        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( datasetList[0] );
+//        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+//
+//        float mx = grid->getNbCoordsX() * grid->getOffsetX();
+//        float my = grid->getNbCoordsY() * grid->getOffsetY();
+//        float mz = grid->getNbCoordsZ() * grid->getOffsetZ();
+//
+//        m_properties->setValue( "maxAxial", mx );
+//        m_properties->setValue( "maxCoronal", my );
+//        m_properties->setValue( "maxSagittal", mz );
+//    }
 
     float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) );
     float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) );
