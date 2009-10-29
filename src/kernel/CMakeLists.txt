@@ -11,9 +11,9 @@ TARGET_LINK_LIBRARIES( kernel common dataHandler ge math utils ${OPENSCENEGRAPH_
 
 # Unit tests
 IF( CXXTEST_FOUND )
-    SET( testLibs guiqt4 )
+    #    SET( testLibs guiqt4 )
   CXXTEST_ADD_TESTS_FROM_LIST( "${KERNEL_SRC}"
-                               ${testLibs}
+                               "kernel"
                                "WKernel.cpp"
                                "WModule.cpp"
                                "WModuleInputConnector.cpp"

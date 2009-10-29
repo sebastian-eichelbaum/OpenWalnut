@@ -37,6 +37,7 @@
  */
 class WFiberTestModule : public WModule
 {
+friend class WFiberTestModuleTest;
 public:
     /**
      * Constructs new FiberTestModule
