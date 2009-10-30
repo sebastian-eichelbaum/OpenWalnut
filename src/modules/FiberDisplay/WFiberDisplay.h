@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERTESTMODULE_H
-#define WFIBERTESTMODULE_H
+#ifndef WFIBERDISPLAY_H
+#define WFIBERDISPLAY_H
 
 #include <string>
 
@@ -35,19 +35,19 @@
 /**
  * Test module for drawing fibers
  */
-class WFiberTestModule : public WModule
+class WFiberDisplay : public WModule
 {
-friend class WFiberTestModuleTest;
+friend class WFiberDisplayTest;
 public:
     /**
      * Constructs new FiberTestModule
      */
-    WFiberTestModule();
+    WFiberDisplay();
 
     /**
      * Destructs this FiberTestModule
      */
-    virtual ~WFiberTestModule();
+    virtual ~WFiberDisplay();
 
     /**
      * Gives back the name of this module.
@@ -78,4 +78,4 @@ protected:
 private:
 };
 
-#endif  // WFIBERTESTMODULE_H
+#endif  // WFIBERDISPLAY_H

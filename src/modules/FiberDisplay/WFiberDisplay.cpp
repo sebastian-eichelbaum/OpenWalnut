@@ -27,7 +27,7 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "WFiberTestModule.h"
+#include "WFiberDisplay.h"
 #include "../../math/WFiber.h"
 #include "../../common/WLogger.h"
 #include "../../common/WColor.hpp"
@@ -38,26 +38,26 @@
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 
-WFiberTestModule::WFiberTestModule()
+WFiberDisplay::WFiberDisplay()
     : WModule()
 {
 }
 
-WFiberTestModule::~WFiberTestModule()
+WFiberDisplay::~WFiberDisplay()
 {
 }
 
-const std::string WFiberTestModule::getName() const
+const std::string WFiberDisplay::getName() const
 {
     return std::string( "FiberTestModule" );
 }
 
-const std::string WFiberTestModule::getDescription() const
+const std::string WFiberDisplay::getDescription() const
 {
     return std::string( "Draws fibers out of a WDataSetFibers" );
 }
 
-osg::ref_ptr< osg::Geode > WFiberTestModule::genFiberGeode( const wmath::WFiber &fib ) const
+osg::ref_ptr< osg::Geode > WFiberDisplay::genFiberGeode( const wmath::WFiber &fib ) const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -83,7 +83,7 @@ osg::ref_ptr< osg::Geode > WFiberTestModule::genFiberGeode( const wmath::WFiber 
     return geode;
 }
 
-void WFiberTestModule::threadMain()
+void WFiberDisplay::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(wiebel): fix this hack when possible by using an input connector.
