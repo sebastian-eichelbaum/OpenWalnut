@@ -22,4 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+
 #include "WDataSetFibers.h"
+
+void WDataSetFibers::sortDescLength()
+{
+    std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
+}

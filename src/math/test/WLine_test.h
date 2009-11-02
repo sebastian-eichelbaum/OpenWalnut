@@ -41,19 +41,18 @@ CXXTEST_TEMPLATE_INSTANTIATION
 class ValueTraits< wmath::WLine >
 {
 private:
-    char _s[1024];
+    std::string _s;
 
 public:
     explicit ValueTraits( const wmath::WLine &line )
     {
         std::stringstream ss;
-        ss << line;
-        assert( ss.str().size() < 1024 && "custom value traits supports just 256 chars" );
-        snprintf( _s, ss.str().size(), "WLine(%s)", ss.str().c_str() );
+        ss << "WLine(" << line << ")";
+        _s = ss.str();
     }
     const char *asString() const
     {
-        return _s;
+        return _s.c_str();
     }
 };
 }

@@ -62,7 +62,13 @@ public:
         return (*m_fibers)[index];
     }
 
+    /**
+     * Sort fibers descending on their length.
+     */
+    void sortDescLength();
+
 protected:
+
 private:
     boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };

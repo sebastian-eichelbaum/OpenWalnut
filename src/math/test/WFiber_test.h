@@ -25,6 +25,7 @@
 #ifndef WFIBER_TEST_H
 #define WFIBER_TEST_H
 
+#include <string>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
@@ -41,18 +42,18 @@ CXXTEST_TEMPLATE_INSTANTIATION
 class ValueTraits< wmath::WFiber >
 {
 private:
-    char _s[256];
+    std::string _s;
 
 public:
     explicit ValueTraits( const wmath::WFiber &fib )
     {
         std::stringstream ss;
-        ss << fib;
-        snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
+        ss << "WFiber(" << fib << ")";
+        _s = ss.str();
     }
     const char *asString() const
     {
-        return _s;
+        return _s.c_str();
     }
 };
 }

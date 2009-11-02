@@ -22,7 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <vector>
+#include <utility>
 
 #include "WFiber.h"
 
@@ -31,6 +33,54 @@ namespace wmath
     WFiber::WFiber( const std::vector< WPosition > &points )
         : WLine( points )
     {
+    }
+
+    std::pair< double, double > WFiber::dXt_optimized( const WFiber &other,
+                                                       const double thresholdSquare ) const
+    {
+        const WFiber &q = *this;
+        const WFiber &r = other;
+        const size_t qsize = q.size();
+        const size_t rsize = r.size();
+        double qr = 0.0;
+        double rq = 0.0;
+
+        std::vector< std::vector< double > > m( qsize, std::vector< double >( rsize, 0.0 ) );
+        for( size_t i = 0; i < qsize; ++i )
+        {
+            for( size_t j = 0; j < rsize; ++j )
+            {
+                m[i][j] = q[i].distanceSquare( r[j] );
+            }
+        }
+        double minSoFar;
+        for( size_t i = 0; i < qsize; ++i )
+        {
+            minSoFar = *( std::min_element( m[i].begin(), m[i].end() ) );
+            if( minSoFar > thresholdSquare )
+            {
+                qr += sqrt( minSoFar );
+            }
+        }
+        qr = qr / qsize;
+        for( size_t j = 0; j < rsize; ++j )
+        {
+            // TODO(math): MAX_FANTOM_DOUBLE correct this
+            minSoFar = 9999999999999999999.9;  // _FANTOM_DOUBLE;
+            for( size_t i = 0; i < qsize; ++i )
+            {
+                if( m[i][j] < minSoFar )
+                {
+                    minSoFar = m[i][j];
+                }
+            }
+            if( minSoFar > thresholdSquare )
+            {
+                rq += sqrt( minSoFar );
+            }
+        }
+        rq = rq / rsize;
+        return std::make_pair( qr, rq );
     }
 }
 

@@ -83,6 +83,26 @@ public:
         return result;
     }
 
+    /**
+     * Calculate euclidean square distance between this Position and another one.
+     *
+     * \param other The other position.
+     * \return Square distance.
+     */
+    double distanceSquare( const WVector3D &other ) const
+    {
+       assert( this->size() == other.size() );
+       double dist = 0.0;
+       double tmp = 0;
+       unsigned int i = 0;
+       for ( i = 0 ; i < this->size(); i++)
+       {
+           tmp = (*this)[i] - other[i];
+           dist += tmp * tmp;
+       }
+       return dist;
+    }
+
 protected:
 private:
 };

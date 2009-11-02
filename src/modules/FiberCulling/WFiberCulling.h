@@ -70,7 +70,7 @@ protected:
      */
     virtual void threadMain();
 
-    virtual void cullOutFibers( boost::shared_ptr< const WDataSetFibers > fibers );
+    virtual void cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers );
 
     /**
      * Proximity threshold, which defines the minimum distance which should be

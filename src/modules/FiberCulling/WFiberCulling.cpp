@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -74,8 +75,8 @@ void WFiberCulling::threadMain()
         sleep( 1 );
     }
 
-    boost::shared_ptr< const WDataSetFibers > fiberDS;
-    assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
+    boost::shared_ptr< WDataSetFibers > fiberDS;
+    assert( fiberDS = boost::shared_dynamic_cast< WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
 
 //    osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
 //
@@ -98,25 +99,29 @@ void WFiberCulling::threadMain()
     }
 }
 
-void WFiberCulling::cullOutFibers( boost::shared_ptr< const WDataSetFibers > fibers )
+void WFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
 {
-//    size_t numFibers = fibers->size();
-//    std::cout << "Recoginzed " << numFibers << " fibers" << std::endl;
-//
-//    fibers->sortDescLength();  // sort the fiber on their length (biggest first)
-//    std::cout << "Sorted fibers done." << std::endl;
-//
-//    const double proximity_t_Square = m_proximity_t * m_proximity_t;
-//    std::vector< bool > unusedFibers( numFibers, false );
-//    for( size_t i = 0; i < numFibers; ++i ) {  // loop over all streamlines
-//        if( unusedFibers[i] ) {
-//            continue;
-//        }
-//        const wmath::WFiber& q = (*fibers)[ i ];
-//        for( size_t j = i + 1;  j < numFibers; ++j ) {
-//            if( unusedFibers[j] ) {
-//                continue;
-//            }
+    size_t numFibers = fibers->size();
+    std::cout << "Recoginzed " << numFibers << " fibers" << std::endl;
+
+    fibers->sortDescLength();  // sort the fiber on their length (biggest first)
+    std::cout << "Sorted fibers done." << std::endl;
+
+    const double proximity_t_Square = m_proximity_t * m_proximity_t;
+    std::vector< bool > unusedFibers( numFibers, false );
+    for( size_t i = 0; i < numFibers; ++i )  // loop over all streamlines
+    {
+        if( unusedFibers[i] )
+        {
+            continue;
+        }
+        const wmath::WFiber& q = (*fibers)[ i ];
+        for( size_t j = i + 1;  j < numFibers; ++j )
+        {
+            if( unusedFibers[j] )
+            {
+                continue;
+            }
 //            const wmath::WFiber& r = (*fibers)[j];
 //            double dst = q.dSt( r, proximity_t_Square );
 //
@@ -129,9 +134,9 @@ void WFiberCulling::cullOutFibers( boost::shared_ptr< const WDataSetFibers > fib
 //                    unusedFibers[j] = true;
 //                }
 //            }
-//        }
-//    }
-//
+        }
+    }
+
 //    if( m_saveCulledCurves ) {
 //        saveFib( m_savePath, fibers, unusedFibers );
 //        std::cout << "Saving culled fibers to " << m_savePath << " done." << std::endl;
