@@ -52,6 +52,7 @@ public:
      */
     void setName( QString name );
 
+
 private:
     QString m_name;
 

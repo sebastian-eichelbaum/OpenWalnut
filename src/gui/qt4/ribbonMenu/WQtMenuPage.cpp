@@ -22,20 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include "WQtMenuPage.h"
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "quit.xpm"
+WQtMenuPage::WQtMenuPage( QString name )
+    : QWidget()
+{
+    m_name = name;
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+    m_pageLayout = new QHBoxLayout();
 
+    m_pageLayout->addStretch();
 
-#endif  // WICONS_H
+    this->setLayout( m_pageLayout );
+}
+
+WQtMenuPage::~WQtMenuPage()
+{
+}
+
+QString WQtMenuPage::getName()
+{
+    return m_name;
+}
+
+void WQtMenuPage::addButton( WQtPushButton* button )
+{
+    int count = m_pageLayout->count();
+    m_pageLayout->insertWidget( count -1, button );
+    this->setLayout( m_pageLayout );
+}

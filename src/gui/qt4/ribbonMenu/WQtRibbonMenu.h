@@ -22,28 +22,54 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WQTRIBBONMENU_H
+#define WQTRIBBONMENU_H
 
-#include "WQtPushButton.h"
+#include <map>
 
-WQtPushButton::WQtPushButton( QIcon icon, QString label )
-    : QPushButton( icon, label )
+#include <QtGui/QTabWidget>
+#include <QtGui/QToolBar>
+
+#include "WQtMenuPage.h"
+#include "../guiElements/WQtPushButton.h"
+/**
+ * implementation of a ribbon menu like widget
+ */
+class WQtRibbonMenu  : public QToolBar
 {
-    m_name = label;
-    connect( this, SIGNAL( pressed() ), this, SLOT( emitPressed() ) );
-}
+public:
+    /**
+     * default constructor
+     */
+    explicit WQtRibbonMenu( QWidget* parent );
 
-WQtPushButton::~WQtPushButton()
-{
-}
+    /**
+     * destructor
+     */
+    virtual ~WQtRibbonMenu();
 
-void WQtPushButton::setName( QString name )
-{
-    m_name = name;
-}
+    /**
+     *
+     */
+    WQtMenuPage* addTab( QString name );
 
-void WQtPushButton::emitPressed()
-{
-    emit pushButtonPressed( m_name, true );
-    emit pushButtonToggled( m_name, this->isChecked() );
-}
+    /**
+     *
+     */
+    WQtPushButton* addPushButton( QString name, QString tabName, QIcon icon, QString label = 0 );
+
+    /**
+     *
+     */
+    WQtPushButton* getButton( QString name );
+
+protected:
+private:
+    std::map< QString, WQtMenuPage*>m_tabList;
+
+    std::map< QString, WQtPushButton*>m_buttonList;
+
+    QTabWidget* m_tabWidget;
+};
+
+#endif  // WQTRIBBONMENU_H

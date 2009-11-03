@@ -14,7 +14,7 @@ SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtNavGLWidget.h
     WPropertyManager.h
-    WQtPushButton.h
+    guiElements/WQtPushButton.h
     datasetbrowser/WQtCheckBox.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h
@@ -26,7 +26,7 @@ SET(GUI_QT4_MOC_HDRS
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.[c,h]pp" "datasetbrowser/*cpp" )
+FILE(GLOB GUI_QT4_SRC "*.[c,h]pp" "guiElements/*cpp" "datasetbrowser/*cpp" "ribbonMenu/*cpp" )
 
 ADD_LIBRARY( guiqt4 SHARED ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 
