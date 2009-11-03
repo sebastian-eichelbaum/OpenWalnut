@@ -26,6 +26,8 @@
 #define WGRIDREGULAR3D_TEST_H
 
 #include <cstdio>
+#include <string>
+#include <sstream>
 
 #include <cxxtest/TestSuite.h>
 
@@ -40,16 +42,19 @@ namespace CxxTest
 CXXTEST_TEMPLATE_INSTANTIATION
 class ValueTraits<WVector3D>
 {
-    char _s[256];
+    std::string _s;
 
 public:
     explicit ValueTraits( const WVector3D &m )
     {
-        std::snprintf( _s, sizeof( _s ), "WVector3D( %.18f %.18f %.18f )", m[0], m[1], m[2] );
+        std::stringstream tmp;
+        tmp.precision( 16 );
+        tmp << "WVector3D( " << m[0] << " " << m[1] << " " << m[2] << " )";
+        _s = tmp.str();
     }
     const char *asString() const
     {
-        return _s;
+        return _s.c_str();
     }
 };
 }
