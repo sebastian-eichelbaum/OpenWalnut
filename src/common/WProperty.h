@@ -30,7 +30,7 @@
 #include <boost/lexical_cast.hpp>
 #include "../gui/qt4/signalslib.hpp"
 
-#include "WColor.hpp"
+#include "WColor.h"
 
 typedef enum
 {

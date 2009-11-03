@@ -30,7 +30,7 @@
 #include "WFiberTestModule.h"
 #include "../../math/WFiber.h"
 #include "../../common/WLogger.h"
-#include "../../common/WColor.hpp"
+#include "../../common/WColor.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"

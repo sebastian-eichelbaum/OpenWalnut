@@ -25,7 +25,7 @@
 #ifndef WCOLORUTILS_H
 #define WCOLORUTILS_H
 
-#include "../common/WColor.hpp"
+#include "../common/WColor.h"
 #include "../math/WPosition.h"
 
 /**

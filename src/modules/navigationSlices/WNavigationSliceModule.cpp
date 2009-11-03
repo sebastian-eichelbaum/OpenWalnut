@@ -50,8 +50,6 @@
 
 #include "../../graphicsEngine/WShader.h"
 
-#include "../../common/WColor.hpp"
-
 WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
@@ -113,8 +111,6 @@ void WNavigationSliceModule::properties()
     m_properties->addBool( "showAxial", true );
     m_properties->addBool( "showCoronal", true );
     m_properties->addBool( "showSagittal", true );
-
-    m_properties->addColor( "testColor", WColor(0.3, 0.3, 0.5, 1.0) );
 }
 
 void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -128,9 +124,6 @@ void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnecto
 void WNavigationSliceModule::threadMain()
 {
     createGeometry();
-
-    WColor c = m_properties->getValue<WColor>( "testColor" );
-    std::cout << c << std::endl;
 
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )

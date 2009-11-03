@@ -22,12 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCOLOR_HPP
-#define WCOLOR_HPP
+#ifndef WCOLOR_H
+#define WCOLOR_H
 
-#include <cassert>
 #include <istream>
 #include <ostream>
+#include <cassert>
 #include <string>
 #include <vector>
 
@@ -47,89 +47,52 @@ public:
     /**
      * Standard way of constructing colors, alpha is optional, and black is default
      */
-    WColor( float red = 0.0, float green = 0.0, float blue = 0.0, float alpha = 1.0 )
-        : m_red( red ),
-          m_green( green ),
-          m_blue( blue ),
-          m_alpha( alpha )
-    {
-    }
+    WColor( float red = 0.0, float green = 0.0, float blue = 0.0, float alpha = 1.0 );
 
     /**
      * Sets the green channel for this color
      */
-    void setGreen( float green )
-    {
-        assert( green <= 1.0 && green >= 0.0 );
-        m_green = green;
-    }
+    void setGreen( float green );
 
     /**
      * Sets the blue channel for this color
      */
-    void setBlue( float blue )
-    {
-        assert( blue <= 1.0 && blue >= 0.0 );
-        m_blue = blue;
-    }
+    void setBlue( float blue );
 
     /**
      * Sets the red channel for this color
      */
-    void setRed( float red )
-    {
-        assert( red <= 1.0 && red >= 0.0 );
-        m_red = red;
-    }
+    void setRed( float red );
 
     /**
      * Sets the alpha channel for this color
      */
-    void setAlpha( float alpha )
-    {
-        assert( alpha <= 1.0 && alpha >= 0.0 );
-        m_alpha = alpha;
-    }
+    void setAlpha( float alpha );
 
     /**
      * \return red channel for this color
      */
-    float getRed() const
-    {
-        return m_red;
-    }
+    float getRed() const;
 
     /**
      * \return green channel for this color
      */
-    float getGreen() const
-    {
-        return m_green;
-    }
+    float getGreen() const;
 
     /**
      * \return blue channel for this color
      */
-    float getBlue() const
-    {
-        return m_blue;
-    }
+    float getBlue() const;
 
     /**
      * \return alpha channel for this color
      */
-    float getAlpha() const
-    {
-        return m_alpha;
-    }
+    float getAlpha() const;
 
     /**
      * Makes a OSG compatible copy of this.
      */
-    osg::Vec4 getOSGColor() const
-    {
-        return osg::Vec4( m_red, m_green, m_blue, m_alpha );
-    }
+    osg::Vec4 getOSGColor() const;
 
     void tokenize( const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " " );
 
@@ -142,4 +105,4 @@ private:
     float m_alpha;
 };
 
-#endif  // WCOLOR_HPP
+#endif  // WCOLOR_H
