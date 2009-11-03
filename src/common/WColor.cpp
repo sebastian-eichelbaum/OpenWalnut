@@ -35,6 +35,11 @@ WColor::WColor( float red, float green, float blue, float alpha )
     m_blue( blue ),
     m_alpha( alpha )
 {
+    // check if the given values are correct in range
+    assert( m_green <= 1.0 && m_green >= 0.0 && "WColor comopnent out of range" );
+    assert( m_blue <= 1.0 && m_blue >= 0.0 && "WColor comopnent out of range" );
+    assert( m_red <= 1.0 && m_red >= 0.0 && "WColor comopnent out of range" );
+    assert( m_alpha <= 1.0 && m_alpha >= 0.0 && "WColor comopnent out of range" );
 }
 
 void WColor::setGreen( float green )
@@ -99,15 +104,16 @@ std::ostream& operator<<( std::ostream& out, const WColor& c )
 
 std::istream& operator>>( std::istream& in, WColor& c )
 {
-    std::vector<std::string> tokens;
     std::string str;
     in >> str;
+    std::vector<std::string> tokens;
     tokens = string_utils::tokenize( str, ";" );
-    assert( tokens.size() == 3 && "There weren't 3 color values for a WColor" );
+    assert( tokens.size() == 4 && "There weren't 4 color values for a WColor" );
 
     c.setRed( boost::lexical_cast< float >( tokens[0] ) );
     c.setGreen( boost::lexical_cast< float >( tokens[1] ) );
     c.setBlue( boost::lexical_cast< float >( tokens[2] ) );
+    c.setAlpha( boost::lexical_cast< float >( tokens[3] ) );
 
     return in;
 }
