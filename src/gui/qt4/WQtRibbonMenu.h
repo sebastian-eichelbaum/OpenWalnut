@@ -25,8 +25,9 @@
 #ifndef WQTRIBBONMENU_H
 #define WQTRIBBONMENU_H
 
-#include <QtGui/QPushButton>
 #include <QtGui/QToolBar>
+
+#include "WQtPushButton.h"
 /**
  * implementation of a ribbon menu like widget
  */
@@ -57,12 +58,12 @@ public:
     /**
      * getter for standard control widgets
      */
-    QPushButton* getLoadButton();
-    QPushButton* getQuitButton();
+    WQtPushButton* getLoadButton();
+    WQtPushButton* getQuitButton();
 
-    QPushButton* getAxiButton();
-    QPushButton* getCorButton();
-    QPushButton* getSagButton();
+    WQtPushButton* getAxiButton();
+    WQtPushButton* getCorButton();
+    WQtPushButton* getSagButton();
 
 protected:
 private:
@@ -77,13 +78,13 @@ private:
     QIcon m_corIcon;
     QIcon m_sagIcon;
 
-    QPushButton* m_loadButton;
-    QPushButton* m_saveButton;
-    QPushButton* m_quitButton;
+    WQtPushButton* m_loadButton;
+    WQtPushButton* m_saveButton;
+    WQtPushButton* m_quitButton;
 
-    QPushButton* m_axiButton;
-    QPushButton* m_corButton;
-    QPushButton* m_sagButton;
+    WQtPushButton* m_axiButton;
+    WQtPushButton* m_corButton;
+    WQtPushButton* m_sagButton;
 };
 
 #endif  // WQTRIBBONMENU_H

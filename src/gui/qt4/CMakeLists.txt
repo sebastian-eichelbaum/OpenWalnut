@@ -14,6 +14,7 @@ SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtNavGLWidget.h
     WPropertyManager.h
+    WQtPushButton.h
     datasetbrowser/WQtCheckBox.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h

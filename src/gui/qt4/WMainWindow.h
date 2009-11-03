@@ -95,10 +95,6 @@ public slots:
      */
     void openLoadDialog();
 
-    void toggleAxial( bool check );
-    void toggleCoronal( bool check );
-    void toggleSagittal( bool check );
-
 private:
     QIcon m_mainWindowIcon;
 

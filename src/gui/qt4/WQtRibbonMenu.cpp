@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QPushButton>
 #include <QtGui/QTabWidget>
 #include <QtGui/QHBoxLayout>
 
@@ -65,9 +64,9 @@ QWidget* WQtRibbonMenu::setupFileTab()
     m_loadIcon.addPixmap( QPixmap( fileopen_xpm ) );
 
     QWidget* filePage = new QWidget();
-    m_loadButton = new QPushButton( m_loadIcon, QString( "load" ) );
-    m_saveButton = new QPushButton( m_saveIcon, QString( "save" ) );
-    m_quitButton = new QPushButton( m_quitIcon, QString( "exit" ) );
+    m_loadButton = new WQtPushButton( m_loadIcon, QString( "load" ) );
+    m_saveButton = new WQtPushButton( m_saveIcon, QString( "save" ) );
+    m_quitButton = new WQtPushButton( m_quitIcon, QString( "exit" ) );
 
     m_loadButton->setMaximumWidth( 50 );
     m_saveButton->setMaximumWidth( 50 );
@@ -93,9 +92,13 @@ QWidget* WQtRibbonMenu::setupModuleTab()
 
     QWidget* modulPage = new QWidget();
 
-    m_axiButton = new QPushButton( m_axiIcon, QString( "" ) );
-    m_corButton = new QPushButton( m_corIcon, QString( "" ) );
-    m_sagButton = new QPushButton( m_sagIcon, QString( "" ) );
+    m_axiButton = new WQtPushButton( m_axiIcon, QString( "" ) );
+    m_corButton = new WQtPushButton( m_corIcon, QString( "" ) );
+    m_sagButton = new WQtPushButton( m_sagIcon, QString( "" ) );
+
+    m_axiButton->setName( QString( "showAxial" ) );
+    m_corButton->setName( QString( "showCoronal" ) );
+    m_sagButton->setName( QString( "showSagittal" ) );
 
     m_axiButton->setMaximumWidth( 24 );
     m_corButton->setMaximumWidth( 24 );
@@ -121,31 +124,31 @@ QWidget* WQtRibbonMenu::setupModuleTab()
     return modulPage;
 }
 
-QPushButton* WQtRibbonMenu::getLoadButton()
+WQtPushButton* WQtRibbonMenu::getLoadButton()
 {
     return m_loadButton;
 }
 
 
-QPushButton* WQtRibbonMenu::getQuitButton()
+WQtPushButton* WQtRibbonMenu::getQuitButton()
 {
     return m_quitButton;
 }
 
 
-QPushButton* WQtRibbonMenu::getAxiButton()
+WQtPushButton* WQtRibbonMenu::getAxiButton()
 {
     return m_axiButton;
 }
 
 
-QPushButton* WQtRibbonMenu::getCorButton()
+WQtPushButton* WQtRibbonMenu::getCorButton()
 {
     return m_corButton;
 }
 
 
-QPushButton* WQtRibbonMenu::getSagButton()
+WQtPushButton* WQtRibbonMenu::getSagButton()
 {
     return m_sagButton;
 }

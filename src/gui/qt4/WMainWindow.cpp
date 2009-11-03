@@ -104,9 +104,10 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
 
     connect( m_toolBar->getQuitButton(), SIGNAL( pressed() ), mainWindow, SLOT( close() ) );
     connect( m_toolBar->getLoadButton(), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
-    connect( m_toolBar->getAxiButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleAxial( bool ) ) );
-    connect( m_toolBar->getCorButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleCoronal( bool ) ) );
-    connect( m_toolBar->getSagButton(), SIGNAL( toggled( bool ) ), this, SLOT( toggleSagittal( bool ) ) );
+
+    connect( m_toolBar->getAxiButton(), SIGNAL( pushButtonToggled( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    connect( m_toolBar->getCorButton(), SIGNAL( pushButtonToggled( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    connect( m_toolBar->getSagButton(), SIGNAL( pushButtonToggled( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
@@ -148,21 +149,6 @@ void WMainWindow::openLoadDialog()
         stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
     }
     m_loaderSignal( stdFileNames );
-}
-
-void WMainWindow::toggleAxial(  bool check )
-{
-    m_propertyManager->slotBoolChanged( "showAxial", check );
-}
-
-void WMainWindow::toggleCoronal(  bool check )
-{
-    m_propertyManager->slotBoolChanged( "showCoronal", check );
-}
-
-void WMainWindow::toggleSagittal(  bool check )
-{
-    m_propertyManager->slotBoolChanged( "showSagittal", check );
 }
 
 boost::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
