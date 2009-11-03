@@ -45,18 +45,18 @@ CXXTEST_TEMPLATE_INSTANTIATION
 class ValueTraits< std::streampos >
 {
 private:
-    char _s[256];
+    std::string _s;
 
 public:
     explicit ValueTraits( const std::streampos &pos )
     {
         std::stringstream ss;
         ss << pos;
-        snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
+        _s = ss.str();
     }
     const char *asString() const
     {
-        return _s;
+        return _s.c_str();
     }
 };
 }
@@ -70,18 +70,18 @@ CXXTEST_TEMPLATE_INSTANTIATION
 class ValueTraits< wmath::WFiber >
 {
 private:
-    char _s[10240];
+    std::string _s;
 
 public:
     explicit ValueTraits( const wmath::WFiber &fib )
     {
         std::stringstream ss;
         ss << fib;
-        snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
+        _s = ss.str();
     }
     const char *asString() const
     {
-        return _s;
+        return _s.c_str();
     }
 };
 }

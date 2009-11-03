@@ -41,8 +41,6 @@
 class WColor
 {
 public:
-    friend std::ostream& operator<<( std::ostream& out, const WColor& c );
-    friend std::istream& operator>>( std::istream& in, WColor& c );
 
     /**
      * Standard way of constructing colors, alpha is optional, and black is default
@@ -94,9 +92,6 @@ public:
      */
     osg::Vec4 getOSGColor() const;
 
-    void tokenize( const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " " );
-
-
 protected:
 private:
     float m_red;
@@ -104,5 +99,8 @@ private:
     float m_blue;
     float m_alpha;
 };
+
+std::ostream& operator<<( std::ostream& out, const WColor& c );
+std::istream& operator>>( std::istream& in, WColor& c );
 
 #endif  // WCOLOR_H

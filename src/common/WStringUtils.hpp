@@ -118,13 +118,13 @@ namespace string_utils
      * \param source String to tokenize
      * \param compress If true, charactes matching between two tokens are
      * collapsed and handled as just one character.
-     * \param t String representing a set containg all characters considered
+     * \param delim String representing a set containg all characters considered
      * as whitespace.
      * \return A vector of strings containing the tokens.
      */
     std::vector< std::string > tokenize( const std::string& source,
-                                         bool compress = true,
-                                         const std::string& t = WHITESPACE );
+                                         const std::string& delim = WHITESPACE,
+                                         bool compress = true );
 
     /**
      * Writes every vector to an output stream such as cout, if its elements
