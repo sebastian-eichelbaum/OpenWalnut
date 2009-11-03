@@ -127,11 +127,13 @@ void WFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
 
             if( dst < m_dSt_culling_t )  // cullout small fibs nearby long fibs
             {
-                if( q.size() < r.size() ) {
+                if( q.size() < r.size() )
+                {
                     unusedFibers[i] = true;
                     break;
                 }
-                else {
+                else
+                {
                     unusedFibers[j] = true;
                 }
             }
