@@ -84,13 +84,13 @@ void WNavigationSliceModule::connectors()
     // initialize connectors
     // XXX to add a new connector and to offer it, these simple steps need to be done
     // initialize it first
-    m_Input= boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > >(
+    m_input= boost::shared_ptr<WModuleInputData<std::list<boost::shared_ptr<WDataSet> > > >(
             new WModuleInputData<std::list<boost::shared_ptr<WDataSet> > >( shared_from_this(),
                 "in1", "List of datasets to show on the slices." )
     );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-    addConnector( m_Input );
+    addConnector( m_input );
 
     // call WModules initialization
     WModule::connectors();
@@ -118,7 +118,7 @@ void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnecto
 {
     WModule::notifyDataChange( input, output );
 
-    // in this case input==m_Input
+    // in this case input==m_input
 }
 
 void WNavigationSliceModule::threadMain()

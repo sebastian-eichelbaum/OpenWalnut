@@ -45,7 +45,7 @@
 #include "../exceptions/WModuleException.h"
 #include "../exceptions/WModuleConnectorUnconnected.h"
 
-/** 
+/**
  * Class implementing a simple mod    // required since pure virtualule, since proper testing of WModuleConnector itself is not usable.
  */
 class WModuleImpl: public WModule
@@ -81,22 +81,22 @@ public:
 
     virtual void connectors()
     {
-        m_Input= boost::shared_ptr<WModuleInputData<int> >(
-                new WModuleInputData<int> ( shared_from_this(), "in1", "desc1" )
+        m_input= boost::shared_ptr< WModuleInputData< int > >(
+                new WModuleInputData< int > ( shared_from_this(), "in1", "desc1" )
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-        addConnector( m_Input );
+        addConnector( m_input );
 
-        m_Output= boost::shared_ptr<WModuleOutputData<int> >(
-                new WModuleOutputData<int> ( shared_from_this(), "out1", "desc2" )
+        m_output= boost::shared_ptr< WModuleOutputData< int > >(
+                new WModuleOutputData< int > ( shared_from_this(), "out1", "desc2" )
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-        addConnector( m_Output );
+        addConnector( m_output );
     }
 
 protected:
 
-    /** 
+    /**
      * temporary name string
      */
     std::string n;
@@ -111,25 +111,25 @@ protected:
         }
     }
 
-    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
-                                              boost::shared_ptr<WModuleConnector> /*there*/ )
+    virtual void notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
+                                              boost::shared_ptr< WModuleConnector > /*there*/ )
     {
         // std::cout << "connection established between " << n << ":" << here->getCanonicalName() << " and "
         //           << there->getCanonicalName() << std::endl;
     }
 
-    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
-                                              boost::shared_ptr<WModuleConnector> /*there*/ )
+    virtual void notifyConnectionClosed( boost::shared_ptr< WModuleConnector > /*here*/,
+                                              boost::shared_ptr< WModuleConnector > /*there*/ )
     {
         // std::cout << "connection closed between " << n << ":" <<  here->getCanonicalName() << " and "
         //           <<  there->getCanonicalName() << std::endl;
     }
 
-    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
-                                   boost::shared_ptr<WModuleConnector> output )
+    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
+                                   boost::shared_ptr< WModuleConnector > output )
     {
         // just copy the data
-        data=*( boost::shared_dynamic_cast<WModuleOutputData<int> >( output )->getData() ) + 1;
+        data=*( boost::shared_dynamic_cast< WModuleOutputData< int > >( output )->getData() ) + 1;
 
         // std::cout << "change to " << data << " in " << input->getCanonicalName() << " from " << output->getCanonicalName()
         //          << std::endl;
@@ -137,20 +137,20 @@ protected:
 
 private:
 
-    /** 
+    /**
      * The data lastly submitted.
      */
     int data;
 
-    /** 
+    /**
      * Input connection.
      */
-    boost::shared_ptr<WModuleInputData<int> > m_Input;
+    boost::shared_ptr< WModuleInputData< int > > m_input;
 
-    /** 
+    /**
      * Output connection.
      */
-    boost::shared_ptr<WModuleOutputData<int> > m_Output;
+    boost::shared_ptr< WModuleOutputData< int > > m_output;
 };
 
 
@@ -166,17 +166,17 @@ public:
     /**
      * Simple module to test with.
      */
-    boost::shared_ptr<WModuleImpl> m1;
+    boost::shared_ptr< WModuleImpl > m1;
 
     /**
      * Simple module to test with.
      */
-    boost::shared_ptr<WModuleImpl> m2;
+    boost::shared_ptr< WModuleImpl > m2;
 
     /**
      * Simple module to test with.
      */
-    boost::shared_ptr<WModuleImpl> m3;
+    boost::shared_ptr< WModuleImpl > m3;
 
     /**
      * Initialized the test modules.
@@ -184,9 +184,9 @@ public:
     void createModules( void )
     {
         // init 2 separate test modules
-        m1 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m1" ) );
-        m2 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m2" ) );
-        m3 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m3" ) );
+        m1 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m1" ) );
+        m2 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m2" ) );
+        m3 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m3" ) );
     }
 
     /**
@@ -202,8 +202,8 @@ public:
     void initConnections( void )
     {
         // connect output with input (cyclic)
-        m1->m_Output->connect( m2->m_Input );
-        m1->m_Input->connect( m2->m_Output );
+        m1->m_output->connect( m2->m_input );
+        m1->m_input->connect( m2->m_output );
     }
 
     /**
@@ -216,8 +216,8 @@ public:
         // check whether there are NO connectors.
         // The constructor should now create connectors since shared_ptr are needed -> init in constructor leads to exception
         // (its enough to test one of them)
-        TS_ASSERT( m1->m_InputConnectors.size() == 0 );
-        TS_ASSERT( m1->m_OutputConnectors.size() == 0 );
+        TS_ASSERT( m1->m_inputConnectors.size() == 0 );
+        TS_ASSERT( m1->m_outputConnectors.size() == 0 );
     }
 
     /**
@@ -230,12 +230,12 @@ public:
         TS_ASSERT_THROWS_NOTHING( initModules() );
 
         // now there should be 1 everywhere
-        TS_ASSERT( m1->m_InputConnectors.size() == 1 );
-        TS_ASSERT( m1->m_OutputConnectors.size() == 1 );
-        TS_ASSERT( m2->m_InputConnectors.size() == 1 );
-        TS_ASSERT( m2->m_OutputConnectors.size() == 1 );
-        TS_ASSERT( m3->m_InputConnectors.size() == 1 );
-        TS_ASSERT( m3->m_OutputConnectors.size() == 1 );
+        TS_ASSERT( m1->m_inputConnectors.size() == 1 );
+        TS_ASSERT( m1->m_outputConnectors.size() == 1 );
+        TS_ASSERT( m2->m_inputConnectors.size() == 1 );
+        TS_ASSERT( m2->m_outputConnectors.size() == 1 );
+        TS_ASSERT( m3->m_inputConnectors.size() == 1 );
+        TS_ASSERT( m3->m_outputConnectors.size() == 1 );
 
         // now we have 3 properly initialized modules?
         TS_ASSERT( m1->isInitialized() );
@@ -274,17 +274,17 @@ public:
         initModules();
 
         // connect input with input and output with output should fail
-        TS_ASSERT_THROWS( m1->m_Input->connect( m2->m_Input ), WModuleConnectorsIncompatible );
-        TS_ASSERT_THROWS( m1->m_Output->connect( m2->m_Output ), WModuleConnectorsIncompatible );
+        TS_ASSERT_THROWS( m1->m_input->connect( m2->m_input ), WModuleConnectorsIncompatible );
+        TS_ASSERT_THROWS( m1->m_output->connect( m2->m_output ), WModuleConnectorsIncompatible );
 
         // there should be nothing connected.
-        TS_ASSERT( m1->m_Output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_Input->m_Connected.size() == 0 );
-        TS_ASSERT( m2->m_Output->m_Connected.size() == 0 );
-        TS_ASSERT( m2->m_Input->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_output->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_input->m_Connected.size() == 0 );
+        TS_ASSERT( m2->m_output->m_Connected.size() == 0 );
+        TS_ASSERT( m2->m_input->m_Connected.size() == 0 );
     }
 
-    /** 
+    /**
      * Test whether connection works properly
      */
     void testModuleConnection( void )
@@ -295,13 +295,13 @@ public:
         TS_ASSERT_THROWS_NOTHING( initConnections() );
 
         // check that every connector has an connection count of 1
-        TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
-        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_Input->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_output->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_input->m_Connected.size() == 1 );
     }
 
-    /** 
+    /**
      * Test whether connecting twice is not possible.
      */
     void testModuleTwiceConnection( void )
@@ -311,15 +311,15 @@ public:
         initConnections();
 
         // try to connect twice
-        TS_ASSERT_THROWS_NOTHING( m1->m_Output->connect( m2->m_Input ) );
-        TS_ASSERT_THROWS_NOTHING( m1->m_Input->connect( m2->m_Output ) );
-        TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
-        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_Input->m_Connected.size() == 1 );
+        TS_ASSERT_THROWS_NOTHING( m1->m_output->connect( m2->m_input ) );
+        TS_ASSERT_THROWS_NOTHING( m1->m_input->connect( m2->m_output ) );
+        TS_ASSERT( m1->m_output->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_input->m_Connected.size() == 1 );
     }
 
-    /** 
+    /**
      * Test whether the connection can properly be disconnected.
      */
     void testModuleDisconnect( void )
@@ -329,19 +329,19 @@ public:
         initConnections();
 
         // Disconnect something not connected
-        TS_ASSERT_THROWS_NOTHING( m1->m_Output->disconnect( m1->m_Input ) );
-        TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
-        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
+        TS_ASSERT_THROWS_NOTHING( m1->m_output->disconnect( m1->m_input ) );
+        TS_ASSERT( m1->m_output->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
 
         // Disconnect a connected
-        TS_ASSERT_THROWS_NOTHING( m1->m_Output->disconnect( m2->m_Input ) );
-        TS_ASSERT( m1->m_Output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_Input->m_Connected.size() == 0 );
+        TS_ASSERT_THROWS_NOTHING( m1->m_output->disconnect( m2->m_input ) );
+        TS_ASSERT( m1->m_output->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_input->m_Connected.size() == 0 );
     }
 
-    /** 
+    /**
      * Test whether all connections can be removed in one step.
      */
     void testModuleDisconnectAll( void )
@@ -351,20 +351,20 @@ public:
         initConnections();
 
         // connect m3
-        TS_ASSERT_THROWS_NOTHING( m3->m_Input->connect( m2->m_Output ) );
+        TS_ASSERT_THROWS_NOTHING( m3->m_input->connect( m2->m_output ) );
 
         // now m2->out should have 2 connections
-        TS_ASSERT( m2->m_Output->m_Connected.size() == 2 );
-        TS_ASSERT( m3->m_Input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_Connected.size() == 2 );
+        TS_ASSERT( m3->m_input->m_Connected.size() == 1 );
 
         // remove both connections
-        m2->m_Output->disconnectAll();
-        TS_ASSERT( m2->m_Output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_Input->m_Connected.size() == 0 );
-        TS_ASSERT( m3->m_Input->m_Connected.size() == 0 );
+        m2->m_output->disconnectAll();
+        TS_ASSERT( m2->m_output->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_input->m_Connected.size() == 0 );
+        TS_ASSERT( m3->m_input->m_Connected.size() == 0 );
     }
 
-    /** 
+    /**
      * Test whether module clean up is working properly.
      */
     void testModuleCleanup( void )
@@ -374,8 +374,8 @@ public:
         initConnections();
 
         TS_ASSERT_THROWS_NOTHING( m1->cleanup() );
-        TS_ASSERT( m1->m_InputConnectors.size() == 0 );
-        TS_ASSERT( m1->m_OutputConnectors.size() == 0 );
+        TS_ASSERT( m1->m_inputConnectors.size() == 0 );
+        TS_ASSERT( m1->m_outputConnectors.size() == 0 );
     }
 
     /**
@@ -389,11 +389,11 @@ public:
 
         // set some data, propagate change
         int d = 5;
-        TS_ASSERT_THROWS_NOTHING( m1->m_Output->updateData( boost::shared_ptr<int>( &d ) ) );
+        TS_ASSERT_THROWS_NOTHING( m1->m_output->updateData( boost::shared_ptr< int >( &d ) ) );
 
         // got the data transferred?
-        TS_ASSERT( *( m1->m_Output->getData() ) == d );
-        TS_ASSERT( *( m2->m_Input->getData() ) == d );
+        TS_ASSERT( *( m1->m_output->getData() ) == d );
+        TS_ASSERT( *( m2->m_input->getData() ) == d );
         TS_ASSERT( m2->data == d + 1 );
     }
 
@@ -409,10 +409,10 @@ public:
         initConnections();
 
         // try to get data from an unconnected connector
-        TS_ASSERT_THROWS( m3->m_Input->getData(), WModuleConnectorUnconnected );
+        TS_ASSERT_THROWS( m3->m_input->getData(), WModuleConnectorUnconnected );
 
         // try to get uninitialized data -> should return an "NULL" Pointer
-        TS_ASSERT( m2->m_Input->getData() == boost::shared_ptr<int>() );
+        TS_ASSERT( m2->m_input->getData() == boost::shared_ptr< int >() );
     }
 };
 
