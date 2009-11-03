@@ -22,69 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTRIBBONMENU_H
-#define WQTRIBBONMENU_H
+#ifndef WQTMENUPAGE_H
+#define WQTMENUPAGE_H
 
-#include <QtGui/QToolBar>
 
-#include "WQtPushButton.h"
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QWidget>
+
+#include "../guiElements/WQtPushButton.h"
+
 /**
- * implementation of a ribbon menu like widget
+ * TODO(schurade): Document this!
  */
-class WQtRibbonMenu  : public QToolBar
+class WQtMenuPage : public QWidget
 {
 public:
     /**
-     * default constructor
+     * TODO(schurade): Document this!
      */
-    explicit WQtRibbonMenu( QWidget* parent );
+    explicit WQtMenuPage( QString name );
 
     /**
-     * destructor
+     * TODO(schurade): Document this!
      */
-    virtual ~WQtRibbonMenu();
+    virtual ~WQtMenuPage();
 
     /**
-     * setup functions for standard (fixed functionality) tabs
+     *
      */
-    QWidget* setupFileTab();
+    void addButton( WQtPushButton* button );
 
-    /**
-     * setup functions for standard (fixed functionality) tabs
-     */
-    QWidget* setupModuleTab();
-
-
-    /**
-     * getter for standard control widgets
-     */
-    WQtPushButton* getLoadButton();
-    WQtPushButton* getQuitButton();
-
-    WQtPushButton* getAxiButton();
-    WQtPushButton* getCorButton();
-    WQtPushButton* getSagButton();
+    QString getName();
 
 protected:
 private:
-    void setup();
+    QHBoxLayout* m_pageLayout;
 
-    QIcon m_quitIcon;
-    QIcon m_saveIcon;
-    QIcon m_loadIcon;
-    QIcon m_aboutIcon;
-
-    QIcon m_axiIcon;
-    QIcon m_corIcon;
-    QIcon m_sagIcon;
-
-    WQtPushButton* m_loadButton;
-    WQtPushButton* m_saveButton;
-    WQtPushButton* m_quitButton;
-
-    WQtPushButton* m_axiButton;
-    WQtPushButton* m_corButton;
-    WQtPushButton* m_sagButton;
+    QString m_name;
 };
 
-#endif  // WQTRIBBONMENU_H
+#endif  // WQTMENUPAGE_H

@@ -22,20 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include <string>
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "quit.xpm"
+#include "WQtPushButton.h"
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+WQtPushButton::WQtPushButton( QIcon icon, QString label )
+    : QPushButton( icon, label )
+{
+    m_name = label;
+    connect( this, SIGNAL( pressed() ), this, SLOT( emitPressed() ) );
+}
 
+WQtPushButton::~WQtPushButton()
+{
+}
 
-#endif  // WICONS_H
+void WQtPushButton::setName( QString name )
+{
+    m_name = name;
+}
+
+void WQtPushButton::emitPressed()
+{
+    emit pushButtonPressed( m_name, true );
+    emit pushButtonToggled( m_name, this->isChecked() );
+}
+

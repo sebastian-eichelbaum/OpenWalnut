@@ -152,12 +152,12 @@ protected:
      * Set of input connectors associated with this module.
      * NOTE: we need a thread safe list implementation!
      */
-    std::set<boost::shared_ptr<WModuleInputConnector> > m_InputConnectors;
+    std::set<boost::shared_ptr<WModuleInputConnector> > m_inputConnectors;
 
     /**
      * Set of output connectors associated with this module.
      */
-    std::set<boost::shared_ptr<WModuleOutputConnector> > m_OutputConnectors;
+    std::set<boost::shared_ptr<WModuleOutputConnector> > m_outputConnectors;
 
     /**
      * Adds the specified connector to the list of inputs.
@@ -234,14 +234,14 @@ protected:
 private:
 
      /**
-     * Lock for m_InputConnectors.
+     * Lock for m_inputConnectors.
      */
-    // boost::shared_mutex m_InputConnectorsLock;
+    // boost::shared_mutex m_inputConnectorsLock;
 
     /**
-     * Lock for m_OutputConnectors.
+     * Lock for m_outputConnectors.
      */
-    // boost::shared_mutex m_OutputConnectorsLock;
+    // boost::shared_mutex m_outputConnectorsLock;
 };
 
 #endif  // WMODULE_H

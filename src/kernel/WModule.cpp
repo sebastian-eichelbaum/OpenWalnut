@@ -41,7 +41,7 @@ WModule::WModule():
      m_initialized( false )
 {
     // initialize members
-    m_properties = boost::shared_ptr<WProperties>( new WProperties() );
+    m_properties = boost::shared_ptr< WProperties >( new WProperties() );
 }
 
 WModule::~WModule()
@@ -50,14 +50,14 @@ WModule::~WModule()
     removeConnectors();
 }
 
-void WModule::addConnector( boost::shared_ptr<WModuleInputConnector> con )
+void WModule::addConnector( boost::shared_ptr< WModuleInputConnector > con )
 {
-    m_InputConnectors.insert( con );
+    m_inputConnectors.insert( con );
 }
 
-void WModule::addConnector( boost::shared_ptr<WModuleOutputConnector> con )
+void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
 {
-    m_OutputConnectors.insert( con );
+    m_outputConnectors.insert( con );
 }
 
 void WModule::removeConnectors()
@@ -65,21 +65,21 @@ void WModule::removeConnectors()
     m_initialized = false;
 
     // remove connections and their signals
-    for( std::set<boost::shared_ptr<WModuleInputConnector> >::iterator listIter = m_InputConnectors.begin();
-         listIter != m_InputConnectors.end(); ++listIter )
+    for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
+         listIter != m_inputConnectors.end(); ++listIter )
     {
         ( *listIter )->disconnectAll();
     }
-    for( std::set<boost::shared_ptr<WModuleOutputConnector> >::iterator listIter = m_OutputConnectors.begin();
-         listIter != m_OutputConnectors.end(); ++listIter )
+    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::iterator listIter = m_outputConnectors.begin();
+         listIter != m_outputConnectors.end(); ++listIter )
     {
         ( *listIter )->disconnectAll();
     }
 
     // clean up list
     // this should delete the connector since nobody else *should* have another shared_ptr to them
-    m_InputConnectors.clear();
-    m_OutputConnectors.clear();
+    m_inputConnectors.clear();
+    m_outputConnectors.clear();
 }
 
 void WModule::connectors()
@@ -114,14 +114,14 @@ void WModule::cleanup()
     removeConnectors();
 }
 
-const std::set<boost::shared_ptr<WModuleInputConnector> >& WModule::getInputConnectors() const
+const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputConnectors() const
 {
-    return m_InputConnectors;
+    return m_inputConnectors;
 }
 
-const std::set<boost::shared_ptr<WModuleOutputConnector> >& WModule::getOutputConnectors() const
+const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutputConnectors() const
 {
-    return m_OutputConnectors;
+    return m_outputConnectors;
 }
 
 const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
@@ -147,25 +147,25 @@ bool WModule::isInitialized() const
     return m_initialized;
 }
 
-void WModule::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
-                                           boost::shared_ptr<WModuleConnector> /*there*/ )
+void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
+                                           boost::shared_ptr< WModuleConnector > /*there*/ )
 {
     // By default this callback does nothing. Overwrite it in your module.
 }
 
-void WModule::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
-                                      boost::shared_ptr<WModuleConnector> /*there*/ )
+void WModule::notifyConnectionClosed( boost::shared_ptr< WModuleConnector > /*here*/,
+                                      boost::shared_ptr< WModuleConnector > /*there*/ )
 {
     // By default this callback does nothing. Overwrite it in your module.
 }
 
-void WModule::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
-                                boost::shared_ptr<WModuleConnector> /*output*/ )
+void WModule::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
+                                boost::shared_ptr< WModuleConnector > /*output*/ )
 {
     // By default this callback does nothing. Overwrite it in your module.
 }
 
-boost::shared_ptr<WProperties> WModule::getProperties()
+boost::shared_ptr< WProperties > WModule::getProperties()
 {
     return m_properties;
 }

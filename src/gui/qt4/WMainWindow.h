@@ -38,7 +38,7 @@
 
 #include "signalslib.hpp"
 #include "WQtNavGLWidget.h"
-#include "WQtRibbonMenu.h"
+#include "ribbonMenu/WQtRibbonMenu.h"
 
 #include "WPropertyManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
@@ -96,6 +96,8 @@ public slots:
     void openLoadDialog();
 
 private:
+    void setupToolBar( QMainWindow *mainWindow );
+
     QIcon m_mainWindowIcon;
 
     WPropertyManager* m_propertyManager;
@@ -109,6 +111,14 @@ private:
     WQtNavGLWidget* m_navAxial;
     WQtNavGLWidget* m_navCoronal;
     WQtNavGLWidget* m_navSagittal;
+
+    QIcon m_quitIcon;
+    QIcon m_saveIcon;
+    QIcon m_loadIcon;
+
+    QIcon m_axiIcon;
+    QIcon m_corIcon;
+    QIcon m_sagIcon;
 
     boost::signal1< void, std::vector< std::string > > m_loaderSignal;
 };
