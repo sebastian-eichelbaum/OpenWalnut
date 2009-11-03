@@ -33,6 +33,9 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/StateSet>
+#include <osg/StateAttribute>
+#include <osg/PolygonMode>
 
 #include "../../math/WVector3D.h"
 #include "../../dataHandler/WSubject.h"
@@ -531,7 +534,13 @@ void WMarchingCubesModule::renderMesh( const WTriangleMesh& mesh )
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     geode->addDrawable( surfaceGeometry );
-    geode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+
+    osg::PolygonMode* pm;
+    pm = new osg::PolygonMode( osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL );
+    state->setAttributeAndModes( pm, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
 }
 

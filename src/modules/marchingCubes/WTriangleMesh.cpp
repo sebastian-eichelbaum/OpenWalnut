@@ -108,5 +108,5 @@ wmath::WVector3D WTriangleMesh::getTriangleNormal( size_t i ) const
         tempNormal.normalize();
     }
 
-    return tempNormal*-1;
+    return tempNormal;
 }
