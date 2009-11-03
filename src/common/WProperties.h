@@ -72,6 +72,7 @@ public:
     boost::signal1< void, std::string >* addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
     boost::signal1< void, std::string >* addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
     boost::signal1< void, std::string >* addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addColor( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
 
     std::string getValueString( const std::string prop );
 

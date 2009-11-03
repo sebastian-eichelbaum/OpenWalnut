@@ -92,6 +92,14 @@ boost::signal1< void, std::string >* WProperties::addString( std::string name, s
     return prop->getSignalValueChanged();
 }
 
+boost::signal1< void, std::string >* WProperties::addColor( std::string name, WColor value, std::string shortDesc, std::string longDesc )
+{
+    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
+    return prop->getSignalValueChanged();
+}
+
 WProperty* WProperties::findProp( std::string name )
 {
     if ( m_propertyList.count( name) != 0 )

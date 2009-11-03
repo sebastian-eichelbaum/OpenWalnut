@@ -50,6 +50,8 @@
 
 #include "../../graphicsEngine/WShader.h"
 
+#include "../../common/WColor.hpp"
+
 WNavigationSliceModule::WNavigationSliceModule():
     WModule()
 {
@@ -98,19 +100,21 @@ void WNavigationSliceModule::connectors()
 
 void WNavigationSliceModule::properties()
 {
-    ( m_properties->addBool( "textureChanged", false ) );
+    m_properties->addBool( "textureChanged", false );
 
-    ( m_properties->addInt( "axialPos", 80 ) );
-    ( m_properties->addInt( "coronalPos", 100 ) );
-    ( m_properties->addInt( "sagittalPos", 80 ) );
+    m_properties->addInt( "axialPos", 80 );
+    m_properties->addInt( "coronalPos", 100 );
+    m_properties->addInt( "sagittalPos", 80 );
 
     m_properties->addInt( "maxAxial", 160 );
     m_properties->addInt( "maxCoronal", 200 );
     m_properties->addInt( "maxSagittal", 160 );
 
-    ( m_properties->addBool( "showAxial", true ) );
-    ( m_properties->addBool( "showCoronal", true ) );
-    ( m_properties->addBool( "showSagittal", true ) );
+    m_properties->addBool( "showAxial", true );
+    m_properties->addBool( "showCoronal", true );
+    m_properties->addBool( "showSagittal", true );
+
+    m_properties->addColor( "testColor", WColor(0.3, 0.3, 0.5, 1.0) );
 }
 
 void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -124,6 +128,9 @@ void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnecto
 void WNavigationSliceModule::threadMain()
 {
     createGeometry();
+
+    WColor c = m_properties->getValue<WColor>( "testColor" );
+    std::cout << c << std::endl;
 
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )

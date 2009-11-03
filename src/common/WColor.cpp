@@ -24,3 +24,46 @@
 
 #include "WColor.hpp"
 
+std::ostream& operator<<( std::ostream& out, const WColor& c )
+{
+    float r = c.getRed();
+    float g = c.getGreen();
+    float b = c.getBlue();
+    float a = c.getAlpha();
+
+    out << r << ";" << g << ";" << b << ";" << a;
+    return out;
+}
+
+std::istream& operator>>( std::istream& in, WColor& c )
+{
+    std::vector<std::string> tokens;
+    std::string str;
+    in >> str;
+    c.tokenize(str, tokens, ";");
+
+    c.setRed( boost::lexical_cast<float>( tokens[0] ) );
+    c.setGreen( boost::lexical_cast<float>( tokens[1] ) );
+    c.setBlue( boost::lexical_cast<float>( tokens[2] ) );
+
+    return in;
+}
+
+void WColor::tokenize(const std::string& str,  std::vector<std::string>& tokens, const std::string& delimiters )
+{
+    // Skip delimiters at beginning.
+    std::string::size_type lastPos = str.find_first_not_of( delimiters, 0 );
+    // Find first "non-delimiter".
+    std::string::size_type pos = str.find_first_of( delimiters, lastPos );
+
+    while ( std::string::npos != pos || std::string::npos != lastPos )
+    {
+        // Found a token, add it to the vector.
+        tokens.push_back( str.substr( lastPos, pos - lastPos ) );
+        // Skip delimiters.  Note the "not_of"
+        lastPos = str.find_first_not_of( delimiters, pos );
+        // Find next "non-delimiter"
+        pos = str.find_first_of( delimiters, lastPos );
+    }
+}
+

@@ -26,6 +26,12 @@
 #define WCOLOR_HPP
 
 #include <cassert>
+#include <istream>
+#include <ostream>
+#include <string>
+#include <vector>
+
+#include <boost/lexical_cast.hpp>
 
 #include <osg/Vec4>
 
@@ -35,6 +41,9 @@
 class WColor
 {
 public:
+    friend std::ostream& operator<<( std::ostream& out, const WColor& c );
+    friend std::istream& operator>>( std::istream& in, WColor& c );
+
     /**
      * Standard way of constructing colors, alpha is optional, and black is default
      */
@@ -71,6 +80,15 @@ public:
     {
         assert( red <= 1.0 && red >= 0.0 );
         m_red = red;
+    }
+
+    /**
+     * Sets the alpha channel for this color
+     */
+    void setAlpha( float alpha )
+    {
+        assert( alpha <= 1.0 && alpha >= 0.0 );
+        m_alpha = alpha;
     }
 
     /**
@@ -112,6 +130,10 @@ public:
     {
         return osg::Vec4( m_red, m_green, m_blue, m_alpha );
     }
+
+    void tokenize( const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " " );
+
+
 protected:
 private:
     float m_red;
