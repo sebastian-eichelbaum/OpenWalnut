@@ -41,8 +41,6 @@
 class WColor
 {
 public:
-    friend std::ostream& operator<<( std::ostream& out, const WColor& c );
-    friend std::istream& operator>>( std::istream& in, WColor& c );
 
     /**
      * Standard way of constructing colors, alpha is optional, and black is default
@@ -96,6 +94,8 @@ public:
 
     void tokenize( const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters = " " );
 
+    friend std::ostream& operator<<( std::ostream& out, const WColor& c );
+    friend std::istream& operator>>( std::istream& in, WColor& c );
 
 protected:
 private:

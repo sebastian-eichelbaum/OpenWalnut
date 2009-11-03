@@ -22,11 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cassert>
 #include <string>
 #include <vector>
 
 #include "WColor.h"
-
+#include "WStringUtils.hpp"
 
 WColor::WColor( float red, float green, float blue, float alpha )
     :   m_red( red ),
@@ -36,98 +37,53 @@ WColor::WColor( float red, float green, float blue, float alpha )
 {
 }
 
-/**
- * Sets the green channel for this color
- */
 void WColor::setGreen( float green )
 {
     assert( green <= 1.0 && green >= 0.0 );
     m_green = green;
 }
 
-/**
- * Sets the blue channel for this color
- */
 void WColor::setBlue( float blue )
 {
     assert( blue <= 1.0 && blue >= 0.0 );
     m_blue = blue;
 }
 
-/**
- * Sets the red channel for this color
- */
 void WColor::setRed( float red )
 {
     assert( red <= 1.0 && red >= 0.0 );
     m_red = red;
 }
 
-/**
- * Sets the alpha channel for this color
- */
 void WColor::setAlpha( float alpha )
 {
     assert( alpha <= 1.0 && alpha >= 0.0 );
     m_alpha = alpha;
 }
 
-/**
- * \return red channel for this color
- */
 float WColor::getRed() const
 {
     return m_red;
 }
 
-/**
- * \return green channel for this color
- */
 float WColor::getGreen() const
 {
     return m_green;
 }
 
-/**
- * \return blue channel for this color
- */
 float WColor::getBlue() const
 {
     return m_blue;
 }
 
-/**
- * \return alpha channel for this color
- */
 float WColor::getAlpha() const
 {
     return m_alpha;
 }
 
-/**
- * Makes a OSG compatible copy of this.
- */
 osg::Vec4 WColor::getOSGColor() const
 {
     return osg::Vec4( m_red, m_green, m_blue, m_alpha );
-}
-
-void WColor::tokenize( const std::string& str,  std::vector<std::string>& tokens, const std::string& delimiters )
-{
-    // Skip delimiters at beginning.
-    std::string::size_type lastPos = str.find_first_not_of( delimiters, 0 );
-    // Find first "non-delimiter".
-    std::string::size_type pos = str.find_first_of( delimiters, lastPos );
-
-    while ( std::string::npos != pos || std::string::npos != lastPos )
-    {
-        // Found a token, add it to the vector.
-        tokens.push_back( str.substr( lastPos, pos - lastPos ) );
-        // Skip delimiters.  Note the "not_of"
-        lastPos = str.find_first_not_of( delimiters, pos );
-        // Find next "non-delimiter"
-        pos = str.find_first_of( delimiters, lastPos );
-    }
 }
 
 std::ostream& operator<<( std::ostream& out, const WColor& c )
@@ -146,11 +102,12 @@ std::istream& operator>>( std::istream& in, WColor& c )
     std::vector<std::string> tokens;
     std::string str;
     in >> str;
-    c.tokenize( str, tokens, ";" );
+    tokens = string_utils::tokenize( str, ";" );
+    assert( tokens.size() == 3 && "There weren't 3 color values for a WColor" );
 
-    c.setRed( boost::lexical_cast<float>( tokens[0] ) );
-    c.setGreen( boost::lexical_cast<float>( tokens[1] ) );
-    c.setBlue( boost::lexical_cast<float>( tokens[2] ) );
+    c.setRed( boost::lexical_cast< float >( tokens[0] ) );
+    c.setGreen( boost::lexical_cast< float >( tokens[1] ) );
+    c.setBlue( boost::lexical_cast< float >( tokens[2] ) );
 
     return in;
 }
