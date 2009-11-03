@@ -91,6 +91,12 @@ public:
     void fastAddVert( const wmath::WPosition& newVert );
 
     /**
+     * Set vertices to given vector of vertex positions. Be aware that this includes
+     * a complete copy operation.
+     */
+    void setVertices( const std::vector< wmath::WPosition >& vertices );
+
+    /**
      * \return the state of the variable telling fastAddVert where to insert the vertex.
      */
     size_t getFastAddVertId() const;
@@ -101,6 +107,12 @@ public:
      * when using this function because it depends on the state of the WTriangleMesh.
      */
     void fastAddTriangle( unsigned int vertA, unsigned int vertB, unsigned int vertC );
+
+    /**
+     * Set triangles to given vector of vertex index triples. Be aware that this includes
+     * a complete copy operation.
+     */
+    void setTriangles( const std::vector< Triangle >& triangles );
 
     /**
      * \return the state of the variable telling fastAddTriangle where to insert the triangle.

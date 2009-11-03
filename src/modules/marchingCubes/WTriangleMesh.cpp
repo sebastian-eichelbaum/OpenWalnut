@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WTriangleMesh.h"
+#include <vector>
 
+#include "WTriangleMesh.h"
 
 WTriangleMesh::WTriangleMesh()
     : m_fastAddVertId( 0 ),
@@ -60,6 +61,12 @@ void WTriangleMesh::fastAddVert( const wmath::WPosition& newVert )
     ++m_fastAddVertId;
 }
 
+void WTriangleMesh::setVertices( const std::vector< wmath::WPosition >& vertices )
+{
+    m_fastAddVertId = vertices.size();
+    m_vertices = vertices;
+}
+
 size_t WTriangleMesh::getFastAddVertId() const
 {
     return m_fastAddVertId;
@@ -70,6 +77,12 @@ void WTriangleMesh::fastAddTriangle( unsigned int vertA, unsigned int vertB, uns
     Triangle t = { { vertA, vertB, vertC } };  // NOLINT
     m_triangles[m_fastAddTriangleId] = t;
     ++m_fastAddTriangleId;
+}
+
+void WTriangleMesh::setTriangles( const std::vector< Triangle >& triangles )
+{
+    m_fastAddTriangleId = triangles.size();
+    m_triangles = triangles;
 }
 
 size_t WTriangleMesh::getFastAddTriangleId() const

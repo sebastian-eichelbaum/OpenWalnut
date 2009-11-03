@@ -22,55 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETFIBERS_H
-#define WDATASETFIBERS_H
+#ifndef WFIBERCULLING_TEST_H
+#define WFIBERCULLING_TEST_H
 
-#include <vector>
+#include <cxxtest/TestSuite.h>
 
-#include <boost/shared_ptr.hpp>
-
-#include "WDataSet.h"
-#include "../math/WFiber.h"
+#include "../WFiberCulling.h"
 
 /**
- * Represents a simple set of WFibers.
+ * TODO(math): Document this!
  */
-class WDataSetFibers : public WDataSet
+class WFiberCullingTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Constructs a new set of WFibers
+     * TODO(math): Document this!
      */
-    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
+    void testSomething( void )
     {
     }
-
-    /**
-     * Get number of fibers in this data set.
-     */
-    inline size_t size() const
-    {
-        return m_fibers->size();
-    }
-
-    /**
-     * \return The i'th fiber.
-     */
-    inline const wmath::WFiber& operator[]( const size_t index ) const
-    {
-        assert( index < m_fibers->size() );
-        return (*m_fibers)[index];
-    }
-
-    /**
-     * Sort fibers descending on their length.
-     */
-    void sortDescLength();
-
-protected:
-
-private:
-    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };
 
-#endif  // WDATASETFIBERS_H
+#endif  // WFIBERCULLING_TEST_H

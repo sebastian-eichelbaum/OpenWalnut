@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERTESTMODULE_H
-#define WFIBERTESTMODULE_H
+#ifndef WFIBERDISPLAY_H
+#define WFIBERDISPLAY_H
 
 #include <string>
 
@@ -35,18 +35,19 @@
 /**
  * Test module for drawing fibers
  */
-class WFiberTestModule : public WModule
+class WFiberDisplay : public WModule
 {
+friend class WFiberDisplayTest;
 public:
     /**
      * Constructs new FiberTestModule
      */
-    WFiberTestModule();
+    WFiberDisplay();
 
     /**
      * Destructs this FiberTestModule
      */
-    virtual ~WFiberTestModule();
+    virtual ~WFiberDisplay();
 
     /**
      * Gives back the name of this module.
@@ -67,14 +68,14 @@ protected:
     virtual void threadMain();
 
     /**
-     * Draws the given fiber into the given OSG node.
+     * Generates an OSG geometry for the given fiber.
      *
      * \param fib reference to a WFiber instance
-     * \param geode OSG node, where all fibers are drawn into
+     * \return OSG geometry representing the fiber.
      */
-    void drawFiber( const wmath::WFiber &fib, osg::Geode *geode ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib ) const;
 
 private:
 };
 
-#endif  // WFIBERTESTMODULE_H
+#endif  // WFIBERDISPLAY_H

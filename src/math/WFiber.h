@@ -26,6 +26,7 @@
 #define WFIBER_H
 
 #include <vector>
+#include <utility>
 
 #include "WLine.h"
 
@@ -45,8 +46,52 @@ friend class WFiberTest;
 public:
     explicit WFiber( const std::vector< WPosition > &points );
 
+    /**
+     * TODO(math): document this method in more detail
+     * Optimized version which computes dt measure from qr and rq at once.
+     */
+    std::pair< double, double > dXt_optimized( const WFiber &other,
+                                               const double thresholdSquare ) const;
+
+    /**
+     * Computes dt(Q, R, t) and dt(R, Q, t) and then the one which is smaller
+     * is returned. Note this distance metric is symmetric.
+     *
+     * \param other The other fiber "R", while this fiber is taken as "Q".
+     * \param thresholdSquare The threshold upto which the accumulated
+     * distances should be considered
+     *
+     * \return The minimum of dt(Q, R, t) and dt(R, Q, t)
+     */
+    double dSt( const WFiber &other, const double thresholdSquare = 0.0 ) const;
+
+    /**
+     * Computes dt(Q, R, t) and dt(R, Q, t) and then the one which is smaller
+     * is returned. Note this distance metric is symmetric.
+     *
+     * \param other The other fiber "R", while this fiber is taken as "Q".
+     * \param thresholdSquare The threshold upto which the accumulated
+     * distances should be considered
+     *
+     * \return The maximum dt(Q, R, t) and dt(R, Q, t)
+     */
+    double dLt( const WFiber &other, const double thresholdSquare = 0.0 ) const;
+
 protected:
 private:
 };
+
+/**
+ * Boolean predicate indicating that the first fiber has a greater length then
+ * the second one.
+ *
+ * \param first First fiber
+ * \param second Second fiber
+ */
+inline bool hasGreaterLengthThen( const WFiber &first,
+                           const WFiber &second )
+{
+    return first.size() > second.size();
+}
 }
 #endif  // WFIBER_H

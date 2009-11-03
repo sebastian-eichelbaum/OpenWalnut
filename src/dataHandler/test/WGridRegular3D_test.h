@@ -25,6 +25,8 @@
 #ifndef WGRIDREGULAR3D_TEST_H
 #define WGRIDREGULAR3D_TEST_H
 
+#include <cstdio>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WGridRegular3D.h"
@@ -43,7 +45,7 @@ class ValueTraits<WVector3D>
 public:
     explicit ValueTraits( const WVector3D &m )
     {
-        snprintf( _s, sizeof( _s ), "WVector3D( %.18f %.18f %.18f )", m[0], m[1], m[2] );
+        std::snprintf( _s, sizeof( _s ), "WVector3D( %.18f %.18f %.18f )", m[0], m[1], m[2] );
     }
     const char *asString() const
     {

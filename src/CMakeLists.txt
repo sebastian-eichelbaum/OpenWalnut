@@ -97,6 +97,7 @@ IF( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     ADD_SUBDIRECTORY( utils )
     ADD_SUBDIRECTORY( kernel )
     ADD_SUBDIRECTORY( common )
+    ADD_SUBDIRECTORY( modules )
     ADD_EXECUTABLE( walnut OpenWalnut.cpp utils/WOptionHandler.cpp )
     TARGET_LINK_LIBRARIES( walnut kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
     
