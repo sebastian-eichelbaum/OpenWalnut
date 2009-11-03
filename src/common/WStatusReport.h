@@ -67,10 +67,8 @@ public:
 
     /**
      * Increments the finished work by one step.
-     *
-     * \return The progress()
      */
-    double operator++();
+    WStatusReport& operator++();  // prefix increment
 
     /**
      * Increments the finished work by the number of the given steps.

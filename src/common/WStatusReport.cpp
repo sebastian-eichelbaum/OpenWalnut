@@ -34,11 +34,11 @@ WStatusReport::WStatusReport( unsigned int totalSteps )
 {
 }
 
-double WStatusReport::operator++()
+WStatusReport& WStatusReport::operator++()  // prefix increment
 {
     assert( m_totalSteps > m_finishedSteps );
     m_finishedSteps++;
-    return progress();
+    return *this;
 }
 
 double WStatusReport::operator+=( unsigned int numSteps )

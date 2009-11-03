@@ -67,6 +67,12 @@ public:
      */
     void sortDescLength();
 
+    /**
+     * Deletes all those fibers which are marked true in the given
+     * unused vector.
+     */
+    void erase( const std::vector< bool > &unused );
+
 protected:
 
 private:
