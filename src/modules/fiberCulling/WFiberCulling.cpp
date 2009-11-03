@@ -122,18 +122,19 @@ void WFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
             {
                 continue;
             }
-//            const wmath::WFiber& r = (*fibers)[j];
-//            double dst = q.dSt( r, proximity_t_Square );
-//
-//            if( dst < m_dSt_culling_t ) {  // cullout small fibs nearby long fibs
-//                if( q.posSize() < r.posSize() ) {
-//                    unusedFibers[i] = true;
-//                    break;
-//                }
-//                else {
-//                    unusedFibers[j] = true;
-//                }
-//            }
+            const wmath::WFiber& r = (*fibers)[j];
+            double dst = q.dSt( r, proximity_t_Square );
+
+            if( dst < m_dSt_culling_t )  // cullout small fibs nearby long fibs
+            {
+                if( q.size() < r.size() ) {
+                    unusedFibers[i] = true;
+                    break;
+                }
+                else {
+                    unusedFibers[j] = true;
+                }
+            }
         }
     }
 

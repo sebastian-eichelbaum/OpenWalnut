@@ -23,10 +23,11 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "WFiber.h"
+#include "../common/WLimits.h"
 
 namespace wmath
 {
@@ -65,8 +66,7 @@ namespace wmath
         qr = qr / qsize;
         for( size_t j = 0; j < rsize; ++j )
         {
-            // TODO(math): MAX_FANTOM_DOUBLE correct this
-            minSoFar = 9999999999999999999.9;  // _FANTOM_DOUBLE;
+            minSoFar = wlimits::MAX_DOUBLE;
             for( size_t i = 0; i < qsize; ++i )
             {
                 if( m[i][j] < minSoFar )
@@ -82,5 +82,16 @@ namespace wmath
         rq = rq / rsize;
         return std::make_pair( qr, rq );
     }
-}
 
+    double WFiber::dSt( const WFiber& other, const double thresholdSquare ) const
+    {
+        std::pair< double, double > result = dXt_optimized( other, thresholdSquare );
+        return std::min( result.first, result.second );
+    }
+
+    double WFiber::dLt( const WFiber& other, const double thresholdSquare ) const
+    {
+        std::pair< double, double > result = dXt_optimized( other, thresholdSquare );
+        return std::max( result.first, result.second );
+    }
+}

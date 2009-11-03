@@ -36,7 +36,7 @@
 #include "WModule.h"
 #include "../modules/data/WDataModule.hpp"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
-#include "../modules/FiberDisplay/WFiberDisplay.h"
+#include "../modules/fiberDisplay/WFiberDisplay.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
