@@ -59,6 +59,15 @@ section stem from the following website:
 \item[Composition] usually has a strong life cycle dependency between instances of the container class and instances of the
   contained class(es): If the container is destroyed, normally every instance that it contains is destroyed as well.
 \end{description}
+
+\chapter{Code Organization}
+\section{Directories}
+\begin{description}
+  \item[\texttt{src}:] The source code of our whole project should reside here. Some things like parts of the build system, or unit test system, are not considered as source code.
+  \item[\texttt{src/common}:] Here you should find often needed pieces of source code, you want to share for reuse, and may use almost everywhere. E.g. WLimits.h for sharing several limits like \texttt{MAX\_DOUBLE}.
+  \item[\texttt{src/common/dataStructures}:] Various modules need additional data structures, you may place here. This is because of increasing reuse of that data structures. The developer doesn't have to look into every module for gaining the information: "Does someone already have coded a KD-Tree implementation I can make use of?". Here should the developer look first before he starts developing some dataStructures. Even if there is just one module at the moment using a e.g. KD-Tree, maybe in future someone needs that too.
+\end{description}
+
 \chapter{Math}
 
 
