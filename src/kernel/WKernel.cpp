@@ -38,6 +38,7 @@
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
 #include "../modules/fiberDisplay/WFiberDisplay.h"
 #include "../modules/fiberCulling/WFiberCulling.h"
+#include "../modules/fiberClustering/WFiberClustering.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
@@ -189,6 +190,7 @@ void WKernel::loadModules()
     shared_ptr< WModule > m = shared_ptr< WModule >( new WNavigationSliceModule() );
     // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberDisplay() );
     // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberCulling() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberClustering() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
 
     m_modules.push_back( m );

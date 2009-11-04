@@ -67,7 +67,7 @@ const std::string WFiberCulling::getDescription() const
 void WFiberCulling::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
-    // TODO(wiebel): fix this hack when possible by using an input connector.
+    // TODO(math): fix this hack when possible by using an input connector.
     while( !WKernel::getRunningKernel() )
     {
         sleep( 1 );

@@ -86,7 +86,7 @@ osg::ref_ptr< osg::Geode > WFiberDisplay::genFiberGeode( const wmath::WFiber &fi
 void WFiberDisplay::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
-    // TODO(wiebel): fix this hack when possible by using an input connector.
+    // TODO(math): fix this hack when possible by using an input connector.
     while( !WKernel::getRunningKernel() )
     {
         sleep( 1 );
