@@ -65,7 +65,11 @@ section stem from the following website:
 \begin{description}
   \item[\texttt{src}:] The source code of our whole project should reside here. Some things like parts of the build system, or unit test system, are not considered as source code.
   \item[\texttt{src/common}:] Here you should find often needed pieces of source code, you want to share for reuse, and may use almost everywhere. E.g. WLimits.h for sharing several limits like \texttt{MAX\_DOUBLE}.
-  \item[\texttt{src/common/dataStructures}:] Various modules need additional data structures, you may place here. This is because of increasing reuse of that data structures. The developer doesn't have to look into every module for gaining the information: "Does someone already have coded a KD-Tree implementation I can make use of?". Here should the developer look first before he starts developing some dataStructures. Even if there is just one module at the moment using a e.g. KD-Tree, maybe in future someone needs that too.
+  \item[\texttt{src/common/dataStructures}:] Various modules need additional data structures. You may place them here. This is
+    because of increasing reuse of that data structures. A developer doesn't have to look into every module's directory for
+    gaining the following information: "Has someone already coded a KD-Tree implementation I can make use of?". A developer should
+    look into this directory before he starts developing some new data structures. Even if there is just one module using e.g. a
+    KD-Tree at the moment, maybe someone needs that in the future too. So, place your possibly reusable data structures here!
 \end{description}
 
 \chapter{Math}
@@ -79,7 +83,7 @@ section stem from the following website:
 For a general overview on visualization in medicine \cite{Preim:2007:VMT} can be recommended.
 
 \chapter{GUI}
-The GUI module is the only part where we allow gui-toolkit related code. For example, this means that the use of any QT class is
+The GUI module is the only part where we allow GUI-toolkit related code. For example, this means that the use of any QT class is
 prohibited outside the GUI module.
 \chapter{GE (Graphics Engine)}
 The graphics engine is mainly realized by integrating OpenSceneGraph (OSG) so far.
