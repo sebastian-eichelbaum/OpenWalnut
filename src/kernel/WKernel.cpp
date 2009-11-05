@@ -36,6 +36,7 @@
 #include "WModule.h"
 #include "../modules/data/WDataModule.hpp"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
+#include "../modules/coordinateSystem/WCoordinateSystem.h"
 #include "../modules/FiberDisplay/WFiberDisplay.h"
 #include "../common/WException.h"
 
@@ -185,11 +186,15 @@ void WKernel::loadModules()
     m_modules.clear();
 
     using boost::shared_ptr;
-    shared_ptr< WModule > m = shared_ptr< WModule >( new WNavigationSliceModule() );
+    shared_ptr< WModule > m1 = shared_ptr< WModule >( new WNavigationSliceModule() );
     // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberDisplay() );
-    WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Loading module: " + m1->getName(), "Kernel", LL_DEBUG );
 
-    m_modules.push_back( m );
+    m_modules.push_back( m1 );
+
+    shared_ptr< WModule > m2 = shared_ptr< WModule >( new WCoordinateSystem() );
+    WLogger::getLogger()->addLogMessage( "Loading module: " + m2->getName(), "Kernel", LL_DEBUG );
+    m_modules.push_back( m2 );
 }
 
 void WKernel::init()
