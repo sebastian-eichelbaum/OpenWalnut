@@ -22,61 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETFIBERS_H
-#define WDATASETFIBERS_H
+#ifndef WFIBERCLUSTER_TEST_H
+#define WFIBERCLUSTER_TEST_H
 
-#include <vector>
+#include <cxxtest/TestSuite.h>
 
-#include <boost/shared_ptr.hpp>
-
-#include "WDataSet.h"
-#include "../math/WFiber.h"
+#include "../WFiberCluster.h"
 
 /**
- * Represents a simple set of WFibers.
+ * TODO(math): Document this!
  */
-class WDataSetFibers : public WDataSet
+class WFiberClusterTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Constructs a new set of WFibers
+     * TODO(math): Document this!
      */
-    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
+    void testSomething( void )
     {
     }
-
-    /**
-     * Get number of fibers in this data set.
-     */
-    inline size_t size() const
-    {
-        return m_fibers->size();
-    }
-
-    /**
-     * \return The i'th fiber.
-     */
-    inline const wmath::WFiber& operator[]( const size_t index ) const
-    {
-        assert( index < m_fibers->size() );
-        return (*m_fibers)[index];
-    }
-
-    /**
-     * Sort fibers descending on their length.
-     */
-    void sortDescLength();
-
-    /**
-     * Deletes all those fibers which are marked true in the given
-     * unused vector.
-     */
-    void erase( const std::vector< bool > &unused );
-
-protected:
-
-private:
-    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };
 
-#endif  // WDATASETFIBERS_H
+#endif  // WFIBERCLUSTER_TEST_H

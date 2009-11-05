@@ -22,61 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETFIBERS_H
-#define WDATASETFIBERS_H
+#ifndef WDXTLOOKUPTABLE_H
+#define WDXTLOOKUPTABLE_H
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
-#include "WDataSet.h"
-#include "../math/WFiber.h"
-
 /**
- * Represents a simple set of WFibers.
+ * Represents a symmetric matrix-like look up table, meaning it stores only
+ * the elements inside the triangular matrix without the main diagonal.
+ *
+ * So in case of a NxN matrix there are only (N^2-N)/2 elements to store.
+ *
+ * The reason why this is named DXt look up table is, since is it used as
+ * look up table for dSt and dLt fiber distance metrics.
  */
-class WDataSetFibers : public WDataSet
+class WDXtLookUpTable
 {
 public:
     /**
-     * Constructs a new set of WFibers
+     * Generates new look up table.
+     *
+     * \param n the dimmension of the square matrix
      */
-    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
-    {
-    }
+    explicit WDXtLookUpTable( size_t dim );
 
     /**
-     * Get number of fibers in this data set.
+     * Element acces operator as if the elements where stored as a matrix.
+     * Note! Acessing elements of the main diagonal is forbidden!
      */
-    inline size_t size() const
-    {
-        return m_fibers->size();
-    }
-
-    /**
-     * \return The i'th fiber.
-     */
-    inline const wmath::WFiber& operator[]( const size_t index ) const
-    {
-        assert( index < m_fibers->size() );
-        return (*m_fibers)[index];
-    }
-
-    /**
-     * Sort fibers descending on their length.
-     */
-    void sortDescLength();
-
-    /**
-     * Deletes all those fibers which are marked true in the given
-     * unused vector.
-     */
-    void erase( const std::vector< bool > &unused );
-
-protected:
+    double& operator()( size_t i, size_t j );
 
 private:
-    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
+    /**
+     * Internal data structure to store the elements.
+     */
+    std::vector< double > _data;
+
+    size_t _dim;  //!< Matrix dimension
 };
 
-#endif  // WDATASETFIBERS_H
+#endif  // WDXTLOOKUPTABLE_H

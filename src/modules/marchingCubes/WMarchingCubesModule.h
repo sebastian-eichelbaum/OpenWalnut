@@ -48,12 +48,40 @@ struct WMCTriangle
 
 typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
 
+// -------------------------------------------------------
+//
+// Numbering of edges (0..B) and vertices (0..7) per cube.
+//
+//      5--5--6
+//     /|    /|
+//    4 |   6 |    A=10
+//   /  9  /  A
+//  4--7--7   |
+//  |   | |   |
+//  |   1-|1--2
+//  8  /  B  /
+//  | 0   | 2      B=11
+//  |/    |/
+//  0--3--3
+//
+//  |  /
+//  z y
+//  |/
+//  0--x--
+//
+// -------------------------------------------------------
+
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
  * given on rgualr grids with axis-aligned cells.
  */
 class WMarchingCubesModule : public WModule
 {
+/**
+ * Only UnitTests may be friends.
+ */
+friend class WMarchingCubesModuleTest;
+
 public:
     /**
      * Standard constructor.
@@ -123,6 +151,7 @@ private:
      * the isosurface intersects an edge.
      */
     WPointXYZId interpolate( double fX1, double fY1, double fZ1, double fX2, double fY2, double fZ2, double tVal1, double tVal2 );
+
     /**
      * Returns the edge ID.
      */
@@ -146,7 +175,7 @@ private:
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 
-    // TODO(wiebel): MC commetnt this;
+    // TODO(wiebel): MC comment this;
     void renderSurface();
     void renderMesh( const WTriangleMesh& mesh );
 

@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iomanip>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -30,8 +32,9 @@
 
 #include "WFiberCulling.h"
 #include "../../math/WFiber.h"
-#include "../../common/WLogger.h"
 #include "../../common/WColor.h"
+#include "../../common/WLogger.h"
+#include "../../common/WStatusReport.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
@@ -40,7 +43,10 @@
 #include "../../utils/WColorUtils.h"
 
 WFiberCulling::WFiberCulling()
-    : WModule()
+    : WModule(),
+      m_proximity_t( 0.0 ),
+      m_dSt_culling_t( 0.0 ),
+      m_saveCulledCurves( false )
 {
 }
 
@@ -61,7 +67,7 @@ const std::string WFiberCulling::getDescription() const
 void WFiberCulling::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
-    // TODO(wiebel): fix this hack when possible by using an input connector.
+    // TODO(math): fix this hack when possible by using an input connector.
     while( !WKernel::getRunningKernel() )
     {
         sleep( 1 );
@@ -91,6 +97,8 @@ void WFiberCulling::threadMain()
 
     cullOutFibers( fiberDS );
 
+    std::cout << "done." << std::endl;
+
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
     {
@@ -109,6 +117,7 @@ void WFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
 
     const double proximity_t_Square = m_proximity_t * m_proximity_t;
     std::vector< bool > unusedFibers( numFibers, false );
+    WStatusReport st( numFibers );
     for( size_t i = 0; i < numFibers; ++i )  // loop over all streamlines
     {
         if( unusedFibers[i] )
@@ -122,29 +131,34 @@ void WFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
             {
                 continue;
             }
-//            const wmath::WFiber& r = (*fibers)[j];
-//            double dst = q.dSt( r, proximity_t_Square );
-//
-//            if( dst < m_dSt_culling_t ) {  // cullout small fibs nearby long fibs
-//                if( q.posSize() < r.posSize() ) {
-//                    unusedFibers[i] = true;
-//                    break;
-//                }
-//                else {
-//                    unusedFibers[j] = true;
-//                }
-//            }
-        }
-    }
+            const wmath::WFiber& r = (*fibers)[j];
+            double dst = q.dSt( r, proximity_t_Square );
 
+            if( dst < m_dSt_culling_t )  // cullout small fibs nearby long fibs
+            {
+                if( q.size() < r.size() )
+                {
+                    unusedFibers[i] = true;
+                    break;
+                }
+                else
+                {
+                    unusedFibers[j] = true;
+                }
+            }
+        }
+        std::cout << "\r" << std::fixed << std::setprecision( 2 );
+        std::cout << ( ++st ).progress() << " " << st.stringBar() << std::flush;
+    }
+    std::cout << std::endl;
 //    if( m_saveCulledCurves ) {
 //        saveFib( m_savePath, fibers, unusedFibers );
 //        std::cout << "Saving culled fibers to " << m_savePath << " done." << std::endl;
 //    }
 
     // create new DataSet where unused fibers are not contained
-    // fibers->erase( unusedFibers );
-    // std::cout << "Erasing done." << std::endl;
-    // std::cout << "Culled out " << numFibers - fibers->size() << " fibers" << std::endl;
-    // std::cout << "There are " << fibers->size() << " fibers left." << std::endl;
+    fibers->erase( unusedFibers );
+    std::cout << "Erasing done." << std::endl;
+    std::cout << "Culled out " << numFibers - fibers->size() << " fibers" << std::endl;
+    std::cout << "There are " << fibers->size() << " fibers left." << std::endl;
 }

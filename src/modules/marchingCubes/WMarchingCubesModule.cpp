@@ -33,6 +33,9 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/StateSet>
+#include <osg/StateAttribute>
+#include <osg/PolygonMode>
 
 #include "../../math/WVector3D.h"
 #include "../../dataHandler/WSubject.h"
@@ -41,7 +44,14 @@
 
 
 WMarchingCubesModule::WMarchingCubesModule():
-    WModule()
+    WModule(),
+    m_nCellsX( 0 ),
+    m_nCellsY( 0 ),
+    m_nCellsZ( 0 ),
+    m_fCellLengthX( 1 ),
+    m_fCellLengthY( 1 ),
+    m_fCellLengthZ( 1 ),
+    m_tIsoLevel( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -139,6 +149,7 @@ void WMarchingCubesModule::properties()
 
 void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )
 {
+    // TODO(wiebel): MC improve this method when corresponding infrastructure is ready
     if( propertyName == "isoValue" )
     {
         // updateTextures();
@@ -294,12 +305,23 @@ void WMarchingCubesModule::generateSurface( double isoValue )
 }
 
 
-WPointXYZId WMarchingCubesModule::calculateIntersection( unsigned int nX, unsigned int nY, unsigned int nZ,
-                                                       unsigned int nEdgeNo )
+WPointXYZId WMarchingCubesModule::calculateIntersection( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo )
 {
-    double x1, y1, z1, x2, y2, z2;
-    unsigned int v1x = nX, v1y = nY, v1z = nZ;
-    unsigned int v2x = nX, v2y = nY, v2z = nZ;
+    double x1;
+    double y1;
+    double z1;
+
+    double x2;
+    double y2;
+    double z2;
+
+    unsigned int v1x = nX;
+    unsigned int v1y = nY;
+    unsigned int v1z = nZ;
+
+    unsigned int v2x = nX;
+    unsigned int v2y = nY;
+    unsigned int v2z = nZ;
 
     switch ( nEdgeNo )
     {
@@ -401,29 +423,29 @@ int WMarchingCubesModule::getEdgeID( unsigned int nX, unsigned int nY, unsigned 
     switch ( nEdgeNo )
     {
         case 0:
-            return getVertexID( nX, nY, nZ ) + 1;
+            return 3 * getVertexID( nX, nY, nZ ) + 1;
         case 1:
-            return getVertexID( nX, nY + 1, nZ );
+            return 3 * getVertexID( nX, nY + 1, nZ );
         case 2:
-            return getVertexID( nX + 1, nY, nZ ) + 1;
+            return 3 * getVertexID( nX + 1, nY, nZ ) + 1;
         case 3:
-            return getVertexID( nX, nY, nZ );
+            return 3 * getVertexID( nX, nY, nZ );
         case 4:
-            return getVertexID( nX, nY, nZ + 1 ) + 1;
+            return 3 * getVertexID( nX, nY, nZ + 1 ) + 1;
         case 5:
-            return getVertexID( nX, nY + 1, nZ + 1 );
+            return 3 * getVertexID( nX, nY + 1, nZ + 1 );
         case 6:
-            return getVertexID( nX + 1, nY, nZ + 1 ) + 1;
+            return 3 * getVertexID( nX + 1, nY, nZ + 1 ) + 1;
         case 7:
-            return getVertexID( nX, nY, nZ + 1 );
+            return 3 * getVertexID( nX, nY, nZ + 1 );
         case 8:
-            return getVertexID( nX, nY, nZ ) + 2;
+            return 3 * getVertexID( nX, nY, nZ ) + 2;
         case 9:
-            return getVertexID( nX, nY + 1, nZ ) + 2;
+            return 3 * getVertexID( nX, nY + 1, nZ ) + 2;
         case 10:
-            return getVertexID( nX + 1, nY + 1, nZ ) + 2;
+            return 3 * getVertexID( nX + 1, nY + 1, nZ ) + 2;
         case 11:
-            return getVertexID( nX + 1, nY, nZ ) + 2;
+            return 3 * getVertexID( nX + 1, nY, nZ ) + 2;
         default:
             // Invalid edge no.
             return -1;
@@ -432,7 +454,7 @@ int WMarchingCubesModule::getEdgeID( unsigned int nX, unsigned int nY, unsigned 
 
 unsigned int WMarchingCubesModule::getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ )
 {
-    return 3* (nZ *(m_nCellsY + 1)*(m_nCellsX + 1) + nY*(m_nCellsX + 1) + nX);
+    return nZ * ( m_nCellsY + 1 ) * ( m_nCellsX + 1) + nY * ( m_nCellsX + 1 ) + nX;
 }
 
 void WMarchingCubesModule::renderSurface()
@@ -531,7 +553,13 @@ void WMarchingCubesModule::renderMesh( const WTriangleMesh& mesh )
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     geode->addDrawable( surfaceGeometry );
-    geode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+
+    osg::PolygonMode* pm;
+    pm = new osg::PolygonMode( osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL );
+    state->setAttributeAndModes( pm, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
 }
 

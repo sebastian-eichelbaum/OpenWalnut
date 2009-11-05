@@ -47,8 +47,17 @@ public:
     explicit WFiber( const std::vector< WPosition > &points );
 
     /**
-     * TODO(math): document this method in more detail
-     * Optimized version which computes dt measure from qr and rq at once.
+     * Optimized version which computes dt measure from fibers Q and R.
+     * Since this is not symmetric it computes both: dt(Q,R) and dt(R,Q) at
+     * once. dt(Q,R) computes the mean euclidian distance of the closest
+     * points. See Paper from Zhang: doi.ieeecomputersociety.org/10.1109/TVCG.2008.52
+     *
+     * \param other The other fiber R
+     * \param thresholdSquare The threshold, where distances below will be
+     * ignored for dt() computation. Note that this parameter is given
+     * as square, since the distanceSquare is much faster to compute then
+     * just the distance.
+     * \return Both dt(Q,R) and dt(R,Q).
      */
     std::pair< double, double > dXt_optimized( const WFiber &other,
                                                const double thresholdSquare ) const;

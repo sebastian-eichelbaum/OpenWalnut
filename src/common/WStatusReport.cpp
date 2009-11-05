@@ -22,27 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm>
-#include <vector>
+#include <cassert>
+#include <cmath>
+#include <string>
 
-#include "WDataSetFibers.h"
+#include "WStatusReport.h"
 
-void WDataSetFibers::sortDescLength()
+WStatusReport::WStatusReport( unsigned int totalSteps )
+    : m_totalSteps( totalSteps ),
+      m_finishedSteps( 0 )
 {
-    std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
 }
 
-void WDataSetFibers::erase( const std::vector< bool > &unused )
+WStatusReport& WStatusReport::operator++()  // prefix increment
 {
-    assert( unused.size() == m_fibers->size() );
-    std::vector< wmath::WFiber >::iterator useable = m_fibers->begin();
-    for( size_t i = 0 ; i < unused.size(); ++i )
+    assert( m_totalSteps > m_finishedSteps );
+    m_finishedSteps++;
+    return *this;
+}
+
+double WStatusReport::operator+=( unsigned int numSteps )
+{
+    assert( m_totalSteps > m_finishedSteps );
+    if( m_totalSteps - m_finishedSteps < numSteps )
     {
-        if( !unused[i] )
-        {
-            *useable = ( *m_fibers )[i];
-            useable++;
-        }
+        m_finishedSteps = m_totalSteps;
     }
-    m_fibers->erase( useable, m_fibers->end() );
+    else
+    {
+        m_finishedSteps += numSteps;
+    }
+    return progress();
+}
+
+std::string WStatusReport::stringBar( char symbol, unsigned int finalNumOfSymbols ) const
+{
+    unsigned int numSymbols = progress() * finalNumOfSymbols;
+    return std::string( numSymbols, symbol );
 }

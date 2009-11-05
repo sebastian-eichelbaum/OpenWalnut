@@ -22,27 +22,23 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cassert>
 #include <algorithm>
-#include <vector>
 
-#include "WDataSetFibers.h"
+#include "WDXtLookUpTable.h"
 
-void WDataSetFibers::sortDescLength()
+WDXtLookUpTable::WDXtLookUpTable( size_t dim )
+    : _data( ( dim * ( dim-1 ) ) / 2, 0.0 ),
+      _dim( dim )
 {
-    std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
 }
 
-void WDataSetFibers::erase( const std::vector< bool > &unused )
+double& WDXtLookUpTable::operator()( size_t i, size_t j )
 {
-    assert( unused.size() == m_fibers->size() );
-    std::vector< wmath::WFiber >::iterator useable = m_fibers->begin();
-    for( size_t i = 0 ; i < unused.size(); ++i )
+    assert( i != j );
+    if( i > j )
     {
-        if( !unused[i] )
-        {
-            *useable = ( *m_fibers )[i];
-            useable++;
-        }
+        std::swap( i, j );
     }
-    m_fibers->erase( useable, m_fibers->end() );
+    return _data.at( i * _dim + j - ( i + 1 ) * ( i + 2 ) / 2 );
 }

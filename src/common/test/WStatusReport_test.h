@@ -22,61 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETFIBERS_H
-#define WDATASETFIBERS_H
+#ifndef WSTATUSREPORT_TEST_H
+#define WSTATUSREPORT_TEST_H
 
-#include <vector>
+#include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <cxxtest/TestSuite.h>
 
-#include "WDataSet.h"
-#include "../math/WFiber.h"
+#include "../WStatusReport.h"
 
 /**
- * Represents a simple set of WFibers.
+ * Unit tests our StatusReporter class
  */
-class WDataSetFibers : public WDataSet
+class WStatusReportTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Constructs a new set of WFibers
+     * Given a certain percentage of progress and a char, and a number
+     * of total chars to display, the StringBar of a WStatusReporter
+     * object should be determined.
      */
-    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
+    void testStringBar( void )
     {
+        WStatusReport st( 312 );
+        st += 189;
+        std::string expected( 30, '#' );
+        TS_ASSERT_EQUALS( st.stringBar(), expected );
     }
 
     /**
-     * Get number of fibers in this data set.
+     * When incrementing over total and the progress is below 100%, it should
+     * be accumulated to 100%. But if the progress is already at 100%
+     * an assert should fail!
      */
-    inline size_t size() const
+    void testIncrementOverTotal( void )
     {
-        return m_fibers->size();
+        WStatusReport st( 312 );
+        st += 311;
+        st += 9000;
+        TS_ASSERT_EQUALS( st.progress(), 1.0 );
     }
-
-    /**
-     * \return The i'th fiber.
-     */
-    inline const wmath::WFiber& operator[]( const size_t index ) const
-    {
-        assert( index < m_fibers->size() );
-        return (*m_fibers)[index];
-    }
-
-    /**
-     * Sort fibers descending on their length.
-     */
-    void sortDescLength();
-
-    /**
-     * Deletes all those fibers which are marked true in the given
-     * unused vector.
-     */
-    void erase( const std::vector< bool > &unused );
-
-protected:
-
-private:
-    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };
 
-#endif  // WDATASETFIBERS_H
+#endif  // WSTATUSREPORT_TEST_H

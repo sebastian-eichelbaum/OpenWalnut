@@ -78,11 +78,11 @@ protected:
      */
     double m_proximity_t;
 
-    double m_dSt_culling_t; //!< Threshold to cull out short fibers along long fibers. NOLINT
+    double m_dSt_culling_t; //!< Threshold to cull out short fibers along long fibers.
 
-    bool m_saveCulledCurves; //!< If true, remaining fibers are saved to a file. NOLINT
+    bool m_saveCulledCurves; //!< If true, remaining fibers are saved to a file.
 
-    std::string m_savePath; //!< Path where remaining fibers should be stored NOLINT
+    std::string m_savePath; //!< Path where remaining fibers should be stored
 
 private:
 };

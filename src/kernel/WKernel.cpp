@@ -37,7 +37,9 @@
 #include "../modules/data/WDataModule.hpp"
 #include "../modules/navigationSlices/WNavigationSliceModule.h"
 #include "../modules/coordinateSystem/WCoordinateSystem.h"
-#include "../modules/FiberDisplay/WFiberDisplay.h"
+#include "../modules/fiberDisplay/WFiberDisplay.h"
+#include "../modules/fiberCulling/WFiberCulling.h"
+#include "../modules/fiberClustering/WFiberClustering.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"

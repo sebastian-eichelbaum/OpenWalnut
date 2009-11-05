@@ -100,8 +100,7 @@ public:
     friend std::ostream& operator<<( std::ostream& os, const WLine &rhs )
     {
         using string_utils::operator<<;
-        os << rhs.m_points;
-        return os;
+        return os << rhs.m_points;
     }
 
 protected:

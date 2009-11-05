@@ -98,15 +98,19 @@ wmath::WVector3D WTriangleMesh::getTriangleNormal( size_t i ) const
 
     wmath::WVector3D tempNormal = v1.crossProduct( v2 );
 
-    // TODO(wiebel): TM fix this hack for 0 length normals.
     if( tempNormal.norm() < 1e-7 )
     {
-        tempNormal = wmath::WVector3D( 1, 1, 1 );
+        // If the morm of the vector is below a certain threshold
+        // the triangle is either very small, or its edges are
+        // congruent (which also means that the triangle are is very
+        // small or zero) the triangle will probably not be visible.
+        // Thus we set its normal to zero.
+        tempNormal = wmath::WVector3D( 0, 0, 0 );
     }
     else
     {
         tempNormal.normalize();
     }
 
-    return tempNormal*-1;
+    return tempNormal;
 }
