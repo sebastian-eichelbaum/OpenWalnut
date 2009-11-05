@@ -22,7 +22,7 @@ IF( CXXTEST_FOUND )
                                "WModuleOutputData.hpp"
                                "WModuleInputData.cpp"
                                "WModuleOutputData.cpp"
-                               "../modules/navigationSlices/WMNavSlice.cpp"
+                               "../modules/navSlices/WMNavSlices.cpp"
                                "../modules/eegTest/WMEEGTest.cpp"
                              )
 ENDIF( CXXTEST_FOUND )

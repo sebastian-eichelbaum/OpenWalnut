@@ -22,15 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCOORDINATESYSTEM_H
-#define WCOORDINATESYSTEM_H
+#ifndef WMCOORDINATESYSTEM_H
+#define WMCOORDINATESYSTEM_H
 
 #include <string>
 
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSet.h"
-#include "../data/WDataModule.hpp"
+#include "../data/WMData.hpp"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.hpp"
@@ -38,18 +38,18 @@
 /**
  * class that implements the various coordinate systems as overlays within the 3D view
  */
-class WCoordinateSystem : public WModule, public osg::Referenced
+class WMCoordinateSystem : public WModule, public osg::Referenced
 {
 public:
     /**
      * standard constructor
      */
-    WCoordinateSystem();
+    WMCoordinateSystem();
 
     /**
      * destructor
      */
-    virtual ~WCoordinateSystem();
+    virtual ~WMCoordinateSystem();
 
     /**
      * callback for updating the geometry
@@ -114,7 +114,7 @@ private:
 class coordinateNodeCallback : public osg::NodeCallback
 {
 public:
-    explicit coordinateNodeCallback( boost::shared_ptr< WCoordinateSystem > module )
+    explicit coordinateNodeCallback( boost::shared_ptr< WMCoordinateSystem > module )
     {
         m_module = module;
     }
@@ -128,10 +128,10 @@ public:
         traverse( node, nv );
     }
 private:
-    boost::shared_ptr< WCoordinateSystem > m_module;
+    boost::shared_ptr< WMCoordinateSystem > m_module;
 };
 
 
 
 
-#endif  // WCOORDINATESYSTEM_H
+#endif  // WMCOORDINATESYSTEM_H

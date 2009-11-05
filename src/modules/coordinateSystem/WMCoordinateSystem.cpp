@@ -29,19 +29,19 @@
 #include <osg/Geometry>
 
 #include "../../kernel/WKernel.h"
-#include "WCoordinateSystem.h"
+#include "WMCoordinateSystem.h"
 
-WCoordinateSystem::WCoordinateSystem() :
+WMCoordinateSystem::WMCoordinateSystem() :
     WModule()
 {
     properties();
 }
 
-WCoordinateSystem::~WCoordinateSystem()
+WMCoordinateSystem::~WMCoordinateSystem()
 {
 }
 
-void WCoordinateSystem::threadMain()
+void WMCoordinateSystem::threadMain()
 {
     createGeometry();
 
@@ -55,22 +55,22 @@ void WCoordinateSystem::threadMain()
     // clean up stuff
 }
 
-const std::string WCoordinateSystem::getName() const
+const std::string WMCoordinateSystem::getName() const
 {
     return "Coordinate System Module";
 }
 
-const std::string WCoordinateSystem::getDescription() const
+const std::string WMCoordinateSystem::getDescription() const
 {
     return "This module displays coordinate systems as overlay withn the main 3D view.";
 }
 
-void WCoordinateSystem::connectToGui()
+void WMCoordinateSystem::connectToGui()
 {
     WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
 }
 
-void WCoordinateSystem::properties()
+void WMCoordinateSystem::properties()
 {
     m_properties->addBool( "textureChanged", false );
 
@@ -90,7 +90,7 @@ void WCoordinateSystem::properties()
     m_properties->addFloat( "brbZ", 160.0 );
 }
 
-void WCoordinateSystem::createGeometry()
+void WMCoordinateSystem::createGeometry()
 {
     float zeroX = m_properties->getValue<float>( "zeroX" );
     float zeroY = m_properties->getValue<float>( "zeroY" );
@@ -174,10 +174,10 @@ void WCoordinateSystem::createGeometry()
 
     // osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
 
-    m_rootNode->setUpdateCallback( new coordinateNodeCallback( boost::shared_dynamic_cast<WCoordinateSystem>( shared_from_this() ) ) );
+    m_rootNode->setUpdateCallback( new coordinateNodeCallback( boost::shared_dynamic_cast<WMCoordinateSystem>( shared_from_this() ) ) );
 }
 
-void WCoordinateSystem::updateGeometry()
+void WMCoordinateSystem::updateGeometry()
 {
     boost::shared_lock< boost::shared_mutex > slock;
     slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
@@ -193,7 +193,7 @@ void WCoordinateSystem::updateGeometry()
 
         if ( datasetList.size() > 0 )
         {
-            boost::shared_ptr< WDataModule< int > > module = boost::shared_dynamic_cast< WDataModule< int > >( datasetList[0] );
+            boost::shared_ptr< WMData< int > > module = boost::shared_dynamic_cast< WMData< int > >( datasetList[0] );
             boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( module->getDataSet() );
 
             if ( ds->getValueSet()->getDataType() != 2 )

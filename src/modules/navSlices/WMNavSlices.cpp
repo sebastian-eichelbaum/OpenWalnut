@@ -35,7 +35,7 @@
 
 #include "boost/smart_ptr.hpp"
 
-#include "WMNavSlice.h"
+#include "WMNavSlices.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
@@ -50,7 +50,7 @@
 
 #include "../../graphicsEngine/WShader.h"
 
-WMNavSlice::WMNavSlice():
+WMNavSlices::WMNavSlices():
     WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -63,23 +63,23 @@ WMNavSlice::WMNavSlice():
     properties();
 }
 
-WMNavSlice::~WMNavSlice()
+WMNavSlices::~WMNavSlices()
 {
     // cleanup
     removeConnectors();
 }
 
-const std::string WMNavSlice::getName() const
+const std::string WMNavSlices::getName() const
 {
     return "Navigation Slice Module";
 }
 
-const std::string WMNavSlice::getDescription() const
+const std::string WMNavSlices::getDescription() const
 {
     return "This module shows 3 orthogonal navigation slices.";
 }
 
-void WMNavSlice::connectors()
+void WMNavSlices::connectors()
 {
     // initialize connectors
     // XXX to add a new connector and to offer it, these simple steps need to be done
@@ -96,7 +96,7 @@ void WMNavSlice::connectors()
     WModule::connectors();
 }
 
-void WMNavSlice::properties()
+void WMNavSlices::properties()
 {
     m_properties->addBool( "textureChanged", false );
 
@@ -113,7 +113,7 @@ void WMNavSlice::properties()
     m_properties->addBool( "showSagittal", true );
 }
 
-void WMNavSlice::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                                boost::shared_ptr<WModuleConnector> output )
 {
     WModule::notifyDataChange( input, output );
@@ -121,7 +121,7 @@ void WMNavSlice::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
     // in this case input==m_input
 }
 
-void WMNavSlice::threadMain()
+void WMNavSlices::threadMain()
 {
     createGeometry();
 
@@ -135,7 +135,7 @@ void WMNavSlice::threadMain()
     // clean up stuff
 }
 
-void WMNavSlice::createGeometry()
+void WMNavSlices::createGeometry()
 {
     float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) ) + 0.5f;
     float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) )  + 0.5f;
@@ -236,10 +236,10 @@ void WMNavSlice::createGeometry()
 
     rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 
-    m_rootNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WMNavSlice>( shared_from_this() ) ) );
+    m_rootNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WMNavSlices>( shared_from_this() ) ) );
 }
 
-void WMNavSlice::updateGeometry()
+void WMNavSlices::updateGeometry()
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
@@ -375,7 +375,7 @@ void WMNavSlice::updateGeometry()
 }
 
 
-void WMNavSlice::updateTextures()
+void WMNavSlices::updateTextures()
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
@@ -422,13 +422,13 @@ void WMNavSlice::updateTextures()
 }
 
 
-void WMNavSlice::connectToGui()
+void WMNavSlices::connectToGui()
 {
     WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
 }
 
 
-void WMNavSlice::initUniforms( osg::StateSet* rootState )
+void WMNavSlices::initUniforms( osg::StateSet* rootState )
 {
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );

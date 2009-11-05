@@ -35,8 +35,8 @@
 
 #include "WModule.h"
 #include "../modules/data/WMData.hpp"
-#include "../modules/navigationSlices/WMNavSlice.h"
-#include "../modules/coordinateSystem/WCoordinateSystem.h"
+#include "../modules/navSlices/WMNavSlices.h"
+#include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberCulling/WMFiberCulling.h"
 #include "../modules/fiberClustering/WMFiberClustering.h"
@@ -188,13 +188,15 @@ void WKernel::loadModules()
     m_modules.clear();
 
     using boost::shared_ptr;
-    shared_ptr< WModule > m1 = shared_ptr< WModule >( new WNavigationSliceModule() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberDisplay() );
+    shared_ptr< WModule > m1 = shared_ptr< WModule >( new WMNavSlices() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberDisplay() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberCulling() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberClustering() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m1->getName(), "Kernel", LL_DEBUG );
 
     m_modules.push_back( m1 );
 
-    shared_ptr< WModule > m2 = shared_ptr< WModule >( new WCoordinateSystem() );
+    shared_ptr< WModule > m2 = shared_ptr< WModule >( new WMCoordinateSystem() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m2->getName(), "Kernel", LL_DEBUG );
     m_modules.push_back( m2 );
 }
