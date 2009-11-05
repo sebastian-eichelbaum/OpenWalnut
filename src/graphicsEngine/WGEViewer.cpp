@@ -54,7 +54,8 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
 
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
-        m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
+        // m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
+        m_View->getCamera()->setProjectionMatrixAsOrtho( -120, 120, -120, 120, -1000, +1000 );
         m_View->getCamera()->setViewport( new osg::Viewport( 0, 0, 10, 10 ) );
 
         // add the stats handler
@@ -127,7 +128,8 @@ void WGEViewer::resize( int width, int height )
     WGEGraphicsWindow::resize( width, height );
 
     // also update the camera
-    m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
+    // m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
+    m_View->getCamera()->setProjectionMatrixAsOrtho( -120, 120, -120, 120, -1000, +1000 );
     m_View->getCamera()->setViewport( new osg::Viewport( 0, 0, width, height ) );
 }
 

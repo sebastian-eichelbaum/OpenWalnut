@@ -40,6 +40,7 @@
 #include "WQtNavGLWidget.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 
+#include "WIconManager.h"
 #include "WPropertyManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
 // forward declarations
@@ -80,9 +81,14 @@ public:
 
 
     /**
-     *
+     * Return property manager
      */
     WPropertyManager* getPropertyManager();
+
+    /**
+     * Return icon manager
+     */
+    WIconManager* getIconManager();
 
     /**
      *
@@ -98,9 +104,9 @@ public slots:
 private:
     void setupToolBar( QMainWindow *mainWindow );
 
-    QIcon m_mainWindowIcon;
+    WIconManager m_iconManager;
 
-    WPropertyManager* m_propertyManager;
+    WPropertyManager m_propertyManager;
 
     QWidget* m_centralwidget;
     WQtRibbonMenu* m_toolBar;
@@ -111,14 +117,6 @@ private:
     WQtNavGLWidget* m_navAxial;
     WQtNavGLWidget* m_navCoronal;
     WQtNavGLWidget* m_navSagittal;
-
-    QIcon m_quitIcon;
-    QIcon m_saveIcon;
-    QIcon m_loadIcon;
-
-    QIcon m_axiIcon;
-    QIcon m_corIcon;
-    QIcon m_sagIcon;
 
     boost::signal1< void, std::vector< std::string > > m_loaderSignal;
 };

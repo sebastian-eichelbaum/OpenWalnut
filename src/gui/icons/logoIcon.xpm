@@ -1,5 +1,5 @@
 /* XPM */
-static const char *logoIcon_xpm[] = {
+static const char* const logoIcon_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 166 2",
 "   c gray25",
