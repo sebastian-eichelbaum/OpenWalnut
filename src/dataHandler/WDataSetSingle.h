@@ -27,10 +27,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WDataSet.h"
+#include "WGrid.h"
+#include "WGridRegular3D.h"
+#include "WValueSet.hpp"
 
-class WValueSetBase;
-class WGrid;
+#include "WDataSet.h"
 
 /**
  * A data set consisting of a set of values based on a grid.
@@ -59,6 +60,20 @@ public:
      * \return Reference to its WGrid
      */
     boost::shared_ptr< WGrid > getGrid() const;
+
+    /**
+     *
+     */
+    template < typename T > T getValueAt( int x, int y, int z )
+    {
+        boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+        size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+        T v = vs->getScalar( id );
+        return v;
+    }
 
 private:
     /**
