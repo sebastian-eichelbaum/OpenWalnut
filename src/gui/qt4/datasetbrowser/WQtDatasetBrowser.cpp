@@ -109,60 +109,62 @@ void WQtDatasetBrowser::selectTreeItem()
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
 
-    if ( m_treeWidget->selectedItems().size() > 0 || m_treeWidget->selectedItems().at( 0 )->type() == 1 )
+    if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() != 1 )
     {
-        boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-        std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
+        return;
+    }
+    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
 
-        WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
+    WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
 
-        for ( size_t i = 0; i < props.size(); ++i )
+    for ( size_t i = 0; i < props.size(); ++i )
+    {
+        if ( !props.at(i)->isHidden() )
         {
-            if ( !props.at(i)->isHidden() )
+            switch ( props.at(i)->getType() )
             {
-                switch ( props.at(i)->getType() )
+                case P_BOOL:
                 {
-                    case P_BOOL:
-                    {
-                        QString name = QString( props.at( i )->getName().c_str() );
-                        WQtCheckBox* box = tab1->addCheckBox( name, props.at( i )->getValue<bool>() );
-                        connect( box, SIGNAL( checkBoxStateChanged( QString, bool ) ), this, SLOT( slotSetBoolProperty( QString, bool ) ) );
-                        break;
-                    }
-                    case P_CHAR:
-                        break;
-                    case P_UNSIGNED_CHAR:
-                        break;
-                    case P_INT:
-                    {
-                        QString name = QString( props.at( i )->getName().c_str() );
-                        WQtSliderWithEdit* slider = tab1->addSliderInt( name, props.at( i )->getValue<int>(),
-                                props.at( i )->getMin<int>(), props.at( i )->getMax<int>() );
-                        connect( slider, SIGNAL( signalNumberWithName( QString, int ) ), this, SLOT( slotSetIntProperty( QString, int ) ) );
-                        break;
-                    }
-                    case P_UNSIGNED_INT:
-                        break;
-                    case P_FLOAT:
-                        break;
-                    case P_DOUBLE:
-                        break;
-                    case P_STRING:
-                    {
-                        QString name = QString( props.at( i )->getName().c_str() );
-                        QString text = QString( props.at( i )->getValue<std::string>().c_str() );
-                        WQtLineEdit* edit = tab1->addLineEdit( name, text );
-                        connect( edit, SIGNAL( lineEditStateChanged( QString, QString ) ), this, SLOT( slotSetStringProperty( QString, QString ) ) );
-                        break;
-                    }
-                    default:
-                        break;
+                    QString name = QString( props.at( i )->getName().c_str() );
+                    WQtCheckBox* box = tab1->addCheckBox( name, props.at( i )->getValue<bool>() );
+                    connect( box, SIGNAL( checkBoxStateChanged( QString, bool ) ), this, SLOT( slotSetBoolProperty( QString, bool ) ) );
+                    break;
                 }
+                case P_CHAR:
+                    break;
+                case P_UNSIGNED_CHAR:
+                    break;
+                case P_INT:
+                {
+                    QString name = QString( props.at( i )->getName().c_str() );
+                    WQtSliderWithEdit* slider = tab1->addSliderInt( name, props.at( i )->getValue<int>(),
+                            props.at( i )->getMin<int>(), props.at( i )->getMax<int>() );
+                    connect( slider, SIGNAL( signalNumberWithName( QString, int ) ), this, SLOT( slotSetIntProperty( QString, int ) ) );
+                    break;
+                }
+                case P_UNSIGNED_INT:
+                    break;
+                case P_FLOAT:
+                    break;
+                case P_DOUBLE:
+                    break;
+                case P_STRING:
+                {
+                    QString name = QString( props.at( i )->getName().c_str() );
+                    QString text = QString( props.at( i )->getValue<std::string>().c_str() );
+                    WQtLineEdit* edit = tab1->addLineEdit( name, text );
+                    connect( edit, SIGNAL( lineEditStateChanged( QString, QString ) ), this, SLOT( slotSetStringProperty( QString, QString ) ) );
+                    break;
+                }
+                default:
+                    break;
             }
         }
-        addTabWidgetContent( tab1 );
     }
+    addTabWidgetContent( tab1 );
 }
+
 
 void WQtDatasetBrowser::changeTreeItem()
 {
