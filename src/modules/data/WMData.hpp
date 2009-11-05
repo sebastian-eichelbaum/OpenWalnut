@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATAMODULE_H
-#define WDATAMODULE_H
+#ifndef WMDATA_H
+#define WMDATA_H
 
 #include <string>
 
@@ -42,7 +42,7 @@
  * inherited classes. This class builds a "source".
  */
 template < typename T >
-class WDataModule: public WModule
+class WMData: public WModule
 {
 public:
 
@@ -50,19 +50,19 @@ public:
      * \par Description
      * Default constructor.
      */
-    // WDataModule();
+    // WMData();
 
     /**
      * \par Description
      * constructor with dataset
      */
-    explicit WDataModule( boost::shared_ptr< WDataSet > dataSet );
+    explicit WMData( boost::shared_ptr< WDataSet > dataSet );
 
     /**
      * \par Description
      * Destructor.
      */
-    virtual ~WDataModule();
+    virtual ~WMData();
 
     /**
      * \par Description
@@ -94,7 +94,6 @@ public:
     virtual osg::ref_ptr<osg::Texture3D> getTexture3D();
 
 protected:
-
     /**
      * \par Description
      * Entry point after loading the module. Runs in separate thread.
@@ -113,7 +112,7 @@ protected:
      * \param output the output connector that sent the signal. Not part of this module instance.
      */
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-                                   boost::shared_ptr<WModuleConnector> output );
+            boost::shared_ptr<WModuleConnector> output );
 
     /**
      * Creates a 3d texture from a dataset. This function will be overloaded for the
@@ -131,9 +130,7 @@ protected:
     osg::ref_ptr<osg::Texture3D> createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
     osg::ref_ptr<osg::Texture3D> createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
 
-
 private:
-
     /**
      * The only output of this data module.
      */
@@ -152,7 +149,7 @@ private:
 
 // TODO(schurade, ebaum): do we still need/want that constructor?
 // template < typename T >
-// WDataModule<T>::WDataModule():
+// WMData<T>::WMData():
 //    WModule()
 // {
 //    // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -163,7 +160,7 @@ private:
 // }
 
 template < typename T >
-WDataModule<T>::WDataModule( boost::shared_ptr< WDataSet > dataSet ):
+WMData<T>::WMData( boost::shared_ptr< WDataSet > dataSet ):
     WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -175,32 +172,32 @@ WDataModule<T>::WDataModule( boost::shared_ptr< WDataSet > dataSet ):
     m_properties->addString( "name", "not initialized" );
 }
 
-template < typename T >
-WDataModule<T>::~WDataModule()
+    template < typename T >
+WMData<T>::~WMData()
 {
     // cleanup
 }
 
 template < typename T >
-const std::string WDataModule<T>::getName() const
+const std::string WMData<T>::getName() const
 {
     return "Data Module";
 }
 
 template < typename T >
-const std::string WDataModule<T>::getDescription() const
+const std::string WMData<T>::getDescription() const
 {
     return "This module can encapsulate data.";
 }
 
-template < typename T >
-void WDataModule<T>::connectors()
+    template < typename T >
+void WMData<T>::connectors()
 {
     // initialize connectors
     m_output= boost::shared_ptr<WModuleOutputData<T> >(
             new WModuleOutputData<T>( shared_from_this(),
                 "out1", "A loaded dataset." )
-    );
+            );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_output );
@@ -209,15 +206,15 @@ void WDataModule<T>::connectors()
     WModule::connectors();
 }
 
-template < typename T >
-void WDataModule<T>::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-                                               boost::shared_ptr<WModuleConnector> output )
+    template < typename T >
+void WMData<T>::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+        boost::shared_ptr<WModuleConnector> output )
 {
     WModule::notifyDataChange( input, output );
 }
 
-template < typename T >
-void WDataModule<T>::threadMain()
+    template < typename T >
+void WMData<T>::threadMain()
 {
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
@@ -229,20 +226,20 @@ void WDataModule<T>::threadMain()
     // clean up stuff
 }
 
-template < typename T >
-void WDataModule<T>::setDataSet( boost::shared_ptr< WDataSet > dataSet )
+    template < typename T >
+void WMData<T>::setDataSet( boost::shared_ptr< WDataSet > dataSet )
 {
     m_dataSet = dataSet;
 }
 
-template < typename T >
-boost::shared_ptr< WDataSet > WDataModule<T>::getDataSet()
+    template < typename T >
+boost::shared_ptr< WDataSet > WMData<T>::getDataSet()
 {
     return m_dataSet;
 }
 
-template < typename T >
-osg::ref_ptr<osg::Texture3D> WDataModule<T>::getTexture3D()
+    template < typename T >
+osg::ref_ptr<osg::Texture3D> WMData<T>::getTexture3D()
 {
     if ( !m_texture3D )
     {
@@ -273,8 +270,8 @@ osg::ref_ptr<osg::Texture3D> WDataModule<T>::getTexture3D()
     return m_texture3D;
 }
 
-template < typename T >
-osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid, int components )
+    template < typename T >
+osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1 )
     {
@@ -320,8 +317,8 @@ osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( unsigned char* sou
     return 0;
 }
 
-template < typename T >
-osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D> grid, int components )
+    template < typename T >
+osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1)
     {
@@ -348,8 +345,8 @@ osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( int16_t* source, b
     return 0;
 }
 
-template < typename T >
-osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components )
+    template < typename T >
+osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components )
 {
     if ( components == 1)
     {
@@ -376,7 +373,5 @@ osg::ref_ptr<osg::Texture3D> WDataModule<T>::createTexture3D( float* source, boo
     return 0;
 }
 
-
-
-#endif  // WDATAMODULE_H
+#endif  // WMDATA_H
 

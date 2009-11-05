@@ -29,31 +29,31 @@
 #include <osg/Group>
 #include <osg/Geode>
 
-#include "WTestModule.h"
+#include "WMTest.h"
 #include "../../kernel/WKernel.h"
 
-WTestModule::WTestModule():
+WMTest::WMTest():
     WModule()
 {
     // initialize members
 }
 
-WTestModule::~WTestModule()
+WMTest::~WMTest()
 {
     // cleanup
 }
 
-const std::string WTestModule::getName() const
+const std::string WMTest::getName() const
 {
     return "Test Module";
 }
 
-const std::string WTestModule::getDescription() const
+const std::string WMTest::getDescription() const
 {
     return "This module is for testing and development";
 }
 
-void WTestModule::threadMain()
+void WMTest::threadMain()
 {
     // load the sample scene.
     osg::ref_ptr<osg::Geode> sceneDataGeode = new osg::Geode();

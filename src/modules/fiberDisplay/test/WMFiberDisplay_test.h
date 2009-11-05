@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERDISPLAY_TEST_H
-#define WFIBERDISPLAY_TEST_H
+#ifndef WMFIBERDISPLAY_TEST_H
+#define WMFIBERDISPLAY_TEST_H
 
 #include <vector>
 
@@ -32,14 +32,14 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../WFiberDisplay.h"
+#include "../WMFiberDisplay.h"
 #include "../../../math/WPosition.h"
 #include "../../../math/WFiber.h"
 
 /**
- * Unit test the WFiberDisplay
+ * Unit test the WMFiberDisplay
  */
-class WFiberDisplayTest : public CxxTest::TestSuite
+class WMFiberDisplayTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -56,7 +56,7 @@ public:
         fibData.push_back( WPosition( 1., 1., 1. ) );
         using wmath::WFiber;
         WFiber fib( fibData );
-        WFiberDisplay mod;
+        WMFiberDisplay mod;
         osg::ref_ptr< osg::Geode > result = mod.genFiberGeode( fib );
         osg::Geometry *geo = result->getDrawable( 0 )->asGeometry();
         TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), 4 );
@@ -64,4 +64,4 @@ public:
     }
 };
 
-#endif  // WFIBERDISPLAY_TEST_H
+#endif  // WMFIBERDISPLAY_TEST_H

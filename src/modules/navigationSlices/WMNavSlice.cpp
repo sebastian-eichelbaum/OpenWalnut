@@ -35,7 +35,7 @@
 
 #include "boost/smart_ptr.hpp"
 
-#include "WNavigationSliceModule.h"
+#include "WMNavSlice.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
@@ -46,11 +46,11 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.hpp"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../data/WDataModule.hpp"
+#include "../data/WMData.hpp"
 
 #include "../../graphicsEngine/WShader.h"
 
-WNavigationSliceModule::WNavigationSliceModule():
+WMNavSlice::WMNavSlice():
     WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -63,23 +63,23 @@ WNavigationSliceModule::WNavigationSliceModule():
     properties();
 }
 
-WNavigationSliceModule::~WNavigationSliceModule()
+WMNavSlice::~WMNavSlice()
 {
     // cleanup
     removeConnectors();
 }
 
-const std::string WNavigationSliceModule::getName() const
+const std::string WMNavSlice::getName() const
 {
     return "Navigation Slice Module";
 }
 
-const std::string WNavigationSliceModule::getDescription() const
+const std::string WMNavSlice::getDescription() const
 {
     return "This module shows 3 orthogonal navigation slices.";
 }
 
-void WNavigationSliceModule::connectors()
+void WMNavSlice::connectors()
 {
     // initialize connectors
     // XXX to add a new connector and to offer it, these simple steps need to be done
@@ -96,7 +96,7 @@ void WNavigationSliceModule::connectors()
     WModule::connectors();
 }
 
-void WNavigationSliceModule::properties()
+void WMNavSlice::properties()
 {
     m_properties->addBool( "textureChanged", false );
 
@@ -113,7 +113,7 @@ void WNavigationSliceModule::properties()
     m_properties->addBool( "showSagittal", true );
 }
 
-void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+void WMNavSlice::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                                boost::shared_ptr<WModuleConnector> output )
 {
     WModule::notifyDataChange( input, output );
@@ -121,7 +121,7 @@ void WNavigationSliceModule::notifyDataChange( boost::shared_ptr<WModuleConnecto
     // in this case input==m_input
 }
 
-void WNavigationSliceModule::threadMain()
+void WMNavSlice::threadMain()
 {
     createGeometry();
 
@@ -135,7 +135,7 @@ void WNavigationSliceModule::threadMain()
     // clean up stuff
 }
 
-void WNavigationSliceModule::createGeometry()
+void WMNavSlice::createGeometry()
 {
     float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) ) + 0.5f;
     float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) )  + 0.5f;
@@ -236,10 +236,10 @@ void WNavigationSliceModule::createGeometry()
 
     rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 
-    m_rootNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WNavigationSliceModule>( shared_from_this() ) ) );
+    m_rootNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WMNavSlice>( shared_from_this() ) ) );
 }
 
-void WNavigationSliceModule::updateGeometry()
+void WMNavSlice::updateGeometry()
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
@@ -375,7 +375,7 @@ void WNavigationSliceModule::updateGeometry()
 }
 
 
-void WNavigationSliceModule::updateTextures()
+void WMNavSlice::updateTextures()
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
@@ -397,9 +397,9 @@ void WNavigationSliceModule::updateTextures()
             for ( size_t i = 0; i < datasetList.size(); ++i )
             {
                 if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                        boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D() )
+                        boost::shared_dynamic_cast<WMData<int> >( datasetList[i] )->getTexture3D() )
                 {
-                    osg::ref_ptr<osg::Texture3D> texture3D = boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getTexture3D();
+                    osg::ref_ptr<osg::Texture3D> texture3D = boost::shared_dynamic_cast<WMData<int> >( datasetList[i] )->getTexture3D();
 
                     rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
@@ -407,7 +407,7 @@ void WNavigationSliceModule::updateTextures()
                     float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
 
                     m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>(
-                            boost::shared_dynamic_cast<WDataModule<int> >( datasetList[i] )->getDataSet() )->getValueSet()->getDataType() );
+                            boost::shared_dynamic_cast<WMData<int> >( datasetList[i] )->getDataSet() )->getValueSet()->getDataType() );
                     m_thresholdUniforms[c]->set( t );
                     m_alphaUniforms[c]->set( a );
 
@@ -422,13 +422,13 @@ void WNavigationSliceModule::updateTextures()
 }
 
 
-void WNavigationSliceModule::connectToGui()
+void WMNavSlice::connectToGui()
 {
     WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
 }
 
 
-void WNavigationSliceModule::initUniforms( osg::StateSet* rootState )
+void WMNavSlice::initUniforms( osg::StateSet* rootState )
 {
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );

@@ -22,17 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERCULLING_TEST_H
-#define WFIBERCULLING_TEST_H
+#ifndef WMFIBERCLUSTERING_TEST_H
+#define WMFIBERCLUSTERING_TEST_H
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WFiberCulling.h"
+#include "../WMFiberClustering.h"
 
 /**
  * TODO(math): Document this!
  */
-class WFiberCullingTest : public CxxTest::TestSuite
+class WMFiberClusteringTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -43,4 +43,4 @@ public:
     }
 };
 
-#endif  // WFIBERCULLING_TEST_H
+#endif  // WMFIBERCLUSTERING_TEST_H

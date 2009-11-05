@@ -22,35 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERCULLING_H
-#define WFIBERCULLING_H
+#ifndef WMFIBERDISPLAY_H
+#define WMFIBERDISPLAY_H
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../math/WFiber.h"
 
 /**
- * Test module for culling fibers
+ * Test module for drawing fibers
  */
-class WFiberCulling : public WModule
+class WMFiberDisplay : public WModule
 {
-friend class WFiberCullingTest;
+friend class WMFiberDisplayTest;
 public:
     /**
      * Constructs new FiberTestModule
      */
-    WFiberCulling();
+    WMFiberDisplay();
 
     /**
      * Destructs this FiberTestModule
      */
-    virtual ~WFiberCulling();
+    virtual ~WMFiberDisplay();
 
     /**
      * Gives back the name of this module.
@@ -70,21 +67,15 @@ protected:
      */
     virtual void threadMain();
 
-    virtual void cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers );
-
     /**
-     * Proximity threshold, which defines the minimum distance which should be
-     * considered in the calculation of the mean-minimum-distance of two fibers.
+     * Generates an OSG geometry for the given fiber.
+     *
+     * \param fib reference to a WFiber instance
+     * \return OSG geometry representing the fiber.
      */
-    double m_proximity_t;
-
-    double m_dSt_culling_t; //!< Threshold to cull out short fibers along long fibers.
-
-    bool m_saveCulledCurves; //!< If true, remaining fibers are saved to a file.
-
-    std::string m_savePath; //!< Path where remaining fibers should be stored
+    osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib ) const;
 
 private:
 };
 
-#endif  // WFIBERCULLING_H
+#endif  // WMFIBERDISPLAY_H

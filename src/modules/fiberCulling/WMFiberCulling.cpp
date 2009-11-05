@@ -30,7 +30,7 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "WFiberCulling.h"
+#include "WMFiberCulling.h"
 #include "../../math/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
@@ -42,7 +42,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 
-WFiberCulling::WFiberCulling()
+WMFiberCulling::WMFiberCulling()
     : WModule(),
       m_proximity_t( 0.0 ),
       m_dSt_culling_t( 0.0 ),
@@ -50,21 +50,21 @@ WFiberCulling::WFiberCulling()
 {
 }
 
-WFiberCulling::~WFiberCulling()
+WMFiberCulling::~WMFiberCulling()
 {
 }
 
-const std::string WFiberCulling::getName() const
+const std::string WMFiberCulling::getName() const
 {
     return std::string( "FiberCulling" );
 }
 
-const std::string WFiberCulling::getDescription() const
+const std::string WMFiberCulling::getDescription() const
 {
     return std::string( "Removes or culls out fibers from a WDataSetFibers" );
 }
 
-void WFiberCulling::threadMain()
+void WMFiberCulling::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(math): fix this hack when possible by using an input connector.
@@ -107,7 +107,7 @@ void WFiberCulling::threadMain()
     }
 }
 
-void WFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
+void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
 {
     size_t numFibers = fibers->size();
     std::cout << "Recoginzed " << numFibers << " fibers" << std::endl;

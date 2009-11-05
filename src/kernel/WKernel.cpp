@@ -34,11 +34,11 @@
 #include <boost/thread/xtime.hpp>
 
 #include "WModule.h"
-#include "../modules/data/WDataModule.hpp"
-#include "../modules/navigationSlices/WNavigationSliceModule.h"
-#include "../modules/fiberDisplay/WFiberDisplay.h"
-#include "../modules/fiberCulling/WFiberCulling.h"
-#include "../modules/fiberClustering/WFiberClustering.h"
+#include "../modules/data/WMData.hpp"
+#include "../modules/navigationSlices/WMNavSlice.h"
+#include "../modules/fiberDisplay/WMFiberDisplay.h"
+#include "../modules/fiberCulling/WMFiberCulling.h"
+#include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
@@ -187,10 +187,10 @@ void WKernel::loadModules()
     m_modules.clear();
 
     using boost::shared_ptr;
-    shared_ptr< WModule > m = shared_ptr< WModule >( new WNavigationSliceModule() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberDisplay() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberCulling() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberClustering() );
+    shared_ptr< WModule > m = shared_ptr< WModule >( new WMNavSlice() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberDisplay() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberCulling() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberClustering() );
     WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
 
     m_modules.push_back( m );
@@ -299,7 +299,7 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 
 void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
 {
-    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule< int >( dataSet ) );
+    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WMData< int >( dataSet ) );
 
     module->getProperties()->addBool( "active", true );
     module->getProperties()->hideProperty( "active" );

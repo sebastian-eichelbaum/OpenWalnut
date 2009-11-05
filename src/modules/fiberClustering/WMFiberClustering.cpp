@@ -31,7 +31,7 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "WFiberClustering.h"
+#include "WMFiberClustering.h"
 #include "../../math/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
@@ -43,7 +43,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 
-WFiberClustering::WFiberClustering()
+WMFiberClustering::WMFiberClustering()
     : WModule(),
       m_maxDistance_t( 0.0 ),
       m_dLtTableExists( false ),
@@ -54,21 +54,21 @@ WFiberClustering::WFiberClustering()
 {
 }
 
-WFiberClustering::~WFiberClustering()
+WMFiberClustering::~WMFiberClustering()
 {
 }
 
-const std::string WFiberClustering::getName() const
+const std::string WMFiberClustering::getName() const
 {
     return std::string( "FiberClustering" );
 }
 
-const std::string WFiberClustering::getDescription() const
+const std::string WMFiberClustering::getDescription() const
 {
     return std::string( "Clusters fibers from a WDataSetFibers" );
 }
 
-void WFiberClustering::threadMain()
+void WMFiberClustering::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(math): fix this hack when possible by using an input connector.
@@ -99,7 +99,7 @@ void WFiberClustering::threadMain()
     }
 }
 
-void WFiberClustering::checkDLtLookUpTable()
+void WMFiberClustering::checkDLtLookUpTable()
 {
     if( m_dLtTableExists )
     {
@@ -112,7 +112,7 @@ void WFiberClustering::checkDLtLookUpTable()
     }
 }
 
-void WFiberClustering::cluster()
+void WMFiberClustering::cluster()
 {
     std::cout << "Start clustering with " << m_fibs->size() << " fibers." << std::endl;
     m_clusters.clear();  // remove evtl. old clustering
@@ -191,6 +191,6 @@ void WFiberClustering::cluster()
     m_lastFibsSize = m_fibs->size();
 }
 
-void WFiberClustering::paint()
+void WMFiberClustering::paint()
 {
 }

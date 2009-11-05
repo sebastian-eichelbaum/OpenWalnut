@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WNAVIGATIONSLICEMODULE_H
-#define WNAVIGATIONSLICEMODULE_H
+#ifndef WMNAVSLICE_H
+#define WMNAVSLICE_H
 
 #include <list>
 #include <string>
@@ -43,7 +43,7 @@
  *
  * Simple module for testing some WKernel functionality.
  */
-class WNavigationSliceModule: public WModule, public osg::Referenced
+class WMNavSlice: public WModule, public osg::Referenced
 {
 public:
 
@@ -51,13 +51,13 @@ public:
      * \par Description
      * Default constructor.
      */
-    WNavigationSliceModule();
+    WMNavSlice();
 
     /**
      * \par Description
      * Destructor.
      */
-    virtual ~WNavigationSliceModule();
+    virtual ~WMNavSlice();
 
     /**
      * \par Description
@@ -168,7 +168,7 @@ private:
 class sliceNodeCallback : public osg::NodeCallback
 {
 public:
-    explicit sliceNodeCallback( boost::shared_ptr< WNavigationSliceModule > module )
+    explicit sliceNodeCallback( boost::shared_ptr< WMNavSlice > module )
     {
         m_module = module;
     }
@@ -183,8 +183,8 @@ public:
         traverse( node, nv );
     }
 private:
-    boost::shared_ptr< WNavigationSliceModule > m_module;
+    boost::shared_ptr< WMNavSlice > m_module;
 };
 
-#endif  // WNAVIGATIONSLICEMODULE_H
+#endif  // WMNAVSLICE_H
 

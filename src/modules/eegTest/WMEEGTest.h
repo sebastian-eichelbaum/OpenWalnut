@@ -22,32 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERDISPLAY_H
-#define WFIBERDISPLAY_H
+#ifndef WMEEGTEST_H
+#define WMEEGTEST_H
 
 #include <string>
 
-#include <osg/Geode>
-
 #include "../../kernel/WModule.h"
-#include "../../math/WFiber.h"
 
 /**
- * Test module for drawing fibers
+ * Simple module for testing Eeg loading stuff.
+ * \ingroup kernel
  */
-class WFiberDisplay : public WModule
+class WMEEGTest: public WModule
 {
-friend class WFiberDisplayTest;
 public:
-    /**
-     * Constructs new FiberTestModule
-     */
-    WFiberDisplay();
 
     /**
-     * Destructs this FiberTestModule
+     * Default constructor.
      */
-    virtual ~WFiberDisplay();
+    WMEEGTest();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WMEEGTest();
+
+    /**
+     * Copy constructor
+     * \param other Reference on object to copy.
+     */
+    WMEEGTest( const WMEEGTest& other );
 
     /**
      * Gives back the name of this module.
@@ -62,20 +66,14 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
+
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void threadMain();
 
-    /**
-     * Generates an OSG geometry for the given fiber.
-     *
-     * \param fib reference to a WFiber instance
-     * \return OSG geometry representing the fiber.
-     */
-    osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib ) const;
-
 private:
 };
 
-#endif  // WFIBERDISPLAY_H
+#endif  // WMEEGTEST_H
+

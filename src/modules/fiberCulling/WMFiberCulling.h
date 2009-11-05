@@ -22,38 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERCLUSTERING_H
-#define WFIBERCLUSTERING_H
+#ifndef WMFIBERCULLING_H
+#define WMFIBERCULLING_H
 
 #include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Geode>
 
-#include "WFiberCluster.h"
-#include "WDXtLookUpTable.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../math/WFiber.h"
 
 /**
- * Test module for Clustering fibers
+ * Test module for culling fibers
  */
-class WFiberClustering : public WModule
+class WMFiberCulling : public WModule
 {
-friend class WFiberClusteringTest;
+friend class WMFiberCullingTest;
 public:
     /**
      * Constructs new FiberTestModule
      */
-    WFiberClustering();
+    WMFiberCulling();
 
     /**
      * Destructs this FiberTestModule
      */
-    virtual ~WFiberClustering();
+    virtual ~WMFiberCulling();
 
     /**
      * Gives back the name of this module.
@@ -73,59 +70,7 @@ protected:
      */
     virtual void threadMain();
 
-private:
-    /**
-     * Group fibers into WFiberCluster.
-     */
-    void cluster();
-
-    /**
-     * Choose colors and build and commit new FgePrimitve
-     */
-    void paint();
-
-    /**
-     * Checks if the look up table is still valid (e.g. size() of m_fibs has
-     * changed.
-     */
-    void checkDLtLookUpTable();
-
-    /**
-     * Reference to the WDataSetFibers object to work with.
-     */
-    boost::shared_ptr< WDataSetFibers > m_fibs;
-
-    /**
-     * Maximum distance of two fibers in one cluster.
-     */
-    double m_maxDistance_t;
-
-    /**
-     * Collection of all WFiberClusters containing their fiber indices.
-     */
-    std::vector< WFiberCluster > m_clusters;
-
-    /**
-     * Flag whether there is already a dLt look up table or not.
-     */
-    bool m_dLtTableExists;
-
-    /**
-     * Look up table for the dLt fiber distance metric, so reclustering is very
-     * fast.
-     */
-    boost::shared_ptr< WDXtLookUpTable > m_dLtTable;
-
-    /**
-     * All clusters up to this size will be discarded after the clustering step
-     */
-    unsigned int m_minClusterSize;
-
-    /**
-     * If true all clusters have their own graphic primitives, so you may view
-     * or select them solitary.
-     */
-    bool m_separatePrimitives;
+    virtual void cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers );
 
     /**
      * Proximity threshold, which defines the minimum distance which should be
@@ -133,10 +78,13 @@ private:
      */
     double m_proximity_t;
 
-    /**
-     * Last known number of fibers
-     */
-    size_t m_lastFibsSize;
+    double m_dSt_culling_t; //!< Threshold to cull out short fibers along long fibers.
+
+    bool m_saveCulledCurves; //!< If true, remaining fibers are saved to a file.
+
+    std::string m_savePath; //!< Path where remaining fibers should be stored
+
+private:
 };
 
-#endif  // WFIBERCLUSTERING_H
+#endif  // WMFIBERCULLING_H

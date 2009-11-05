@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMARCHINGCUBESMODULE_H
-#define WMARCHINGCUBESMODULE_H
+#ifndef WMMARCHINGCUBES_H
+#define WMMARCHINGCUBES_H
 
 #include <map>
 #include <string>
@@ -75,23 +75,23 @@ typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
  * Module implementing the marching cubes algorithm with consistent triangulation for data
  * given on rgualr grids with axis-aligned cells.
  */
-class WMarchingCubesModule : public WModule
+class WMMarchingCubes : public WModule
 {
 /**
  * Only UnitTests may be friends.
  */
-friend class WMarchingCubesModuleTest;
+friend class WMMarchingCubesTest;
 
 public:
     /**
      * Standard constructor.
      */
-    WMarchingCubesModule();
+    WMMarchingCubes();
 
     /**
      * Destructor.
      */
-    ~WMarchingCubesModule();
+    ~WMMarchingCubes();
 
     /**
      * Gives back the name of this module.
@@ -185,9 +185,9 @@ private:
     bool save( std::string fileName, const WTriangleMesh& triMesh ) const;
 
     /**
-     * Load meshes saved with WMarchingCubesModule::save
+     * Load meshes saved with WMMarchingCubes::save
      */
     WTriangleMesh load( std::string fileName );
 };
 
-#endif  // WMARCHINGCUBESMODULE_H
+#endif  // WMMARCHINGCUBES_H

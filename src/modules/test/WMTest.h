@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WTESTMODULE_H
-#define WTESTMODULE_H
+#ifndef WMTEST_H
+#define WMTEST_H
 
 #include <string>
 
@@ -33,19 +33,19 @@
  * Simple module for testing some WKernel functionality.
  * \ingroup kernel
  */
-class WTestModule: public WModule
+class WMTest: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WTestModule();
+    WMTest();
 
     /**
      * Destructor.
      */
-    virtual ~WTestModule();
+    virtual ~WMTest();
 
     /**
      * Gives back the name of this module.
@@ -69,5 +69,5 @@ protected:
 private:
 };
 
-#endif  // WTESTMODULE_H
+#endif  // WMTEST_H
 

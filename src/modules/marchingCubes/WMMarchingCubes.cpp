@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "WMarchingCubesModule.h"
+#include "WMMarchingCubes.h"
 #include "marchingCubesCaseTables.h"
 #include "WTriangleMesh.h"
 
@@ -43,7 +43,7 @@
 #include "../../kernel/WKernel.h"
 
 
-WMarchingCubesModule::WMarchingCubesModule():
+WMMarchingCubes::WMMarchingCubes():
     WModule(),
     m_nCellsX( 0 ),
     m_nCellsY( 0 ),
@@ -57,18 +57,18 @@ WMarchingCubesModule::WMarchingCubesModule():
     // Implement WModule::initializeConnectors instead.
 }
 
-WMarchingCubesModule::~WMarchingCubesModule()
+WMMarchingCubes::~WMMarchingCubes()
 {
     // cleanup
     removeConnectors();
 }
 
-const std::string WMarchingCubesModule::getName() const
+const std::string WMMarchingCubes::getName() const
 {
     return "Marching Cubes";
 }
 
-const std::string WMarchingCubesModule::getDescription() const
+const std::string WMMarchingCubes::getDescription() const
 {
     return "This description has to be improved when the module is completed."
 " By now lets say the following: This module implement the marching cubes"
@@ -78,7 +78,7 @@ const std::string WMarchingCubesModule::getDescription() const
 }
 
 
-void WMarchingCubesModule::threadMain()
+void WMMarchingCubes::threadMain()
 {
     // TODO(wiebel): MC fix this hack when possible by using an input connector.
     while ( !WKernel::getRunningKernel() )
@@ -126,7 +126,7 @@ void WMarchingCubesModule::threadMain()
     WLogger::getLogger()->addLogMessage( "Done!", "Marching Cubes", LL_DEBUG );
 }
 
-void WMarchingCubesModule::connectors()
+void WMMarchingCubes::connectors()
 {
     // initialize connectors
 
@@ -142,12 +142,12 @@ void WMarchingCubesModule::connectors()
     WModule::connectors();
 }
 
-void WMarchingCubesModule::properties()
+void WMMarchingCubes::properties()
 {
-//     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMarchingCubesModule::slotPropertyChanged, this, _1 ) );
+//     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
 }
 
-void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )
+void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
 {
     // TODO(wiebel): MC improve this method when corresponding infrastructure is ready
     if( propertyName == "isoValue" )
@@ -159,7 +159,7 @@ void WMarchingCubesModule::slotPropertyChanged( std::string propertyName )
         assert( 0 && "This property name is not soppurted by this function yet." );
     }
 }
-void WMarchingCubesModule::generateSurface( double isoValue )
+void WMMarchingCubes::generateSurface( double isoValue )
 {
     m_tIsoLevel = isoValue;
 
@@ -305,7 +305,7 @@ void WMarchingCubesModule::generateSurface( double isoValue )
 }
 
 
-WPointXYZId WMarchingCubesModule::calculateIntersection( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo )
+WPointXYZId WMMarchingCubes::calculateIntersection( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo )
 {
     double x1;
     double y1;
@@ -403,7 +403,7 @@ WPointXYZId WMarchingCubesModule::calculateIntersection( unsigned int nX, unsign
     return intersection;
 }
 
-WPointXYZId WMarchingCubesModule::interpolate( double fX1, double fY1, double fZ1, double fX2, double fY2, double fZ2,
+WPointXYZId WMMarchingCubes::interpolate( double fX1, double fY1, double fZ1, double fX2, double fY2, double fZ2,
                                              double tVal1, double tVal2 )
 {
     WPointXYZId interpolation;
@@ -418,7 +418,7 @@ WPointXYZId WMarchingCubesModule::interpolate( double fX1, double fY1, double fZ
     return interpolation;
 }
 
-int WMarchingCubesModule::getEdgeID( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo )
+int WMMarchingCubes::getEdgeID( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo )
 {
     switch ( nEdgeNo )
     {
@@ -452,12 +452,12 @@ int WMarchingCubesModule::getEdgeID( unsigned int nX, unsigned int nY, unsigned 
     }
 }
 
-unsigned int WMarchingCubesModule::getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ )
+unsigned int WMMarchingCubes::getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ )
 {
     return nZ * ( m_nCellsY + 1 ) * ( m_nCellsX + 1) + nY * ( m_nCellsX + 1 ) + nX;
 }
 
-void WMarchingCubesModule::renderSurface()
+void WMMarchingCubes::renderSurface()
 {
     unsigned int nextID = 0;
     WTriangleMesh triMesh;
@@ -507,7 +507,7 @@ void WMarchingCubesModule::renderSurface()
 }
 
 
-void WMarchingCubesModule::renderMesh( const WTriangleMesh& mesh )
+void WMMarchingCubes::renderMesh( const WTriangleMesh& mesh )
 {
     osg::Geometry* surfaceGeometry = new osg::Geometry();
 
@@ -564,7 +564,7 @@ void WMarchingCubesModule::renderMesh( const WTriangleMesh& mesh )
 }
 
 // TODO(wiebel): MC move this to a separate module in the future
-bool WMarchingCubesModule::save( std::string fileName, const WTriangleMesh& triMesh ) const
+bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh ) const
 {
     const char* c_file = fileName.c_str();
     std::ofstream dataFile( c_file );
@@ -617,7 +617,7 @@ bool WMarchingCubesModule::save( std::string fileName, const WTriangleMesh& triM
     return true;
 }
 
-WTriangleMesh WMarchingCubesModule::load( std::string fileName )
+WTriangleMesh WMMarchingCubes::load( std::string fileName )
 {
     WTriangleMesh triMesh;
     triMesh.clearMesh();

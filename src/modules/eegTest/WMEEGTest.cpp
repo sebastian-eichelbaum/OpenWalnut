@@ -32,36 +32,36 @@
 #include <osgText/Font>
 #include <osgText/Text>
 
-#include "WEEGTestModule.h"
+#include "WMEEGTest.h"
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WLoaderManager.h"
 #include "../../dataHandler/WEEG.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 
-WEEGTestModule::WEEGTestModule():
+WMEEGTest::WMEEGTest():
     WModule()
 {
     // initialize members
 }
 
-WEEGTestModule::~WEEGTestModule()
+WMEEGTest::~WMEEGTest()
 {
     // cleanup
 }
 
-WEEGTestModule::WEEGTestModule( const WEEGTestModule& other )
+WMEEGTest::WMEEGTest( const WMEEGTest& other )
     : WModule()
 {
     *this = other;
 }
 
-const std::string WEEGTestModule::getName() const
+const std::string WMEEGTest::getName() const
 {
     return "Eeg Module";
 }
 
-const std::string WEEGTestModule::getDescription() const
+const std::string WMEEGTest::getDescription() const
 {
     return "This module is for testing and development";
 }
@@ -106,7 +106,7 @@ void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg
     sceneDataGeode->addDrawable( textOne );
 }
 
-void WEEGTestModule::threadMain()
+void WMEEGTest::threadMain()
 {
     // load the sample scene.
     osg::Geode* sceneDataGeode = new osg::Geode();

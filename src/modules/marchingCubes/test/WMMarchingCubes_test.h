@@ -22,19 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMARCHINGCUBESMODULE_TEST_H
-#define WMARCHINGCUBESMODULE_TEST_H
+#ifndef WMMARCHINGCUBES_TEST_H
+#define WMMARCHINGCUBES_TEST_H
 
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WMarchingCubesModule.h"
+#include "../WMMarchingCubes.h"
 
 /**
- * Test for WMarchingCubesModule
+ * Test for WMMarchingCubes
  */
-class WMarchingCubesModuleTest : public CxxTest::TestSuite
+class WMMarchingCubesTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -42,10 +42,10 @@ public:
      */
     void testInstatiation()
     {
-        TS_ASSERT_THROWS_NOTHING( WMarchingCubesModule() );
+        TS_ASSERT_THROWS_NOTHING( WMMarchingCubes() );
 
         // Test initialization
-        WMarchingCubesModule mc;
+        WMMarchingCubes mc;
         TS_ASSERT_EQUALS( mc.m_nCellsX, 0 );
         TS_ASSERT_EQUALS( mc.m_nCellsY, 0 );
         TS_ASSERT_EQUALS( mc.m_nCellsZ, 0 );
@@ -62,7 +62,7 @@ public:
      */
     void testInterpolate()
     {
-        WMarchingCubesModule mc;
+        WMMarchingCubes mc;
         mc.m_tIsoLevel = 1.7;  // mu = 0.5454...
 
         WPointXYZId expected;
@@ -87,7 +87,7 @@ public:
      */
     void testGetVertexID()
     {
-        WMarchingCubesModule mc;
+        WMMarchingCubes mc;
         mc.m_nCellsX = 10;
         mc.m_nCellsY = 11;
         mc.m_nCellsZ = 12;
@@ -108,7 +108,7 @@ public:
      */
     void testGetEdgeID()
     {
-        WMarchingCubesModule mc;
+        WMMarchingCubes mc;
         mc.m_nCellsX = 10;
         mc.m_nCellsY = 11;
         mc.m_nCellsZ = 12;
@@ -141,7 +141,7 @@ public:
      */
     void testCalculateIntersection()
     {
-        WMarchingCubesModule mc;
+        WMMarchingCubes mc;
         mc.m_tIsoLevel = 1.7;
         mc.m_fCellLengthX = 1;
         mc.m_fCellLengthY = 1;
@@ -207,4 +207,4 @@ public:
     }
 };
 
-#endif  // WMARCHINGCUBESMODULE_TEST_H
+#endif  // WMMARCHINGCUBES_TEST_H
