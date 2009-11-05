@@ -39,9 +39,10 @@
 
 #include "../icons/WIcons.h"
 
-WMainWindow::WMainWindow()
+WMainWindow::WMainWindow() :
+    m_iconManager(),
+    m_propertyManager()
 {
-    m_propertyManager = new WPropertyManager();
 }
 
 WMainWindow::~WMainWindow()
@@ -53,14 +54,14 @@ WMainWindow::~WMainWindow()
 
 void WMainWindow::setupGUI( QMainWindow *mainWindow )
 {
-    m_mainWindowIcon.addPixmap( QPixmap( logoIcon_xpm ) );
+    m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
 
     if( mainWindow->objectName().isEmpty() )
     {
         mainWindow->setObjectName( QString::fromUtf8( "MainWindow" ) );
     }
     mainWindow->resize( 946, 632 );
-    mainWindow->setWindowIcon( m_mainWindowIcon );
+    mainWindow->setWindowIcon( m_iconManager.getIcon( "logo" ) );
     mainWindow->setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
 
     m_centralwidget = new QWidget( mainWindow );
@@ -88,15 +89,15 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
     m_glWidgets.push_back( m_navSagittal->getGLWidget() );
     mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal );
 
-    connect( m_navAxial, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navCoronal, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navSagittal, SIGNAL( navSliderValueChanged( QString, int ) ), m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    connect( m_navAxial, SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    connect( m_navCoronal, SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    connect( m_navSagittal, SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
 
     m_datasetBrowser = new WQtDatasetBrowser();
     mainWindow->addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "subject1" );
 
-    connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
     setupToolBar( mainWindow );
 }
@@ -105,14 +106,14 @@ void WMainWindow::setupToolBar( QMainWindow *mainWindow )
 {
     m_toolBar = new WQtRibbonMenu( mainWindow );
 
-    m_quitIcon.addPixmap( QPixmap( quit_xpm ) );
-    m_saveIcon.addPixmap( QPixmap( disc_xpm ) );
-    m_loadIcon.addPixmap( QPixmap( fileopen_xpm ) );
+    m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
+    m_iconManager.addIcon( std::string( "save" ), disc_xpm );
+    m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
 
     m_toolBar->addTab( QString( "File" ) );
-    m_toolBar->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_loadIcon, QString( "load" ) );
-    m_toolBar->addPushButton( QString( "buttonSave" ), QString( "File" ), m_loadIcon, QString( "save" ) );
-    m_toolBar->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_loadIcon, QString( "exit" ) );
+    m_toolBar->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "load" ) );
+    m_toolBar->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "save" ) );
+    m_toolBar->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "exit" ) );
 
     m_toolBar->getButton( QString( "buttonLoad" ) )->setMaximumSize( 50, 24 );
     m_toolBar->getButton( QString( "buttonSave" ) )->setMaximumSize( 50, 24 );
@@ -124,13 +125,13 @@ void WMainWindow::setupToolBar( QMainWindow *mainWindow )
     m_toolBar->addTab( QString( "Modules" ) );
     m_toolBar->addTab( QString( "Help" ) );
 
-    m_axiIcon.addPixmap( QPixmap( axial_xpm ) );
-    m_corIcon.addPixmap( QPixmap( cor_xpm ) );
-    m_sagIcon.addPixmap( QPixmap( sag_xpm ) );
+    m_iconManager.addIcon( std::string( "axial" ), axial_xpm );
+    m_iconManager.addIcon( std::string( "coronal" ), cor_xpm );
+    m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
 
-    m_toolBar->addPushButton( QString( "showAxial" ), QString( "Modules" ), m_axiIcon );
-    m_toolBar->addPushButton( QString( "showCoronal" ), QString( "Modules" ), m_corIcon );
-    m_toolBar->addPushButton( QString( "showSagittal" ), QString( "Modules" ), m_sagIcon );
+    m_toolBar->addPushButton( QString( "showAxial" ), QString( "Modules" ), m_iconManager.getIcon( "axial" ) );
+    m_toolBar->addPushButton( QString( "showCoronal" ), QString( "Modules" ), m_iconManager.getIcon( "coronal" ) );
+    m_toolBar->addPushButton( QString( "showSagittal" ), QString( "Modules" ), m_iconManager.getIcon( "sagittal" ) );
 
     m_toolBar->getButton( QString( "showAxial" ) )->setMaximumSize( 24, 24 );
     m_toolBar->getButton( QString( "showCoronal" ) )->setMaximumSize( 24, 24 );
@@ -145,11 +146,11 @@ void WMainWindow::setupToolBar( QMainWindow *mainWindow )
     m_toolBar->getButton( QString( "showSagittal" ) )->setChecked( true );
 
     connect( m_toolBar->getButton( QString( "showAxial" ) ),
-            SIGNAL( pushButtonToggled( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+            SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
     connect( m_toolBar->getButton( QString( "showCoronal" ) ),
-            SIGNAL( pushButtonToggled( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+            SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
     connect( m_toolBar->getButton( QString( "showSagittal" ) ),
-            SIGNAL( pushButtonToggled( QString, bool ) ), m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+            SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
     mainWindow->addToolBar( Qt::TopToolBarArea, m_toolBar );
 }
@@ -200,5 +201,10 @@ boost::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal
 
 WPropertyManager*  WMainWindow::getPropertyManager()
 {
-    return m_propertyManager;
+    return &m_propertyManager;
+}
+
+WIconManager*  WMainWindow::getIconManager()
+{
+    return &m_iconManager;
 }
