@@ -46,7 +46,8 @@
 #include "../exceptions/WModuleConnectorUnconnected.h"
 
 /** 
- * Class implementing a simple mod    // required since pure virtualule, since proper testing of WModuleConnector itself is not usable.
+ * Class implementing a simple module since WModuleConnector itself is not usable for proper
+ * testing itself because it is has pure virtual methods, i.e. is abstract.
  */
 class WModuleImpl: public WModule
 {
@@ -81,14 +82,14 @@ public:
 
     virtual void connectors()
     {
-        m_Input= boost::shared_ptr<WModuleInputData<int> >(
-                new WModuleInputData<int> ( shared_from_this(), "in1", "desc1" )
+        m_Input= boost::shared_ptr< WModuleInputData< int > >(
+                new WModuleInputData< int > ( shared_from_this(), "in1", "desc1" )
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
         addConnector( m_Input );
 
-        m_Output= boost::shared_ptr<WModuleOutputData<int> >(
-                new WModuleOutputData<int> ( shared_from_this(), "out1", "desc2" )
+        m_Output= boost::shared_ptr< WModuleOutputData< int > >(
+                new WModuleOutputData< int > ( shared_from_this(), "out1", "desc2" )
         );
         // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
         addConnector( m_Output );
@@ -101,6 +102,7 @@ protected:
      */
     std::string n;
 
+    // required since pure virtual
     virtual void threadMain()
     {
         // Since the modules run in a separate thread: such loops are possible
@@ -111,25 +113,25 @@ protected:
         }
     }
 
-    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
-                                              boost::shared_ptr<WModuleConnector> /*there*/ )
+    virtual void notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
+                                              boost::shared_ptr< WModuleConnector > /*there*/ )
     {
         // std::cout << "connection established between " << n << ":" << here->getCanonicalName() << " and "
         //           << there->getCanonicalName() << std::endl;
     }
 
-    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/,
-                                              boost::shared_ptr<WModuleConnector> /*there*/ )
+    virtual void notifyConnectionClosed( boost::shared_ptr< WModuleConnector > /*here*/,
+                                              boost::shared_ptr< WModuleConnector > /*there*/ )
     {
         // std::cout << "connection closed between " << n << ":" <<  here->getCanonicalName() << " and "
         //           <<  there->getCanonicalName() << std::endl;
     }
 
-    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
-                                   boost::shared_ptr<WModuleConnector> output )
+    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
+                                   boost::shared_ptr< WModuleConnector > output )
     {
         // just copy the data
-        data=*( boost::shared_dynamic_cast<WModuleOutputData<int> >( output )->getData() ) + 1;
+        data = *( boost::shared_dynamic_cast< WModuleOutputData< int > >( output )->getData() ) + 1;
 
         // std::cout << "change to " << data << " in " << input->getCanonicalName() << " from " << output->getCanonicalName()
         //          << std::endl;
@@ -145,12 +147,12 @@ private:
     /** 
      * Input connection.
      */
-    boost::shared_ptr<WModuleInputData<int> > m_Input;
+    boost::shared_ptr< WModuleInputData< int > > m_Input;
 
     /** 
      * Output connection.
      */
-    boost::shared_ptr<WModuleOutputData<int> > m_Output;
+    boost::shared_ptr< WModuleOutputData< int > > m_Output;
 };
 
 
@@ -166,17 +168,17 @@ public:
     /**
      * Simple module to test with.
      */
-    boost::shared_ptr<WModuleImpl> m1;
+    boost::shared_ptr< WModuleImpl > m1;
 
     /**
      * Simple module to test with.
      */
-    boost::shared_ptr<WModuleImpl> m2;
+    boost::shared_ptr< WModuleImpl > m2;
 
     /**
      * Simple module to test with.
      */
-    boost::shared_ptr<WModuleImpl> m3;
+    boost::shared_ptr< WModuleImpl > m3;
 
     /**
      * Initialized the test modules.
@@ -184,9 +186,9 @@ public:
     void createModules( void )
     {
         // init 2 separate test modules
-        m1 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m1" ) );
-        m2 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m2" ) );
-        m3 = boost::shared_ptr<WModuleImpl>( new WModuleImpl( "m3" ) );
+        m1 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m1" ) );
+        m2 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m2" ) );
+        m3 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m3" ) );
     }
 
     /**
@@ -389,7 +391,7 @@ public:
 
         // set some data, propagate change
         int d = 5;
-        TS_ASSERT_THROWS_NOTHING( m1->m_Output->updateData( boost::shared_ptr<int>( &d ) ) );
+        TS_ASSERT_THROWS_NOTHING( m1->m_Output->updateData( boost::shared_ptr< int >( &d ) ) );
 
         // got the data transferred?
         TS_ASSERT( *( m1->m_Output->getData() ) == d );
@@ -412,7 +414,7 @@ public:
         TS_ASSERT_THROWS( m3->m_Input->getData(), WModuleConnectorUnconnected );
 
         // try to get uninitialized data -> should return an "NULL" Pointer
-        TS_ASSERT( m2->m_Input->getData() == boost::shared_ptr<int>() );
+        TS_ASSERT( m2->m_Input->getData() == boost::shared_ptr< int >() );
     }
 };
 
