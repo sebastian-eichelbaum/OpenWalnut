@@ -54,8 +54,8 @@ public:
     virtual ~WModuleContainer();
 
     /**
-     * Add a module to this container. Please note, that a module can be added only once. If it already is associated with this
-     * container nothing happens.
+     * Add a module to this container and start it. Please note, that a module can be added only once. If it already is 
+     * associated with this container nothing happens.
      * 
      * \param module the module to add.
      * \throw WModuleUninitialized thrown whenever someone wants to add a module not yet initialized.

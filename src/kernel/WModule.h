@@ -56,6 +56,7 @@ class WModule: public WThreadedRunner,
 friend class WModuleConnector;  // requires access to notify members
 friend class WModuleFactory;    // for proper creation of module instaces, the factory needs access to protected functions.
                                 // (especially initialize)
+friend class WModuleContainer;  // for proper management of m_container WModuleContainer needs access.
 
 public:
 
@@ -105,21 +106,28 @@ public:
      *
      * \return true if properly initialized.
      */
-     bool isInitialized() const;
+    bool isInitialized() const;
+
+    /**
+     * Checks whether the module instance is ready to be used. This is the case if isInitialized && isAssociated.
+     * 
+     * \return isInitialized && isAssociated
+     */
+    bool isUseable() const;
 
      /**
       * Checks whether this module is associated with an container.
       * 
       * \return true if associated.
       */
-     bool isAssociated() const;
+    bool isAssociated() const;
 
      /**
       * The container this module is associated with.
       * 
       * \return the container.
       */
-     boost::shared_ptr< WModuleContainer > getAssociatedContainer() const;
+    boost::shared_ptr< WModuleContainer > getAssociatedContainer() const;
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -141,6 +149,13 @@ protected:
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void threadMain() = 0;
+
+     /**
+      * Sets the container this module is associated with.
+      * 
+      * \param container the container to associate with.
+      */
+    void setAssociatedContainer( boost::shared_ptr< WModuleContainer > container );
 
     // **************************************************************************************************************************
     //

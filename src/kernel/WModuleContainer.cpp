@@ -27,6 +27,7 @@
 
 #include "WModule.h"
 #include "exceptions/WModuleUninitialized.h"
+#include "../common/WLogger.h"
 
 #include "WModuleContainer.h"
 
@@ -66,6 +67,11 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module )
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
     m_modules.insert( module );
     lock.unlock();
+    module->setAssociatedContainer( shared_from_this() );
+
+    // now module->isUsable() is true
+    // -> so run it
+    module->run();
 }
 
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
@@ -75,10 +81,15 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
         return;
     }
 
+    // stop module
+    WLogger::getLogger()->addLogMessage( "Waiting for module " + module->getName() + " to finish." , "ModuleContainer", LL_DEBUG );
+    module->wait( true );
+
     // get write lock
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
     m_modules.erase( module );
     lock.unlock();
+    module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
 
     // TODO(ebaum): flat or deep removal? What to do with associated modules?
 }

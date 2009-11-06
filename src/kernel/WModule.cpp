@@ -34,6 +34,7 @@
 #include "WModuleContainer.h"
 #include "exceptions/WModuleSignalUnknown.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
+#include "exceptions/WModuleUninitialized.h"
 
 #include "WModule.h"
 
@@ -130,6 +131,11 @@ boost::shared_ptr< WModuleContainer > WModule::getAssociatedContainer() const
     return m_container;
 }
 
+void WModule::setAssociatedContainer( boost::shared_ptr< WModuleContainer > container )
+{
+    m_container = container;
+}
+
 const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputConnectors() const
 {
     return m_inputConnectors;
@@ -166,7 +172,12 @@ bool WModule::isInitialized() const
 bool WModule::isAssociated() const
 {
     // true if the pointer is set
-    return m_container;
+    return ( m_container == boost::shared_ptr< WModuleContainer >() );
+}
+
+bool WModule::isUseable() const
+{
+    return isInitialized() && isAssociated();
 }
 
 void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,

@@ -25,7 +25,10 @@
 #ifndef WMODULEFACTORY_H
 #define WMODULEFACTORY_H
 
+#include <set>
+
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 #include "WModule.h"
 
@@ -47,6 +50,11 @@ public:
     virtual ~WModuleFactory();
 
     /**
+     * Loads the modules and creates prototypes.
+     */
+    void load();
+
+    /**
      * Create a new and initialized module using the specified prototype.
      * 
      * \param prototype the prototype to clone.
@@ -63,6 +71,16 @@ public:
     static boost::shared_ptr< WModuleFactory > getModuleFactory();
 
 protected:
+
+    /**
+     * The module prototypes available.
+     */
+    std::set< boost::shared_ptr< WModule > > m_prototypes;
+
+    /**
+     * The lock for the prototypes set.
+     */
+    boost::shared_mutex m_prototypesLock;
 
 private:
     /**
