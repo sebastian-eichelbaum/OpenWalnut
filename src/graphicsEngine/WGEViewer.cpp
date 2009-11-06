@@ -63,6 +63,8 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
         // camera manipulator
         m_View->setCameraManipulator( new osgGA::TrackballManipulator() );
 
+        m_View->setLightingMode( osg::View::SKY_LIGHT );
+
         // finally add view
         // there is the possibility to use ONE single composite viewer instance for every view, but
         // currently this possibility is not used.
