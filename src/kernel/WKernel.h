@@ -32,9 +32,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WModule.h"
+#include "WModuleFactory.h"
+#include "WModuleContainer.h"
+#include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../dataHandler/WDataHandler.h"
-#include "../common/WLogger.h"
 #include "../gui/WGUI.h"
 
 /**
@@ -148,11 +150,6 @@ public:
 protected:
 
     /**
-     * All the loaded modules.
-     */
-    std::list< boost::shared_ptr< WModule > > m_modules;
-
-    /**
      * Pointer to an initialized graphics engine.
      */
     boost::shared_ptr< WGraphicsEngine > m_graphicsEngine;
@@ -167,6 +164,15 @@ protected:
      */
     boost::shared_ptr< WDataHandler > m_dataHandler;
 
+    /**
+     * The module factory to use.
+     */
+    boost::shared_ptr< WModuleFactory > m_moduleFactory;
+
+    /**
+     * The container containing the modules.
+     */
+    boost::shared_ptr< WModuleContainer > m_moduleContainer;
 private:
     /**
      * Loads all the modules it can find.

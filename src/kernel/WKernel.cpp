@@ -34,6 +34,7 @@
 #include <boost/thread/xtime.hpp>
 
 #include "WModule.h"
+#include "WModuleFactory.h"
 #include "../modules/data/WMData.hpp"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
@@ -62,6 +63,9 @@ WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
     m_ArgC = argc;
     m_ArgV = argv;
     m_FinishRequested = false;
+
+    // get module factory
+    m_moduleFactory = WModuleFactory::getModuleFactory();
 
     // init GE, DataHandler, ...
     init();
@@ -142,7 +146,7 @@ int WKernel::run()
     // run module execution threads
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module
-    WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
+    /*WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
     for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
@@ -172,7 +176,7 @@ int WKernel::run()
             ++list_iter )
     {
         ( *list_iter )->wait( true );
-    }
+    }*/
 
     // finally GE
     m_graphicsEngine->wait( true );
@@ -183,22 +187,8 @@ int WKernel::run()
 
 void WKernel::loadModules()
 {
-    // TODO(ebaum): add dynamic loading here
-    WLogger::getLogger()->addLogMessage( "*** Loading Modules: ", "Kernel", LL_DEBUG );
-    m_modules.clear();
-
-    using boost::shared_ptr;
-    shared_ptr< WModule > m1 = shared_ptr< WModule >( new WMNavSlices() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberDisplay() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberCulling() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberClustering() );
-    WLogger::getLogger()->addLogMessage( "Loading module: " + m1->getName(), "Kernel", LL_DEBUG );
-
-    m_modules.push_back( m1 );
-
-    shared_ptr< WModule > m2 = shared_ptr< WModule >( new WMCoordinateSystem() );
-    WLogger::getLogger()->addLogMessage( "Loading module: " + m2->getName(), "Kernel", LL_DEBUG );
-    m_modules.push_back( m2 );
+    // load all modules
+    m_moduleFactory->load();
 }
 
 void WKernel::init()
