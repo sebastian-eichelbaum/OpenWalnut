@@ -52,26 +52,46 @@ boost::shared_ptr< WModule > WMFiberDisplay::factory() const
     return boost::shared_ptr< WModule >( new WMFiberDisplay() );
 }
 
-osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( const wmath::WFiber &fib ) const
+osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( const wmath::WFiber &fib, bool globalColoring ) const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
 
     vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
-    for( size_t i = 1; i < fib.size(); ++i )
+    if( !globalColoring )
     {
-        vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
-        WColor c = color_utils::getRGBAColorFromDirection( wmath::WPosition( fib[i][0], fib[i][1], fib[i][2] ),
-                                                           wmath::WPosition( fib[i-1][0], fib[i-1][1], fib[i-1][2] ) );
+        for( size_t i = 1; i < fib.size(); ++i )
+        {
+            vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
+            WColor c = color_utils::getRGBAColorFromDirection( fib[i], fib[i-1] );
+            colors->push_back( c.getOSGColor() );
+        }
+        colors->push_back( colors->back() );
+    }
+    else
+    {
+        for( size_t i = 1; i < fib.size(); ++i )
+        {
+            vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
+        }
+        WColor c = color_utils::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
         colors->push_back( c.getOSGColor() );
     }
-    colors->push_back( colors->back() );
 
     ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+    if( !globalColoring )
+    {
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    }
+    else
+    {
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, fib.size() ) );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry.get() );

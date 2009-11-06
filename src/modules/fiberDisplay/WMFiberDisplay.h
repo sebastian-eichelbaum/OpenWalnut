@@ -81,7 +81,7 @@ protected:
      * \param fib reference to a WFiber instance
      * \return OSG geometry representing the fiber.
      */
-    osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib, bool globalColoring = true ) const;
 
 private:
 };
