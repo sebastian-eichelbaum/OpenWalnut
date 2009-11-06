@@ -78,4 +78,14 @@ protected:
 private:
 };
 
+inline const std::string WMFiberDisplay::getName() const
+{
+    return std::string( "FiberTestModule" );
+}
+
+inline const std::string WMFiberDisplay::getDescription() const
+{
+    return std::string( "Draws fibers out of a WDataSetFibers" );
+}
+
 #endif  // WMFIBERDISPLAY_H

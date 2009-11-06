@@ -145,6 +145,50 @@ private:
     WColor m_color;
 };
 
-std::ostream& operator<<( std::ostream& os, const WFiberCluster& c );
+inline bool WFiberCluster::empty() const
+{
+    return m_memberIndices.empty();
+}
+
+inline void WFiberCluster::sort()
+{
+    m_memberIndices.sort();
+}
+
+inline size_t WFiberCluster::size() const
+{
+    return m_memberIndices.size();
+}
+
+inline void WFiberCluster::clear()
+{
+    m_memberIndices.clear();
+}
+
+inline void WFiberCluster::setColor( WColor color )
+{
+    m_color = color;
+}
+
+inline bool WFiberCluster::operator==( const WFiberCluster& other ) const
+{
+    return m_memberIndices == other.m_memberIndices;
+}
+
+inline bool WFiberCluster::operator!=( const WFiberCluster& other ) const
+{
+    return m_memberIndices != other.m_memberIndices;
+}
+
+inline const std::list< size_t > WFiberCluster::getIndices() const
+{
+    return m_memberIndices;
+}
+
+inline std::ostream& operator<<( std::ostream& os, const WFiberCluster& c )
+{
+    using string_utils::operator<<;
+    return os << c.getIndices();
+}
 
 #endif  // WFIBERCLUSTER_H

@@ -58,16 +58,6 @@ WMFiberClustering::~WMFiberClustering()
 {
 }
 
-const std::string WMFiberClustering::getName() const
-{
-    return std::string( "FiberClustering" );
-}
-
-const std::string WMFiberClustering::getDescription() const
-{
-    return std::string( "Clusters fibers from a WDataSetFibers" );
-}
-
 void WMFiberClustering::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;

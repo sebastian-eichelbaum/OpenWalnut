@@ -47,16 +47,6 @@ WMFiberDisplay::~WMFiberDisplay()
 {
 }
 
-const std::string WMFiberDisplay::getName() const
-{
-    return std::string( "FiberTestModule" );
-}
-
-const std::string WMFiberDisplay::getDescription() const
-{
-    return std::string( "Draws fibers out of a WDataSetFibers" );
-}
-
 osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( const wmath::WFiber &fib ) const
 {
     using osg::ref_ptr;
