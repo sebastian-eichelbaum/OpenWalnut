@@ -22,9 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <sstream>
+
+#include "WModule.h"
+#include "exceptions/WModuleUninitialized.h"
+
 #include "WModuleContainer.h"
 
-WModuleContainer::WModuleContainer()
+WModuleContainer::WModuleContainer(): boost::enable_shared_from_this< WModuleContainer >()
 {
     // initialize members
 }
@@ -32,5 +38,48 @@ WModuleContainer::WModuleContainer()
 WModuleContainer::~WModuleContainer()
 {
     // cleanup
+}
+
+void WModuleContainer::add( boost::shared_ptr< WModule > module )
+{
+    if ( !module->isInitialized() )
+    {
+        std::ostringstream s;
+        s << "Could not add module " << module->getName() << " to container. Reason: module not initialized.";
+
+        throw WModuleUninitialized( s.str() );
+    }
+
+    // already associated with this container?
+    if ( module->getAssociatedContainer() == shared_from_this() )
+    {
+        return;
+    }
+
+    // is this module already associated?
+    if ( module->isAssociated() )
+    {
+        module->getAssociatedContainer()->remove( module );
+    }
+
+    // get write lock
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
+    m_modules.insert( module );
+    lock.unlock();
+}
+
+void WModuleContainer::remove( boost::shared_ptr< WModule > module )
+{
+    if ( module->getAssociatedContainer() != shared_from_this() )
+    {
+        return;
+    }
+
+    // get write lock
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
+    m_modules.erase( module );
+    lock.unlock();
+
+    // TODO(ebaum): flat or deep removal? What to do with associated modules?
 }
 

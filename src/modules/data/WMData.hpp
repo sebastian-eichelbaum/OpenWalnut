@@ -50,7 +50,7 @@ public:
      * \par Description
      * Default constructor.
      */
-    // WMData();
+    WMData();
 
     /**
      * \par Description
@@ -92,6 +92,14 @@ public:
      * getter for the 3d texture, which will be created on demand
      */
     virtual osg::ref_ptr<osg::Texture3D> getTexture3D();
+
+    /**
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
+     * 
+     * \return the prototype used to create every module in OpenWalnut.
+     */
+    virtual boost::shared_ptr< WModule > factory() const;
 
 protected:
     /**
@@ -148,16 +156,16 @@ private:
 };
 
 // TODO(schurade, ebaum): do we still need/want that constructor?
-// template < typename T >
-// WMData<T>::WMData():
-//    WModule()
-// {
-//    // WARNING: initializing connectors inside the constructor will lead to an exception.
-//    // Implement WModule::initializeConnectors instead.
-//
-//    // initialize members
-//    m_properties.addString( "name", "not initialized" );
-// }
+template < typename T >
+WMData<T>::WMData():
+    WModule()
+{
+    // WARNING: initializing connectors inside the constructor will lead to an exception.
+    // Implement WModule::initializeConnectors instead.
+
+    // initialize members
+    m_properties->addString( "name", "not initialized" );
+}
 
 template < typename T >
 WMData<T>::WMData( boost::shared_ptr< WDataSet > dataSet ):
@@ -176,6 +184,12 @@ WMData<T>::WMData( boost::shared_ptr< WDataSet > dataSet ):
 WMData<T>::~WMData()
 {
     // cleanup
+}
+
+template < typename T >
+boost::shared_ptr< WModule > WMData< T >::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMData< T >() );
 }
 
 template < typename T >

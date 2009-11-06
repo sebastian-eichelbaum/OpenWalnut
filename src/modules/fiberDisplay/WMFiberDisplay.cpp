@@ -47,6 +47,11 @@ WMFiberDisplay::~WMFiberDisplay()
 {
 }
 
+boost::shared_ptr< WModule > WMFiberDisplay::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMFiberDisplay() );
+}
+
 const std::string WMFiberDisplay::getName() const
 {
     return std::string( "FiberTestModule" );

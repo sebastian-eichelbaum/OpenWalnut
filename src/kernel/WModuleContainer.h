@@ -25,13 +25,21 @@
 #ifndef WMODULECONTAINER_H
 #define WMODULECONTAINER_H
 
+#include <set>
+#include <string>
+
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
+
+class WModule;
+
 /**
  * Class able to contain other modules. It manages several tasks like finding appropriate modules, managing data modules and
  * module initialization.
  *
  * \ingroup Kernel
  */
-class WModuleContainer
+class WModuleContainer: public boost::enable_shared_from_this< WModuleContainer >
 {
 public:
 
@@ -45,7 +53,33 @@ public:
      */
     virtual ~WModuleContainer();
 
+    /**
+     * Add a module to this container. Please note, that a module can be added only once. If it already is associated with this
+     * container nothing happens.
+     * 
+     * \param module the module to add.
+     * \throw WModuleUninitialized thrown whenever someone wants to add a module not yet initialized.
+     */
+    virtual void add( boost::shared_ptr< WModule > module );
+
+    /**
+     * Remove the given module from this container if it is associated with it. TODO(ebaum): deep removal? flat removal?
+     * 
+     * \param module the module to remove.
+     */
+    virtual void remove( boost::shared_ptr< WModule > module );
+
 protected:
+
+    /**
+     * Lock for module set.
+     */
+    boost::shared_mutex m_moduleSetLock;
+
+    /**
+     * The modules associated with this container.
+     */
+    std::set< boost::shared_ptr< WModule > > m_modules;
 
 private:
 };

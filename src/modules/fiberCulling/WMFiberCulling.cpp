@@ -54,6 +54,11 @@ WMFiberCulling::~WMFiberCulling()
 {
 }
 
+boost::shared_ptr< WModule > WMFiberCulling::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMFiberCulling() );
+}
+
 const std::string WMFiberCulling::getName() const
 {
     return std::string( "FiberCulling" );

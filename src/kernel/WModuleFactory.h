@@ -22,60 +22,54 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEST_H
-#define WMTEST_H
+#ifndef WMODULEFACTORY_H
+#define WMODULEFACTORY_H
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
-#include "../../kernel/WModule.h"
+#include "WModule.h"
 
 /**
- * Simple module for testing some WKernel functionality.
- * \ingroup kernel
+ * Class able to create a new copy of an arbitrary module. It uses the Factory and Prototype design pattern.
  */
-class WMTest: public WModule
+class WModuleFactory
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMTest();
+    WModuleFactory();
 
     /**
      * Destructor.
      */
-    virtual ~WMTest();
+    virtual ~WModuleFactory();
 
     /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
-
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
+     * Create a new and initialized module using the specified prototype.
      * 
-     * \return the prototype used to create every module in OpenWalnut.
+     * \param prototype the prototype to clone.
+     * 
+     * \return the module created using the prototype.
      */
-    virtual boost::shared_ptr< WModule > factory() const;
+    boost::shared_ptr< WModule > create( boost::shared_ptr< WModule > prototype );
+
+    /**
+     * Returns instance of the module factory to use to create modules.
+     * 
+     * \return the running module factory.
+     */
+    static boost::shared_ptr< WModuleFactory > getModuleFactory();
 
 protected:
 
-    /**
-     * Entry point after loading the module. Runs in separate thread.
-     */
-    virtual void threadMain();
-
 private:
+    /**
+     * Singleton instance of WModuleFactory.
+     */
+    static boost::shared_ptr< WModuleFactory > m_instance;
 };
 
-#endif  // WMTEST_H
+#endif  // WMODULEFACTORY_H
 

@@ -53,13 +53,18 @@ class WModuleImpl: public WModule
 friend class WModuleConnectorTest;
 
 public:
-    explicit WModuleImpl( std::string n ): WModule()
+    explicit WModuleImpl( std::string n="?" ): WModule()
     {
         this->n = n;
     }
 
     virtual ~WModuleImpl()
     {
+    }
+
+    virtual boost::shared_ptr< WModule > factory() const
+    {
+        return boost::shared_ptr< WModule >( new WModuleImpl() );
     }
 
     // required since pure virtual

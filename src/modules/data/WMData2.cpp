@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WMData2.h"
 
 WMData2::WMData2():
@@ -33,6 +35,11 @@ WMData2::WMData2():
 WMData2::~WMData2()
 {
     // cleanup
+}
+
+boost::shared_ptr< WModule > WMData2::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMData2() );
 }
 
 const std::string WMData2::getName() const
@@ -62,28 +69,28 @@ void WMData2::connectors()
 
 void WMData2::properties()
 {
-
+    // not yet implemented
 }
 
-void WMData2::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
-                                           boost::shared_ptr<WModuleConnector> there )
+void WMData2::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/,
+                                           boost::shared_ptr<WModuleConnector> /*there*/ )
 {
-
+    // not yet implemented
 }
 
-void WMData2::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there )
+void WMData2::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
 {
-
+    // not yet implemented
 }
 
-void WMData2::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-                                boost::shared_ptr<WModuleConnector> output )
+void WMData2::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
+                                boost::shared_ptr<WModuleConnector> /*output*/ )
 {
-
+    // not yet implemented
 }
 
 void WMData2::threadMain()
 {
-
+    // not yet implemented
 }
 

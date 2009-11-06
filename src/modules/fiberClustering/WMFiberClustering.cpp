@@ -58,6 +58,11 @@ WMFiberClustering::~WMFiberClustering()
 {
 }
 
+boost::shared_ptr< WModule > WMFiberClustering::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMFiberClustering() );
+}
+
 const std::string WMFiberClustering::getName() const
 {
     return std::string( "FiberClustering" );

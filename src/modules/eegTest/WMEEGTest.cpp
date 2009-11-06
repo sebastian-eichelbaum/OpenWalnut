@@ -56,6 +56,11 @@ WMEEGTest::WMEEGTest( const WMEEGTest& other )
     *this = other;
 }
 
+boost::shared_ptr< WModule > WMEEGTest::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMEEGTest() );
+}
+
 const std::string WMEEGTest::getName() const
 {
     return "Eeg Module";
