@@ -43,6 +43,11 @@ WMTest::~WMTest()
     // cleanup
 }
 
+boost::shared_ptr< WModule > WMTest::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMTest() );
+}
+
 const std::string WMTest::getName() const
 {
     return "Test Module";

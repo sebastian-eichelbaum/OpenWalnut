@@ -54,6 +54,11 @@ WMFiberCulling::~WMFiberCulling()
 {
 }
 
+boost::shared_ptr< WModule > WMFiberCulling::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMFiberCulling() );
+}
+
 void WMFiberCulling::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;

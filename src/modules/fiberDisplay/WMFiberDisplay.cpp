@@ -47,6 +47,11 @@ WMFiberDisplay::~WMFiberDisplay()
 {
 }
 
+boost::shared_ptr< WModule > WMFiberDisplay::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMFiberDisplay() );
+}
+
 osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( const wmath::WFiber &fib ) const
 {
     using osg::ref_ptr;

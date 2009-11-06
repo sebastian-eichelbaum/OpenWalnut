@@ -43,6 +43,8 @@
 class WModuleConnector;
 class WModuleInputConnector;
 class WModuleOutputConnector;
+class WModuleContainer;
+class WModuleFactory;
 
 /**
  * Class representing a single module of OpenWalnut.
@@ -52,6 +54,9 @@ class WModule: public WThreadedRunner,
                public boost::enable_shared_from_this<WModule>
 {
 friend class WModuleConnector;  // requires access to notify members
+friend class WModuleFactory;    // for proper creation of module instaces, the factory needs access to protected functions.
+                                // (especially initialize)
+friend class WModuleContainer;  // for proper management of m_container WModuleContainer needs access.
 
 public:
 
@@ -94,14 +99,43 @@ public:
     /**
      * Return a pointer to the properties object of the module
      */
-    boost::shared_ptr<WProperties> getProperties();
+    boost::shared_ptr<WProperties> getProperties() const;
 
     /**
      * Determines whether the module instance is properly initialized.
      *
      * \return true if properly initialized.
      */
-     bool isInitialized() const;
+    bool isInitialized() const;
+
+    /**
+     * Checks whether the module instance is ready to be used. This is the case if isInitialized && isAssociated.
+     * 
+     * \return isInitialized && isAssociated
+     */
+    bool isUseable() const;
+
+     /**
+      * Checks whether this module is associated with an container.
+      * 
+      * \return true if associated.
+      */
+    bool isAssociated() const;
+
+     /**
+      * The container this module is associated with.
+      * 
+      * \return the container.
+      */
+    boost::shared_ptr< WModuleContainer > getAssociatedContainer() const;
+
+    /**
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
+     * 
+     * \return the prototype used to create every module in OpenWalnut.
+     */
+    virtual boost::shared_ptr< WModule > factory() const = 0;
 
     /**
      * Takes all the relevant GUI signals and connects them to own member functions.
@@ -115,6 +149,13 @@ protected:
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void threadMain() = 0;
+
+     /**
+      * Sets the container this module is associated with.
+      * 
+      * \param container the container to associate with.
+      */
+    void setAssociatedContainer( boost::shared_ptr< WModuleContainer > container );
 
     // **************************************************************************************************************************
     //
@@ -135,7 +176,6 @@ protected:
      */
     virtual void properties();
 
-
     /**
      * Manages connector initialization. Gets called by module container.
      *
@@ -147,17 +187,6 @@ protected:
      * Removes connectors and cleans up.
      */
     void cleanup();
-
-    /**
-     * Set of input connectors associated with this module.
-     * NOTE: we need a thread safe list implementation!
-     */
-    std::set<boost::shared_ptr<WModuleInputConnector> > m_inputConnectors;
-
-    /**
-     * Set of output connectors associated with this module.
-     */
-    std::set<boost::shared_ptr<WModuleOutputConnector> > m_outputConnectors;
 
     /**
      * Adds the specified connector to the list of inputs.
@@ -177,6 +206,11 @@ protected:
      * Removes all connectors properly. It disconnects the connectors and cleans the connectors list.
      */
     void removeConnectors();
+
+    /**
+     * Completely disconnects all connected connectors of this module.
+     */
+    void disconnectAll();
 
     // **************************************************************************************************************************
     //
@@ -221,16 +255,37 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                    boost::shared_ptr<WModuleConnector> output );
 
-     /**
+    // **************************************************************************************************************************
+    //
+    // Members
+    //
+    // **************************************************************************************************************************
+
+    /**
      * the property object for the module
      */
-    boost::shared_ptr<WProperties> m_properties;
+    boost::shared_ptr< WProperties > m_properties;
 
     /**
      * True if everything is initialized and ready to be used.
      */
     bool m_initialized;
 
+    /**
+     * The container this module belongs to.
+     */
+    boost::shared_ptr< WModuleContainer > m_container;
+
+    /**
+     * Set of input connectors associated with this module.
+     * NOTE: we need a thread safe list implementation!
+     */
+    std::set<boost::shared_ptr<WModuleInputConnector> > m_inputConnectors;
+
+    /**
+     * Set of output connectors associated with this module.
+     */
+    std::set<boost::shared_ptr<WModuleOutputConnector> > m_outputConnectors;
 private:
 
      /**

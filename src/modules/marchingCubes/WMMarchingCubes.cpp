@@ -63,6 +63,11 @@ WMMarchingCubes::~WMMarchingCubes()
     removeConnectors();
 }
 
+boost::shared_ptr< WModule > WMMarchingCubes::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMMarchingCubes() );
+}
+
 const std::string WMMarchingCubes::getName() const
 {
     return "Marching Cubes";

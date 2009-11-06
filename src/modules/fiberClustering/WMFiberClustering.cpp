@@ -58,6 +58,11 @@ WMFiberClustering::~WMFiberClustering()
 {
 }
 
+boost::shared_ptr< WModule > WMFiberClustering::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMFiberClustering() );
+}
+
 void WMFiberClustering::threadMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;

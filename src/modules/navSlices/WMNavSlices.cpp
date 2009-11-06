@@ -69,6 +69,11 @@ WMNavSlices::~WMNavSlices()
     removeConnectors();
 }
 
+boost::shared_ptr< WModule > WMNavSlices::factory() const
+{
+    return boost::shared_ptr< WModule >( new WMNavSlices() );
+}
+
 const std::string WMNavSlices::getName() const
 {
     return "Navigation Slice Module";

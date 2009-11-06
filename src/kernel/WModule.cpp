@@ -31,8 +31,10 @@
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
 #include "WModuleConnectorSignals.h"
+#include "WModuleContainer.h"
 #include "exceptions/WModuleSignalUnknown.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
+#include "exceptions/WModuleUninitialized.h"
 
 #include "WModule.h"
 
@@ -42,6 +44,7 @@ WModule::WModule():
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
+    m_container = boost::shared_ptr< WModuleContainer >();
 }
 
 WModule::~WModule()
@@ -60,9 +63,9 @@ void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
     m_outputConnectors.insert( con );
 }
 
-void WModule::removeConnectors()
+void WModule::disconnectAll()
 {
-    m_initialized = false;
+    // TODO(ebaum): flat or deep removal? What to do with connected modules?
 
     // remove connections and their signals
     for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
@@ -75,6 +78,14 @@ void WModule::removeConnectors()
     {
         ( *listIter )->disconnectAll();
     }
+}
+
+void WModule::removeConnectors()
+{
+    m_initialized = false;
+
+    // remove connections and their signals
+    disconnectAll();
 
     // clean up list
     // this should delete the connector since nobody else *should* have another shared_ptr to them
@@ -90,7 +101,6 @@ void WModule::properties()
 {
 }
 
-
 void WModule::initialize()
 {
     // doing it twice is not allowed
@@ -104,6 +114,8 @@ void WModule::initialize()
     }
 
     connectors();
+    // TODO(ebaum): should properties be initialized here?
+    // properties();
 
     m_initialized = true;
 }
@@ -112,6 +124,16 @@ void WModule::cleanup()
 {
     // currently just removes connectors
     removeConnectors();
+}
+
+boost::shared_ptr< WModuleContainer > WModule::getAssociatedContainer() const
+{
+    return m_container;
+}
+
+void WModule::setAssociatedContainer( boost::shared_ptr< WModuleContainer > container )
+{
+    m_container = container;
 }
 
 const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputConnectors() const
@@ -147,6 +169,17 @@ bool WModule::isInitialized() const
     return m_initialized;
 }
 
+bool WModule::isAssociated() const
+{
+    // true if the pointer is set
+    return ( m_container == boost::shared_ptr< WModuleContainer >() );
+}
+
+bool WModule::isUseable() const
+{
+    return isInitialized() && isAssociated();
+}
+
 void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
                                            boost::shared_ptr< WModuleConnector > /*there*/ )
 {
@@ -165,7 +198,7 @@ void WModule::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
     // By default this callback does nothing. Overwrite it in your module.
 }
 
-boost::shared_ptr< WProperties > WModule::getProperties()
+boost::shared_ptr< WProperties > WModule::getProperties() const
 {
     return m_properties;
 }
