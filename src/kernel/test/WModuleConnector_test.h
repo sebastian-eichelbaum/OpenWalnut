@@ -130,7 +130,7 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
                                    boost::shared_ptr< WModuleConnector > output )
     {
-        // just copy the data
+        // just copy the data and add one
         data = *( boost::shared_dynamic_cast< WModuleOutputData< int > >( output )->getData() ) + 1;
 
         // std::cout << "change to " << data << " in " << input->getCanonicalName() << " from " << output->getCanonicalName()
@@ -185,7 +185,7 @@ public:
      */
     void createModules( void )
     {
-        // init 2 separate test modules
+        // init 3 separate test modules
         m1 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m1" ) );
         m2 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m2" ) );
         m3 = boost::shared_ptr< WModuleImpl >( new WModuleImpl( "m3" ) );
@@ -217,7 +217,7 @@ public:
 
         // check whether there are NO connectors.
         // The constructor should now create connectors since shared_ptr are needed -> init in constructor leads to exception
-        // (its enough to test one of them)
+        // (it is enough to test one of them)
         TS_ASSERT( m1->m_InputConnectors.size() == 0 );
         TS_ASSERT( m1->m_OutputConnectors.size() == 0 );
     }
@@ -296,7 +296,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING( initConnections() );
 
-        // check that every connector has an connection count of 1
+        // check that every connector has a connection count of 1
         TS_ASSERT( m1->m_Output->m_Connected.size() == 1 );
         TS_ASSERT( m1->m_Input->m_Connected.size() == 1 );
         TS_ASSERT( m2->m_Output->m_Connected.size() == 1 );
@@ -413,7 +413,7 @@ public:
         // try to get data from an unconnected connector
         TS_ASSERT_THROWS( m3->m_Input->getData(), WModuleConnectorUnconnected );
 
-        // try to get uninitialized data -> should return an "NULL" Pointer
+        // try to get uninitialized data -> should return a "NULL" Pointer
         TS_ASSERT( m2->m_Input->getData() == boost::shared_ptr< int >() );
     }
 };
