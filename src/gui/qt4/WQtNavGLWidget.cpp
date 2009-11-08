@@ -45,7 +45,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, int maxValue, std::string sliderT
 
     QVBoxLayout* layout = new QVBoxLayout();
 
-    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( panel ) );
+    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( panel, WGECamera::ORTHOGRAPHIC ) );
 
     layout->addWidget( m_glWidget.get() );
     layout->addWidget( slider );

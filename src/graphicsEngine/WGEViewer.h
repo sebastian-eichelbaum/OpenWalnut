@@ -42,6 +42,7 @@
 #include "../common/WThreadedRunner.h"
 
 #include "WGEGraphicsWindow.h"
+#include "WGECamera.h"
 
 /**
  * Class for managing one viewer to the scene. This includes viewport, camera and graphics context.
@@ -52,7 +53,6 @@ class WGEViewer: public WGEGraphicsWindow,
                  public WThreadedRunner
 {
 public:
-
     /**
      * Default constructor.
      *
@@ -61,9 +61,11 @@ public:
      * \param y Y coordinate of widget where to create the context.
      * \param width Width of the widget.
      * \param height Height of the Widget.
+     * \param projectionMode Projection mode of the viewer.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height );
+    WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height,
+        WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
      * Destructor.
@@ -157,4 +159,3 @@ private:
 };
 
 #endif  // WGEVIEWER_H
-

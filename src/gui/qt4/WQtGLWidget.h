@@ -50,7 +50,7 @@ public:
      *
      * \return
      */
-    explicit WQtGLWidget( QWidget* parent = 0 );
+    explicit WQtGLWidget( QWidget* parent = 0, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
      * Destructor.

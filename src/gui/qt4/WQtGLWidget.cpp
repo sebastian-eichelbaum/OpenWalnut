@@ -32,7 +32,7 @@
 #include "../../kernel/WKernel.h"
 
 
-WQtGLWidget::WQtGLWidget( QWidget* parent )
+WQtGLWidget::WQtGLWidget( QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : QWidget( parent ),
       m_recommendedSize()
 {
@@ -55,7 +55,7 @@ WQtGLWidget::WQtGLWidget( QWidget* parent )
 #endif
 
     // create viewer
-    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer( wdata, x(), y(), width(), height() );
+    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer( wdata, x(), y(), width(), height(), projectionMode );
 
     // required
     setAttribute( Qt::WA_PaintOnScreen );
