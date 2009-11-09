@@ -31,7 +31,10 @@
 
 #include "WModuleContainer.h"
 
-WModuleContainer::WModuleContainer(): boost::enable_shared_from_this< WModuleContainer >()
+WModuleContainer::WModuleContainer( std::string name, std::string description ):
+    boost::enable_shared_from_this< WModuleContainer >(),
+    m_name( name ),
+    m_description( description )
 {
     // initialize members
 }
@@ -43,10 +46,12 @@ WModuleContainer::~WModuleContainer()
 
 void WModuleContainer::add( boost::shared_ptr< WModule > module )
 {
+    WLogger::getLogger()->addLogMessage( "Adding module " + module->getName() + " to container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
+
     if ( !module->isInitialized() )
     {
         std::ostringstream s;
-        s << "Could not add module " << module->getName() << " to container. Reason: module not initialized.";
+        s << "Could not add module " << module->getName() << " to container " + m_name + ". Reason: module not initialized.";
 
         throw WModuleUninitialized( s.str() );
     }
@@ -68,21 +73,26 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module )
     m_modules.insert( module );
     lock.unlock();
     module->setAssociatedContainer( shared_from_this() );
+    WLogger::getLogger()->addLogMessage( "Associated module " + module->getName() + " with container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
 
     // now module->isUsable() is true
     // -> so run it
+    // TODO(ebaum,schurade): this should be removes some days
+    module->connectToGui();
     module->run();
 }
 
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 {
+    WLogger::getLogger()->addLogMessage( "Removing module " + module->getName() + " from container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
+
     if ( module->getAssociatedContainer() != shared_from_this() )
     {
         return;
     }
 
     // stop module
-    WLogger::getLogger()->addLogMessage( "Waiting for module " + module->getName() + " to finish." , "ModuleContainer", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Waiting for module " + module->getName() + " to finish." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
     module->wait( true );
 
     // get write lock
@@ -92,5 +102,29 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
 
     // TODO(ebaum): flat or deep removal? What to do with associated modules?
+}
+
+void WModuleContainer::stop()
+{
+    WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + m_name + ")", LL_DEBUG ); 
+
+    // read lock
+    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
+    for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_modules.begin(); listIter != m_modules.end(); ++listIter )
+    {
+        WLogger::getLogger()->addLogMessage( "Waiting for module " + ( *listIter )->getName() + " to finish." , "ModuleContainer (" + m_name + ")", LL_DEBUG ); 
+        ( *listIter )->wait( true );
+    }
+    slock.unlock();
+}
+
+const std::string WModuleContainer::getName() const
+{
+    return m_name;
+}
+
+const std::string WModuleContainer::getDescription() const
+{
+    return m_description;
 }
 

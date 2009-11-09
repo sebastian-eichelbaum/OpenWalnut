@@ -44,9 +44,12 @@ class WModuleContainer: public boost::enable_shared_from_this< WModuleContainer 
 public:
 
     /**
-     * Default constructor.
+     * Constructor. Initializes container.
+     * 
+     * \param name  name of the container
+     * \param description short description.
      */
-    WModuleContainer();
+    WModuleContainer( std::string name, std::string description );
 
     /**
      * Destructor.
@@ -69,6 +72,24 @@ public:
      */
     virtual void remove( boost::shared_ptr< WModule > module );
 
+    /**
+     * Stops all modules inside this container. Note that this function could take some time, since it waits until the last module
+     * has quit.
+     */
+    virtual void stop();
+
+    /**
+     * Gives back the name of this module.
+     * \return the module's name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gives back a description of this module.
+     * \return description to module.
+     */
+    virtual const std::string getDescription() const;
+
 protected:
 
     /**
@@ -81,6 +102,16 @@ protected:
      */
     std::set< boost::shared_ptr< WModule > > m_modules;
 
+    /**
+     * Name of the module.
+     */
+    std::string m_name;
+
+    /**
+     * Description of the module.
+     */
+    std::string m_description;
+    
 private:
 };
 

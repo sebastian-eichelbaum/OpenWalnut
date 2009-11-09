@@ -37,6 +37,7 @@
  */
 class WModuleFactory
 {
+friend class WModuleFactoryTest;
 public:
 
     /**
@@ -69,6 +70,25 @@ public:
      * \return the running module factory.
      */
     static boost::shared_ptr< WModuleFactory > getModuleFactory();
+
+    /**
+     * Finds a prototype using the specified name.
+     * 
+     * \param name the name.
+     * 
+     * \return the prototype whose name is equal to the specified one.
+     */
+    const boost::shared_ptr< WModule > getPrototypeByName( std::string name );
+
+    /**
+     * Finds a prototype using an instance of a module. This uses the type_info to find a proper prototype.
+     * 
+     * \param instance the instance to use.
+     * 
+     * \return the prototype.
+     * \throw WPrototypeUnknown if prototype can not be found.
+     */
+    const boost::shared_ptr< WModule > getPrototypeByInstance( boost::shared_ptr< WModule > instance );
 
 protected:
 

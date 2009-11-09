@@ -36,6 +36,7 @@
 #include "../modules/eegTest/WMEEGTest.h"
 
 #include "exceptions/WPrototypeUnknown.h"
+#include "exceptions/WPrototypeNotUnique.h"
 
 #include "WModuleFactory.h"
 
@@ -56,9 +57,12 @@ void WModuleFactory::load()
 {
     // load modules
     WLogger::getLogger()->addLogMessage( "Loading Modules", "ModuleFactory", LL_INFO );
+    std::cout << "sdasdshallo" << std::endl;
 
     // operation must be exclusive
+    std::cout << "sdasdshallo" << std::endl;
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_prototypesLock );
+    std::cout << "sdasdshallo" << std::endl;
 
     // currently the prototypes are added by hand. This will be done automatically later.
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
@@ -75,11 +79,20 @@ void WModuleFactory::load()
     boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
 
     // initialize every module in the set
-    for( std::set< boost::shared_ptr< WModule > >::iterator list_iter = m_prototypes.begin(); list_iter != m_prototypes.end();
-            ++list_iter )
+    std::set< std::string > names;  // helper to find duplicates
+    for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end();
+            ++listIter )
     {
-        WLogger::getLogger()->addLogMessage( "Loading module: " + ( *list_iter )->getName(), "ModuleFactory", LL_DEBUG );
-        ( *list_iter )->initialize();
+        WLogger::getLogger()->addLogMessage( "Loading module: " + ( *listIter )->getName(), "ModuleFactory", LL_DEBUG );
+        
+        // that should not happen. Names should not occur multiple times since they are unique
+        if ( names.count( ( *listIter )->getName() ) )
+        {
+            throw WPrototypeNotUnique( "Module " + ( *listIter )->getName() + " is not unique. Modules have to have a unique name." );
+        }
+        names.insert( ( *listIter )->getName() );
+
+        ( *listIter )->initialize();
     }
 
     slock.unlock();
@@ -113,5 +126,40 @@ boost::shared_ptr< WModuleFactory > WModuleFactory::getModuleFactory()
     }
 
     return m_instance;
+}
+
+
+const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::string name )
+{
+    // for this a read lock is sufficient
+    boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
+
+    // find first and only prototype (ensured during load() )   
+    boost::shared_ptr< WModule > ret = boost::shared_ptr< WModule >();
+    for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end();
+            ++listIter )
+    {
+        if ( ( *listIter )->getName() == name )
+        {
+            ret = ( *listIter );
+            break;
+        }
+    }
+
+    slock.unlock(); 
+
+    // if not found -> throw
+    if ( ret == boost::shared_ptr< WModule >() )
+    {
+        throw WPrototypeUnknown( "Could not find prototype " + name + "." );
+    }
+
+    return ret;
+}
+
+const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost::shared_ptr< WModule > instance )
+{
+    // TODO(ebaum): implement
+    WLogger::getLogger()->addLogMessage( "Searching prototype by instance, NOT YET IMPLEMENTED", "ModuleFactory", LL_WARNING );
 }
 
