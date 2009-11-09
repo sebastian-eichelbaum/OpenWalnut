@@ -42,11 +42,6 @@ WFiberCluster::WFiberCluster( size_t index, const boost::shared_ptr< WDataSetFib
     m_fibs = fibs;
 }
 
-bool WFiberCluster::empty() const
-{
-    return m_memberIndices.empty();
-}
-
 void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
 {
     std::list< size_t >::const_iterator cit = other.m_memberIndices.begin();
@@ -90,26 +85,6 @@ void WFiberCluster::updateClusterIndices( std::vector< size_t >& cid, // NOLINT
     }
 }
 
-void WFiberCluster::sort()
-{
-    m_memberIndices.sort();
-}
-
-size_t WFiberCluster::size() const
-{
-    return m_memberIndices.size();
-}
-
-void WFiberCluster::clear()
-{
-    m_memberIndices.clear();
-}
-
-void WFiberCluster::setColor( WColor color )
-{
-    m_color = color;
-}
-
 // void WFiberCluster::paintIntoFgePrimitive( FgeLineStrips *lstrips) const
 // {
 //     typedef std::vector< FArray > Fiber;
@@ -133,24 +108,3 @@ void WFiberCluster::setColor( WColor color )
 //     paintIntoFgePrimitive( lstrips );
 //     return lstrips;
 // }
-
-bool WFiberCluster::operator==( const WFiberCluster& other ) const
-{
-    return m_memberIndices == other.m_memberIndices;
-}
-
-bool WFiberCluster::operator!=( const WFiberCluster& other ) const
-{
-    return m_memberIndices != other.m_memberIndices;
-}
-
-const std::list< size_t > WFiberCluster::getIndices() const
-{
-    return m_memberIndices;
-}
-
-std::ostream& operator<<( std::ostream& os, const WFiberCluster& c )
-{
-    using string_utils::operator<<;
-    return os << c.getIndices();
-}

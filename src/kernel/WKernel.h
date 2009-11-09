@@ -76,6 +76,12 @@ public:
     int run();
 
     /**
+     * Stops execution of the modules in the root container. Note that this does not wait for the kernel thread since this could
+     * cause a dead lock. This is actually an alias for getRootContainer()->stop().
+     */
+    void stop();
+
+    /**
      * Returns pointer to currently running instance of graphics engine.
      *
      * \return the graphics engine instance.
@@ -123,14 +129,16 @@ public:
     void doLoadDataSets( std::vector< std::string > fileNames );
 
     /**
-     * getter for datahandler
+     * Returns the root module container. This is the actual module graph container.
+     * 
+     * \return the root container.
      */
-    boost::shared_ptr< WDataHandler > getDataHandler();
+    boost::shared_ptr< WModuleContainer > getRootContainer() const;
 
     /**
      * getter for gui
      */
-    boost::shared_ptr< WGUI > getGui();
+    boost::shared_ptr< WGUI > getGui() const;
 
     /**
      *
@@ -140,12 +148,12 @@ public:
     /**
      * get for application path
      */
-    std::string getAppPath();
+    std::string getAppPath() const;
 
     /**
      * getter for shader path
      */
-    std::string getShaderPath();
+    std::string getShaderPath() const;
 
 protected:
 

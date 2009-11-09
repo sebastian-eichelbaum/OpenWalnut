@@ -42,7 +42,7 @@
 #include "exceptions/WGEInitFailed.h"
 #include "WGEViewer.h"
 
-WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height ):
+WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode ):
     WGEGraphicsWindow( wdata, x, y, width, height )
 {
     try
@@ -54,15 +54,32 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
 
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
-        // m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
-        m_View->getCamera()->setProjectionMatrixAsOrtho( -120, 120, -120, 120, -1000, +1000 );
-        m_View->getCamera()->setViewport( new osg::Viewport( 0, 0, 10, 10 ) );
+
+        switch( projectionMode )
+        {
+            case( WGECamera::ORTHOGRAPHIC ):
+                m_View->getCamera()->setProjectionMatrixAsOrtho(
+                    -120.0 * width / height, 120.0 * width / height, -120.0, 120.0, -1000.0, +1000.0 );
+                break;
+            case( WGECamera::PERSPECTIVE ):
+                m_View->getCamera()->setProjectionMatrixAsPerspective(
+                    30.0, static_cast< double >( width ) / static_cast< double >( height ), 1.0, 1000.0 );
+                break;
+            default:
+                throw WGEInitFailed( "Unknown projection mode" );
+                break;
+        }
+
+        m_View->getCamera()->setViewport( 0, 0, width, height );
+        m_View->getCamera()->setProjectionResizePolicy( osg::Camera::HORIZONTAL );
 
         // add the stats handler
         m_View->addEventHandler( new osgViewer::StatsHandler );
 
         // camera manipulator
         m_View->setCameraManipulator( new osgGA::TrackballManipulator() );
+
+        m_View->setLightingMode( osg::View::SKY_LIGHT );
 
         // finally add view
         // there is the possibility to use ONE single composite viewer instance for every view, but
@@ -128,9 +145,7 @@ void WGEViewer::resize( int width, int height )
     WGEGraphicsWindow::resize( width, height );
 
     // also update the camera
-    // m_View->getCamera()->setProjectionMatrixAsPerspective( 30.0f, 1.333, 1.0, 1000.0 );
-    m_View->getCamera()->setProjectionMatrixAsOrtho( -120, 120, -120, 120, -1000, +1000 );
-    m_View->getCamera()->setViewport( new osg::Viewport( 0, 0, width, height ) );
+    m_View->getCamera()->setViewport( 0, 0, width, height );
 }
 
 void WGEViewer::close()

@@ -66,6 +66,8 @@ WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
 
     // get module factory
     m_moduleFactory = WModuleFactory::getModuleFactory();
+    m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer", "Root module\
+                container in Kernel." ) );
 
     // init GE, DataHandler, ...
     init();
@@ -100,12 +102,12 @@ boost::shared_ptr< WGraphicsEngine > WKernel::getGraphicsEngine() const
     return m_graphicsEngine;
 }
 
-boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const
+boost::shared_ptr< WModuleContainer > WKernel::getRootContainer() const
 {
-    return m_dataHandler;
+    return m_moduleContainer;
 }
 
-boost::shared_ptr< WGUI > WKernel::getGui()
+boost::shared_ptr< WGUI > WKernel::getGui() const
 {
     return m_gui;
 }
@@ -123,6 +125,11 @@ int WKernel::getArgumentCount() const
 char** WKernel::getArguments() const
 {
     return m_ArgV;
+}
+
+void WKernel::stop()
+{
+   getRootContainer()->stop(); 
 }
 
 int WKernel::run()
@@ -177,6 +184,15 @@ int WKernel::run()
     {
         ( *list_iter )->wait( true );
     }*/
+
+    // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
+    while ( !m_gui->isInitalized() )
+    {
+    }
+    m_gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
+
+    m_gui->wait( false );
+    m_FinishRequested = true;
 
     // finally GE
     m_graphicsEngine->wait( true );
@@ -307,17 +323,17 @@ void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
     m_gui->addDatasetToBrowser( module, 0 );
 }
 
-boost::shared_ptr< WDataHandler > WKernel::getDataHandler()
+boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const
 {
     return m_dataHandler;
 }
 
-std::string WKernel::getAppPath()
+std::string WKernel::getAppPath() const
 {
     return m_AppPath;
 }
 
-std::string WKernel::getShaderPath()
+std::string WKernel::getShaderPath() const
 {
     return m_shaderPath;
 }

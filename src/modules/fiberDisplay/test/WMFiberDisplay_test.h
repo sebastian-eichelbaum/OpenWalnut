@@ -44,9 +44,29 @@ class WMFiberDisplayTest : public CxxTest::TestSuite
 public:
     /**
      * The OSG geometry of a WFiber instance should have either arrays for
-     * colors and vertices of the same size.
+     * colors and vertices of the same size if localColoring is selected.
      */
-    void testGeometryOfFiber( void )
+    void testGeometryOfFiberOnLocalColoring( void )
+    {
+        using wmath::WPosition;
+        std::vector< WPosition > fibData;
+        fibData.push_back( WPosition( 0., 0., 0. ) );
+        fibData.push_back( WPosition( 1., 0., 0. ) );
+        fibData.push_back( WPosition( 1., 1., 0. ) );
+        fibData.push_back( WPosition( 1., 1., 1. ) );
+        using wmath::WFiber;
+        WFiber fib( fibData );
+        WMFiberDisplay mod;
+        osg::ref_ptr< osg::Geode > result = mod.genFiberGeode( fib, false );
+        osg::Geometry *geo = result->getDrawable( 0 )->asGeometry();
+        TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), 4 );
+        TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), geo->getColorArray()->getNumElements() );
+    }
+
+    /**
+     * When global coloring is used, only one color should be there.
+     */
+    void testGeometryOfFiberOnGlobalColoring( void )
     {
         using wmath::WPosition;
         std::vector< WPosition > fibData;
@@ -60,7 +80,7 @@ public:
         osg::ref_ptr< osg::Geode > result = mod.genFiberGeode( fib );
         osg::Geometry *geo = result->getDrawable( 0 )->asGeometry();
         TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), 4 );
-        TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), geo->getColorArray()->getNumElements() );
+        TS_ASSERT_EQUALS( 1, geo->getColorArray()->getNumElements() );
     }
 };
 

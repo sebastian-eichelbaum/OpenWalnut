@@ -78,6 +78,13 @@ protected:
      */
     virtual void threadMain();
 
+    /**
+     * Detect and removes fibers that have a short distance in terms of the
+     * dSt metric and are below the threshold given via the member
+     * m_dSt_culling_t.
+     *
+     * \param fibers Fiber dataset, which should be processed.
+     */
     virtual void cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers );
 
     /**
@@ -94,5 +101,15 @@ protected:
 
 private:
 };
+
+inline const std::string WMFiberCulling::getName() const
+{
+    return std::string( "FiberCulling" );
+}
+
+inline const std::string WMFiberCulling::getDescription() const
+{
+    return std::string( "Removes or culls out fibers from a WDataSetFibers" );
+}
 
 #endif  // WMFIBERCULLING_H

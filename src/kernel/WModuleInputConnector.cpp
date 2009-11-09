@@ -62,7 +62,7 @@ void WModuleInputConnector::connectSignals( boost::shared_ptr<WModuleConnector> 
 
     // connect dataChange signal with an internal handler to ensure we can add the "input" connector pointer, since the output
     // connector does not set this information.
-    // NOTE: con will be an WModuleOutputConnector
+    // NOTE: con will be a WModuleOutputConnector
     m_DataChangedConnection = con->subscribeSignal( DATA_CHANGED,
         boost::bind( &WModuleInputConnector::notifyDataChange, this, _1, _2 )
     );

@@ -139,9 +139,6 @@ void WLoaderNIfTI::operator()()
             columns, rows, frames, header->dx, header->dy, header->dz ) );
     }
 
-    // TODO(wiebel): fill this info into the subject instead
-    // fillMetaInfo( metaInfo, header );
-
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
     newDataSet->setFileName( m_fileName );
     commitDataSet( newDataSet );
@@ -151,16 +148,10 @@ void WLoaderNIfTI::operator()()
 // TODO(wiebel): fill this info into the subject instead
 // void WLoaderNIfTI::fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header )
 // {
-//     metaInfo->setDataType( header->datatype );
-//     metaInfo->setValueDim( header->dim[4] );
 //     metaInfo->setNx( header->nx );
 //     metaInfo->setNy( header->ny );
 //     metaInfo->setNz( header->nz );
-//     metaInfo->setDx( header->dx );
-//     metaInfo->setDy( header->dy );
-//     metaInfo->setDz( header->dz );
 //     metaInfo->setXyzUnits( header->xyz_units );
-//     metaInfo->setQformCode( header->qform_code );
 //     metaInfo->setQuaternB( header->quatern_b );
 //     metaInfo->setQuaternC( header->quatern_c );
 //     metaInfo->setQuaternD( header->quatern_d );
@@ -171,16 +162,6 @@ void WLoaderNIfTI::operator()()
 //     metaInfo->setFreqDim( header->freq_dim );
 //     metaInfo->setPhaseDim( header->phase_dim );
 //     metaInfo->setSliceDim( header->slice_dim );
-
-//     std::vector<float>xyzMatrix( 16, 0 );
-//     for ( int i = 0; i < 4; ++i )
-//     {
-//         for ( int j = 0; j < 4; ++j)
-//         {
-//             xyzMatrix[ i * 4 + j ] = header->qto_xyz.m[i][j];
-//         }
-//     }
-//     metaInfo->setQtoXyzMatrix( xyzMatrix );
 
 //     std::vector<float>ijkMatrix( 16, 0 );
 //     for ( int i = 0; i < 4; ++i )

@@ -147,4 +147,14 @@ private:
     size_t m_lastFibsSize;
 };
 
+inline const std::string WMFiberClustering::getName() const
+{
+    return std::string( "FiberClustering" );
+}
+
+inline const std::string WMFiberClustering::getDescription() const
+{
+    return std::string( "Clusters fibers from a WDataSetFibers" );
+}
+
 #endif  // WMFIBERCLUSTERING_H
