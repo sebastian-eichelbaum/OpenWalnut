@@ -65,6 +65,11 @@ protected:
     virtual void threadMain();
 
     /**
+     * Gets called when the thread should be stopped.
+     */
+    virtual void notifyStop();
+
+    /**
      * Thread instance.
      */
     boost::thread* m_Thread;

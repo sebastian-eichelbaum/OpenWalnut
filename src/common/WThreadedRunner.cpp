@@ -50,11 +50,16 @@ void WThreadedRunner::wait( bool requestFinish )
     if( requestFinish )
     {
         m_FinishRequested = requestFinish;
+        notifyStop();
     }
     m_Thread->join();
 }
 
 void WThreadedRunner::threadMain()
+{
+}
+
+void WThreadedRunner::notifyStop()
 {
 }
 
