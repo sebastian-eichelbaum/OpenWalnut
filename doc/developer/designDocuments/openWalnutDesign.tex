@@ -59,6 +59,19 @@ section stem from the following website:
 \item[Composition] usually has a strong life cycle dependency between instances of the container class and instances of the
   contained class(es): If the container is destroyed, normally every instance that it contains is destroyed as well.
 \end{description}
+
+\chapter{Code Organization}
+\section{Directories}
+\begin{description}
+  \item[\texttt{src}:] The source code of our whole project should reside here. Some things like parts of the build system, or unit test system, are not considered as source code.
+  \item[\texttt{src/common}:] Here you should find often needed pieces of source code, you want to share for reuse, and may use almost everywhere. E.g. WLimits.h for sharing several limits like \texttt{MAX\_DOUBLE}.
+  \item[\texttt{src/common/dataStructures}:] Various modules need additional data structures. You may place them here. This is
+    because of increasing reuse of that data structures. A developer doesn't have to look into every module's directory for
+    gaining the following information: "Has someone already coded a KD-Tree implementation I can make use of?". A developer should
+    look into this directory before he starts developing some new data structures. Even if there is just one module using e.g. a
+    KD-Tree at the moment, maybe someone needs that in the future too. So, place your possibly reusable data structures here!
+\end{description}
+
 \chapter{Math}
 
 
@@ -70,7 +83,7 @@ section stem from the following website:
 For a general overview on visualization in medicine \cite{Preim:2007:VMT} can be recommended.
 
 \chapter{GUI}
-The GUI module is the only part where we allow gui-toolkit related code. For example, this means that the use of any QT class is
+The GUI module is the only part where we allow GUI-toolkit related code. For example, this means that the use of any QT class is
 prohibited outside the GUI module.
 \chapter{GE (Graphics Engine)}
 The graphics engine is mainly realized by integrating OpenSceneGraph (OSG) so far.

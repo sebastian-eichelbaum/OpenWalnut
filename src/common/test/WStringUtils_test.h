@@ -144,7 +144,7 @@ public:
         expected.push_back( "lu" );
         expected.push_back( "" );
         expected.push_back( " " );
-        TS_ASSERT_EQUALS( su::tokenize( source, false, "b" ), expected );
+        TS_ASSERT_EQUALS( su::tokenize( source, "b", false ), expected );
     }
 };
 

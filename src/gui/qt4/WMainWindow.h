@@ -38,8 +38,9 @@
 
 #include "signalslib.hpp"
 #include "WQtNavGLWidget.h"
-#include "WQtRibbonMenu.h"
+#include "ribbonMenu/WQtRibbonMenu.h"
 
+#include "WIconManager.h"
 #include "WPropertyManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
 // forward declarations
@@ -80,9 +81,14 @@ public:
 
 
     /**
-     *
+     * Return property manager
      */
     WPropertyManager* getPropertyManager();
+
+    /**
+     * Return icon manager
+     */
+    WIconManager* getIconManager();
 
     /**
      *
@@ -95,14 +101,12 @@ public slots:
      */
     void openLoadDialog();
 
-    void toggleAxial( bool check );
-    void toggleCoronal( bool check );
-    void toggleSagittal( bool check );
-
 private:
-    QIcon m_mainWindowIcon;
+    void setupToolBar( QMainWindow *mainWindow );
 
-    WPropertyManager* m_propertyManager;
+    WIconManager m_iconManager;
+
+    WPropertyManager m_propertyManager;
 
     QWidget* m_centralwidget;
     WQtRibbonMenu* m_toolBar;

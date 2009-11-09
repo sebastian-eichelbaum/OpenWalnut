@@ -71,9 +71,10 @@ void WGraphicsEngine::threadMain()
     // }
 }
 
-boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height )
+boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer(
+    osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode )
 {
-    boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x, y, width, height ) );
+    boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x, y, width, height, projectionMode ) );
     viewer->setScene( this->getScene() );
 
     // start rendering

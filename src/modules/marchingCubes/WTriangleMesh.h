@@ -40,6 +40,11 @@ struct Triangle
  */
 class WTriangleMesh
 {
+/**
+ * Only UnitTests may be friends.
+ */
+friend class WTriangleMeshTest;
+
 public:
     /**
      * Initializes some members.

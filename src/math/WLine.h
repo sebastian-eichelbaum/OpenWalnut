@@ -78,7 +78,7 @@ public:
     /**
      * Get number of points (length) the value consists of.
      */
-    inline size_t size() const
+    size_t size() const
     {
         return m_points.size();
     }
@@ -100,8 +100,7 @@ public:
     friend std::ostream& operator<<( std::ostream& os, const WLine &rhs )
     {
         using string_utils::operator<<;
-        os << rhs.m_points;
-        return os;
+        return os << rhs.m_points;
     }
 
 protected:

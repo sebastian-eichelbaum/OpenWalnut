@@ -32,6 +32,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
+#include <boost/thread.hpp>
 
 #include "WProperty.h"
 
@@ -72,15 +73,21 @@ public:
     boost::signal1< void, std::string >* addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
     boost::signal1< void, std::string >* addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
     boost::signal1< void, std::string >* addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
+    boost::signal1< void, std::string >* addColor( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
 
     std::string getValueString( const std::string prop );
 
     template < typename T >  void setValue( std::string prop, const T& arg )
     {
+        boost::shared_lock<boost::shared_mutex> slock;
+        slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+
         if ( findProp( prop ) )
         {
             findProp( prop )->setValue( arg );
         }
+
+        slock.unlock();
     }
 
     template < typename T >  void setMin( std::string prop, const T& arg )
@@ -133,6 +140,8 @@ private:
     std::map < std::string, WProperty* >m_propertyList;
 
     std::vector< WProperty* >m_propertyVector;
+
+    boost::shared_mutex m_updateLock;
 };
 
 #endif  // WPROPERTIES_H

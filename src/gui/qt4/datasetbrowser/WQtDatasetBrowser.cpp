@@ -106,12 +106,13 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
 
 void WQtDatasetBrowser::selectTreeItem()
 {
+    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
+    m_tabWidget->clear();
+
     if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() != 1 )
     {
-        m_tabWidget->clear();
         return;
     }
-
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
 
@@ -161,10 +162,9 @@ void WQtDatasetBrowser::selectTreeItem()
             }
         }
     }
-    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-    m_tabWidget->clear();
     addTabWidgetContent( tab1 );
 }
+
 
 void WQtDatasetBrowser::changeTreeItem()
 {
@@ -184,7 +184,6 @@ void WQtDatasetBrowser::changeTreeItem()
         module->getProperties()->setValue<bool>( "active", false );
     }
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
-    // selectTreeItem();
 }
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )

@@ -26,7 +26,7 @@
 #include <cmath>
 
 #include "WColorUtils.h"
-#include "../common/WColor.hpp"
+#include "../common/WColor.h"
 #include "../math/WPosition.h"
 
 namespace color_utils

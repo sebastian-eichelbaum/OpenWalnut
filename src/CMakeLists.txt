@@ -125,8 +125,8 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navigationSlices/slice.vs ${CMAKE_BINARY_DIR}/bin/shaders/)
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navigationSlices/slice.fs ${CMAKE_BINARY_DIR}/bin/shaders/)
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navSlices/slice.vs ${CMAKE_BINARY_DIR}/bin/shaders/)
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navSlices/slice.fs ${CMAKE_BINARY_DIR}/bin/shaders/)
 
 
 # Special targets:

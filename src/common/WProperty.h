@@ -30,6 +30,8 @@
 #include <boost/lexical_cast.hpp>
 #include "../gui/qt4/signalslib.hpp"
 
+#include "WColor.h"
+
 typedef enum
 {
     P_UNDEFINED,
@@ -59,6 +61,7 @@ public:
     WProperty( std::string name, int value, std::string shortDesc = "", std::string longDesc = "" );
     WProperty( std::string name, float value, std::string shortDesc = "", std::string longDesc = "" );
     WProperty( std::string name, double value, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
 
     /**
      * destructor

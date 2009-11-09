@@ -62,7 +62,19 @@ public:
         return (*m_fibers)[index];
     }
 
+    /**
+     * Sort fibers descending on their length.
+     */
+    void sortDescLength();
+
+    /**
+     * Deletes all those fibers which are marked true in the given
+     * unused vector.
+     */
+    void erase( const std::vector< bool > &unused );
+
 protected:
+
 private:
     boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };

@@ -1607,23 +1607,19 @@ def CheckSpacing(filename, clean_lines, linenum, error):
     if (line.count('"', 0, commentpos) -
         line.count('\\"', 0, commentpos)) % 2 == 0:   # not in quotes
       # Allow one space for new scopes, two spaces otherwise:
-      if (not Match(r'^\s*{ //', line) 
-          and
-          ((commentpos >= 1 and line[commentpos-1] not in string.whitespace) 
-           or (commentpos >= 2 and line[commentpos-2] not in string.whitespace))
-          ):
+      if (not Match(r'^\s*{ //', line) and ( commentpos >= 1 and line[commentpos-1] not in string.whitespace ) ):
         error(filename, linenum, 'whitespace/comments', 2,
-              'At least two spaces is best between code and comments')
-      # There should always be a space between the // and the comment
-      commentend = commentpos + 2
-      if commentend < len(line) and not line[commentend] == ' ':
-        # but some lines are exceptions -- e.g. if they're big
-        # comment delimiters like:
-        # //----------------------------------------------------------
-        match = Search(r'[=/-]{4,}\s*$', line[commentend:])
-        if not match and not Search(r'//!< ', line) :
-          error(filename, linenum, 'whitespace/comments', 4,
-                'Should have a space between // and comment')
+              'At least one space is best between code and comments')
+      ## There should always be a space between the // and the comment
+      #commentend = commentpos + 2
+      #if commentend < len(line) and not line[commentend] == ' ':
+      #  # but some lines are exceptions -- e.g. if they're big
+      #  # comment delimiters like:
+      #  # //----------------------------------------------------------
+      #  match = Search(r'[=/-]{4,}\s*$', line[commentend:])
+      #  if not match and not Search(r'//!< ', line) :
+      #    error(filename, linenum, 'whitespace/comments', 4,
+      #          'Should have a space between // and comment')
       CheckComment(line[commentpos:], filename, linenum, error)
 
   line = clean_lines.elided[linenum]  # get rid of comments and strings

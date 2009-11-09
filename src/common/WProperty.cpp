@@ -94,6 +94,17 @@ WProperty::WProperty( std::string name, double value, std::string shortDesc, std
     setValue( value );
 }
 
+WProperty::WProperty( std::string name, WColor value, std::string shortDesc, std::string longDesc )
+    : m_type( P_DOUBLE ),
+    m_name( name ),
+    m_shortDesc( shortDesc ),
+    m_longDesc( longDesc ),
+    m_isHidden( false )
+{
+    setValue( value );
+}
+
+
 
 WProperty::~WProperty()
 {

@@ -28,11 +28,14 @@
 /**
  * This file is provided to allow to get access to all used icons by one include.
  */
+#include "logoIcon.xpm"
 #include "disc.xpm"
 #include "fileopen.xpm"
 #include "quit.xpm"
+
 #include "axial.xpm"
 #include "cor.xpm"
 #include "sag.xpm"
+
 
 #endif  // WICONS_H

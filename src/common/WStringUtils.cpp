@@ -67,8 +67,8 @@ std::string string_utils::toLower( const std::string& source )
 }
 
 std::vector< std::string > string_utils::tokenize( const std::string& source,
-                                                   bool compress,
-                                                   const std::string& t )
+                                                   const std::string& delim,
+                                                   bool compress )
 {
     std::vector< std::string > result;
     namespace ba = boost::algorithm;
@@ -77,7 +77,7 @@ std::vector< std::string > string_utils::tokenize( const std::string& source,
     {
         compression = ba::token_compress_off;
     }
-    ba::split( result, source, ba::is_any_of( t ), compression );
+    ba::split( result, source, ba::is_any_of( delim ), compression );
     if( result.back() == "" )
     {
         result.pop_back();

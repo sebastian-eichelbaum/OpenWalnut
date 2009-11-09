@@ -25,6 +25,7 @@
 #ifndef WFIBER_TEST_H
 #define WFIBER_TEST_H
 
+#include <string>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
@@ -41,18 +42,18 @@ CXXTEST_TEMPLATE_INSTANTIATION
 class ValueTraits< wmath::WFiber >
 {
 private:
-    char _s[256];
+    std::string _s;
 
 public:
     explicit ValueTraits( const wmath::WFiber &fib )
     {
         std::stringstream ss;
-        ss << fib;
-        snprintf( _s, ss.str().size(), "%s", ss.str().c_str() );
+        ss << "WFiber(" << fib << ")";
+        _s = ss.str();
     }
     const char *asString() const
     {
-        return _s;
+        return _s.c_str();
     }
 };
 }
@@ -80,6 +81,31 @@ public:
         WFiber fib1( lineData1 );
         WFiber fib2( lineData2 );
         TS_ASSERT_EQUALS( fib1, fib2 );
+    }
+
+    /**
+     * The dt(Q,R) measure (mean closest point distance) is not symmetric.
+     * distances below a certain threshold will be omitted.
+     */
+    void testDTMeasure( void )
+    {
+        double threshold = 1.0;
+        using wmath::WPosition;
+        std::vector< WPosition > lineData1;
+        lineData1.push_back( WPosition( 0, 1, 0 ) );
+        lineData1.push_back( WPosition( 0, 0, 0 ) );
+        std::vector< WPosition > lineData2;
+        lineData2.push_back( WPosition( 1, 1, 0 ) );
+        lineData2.push_back( WPosition( 2, 2, 0 ) );
+        using wmath::WFiber;
+        WFiber fib1( lineData1 );
+        WFiber fib2( lineData2 );
+        double dt = fib1.dXt_optimized( fib2, threshold ).first;
+        double expected = std::sqrt( 2.0 ) / 2.0;
+        TS_ASSERT_EQUALS( dt, expected );
+        dt = fib1.dXt_optimized( fib2, threshold ).second;
+        expected = std::sqrt( 5.0 ) / 2.0;
+        TS_ASSERT_EQUALS( dt, expected );
     }
 };
 

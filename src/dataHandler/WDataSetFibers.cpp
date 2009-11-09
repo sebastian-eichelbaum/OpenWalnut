@@ -22,4 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <vector>
+
 #include "WDataSetFibers.h"
+
+void WDataSetFibers::sortDescLength()
+{
+    std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
+}
+
+void WDataSetFibers::erase( const std::vector< bool > &unused )
+{
+    assert( unused.size() == m_fibers->size() );
+    std::vector< wmath::WFiber >::iterator useable = m_fibers->begin();
+    for( size_t i = 0 ; i < unused.size(); ++i )
+    {
+        if( !unused[i] )
+        {
+            *useable = ( *m_fibers )[i];
+            useable++;
+        }
+    }
+    m_fibers->erase( useable, m_fibers->end() );
+}

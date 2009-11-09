@@ -84,10 +84,12 @@ public:
      * \param y Y coordinate of widget where to create the context.
      * \param width Width of the widget.
      * \param height Height of the Widget.
+     * \param projectionMode Projection mode of the viewer.
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    boost::shared_ptr<WGEViewer> createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height );
+    boost::shared_ptr<WGEViewer> createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height,
+        WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
 protected:
 

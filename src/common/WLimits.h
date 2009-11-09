@@ -25,6 +25,8 @@
 #ifndef WLIMITS_H
 #define WLIMITS_H
 
+#include <limits>
+
 /**
  * Project wide limits for different quantitities.
  */
@@ -56,6 +58,11 @@ namespace wlimits
      * Maximum samplimg frequency of a recording.
      */
     const unsigned int MAX_RECORDING_SAMPLING_FREQUENCY = 20000;
+
+    /**
+     * Maximum double value
+     */
+    const double MAX_DOUBLE = std::numeric_limits< double >::max();
 }
 
 #endif  // WLIMITS_H

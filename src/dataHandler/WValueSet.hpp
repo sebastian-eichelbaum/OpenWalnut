@@ -94,7 +94,6 @@ public:
         return m_data[i];
     }
 
-
     /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.
      */
@@ -102,6 +101,7 @@ public:
     {
         return &m_data[0];
     }
+
 
 protected:
 

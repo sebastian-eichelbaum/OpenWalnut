@@ -34,9 +34,12 @@
 #include <boost/thread/xtime.hpp>
 
 #include "WModule.h"
-#include "../modules/data/WDataModule.hpp"
-#include "../modules/navigationSlices/WNavigationSliceModule.h"
-#include "../modules/fiberTest/WFiberTestModule.h"
+#include "../modules/data/WMData.hpp"
+#include "../modules/navSlices/WMNavSlices.h"
+#include "../modules/coordinateSystem/WMCoordinateSystem.h"
+#include "../modules/fiberDisplay/WMFiberDisplay.h"
+#include "../modules/fiberCulling/WMFiberCulling.h"
+#include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
@@ -185,11 +188,17 @@ void WKernel::loadModules()
     m_modules.clear();
 
     using boost::shared_ptr;
-    shared_ptr< WModule > m = shared_ptr< WModule >( new WNavigationSliceModule() );
-    // shared_ptr< WModule > m = shared_ptr< WModule >( new WFiberTestModule() );
-    WLogger::getLogger()->addLogMessage( "Loading module: " + m->getName(), "Kernel", LL_DEBUG );
+    shared_ptr< WModule > m1 = shared_ptr< WModule >( new WMNavSlices() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberDisplay() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberCulling() );
+    // shared_ptr< WModule > m = shared_ptr< WModule >( new WMFiberClustering() );
+    WLogger::getLogger()->addLogMessage( "Loading module: " + m1->getName(), "Kernel", LL_DEBUG );
 
-    m_modules.push_back( m );
+    m_modules.push_back( m1 );
+
+    shared_ptr< WModule > m2 = shared_ptr< WModule >( new WMCoordinateSystem() );
+    WLogger::getLogger()->addLogMessage( "Loading module: " + m2->getName(), "Kernel", LL_DEBUG );
+    m_modules.push_back( m2 );
 }
 
 void WKernel::init()
@@ -295,7 +304,7 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 
 void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
 {
-    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WDataModule< int >( dataSet ) );
+    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WMData< int >( dataSet ) );
 
     module->getProperties()->addBool( "active", true );
     module->getProperties()->hideProperty( "active" );
