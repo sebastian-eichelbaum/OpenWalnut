@@ -111,7 +111,7 @@ protected:
      * Description of the module.
      */
     std::string m_description;
-    
+
 private:
 };
 

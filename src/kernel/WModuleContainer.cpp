@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
 #include <string>
 #include <sstream>
 
@@ -73,7 +74,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module )
     m_modules.insert( module );
     lock.unlock();
     module->setAssociatedContainer( shared_from_this() );
-    WLogger::getLogger()->addLogMessage( "Associated module " + module->getName() + " with container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Associated module " + module->getName() + " with container." , "ModuleContainer (" + m_name + ")",
+            LL_DEBUG );
 
     // now module->isUsable() is true
     // -> so run it
@@ -106,13 +108,14 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 
 void WModuleContainer::stop()
 {
-    WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + m_name + ")", LL_DEBUG ); 
+    WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
 
     // read lock
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_modules.begin(); listIter != m_modules.end(); ++listIter )
     {
-        WLogger::getLogger()->addLogMessage( "Waiting for module " + ( *listIter )->getName() + " to finish." , "ModuleContainer (" + m_name + ")", LL_DEBUG ); 
+        WLogger::getLogger()->addLogMessage( "Waiting for module " + ( *listIter )->getName() + " to finish." , "ModuleContainer (" + m_name + ")",
+                LL_DEBUG );
         ( *listIter )->wait( true );
     }
     slock.unlock();

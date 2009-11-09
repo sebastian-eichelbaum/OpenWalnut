@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <set>
+#include <string>
 
 #include "../common/WLogger.h"
 
@@ -57,12 +58,9 @@ void WModuleFactory::load()
 {
     // load modules
     WLogger::getLogger()->addLogMessage( "Loading Modules", "ModuleFactory", LL_INFO );
-    std::cout << "sdasdshallo" << std::endl;
 
     // operation must be exclusive
-    std::cout << "sdasdshallo" << std::endl;
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_prototypesLock );
-    std::cout << "sdasdshallo" << std::endl;
 
     // currently the prototypes are added by hand. This will be done automatically later.
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
@@ -84,7 +82,7 @@ void WModuleFactory::load()
             ++listIter )
     {
         WLogger::getLogger()->addLogMessage( "Loading module: " + ( *listIter )->getName(), "ModuleFactory", LL_DEBUG );
-        
+
         // that should not happen. Names should not occur multiple times since they are unique
         if ( names.count( ( *listIter )->getName() ) )
         {
@@ -134,7 +132,7 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::stri
     // for this a read lock is sufficient
     boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
 
-    // find first and only prototype (ensured during load() )   
+    // find first and only prototype (ensured during load())
     boost::shared_ptr< WModule > ret = boost::shared_ptr< WModule >();
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end();
             ++listIter )
@@ -146,7 +144,7 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::stri
         }
     }
 
-    slock.unlock(); 
+    slock.unlock();
 
     // if not found -> throw
     if ( ret == boost::shared_ptr< WModule >() )

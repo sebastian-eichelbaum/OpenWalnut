@@ -66,8 +66,8 @@ WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
 
     // get module factory
     m_moduleFactory = WModuleFactory::getModuleFactory();
-    m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer", "Root module\
-                container in Kernel." ) );
+    m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer",
+                "Root module container in Kernel." ) );
 
     // init GE, DataHandler, ...
     init();
@@ -129,7 +129,7 @@ char** WKernel::getArguments() const
 
 void WKernel::stop()
 {
-   getRootContainer()->stop(); 
+    getRootContainer()->stop();
 }
 
 int WKernel::run()
@@ -153,7 +153,8 @@ int WKernel::run()
     // run module execution threads
     // TODO(ebaum): after having modules loaded they should be started here.
     // currently this is just the test module
-    /*WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
+    /*
+    WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
     for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
             ++list_iter )
     {
@@ -183,7 +184,8 @@ int WKernel::run()
             ++list_iter )
     {
         ( *list_iter )->wait( true );
-    }*/
+    }
+    */
 
     // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
     while ( !m_gui->isInitalized() )
