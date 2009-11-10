@@ -90,7 +90,7 @@ protected:
      * \par Description
      * Entry point after loading the module. Runs in separate thread.
      */
-    virtual void threadMain();
+    virtual void moduleMain();
 
     /**
      * Initialize connectors in this function. This function must not be called multiple times for one module instance.

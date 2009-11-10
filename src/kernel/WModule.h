@@ -165,7 +165,12 @@ protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
-    virtual void threadMain() = 0;
+    virtual void moduleMain() = 0;
+
+    /**
+     * Thread entry point. Calls moduleMain and sends error notification if needed.
+     */
+    void threadMain();
 
      /**
       * Sets the container this module is associated with.

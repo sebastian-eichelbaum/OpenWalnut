@@ -76,7 +76,7 @@ protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
-    virtual void threadMain();
+    virtual void moduleMain();
 
     /**
      * Detect and removes fibers that have a short distance in terms of the

@@ -58,7 +58,7 @@ const std::string WMTest::getDescription() const
     return "This module is for testing and development";
 }
 
-void WMTest::threadMain()
+void WMTest::moduleMain()
 {
     // load the sample scene.
     osg::ref_ptr<osg::Geode> sceneDataGeode = new osg::Geode();

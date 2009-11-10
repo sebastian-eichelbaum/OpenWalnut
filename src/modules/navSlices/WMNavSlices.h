@@ -103,7 +103,7 @@ protected:
      * \par Description
      * Entry point after loading the module. Runs in separate thread.
      */
-    virtual void threadMain();
+    virtual void moduleMain();
 
     /**
      * Initialize the connectors this module is using.

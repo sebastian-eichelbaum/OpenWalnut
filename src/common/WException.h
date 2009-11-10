@@ -49,6 +49,13 @@ public:
     explicit WException( const std::string& msg = std::string() );
 
     /**
+     * Copy a std::exception and encapsulate it.
+     * 
+     * \param e the exception.
+     */
+    WException( const std::exception& e );
+
+    /**
      * Destructor.
      */
     virtual ~WException() throw();

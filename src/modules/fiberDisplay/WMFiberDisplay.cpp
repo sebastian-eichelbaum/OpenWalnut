@@ -97,7 +97,7 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( const wmath::WFiber &f
     return geode;
 }
 
-void WMFiberDisplay::threadMain()
+void WMFiberDisplay::moduleMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(math): fix this hack when possible by using an input connector.

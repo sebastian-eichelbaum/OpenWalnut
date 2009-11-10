@@ -124,7 +124,7 @@ std::string getSuffix( std::string name )
     return p.extension();
 }
 
-void WMData::threadMain()
+void WMData::moduleMain()
 {
     std::string fileName = m_properties->getValue< std::string >( "filename" );
 

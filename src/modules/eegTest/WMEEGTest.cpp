@@ -104,7 +104,7 @@ void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg
     sceneDataGeode->addDrawable( textOne );
 }
 
-void WMEEGTest::threadMain()
+void WMEEGTest::moduleMain()
 {
     // load the sample scene.
     //osg::Geode* sceneDataGeode = new osg::Geode();

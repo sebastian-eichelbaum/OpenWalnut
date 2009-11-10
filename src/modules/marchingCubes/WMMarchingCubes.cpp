@@ -83,7 +83,7 @@ const std::string WMMarchingCubes::getDescription() const
 }
 
 
-void WMMarchingCubes::threadMain()
+void WMMarchingCubes::moduleMain()
 {
     // TODO(wiebel): MC fix this hack when possible by using an input connector.
     while ( !WKernel::getRunningKernel() )

@@ -62,7 +62,7 @@ boost::shared_ptr< WModule > WMFiberClustering::factory() const
     return boost::shared_ptr< WModule >( new WMFiberClustering() );
 }
 
-void WMFiberClustering::threadMain()
+void WMFiberClustering::moduleMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(math): fix this hack when possible by using an input connector.

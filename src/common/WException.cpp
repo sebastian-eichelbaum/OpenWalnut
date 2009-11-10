@@ -56,6 +56,17 @@ WException::WException( const std::string& msg ): exception()
     }
 }
 
+WException::WException( const std::exception& e ): exception( e )
+{
+    m_msg = e.what();    
+
+    // print stacktrace and message
+    // no backtrace?
+    if ( !noBacktrace )
+    {
+        std::cerr << "Exception thrown! Callstack's backtrace:" << std::endl << getBacktrace() << std::endl;
+    }
+}
 
 WException::~WException() throw()
 {

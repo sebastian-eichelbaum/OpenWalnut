@@ -108,7 +108,7 @@ protected:
     std::string n;
 
     // required since pure virtual
-    virtual void threadMain()
+    virtual void moduleMain()
     {
         // Since the modules run in a separate thread: such loops are possible
         while ( !m_FinishRequested )

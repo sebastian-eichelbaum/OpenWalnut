@@ -73,7 +73,7 @@ protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
-    virtual void threadMain();
+    virtual void moduleMain();
 
     /**
      * Generates an OSG geometry for the given fiber.

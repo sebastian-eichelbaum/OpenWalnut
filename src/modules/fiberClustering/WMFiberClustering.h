@@ -79,7 +79,7 @@ protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
-    virtual void threadMain();
+    virtual void moduleMain();
 
 private:
     /**

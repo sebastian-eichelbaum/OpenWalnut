@@ -36,6 +36,7 @@
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
 #include "exceptions/WModuleUninitialized.h"
+#include "../common/WException.h"
 
 #include "WModule.h"
 
@@ -238,5 +239,25 @@ void WModule::ready()
 
 void WModule::connectToGui()
 {
+}
+
+void WModule::threadMain()
+{
+    try
+    {
+        // call main thread function
+        moduleMain();
+    }
+    catch ( WException& e )
+    {
+        // ensure proper exception propagation
+        signal_error( shared_from_this(), e );
+    }
+    catch ( std::exception& e )
+    {
+        // convert these exceptions to WException
+        WException ce = WException( e );
+        signal_error( shared_from_this(), ce );
+    }
 }
 

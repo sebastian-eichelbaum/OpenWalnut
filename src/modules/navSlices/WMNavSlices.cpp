@@ -124,7 +124,7 @@ void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
     // in this case input==m_input
 }
 
-void WMNavSlices::threadMain()
+void WMNavSlices::moduleMain()
 {
     createGeometry();
 

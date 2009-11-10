@@ -58,7 +58,7 @@ boost::shared_ptr< WModule > WMFiberCulling::factory() const
     return boost::shared_ptr< WModule >( new WMFiberCulling() );
 }
 
-void WMFiberCulling::threadMain()
+void WMFiberCulling::moduleMain()
 {
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(math): fix this hack when possible by using an input connector.
