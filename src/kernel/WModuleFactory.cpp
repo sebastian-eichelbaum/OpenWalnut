@@ -156,9 +156,11 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::stri
     return ret;
 }
 
-const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost::shared_ptr< WModule > instance )
+const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost::shared_ptr< WModule > /*instance*/ )
 {
     // TODO(ebaum): implement
     WLogger::getLogger()->addLogMessage( "Searching prototype by instance, NOT YET IMPLEMENTED", "ModuleFactory", LL_WARNING );
+
+    return boost::shared_ptr< WModule >();
 }
 

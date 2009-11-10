@@ -107,7 +107,7 @@ void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg
 void WMEEGTest::threadMain()
 {
     // load the sample scene.
-    osg::Geode* sceneDataGeode = new osg::Geode();
+    //osg::Geode* sceneDataGeode = new osg::Geode();
 
     // TODO(all): fix this.
     //std::string fileName = "dataHandler/fixtures/eeg_testData.asc";

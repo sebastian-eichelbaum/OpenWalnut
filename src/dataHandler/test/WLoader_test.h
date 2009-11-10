@@ -45,6 +45,7 @@ public:
 
     virtual boost::shared_ptr< WDataSet > load()
     {
+        return boost::shared_ptr< WDataSet >();
     }
 };
 
