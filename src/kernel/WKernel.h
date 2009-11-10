@@ -198,11 +198,6 @@ private:
     bool findAppPath();
 
     /**
-     *
-     */
-    void slotFinishLoadData( boost::shared_ptr< WDataSet > );
-
-    /**
      * Number of arguments given to application.
      */
     int m_ArgC;

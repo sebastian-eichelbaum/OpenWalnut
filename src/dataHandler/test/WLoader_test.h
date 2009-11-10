@@ -30,6 +30,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WLoader.h"
+#include "../WDataSet.h"
 
 /**
  * Just a dummy for testing the base class
@@ -42,7 +43,7 @@ public:
     {
     }
 
-    virtual void operator()()
+    virtual boost::shared_ptr< WDataSet > load()
     {
     }
 };

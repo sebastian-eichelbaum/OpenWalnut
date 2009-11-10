@@ -56,6 +56,4 @@ void WLoader::commitDataSet( boost::shared_ptr< WDataSet > data )
         subject = m_dataHandler->getSubject( 0 );
     }
     subject->addDataSet( data );
-
-    m_dataHandler->signalLoadFinished( data );
 }

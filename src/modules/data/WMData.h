@@ -22,12 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDATA2_H
-#define WMDATA2_H
+#ifndef WMDATA_H
+#define WMDATA_H
 
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
@@ -40,19 +41,19 @@
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its
  * inherited classes. This class builds a "source" in OpenWalnut's DataFlow Network.
  */
-class WMData2: public WModule
+class WMData: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMData2();
+    WMData();
 
     /**
      * Destructor.
      */
-    virtual ~WMData2();
+    virtual ~WMData();
 
     /**
      * Gives back the name of this module.
@@ -65,6 +66,16 @@ public:
      * \return description to module.
      */
     virtual const std::string getDescription() const;
+
+    /**
+     * getter for the dataset
+     */
+    virtual boost::shared_ptr< WDataSet > getDataSet();
+
+    /**
+     * getter for the 3d texture, which will be created on demand
+     */
+    virtual osg::ref_ptr<osg::Texture3D> getTexture3D();
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -119,6 +130,27 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > input,
                                    boost::shared_ptr< WModuleConnector > output );
 
+    /**
+     * Gets called when the module should quit. This is from WThreadedRunner.
+     */
+    virtual void notifyStop();
+
+    /**
+     * Creates a 3d texture from a dataset. This function will be overloaded for the
+     * various data types. A template function is not recommended due to the different commands
+     * in the image creation.
+     *
+     * TODO(schurade): create other functions once dataset meta data is available again
+     *
+     * \param source Pointer to the raw data of a dataset
+     * \param grid The grid that gives us the dimensions information
+     * \param components Number of values used in a Voxel, usually 1, 3 or 4
+     * \return Pointer to a new texture3D
+     */
+    osg::ref_ptr<osg::Texture3D> createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid,  int components = 1 );
+    osg::ref_ptr<osg::Texture3D> createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
+    osg::ref_ptr<osg::Texture3D> createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
+
 private:
 
     /**
@@ -127,10 +159,15 @@ private:
     boost::shared_ptr< WDataSet > m_dataSet;
 
     /**
+     * pointer to the 3d texture
+     */
+    osg::ref_ptr<osg::Texture3D> m_texture3D;
+
+    /**
      * The only output of this data module.
      */
-    boost::shared_ptr< WModuleOutputData< boost::shared_ptr< WDataSet > > > m_output;
+    boost::shared_ptr< WModuleOutputData< WDataSet > > m_output;
 };
 
-#endif  // WMDATA2_H
+#endif  // WMDATA_H
 

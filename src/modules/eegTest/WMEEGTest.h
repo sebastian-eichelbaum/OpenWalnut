@@ -48,12 +48,6 @@ public:
     virtual ~WMEEGTest();
 
     /**
-     * Copy constructor
-     * \param other Reference on object to copy.
-     */
-    WMEEGTest( const WMEEGTest& other );
-
-    /**
      * Gives back the name of this module.
      * \return the module's name.
      */

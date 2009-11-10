@@ -56,7 +56,7 @@ void WLoaderBiosig::fillSegment( std::vector<std::vector<double> >* segment, bio
     }
 }
 
-void WLoaderBiosig::biosigLoader()
+boost::shared_ptr< WDataSet> WLoaderBiosig::load()
 {
     std::cout << "BIOSIGLOADER" << std::endl;
     hd =  sopen( m_fileName.c_str(), "r", 0 );
@@ -131,9 +131,6 @@ void WLoaderBiosig::biosigLoader()
 
     std::cout << "BIOSIG loading done." << std::endl;
     std::cout << "===================================" << std::endl;
+    return eeg;
 }
 
-void WLoaderBiosig::operator()()
-{
-    biosigLoader();
-}

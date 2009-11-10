@@ -39,7 +39,7 @@ WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WData
 {
 }
 
-void WLoaderEEGASCII::operator()()
+boost::shared_ptr< WDataSet > WLoaderEEGASCII::load()
 {
     std::ifstream in( m_fileName.c_str() );
     if( in.fail() )
@@ -84,4 +84,6 @@ void WLoaderEEGASCII::operator()()
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
     eeg->setFileName( m_fileName );
     commitDataSet( eeg );
+    return eeg;
 }
+

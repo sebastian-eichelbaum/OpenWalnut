@@ -30,7 +30,6 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSet.h"
-#include "../data/WMData.hpp"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.hpp"

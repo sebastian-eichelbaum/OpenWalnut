@@ -35,12 +35,6 @@
 
 #include "WModule.h"
 #include "WModuleFactory.h"
-#include "../modules/data/WMData.hpp"
-#include "../modules/navSlices/WMNavSlices.h"
-#include "../modules/coordinateSystem/WMCoordinateSystem.h"
-#include "../modules/fiberDisplay/WMFiberDisplay.h"
-#include "../modules/fiberCulling/WMFiberCulling.h"
-#include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../common/WException.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
@@ -66,8 +60,7 @@ WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
 
     // get module factory
     m_moduleFactory = WModuleFactory::getModuleFactory();
-    m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer",
-                "Root module container in Kernel." ) );
+    m_moduleContainer = boost::shared_ptr< WModuleContainer >();
 
     // init GE, DataHandler, ...
     init();
@@ -145,56 +138,19 @@ int WKernel::run()
 
     // run? data handler stuff?
 
-    // **************************************************************************************************************************
-    // This part will be exchanged by some kind of ModuleContainer managing module execution.
-    // TODO(ebaum): replace by ModuleContainer
-    // **************************************************************************************************************************
-
-    // run module execution threads
-    // TODO(ebaum): after having modules loaded they should be started here.
-    // currently this is just the test module
-    /*
-    WLogger::getLogger()->addLogMessage( "*** Starting modules:", "Kernel", LL_DEBUG );
-    for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
-            ++list_iter )
-    {
-        WLogger::getLogger()->addLogMessage( "Starting module: " + ( *list_iter )->getName(), "Kernel", LL_DEBUG );
-        ( *list_iter )->run();
-    }
-
     // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
     while ( !m_gui->isInitalized() )
     {
     }
     m_gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
 
-    for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
-                ++list_iter )
-    {
-        ( *list_iter )->connectToGui();
-    }
-
-    // wait
-    // TODO(ebaum): this is not the optimal. It would be better to quit OSG, GE and so on in the right order.
-    m_gui->wait( false );
-    m_FinishRequested = true;
-
-    // wait for modules to finish
-    for( std::list< boost::shared_ptr< WModule > >::iterator list_iter = m_modules.begin(); list_iter != m_modules.end();
-            ++list_iter )
-    {
-        ( *list_iter )->wait( true );
-    }
-    */
-
-    // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
-    while ( !m_gui->isInitalized() )
-    {
-    }
-    m_gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
+    // default modules
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) );
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) );
 
     m_gui->wait( false );
     m_FinishRequested = true;
+    m_moduleContainer->stop();
 
     // finally GE
     m_graphicsEngine->wait( true );
@@ -214,6 +170,10 @@ void WKernel::init()
      // initialize
     findAppPath();
 
+    // initialize module container
+    m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer",
+                "Root module container in Kernel." ) );
+
     // initialize graphics engine
     // this also includes initialization of WGEScene and OpenSceneGraph
     m_graphicsEngine = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine( m_shaderPath ) );
@@ -223,7 +183,8 @@ void WKernel::init()
 
     // m_gui->createMainWindow();
 
-    m_dataHandler->getSignalAddDataset()->connect( boost::bind( &WKernel::slotFinishLoadData, this, _1 ) );
+    // TODO(ebaum): the old way
+    // m_dataHandler->getSignalAddDataset()->connect( boost::bind( &WKernel::slotFinishLoadData, this, _1 ) );
 }
 
 bool WKernel::findAppPath()
@@ -307,22 +268,13 @@ bool WKernel::isFinishRequested() const
 
 void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
 {
-    m_dataHandler->loadDataSets( fileNames );
-}
-
-void WKernel::slotFinishLoadData( boost::shared_ptr< WDataSet > dataSet )
-{
-    boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >( new WMData< int >( dataSet ) );
-
-    module->getProperties()->addBool( "active", true );
-    module->getProperties()->hideProperty( "active" );
-    module->getProperties()->addBool( "interpolation", true );
-    module->getProperties()->addInt( "threshold", 0 );
-    module->getProperties()->addInt( "alpha", 100 );
-    module->getProperties()->setMax( "alpha", 100 );
-    module->getProperties()->setValue( "name", dataSet->getFileName() );
-
-    m_gui->addDatasetToBrowser( module, 0 );
+    // add a new data module for each file to load
+    for ( std::vector< std::string >::iterator iter = fileNames.begin(); iter != fileNames.end(); ++iter )
+    {
+        boost::shared_ptr< WModule > mod = m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Data Module" ) );
+        mod->getProperties()->setValue( "filename" , ( *iter ) );
+        m_moduleContainer->add( mod );
+    }
 }
 
 boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const

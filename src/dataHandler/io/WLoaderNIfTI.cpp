@@ -73,8 +73,7 @@ wmath::WMatrix< double > WLoaderNIfTI::convertMatrix( const mat44& in )
     return out;
 }
 
-
-void WLoaderNIfTI::operator()()
+boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 {
     nifti_image* header = nifti_image_read( m_fileName.c_str(), 0 );
     int columns = header->dim[1];
@@ -142,6 +141,8 @@ void WLoaderNIfTI::operator()()
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
     newDataSet->setFileName( m_fileName );
     commitDataSet( newDataSet );
+
+    return newDataSet;
 }
 
 

@@ -25,6 +25,7 @@
 #ifndef WTHREADEDRUNNER_H
 #define WTHREADEDRUNNER_H
 
+#include <boost/thread.hpp>
 #include <boost/thread/thread.hpp>
 
 /**
@@ -90,6 +91,21 @@ protected:
      * \param t time to sleep in seconds.
      */
     void sleep( const int t ) const;
+
+    /**
+     * Let the thread sleep until a stop request was given.
+     */
+    void waitForStop();
+
+    /**
+     * Condition mutex used by m_stopCondition.
+     */
+    boost::mutex m_stopConditionMutex;
+
+    /**
+     * Condition getting fired whenever the thread should quit. This is useful for waiting for stop requests.
+     */
+    boost::condition_variable_any m_stopCondition;
 
 private:
 };

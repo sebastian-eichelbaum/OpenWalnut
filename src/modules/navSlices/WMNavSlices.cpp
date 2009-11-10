@@ -46,7 +46,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.hpp"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../data/WMData.hpp"
+#include "../data/WMData.h"
 
 #include "../../graphicsEngine/WShader.h"
 
@@ -59,8 +59,6 @@ WMNavSlices::WMNavSlices():
     // initialize members
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
     m_shader = boost::shared_ptr< WShader > ( new WShader( "slice", shaderPath ) );
-
-    properties();
 }
 
 WMNavSlices::~WMNavSlices()
@@ -401,18 +399,19 @@ void WMNavSlices::updateTextures()
             int c = 0;
             for ( size_t i = 0; i < datasetList.size(); ++i )
             {
+                boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
                 if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                        boost::shared_dynamic_cast<WMData<int> >( datasetList[i] )->getTexture3D() )
+                     ( dmodule != boost::shared_ptr< WMData> () ) &&
+                     dmodule->getTexture3D() )
                 {
-                    osg::ref_ptr<osg::Texture3D> texture3D = boost::shared_dynamic_cast<WMData<int> >( datasetList[i] )->getTexture3D();
+                    osg::ref_ptr<osg::Texture3D> texture3D = dmodule->getTexture3D();
 
                     rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                     float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
                     float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
 
-                    m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>(
-                            boost::shared_dynamic_cast<WMData<int> >( datasetList[i] )->getDataSet() )->getValueSet()->getDataType() );
+                    m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dmodule->getDataSet() )->getValueSet()->getDataType() );
                     m_thresholdUniforms[c]->set( t );
                     m_alphaUniforms[c]->set( a );
 
@@ -425,7 +424,6 @@ void WMNavSlices::updateTextures()
     }
     slock.unlock();
 }
-
 
 void WMNavSlices::connectToGui()
 {

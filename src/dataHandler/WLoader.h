@@ -53,11 +53,11 @@ public:
     };
 
     /**
-     * This function is automatically called when creating a new thread for the
-     * loader with boost::thread. The method is pure virtual here to ensure
-     * that subclasses implement it.
+     * Loads the dataset.
+     * 
+     * \return the dataset loaded.
      */
-    virtual void operator()() = 0;
+    virtual boost::shared_ptr< WDataSet > load() = 0;
 
 protected:
     /**

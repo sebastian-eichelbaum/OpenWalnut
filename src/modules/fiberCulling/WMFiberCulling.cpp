@@ -38,7 +38,6 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WLoaderManager.h"
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 

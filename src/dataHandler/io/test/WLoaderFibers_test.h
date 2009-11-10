@@ -276,7 +276,7 @@ public:
     {
         TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 0 );
         WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
-        loader();
+        loader.load();
         TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
     }
 

@@ -90,6 +90,13 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Signal fired whenever a module main thread is ready.
+     * 
+     * \return the signal.
+     */
+    virtual boost::signal1< void, boost::shared_ptr< WModule > >* getModuleReadySignal();
+
 protected:
 
     /**
@@ -111,6 +118,18 @@ protected:
      * Description of the module.
      */
     std::string m_description;
+
+    /**
+     * Signal fired whenever a module main thread is ready.
+     */
+    boost::signal1< void, boost::shared_ptr< WModule> > m_moduleReadySignal;
+
+    /**
+     * Gets called whenever a module has finished.
+     * 
+     * \param module the module which is now ready.
+     */
+    virtual void slotModuleReady( boost::shared_ptr< WModule > module );
 
 private:
 };

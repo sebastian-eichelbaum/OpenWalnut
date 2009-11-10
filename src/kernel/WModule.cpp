@@ -114,8 +114,7 @@ void WModule::initialize()
     }
 
     connectors();
-    // TODO(ebaum): should properties be initialized here?
-    // properties();
+    properties();
 
     m_initialized = true;
 }
@@ -146,6 +145,11 @@ const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutput
     return m_outputConnectors;
 }
 
+boost::signal1< void, boost::shared_ptr< WModule > >* WModule::getReadySignal()
+{
+    return &m_readySignal;
+}
+
 const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
 {
     switch ( signal )
@@ -172,7 +176,7 @@ bool WModule::isInitialized() const
 bool WModule::isAssociated() const
 {
     // true if the pointer is set
-    return ( m_container == boost::shared_ptr< WModuleContainer >() );
+    return ( m_container != boost::shared_ptr< WModuleContainer >() );
 }
 
 bool WModule::isUseable() const
@@ -201,6 +205,11 @@ void WModule::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
 boost::shared_ptr< WProperties > WModule::getProperties() const
 {
     return m_properties;
+}
+
+void WModule::ready()
+{
+    m_readySignal( shared_from_this() );
 }
 
 void WModule::connectToGui()

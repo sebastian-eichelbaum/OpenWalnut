@@ -49,10 +49,19 @@ void WThreadedRunner::wait( bool requestFinish )
 {
     if( requestFinish )
     {
-        m_FinishRequested = requestFinish;
+        // first notify
         notifyStop();
+
+        // then signal it
+        m_FinishRequested = requestFinish;
+        m_stopCondition.notify_all();
     }
     m_Thread->join();
+}
+
+void WThreadedRunner::waitForStop()
+{
+    m_stopCondition.wait( m_stopConditionMutex );
 }
 
 void WThreadedRunner::threadMain()

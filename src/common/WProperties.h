@@ -112,6 +112,8 @@ public:
         {
             return findProp( prop )->getValue< T >();
         }
+
+        // TODO(schurade): do not use NULL as return value in this case. Throw exception instead.
         return 0;
     }
 
@@ -121,6 +123,8 @@ public:
         {
             return findProp( prop )->getMin< T >();
         }
+
+        // TODO(schurade): do not use NULL as return value in this case. Throw exception instead.
         return 0;
     }
 
@@ -130,6 +134,8 @@ public:
         {
             return findProp( prop )->getMax< T >();
         }
+
+        // TODO(schurade): do not use NULL as return value in this case. Throw exception instead.
         return 0;
     }
 

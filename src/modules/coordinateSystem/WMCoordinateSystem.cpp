@@ -29,6 +29,7 @@
 #include <osg/Geometry>
 
 #include "../../kernel/WKernel.h"
+#include "../data/WMData.h"
 #include "WMCoordinateSystem.h"
 
 WMCoordinateSystem::WMCoordinateSystem() :
@@ -198,7 +199,7 @@ void WMCoordinateSystem::updateGeometry()
 
         if ( datasetList.size() > 0 )
         {
-            boost::shared_ptr< WMData< int > > module = boost::shared_dynamic_cast< WMData< int > >( datasetList[0] );
+            boost::shared_ptr< WMData > module = boost::shared_dynamic_cast< WMData >( datasetList[0] );
             boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( module->getDataSet() );
 
             if ( ds->getValueSet()->getDataType() != 2 )

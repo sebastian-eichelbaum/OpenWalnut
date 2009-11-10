@@ -29,7 +29,6 @@
 #include "WDataHandler.h"
 #include "WSubject.h"
 #include "exceptions/WDHNoSuchDataSet.h"
-#include "WLoaderManager.h"
 
 WDataHandler::WDataHandler()
 {
@@ -58,29 +57,3 @@ unsigned int WDataHandler::getNumberOfSubjects() const
     return m_subjects.size();
 }
 
-
-void WDataHandler::loadDataSets( std::vector< std::string > fileNames )
-{
-    WLoaderManager lm;
-    for ( size_t i = 0 ; i < fileNames.size() ; ++i)
-    {
-        try
-        {
-            lm.load( fileNames[i], shared_from_this() );
-        }
-        catch( WDHException e )
-        {
-            std::cerr << "Error :: DataHandler :: " << e.what() << std::endl;
-        }
-    }
-}
-
-void WDataHandler::signalLoadFinished( boost::shared_ptr< WDataSet > data )
-{
-    m_signalAddDataset( data );
-}
-
-boost::signal1< void, boost::shared_ptr< WDataSet > >* WDataHandler::getSignalAddDataset()
-{
-    return &m_signalAddDataset;
-}

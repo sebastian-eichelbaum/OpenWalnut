@@ -51,7 +51,7 @@ public:
         TS_ASSERT_EQUALS( dataHandler->getNumberOfSubjects(), 0 );
 
         WLoaderEEGASCII eegASCIILoader( fileName, dataHandler );
-        boost::thread loaderThread( eegASCIILoader );
+        eegASCIILoader.load();
 
         std::clock_t startTime;
         startTime = std::clock();

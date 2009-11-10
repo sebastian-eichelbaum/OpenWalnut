@@ -53,6 +53,13 @@ public:
     virtual void createMainWindow() = 0;
 
     /**
+     * Slot gets called whenever a new module is added.
+     * 
+     * \param module
+     */
+    virtual void slotAddDatasetToBrowser( boost::shared_ptr< WModule > module );
+
+    /**
      *  adds a dataset to the dataset browser for a give subject
      */
     virtual void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId ) = 0;

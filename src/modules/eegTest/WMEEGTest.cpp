@@ -34,7 +34,6 @@
 
 #include "WMEEGTest.h"
 #include "../../kernel/WKernel.h"
-#include "../../dataHandler/WLoaderManager.h"
 #include "../../dataHandler/WEEG.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
@@ -48,12 +47,6 @@ WMEEGTest::WMEEGTest():
 WMEEGTest::~WMEEGTest()
 {
     // cleanup
-}
-
-WMEEGTest::WMEEGTest( const WMEEGTest& other )
-    : WModule()
-{
-    *this = other;
 }
 
 boost::shared_ptr< WModule > WMEEGTest::factory() const
@@ -116,36 +109,38 @@ void WMEEGTest::threadMain()
     // load the sample scene.
     osg::Geode* sceneDataGeode = new osg::Geode();
 
-    std::string fileName = "dataHandler/fixtures/eeg_testData.asc";
-    //    std::string fileName = "/dargb/bv_data/Medical/MPI-CBS/EEG-Test/Alex_Segment_1.edf";
-    std::cout << "Test loading of " << fileName << "." << std::endl;
-    boost::shared_ptr< WDataHandler > dataHandler =
-        boost::shared_ptr< WDataHandler >( new WDataHandler() );
-    WLoaderManager testLoaderManager;
-    testLoaderManager.load( fileName, dataHandler );
-    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
-    sleep( 4 );  // we need this to allow the thread to terminate
+    // TODO(all): fix this.
+    //std::string fileName = "dataHandler/fixtures/eeg_testData.asc";
+    ////    std::string fileName = "/dargb/bv_data/Medical/MPI-CBS/EEG-Test/Alex_Segment_1.edf";
+    //std::cout << "Test loading of " << fileName << "." << std::endl;
+    //boost::shared_ptr< WDataHandler > dataHandler =
+        //boost::shared_ptr< WDataHandler >( new WDataHandler() );
+    //WLoaderManager testLoaderManager;
+    //testLoaderManager.load( fileName, dataHandler );
+    //std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
+    //sleep( 4 );  // we need this to allow the thread to terminate
 
-    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
-    boost::shared_ptr< const WEEG > eegData;
-    eegData = boost::shared_dynamic_cast< const WEEG >( dataHandler->getSubject( 0 )->getDataSet( 0 ) );
+    //std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
+    //boost::shared_ptr< const WEEG > eegData;
+    //eegData = boost::shared_dynamic_cast< const WEEG >( dataHandler->getSubject( 0 )->getDataSet( 0 ) );
 
-    for( unsigned int channelId = 0; channelId < eegData->getNumberOfChannels() ; ++channelId )
-    {
-        std::cout << "Draw channel " << channelId << std::endl;
-        drawChannel( eegData, channelId, sceneDataGeode );
-    }
+    //for( unsigned int channelId = 0; channelId < eegData->getNumberOfChannels() ; ++channelId )
+    //{
+        //std::cout << "Draw channel " << channelId << std::endl;
+        //drawChannel( eegData, channelId, sceneDataGeode );
+    //}
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( sceneDataGeode );
+    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( sceneDataGeode );
 
-    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
+    //std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
+
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
     {
         // do fancy stuff
         sleep( 1 );
     }
-    std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
+    //std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;
 
     // clean up stuff
 }

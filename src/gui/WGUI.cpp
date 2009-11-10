@@ -27,3 +27,9 @@
 WGUI::~WGUI()
 {
 }
+
+void WGUI::slotAddDatasetToBrowser( boost::shared_ptr< WModule > module )
+{
+    addDatasetToBrowser( module, 0 );
+}
+

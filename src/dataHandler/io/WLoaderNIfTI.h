@@ -50,10 +50,11 @@ public:
     WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
 
     /**
-     * This function is automatically called when creating a new thread for the
-     * loader with boost::thread. It calls the methods of the NIfTI I/O library.
+     * Loads the dataset.
+     * 
+     * \return the dataset loaded.
      */
-    virtual void operator()();
+    virtual boost::shared_ptr< WDataSet > load();
 
 protected:
 private:

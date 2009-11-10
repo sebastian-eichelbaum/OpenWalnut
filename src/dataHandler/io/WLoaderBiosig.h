@@ -49,13 +49,14 @@ public:
     WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
 
     /**
-     * This  function is automatically called when creating a new thread for the
-     * loader with boost::thread.
+     * Loads the dataset.
+     * 
+     * \return the dataset loaded.
      */
-    virtual void operator()();
+    virtual boost::shared_ptr< WDataSet > load();
+
 protected:
 private:
-    void biosigLoader();
     void fillSegment( std::vector<std::vector<double> >* segment, biosig_data_type* data );
 
     /**

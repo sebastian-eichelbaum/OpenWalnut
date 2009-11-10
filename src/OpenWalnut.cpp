@@ -64,6 +64,7 @@ int main( int argc, char* argv[] )
 
     // init the kernel
     WKernel kernel = WKernel( argc, argv, gui );
+    kernel.getRootContainer()->getModuleReadySignal()->connect( boost::bind( &WGUI::slotAddDatasetToBrowser, gui, _1 ) );
 
     return kernel.run();
 }

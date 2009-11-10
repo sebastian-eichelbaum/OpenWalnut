@@ -22,194 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDATA_H
-#define WMDATA_H
-
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/filesystem.hpp>
 
-#include <osg/Texture3D>
+#include "../../dataHandler/exceptions/WDHException.h"
+#include "../../dataHandler/io/WLoaderNIfTI.h"
+#include "../../dataHandler/io/WLoaderBiosig.h"
+#include "../../dataHandler/io/WLoaderEEGASCII.h"
+#include "../../dataHandler/io/WLoaderFibers.h"
 
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleOutputData.hpp"
+#include "WMData.h"
 
-#include "../../dataHandler/WGridRegular3D.h"
-/**
- * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its
- * inherited classes. This class builds a "source".
- */
-template < typename T >
-class WMData: public WModule
-{
-public:
-
-    /**
-     * \par Description
-     * Default constructor.
-     */
-    WMData();
-
-    /**
-     * \par Description
-     * constructor with dataset
-     */
-    explicit WMData( boost::shared_ptr< WDataSet > dataSet );
-
-    /**
-     * \par Description
-     * Destructor.
-     */
-    virtual ~WMData();
-
-    /**
-     * \par Description
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * \par Description
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
-
-    /**
-     *  setter for the asociated dataset
-     */
-    virtual void setDataSet( boost::shared_ptr< WDataSet > dataSet );
-
-    /**
-     * getter for the dataset
-     */
-    virtual boost::shared_ptr< WDataSet > getDataSet();
-
-    /**
-     * getter for the 3d texture, which will be created on demand
-     */
-    virtual osg::ref_ptr<osg::Texture3D> getTexture3D();
-
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual boost::shared_ptr< WModule > factory() const;
-
-protected:
-    /**
-     * \par Description
-     * Entry point after loading the module. Runs in separate thread.
-     */
-    virtual void threadMain();
-
-    /**
-     * Initialize the connectors this module is using.
-     */
-    virtual void connectors();
-
-    /**
-     * Receive DATA_CHANGE notifications.
-     *
-     * \param input the input connector that got the change signal. Typically it is one of the input connectors from this module.
-     * \param output the output connector that sent the signal. Not part of this module instance.
-     */
-    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-            boost::shared_ptr<WModuleConnector> output );
-
-    /**
-     * Creates a 3d texture from a dataset. This function will be overloaded for the
-     * various data types. A template function is not recommended due to the different commands
-     * in the image creation.
-     *
-     * TODO(schurade): create other functions once dataset meta data is available again
-     *
-     * \param source Pointer to the raw data of a dataset
-     * \param grid The grid that gives us the dimensions information
-     * \param components Number of values used in a Voxel, usually 1, 3 or 4
-     * \return Pointer to a new texture3D
-     */
-    osg::ref_ptr<osg::Texture3D> createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid,  int components = 1 );
-    osg::ref_ptr<osg::Texture3D> createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
-    osg::ref_ptr<osg::Texture3D> createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
-
-private:
-    /**
-     * The only output of this data module.
-     */
-    boost::shared_ptr<WModuleOutputData<T> > m_output;
-
-    /**
-     * pointer to the dataset
-     */
-    boost::shared_ptr< WDataSet > m_dataSet;
-
-    /**
-     * pointer to the 3d texture
-     */
-    osg::ref_ptr<osg::Texture3D> m_texture3D;
-};
-
-// TODO(schurade, ebaum): do we still need/want that constructor?
-template < typename T >
-WMData<T>::WMData():
+WMData::WMData():
     WModule()
 {
-    // WARNING: initializing connectors inside the constructor will lead to an exception.
-    // Implement WModule::initializeConnectors instead.
-
     // initialize members
-    m_properties->addString( "name", "not initialized" );
 }
 
-template < typename T >
-WMData<T>::WMData( boost::shared_ptr< WDataSet > dataSet ):
-    WModule()
-{
-    // WARNING: initializing connectors inside the constructor will lead to an exception.
-    // Implement WModule::initializeConnectors instead.
-
-    // initialize members
-    m_dataSet = dataSet;
-    m_texture3D = 0;
-    m_properties->addString( "name", "not initialized" );
-}
-
-    template < typename T >
-WMData<T>::~WMData()
+WMData::~WMData()
 {
     // cleanup
 }
 
-template < typename T >
-boost::shared_ptr< WModule > WMData< T >::factory() const
+boost::shared_ptr< WModule > WMData::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMData< T >() );
+    return boost::shared_ptr< WModule >( new WMData() );
 }
 
-template < typename T >
-const std::string WMData<T>::getName() const
+const std::string WMData::getName() const
 {
     return "Data Module";
 }
 
-template < typename T >
-const std::string WMData<T>::getDescription() const
+const std::string WMData::getDescription() const
 {
-    return "This module can encapsulate data.";
+    return "This module encapsulates data.";
 }
 
-    template < typename T >
-void WMData<T>::connectors()
+boost::shared_ptr< WDataSet > WMData::getDataSet()
+{
+    return m_dataSet;
+}
+
+void WMData::connectors()
 {
     // initialize connectors
-    m_output= boost::shared_ptr<WModuleOutputData<T> >(
-            new WModuleOutputData<T>( shared_from_this(),
+    m_output= boost::shared_ptr< WModuleOutputData< WDataSet > >( new WModuleOutputData< WDataSet >( shared_from_this(),
                 "out1", "A loaded dataset." )
             );
 
@@ -220,40 +79,109 @@ void WMData<T>::connectors()
     WModule::connectors();
 }
 
-    template < typename T >
-void WMData<T>::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-        boost::shared_ptr<WModuleConnector> output )
+void WMData::properties()
 {
-    WModule::notifyDataChange( input, output );
+    // properties
+
+    // filename of file to load and handle
+    m_properties->addString( "filename" );
+    m_properties->hideProperty( "filename" );
+    m_properties->addString( "name" );
+    m_properties->addBool( "active", true );
+    m_properties->hideProperty( "active" );
+    m_properties->addBool( "interpolation", true );
+    m_properties->addInt( "threshold", 0 );
+    m_properties->addInt( "alpha", 100 );
+    m_properties->setMax( "alpha", 100 );
 }
 
-    template < typename T >
-void WMData<T>::threadMain()
+void WMData::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
+                                           boost::shared_ptr<WModuleConnector> there )
 {
-    // Since the modules run in a separate thread: such loops are possible
-    while ( !m_FinishRequested )
+    WLogger::getLogger()->addLogMessage( "Connected \"" + here->getCanonicalName() + "\" to \"" + there->getCanonicalName() + "\".",
+            getName(), LL_DEBUG );
+}
+
+void WMData::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there )
+{
+    WLogger::getLogger()->addLogMessage( "Disconnected \"" + here->getCanonicalName() + "\" from \"" + there->getCanonicalName() + "\".",
+            getName(), LL_DEBUG );
+}
+
+void WMData::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/, boost::shared_ptr<WModuleConnector> /*output*/ )
+{
+    // not used here, since data modules can not receive an input.
+}
+
+void WMData::notifyStop()
+{
+    // not used here. It gets called whenever the module should stop running.
+}
+
+std::string getSuffix( std::string name )
+{
+    boost::filesystem::path p( name );
+    return p.extension();
+}
+
+void WMData::threadMain()
+{
+    std::string fileName = m_properties->getValue< std::string >( "filename" );
+
+    WLogger::getLogger()->addLogMessage( "Loading data from \"" + fileName + "\".", getName(), LL_DEBUG );
+    m_properties->setValue( "name", fileName );
+
+    // load it now
+    std::string suffix = getSuffix( fileName );
+
+    if( suffix == ".nii" || suffix == ".gz" )
     {
-        // do fancy stuff
-        sleep( 1 );
+        if( suffix == ".gz" )  // it may be a NIfTI file too
+        {
+            boost::filesystem::path p( fileName );
+            p.replace_extension( "" );
+            suffix = getSuffix( p.string() );
+            assert( suffix == ".nii" && "currently only nii files may be gzipped" );
+        }
+        WLoaderNIfTI niiLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        m_dataSet = niiLoader.load();
+    }
+    else if( suffix == ".edf" )
+    {
+        WLoaderBiosig biosigLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        m_dataSet = biosigLoader.load();
+    }
+    else if( suffix == ".asc" )
+    {
+        WLoaderEEGASCII eegAsciiLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        m_dataSet = eegAsciiLoader.load();
+    }
+    else if( suffix == ".vtk" )
+    {
+        // This is a dummy implementation.
+        // You need to provide a real implementation here if you want to load vtk.
+        std::cout << "VTK not implemented yet" << std::endl;
+        assert( 0 );
+    }
+    else if( suffix == ".fib" )
+    {
+        WLoaderFibers fibLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        m_dataSet = fibLoader.load();
+    }
+    else
+    {
+        throw WDHException( "Unknown file type: '" + suffix + "'" );
     }
 
-    // clean up stuff
+    // notify
+    m_output->updateData( m_dataSet );
+    ready();
+
+    // go to idle mode
+    waitForStop();  // WThreadedRunner offers this for us. It uses boost::condition to avoid wasting CPU cycles with while loops.
 }
 
-    template < typename T >
-void WMData<T>::setDataSet( boost::shared_ptr< WDataSet > dataSet )
-{
-    m_dataSet = dataSet;
-}
-
-    template < typename T >
-boost::shared_ptr< WDataSet > WMData<T>::getDataSet()
-{
-    return m_dataSet;
-}
-
-    template < typename T >
-osg::ref_ptr<osg::Texture3D> WMData<T>::getTexture3D()
+osg::ref_ptr<osg::Texture3D> WMData::getTexture3D()
 {
     if ( !m_texture3D )
     {
@@ -284,8 +212,7 @@ osg::ref_ptr<osg::Texture3D> WMData<T>::getTexture3D()
     return m_texture3D;
 }
 
-    template < typename T >
-osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid, int components )
+osg::ref_ptr<osg::Texture3D> WMData::createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1 )
     {
@@ -331,8 +258,7 @@ osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( unsigned char* source, 
     return 0;
 }
 
-    template < typename T >
-osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D> grid, int components )
+osg::ref_ptr<osg::Texture3D> WMData::createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D> grid, int components )
 {
     if ( components == 1)
     {
@@ -359,8 +285,7 @@ osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( int16_t* source, boost:
     return 0;
 }
 
-    template < typename T >
-osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components )
+osg::ref_ptr<osg::Texture3D> WMData::createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components )
 {
     if ( components == 1)
     {
@@ -386,6 +311,3 @@ osg::ref_ptr<osg::Texture3D> WMData<T>::createTexture3D( float* source, boost::s
     }
     return 0;
 }
-
-#endif  // WMDATA_H
-

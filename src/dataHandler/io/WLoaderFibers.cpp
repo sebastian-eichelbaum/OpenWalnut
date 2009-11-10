@@ -54,7 +54,7 @@ WLoaderFibers::~WLoaderFibers() throw()
 {
 }
 
-void WLoaderFibers::operator()() throw()
+boost::shared_ptr< WDataSet > WLoaderFibers::load()
 {
     using boost::shared_ptr;
     using std::vector;
@@ -81,6 +81,7 @@ void WLoaderFibers::operator()() throw()
 
     commitDataSet( fibers );
     assert( !m_ifs->is_open() );
+    return fibers;
 }
 
 void WLoaderFibers::readHeader() throw( WDHIOFailure, WDHException )

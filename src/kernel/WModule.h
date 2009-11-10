@@ -143,6 +143,13 @@ public:
      */
     virtual void connectToGui();
 
+    /**
+     * Signal fired whenever a module main thread is ready.
+     * 
+     * \return the signal.
+     */
+    virtual boost::signal1< void, boost::shared_ptr< WModule > >* getReadySignal();
+
 protected:
 
     /**
@@ -286,6 +293,12 @@ protected:
      * Set of output connectors associated with this module.
      */
     std::set<boost::shared_ptr<WModuleOutputConnector> > m_outputConnectors;
+
+    /**
+     * Call this whenever your module is ready and can react on property changes.
+     */
+    void ready();
+
 private:
 
      /**
@@ -297,6 +310,11 @@ private:
      * Lock for m_outputConnectors.
      */
     // boost::shared_mutex m_outputConnectorsLock;
+
+    /**
+     * Signal fired whenever a module main thread is ready.
+     */
+    boost::signal1< void, boost::shared_ptr< WModule> > m_readySignal;
 };
 
 #endif  // WMODULE_H

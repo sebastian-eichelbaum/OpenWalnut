@@ -27,7 +27,7 @@
 
 #include "../common/WLogger.h"
 
-#include "../modules/data/WMData.hpp"
+#include "../modules/data/WMData.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
@@ -63,6 +63,7 @@ void WModuleFactory::load()
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_prototypesLock );
 
     // currently the prototypes are added by hand. This will be done automatically later.
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberCulling() ) );
@@ -81,12 +82,12 @@ void WModuleFactory::load()
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end();
             ++listIter )
     {
-        WLogger::getLogger()->addLogMessage( "Loading module: " + ( *listIter )->getName(), "ModuleFactory", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Loading module: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_DEBUG );
 
         // that should not happen. Names should not occur multiple times since they are unique
         if ( names.count( ( *listIter )->getName() ) )
         {
-            throw WPrototypeNotUnique( "Module " + ( *listIter )->getName() + " is not unique. Modules have to have a unique name." );
+            throw WPrototypeNotUnique( "Module \"" + ( *listIter )->getName() + "\" is not unique. Modules have to have a unique name." );
         }
         names.insert( ( *listIter )->getName() );
 
@@ -104,7 +105,7 @@ boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule 
     // ensure this one is a prototype and nothing else
     if ( m_prototypes.count( prototype ) == 0 )
     {
-        throw WPrototypeUnknown( "Could not clone module " + prototype->getName() + " since it is no prototype." );
+        throw WPrototypeUnknown( "Could not clone module \"" + prototype->getName() + "\" since it is no prototype." );
     }
 
     slock.unlock();
@@ -149,7 +150,7 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::stri
     // if not found -> throw
     if ( ret == boost::shared_ptr< WModule >() )
     {
-        throw WPrototypeUnknown( "Could not find prototype " + name + "." );
+        throw WPrototypeUnknown( "Could not find prototype \"" + name + "\"." );
     }
 
     return ret;
