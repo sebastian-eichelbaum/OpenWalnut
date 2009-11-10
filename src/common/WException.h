@@ -53,7 +53,7 @@ public:
      * 
      * \param e the exception.
      */
-    WException( const std::exception& e );
+    explicit WException( const std::exception& e );
 
     /**
      * Destructor.

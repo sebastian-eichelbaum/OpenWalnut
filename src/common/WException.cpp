@@ -58,7 +58,7 @@ WException::WException( const std::string& msg ): exception()
 
 WException::WException( const std::exception& e ): exception( e )
 {
-    m_msg = e.what();    
+    m_msg = e.what();
 
     // print stacktrace and message
     // no backtrace?

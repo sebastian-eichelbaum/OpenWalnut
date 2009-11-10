@@ -66,14 +66,14 @@ typedef boost::signals2::signal< void ( boost::shared_ptr< WModule > ) >  t_Modu
  * \param module The module emitting the signal.
  *
  */
-typedef boost::function< void ( boost::shared_ptr< WModule >, WException& ) > t_ModuleErrorSignalHandlerType;
+typedef boost::function< void ( boost::shared_ptr< WModule >, const WException& ) > t_ModuleErrorSignalHandlerType;
 
 /**
  * Signal type used in the most signals involving exceptions.
  *
  * \param module The module emitting the signal.
  */
-typedef boost::signals2::signal< void ( boost::shared_ptr< WModule >, WException& ) >  t_ModuleErrorSignalType;
+typedef boost::signals2::signal< void ( boost::shared_ptr< WModule >, const WException& ) >  t_ModuleErrorSignalType;
 
 
 #endif  // WMODULESIGNALS_H

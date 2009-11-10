@@ -37,6 +37,7 @@
 #include "exceptions/WModuleConnectorInitFailed.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "../common/WException.h"
+#include "../common/WLogger.h"
 
 #include "WModule.h"
 
@@ -245,16 +246,22 @@ void WModule::threadMain()
 {
     try
     {
+        WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_DEBUG );
+
         // call main thread function
         moduleMain();
     }
-    catch ( WException& e )
+    catch( const WException& e )
     {
+        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_DEBUG );
+
         // ensure proper exception propagation
         signal_error( shared_from_this(), e );
     }
-    catch ( std::exception& e )
+    catch( const std::exception& e )
     {
+        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_DEBUG );
+
         // convert these exceptions to WException
         WException ce = WException( e );
         signal_error( shared_from_this(), ce );
