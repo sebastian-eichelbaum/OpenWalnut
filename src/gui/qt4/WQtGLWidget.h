@@ -47,6 +47,7 @@ public:
      * Default constructor.
      *
      * \param parent Parent widget.
+     * \param projectionMode decides whether the widget uses perspective or othographic projection
      *
      * \return
      */

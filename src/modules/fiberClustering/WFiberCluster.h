@@ -70,6 +70,7 @@ public:
      * Find the minimal distance for any pair of fibers where one fiber is
      * in this cluster and the other is in the other cluster.
      *
+     * \param other the cluster that will be compared with this cluster
      * \param proximity_t Fiber distances below this threshold are not
      * conisdered
      */

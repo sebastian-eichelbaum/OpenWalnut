@@ -79,6 +79,8 @@ protected:
      * Generates an OSG geometry for the given fiber.
      *
      * \param fib reference to a WFiber instance
+     * \param globalColoring determines whether the whole fiber has
+     * the same color (true) or separate segements can have different colors. 
      * \return OSG geometry representing the fiber.
      */
     osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib, bool globalColoring = true ) const;

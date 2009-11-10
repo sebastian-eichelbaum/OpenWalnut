@@ -42,7 +42,7 @@ public:
     /**
      * Generates new look up table.
      *
-     * \param n the dimmension of the square matrix
+     * \param dim the dimension of the square matrix
      */
     explicit WDXtLookUpTable( size_t dim );
 
