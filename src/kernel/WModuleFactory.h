@@ -91,6 +91,17 @@ public:
      */
     const boost::shared_ptr< WModule > getPrototypeByInstance( boost::shared_ptr< WModule > instance );
 
+    /**
+     * Checks whether the first instance can be casted to the second one.
+     * 
+     * \param module1 the module to check.
+     * \param module2 the module to check against.
+     * 
+     * \return 
+     */
+    template <typename T>
+    static bool isA( boost::shared_ptr< WModule > module );
+
 protected:
 
     /**
@@ -109,6 +120,14 @@ private:
      */
     static boost::shared_ptr< WModuleFactory > m_instance;
 };
+
+template <typename T>
+bool WModuleFactory::isA( boost::shared_ptr< WModule > module )
+{
+    // NOTE: this is RTTI. Everybody says: do not use it but nearly nobody says in which cases and why. So we ignore them and use
+    // it.
+    return ( dynamic_cast< T* >( module.get() ) );  // NOLINT
+}
 
 #endif  // WMODULEFACTORY_H
 

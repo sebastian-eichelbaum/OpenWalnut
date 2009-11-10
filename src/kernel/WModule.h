@@ -27,12 +27,16 @@
 
 #include <set>
 #include <string>
+#include <typeinfo>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
 
 #include "../common/WThreadedRunner.h"
 #include "WModuleConnectorSignals.h"
+#include "WModuleSignals.h"
 
 #include "../dataHandler/WDataSet.h"
 #include "../dataHandler/WDataSetSingle.h"
@@ -143,12 +147,18 @@ public:
      */
     virtual void connectToGui();
 
-    /**
-     * Signal fired whenever a module main thread is ready.
+   /** 
+     * Connects a specified notify function with a signal this module instance is offering.
      * 
-     * \return the signal.
+     * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
+     *
+     * \param signal the signal to connect to.
+     * \param notifier the notifier function to bind.
+     *
+     * \return connection descriptor.
      */
-    virtual boost::signal1< void, boost::shared_ptr< WModule > >* getReadySignal();
+    virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
+    virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier );
 
 protected:
 
@@ -314,7 +324,12 @@ private:
     /**
      * Signal fired whenever a module main thread is ready.
      */
-    boost::signal1< void, boost::shared_ptr< WModule> > m_readySignal;
+    t_ModuleGenericSignalType signal_ready;
+
+    /**
+     * Signal fired whenever a module main thread throws an exception/error.
+     */
+    t_ModuleErrorSignalType signal_error;
 };
 
 #endif  // WMODULE_H

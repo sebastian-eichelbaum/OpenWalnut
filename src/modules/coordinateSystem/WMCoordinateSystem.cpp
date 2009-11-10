@@ -44,7 +44,7 @@ WMCoordinateSystem::~WMCoordinateSystem()
 
 boost::shared_ptr< WModule > WMCoordinateSystem::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMCoordinateSystem() );
+    return boost::shared_ptr< WMCoordinateSystem >( new WMCoordinateSystem() );
 }
 
 void WMCoordinateSystem::threadMain()

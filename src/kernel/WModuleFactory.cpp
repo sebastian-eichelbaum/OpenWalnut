@@ -24,6 +24,8 @@
 
 #include <set>
 #include <string>
+#include <iostream>
+#include <typeinfo>
 
 #include "../common/WLogger.h"
 

@@ -33,6 +33,7 @@
 #include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
 #include "exceptions/WModuleSignalUnknown.h"
+#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
 #include "exceptions/WModuleUninitialized.h"
 
@@ -145,9 +146,32 @@ const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutput
     return m_outputConnectors;
 }
 
-boost::signal1< void, boost::shared_ptr< WModule > >* WModule::getReadySignal()
+boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier )
 {
-    return &m_readySignal;
+    switch (signal)
+    {
+        case READY:
+            return signal_ready.connect( notifier );
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WModuleSignalSubscriptionFailed( s.str() );
+            break;
+    }
+}
+
+boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier )
+{
+    switch (signal)
+    {
+        case ERROR:
+            signal_error.connect( notifier );
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WModuleSignalSubscriptionFailed( s.str() );
+            break;
+    }
 }
 
 const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
@@ -209,7 +233,7 @@ boost::shared_ptr< WProperties > WModule::getProperties() const
 
 void WModule::ready()
 {
-    m_readySignal( shared_from_this() );
+    signal_ready( shared_from_this() );
 }
 
 void WModule::connectToGui()

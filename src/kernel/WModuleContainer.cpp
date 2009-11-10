@@ -22,13 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
 #include <set>
 #include <string>
 #include <sstream>
 
 #include "WModule.h"
 #include "exceptions/WModuleUninitialized.h"
+#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "../common/WLogger.h"
+#include "WKernel.h"
 
 #include "WModuleContainer.h"
 
@@ -80,8 +83,22 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module )
 
     // now module->isUsable() is true
     // -> so run it
+
+    // connect default ready/error notifiers
+    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_readyNotifiersLock );
+    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_readyNotifiers.begin(); iter != m_readyNotifiers.end(); ++iter)
+    {
+        module->subscribeSignal( READY, ( *iter ) );
+    }
+    slock.unlock();
+    slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
+    for ( std::list< t_ModuleErrorSignalHandlerType >::iterator iter = m_errorNotifiers.begin(); iter != m_errorNotifiers.end(); ++iter)
+    {
+        module->subscribeSignal( ERROR, ( *iter ) );
+    }
+    slock.unlock();
+
     // TODO(ebaum,schurade): this should be removes some days
-    module->getReadySignal()->connect( boost::bind( &WModuleContainer::slotModuleReady, this, _1 ) );
     module->connectToGui();
     module->run();
 }
@@ -135,13 +152,39 @@ const std::string WModuleContainer::getDescription() const
     return m_description;
 }
 
-boost::signal1< void, boost::shared_ptr< WModule > >* WModuleContainer::getModuleReadySignal()
+void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier )
 {
-    return &m_moduleReadySignal;
+    boost::unique_lock<boost::shared_mutex> lock;
+    switch (signal)
+    {
+        case READY:
+            lock = boost::unique_lock<boost::shared_mutex>( m_readyNotifiersLock );
+            m_readyNotifiers.push_back( notifier );
+            lock.unlock();
+            break;
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WModuleSignalSubscriptionFailed( s.str() );
+            break;
+    }
 }
 
-void WModuleContainer::slotModuleReady( boost::shared_ptr< WModule > module )
+void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier )
 {
-    m_moduleReadySignal( module );
+    boost::unique_lock<boost::shared_mutex> lock;
+    switch (signal)
+    {
+        case ERROR:
+            lock = boost::unique_lock<boost::shared_mutex>( m_errorNotifiersLock );
+            m_errorNotifiers.push_back( notifier );
+            lock.unlock();
+            break;
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WModuleSignalSubscriptionFailed( s.str() );
+            break;
+    }
 }
 

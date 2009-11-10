@@ -24,6 +24,9 @@
 
 #include <iostream>
 
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
+
 #include "common/WException.h"
 #include "common/WSegmentationFault.h"
 #include "common/WLogger.h"
@@ -32,6 +35,7 @@
 #include "gui/qt4/WQt4Gui.h"
 
 #include "kernel/WKernel.h"
+#include "kernel/WModuleSignals.h"
 
 /**
  * The main routine starting up the whole application.
@@ -64,7 +68,11 @@ int main( int argc, char* argv[] )
 
     // init the kernel
     WKernel kernel = WKernel( argc, argv, gui );
-    kernel.getRootContainer()->getModuleReadySignal()->connect( boost::bind( &WGUI::slotAddDatasetToBrowser, gui, _1 ) );
+
+    // bind the GUI's slot with the ready signal
+    t_ModuleGenericSignalHandlerType f = boost::bind( &WGUI::slotAddDatasetToBrowser, gui, _1 );
+    kernel.getRootContainer()->addDefaultNotifier( READY, f );
 
     return kernel.run();
 }
+

@@ -25,6 +25,7 @@
 #ifndef WMODULECONTAINER_H
 #define WMODULECONTAINER_H
 
+#include <list>
 #include <set>
 #include <string>
 
@@ -91,11 +92,13 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Signal fired whenever a module main thread is ready.
+     * Add a specified notifier to the list of default notifiers which get connected to each added module.
      * 
-     * \return the signal.
+     * \param signal    the signal the notifier should get connected to
+     * \param notifier  the notifier function
      */
-    virtual boost::signal1< void, boost::shared_ptr< WModule > >* getModuleReadySignal();
+    virtual void addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier );
+    virtual void addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
 
 protected:
 
@@ -120,16 +123,24 @@ protected:
     std::string m_description;
 
     /**
-     * Signal fired whenever a module main thread is ready.
+     * Lock for error notifiers set.
      */
-    boost::signal1< void, boost::shared_ptr< WModule> > m_moduleReadySignal;
+    boost::shared_mutex m_errorNotifiersLock;
 
     /**
-     * Gets called whenever a module has finished.
-     * 
-     * \param module the module which is now ready.
+     * The error notifiers connected to added modules by default.
      */
-    virtual void slotModuleReady( boost::shared_ptr< WModule > module );
+    std::list< t_ModuleErrorSignalHandlerType > m_errorNotifiers;
+
+    /**
+     * Lock for ready notifiers set.
+     */
+    boost::shared_mutex m_readyNotifiersLock;
+
+    /**
+     * The ready notifiers connected to added modules by default.
+     */
+    std::list< t_ModuleGenericSignalHandlerType > m_readyNotifiers;
 
 private:
 };
