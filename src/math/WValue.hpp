@@ -154,6 +154,17 @@ public:
     }
 
     /**
+     * Scales each component of this WValue with the given scalar argument
+     */
+    WValue& operator/=( double rhs )
+    {
+        for( unsigned int i = 0; i < m_components.size(); ++i )
+            m_components[i] /= rhs;
+        return *this;
+    }
+
+
+    /**
      * Componentwise addition.
      */
     const WValue operator+( const WValue& summand2 ) const
@@ -277,5 +288,16 @@ template< typename T > const WValue< T > operator*( double lhs, const WValue< T 
     result *= lhs;
     return result;
 }
+
+/**
+ * Divides a WValue by a scalar
+ */
+template< typename T > const WValue< T > operator/( const WValue< T >& lhs, double rhs )
+{
+    WValue< T > result( lhs );
+    result /= rhs;
+    return result;
+}
+
 }  // End of namespace
 #endif  // WVALUE_H

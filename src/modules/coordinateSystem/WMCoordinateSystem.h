@@ -28,6 +28,9 @@
 #include <string>
 
 #include <osg/Geode>
+#include <osg/Node>
+
+#include "WRulerOrtho.h"
 
 #include "../../dataHandler/WDataSet.h"
 #include "../../kernel/WModule.h"
@@ -102,9 +105,30 @@ private:
     void createGeometry();
 
     /**
+     * helper funktion to create the actual geometry
+     */
+    osg::ref_ptr<osg::Geometry> createGeometryNode();
+
+    /**
+     * helper function that finds the bounding box of the topmost dataset in the datasetbrowser
+     */
+    void findBoundingBox();
+
+    /**
      * the root node for this module
      */
-    osg::ref_ptr<osg::Geode> m_rootNode;
+    osg::ref_ptr<osg::Group> m_rootNode;
+
+    /**
+     * node for the bounding box
+     */
+    osg::ref_ptr<osg::Geode> m_boxNode;
+
+    /**
+     * node for the bounding box
+     */
+    osg::ref_ptr<WRulerOrtho> m_rulerNode;
+
 
     /**
      * the shader object for this module
