@@ -66,12 +66,12 @@ wmath::WVector3D WTalairachConverter::ACPC2Canonical( const wmath::WVector3D poi
 
 wmath::WVector3D WTalairachConverter::Canonical2Talairach( const wmath::WVector3D point )
 {
-
+    return ACPC2Talairach( Canonical2ACPC( point ) );
 }
 
 wmath::WVector3D WTalairachConverter::Talairach2Canonical( const wmath::WVector3D point )
 {
-
+    return ACPC2Canonical( Talairach2ACPC( point ) );
 }
 
 wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D point )
