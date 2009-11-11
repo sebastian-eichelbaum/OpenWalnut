@@ -245,18 +245,13 @@ void WMCoordinateSystem::findBoundingBox()
 
     if ( datasetList.size() > 0 )
     {
-        boost::shared_ptr< WMData< int > > module = boost::shared_dynamic_cast< WMData< int > >( datasetList[0] );
+        boost::shared_ptr< WMData > module = boost::shared_dynamic_cast< WMData >( datasetList[0] );
         boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( module->getDataSet() );
 
         if ( ds->getValueSet()->getDataType() != 2 )
         {
-<<<<<<< /SCR/schurade/workspace/walnut-hg/src/modules/coordinateSystem/WMCoordinateSystem.cpp
             return;
         }
-=======
-            boost::shared_ptr< WMData > module = boost::shared_dynamic_cast< WMData >( datasetList[0] );
-            boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( module->getDataSet() );
->>>>>>> /tmp/WMCoordinateSystem.cpp~other.C9uhPL
 
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
 
