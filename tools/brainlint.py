@@ -1625,7 +1625,7 @@ def CheckSpacing(filename, clean_lines, linenum, error):
   line = clean_lines.elided[linenum]  # get rid of comments and strings
 
   # Don't try to do spacing checks for operator methods
-  line = re.sub(r'operator(==|!=|\+=|\-=|<|<<|<=|>=|>>|>)\(', 'operator\(', line)
+  line = re.sub(r'operator(==|!=|\+=|\-=|/=|<|<<|<=|>=|>>|>)\(', 'operator\(', line)
 
   # We allow no-spaces around = within an if: "if ( (a=Foo()) == 0 )".
   # Otherwise not.  Note we only check for non-spaces on *both* sides;
