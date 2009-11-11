@@ -54,31 +54,31 @@ public:
     wmath::WVector3D Talairach2ACPC( const wmath::WVector3D point );
 
     wmath::WVector3D getAc() const;
-    void setAc(wmath::WVector3D ac);
+    void setAc( wmath::WVector3D ac );
 
     wmath::WVector3D getPc() const;
-    void setPc(wmath::WVector3D pc);
+    void setPc( wmath::WVector3D pc );
 
     wmath::WVector3D getIhp() const;
-    void setIhp(wmath::WVector3D ihp);
+    void setIhp( wmath::WVector3D ihp );
 
     wmath::WVector3D getAp() const;
-    void setAp(wmath::WVector3D ap);
+    void setAp( wmath::WVector3D ap );
 
     wmath::WVector3D getPp() const;
-    void setPp(wmath::WVector3D pp);
+    void setPp( wmath::WVector3D pp );
 
     wmath::WVector3D getSp() const;
-    void setSp(wmath::WVector3D sp);
+    void setSp( wmath::WVector3D sp );
 
     wmath::WVector3D getIp() const;
-    void setIp(wmath::WVector3D ip);
+    void setIp( wmath::WVector3D ip );
 
     wmath::WVector3D getRp() const;
-    void setRp(wmath::WVector3D rp);
+    void setRp( wmath::WVector3D rp );
 
     wmath::WVector3D getLp() const;
-    void setLp(wmath::WVector3D lp);
+    void setLp( wmath::WVector3D lp );
 
 protected:
 private:

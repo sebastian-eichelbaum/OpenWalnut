@@ -109,7 +109,7 @@ void WMCoordinateSystem::createGeometry()
 
     m_rootNode->addChild( m_boxNode );
 
-    float zeroZ = m_properties->getValue<float>( "axialPos" );
+    //float zeroZ = m_properties->getValue<float>( "axialPos" );
     float zeroY = m_properties->getValue<float>( "coronalPos" );
     float zeroX = m_properties->getValue<float>( "sagittalPos" );
 
@@ -119,7 +119,7 @@ void WMCoordinateSystem::createGeometry()
 
     float brbX = m_properties->getValue<float>( "brbX" );
     float brbY = m_properties->getValue<float>( "brbY" );
-    float brbZ = m_properties->getValue<float>( "brbZ" );
+    //float brbZ = m_properties->getValue<float>( "brbZ" );
 
     osg::ref_ptr<WRulerOrtho>ruler1 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
     ruler1->create( osg::Vec3( fltX, zeroY, fltZ ), brbX, RULER_ALONG_X_AXIS_SCALE_Y );

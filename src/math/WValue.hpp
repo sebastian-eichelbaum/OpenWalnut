@@ -156,7 +156,7 @@ public:
     /**
      * Scales each component of this WValue with the given scalar argument
      */
-    WValue& operator/=( double rhs )
+    WValue& operator/=( const double rhs )
     {
         for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] /= rhs;

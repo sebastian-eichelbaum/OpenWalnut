@@ -74,14 +74,14 @@ wmath::WVector3D WTalairachConverter::Talairach2Canonical( const wmath::WVector3
     return ACPC2Canonical( Talairach2ACPC( point ) );
 }
 
-wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D point )
+wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D /*point*/ )
 {
-
+    return wmath::WVector3D();
 }
 
-wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D point )
+wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D /*point*/ )
 {
-
+    return wmath::WVector3D();
 }
 
 
@@ -148,7 +148,7 @@ wmath::WVector3D WTalairachConverter::getAp() const
 
 void WTalairachConverter::setAp( wmath::WVector3D ap )
 {
-    assert( ap[0] > m_ac[0]);
+    assert( ap[0] > m_ac[0] );
     m_ap = ap;
 }
 
