@@ -26,10 +26,15 @@
 #define WMMARCHINGCUBES_TEST_H
 
 #include <vector>
+#include <string>
 
 #include <cxxtest/TestSuite.h>
 
 #include "../WMMarchingCubes.h"
+#include "../../../common/WLogger.h"
+
+static bool loggerInitialized = false;
+static WLogger logger;
 
 /**
  * Test for WMMarchingCubes
@@ -37,6 +42,7 @@
 class WMMarchingCubesTest : public CxxTest::TestSuite
 {
 public:
+
     /**
      * Ensure instatiation does not throw and does initialization right.
      */
@@ -191,11 +197,65 @@ public:
     }
 
     /**
-     * Test writing of surfaces
+     * Test rejection of surfaces with zero triangles or vertices for save
      */
-    void testSave()
+    void testSaveZero()
     {
-        // TODO(wiebel): MC need to test this for #117
+        if( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.run();
+            loggerInitialized = true;
+        }
+
+        WMMarchingCubes mc;
+        WTriangleMesh triMesh;
+        std::string fileName = "/tmp/dummerNameDenSichKeinerMerkenBraucht2.vtk";
+
+        bool result = mc.save( fileName, triMesh );
+        TS_ASSERT_EQUALS( result, false ); // should return false as we did not have any vertices or triangles.
+    }
+
+    /**
+     * Test rejection of surfaces with nan or inf in coordinates for save
+     */
+    void testSaveInfinteNan()
+    {
+        if( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.run();
+            loggerInitialized = true;
+        }
+
+        WMMarchingCubes mc;
+        WTriangleMesh triMesh;
+
+        const unsigned int nbPos = 10;
+        std::vector< Triangle > triangles( 0 );
+        Triangle tri;
+        for( unsigned int i = 0; i < 3; ++i )
+        {
+            tri.pointID[i] = i;
+        }
+        triangles.push_back( tri );
+
+        std::vector< wmath::WPosition > vertices( 0 );
+        for( unsigned int posId = 0; posId < nbPos; ++posId )
+        {
+            double x = posId * posId + 3.4;
+            double y = posId + 1;
+            double z = 3. /  static_cast< double >( posId ); // provide nan values by dividing with zero
+            vertices.push_back( wmath::WPosition( x, y, z ) );
+        }
+        triMesh.setVertices( vertices );
+
+        std::string fileName = "/tmp/dummerNameDenSichKeinerMerkenBraucht.vtk";
+
+        mc.save( fileName, triMesh );
+
+        bool result = mc.save( fileName, triMesh );
+        TS_ASSERT_EQUALS( result, false ); // should return false as we did not have all coordinates values finite.
     }
 
     /**
@@ -204,6 +264,66 @@ public:
     void testLoad()
     {
         // TODO(wiebel): MC need to test this for #118
+    }
+
+    /**
+     * Test first saving data and the loading it back.
+     */
+    void testSaveAndLoad()
+    {
+        if( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.run();
+            loggerInitialized = true;
+        }
+
+        WMMarchingCubes mc;
+        WTriangleMesh triMesh;
+
+        const unsigned int nbPos = 10;
+        const unsigned int nbTris = nbPos - 2;
+        std::vector< Triangle > triangles( 0 );
+        for( unsigned int triId = 0; triId < nbTris; ++triId )
+        {
+            Triangle tri;
+            for( unsigned int i = 0; i < 3; ++i )
+            {
+                tri.pointID[i] = triId + i;
+            }
+            triangles.push_back( tri );
+        }
+        triMesh.setTriangles( triangles );
+
+        std::vector< wmath::WPosition > vertices( 0 );
+        for( unsigned int posId = 0; posId < nbPos; ++posId )
+        {
+            double x = posId * posId + 3.4;
+            double y = posId + 1;
+            double z = 3. / static_cast< double >( posId + 1 );
+            vertices.push_back( wmath::WPosition( x, y, z ) );
+        }
+        triMesh.setVertices( vertices );
+
+        std::string fileName = "/tmp/dummerNameDenSichKeinerMerkenBraucht.vtk";
+
+        mc.save( fileName, triMesh );
+        WTriangleMesh result = mc.load( fileName );
+
+        TS_ASSERT_EQUALS( triMesh.getNumTriangles(), result.getNumTriangles() );
+        TS_ASSERT_EQUALS( triMesh.getNumVertices(), result.getNumVertices() );
+        TS_ASSERT_EQUALS( triMesh.getFastAddVertId(), result.getFastAddVertId() );
+        TS_ASSERT_EQUALS( triMesh.getFastAddTriangleId(), result.getFastAddTriangleId() );
+
+        for( unsigned int i = 0; i < nbPos; ++i)
+        {
+            for( unsigned int j = 0; j < 3; ++j)
+            {
+                double delta = 1e-5;
+                // TODO(wiebel): find out why this works only for delta=1e-5
+                TS_ASSERT_DELTA( triMesh.getVertex( i )[j], result.getVertex( i )[j], delta );
+            }
+        }
     }
 };
 
