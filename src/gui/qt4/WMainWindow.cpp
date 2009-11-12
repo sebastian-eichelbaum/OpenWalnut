@@ -69,7 +69,7 @@ void WMainWindow::setupGUI( QMainWindow *mainWindow )
     mainWindow->setCentralWidget( m_centralwidget );
 
     std::cout << "init main gl" << std::endl;
-    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( mainWindow, WGECamera::PERSPECTIVE ) );
+    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( mainWindow, WGECamera::ORTHOGRAPHIC ) );
     m_glWidgets.push_back( widget );
     mainWindow->setCentralWidget( widget.get() );
 
