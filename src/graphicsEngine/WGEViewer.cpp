@@ -72,6 +72,7 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
 
         m_View->getCamera()->setViewport( 0, 0, width, height );
         m_View->getCamera()->setProjectionResizePolicy( osg::Camera::HORIZONTAL );
+        m_View->getCamera()->setClearColor( osg::Vec4( .9, .9, .9, 1. ) );
 
         // add the stats handler
         m_View->addEventHandler( new osgViewer::StatsHandler );
