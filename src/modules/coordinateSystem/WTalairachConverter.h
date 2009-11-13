@@ -84,7 +84,13 @@ protected:
 private:
     void defineRotationMatrix();
 
+    wmath::WVector3D multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec );
+
+    wmath::WMatrix<double>  invertMatrix3x3( wmath::WMatrix<double> mat );
+
     wmath::WMatrix<double> m_rotMat;
+
+    wmath::WMatrix<double> m_rotMatInvert;
 
     wmath::WVector3D m_ac;
     wmath::WVector3D m_pc;

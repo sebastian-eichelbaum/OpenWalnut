@@ -28,6 +28,7 @@
 
 WTalairachConverter::WTalairachConverter( wmath::WVector3D ac, wmath::WVector3D pc, wmath::WVector3D ihp ) :
     m_rotMat( 3, 3 ),
+    m_rotMatInvert( 3, 3 ),
     m_ac( ac ),
     m_pc( pc ),
     m_ihp( ihp )
@@ -55,7 +56,8 @@ WTalairachConverter::~WTalairachConverter()
 wmath::WVector3D WTalairachConverter::Canonical2ACPC( const wmath::WVector3D point )
 {
     // TODO(schurade): add rotation
-    return point - m_ac;
+    wmath::WVector3D rpoint = point - m_ac;
+    return multMatrixWithVector3D( m_rotMat, rpoint );
 }
 
 wmath::WVector3D WTalairachConverter::ACPC2Canonical( const wmath::WVector3D point )
@@ -74,14 +76,126 @@ wmath::WVector3D WTalairachConverter::Talairach2Canonical( const wmath::WVector3
     return ACPC2Canonical( Talairach2ACPC( point ) );
 }
 
-wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D /*point*/ )
+wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D point )
 {
-    return wmath::WVector3D();
+    // declare some variables for readability
+    double x = point[0];
+    double y = point[1];
+    double z = point[2];
+
+    double X1 = ( m_pp - m_pc ).norm();
+    double X2 = ( m_ac - m_pc ).norm();
+    double X3 = ( m_ap - m_ac ).norm();
+    double Y1 = ( m_ac - m_rp ).norm();
+    double Y2 = ( m_lp - m_ac ).norm();
+    double Z1 = ( m_ac - m_ip ).norm();
+    double Z2 = ( m_sp - m_ac ).norm();
+
+    double X1T = 79.0;
+    double X2T = 23.0;
+    double X3T = 70.0;
+    double Y1T = 68.0;
+    double Y2T = 68.0;
+    double Z1T = 42.0;
+    double Z2T = 74.0;
+
+    double xt = 0;
+    double yt = 0;
+    double zt = 0;
+
+    if ( x < -X2 ) // posterior to PC
+    {
+        xt = ( X1T / X1 ) * ( x + X2 ) - X2T;
+    }
+    else if ( x >= 0 ) // anterior to AC
+    {
+        xt = ( X3T / X3 ) * x;
+    }
+    else // between AC and PC
+    {
+        xt = ( X2T / X2 ) * x;
+    }
+
+    if ( y < 0 ) // right hemisphere
+    {
+        yt = ( Y1T / Y1 ) * y;
+    }
+    else // left hemisphere
+    {
+        yt = ( Y2T / Y2 ) * y;
+    }
+
+    if ( z < 0 ) // inferior to AC-PC
+    {
+        zt = ( Z1T / Z1 ) * z;
+    }
+    else // superior to AC-PC
+    {
+        zt = ( Z2T / Z2 ) * z;
+    }
+
+    return wmath::WVector3D( xt, yt, zt );
 }
 
-wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D /*point*/ )
+wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D point )
 {
-    return wmath::WVector3D();
+    // declare some variables for readability
+    double xt = point[0];
+    double yt = point[1];
+    double zt = point[2];
+
+    double X1 = ( m_pp - m_pc ).norm();
+    double X2 = ( m_ac - m_pc ).norm();
+    double X3 = ( m_ap - m_ac ).norm();
+    double Y1 = ( m_ac - m_rp ).norm();
+    double Y2 = ( m_lp - m_ac ).norm();
+    double Z1 = ( m_ac - m_ip ).norm();
+    double Z2 = ( m_sp - m_ac ).norm();
+
+    double X1T = 79.0;
+    double X2T = 23.0;
+    double X3T = 70.0;
+    double Y1T = 68.0;
+    double Y2T = 68.0;
+    double Z1T = 42.0;
+    double Z2T = 74.0;
+
+    double x = 0;
+    double y = 0;
+    double z = 0;
+
+    if ( xt < -X2T ) // posterior to PC
+    {
+        x = ( X1 / X1T ) * ( xt + X2T ) - X2;
+    }
+    else if ( xt >= 0 ) // anterior to AC
+    {
+        x = ( X3 / X3T ) * xt;
+    }
+    else // between AC and PC
+    {
+        x = ( X2 / X2T ) * xt;
+    }
+
+    if ( yt < 0 ) // right hemisphere
+    {
+        y = ( Y1 / Y1T ) * yt;
+    }
+    else // left hemisphere
+    {
+        y = ( Y2 / Y2T ) * yt;
+    }
+
+    if ( zt < 0 ) // inferior to AC-PC
+    {
+        z = ( Z1 / Z1T ) * z;
+    }
+    else // superior to AC-PC
+    {
+        z = ( Z2 / Z2T ) * z;
+    }
+
+    return wmath::WVector3D( x, y, z );
 }
 
 
@@ -103,6 +217,8 @@ void WTalairachConverter::defineRotationMatrix()
     m_rotMat( 2, 0 ) = ez[0];
     m_rotMat( 2, 1 ) = ez[1];
     m_rotMat( 2, 2 ) = ez[2];
+
+    m_rotMatInvert = invertMatrix3x3( m_rotMat );
 }
 
 wmath::WVector3D WTalairachConverter::getAc() const
@@ -205,4 +321,37 @@ void WTalairachConverter::setLp( wmath::WVector3D lp )
 {
     assert( lp[1] > m_ac[1] );
     m_lp = lp;
+}
+
+wmath::WVector3D WTalairachConverter::multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec )
+{
+    wmath::WVector3D result;
+    result[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2];
+    result[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2];
+    result[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2];
+    return result;
+}
+
+wmath::WMatrix<double> WTalairachConverter::invertMatrix3x3( wmath::WMatrix<double> mat )
+{
+    double det = mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) +
+                mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 0 ) +
+                mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 1 ) -
+                mat( 0, 2 ) * mat( 1, 1 ) * mat( 2, 0 ) -
+                mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
+                mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 );
+
+    wmath::WMatrix<double> r( 3, 3 );
+
+    r( 0, 0 ) = ( mat( 1, 1 ) * mat( 2, 2 ) - mat(  1, 2 ) * mat( 2, 1 ) ) / det;
+    r( 1, 0 ) = ( mat( 1, 2 ) * mat( 2, 0 ) - mat(  1, 0 ) * mat( 2, 2 ) ) / det;
+    r( 2, 0 ) = ( mat( 1, 0 ) * mat( 2, 1 ) - mat(  1, 1 ) * mat( 2, 0 ) ) / det;
+    r( 0, 1 ) = ( mat( 0, 2 ) * mat( 2, 1 ) - mat(  0, 1 ) * mat( 2, 2 ) ) / det;
+    r( 1, 1 ) = ( mat( 0, 0 ) * mat( 2, 2 ) - mat(  0, 2 ) * mat( 2, 0 ) ) / det;
+    r( 2, 1 ) = ( mat( 0, 1 ) * mat( 2, 0 ) - mat(  0, 0 ) * mat( 2, 1 ) ) / det;
+    r( 0, 2 ) = ( mat( 0, 1 ) * mat( 1, 2 ) - mat(  0, 2 ) * mat( 1, 1 ) ) / det;
+    r( 1, 2 ) = ( mat( 0, 2 ) * mat( 1, 0 ) - mat(  0, 0 ) * mat( 1, 2 ) ) / det;
+    r( 2, 2 ) = ( mat( 0, 0 ) * mat( 1, 1 ) - mat(  0, 1 ) * mat( 1, 0 ) ) / det;
+
+    return r;
 }
