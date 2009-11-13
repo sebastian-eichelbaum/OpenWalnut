@@ -109,11 +109,7 @@ void WModule::initialize()
     // doing it twice is not allowed
     if ( isInitialized() )
     {
-        // TODO(ebaum): is this really needed?
-        std::ostringstream s;
-        s << "Could not initialize connectors for Module " << getName() << ". Reason: already initialized.";
-
-        throw WModuleConnectorInitFailed( s.str() );
+        throw WModuleConnectorInitFailed( "Could not initialize connectors for Module " + getName() + ". Reason: already initialized." );
     }
 
     connectors();

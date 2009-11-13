@@ -98,7 +98,7 @@ macro( CXXTEST_ADD_TEST _cxxtest_testname _cxxtest_outfname _cxxtest_testsuite )
 
     add_custom_command(
         OUTPUT  ${_cxxtest_real_outfname}
-        DEPENDS ${ARGN}
+        DEPENDS ${_cxxtest_testsuite} ${ARGN}
         COMMAND ${_cxxtest_executable}
         --error-printer -o ${_cxxtest_real_outfname} ${_cxxtest_testsuite}
     )

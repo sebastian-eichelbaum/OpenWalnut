@@ -48,7 +48,7 @@
  * engine.
  * \ingroup ge
  */
-class WGraphicsEngine: public WThreadedRunner
+class WGraphicsEngine
 {
 public:
 
@@ -97,11 +97,6 @@ protected:
      * OpenSceneGraph root node.
      */
     osg::ref_ptr<WGEScene> m_RootNode;
-
-    /**
-     * Handler for repainting and event handling. Gets executed in separate thread.
-     */
-    virtual void threadMain();
 
     /**
      * All registered viewer.

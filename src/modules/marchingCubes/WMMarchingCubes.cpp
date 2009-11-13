@@ -27,6 +27,9 @@
 #include <string>
 #include <vector>
 
+#include <cmath>
+
+
 #include "WMMarchingCubes.h"
 #include "marchingCubesCaseTables.h"
 #include "WTriangleMesh.h"
@@ -571,6 +574,18 @@ void WMMarchingCubes::renderMesh( const WTriangleMesh& mesh )
 // TODO(wiebel): MC move this to a separate module in the future
 bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh ) const
 {
+    if( triMesh.getNumVertices() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
+    if( triMesh.getNumTriangles() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
     const char* c_file = fileName.c_str();
     std::ofstream dataFile( c_file );
 
@@ -580,9 +595,11 @@ bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh )
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "open file failed"+fileName , "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "open file failed" + fileName , "Marching Cubes", LL_ERROR );
         return false;
     }
+
+    dataFile.precision( 16 );
 
     WLogger::getLogger()->addLogMessage( "start writing file", "Marching Cubes", LL_DEBUG );
     dataFile << ( "# vtk DataFile Version 2.0\n" );
@@ -595,6 +612,11 @@ bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh )
     for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
     {
         point = triMesh.getVertex( i );
+        if( !( std::isfinite( point[0] ) && std::isfinite( point[1] ) && std::isfinite( point[2] ) ) )
+        {
+            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
+            return false;
+        }
         dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
     }
 
@@ -618,7 +640,7 @@ bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh )
         dataFile << "0\n";
     }
     dataFile.close();
-    std::cout << " saving  done" << std::endl;
+    WLogger::getLogger()->addLogMessage( "saving done", "Marching Cubes", LL_DEBUG );
     return true;
 }
 
@@ -698,7 +720,6 @@ WTriangleMesh WMMarchingCubes::load( std::string fileName )
     size_t nbCells;
     size_t nbNumbers;
     ifs >> cellsMarker >> nbCells >> nbNumbers;
-    std::cout<< cellsMarker << " " << nbCells << " " << nbNumbers << std::endl;
 
     triMesh.resizeTriangles( nbCells );
     unsigned int nbCellVerts;
@@ -711,14 +732,10 @@ WTriangleMesh WMMarchingCubes::load( std::string fileName )
             WLogger::getLogger()->addLogMessage( "Number of cell vertices should be 3 but found " + nbCellVerts, "Marching Cubes", LL_ERROR );
     }
 
-
-
-
     // ----- Cell Types ---------
     char* cells_typesMarker = new char[30];
     size_t nbCellTypes;
     ifs >> cells_typesMarker >> nbCellTypes;
-    std::cout << cells_typesMarker << " .... " << nbCellTypes << std::endl;
     unsigned int cellType;
     for( unsigned int i = 0; i < nbCellTypes; ++i )
     {
