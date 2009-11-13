@@ -158,11 +158,60 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::stri
     return ret;
 }
 
-const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost::shared_ptr< WModule > /*instance*/ )
+const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost::shared_ptr< WModule > instance )
 {
-    // TODO(ebaum): implement
-    WLogger::getLogger()->addLogMessage( "Searching prototype by instance, NOT YET IMPLEMENTED", "ModuleFactory", LL_WARNING );
+    return getPrototypeByName( instance->getName() );
+}
 
-    return boost::shared_ptr< WModule >();
+std::set< boost::shared_ptr< WModule > > WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
+{
+    std::set< boost::shared_ptr < WModule > > compatibles;
+
+    // for this a read lock is sufficient
+    boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
+
+    // get offered outputs
+    std::set<boost::shared_ptr<WModuleOutputConnector> > cons = module->getOutputConnectors();
+    if ( cons.size() == 0 )
+    {
+        // in this case return the empty list
+        return compatibles;
+    }
+    // TODO(ebaum): see ticket #178 for this
+    if ( cons.size() > 1 )
+    {
+        WLogger::getLogger()->addLogMessage( "Can not find compatibles for modules with more than 1 output connector. Using "
+                + ( *cons.begin() )->getCanonicalName() + " for compatibility check.", "ModuleFactory", LL_WARNING );
+    }
+
+    // go through every prototype
+    for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end();
+            ++listIter )
+    {
+        // get connectors of this prototype
+        std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
+
+        // ensure we have 1 connector
+        if ( pcons.size() == 0 )
+        {
+            continue;
+        }
+        if ( pcons.size() > 1 )
+        {
+            WLogger::getLogger()->addLogMessage( "Can not find compatibles for modules with more than 1 input connector. Using "
+                    + ( *pcons.begin() )->getCanonicalName() + " for compatibility check.", "ModuleFactory", LL_WARNING );
+        }
+
+        // check whether the outputs are compatible with the inputs of the prototypes
+        if ( ( *cons.begin() )->connectable( *pcons.begin() ) )
+        {
+            // it is compatible -> add to list
+            compatibles.insert( *listIter );
+        }
+    }
+
+    slock.unlock();
+
+    return compatibles;
 }
 

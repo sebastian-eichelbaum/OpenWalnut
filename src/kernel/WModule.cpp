@@ -32,6 +32,7 @@
 #include "WModuleOutputConnector.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
+#include "WModuleFactory.h"
 #include "exceptions/WModuleSignalUnknown.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
@@ -188,6 +189,11 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
             throw WModuleSignalUnknown( s.str() );
             break;
     }
+}
+
+std::set< boost::shared_ptr< WModule > > WModule::getCompatibles()
+{
+    return WModuleFactory::getModuleFactory()->getCompatiblePrototypes( shared_from_this() );
 }
 
 bool WModule::isInitialized() const

@@ -87,8 +87,6 @@ public:
         return m_data;
     };
 
-protected:
-
     /** 
      * Checks whether the specified connector is an input connector and compatible with T.
      * 
@@ -108,6 +106,8 @@ protected:
 
         return false;
     };
+
+protected:
 
 private:
 

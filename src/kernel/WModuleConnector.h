@@ -144,8 +144,6 @@ public:
      */
     void setName( std::string name );
 
-protected:
-
     /** 
      * Checks whether the specified connector is connectable to this one.
      * 
@@ -154,6 +152,8 @@ protected:
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )=0;
+
+protected:
 
     /** 
      * List of connectors connected to this connector.

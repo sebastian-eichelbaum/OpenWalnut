@@ -95,7 +95,7 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
 WGEViewer::~WGEViewer()
 {
     // cleanup
-    wait( true );
+    close();
 }
 
 osg::ref_ptr<osgViewer::CompositeViewer> WGEViewer::getViewer()

@@ -69,8 +69,6 @@ public:
      */
      boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
 
-protected:
-
     /** 
      * Checks whether the specified connector is an input connector.
      * 
@@ -79,6 +77,8 @@ protected:
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
+
+protected:
 
     // If you want to add additional signals an output connector should subscribe FROM an input connector, overwrite
     // connectSignals
