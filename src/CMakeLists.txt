@@ -202,13 +202,6 @@ ADD_CUSTOM_TARGET( vtest
                  )
 
 #-------------------------------------------------------------------------------------------------------------
-# Removes all tests thus forcing them to be recompiled during the next "make"
-ADD_CUSTOM_TARGET( cleantest
-                   COMMAND ${CMAKE_COMMAND} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/RemoveGeneratedTests.cmake
-                   COMMENT "Remove all tests to force them to be recompiled"
-                 )
-
-#-------------------------------------------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET( cicheck
                    COMMAND make stylecheck && make test
