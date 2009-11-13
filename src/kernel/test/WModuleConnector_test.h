@@ -260,11 +260,6 @@ public:
         createModules();
         initModules();
 
-        // init connectors
-        // TODO(ebaum): replace this with the module container, since the module container should manage this
-        // well actually this also tests the WModule::addConnector method and instantiation of WModuleInputConnector and
-        // WModuleOutputConnector.
-
         // try initializing twice
         TS_ASSERT_THROWS( m1->initialize(), WModuleConnectorInitFailed );
         TS_ASSERT( m1->isInitialized() );

@@ -129,11 +129,7 @@ int WKernel::run()
 {
     WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
 
-    // TODO(ebaum): add separate graphics thread here
-    m_graphicsEngine->run();
-
     // run Gui
-    // TODO(all): clean up this option handler mess
     m_gui->run();
 
     // run? data handler stuff?
@@ -151,9 +147,6 @@ int WKernel::run()
     m_gui->wait( false );
     m_FinishRequested = true;
     m_moduleContainer->stop();
-
-    // finally GE
-    m_graphicsEngine->wait( true );
 
     // how to get QT return code from its thread?
     return 0;
@@ -180,11 +173,6 @@ void WKernel::init()
 
     // initialize Datahandler
     m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
-
-    // m_gui->createMainWindow();
-
-    // TODO(ebaum): the old way
-    // m_dataHandler->getSignalAddDataset()->connect( boost::bind( &WKernel::slotFinishLoadData, this, _1 ) );
 }
 
 bool WKernel::findAppPath()

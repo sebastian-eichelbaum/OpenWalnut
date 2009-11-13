@@ -36,7 +36,6 @@
 #include "WGEViewer.h"
 
 WGraphicsEngine::WGraphicsEngine( std::string shaderPath ):
-    WThreadedRunner(),
     m_shaderPath( shaderPath )
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
@@ -59,16 +58,6 @@ osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
 std::string WGraphicsEngine::getShaderPath()
 {
     return m_shaderPath;
-}
-
-void WGraphicsEngine::threadMain()
-{
-    // TODO(ebaum): is this thread actually needed since each viewer runs in separate thread
-    // while( !m_FinishRequested )
-    // {
-        // currently a dummy
-        // sleep( 1 );
-    // }
 }
 
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer(

@@ -68,9 +68,6 @@ public:
      */
     void reset();
 
-    // TODO(ebaum): add more default settings and camera setups here
-    // TODO(ebaum): actually use this class
-
 protected:
 
     /**
