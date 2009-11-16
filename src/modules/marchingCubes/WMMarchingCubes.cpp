@@ -39,6 +39,8 @@
 #include <osg/StateSet>
 #include <osg/StateAttribute>
 #include <osg/PolygonMode>
+#include <osg/LightModel>
+#include <osgDB/WriteFile>
 
 #include "../../math/WVector3D.h"
 #include "../../dataHandler/WSubject.h"
@@ -124,6 +126,7 @@ void WMMarchingCubes::moduleMain()
 
     // TODO(wiebel): MC set correct isoValue here
     generateSurface( 110 );
+//   generateSurface( 200 );
     // TODO(wiebel): MC remove this from here
     //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
 
@@ -504,7 +507,7 @@ void WMMarchingCubes::renderSurface()
         vecIterator++;
     }
 
-    renderMesh( triMesh );
+    renderMesh( &triMesh );
 
     // TODO(wiebel): MC make the filename set automatically
 //     bool saved = save( "/tmp/isosurfaceTestMesh.vtk", triMesh );
@@ -515,16 +518,16 @@ void WMMarchingCubes::renderSurface()
 }
 
 
-void WMMarchingCubes::renderMesh( const WTriangleMesh& mesh )
+void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
 {
     osg::Geometry* surfaceGeometry = new osg::Geometry();
 
     osg::Geode *geode = new osg::Geode;
     osg::Vec3Array* vertices = new osg::Vec3Array;
-    for( size_t i = 0; i < mesh.getNumVertices(); ++i )
+    for( size_t i = 0; i < mesh->getNumVertices(); ++i )
     {
         wmath::WPosition vertPos;
-        vertPos = mesh.getVertex( i );
+        vertPos = mesh->getVertex( i );
         vertices->push_back( osg::Vec3( vertPos[0], vertPos[1], vertPos[2] ) );
     }
     surfaceGeometry->setVertexArray( vertices );
@@ -532,27 +535,38 @@ void WMMarchingCubes::renderMesh( const WTriangleMesh& mesh )
     osg::DrawElementsUInt* surfaceElement;
 
     surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-    for( unsigned int triId = 0; triId < mesh.getNumTriangles(); ++triId )
+    for( unsigned int triId = 0; triId < mesh->getNumTriangles(); ++triId )
     {
         for( unsigned int vertId = 0; vertId < 3; ++vertId )
         {
-            surfaceElement->push_back( mesh.getTriangleVertexId( triId, vertId ) );
+            surfaceElement->push_back( mesh->getTriangleVertexId( triId, vertId ) );
         }
     }
     surfaceGeometry->addPrimitiveSet( surfaceElement );
 
+    // ------------------------------------------------
     // normals
     osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
-    for( unsigned int triId = 0; triId < mesh.getNumTriangles(); ++triId )
+
+#if 1
+    mesh->computeVertNormals(); // time consuming
+    for( unsigned int vertId = 0; vertId < mesh->getNumVertices(); ++vertId )
     {
-        wmath::WVector3D tmpNormal = mesh.getTriangleNormal( triId );
+        wmath::WVector3D tmpNormal = mesh->getVertexNormal( vertId );
         normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[1] ) );
     }
-
     surfaceGeometry->setNormalArray( normals.get() );
-
-    // TODO(wiebel): MC change to BIND_PER_VERTEX to make it more beautiful.
+    surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+#else
+    for( unsigned int triId = 0; triId < mesh->getNumTriangles(); ++triId )
+    {
+        wmath::WVector3D tmpNormal = mesh->getTriangleNormal( triId );
+        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[1] ) );
+    }
+    surfaceGeometry->setNormalArray( normals.get() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+#endif
+
 
     osg::Vec4Array* colors = new osg::Vec4Array;
 
@@ -562,13 +576,15 @@ void WMMarchingCubes::renderMesh( const WTriangleMesh& mesh )
 
     geode->addDrawable( surfaceGeometry );
     osg::StateSet* state = geode->getOrCreateStateSet();
-    state->setMode( GL_LIGHTING, osg::StateAttribute::ON );
 
-    osg::PolygonMode* pm;
-    pm = new osg::PolygonMode( osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL );
-    state->setAttributeAndModes( pm, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
+    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+    lightModel->setTwoSided( true );
+    state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
+
+    osgDB::writeNodeFile( *geode, "/tmp/saved.osg" ); //for debugging
 }
 
 // TODO(wiebel): MC move this to a separate module in the future

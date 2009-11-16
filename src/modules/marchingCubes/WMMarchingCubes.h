@@ -183,9 +183,10 @@ private:
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 
-    // TODO(wiebel): MC comment this;
+    // TODO(wiebel): MC document this;
     void renderSurface();
-    void renderMesh( const WTriangleMesh& mesh );
+    // TODO(wiebel): MC document this;
+    void renderMesh( WTriangleMesh* mesh );
 
     /**
      * Store the mesh in legacy vtk file format.

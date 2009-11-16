@@ -143,9 +143,46 @@ public:
     /**
      * \return normal of i-th trinagle. Will be computed in the moment of the call.
      * i.e. with no memory overhead but possibly slow.
+     * Normal will be of length 1.
      */
     wmath::WVector3D getTriangleNormal( size_t i ) const;
 
+    /**
+     * Get the indices of the triangles surrounding the i-th position.
+     * This function is slow but const and memory efficient.
+     * Normal will be of length 1.
+     */
+    std::vector< unsigned int > getPositionTriangleNeighborsSlow( size_t i ) const;
+
+    /**
+     * Get an approximated normal for point with index i.
+     * The normal is a mean of the the normals of the surrounding triangles.
+     * This function is slow but const and memory efficient.
+     */
+    wmath::WVector3D getVertexNormalSlow( size_t i ) const;
+
+    /**
+     * Get an approximated normal for point with index i.
+     * The normal is a mean of the the normals of the surrounding triangles.
+     * This function is fast but requires the normals to be precomputed
+     * and stored by computeVertNormals().
+     * Normal will be of length 1.
+     */
+    wmath::WVector3D getVertexNormal( size_t i ) const;
+
+    /**
+     * Compute the normals for all triangles and store them.
+     * Normals will be of length 1.
+     */
+    void computeTriNormals();
+
+    /**
+     * Approximate the normals for all vertices by averaging the normals
+     * of all neighboring triangles and store them.
+     * This involves a call of computeTriNormals() first.
+     * Normals will be of length 1.
+     */
+    void computeVertNormals();
 
 protected:
 private:
@@ -154,6 +191,11 @@ private:
 
     size_t m_fastAddVertId;  //!< tells fastAddVert where to insert the vertex.
     size_t m_fastAddTriangleId;  //!< tells fastAddTriangle where to insert the triangle
+
+    bool m_computedTriNormals;  //!< Have the triangle normals been computed?.
+    std::vector< wmath::WVector3D > m_triNormals;  //!< Normals for all Triangles.
+    bool m_computedVertNormals;  //!< Have the vertex normals been approximated?.
+    std::vector< wmath::WVector3D > m_vertNormals;  //!< Approximated normals for all vertices.
 };
 
 #endif  // WTRIANGLEMESH_H
