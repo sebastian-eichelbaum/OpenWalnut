@@ -55,7 +55,7 @@ class WModuleFactory;
  * \ingroup kernel
  */
 class WModule: public WThreadedRunner,
-               public boost::enable_shared_from_this<WModule>
+               public boost::enable_shared_from_this< WModule >
 {
 friend class WModuleConnector;  // requires access to notify members
 friend class WModuleFactory;    // for proper creation of module instaces, the factory needs access to protected functions.
@@ -87,23 +87,23 @@ public:
     virtual const std::string getDescription() const = 0;
 
     /**
-     * Gives back an input connectors.
+     * Gives back input connectors.
      *
      * \return the input connectors.
      */
-    const std::set<boost::shared_ptr<WModuleInputConnector> >& getInputConnectors() const;
+    const std::set< boost::shared_ptr< WModuleInputConnector > >& getInputConnectors() const;
 
     /**
-     * Gives back a  output connectors.
+     * Gives back output connectors.
      *
      * \return the output connectors.
      */
-    const std::set<boost::shared_ptr<WModuleOutputConnector> >& getOutputConnectors() const;
+    const std::set< boost::shared_ptr< WModuleOutputConnector > >& getOutputConnectors() const;
 
     /**
      * Return a pointer to the properties object of the module
      */
-    boost::shared_ptr<WProperties> getProperties() const;
+    boost::shared_ptr< WProperties > getProperties() const;
 
     /**
      * Determines whether the module instance is properly initialized.
@@ -284,6 +284,11 @@ protected:
     virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
                                    boost::shared_ptr<WModuleConnector> output );
 
+    /**
+     * Call this whenever your module is ready and can react on property changes.
+     */
+    void ready();
+
     // **************************************************************************************************************************
     //
     // Members
@@ -309,17 +314,12 @@ protected:
      * Set of input connectors associated with this module.
      * NOTE: we need a thread safe list implementation!
      */
-    std::set<boost::shared_ptr<WModuleInputConnector> > m_inputConnectors;
+    std::set<boost::shared_ptr< WModuleInputConnector > > m_inputConnectors;
 
     /**
      * Set of output connectors associated with this module.
      */
-    std::set<boost::shared_ptr<WModuleOutputConnector> > m_outputConnectors;
-
-    /**
-     * Call this whenever your module is ready and can react on property changes.
-     */
-    void ready();
+    std::set<boost::shared_ptr< WModuleOutputConnector > > m_outputConnectors;
 
 private:
 
