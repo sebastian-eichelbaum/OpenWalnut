@@ -63,7 +63,7 @@ public:
     virtual ~WGraphicsEngine();
 
     /**
-     * Returns the root node of the OSG.
+     * Returns the root node of the WGraphicsEngine ( this is not the root node of the OSG).
      *
      * \return the root node.
      */
@@ -96,7 +96,7 @@ protected:
     /**
      * OpenSceneGraph root node.
      */
-    osg::ref_ptr<WGEScene> m_RootNode;
+    osg::ref_ptr<WGEScene> m_rootNode;
 
     /**
      * All registered viewer.

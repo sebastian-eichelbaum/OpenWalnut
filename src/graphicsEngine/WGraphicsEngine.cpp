@@ -41,7 +41,7 @@ WGraphicsEngine::WGraphicsEngine( std::string shaderPath ):
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
 
     // initialize members
-    m_RootNode = new WGEScene();
+    m_rootNode = new WGEScene();
 }
 
 WGraphicsEngine::~WGraphicsEngine()
@@ -52,7 +52,7 @@ WGraphicsEngine::~WGraphicsEngine()
 
 osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
 {
-    return m_RootNode;
+    return m_rootNode;
 }
 
 std::string WGraphicsEngine::getShaderPath()
