@@ -28,7 +28,8 @@
 #include <string>
 
 #include <boost/lexical_cast.hpp>
-#include "../gui/qt4/signalslib.hpp"
+#include "boost/signals2/signal.hpp"
+#include "boost/signals2/connection.hpp"
 
 #include "WColor.h"
 
@@ -81,7 +82,7 @@ public:
     std::string getShortDesc();
     std::string getLongDesc();
 
-    boost::signal1< void, std::string >* getSignalValueChanged();
+    boost::signals2::signal1< void, std::string >* getSignalValueChanged();
 
 
     template < typename T >  void  setValue( const T& arg )
@@ -151,7 +152,7 @@ private:
 
     bool m_isHidden;
 
-    boost::signal1< void, std::string >m_signalValueChanged;
+    boost::signals2::signal1< void, std::string >m_signalValueChanged;
 };
 
 #endif  // WPROPERTY_H
