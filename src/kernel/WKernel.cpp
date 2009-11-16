@@ -141,8 +141,8 @@ int WKernel::run()
     m_gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
 
     // default modules
-    //m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) );
-    //m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) );
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) );
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) );
 
     m_gui->wait( false );
     m_FinishRequested = true;
