@@ -67,13 +67,20 @@ public:
      */
     std::vector< WProperty* >& getPropertyVector();
 
-    boost::signal1< void, std::string >* addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
-    boost::signal1< void, std::string >* addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
-    boost::signal1< void, std::string >* addInt( std::string name, int value = 0, std::string shortDesc = "", std::string longDesc = "" );
-    boost::signal1< void, std::string >* addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
-    boost::signal1< void, std::string >* addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
-    boost::signal1< void, std::string >* addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
-    boost::signal1< void, std::string >* addColor( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signals2::signal1< void, std::string >*
+        addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signals2::signal1< void, std::string >*
+        addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signals2::signal1< void, std::string >*
+        addInt( std::string name, int value = 0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signals2::signal1< void, std::string >*
+        addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signals2::signal1< void, std::string >*
+        addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+    boost::signals2::signal1< void, std::string >*
+        addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
+    boost::signals2::signal1< void, std::string >*
+        addColor( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
 
     std::string getValueString( const std::string prop );
 
