@@ -79,7 +79,7 @@ protected:
     /**
      * Generates an OSG geometry for the given fiber.
      *
-     * \param fib reference to a WFiber instance
+     * \param fibers pointer to fiber data set.
      * \param globalColoring determines whether the whole fiber has
      * the same color (true) or separate segements can have different colors. 
      * \return OSG geometry representing the fiber.
