@@ -94,14 +94,19 @@ public:
     /**
      * Checks whether the first instance can be casted to the second one.
      * 
-     * \param module1 the module to check.
-     * \param module2 the module to check against.
+     * \param module the module to check.
      * 
-     * \return 
+     * \return true if the dynamic_cast is successful
      */
     template <typename T>
     static bool isA( boost::shared_ptr< WModule > module );
 
+    /**
+     * Returns a set of modules compatible with the specified one.
+     * 
+     * \return set of compatible prototypes.
+     */
+    std::set< boost::shared_ptr< WModule > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
 protected:
 
     /**

@@ -160,6 +160,13 @@ public:
     virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
     virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier );
 
+    /**
+     * Returns a set of prototypes compatible with this module's connectors.
+     * 
+     * \return set of prototypes.
+     */
+    virtual std::set< boost::shared_ptr< WModule > > getCompatibles();
+
 protected:
 
     /**

@@ -52,8 +52,6 @@ public:
      */
     virtual ~WModuleInputConnector();
 
-protected:
-
     /** 
      * Checks whether the specified connector is an output connector.
      * 
@@ -62,6 +60,8 @@ protected:
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
+
+protected:
 
     /** 
      * Connect additional signals.
