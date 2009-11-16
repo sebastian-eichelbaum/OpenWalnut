@@ -85,7 +85,7 @@ boost::signals2::signal1< void, std::string >* WProperties::addDouble( std::stri
 
 
 boost::signals2::signal1< void, std::string >*
-Properties::addString( std::string name, std::string value, std::string shortDesc, std::string longDesc )
+WProperties::addString( std::string name, std::string value, std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
     m_propertyList[name] = prop;
