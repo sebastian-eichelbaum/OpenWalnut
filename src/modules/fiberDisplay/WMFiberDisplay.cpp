@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include <osg/Geode>
 #include <osg/Geometry>
 
@@ -51,47 +53,42 @@ boost::shared_ptr< WModule > WMFiberDisplay::factory() const
     return boost::shared_ptr< WModule >( new WMFiberDisplay() );
 }
 
-osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( const wmath::WFiber &fib, bool globalColoring ) const
+osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode(
+        boost::shared_ptr< const WDataSetFibers > fibers,
+        bool globalColoring ) const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
 
-    vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
-    if( !globalColoring )
+    size_t vertexNum = 0;
+    for( size_t j = 0; j < fibers->size(); ++j )
     {
+        const wmath::WFiber &fib = ( *fibers )[j];
+        vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
+        ++vertexNum;
         for( size_t i = 1; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
-            WColor c = color_utils::getRGBAColorFromDirection( fib[i], fib[i-1] );
+            ++vertexNum;
+            WColor c;
+            if( !globalColoring )
+            {
+                c = color_utils::getRGBAColorFromDirection( fib[i], fib[i-1] );
+            }
+            else
+            {
+                c = color_utils::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
+            }
             colors->push_back( c.getOSGColor() );
         }
         colors->push_back( colors->back() );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertexNum - fib.size(), fib.size() ) );
     }
-    else
-    {
-        for( size_t i = 1; i < fib.size(); ++i )
-        {
-            vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
-        }
-        WColor c = color_utils::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
-        colors->push_back( c.getOSGColor() );
-    }
-
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
-
-    if( !globalColoring )
-    {
-        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-    }
-    else
-    {
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    }
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, fib.size() ) );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry.get() );
     return geode;
@@ -116,13 +113,8 @@ void WMFiberDisplay::moduleMain()
 
     boost::shared_ptr< const WDataSetFibers > fiberDS;
     assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
-    const WDataSetFibers &fibers = *fiberDS;  // just an alias
     osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
-
-    for( size_t i = 0; i < fibers.size(); ++i )
-    {
-        group->addChild( genFiberGeode( fibers[i] ).get() );
-    }
+    group->addChild( genFiberGeode( fiberDS, false ).get() );
     group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );

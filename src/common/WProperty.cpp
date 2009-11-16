@@ -165,7 +165,7 @@ bool WProperty::isHidden()
     return m_isHidden;
 }
 
-boost::signal1< void, std::string >* WProperty::getSignalValueChanged()
+boost::signals2::signal1< void, std::string >* WProperty::getSignalValueChanged()
 {
     return &m_signalValueChanged;
 }

@@ -29,6 +29,7 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../math/WFiber.h"
 
@@ -83,7 +84,9 @@ protected:
      * the same color (true) or separate segements can have different colors. 
      * \return OSG geometry representing the fiber.
      */
-    osg::ref_ptr< osg::Geode > genFiberGeode( const wmath::WFiber &fib, bool globalColoring = true ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode(
+            boost::shared_ptr< const WDataSetFibers > fibers,
+            bool globalColoring = true ) const;
 
 private:
 };

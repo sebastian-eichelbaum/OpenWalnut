@@ -35,6 +35,7 @@
 #include "../WMFiberDisplay.h"
 #include "../../../math/WPosition.h"
 #include "../../../math/WFiber.h"
+#include "../../../dataHandler/WDataSetFibers.h"
 
 /**
  * Unit test the WMFiberDisplay
@@ -43,10 +44,9 @@ class WMFiberDisplayTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * The OSG geometry of a WFiber instance should have either arrays for
-     * colors and vertices of the same size if localColoring is selected.
+     * In almost every test we need a sample WDataSetFibers.
      */
-    void testGeometryOfFiberOnLocalColoring( void )
+    void setUp( void )
     {
         using wmath::WPosition;
         std::vector< WPosition > fibData;
@@ -55,9 +55,28 @@ public:
         fibData.push_back( WPosition( 1., 1., 0. ) );
         fibData.push_back( WPosition( 1., 1., 1. ) );
         using wmath::WFiber;
-        WFiber fib( fibData );
+        WFiber fiber( fibData );
+        boost::shared_ptr< std::vector< wmath::WFiber > > fiberVector( new std::vector< wmath::WFiber >() );
+        fiberVector->push_back( fiber );
+        m_fiberDS = boost::shared_ptr< const WDataSetFibers >( new WDataSetFibers( fiberVector ) );
+    }
+
+    /**
+     * Discard any precreated data sets.
+     */
+    void tearDown( void )
+    {
+        m_fiberDS.reset();
+    }
+
+    /**
+     * The OSG geometry of a WFiber instance should have either arrays for
+     * colors and vertices of the same size if localColoring is selected.
+     */
+    void testGeometryOfFiberOnLocalColoring( void )
+    {
         WMFiberDisplay mod;
-        osg::ref_ptr< osg::Geode > result = mod.genFiberGeode( fib, false );
+        osg::ref_ptr< osg::Geode > result = mod.genFiberGeode( m_fiberDS, false );
         osg::Geometry *geo = result->getDrawable( 0 )->asGeometry();
         TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), 4 );
         TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), geo->getColorArray()->getNumElements() );
@@ -68,20 +87,17 @@ public:
      */
     void testGeometryOfFiberOnGlobalColoring( void )
     {
-        using wmath::WPosition;
-        std::vector< WPosition > fibData;
-        fibData.push_back( WPosition( 0., 0., 0. ) );
-        fibData.push_back( WPosition( 1., 0., 0. ) );
-        fibData.push_back( WPosition( 1., 1., 0. ) );
-        fibData.push_back( WPosition( 1., 1., 1. ) );
-        using wmath::WFiber;
-        WFiber fib( fibData );
         WMFiberDisplay mod;
-        osg::ref_ptr< osg::Geode > result = mod.genFiberGeode( fib );
+        osg::ref_ptr< osg::Geode > result = mod.genFiberGeode( m_fiberDS );
         osg::Geometry *geo = result->getDrawable( 0 )->asGeometry();
         TS_ASSERT_EQUALS( geo->getVertexArray()->getNumElements(), 4 );
-        TS_ASSERT_EQUALS( 1, geo->getColorArray()->getNumElements() );
+        // EVEN IF THERE ARE JUST ONE COLOR PER FIBER EVERY VERTEX HAS A COLOR
+        // Since I don't know how to do it without, I assume BIND_OVERALL won't work
+        TS_ASSERT_EQUALS( 4, geo->getColorArray()->getNumElements() );
     }
+
+private:
+    boost::shared_ptr< const WDataSetFibers > m_fiberDS;
 };
 
 #endif  // WMFIBERDISPLAY_TEST_H
