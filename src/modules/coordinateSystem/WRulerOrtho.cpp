@@ -22,7 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
+#include <boost/lexical_cast.hpp>
+
+#include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/MatrixTransform>
+#include <osg/PositionAttitudeTransform>
+#include <osgText/Text>
 
 #include "WRulerOrtho.h"
 
@@ -35,8 +43,31 @@ WRulerOrtho::~WRulerOrtho()
 {
 }
 
+void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
+{
+    osg::ref_ptr<osgText::Text> label = osg::ref_ptr<osgText::Text>( new osgText::Text() );
+    osg::ref_ptr<osg::Geode> labelGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    labelGeode->addDrawable( label );
+    label->setCharacterSize( 5 );
+    //testLabel->setFont( "/fonts/arial.ttf" );
+    label->setText( text );
+    label->setAxisAlignment( osgText::Text::SCREEN );
+    label->setDrawMode( osgText::Text::TEXT );
+    label->setAlignment( osgText::Text::CENTER_TOP );
+    label->setPosition( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    label->setColor( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
+    osg::PositionAttitudeTransform* labelXform = new osg::PositionAttitudeTransform();
+    labelXform->setPosition( position );
+
+    this->addChild( labelXform );
+    labelXform->addChild( labelGeode );
+}
+
 void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
 {
+    osg::ref_ptr< osg::Geode > rulerGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
+
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
 
     osg::Vec3Array* vertices = new osg::Vec3Array;
@@ -59,6 +90,8 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                 {
                     vertices->push_back( osg::Vec3( i, start.y() - 3.0, start.z() ) );
                     vertices->push_back( osg::Vec3( i, start.y() + 3.0, start.z() ) );
+
+                    addLabel( osg::Vec3( i, start.y() - 3.0, start.z() ), boost::lexical_cast<std::string>( startX + i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -85,8 +118,6 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
             }
 
             geometry->addPrimitiveSet( lines );
-
-            this->addDrawable( geometry );
         }
             break;
 
@@ -100,6 +131,8 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                 {
                     vertices->push_back( osg::Vec3( i, start.y(), start.z() - 3.0 ) );
                     vertices->push_back( osg::Vec3( i, start.y(), start.z() + 3.0 ) );
+
+                    addLabel( osg::Vec3( i, start.y(), start.z() - 3.0 ), boost::lexical_cast<std::string>( startX + i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -126,8 +159,6 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
             }
 
             geometry->addPrimitiveSet( lines );
-
-            this->addDrawable( geometry );
         }
             break;
 
@@ -141,6 +172,8 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                 {
                     vertices->push_back( osg::Vec3( start.x() - 3.0, i, start.z() ) );
                     vertices->push_back( osg::Vec3( start.x() + 3.0, i, start.z() ) );
+
+                    addLabel( osg::Vec3( start.x() - 3.0, i, start.z() ), boost::lexical_cast<std::string>( startY + i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -167,8 +200,6 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
             }
 
             geometry->addPrimitiveSet( lines );
-
-            this->addDrawable( geometry );
         }
             break;
 
@@ -182,6 +213,8 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                 {
                     vertices->push_back( osg::Vec3( start.x(), i, start.z() - 3.0 ) );
                     vertices->push_back( osg::Vec3( start.x(), i, start.z() + 3.0 ) );
+
+                    addLabel( osg::Vec3( start.x(), i, start.z() - 3.0 ), boost::lexical_cast<std::string>( startY + i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -208,8 +241,6 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
             }
 
             geometry->addPrimitiveSet( lines );
-
-            this->addDrawable( geometry );
         }
             break;
 
@@ -223,6 +254,8 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                 {
                     vertices->push_back( osg::Vec3( start.x() - 3.0, start.y(), i ) );
                     vertices->push_back( osg::Vec3( start.x() + 3.0, start.y(), i ) );
+
+                    addLabel( osg::Vec3( start.x() - 3.0, start.y(), i ), boost::lexical_cast<std::string>( startZ + i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -249,8 +282,6 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
             }
 
             geometry->addPrimitiveSet( lines );
-
-            this->addDrawable( geometry );
         }
             break;
 
@@ -264,6 +295,8 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                 {
                     vertices->push_back( osg::Vec3( start.x(), start.y() - 3.0, i ) );
                     vertices->push_back( osg::Vec3( start.x(), start.y() + 3.0, i ) );
+
+                    addLabel( osg::Vec3( start.x(), start.y() - 3.0, i ), boost::lexical_cast<std::string>( startZ + i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -290,13 +323,15 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
             }
 
             geometry->addPrimitiveSet( lines );
-
-            this->addDrawable( geometry );
         }
             break;
 
         default:
             break;
     }
+
+    rulerGeode->addDrawable( geometry );
+
+    this->addChild( rulerGeode );
 }
 

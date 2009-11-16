@@ -25,6 +25,8 @@
 #ifndef WRULERORTHO_H
 #define WRULERORTHO_H
 
+#include <string>
+
 #include "WRuler.h"
 
 typedef enum
@@ -58,6 +60,8 @@ public:
 
 protected:
 private:
+    void addLabel( osg::Vec3 position, std::string text );
+
     scaleMode m_scaleMode;
 };
 

@@ -25,7 +25,7 @@
 #include "WRuler.h"
 
 WRuler::WRuler() :
-    osg::Geode()
+    osg::Group()
 {
 }
 

@@ -25,12 +25,12 @@
 #ifndef WRULER_H
 #define WRULER_H
 
-#include <osg/Geode>
+#include <osg/Group>
 
 /**
  * class to implement various rulers
  */
-class WRuler : public osg::Geode
+class WRuler : public osg::Group
 {
 public:
     /**
