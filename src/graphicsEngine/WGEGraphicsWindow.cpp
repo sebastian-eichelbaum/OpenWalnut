@@ -169,6 +169,9 @@ void WGEGraphicsWindow::mouseEvent( MouseEvents eventType, int x, int y, int but
         case MOUSEMOVE:
             m_GraphicsWindow->getEventQueue()->mouseMotion( x, y );
             break;
+        case MOUSESCROLL:
+            m_GraphicsWindow->getEventQueue()->mouseScroll2D( x, y );
+            break;
     }
 }
 

@@ -27,7 +27,6 @@
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
 
-#include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
 #include <osgGA/UFOManipulator>
@@ -81,7 +80,7 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
         m_View->addEventHandler( new osgViewer::StatsHandler );
 
         // camera manipulator
-        m_View->setCameraManipulator( new osgGA::TrackballManipulator() );
+        m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
 
         m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
 

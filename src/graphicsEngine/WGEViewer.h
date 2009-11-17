@@ -29,7 +29,6 @@
 
 #include <osg/Node>
 
-#include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
 #include <osgGA/TerrainManipulator>
@@ -43,6 +42,7 @@
 
 #include "WGEGraphicsWindow.h"
 #include "WGECamera.h"
+#include "WGEZoomTrackballManipulator.h"
 
 /**
  * Class for managing one viewer to the scene. This includes viewport, camera and graphics context.

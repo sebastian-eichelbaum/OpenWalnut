@@ -168,6 +168,13 @@ protected:
      * \param event the event description.
      */
     virtual void mouseMoveEvent( QMouseEvent* event );
+
+    /**
+     * Event handler for the mouse wheel.
+     *
+     * \param event the event description.
+     */
+    virtual void wheelEvent( QWheelEvent* event );
 #endif
 
     /**

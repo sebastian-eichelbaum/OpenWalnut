@@ -122,7 +122,7 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
         default:
             std::cout << "selected trackball manipulator" << std::endl;
 
-            m_Viewer->setCameraManipulator( new( osgGA::TrackballManipulator ) );
+            m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
             break;
     }
 }
@@ -224,6 +224,22 @@ void WQtGLWidget::mouseReleaseEvent( QMouseEvent* event )
 void WQtGLWidget::mouseMoveEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEMOVE, event->x(), event->y(), 0 );
+}
+
+void WQtGLWidget::wheelEvent( QWheelEvent* event )
+{
+    int x, y;
+    if( event->orientation() == Qt::Vertical )
+    {
+        x = 0;
+        y = event->delta();
+    }
+    else
+    {
+        x = event->delta();
+        y = 0;
+    }
+    m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
 #endif
 
