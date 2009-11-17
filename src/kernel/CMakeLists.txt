@@ -22,6 +22,8 @@ IF( CXXTEST_FOUND )
                                "WModuleOutputData.hpp"
                                "WModuleInputData.cpp"
                                "WModuleOutputData.cpp"
+                               "WModuleContainer.cpp"
+                               "WModuleFactory.cpp"
                                "../modules/navSlices/WMNavSlices.cpp"
                                "../modules/eegTest/WMEEGTest.cpp"
                              )

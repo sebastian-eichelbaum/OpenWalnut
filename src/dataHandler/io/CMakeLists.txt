@@ -1,5 +1,3 @@
-ADD_SUBDIRECTORY( test )
-
 ADD_SUBDIRECTORY( nifti )
 ADD_SUBDIRECTORY( biosig )
 
