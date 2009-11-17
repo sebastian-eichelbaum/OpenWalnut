@@ -62,7 +62,7 @@ public:
      * Since the widget is not visible during construction, the OSG thread may cause errors, so we use a post constructor.
      */
     virtual void initialize();
-    
+
     /**
      * returns the recommended size for the widget to allow
      * parent widgets to give it a proper initial layout
@@ -206,7 +206,6 @@ private:
      * True when initialized.
      */
     bool m_isInitialized;
-
 };
 
 #endif  // WQTGLWIDGET_H
