@@ -55,15 +55,14 @@ WTalairachConverter::~WTalairachConverter()
 
 wmath::WVector3D WTalairachConverter::Canonical2ACPC( const wmath::WVector3D point )
 {
-    // TODO(schurade): add rotation
     wmath::WVector3D rpoint = point - m_ac;
     return multMatrixWithVector3D( m_rotMat, rpoint );
 }
 
 wmath::WVector3D WTalairachConverter::ACPC2Canonical( const wmath::WVector3D point )
 {
-    // TODO(schurade): add rotation
-    return point + m_ac;
+    wmath::WVector3D rpoint = multMatrixWithVector3D( m_rotMatInvert, point );
+    return rpoint + m_ac;
 }
 
 wmath::WVector3D WTalairachConverter::Canonical2Talairach( const wmath::WVector3D point )
@@ -78,18 +77,21 @@ wmath::WVector3D WTalairachConverter::Talairach2Canonical( const wmath::WVector3
 
 wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D point )
 {
+    wmath::WVector3D ac( 0, 0, 0 );
+    wmath::WVector3D pc( -30, 0, 0 );
+
     // declare some variables for readability
     double x = point[0];
     double y = point[1];
     double z = point[2];
 
-    double X1 = ( m_pp - m_pc ).norm();
-    double X2 = ( m_ac - m_pc ).norm();
-    double X3 = ( m_ap - m_ac ).norm();
-    double Y1 = ( m_ac - m_rp ).norm();
-    double Y2 = ( m_lp - m_ac ).norm();
-    double Z1 = ( m_ac - m_ip ).norm();
-    double Z2 = ( m_sp - m_ac ).norm();
+    double X1 = ( m_pp - pc ).norm();
+    double X2 = ( ac - pc ).norm();
+    double X3 = ( m_ap - ac ).norm();
+    double Y1 = ( ac - m_rp ).norm();
+    double Y2 = ( m_lp - ac ).norm();
+    double Z1 = ( ac - m_ip ).norm();
+    double Z2 = ( m_sp - ac ).norm();
 
     double X1T = 79.0;
     double X2T = 23.0;
@@ -139,18 +141,21 @@ wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D poi
 
 wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D point )
 {
+    wmath::WVector3D ac( 0, 0, 0 );
+    wmath::WVector3D pc( -30, 0, 0 );
+
     // declare some variables for readability
     double xt = point[0];
     double yt = point[1];
     double zt = point[2];
 
-    double X1 = ( m_pp - m_pc ).norm();
-    double X2 = ( m_ac - m_pc ).norm();
-    double X3 = ( m_ap - m_ac ).norm();
-    double Y1 = ( m_ac - m_rp ).norm();
-    double Y2 = ( m_lp - m_ac ).norm();
-    double Z1 = ( m_ac - m_ip ).norm();
-    double Z2 = ( m_sp - m_ac ).norm();
+    double X1 = ( m_pp - pc ).norm();
+    double X2 = ( ac - pc ).norm();
+    double X3 = ( m_ap - ac ).norm();
+    double Y1 = ( ac - m_rp ).norm();
+    double Y2 = ( m_lp - ac ).norm();
+    double Z1 = ( ac - m_ip ).norm();
+    double Z2 = ( m_sp - ac ).norm();
 
     double X1T = 79.0;
     double X2T = 23.0;
@@ -188,11 +193,11 @@ wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D poi
 
     if ( zt < 0 ) // inferior to AC-PC
     {
-        z = ( Z1 / Z1T ) * z;
+        z = ( Z1 / Z1T ) * zt;
     }
     else // superior to AC-PC
     {
-        z = ( Z2 / Z2T ) * z;
+        z = ( Z2 / Z2T ) * zt;
     }
 
     return wmath::WVector3D( x, y, z );
@@ -201,7 +206,17 @@ wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D poi
 
 void WTalairachConverter::defineRotationMatrix()
 {
-    wmath::WVector3D ihp_proj( ( ( ( m_ac - m_ihp ) * ( m_pc - m_ac ) ) * ( m_pc - m_ac ) / m_pc.distanceSquare( m_ac ) ) + m_ihp );
+    //wmath::WVector3D ihp_proj( ( ( ( m_ac - m_ihp ) * ( m_pc - m_ac ) ) * ( m_pc - m_ac ) / m_pc.distanceSquare( m_ac ) ) + m_ihp );
+    wmath::WVector3D v1 = m_pc - m_ac;
+    float apnorm = v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2];
+
+    wmath::WVector3D v2 = m_ac - m_ihp;
+    float dist = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+
+
+    wmath::WVector3D ihp_proj( dist * ( m_pc - m_ac ) / apnorm  + m_ihp );
+
+    m_ihp_proj = ihp_proj;
     wmath::WVector3D ex( m_ac - m_pc );
     ex.normalize();
     wmath::WVector3D ez( ihp_proj - m_ac );
@@ -228,7 +243,6 @@ wmath::WVector3D WTalairachConverter::getAc() const
 
 void WTalairachConverter::setAc( wmath::WVector3D ac )
 {
-    assert( ac[0] > m_pc[0] );
     m_ac = ac;
     defineRotationMatrix();
 }
@@ -240,7 +254,6 @@ wmath::WVector3D WTalairachConverter::getPc() const
 
 void WTalairachConverter::setPc( wmath::WVector3D pc )
 {
-    assert( pc[0] < m_ac[0] );
     m_pc = pc;
     defineRotationMatrix();
 }
@@ -252,7 +265,6 @@ wmath::WVector3D WTalairachConverter::getIhp() const
 
 void WTalairachConverter::setIhp( wmath::WVector3D ihp )
 {
-    assert( ihp[2] != m_ac[2] );
     m_ihp = ihp;
     defineRotationMatrix();
 }
@@ -264,7 +276,6 @@ wmath::WVector3D WTalairachConverter::getAp() const
 
 void WTalairachConverter::setAp( wmath::WVector3D ap )
 {
-    assert( ap[0] > m_ac[0] );
     m_ap = ap;
 }
 
@@ -275,7 +286,6 @@ wmath::WVector3D WTalairachConverter::getPp() const
 
 void WTalairachConverter::setPp( wmath::WVector3D pp )
 {
-    assert( pp[0] < m_pc[0] );
     m_pp = pp;
 }
 
@@ -286,7 +296,6 @@ wmath::WVector3D WTalairachConverter::getSp() const
 
 void WTalairachConverter::setSp( wmath::WVector3D sp )
 {
-    assert( sp[2] > m_ac[2] );
     m_sp = sp;
 }
 
@@ -297,7 +306,6 @@ wmath::WVector3D WTalairachConverter::getIp() const
 
 void WTalairachConverter::setIp( wmath::WVector3D ip )
 {
-    assert( ip[2] < m_ac[2] );
     m_ip = ip;
 }
 
@@ -308,7 +316,6 @@ wmath::WVector3D WTalairachConverter::getRp() const
 
 void WTalairachConverter::setRp( wmath::WVector3D rp )
 {
-    assert( rp[1] < m_ac[1] );
     m_rp = rp;
 }
 
@@ -319,9 +326,19 @@ wmath::WVector3D WTalairachConverter::getLp() const
 
 void WTalairachConverter::setLp( wmath::WVector3D lp )
 {
-    assert( lp[1] > m_ac[1] );
     m_lp = lp;
 }
+
+wmath::WMatrix<double> WTalairachConverter::getRotMat()
+{
+    return m_rotMat;
+}
+
+wmath::WMatrix<double> WTalairachConverter::getInvRotMat()
+{
+    return m_rotMatInvert;
+}
+
 
 wmath::WVector3D WTalairachConverter::multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec )
 {

@@ -80,6 +80,10 @@ public:
     wmath::WVector3D getLp() const;
     void setLp( wmath::WVector3D lp );
 
+    wmath::WMatrix<double> getRotMat();
+    wmath::WMatrix<double> getInvRotMat();
+
+    wmath::WVector3D m_ihp_proj;
 protected:
 private:
     void defineRotationMatrix();
