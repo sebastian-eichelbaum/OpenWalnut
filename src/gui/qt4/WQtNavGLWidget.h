@@ -62,6 +62,9 @@ protected:
 private:
     QString m_sliderTitle;
 
+    /**
+     * My GL widget.
+     */
     boost::shared_ptr<WQtGLWidget> m_glWidget;
 
 private slots:

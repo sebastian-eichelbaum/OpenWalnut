@@ -35,13 +35,15 @@
 #include "WGraphicsEngine.h"
 #include "WGEViewer.h"
 
-WGraphicsEngine::WGraphicsEngine( std::string shaderPath ):
-    m_shaderPath( shaderPath )
+
+WGraphicsEngine::WGraphicsEngine()
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
 
     // initialize members
     m_rootNode = new WGEScene();
+
+    m_shaderPath = "";
 }
 
 WGraphicsEngine::~WGraphicsEngine()
@@ -55,16 +57,21 @@ osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
     return m_rootNode;
 }
 
-std::string WGraphicsEngine::getShaderPath()
+std::string WGraphicsEngine::getShaderPath() const
 {
     return m_shaderPath;
+}
+
+void WGraphicsEngine::setShaderPath( std::string path )
+{
+    m_shaderPath = path;
 }
 
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer(
     osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode )
 {
     boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x, y, width, height, projectionMode ) );
-    viewer->setScene( this->getScene() );
+    viewer->setScene( getScene() );
 
     // start rendering
     viewer->run();
@@ -77,3 +84,4 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer(
 
     return viewer;
 }
+

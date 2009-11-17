@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <iostream>
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QSlider>

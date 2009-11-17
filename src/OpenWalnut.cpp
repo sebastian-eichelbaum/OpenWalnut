@@ -24,18 +24,10 @@
 
 #include <iostream>
 
-#include <boost/signals2/signal.hpp>
-#include <boost/function.hpp>
-
-#include "common/WException.h"
 #include "common/WSegmentationFault.h"
 #include "common/WLogger.h"
 
-#include "gui/WGUI.h"
 #include "gui/qt4/WQt4Gui.h"
-
-#include "kernel/WKernel.h"
-#include "kernel/WModuleSignals.h"
 
 /**
  * The main routine starting up the whole application.
@@ -44,7 +36,7 @@
  *
  * For a list of the current modules see the "Modules" tab in the navigation bar above.
  */
-int main( int argc, char* argv[] )
+int main( int argc, char** argv )
 {
     std::cout << "OpenWalnut ( http://www.openwalnut.org )\n"
     "Copyright (C) 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
@@ -59,20 +51,20 @@ int main( int argc, char* argv[] )
     // install signal handler as early as possible
     WSegmentationFault::installSignalHandler();
 
-    // initialize GUI
-    boost::shared_ptr< WGUI > gui = boost::shared_ptr< WGUI >( new WQt4Gui() );
-
     // init logger
     WLogger logger;
     logger.run();
 
-    // init the kernel
-    WKernel kernel = WKernel( argc, argv, gui );
+    // initialize GUI
+    // NOTE: we need a shared ptr here since WGUI uses enable_shared_from_this.
+    boost::shared_ptr< WQt4Gui > gui = boost::shared_ptr< WQt4Gui > ( new WQt4Gui( argc, argv ) );
+    int result = gui->run();
 
-    // bind the GUI's slot with the ready signal
-    t_ModuleGenericSignalHandlerType f = boost::bind( &WGUI::slotAddDatasetToBrowser, gui, _1 );
-    kernel.getRootContainer()->addDefaultNotifier( READY, f );
+    // finish running thread
+    WLogger::getLogger()->wait( true );
+    // write remaining log messages
+    WLogger::getLogger()->processQueue();
 
-    return kernel.run();
+    return result;
 }
 

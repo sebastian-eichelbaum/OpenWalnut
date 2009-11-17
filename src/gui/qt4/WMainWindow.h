@@ -35,6 +35,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QSlider>
 #include <QtGui/QWidget>
+#include <QtGui/QCloseEvent>
 
 #include "signalslib.hpp"
 #include "WQtNavGLWidget.h"
@@ -46,13 +47,12 @@
 // forward declarations
 class WQtGLWidget;
 
-
 /**
  * This class contains the main window and the layout
  * of the widgets within the window.
  * \ingroup gui
  */
-class WMainWindow : public QObject
+class WMainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -62,7 +62,7 @@ public:
     /**
      * Set up all widgets menus an buttons in the main window.
      */
-    void setupGUI( QMainWindow *MainWindow );
+    void setupGUI();
 
     /**
      * Destructor.
@@ -95,6 +95,15 @@ public:
      */
     boost::signal1< void, std::vector< std::string > >* getLoaderSignal();
 
+protected:
+
+    /**
+     * We want to react on close events.
+     * 
+     * \param e the close event.
+     */
+    void closeEvent( QCloseEvent* e );
+
 public slots:
     /**
      * gets called when menu option or toolbar button load is activated
@@ -102,7 +111,7 @@ public slots:
     void openLoadDialog();
 
 private:
-    void setupToolBar( QMainWindow *mainWindow );
+    void setupToolBar();
 
     WIconManager m_iconManager;
 
@@ -111,12 +120,12 @@ private:
     QWidget* m_centralwidget;
     WQtRibbonMenu* m_toolBar;
 
-    std::list<boost::shared_ptr<WQtGLWidget> > m_glWidgets;
     WQtDatasetBrowser* m_datasetBrowser;
 
-    WQtNavGLWidget* m_navAxial;
-    WQtNavGLWidget* m_navCoronal;
-    WQtNavGLWidget* m_navSagittal;
+    boost::shared_ptr<WQtGLWidget> m_mainGLWidget;
+    boost::shared_ptr< WQtNavGLWidget > m_navAxial;
+    boost::shared_ptr< WQtNavGLWidget > m_navCoronal;
+    boost::shared_ptr< WQtNavGLWidget > m_navSagittal;
 
     boost::signal1< void, std::vector< std::string > > m_loaderSignal;
 };

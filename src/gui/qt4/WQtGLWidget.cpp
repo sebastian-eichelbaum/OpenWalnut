@@ -39,6 +39,29 @@ WQtGLWidget::WQtGLWidget( QWidget* parent, WGECamera::ProjectionMode projectionM
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
 
+    m_initialProjectionMode = projectionMode;
+    m_isInitialized = false;
+
+    // required
+    setAttribute( Qt::WA_PaintOnScreen );
+    setAttribute( Qt::WA_NoSystemBackground );
+    setFocusPolicy( Qt::ClickFocus );
+}
+
+WQtGLWidget::~WQtGLWidget()
+{
+    // cleanup
+    if ( isInitialized() )
+    {
+        m_Viewer.reset();
+    }
+}
+
+void WQtGLWidget::initialize()
+{
+    if ( m_isInitialized )
+        return;
+
     // initialize OpenGL context and OpenSceneGraph
 
 #if defined(__APPLE__)
@@ -55,17 +78,14 @@ WQtGLWidget::WQtGLWidget( QWidget* parent, WGECamera::ProjectionMode projectionM
 #endif
 
     // create viewer
-    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer( wdata, x(), y(), width(), height(), projectionMode );
+    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer( wdata, x(), y(), width(), height(), m_initialProjectionMode );
 
-    // required
-    setAttribute( Qt::WA_PaintOnScreen );
-    setAttribute( Qt::WA_NoSystemBackground );
-    setFocusPolicy( Qt::ClickFocus );
+    m_isInitialized = true;
 }
 
-WQtGLWidget::~WQtGLWidget()
+bool WQtGLWidget::isInitialized() const
 {
-    // cleanup
+    return m_isInitialized;
 }
 
 QSize WQtGLWidget::sizeHint() const

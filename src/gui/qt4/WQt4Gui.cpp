@@ -30,46 +30,55 @@
 #include <QtGui/QFileDialog>
 
 #include "WMainWindow.h"
+#include "../../kernel/WKernel.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 
 #include "WQt4Gui.h"
 
-WQt4Gui::WQt4Gui():
-    WGUI()
+WQt4Gui::WQt4Gui( int argc, char** argv ):
+    WGUI( argc, argv )
 {
-    m_isInitialized = false;
 }
 
 WQt4Gui::~WQt4Gui()
 {
 }
 
-void WQt4Gui::threadMain()
+int WQt4Gui::run()
 {
-    // TODO(ebaum): currently removed argument stuff. will be done later in conjunction with a better
-    // option handler.+
-#ifdef __APPLE__
-    char * dummy = "";
-    int dummyInt = 0;
-    QApplication appl( dummyInt, &dummy, 0 );
-#else
-    QApplication appl( 0, NULL );
-#endif
-    QMainWindow* mainWindow = new QMainWindow;
-    m_gui = new WMainWindow;
-    m_gui->setupGUI( mainWindow );
-    mainWindow->show();
+    WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_DEBUG );
 
+#ifdef __APPLE__
+    // TODO(hlawitschka): what does the third parameter mean?
+    QApplication appl( argc, argv, 0 );
+#else
+    QApplication appl( argc, argv );
+#endif
+
+    // startup graphics engine
+    m_ge = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine() );
+
+    // and startup kernel
+    m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
+    m_kernel->run();
+
+    // create the window
+    m_gui = new WMainWindow;
+    m_gui->show();
+
+    // connect out loader signal with krnel
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, m_kernel, _1 ) );
+
+    // bind the GUI's slot with the ready signal
+    t_ModuleGenericSignalHandlerType f = boost::bind( &WGUI::slotAddDatasetToBrowser, this, _1 );
+    m_kernel->getRootContainer()->addDefaultNotifier( READY, f );
+
+    // now we are initialized
     m_isInitialized = true;
 
-    int qtExecResult;
-    qtExecResult = appl.exec();
-
-
-    // TODO(ebaum): how to handle return codes?
-}
-
-void WQt4Gui::createMainWindow()
-{
+    // run
+    // NOTE: kernel shutdown is implemented in WMainWindow
+    return appl.exec();
 }
 
 void WQt4Gui::addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId )
@@ -80,11 +89,6 @@ void WQt4Gui::addDatasetToBrowser( boost::shared_ptr< WModule > module, int subj
 std::vector< boost::shared_ptr< WModule > >WQt4Gui::getDataSetList( int subjectId )
 {
     return m_gui->getDatasetBrowser()->getDataSetList( subjectId );
-}
-
-bool WQt4Gui::isInitalized()
-{
-    return m_isInitialized;
 }
 
 boost::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()

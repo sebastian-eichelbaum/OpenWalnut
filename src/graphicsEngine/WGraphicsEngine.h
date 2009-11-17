@@ -55,7 +55,7 @@ public:
     /**
      * Default constructor.
      */
-    explicit WGraphicsEngine( std::string shaderPath );
+    explicit WGraphicsEngine();
 
     /**
      * Destructor.
@@ -74,7 +74,14 @@ public:
      *
      * \return shader path
      */
-    std::string getShaderPath();
+    std::string getShaderPath() const;
+
+    /**
+     * Sets the shader path.
+     * 
+     * \param path path to shaders.
+     */
+    void setShaderPath( std::string path );
 
     /**
      * Creates a new viewer. Does basic initialization and sets the default scene.
@@ -108,8 +115,12 @@ protected:
      */
     boost::mutex m_ViewerLock;
 
-private:
+    /**
+     * Path to the shaders.
+     */
     std::string m_shaderPath;
+
+private:
 };
 
 /**

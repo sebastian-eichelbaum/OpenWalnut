@@ -24,8 +24,21 @@
 
 #include "WGUI.h"
 
+WGUI::WGUI( int argc, char** argv ): boost::enable_shared_from_this< WGUI >()
+{
+    m_isInitialized = false;
+
+    this->argc = argc;
+    this->argv = argv;
+}
+
 WGUI::~WGUI()
 {
+}
+
+bool WGUI::isInitalized()
+{
+    return m_isInitialized;
 }
 
 void WGUI::slotAddDatasetToBrowser( boost::shared_ptr< WModule > module )

@@ -31,18 +31,24 @@
 #include "../WGUI.h"
 
 class WMainWindow;
+class WGraphicsEngine;
+class WKernel;
 
 /**
- * Starts up the QT GUI.
+ * The QT4 Based GUI implementation. Implements WGUI.
  * \ingroup gui
  */
 class WQt4Gui : public WGUI
 {
 public:
+
     /**
-     * Default Constructor.
+     * Constructor.
+     * 
+     * \param argc number of arguments given on command line.
+     * \param argv arguments given on command line.
      */
-    WQt4Gui();
+    WQt4Gui( int argc, char** argv );
 
     /**
      * Default destructor.
@@ -50,16 +56,18 @@ public:
     virtual ~WQt4Gui();
 
     /**
-     * function to create a main window on demand, so it doesn't happen in the constructor
+     * Runs the GUI. All initialization should be done here.
+     *
+     * \return the return code.
      */
-    virtual void createMainWindow();
-
+    virtual int run();
 
     /**
-     * return trues when initialization is finished, otherwise false
+     * TODO(schurade): write something
+     * 
+     * \param module
+     * \param subjectId
      */
-    bool isInitalized();
-
     void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId );
 
     /**
@@ -79,14 +87,22 @@ public:
 
 protected:
 
-    /**
-     * Execution loop.
-     */
-    virtual void threadMain();
-
-
 private:
+
+    /**
+     * Main window containing all needed widgets.
+     */
     WMainWindow* m_gui;
+
+    /**
+     * Graphics Engine instance.
+     */
+    boost::shared_ptr< WGraphicsEngine > m_ge;
+
+    /**
+     * Kernel instance.
+     */
+    boost::shared_ptr< WKernel > m_kernel;
 };
 
 #endif  // WQT4GUI_H

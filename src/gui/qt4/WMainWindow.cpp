@@ -27,6 +27,7 @@
 #include <vector>
 
 #include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
 #include <QtGui/QSlider>
@@ -34,77 +35,74 @@
 
 #include "WMainWindow.h"
 #include "WQtGLWidget.h"
+#include "../../kernel/WKernel.h"
 
 #include "WQtNavGLWidget.h"
 
 #include "../icons/WIcons.h"
 
 WMainWindow::WMainWindow() :
+    QMainWindow(),
     m_iconManager(),
     m_propertyManager()
 {
+    setupGUI();
 }
 
 WMainWindow::~WMainWindow()
 {
-    // clean up list with views
-    m_glWidgets.clear();
 }
 
 
-void WMainWindow::setupGUI( QMainWindow *mainWindow )
+void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
 
-    if( mainWindow->objectName().isEmpty() )
+    if( objectName().isEmpty() )
     {
-        mainWindow->setObjectName( QString::fromUtf8( "MainWindow" ) );
+        setObjectName( QString::fromUtf8( "MainWindow" ) );
     }
-    mainWindow->resize( 946, 632 );
-    mainWindow->setWindowIcon( m_iconManager.getIcon( "logo" ) );
-    mainWindow->setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
+    resize( 946, 632 );
+    setWindowIcon( m_iconManager.getIcon( "logo" ) );
+    setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
 
-    m_centralwidget = new QWidget( mainWindow );
+    m_centralwidget = new QWidget( this );
     m_centralwidget->setObjectName( QString::fromUtf8( "centralwidget" ) );
-    mainWindow->setCentralWidget( m_centralwidget );
+    setCentralWidget( m_centralwidget );
 
-    std::cout << "init main gl" << std::endl;
-    boost::shared_ptr<WQtGLWidget> widget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( mainWindow, WGECamera::ORTHOGRAPHIC ) );
-    m_glWidgets.push_back( widget );
-    mainWindow->setCentralWidget( widget.get() );
+    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( this, WGECamera::ORTHOGRAPHIC ) );
+    m_mainGLWidget->initialize();
+    setCentralWidget( m_mainGLWidget.get() );
 
     // initially 3 views
-    std::cout << "init nav gl 1" << std::endl;
-    m_navAxial = new WQtNavGLWidget( "axial", 160, "axialPos" );
-    m_glWidgets.push_back( m_navAxial->getGLWidget() );
-    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial );
+    m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", 160, "axialPos" ) );
+    m_navAxial->getGLWidget()->initialize();
+    addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
 
-    std::cout << "init nav gl 2" << std::endl;
-    m_navCoronal = new WQtNavGLWidget( "coronal", 200, "coronalPos" );
-    m_glWidgets.push_back( m_navCoronal->getGLWidget() );
-    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal );
+    m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", 200, "coronalPos" ) );
+    m_navCoronal->getGLWidget()->initialize(); 
+    addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
 
-    std::cout << "init nav gl 3" << std::endl;
-    m_navSagittal = new WQtNavGLWidget( "sagittal", 160, "sagittalPos" );
-    m_glWidgets.push_back( m_navSagittal->getGLWidget() );
-    mainWindow->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal );
+    m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", 160, "sagittalPos" ) );
+    m_navSagittal->getGLWidget()->initialize();
+    addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
 
-    connect( m_navAxial, SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navCoronal, SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navSagittal, SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
 
     m_datasetBrowser = new WQtDatasetBrowser();
-    mainWindow->addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
+    addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "subject1" );
 
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
-    setupToolBar( mainWindow );
+    setupToolBar();
 }
 
-void WMainWindow::setupToolBar( QMainWindow *mainWindow )
+void WMainWindow::setupToolBar()
 {
-    m_toolBar = new WQtRibbonMenu( mainWindow );
+    m_toolBar = new WQtRibbonMenu( this );
 
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
     m_iconManager.addIcon( std::string( "save" ), disc_xpm );
@@ -119,7 +117,7 @@ void WMainWindow::setupToolBar( QMainWindow *mainWindow )
     m_toolBar->getButton( QString( "buttonSave" ) )->setMaximumSize( 50, 24 );
     m_toolBar->getButton( QString( "buttonQuit" ) )->setMaximumSize( 50, 24 );
 
-    connect( m_toolBar->getButton( QString( "buttonQuit" ) ), SIGNAL( pressed() ), mainWindow, SLOT( close() ) );
+    connect( m_toolBar->getButton( QString( "buttonQuit" ) ), SIGNAL( pressed() ), this, SLOT( close() ) );
     connect( m_toolBar->getButton( QString( "buttonLoad" ) ), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
 
     m_toolBar->addTab( QString( "Modules" ) );
@@ -152,7 +150,7 @@ void WMainWindow::setupToolBar( QMainWindow *mainWindow )
     connect( m_toolBar->getButton( QString( "showSagittal" ) ),
             SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
-    mainWindow->addToolBar( Qt::TopToolBarArea, m_toolBar );
+    addToolBar( Qt::TopToolBarArea, m_toolBar );
 }
 
 
@@ -208,3 +206,39 @@ WIconManager*  WMainWindow::getIconManager()
 {
     return &m_iconManager;
 }
+
+void WMainWindow::closeEvent( QCloseEvent* e )
+{
+    // use some "Really Close?" Dialog here
+    bool reallyClose = true;
+
+
+    // handle close event
+    if ( reallyClose )
+    {
+        // signal everybuddy to shut down properly.
+        WKernel::getRunningKernel()->stop();
+
+        // now nobody acesses the osg anymore
+        // clean up gl widgets
+        m_mainGLWidget->close();
+        m_mainGLWidget.reset();
+
+        m_navAxial->close();
+        m_navAxial.reset();
+
+        m_navCoronal->close();
+        m_navCoronal.reset();
+
+        m_navSagittal->close();
+        m_navSagittal.reset();
+
+        // finally close
+        e->accept();
+    }
+    else
+    {
+        e->ignore();
+    }
+}
+

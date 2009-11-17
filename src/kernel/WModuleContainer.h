@@ -62,9 +62,10 @@ public:
      * associated with this container nothing happens.
      * 
      * \param module the module to add.
+     * \param run true when the module should be run automatically after adding it.
      * \throw WModuleUninitialized thrown whenever someone wants to add a module not yet initialized.
      */
-    virtual void add( boost::shared_ptr< WModule > module );
+    virtual void add( boost::shared_ptr< WModule > module, bool run = true );
 
     /**
      * Remove the given module from this container if it is associated with it. TODO(ebaum): deep removal? flat removal?

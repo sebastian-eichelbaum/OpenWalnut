@@ -59,11 +59,15 @@ public:
     virtual ~WQtGLWidget();
 
     /**
+     * Since the widget is not visible during construction, the OSG thread may cause errors, so we use a post constructor.
+     */
+    virtual void initialize();
+    
+    /**
      * returns the recommended size for the widget to allow
      * parent widgets to give it a proper initial layout
      */
     QSize sizeHint() const;
-
 
     /**
      * List of currently possible camera manipulators.
@@ -86,6 +90,13 @@ public:
      * \return the manipulator.
      */
     CameraManipulators getCameraManipulators();
+
+    /**
+     * Determines whether the widget is properly initialized.
+     * 
+     * \return true when initialized.
+     */
+    bool isInitialized() const;
 
 protected:
     /**
@@ -179,11 +190,23 @@ protected:
      * Stores the current manipulator.
      */
     CameraManipulators m_CurrentManipulator;
+
+    /**
+     * Camera projection mode used to initialize widget. May not be the actual one!
+     */
+    WGECamera::ProjectionMode m_initialProjectionMode;
+
 private:
     /**
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
+
+    /**
+     * True when initialized.
+     */
+    bool m_isInitialized;
+
 };
 
 #endif  // WQTGLWIDGET_H

@@ -46,43 +46,50 @@
  */
 WKernel* kernel = NULL;
 
-WKernel::WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui )
-    : m_gui( gui )
+WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui )
+    :WThreadedRunner()
 {
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_DEBUG );
 
+    // init the singleton
     kernel = this;
 
     // initialize members
-    m_ArgC = argc;
-    m_ArgV = argv;
     m_FinishRequested = false;
 
-    // get module factory
-    m_moduleFactory = WModuleFactory::getModuleFactory();
-    m_moduleContainer = boost::shared_ptr< WModuleContainer >();
+    m_gui = gui;
+    m_graphicsEngine = ge;
 
-    // init GE, DataHandler, ...
+    // init
     init();
-
-    // load modules
-    loadModules();
 }
 
 WKernel::~WKernel()
 {
     // cleanup
     WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
-
-    // finish running thread
-    WLogger::getLogger()->wait( true );
-    // write remaining log messages
-    WLogger::getLogger()->processQueue();
 }
 
-WKernel::WKernel( const WKernel& other )
+void WKernel::init()
 {
-    *this = other;
+     // initialize
+    findAppPath();
+
+    // get module factory
+    m_moduleFactory = WModuleFactory::getModuleFactory();
+
+    // initialize module container
+    m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer",
+                "Root module container in Kernel." ) );
+
+    // initialize graphics engine, or, at least set some stuff
+    m_graphicsEngine->setShaderPath( m_shaderPath );
+
+    // initialize Datahandler
+    m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
+
+    // load all modules
+    m_moduleFactory->load();
 }
 
 WKernel* WKernel::getRunningKernel()
@@ -105,74 +112,32 @@ boost::shared_ptr< WGUI > WKernel::getGui() const
     return m_gui;
 }
 
-void WKernel::setGui( boost::shared_ptr< WGUI > gui )
-{
-    m_gui = gui;
-}
-
-int WKernel::getArgumentCount() const
-{
-    return m_ArgC;
-}
-
-char** WKernel::getArguments() const
-{
-    return m_ArgV;
-}
-
 void WKernel::stop()
 {
+    WLogger::getLogger()->addLogMessage( "Stopping Kernel", "Kernel", LL_DEBUG );
+
+    // stop everybody
+    // NOTE: stopping a container erases all modules inside.
     getRootContainer()->stop();
 }
 
-int WKernel::run()
+void WKernel::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
 
-    // run Gui
-    m_gui->run();
-
-    // run? data handler stuff?
-
-    // TODO(schurade): this must be moved somewhere else, and realize the wait loop in another fashion
+    // wait for GUI to be initialized properly
+    // TODO(ebaum): this loop is ugly, will be replaced by some kind of one-shot condition
     while ( !m_gui->isInitalized() )
     {
     }
-    m_gui->getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, this, _1 ) );
 
     // default modules
-    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) );
-    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) );
+    //m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
 
-    m_gui->wait( false );
-    m_FinishRequested = true;
-    m_moduleContainer->stop();
-
-    // how to get QT return code from its thread?
-    return 0;
-}
-
-void WKernel::loadModules()
-{
-    // load all modules
-    m_moduleFactory->load();
-}
-
-void WKernel::init()
-{
-     // initialize
-    findAppPath();
-
-    // initialize module container
-    m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer",
-                "Root module container in Kernel." ) );
-
-    // initialize graphics engine
-    // this also includes initialization of WGEScene and OpenSceneGraph
-    m_graphicsEngine = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine( m_shaderPath ) );
-
-    // initialize Datahandler
-    m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
+    // actually there is nothing more to do here
+    waitForStop();
+    WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
 }
 
 bool WKernel::findAppPath()

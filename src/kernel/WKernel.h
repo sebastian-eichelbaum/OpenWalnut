@@ -35,45 +35,40 @@
 #include "WModuleFactory.h"
 #include "WModuleContainer.h"
 #include "../common/WLogger.h"
+#include "../common/WThreadedRunner.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../gui/WGUI.h"
+
+/**
+ * \defgroup kernel Kernel
+ *
+ * \brief
+ * This module implements the central part of OpenWalnut that manages
+ * the interaction between GUI, GraphicsEngine and DataHandler.
+ */
 
 /**
  * OpenWalnut kernel, managing modules and interaction between
  * GUI, GE and DataHandler
  * \ingroup kernel
  */
-class WKernel
+class WKernel: public WThreadedRunner
 {
 public:
 
     /**
-     * Default constructor. Also initializes Graphics Engine.
-     *
-     * \param argc number of arguments
-     * \param argv arguments
-     * \param gui pointer to the gui interface
+     * Constructor. Awaits an INITIALIZED graphics engine an gui.
+     * 
+     * \param ge initialized graphics engine.
+     * \param gui initialized gui.
      */
-    WKernel( int argc, char* argv[], boost::shared_ptr< WGUI > gui );
+    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
 
     /**
      * Destructor.
      */
     virtual ~WKernel();
-
-    /**
-     * Copy constructor
-     * \param other Reference on object to copy.
-     */
-    WKernel( const WKernel& other );
-
-    /**
-     * Starts execution.
-     *
-     * \return Execution code.
-     */
-    int run();
 
     /**
      * Stops execution of the modules in the root container. Note that this does not wait for the kernel thread since this could
@@ -103,20 +98,6 @@ public:
     static WKernel* getRunningKernel();
 
     /**
-     * Returns argument count.
-     *
-     * \return argument count.
-     */
-    int getArgumentCount() const;
-
-    /**
-     * Returns argument array specified to the app.
-     *
-     * \return the argument array.
-     */
-    char** getArguments() const;
-
-    /**
      * Determines whether all threads should finish.
      *
      * \return true if so.
@@ -136,14 +117,11 @@ public:
     boost::shared_ptr< WModuleContainer > getRootContainer() const;
 
     /**
-     * getter for gui
+     * Getter for the associated GUI.
+     * 
+     * \return the GUI.
      */
     boost::shared_ptr< WGUI > getGui() const;
-
-    /**
-     *
-     */
-    void setGui( boost::shared_ptr< WGUI > gui );
 
     /**
      * get for application path
@@ -158,14 +136,20 @@ public:
 protected:
 
     /**
-     * Pointer to an initialized graphics engine.
+     * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
+     * has been called.
      */
-    boost::shared_ptr< WGraphicsEngine > m_graphicsEngine;
+    virtual void threadMain();
 
     /**
      * The Gui.
      */
     boost::shared_ptr< WGUI > m_gui;
+
+    /**
+     * Pointer to an initialized graphics engine.
+     */
+    boost::shared_ptr< WGraphicsEngine > m_graphicsEngine;
 
     /**
      * The Datahandler.
@@ -198,16 +182,6 @@ private:
     bool findAppPath();
 
     /**
-     * Number of arguments given to application.
-     */
-    int m_ArgC;
-
-    /**
-     * Arguments given to application
-     */
-    char** m_ArgV;
-
-    /**
      * true if threads should finish.
      */
     bool m_FinishRequested;
@@ -222,14 +196,6 @@ private:
      */
     std::string m_shaderPath;
 };
-
-/**
- * \defgroup kernel Kernel
- *
- * \brief
- * This module implements the central part of OpenWalnut that manages
- * the interaction between GUI, GraphicsEngine and DataHandler.
- */
 
 #endif  // WKERNEL_H
 

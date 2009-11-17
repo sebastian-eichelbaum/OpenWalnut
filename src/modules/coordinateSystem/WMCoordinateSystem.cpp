@@ -51,14 +51,12 @@ void WMCoordinateSystem::moduleMain()
 {
     createGeometry();
 
-    // Since the modules run in a separate thread: such loops are possible
-    while ( !m_FinishRequested )
-    {
-        // do fancy stuff
-        sleep( 1 );
-    }
+    // Since the modules run in a separate thread: wait
+    waitForStop();
 
     // clean up stuff
+    // NOTE: ALLAWAYS remove your osg nodes!
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_rootNode );
 }
 
 const std::string WMCoordinateSystem::getName() const

@@ -49,7 +49,7 @@ WModuleContainer::~WModuleContainer()
     // cleanup
 }
 
-void WModuleContainer::add( boost::shared_ptr< WModule > module )
+void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
     WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
 
@@ -100,7 +100,12 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module )
 
     // TODO(ebaum,schurade): this should be removes some days
     module->connectToGui();
-    module->run();
+
+    // run it
+    if ( run )
+    {
+        module->run();
+    }
 }
 
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
@@ -140,6 +145,11 @@ void WModuleContainer::stop()
         ( *listIter )->wait( true );
     }
     slock.unlock();
+
+    // get write lock
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
+    m_modules.clear();
+    lock.unlock();
 }
 
 const std::string WModuleContainer::getName() const

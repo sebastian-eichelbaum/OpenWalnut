@@ -28,29 +28,57 @@
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include "../common/WThreadedRunner.h"
 #include "../kernel/WModule.h"
 #include "qt4/signalslib.hpp"
 
 /**
- * This class prescribes the interface to the GUI.
+ * \defgroup gui GUI
+ *
+ * \brief
+ * This module implements the graphical user interface for OpenWalnut.
+ *
+ */
+
+/**
+ * This class prescribes the interface to the GUI. It basically is an abstract class defining the interface common to all possible
+ * GUI implementations.
+ *
  * \ingroup gui
  */
-class WGUI: public WThreadedRunner
+class WGUI:
+    public boost::enable_shared_from_this< WGUI >
 {
 public:
 
     /**
-     * Default destructor.
+     * Constructor.
+     * 
+     * \param argc number of arguments given on command line.
+     * \param argv arguments given on command line.
+     */
+    WGUI( int argc, char** argv );
+
+    /**
+     * Destructor.
      */
     virtual ~WGUI();
 
-    virtual bool isInitalized() = 0;
+    /**
+     * Determines whether the GUI is properly initialized.
+     * 
+     * \return true if initialized.
+     */
+    virtual bool isInitalized();
 
     /**
-     * function to create a main window on demand, so it doesn't happen in the constructor
+     * Runs the GUI. All initialization should be done here.
+     *
+     * \return the return code.
      */
-    virtual void createMainWindow() = 0;
+    virtual int run() = 0;
 
     /**
      * Slot gets called whenever a new module is added.
@@ -80,16 +108,22 @@ public:
     virtual void connectProperties( boost::shared_ptr<WProperties> properties ) = 0;
 
 protected:
+
+    /**
+     * Flag determining whether the GUI is properly initialized.
+     */
     bool m_isInitialized;
+
+    /**
+     * Number of command line arguments given.
+     */
+    int argc;
+
+    /**
+     * Command line arguments given.
+     */
+    char** argv;
 };
 
-
-/**
- * \defgroup gui GUI
- *
- * \brief
- * This module implements the graphical user interface for OpenWalnut.
- *
- */
-
 #endif  // WGUI_H
+
