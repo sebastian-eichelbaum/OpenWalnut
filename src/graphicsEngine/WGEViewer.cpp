@@ -40,6 +40,9 @@
 #include <osgDB/ReadFile>
 
 #include "exceptions/WGEInitFailed.h"
+
+#include "WPickHandler.h"
+
 #include "WGEViewer.h"
 
 WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode ):
@@ -81,6 +84,9 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
         m_View->setCameraManipulator( new osgGA::TrackballManipulator() );
 
         m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
+
+        osg::ref_ptr<osgText::Text> updateText = new osgText::Text;
+        m_View->addEventHandler( new WPickHandler( updateText.get() ) );
 
         // finally add view
         // there is the possibility to use ONE single composite viewer instance for every view, but
