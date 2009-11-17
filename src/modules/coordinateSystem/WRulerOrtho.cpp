@@ -91,7 +91,7 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                     vertices->push_back( osg::Vec3( i, start.y() - 3.0, start.z() ) );
                     vertices->push_back( osg::Vec3( i, start.y() + 3.0, start.z() ) );
 
-                    addLabel( osg::Vec3( i, start.y() - 3.0, start.z() ), boost::lexical_cast<std::string>( startX + i ) );
+                    addLabel( osg::Vec3( i, start.y() - 3.0, start.z() ), boost::lexical_cast<std::string>( i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -132,7 +132,7 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                     vertices->push_back( osg::Vec3( i, start.y(), start.z() - 3.0 ) );
                     vertices->push_back( osg::Vec3( i, start.y(), start.z() + 3.0 ) );
 
-                    addLabel( osg::Vec3( i, start.y(), start.z() - 3.0 ), boost::lexical_cast<std::string>( startX + i ) );
+                    addLabel( osg::Vec3( i, start.y(), start.z() - 3.0 ), boost::lexical_cast<std::string>( i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -173,7 +173,7 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                     vertices->push_back( osg::Vec3( start.x() - 3.0, i, start.z() ) );
                     vertices->push_back( osg::Vec3( start.x() + 3.0, i, start.z() ) );
 
-                    addLabel( osg::Vec3( start.x() - 3.0, i, start.z() ), boost::lexical_cast<std::string>( startY + i ) );
+                    addLabel( osg::Vec3( start.x() - 3.0, i, start.z() ), boost::lexical_cast<std::string>( i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -214,7 +214,7 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                     vertices->push_back( osg::Vec3( start.x(), i, start.z() - 3.0 ) );
                     vertices->push_back( osg::Vec3( start.x(), i, start.z() + 3.0 ) );
 
-                    addLabel( osg::Vec3( start.x(), i, start.z() - 3.0 ), boost::lexical_cast<std::string>( startY + i ) );
+                    addLabel( osg::Vec3( start.x(), i, start.z() - 3.0 ), boost::lexical_cast<std::string>( i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -255,7 +255,7 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                     vertices->push_back( osg::Vec3( start.x() - 3.0, start.y(), i ) );
                     vertices->push_back( osg::Vec3( start.x() + 3.0, start.y(), i ) );
 
-                    addLabel( osg::Vec3( start.x() - 3.0, start.y(), i ), boost::lexical_cast<std::string>( startZ + i ) );
+                    addLabel( osg::Vec3( start.x() - 3.0, start.y(), i ), boost::lexical_cast<std::string>( i ) );
                 }
                 else if ( i % 5 == 0 )
                 {
@@ -296,7 +296,7 @@ void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
                     vertices->push_back( osg::Vec3( start.x(), start.y() - 3.0, i ) );
                     vertices->push_back( osg::Vec3( start.x(), start.y() + 3.0, i ) );
 
-                    addLabel( osg::Vec3( start.x(), start.y() - 3.0, i ), boost::lexical_cast<std::string>( startZ + i ) );
+                    addLabel( osg::Vec3( start.x(), start.y() - 3.0, i ), boost::lexical_cast<std::string>( i ) );
                 }
                 else if ( i % 5 == 0 )
                 {

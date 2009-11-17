@@ -81,7 +81,7 @@ public:
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
@@ -127,7 +127,7 @@ private:
     /**
      * node for the bounding box
      */
-    osg::ref_ptr<WRulerOrtho> m_rulerNode;
+    osg::ref_ptr<osg::Group> m_rulerNode;
 
 
     /**

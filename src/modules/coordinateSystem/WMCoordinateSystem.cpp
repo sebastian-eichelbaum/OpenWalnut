@@ -125,6 +125,8 @@ void WMCoordinateSystem::createGeometry()
     osg::ref_ptr<WRulerOrtho>ruler2 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
     ruler2->create( osg::Vec3( zeroX, fltY, fltZ ), brbY, RULER_ALONG_Y_AXIS_SCALE_X );
 
+    ruler1->setName( std::string( "ruler1" ) );
+    ruler2->setName( std::string( "ruler2" ) );
     m_rootNode->addChild( ruler1 );
     m_rootNode->addChild( ruler2 );
 
@@ -148,9 +150,43 @@ void WMCoordinateSystem::updateGeometry()
 
     findBoundingBox();
 
+    //float zeroZ = m_properties->getValue<float>( "axialPos" );
+    float zeroY = m_properties->getValue<float>( "coronalPos" );
+    float zeroX = m_properties->getValue<float>( "sagittalPos" );
+
+    float fltX = m_properties->getValue<float>( "fltX" );
+    float fltY = m_properties->getValue<float>( "fltY" );
+    float fltZ = m_properties->getValue<float>( "fltZ" );
+
+    float brbX = m_properties->getValue<float>( "brbX" );
+    float brbY = m_properties->getValue<float>( "brbY" );
+    //float brbZ = m_properties->getValue<float>( "brbZ" );
+
+
     osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_boxNode->getDrawable( 0 ) );
     m_boxNode->replaceDrawable( old, createGeometryNode() );
 
+    for ( size_t i = 0; i < m_rootNode->getNumChildren(); ++i)
+    {
+        if ( m_rootNode->getChild( i )->getName() == "ruler1" )
+        {
+            m_rootNode->removeChild( i, 1 );
+        }
+        if ( m_rootNode->getChild( i )->getName() == "ruler2" )
+        {
+            m_rootNode->removeChild( i, 1 );
+        }
+    }
+    osg::ref_ptr<WRulerOrtho>ruler1 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
+    ruler1->create( osg::Vec3( fltX, zeroY, fltZ ), brbX - fltX, RULER_ALONG_X_AXIS_SCALE_Y );
+
+    osg::ref_ptr<WRulerOrtho>ruler2 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
+    ruler2->create( osg::Vec3( zeroX, fltY, fltZ ), brbY - fltY, RULER_ALONG_Y_AXIS_SCALE_X );
+
+    ruler1->setName( std::string( "ruler1" ) );
+    ruler2->setName( std::string( "ruler2" ) );
+    m_rootNode->addChild( ruler1 );
+    m_rootNode->addChild( ruler2 );
     // *******************************************************************************************************
     slock.unlock();
 }

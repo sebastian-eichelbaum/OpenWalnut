@@ -126,7 +126,7 @@ void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
 
 void WMNavSlices::moduleMain()
 {
-    createGeometry();
+    create();
 
     // Since the modules run in a separate thread: wait
     waitForStop();
@@ -136,7 +136,30 @@ void WMNavSlices::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_rootNode );
 }
 
-void WMNavSlices::createGeometry()
+void WMNavSlices::create()
+{
+    m_rootNode = osg::ref_ptr<osg::Group>( new osg::Group() );
+
+    m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_ySliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_zSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+
+    m_xSliceNode->addDrawable( createGeometry( 0 ) );
+    m_ySliceNode->addDrawable( createGeometry( 1 ) );
+    m_zSliceNode->addDrawable( createGeometry( 2 ) );
+
+    m_rootNode->addChild( m_xSliceNode );
+    m_rootNode->addChild( m_ySliceNode );
+    m_rootNode->addChild( m_zSliceNode );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_rootNode );
+    osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
+    initUniforms( rootState );
+    rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
+    m_rootNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WMNavSlices>( shared_from_this() ) ) );
+}
+
+osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 {
     float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) ) + 0.5f;
     float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) )  + 0.5f;
@@ -150,94 +173,59 @@ void WMNavSlices::createGeometry()
     float texCoronal = coronalPos / maxCoronal;
     float texSagittal = sagittalPos / maxSagittal;
 
-    m_rootNode = osg::ref_ptr<osg::Group>( new osg::Group() );
-
-    m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_ySliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_zSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-
-    osg::ref_ptr<osg::Geometry> xSliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
-    osg::ref_ptr<osg::Geometry> ySliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
-    osg::ref_ptr<osg::Geometry> zSliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
-
-    m_xSliceNode->addDrawable( xSliceGeometry );
-    m_ySliceNode->addDrawable( ySliceGeometry );
-    m_zSliceNode->addDrawable( zSliceGeometry );
+    osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
-
-    sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
-    xSliceGeometry->setVertexArray( sliceVertices );
-
-    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
-    ySliceGeometry->setVertexArray( sliceVertices );
-
-    sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
-    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
-    zSliceGeometry->setVertexArray( sliceVertices );
-
     osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
-    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
-    xSliceGeometry->setTexCoordArray( 0, texCoords );
+    switch ( slice )
+    {
+        case 0:
+            sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
+            sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
+            sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
+            sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
+            sliceGeometry->setVertexArray( sliceVertices );
+            texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
+            texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
+            texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
+            texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
+            sliceGeometry->setTexCoordArray( 0, texCoords );
+            break;
+        case 1:
+            sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
+            sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
+            sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
+            sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
+            sliceGeometry->setVertexArray( sliceVertices );
+            texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
+            texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
+            texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
+            texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
+            sliceGeometry->setTexCoordArray( 0, texCoords );
+            break;
+        case 2:
+            sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
+            sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
+            sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
+            sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
+            sliceGeometry->setVertexArray( sliceVertices );
+            texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
+            texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
+            texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
+            texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
+            sliceGeometry->setTexCoordArray( 0, texCoords );
+            break;
+    }
 
-    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
-    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
-    ySliceGeometry->setTexCoordArray( 0, texCoords );
+    osg::DrawElementsUInt* quad = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
+    quad->push_back( 3 );
+    quad->push_back( 2 );
+    quad->push_back( 1 );
+    quad->push_back( 0 );
+    sliceGeometry->addPrimitiveSet( quad );
 
-    texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
-    texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
-    texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
-    texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
-    zSliceGeometry->setTexCoordArray( 0, texCoords );
-
-    osg::DrawElementsUInt* slice0 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-    slice0->push_back( 3 );
-    slice0->push_back( 2 );
-    slice0->push_back( 1 );
-    slice0->push_back( 0 );
-
-    osg::DrawElementsUInt* slice1 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-    slice1->push_back( 7 );
-    slice1->push_back( 6 );
-    slice1->push_back( 5 );
-    slice1->push_back( 4 );
-
-    osg::DrawElementsUInt* slice2 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-    slice2->push_back( 11 );
-    slice2->push_back( 10 );
-    slice2->push_back( 9 );
-    slice2->push_back( 8 );
-
-    xSliceGeometry->addPrimitiveSet( slice0 );
-    ySliceGeometry->addPrimitiveSet( slice1 );
-    zSliceGeometry->addPrimitiveSet( slice2 );
-
-    m_rootNode->addChild( m_xSliceNode );
-    m_rootNode->addChild( m_ySliceNode );
-    m_rootNode->addChild( m_zSliceNode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_rootNode );
-
-    osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
-
-    initUniforms( rootState );
-
-    rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
-
-    m_rootNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WMNavSlices>( shared_from_this() ) ) );
+    return sliceGeometry;
 }
 
 void WMNavSlices::updateGeometry()
@@ -259,84 +247,9 @@ void WMNavSlices::updateGeometry()
 //        m_properties->setValue( "maxCoronal", my );
 //        m_properties->setValue( "maxSagittal", mz );
 //    }
-
-    float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) );
-    float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) );
-    float sagittalPos = ( float )( m_properties->getValue< int >( "sagittalPos" ) );
-
-    float maxAxial = ( float )( m_properties->getValue<int>( "maxAxial") );
-    float maxCoronal = ( float )( m_properties->getValue<int>( "maxCoronal") );
-    float maxSagittal = ( float )( m_properties->getValue<int>( "maxSagittal") );
-
-    float texAxial = axialPos / maxAxial;
-    float texCoronal = coronalPos / maxCoronal;
-    float texSagittal = sagittalPos / maxSagittal;
-
-    osg::ref_ptr<osg::Geometry> xSliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
-    osg::ref_ptr<osg::Geometry> ySliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
-    osg::ref_ptr<osg::Geometry> zSliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
-
-    osg::Vec3Array* sliceVertices = new osg::Vec3Array;
-
-    sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
-    sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
-    xSliceGeometry->setVertexArray( sliceVertices );
-
-    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
-    sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
-    sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
-    ySliceGeometry->setVertexArray( sliceVertices );
-
-    sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
-    sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
-    sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
-    zSliceGeometry->setVertexArray( sliceVertices );
-
-    osg::Vec3Array* texCoords = new osg::Vec3Array;
-
-    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
-    texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
-    texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
-    xSliceGeometry->setTexCoordArray( 0, texCoords );
-
-    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
-    texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
-    texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
-    ySliceGeometry->setTexCoordArray( 0, texCoords );
-
-    texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
-    texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
-    texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
-    texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
-    zSliceGeometry->setTexCoordArray( 0, texCoords );
-
-    osg::DrawElementsUInt* slice0 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-    slice0->push_back( 3 );
-    slice0->push_back( 2 );
-    slice0->push_back( 1 );
-    slice0->push_back( 0 );
-
-    osg::DrawElementsUInt* slice1 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-    slice1->push_back( 7 );
-    slice1->push_back( 6 );
-    slice1->push_back( 5 );
-    slice1->push_back( 4 );
-
-    osg::DrawElementsUInt* slice2 = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-    slice2->push_back( 11 );
-    slice2->push_back( 10 );
-    slice2->push_back( 9 );
-    slice2->push_back( 8 );
-
-    xSliceGeometry->addPrimitiveSet( slice0 );
-    ySliceGeometry->addPrimitiveSet( slice1 );
-    zSliceGeometry->addPrimitiveSet( slice2 );
+    osg::ref_ptr<osg::Geometry> xSliceGeometry = createGeometry( 0 );
+    osg::ref_ptr<osg::Geometry> ySliceGeometry = createGeometry( 1 );
+    osg::ref_ptr<osg::Geometry> zSliceGeometry = createGeometry( 2 );
 
     osg::ref_ptr<osg::Drawable> oldx = osg::ref_ptr<osg::Drawable>( m_xSliceNode->getDrawable( 0 ) );
     m_xSliceNode->replaceDrawable( oldx, xSliceGeometry );
@@ -431,6 +344,9 @@ void WMNavSlices::connectToGui()
 
 void WMNavSlices::initUniforms( osg::StateSet* rootState )
 {
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type2", 0 ) ) );
@@ -482,4 +398,5 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
         rootState->addUniform( m_alphaUniforms[i] );
         rootState->addUniform( m_samplerUniforms[i] );
     }
+    slock.unlock();
 }
