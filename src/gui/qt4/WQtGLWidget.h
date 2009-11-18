@@ -32,6 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../graphicsEngine/WGECamera.h"
+#include "../../common/WFlag.hpp"
 
 class WGEViewer;
 
@@ -94,9 +95,9 @@ public:
     /**
      * Determines whether the widget is properly initialized.
      * 
-     * \return true when initialized.
+     * \return flag - initialized.
      */
-    bool isInitialized() const;
+    const WBoolFlag& isInitialized() const;
 
 protected:
     /**
@@ -212,7 +213,7 @@ private:
     /**
      * True when initialized.
      */
-    bool m_isInitialized;
+    WBoolFlag m_isInitialized;
 };
 
 #endif  // WQTGLWIDGET_H

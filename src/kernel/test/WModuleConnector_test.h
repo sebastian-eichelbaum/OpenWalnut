@@ -245,9 +245,9 @@ public:
         TS_ASSERT( m3->m_outputConnectors.size() == 1 );
 
         // now we have 3 properly initialized modules?
-        TS_ASSERT( m1->isInitialized() );
-        TS_ASSERT( m2->isInitialized() );
-        TS_ASSERT( m3->isInitialized() );
+        TS_ASSERT( m1->isInitialized()() );
+        TS_ASSERT( m2->isInitialized()() );
+        TS_ASSERT( m3->isInitialized()() );
     }
 
     /**
@@ -262,7 +262,7 @@ public:
 
         // try initializing twice
         TS_ASSERT_THROWS( m1->initialize(), WModuleConnectorInitFailed );
-        TS_ASSERT( m1->isInitialized() );
+        TS_ASSERT( m1->isInitialized()() );
     }
 
     /**

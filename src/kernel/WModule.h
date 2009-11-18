@@ -35,6 +35,7 @@
 #include <boost/function.hpp>
 
 #include "../common/WThreadedRunner.h"
+#include "../common/WFlag.hpp"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 
@@ -110,21 +111,21 @@ public:
      *
      * \return true if properly initialized.
      */
-    bool isInitialized() const;
+    const WBoolFlag& isInitialized() const;
 
     /**
      * Checks whether the module instance is ready to be used. This is the case if isInitialized && isAssociated.
      * 
      * \return isInitialized && isAssociated
      */
-    bool isUseable() const;
+    const WBoolFlag&  isUseable() const;
 
      /**
       * Checks whether this module is associated with an container.
       * 
       * \return true if associated.
       */
-    bool isAssociated() const;
+    const WBoolFlag&  isAssociated() const;
 
      /**
       * The container this module is associated with.
@@ -303,7 +304,17 @@ protected:
     /**
      * True if everything is initialized and ready to be used.
      */
-    bool m_initialized;
+    WBoolFlag m_initialized;
+
+    /** 
+     * True if container got associated with this flag.
+     */
+    WBoolFlag m_isAssociated;
+
+    /** 
+     * True if associated && initialized.
+     */
+    WBoolFlag m_isUsable;
 
     /**
      * The container this module belongs to.

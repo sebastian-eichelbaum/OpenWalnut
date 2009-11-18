@@ -53,7 +53,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
     WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
 
-    if ( !module->isInitialized() )
+    if ( !module->isInitialized()() )
     {
         std::ostringstream s;
         s << "Could not add module \"" << module->getName() << "\" to container \"" + m_name + "\". Reason: module not initialized.";
@@ -68,7 +68,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     }
 
     // is this module already associated?
-    if ( module->isAssociated() )
+    if ( module->isAssociated()() )
     {
         module->getAssociatedContainer()->remove( module );
     }

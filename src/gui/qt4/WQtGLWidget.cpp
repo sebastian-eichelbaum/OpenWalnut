@@ -29,18 +29,20 @@
 #include "WQtGLWidget.h"
 
 #include "../../graphicsEngine/WGEViewer.h"
+#include "../../common/WFlag.hpp"
+#include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
 
 
 WQtGLWidget::WQtGLWidget( QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : QGLWidget( parent ),
-      m_recommendedSize()
+      m_recommendedSize(),
+      m_isInitialized( new WConditionOneShot(), false )
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
 
     m_initialProjectionMode = projectionMode;
-    m_isInitialized = false;
 
     // required
     setAttribute( Qt::WA_PaintOnScreen );
@@ -51,7 +53,7 @@ WQtGLWidget::WQtGLWidget( QWidget* parent, WGECamera::ProjectionMode projectionM
 WQtGLWidget::~WQtGLWidget()
 {
     // cleanup
-    if ( isInitialized() )
+    if ( m_isInitialized() )
     {
         m_Viewer.reset();
     }
@@ -59,7 +61,7 @@ WQtGLWidget::~WQtGLWidget()
 
 void WQtGLWidget::initialize()
 {
-    if ( m_isInitialized )
+    if ( m_isInitialized() )
         return;
 
     // initialize OpenGL context and OpenSceneGraph
@@ -80,10 +82,10 @@ void WQtGLWidget::initialize()
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer( wdata, x(), y(), width(), height(), m_initialProjectionMode );
 
-    m_isInitialized = true;
+    m_isInitialized( true );
 }
 
-bool WQtGLWidget::isInitialized() const
+const WBoolFlag& WQtGLWidget::isInitialized() const
 {
     return m_isInitialized;
 }

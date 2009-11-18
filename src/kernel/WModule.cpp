@@ -44,7 +44,9 @@
 
 WModule::WModule():
     WThreadedRunner(),
-     m_initialized( false )
+    m_initialized( new WCondition(), false ),
+    m_isAssociated( new WCondition(), false ),
+    m_isUsable( new WCondition(), false )
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
@@ -86,7 +88,8 @@ void WModule::disconnectAll()
 
 void WModule::removeConnectors()
 {
-    m_initialized = false;
+    m_initialized( false );
+    m_isUsable( m_initialized() && m_isAssociated() );
 
     // remove connections and their signals
     disconnectAll();
@@ -108,7 +111,7 @@ void WModule::properties()
 void WModule::initialize()
 {
     // doing it twice is not allowed
-    if ( isInitialized() )
+    if ( isInitialized()() )
     {
         throw WModuleConnectorInitFailed( "Could not initialize connectors for Module " + getName() + ". Reason: already initialized." );
     }
@@ -116,7 +119,8 @@ void WModule::initialize()
     connectors();
     properties();
 
-    m_initialized = true;
+    m_initialized( true );
+    m_isUsable( m_initialized() && m_isAssociated() );
 }
 
 void WModule::cleanup()
@@ -133,6 +137,10 @@ boost::shared_ptr< WModuleContainer > WModule::getAssociatedContainer() const
 void WModule::setAssociatedContainer( boost::shared_ptr< WModuleContainer > container )
 {
     m_container = container;
+
+    // true if the pointer is set
+    m_isAssociated( m_container != boost::shared_ptr< WModuleContainer >() );
+    m_isUsable( m_initialized() && m_isAssociated() );
 }
 
 const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputConnectors() const
@@ -196,20 +204,20 @@ std::set< boost::shared_ptr< WModule > > WModule::getCompatibles()
     return WModuleFactory::getModuleFactory()->getCompatiblePrototypes( shared_from_this() );
 }
 
-bool WModule::isInitialized() const
+const WBoolFlag&  WModule::isInitialized() const
 {
     return m_initialized;
 }
 
-bool WModule::isAssociated() const
+const WBoolFlag& WModule::isAssociated() const
 {
-    // true if the pointer is set
-    return ( m_container != boost::shared_ptr< WModuleContainer >() );
+    return m_isAssociated;
 }
 
-bool WModule::isUseable() const
+const WBoolFlag& WModule::isUseable() const
 {
-    return isInitialized() && isAssociated();
+    return m_isUsable;
+    //return isInitialized() && isAssociated();
 }
 
 void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,

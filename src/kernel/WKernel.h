@@ -36,6 +36,7 @@
 #include "WModuleContainer.h"
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
+#include "../common/WFlag.hpp"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../gui/WGUI.h"
@@ -102,7 +103,7 @@ public:
      *
      * \return true if so.
      */
-    bool isFinishRequested() const;
+    const WBoolFlag& isFinishRequested() const;
 
     /**
      * function to call the datahandler load method
@@ -184,7 +185,7 @@ private:
     /**
      * true if threads should finish.
      */
-    bool m_FinishRequested;
+    WBoolFlag m_FinishRequested;
 
     /**
      * the location of the openwalnut executable

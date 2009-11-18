@@ -37,6 +37,8 @@
 #include "WModuleFactory.h"
 #include "../common/WException.h"
 #include "../common/WCondition.h"
+#include "../common/WConditionOneShot.h"
+#include "../common/WFlag.hpp"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
@@ -47,8 +49,9 @@
  */
 WKernel* kernel = NULL;
 
-WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui )
-    :WThreadedRunner()
+WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
+    WThreadedRunner(),
+    m_FinishRequested( new WConditionOneShot, false )
 {
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_DEBUG );
 
@@ -56,8 +59,6 @@ WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WG
     kernel = this;
 
     // initialize members
-    m_FinishRequested = false;
-
     m_gui = gui;
     m_graphicsEngine = ge;
 
@@ -118,6 +119,8 @@ void WKernel::stop()
     WLogger::getLogger()->addLogMessage( "Stopping Kernel", "Kernel", LL_DEBUG );
 
     // stop everybody
+    m_FinishRequested( true );
+
     // NOTE: stopping a container erases all modules inside.
     getRootContainer()->stop();
 }
@@ -212,7 +215,7 @@ bool WKernel::findAppPath()
     return false;
 }
 
-bool WKernel::isFinishRequested() const
+const WBoolFlag& WKernel::isFinishRequested() const
 {
     return m_FinishRequested;
 }
