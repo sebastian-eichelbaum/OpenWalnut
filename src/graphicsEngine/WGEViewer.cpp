@@ -52,15 +52,15 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
         // initialize OSG render window
         m_Viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
 
-        // ThreadingModel: enum with the following possibilities:
+        // ThreadingModel: enum with the following possibilities
         //
-        //  SingleThreaded
-        //  CullDrawThreadPerContext 	
-        //  ThreadPerContext 	
-        //  DrawThreadPerContext 	
-        //  CullThreadPerCameraDrawThreadPerContext 	
-        //  ThreadPerCamera 	
-        //  AutomaticSelection 
+        //  SingleThreadet
+        //  CullDrawThreadPerContext
+        //  ThreadPerContext
+        //  DrawThreadPerContext
+        //  CullThreadPerCameraDrawThreadPerContext
+        //  ThreadPerCamera
+        //  AutomaticSelection
         m_Viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
 
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
