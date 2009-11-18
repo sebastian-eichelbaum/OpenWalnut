@@ -48,12 +48,7 @@ int WQt4Gui::run()
 {
     WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_DEBUG );
 
-#ifdef __APPLE__
-    // TODO(hlawitschka): what does the third parameter mean?
-    QApplication appl( argc, argv, 0 );
-#else
-    QApplication appl( argc, argv );
-#endif
+    QApplication appl( argc, argv, true );
 
     // startup graphics engine
     m_ge = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine() );
