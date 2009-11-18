@@ -25,7 +25,7 @@
 #ifndef WCONDITION_H
 #define WCONDITION_H
 
-#include <boost/thread.hpp> 
+#include <boost/thread.hpp>
 
 /**
  * Class to encapsulate boost::condition_variable_any. You may use it to efficiently wait for events (a condition comes true). It

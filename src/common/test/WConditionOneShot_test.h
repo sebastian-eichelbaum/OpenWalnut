@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCONDITION_TEST_H
-#define WCONDITION_TEST_H
+#ifndef WCONDITIONONESHOT_TEST_H
+#define WCONDITIONONESHOT_TEST_H
 
 #include <iostream>
 
@@ -91,5 +91,5 @@ public:
     }
 };
 
-#endif  // WCONDITION_TEST_H
+#endif  // WCONDITIONONESHOT_TEST_H
 

@@ -86,7 +86,6 @@ public:
 
         TS_ASSERT( t.flag );
     }
-
 };
 
 #endif  // WCONDITION_TEST_H
