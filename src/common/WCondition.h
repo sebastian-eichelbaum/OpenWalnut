@@ -49,7 +49,7 @@ public:
     /**
      * Wait for the condition. Sets the calling thread asleep.
      */
-    virtual void wait();
+    virtual void wait() const;
 
     /** 
      * Notifies all waiting threads.
@@ -61,12 +61,12 @@ protected:
     /**
      * The condition.
      */
-    boost::condition_variable_any m_condition;
+    mutable boost::condition_variable_any m_condition;
 
     /**
      * The mutex used for the condition.
      */
-    boost::shared_mutex m_mutex;
+    mutable boost::shared_mutex m_mutex;
 
 private:
 };
