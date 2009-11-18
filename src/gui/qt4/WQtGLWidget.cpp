@@ -33,7 +33,7 @@
 
 
 WQtGLWidget::WQtGLWidget( QWidget* parent, WGECamera::ProjectionMode projectionMode )
-    : QWidget( parent ),
+    : QGLWidget( parent ),
       m_recommendedSize()
 {
     m_recommendedSize.setWidth( 200 );

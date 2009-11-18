@@ -51,8 +51,17 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
     {
         // initialize OSG render window
         m_Viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
-        m_Viewer->setThreadingModel( osgViewer::Viewer::DrawThreadPerContext );
-        // m_Viewer->setThreadingModel( osgViewer::Viewer::SingleThreaded );
+
+        // ThreadingModel: enum with the following possibilities:
+        //
+        //  SingleThreaded
+        //  CullDrawThreadPerContext 	
+        //  ThreadPerContext 	
+        //  DrawThreadPerContext 	
+        //  CullThreadPerCameraDrawThreadPerContext 	
+        //  ThreadPerCamera 	
+        //  AutomaticSelection 
+        m_Viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
 
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
@@ -123,7 +132,7 @@ osg::ref_ptr<osgGA::MatrixManipulator> WGEViewer::getCameraManipulator()
 void WGEViewer::setCamera( osg::ref_ptr<osg::Camera> camera )
 {
     m_View->setCamera( camera );
-    // redraw request?? no since it redraws permanently and uses the new settings
+    // redraw request?? No since it redraws permanently and uses the new settings
 }
 
 osg::ref_ptr<osg::Camera> WGEViewer::getCamera()
@@ -156,8 +165,8 @@ void WGEViewer::resize( int width, int height )
 
 void WGEViewer::close()
 {
-    // wait for thread to finish
-    wait( true );
+    m_Viewer->setDone( true );
+    m_Viewer->stopThreading();
 
     // forward close event
     WGEGraphicsWindow::close();
@@ -165,11 +174,6 @@ void WGEViewer::close()
 
 void WGEViewer::threadMain()
 {
-    // TODO(ebaum): Ticket #125 (synchronize GUI and GraphicsEngine)
-    sleep( 1 );
-
-    while( !m_FinishRequested )
-    {
-        paint();
-    }
+    m_Viewer->startThreading();
+    m_Viewer->run();
 }

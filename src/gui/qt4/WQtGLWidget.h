@@ -40,7 +40,7 @@ class WGEViewer;
  * engine.
  * \ingroup gui
  */
-class WQtGLWidget: public QWidget
+class WQtGLWidget: public QGLWidget
 {
 public:
     /**
