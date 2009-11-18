@@ -97,6 +97,11 @@ protected:
 private:
 };
 
+/** 
+ * Alias for easy usage of WFLag< bool >.
+ */
+typedef WFlag< bool > WBoolFlag;
+
 template < typename T >
 WFlag< T >::WFlag( WCondition* condition, T initial )
 {
