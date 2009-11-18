@@ -23,13 +23,13 @@
 //---------------------------------------------------------------------------
 
 #include "../common/WConditionOneShot.h"
+#include "../common/WFlag.hpp"
 
 #include "WGUI.h"
 
-WGUI::WGUI( int argc, char** argv ): boost::enable_shared_from_this< WGUI >()
+WGUI::WGUI( int argc, char** argv ): boost::enable_shared_from_this< WGUI >(),
+    m_isInitialized( new WConditionOneShot(), false )
 {
-    m_isInitialized = false;
-
     this->argc = argc;
     this->argv = argv;
 }
@@ -38,14 +38,9 @@ WGUI::~WGUI()
 {
 }
 
-bool WGUI::isInitialized() const
+const WFlag< bool >& WGUI::isInitialized() const
 {
     return m_isInitialized;
-}
-
-const WCondition& WGUI::waitInitialized() const
-{
-    return m_isInitializedCondition;
 }
 
 void WGUI::slotAddDatasetToBrowser( boost::shared_ptr< WModule > module )

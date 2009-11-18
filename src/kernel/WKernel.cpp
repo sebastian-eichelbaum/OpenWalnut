@@ -127,7 +127,7 @@ void WKernel::threadMain()
     WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
 
     // wait for GUI to be initialized properly
-    m_gui->waitInitialized().wait();
+    m_gui->isInitialized().wait();
 
     // default modules
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
