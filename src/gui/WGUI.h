@@ -31,6 +31,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WThreadedRunner.h"
+#include "../common/WCondition.h"
+#include "../common/WConditionOneShot.h"
 #include "../kernel/WModule.h"
 #include "qt4/signalslib.hpp"
 
@@ -71,7 +73,14 @@ public:
      * 
      * \return true if initialized.
      */
-    virtual bool isInitalized();
+    virtual bool isInitialized() const;
+
+    /** 
+     * Gives other threads the possibility to wait for this condition to come true.
+     * 
+     * \return Reference to the condition.
+     */
+    virtual const WCondition& waitInitialized() const;
 
     /**
      * Runs the GUI. All initialization should be done here.
@@ -113,6 +122,11 @@ protected:
      * Flag determining whether the GUI is properly initialized.
      */
     bool m_isInitialized;
+
+    /** 
+     * Condition should be fired when "isInitialized" got true.
+     */
+    WConditionOneShot m_isInitializedCondition;
 
     /**
      * Number of command line arguments given.

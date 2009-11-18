@@ -75,6 +75,7 @@ int WQt4Gui::run()
 
     // now we are initialized
     m_isInitialized = true;
+    m_isInitializedCondition.notify();
 
     // run
     // NOTE: kernel shutdown is implemented in WMainWindow

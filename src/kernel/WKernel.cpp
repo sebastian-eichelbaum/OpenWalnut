@@ -36,6 +36,7 @@
 #include "WModule.h"
 #include "WModuleFactory.h"
 #include "../common/WException.h"
+#include "../common/WCondition.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
@@ -126,10 +127,7 @@ void WKernel::threadMain()
     WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
 
     // wait for GUI to be initialized properly
-    // TODO(ebaum): this loop is ugly, will be replaced by some kind of one-shot condition
-    while ( !m_gui->isInitalized() )
-    {
-    }
+    m_gui->waitInitialized().wait();
 
     // default modules
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );

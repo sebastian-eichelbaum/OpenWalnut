@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../common/WConditionOneShot.h"
+
 #include "WGUI.h"
 
 WGUI::WGUI( int argc, char** argv ): boost::enable_shared_from_this< WGUI >()
@@ -36,9 +38,14 @@ WGUI::~WGUI()
 {
 }
 
-bool WGUI::isInitalized()
+bool WGUI::isInitialized() const
 {
     return m_isInitialized;
+}
+
+const WCondition& WGUI::waitInitialized() const
+{
+    return m_isInitializedCondition;
 }
 
 void WGUI::slotAddDatasetToBrowser( boost::shared_ptr< WModule > module )

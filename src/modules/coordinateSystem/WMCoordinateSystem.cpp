@@ -142,7 +142,7 @@ void WMCoordinateSystem::updateGeometry()
     boost::shared_lock< boost::shared_mutex > slock;
     slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
     // *******************************************************************************************************
-    if ( !m_properties->getValue< bool > ( "textureChanged" ) || !WKernel::getRunningKernel()->getGui()->isInitalized() )
+    if ( !m_properties->getValue< bool > ( "textureChanged" ) || !WKernel::getRunningKernel()->getGui()->isInitialized() )
     {
         return;
     }
