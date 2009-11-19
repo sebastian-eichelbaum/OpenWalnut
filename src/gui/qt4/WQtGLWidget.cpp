@@ -143,16 +143,16 @@ void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 void WQtGLWidget::destroyEvent( bool /*destroyWindow*/, bool /*destroySubWindows*/ )
 {
     // forward events
-    m_Viewer->close();
+    //m_Viewer->close();
 }
 
 
 void WQtGLWidget::closeEvent( QCloseEvent* event )
 {
-    event->accept();
-
     // forward events
     m_Viewer->close();
+
+    event->accept();
 }
 
 

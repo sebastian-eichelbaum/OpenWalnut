@@ -50,7 +50,7 @@
  * \ingroup ge
  */
 class WGEViewer: public WGEGraphicsWindow,
-                 public WThreadedRunner
+                 public boost::enable_shared_from_this< WGEViewer >
 {
 public:
     /**
@@ -73,11 +73,6 @@ public:
     virtual ~WGEViewer();
 
     /**
-     * Paints this view to the window specified in constructor.
-     */
-    void paint();
-
-    /**
      * Updates size information. Also updates camera.
      *
      * \param width new width.
@@ -95,7 +90,7 @@ public:
      *
      * \return the OSG Viewer instance.
      */
-    osg::ref_ptr<osgViewer::CompositeViewer> getViewer();
+    osg::ref_ptr<osgViewer::Viewer> getViewer();
 
     /**
      * Sets the camera manipulator to use.
@@ -140,20 +135,11 @@ public:
     osg::ref_ptr<osg::Node> getNode();
 
 protected:
-    /**
-     * Handler for repainting and event handling. Gets executed in separate thread.
-     */
-    virtual void threadMain();
-
-    /**
-     * OpenSceneGraph viewer.
-     */
-    osg::ref_ptr<osgViewer::CompositeViewer> m_Viewer;
 
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
      */
-    osg::ref_ptr<osgViewer::View> m_View;
+    osg::ref_ptr< osgViewer::Viewer > m_View;
 
 private:
 };

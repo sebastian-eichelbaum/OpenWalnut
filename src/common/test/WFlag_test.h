@@ -39,17 +39,32 @@
 class Callable
 {
 public:
+
+    /**
+     * The flag to be tested
+     */
     WFlag<bool>* flag;
+
+    /**
+     * True if the thread finishes.
+     */
     bool finished;
 
+    /**
+     * Constructor. To init the Flag.
+     */
     Callable()
     {
         finished = false;
         flag = new WFlag< bool >( new WConditionOneShot(), false );
     }
 
+    /**
+     * Thread function.
+     */
     void threadMain()
     {
+        // just wait
         flag->wait();
         finished = true;
     };
@@ -67,7 +82,7 @@ public:
      */
     void testInstantiation( void )
     {
-        WFlag< bool >* flag;
+        WFlag< bool >* flag = 0;
 
         TS_ASSERT_THROWS_NOTHING( flag = new WFlag< bool >( new WConditionOneShot(), false ) );
         TS_ASSERT_THROWS_NOTHING( delete flag );

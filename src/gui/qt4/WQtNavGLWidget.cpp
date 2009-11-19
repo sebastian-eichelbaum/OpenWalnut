@@ -28,6 +28,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QKeyEvent>
 
 #include "WQtNavGLWidget.h"
 
@@ -60,6 +61,14 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, int maxValue, std::string sliderT
 
 WQtNavGLWidget::~WQtNavGLWidget()
 {
+}
+
+void WQtNavGLWidget::closeEvent( QCloseEvent* event )
+{
+    // forward events
+    m_glWidget->close();
+
+    event->accept();
 }
 
 void WQtNavGLWidget::setSliderTitle( std::string title )

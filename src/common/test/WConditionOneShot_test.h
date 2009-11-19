@@ -39,12 +39,24 @@ class Callable
 {
 public:
 
+    /**
+     * Flag set true when the thread starts.
+     */
     bool flag;
+
+    /**
+     * The condition to use.
+     */
     WConditionOneShot* c;
 
+    /**
+     * The thread.
+     */
     void threadMain()
     {
         flag = true;
+
+        // let the test's thread reach its "wait" call first
         boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
         c->notify();
     };
@@ -62,7 +74,7 @@ public:
      */
     void testInstantiation( void )
     {
-        WConditionOneShot* c;
+        WConditionOneShot* c = 0;
 
         TS_ASSERT_THROWS_NOTHING( c = new WConditionOneShot() );
         TS_ASSERT_THROWS_NOTHING( delete c );

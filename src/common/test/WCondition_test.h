@@ -39,12 +39,24 @@ class Callable
 {
 public:
 
+    /**
+     * Flag set to true when thread starts
+     */
     bool flag;
+
+    /**
+     * The condition to be used for signalling.
+     */
     WCondition* c;
 
+    /**
+     * Thread main method.
+     */
     void threadMain()
     {
         flag = true;
+
+        // let the test's thread reach its "wait" call first
         boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
         c->notify();
     };
@@ -62,7 +74,7 @@ public:
      */
     void testInstantiation( void )
     {
-        WCondition* c;
+        WCondition* c = 0;
 
         TS_ASSERT_THROWS_NOTHING( c = new WCondition() );
         TS_ASSERT_THROWS_NOTHING( delete c );

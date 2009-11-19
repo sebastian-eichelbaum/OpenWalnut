@@ -30,13 +30,18 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <osgViewer/Viewer>
+#include <osgViewer/CompositeViewer>
+#include <osgViewer/View>
+
 #include "exceptions/WGEInitFailed.h"
 #include "../common/WLogger.h"
 #include "WGraphicsEngine.h"
 #include "WGEViewer.h"
 
 
-WGraphicsEngine::WGraphicsEngine()
+WGraphicsEngine::WGraphicsEngine():
+    WThreadedRunner()
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
 
@@ -44,6 +49,20 @@ WGraphicsEngine::WGraphicsEngine()
     m_rootNode = new WGEScene();
 
     m_shaderPath = "";
+
+    // initialize OSG render window
+    m_Viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
+
+    // ThreadingModel: enum with the following possibilities
+    //
+    //  SingleThreadet
+    //  CullDrawThreadPerContext
+    //  ThreadPerContext
+    //  DrawThreadPerContext
+    //  CullThreadPerCameraDrawThreadPerContext
+    //  ThreadPerCamera
+    //  AutomaticSelection
+    m_Viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
 }
 
 WGraphicsEngine::~WGraphicsEngine()
@@ -70,18 +89,38 @@ void WGraphicsEngine::setShaderPath( std::string path )
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer(
     osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode )
 {
+    // init the composite viewer if not already done
+    if ( m_Viewer == osg::ref_ptr< osgViewer::CompositeViewer >() )
+    {
+    }
+
     boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x, y, width, height, projectionMode ) );
     viewer->setScene( getScene() );
 
-    // start rendering
-    viewer->run();
+    // finally add view
+    m_Viewer->addView( viewer->getViewer().get() );
 
     // store it in viewer list
-    // XXX is this list needed? If yes someone has to care about a deregisterViewer function
+    // XXX is this list needed? If yes, someone has to care about a deregisterViewer function
     // boost::mutex::scoped_lock lock(m_ViewerLock);
-
-    // m_Viewer.push_back( viewer );
+    //m_Viewers.push_back( viewer );
 
     return viewer;
+}
+
+void WGraphicsEngine::threadMain()
+{
+    WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_DEBUG );
+
+    m_Viewer->startThreading();
+    m_Viewer->run();
+    m_Viewer->stopThreading();
+}
+
+void WGraphicsEngine::notifyStop()
+{
+    WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_DEBUG );
+
+    m_Viewer->setDone( true );
 }
 

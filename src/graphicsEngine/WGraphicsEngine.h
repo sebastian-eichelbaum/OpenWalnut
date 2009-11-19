@@ -34,8 +34,10 @@
 #include <boost/thread/mutex.hpp>
 
 #include <osg/Camera>
-#include <osgViewer/Viewer>
 #include <osg/Texture3D>
+#include <osgViewer/Viewer>
+#include <osgViewer/CompositeViewer>
+#include <osgViewer/View>
 
 #include "WGEScene.h"
 #include "WGEGraphicsWindow.h"
@@ -48,7 +50,7 @@
  * engine.
  * \ingroup ge
  */
-class WGraphicsEngine
+class WGraphicsEngine: public WThreadedRunner
 {
 public:
 
@@ -101,6 +103,16 @@ public:
 protected:
 
     /**
+     * Handler for repainting and event handling. Gets executed in separate thread.
+     */
+    virtual void threadMain();
+
+    /**
+     * Gets called when the thread should be stopped.
+     */
+    virtual void notifyStop();
+
+    /**
      * OpenSceneGraph root node.
      */
     osg::ref_ptr<WGEScene> m_rootNode;
@@ -108,7 +120,7 @@ protected:
     /**
      * All registered viewer.
      */
-    std::list<boost::shared_ptr<WGEViewer> > m_Viewer;
+    std::list<boost::shared_ptr<WGEViewer> > m_Viewers;
 
     /**
      * Mutex used to lock the list of viewers.
@@ -119,6 +131,11 @@ protected:
      * Path to the shaders.
      */
     std::string m_shaderPath;
+
+    /**
+     * OpenSceneGraph composite viewer. Contains all created osg::Viewer.
+     */
+    osg::ref_ptr<osgViewer::CompositeViewer> m_Viewer;
 
 private:
 };

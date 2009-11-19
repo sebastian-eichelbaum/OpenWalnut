@@ -39,30 +39,17 @@
 #include <osgDB/ReadFile>
 
 #include "exceptions/WGEInitFailed.h"
-
 #include "WPickHandler.h"
+#include "../kernel/WKernel.h"
 
 #include "WGEViewer.h"
 
 WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode ):
-    WGEGraphicsWindow( wdata, x, y, width, height )
+    WGEGraphicsWindow( wdata, x, y, width, height ),
+    boost::enable_shared_from_this< WGEViewer >()
 {
     try
     {
-        // initialize OSG render window
-        m_Viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
-
-        // ThreadingModel: enum with the following possibilities
-        //
-        //  SingleThreadet
-        //  CullDrawThreadPerContext
-        //  ThreadPerContext
-        //  DrawThreadPerContext
-        //  CullThreadPerCameraDrawThreadPerContext
-        //  ThreadPerCamera
-        //  AutomaticSelection
-        m_Viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
-
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
 
@@ -95,11 +82,6 @@ WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, i
 
         osg::ref_ptr<osgText::Text> updateText = new osgText::Text;
         m_View->addEventHandler( new WPickHandler( updateText.get() ) );
-
-        // finally add view
-        // there is the possibility to use ONE single composite viewer instance for every view, but
-        // currently this possibility is not used.
-        m_Viewer->addView( m_View.get() );
     }
     catch( ... )
     {
@@ -113,9 +95,9 @@ WGEViewer::~WGEViewer()
     close();
 }
 
-osg::ref_ptr<osgViewer::CompositeViewer> WGEViewer::getViewer()
+osg::ref_ptr<osgViewer::Viewer> WGEViewer::getViewer()
 {
-    return m_Viewer;
+    return m_View;
 }
 
 void WGEViewer::setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator )
@@ -150,11 +132,6 @@ osg::ref_ptr<osg::Node> WGEViewer::getNode()
     return m_View->getSceneData();
 }
 
-void WGEViewer::paint()
-{
-    m_Viewer->frame();
-}
-
 void WGEViewer::resize( int width, int height )
 {
     WGEGraphicsWindow::resize( width, height );
@@ -165,15 +142,7 @@ void WGEViewer::resize( int width, int height )
 
 void WGEViewer::close()
 {
-    m_Viewer->setDone( true );
-    m_Viewer->stopThreading();
-
     // forward close event
     WGEGraphicsWindow::close();
 }
 
-void WGEViewer::threadMain()
-{
-    m_Viewer->startThreading();
-    m_Viewer->run();
-}

@@ -50,8 +50,7 @@
 WKernel* kernel = NULL;
 
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
-    WThreadedRunner(),
-    m_FinishRequested( new WConditionOneShot, false )
+    WThreadedRunner()
 {
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_DEBUG );
 
@@ -114,12 +113,9 @@ boost::shared_ptr< WGUI > WKernel::getGui() const
     return m_gui;
 }
 
-void WKernel::stop()
+void WKernel::finalize()
 {
     WLogger::getLogger()->addLogMessage( "Stopping Kernel", "Kernel", LL_DEBUG );
-
-    // stop everybody
-    m_FinishRequested( true );
 
     // NOTE: stopping a container erases all modules inside.
     getRootContainer()->stop();
@@ -132,12 +128,16 @@ void WKernel::threadMain()
     // wait for GUI to be initialized properly
     m_gui->isInitialized().wait();
 
+    // start GE
+    m_graphicsEngine->run();
+
     // default modules
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
 
     // actually there is nothing more to do here
     waitForStop();
+
     WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
 }
 
@@ -217,7 +217,7 @@ bool WKernel::findAppPath()
 
 const WBoolFlag& WKernel::isFinishRequested() const
 {
-    return m_FinishRequested;
+    return m_shutdownFlag;
 }
 
 void WKernel::doLoadDataSets( std::vector< std::string > fileNames )

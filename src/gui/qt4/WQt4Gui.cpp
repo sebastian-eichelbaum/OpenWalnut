@@ -72,8 +72,13 @@ int WQt4Gui::run()
     m_isInitialized( true );
 
     // run
-    // NOTE: kernel shutdown is implemented in WMainWindow
-    return appl.exec();
+    int qtRetCode = appl.exec();
+
+    // signal everybody to shut down properly.
+    WKernel::getRunningKernel()->wait( true );
+    WKernel::getRunningKernel()->getGraphicsEngine()->wait( true );
+
+    return qtRetCode;
 }
 
 void WQt4Gui::addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId )

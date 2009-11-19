@@ -28,6 +28,8 @@
 #include <boost/thread.hpp>
 #include <boost/thread/thread.hpp>
 
+#include "WFlag.hpp"
+
 /**
  * Base class for all classes needing to be executed in a separate thread.
  */
@@ -76,7 +78,7 @@ protected:
     boost::thread* m_Thread;
 
     /**
-     * True if thread should end execution.
+     * True if thread should end execution. NOTE: do not use this. Use m_shutdownFlag instead.
      */
     bool m_FinishRequested;
 
@@ -98,14 +100,9 @@ protected:
     void waitForStop();
 
     /**
-     * Condition mutex used by m_stopCondition.
-     */
-    boost::mutex m_stopConditionMutex;
-
-    /**
      * Condition getting fired whenever the thread should quit. This is useful for waiting for stop requests.
      */
-    boost::condition_variable_any m_stopCondition;
+    WBoolFlag m_shutdownFlag;
 
 private:
 };

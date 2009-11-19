@@ -75,7 +75,7 @@ public:
      * Stops execution of the modules in the root container. Note that this does not wait for the kernel thread since this could
      * cause a dead lock. This is actually an alias for getRootContainer()->stop().
      */
-    void stop();
+    void finalize();
 
     /**
      * Returns pointer to currently running instance of graphics engine.
@@ -181,11 +181,6 @@ private:
      * Determine and store the application path
      */
     bool findAppPath();
-
-    /**
-     * true if threads should finish.
-     */
-    WBoolFlag m_FinishRequested;
 
     /**
      * the location of the openwalnut executable

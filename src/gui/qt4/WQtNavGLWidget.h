@@ -59,6 +59,14 @@ public:
     void setSliderTitle( std::string title );
 
 protected:
+
+    /**
+     * Event handler for close events.
+     *
+     * \param event the event description.
+     */
+    virtual void closeEvent( QCloseEvent* event );
+
 private:
     QString m_sliderTitle;
 
