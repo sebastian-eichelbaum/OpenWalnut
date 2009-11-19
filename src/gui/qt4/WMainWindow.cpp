@@ -77,21 +77,21 @@ void WMainWindow::setupGUI()
     setCentralWidget( m_mainGLWidget.get() );
 
     // initially 3 views
-    m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", 160, "axialPos" ) );
-    m_navAxial->getGLWidget()->initialize();
-    addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
+    //m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", 160, "axialPos" ) );
+    //m_navAxial->getGLWidget()->initialize();
+    //addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
 
-    m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", 200, "coronalPos" ) );
-    m_navCoronal->getGLWidget()->initialize();
-    addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
+    //m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", 200, "coronalPos" ) );
+    //m_navCoronal->getGLWidget()->initialize();
+    //addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
 
-    m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", 160, "sagittalPos" ) );
-    m_navSagittal->getGLWidget()->initialize();
-    addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
+    //m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", 160, "sagittalPos" ) );
+    //m_navSagittal->getGLWidget()->initialize();
+    //addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
 
-    connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    //connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    //connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    //connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
 
     m_datasetBrowser = new WQtDatasetBrowser();
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
@@ -224,9 +224,9 @@ void WMainWindow::closeEvent( QCloseEvent* e )
         // now nobody acesses the osg anymore
         // clean up gl widgets
         m_mainGLWidget->close();
-        m_navAxial->close();
-        m_navCoronal->close();
-        m_navSagittal->close();
+        //m_navAxial->close();
+        //m_navCoronal->close();
+        //m_navSagittal->close();
 
         // finally close
         e->accept();
