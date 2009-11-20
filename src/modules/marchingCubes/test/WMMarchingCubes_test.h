@@ -33,8 +33,8 @@
 #include "../WMMarchingCubes.h"
 #include "../../../common/WLogger.h"
 
-static bool loggerInitialized = false;
 static WLogger logger;
+static bool loggerInitialized = false;
 
 /**
  * Test for WMMarchingCubes
@@ -42,6 +42,23 @@ static WLogger logger;
 class WMMarchingCubesTest : public CxxTest::TestSuite
 {
 public:
+
+    /**
+     * Setup method called before every test case.
+     */
+    void setUp()
+    {
+        if ( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.setColored( false );
+
+            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
+            // debug mode, the messages will be printed directly, without the logger thread.
+            //logger.run();
+            loggerInitialized = true;
+        }
+    }
 
     /**
      * Ensure instatiation does not throw and does initialization right.
@@ -201,13 +218,6 @@ public:
      */
     void testSaveZero()
     {
-        if( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.run();
-            loggerInitialized = true;
-        }
-
         WMMarchingCubes mc;
         WTriangleMesh triMesh;
         std::string fileName = "/tmp/dummerNameDenSichKeinerMerkenBraucht2.vtk";
@@ -221,13 +231,6 @@ public:
      */
     void testSaveInfinteNan()
     {
-        if( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.run();
-            loggerInitialized = true;
-        }
-
         WMMarchingCubes mc;
         WTriangleMesh triMesh;
 
@@ -271,13 +274,6 @@ public:
      */
     void testSaveAndLoad()
     {
-        if( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.run();
-            loggerInitialized = true;
-        }
-
         WMMarchingCubes mc;
         WTriangleMesh triMesh;
 
