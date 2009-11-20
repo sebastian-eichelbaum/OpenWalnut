@@ -41,7 +41,7 @@ WLogEntry::WLogEntry( std::string logTime, std::string message, LogLevel level, 
       m_infoColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGGreen ) ),
       m_debugColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGBlue ) ),
       m_warningColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGYellow ) ),
-      m_sourceColor( WTerminalColor( WTerminalColor::Off, WTerminalColor::FGMagenta ) ),
+      m_sourceColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGMagenta ) ),
       m_timeColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGBlack ) ),
       m_messageColor( WTerminalColor() )
 {

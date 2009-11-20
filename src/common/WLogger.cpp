@@ -50,7 +50,7 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
 {
     logger = this;
 
-    addLogMessage( "Initalizing Logger", "Logger", LL_DEBUG );
+    addLogMessage( "Initalizing Logger", "Logger", LL_INFO );
     addLogMessage( "===============================================================================", "Logger", LL_INFO );
     addLogMessage( "=                          Starting Log Session                               =", "Logger", LL_INFO );
     addLogMessage( "===============================================================================", "Logger", LL_INFO );
