@@ -101,6 +101,20 @@ public:
     bool isColored();
 
     /**
+     * Set the default format used for log entries.
+     * 
+     * \param format the format string. See WLogEntry for details.
+     */
+    void setDefaultFormat( std::string format );
+
+    /**
+     * Gets the default format used for log entries.
+     * 
+     * \return format string. See WLogEntry for details.
+     */
+    std::string getDefaultFormat();
+
+    /**
      * Appends a log message to the logging queue.
      */
     void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
@@ -169,6 +183,11 @@ private:
      * Flag determining whether log entries can be colored or not.
      */
     bool m_colored;
+
+    /**
+     * The default format used for new log entries.
+     */
+    std::string m_defaultFormat;
 };
 
 #endif  // WLOGGER_H

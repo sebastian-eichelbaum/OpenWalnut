@@ -44,7 +44,8 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
     m_LogFileLevel( level ),
     m_LogFileName( fileName ),
     m_QueueMutex(),
-    m_colored( true )
+    m_colored( true ),
+    m_defaultFormat( "*%l [%s] %m \n" )
 {
     logger = this;
 
@@ -107,7 +108,7 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
     m_LogQueue.push( entry );
 #else
     // in Debug mode, also add the source
-    std::cout << entry.getLogString( "*%l*%s* %m \n" );
+    std::cout << entry.getLogString( m_defaultFormat );
 #endif
 }
 
@@ -138,7 +139,7 @@ void WLogger::processQueue()
             // for atomic file usage.
             boost::filesystem::path p( "walnut.log" );
             boost::filesystem::ofstream ofs( p, boost::filesystem::ofstream::app );
-            ofs << entry.getLogString();
+            ofs << entry.getLogString( m_defaultFormat );
         }
     }
 }
@@ -170,5 +171,15 @@ void WLogger::setColored( bool colors )
 bool WLogger::isColored()
 {
     return m_colored;
+}
+
+void WLogger::setDefaultFormat( std::string format )
+{
+    m_defaultFormat = format;
+}
+
+std::string WLogger::getDefaultFormat()
+{
+    return m_defaultFormat;
 }
 
