@@ -115,6 +115,20 @@ public:
     std::string getDefaultFormat();
 
     /**
+     * Set the default format used for log entries in log files.
+     * 
+     * \param format the format string. See WLogEntry for details.
+     */
+    void setDefaultFileFormat( std::string format );
+
+    /**
+     * Gets the default format used for log entries in log files.
+     * 
+     * \return format string. See WLogEntry for details.
+     */
+    std::string getDefaultFileFormat();
+ 
+    /**
      * Appends a log message to the logging queue.
      */
     void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
@@ -188,6 +202,11 @@ private:
      * The default format used for new log entries.
      */
     std::string m_defaultFormat;
+
+    /**
+     * The default format used for new log entries in files.
+     */
+    std::string m_defaultFileFormat;
 };
 
 #endif  // WLOGGER_H
