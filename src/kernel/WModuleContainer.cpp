@@ -40,7 +40,7 @@ WModuleContainer::WModuleContainer( std::string name, std::string description ):
     m_name( name ),
     m_description( description )
 {
-    WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + m_name + ")", LL_INFO );
     // initialize members
 }
 
@@ -51,7 +51,7 @@ WModuleContainer::~WModuleContainer()
 
 void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
-    WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." , "ModuleContainer (" + m_name + ")", LL_INFO );
 
     if ( !module->isInitialized()() )
     {
@@ -79,7 +79,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     lock.unlock();
     module->setAssociatedContainer( shared_from_this() );
     WLogger::getLogger()->addLogMessage( "Associated module \"" + module->getName() + "\" with container." , "ModuleContainer (" + m_name + ")",
-            LL_DEBUG );
+            LL_INFO );
 
     // now module->isUsable() is true
     // -> so run it
@@ -134,14 +134,14 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 
 void WModuleContainer::stop()
 {
-    WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + m_name + ")", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + m_name + ")", LL_INFO );
 
     // read lock
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_modules.begin(); listIter != m_modules.end(); ++listIter )
     {
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + ( *listIter )->getName() + "\" to finish." ,
-                "ModuleContainer (" + m_name + ")", LL_DEBUG );
+                "ModuleContainer (" + m_name + ")", LL_INFO );
         ( *listIter )->wait( true );
     }
     slock.unlock();

@@ -256,21 +256,21 @@ void WModule::threadMain()
 {
     try
     {
-        WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
 
         // call main thread function
         moduleMain();
     }
     catch( const WException& e )
     {
-        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_ERROR );
 
         // ensure proper exception propagation
         signal_error( shared_from_this(), e );
     }
     catch( const std::exception& e )
     {
-        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_ERROR );
 
         // convert these exceptions to WException
         WException ce = WException( e );

@@ -126,12 +126,12 @@ void WLogger::processQueue()
 
         if ( entry.getLogLevel() >= m_STDOUTLevel )
         {
-            std::cout << entry.getLogString();
+            std::cout << entry.getLogString( m_defaultFormat );
         }
 
         if ( entry.getLogLevel() >= m_STDERRLevel )
         {
-            std::cerr << entry.getLogString();
+            std::cerr << entry.getLogString( m_defaultFormat );
         }
 
         if ( entry.getLogLevel() >= m_LogFileLevel )

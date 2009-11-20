@@ -52,7 +52,7 @@ WKernel* kernel = NULL;
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
 {
-    WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
 
     // init the singleton
     kernel = this;
@@ -68,7 +68,7 @@ WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WG
 WKernel::~WKernel()
 {
     // cleanup
-    WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_INFO );
 }
 
 void WKernel::init()
@@ -115,7 +115,7 @@ boost::shared_ptr< WGUI > WKernel::getGui() const
 
 void WKernel::finalize()
 {
-    WLogger::getLogger()->addLogMessage( "Stopping Kernel", "Kernel", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Stopping Kernel", "Kernel", LL_INFO );
 
     // NOTE: stopping a container erases all modules inside.
     getRootContainer()->stop();
@@ -123,7 +123,7 @@ void WKernel::finalize()
 
 void WKernel::threadMain()
 {
-    WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_INFO );
 
     // wait for GUI to be initialized properly
     m_gui->isInitialized().wait();
@@ -138,7 +138,7 @@ void WKernel::threadMain()
     // actually there is nothing more to do here
     waitForStop();
 
-    WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_INFO );
 }
 
 bool WKernel::findAppPath()
@@ -185,7 +185,7 @@ bool WKernel::findAppPath()
     uint32_t size = sizeof( path );
     if( _NSGetExecutablePath( path, &size ) == 0 )
     {
-        WLogger::getLogger()->addLogMessage( "Executable path is " + std::string( path ), "Kernel", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Executable path is " + std::string( path ), "Kernel", LL_DEBUG );
 
         int i = strlen( path );
         while( path[i] != '/' )
@@ -194,7 +194,7 @@ bool WKernel::findAppPath()
             i--;
             assert( i >= 0 );
         }
-        WLogger::getLogger()->addLogMessage( "Application path is " + std::string( path ), "Kernel", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Application path is " + std::string( path ), "Kernel", LL_DEBUG );
         m_AppPath = path;
 
         std::string shaderPath( path );
