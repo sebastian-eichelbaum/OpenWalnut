@@ -30,6 +30,8 @@
 #include <string>
 #include <sstream>
 
+#include "WTerminalColor.h"
+
 /**
  * Basic exception handler.
  */
@@ -102,6 +104,26 @@ protected:
      */
     static bool noBacktrace;
 private:
+
+    /**
+     * Color used for the "trace:" label.
+     */
+    WTerminalColor m_labelColor;
+
+    /**
+     * Color used for function name.
+     */
+    WTerminalColor m_functionColor;
+
+    /**
+     * Color used for symbols.
+     */
+    WTerminalColor m_symbolColor;
+
+    /**
+     * Color used for exception headline.
+     */
+    WTerminalColor m_headlineColor;
 };
 
 #endif  // WEXCEPTION_H

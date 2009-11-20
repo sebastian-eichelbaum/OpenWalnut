@@ -88,22 +88,22 @@ void WTerminalColor::generateControlStrings()
 #endif
 }
 
-std::ostream& WTerminalColor::operator<<( std::ostream& ostr )
+std::ostream& WTerminalColor::operator<<( std::ostream& ostr ) const
 {
     return ostr << m_colorString;
 }
 
-std::string& WTerminalColor::operator!()
+std::string WTerminalColor::operator!() const
 {
     return m_colorResetString;
 }
 
-std::string& WTerminalColor::operator()()
+std::string WTerminalColor::operator()() const
 {
     return m_colorString;
 }
 
-std::string WTerminalColor::operator+( const std::string& in )
+std::string WTerminalColor::operator+( const std::string& in ) const
 {
     return m_colorString + in;
 }
@@ -115,8 +115,13 @@ void WTerminalColor::setEnabled( bool enabled )
     generateControlStrings();
 }
 
-bool WTerminalColor::isEnabled()
+bool WTerminalColor::isEnabled() const
 {
     return m_enabled;
+}
+
+std::string WTerminalColor::operator()( const std::string s ) const
+{
+    return m_colorString + s + m_colorResetString;
 }
 

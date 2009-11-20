@@ -43,7 +43,12 @@
  */
 bool WException::noBacktrace = false;
 
-WException::WException( const std::string& msg ): exception()
+WException::WException( const std::string& msg ):
+    exception(),
+    m_labelColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGRed ) ),
+    m_functionColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGBlue ) ),
+    m_symbolColor( WTerminalColor() ),
+    m_headlineColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGYellow ) )
 {
     // initialize members
     m_msg = msg;
@@ -52,11 +57,16 @@ WException::WException( const std::string& msg ): exception()
     // no backtrace?
     if ( !noBacktrace )
     {
-        std::cerr << "Exception thrown! Callstack's backtrace:" << std::endl << getBacktrace() << std::endl;
+        std::cerr << m_headlineColor( std::string( "Exception thrown! Callstack's backtrace:" ) ) << std::endl << getBacktrace() << std::endl;
     }
 }
 
-WException::WException( const std::exception& e ): exception( e )
+WException::WException( const std::exception& e ):
+    exception( e ),
+    m_labelColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGRed ) ),
+    m_functionColor( WTerminalColor( WTerminalColor::Off, WTerminalColor::FGBlue ) ),
+    m_symbolColor( WTerminalColor() ),
+    m_headlineColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGYellow ) )
 {
     m_msg = e.what();
 
@@ -64,7 +74,7 @@ WException::WException( const std::exception& e ): exception( e )
     // no backtrace?
     if ( !noBacktrace )
     {
-        std::cerr << "Exception thrown! Callstack's backtrace:" << std::endl << getBacktrace() << std::endl;
+        std::cerr << m_headlineColor( std::string( "Exception thrown! Callstack's backtrace:" ) ) << std::endl << getBacktrace() << std::endl;
     }
 }
 
@@ -156,12 +166,18 @@ std::string WException::getBacktrace() const
                 function[functionLength-1] = '\0';
             }
             *end = '+';
-            o << "trace: " << function << "\t->\t" << stackSymbols[i] << std::endl;
+            o << m_labelColor( std::string( "trace: " ) )
+              << m_functionColor( function )
+              << "\t->\t"
+              << m_symbolColor( stackSymbols[i] ) << std::endl;
         }
         else
         {
             // didn't find the mangled name, just print the whole line
-            o <<  "trace: " << "???\t->\t" << stackSymbols[i] << std::endl;
+            o << m_labelColor( std::string( "trace: " ) )
+              << m_functionColor( std::string( "??? " ) )
+              << "\t->\t"
+              << m_symbolColor( stackSymbols[i] ) << std::endl;
         }
 
         delete[] function;

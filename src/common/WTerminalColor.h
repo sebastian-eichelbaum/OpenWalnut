@@ -103,14 +103,23 @@ public:
      * 
      * \return the color control string
      */
-    std::ostream& operator<<( std::ostream& ostr );
+    std::ostream& operator<<( std::ostream& ostr ) const;
 
     /**
      * Gives the control string which actually enables the color.
      * 
      * \return the color control string
      */
-    std::string& operator()();
+    std::string operator()() const;
+
+    /**
+     * Colorizes the given string and resets color after it.
+     * 
+     * \param s the string to colorize
+     * 
+     * \return the string including control sequences.
+     */
+    std::string operator()( const std::string s ) const;
 
     /**
      * Combines strings.
@@ -119,14 +128,14 @@ public:
      * 
      * \return the concatenated string.
      */
-    std::string operator+( const std::string& in );
+    std::string operator+( const std::string& in ) const;
 
     /**
      * Resets the color and returns control string.
      * 
      * \return the control string which resets color settings.
      */
-    std::string& operator!();
+    std::string operator!() const;
 
     /**
      * With this you can easily trigger whether the color control string is used or if "" is returned.
@@ -138,7 +147,7 @@ public:
     /**
      * Is coloring enabled?
      */
-    bool isEnabled();
+    bool isEnabled() const;
 
 protected:
 
