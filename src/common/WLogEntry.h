@@ -45,10 +45,17 @@ LogLevel;
 class WLogEntry
 {
 public:
+
     /**
-     * Construtcs a log message entry
+     * Creates a new log message.
+     * 
+     * \param logTime  the time
+     * \param message  the message
+     * \param level    the log level
+     * \param source   the source, sending the log
+     * \param colored  true if colors should be used.
      */
-    WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source = "" );
+    WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source = "", bool colored = true );
 
     /**
      * Destroys a log message entry.
@@ -64,6 +71,20 @@ public:
      * \return log level of this entry.
      */
     LogLevel getLogLevel();
+
+    /**
+     * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
+     * 
+     * \param colors true if colors should be used.
+     */
+    void setColored( bool colors );
+
+    /**
+     * Getter determining whether to use colors or not.
+     * 
+     * \return true if colors should be used.
+     */
+    bool isColored();
 
 protected:
 private:
@@ -86,6 +107,11 @@ private:
      * Source (e.g. module name) where this log message comes from.
      */
     std::string m_source;
+
+    /**
+     * Flag determining whether colors should be used or not.
+     */
+    bool m_colored;
 
     /** 
      * Define possible attributes.

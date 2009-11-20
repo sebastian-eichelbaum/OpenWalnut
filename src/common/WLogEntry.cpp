@@ -29,11 +29,12 @@
 
 #include "WLogEntry.h"
 
-WLogEntry:: WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source )
+WLogEntry:: WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source, bool colored )
     : m_time( logTime ),
       m_message( message ),
       m_level( level ),
-      m_source( source )
+      m_source( source ),
+      m_colored( colored )
 {
 }
 
@@ -87,35 +88,57 @@ LogLevel WLogEntry::getLogLevel()
 std::string WLogEntry::color( CColorAttrib attrib, CColorForeground foreground, CColorBackground background )
 {
 #ifdef __linux__
-    std::ostringstream ss;
+    if ( m_colored )
+    {
+        std::ostringstream ss;
 
-    char cStart = 0x1B;
-    ss << cStart << "[" << attrib << ";" << foreground << ";" << background << "m";
+        char cStart = 0x1B;
+        ss << cStart << "[" << attrib << ";" << foreground << ";" << background << "m";
 
-    return ss.str();
+        return ss.str();
+    }
 #endif
+    return "";
 }
 
 std::string WLogEntry::color( CColorAttrib attrib, CColorForeground foreground )
 {
 #ifdef __linux__
-    std::ostringstream ss;
+    if ( m_colored )
+    {
+        std::ostringstream ss;
 
-    char cStart = 0x1B;
-    ss << cStart << "[" << attrib << ";" << foreground << "m";
+        char cStart = 0x1B;
+        ss << cStart << "[" << attrib << ";" << foreground << "m";
 
-    return ss.str();
+        return ss.str();
+    }
 #endif
+    return "";
 }
 
 std::string WLogEntry::reset()
 {
 #ifdef __linux__
-    std::ostringstream ss;
+    if ( m_colored )
+    {
+        std::ostringstream ss;
 
-    char cStart = 0x1B;
-    ss << cStart << "[0m";
-    return ss.str();
+        char cStart = 0x1B;
+        ss << cStart << "[0m";
+        return ss.str();
+    }
 #endif
+    return "";
+}
+
+void WLogEntry::setColored( bool colors )
+{
+    m_colored = colors;
+}
+
+bool WLogEntry::isColored()
+{
+    return m_colored;
 }
 
