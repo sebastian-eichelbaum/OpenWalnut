@@ -33,6 +33,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
 #include <QtGui/QSlider>
+#include <QtGui/QShortcut>
 #include <QtGui/QVBoxLayout>
 
 #include "WMainWindow.h"
@@ -111,13 +112,17 @@ void WMainWindow::setupToolBar()
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
 
     m_toolBar->addTab( QString( "File" ) );
-    m_toolBar->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "load" ) );
-    m_toolBar->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "save" ) );
-    m_toolBar->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "exit" ) );
+    m_toolBar->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "Load" ) );
+    m_toolBar->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "Save" ) );
+    m_toolBar->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "Exit" ) );
 
     m_toolBar->getButton( QString( "buttonLoad" ) )->setMaximumSize( 50, 24 );
     m_toolBar->getButton( QString( "buttonSave" ) )->setMaximumSize( 50, 24 );
     m_toolBar->getButton( QString( "buttonQuit" ) )->setMaximumSize( 50, 24 );
+
+    // the parent (this) will take care for deleting the shortcut
+    QShortcut* shortcut = new QShortcut( QKeySequence( tr( "Ctrl+Q", "File|Exit" ) ), this );
+    connect( shortcut, SIGNAL( activated() ), this, SLOT( close() ) );
 
     connect( m_toolBar->getButton( QString( "buttonQuit" ) ), SIGNAL( pressed() ), this, SLOT( close() ) );
     connect( m_toolBar->getButton( QString( "buttonLoad" ) ), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
