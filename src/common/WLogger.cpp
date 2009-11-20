@@ -43,7 +43,8 @@ WLogger::WLogger( std::string fileName, LogLevel level ):
     m_STDERRLevel( LL_ERROR ),
     m_LogFileLevel( level ),
     m_LogFileName( fileName ),
-    m_QueueMutex()
+    m_QueueMutex(),
+    m_colored( true )
 {
     logger = this;
 
@@ -98,7 +99,7 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
 
     boost::posix_time::ptime t( boost::posix_time::second_clock::local_time() );
     std::string timeString( to_simple_string( t ) );
-    WLogEntry entry( timeString, message, level, source );
+    WLogEntry entry( timeString, message, level, source, m_colored );
 
   // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
 #ifndef DEBUG
@@ -159,5 +160,15 @@ void WLogger::threadMain()
 #else
     waitForStop();
 #endif
+}
+
+void WLogger::setColored( bool colors )
+{
+    m_colored = colors;
+}
+
+bool WLogger::isColored()
+{
+    return m_colored;
 }
 

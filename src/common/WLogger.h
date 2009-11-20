@@ -87,6 +87,20 @@ public:
     void setLogFileName( std::string fileName );
 
     /**
+     * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
+     * 
+     * \param colors true if colors should be used.
+     */
+    void setColored( bool colors );
+
+    /**
+     * Getter determining whether to use colors or not.
+     * 
+     * \return true if colors should be used.
+     */
+    bool isColored();
+
+    /**
      * Appends a log message to the logging queue.
      */
     void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
@@ -150,6 +164,11 @@ private:
      * Mutex for doing locking due to thread-safety.
      */
     boost::mutex m_QueueMutex;
+
+    /**
+     * Flag determining whether log entries can be colored or not.
+     */
+    bool m_colored;
 };
 
 #endif  // WLOGGER_H
