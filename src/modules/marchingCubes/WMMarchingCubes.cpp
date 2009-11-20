@@ -126,7 +126,7 @@ void WMMarchingCubes::moduleMain()
 
     // TODO(wiebel): MC set correct isoValue here
     generateSurface( 110 );
-//   generateSurface( 200 );
+
     // TODO(wiebel): MC remove this from here
     //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
 
@@ -584,7 +584,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
 
-    osgDB::writeNodeFile( *geode, "/tmp/saved.osg" ); //for debugging
+    //osgDB::writeNodeFile( *geode, "/tmp/saved.osg" ); //for debugging
 }
 
 // TODO(wiebel): MC move this to a separate module in the future
@@ -669,9 +669,10 @@ WTriangleMesh WMMarchingCubes::load( std::string fileName )
 
     std::ifstream ifs;
     ifs.open( fileName.c_str(), std::ifstream::in );
-    if( ifs || ifs.bad() )
+    if( !ifs || ifs.bad() )
     {
-        WLogger::getLogger()->addLogMessage( "Load broken file '" + fileName + "'", "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Try load broken file '" + fileName + "'", "Marching Cubes", LL_ERROR );
+        throw std::runtime_error( "Problem during reading file. Probably file not found." );
     }
     std::string line;
 
@@ -686,7 +687,6 @@ WTriangleMesh WMMarchingCubes::load( std::string fileName )
         }
         header.push_back( line );
     }
-
     if( header.at(0) != "# vtk DataFile Version 2.0" )
     {
         WLogger::getLogger()->addLogMessage( "Unsupported format version string: " + header.at( 0 ), "Marching Cubes", LL_WARNING );
