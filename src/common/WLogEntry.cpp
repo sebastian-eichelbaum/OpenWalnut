@@ -27,15 +27,25 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "WTerminalColor.h"
+
 #include "WLogEntry.h"
 
-WLogEntry:: WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source, bool colored )
+WLogEntry::WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source, bool colored )
     : m_time( logTime ),
       m_message( message ),
       m_level( level ),
       m_source( source ),
-      m_colored( colored )
+      m_colored( colored ),
+      m_errorColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGRed ) ),
+      m_infoColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGGreen ) ),
+      m_debugColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGBlue ) ),
+      m_warningColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGYellow ) ),
+      m_sourceColor( WTerminalColor( WTerminalColor::Off, WTerminalColor::FGMagenta ) ),
+      m_timeColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGBlack ) ),
+      m_messageColor( WTerminalColor() )
 {
+    setColored( colored );
 }
 
 WLogEntry::~WLogEntry()
@@ -46,36 +56,29 @@ std::string WLogEntry::getLogString( std::string format )
 {
     std::string s = format;
 
-    std::string red = color( Bold, FGRed );
-    std::string green = color( Bold, FGGreen );
-    std::string blue = color( Bold, FGBlue );
-    std::string yellow = color( Bold, FGYellow );
-    std::string magenta = color( Off, FGMagenta );
-    std::string gray = color( Bold, FGBlack );
-
-    boost::ireplace_first( s, "%t", gray + m_time + reset() );
+    boost::ireplace_first( s, "%t", m_timeColor + m_time + !m_timeColor );
 
     switch ( m_level )
     {
         case LL_DEBUG:
-            boost::ireplace_first( s, "%l", blue + "DEBUG  " + reset() );
+            boost::ireplace_first( s, "%l", m_debugColor + "DEBUG  " + !m_debugColor );
             break;
         case LL_INFO:
-            boost::ireplace_first( s, "%l", green + "INFO   " + reset() );
+            boost::ireplace_first( s, "%l", m_infoColor + "INFO   " + !m_infoColor );
             break;
         case LL_WARNING:
-            boost::ireplace_first( s, "%l", yellow + "WARNING" + reset() );
+            boost::ireplace_first( s, "%l", m_warningColor + "WARNING" + !m_warningColor );
             break;
         case LL_ERROR:
-            boost::ireplace_first( s, "%l", red + "ERROR  " + reset() );
+            boost::ireplace_first( s, "%l", m_errorColor + "ERROR  " + !m_errorColor );
             break;
         default:
             break;
     }
 
-    boost::ireplace_first( s, "%m", m_message );
+    boost::ireplace_first( s, "%m", m_messageColor + m_message + !m_messageColor );
 
-    boost::ireplace_first( s, "%s", magenta + m_source + reset() );
+    boost::ireplace_first( s, "%s", m_sourceColor + m_source + !m_sourceColor );
 
     return s;
 }
@@ -85,56 +88,16 @@ LogLevel WLogEntry::getLogLevel()
     return m_level;
 }
 
-std::string WLogEntry::color( CColorAttrib attrib, CColorForeground foreground, CColorBackground background )
-{
-#ifdef __linux__
-    if ( m_colored )
-    {
-        std::ostringstream ss;
-
-        char cStart = 0x1B;
-        ss << cStart << "[" << attrib << ";" << foreground << ";" << background << "m";
-
-        return ss.str();
-    }
-#endif
-    return "";
-}
-
-std::string WLogEntry::color( CColorAttrib attrib, CColorForeground foreground )
-{
-#ifdef __linux__
-    if ( m_colored )
-    {
-        std::ostringstream ss;
-
-        char cStart = 0x1B;
-        ss << cStart << "[" << attrib << ";" << foreground << "m";
-
-        return ss.str();
-    }
-#endif
-    return "";
-}
-
-std::string WLogEntry::reset()
-{
-#ifdef __linux__
-    if ( m_colored )
-    {
-        std::ostringstream ss;
-
-        char cStart = 0x1B;
-        ss << cStart << "[0m";
-        return ss.str();
-    }
-#endif
-    return "";
-}
-
 void WLogEntry::setColored( bool colors )
 {
     m_colored = colors;
+    m_errorColor.setEnabled( colors );
+    m_infoColor.setEnabled( colors );
+    m_debugColor.setEnabled( colors );
+    m_warningColor.setEnabled( colors );
+    m_sourceColor.setEnabled( colors );
+    m_timeColor.setEnabled( colors );
+    m_messageColor.setEnabled( colors );
 }
 
 bool WLogEntry::isColored()

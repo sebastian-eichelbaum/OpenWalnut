@@ -127,7 +127,7 @@ public:
      * \return format string. See WLogEntry for details.
      */
     std::string getDefaultFileFormat();
- 
+
     /**
      * Appends a log message to the logging queue.
      */

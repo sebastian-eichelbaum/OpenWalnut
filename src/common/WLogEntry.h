@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include "WTerminalColor.h"
+
 /**
  * Various log levels, to distinguish output on its level.
  */
@@ -113,77 +115,40 @@ private:
      */
     bool m_colored;
 
-    /** 
-     * Define possible attributes.
+    /**
+     * Color used for error logs.
      */
-    enum CColorAttrib
-    {
-        Off         = 0,
-        Bold        = 1,
-        Underscore  = 4,
-        Blink       = 5,
-        Reverse     = 7,
-        Concealed   = 8
-    };
+    WTerminalColor m_errorColor;
 
-    /** 
-     * Foreground colors.
+    /**
+     * Color used for info logs
      */
-    enum CColorForeground
-    {
-        FGBlack   = 30,
-        FGRed     = 31,
-        FGGreen   = 32,
-        FGYellow  = 33,
-        FGBlue    = 34,
-        FGMagenta = 35,
-        FGCyan    = 36,
-        FGWhite   = 37
-    };
+    WTerminalColor m_infoColor;
 
-    /** 
-     * Background colors.
+    /**
+     * Color used for debug logs.
      */
-    enum CColorBackground
-    {
-        BGBlack   = 40,
-        BGRed     = 41,
-        BGGreen   = 42,
-        BGYellow  = 43,
-        BGBlue    = 44,
-        BGMagenta = 45,
-        BGCyan    = 46,
-        BGWhite   = 47
-    };
+    WTerminalColor m_debugColor;
 
-    /** 
-     * Create a control string to activate colors. It will be active until reset was called. When the background should be not set, leave it.
-     *
-     * \param attrib the attribute to set
-     * \param foreground the foreground color
-     * \param background the background color.
-     * 
-     * \return control string 
+    /**
+     * Color used for warning logs.
      */
-    std::string color( CColorAttrib attrib, CColorForeground foreground, CColorBackground background );
+    WTerminalColor m_warningColor;
 
-    /** 
-     * Create a control string to activate colors. It will be active until reset was called. When the background should be not set, leave it.
-     *
-     * \param attrib the attribute to set
-     * \param foreground the foreground color
-     * \param background the background color.
-     * 
-     * \return control string 
+    /**
+     * Color used for source field.
      */
-    std::string color( CColorAttrib attrib, CColorForeground foreground );
+    WTerminalColor m_sourceColor;
 
-    /** 
-     * Resets all attributes and colors to default.
-     * 
-     * \return the proper control string.
+    /**
+     * Color used for time.
      */
-    std::string reset();
+    WTerminalColor m_timeColor;
+
+    /**
+     * Color used for the message.
+     */
+    WTerminalColor m_messageColor;
 };
 
 #endif  // WLOGENTRY_H
