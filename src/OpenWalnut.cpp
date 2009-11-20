@@ -62,8 +62,6 @@ int main( int argc, char** argv )
 
     // finish running thread
     WLogger::getLogger()->wait( true );
-    // write remaining log messages
-    WLogger::getLogger()->processQueue();
 
     return result;
 }

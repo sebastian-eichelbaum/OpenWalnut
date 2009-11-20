@@ -86,6 +86,78 @@ private:
      * Source (e.g. module name) where this log message comes from.
      */
     std::string m_source;
+
+    /** 
+     * Define possible attributes.
+     */
+    enum CColorAttrib
+    {
+        Off         = 0,
+        Bold        = 1,
+        Underscore  = 4,
+        Blink       = 5,
+        Reverse     = 7,
+        Concealed   = 8
+    };
+
+    /** 
+     * Foreground colors.
+     */
+    enum CColorForeground
+    {
+        FGBlack   = 30,
+        FGRed     = 31,
+        FGGreen   = 32,
+        FGYellow  = 33,
+        FGBlue    = 34,
+        FGMagenta = 35,
+        FGCyan    = 36,
+        FGWhite   = 37
+    };
+
+    /** 
+     * Background colors.
+     */
+    enum CColorBackground
+    {
+        BGBlack   = 40,
+        BGRed     = 41,
+        BGGreen   = 42,
+        BGYellow  = 43,
+        BGBlue    = 44,
+        BGMagenta = 45,
+        BGCyan    = 46,
+        BGWhite   = 47
+    };
+
+    /** 
+     * Create a control string to activate colors. It will be active until reset was called. When the background should be not set, leave it.
+     *
+     * \param attrib the attribute to set
+     * \param foreground the foreground color
+     * \param background the background color.
+     * 
+     * \return control string 
+     */
+    std::string color( CColorAttrib attrib, CColorForeground foreground, CColorBackground background );
+
+    /** 
+     * Create a control string to activate colors. It will be active until reset was called. When the background should be not set, leave it.
+     *
+     * \param attrib the attribute to set
+     * \param foreground the foreground color
+     * \param background the background color.
+     * 
+     * \return control string 
+     */
+    std::string color( CColorAttrib attrib, CColorForeground foreground );
+
+    /** 
+     * Resets all attributes and colors to default.
+     * 
+     * \return the proper control string.
+     */
+    std::string reset();
 };
 
 #endif  // WLOGENTRY_H

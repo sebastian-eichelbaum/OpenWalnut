@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <sstream>
 
 #include <boost/algorithm/string.hpp>
 
@@ -44,21 +45,28 @@ std::string WLogEntry::getLogString( std::string format )
 {
     std::string s = format;
 
-    boost::ireplace_first( s, "%t", m_time );
+    std::string red = color( Bold, FGRed );
+    std::string green = color( Bold, FGGreen );
+    std::string blue = color( Bold, FGBlue );
+    std::string yellow = color( Bold, FGYellow );
+    std::string magenta = color( Off, FGMagenta );
+    std::string gray = color( Bold, FGBlack );
+
+    boost::ireplace_first( s, "%t", gray + m_time + reset() );
 
     switch ( m_level )
     {
         case LL_DEBUG:
-            boost::ireplace_first( s, "%l", "DEBUG  " );
+            boost::ireplace_first( s, "%l", blue + "DEBUG  " + reset() );
             break;
         case LL_INFO:
-            boost::ireplace_first( s, "%l", "INFO   " );
+            boost::ireplace_first( s, "%l", green + "INFO   " + reset() );
             break;
         case LL_WARNING:
-            boost::ireplace_first( s, "%l", "WARNING" );
+            boost::ireplace_first( s, "%l", yellow + "WARNING" + reset() );
             break;
         case LL_ERROR:
-            boost::ireplace_first( s, "%l", "ERROR  " );
+            boost::ireplace_first( s, "%l", red + "ERROR  " + reset() );
             break;
         default:
             break;
@@ -66,7 +74,7 @@ std::string WLogEntry::getLogString( std::string format )
 
     boost::ireplace_first( s, "%m", m_message );
 
-    boost::ireplace_first( s, "%s", m_source );
+    boost::ireplace_first( s, "%s", magenta + m_source + reset() );
 
     return s;
 }
@@ -75,3 +83,39 @@ LogLevel WLogEntry::getLogLevel()
 {
     return m_level;
 }
+
+std::string WLogEntry::color( CColorAttrib attrib, CColorForeground foreground, CColorBackground background )
+{
+#ifdef __linux__
+    std::ostringstream ss;
+
+    char cStart = 0x1B;
+    ss << cStart << "[" << attrib << ";" << foreground << ";" << background << "m";
+
+    return ss.str();
+#endif
+}
+
+std::string WLogEntry::color( CColorAttrib attrib, CColorForeground foreground )
+{
+#ifdef __linux__
+    std::ostringstream ss;
+
+    char cStart = 0x1B;
+    ss << cStart << "[" << attrib << ";" << foreground << "m";
+
+    return ss.str();
+#endif
+}
+
+std::string WLogEntry::reset()
+{
+#ifdef __linux__
+    std::ostringstream ss;
+
+    char cStart = 0x1B;
+    ss << cStart << "[0m";
+    return ss.str();
+#endif
+}
+

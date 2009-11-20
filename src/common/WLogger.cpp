@@ -100,8 +100,14 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
     std::string timeString( to_simple_string( t ) );
     WLogEntry entry( timeString, message, level, source );
 
+  // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
+#ifndef DEBUG
     boost::mutex::scoped_lock l( m_QueueMutex );
     m_LogQueue.push( entry );
+#else
+    // in Debug mode, also add the source
+    std::cout << entry.getLogString( "*%l*%s* %m \n" );
+#endif
 }
 
 void WLogger::processQueue()
@@ -138,6 +144,8 @@ void WLogger::processQueue()
 
 void WLogger::threadMain()
 {
+  // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
+#ifndef DEBUG
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
     {
@@ -145,6 +153,11 @@ void WLogger::threadMain()
         // do fancy stuff
         sleep( 1 );
     }
-
-    // clean up stuff
+    // clean up stuff and process remaining entries
+    // write remaining log messages
+    processQueue();
+#else
+    waitForStop();
+#endif
 }
+
