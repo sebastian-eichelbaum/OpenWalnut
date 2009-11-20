@@ -35,14 +35,14 @@
 WGEScene::WGEScene():
     osg::Group()
 {
-    WLogger::getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_INFO );
 
     // initialize members
 }
 
 WGEScene::~WGEScene()
 {
-    WLogger::getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_INFO );
 
     // cleanup
 }

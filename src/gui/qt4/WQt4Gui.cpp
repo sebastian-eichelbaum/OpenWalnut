@@ -46,7 +46,7 @@ WQt4Gui::~WQt4Gui()
 
 int WQt4Gui::run()
 {
-    WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_INFO );
 
     QApplication appl( argc, argv, true );
 

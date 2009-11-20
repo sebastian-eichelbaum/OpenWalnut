@@ -43,7 +43,7 @@
 WGraphicsEngine::WGraphicsEngine():
     WThreadedRunner()
 {
-    WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_INFO );
 
     // initialize members
     m_rootNode = new WGEScene();
@@ -68,7 +68,7 @@ WGraphicsEngine::WGraphicsEngine():
 WGraphicsEngine::~WGraphicsEngine()
 {
     // cleanup
-    WLogger::getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_INFO );
 }
 
 osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
@@ -110,7 +110,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer(
 
 void WGraphicsEngine::threadMain()
 {
-    WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
 
     m_Viewer->startThreading();
     m_Viewer->run();
@@ -119,7 +119,7 @@ void WGraphicsEngine::threadMain()
 
 void WGraphicsEngine::notifyStop()
 {
-    WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_DEBUG );
+    WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
 
     m_Viewer->setDone( true );
 }
