@@ -68,7 +68,7 @@ public:
     virtual ~WGUI();
 
     /** 
-     * Returns the init flag..
+     * Returns the init flag.
      * 
      * \return Reference to the flag.
      */
