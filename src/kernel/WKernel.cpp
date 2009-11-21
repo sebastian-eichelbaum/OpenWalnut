@@ -132,8 +132,9 @@ void WKernel::threadMain()
     m_graphicsEngine->run();
 
     // default modules
-    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
+//    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Marching Cubes" ) ) , true );
 
     // actually there is nothing more to do here
     waitForStop();

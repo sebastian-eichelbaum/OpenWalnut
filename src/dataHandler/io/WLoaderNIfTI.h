@@ -42,6 +42,11 @@ class WDataHandler;
  */
 class WLoaderNIfTI : public WLoader
 {
+/**
+ * Only UnitTests may be friends.
+ */
+friend class WLoaderNIfTITest;
+
 public:
     /**
      * Constructs a loader to be executed in its own thread and ets the data needed

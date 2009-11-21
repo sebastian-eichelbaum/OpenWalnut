@@ -118,7 +118,7 @@ public:
 
 protected:
 private:
-    size_t m_nbCols;
+    size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).
 };
 }  // End of namespace
 #endif  // WMATRIX_H

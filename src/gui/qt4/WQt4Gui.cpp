@@ -81,7 +81,15 @@ boost::program_options::variables_map parseOptions( int argc, char** argv )
 
 int WQt4Gui::run()
 {
-    m_optionsMap = parseOptions( argc, argv );
+    try
+    {
+        m_optionsMap = parseOptions( argc, argv );
+    }
+    catch( boost::program_options::unknown_option e )
+    {
+        std::cout << e.what() << std::endl;
+        return 1;
+    }
 
     // exit as fast as possible if command line asks for help.
     if( m_optionsMap.count( "help" ) )
