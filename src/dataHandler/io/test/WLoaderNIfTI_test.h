@@ -25,9 +25,12 @@
 #ifndef WLOADERNIFTI_TEST_H
 #define WLOADERNIFTI_TEST_H
 
+#include <vector>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WLoaderNIfTI.h"
+#include "../WLoaderNIfTI.cpp" //need this to be able instatiate template function
 #include "../../WDataHandler.h"
 
 /**
@@ -141,7 +144,9 @@ public:
         dummy.m[3][2] = 1.16;
         dummy.m[3][3] = 1.17;
 
+        // need this for calling the function
         WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz", m_dataHandler );
+
         wmath::WMatrix< double >  result = loader1.convertMatrix( dummy );
 
         TS_ASSERT_EQUALS( result.getNbRows(), 4 );
@@ -164,6 +169,43 @@ public:
         TS_ASSERT_DELTA( result( 3, 1 ), 1.15, delta );
         TS_ASSERT_DELTA( result( 3, 2 ), 1.16, delta );
         TS_ASSERT_DELTA( result( 3, 3 ), 1.17, delta );
+    }
+
+    /**
+     * Test the function copying an array into a vector
+     */
+    void testCopyArray( void )
+    {
+        // need this for calling the function
+        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz", m_dataHandler );
+
+        const size_t nbVoxels = 10;
+        const size_t vDim = 3;
+        double* dataArray = new double[nbVoxels * vDim];
+
+        for( unsigned int voxId = 0; voxId < nbVoxels; ++voxId )
+        {
+            for( unsigned int dim = 0; dim < vDim; ++dim )
+            {
+                unsigned int i = ( voxId * vDim + dim );
+                dataArray[i] = 1.1 * i;
+            }
+        }
+        std::vector< double > vec = loader1.copyArray( dataArray, nbVoxels, vDim );
+
+        TS_ASSERT_EQUALS( vec.size(), nbVoxels * vDim );
+
+        double delta = 1e-16;
+        for( unsigned int voxId = 0; voxId < nbVoxels; ++voxId )
+        {
+            for( unsigned int dim = 0; dim < vDim; ++dim )
+            {
+                // The following two test exactly the same thing.
+                TS_ASSERT_DELTA( vec[voxId * vDim + dim], dataArray[voxId + nbVoxels * dim], delta );
+                TS_ASSERT_DELTA( vec[voxId * vDim + dim], 1.1 * ( voxId + nbVoxels * dim ), delta );
+            }
+        }
+        delete[] dataArray;
     }
 };
 
