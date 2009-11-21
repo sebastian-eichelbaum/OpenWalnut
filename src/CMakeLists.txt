@@ -215,6 +215,8 @@ ADD_CUSTOM_TARGET( fixtures
                    ALL
                    COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
                    COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/io/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/io
+                   # TODO(wiebel): we need to find a way to do this automatically
+                   COMMAND cp -rf ${PROJECT_SOURCE_DIR}/modules/marchingCubes/test/fixtures ${PROJECT_BINARY_DIR}/modules/marchingCubes
                    COMMENT "Copy fixtures to the right place."
                  )
 

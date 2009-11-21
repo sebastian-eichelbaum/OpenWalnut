@@ -32,6 +32,7 @@
 
 #include "../WMMarchingCubes.h"
 #include "../../../common/WLogger.h"
+#include "../../../math/WPosition.h"
 
 static WLogger logger;
 static bool loggerInitialized = false;
@@ -266,7 +267,31 @@ public:
      */
     void testLoad()
     {
-        // TODO(wiebel): MC need to test this for #118
+        if( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.run();
+            loggerInitialized = true;
+        }
+
+        WMMarchingCubes mc;
+        WTriangleMesh triMesh;
+        triMesh = mc.load( "./fixtures/surfaceMeshFile.vtk" );
+
+        TS_ASSERT_EQUALS( triMesh.getNumTriangles(), 28 );
+        TS_ASSERT_EQUALS( triMesh.getNumVertices(), 16 );
+        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 0, 0 ), 0 );
+        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 1, 0 ), 0 );
+        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 1, 2 ), 5 );
+        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 14, 1 ), 7 );
+
+        wmath::WPosition expectedPosition( 93.5, 115.5, 41.5 );
+        TS_ASSERT_EQUALS( triMesh.getVertex( 0 ), expectedPosition );
+        TS_ASSERT_EQUALS( triMesh.getVertex( 5 ), expectedPosition );
+        TS_ASSERT_EQUALS( triMesh.getVertex( 7 ), expectedPosition );
+        TS_ASSERT_DIFFERS( triMesh.getVertex( 8 ), expectedPosition );
+
+        TS_ASSERT_THROWS( mc.load( "no such file" ), std::runtime_error );
     }
 
     /**
