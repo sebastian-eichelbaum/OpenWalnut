@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/program_options.hpp>
+
 #include "../WGUI.h"
 
 class WMainWindow;
@@ -103,6 +105,8 @@ private:
      * Kernel instance.
      */
     boost::shared_ptr< WKernel > m_kernel;
+
+    boost::program_options::variables_map m_optionsMap; //!< Map storing the program options.
 };
 
 #endif  // WQT4GUI_H

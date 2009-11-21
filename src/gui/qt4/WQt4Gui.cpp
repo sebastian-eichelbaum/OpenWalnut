@@ -26,6 +26,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/program_options.hpp>
+
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 
@@ -44,8 +46,51 @@ WQt4Gui::~WQt4Gui()
 {
 }
 
+/**
+ * This function defines and parses the valid command line options.
+ * This might once be put in a separate class like WOptionHandler.
+ * At the moment it seems reasonable that differnet GUIs might have
+ * different command line options, thus we implement their parsing
+ * in the GUI implemntation itself, i.e. here.
+ * TODO(wiebel): check whether WOptionHandler still exists and probably remove it after discussion in the community.
+ */
+boost::program_options::variables_map parseOptions( int argc, char** argv )
+{
+    // since the namespace is far to big we use a shortcut here
+    namespace po = boost::program_options;
+
+    po::variables_map optionsMap;
+    po::options_description desc( "Allowed options" );
+    desc.add_options()
+        ( "help,h", "Prints this help message" )
+        ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" );
+
+    po::positional_options_description p;
+    p.add( "input", -1 );
+
+    po::store( po::command_line_parser( argc, argv ).options( desc ).positional( p ).run(), optionsMap );
+    po::notify( optionsMap );
+
+    // print usage information if command line asks for help.
+    if( optionsMap.count( "help" ) )
+    {
+        std::cout << desc << std::endl;
+    }
+    return optionsMap;
+}
+
 int WQt4Gui::run()
 {
+    m_optionsMap = parseOptions( argc, argv );
+
+    // exit as fast as possible if command line asks for help.
+    if( m_optionsMap.count( "help" ) )
+    {
+        return 0;
+    }
+
+    // TODO(all): In my (alex) opinion the WLogger should be started here and not before. This allows to generate a simple help message.
+
     WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_INFO );
 
     QApplication appl( argc, argv, true );
@@ -56,7 +101,6 @@ int WQt4Gui::run()
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
     m_kernel->run();
-
     // create the window
     m_gui = new WMainWindow;
     m_gui->show();
@@ -70,6 +114,12 @@ int WQt4Gui::run()
 
     // now we are initialized
     m_isInitialized( true );
+
+    // check if we want to load data due to command line and call the respective function
+    if( m_optionsMap.count("input") )
+    {
+        m_kernel->doLoadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+    }
 
     // run
     int qtRetCode = appl.exec();
