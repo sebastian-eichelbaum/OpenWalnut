@@ -39,6 +39,10 @@
  */
 class WGridRegular3D : public WGrid
 {
+    /**
+     * Only test are allowed as friends.
+     */
+    friend class WGridRegular3DTest;
 public:
     /**
      * Defines the position of the origin of the grid, the number of
@@ -166,6 +170,13 @@ public:
      */
     wmath::WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
 
+    /**
+     * Return the matrix storing the transformation of the grid. This information is redundant.
+     * Please use m_origin and m_direction? for all normal computations.
+     * Use matrix only where you really need a matrix for multiplication.
+     */
+    wmath::WMatrix<double> getTransformationMatrix() const;
+
 protected:
 private:
     wmath::WPosition m_origin;
@@ -177,6 +188,13 @@ private:
     wmath::WVector3D m_directionX;
     wmath::WVector3D m_directionY;
     wmath::WVector3D m_directionZ;
+
+    /**
+     * Matrix storing the transformation of the grid. This is redundant.
+     * Please use m_origin and m_direction? for all normal computations.
+     * Use matrix only where you really need a matrix for multiplication.
+     */
+    wmath::WMatrix<double> m_matrix;
 };
 
 #endif  // WGRIDREGULAR3D_H

@@ -38,14 +38,31 @@ WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
       m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
       m_directionX( directionX ),
       m_directionY( directionY ),
-      m_directionZ( directionZ )
+      m_directionZ( directionZ ),
+      m_matrix( 4, 4 )
 {
+    m_matrix( 0, 0 ) = directionX[0];
+    m_matrix( 0, 1 ) = directionY[0];
+    m_matrix( 0, 2 ) = directionZ[0];
+    m_matrix( 1, 0 ) = directionX[1];
+    m_matrix( 1, 1 ) = directionY[1];
+    m_matrix( 1, 2 ) = directionZ[1];
+    m_matrix( 2, 0 ) = directionX[2];
+    m_matrix( 2, 1 ) = directionY[2];
+    m_matrix( 2, 2 ) = directionZ[2];
+    m_matrix( 0, 3 ) = originX;
+    m_matrix( 1, 3 ) = originY;
+    m_matrix( 2, 3 ) = originZ;
+
+    m_matrix( 3, 3 ) = 1.;
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 const WMatrix< double >& mat )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
-      m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ )
+      m_nbPosX( nbPosX ),
+      m_nbPosY( nbPosY ),      m_nbPosZ( nbPosZ ),
+      m_matrix( wmath::WMatrix<double>( mat ) )
 {
     assert( mat.getNbRows() == 4 && mat.getNbCols() == 4 );
     // only affine transformations are allowed
@@ -56,6 +73,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_directionX = WVector3D( mat( 0, 0 ) / mat( 3, 3 ), mat( 1, 0 ) / mat( 3, 3 ), mat( 2, 0 ) / mat( 3, 3 ) );
     m_directionY = WVector3D( mat( 0, 1 ) / mat( 3, 3 ), mat( 1, 1 ) / mat( 3, 3 ), mat( 2, 1 ) / mat( 3, 3 ) );
     m_directionZ = WVector3D( mat( 0, 2 ) / mat( 3, 3 ), mat( 1, 2 ) / mat( 3, 3 ), mat( 2, 2 ) / mat( 3, 3 ) );
+
+    m_matrix = mat;
 }
 
 
@@ -64,22 +83,41 @@ WGridRegular3D::WGridRegular3D( double originX, double originY, double originZ,
                                 double offsetX, double offsetY, double offsetZ )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
       m_origin( WPosition( originX, originY, originZ ) ),
-      m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
+      m_nbPosX( nbPosX ),
+      m_nbPosY( nbPosY ),
+      m_nbPosZ( nbPosZ ),
       m_directionX( WVector3D( offsetX, 0., 0. ) ),
       m_directionY( WVector3D( 0., offsetY, 0. ) ),
-      m_directionZ( WVector3D( 0., 0., offsetZ ) )
+      m_directionZ( WVector3D( 0., 0., offsetZ ) ),
+      m_matrix( 4, 4 )
 {
+    m_matrix( 0, 0 ) = offsetX;
+    m_matrix( 1, 1 ) = offsetY;
+    m_matrix( 2, 2 ) = offsetZ;
+    m_matrix( 0, 3 ) = originX;
+    m_matrix( 1, 3 ) = originY;
+    m_matrix( 2, 3 ) = originZ;
+
+    m_matrix( 3, 3 ) = 1.;
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double offsetX, double offsetY, double offsetZ )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
       m_origin( WPosition( 0., 0., 0. ) ),
-      m_nbPosX( nbPosX ),  m_nbPosY( nbPosY ),  m_nbPosZ( nbPosZ ),
+      m_nbPosX( nbPosX ),
+      m_nbPosY( nbPosY ),
+      m_nbPosZ( nbPosZ ),
       m_directionX( WVector3D( offsetX, 0., 0. ) ),
       m_directionY( WVector3D( 0., offsetY, 0. ) ),
-      m_directionZ( WVector3D( 0., 0., offsetZ ) )
+      m_directionZ( WVector3D( 0., 0., offsetZ ) ),
+      m_matrix( 4, 4 )
 {
+    m_matrix( 0, 0 ) = offsetX;
+    m_matrix( 1, 1 ) = offsetY;
+    m_matrix( 2, 2 ) = offsetZ;
+
+    m_matrix( 3, 3 ) = 1.;
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int i ) const
@@ -90,4 +128,8 @@ WPosition WGridRegular3D::getPosition( unsigned int i ) const
 WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const
 {
     return m_origin + iX * m_directionX + iY * m_directionY + iZ * m_directionZ;
+}
+wmath::WMatrix<double> WGridRegular3D::getTransformationMatrix() const
+{
+    return m_matrix;
 }

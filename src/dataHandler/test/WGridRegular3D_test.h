@@ -105,6 +105,113 @@ public:
     }
 
     /**
+     * After instantiation there should be the right vectors, matrix and origin.
+     */
+    void testOrientation( void )
+    {
+        WGridRegular3D grid( 3, 3, 3, 2.2, 3.3, 4.4 );
+        TS_ASSERT_EQUALS( grid.size(), 27 );
+        TS_ASSERT_EQUALS( grid.m_origin, WPosition( 0., 0., 0. ) );
+        TS_ASSERT_EQUALS( grid.m_directionX, WVector3D( 2.2, 0., 0. ) );
+        TS_ASSERT_EQUALS( grid.m_directionY, WVector3D( 0., 3.3, 0. ) );
+        TS_ASSERT_EQUALS( grid.m_directionZ, WVector3D( 0., 0., 4.4 ) );
+        TS_ASSERT_EQUALS( grid.m_matrix( 0, 0 ), 2.2 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 0, 1 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 0, 2 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 0, 3 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 1, 0 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 1, 1 ), 3.3 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 1, 2 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 1, 3 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 2, 0 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 2, 1 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 2, 2 ), 4.4 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 2, 3 ), 0.0 );
+        TS_ASSERT_EQUALS( grid.m_matrix( 3, 0 ), 0.  );
+        TS_ASSERT_EQUALS( grid.m_matrix( 3, 1 ), 0.  );
+        TS_ASSERT_EQUALS( grid.m_matrix( 3, 2 ), 0.  );
+        TS_ASSERT_EQUALS( grid.m_matrix( 3, 3 ), 1.  );
+
+        WGridRegular3D grid2( 1.1, 2.2, 3.3, 3, 3, 3, 1.11, 2.22, 3.33 );
+        TS_ASSERT_EQUALS( grid2.size(), 27 );
+        TS_ASSERT_EQUALS( grid2.m_origin, WPosition( 1.1, 2.2, 3.3 ) );
+        TS_ASSERT_EQUALS( grid2.m_directionX, WVector3D( 1.11, 0., 0. ) );
+        TS_ASSERT_EQUALS( grid2.m_directionY, WVector3D( 0., 2.22, 0. ) );
+        TS_ASSERT_EQUALS( grid2.m_directionZ, WVector3D( 0., 0., 3.33 ) );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 0, 0 ), 1.11 );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 0, 1 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 0, 2 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 0, 3 ), 1.1  );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 1, 0 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 1, 1 ), 2.22 );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 1, 2 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 1, 3 ), 2.2  );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 2, 0 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 2, 1 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 2, 2 ), 3.33 );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 2, 3 ), 3.3  );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 3, 0 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 3, 1 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 3, 2 ), 0.   );
+        TS_ASSERT_EQUALS( grid2.m_matrix( 3, 3 ), 1.   );
+
+        WGridRegular3D grid3( 2.22, 3.33, 4.44, 3, 3, 3,
+                WVector3D( 3.1, 1.1, 2.1 ), WVector3D( 1.2, 3.2, 2.2 ), WVector3D( 1.3, 2.3, 3.3 ) );
+        TS_ASSERT_EQUALS( grid3.size(), 27 );
+        TS_ASSERT_EQUALS( grid3.m_origin, WPosition( 2.22, 3.33, 4.44 ) );
+        TS_ASSERT_EQUALS( grid3.m_directionX, WVector3D( 3.1, 1.1, 2.1 ) );
+        TS_ASSERT_EQUALS( grid3.m_directionY, WVector3D( 1.2, 3.2, 2.2 ) );
+        TS_ASSERT_EQUALS( grid3.m_directionZ, WVector3D( 1.3, 2.3, 3.3 ) );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 0, 0 ), 3.1 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 0, 1 ), 1.2 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 0, 2 ), 1.3 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 0, 3 ), 2.22 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 1, 0 ), 1.1 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 1, 1 ), 3.2 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 1, 2 ), 2.3 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 1, 3 ), 3.33 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 2, 0 ), 2.1 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 2, 1 ), 2.2 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 2, 2 ), 3.3 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 2, 3 ), 4.44 );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 3, 0 ), 0.  );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 3, 1 ), 0.  );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 3, 2 ), 0.  );
+        TS_ASSERT_EQUALS( grid3.m_matrix( 3, 3 ), 1.  );
+
+        // constructor taking matrix
+        WMatrix<double> mat( 4, 4 );
+        for( unsigned int i = 0; i < 4; ++i )
+        {
+            for( unsigned int j = 0; j < 4; ++j )
+            {
+                mat( i, j ) = 1.1 + i + 0.1 * j; // This make entries like (1,2)=2.3, (0,0)=1.1
+            }
+        }
+        mat( 3, 0 ) = 0;
+        mat( 3, 1 ) = 0;
+        mat( 3, 2 ) = 0;
+        mat( 3, 3 ) = 1;
+
+        double delta = 1e-8;
+        WGridRegular3D grid4( 3, 3, 3, mat );
+        TS_ASSERT_EQUALS( grid4.size(), 27 );
+        TS_ASSERT_DELTA( grid4.m_origin[0], 1.4, delta );
+        TS_ASSERT_DELTA( grid4.m_origin[1], 2.4, delta );
+        TS_ASSERT_DELTA( grid4.m_origin[2], 3.4, delta );
+        TS_ASSERT_DELTA( grid4.m_directionX[0], 1.1, delta );
+        TS_ASSERT_DELTA( grid4.m_directionX[1], 2.1, delta );
+        TS_ASSERT_DELTA( grid4.m_directionX[2], 3.1, delta );
+        TS_ASSERT_DELTA( grid4.m_directionY[0], 1.2, delta );
+        TS_ASSERT_DELTA( grid4.m_directionY[1], 2.2, delta );
+        TS_ASSERT_DELTA( grid4.m_directionY[2], 3.2, delta );
+        TS_ASSERT_DELTA( grid4.m_directionZ[0], 1.3, delta );
+        TS_ASSERT_DELTA( grid4.m_directionZ[1], 2.3, delta );
+        TS_ASSERT_DELTA( grid4.m_directionZ[2], 3.3, delta );
+        TS_ASSERT_EQUALS( grid4.m_matrix, mat );
+    }
+
+    /**
      * getNbCoords should return the samples prescribed by the use of the constructor
      */
     void testGetNbCoords( void )
