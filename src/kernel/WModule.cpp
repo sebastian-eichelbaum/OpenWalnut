@@ -25,6 +25,9 @@
 #include <set>
 #include <string>
 #include <sstream>
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
 
 #include <boost/shared_ptr.hpp>
 
@@ -254,6 +257,10 @@ void WModule::connectToGui()
 
 void WModule::threadMain()
 {
+#ifdef __linux__
+    prctl( PR_SET_NAME, ( "walnut (" + getName() + ")" ).c_str() );
+#endif
+
     try
     {
         WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
