@@ -107,25 +107,13 @@ void WMMarchingCubes::moduleMain()
 
     boost::shared_ptr< WDataHandler > dh = WKernel::getRunningKernel()->getDataHandler();
     boost::shared_ptr< WSubject > subject = (*dh)[0];
-    m_dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
-
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    assert( grid );
-    m_vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
-    assert( m_vals );
-
-    m_fCellLengthX = grid->getOffsetX();
-    m_fCellLengthY = grid->getOffsetY();
-    m_fCellLengthZ = grid->getOffsetZ();
-
-    m_nCellsX = grid->getNbCoordsX() - 1;
-    m_nCellsY = grid->getNbCoordsY() - 1;
-    m_nCellsZ = grid->getNbCoordsZ() - 1;
+    boost::shared_ptr< const WDataSetSingle > dataSet;
+    dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
 
     WLogger::getLogger()->addLogMessage( "Computing surface ...", "Marching Cubes", LL_DEBUG );
 
     // TODO(wiebel): MC set correct isoValue here
-    generateSurface( 110 );
+    generateSurface( dataSet, 110 );
 
     // TODO(wiebel): MC remove this from here
     //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
@@ -170,8 +158,23 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
         assert( 0 && "This property name is not soppurted by this function yet." );
     }
 }
-void WMMarchingCubes::generateSurface( double isoValue )
+void WMMarchingCubes::generateSurface( const boost::shared_ptr< const WDataSetSingle > dataSet, double isoValue )
 {
+    m_dataSet = dataSet;
+
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    assert( grid );
+    m_vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
+    assert( m_vals );
+
+    m_fCellLengthX = grid->getOffsetX();
+    m_fCellLengthY = grid->getOffsetY();
+    m_fCellLengthZ = grid->getOffsetZ();
+
+    m_nCellsX = grid->getNbCoordsX() - 1;
+    m_nCellsY = grid->getNbCoordsY() - 1;
+    m_nCellsZ = grid->getNbCoordsZ() - 1;
+
     m_tIsoLevel = isoValue;
 
     unsigned int nX = m_nCellsX + 1;

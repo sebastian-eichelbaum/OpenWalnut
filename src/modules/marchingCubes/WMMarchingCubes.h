@@ -113,10 +113,18 @@ public:
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Generate the triangles for the surface
+     */
+    void generateSurface( const boost::shared_ptr< const WDataSetSingle > dataSet, double isoValue );
+
+    // TODO(wiebel): MC document this;
+    void renderSurface();
 
 protected:
     /**
@@ -142,11 +150,6 @@ private:
 
     boost::shared_ptr< const WDataSetSingle > m_dataSet;  //!< Convenience pointer to the data set we are dealing with
     boost::shared_ptr< WValueSet< unsigned char > > m_vals;  //!< Convenience pointer to the values set we are dealing with
-
-    /**
-     * Generate the triangles for the surface
-     */
-    void generateSurface( double isoValue );
 
     /**
      * Calculates the intersection point of the isosurface with an
@@ -183,8 +186,6 @@ private:
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 
-    // TODO(wiebel): MC document this;
-    void renderSurface();
     // TODO(wiebel): MC document this;
     void renderMesh( WTriangleMesh* mesh );
 
