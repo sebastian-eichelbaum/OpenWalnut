@@ -88,14 +88,13 @@ void WMDistanceMap::moduleMain()
     boost::shared_ptr< const WDataSetSingle > distanceMapDataSet = createOffset( dataSet );
 
     WMMarchingCubes mc;
-    mc.generateSurface( distanceMapDataSet, .1);
+    mc.generateSurface( distanceMapDataSet, .1 );
 
     WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
 
     mc.renderSurface();
 
     WLogger::getLogger()->addLogMessage( "Done!", "Distance Map", LL_INFO );
-
 }
 
 void WMDistanceMap::connectors()
