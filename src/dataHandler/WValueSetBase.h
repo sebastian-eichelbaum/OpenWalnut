@@ -65,6 +65,14 @@ public:
     }
 
     /**
+     * \return Order of the values in this ValueSet
+     */
+    virtual size_t order()
+    {
+        return m_dimension;
+    }
+
+    /**
      * \return Dimension of the values in this ValueSet
      */
     virtual dataType getDataType()

@@ -102,6 +102,14 @@ public:
         return &m_data[0];
     }
 
+    /**
+     * Sometimes we need raw access to the data vector.
+     */
+    const std::vector< T >* rawDataVectorPointer() const
+    {
+        return &m_data;
+    }
+
 
 protected:
 

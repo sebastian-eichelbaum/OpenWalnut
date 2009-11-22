@@ -66,7 +66,7 @@ public:
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
@@ -89,6 +89,13 @@ protected:
 
 private:
     boost::shared_ptr< WModuleInputData< boost::shared_ptr< WDataSet > > > m_input;  //!< Input connector required by this module.
+
+    /**
+     * Function to create a distance map from Anatomy data set.
+     * Take from FiberNavigator.
+     */
+    boost::shared_ptr< WDataSetSingle > createOffset( boost::shared_ptr< WDataSetSingle > dataSet );
+    double xxgauss( double x, double sigma );
 };
 
 #endif  // WMDISTANCEMAP_H
