@@ -29,6 +29,9 @@
 #include "WMDistanceMap.h"
 
 #include "../../kernel/WKernel.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../marchingCubes/WMMarchingCubes.h"
 
 WMDistanceMap::WMDistanceMap():
     WModule()
@@ -76,6 +79,23 @@ void WMDistanceMap::moduleMain()
     {
         sleep( 1 );
     }
+    boost::shared_ptr< WDataHandler > dh = WKernel::getRunningKernel()->getDataHandler();
+    boost::shared_ptr< WSubject > subject = (*dh)[0];
+    boost::shared_ptr< const WDataSetSingle > dataSet;
+
+    dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
+
+    boost::shared_ptr< const WDataSetSingle > distanceMapDataSet = createOffset( dataSet );
+
+    WMMarchingCubes mc;
+    mc.generateSurface( distanceMapDataSet, .1);
+
+    WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
+
+    mc.renderSurface();
+
+    WLogger::getLogger()->addLogMessage( "Done!", "Distance Map", LL_INFO );
+
 }
 
 void WMDistanceMap::connectors()
@@ -99,7 +119,7 @@ void WMDistanceMap::properties()
 //     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
 }
 
-boost::shared_ptr< WDataSetSingle > WMDistanceMap::createOffset( boost::shared_ptr< WDataSetSingle > dataSet )
+boost::shared_ptr< WDataSetSingle > WMDistanceMap::createOffset( boost::shared_ptr< const WDataSetSingle > dataSet )
 {
     std::vector<float> floatDataset;
 
