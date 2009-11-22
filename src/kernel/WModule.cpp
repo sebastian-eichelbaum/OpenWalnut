@@ -22,12 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
-#include <set>
-#include <string>
-#include <sstream>
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
+
+#include <set>
+#include <string>
+#include <sstream>
 
 #include <boost/shared_ptr.hpp>
 
