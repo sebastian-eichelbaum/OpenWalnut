@@ -52,7 +52,6 @@ WQt4Gui::~WQt4Gui()
  * At the moment it seems reasonable that differnet GUIs might have
  * different command line options, thus we implement their parsing
  * in the GUI implemntation itself, i.e. here.
- * TODO(wiebel): check whether WOptionHandler still exists and probably remove it after discussion in the community.
  */
 boost::program_options::variables_map parseOptions( int argc, char** argv )
 {
