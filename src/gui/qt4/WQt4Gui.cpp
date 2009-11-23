@@ -89,15 +89,19 @@ int WQt4Gui::run()
         std::cout << e.what() << std::endl;
         return 1;
     }
-
-    // exit as fast as possible if command line asks for help.
-    if( m_optionsMap.count( "help" ) )
+    catch( boost::program_options::invalid_command_line_syntax e )
     {
-        return 0;
+        std::cout << e.what() << std::endl;
+        return 1;
     }
 
-    // TODO(all): In my (alex) opinion the WLogger should be started here and not before. This allows to generate a simple help message.
+    // exit as fast as possible if command line asked for help. The ,essage has been printed by parseOptions().
+    if( m_optionsMap.count( "help" ) )
+    {
+        return 1;
+    }
 
+    WLogger::getLogger()->run();
     WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_INFO );
 
     QApplication appl( argc, argv, true );

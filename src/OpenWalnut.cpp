@@ -51,17 +51,19 @@ int main( int argc, char** argv )
     // install signal handler as early as possible
     WSegmentationFault::installSignalHandler();
 
-    // init logger
+    // init logger here. It will be started by the GUI.
     WLogger logger;
-    logger.run();
 
     // initialize GUI
     // NOTE: we need a shared ptr here since WGUI uses enable_shared_from_this.
     boost::shared_ptr< WQt4Gui > gui = boost::shared_ptr< WQt4Gui > ( new WQt4Gui( argc, argv ) );
     int result = gui->run();
 
-    // finish running thread
-    WLogger::getLogger()->wait( true );
+    // finish running thread if there is a WLogger.
+    if( !result )
+    {
+        WLogger::getLogger()->wait( true );
+    }
 
     return result;
 }
