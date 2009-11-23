@@ -556,7 +556,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     for( unsigned int vertId = 0; vertId < mesh->getNumVertices(); ++vertId )
     {
         wmath::WVector3D tmpNormal = mesh->getVertexNormal( vertId );
-        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[1] ) );
+        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
     }
     surfaceGeometry->setNormalArray( normals.get() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
@@ -564,7 +564,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     for( unsigned int triId = 0; triId < mesh->getNumTriangles(); ++triId )
     {
         wmath::WVector3D tmpNormal = mesh->getTriangleNormal( triId );
-        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[1] ) );
+        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
     }
     surfaceGeometry->setNormalArray( normals.get() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
