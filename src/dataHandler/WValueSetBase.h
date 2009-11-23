@@ -39,7 +39,7 @@ public:
      * Despite this is an abstract class all subclasses should have an order
      * and dimension.
      */
-    WValueSetBase( char order, char dimension, dataType inDataType );
+    WValueSetBase( size_t order, size_t dimension, dataType inDataType );
 
     /**
      * Dummy since each class with virtual member functions needs one.
@@ -59,7 +59,7 @@ public:
     /**
      * \return Dimension of the values in this ValueSet
      */
-    virtual size_t dimension()
+    virtual size_t dimension() const
     {
         return m_dimension;
     }
@@ -67,7 +67,7 @@ public:
     /**
      * \return Order of the values in this ValueSet
      */
-    virtual size_t order()
+    virtual size_t order() const
     {
         return m_dimension;
     }
@@ -75,7 +75,7 @@ public:
     /**
      * \return Dimension of the values in this ValueSet
      */
-    virtual dataType getDataType()
+    virtual dataType getDataType() const
     {
         return m_dataType;
     }
@@ -84,12 +84,12 @@ protected:
     /**
      * The order of the tensors for this ValueSet
      */
-    char m_order;
+    size_t m_order;
 
     /**
      * The dimension of the tensors for this ValueSet
      */
-    char m_dimension;
+    size_t m_dimension;
 
     /**
      * The data type of the values' elements.

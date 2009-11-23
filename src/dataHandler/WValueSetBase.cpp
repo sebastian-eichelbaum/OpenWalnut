@@ -28,7 +28,7 @@
 #include "WValueSetBase.h"
 
 
-WValueSetBase::WValueSetBase( char order, char dimension, dataType inDataType )
+WValueSetBase::WValueSetBase( size_t order, size_t dimension, dataType inDataType )
     : m_order( order ),
       m_dimension( dimension ),
       m_dataType( inDataType )

@@ -49,7 +49,7 @@ public:
      * Constructs a value set with values of type T. Sets order and dimension
      * to allow to interprete the values as tensors of a certain order and dimension.
      */
-    WValueSet( char order, char dimension, const std::vector< T > data, dataType inDataType )
+    WValueSet( size_t order, size_t dimension, const std::vector< T > data, dataType inDataType )
         : WValueSetBase( order, dimension, inDataType ),
           m_data( data )
     {
