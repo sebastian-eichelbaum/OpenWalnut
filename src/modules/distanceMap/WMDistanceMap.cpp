@@ -125,7 +125,7 @@ boost::shared_ptr< WDataSetSingle > WMDistanceMap::createOffset( boost::shared_p
     // TODO(wiebel): we should be able to do all this without the value vector.
     boost::shared_ptr< WValueSet< float > > valueSet = boost::shared_dynamic_cast< WValueSet< float > >( ( *dataSet ).getValueSet() );
     assert( valueSet );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *dataSet ).getValueSet() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *dataSet ).getGrid() );
     assert( grid );
     const std::vector< float >* source = valueSet->rawDataVectorPointer();
 
