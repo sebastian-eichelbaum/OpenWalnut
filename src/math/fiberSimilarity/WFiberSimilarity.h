@@ -22,14 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
-
-#include "WFiber.h"
+#ifndef WFIBERSIMILARITY_H
+#define WFIBERSIMILARITY_H
 
 namespace wmath
 {
-    WFiber::WFiber( const std::vector< WPosition > &points )
-        : WLine( points )
-    {
-    }
+    class WFiber;
 }
+
+/**
+ * Abstract interface to all fiber similarity measures. The term
+ * "fiber-similarity" is closely related to the term fiber-distance. Basically
+ * fibers that are very close to each other (low distance) are considered
+ * similar.
+ */
+class WFiberSimilarity
+{
+public:
+    /**
+     * Computes the similarity between two fibers Q and R. Values near 0
+     * indicate very strong similarity and low distance.
+     */
+    virtual double dist( const wmath::WFiber &q, const wmath::WFiber &r ) const = 0;
+
+    /**
+     * Virtual destructor since there is a virtual member function.
+     */
+    virtual ~WFiberSimilarity();
+
+protected:
+private:
+};
+
+#endif  // WFIBERSIMILARITY_H

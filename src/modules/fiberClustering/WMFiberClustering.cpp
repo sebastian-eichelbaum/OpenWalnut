@@ -33,6 +33,7 @@
 
 #include "WMFiberClustering.h"
 #include "../../math/WFiber.h"
+#include "../../math/fiberSimilarity/WDLTMetric.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
@@ -122,6 +123,7 @@ void WMFiberClustering::cluster()
         m_dLtTable.reset( new WDXtLookUpTable( numFibers ) );
     }
 
+    WDLTMetric dLt( m_proximity_t * m_proximity_t );  // metric instance for computation of the dLt measure
     for( size_t i = 0; i < numFibers; ++i )  // loop over all "symmetric" fibers pairs
     {
         const wmath::WFiber &q = (*m_fibs)[i];
@@ -133,7 +135,7 @@ void WMFiberClustering::cluster()
             {
                 if( !m_dLtTableExists )
                 {
-                    (*m_dLtTable)( i, j ) = q.dLt( r, m_proximity_t );
+                    (*m_dLtTable)( i, j ) = dLt.dist( q, r );
                 }
                 double dLt = (*m_dLtTable)( i, j );
 

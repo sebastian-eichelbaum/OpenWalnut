@@ -22,14 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#ifndef WDLTMETRIC_H
+#define WDLTMETRIC_H
 
-#include "WFiber.h"
+#include "WZhangMetric.h"
+#include "../WFiber.h"
 
-namespace wmath
+/**
+ * This is the Larger thresholded distance as described by Zhang.
+ */
+class WDLTMetric : public WZhangMetric
 {
-    WFiber::WFiber( const std::vector< WPosition > &points )
-        : WLine( points )
-    {
-    }
-}
+public:
+    /**
+     * Constructs this metric with a certain threshold.
+     */
+    explicit WDLTMetric( double thresholdSquare );
+
+    /**
+     * \return The maximum of dt(Q,R) and dt(R,Q)
+     */
+    virtual double dist( const wmath::WFiber &q, const wmath::WFiber &r ) const;
+
+private:
+};
+
+#endif  // WDLTMETRIC_H

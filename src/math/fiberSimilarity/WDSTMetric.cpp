@@ -22,14 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#include <algorithm>
+#include <utility>
 
-#include "WFiber.h"
+#include "WDSTMetric.h"
 
-namespace wmath
+WDSTMetric::WDSTMetric( double thresholdSquare )
+    : WZhangMetric( thresholdSquare )
 {
-    WFiber::WFiber( const std::vector< WPosition > &points )
-        : WLine( points )
-    {
-    }
 }
+
+double WDSTMetric::dist( const wmath::WFiber &q, const wmath::WFiber &r ) const
+{
+    std::pair< double, double > result = dXt_optimized( q, r );
+    return std::min( result.first, result.second );
+}
+

@@ -30,6 +30,7 @@
 #include "WFiberCluster.h"
 #include "../../common/WLimits.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../math/fiberSimilarity/WDLTMetric.h"
 
 WFiberCluster::WFiberCluster( const boost::shared_ptr< WDataSetFibers > fibs )
 {
@@ -57,13 +58,15 @@ double WFiberCluster::minDistance( const WFiberCluster& other, const double prox
 {
     double result = wlimits::MAX_DOUBLE;
     double dist;
+    WDLTMetric dLt( proximity_t * proximity_t );
+
     std::list< size_t >::const_iterator thisIdx = m_memberIndices.begin();
     for( ; thisIdx != m_memberIndices.end(); ++thisIdx )
     {
         std::list< size_t >::const_iterator otherIdx = other.m_memberIndices.begin();
         for( ; otherIdx != other.m_memberIndices.end(); ++otherIdx )
         {
-            dist = (*m_fibs)[ *thisIdx ].dLt( (*m_fibs)[ *otherIdx ], proximity_t );
+            dist = dLt.dist( (*m_fibs)[ *thisIdx ], (*m_fibs)[ *otherIdx ] );
             if( dist < result )
             {
                 result = dist;

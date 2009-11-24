@@ -22,66 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBER_TEST_H
-#define WFIBER_TEST_H
+#ifndef WDSTMETRIC_TEST_H
+#define WDSTMETRIC_TEST_H
 
-#include <string>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
-#include <cxxtest/ValueTraits.h>
 
-#include "../WFiber.h"
-#include "../WPosition.h"
-
-// New value trait for wmath::WFiber
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
-class ValueTraits< wmath::WFiber >
-{
-private:
-    std::string _s;
-
-public:
-    explicit ValueTraits( const wmath::WFiber &fib )
-    {
-        std::stringstream ss;
-        ss << "WFiber(" << fib << ")";
-        _s = ss.str();
-    }
-    const char *asString() const
-    {
-        return _s.c_str();
-    }
-};
-}
-#endif  // CXXTEST_RUNNING
+#include "../WDSTMetric.h"
 
 /**
- * Unit tests our WFiber class
+ * Unit tests the dSt metric from Zhang.
  */
-class WFiberTest : public CxxTest::TestSuite
+class WDSTMetricTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Two fibers are equal if they have equal WPositions in same order
+     * dSt(Q,R) chooses just the minimum outcome of either dt(Q,r) or dt(R,Q)
+     * and hence it is a symmetric metric.
      */
-    void testEqualityOperator( void )
+    void testDSTisSymmetric( void )
     {
+        WDSTMetric m( 1.0 );
+
+        // generates two fibers just in 2D
         using wmath::WPosition;
         std::vector< WPosition > lineData1;
-        lineData1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData1.push_back( WPosition( 7.8, 9.0, -1.2 ) );
+        lineData1.push_back( WPosition( 0, 1, 0 ) );
+        lineData1.push_back( WPosition( 0, 0, 0 ) );
         std::vector< WPosition > lineData2;
-        lineData2.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData2.push_back( WPosition( 7.8, 9.0, -1.2 ) );
-        using wmath::WFiber;
-        WFiber fib1( lineData1 );
-        WFiber fib2( lineData2 );
-        TS_ASSERT_EQUALS( fib1, fib2 );
+        lineData2.push_back( WPosition( 1, 1, 0 ) );
+        lineData2.push_back( WPosition( 2, 2, 0 ) );
+        wmath::WFiber q( lineData1 );
+        wmath::WFiber r( lineData2 );
+
+        TS_ASSERT_EQUALS( m.dist( q, r ), std::sqrt( 2.0 ) / 2.0 );
+        TS_ASSERT_EQUALS( m.dist( r, q ), std::sqrt( 2.0 ) / 2.0 );
     }
 };
 
-#endif  // WFIBER_TEST_H
+#endif  // WDSTMETRIC_TEST_H

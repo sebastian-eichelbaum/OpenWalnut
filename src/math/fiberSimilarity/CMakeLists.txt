@@ -1,0 +1,9 @@
+FILE( GLOB FIBERSIMILARITY_SRC "*.[c,h]pp" )
+
+# Unit tests
+IF( CXXTEST_FOUND )
+  CXXTEST_ADD_TESTS_FROM_LIST( "${FIBERSIMILARITY_SRC}" 
+                               "math;common" 
+                               "WFiberSimilarity.cpp" # This is just an interface
+                              )
+ENDIF( CXXTEST_FOUND )

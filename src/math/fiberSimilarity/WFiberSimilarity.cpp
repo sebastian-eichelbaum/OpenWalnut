@@ -22,14 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#include "WFiberSimilarity.h"
 
-#include "WFiber.h"
-
-namespace wmath
+WFiberSimilarity::~WFiberSimilarity()
 {
-    WFiber::WFiber( const std::vector< WPosition > &points )
-        : WLine( points )
-    {
-    }
 }

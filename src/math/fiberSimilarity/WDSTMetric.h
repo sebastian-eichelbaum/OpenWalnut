@@ -22,14 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#ifndef WDSTMETRIC_H
+#define WDSTMETRIC_H
 
-#include "WFiber.h"
+#include "WZhangMetric.h"
+#include "../WFiber.h"
 
-namespace wmath
+/**
+ * This is the Smaller thresholded distance as described by Zhang.
+ */
+class WDSTMetric : WZhangMetric
 {
-    WFiber::WFiber( const std::vector< WPosition > &points )
-        : WLine( points )
-    {
-    }
-}
+public:
+    /**
+     * Constructs this metric with a certain threshold.
+     */
+    explicit WDSTMetric( double thresholdSquare );
+
+    /**
+     * \return The minimum of dt(Q, R, t) and dt(R, Q, t)
+     */
+    virtual double dist( const wmath::WFiber &q, const wmath::WFiber &ri ) const;
+
+private:
+};
+
+#endif  // WDSTMETRIC_H

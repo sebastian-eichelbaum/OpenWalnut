@@ -32,6 +32,7 @@
 
 #include "WMFiberCulling.h"
 #include "../../math/WFiber.h"
+#include "../../math/fiberSimilarity/WDSTMetric.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
@@ -109,8 +110,8 @@ void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
     fibers->sortDescLength();  // sort the fiber on their length (biggest first)
     std::cout << "Sorted fibers done." << std::endl;
 
-    const double proximity_t_Square = m_proximity_t * m_proximity_t;
     std::vector< bool > unusedFibers( numFibers, false );
+    WDSTMetric dSt( m_proximity_t * m_proximity_t );
     WStatusReport st( numFibers );
     for( size_t i = 0; i < numFibers; ++i )  // loop over all streamlines
     {
@@ -126,8 +127,7 @@ void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
                 continue;
             }
             const wmath::WFiber& r = (*fibers)[j];
-            double dst = q.dSt( r, proximity_t_Square );
-
+            double dst = dSt.dist( q, r );
             if( dst < m_dSt_culling_t )  // cullout small fibs nearby long fibs
             {
                 if( q.size() < r.size() )
