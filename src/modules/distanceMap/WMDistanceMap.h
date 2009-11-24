@@ -94,7 +94,7 @@ private:
      * Function to create a distance map from Anatomy data set.
      * Take from FiberNavigator.
      */
-    boost::shared_ptr< WDataSetSingle > createOffset( boost::shared_ptr< const WDataSetSingle > dataSet );
+    boost::shared_ptr< WValueSet< float > > createOffset( boost::shared_ptr< const WDataSetSingle > dataSet );
     double xxgauss( double x, double sigma );
 };
 

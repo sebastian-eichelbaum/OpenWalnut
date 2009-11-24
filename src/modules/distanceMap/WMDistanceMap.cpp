@@ -85,10 +85,10 @@ void WMDistanceMap::moduleMain()
 
     dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
 
-    boost::shared_ptr< const WDataSetSingle > distanceMapDataSet = createOffset( dataSet );
+    boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( dataSet );
 
     WMMarchingCubes mc;
-    mc.generateSurface( distanceMapDataSet, .1 );
+    mc.generateSurface( dataSet->getGrid(), distanceMapValueSet, .6 );
 
     WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
 
@@ -118,15 +118,59 @@ void WMDistanceMap::properties()
 //     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
 }
 
-boost::shared_ptr< WDataSetSingle > WMDistanceMap::createOffset( boost::shared_ptr< const WDataSetSingle > dataSet )
+template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSetHelper( boost::shared_ptr< WValueSet< T > > inSet )
+{
+    assert( inSet->dimension() == 1 );
+    assert( inSet->order() == 0 );
+
+    std::vector< float > data( inSet->size() );
+    for( unsigned int i = 0; i < inSet->size(); ++i )
+    {
+        data[i] = static_cast< float >( inSet->getScalar( i ) );
+    }
+
+    boost::shared_ptr< WValueSet< float > > outSet;
+    outSet = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( ( *inSet ).order(), ( *inSet ).dimension(), data, W_DT_FLOAT ) );
+
+    return outSet;
+}
+
+boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WValueSetBase > inSet )
+{
+    assert( inSet->dimension() == 1 );
+    assert( inSet->order() == 0 );
+
+    switch( inSet->getDataType() )
+    {
+        case W_DT_UNSIGNED_CHAR:
+            return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< unsigned char > >( inSet ) );
+            break;
+        case W_DT_INT16:
+            return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< int16_t > >( inSet ) );
+            break;
+        case W_DT_FLOAT:
+            return boost::shared_dynamic_cast< WValueSet< float > >( inSet );
+            break;
+        default:
+            assert( false && "Unknow data type in makeFloatDataSet" );
+    }
+}
+
+
+
+boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shared_ptr< const WDataSetSingle > dataSet )
 {
     std::vector<float> floatDataset;
 
-    // TODO(wiebel): we should be able to do all this without the value vector.
-    boost::shared_ptr< WValueSet< float > > valueSet = boost::shared_dynamic_cast< WValueSet< float > >( ( *dataSet ).getValueSet() );
+    // wiebel: I know that this is not the most speed and memory efficient way to deal with different data types.
+    //         Wowever, it seems the most feasible at the moment (2009-11-24).
+    boost::shared_ptr< WValueSet< float > > valueSet = makeFloatValueSet( ( *dataSet ).getValueSet() );
     assert( valueSet );
+
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *dataSet ).getGrid() );
     assert( grid );
+
+    // TODO(wiebel): we should be able to do all this without the value vector.
     const std::vector< float >* source = valueSet->rawDataVectorPointer();
 
 
@@ -138,9 +182,6 @@ boost::shared_ptr< WDataSetSingle > WMDistanceMap::createOffset( boost::shared_p
     bool *srcpix;
     double g, *array;
 
-//     nbands = m_frame;
-//     nrows = m_rows;
-//     ncols = m_columns;
     nbands = grid->getNbCoordsZ();
     nrows = grid->getNbCoordsY();
     ncols = grid->getNbCoordsX();
@@ -401,12 +442,11 @@ boost::shared_ptr< WDataSetSingle > WMDistanceMap::createOffset( boost::shared_p
     delete[] kernel;
 
     floatDataset = tmp;
-    boost::shared_ptr< WValueSet< float > > vset;
-    vset = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( valueSet->order(), valueSet->dimension(), floatDataset, W_DT_FLOAT ) );
+    boost::shared_ptr< WValueSet< float > > resultValueSet;
+    resultValueSet = boost::shared_ptr< WValueSet< float > >(
+        new WValueSet< float >( valueSet->order(), valueSet->dimension(), floatDataset, W_DT_FLOAT ) );
 
-    boost::shared_ptr< WDataSetSingle > newDataSet;
-    newDataSet = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( vset, grid ) );
-    return newDataSet;
+    return resultValueSet;
 }
 
 double WMDistanceMap::xxgauss( double x, double sigma )
