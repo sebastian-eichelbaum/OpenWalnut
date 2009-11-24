@@ -69,7 +69,7 @@ public:
      */
     virtual size_t order() const
     {
-        return m_dimension;
+        return m_order;
     }
 
     /**
@@ -84,17 +84,17 @@ protected:
     /**
      * The order of the tensors for this ValueSet
      */
-    size_t m_order;
+    const size_t m_order;
 
     /**
      * The dimension of the tensors for this ValueSet
      */
-    size_t m_dimension;
+    const size_t m_dimension;
 
     /**
      * The data type of the values' elements.
      */
-    dataType m_dataType;
+    const dataType m_dataType;
 
 private:
 };
