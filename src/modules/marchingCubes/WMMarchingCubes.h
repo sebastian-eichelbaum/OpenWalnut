@@ -121,7 +121,7 @@ public:
     /**
      * Generate the triangles for the surface
      */
-    void generateSurface( const boost::shared_ptr< const WDataSetSingle > dataSet, double isoValue );
+    template< typename T > void generateSurface( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals, double isoValue );
 
     // TODO(wiebel): MC document this;
     void renderSurface();
@@ -148,14 +148,12 @@ private:
     static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
     static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.
 
-    boost::shared_ptr< const WDataSetSingle > m_dataSet;  //!< Convenience pointer to the data set we are dealing with
-    boost::shared_ptr< WValueSet< unsigned char > > m_vals;  //!< Convenience pointer to the values set we are dealing with
-
     /**
      * Calculates the intersection point of the isosurface with an
      * edge.
      */
-    WPointXYZId calculateIntersection( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo );
+    template< typename T > WPointXYZId calculateIntersection( boost::shared_ptr< WValueSet< T > > vals,
+                                                              unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo );
 
     /**
      * Interpolates between two grid points to produce the point at which

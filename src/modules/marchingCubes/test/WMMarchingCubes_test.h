@@ -161,9 +161,9 @@ public:
     }
 
     /**
-     * Test calculateIntersection
+     * Test calculateIntersection with unsigned char
      */
-    void testCalculateIntersection()
+    void testCalculateIntersectionUnsignedChar()
     {
         WMMarchingCubes mc;
         mc.m_tIsoLevel = 1.7;
@@ -181,7 +181,8 @@ public:
         data.push_back( 6 );
         data.push_back( 7 );
 
-        mc.m_vals = boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, data, W_DT_UNSIGNED_CHAR ) );
+        boost::shared_ptr< WValueSet< unsigned char > > vals;
+        vals = boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, data, W_DT_UNSIGNED_CHAR ) );
 
         WPointXYZId expected;
         expected.newID = 0;
@@ -189,7 +190,47 @@ public:
         expected.y = 1;
         expected.z = 0;
 
-        WPointXYZId result = mc.calculateIntersection( 0, 0, 0, 1 );
+        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 1 );
+
+        double delta = 1e-9;
+        TS_ASSERT_DELTA( expected.x, result.x, delta );
+        TS_ASSERT_DELTA( expected.y, result.y, delta );
+        TS_ASSERT_DELTA( expected.z, result.z, delta );
+        TS_ASSERT_EQUALS( expected.newID, result.newID );
+    }
+
+
+    /**
+     * Test calculateIntersection with float
+     */
+    void testCalculateIntersectionFloat()
+    {
+        WMMarchingCubes mc;
+        mc.m_tIsoLevel = 1.7;
+        mc.m_fCellLengthX = 1;
+        mc.m_fCellLengthY = 1;
+        mc.m_fCellLengthZ = 1;
+
+        std::vector< float > data;
+        data.push_back( 0 );
+        data.push_back( 1 );
+        data.push_back( 2 );
+        data.push_back( 3 );
+        data.push_back( 4 );
+        data.push_back( 5 );
+        data.push_back( 6 );
+        data.push_back( 7 );
+
+        boost::shared_ptr< WValueSet< float > > vals;
+        vals = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( 0, 1, data, W_DT_FLOAT ) );
+
+        WPointXYZId expected;
+        expected.newID = 0;
+        expected.x = 0.7;
+        expected.y = 1;
+        expected.z = 0;
+
+        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 1 );
 
         double delta = 1e-9;
         TS_ASSERT_DELTA( expected.x, result.x, delta );
