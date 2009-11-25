@@ -111,6 +111,10 @@ std::string WShader::readTextFile( std::string fileName )
 
 bool WShader::isIncludeLine( std::string line )
 {
+    if( line[0] == '/' && line[1] == '/' )
+    {
+        return false; // we encountered a comment
+    }
     if ( boost::find_first( line, "#include" ) )
     {
         return true;
