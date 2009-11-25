@@ -32,6 +32,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "WShader.h"
+#include "../common/WLogger.h"
 
 WShader::WShader()
 {
@@ -137,6 +138,7 @@ std::string WShader::getIncludeFileName( std::string line )
     }
     if ( count < 2 )
     {
+        WLogger::getLogger()->addLogMessage( "Missing quotes around file name in include statement of shader.", "Marching Cubes", LL_ERROR );
         // TODO(schurade): here we could throw an exception
         return 0;
     }
