@@ -37,8 +37,8 @@ WQtSliderWithEdit::WQtSliderWithEdit( QString name, QWidget* parent )
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
 
-    m_edit.resize( 10, m_edit.size().height() );
-    m_edit.setMaximumWidth( 25 );
+    m_edit.resize( m_edit.minimumSizeHint().width() , m_edit.size().height() );
+    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
 
     setLayout( &m_layout );
 

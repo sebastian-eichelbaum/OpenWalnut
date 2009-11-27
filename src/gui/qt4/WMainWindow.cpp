@@ -77,8 +77,9 @@ void WMainWindow::setupGUI()
     m_mainGLWidget->initialize();
     setCentralWidget( m_mainGLWidget.get() );
 
+    //TODO(all): this is commented out
     // initially 3 views
-    //m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", 160, "axialPos" ) );
+    // m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", 160, "axialPos" ) );
     //m_navAxial->getGLWidget()->initialize();
     //addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
 
@@ -115,10 +116,6 @@ void WMainWindow::setupToolBar()
     m_toolBar->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "Load" ) );
     m_toolBar->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "Save" ) );
     m_toolBar->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "Exit" ) );
-
-    m_toolBar->getButton( QString( "buttonLoad" ) )->setMaximumSize( 50, 24 );
-    m_toolBar->getButton( QString( "buttonSave" ) )->setMaximumSize( 50, 24 );
-    m_toolBar->getButton( QString( "buttonQuit" ) )->setMaximumSize( 50, 24 );
 
     // the parent (this) will take care for deleting the shortcut
     QShortcut* shortcut = new QShortcut( QKeySequence( tr( "Ctrl+Q", "File|Exit" ) ), this );
@@ -229,6 +226,8 @@ void WMainWindow::closeEvent( QCloseEvent* e )
         // now nobody acesses the osg anymore
         // clean up gl widgets
         m_mainGLWidget->close();
+
+        //TODO(all): this is commented out
         //m_navAxial->close();
         //m_navCoronal->close();
         //m_navSagittal->close();
