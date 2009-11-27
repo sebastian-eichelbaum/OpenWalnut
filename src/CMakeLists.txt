@@ -124,9 +124,18 @@ ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
     TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} )
 ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
 
+# By now this execute at any "cmake ." call. This will be optional in the future.
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navSlices/slice.vs ${CMAKE_BINARY_DIR}/bin/shaders/)
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/modules/navSlices/slice.fs ${CMAKE_BINARY_DIR}/bin/shaders/)
+FILE( GLOB_RECURSE ALL_GE_SHADERS ${CMAKE_SOURCE_DIR}/graphicsEngine/shaders/* )
+FOREACH( fname ${ALL_GE_SHADERS} )
+  message( ${fname} )
+  configure_file(  ${fname} ${CMAKE_BINARY_DIR}/bin/shaders/ COPYONLY)
+ENDFOREACH( fname )
+FILE( GLOB_RECURSE ALL_MODULE_SHADERS ${CMAKE_SOURCE_DIR}/modules/*/shaders/* )
+FOREACH( fname ${ALL_MODULE_SHADERS} )
+  message( ${fname} )
+  configure_file(  ${fname} ${CMAKE_BINARY_DIR}/bin/shaders/ COPYONLY)
+ENDFOREACH( fname )
 
 
 # Special targets:

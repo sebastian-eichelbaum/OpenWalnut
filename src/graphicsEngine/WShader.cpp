@@ -67,7 +67,10 @@ osg::Shader* WShader::readShaderFromFile( std::string fileName, osg::Shader::Typ
 {
     std::string fileText = readTextFile( fileName );
 
-    // std::cout << fileText << std::endl;
+//      std::cout << "\n=====OW==SHADER============\n"
+//                << fileText
+//                << "\n=====OW==SHADER=END========\n"
+//                << std::endl;
 
     osg::Shader* shader = new osg::Shader( type, fileText );
 
