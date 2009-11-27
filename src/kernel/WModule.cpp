@@ -271,7 +271,7 @@ void WModule::threadMain()
     }
     catch( const WException& e )
     {
-        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "WException. Notifying.", "Module (" + getName() + ")", LL_ERROR );
 
         // ensure proper exception propagation
         signal_error( shared_from_this(), e );
