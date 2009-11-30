@@ -52,11 +52,29 @@ void WGEZoomTrackballManipulator::home( double currentTime )
     TrackballManipulator::home( currentTime );
 }
 
-bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
+bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
 {
-    if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL )
+    double zoomDelta = 0.0;
+
+    if( ea.getKey() && ea.getEventType() == osgGA::GUIEventAdapter::KEYDOWN )
     {
-        double zoomDelta;
+        if( ea.getKey() == 45 ) // -
+        {
+            zoomDelta = -0.05;
+        }
+        if( ea.getKey() == 43 ) // +
+        {
+            zoomDelta = 0.05;
+        }
+
+        if (zoomDelta != 0.0)
+        {
+            m_zoom *= 1.0 + zoomDelta;
+            us.requestRedraw();
+        }
+    }
+    else
+    {
         switch( ea.getScrollingMotion() )
         {
             case osgGA::GUIEventAdapter::SCROLL_UP:
@@ -68,24 +86,32 @@ bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgG
             case osgGA::GUIEventAdapter::SCROLL_2D:
                 zoomDelta = -0.05 / 120.0 * ea.getScrollingDeltaY();
                 break;
-            // case osgGA::GUIEventAdapter::SCROLL_LEFT:
-            // case osgGA::GUIEventAdapter::SCROLL_RIGHT:
-            // case osgGA::GUIEventAdapter::SCROLL_NONE:
+                // case osgGA::GUIEventAdapter::SCROLL_LEFT:
+                // case osgGA::GUIEventAdapter::SCROLL_RIGHT:
+                // case osgGA::GUIEventAdapter::SCROLL_NONE:
             default:
                 // do nothing
                 zoomDelta = 0.0;
                 break;
         }
+    }
 
-        if (zoomDelta != 0.0)
-        {
-            m_zoom *= 1.0 + zoomDelta;
-            us.requestRedraw();
-        }
+    if (zoomDelta != 0.0)
+    {
+        m_zoom *= 1.0 + zoomDelta;
+        us.requestRedraw();
+    }
 
-        us.requestContinuousUpdate( false );
-        _thrown = false;
-        return true;
+    us.requestContinuousUpdate( false );
+    _thrown = false;
+    return true;
+}
+
+bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
+{
+    if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
+    {
+        return zoom( ea, us );
     }
     else
     {
