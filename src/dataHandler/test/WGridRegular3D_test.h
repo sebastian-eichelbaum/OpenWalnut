@@ -79,10 +79,10 @@ public:
     void testInstantiation( void )
     {
         TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, 1., 1., 1. ) );
-        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 0., 0., 0., 3, 3, 3, 1., 1., 1. ) );
-        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 0., 0., 0., 3, 3, 3,
-                WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ) ) );
-        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, WMatrix< double >( 4, 4 ) ) );
+        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, 0., 0., 0., 1., 1., 1. ) );
+        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, 0., 0., 0.,
+                WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ), 1., 1., 1. ) );
+        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, WMatrix< double >( 4, 4 ), 1., 1., 1. ) );
     }
 
     /**
@@ -93,14 +93,14 @@ public:
         WGridRegular3D grid( 3, 3, 3, 1., 1., 1. );
         TS_ASSERT_EQUALS( grid.size(), 27 );
 
-        WGridRegular3D grid2( 0., 0., 0., 3, 3, 3, 1., 1., 1. );
+        WGridRegular3D grid2( 3, 3, 3, 0., 0., 0., 1., 1., 1. );
         TS_ASSERT_EQUALS( grid2.size(), 27 );
 
-        WGridRegular3D grid3( 0., 0., 0., 3, 3, 3,
-                WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ) );
+        WGridRegular3D grid3( 3, 3, 3, 0., 0., 0.,
+                WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ), 1., 1., 1. );
         TS_ASSERT_EQUALS( grid3.size(), 27 );
 
-        WGridRegular3D grid4( 3, 3, 3, WMatrix< double >( 4, 4 ) );
+        WGridRegular3D grid4( 3, 3, 3, WMatrix< double >( 4, 4 ), 1., 1., 1. );
         TS_ASSERT_EQUALS( grid4.size(), 27 );
     }
 
@@ -132,7 +132,7 @@ public:
         TS_ASSERT_EQUALS( grid.m_matrix( 3, 2 ), 0.  );
         TS_ASSERT_EQUALS( grid.m_matrix( 3, 3 ), 1.  );
 
-        WGridRegular3D grid2( 1.1, 2.2, 3.3, 3, 3, 3, 1.11, 2.22, 3.33 );
+        WGridRegular3D grid2( 3, 3, 3, 1.1, 2.2, 3.3, 1.11, 2.22, 3.33 );
         TS_ASSERT_EQUALS( grid2.size(), 27 );
         TS_ASSERT_EQUALS( grid2.m_origin, WPosition( 1.1, 2.2, 3.3 ) );
         TS_ASSERT_EQUALS( grid2.m_directionX, WVector3D( 1.11, 0., 0. ) );
@@ -155,8 +155,8 @@ public:
         TS_ASSERT_EQUALS( grid2.m_matrix( 3, 2 ), 0.   );
         TS_ASSERT_EQUALS( grid2.m_matrix( 3, 3 ), 1.   );
 
-        WGridRegular3D grid3( 2.22, 3.33, 4.44, 3, 3, 3,
-                WVector3D( 3.1, 1.1, 2.1 ), WVector3D( 1.2, 3.2, 2.2 ), WVector3D( 1.3, 2.3, 3.3 ) );
+        WGridRegular3D grid3( 3, 3, 3, 2.22, 3.33, 4.44,
+                WVector3D( 3.1, 1.1, 2.1 ), WVector3D( 1.2, 3.2, 2.2 ), WVector3D( 1.3, 2.3, 3.3 ), 1., 1., 1. );
         TS_ASSERT_EQUALS( grid3.size(), 27 );
         TS_ASSERT_EQUALS( grid3.m_origin, WPosition( 2.22, 3.33, 4.44 ) );
         TS_ASSERT_EQUALS( grid3.m_directionX, WVector3D( 3.1, 1.1, 2.1 ) );
@@ -194,7 +194,7 @@ public:
         mat( 3, 3 ) = 1;
 
         double delta = 1e-8;
-        WGridRegular3D grid4( 3, 3, 3, mat );
+        WGridRegular3D grid4( 3, 3, 3, mat, 1., 1., 1. );
         TS_ASSERT_EQUALS( grid4.size(), 27 );
         TS_ASSERT_DELTA( grid4.m_origin[0], 1.4, delta );
         TS_ASSERT_DELTA( grid4.m_origin[1], 2.4, delta );
@@ -234,7 +234,7 @@ public:
         double x = 1.2;
         double y = 3.4;
         double z = 5.6;
-        WGridRegular3D grid( 10, 10, 10, x, y, z );
+        WGridRegular3D grid( 10, 10, 10, 1., 1., 1., x, y, z  );
         TS_ASSERT_EQUALS( grid.getOffsetX(), x );
         TS_ASSERT_EQUALS( grid.getOffsetY(), y );
         TS_ASSERT_EQUALS( grid.getOffsetZ(), z );
@@ -249,7 +249,7 @@ public:
         WVector3D x( 3., 1., 2. );
         WVector3D y( 2., 6., 4. );
         WVector3D z( 3., 6., 9. );
-        WGridRegular3D grid( 0., 0., 0., 10, 10, 10, x, y, z );
+        WGridRegular3D grid( 10, 10, 10, 0., 0., 0., x, y, z, 1., 1., 1. );
         TS_ASSERT_DELTA( grid.getOffsetX(), x.norm(), m_delta );
         TS_ASSERT_DELTA( grid.getOffsetY(), y.norm(), m_delta );
         TS_ASSERT_DELTA( grid.getOffsetZ(), z.norm(), m_delta );
@@ -264,7 +264,7 @@ public:
         WVector3D x( 3., 1., 2. );
         WVector3D y( 2., 6., 4. );
         WVector3D z( 3., 6., 9. );
-        WGridRegular3D grid( 0., 0., 0., 10, 10, 10, x, y, z );
+        WGridRegular3D grid( 10, 10, 10, 0., 0., 0., x, y, z, 1., 1., 1. );
         TS_ASSERT_EQUALS( grid.getDirectionX(), x );
         TS_ASSERT_EQUALS( grid.getDirectionY(), y );
         TS_ASSERT_EQUALS( grid.getDirectionZ(), z );
@@ -281,7 +281,7 @@ public:
         TS_ASSERT_EQUALS( grid.getOrigin(), zeroOrigin );
 
         WVector3D origin( 1.2, 3.4, 5.6 );
-        WGridRegular3D grid2( origin[0], origin[1], origin[2], 10, 10, 10, 1., 1., 1. );
+        WGridRegular3D grid2( 10, 10, 10, origin[0], origin[1], origin[2], 1., 1., 1. );
         TS_ASSERT_EQUALS( grid2.getOrigin(), origin );
     }
 
@@ -307,7 +307,7 @@ public:
         double z = orZ + iZ * ofZ;
 
         WPosition expected( x, y, z );
-        WGridRegular3D grid( orX, orY, orZ, nX, nY, nZ, ofX, ofY, ofZ );
+        WGridRegular3D grid( nX, nY, nZ, orX, orY, orZ, ofX, ofY, ofZ );
 
         TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[0], expected[0], m_delta );
         TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[1], expected[1], m_delta );
@@ -335,7 +335,7 @@ public:
         WVector3D ofZ( 1., 2., 3. );
 
         WPosition expected = WPosition( orX, orY, orZ ) + iX * ofX + iY * ofY + iZ * ofZ;
-        WGridRegular3D grid( orX, orY, orZ, nX, nY, nZ, ofX, ofY, ofZ );
+        WGridRegular3D grid( nX, nY, nZ, orX, orY, orZ, ofX, ofY, ofZ, 1., 1., 1. );
 
         TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[0], expected[0], m_delta );
         TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[1], expected[1], m_delta );

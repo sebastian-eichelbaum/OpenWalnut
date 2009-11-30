@@ -48,7 +48,7 @@ void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
     osg::ref_ptr<osgText::Text> label = osg::ref_ptr<osgText::Text>( new osgText::Text() );
     osg::ref_ptr<osg::Geode> labelGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
     labelGeode->addDrawable( label );
-    label->setCharacterSize( 5 );
+    label->setCharacterSize( 8 );
     //testLabel->setFont( "/fonts/arial.ttf" );
     label->setText( text );
     label->setAxisAlignment( osgText::Text::SCREEN );

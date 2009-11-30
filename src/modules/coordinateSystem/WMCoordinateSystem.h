@@ -139,30 +139,20 @@ private:
      * lock to prevent concurrent threads trying to update the osg node
      */
     boost::shared_mutex m_updateLock;
-};
 
-
-class coordinateNodeCallback : public osg::NodeCallback
-{
+    class coordinateNodeCallback : public osg::NodeCallback
+    {
 public:
-    explicit coordinateNodeCallback( boost::shared_ptr< WMCoordinateSystem > module )
-    {
-        m_module = module;
-    }
-
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-    {
-        if ( m_module )
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            m_module->updateGeometry();
+            osg::ref_ptr< WMCoordinateSystem > module = static_cast< WMCoordinateSystem* > ( node->getUserData() );
+            if ( module )
+            {
+                module->updateGeometry();
+            }
+            traverse( node, nv );
         }
-        traverse( node, nv );
-    }
-private:
-    boost::shared_ptr< WMCoordinateSystem > m_module;
+    };
 };
-
-
-
 
 #endif  // WMCOORDINATESYSTEM_H

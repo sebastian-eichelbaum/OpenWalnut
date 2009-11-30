@@ -29,6 +29,8 @@
 #include "../math/WVector3D.h"
 #include "../math/WMatrix.hpp"
 
+#include <osg/Vec3>
+
 #include "WGrid.h"
 
 /**
@@ -50,11 +52,12 @@ public:
      * samples in the different coordinate directions as vector.
      */
     WGridRegular3D(
-                   double originX, double originY, double originZ,
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                   double originX, double originY, double originZ,
                    const wmath::WVector3D& directionX,
                    const wmath::WVector3D& directionY,
-                   const wmath::WVector3D& directionZ );
+                   const wmath::WVector3D& directionZ,
+                   double offsetX, double offsetY, double offsetZ );
 
     /**
      * Defines the number of samples in each coordinate direction as ints,
@@ -65,7 +68,8 @@ public:
      */
     WGridRegular3D(
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                   const wmath::WMatrix< double >& mat );
+                   const wmath::WMatrix< double >& mat,
+                   double offsetX, double offsetY, double offsetZ );
 
     /**
      * Defines the position of the origin of the grid, the number of
@@ -73,8 +77,8 @@ public:
      * samples in the different coordinate directions as scalar.
      */
     WGridRegular3D(
-                   double originX, double originY, double originZ,
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                   double originX, double originY, double originZ,
                    double offsetX, double offsetY, double offsetZ );
 
     /**
@@ -177,6 +181,21 @@ public:
      */
     wmath::WMatrix<double> getTransformationMatrix() const;
 
+    /**
+     *
+     */
+    wmath::WVector3D multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec );
+
+    /**
+     *
+     */
+    wmath::WMatrix<double>  invertMatrix3x3( wmath::WMatrix<double> mat );
+
+    /**
+     *
+     */
+    osg::Vec3 transformTexCoord( osg::Vec3 point );
+
 protected:
 private:
     wmath::WPosition m_origin;
@@ -189,12 +208,18 @@ private:
     wmath::WVector3D m_directionY;
     wmath::WVector3D m_directionZ;
 
+    double m_offsetX;
+    double m_offsetY;
+    double m_offsetZ;
+
     /**
      * Matrix storing the transformation of the grid. This is redundant.
      * Please use m_origin and m_direction? for all normal computations.
      * Use matrix only where you really need a matrix for multiplication.
      */
     wmath::WMatrix<double> m_matrix;
+
+    wmath::WMatrix<double> m_matrixInverse;
 };
 
 #endif  // WGRIDREGULAR3D_H

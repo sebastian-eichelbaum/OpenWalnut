@@ -171,29 +171,25 @@ private:
     std::vector< osg::ref_ptr<osg::Uniform> > m_alphaUniforms;
     std::vector< osg::ref_ptr<osg::Uniform> > m_thresholdUniforms;
     std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
-};
 
-
-class sliceNodeCallback : public osg::NodeCallback
-{
+    class sliceNodeCallback : public osg::NodeCallback
+    {
 public:
-    explicit sliceNodeCallback( boost::shared_ptr< WMNavSlices > module )
-    {
-        m_module = module;
-    }
-
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-    {
-        if ( m_module )
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            m_module->updateGeometry();
-            m_module->updateTextures();
+            osg::ref_ptr< WMNavSlices > module = static_cast< WMNavSlices* > ( node->getUserData() );
+
+            if ( module )
+            {
+                module->updateGeometry();
+                module->updateTextures();
+            }
+            traverse( node, nv );
         }
-        traverse( node, nv );
-    }
-private:
-    boost::shared_ptr< WMNavSlices > m_module;
+    };
 };
+
+
 
 #endif  // WMNAVSLICES_H
 

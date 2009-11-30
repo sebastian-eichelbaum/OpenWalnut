@@ -156,7 +156,9 @@ void WMNavSlices::create()
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
     initUniforms( rootState );
     rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
-    m_rootNode->setUpdateCallback( new sliceNodeCallback( boost::shared_dynamic_cast<WMNavSlices>( shared_from_this() ) ) );
+
+    m_rootNode->setUserData( this );
+    m_rootNode->setUpdateCallback( new sliceNodeCallback );
 }
 
 osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
@@ -176,46 +178,150 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
-    osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-    switch ( slice )
+    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+    if ( datasetList.size() > 0 )
     {
-        case 0:
-            sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
-            sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
-            sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
-            sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
-            sliceGeometry->setVertexArray( sliceVertices );
-            texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
-            texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
-            texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
-            texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
-            sliceGeometry->setTexCoordArray( 0, texCoords );
-            break;
-        case 1:
-            sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
-            sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
-            sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
-            sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
-            sliceGeometry->setVertexArray( sliceVertices );
-            texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
-            texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
-            texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
-            texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
-            sliceGeometry->setTexCoordArray( 0, texCoords );
-            break;
-        case 2:
-            sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
-            sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
-            sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
-            sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
-            sliceGeometry->setVertexArray( sliceVertices );
-            texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
-            texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
-            texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
-            texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
-            sliceGeometry->setTexCoordArray( 0, texCoords );
-            break;
+        switch ( slice )
+        {
+            case 0:
+            {
+                sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
+                sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
+                sliceGeometry->setVertexArray( sliceVertices );
+
+                int c = 0;
+                for ( size_t i = 0; i < datasetList.size(); ++i )
+                {
+                    boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+                    if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
+                         ( dmodule != boost::shared_ptr< WMData> () ) &&
+                         dmodule->getTexture3D() )
+                    {
+                        boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+                        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
+                                boost::shared_dynamic_cast< WDataSetSingle >( dmodule->getDataSet() )->getGrid() );
+                        osg::Vec3Array* texCoords = new osg::Vec3Array;
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 0.0 ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 1.0 ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 1.0 ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 0.0 ) ) );
+                        sliceGeometry->setTexCoordArray( c, texCoords );
+                        ++c;
+                    }
+                }
+
+
+
+
+                break;
+            }
+            case 1:
+            {
+                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
+                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
+                sliceGeometry->setVertexArray( sliceVertices );
+
+                int c = 0;
+                for ( size_t i = 0; i < datasetList.size(); ++i )
+                {
+                    boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+                    if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
+                         ( dmodule != boost::shared_ptr< WMData> () ) &&
+                         dmodule->getTexture3D() )
+                    {
+                        boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+                        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
+                                boost::shared_dynamic_cast< WDataSetSingle >( dmodule->getDataSet() )->getGrid() );
+                        osg::Vec3Array* texCoords = new osg::Vec3Array;
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 0.0 ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 1.0 ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 1.0 ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 0.0 ) ) );
+                        sliceGeometry->setTexCoordArray( c, texCoords );
+                        ++c;
+                    }
+                }
+                break;
+            }
+            case 2:
+            {
+                sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
+                sliceGeometry->setVertexArray( sliceVertices );
+                int c = 0;
+                for ( size_t i = 0; i < datasetList.size(); ++i )
+                {
+                    boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+                    if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
+                         ( dmodule != boost::shared_ptr< WMData> () ) &&
+                         dmodule->getTexture3D() )
+                    {
+                        boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+                        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
+                                boost::shared_dynamic_cast< WDataSetSingle >( dmodule->getDataSet() )->getGrid() );
+                        osg::Vec3Array* texCoords = new osg::Vec3Array;
+
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 0.0, texAxial ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 1.0, texAxial ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 1.0, texAxial ) ) );
+                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 0.0, texAxial ) ) );
+                        sliceGeometry->setTexCoordArray( c, texCoords );
+                        ++c;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        osg::Vec3Array* texCoords = new osg::Vec3Array;
+        switch ( slice )
+        {
+            case 0:
+                sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
+                sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
+                sliceGeometry->setVertexArray( sliceVertices );
+                texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
+                texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
+                texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
+                texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
+                sliceGeometry->setTexCoordArray( 0, texCoords );
+                break;
+            case 1:
+                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
+                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
+                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
+                sliceGeometry->setVertexArray( sliceVertices );
+                texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
+                texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
+                texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
+                texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
+                sliceGeometry->setTexCoordArray( 0, texCoords );
+                break;
+            case 2:
+                sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
+                sliceGeometry->setVertexArray( sliceVertices );
+                texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
+                texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
+                texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
+                texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
+                sliceGeometry->setTexCoordArray( 0, texCoords );
+                break;
+        }
     }
 
     osg::DrawElementsUInt* quad = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );

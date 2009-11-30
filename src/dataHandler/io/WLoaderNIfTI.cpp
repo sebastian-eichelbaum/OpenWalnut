@@ -89,7 +89,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
     unsigned int order = ( ( vDim == 1 ) ? 0 : 1 );  // TODO(all): Does recognize vectors and scalars only so far.
     unsigned int countVoxels = columns * rows * frames;
 
-    // nifti_image_infodump( header );
+    nifti_image_infodump( header );
 
     switch( header->datatype )
     {
@@ -123,13 +123,13 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
     {
         // method 3 (affine transform)
         newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, convertMatrix( header->sto_xyz ) ) );
+            columns, rows, frames, convertMatrix( header->sto_xyz ), header->dx, header->dy, header->dz ) );
     }
     else if( header->qform_code > 0 )
     {
         // method 2 (rigid body transform)
         newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, convertMatrix( header->qto_xyz ) ) );
+            columns, rows, frames, convertMatrix( header->qto_xyz ), header->dx, header->dy, header->dz ) );
     }
     else
     {

@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include <boost/filesystem.hpp>
 
@@ -262,12 +263,58 @@ osg::ref_ptr<osg::Texture3D> WMData::createTexture3D( int16_t* source, boost::sh
 {
     if ( components == 1)
     {
+        int nSize = grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ();
+
+        std::vector<int16_t> tempSource( nSize );
+
+        for ( int i = 0; i < nSize; ++i )
+        {
+            tempSource[i] = static_cast<int16_t>( source[i] );
+        }
+
+        int max = 0;
+        std::vector< int > histo( 65536, 0 );
+        for ( int i = 0; i < nSize; ++i )
+        {
+            if ( max < tempSource[i])
+            {
+                max = tempSource[i];
+            }
+            ++histo[tempSource[i]];
+        }
+        int fivepercent = static_cast<int>( nSize * 0.001 );
+
+        int newMax = 65535;
+        int adder = 0;
+        for ( int i = 65535; i > 0; --i )
+        {
+            adder += histo[i];
+            newMax = i;
+            if ( adder > fivepercent )
+                break;
+        }
+        for ( int i = 0; i < nSize; ++i )
+        {
+            if ( tempSource[i] > newMax )
+            {
+                tempSource[i] = newMax;
+            }
+        }
+
+        int mult = 65535 / newMax;
+        std::cout << "mult:" << mult << std::endl;
+        std::cout << "newMax:" << newMax << std::endl;
+        for ( int i = 0; i < nSize; ++i )
+        {
+            tempSource[i] *= mult;
+        }
+
         osg::ref_ptr< osg::Image > ima = new osg::Image;
-        ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_LUMINANCE, GL_SHORT );
+        ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_SHORT );
 
         unsigned char* data = ima->data();
 
-        unsigned char* charSource = ( unsigned char* )source;
+        unsigned char* charSource = ( unsigned char* )&tempSource[0];
 
         for ( unsigned int i = 0; i < grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() * 2 ; ++i )
         {

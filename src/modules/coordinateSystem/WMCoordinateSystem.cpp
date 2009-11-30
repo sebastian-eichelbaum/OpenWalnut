@@ -76,7 +76,7 @@ void WMCoordinateSystem::connectToGui()
 
 void WMCoordinateSystem::properties()
 {
-    m_properties->addBool( "textureChanged", false );
+    m_properties->addBool( "dataSetAdded", false );
 
     m_properties->addInt( "axialPos", 80 );
     m_properties->addInt( "coronalPos", 100 );
@@ -134,19 +134,21 @@ void WMCoordinateSystem::createGeometry()
 
     // osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
 
-    m_rootNode->setUpdateCallback( new coordinateNodeCallback( boost::shared_dynamic_cast<WMCoordinateSystem>( shared_from_this() ) ) );
+    m_rootNode->setUserData( this );
+    m_rootNode->setUpdateCallback( new coordinateNodeCallback );
 }
 
 void WMCoordinateSystem::updateGeometry()
 {
-    boost::shared_lock< boost::shared_mutex > slock;
-    slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
-    // *******************************************************************************************************
-    if ( !m_properties->getValue< bool > ( "textureChanged" ) || !WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( !m_properties->getValue< bool > ( "dataSetAdded" ) || !WKernel::getRunningKernel()->getGui()->isInitialized()() )
     {
         return;
     }
-    m_properties->setValue( "textureChanged", false );
+
+    boost::shared_lock< boost::shared_mutex > slock;
+    slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
+    // *******************************************************************************************************
+    m_properties->setValue( "dataSetAdded", false );
 
     findBoundingBox();
 
