@@ -31,6 +31,7 @@
 
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.hpp"
 #include "../../math/WFiber.h"
 
 /**
@@ -63,9 +64,11 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     * Due to the prototype design pattern used to build modules, this method
+     * returns a new instance of this method. NOTE: it should never be
+     * initialized or modified in some other way. A simple new instance is
+     * required.
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
@@ -77,23 +80,31 @@ protected:
     virtual void moduleMain();
 
     /**
-     * Generates an OSG geometry for the given fiber.
+     * Generates an OSG geometry for the given fiber dataset.
      *
      * \param fibers pointer to fiber data set.
      * \param globalColoring determines whether the whole fiber has
-     * the same color (true) or separate segements can have different colors. 
+     * the same color (true) or separate segements can have different colors.
      * \return OSG geometry representing the fiber.
      */
     osg::ref_ptr< osg::Geode > genFiberGeode(
             boost::shared_ptr< const WDataSetFibers > fibers,
             bool globalColoring = true ) const;
 
+    virtual void connectors();
+
+    virtual void properties();
+
 private:
+    /**
+     * Input connector for a fiber dataset.
+     */
+    boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
 };
 
 inline const std::string WMFiberDisplay::getName() const
 {
-    return std::string( "FiberTestModule" );
+    return std::string( "Fiber Display Module" );
 }
 
 inline const std::string WMFiberDisplay::getDescription() const

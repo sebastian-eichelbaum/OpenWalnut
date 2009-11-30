@@ -25,13 +25,13 @@
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 
 #include "../../dataHandler/exceptions/WDHException.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
 #include "../../dataHandler/io/WLoaderBiosig.h"
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
 #include "../../dataHandler/io/WLoaderFibers.h"
+#include "../../dataHandler/io/WIOTools.hpp"
 
 #include "WMData.h"
 
@@ -119,14 +119,9 @@ void WMData::notifyStop()
     // not used here. It gets called whenever the module should stop running.
 }
 
-std::string getSuffix( std::string name )
-{
-    boost::filesystem::path p( name );
-    return p.extension();
-}
-
 void WMData::moduleMain()
 {
+    using wiotools::getSuffix;
     std::string fileName = m_properties->getValue< std::string >( "filename" );
 
     WLogger::getLogger()->addLogMessage( "Loading data from \"" + fileName + "\".", getName(), LL_DEBUG );
