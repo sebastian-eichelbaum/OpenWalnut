@@ -103,7 +103,7 @@ boost::signals2::signal1< void, std::string >* WProperties::addColor( std::strin
 
 WProperty* WProperties::findProp( std::string name )
 {
-    if ( m_propertyList.count( name) != 0 )
+    if( m_propertyList.count( name ) != 0 )
     {
         return m_propertyList[name];
     }
@@ -120,7 +120,7 @@ WProperty* WProperties::findProp( std::string name )
 
 std::string WProperties::getValueString( const std::string prop )
 {
-    if ( findProp( prop ) )
+    if( findProp( prop ) )
     {
         return findProp( prop )->getValueString();
     }
