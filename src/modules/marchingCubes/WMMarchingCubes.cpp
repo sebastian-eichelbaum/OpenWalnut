@@ -46,6 +46,10 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
+#include "../../graphicsEngine/WShader.h"
+
+#include "../data/WMData.h"
+
 
 WMMarchingCubes::WMMarchingCubes():
     WModule(),
@@ -55,7 +59,9 @@ WMMarchingCubes::WMMarchingCubes():
     m_fCellLengthX( 1 ),
     m_fCellLengthY( 1 ),
     m_fCellLengthZ( 1 ),
-    m_tIsoLevel( 0 )
+    m_tIsoLevel( 0 ),
+    m_shaderUseTexture( true ),
+    m_shaderUseLighting( false )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -112,7 +118,7 @@ void WMMarchingCubes::moduleMain()
     WLogger::getLogger()->addLogMessage( "Computing surface ...", "Marching Cubes", LL_DEBUG );
 
     // TODO(wiebel): MC set correct isoValue here
-    const float testIsoValue = 0.7;
+    const float testIsoValue = 80;
 
     switch( (*dataSet).getValueSet()->getDataType() )
     {
@@ -149,6 +155,9 @@ void WMMarchingCubes::moduleMain()
 
     WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Marching Cubes", LL_DEBUG );
 
+    // settings for normal isosurface
+    m_shaderUseLighting = true;
+
     renderSurface();
 
     WLogger::getLogger()->addLogMessage( "Done!", "Marching Cubes", LL_DEBUG );
@@ -172,7 +181,8 @@ void WMMarchingCubes::connectors()
 
 void WMMarchingCubes::properties()
 {
-//     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+    // TODO(wiebel): MC this is not the recommended way!
+    //m_properties->addBool( "textureChanged", false );
 }
 
 void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
@@ -192,9 +202,12 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
                                                               boost::shared_ptr< WValueSet< T > > vals,
                                                               double isoValue )
 {
+    // TODO(wiebel): MC have to move this
+    m_properties->addBool( "textureChanged", false );
     assert( vals );
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
+    m_grid = grid;
     assert( grid );
 
     m_fCellLengthX = grid->getOffsetX();
@@ -555,8 +568,8 @@ void WMMarchingCubes::renderSurface()
 void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
 {
     osg::Geometry* surfaceGeometry = new osg::Geometry();
+    m_geode = new osg::Geode;
 
-    osg::Geode *geode = new osg::Geode;
     osg::Vec3Array* vertices = new osg::Vec3Array;
     for( size_t i = 0; i < mesh->getNumVertices(); ++i )
     {
@@ -582,7 +595,6 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     // normals
     osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
 
-#if 1
     mesh->computeVertNormals(); // time consuming
     for( unsigned int vertId = 0; vertId < mesh->getNumVertices(); ++vertId )
     {
@@ -591,34 +603,135 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     }
     surfaceGeometry->setNormalArray( normals.get() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-#else
-    for( unsigned int triId = 0; triId < mesh->getNumTriangles(); ++triId )
-    {
-        wmath::WVector3D tmpNormal = mesh->getTriangleNormal( triId );
-        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
-    }
-    surfaceGeometry->setNormalArray( normals.get() );
-    surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
-#endif
 
+    m_geode->addDrawable( surfaceGeometry );
+    osg::StateSet* state = m_geode->getOrCreateStateSet();
 
+    // ------------------------------------------------
+    // colors
     osg::Vec4Array* colors = new osg::Vec4Array;
 
-    colors->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, 1.0f ) );
+    colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-    geode->addDrawable( surfaceGeometry );
-    osg::StateSet* state = geode->getOrCreateStateSet();
 
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
 
+    // ------------------------------------------------
+    // Shader stuff
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( geode );
+    // TODO(wiebel): fix texture coords.
+    double xext = m_grid->getOffsetX() * m_grid->getNbCoordsX();
+    double yext = m_grid->getOffsetY() * m_grid->getNbCoordsY();
+    double zext = m_grid->getOffsetZ() * m_grid->getNbCoordsZ();
 
-    //osgDB::writeNodeFile( *geode, "/tmp/saved.osg" ); //for debugging
+    osg::Vec3Array* texCoords = new osg::Vec3Array;
+    for( size_t i = 0; i < mesh->getNumVertices(); ++i )
+    {
+        wmath::WPosition vertPos;
+        vertPos = mesh->getVertex( i );
+        texCoords->push_back( osg::Vec3( vertPos[0]/xext, vertPos[1]/yext, vertPos[2]/zext ) );
+    }
+    surfaceGeometry->setTexCoordArray( 0, texCoords );
+
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type2", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type3", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type4", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type5", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type6", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type7", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type8", 0 ) ) );
+    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type9", 0 ) ) );
+
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha0", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha1", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha2", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha3", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha4", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha5", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha6", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha7", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha8", 1.0f ) ) );
+    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha9", 1.0f ) ) );
+
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold0", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold1", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold2", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold3", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold4", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold5", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold6", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold7", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold8", 0.0f ) ) );
+    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold9", 0.0f ) ) );
+
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 2 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex3", 3 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex4", 4 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex5", 5 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex6", 6 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex7", 7 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex8", 8 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex9", 9 ) ) );
+
+    for ( int i = 0; i < 10; ++i )
+    {
+        state->addUniform( m_typeUniforms[i] );
+        state->addUniform( m_thresholdUniforms[i] );
+        state->addUniform( m_alphaUniforms[i] );
+        state->addUniform( m_samplerUniforms[i] );
+    }
+
+    state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_shaderUseTexture ) ) );
+    state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
+
+    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+    if ( datasetList.size() > 0 )
+    {
+        for ( int i = 0; i < 10; ++i )
+        {
+            m_typeUniforms[i]->set( 0 );
+        }
+
+        int c = 0;
+        for ( size_t i = 0; i < datasetList.size(); ++i )
+        {
+            boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+            if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
+                 ( dmodule != boost::shared_ptr< WMData> () ) &&
+                 dmodule->getTexture3D() )
+            {
+                osg::ref_ptr<osg::Texture3D> texture3D = dmodule->getTexture3D();
+
+                state->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+
+                float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
+                float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
+
+                m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dmodule->getDataSet() )->getValueSet()->getDataType() );
+                m_thresholdUniforms[c]->set( t );
+                m_alphaUniforms[c]->set( a );
+
+                ++c;
+            }
+        }
+    }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
+
+    boost::shared_ptr< WShader > shader;
+    std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
+    shader = boost::shared_ptr< WShader > ( new WShader( "surface", shaderPath ) );
+    state->setAttributeAndModes( shader->getProgramObject(), osg::StateAttribute::ON );
+
+    m_geode->setUpdateCallback( new surfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
+
+    //osgDB::writeNodeFile( *m_geode, "/tmp/saved.osg" ); //for debugging
 }
 
 // TODO(wiebel): MC move this to a separate module in the future
@@ -802,3 +915,59 @@ WTriangleMesh WMMarchingCubes::load( std::string fileName )
 
     return triMesh;
 }
+
+
+void WMMarchingCubes::updateTextures()
+{
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+
+    if( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    {
+        m_properties->setValue( "textureChanged", false );
+        std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+
+        if( datasetList.size() > 0 )
+        {
+            for( int i = 0; i < 10; ++i )
+            {
+                m_typeUniforms[i]->set( 0 );
+            }
+
+            osg::StateSet* rootState = m_geode->getOrCreateStateSet();
+            int c = 0;
+            for( size_t i = 0; i < datasetList.size(); ++i )
+            {
+                boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
+                if( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
+                     ( dmodule != boost::shared_ptr< WMData> () ) &&
+                     dmodule->getTexture3D() )
+                {
+                    osg::ref_ptr<osg::Texture3D> texture3D = dmodule->getTexture3D();
+
+                    rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+
+                    float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
+                    float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
+
+                    m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dmodule->getDataSet() )->getValueSet()->getDataType() );
+                    m_thresholdUniforms[c]->set( t );
+                    m_alphaUniforms[c]->set( a );
+
+                    ++c;
+                }
+            }
+
+            m_properties->setValue( "textureChanged", false );
+        }
+    }
+    slock.unlock();
+}
+
+
+void WMMarchingCubes::connectToGui()
+{
+    WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
+}
+
+

@@ -29,8 +29,13 @@
 #include <string>
 #include <vector>
 
+#include <osg/Node>
+#include <osg/Geode>
+#include <osg/Uniform>
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.hpp"
+#include "../../dataHandler/WGridRegular3D.h"
 #include "WTriangleMesh.h"
 
 struct WPointXYZId
@@ -106,6 +111,12 @@ public:
     virtual const std::string getDescription() const;
 
     /**
+     * Connect the listener function of the module to the gui signals
+     * this has to be called after full initialization fo the gui
+     */
+    void connectToGui();
+
+    /**
      * Determine what to do if a property was changed.
      */
     void slotPropertyChanged( std::string propertyName );
@@ -125,6 +136,11 @@ public:
 
     // TODO(wiebel): MC document this;
     void renderSurface();
+
+    /**
+     *  updates textures and shader parameters
+     */
+    void updateTextures();
 
 protected:
     /**
@@ -196,6 +212,43 @@ private:
      * Load meshes saved with WMMarchingCubes::save
      */
     WTriangleMesh load( std::string fileName );
+
+    boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, becaus we need to acces the grid for the dimensions of the texture.
+
+    bool m_shaderUseTexture; //!< shall the shader use texturing?
+    bool m_shaderUseLighting; //!< shall the shader use lighting?
+
+    /**
+     * Lock to prevent concurrent threads trying to update the osg node
+     */
+    boost::shared_mutex m_updateLock;
+
+    osg::Geode* m_geode; //!< Pointer to geode. We need it to be able to update it when callback is invoked.
+
+    std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
+    std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader
+    std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
+    std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
+};
+
+class surfaceNodeCallback : public osg::NodeCallback
+{
+public:
+    explicit surfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module )
+        {
+            m_module = module;
+        }
+
+    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
+        {
+            if ( m_module )
+            {
+                m_module->updateTextures();
+            }
+            traverse( node, nv );
+        }
+private:
+    boost::shared_ptr< WMMarchingCubes > m_module;
 };
 
 #endif  // WMMARCHINGCUBES_H
