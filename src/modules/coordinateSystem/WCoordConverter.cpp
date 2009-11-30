@@ -24,6 +24,9 @@
 
 #include "WCoordConverter.h"
 
+using wmath::WMatrix;
+using wmath::WVector3D;
+
 WCoordConverter::WCoordConverter( WMatrix<double> rotMat, WVector3D origin, WVector3D scale ) :
     m_rotMat( rotMat ),
     m_origin( origin ),
