@@ -27,11 +27,11 @@
 #include <vector>
 
 #include "WMDistanceMap.h"
+#include "../marchingCubes/WMMarchingCubes.h"
 
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../marchingCubes/WMMarchingCubes.h"
 
 WMDistanceMap::WMDistanceMap():
     WModule()
@@ -86,13 +86,14 @@ void WMDistanceMap::moduleMain()
     dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
 
     boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( dataSet );
+    boost::shared_ptr< WMMarchingCubes > mc = boost::shared_ptr< WMMarchingCubes >( new WMMarchingCubes() );
 
-    WMMarchingCubes mc;
-    mc.generateSurface( dataSet->getGrid(), distanceMapValueSet, .6 );
+    mc->connectToGui();
+    mc->generateSurface( dataSet->getGrid(), distanceMapValueSet, .4 );
 
     WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
 
-    mc.renderSurface();
+    mc->renderSurface();
 
     WLogger::getLogger()->addLogMessage( "Done!", "Distance Map", LL_INFO );
 }
