@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/program_options.hpp>
 
 #include <QtGui/QIcon>
 #include <QtGui/QMainWindow>
@@ -57,12 +58,12 @@ class WMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit WMainWindow();
+    explicit WMainWindow( boost::program_options::variables_map guiConfiguration );
 
     /**
      * Set up all widgets menus an buttons in the main window.
      */
-    void setupGUI();
+    void setupGUI( boost::program_options::variables_map guiConfiguration );
 
     /**
      * Destructor.
@@ -99,7 +100,7 @@ protected:
 
     /**
      * We want to react on close events.
-     * 
+     *
      * \param e the close event.
      */
     void closeEvent( QCloseEvent* e );

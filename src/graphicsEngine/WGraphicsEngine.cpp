@@ -36,6 +36,7 @@
 
 #include "exceptions/WGEInitFailed.h"
 #include "../common/WLogger.h"
+#include "../common/WColor.h"
 #include "WGraphicsEngine.h"
 #include "WGEViewer.h"
 
@@ -87,7 +88,8 @@ void WGraphicsEngine::setShaderPath( std::string path )
 }
 
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
-    int width, int height, WGECamera::ProjectionMode projectionMode )
+                                                            int width, int height, WGECamera::ProjectionMode projectionMode,
+                                                            WColor bgColor )
 {
     // init the composite viewer if not already done
     if ( m_Viewer == osg::ref_ptr< osgViewer::CompositeViewer >() )
@@ -96,6 +98,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
 
     boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>(
         new WGEViewer( name, wdata, x, y, width, height, projectionMode ) );
+    viewer->setBgColor( bgColor );
     viewer->setScene( getScene() );
 
     // finally add view

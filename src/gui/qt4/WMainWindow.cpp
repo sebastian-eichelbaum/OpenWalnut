@@ -44,12 +44,12 @@
 
 #include "../icons/WIcons.h"
 
-WMainWindow::WMainWindow() :
+WMainWindow::WMainWindow( boost::program_options::variables_map guiConfiguration ) :
     QMainWindow(),
     m_iconManager(),
     m_propertyManager()
 {
-    setupGUI();
+    setupGUI( guiConfiguration );
 }
 
 WMainWindow::~WMainWindow()
@@ -57,7 +57,7 @@ WMainWindow::~WMainWindow()
 }
 
 
-void WMainWindow::setupGUI()
+void WMainWindow::setupGUI( boost::program_options::variables_map guiConfiguration )
 {
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
 
@@ -76,6 +76,14 @@ void WMainWindow::setupGUI()
     m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
     m_mainGLWidget->initialize();
     setCentralWidget( m_mainGLWidget.get() );
+
+    if( guiConfiguration.count( "ge.bgColor.r" ) && guiConfiguration.count( "ge.bgColor.g" ) && guiConfiguration.count( "ge.bgColor.b" ) )
+    {
+        WColor bgColor( guiConfiguration["ge.bgColor.r"].as< float >(),
+                        guiConfiguration["ge.bgColor.g"].as< float >(),
+                        guiConfiguration["ge.bgColor.b"].as< float >() );
+        m_mainGLWidget->setBgColor( bgColor );
+    }
 
     //TODO(all): this is commented out
     // initially 3 views

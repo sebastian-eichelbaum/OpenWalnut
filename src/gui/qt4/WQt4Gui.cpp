@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -46,19 +47,11 @@ WQt4Gui::~WQt4Gui()
 {
 }
 
-/**
- * This function defines and parses the valid command line options.
- * This might once be put in a separate class like WOptionHandler.
- * At the moment it seems reasonable that differnet GUIs might have
- * different command line options, thus we implement their parsing
- * in the GUI implemntation itself, i.e. here.
- */
-boost::program_options::variables_map parseOptions( int argc, char** argv )
+bool WQt4Gui::parseOptions( int argc, char** argv )
 {
     // since the namespace is far to big we use a shortcut here
     namespace po = boost::program_options;
 
-    po::variables_map optionsMap;
     po::options_description desc( "Allowed options" );
     desc.add_options()
         ( "help,h", "Prints this help message" )
@@ -67,31 +60,63 @@ boost::program_options::variables_map parseOptions( int argc, char** argv )
     po::positional_options_description p;
     p.add( "input", -1 );
 
-    po::store( po::command_line_parser( argc, argv ).options( desc ).positional( p ).run(), optionsMap );
-    po::notify( optionsMap );
-
-    // print usage information if command line asks for help.
-    if( optionsMap.count( "help" ) )
-    {
-        std::cout << desc << std::endl;
-    }
-    return optionsMap;
-}
-
-int WQt4Gui::run()
-{
     try
     {
-        m_optionsMap = parseOptions( argc, argv );
+        po::store( po::command_line_parser( argc, argv ).options( desc ).positional( p ).run(), m_optionsMap );
     }
     catch( boost::program_options::unknown_option e )
     {
         std::cout << e.what() << std::endl;
-        return 1;
+        return false;
     }
     catch( boost::program_options::invalid_command_line_syntax e )
     {
         std::cout << e.what() << std::endl;
+        return false;
+    }
+
+    po::notify( m_optionsMap );
+
+    //=====================
+    // CONFIGURATION FILE
+    po::options_description guiConfigurationDescription( "GUI configuration" );
+    guiConfigurationDescription.add_options()
+        ( "ge.bgColor.r", po::value< float >() )
+        ( "ge.bgColor.g", po::value< float >() )
+        ( "ge.bgColor.b", po::value< float >() );
+
+    std::ifstream ifs;
+    ifs.open( "walnut.cfg", std::ifstream::in );
+
+    po::variables_map guiConfiguration;
+
+    try
+    {
+        po::store( po::parse_config_file( ifs, guiConfigurationDescription ), m_guiConfiguration );
+    }
+    catch( boost::program_options::unknown_option e )
+    {
+        std::cout << "Syntax error in configuration file \"walnut.cfg\"." << std::endl;
+        return false;
+    }
+
+    po::notify( m_guiConfiguration );
+
+    // print usage information if command line asks for help.
+    if( m_optionsMap.count( "help" ) )
+    {
+        std::cout << desc << std::endl;
+    }
+    return true;
+}
+
+int WQt4Gui::run()
+{
+    bool parsingSuccessful = false;
+    parsingSuccessful = parseOptions( argc, argv );
+
+    if( !parsingSuccessful )
+    {
         return 1;
     }
 
@@ -113,7 +138,7 @@ int WQt4Gui::run()
     m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
     m_kernel->run();
     // create the window
-    m_gui = new WMainWindow;
+    m_gui = new WMainWindow( m_guiConfiguration );
     m_gui->show();
 
     // connect out loader signal with krnel

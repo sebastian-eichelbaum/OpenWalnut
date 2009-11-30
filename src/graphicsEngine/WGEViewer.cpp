@@ -135,6 +135,11 @@ osg::ref_ptr<osg::Node> WGEViewer::getNode()
     return m_View->getSceneData();
 }
 
+void WGEViewer::setBgColor( WColor bgColor )
+{
+    m_View->getCamera()->setClearColor( osg::Vec4( bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 1. ) );
+}
+
 void WGEViewer::resize( int width, int height )
 {
     WGEGraphicsWindow::resize( width, height );

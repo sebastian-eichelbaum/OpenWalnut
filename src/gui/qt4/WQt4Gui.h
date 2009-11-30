@@ -46,7 +46,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * \param argc number of arguments given on command line.
      * \param argv arguments given on command line.
      */
@@ -66,7 +66,7 @@ public:
 
     /**
      * TODO(schurade): write something
-     * 
+     *
      * \param module
      * \param subjectId
      */
@@ -107,6 +107,16 @@ private:
     boost::shared_ptr< WKernel > m_kernel;
 
     boost::program_options::variables_map m_optionsMap; //!< Map storing the program options.
+    boost::program_options::variables_map m_guiConfiguration; //!< Map storing the configuration of the GUI
+
+    /**
+     * This function defines and parses the valid command line options.
+     * This might once be put in a separate class like WOptionHandler.
+     * At the moment it seems reasonable that different GUIs might have
+     * different command line options, thus we implement their parsing
+     * in the GUI implemntation itself, i.e. here.
+     */
+    bool parseOptions( int argc, char** argv );
 };
 
 #endif  // WQT4GUI_H
