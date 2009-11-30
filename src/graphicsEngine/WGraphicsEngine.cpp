@@ -86,26 +86,33 @@ void WGraphicsEngine::setShaderPath( std::string path )
     m_shaderPath = path;
 }
 
-boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer(
-    osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode )
+boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
+    int width, int height, WGECamera::ProjectionMode projectionMode )
 {
     // init the composite viewer if not already done
     if ( m_Viewer == osg::ref_ptr< osgViewer::CompositeViewer >() )
     {
     }
 
-    boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>( new WGEViewer(  wdata, x, y, width, height, projectionMode ) );
+    boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>(
+        new WGEViewer( name, wdata, x, y, width, height, projectionMode ) );
     viewer->setScene( getScene() );
 
     // finally add view
     m_Viewer->addView( viewer->getViewer().get() );
 
     // store it in viewer list
-    // XXX is this list needed? If yes, someone has to care about a deregisterViewer function
-    // boost::mutex::scoped_lock lock(m_ViewerLock);
-    //m_Viewers.push_back( viewer );
+    // TODO(cornimueller): someone has to care about a deregisterViewer function
+    boost::mutex::scoped_lock lock( m_ViewersLock );
+    assert( m_Viewers.insert( make_pair( name, viewer ) ).second == true );
+    m_ViewersLock.unlock();
 
     return viewer;
+}
+
+boost::shared_ptr<WGEViewer> WGraphicsEngine::getViewerByName( std::string name )
+{
+    return m_Viewers[name];
 }
 
 void WGraphicsEngine::threadMain()

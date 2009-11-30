@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
 #include <iostream>
 
 #include <osg/ShapeDrawable>
@@ -44,9 +45,11 @@
 
 #include "WGEViewer.h"
 
-WGEViewer::WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height, WGECamera::ProjectionMode projectionMode ):
-    WGEGraphicsWindow( wdata, x, y, width, height ),
-    boost::enable_shared_from_this< WGEViewer >()
+WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
+    int width, int height, WGECamera::ProjectionMode projectionMode )
+    : WGEGraphicsWindow( wdata, x, y, width, height ),
+      boost::enable_shared_from_this< WGEViewer >(),
+      m_name( name )
 {
     try
     {
@@ -145,4 +148,3 @@ void WGEViewer::close()
     // forward close event
     WGEGraphicsWindow::close();
 }
-

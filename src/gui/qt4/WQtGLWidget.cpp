@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
 #include <iostream>
 
 #include <QtGui/QKeyEvent>
@@ -34,8 +35,9 @@
 #include "../../kernel/WKernel.h"
 
 
-WQtGLWidget::WQtGLWidget( QWidget* parent, WGECamera::ProjectionMode projectionMode )
+WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : QGLWidget( parent ),
+      m_nameOfViewer( nameOfViewer ),
       m_recommendedSize(),
       m_isInitialized( new WConditionOneShot(), false )
 {
@@ -80,7 +82,8 @@ void WQtGLWidget::initialize()
 #endif
 
     // create viewer
-    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer( wdata, x(), y(), width(), height(), m_initialProjectionMode );
+    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
+        m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
 
     m_isInitialized( true );
 }

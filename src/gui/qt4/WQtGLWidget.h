@@ -25,6 +25,7 @@
 #ifndef WQTGLWIDGET_H
 #define WQTGLWIDGET_H
 
+#include <string>
 
 #include <QtOpenGL/QGLWidget>
 #include <QtGui/QWidget>
@@ -47,12 +48,14 @@ public:
     /**
      * Default constructor.
      *
+     * \param nameOfViewer Name of the Viewer
      * \param parent Parent widget.
      * \param projectionMode decides whether the widget uses perspective or othographic projection
      *
      * \return
      */
-    explicit WQtGLWidget( QWidget* parent = 0, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
+    explicit WQtGLWidget( std::string nameOfViewer, QWidget* parent = 0,
+        WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
      * Destructor.
@@ -104,6 +107,11 @@ protected:
      * The viewer to the scene.
      */
     boost::shared_ptr<WGEViewer> m_Viewer;
+
+    /**
+     * The name of the viewer.
+     */
+    std::string m_nameOfViewer;
 
     //  The GraphincsWindowWin32 implementation already takes care of message handling.
     //  We don't want to relay these on Windows, it will just cause duplicate messages

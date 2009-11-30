@@ -25,7 +25,7 @@
 #ifndef WGRAPHICSENGINE_H
 #define WGRAPHICSENGINE_H
 
-#include <list>
+#include <map>
 #include <string>
 
 
@@ -88,6 +88,7 @@ public:
     /**
      * Creates a new viewer. Does basic initialization and sets the default scene.
      *
+     * \param name the name of the viewer
      * \param wdata the WindowData instance for the widget to use as render widget
      * \param x X coordinate of widget where to create the context.
      * \param y Y coordinate of widget where to create the context.
@@ -97,8 +98,13 @@ public:
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    boost::shared_ptr<WGEViewer> createViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height,
-        WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
+    boost::shared_ptr<WGEViewer> createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
+        int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
+
+    /**
+     * Searchs for a viewer with a given name and returns it, if found.
+     */
+    boost::shared_ptr<WGEViewer> getViewerByName( std::string name );
 
 protected:
 
@@ -118,14 +124,14 @@ protected:
     osg::ref_ptr<WGEScene> m_rootNode;
 
     /**
-     * All registered viewer.
+     * All registered viewers.
      */
-    std::list<boost::shared_ptr<WGEViewer> > m_Viewers;
+    std::map< std::string, boost::shared_ptr< WGEViewer > > m_Viewers;
 
     /**
-     * Mutex used to lock the list of viewers.
+     * Mutex used to lock the map of viewers.
      */
-    boost::mutex m_ViewerLock;
+    boost::mutex m_ViewersLock;
 
     /**
      * Path to the shaders.

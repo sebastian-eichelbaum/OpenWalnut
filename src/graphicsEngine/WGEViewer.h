@@ -25,6 +25,8 @@
 #ifndef WGEVIEWER_H
 #define WGEVIEWER_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Node>
@@ -56,6 +58,7 @@ public:
     /**
      * Default constructor.
      *
+     * \param name the name of the viewer
      * \param wdata the WindowData instance for the widget to use as render widget
      * \param x X coordinate of widget where to create the context.
      * \param y Y coordinate of widget where to create the context.
@@ -64,7 +67,7 @@ public:
      * \param projectionMode Projection mode of the viewer.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEViewer( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height,
+    WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height,
         WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
@@ -134,12 +137,25 @@ public:
      */
     osg::ref_ptr<osg::Node> getNode();
 
+    /**
+     * Returns the name of the viewer.
+     */
+    std::string getName() const
+    {
+        return m_name;
+    }
+
 protected:
 
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
      */
     osg::ref_ptr< osgViewer::Viewer > m_View;
+
+    /**
+     * The name of the viewer.
+     */
+    std::string m_name;
 
 private:
 };
