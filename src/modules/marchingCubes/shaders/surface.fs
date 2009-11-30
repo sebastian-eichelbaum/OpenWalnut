@@ -3,6 +3,50 @@ varying vec4 VaryingTexCoord0;
 uniform bool useLighting;
 uniform bool useTexture;
 
+uniform sampler3D tex0;
+uniform sampler3D tex1;
+uniform sampler3D tex2;
+uniform sampler3D tex3;
+uniform sampler3D tex4;
+uniform sampler3D tex5;
+uniform sampler3D tex6;
+uniform sampler3D tex7;
+uniform sampler3D tex8;
+uniform sampler3D tex9;
+
+uniform float threshold0;
+uniform float threshold1;
+uniform float threshold2;
+uniform float threshold3;
+uniform float threshold4;
+uniform float threshold5;
+uniform float threshold6;
+uniform float threshold7;
+uniform float threshold8;
+uniform float threshold9;
+
+uniform int type0;
+uniform int type1;
+uniform int type2;
+uniform int type3;
+uniform int type4;
+uniform int type5;
+uniform int type6;
+uniform int type7;
+uniform int type8;
+uniform int type9;
+
+uniform float alpha0;
+uniform float alpha1;
+uniform float alpha2;
+uniform float alpha3;
+uniform float alpha4;
+uniform float alpha5;
+uniform float alpha6;
+uniform float alpha7;
+uniform float alpha8;
+uniform float alpha9;
+
 #include "colorMaps.fs"
 #include "lighting.fs"
 
