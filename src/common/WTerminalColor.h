@@ -34,7 +34,7 @@ class WTerminalColor
 {
 public:
 
-    /** 
+    /**
      * Define possible attributes.
      */
     enum TerminalColorAttribute
@@ -48,7 +48,7 @@ public:
         Default     = 9         // this actually disables coloring
     };
 
-    /** 
+    /**
      * Foreground colors.
      */
     enum TerminalColorForeground
@@ -63,7 +63,7 @@ public:
         FGWhite   = 37
     };
 
-    /** 
+    /**
      * Background colors.
      */
     enum TerminalColorBackground
@@ -86,7 +86,7 @@ public:
 
     /**
      * Creates a new terminal color.
-     * 
+     *
      * \param attrib attribute, like bold or blink
      * \param foreground foreground color
      * \param background background color
@@ -100,46 +100,48 @@ public:
 
     /**
      * Gives the control string which actually enables the color.
-     * 
+     *
+     * \param ostr the stream to extend by the color code.
+     *
      * \return the color control string
      */
     std::ostream& operator<<( std::ostream& ostr ) const;
 
     /**
      * Gives the control string which actually enables the color.
-     * 
+     *
      * \return the color control string
      */
     std::string operator()() const;
 
     /**
      * Colorizes the given string and resets color after it.
-     * 
+     *
      * \param s the string to colorize
-     * 
+     *
      * \return the string including control sequences.
      */
     std::string operator()( const std::string s ) const;
 
     /**
      * Combines strings.
-     * 
+     *
      * \param in the string to combine
-     * 
+     *
      * \return the concatenated string.
      */
     std::string operator+( const std::string& in ) const;
 
     /**
      * Resets the color and returns control string.
-     * 
+     *
      * \return the control string which resets color settings.
      */
     std::string operator!() const;
 
     /**
      * With this you can easily trigger whether the color control string is used or if "" is returned.
-     * 
+     *
      * \param enabled true to have colors.
      */
     void setEnabled( bool enabled );

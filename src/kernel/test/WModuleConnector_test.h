@@ -45,7 +45,7 @@
 #include "../exceptions/WModuleException.h"
 #include "../exceptions/WModuleConnectorUnconnected.h"
 
-/** 
+/**
  * Class implementing a simple module since WModuleConnector itself is not usable for proper
  * testing itself because it is has pure virtual methods, i.e. is abstract.
  */
@@ -54,37 +54,65 @@ class WModuleImpl: public WModule
 friend class WModuleConnectorTest;
 
 public:
+
+    /**
+     * Constructor.
+     *
+     * \param n a string to test with (sets initial value).
+     */
     explicit WModuleImpl( std::string n="?" ): WModule()
     {
         this->n = n;
     }
 
+    /**
+     * Destructor.
+     */
     virtual ~WModuleImpl()
     {
     }
 
+    /**
+     * Create instance of this module class.
+     *
+     * \return new instance of this module.
+     */
     virtual boost::shared_ptr< WModule > factory() const
     {
         return boost::shared_ptr< WModule >( new WModuleImpl() );
     }
 
-    // required since pure virtual
+    /**
+     * Returns name of this module.
+     *
+     * \return the name of this module.
+     */
     virtual const std::string getName() const
     {
         return "testmodule";
     }
 
-    // required since pure virtual
-    virtual const std::string getDescription() const
+    /**
+     * Returns description of module.
+     *
+     * \return the description.
+     */
+    const std::string getDescription() const
     {
         return "testdesc";
     }
 
+    /**
+     * Connect anything to GUI.
+     */
     virtual void connectToGui()
     {
         // do nothing here
     }
 
+    /**
+     * Set up connectors.
+     */
     virtual void connectors()
     {
         m_input= boost::shared_ptr< WModuleInputData< int > >(
@@ -118,6 +146,9 @@ protected:
         }
     }
 
+    /**
+     * Notifier called whenever a connection got established.
+     */
     virtual void notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
                                               boost::shared_ptr< WModuleConnector > /*there*/ )
     {
@@ -125,6 +156,9 @@ protected:
         //           << there->getCanonicalName() << std::endl;
     }
 
+    /**
+     * Notifier called whenever a connection got closed.
+     */
     virtual void notifyConnectionClosed( boost::shared_ptr< WModuleConnector > /*here*/,
                                               boost::shared_ptr< WModuleConnector > /*there*/ )
     {
@@ -132,6 +166,11 @@ protected:
         //           <<  there->getCanonicalName() << std::endl;
     }
 
+    /**
+     * Notifier called whenever a changed data was propagated to one of this modules connectors.
+     *
+     * \param output the remote connector propagating the event.
+     */
     virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
                                    boost::shared_ptr< WModuleConnector > output )
     {
@@ -206,6 +245,9 @@ public:
         m3->initialize();
     }
 
+    /**
+     * Initialize some connections.
+     */
     void initConnections( void )
     {
         // connect output with input (cyclic)

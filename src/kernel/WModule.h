@@ -115,21 +115,21 @@ public:
 
     /**
      * Checks whether the module instance is ready to be used. This is the case if isInitialized && isAssociated.
-     * 
+     *
      * \return isInitialized && isAssociated
      */
     const WBoolFlag&  isUseable() const;
 
      /**
       * Checks whether this module is associated with an container.
-      * 
+      *
       * \return true if associated.
       */
     const WBoolFlag&  isAssociated() const;
 
      /**
       * The container this module is associated with.
-      * 
+      *
       * \return the container.
       */
     boost::shared_ptr< WModuleContainer > getAssociatedContainer() const;
@@ -137,7 +137,7 @@ public:
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const = 0;
@@ -148,9 +148,9 @@ public:
      */
     virtual void connectToGui();
 
-   /** 
+    /**
      * Connects a specified notify function with a signal this module instance is offering.
-     * 
+     *
      * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
      *
      * \param signal the signal to connect to.
@@ -159,11 +159,22 @@ public:
      * \return connection descriptor.
      */
     virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
+
+    /**
+     * Connects a specified notify function with a signal this module instance is offering.
+     *
+     * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
+     *
+     * \param signal the signal to connect to.
+     * \param notifier the notifier function to bind.
+     *
+     * \return connection descriptor.
+     */
     virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier );
 
     /**
      * Returns a set of prototypes compatible with this module's connectors.
-     * 
+     *
      * \return set of prototypes.
      */
     virtual std::set< boost::shared_ptr< WModule > > getCompatibles();
@@ -182,7 +193,7 @@ protected:
 
      /**
       * Sets the container this module is associated with.
-      * 
+      *
       * \param container the container to associate with.
       */
     void setAssociatedContainer( boost::shared_ptr< WModuleContainer > container );
@@ -306,12 +317,12 @@ protected:
      */
     WBoolFlag m_initialized;
 
-    /** 
+    /**
      * True if container got associated with this flag.
      */
     WBoolFlag m_isAssociated;
 
-    /** 
+    /**
      * True if associated && initialized.
      */
     WBoolFlag m_isUsable;

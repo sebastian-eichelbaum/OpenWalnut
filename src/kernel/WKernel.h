@@ -60,7 +60,7 @@ public:
 
     /**
      * Constructor. Awaits an INITIALIZED graphics engine an gui.
-     * 
+     *
      * \param ge initialized graphics engine.
      * \param gui initialized gui.
      */
@@ -106,20 +106,23 @@ public:
     const WBoolFlag& isFinishRequested() const;
 
     /**
-     * function to call the datahandler load method
+     * Load specified datasets.
+     *
+     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * error and success.
      */
     void doLoadDataSets( std::vector< std::string > fileNames );
 
     /**
      * Returns the root module container. This is the actual module graph container.
-     * 
+     *
      * \return the root container.
      */
     boost::shared_ptr< WModuleContainer > getRootContainer() const;
 
     /**
      * Getter for the associated GUI.
-     * 
+     *
      * \return the GUI.
      */
     boost::shared_ptr< WGUI > getGui() const;
