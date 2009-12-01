@@ -1,9 +1,9 @@
 ADD_SUBDIRECTORY( nifti )
 ADD_SUBDIRECTORY( biosig )
 
-FILE( GLOB DATAHANDLER_LOADERS_SRC "WLoader*.[c,h]pp" )
+FILE( GLOB DATAHANDLER_IO_SRC "*.[c,h]pp" )
 
 # Unit tests
 IF( CXXTEST_FOUND )
-  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_LOADERS_SRC}" "dataHandler;niftiio;biosig" )
+  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_IO_SRC}" "dataHandler;niftiio;biosig" )
 ENDIF( CXXTEST_FOUND )

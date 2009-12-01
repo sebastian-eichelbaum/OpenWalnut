@@ -22,36 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WWRITERVTK_H
+#define WWRITERVTK_H
+
 #include <string>
 
-#include "WLoader.h"
-#include "exceptions/WDHIOFailure.h"
-#include "io/WIOTools.hpp"
+#include <boost/shared_ptr.hpp>
 
+#include "../WDataSetFibers.h"
 
-WLoader::WLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )
-    : m_fileName( fileName ),
-      m_dataHandler( dataHandler )
+/**
+ * Writes a VTK file.
+ */
+class WWriterVTK
 {
-    if( !wiotools::fileExists( m_fileName ) )
-    {
-        throw WDHIOFailure( "file '" + m_fileName + "' doesn't exists." );
-    }
-}
+public:
+    /**
+     * Creates a writer object for VTK file writing.
+     *
+     * \param fname absolute file name
+     */
+    explicit WWriterVTK( std::string fname, bool overwrite = false );
 
-void WLoader::commitDataSet( boost::shared_ptr< WDataSet > data )
-{
-    // TODO(wiebel): this is a dummy implementation. We need to fix
-    // this as soon as we can distinguish which data belongs to which subject.
-    boost::shared_ptr< WSubject > subject;
-    if( m_dataHandler->getNumberOfSubjects() == 0 )
-    {
-        subject = boost::shared_ptr< WSubject >( new WSubject );
-        m_dataHandler->addSubject( subject );
-    }
-    else
-    {
-        subject = m_dataHandler->getSubject( 0 );
-    }
-    subject->addDataSet( data );
-}
+    /**
+     * Reset the destination (file) where the writing should take place.
+     */
+    void setFileName( std::string fname );
+
+    /**
+     * Writes a WDataSetFibers down to the previousely given file
+     */
+    void writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const;
+
+protected:
+
+private:
+    std::string m_fname; //!< Absolute path of the file to write to
+    bool m_overwrite; //!< flag indicating if the file may be overwritten (true) or not (false)
+};
+
+#endif  // WWRITERVTK_H

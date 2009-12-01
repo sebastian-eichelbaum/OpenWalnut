@@ -39,6 +39,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/io/WWriterVTK.h"
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 
@@ -78,17 +79,6 @@ void WMFiberCulling::moduleMain()
 
     boost::shared_ptr< WDataSetFibers > fiberDS;
     assert( fiberDS = boost::shared_dynamic_cast< WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
-
-//    osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
-//
-//    for( size_t i = 0; i < fibers.size(); ++i )
-//    {
-//        group->addChild( genFiberGeode( fibers[i] ).get() );
-//    }
-//    group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-//
-//    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
-//
 
     cullOutFibers( fiberDS );
 
@@ -148,14 +138,15 @@ void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
         std::cout << ( ++st ).progress() << " " << st.stringBar() << std::flush;
     }
     std::cout << std::endl;
-//    if( m_saveCulledCurves ) {
-//        saveFib( m_savePath, fibers, unusedFibers );
-//        std::cout << "Saving culled fibers to " << m_savePath << " done." << std::endl;
-//    }
 
-    // create new DataSet where unused fibers are not contained
     fibers->erase( unusedFibers );
     std::cout << "Erasing done." << std::endl;
     std::cout << "Culled out " << numFibers - fibers->size() << " fibers" << std::endl;
     std::cout << "There are " << fibers->size() << " fibers left." << std::endl;
+    if( true )
+    {
+        WWriterVTK w( "/tmp/pansen", true );
+        w.writeFibs( fibers );
+//        std::cout << "Saved fibers left from culling to " <<  << " done." << std::endl;
+    }
 }

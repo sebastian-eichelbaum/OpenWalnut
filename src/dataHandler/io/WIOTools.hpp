@@ -90,8 +90,15 @@ namespace wiotools
      */
     inline std::string getSuffix( std::string name )
     {
-        boost::filesystem::path p( name );
-        return p.extension();
+        return boost::filesystem::path( name ).extension();
+    }
+
+    /**
+     * Checks if a given path already exists or not
+     */
+    inline bool fileExists( std::string path )
+    {
+        return boost::filesystem::exists( boost::filesystem::path( path ) );
     }
 }  // end of namespace
 #endif  // WIOTOOLS_HPP
