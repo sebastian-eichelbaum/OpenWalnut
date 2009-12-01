@@ -143,10 +143,7 @@ public:
     /**
      * Returns the name of the viewer.
      */
-    std::string getName() const
-    {
-        return m_name;
-    }
+    std::string getName() const;
 
     /**
      * Determine the color of the viewer's background.

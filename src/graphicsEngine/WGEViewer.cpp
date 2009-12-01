@@ -153,3 +153,9 @@ void WGEViewer::close()
     // forward close event
     WGEGraphicsWindow::close();
 }
+
+std::string WGEViewer::getName() const
+{
+    return m_name;
+}
+
