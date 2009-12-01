@@ -56,7 +56,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * \param argc number of arguments given on command line.
      * \param argv arguments given on command line.
      */
@@ -67,9 +67,9 @@ public:
      */
     virtual ~WGUI();
 
-    /** 
+    /**
      * Returns the init flag.
-     * 
+     *
      * \return Reference to the flag.
      */
     virtual const WFlag< bool >& isInitialized() const;
@@ -83,7 +83,7 @@ public:
 
     /**
      * Slot gets called whenever a new module is added.
-     * 
+     *
      * \param module
      */
     virtual void slotAddDatasetToBrowser( boost::shared_ptr< WModule > module );
@@ -92,6 +92,14 @@ public:
      *  adds a dataset to the dataset browser for a give subject
      */
     virtual void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId ) = 0;
+
+    /**
+     * adds a module to the dataset browser
+     *
+     * \param module
+     */
+    virtual void addModuleToBrowser( boost::shared_ptr< WModule > module ) = 0;
+
 
     /**
      * returns a vector of pointers to the loaded datasets for a given subject

@@ -24,24 +24,22 @@
 
 #include <string>
 
-#include "WQtSubjectTreeItem.h"
+#include "WQtModuleHeaderTreeItem.h"
 
-WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
-    : QTreeWidgetItem( parent, 0 ) // type 0
+WQtModuleHeaderTreeItem::WQtModuleHeaderTreeItem( QTreeWidget * parent ) :
+    QTreeWidgetItem( parent, 2 )
 {
 }
 
-
-WQtSubjectTreeItem::~WQtSubjectTreeItem()
+WQtModuleHeaderTreeItem::~WQtModuleHeaderTreeItem()
 {
 }
 
-
-WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( boost::shared_ptr< WModule > module )
+WQtModuleTreeItem* WQtModuleHeaderTreeItem::addModuleItem( boost::shared_ptr< WModule > module )
 {
-    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this, module );
+    WQtModuleTreeItem* ds = new WQtModuleTreeItem( this, module );
 
-    std::string name = module->getProperties()->getValueString( "name" );
+    std::string name = module->getName();
     ds->setText( 0, QString( name.c_str() ) );
 
     return ds;

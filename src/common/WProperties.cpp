@@ -40,44 +40,49 @@ WProperties::~WProperties()
 {
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addBool( std::string name, bool value, std::string shortDesc, std::string longDesc )
+boost::signals2::signal1< void, std::string >* WProperties::addBool( std::string name, bool value, bool hidden,
+        std::string shortDesc, std::string longDesc )
 {
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
     m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addChar( std::string name, char value, std::string shortDesc, std::string longDesc )
+boost::signals2::signal1< void, std::string >* WProperties::addChar( std::string name, char value, bool hidden,
+        std::string shortDesc, std::string longDesc )
 {
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
-}
-
-
-boost::signals2::signal1< void, std::string >* WProperties::addInt( std::string name, int value, std::string shortDesc, std::string longDesc )
-{
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
     m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
 
-boost::signals2::signal1< void, std::string >* WProperties::addFloat( std::string name, float value, std::string shortDesc, std::string longDesc )
+boost::signals2::signal1< void, std::string >* WProperties::addInt( std::string name, int value, bool hidden,
+        std::string shortDesc, std::string longDesc )
 {
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
     m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
 
-boost::signals2::signal1< void, std::string >* WProperties::addDouble( std::string name, double value, std::string shortDesc, std::string longDesc )
+boost::signals2::signal1< void, std::string >* WProperties::addFloat( std::string name, float value, bool hidden,
+        std::string shortDesc, std::string longDesc )
 {
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
+    m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
+    return prop->getSignalValueChanged();
+}
+
+
+boost::signals2::signal1< void, std::string >* WProperties::addDouble( std::string name, double value, bool hidden,
+        std::string shortDesc, std::string longDesc )
+{
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
     m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
@@ -85,17 +90,18 @@ boost::signals2::signal1< void, std::string >* WProperties::addDouble( std::stri
 
 
 boost::signals2::signal1< void, std::string >*
-WProperties::addString( std::string name, std::string value, std::string shortDesc, std::string longDesc )
+WProperties::addString( std::string name, std::string value, bool hidden, std::string shortDesc, std::string longDesc )
 {
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
     m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addColor( std::string name, WColor value, std::string shortDesc, std::string longDesc )
+boost::signals2::signal1< void, std::string >* WProperties::addColor( std::string name, WColor value, bool hidden,
+        std::string shortDesc, std::string longDesc )
 {
-    WProperty* prop = new WProperty( name, value, shortDesc, longDesc );
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
     m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();

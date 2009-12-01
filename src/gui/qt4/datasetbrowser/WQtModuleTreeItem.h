@@ -22,27 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WQTMODULETREEITEM_H
+#define WQTMODULETREEITEM_H
 
-#include "WQtSubjectTreeItem.h"
+#include <QtGui/QTreeWidgetItem>
+#include "../../../kernel/WModule.h"
 
-WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
-    : QTreeWidgetItem( parent, 0 ) // type 0
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtModuleTreeItem  : public QTreeWidgetItem
 {
-}
+public:
+    /**
+     * TODO(schurade): Document this!
+     */
+    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
+
+    /**
+     * TODO(schurade): Document this!
+     */
+    virtual ~WQtModuleTreeItem();
+
+    /**
+     * get for the module pointer
+     */
+    boost::shared_ptr< WModule >getModule();
 
 
-WQtSubjectTreeItem::~WQtSubjectTreeItem()
-{
-}
+protected:
+private:
+    boost::shared_ptr< WModule >m_module;
+};
 
-
-WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( boost::shared_ptr< WModule > module )
-{
-    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this, module );
-
-    std::string name = module->getProperties()->getValueString( "name" );
-    ds->setText( 0, QString( name.c_str() ) );
-
-    return ds;
-}
+#endif  // WQTMODULETREEITEM_H

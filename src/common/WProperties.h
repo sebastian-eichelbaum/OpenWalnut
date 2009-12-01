@@ -68,19 +68,19 @@ public:
     std::vector< WProperty* >& getPropertyVector();
 
     boost::signals2::signal1< void, std::string >*
-        addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
+        addBool( std::string name, bool value = false, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
+        addChar( std::string name, char value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addInt( std::string name, int value = 0, std::string shortDesc = "", std::string longDesc = "" );
+        addInt( std::string name, int value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+        addFloat( std::string name, float value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+        addDouble( std::string name, double value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
+        addString( std::string name, std::string value = "", bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addColor( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
+        addColor( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
     std::string getValueString( const std::string prop );
 
