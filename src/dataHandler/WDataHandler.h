@@ -58,17 +58,20 @@ public:
     /**
      * Get the pointer to the i'th WSubject. The return type is const since we
      * want to ensure that each subject cannot modified after retrival.
+     * \param subjectId the number of the subject to be retrieved.
      */
     boost::shared_ptr< WSubject > getSubject( const unsigned int subjectId ) const;
 
     /**
      * Returns a  to the i'th WSubject. The return type is const since we
      * want to ensure that each subject cannot modified after retrival.
+     * \param subjectId the number of the subject to be retrieved.
      */
     boost::shared_ptr< WSubject > operator[]( size_t subjectId ) const;
 
     /**
      * Insert a new WSubject referenced by a pointer.
+     * \param newSubject a pointer to the subject that will be added
      */
     void addSubject( boost::shared_ptr< WSubject > newSubject );
 

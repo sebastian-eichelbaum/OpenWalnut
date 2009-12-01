@@ -51,7 +51,10 @@ public:
      */
     virtual boost::shared_ptr< WDataSet > load();
 
-void operator()();
+    /**
+     * Function that is automatically executed as new thread.
+     */
+    void operator()();
 
 protected:
 private:

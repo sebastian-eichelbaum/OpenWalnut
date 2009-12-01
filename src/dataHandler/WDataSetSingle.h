@@ -62,7 +62,10 @@ public:
     boost::shared_ptr< WGrid > getGrid() const;
 
     /**
-     *
+     * Get the value stored at a certain grid position of the data set
+     * \param x index in x direction
+     * \param y index in y direction
+     * \param z index in z direction
      */
     template < typename T > T getValueAt( int x, int y, int z )
     {

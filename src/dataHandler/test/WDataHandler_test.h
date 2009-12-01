@@ -31,10 +31,13 @@
 #include "../WSubject.h"
 #include "../exceptions/WDHNoSuchDataSet.h"
 
+/**
+ * Test important functionality of WDataHandler class
+ */
 class WDataHandlerTest : public CxxTest::TestSuite
 {
 public:
-    boost::shared_ptr< WSubject > dummySubject;
+    boost::shared_ptr< WSubject > dummySubject; //!< Dummy used for in the tests
 
     /**
      * Constructs unit test environment.
