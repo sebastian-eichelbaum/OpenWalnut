@@ -22,27 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WQtModuleTreeItem.h"
 
-#include "WQtSubjectTreeItem.h"
+WQtModuleTreeItem::WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module ) :
+    QTreeWidgetItem( parent, 3 )
+{
+    m_module = module;
 
-WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
-    : QTreeWidgetItem( parent, 0 ) // type 0
+    if ( module->getProperties()->getValue< bool > ( "active" ) )
+    {
+        this->setCheckState( 0, Qt::Checked );
+    }
+    else
+    {
+        this->setCheckState( 0, Qt::Unchecked );
+    }
+this->setFlags( Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+}
+
+WQtModuleTreeItem::~WQtModuleTreeItem()
 {
 }
 
-
-WQtSubjectTreeItem::~WQtSubjectTreeItem()
+boost::shared_ptr< WModule > WQtModuleTreeItem::getModule()
 {
-}
-
-
-WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( boost::shared_ptr< WModule > module )
-{
-    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this, module );
-
-    std::string name = module->getProperties()->getValueString( "name" );
-    ds->setText( 0, QString( name.c_str() ) );
-
-    return ds;
+    return m_module;
 }

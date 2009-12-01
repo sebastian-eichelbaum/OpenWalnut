@@ -35,7 +35,6 @@
 WMCoordinateSystem::WMCoordinateSystem() :
     WModule()
 {
-    properties();
 }
 
 WMCoordinateSystem::~WMCoordinateSystem()
@@ -72,11 +71,12 @@ const std::string WMCoordinateSystem::getDescription() const
 void WMCoordinateSystem::connectToGui()
 {
     WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
+    WKernel::getRunningKernel()->getGui()->addModuleToBrowser( shared_from_this() );
 }
 
 void WMCoordinateSystem::properties()
 {
-    m_properties->addBool( "dataSetAdded", false );
+    m_properties->addBool( "dataSetAdded", false, true );
 
     m_properties->addInt( "axialPos", 80 );
     m_properties->addInt( "coronalPos", 100 );

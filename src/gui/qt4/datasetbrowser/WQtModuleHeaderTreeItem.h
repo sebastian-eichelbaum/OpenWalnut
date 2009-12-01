@@ -22,27 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WQTMODULEHEADERTREEITEM_H
+#define WQTMODULEHEADERTREEITEM_H
+
 #include <string>
 
-#include "WQtSubjectTreeItem.h"
+#include <QtGui/QTreeWidgetItem>
 
-WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
-    : QTreeWidgetItem( parent, 0 ) // type 0
+#include "WQtModuleTreeItem.h"
+
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtModuleHeaderTreeItem : public QTreeWidgetItem
 {
-}
+public:
+    /**
+     * TODO(schurade): Document this!
+     */
+    explicit WQtModuleHeaderTreeItem( QTreeWidget * parent );
 
+    /**
+     * TODO(schurade): Document this!
+     */
+    virtual ~WQtModuleHeaderTreeItem();
 
-WQtSubjectTreeItem::~WQtSubjectTreeItem()
-{
-}
+    WQtModuleTreeItem* addModuleItem( boost::shared_ptr< WModule > module );
 
+protected:
+private:
+};
 
-WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( boost::shared_ptr< WModule > module )
-{
-    WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this, module );
-
-    std::string name = module->getProperties()->getValueString( "name" );
-    ds->setText( 0, QString( name.c_str() ) );
-
-    return ds;
-}
+#endif  // WQTMODULEHEADERTREEITEM_H

@@ -101,15 +101,16 @@ void WMNavSlices::connectors()
 
 void WMNavSlices::properties()
 {
-    m_properties->addBool( "textureChanged", false );
+    m_properties->addBool( "textureChanged", false, true );
 
     m_properties->addInt( "axialPos", 80 );
     m_properties->addInt( "coronalPos", 100 );
     m_properties->addInt( "sagittalPos", 80 );
 
-    m_properties->addInt( "maxAxial", 160 );
-    m_properties->addInt( "maxCoronal", 200 );
-    m_properties->addInt( "maxSagittal", 160 );
+    m_properties->addInt( "maxAxial", 160, true );
+    m_properties->addInt( "maxCoronal", 200, true );
+    m_properties->addInt( "maxSagittal", 160, true );
+
 
     m_properties->addBool( "showAxial", true );
     m_properties->addBool( "showCoronal", true );
@@ -170,6 +171,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     float maxAxial = ( float )( m_properties->getValue<int>( "maxAxial") );
     float maxCoronal = ( float )( m_properties->getValue<int>( "maxCoronal") );
     float maxSagittal = ( float )( m_properties->getValue<int>( "maxSagittal") );
+
+    m_properties->setMax( "axialPos", maxAxial );
+    m_properties->setMax( "coronalPos", maxCoronal );
+    m_properties->setMax( "sagittalPos", maxSagittal );
 
     float texAxial = axialPos / maxAxial;
     float texCoronal = coronalPos / maxCoronal;
@@ -445,6 +450,7 @@ void WMNavSlices::updateTextures()
 void WMNavSlices::connectToGui()
 {
     WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
+    WKernel::getRunningKernel()->getGui()->addModuleToBrowser( shared_from_this() );
 }
 
 

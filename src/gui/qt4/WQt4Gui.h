@@ -65,12 +65,20 @@ public:
     virtual int run();
 
     /**
-     * TODO(schurade): write something
+     * adds a dataset to the dataset browser
      *
      * \param module
      * \param subjectId
      */
     void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId );
+
+    /**
+     * adds a module to the dataset browser
+     *
+     * \param module
+     */
+    void addModuleToBrowser( boost::shared_ptr< WModule > module );
+
 
     /**
      * returns a vector of pointers to the loaded datasets for a given subject

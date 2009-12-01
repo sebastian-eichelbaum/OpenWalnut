@@ -25,7 +25,7 @@
 #include "WQtDatasetTreeItem.h"
 
 WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module )
-    : QTreeWidgetItem( parent, 1 )
+    : QTreeWidgetItem( parent, 1 ) // initialize with type 1
 {
     m_module = module;
 

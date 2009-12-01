@@ -34,6 +34,7 @@
 #include "WQtDatasetBrowser.h"
 #include "WQtNumberEdit.h"
 #include "WQtCheckBox.h"
+#include "WQtModuleHeaderTreeItem.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     : QDockWidget( parent )
@@ -69,6 +70,9 @@ WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     this->setWidget( m_panel );
 
+    WQtModuleHeaderTreeItem* tiModules = new WQtModuleHeaderTreeItem( m_treeWidget );
+    tiModules->setText( 0, QString( "Modules" ) );
+
     connectSlots();
 }
 
@@ -97,23 +101,41 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
-    WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId );
+    WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + 1 );
     subject->setExpanded( true );
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
     return subject->addDatasetItem( module );
 }
 
+WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > module )
+{
+    WQtModuleHeaderTreeItem* tiModules = ( WQtModuleHeaderTreeItem* )m_treeWidget->topLevelItem( 0 );
+    tiModules->setExpanded( true );
+    return tiModules->addModuleItem( module );
+}
+
+
 void WQtDatasetBrowser::selectTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
 
-    if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() != 1 )
+    if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() == 0 ||
+            m_treeWidget->selectedItems().at( 0 )->type() == 2 )
     {
         return;
     }
-    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    boost::shared_ptr< WModule >module;
+
+    if ( m_treeWidget->selectedItems().at( 0 )->type() == 1 )
+    {
+        module = ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    }
+    else
+    {
+        module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    }
     std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
 
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
@@ -227,12 +249,12 @@ std::vector< boost::shared_ptr< WModule > >WQtDatasetBrowser::getDataSetList( in
     {
         return moduleList;
     }
-    int count = m_treeWidget->invisibleRootItem()->child( subjectId )->childCount();
+    int count = m_treeWidget->invisibleRootItem()->child( subjectId + 1 )->childCount();
 
     for ( int i = 0 ; i < count ; ++i )
     {
         moduleList.push_back( ( ( WQtDatasetTreeItem* )
-                m_treeWidget->invisibleRootItem()->child( subjectId )->child( i ) )->getModule() );
+                m_treeWidget->invisibleRootItem()->child( subjectId + 1 )->child( i ) )->getModule() );
     }
     return moduleList;
 }
