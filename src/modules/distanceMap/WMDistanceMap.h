@@ -93,8 +93,16 @@ private:
     /**
      * Function to create a distance map from Anatomy data set.
      * Take from FiberNavigator.
+     * \param dataSet the data set that is used to compute the distance field.
+     * The distance is computed to the boundary between foreground an background
      */
     boost::shared_ptr< WValueSet< float > > createOffset( boost::shared_ptr< const WDataSetSingle > dataSet );
+
+    /**
+     * Gauss function.
+     * \param x position of evaluation
+     * \param sigma standard deviation
+     */
     double xxgauss( double x, double sigma );
 };
 
