@@ -57,14 +57,14 @@ public:
 
 protected:
 private:
+    /**
+     * Fill the data into the segment doing the needed conversions.
+     */
     void fillSegment( std::vector<std::vector<double> >* segment, biosig_data_type* data );
 
-    /**
-     * Header of file
-     */
-    HDRTYPE* hd;
-    size_t m_columns;
-    size_t m_rows;
+    HDRTYPE* hd; //!< Header of file
+    size_t m_columns; //!< columns of the storage in the file
+    size_t m_rows; //!< rows of the storage in the file
 };
 
 #endif  // WLOADERBIOSIG_H

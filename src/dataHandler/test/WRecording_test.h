@@ -28,6 +28,9 @@
 #include <cxxtest/TestSuite.h>
 #include "../WRecording.h"
 
+/**
+ * Test important functionality of WRecording class
+ */
 class WRecordingTest : public CxxTest::TestSuite
 {
 public:

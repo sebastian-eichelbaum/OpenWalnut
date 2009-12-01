@@ -87,6 +87,8 @@ private:
      */
     void cluster();
 
+    osg::ref_ptr< osg::Geode > genFiberGeode( const WFiberCluster &cluster, const WColor color ) const;
+
     /**
      * Choose colors and build and commit new FgePrimitve
      */
@@ -149,7 +151,7 @@ private:
 
 inline const std::string WMFiberClustering::getName() const
 {
-    return std::string( "FiberClustering" );
+    return std::string( "Fiber Clustering Module" );
 }
 
 inline const std::string WMFiberClustering::getDescription() const

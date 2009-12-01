@@ -36,24 +36,31 @@
 // TODO(wiebel): use this szuff or remove it
 #include "../math/WPosition.h"
 typedef double WDummyType;
+
+/**
+ * An incomplete implementation to store information about electrodes of EEG data
+ */
 class WEEGElectrodeObject
 {
 public:
 protected:
 private:
-    wmath::WPosition m_position;
+    wmath::WPosition m_position; //!< Position of the electrode in space
     // TODO(wiebel): The following is suggested in the
     // eemagine design document
     // WColor color;
 };
+/**
+ * An incomplete dummy implementation to store information about segments of EEG data
+ */
 class WEEGSegementInfo
 {
 public:
 protected:
 private:
-    WDummyType m_startSample;
-    WDummyType m_endSample;
-    WDummyType m_segmentStartDate;
+    WDummyType m_startSample; //!< Dummy variable of not yet completely implemented class
+    WDummyType m_endSample; //!< Dummy variable of not yet completely implemented class
+    WDummyType m_segmentStartDate; //!< Dummy variable of not yet completely implemented class
 };
 //================================================
 

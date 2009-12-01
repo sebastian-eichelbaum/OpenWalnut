@@ -29,6 +29,9 @@
 #include <cxxtest/TestSuite.h>
 #include "../WEEG.h"
 
+/**
+ * Test important functionality of WEEG class
+ */
 class WEEGTest : public CxxTest::TestSuite
 {
 public:

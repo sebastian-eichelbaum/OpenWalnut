@@ -92,6 +92,16 @@ public:
      */
     osg::Vec4 getOSGColor() const;
 
+    /**
+     * Reset this color via a given HSV color.
+     */
+    void setHSV( double h, double s, double v );
+
+    /**
+     * Reset all channels at once.
+     */
+    void setRGB( double r, double g, double b );
+
 protected:
 private:
     float m_red;

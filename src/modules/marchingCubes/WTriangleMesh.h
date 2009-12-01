@@ -30,9 +30,12 @@
 #include "../../math/WPosition.h"
 #include "../../math/WVector3D.h"
 
+/**
+ * A triangle consisting of 3 id of vertices that represent its corners
+ */
 struct Triangle
 {
-    size_t pointID[3];
+    size_t pointID[3]; //!< the ID of the vertices representing the triangle corners
 };
 
 /**
@@ -92,12 +95,14 @@ public:
      * Add a new vertex at the position given by internal state variable
      * fastAddVertId. Each call increases fastAddVertId by one. Exercise care
      * when using this function because it depends on the state of the WTriangleMesh.
+     * \param newVert The vertex that will be added.
      */
     void fastAddVert( const wmath::WPosition& newVert );
 
     /**
      * Set vertices to given vector of vertex positions. Be aware that this includes
      * a complete copy operation.
+     * \param vertices A vector of position that will be the vertices of the grid.
      */
     void setVertices( const std::vector< wmath::WPosition >& vertices );
 
@@ -110,12 +115,16 @@ public:
      * Add a new triangle at the position given by internal state variable
      * fastAddTriangleId. Each call increases fastAddTriangleId by one. Exercise care
      * when using this function because it depends on the state of the WTriangleMesh.
+     * \param vertA Id of vertex in vertex array that will be the first corner of the new triangle
+     * \param vertB Id of vertex in vertex array that will be the second corner of the new triangle
+     * \param vertC Id of vertex in vertex array that will be the third corner of the new triangle
      */
     void fastAddTriangle( unsigned int vertA, unsigned int vertB, unsigned int vertC );
 
     /**
      * Set triangles to given vector of vertex index triples. Be aware that this includes
      * a complete copy operation.
+     * \param triangles Vector of triangles (i.e. encapsulated vertex IDs) that will be the mesh
      */
     void setTriangles( const std::vector< Triangle >& triangles );
 
@@ -125,6 +134,7 @@ public:
     size_t getFastAddTriangleId() const;
 
     /**
+     * \param id ID of vertex
      * \return position of id-th vertex.
      */
     wmath::WPosition getVertex( size_t id ) const
@@ -133,6 +143,8 @@ public:
     }
 
     /**
+     * \param triId id of the triangle in triangle list
+     * \param vertId id of the vertex in the triangle's vertex list
      * \return global vertex id of the vertId-th vertex of the triId-th triangle.
      */
     size_t getTriangleVertexId( size_t triId, size_t vertId ) const
@@ -141,6 +153,7 @@ public:
     }
 
     /**
+     * \param i ID of the triangle the normal will be computed for.
      * \return normal of i-th trinagle. Will be computed in the moment of the call.
      * i.e. with no memory overhead but possibly slow.
      * Normal will be of length 1.
@@ -151,6 +164,7 @@ public:
      * Get the indices of the triangles surrounding the i-th position.
      * This function is slow but const and memory efficient.
      * Normal will be of length 1.
+     * \param i ID of position.
      */
     std::vector< unsigned int > getPositionTriangleNeighborsSlow( size_t i ) const;
 
@@ -158,6 +172,7 @@ public:
      * Get an approximated normal for point with index i.
      * The normal is a mean of the the normals of the surrounding triangles.
      * This function is slow but const and memory efficient.
+     * \param i ID of vertex.
      */
     wmath::WVector3D getVertexNormalSlow( size_t i ) const;
 
@@ -167,6 +182,7 @@ public:
      * This function is fast but requires the normals to be precomputed
      * and stored by computeVertNormals().
      * Normal will be of length 1.
+     * \param i ID of vertex.
      */
     wmath::WVector3D getVertexNormal( size_t i ) const;
 

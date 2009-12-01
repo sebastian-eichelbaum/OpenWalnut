@@ -96,6 +96,27 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode(
 
 void WMFiberDisplay::moduleMain()
 {
+//    ready();
+//    while( !m_FinishRequested )
+//    {
+//        if( m_fiberInput->getData() != boost::shared_ptr< const WDataSetFibers >() )
+//        {
+//            boost::shared_ptr< const WDataSetFibers > fiberDS = m_fiberInput->getData();
+//
+//            osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
+//            group->addChild( genFiberGeode( fiberDS, false ).get() );
+//            group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+//
+//            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
+//        }
+//        // TODO(math): implement some redraw if data has changed
+//        //  - replacing the OSG group node?
+//        //  - using notifyDataChange() method
+//        while( !m_FinishRequested )
+//        {
+//            sleep( 1 );
+//        }
+//    }
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(math): fix this hack when possible by using an input connector.
     while( !WKernel::getRunningKernel() )
@@ -125,4 +146,22 @@ void WMFiberDisplay::moduleMain()
         // do fancy stuff
         sleep( 1 );
     }
+}
+
+void WMFiberDisplay::connectors()
+{
+    using boost::shared_ptr;
+    typedef WModuleInputData< const WDataSetFibers > FiberInputData;  // just an alias
+
+    m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData(
+                shared_from_this(), "fiberInput", "A loaded fiber dataset." )
+            );
+
+    addConnector( m_fiberInput );
+    WModule::connectors();  // call WModules initialization
+}
+
+void WMFiberDisplay::properties()
+{
+    m_properties->addString( "Fibers Display Module", "Display fibers" );
 }

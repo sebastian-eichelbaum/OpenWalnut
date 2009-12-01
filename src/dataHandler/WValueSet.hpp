@@ -48,6 +48,10 @@ public:
     /**
      * Constructs a value set with values of type T. Sets order and dimension
      * to allow to interprete the values as tensors of a certain order and dimension.
+     * \param order tensor order of values stored in the value set
+     * \param dimension tensor dimension of values stored in the value set
+     * \param data the vector holding the raw data
+     * \param inDataType indicator teeling us which dataType comes in
      */
     WValueSet( size_t order, size_t dimension, const std::vector< T > data, dataType inDataType )
         : WValueSetBase( order, dimension, inDataType ),
@@ -86,6 +90,7 @@ public:
     }
 
     /**
+     * \param i id of the scalar to retrieve
      * \return The i-th value if the value set is of scalar type.
      */
     virtual T getScalar( size_t i ) const

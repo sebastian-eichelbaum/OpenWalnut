@@ -67,6 +67,32 @@ public:
         TS_ASSERT_EQUALS( c.getBlue(), 0.25 );
         TS_ASSERT_EQUALS( c.getAlpha(), 0.0 );
     }
+
+    /**
+     * Red in HSV is ( 0, 1, 1 ) and in RGB ( 1, 0, 0 )
+     * Green in HSV is ( 0.3, 1, 1 ) and in RGB ( 0, 1, 0 )
+     * and checks some dark green
+     */
+    void testResetHSV( void )
+    {
+        WColor c;
+        c.setHSV( 0, 1, 1 );
+        TS_ASSERT_DELTA( c.getRed(), 1, 0.00001 );
+        TS_ASSERT_DELTA( c.getGreen(), 0, 0.00001 );
+        TS_ASSERT_DELTA( c.getBlue(), 0, 0.00001 );
+        c.setHSV( 1, 1, 1 ); // this is also red
+        TS_ASSERT_DELTA( c.getRed(), 1, 0.00001 );
+        TS_ASSERT_DELTA( c.getGreen(), 0, 0.00001 );
+        TS_ASSERT_DELTA( c.getBlue(), 0, 0.00001 );
+        c.setHSV( 1.0 / 3.0, 1, 1 );
+        TS_ASSERT_DELTA( c.getRed(), 0, 0.00001 );
+        TS_ASSERT_DELTA( c.getGreen(), 1, 0.00001 );
+        TS_ASSERT_DELTA( c.getBlue(), 0, 0.00001 );
+        c.setHSV( 0.3, 0.3, 0.3 ); // dark green
+        TS_ASSERT_DELTA( c.getRed(), 0.2280, 0.0001 );
+        TS_ASSERT_DELTA( c.getGreen(), 0.3, 0.0001 );
+        TS_ASSERT_DELTA( c.getBlue(), 0.2099, 0.0001 );
+    }
 };
 
 #endif  // WCOLOR_TEST_H

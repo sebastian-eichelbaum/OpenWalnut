@@ -29,6 +29,9 @@
 #include <cxxtest/TestSuite.h>
 #include "../WDataSet.h"
 
+/**
+ * Test important functionality of WDataSet class
+ */
 class WDataSetTest : public CxxTest::TestSuite
 {
 public:

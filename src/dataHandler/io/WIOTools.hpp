@@ -29,6 +29,9 @@
 
 #include <algorithm>
 #include <cassert>
+#include <string>
+
+#include <boost/filesystem.hpp>
 
 /**
  * Namespaces for several tools we may need while doing IO
@@ -81,6 +84,14 @@ namespace wiotools
             array[i] = switchByteOrder< T >( array[i] );
         }
     }
-}  // end of namespace
 
+    /**
+     * \return filename suffix
+     */
+    inline std::string getSuffix( std::string name )
+    {
+        boost::filesystem::path p( name );
+        return p.extension();
+    }
+}  // end of namespace
 #endif  // WIOTOOLS_HPP
