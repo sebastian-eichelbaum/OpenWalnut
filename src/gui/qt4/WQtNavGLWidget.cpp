@@ -32,8 +32,8 @@
 
 #include "WQtNavGLWidget.h"
 
-WQtNavGLWidget::WQtNavGLWidget( QString title, int maxValue, std::string sliderTitle )
-    : QDockWidget( title )
+WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, std::string sliderTitle )
+    : QDockWidget( title, parent )
 {
     m_sliderTitle = QString( sliderTitle.c_str() );
 
@@ -47,7 +47,8 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, int maxValue, std::string sliderT
 
     QVBoxLayout* layout = new QVBoxLayout();
 
-    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString() , panel, WGECamera::ORTHOGRAPHIC ) );
+    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
+    m_glWidget->initialize();
 
     layout->addWidget( m_glWidget.get() );
     layout->addWidget( slider );
