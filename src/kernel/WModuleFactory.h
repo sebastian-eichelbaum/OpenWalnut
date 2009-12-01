@@ -58,34 +58,34 @@ public:
 
     /**
      * Create a new and initialized module using the specified prototype.
-     * 
+     *
      * \param prototype the prototype to clone.
-     * 
+     *
      * \return the module created using the prototype.
      */
     boost::shared_ptr< WModule > create( boost::shared_ptr< WModule > prototype );
 
     /**
      * Returns instance of the module factory to use to create modules.
-     * 
+     *
      * \return the running module factory.
      */
     static boost::shared_ptr< WModuleFactory > getModuleFactory();
 
     /**
      * Finds a prototype using the specified name.
-     * 
+     *
      * \param name the name.
-     * 
+     *
      * \return the prototype whose name is equal to the specified one.
      */
     const boost::shared_ptr< WModule > getPrototypeByName( std::string name );
 
     /**
      * Finds a prototype using an instance of a module. This uses the type_info to find a proper prototype.
-     * 
+     *
      * \param instance the instance to use.
-     * 
+     *
      * \return the prototype.
      * \throw WPrototypeUnknown if prototype can not be found.
      */
@@ -93,9 +93,9 @@ public:
 
     /**
      * Checks whether the first instance can be casted to the second one.
-     * 
+     *
      * \param module the module to check.
-     * 
+     *
      * \return true if the dynamic_cast is successful
      */
     template <typename T>
@@ -103,7 +103,9 @@ public:
 
     /**
      * Returns a set of modules compatible with the specified one.
-     * 
+     *
+     * \param module the module to find prototype for.
+     *
      * \return set of compatible prototypes.
      */
     std::set< boost::shared_ptr< WModule > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );

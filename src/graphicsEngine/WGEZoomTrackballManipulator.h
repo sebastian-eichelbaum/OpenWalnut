@@ -83,10 +83,13 @@ public:
 
 protected:
 private:
+
     /**
-     * Zoom faktor
+     * Handles events related to zooming.
      */
-    double m_zoom;
+    bool zoom( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
+
+    double m_zoom; //!< Zoom factor.
 };
 
 #endif  // WGEZOOMTRACKBALLMANIPULATOR_H

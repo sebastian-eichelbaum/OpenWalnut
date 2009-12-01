@@ -38,6 +38,9 @@
 class DummyLoader : public WLoader
 {
 public:
+    /**
+     * Constructor of Dummy class for testing of WLoader
+     */
     explicit DummyLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
         : WLoader( fileName, dataHandler )
     {

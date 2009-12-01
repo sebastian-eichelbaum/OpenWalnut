@@ -46,7 +46,7 @@ public:
 
     /**
      * Constructor. Initializes container.
-     * 
+     *
      * \param name  name of the container
      * \param description short description.
      */
@@ -58,9 +58,9 @@ public:
     virtual ~WModuleContainer();
 
     /**
-     * Add a module to this container and start it. Please note, that a module can be added only once. If it already is 
+     * Add a module to this container and start it. Please note, that a module can be added only once. If it already is
      * associated with this container nothing happens.
-     * 
+     *
      * \param module the module to add.
      * \param run true when the module should be run automatically after adding it.
      * \throw WModuleUninitialized thrown whenever someone wants to add a module not yet initialized.
@@ -69,7 +69,7 @@ public:
 
     /**
      * Remove the given module from this container if it is associated with it. TODO(ebaum): deep removal? flat removal?
-     * 
+     *
      * \param module the module to remove.
      */
     virtual void remove( boost::shared_ptr< WModule > module );
@@ -94,11 +94,18 @@ public:
 
     /**
      * Add a specified notifier to the list of default notifiers which get connected to each added module.
-     * 
+     *
      * \param signal    the signal the notifier should get connected to
      * \param notifier  the notifier function
      */
     virtual void addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier );
+
+    /**
+     * Add a specified notifier to the list of default notifiers which get connected to each added module.
+     *
+     * \param signal    the signal the notifier should get connected to
+     * \param notifier  the notifier function
+     */
     virtual void addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
 
 protected:

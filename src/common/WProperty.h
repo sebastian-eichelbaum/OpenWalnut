@@ -56,13 +56,13 @@ public:
     /**
      * constructors
      */
-    WProperty( std::string name, std::string value, std::string shortDesc = "", std::string longDesc = "" );
-    WProperty( std::string name, bool value, std::string shortDesc = "", std::string longDesc = "" );
-    WProperty( std::string name, char value, std::string shortDesc = "", std::string longDesc = "" );
-    WProperty( std::string name, int value, std::string shortDesc = "", std::string longDesc = "" );
-    WProperty( std::string name, float value, std::string shortDesc = "", std::string longDesc = "" );
-    WProperty( std::string name, double value, std::string shortDesc = "", std::string longDesc = "" );
-    WProperty( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, std::string value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, bool value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, char value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, int value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, float value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, double value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WProperty( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
     /**
      * destructor

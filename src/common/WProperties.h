@@ -68,28 +68,28 @@ public:
     std::vector< WProperty* >& getPropertyVector();
 
     boost::signals2::signal1< void, std::string >*
-        addBool( std::string name, bool value = false, std::string shortDesc = "", std::string longDesc = "" );
+        addBool( std::string name, bool value = false, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addChar( std::string name, char value = 0, std::string shortDesc = "", std::string longDesc = "" );
+        addChar( std::string name, char value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addInt( std::string name, int value = 0, std::string shortDesc = "", std::string longDesc = "" );
+        addInt( std::string name, int value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addFloat( std::string name, float value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+        addFloat( std::string name, float value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addDouble( std::string name, double value = 0.0, std::string shortDesc = "", std::string longDesc = "" );
+        addDouble( std::string name, double value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addString( std::string name, std::string value = "", std::string shortDesc = "", std::string longDesc = "" );
+        addString( std::string name, std::string value = "", bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     boost::signals2::signal1< void, std::string >*
-        addColor( std::string name, WColor value, std::string shortDesc = "", std::string longDesc = "" );
+        addColor( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
     std::string getValueString( const std::string prop );
 
     template < typename T >  void setValue( std::string prop, const T& arg )
     {
-        boost::shared_lock<boost::shared_mutex> slock;
-        slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+        boost::shared_lock< boost::shared_mutex > slock;
+        slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
 
-        if ( findProp( prop ) )
+        if( findProp( prop ) )
         {
             findProp( prop )->setValue( arg );
         }
@@ -99,7 +99,7 @@ public:
 
     template < typename T >  void setMin( std::string prop, const T& arg )
     {
-        if ( findProp( prop ) )
+        if( findProp( prop ) )
         {
             findProp( prop )->setMin( arg );
         }
@@ -107,7 +107,7 @@ public:
 
     template < typename T >  void setMax( std::string prop, const T& arg )
     {
-        if ( findProp( prop ) )
+        if( findProp( prop ) )
         {
             findProp( prop )->setMax( arg );
         }
@@ -115,7 +115,7 @@ public:
 
     template < typename T >  T  getValue( std::string prop )
     {
-        if ( findProp( prop ) )
+        if( findProp( prop ) )
         {
             return findProp( prop )->getValue< T >();
         }
@@ -126,7 +126,7 @@ public:
 
     template < typename T >  T  getMin( std::string prop )
     {
-        if ( findProp( prop ) )
+        if( findProp( prop ) )
         {
             return findProp( prop )->getMin< T >();
         }
@@ -137,7 +137,7 @@ public:
 
     template < typename T >  T  getMax( std::string prop )
     {
-        if ( findProp( prop ) )
+        if( findProp( prop ) )
         {
             return findProp( prop )->getMax< T >();
         }
@@ -150,9 +150,9 @@ public:
 private:
     WProperty* findProp( std::string name );
 
-    std::map < std::string, WProperty* >m_propertyList;
+    std::map < std::string, WProperty* > m_propertyList;
 
-    std::vector< WProperty* >m_propertyVector;
+    std::vector< WProperty* > m_propertyVector;
 
     boost::shared_mutex m_updateLock;
 };

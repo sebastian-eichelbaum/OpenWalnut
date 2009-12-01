@@ -40,11 +40,18 @@ using wmath::WMatrix;
 namespace CxxTest
 {
 CXXTEST_TEMPLATE_INSTANTIATION
+/**
+ * Allows usable output of WVector3D in tests
+ */
 class ValueTraits<WVector3D>
 {
-    std::string _s;
+    std::string _s; //!< The string representing the WVector
 
 public:
+    /**
+     * Constructor for class allowing usable output of WVector3D in tests
+     * \param m the WVector to print
+     */
     explicit ValueTraits( const WVector3D &m )
     {
         std::stringstream tmp;
@@ -52,6 +59,10 @@ public:
         tmp << "WVector3D( " << m[0] << " " << m[1] << " " << m[2] << " )";
         _s = tmp.str();
     }
+
+    /**
+     * Get the string corresponding to the WVector
+     */
     const char *asString() const
     {
         return _s.c_str();
@@ -346,7 +357,7 @@ public:
     }
 
 private:
-    double m_delta;
+    double m_delta; //!< Maximum amount to values are allowed to differ.
 };
 
 #endif  // WGRIDREGULAR3D_TEST_H

@@ -36,6 +36,7 @@
 #include "../../common/WFlag.hpp"
 
 class WGEViewer;
+class WColor;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -89,6 +90,11 @@ public:
     void setCameraManipulator( CameraManipulators manipulator );
 
     /**
+     * Sets the background color of the widget.
+     */
+    void setBgColor( WColor bgColor );
+
+    /**
      * Returns the actually set camera manipulator.
      *
      * \return the manipulator.
@@ -97,7 +103,7 @@ public:
 
     /**
      * Determines whether the widget is properly initialized.
-     * 
+     *
      * \return flag - initialized.
      */
     const WBoolFlag& isInitialized() const;

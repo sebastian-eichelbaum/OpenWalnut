@@ -22,42 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADEREEGASCII_H
-#define WLOADEREEGASCII_H
-
+#ifndef WQTMODULEHEADERTREEITEM_H
+#define WQTMODULEHEADERTREEITEM_H
 
 #include <string>
-#include <boost/shared_ptr.hpp>
-#include "../WDataHandler.h"
-#include "../WLoader.h"
+
+#include <QtGui/QTreeWidgetItem>
+
+#include "WQtModuleTreeItem.h"
 
 /**
- * Loader for EEG data in ASCII fromat.
- * \ingroup dataHandler
+ * TODO(schurade): Document this!
  */
-class WLoaderEEGASCII : public WLoader
+class WQtModuleHeaderTreeItem : public QTreeWidgetItem
 {
 public:
     /**
-     * Constructs a loader to be executed in its own thread and sets the data needed
-     * for the loader when executed in its own thread.
+     * TODO(schurade): Document this!
      */
-    WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    explicit WQtModuleHeaderTreeItem( QTreeWidget * parent );
 
     /**
-     * Loads the dataset.
-     * 
-     * \return the dataset loaded.
+     * TODO(schurade): Document this!
      */
-    virtual boost::shared_ptr< WDataSet > load();
+    virtual ~WQtModuleHeaderTreeItem();
 
-    /**
-     * Function that is automatically executed as new thread.
-     */
-    void operator()();
+    WQtModuleTreeItem* addModuleItem( boost::shared_ptr< WModule > module );
 
 protected:
 private:
 };
 
-#endif  // WLOADEREEGASCII_H
+#endif  // WQTMODULEHEADERTREEITEM_H

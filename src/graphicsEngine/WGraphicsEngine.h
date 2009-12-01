@@ -80,7 +80,7 @@ public:
 
     /**
      * Sets the shader path.
-     * 
+     *
      * \param path path to shaders.
      */
     void setShaderPath( std::string path );
@@ -95,11 +95,13 @@ public:
      * \param width Width of the widget.
      * \param height Height of the Widget.
      * \param projectionMode Projection mode of the viewer.
+     * \param bgColor background color shown in the viewer.
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
     boost::shared_ptr<WGEViewer> createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
-        int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
+                                               int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
+                                               WColor bgColor = WColor( .9, .9, .9 ) );
 
     /**
      * Searchs for a viewer with a given name and returns it, if found.

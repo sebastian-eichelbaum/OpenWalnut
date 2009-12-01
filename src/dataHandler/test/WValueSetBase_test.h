@@ -44,6 +44,9 @@ public:
     {
     }
 
+    /**
+     * Constructor of Dummy class for testing
+     */
     explicit Dummy( char dimension )
         : WValueSetBase( 0, dimension, W_DT_INT8 )
     {

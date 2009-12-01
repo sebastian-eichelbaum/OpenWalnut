@@ -35,6 +35,7 @@
 
 #include "WQtDSBWidget.h"
 #include "WQtSubjectTreeItem.h"
+#include "WQtModuleTreeItem.h"
 #include "WQtTreeWidget.h"
 
 /**
@@ -73,6 +74,8 @@ public:
      * adds a dataset entry to any given subject in the tree widget
      */
     WQtDatasetTreeItem* addDataset( boost::shared_ptr< WModule > module, int subjectId = 0 );
+
+    WQtModuleTreeItem* addModule( boost::shared_ptr< WModule > module );
 
     /**
      * returns a vector of pointers to the loaded datasets for a given subject

@@ -27,7 +27,7 @@
 #include "WQtSubjectTreeItem.h"
 
 WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
-    : QTreeWidgetItem( parent )
+    : QTreeWidgetItem( parent, 0 ) // type 0
 {
 }
 

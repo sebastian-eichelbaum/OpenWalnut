@@ -53,7 +53,7 @@ public:
     /**
      * adds a property pointer to the list
      */
-    void connectProperties( boost::shared_ptr<WProperties> properties );
+    void connectProperties( boost::shared_ptr< WProperties > properties );
 
 public slots:
     /**
@@ -80,7 +80,7 @@ public slots:
 
 protected:
 private:
-    std::vector< boost::shared_ptr<WProperties> >m_connectedProperties;
+    std::vector< boost::shared_ptr< WProperties > > m_connectedProperties;
 };
 
 #endif  // WPROPERTYMANAGER_H

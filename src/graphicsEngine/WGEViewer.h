@@ -46,6 +46,9 @@
 #include "WGECamera.h"
 #include "WGEZoomTrackballManipulator.h"
 
+
+class WColor;
+
 /**
  * Class for managing one viewer to the scene. This includes viewport, camera and graphics context.
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
@@ -83,7 +86,7 @@ public:
      */
     virtual void resize( int width, int height );
 
-    /** 
+    /**
      * Close the viewer, but wait for the rendering thread to finish.
      */
     virtual void close();
@@ -140,10 +143,12 @@ public:
     /**
      * Returns the name of the viewer.
      */
-    std::string getName() const
-    {
-        return m_name;
-    }
+    std::string getName() const;
+
+    /**
+     * Determine the color of the viewer's background.
+     */
+    void setBgColor( WColor bgColor );
 
 protected:
 

@@ -198,19 +198,19 @@ public:
 
 protected:
 private:
-    wmath::WPosition m_origin;
+    wmath::WPosition m_origin; //!< Origin of the grid.
 
-    unsigned int m_nbPosX;
-    unsigned int m_nbPosY;
-    unsigned int m_nbPosZ;
+    unsigned int m_nbPosX; //!< Number of positions in x direction
+    unsigned int m_nbPosY; //!< Number of positions in y direction
+    unsigned int m_nbPosZ; //!< Number of positions in z direction
 
-    wmath::WVector3D m_directionX;
-    wmath::WVector3D m_directionY;
-    wmath::WVector3D m_directionZ;
+    wmath::WVector3D m_directionX; //!< Direction of the x axis
+    wmath::WVector3D m_directionY; //!< Direction of the y axis
+    wmath::WVector3D m_directionZ; //!< Direction of the z axis
 
-    double m_offsetX;
-    double m_offsetY;
-    double m_offsetZ;
+    double m_offsetX; //!< Offset between samples along x axis
+    double m_offsetY; //!< Offset between samples along y axis
+    double m_offsetZ; //!< Offset between samples along z axis
 
     /**
      * Matrix storing the transformation of the grid. This is redundant.
@@ -219,7 +219,7 @@ private:
      */
     wmath::WMatrix<double> m_matrix;
 
-    wmath::WMatrix<double> m_matrixInverse;
+    wmath::WMatrix<double> m_matrixInverse; //!< Inverse of m_matrix
 };
 
 #endif  // WGRIDREGULAR3D_H

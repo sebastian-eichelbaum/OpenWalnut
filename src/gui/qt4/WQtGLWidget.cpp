@@ -132,6 +132,12 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
     }
 }
 
+void WQtGLWidget::setBgColor( WColor bgColor )
+{
+    assert( m_Viewer );
+    m_Viewer->setBgColor( bgColor );
+}
+
 WQtGLWidget::CameraManipulators WQtGLWidget::getCameraManipulators()
 {
     return m_CurrentManipulator;

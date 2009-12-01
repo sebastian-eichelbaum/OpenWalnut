@@ -34,11 +34,14 @@
 #include "../WGrid.h"
 #include "../WDataHandlerEnums.h"
 
+/**
+ * Test important functionality of WDataSetSingle class
+ */
 class WDataSetSingleTest : public CxxTest::TestSuite
 {
 public:
-    boost::shared_ptr< WGrid > gridDummy;
-    boost::shared_ptr< WValueSetBase > valueSetDummy;
+    boost::shared_ptr< WGrid > gridDummy; //!< Dummy grid used in the tests.
+    boost::shared_ptr< WValueSetBase > valueSetDummy; //!< Dummy value set used in the tests.
 
     /**
      * Constructs unit test environment.
