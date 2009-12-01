@@ -91,6 +91,97 @@ osg::Vec4 WColor::getOSGColor() const
     return osg::Vec4( m_red, m_green, m_blue, m_alpha );
 }
 
+void WColor::setRGB( double r, double g, double b )
+{
+    setRed( r );
+    setGreen( g );
+    setBlue( b );
+}
+
+// This function is taken from VTK 5.4.2. Since its BSD licensed the license
+// notice follows below. It is not taken from FAnToM since it seems more self
+// documenting.
+//
+// /*=========================================================================
+//
+//   Program:   Visualization Toolkit
+//   Module:    $RCSfile: vtkMath.cxx,v $
+//
+//   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+//   All rights reserved.
+//   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+//
+//      This software is distributed WITHOUT ANY WARRANTY; without even
+//      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//      PURPOSE.  See the above copyright notice for more information.
+//
+// =========================================================================
+//   Copyright 2005 Sandia Corporation.
+//   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
+//   license for use of this work by or on behalf of the
+//   U.S. Government. Redistribution and use in source and binary forms, with
+//   or without modification, are permitted provided that this Notice and any
+//   statement of authorship are reproduced on all copies.
+//
+//   Contact: pppebay@sandia.gov,dcthomp@sandia.gov,
+//
+// =========================================================================*/
+void WColor::setHSV( double h, double s, double v )
+{
+    const double onethird = 1.0 / 3.0;
+    const double onesixth = 1.0 / 6.0;
+    const double twothird = 2.0 / 3.0;
+    const double fivesixth = 5.0 / 6.0;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
+
+    // compute RGB from HSV
+    if( h > onesixth && h <= onethird ) // green/red
+    {
+        g = 1.0;
+        r = ( onethird - h ) / onesixth;
+        b = 0.0;
+    }
+    else if( h > onethird && h <= 0.5 ) // green/blue
+    {
+        g = 1.0;
+        b = ( h - onethird ) / onesixth;
+        r = 0.0;
+    }
+    else if( h > 0.5 && h <= twothird ) // blue/green
+    {
+        b = 1.0;
+        g = ( twothird - h ) / onesixth;
+        r = 0.0;
+    }
+    else if( h > twothird && h <= fivesixth ) // blue/red
+    {
+        b = 1.0;
+        r = ( h - twothird ) / onesixth;
+        g = 0.0;
+    }
+    else if( h > fivesixth && h <= 1.0) // red/blue
+    {
+        r = 1.0;
+        b = ( 1.0 - h ) / onesixth;
+        g = 0.0;
+    }
+    else // red/green
+    {
+        r = 1.0;
+        g = h / onesixth;
+        b = 0.0;
+    }
+
+    // add Saturation to the equation.
+    r = ( s * r + ( 1.0 - s ) ) * v;
+    g = ( s * g + ( 1.0 - s ) ) * v;
+    b = ( s * b + ( 1.0 - s ) ) * v;
+
+    setRGB( r, g, b );
+}
+
 std::ostream& operator<<( std::ostream& out, const WColor& c )
 {
     float r = c.getRed();
