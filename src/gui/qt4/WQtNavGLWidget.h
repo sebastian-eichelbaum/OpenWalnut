@@ -43,7 +43,7 @@ public:
      *
      * \param parent the parent widget.
      */
-    explicit WQtNavGLWidget( QString title, QWidget* parent ,int maxValue = 100, std::string sliderTitle="pos" );
+    explicit WQtNavGLWidget( QString title, QWidget* parent, int maxValue = 100, std::string sliderTitle="pos" );
 
     /**
      * destructor
