@@ -62,9 +62,9 @@ public:
     void merge( WFiberCluster &other ); // NOLINT
 
     /**
-     * Returns a copy of all indices inside this cluster
+     * Returns a const reference of all indices inside this cluster
      */
-    const std::list< size_t > getIndices() const;
+    const std::list< size_t >& getIndices() const;
 
     /**
      * Find the minimal distance for any pair of fibers where one fiber is
@@ -181,7 +181,7 @@ inline bool WFiberCluster::operator!=( const WFiberCluster& other ) const
     return m_memberIndices != other.m_memberIndices;
 }
 
-inline const std::list< size_t > WFiberCluster::getIndices() const
+inline const std::list< size_t >& WFiberCluster::getIndices() const
 {
     return m_memberIndices;
 }

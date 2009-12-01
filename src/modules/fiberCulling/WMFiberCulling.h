@@ -104,7 +104,7 @@ private:
 
 inline const std::string WMFiberCulling::getName() const
 {
-    return std::string( "FiberCulling" );
+    return std::string( "Fiber Culling Module" );
 }
 
 inline const std::string WMFiberCulling::getDescription() const

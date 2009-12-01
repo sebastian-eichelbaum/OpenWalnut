@@ -96,26 +96,55 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode(
 
 void WMFiberDisplay::moduleMain()
 {
-    ready();
-    while( !m_FinishRequested )
+//    ready();
+//    while( !m_FinishRequested )
+//    {
+//        if( m_fiberInput->getData() != boost::shared_ptr< const WDataSetFibers >() )
+//        {
+//            boost::shared_ptr< const WDataSetFibers > fiberDS = m_fiberInput->getData();
+//
+//            osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
+//            group->addChild( genFiberGeode( fiberDS, false ).get() );
+//            group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+//
+//            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
+//        }
+//        // TODO(math): implement some redraw if data has changed
+//        //  - replacing the OSG group node?
+//        //  - using notifyDataChange() method
+//        while( !m_FinishRequested )
+//        {
+//            sleep( 1 );
+//        }
+//    }
+    boost::shared_ptr< WDataHandler > dataHandler;
+    // TODO(math): fix this hack when possible by using an input connector.
+    while( !WKernel::getRunningKernel() )
     {
-        if( m_fiberInput->getData() != boost::shared_ptr< const WDataSetFibers >() )
-        {
-            boost::shared_ptr< const WDataSetFibers > fiberDS = m_fiberInput->getData();
+        sleep( 1 );
+    }
+    while( !( dataHandler = WKernel::getRunningKernel()->getDataHandler() ) )
+    {
+        sleep( 1 );
+    }
+    while( !dataHandler->getNumberOfSubjects() )
+    {
+        sleep( 1 );
+    }
 
-            osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
-            group->addChild( genFiberGeode( fiberDS, false ).get() );
-            group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    boost::shared_ptr< const WDataSetFibers > fiberDS;
+    assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
+    osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
+    group->addChild( genFiberGeode( fiberDS, false ).get() );
+    group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
-        }
-        // TODO(math): implement some redraw if data has changed
-        //  - replacing the OSG group node?
-        //  - using notifyDataChange() method
-        while( !m_FinishRequested )
-        {
-            sleep( 1 );
-        }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
+
+    // Since the modules run in a separate thread: such loops are possible
+    while ( !m_FinishRequested )
+    {
+        // do fancy stuff
+        sleep( 1 );
     }
 }
 

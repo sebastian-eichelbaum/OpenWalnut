@@ -109,7 +109,10 @@ void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
 
     fibers->sortDescLength();  // sort the fiber on their length (biggest first)
     std::cout << "Sorted fibers done." << std::endl;
-
+    m_proximity_t = 1.0;
+    std::cout << "Proximity threshold: " << m_proximity_t << std::endl;
+    m_dSt_culling_t = 6.5;
+    std::cout << "Culling threshold: " << m_dSt_culling_t << std::endl;
     std::vector< bool > unusedFibers( numFibers, false );
     WDSTMetric dSt( m_proximity_t * m_proximity_t );
     WStatusReport st( numFibers );

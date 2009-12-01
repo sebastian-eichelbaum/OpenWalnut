@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <list>
 #include <string>
 #include <vector>
 
@@ -37,6 +38,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
+#include "../../common/WStringUtils.hpp"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
@@ -122,6 +124,11 @@ void WMFiberClustering::cluster()
     {
         m_dLtTable.reset( new WDXtLookUpTable( numFibers ) );
     }
+    m_proximity_t = 1.0;
+    std::cout << "Proximity threshold: " << m_proximity_t << std::endl;
+    m_maxDistance_t = 6.5;
+    std::cout << "Maximum inter cluster distance threshold: " << m_maxDistance_t << std::endl;
+    WStatusReport st( numFibers );
 
     WDLTMetric dLt( m_proximity_t * m_proximity_t );  // metric instance for computation of the dLt measure
     for( size_t i = 0; i < numFibers; ++i )  // loop over all "symmetric" fibers pairs
@@ -159,7 +166,10 @@ void WMFiberClustering::cluster()
                 }
             }
         }
+        std::cout << "\r" << std::fixed << std::setprecision( 2 );
+        std::cout << ( ++st ).progress() << " " << st.stringBar() << std::flush;
     }
+    std::cout << std::endl;
     m_dLtTableExists = true;
 
     // remove empty clusters
@@ -187,6 +197,49 @@ void WMFiberClustering::cluster()
     m_lastFibsSize = m_fibs->size();
 }
 
+osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster, const WColor color ) const
+{
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    std::list< size_t >::const_iterator cit = cluster.getIndices().begin();
+    for( ; cit !=  cluster.getIndices().end(); ++cit )
+    {
+        const wmath::WFiber &fib = (*m_fibs)[ *cit ];
+        for( size_t i = 0; i < fib.size(); ++i )
+        {
+            vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
+        }
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
+    }
+
+    geometry->setVertexArray( vertices );
+
+    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    colors->push_back( color.getOSGColor() );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( geometry.get() );
+    return geode;
+}
+
+
 void WMFiberClustering::paint()
 {
+    double hue = 0.0;
+    double hue_increment = 1.0 / m_clusters.size();
+    WColor color;
+
+    std::cout << "cluster: " << m_clusters.size() << std::endl;
+    osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
+    for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
+    {
+        color.setHSV( hue, 1.0, 0.75 );
+        group->addChild( genFiberGeode( m_clusters[i], color ).get() );
+    }
+    group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
 }
