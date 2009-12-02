@@ -19,6 +19,10 @@ syntax: regexp
 # local vim rc
 ^lvimrc
 
+# tag files
+^tags$
+^cscope.out$
+
 syntax: glob
 .project
 .cproject
