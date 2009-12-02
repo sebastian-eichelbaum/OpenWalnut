@@ -22,43 +22,23 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WWRITERVTK_H
-#define WWRITERVTK_H
-
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include "WWriter.h"
+#include "WIOTools.hpp"
+#include "../exceptions/WDHIOFailure.h"
 
-#include "../WDataSetFibers.h"
-
-/**
- * Writes a VTK file.
- */
-class WWriterVTK
+WWriter::WWriter( std::string fname, bool overwrite )
+    : m_overwrite( overwrite )
 {
-public:
-    /**
-     * Creates a writer object for VTK file writing.
-     *
-     * \param fname absolute file name
-     */
-    explicit WWriterVTK( std::string fname, bool overwrite = false );
+    setFileName( fname ); // not in constructor list since fileExcsits check
+}
 
-    /**
-     * Reset the destination (file) where the writing should take place.
-     */
-    void setFileName( std::string fname );
-
-    /**
-     * Writes a WDataSetFibers down to the previousely given file
-     */
-    void writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const;
-
-protected:
-
-private:
-    std::string m_fname; //!< Absolute path of the file to write to
-    bool m_overwrite; //!< flag indicating if the file may be overwritten (true) or not (false)
-};
-
-#endif  // WWRITERVTK_H
+void WWriter::setFileName( std::string fname )
+{
+    m_fname = fname;
+    if( !m_overwrite && wiotools::fileExists( m_fname ) )
+    {
+        throw WDHIOFailure( "File '" + m_fname + "' already exists, skip writing" );
+    }
+}

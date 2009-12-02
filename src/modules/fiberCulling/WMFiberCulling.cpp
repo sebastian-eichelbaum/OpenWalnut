@@ -39,7 +39,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/io/WWriterVTK.h"
+#include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 
@@ -143,10 +143,8 @@ void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
     std::cout << "Erasing done." << std::endl;
     std::cout << "Culled out " << numFibers - fibers->size() << " fibers" << std::endl;
     std::cout << "There are " << fibers->size() << " fibers left." << std::endl;
-    if( true )
-    {
-        WWriterVTK w( "/tmp/pansen", true );
-        w.writeFibs( fibers );
-//        std::cout << "Saved fibers left from culling to " <<  << " done." << std::endl;
-    }
+
+    // TODO(math): make saving parameter dependent, and apply the desired path for saving
+    WWriterFiberVTK w( "/tmp/pansen.fib", true );
+    w.writeFibs( fibers );
 }

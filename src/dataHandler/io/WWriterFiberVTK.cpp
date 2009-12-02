@@ -28,27 +28,17 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WWriterVTK.h"
+#include "WWriterFiberVTK.h"
 #include "WIOTools.hpp"
 #include "../WDataSetFibers.h"
 #include "../exceptions/WDHIOFailure.h"
 
-WWriterVTK::WWriterVTK( std::string fname, bool overwrite )
-    : m_overwrite( overwrite )
+WWriterFiberVTK::WWriterFiberVTK( std::string fname, bool overwrite )
+    : WWriter( fname, overwrite )
 {
-    setFileName( fname );
 }
 
-void WWriterVTK::setFileName( std::string fname )
-{
-    m_fname = fname;
-    if( !m_overwrite && wiotools::fileExists( m_fname ) )
-    {
-        throw WDHIOFailure( "File '" + m_fname + "' already exists, skip writing" );
-    }
-}
-
-void WWriterVTK::writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const
+void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const
 {
     using std::fstream;
     fstream out( m_fname.c_str(), fstream::out | fstream::in | fstream::trunc );
@@ -56,7 +46,7 @@ void WWriterVTK::writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) 
     {
         throw WDHIOFailure( "Invalid file, or permission: " + m_fname );
     }
-    out << "# vtk DataFile Version 3.0" << std::endl;
+    out << "# VTK DataFile Version 3.0" << std::endl;
     out << "Fibers from OpenWalnut" << std::endl;
     out << "BINARY" << std::endl;
     out << "DATASET POLYDATA" << std::endl;

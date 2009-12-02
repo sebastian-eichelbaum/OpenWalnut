@@ -22,39 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cassert>
-#include <algorithm>
-#include <vector>
+#ifndef WWRITERFIBERVTK_H
+#define WWRITERFIBERVTK_H
 
-#include "WDXtLookUpTable.h"
+#include <string>
 
-WDXtLookUpTable::WDXtLookUpTable( size_t dim )
-    : _data( ( dim * ( dim-1 ) ) / 2, 0.0 ),
-      _dim( dim )
+#include <boost/shared_ptr.hpp>
+
+#include "../WDataSetFibers.h"
+#include "WWriter.h"
+
+/**
+ * Writes a FiberVTK file.
+ */
+class WWriterFiberVTK : public WWriter
 {
-}
+public:
+    /**
+     * Creates a writer object for FiberVTK file writing. On parameter documentation
+     * take a look into the WWriter class.
+     */
+    WWriterFiberVTK( std::string fname, bool overwrite = false );
 
-double& WDXtLookUpTable::operator()( size_t i, size_t j )
-{
-    assert( i != j );
-    if( i > j )
-    {
-        std::swap( i, j );
-    }
-    return _data.at( i * _dim + j - ( i + 1 ) * ( i + 2 ) / 2 );
-}
+    /**
+     * Writes a WDataSetFibers down to the previousely given file
+     */
+    void writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const;
 
-size_t WDXtLookUpTable::size() const
-{
-    return _data.size();
-}
+protected:
+private:
+};
 
-size_t WDXtLookUpTable::dim() const
-{
-    return _dim;
-}
-
-const std::vector< double >& WDXtLookUpTable::getData() const
-{
-    return _data;
-}
+#endif  // WWRITERFIBERVTK_H

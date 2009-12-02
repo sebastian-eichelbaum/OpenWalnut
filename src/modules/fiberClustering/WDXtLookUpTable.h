@@ -52,9 +52,25 @@ public:
      */
     double& operator()( size_t i, size_t j );
 
+    /**
+     * \return the number of distances inside this table.
+     */
+    size_t size() const;
+
+    /**
+     * \return the dimensionality of this table
+     */
+    size_t dim() const;
+
+    /**
+     * \return readonly access to the internal data
+     */
+    const std::vector< double >& getData() const;
+
 private:
     /**
-     * Internal data structure to store the elements.
+     * Internal data structure to store the elements. The order is line major
+     * meaning first element (0,0)...(0,n-1),(1,0)...(1, n-1)...
      */
     std::vector< double > _data;
 

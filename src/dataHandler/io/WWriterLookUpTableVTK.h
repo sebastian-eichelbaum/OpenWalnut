@@ -22,39 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cassert>
-#include <algorithm>
+#ifndef WWRITERLOOKUPTABLEVTK_H
+#define WWRITERLOOKUPTABLEVTK_H
+
+#include <string>
 #include <vector>
 
-#include "WDXtLookUpTable.h"
+#include <boost/shared_ptr.hpp>
 
-WDXtLookUpTable::WDXtLookUpTable( size_t dim )
-    : _data( ( dim * ( dim-1 ) ) / 2, 0.0 ),
-      _dim( dim )
-{
-}
+#include "WWriter.h"
 
-double& WDXtLookUpTable::operator()( size_t i, size_t j )
+/**
+ * Can write a look up table to a file in VTK format.
+ */
+class WWriterLookUpTableVTK : public WWriter
 {
-    assert( i != j );
-    if( i > j )
-    {
-        std::swap( i, j );
-    }
-    return _data.at( i * _dim + j - ( i + 1 ) * ( i + 2 ) / 2 );
-}
+public:
+    /**
+     * Creates a writer object for FiberVTK file writing. On parameter documentation
+     * take a look into the WWriter class.
+     */
+    WWriterLookUpTableVTK( std::string fname, bool overwrite = false );
 
-size_t WDXtLookUpTable::size() const
-{
-    return _data.size();
-}
+    /**
+     * Actually perform writing to file.
+     *
+     * \param table The data in that table will be saved
+     * \param dim the dimensionality of the table
+     */
+    void writeTable( const std::vector< double > &table ) const;
 
-size_t WDXtLookUpTable::dim() const
-{
-    return _dim;
-}
+protected:
+private:
+};
 
-const std::vector< double >& WDXtLookUpTable::getData() const
-{
-    return _data;
-}
+#endif  // WWRITERLOOKUPTABLEVTK_H

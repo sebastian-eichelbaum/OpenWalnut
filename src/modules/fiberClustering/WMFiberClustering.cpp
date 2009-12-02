@@ -42,6 +42,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 
@@ -195,6 +196,8 @@ void WMFiberClustering::cluster()
     std::cout << "Using " << m_clusters.size() << " clusters.";
 
     m_lastFibsSize = m_fibs->size();
+    WWriterLookUpTableVTK w( "/tmp/pansen.dist", true );
+    w.writeTable( m_dLtTable->getData() );
 }
 
 osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster, const WColor color ) const
