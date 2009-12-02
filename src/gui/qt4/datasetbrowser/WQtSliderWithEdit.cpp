@@ -73,6 +73,8 @@ void WQtSliderWithEdit::setMax( int max )
         fmax /= 10.0;
     }
     m_edit.setMaxLength( length );
+    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
+    m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
 }
 
 void WQtSliderWithEdit::setValue( int value )

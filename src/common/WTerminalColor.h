@@ -32,6 +32,7 @@
  */
 class WTerminalColor
 {
+friend class WTerminalColorTest;
 public:
 
     /**

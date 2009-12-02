@@ -31,8 +31,10 @@
 WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
     : QWidget( parent ),
     m_name( name.c_str() ),
-    m_layout()
+    m_controlLayout(),
+    m_pageLayout()
 {
+    m_pageLayout.addLayout( &m_controlLayout );
 }
 
 
@@ -43,31 +45,31 @@ WQtDSBWidget::~WQtDSBWidget()
 
 QPushButton* WQtDSBWidget::addPushButton( QString label )
 {
-    int row = m_layout.rowCount();
+    int row = m_controlLayout.rowCount();
 
     QPushButton* button = new QPushButton();
     button->setText( label );
 
-    m_layout.addWidget( button, row, 0 );
+    m_controlLayout.addWidget( button, row, 0 );
 
-    setLayout( &m_layout );
+    setLayout( &m_pageLayout );
     return button;
 }
 
 
 WQtCheckBox* WQtDSBWidget::addCheckBox( QString label, bool isChecked )
 {
-    int row = m_layout.rowCount();
+    int row = m_controlLayout.rowCount();
     QLabel* qlabel = new QLabel( label );
 
     WQtCheckBox* checkBox = new WQtCheckBox();
     checkBox->setName( label );
     checkBox->setChecked( isChecked );
 
-    m_layout.addWidget( qlabel, row, 0 );
-    m_layout.addWidget( checkBox, row, 1 );
+    m_controlLayout.addWidget( qlabel, row, 0 );
+    m_controlLayout.addWidget( checkBox, row, 1 );
 
-    setLayout( &m_layout );
+    setLayout( &m_pageLayout );
 
     return checkBox;
 }
@@ -75,17 +77,17 @@ WQtCheckBox* WQtDSBWidget::addCheckBox( QString label, bool isChecked )
 
 WQtLineEdit* WQtDSBWidget::addLineEdit( QString label, QString text )
 {
-    int row = m_layout.rowCount();
+    int row = m_controlLayout.rowCount();
     QLabel* qlabel = new QLabel( label );
 
     WQtLineEdit* lineEdit = new WQtLineEdit();
     lineEdit->setName( label );
     lineEdit->setText( text );
 
-    m_layout.addWidget( qlabel, row, 0 );
-    m_layout.addWidget( lineEdit, row, 1 );
+    m_controlLayout.addWidget( qlabel, row, 0 );
+    m_controlLayout.addWidget( lineEdit, row, 1 );
 
-    setLayout( &m_layout );
+    setLayout( &m_pageLayout );
 
     return lineEdit;
 }
@@ -93,7 +95,7 @@ WQtLineEdit* WQtDSBWidget::addLineEdit( QString label, QString text )
 
 WQtSliderWithEdit* WQtDSBWidget::addSliderInt( QString label, int value, int min, int max )
 {
-    int row = m_layout.rowCount();
+    int row = m_controlLayout.rowCount();
     QLabel* qlabel = new QLabel( label );
 
     WQtSliderWithEdit* slider = new WQtSliderWithEdit( label );
@@ -102,12 +104,18 @@ WQtSliderWithEdit* WQtDSBWidget::addSliderInt( QString label, int value, int min
     slider->setMax( max );
     slider->setValue( value );
 
-    m_layout.addWidget( qlabel, row, 0 );
-    m_layout.addWidget( slider, row, 1 );
+    m_controlLayout.addWidget( qlabel, row, 0 );
+    m_controlLayout.addWidget( slider, row, 1 );
 
-    setLayout( &m_layout );
+    setLayout( &m_pageLayout );
 
     return slider;
+}
+
+void WQtDSBWidget::addSpacer()
+{
+    m_pageLayout.addStretch();
+    setLayout( &m_pageLayout );
 }
 
 QString WQtDSBWidget::getName()
