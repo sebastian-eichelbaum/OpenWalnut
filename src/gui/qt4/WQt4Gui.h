@@ -79,11 +79,15 @@ public:
      */
     void addModuleToBrowser( boost::shared_ptr< WModule > module );
 
-
     /**
-     * returns a vector of pointers to the loaded datasets for a given subject
+     * returns a vector of pointers to the loaded datasets for a given subject.
+     *
+     * \param subjectId the ID of the subject to get the list for.
+     * \param onlyTextures true if only textures should be returned.
+     *
+     * \return list of datasets.
      */
-    virtual std::vector< boost::shared_ptr< WModule > >getDataSetList( int subjectId );
+    virtual std::vector< boost::shared_ptr< WDataSet > > getDataSetList( int subjectId, bool onlyTextures = false );
 
     /**
      * getter functions for the signales proved by the gui

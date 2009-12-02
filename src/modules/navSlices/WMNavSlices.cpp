@@ -46,6 +46,8 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.hpp"
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WDataTexture3D.h"
+
 #include "../data/WMData.h"
 
 #include "../../graphicsEngine/WShader.h"
@@ -184,8 +186,8 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
-    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
-    if ( datasetList.size() > 0 )
+    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+    if ( dsl.size() > 0 )
     {
         switch ( slice )
         {
@@ -198,24 +200,17 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
-                for ( size_t i = 0; i < datasetList.size(); ++i )
+                for ( size_t i = 0; i < dsl.size(); ++i )
                 {
-                    boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                    if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                         ( dmodule != boost::shared_ptr< WMData> () ) &&
-                         dmodule->getTexture3D() )
-                    {
-                        boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
-                                boost::shared_dynamic_cast< WDataSetSingle >( dmodule->getDataSet() )->getGrid() );
-                        osg::Vec3Array* texCoords = new osg::Vec3Array;
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 0.0 ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 1.0 ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 1.0 ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 0.0 ) ) );
-                        sliceGeometry->setTexCoordArray( c, texCoords );
-                        ++c;
-                    }
+                    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
+                            boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 0.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 1.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 1.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 0.0 ) ) );
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
                 }
 
 
@@ -232,24 +227,17 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
-                for ( size_t i = 0; i < datasetList.size(); ++i )
+                for ( size_t i = 0; i < dsl.size(); ++i )
                 {
-                    boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                    if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                         ( dmodule != boost::shared_ptr< WMData> () ) &&
-                         dmodule->getTexture3D() )
-                    {
-                        boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
-                                boost::shared_dynamic_cast< WDataSetSingle >( dmodule->getDataSet() )->getGrid() );
-                        osg::Vec3Array* texCoords = new osg::Vec3Array;
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 0.0 ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 1.0 ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 1.0 ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 0.0 ) ) );
-                        sliceGeometry->setTexCoordArray( c, texCoords );
-                        ++c;
-                    }
+                    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
+                            boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 0.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 1.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 1.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 0.0 ) ) );
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
                 }
                 break;
             }
@@ -261,25 +249,18 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
                 sliceGeometry->setVertexArray( sliceVertices );
                 int c = 0;
-                for ( size_t i = 0; i < datasetList.size(); ++i )
+                for ( size_t i = 0; i < dsl.size(); ++i )
                 {
-                    boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                    if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                         ( dmodule != boost::shared_ptr< WMData> () ) &&
-                         dmodule->getTexture3D() )
-                    {
-                        boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
-                                boost::shared_dynamic_cast< WDataSetSingle >( dmodule->getDataSet() )->getGrid() );
-                        osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
+                            boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 0.0, texAxial ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 1.0, texAxial ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 1.0, texAxial ) ) );
-                        texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 0.0, texAxial ) ) );
-                        sliceGeometry->setTexCoordArray( c, texCoords );
-                        ++c;
-                    }
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 0.0, texAxial ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 1.0, texAxial ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 1.0, texAxial ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 0.0, texAxial ) ) );
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
                 }
                 break;
             }
@@ -408,9 +389,9 @@ void WMNavSlices::updateTextures()
     if ( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
     {
         m_properties->setValue( "textureChanged", false );
-        std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+        std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
-        if ( datasetList.size() > 0 )
+        if ( dsl.size() > 0 )
         {
             for ( int i = 0; i < 10; ++i )
             {
@@ -419,29 +400,21 @@ void WMNavSlices::updateTextures()
 
             osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
             int c = 0;
-            for ( size_t i = 0; i < datasetList.size(); ++i )
+            for ( size_t i = 0; i < dsl.size(); ++i )
             {
-                boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                     ( dmodule != boost::shared_ptr< WMData> () ) &&
-                     dmodule->getTexture3D() )
-                {
-                    osg::ref_ptr<osg::Texture3D> texture3D = dmodule->getTexture3D();
+                osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
 
-                    rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                    float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
-                    float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
+                float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
+                float a = dsl[i]->getTexture()->getAlpha();
 
-                    m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dmodule->getDataSet() )->getValueSet()->getDataType() );
-                    m_thresholdUniforms[c]->set( t );
-                    m_alphaUniforms[c]->set( a );
+                m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
+                m_thresholdUniforms[c]->set( t );
+                m_alphaUniforms[c]->set( a );
 
-                    ++c;
-                }
+                ++c;
             }
-
-            m_properties->setValue( "textureChanged", false );
         }
     }
     slock.unlock();

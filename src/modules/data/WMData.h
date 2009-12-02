@@ -68,19 +68,16 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * getter for the dataset
+     * Getter for the dataset.
+     *
+     * \return the dataset encapsulated by this module.
      */
     virtual boost::shared_ptr< WDataSet > getDataSet();
 
     /**
-     * getter for the 3d texture, which will be created on demand
-     */
-    virtual osg::ref_ptr<osg::Texture3D> getTexture3D();
-
-    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
@@ -135,33 +132,12 @@ protected:
      */
     virtual void notifyStop();
 
-    /**
-     * Creates a 3d texture from a dataset. This function will be overloaded for the
-     * various data types. A template function is not recommended due to the different commands
-     * in the image creation.
-     *
-     * TODO(schurade): create other functions once dataset meta data is available again
-     *
-     * \param source Pointer to the raw data of a dataset
-     * \param grid The grid that gives us the dimensions information
-     * \param components Number of values used in a Voxel, usually 1, 3 or 4
-     * \return Pointer to a new texture3D
-     */
-    osg::ref_ptr<osg::Texture3D> createTexture3D( unsigned char* source, boost::shared_ptr<WGridRegular3D> grid,  int components = 1 );
-    osg::ref_ptr<osg::Texture3D> createTexture3D( int16_t* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
-    osg::ref_ptr<osg::Texture3D> createTexture3D( float* source, boost::shared_ptr<WGridRegular3D>  grid, int components = 1 );
-
 private:
 
     /**
      * The associated dataset.
      */
     boost::shared_ptr< WDataSet > m_dataSet;
-
-    /**
-     * pointer to the 3d texture
-     */
-    osg::ref_ptr<osg::Texture3D> m_texture3D;
 
     /**
      * The only output of this data module.

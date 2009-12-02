@@ -178,9 +178,9 @@ void WQt4Gui::addModuleToBrowser( boost::shared_ptr< WModule > module )
 }
 
 
-std::vector< boost::shared_ptr< WModule > >WQt4Gui::getDataSetList( int subjectId )
+std::vector< boost::shared_ptr< WDataSet > > WQt4Gui::getDataSetList( int subjectId, bool onlyTextures )
 {
-    return m_gui->getDatasetBrowser()->getDataSetList( subjectId );
+    return m_gui->getDatasetBrowser()->getDataSetList( subjectId, onlyTextures );
 }
 
 boost::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()

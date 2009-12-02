@@ -6,9 +6,9 @@ FILE( GLOB DATAHANDLER_EXCEPTIONS_SRC "exceptions/*.[c,h]pp" )
 FILE( GLOB DATAHANDLER_IO_SRC "io/*.[c,h]pp" ) # former WLoader
 
 ADD_LIBRARY( dataHandler SHARED ${DATAHANDLER_SRC} ${DATAHANDLER_EXCEPTIONS_SRC} ${DATAHANDLER_IO_SRC} )
-TARGET_LINK_LIBRARIES( dataHandler common math ${Boost_LIBRARIES} niftiio biosig)
+TARGET_LINK_LIBRARIES( dataHandler common math ${Boost_LIBRARIES} niftiio biosig ${OPENSCENEGRAPH_LIBRARIES})
 
 # Unit tests
 IF( CXXTEST_FOUND )
-  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_SRC}" "dataHandler" )
+  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_SRC}" "dataHandler" "WDataTexture3D.cpp" )
 ENDIF( CXXTEST_FOUND )

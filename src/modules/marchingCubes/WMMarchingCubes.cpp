@@ -45,6 +45,7 @@
 #include "../../math/WVector3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WShader.h"
 
@@ -691,8 +692,8 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_shaderUseTexture ) ) );
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
 
-    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
-    if ( datasetList.size() > 0 )
+    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+    if ( dsl.size() > 0 )
     {
         for ( int i = 0; i < 10; ++i )
         {
@@ -700,28 +701,23 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         }
 
         int c = 0;
-        for ( size_t i = 0; i < datasetList.size(); ++i )
+        for ( size_t i = 0; i < dsl.size(); ++i )
         {
-            boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-            if ( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                 ( dmodule != boost::shared_ptr< WMData> () ) &&
-                 dmodule->getTexture3D() )
-            {
-                osg::ref_ptr<osg::Texture3D> texture3D = dmodule->getTexture3D();
+            osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
 
-                state->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+            state->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
-                float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
+            float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
+            float a = dsl[i]->getTexture()->getAlpha();
 
-                m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dmodule->getDataSet() )->getValueSet()->getDataType() );
-                m_thresholdUniforms[c]->set( t );
-                m_alphaUniforms[c]->set( a );
+            m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
+            m_thresholdUniforms[c]->set( t );
+            m_alphaUniforms[c]->set( a );
 
-                ++c;
-            }
+            ++c;
         }
     }
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
 
     boost::shared_ptr< WShader > shader;
@@ -922,43 +918,35 @@ void WMMarchingCubes::updateTextures()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    if( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
     {
         m_properties->setValue( "textureChanged", false );
-        std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+        std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
-        if( datasetList.size() > 0 )
+        if ( dsl.size() > 0 )
         {
-            for( int i = 0; i < 10; ++i )
+            for ( int i = 0; i < 10; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
             osg::StateSet* rootState = m_geode->getOrCreateStateSet();
             int c = 0;
-            for( size_t i = 0; i < datasetList.size(); ++i )
+            for ( size_t i = 0; i < dsl.size(); ++i )
             {
-                boost::shared_ptr< WMData > dmodule = boost::shared_dynamic_cast< WMData >( datasetList[i] );
-                if( datasetList[i]->getProperties()->getValue<bool>( "active" ) &&
-                     ( dmodule != boost::shared_ptr< WMData> () ) &&
-                     dmodule->getTexture3D() )
-                {
-                    osg::ref_ptr<osg::Texture3D> texture3D = dmodule->getTexture3D();
+                osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
 
-                    rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                    float t = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "threshold" ) ) / 100.0;
-                    float a = ( float ) ( datasetList[i]->getProperties()->getValue<int>( "alpha" ) ) / 100.0;
+                float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
+                float a = dsl[i]->getTexture()->getAlpha();
 
-                    m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dmodule->getDataSet() )->getValueSet()->getDataType() );
-                    m_thresholdUniforms[c]->set( t );
-                    m_alphaUniforms[c]->set( a );
+                m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
+                m_thresholdUniforms[c]->set( t );
+                m_alphaUniforms[c]->set( a );
 
-                    ++c;
-                }
+                ++c;
             }
-
-            m_properties->setValue( "textureChanged", false );
         }
     }
     slock.unlock();

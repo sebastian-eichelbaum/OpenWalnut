@@ -47,3 +47,9 @@ WEEG::WEEG( const WEEGSegmentArray& data,
     m_electrodeLibrary = electrodeLib;
     m_channelLabels = channelLabels;
 }
+
+bool WEEG::isTexture() const
+{
+    return false;
+}
+

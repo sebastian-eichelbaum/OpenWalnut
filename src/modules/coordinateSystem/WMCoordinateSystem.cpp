@@ -277,12 +277,11 @@ osg::ref_ptr<osg::Geometry> WMCoordinateSystem::createGeometryNode()
 
 void WMCoordinateSystem::findBoundingBox()
 {
-    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
+    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
-    if ( datasetList.size() > 0 )
+    if ( dsl.size() > 0 )
     {
-        boost::shared_ptr< WMData > module = boost::shared_dynamic_cast< WMData >( datasetList[0] );
-        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( module->getDataSet() );
+        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( dsl[0] );
 
         if ( ds->getValueSet()->getDataType() != 2 )
         {

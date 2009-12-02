@@ -28,6 +28,8 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
+class WDataTexture3D;
+
 /**
  * Base class for all data set types. This class has a number of subclasses
  * specifying the different types of data sets. Two of the dataset types
@@ -61,6 +63,21 @@ public:
      * Get the name of the file that this data set stems from.
      */
     std::string getFileName() const;
+
+    /**
+     * Determines whether this dataset can be used as a texture.
+     *
+     * \return true if usable as texture.
+     */
+    // TODO(seralph): pure virtual? Are WDataSet instances useful?
+    virtual bool isTexture() const;
+
+    /**
+     * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
+     *
+     * \return The texture.
+     */
+    virtual boost::shared_ptr< WDataTexture3D > getTexture();
 
 protected:
 private:

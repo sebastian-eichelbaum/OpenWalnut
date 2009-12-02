@@ -24,6 +24,10 @@
 
 #include <string>
 
+#include "exceptions/WDHException.h"
+
+#include "WDataTexture3D.h"
+
 #include "WDataSet.h"
 
 WDataSet::WDataSet()
@@ -40,5 +44,15 @@ void WDataSet::setFileName( const std::string fileName )
 std::string WDataSet::getFileName() const
 {
     return m_fileName;
+}
+
+bool WDataSet::isTexture() const
+{
+    return false;
+}
+
+boost::shared_ptr< WDataTexture3D > WDataSet::getTexture()
+{
+    throw WDHException( "This dataset does not provide a texture." );
 }
 

@@ -33,6 +33,8 @@
 
 #include "WDataSet.h"
 
+class WDataTexture3D;
+
 /**
  * A data set consisting of a set of values based on a grid.
  * \ingroup dataHandler
@@ -78,6 +80,20 @@ public:
         return v;
     }
 
+    /**
+     * Determines whether this dataset can be used as a texture.
+     *
+     * \return true if usable as texture.
+     */
+    virtual bool isTexture() const;
+
+    /**
+     * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
+     *
+     * \return The texture.
+     */
+    virtual boost::shared_ptr< WDataTexture3D > getTexture();
+
 private:
     /**
      * Stores the reference of the WGrid of this DataSetSingle instance.
@@ -88,6 +104,11 @@ private:
      * Stores the reference of the WValueSet of this DataSetSingle instance.
      */
     boost::shared_ptr< WValueSetBase > m_valueSet;
+
+    /**
+     * The 3D texture representing this dataset.
+     */
+    boost::shared_ptr< WDataTexture3D > m_texture3D;
 };
 
 #endif  // WDATASETSINGLE_H

@@ -31,10 +31,15 @@
 
 #include "../../../common/WLogger.h"
 
+#include "../../../dataHandler/WDataSet.h"
+
 #include "WQtDatasetBrowser.h"
 #include "WQtNumberEdit.h"
 #include "WQtCheckBox.h"
 #include "WQtModuleHeaderTreeItem.h"
+
+#include "../../../modules/data/WMData.h"
+
 
 WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
     : QDockWidget( parent )
@@ -242,10 +247,9 @@ void WQtDatasetBrowser::slotSetStringProperty( QString name, QString value )
     }
 }
 
-
-std::vector< boost::shared_ptr< WModule > >WQtDatasetBrowser::getDataSetList( int subjectId )
+std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( int subjectId, bool onlyTextures )
 {
-    std::vector< boost::shared_ptr< WModule > >moduleList;
+    std::vector< boost::shared_ptr< WDataSet > >moduleList;
 
     if ( m_treeWidget->invisibleRootItem()->childCount() < subjectId + 1)
     {
@@ -255,8 +259,16 @@ std::vector< boost::shared_ptr< WModule > >WQtDatasetBrowser::getDataSetList( in
 
     for ( int i = 0 ; i < count ; ++i )
     {
-        moduleList.push_back( ( ( WQtDatasetTreeItem* )
-                m_treeWidget->invisibleRootItem()->child( subjectId + 1 )->child( i ) )->getModule() );
+        boost::shared_ptr< WMData > dm = boost::shared_dynamic_cast< WMData >( ( ( WQtDatasetTreeItem* )m_treeWidget->invisibleRootItem()->child(
+                        subjectId + 1 )->child( i ) )->getModule() );
+
+        if ( !onlyTextures || dm->getDataSet()->isTexture() )
+        {
+            if ( dm->getProperties()->getValue<bool>( "active" ) )
+            {
+                moduleList.push_back( dm->getDataSet() );
+            }
+        }
     }
     return moduleList;
 }

@@ -47,6 +47,11 @@ void WDataSetFibers::erase( const std::vector< bool > &unused )
     m_fibers->erase( useable, m_fibers->end() );
 }
 
+bool WDataSetFibers::isTexture() const
+{
+    return false;
+}
+
 WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
 {
 }
@@ -61,8 +66,3 @@ const wmath::WFiber& WDataSetFibers::operator[]( const size_t index ) const
     assert( index < m_fibers->size() );
     return (*m_fibers)[index];
 }
-
-
-
-
-

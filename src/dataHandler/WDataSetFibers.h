@@ -64,6 +64,13 @@ public:
      */
     void erase( const std::vector< bool > &unused );
 
+    /**
+     * Determines whether this dataset can be used as a texture.
+     *
+     * \return true if usable as texture.
+     */
+    virtual bool isTexture() const;
+
 protected:
 private:
     boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;

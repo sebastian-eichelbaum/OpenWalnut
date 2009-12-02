@@ -89,7 +89,9 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
     unsigned int order = ( ( vDim == 1 ) ? 0 : 1 );  // TODO(all): Does recognize vectors and scalars only so far.
     unsigned int countVoxels = columns * rows * frames;
 
+#ifdef DEBUG
     nifti_image_infodump( header );
+#endif
 
     switch( header->datatype )
     {

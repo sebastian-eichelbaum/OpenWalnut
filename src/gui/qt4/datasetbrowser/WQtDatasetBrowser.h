@@ -38,6 +38,8 @@
 #include "WQtModuleTreeItem.h"
 #include "WQtTreeWidget.h"
 
+#include "../../../dataHandler/WDataSet.h"
+
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
@@ -75,13 +77,24 @@ public:
      */
     WQtDatasetTreeItem* addDataset( boost::shared_ptr< WModule > module, int subjectId = 0 );
 
+    /**
+     * Adds a module to the dataset browser.
+     *
+     * \param module the module to add.
+     *
+     * \return the representation in dataset browser.
+     */
     WQtModuleTreeItem* addModule( boost::shared_ptr< WModule > module );
 
     /**
-     * returns a vector of pointers to the loaded datasets for a given subject
+     * Returns a vector of pointers to the loaded datasets for a given subject.
+     *
+     * \param subjectId The ID of the subject to get the list for.
+     * \param onlyTextures True if only textures should be returned.
+     *
+     * \return the list of datasets.
      */
-    std::vector< boost::shared_ptr< WModule > >getDataSetList( int subjectId );
-
+    std::vector< boost::shared_ptr< WDataSet > > getDataSetList( int subjectId, bool onlyTextures = false );
 
     /**
      * helper funtion to connect all qt widgets with their functions

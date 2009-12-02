@@ -123,9 +123,17 @@ public:
      */
     std::string getChannelLabel( size_t channelId ) const
     {
+        // TODO(wiebel): put code into cpp file
         // TODO(wiebel): what is done with the second string of the label?
         return  m_channelLabels[channelId].first;
     }
+
+    /**
+     * Determines whether this dataset can be used as a texture.
+     *
+     * \return true if usable as texture.
+     */
+    virtual bool isTexture() const;
 
 protected:
 private:
