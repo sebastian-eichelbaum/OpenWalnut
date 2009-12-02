@@ -25,14 +25,15 @@
 #ifndef WMMARCHINGCUBES_TEST_H
 #define WMMARCHINGCUBES_TEST_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <cxxtest/TestSuite.h>
 
 #include "../WMMarchingCubes.h"
 #include "../../../common/WLogger.h"
 #include "../../../math/WPosition.h"
+#include "../../../dataHandler/io/WIOTools.hpp"
 
 static WLogger logger;
 static bool loggerInitialized = false;
@@ -262,10 +263,11 @@ public:
     {
         WMMarchingCubes mc;
         WTriangleMesh triMesh;
-        std::string fileName = "/tmp/dummerNameDenSichKeinerMerkenBraucht2.vtk";
+        std::string fileName = wiotools::tempFileName();
 
         bool result = mc.save( fileName, triMesh );
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have any vertices or triangles.
+        TS_ASSERT( !wiotools::fileExists( fileName ) );
     }
 
     /**
@@ -295,12 +297,13 @@ public:
         }
         triMesh.setVertices( vertices );
 
-        std::string fileName = "/tmp/dummerNameDenSichKeinerMerkenBraucht.vtk";
+        std::string fileName = wiotools::tempFileName();
 
         mc.save( fileName, triMesh );
 
         bool result = mc.save( fileName, triMesh );
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have all coordinates values finite.
+        TS_ASSERT( !wiotools::fileExists( fileName ) );
     }
 
     /**
@@ -367,7 +370,7 @@ public:
         }
         triMesh.setVertices( vertices );
 
-        std::string fileName = "/tmp/dummerNameDenSichKeinerMerkenBraucht.vtk";
+        std::string fileName = wiotools::tempFileName();
 
         mc.save( fileName, triMesh );
         WTriangleMesh result = mc.load( fileName );
@@ -386,6 +389,8 @@ public:
                 TS_ASSERT_DELTA( triMesh.getVertex( i )[j], result.getVertex( i )[j], delta );
             }
         }
+        TS_ASSERT( wiotools::fileExists( fileName ) );
+        std::remove( fileName.c_str() );
     }
 };
 
