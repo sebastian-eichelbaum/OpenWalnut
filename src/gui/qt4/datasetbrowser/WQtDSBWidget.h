@@ -78,6 +78,13 @@ public:
     WQtSliderWithEdit* addSliderInt( QString label, int value = 0, int min = 0, int max = 100 );
 
     /**
+     * helper function to add a spacer at the end
+     */
+    void addSpacer();
+
+
+
+    /**
      * getter for m_name
      */
     QString getName();
@@ -85,7 +92,8 @@ public:
 protected:
 private:
     QString m_name;
-    QGridLayout m_layout;
+    QGridLayout m_controlLayout;
+    QVBoxLayout m_pageLayout;
 };
 
 #endif  // WQTDSBWIDGET_H

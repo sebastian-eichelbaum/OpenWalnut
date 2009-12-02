@@ -184,6 +184,8 @@ void WQtDatasetBrowser::selectTreeItem()
             }
         }
     }
+
+    tab1->addSpacer();
     addTabWidgetContent( tab1 );
 }
 
