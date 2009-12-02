@@ -132,8 +132,8 @@ void WKernel::threadMain()
     m_graphicsEngine->run();
 
     // default modules
-    // m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
-    // m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
+    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
 
     // actually there is nothing more to do here
     waitForStop();
@@ -229,21 +229,6 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
         shared_ptr< WModule > mod = m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Data Module" ) );
         mod->getProperties()->setValue( "filename" , ( *iter ) );
         m_moduleContainer->add( mod );
-
-        //// fast hack to create always a fiber display module along a data module containing fibers
-        //shared_ptr< WMData > m1 = boost::shared_dynamic_cast< WMData >( mod );
-        //assert( m1 );
-        //sleep( 10 );
-        //assert( m1->getDataSet() );
-        //if( wiotools::getSuffix( m1->getDataSet()->getFileName() ) == ".fib" )
-        //{
-        //    shared_ptr< WModule > m2 = m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Fiber Display Module" ) );
-
-        //    assert( m1->getOutputConnectors().size() == 1 );
-        //    assert( m2->getInputConnectors().size() == 1 );
-        //}
-        boost::shared_ptr< WModule > mod2 = m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Fiber Display Module" ) );
-        m_moduleContainer->add( mod2 );
     }
 }
 
