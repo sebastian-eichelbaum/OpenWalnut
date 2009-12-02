@@ -81,9 +81,10 @@ void WTerminalColor::generateControlStrings()
 
         m_colorString = ss.str();
 
-        ss.clear();
-        ss << cStart << "[0m";
-        m_colorResetString = ss.str();
+        // build reset string
+        std::ostringstream ss2;
+        ss2 << cStart << "[0m";
+        m_colorResetString = ss2.str();
     }
 #endif
 }
