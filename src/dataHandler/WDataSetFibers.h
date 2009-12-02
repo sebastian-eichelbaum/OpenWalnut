@@ -41,26 +41,17 @@ public:
     /**
      * Constructs a new set of WFibers
      */
-    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
-    {
-    }
+    explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs );
 
     /**
      * Get number of fibers in this data set.
      */
-    inline size_t size() const
-    {
-        return m_fibers->size();
-    }
+    size_t size() const;
 
     /**
      * \return The i'th fiber.
      */
-    inline const wmath::WFiber& operator[]( const size_t index ) const
-    {
-        assert( index < m_fibers->size() );
-        return (*m_fibers)[index];
-    }
+    const wmath::WFiber& operator[]( const size_t index ) const;
 
     /**
      * Sort fibers descending on their length.
@@ -74,7 +65,6 @@ public:
     void erase( const std::vector< bool > &unused );
 
 protected:
-
 private:
     boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };

@@ -46,3 +46,23 @@ void WDataSetFibers::erase( const std::vector< bool > &unused )
     }
     m_fibers->erase( useable, m_fibers->end() );
 }
+
+WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
+{
+}
+
+size_t WDataSetFibers::size() const
+{
+    return m_fibers->size();
+}
+
+const wmath::WFiber& WDataSetFibers::operator[]( const size_t index ) const
+{
+    assert( index < m_fibers->size() );
+    return (*m_fibers)[index];
+}
+
+
+
+
+
