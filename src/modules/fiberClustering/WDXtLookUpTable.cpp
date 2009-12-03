@@ -58,3 +58,8 @@ const std::vector< double >& WDXtLookUpTable::getData() const
 {
     return _data;
 }
+
+void WDXtLookUpTable::setData( const std::vector< double > &data )
+{
+    _data = std::vector< double >( data ); // copy content
+}

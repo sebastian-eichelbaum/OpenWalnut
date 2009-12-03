@@ -22,38 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WWRITERLOOKUPTABLEVTK_H
-#define WWRITERLOOKUPTABLEVTK_H
+#ifndef WREADER_H
+#define WREADER_H
 
 #include <string>
-#include <vector>
 
-#include <boost/shared_ptr.hpp>
-
-#include "WWriter.h"
+#include "../exceptions/WDHNoSuchFile.h"
 
 /**
- * Can write a look up table to a file in VTK format.
+ * Read some data from a given file. This base class is just for file
+ * management (file exists, etc.) Subclasses may use those mechanisms and
+ * specify their file format which is not the purpose of this base class.
  */
-class WWriterLookUpTableVTK : public WWriter
+class WReader
 {
 public:
     /**
-     * Creates a writer object for FiberVTK file writing. On parameter documentation
-     * take a look into the WWriter class.
+     * Creates a read object for file reading.
+     *
+     * \param fname path to file which should be loaded
      */
-    WWriterLookUpTableVTK( std::string fname, bool overwrite = false );
+    explicit WReader( std::string fname );
 
     /**
-     * Actually perform writing to file.
+     * Reset the file name and checks if it exists.
      *
-     * \param table The data in that table will be saved
-     * \param dim the dimensionality of the table
+     * \throws WDHNoSuchFile
      */
-    void writeTable( const std::vector< double > &table, size_t dim ) const;
+    void setFileName( std::string fname ) throw( WDHNoSuchFile );
 
 protected:
+    std::string m_fname; //!< Absolute path of the file to read from
+
 private:
 };
 
-#endif  // WWRITERLOOKUPTABLEVTK_H
+#endif  // WREADER_H

@@ -22,38 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WWRITERLOOKUPTABLEVTK_H
-#define WWRITERLOOKUPTABLEVTK_H
+#ifndef WREADERLOOKUPTABLEVTK_H
+#define WREADERLOOKUPTABLEVTK_H
 
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "WWriter.h"
+#include "WReader.h"
 
 /**
- * Can write a look up table to a file in VTK format.
+ * Can read a look up table from a file in VTK format.
  */
-class WWriterLookUpTableVTK : public WWriter
+class WReaderLookUpTableVTK : public WReader
 {
 public:
     /**
-     * Creates a writer object for FiberVTK file writing. On parameter documentation
-     * take a look into the WWriter class.
+     * Creates a reader object for look up tables. On parameter documention
+     * take a look into the WReader base class.
      */
-    WWriterLookUpTableVTK( std::string fname, bool overwrite = false );
+    explicit WReaderLookUpTableVTK( std::string fname );
 
     /**
-     * Actually perform writing to file.
-     *
-     * \param table The data in that table will be saved
-     * \param dim the dimensionality of the table
+     * Perform reading from the file.
      */
-    void writeTable( const std::vector< double > &table, size_t dim ) const;
+    void readTable( boost::shared_ptr< std::vector< double > > table ) const;
 
 protected:
 private:
 };
 
-#endif  // WWRITERLOOKUPTABLEVTK_H
+#endif  // WREADERLOOKUPTABLEVTK_H

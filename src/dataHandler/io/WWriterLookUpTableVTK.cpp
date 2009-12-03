@@ -38,7 +38,7 @@ WWriterLookUpTableVTK::WWriterLookUpTableVTK( std::string fname, bool overwrite 
 {
 }
 
-void WWriterLookUpTableVTK::writeTable( const std::vector< double > &table ) const
+void WWriterLookUpTableVTK::writeTable( const std::vector< double > &table, size_t dim ) const
 {
     using std::fstream;
     fstream out( m_fname.c_str(), fstream::out | fstream::in | fstream::trunc );
@@ -51,14 +51,15 @@ void WWriterLookUpTableVTK::writeTable( const std::vector< double > &table ) con
     out << "BINARY" << std::endl;
 
     out << "FIELD DXtLookUpTable 1" << std::endl;
-    unsigned int numDistances = table.size();
+    unsigned int numDistances = table.size() + 1;
     out << "DISTANCES " << numDistances << " 1 float" << std::endl;
     float *data = new float[numDistances];
 
-    for( size_t i = 0; i < numDistances; ++i )
+    for( size_t i = 0; i < table.size() ; ++i )
     {
         data[i] = static_cast< float >( table[i] );
     }
+    data[ numDistances - 1 ] = static_cast< float >( dim );
 
     wiotools::switchByteOrderOfArray< float >( data, numDistances );
     out.write( reinterpret_cast< char* >( data ), sizeof( float ) * numDistances );

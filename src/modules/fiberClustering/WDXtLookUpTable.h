@@ -67,6 +67,11 @@ public:
      */
     const std::vector< double >& getData() const;
 
+    /**
+     * Resets the internal data (e.g. loaded from file).
+     */
+    void setData( const std::vector< double > &data );
+
 private:
     /**
      * Internal data structure to store the elements. The order is line major
