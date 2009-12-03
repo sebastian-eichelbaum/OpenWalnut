@@ -139,12 +139,14 @@ void WMFiberDisplay::moduleMain()
     }
 
     boost::shared_ptr< const WDataSetFibers > fiberDS;
-    assert( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
-    osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
-    group->addChild( genFiberGeode( fiberDS, false ).get() );
-    group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    if( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) )
+    {
+        osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
+        group->addChild( genFiberGeode( fiberDS, false ).get() );
+        group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
+    }
 
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
