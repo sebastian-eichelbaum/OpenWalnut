@@ -34,7 +34,6 @@
 #include "../../dataHandler/io/WIOTools.hpp"
 
 #include "../../dataHandler/WDataTexture3D.h"
-
 #include "WMData.h"
 
 WMData::WMData():
