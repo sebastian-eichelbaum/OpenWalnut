@@ -33,6 +33,8 @@
 #include "../../dataHandler/io/WLoaderFibers.h"
 #include "../../dataHandler/io/WIOTools.hpp"
 
+#include "../../dataHandler/WDataTexture3D.h"
+
 #include "WMData.h"
 
 WMData::WMData():
@@ -85,15 +87,25 @@ void WMData::properties()
     // properties
 
     // filename of file to load and handle
-    m_properties->addString( "filename" );
-    m_properties->hideProperty( "filename" );
+    m_properties->addString( "filename", "", true );
     m_properties->addString( "name" );
-    m_properties->addBool( "active", true );
-    m_properties->hideProperty( "active" );
-    m_properties->addBool( "interpolation", true );
-    m_properties->addInt( "threshold", 0 );
-    m_properties->addInt( "alpha", 100 );
+    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addBool( "interpolation", true ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addInt( "threshold", 0 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addInt( "alpha", 100 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
     m_properties->setMax( "alpha", 100 );
+}
+
+void WMData::slotPropertyChanged( std::string propertyName )
+{
+    if ( propertyName == "threshold" )
+    {
+        m_dataSet->getTexture()->setThreshold( m_properties->getValue<float>( "threshold" ) );
+    }
+    if ( propertyName == "alpha" )
+    {
+        m_dataSet->getTexture()->setAlpha( m_properties->getValue<float>( "alpha" ) / 100.0 );
+    }
 }
 
 void WMData::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
@@ -176,4 +188,3 @@ void WMData::moduleMain()
     // go to idle mode
     waitForStop();  // WThreadedRunner offers this for us. It uses boost::condition to avoid wasting CPU cycles with while loops.
 }
-

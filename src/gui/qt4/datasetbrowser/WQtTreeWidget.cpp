@@ -47,7 +47,7 @@ void WQtTreeWidget::moveTreeItemDown()
         index = parent->indexOfChild( currentItem() );
         if ( index < parent->childCount() - 1 )
         {
-            WQtSubjectTreeItem* subject = reinterpret_cast<WQtSubjectTreeItem*>( topLevelItem( 0 ) );
+            WQtSubjectTreeItem* subject = reinterpret_cast<WQtSubjectTreeItem*>( topLevelItem( 1 ) );
             WQtDatasetTreeItem* ci =  reinterpret_cast<WQtDatasetTreeItem*>( parent->takeChild( index ) );
             subject->insertChild( index + 1, ci );
             clearSelection();
@@ -67,7 +67,7 @@ void WQtTreeWidget::moveTreeItemUp()
         index = parent->indexOfChild( currentItem() );
         if ( index > 0 )
         {
-            WQtSubjectTreeItem* subject = reinterpret_cast<WQtSubjectTreeItem*>( topLevelItem( 0 ) );
+            WQtSubjectTreeItem* subject = reinterpret_cast<WQtSubjectTreeItem*>( topLevelItem( 1 ) );
             WQtDatasetTreeItem* ci =  reinterpret_cast<WQtDatasetTreeItem*>( parent->takeChild( index ) );
             subject->insertChild( index - 1, ci );
             clearSelection();

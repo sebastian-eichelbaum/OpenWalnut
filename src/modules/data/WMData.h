@@ -132,6 +132,11 @@ protected:
      */
     virtual void notifyStop();
 
+    /**
+     * Gets signaled from the properties object when something was changed
+     */
+    void slotPropertyChanged( std::string propertyName );
+
 private:
 
     /**

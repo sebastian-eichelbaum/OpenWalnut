@@ -406,7 +406,7 @@ void WMNavSlices::updateTextures()
 
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
+                float t = dsl[i]->getTexture()->getThreshold() / 255.0;
                 float a = dsl[i]->getTexture()->getAlpha();
 
                 m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
