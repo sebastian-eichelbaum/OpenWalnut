@@ -82,8 +82,6 @@ void WMData::connectors()
 
 void WMData::properties()
 {
-    // properties
-
     // filename of file to load and handle
     m_properties->addString( "filename" );
     m_properties->hideProperty( "filename" );

@@ -94,6 +94,12 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode(
     return geode;
 }
 
+void WMFiberDisplay::connectToGui()
+{
+    WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
+    WKernel::getRunningKernel()->getGui()->addModuleToBrowser( shared_from_this() );
+}
+
 void WMFiberDisplay::moduleMain()
 {
 //    ready();
