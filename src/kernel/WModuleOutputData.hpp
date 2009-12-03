@@ -29,8 +29,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WLogger.h"
+
 // this is necessary since we have some kind of cyclic includes
-template < typename T > class WModuleOutputData;
+template < typename T > class WModuleInputData;
 #include "WModuleInputData.hpp"
 
 #include "WModuleOutputConnector.h"
@@ -44,14 +46,14 @@ class WModuleOutputData: public WModuleOutputConnector
 {
 public:
 
-    /** 
+    /**
      * Constructor.
-     * 
+     *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleOutputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+    WModuleOutputData<T>( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
         :WModuleOutputConnector( module, name, description )
     {
         m_data = boost::shared_ptr<T>();
@@ -60,14 +62,14 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WModuleOutputData()
+    virtual ~WModuleOutputData<T>()
     {
     };
 
-    /** 
-     * Update the data associated 
-     * 
-     * \param data 
+    /**
+     * Update the data associated
+     *
+     * \param data
      */
     virtual void updateData( boost::shared_ptr<T> data )
     {
@@ -77,9 +79,9 @@ public:
         propagateDataChange();
     };
 
-    /** 
+    /**
      * Gives the currently set data.
-     * 
+     *
      * \return the data currently set.
      */
     const boost::shared_ptr<T> getData() const
@@ -87,17 +89,21 @@ public:
         return m_data;
     };
 
-    /** 
+    /**
      * Checks whether the specified connector is an input connector and compatible with T.
-     * 
+     *
      * \param con the connector to check against.
-     * 
+     *
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
+        WLogger::getLogger()->addLogMessage( "MAGUCKN", getCanonicalName(), LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Mit: " + con->getCanonicalName(), getCanonicalName(), LL_ERROR );
+
         if ( dynamic_cast< WModuleInputData< T >* >( con.get() ) )  // NOLINT - since we really need the dynamic cast here
         {
+        WLogger::getLogger()->addLogMessage( "GEIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIL" + con->getCanonicalName(), getCanonicalName(), LL_ERROR );
             // NOTE: the upper cast already checked the compatibility completely. WModuleOutputConnector::connectable does the
             // same check again. But since we do not know what checks will be added to WModuleOutputConnector::connectable in the
             // future we forward the call.
@@ -111,7 +117,7 @@ protected:
 
 private:
 
-    /** 
+    /**
      * The data associated with this connector.
      */
     boost::shared_ptr<T> m_data;

@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#include "../../dataHandler/WDataSet.h"
+#include "../../dataHandler/WDataSetSingle.h"
 
 #include "../../dataHandler/exceptions/WDHException.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
@@ -69,8 +71,8 @@ boost::shared_ptr< WDataSet > WMData::getDataSet()
 void WMData::connectors()
 {
     // initialize connectors
-    m_output= boost::shared_ptr< WModuleOutputData< WDataSet > >( new WModuleOutputData< WDataSet >( shared_from_this(),
-                "out1", "A loaded dataset." )
+    m_output= boost::shared_ptr< WModuleOutputData< WDataSet > >( new WModuleOutputData< WDataSet >(
+                shared_from_this(), "out", "A loaded dataset." )
             );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -170,7 +172,7 @@ void WMData::moduleMain()
     }
 
     // notify
-    m_output->updateData( m_dataSet );
+    //m_output->updateData( m_dataSet );
     ready();
 
     // go to idle mode

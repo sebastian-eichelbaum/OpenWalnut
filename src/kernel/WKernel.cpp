@@ -229,7 +229,16 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
         shared_ptr< WModule > mod = m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Data Module" ) );
         mod->getProperties()->setValue( "filename" , ( *iter ) );
         m_moduleContainer->add( mod );
+
+        std::set< boost::shared_ptr< WModule > > comps = m_moduleFactory->getCompatiblePrototypes( mod );
+
+        WLogger::getLogger()->addLogMessage( "Compatible Modules? -> ", "Kernel", LL_ERROR );
+        for ( std::set< boost::shared_ptr< WModule > >::iterator iter=comps.begin(); iter != comps.end(); ++iter )
+        {
+            WLogger::getLogger()->addLogMessage( "Compatible Modules: " + ( *iter )->getName() , "Kernel", LL_ERROR );
+        }
     }
+    exit(0);
 }
 
 boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const

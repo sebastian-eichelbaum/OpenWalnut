@@ -32,7 +32,7 @@
 #include <boost/thread/locks.hpp>
 
 // this is necessary since we have some kind of cyclic includes
-template < typename T > class WModuleInputData;
+template < typename T > class WModuleOutputData;
 #include "WModuleOutputData.hpp"
 #include "exceptions/WModuleConnectorUnconnected.h"
 
@@ -47,14 +47,14 @@ class WModuleInputData: public WModuleInputConnector
 {
 public:
 
-    /** 
+    /**
      * Constructor.
-     * 
+     *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+    WModuleInputData<T>( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
         :WModuleInputConnector( module, name, description )
     {
     };
@@ -62,13 +62,13 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WModuleInputData()
+    virtual ~WModuleInputData<T>()
     {
     };
 
-    /** 
+    /**
      * Gives the currently set data.
-     * 
+     *
      * \throw WModuleConnectorUnconnected if someone is requesting data but this connector is not connected.
      *
      * \return the data currently set.
@@ -99,11 +99,11 @@ public:
         return dat;
     };
 
-    /** 
+    /**
      * Checks whether the specified connector is an input connector and compatible with T.
-     * 
+     *
      * \param con the connector to check against.
-     * 
+     *
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
