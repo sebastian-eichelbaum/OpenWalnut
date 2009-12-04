@@ -36,6 +36,7 @@
 #include <osgGA/AnimationPathManipulator>
 #include <osgGA/TerrainManipulator>
 #include <osgViewer/ViewerEventHandlers>
+#include <osgViewer/View>
 
 #include <osgDB/ReadFile>
 
@@ -85,6 +86,8 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
 
         osg::ref_ptr<osgText::Text> updateText = new osgText::Text;
         m_View->addEventHandler( new WPickHandler( updateText.get() ) );
+
+        keyEvent( WGEViewer::KEYPRESS, ' ' );
     }
     catch( ... )
     {
