@@ -197,22 +197,31 @@ void WQtDatasetBrowser::selectTreeItem()
 
 void WQtDatasetBrowser::changeTreeItem()
 {
-    if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() != 1 )
+    if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == 1 )
     {
-        return;
+        boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
+        {
+            module->getProperties()->setValue<bool>( "active", true );
+        }
+        else
+        {
+            module->getProperties()->setValue<bool>( "active", false );
+        }
+        emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     }
-
-    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-
-    if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
+    else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == 3 )
     {
-        module->getProperties()->setValue<bool>( "active", true );
+        boost::shared_ptr< WModule >module =( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
+        {
+            module->getProperties()->setValue<bool>( "active", true );
+        }
+        else
+        {
+            module->getProperties()->setValue<bool>( "active", false );
+        }
     }
-    else
-    {
-        module->getProperties()->setValue<bool>( "active", false );
-    }
-    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )

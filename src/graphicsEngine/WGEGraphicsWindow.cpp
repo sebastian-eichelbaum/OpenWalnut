@@ -135,14 +135,10 @@ void WGEGraphicsWindow::keyEvent( KeyEvents eventType, int key )
     switch( eventType )
     {
         case KEYPRESS:
-            m_GraphicsWindow->getEventQueue()->keyPress(
-                    static_cast<osgGA::GUIEventAdapter::KeySymbol>( key )
-                );
+            m_GraphicsWindow->getEventQueue()->keyPress( static_cast<osgGA::GUIEventAdapter::KeySymbol>( key ) );
             break;
         case KEYRELEASE:
-            m_GraphicsWindow->getEventQueue()->keyRelease(
-                    static_cast<osgGA::GUIEventAdapter::KeySymbol>( key )
-                );
+            m_GraphicsWindow->getEventQueue()->keyRelease( static_cast<osgGA::GUIEventAdapter::KeySymbol>( key ) );
             break;
     }
 }
@@ -152,19 +148,13 @@ void WGEGraphicsWindow::mouseEvent( MouseEvents eventType, int x, int y, int but
     switch( eventType )
     {
         case MOUSEPRESS:
-            m_GraphicsWindow->getEventQueue()->mouseButtonPress(
-                x, y, button
-            );
+            m_GraphicsWindow->getEventQueue()->mouseButtonPress( x, y, button );
             break;
         case MOUSERELEASE:
-            m_GraphicsWindow->getEventQueue()->mouseButtonRelease(
-                x, y, button
-            );
+            m_GraphicsWindow->getEventQueue()->mouseButtonRelease( x, y, button );
             break;
         case MOUSEDOUBLECLICK:
-            m_GraphicsWindow->getEventQueue()->mouseDoubleButtonPress(
-                x, y, button
-            );
+            m_GraphicsWindow->getEventQueue()->mouseDoubleButtonPress( x, y, button );
             break;
         case MOUSEMOVE:
             m_GraphicsWindow->getEventQueue()->mouseMotion( x, y );

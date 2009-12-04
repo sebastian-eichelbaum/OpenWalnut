@@ -22,41 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMCOORDINATESYSTEM_H
-#define WMCOORDINATESYSTEM_H
+#ifndef WMHUD_H
+#define WMHUD_H
 
 #include <string>
 
+#include <osg/Group>
 #include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/Node>
 
-#include "WRulerOrtho.h"
-
-#include "../../dataHandler/WDataSet.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleInputData.hpp"
 
 /**
- * class that implements the various coordinate systems as overlays within the 3D view
+ * This module implements several onscreen status displays
  */
-class WMCoordinateSystem : public WModule, public osg::Referenced
+class WMHud : public WModule, public osg::Referenced
 {
 public:
     /**
      * standard constructor
      */
-    WMCoordinateSystem();
+    WMHud();
 
     /**
      * destructor
      */
-    virtual ~WMCoordinateSystem();
-
-    /**
-     * callback for updating the geometry
-     */
-    void updateGeometry();
+    virtual ~WMHud();
 
     /**
      * \par Description
@@ -78,6 +70,33 @@ public:
      */
     void connectToGui();
 
+protected:
+
+    /**
+     * \par Description
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void moduleMain();
+
+    /**
+     * Initialize the connectors this module is using.
+     */
+    virtual void connectors();
+
+    /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
+     * Receive DATA_CHANGE notifications.
+     *
+     * \param input the input connector that got the change signal. Typically it is one of the input connectors from this module.
+     * \param output the output connector that sent the signal. Not part of this module instance.
+     */
+    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
+                                   boost::shared_ptr<WModuleConnector> output );
+
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
@@ -86,18 +105,17 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-protected:
-    /**
-     * \par Description
-     * Entry point after loading the module. Runs in separate thread.
-     */
-    virtual void moduleMain();
+
 
 private:
-    /**
-     * initialize the properties for this module
-     */
-    void properties();
+    // Projection node for defining view frustrum for HUD
+    osg::ref_ptr<osg::Projection> m_rootNode;
+
+    osg::ref_ptr<osg::Group>m_HUDs;
+
+    void init();
+
+    void update();
 
     /**
      * Gets signaled from the properties object when something was changed
@@ -105,60 +123,20 @@ private:
     void slotPropertyChanged( std::string propertyName );
 
 
-    /**
-     * initial creation function for the slice geometry
-     */
-    void createGeometry();
-
-    /**
-     * helper funktion to create the actual geometry
-     */
-    osg::ref_ptr<osg::Geometry> createGeometryNode();
-
-    /**
-     * helper function that finds the bounding box of the topmost dataset in the datasetbrowser
-     */
-    void findBoundingBox();
-
-    /**
-     * the root node for this module
-     */
-    osg::ref_ptr<osg::Group> m_rootNode;
-
-    /**
-     * node for the bounding box
-     */
-    osg::ref_ptr<osg::Geode> m_boxNode;
-
-    /**
-     * node for the bounding box
-     */
-    osg::ref_ptr<osg::Group> m_rulerNode;
-
-
-    /**
-     * the shader object for this module
-     */
-    // boost::shared_ptr< WShader >m_shader;
-
-    /**
-     * lock to prevent concurrent threads trying to update the osg node
-     */
-    boost::shared_mutex m_updateLock;
-
-    class coordinateNodeCallback : public osg::NodeCallback
+    class HUDNodeCallback : public osg::NodeCallback
     {
-public:
+    public: // NOLINT
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            osg::ref_ptr< WMCoordinateSystem > module = static_cast< WMCoordinateSystem* > ( node->getUserData() );
+            osg::ref_ptr< WMHud > module = static_cast< WMHud* > ( node->getUserData() );
+
             if ( module )
             {
-                module->updateGeometry();
+                module->update();
             }
             traverse( node, nv );
         }
     };
 };
 
-#endif  // WMCOORDINATESYSTEM_H
+#endif  // WMHUD_H

@@ -104,7 +104,8 @@ void WMNavSlices::connectors()
 void WMNavSlices::properties()
 {
     m_properties->addBool( "textureChanged", false, true );
-
+    //( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMNavSlices::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "active", true, true );
     m_properties->addInt( "axialPos", 80 );
     m_properties->addInt( "coronalPos", 100 );
     m_properties->addInt( "sagittalPos", 80 );
