@@ -63,25 +63,12 @@ public:
     /**
      * Compute the cross product of the current WValue with the parameter.
      */
-    WVector3D crossProduct( const WVector3D& factor2 ) const
-    {
-        WVector3D result;
-        result[0] = (*this)[1] * factor2[2] - (*this)[2] * factor2[1];
-        result[1] = (*this)[2] * factor2[0] - (*this)[0] * factor2[2];
-        result[2] = (*this)[0] * factor2[1] - (*this)[1] * factor2[0];
-        return result;
-    }
+    WVector3D crossProduct( const WVector3D& factor2 ) const;
 
     /**
      * Compute the dot product of the current WValue with the parameter.
      */
-    double dotProduct( const WVector3D& factor2 ) const
-    {
-        double result = 0.0;
-        for ( unsigned int i = 0; i < 3; ++i )
-            result += (*this)[i] * factor2[i];
-        return result;
-    }
+    double dotProduct( const WVector3D& factor2 ) const;
 
     /**
      * Calculate euclidean square distance between this Position and another one.
@@ -89,19 +76,7 @@ public:
      * \param other The other position.
      * \return Square distance.
      */
-    double distanceSquare( const WVector3D &other ) const
-    {
-       assert( this->size() == other.size() );
-       double dist = 0.0;
-       double tmp = 0;
-       unsigned int i = 0;
-       for ( i = 0 ; i < this->size(); i++)
-       {
-           tmp = (*this)[i] - other[i];
-           dist += tmp * tmp;
-       }
-       return dist;
-    }
+    double distanceSquare( const WVector3D &other ) const;
 
 protected:
 private:
@@ -111,5 +86,24 @@ private:
  * Define WPosition as an alias for WVector3D
  */
 typedef WVector3D WPosition;
+
+inline WVector3D WVector3D::crossProduct( const WVector3D& factor2 ) const
+{
+    WVector3D result;
+    result[0] = (*this)[1] * factor2[2] - (*this)[2] * factor2[1];
+    result[1] = (*this)[2] * factor2[0] - (*this)[0] * factor2[2];
+    result[2] = (*this)[0] * factor2[1] - (*this)[1] * factor2[0];
+    return result;
+}
+
+inline double WVector3D::dotProduct( const WVector3D& factor2 ) const
+{
+    double result = 0.0;
+    for( unsigned int i = 0; i < 3; ++i )
+    {
+        result += (*this)[i] * factor2[i];
+    }
+    return result;
+}
 }  // End of namespace
 #endif  // WVECTOR3D_H

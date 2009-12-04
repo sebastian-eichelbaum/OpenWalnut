@@ -28,7 +28,8 @@
 #include <string>
 
 /**
- * A counter for reporting the progress of some work.
+ * A counter for reporting the progress of some work. The work is represented
+ * as steps, and hence the progress of the ratio of finished_steps / overall_steps.
  */
 class WStatusReport
 {
@@ -44,26 +45,17 @@ public:
      * Returns the total number of steps which are considered as 100 percent
      * work.
      */
-    unsigned int getTotalSteps() const
-    {
-        return m_totalSteps;
-    }
+    unsigned int getTotalSteps() const;
 
     /**
      * Returns the number of steps done so far
      */
-    unsigned int getFinishedSteps() const
-    {
-        return m_finishedSteps;
-    }
+    unsigned int getFinishedSteps() const;
 
     /**
      * Returns the progress in percentage done so far: e.g. 0.7 == 70%
      */
-    double progress() const
-    {
-        return static_cast< double >( m_finishedSteps ) / m_totalSteps;
-    }
+    double progress() const;
 
     /**
      * Increments the finished work by one step.
@@ -86,8 +78,9 @@ public:
 
 protected:
 private:
-    unsigned int m_totalSteps;
-    unsigned int m_finishedSteps;
+    unsigned int m_totalSteps; //!< indication of the overall work
+    unsigned int m_finishedSteps; //!< indicates the work done so far
 };
+
 
 #endif  // WSTATUSREPORT_H

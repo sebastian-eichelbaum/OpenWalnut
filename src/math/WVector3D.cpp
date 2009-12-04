@@ -49,3 +49,17 @@ WVector3D::WVector3D( const WValue< double >& newVector )
 {
     assert( this->size() == 3 );
 }
+
+double WVector3D::distanceSquare( const WVector3D &other ) const
+{
+    assert( this->size() == 3 && other.size() == 3 );
+    double dist = 0.0;
+    double tmp = 0;
+    for( size_t i = 0; i < 3; ++i )
+    {
+        tmp = (*this)[i] - other[i];
+        dist += tmp * tmp;
+    }
+    return dist;
+}
+
