@@ -28,11 +28,9 @@
 #include <string>
 
 /**
- * Writes some data to a file. This class is only for convenience access to
- * rudimentary file management things such as: file exists, if the given
- * file should be overwritten, etc. Subclasses may use those mechanisms in
- * their own public memberfunctions where the signature is different every
- * time. e.g. writeFibs( WDataSetFibers ds );
+ * Write some data to the given file. This base class is just for file
+ * management (file exists, etc.) Subclasses may use those mechanisms and
+ * specify their file format which is not the purpose of this base class.
  */
 class WWriter
 {
@@ -47,7 +45,8 @@ public:
     WWriter( std::string fname, bool overwrite = false );
 
     /**
-     * Reset the destination (file) where the writing should take place.
+     * Reset file name and checks if the file already exists in case of
+     * non overwriting is specified.
      */
     void setFileName( std::string fname );
 

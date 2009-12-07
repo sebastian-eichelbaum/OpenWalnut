@@ -40,9 +40,11 @@
 #include "../../common/WStatusReport.h"
 #include "../../common/WStringUtils.hpp"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/io/WIOTools.hpp"
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../kernel/WKernel.h"
 #include "../../utils/WColorUtils.h"
 
@@ -99,6 +101,33 @@ void WMFiberClustering::moduleMain()
 
 void WMFiberClustering::checkDLtLookUpTable()
 {
+    // TODO(math): replace this hard coded path when properties are available
+    if( wiotools::fileExists( "/tmp/pansen.dist" ) )
+    {
+        try
+        {
+            // TODO(math): replace this hard coded path when properties are available
+            WReaderLookUpTableVTK r( "/tmp/pansen.dist" );
+            using boost::shared_ptr;
+            using std::vector;
+            shared_ptr< vector< double > > data = shared_ptr< vector < double > >( new vector< double >() );
+            r.readTable( data );
+            m_dLtTable.reset( new WDXtLookUpTable( static_cast< size_t >( data->back() ) ) );
+            m_lastFibsSize = static_cast< size_t >( data->back() );
+
+            // remove the dimension from data array since it's not representing any distance
+            data->pop_back();
+
+            m_dLtTable->setData( *data );
+
+            // check if elements match number of fibers and reset m_lastFibsSize
+            m_dLtTableExists = true;
+        }
+        catch( WDHException e )
+        {
+            std::cout << e.what() << std::endl;
+        }
+    }
     if( m_dLtTableExists )
     {
         if( m_fibs->size() != m_lastFibsSize )
@@ -197,7 +226,7 @@ void WMFiberClustering::cluster()
 
     m_lastFibsSize = m_fibs->size();
     WWriterLookUpTableVTK w( "/tmp/pansen.dist", true );
-    w.writeTable( m_dLtTable->getData() );
+    w.writeTable( m_dLtTable->getData(), m_lastFibsSize );
 }
 
 osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster, const WColor color ) const

@@ -224,7 +224,7 @@ class TestCode(HeaderCode):
 
 class ExceptionHeader(HeaderCode):
     def __init__(self, name, structors=None):
-        HeaderCode.__init__(self, name + "Exception",
+        HeaderCode.__init__(self, name,
                             structors=structors,
                             subclass="public std::logic_error",
                             includes=["<stdexcept>", "<string>\n"]
@@ -237,7 +237,7 @@ class ExceptionHeader(HeaderCode):
 
 class ExceptionImplementation(ImplementationCode):
     def __init__(self, name, structors=None):
-        ImplementationCode.__init__(self, name + "Exception",
+        ImplementationCode.__init__(self, name,
                                     structors=structors,
                                     includes=["<stdexcept>", "<string>\n"]
                                    )
@@ -249,7 +249,7 @@ class ExceptionImplementation(ImplementationCode):
 
 class ExceptionTest(TestCode):
     def __init__(self, name):
-        TestCode.__init__(self, name + "Exception")
+        TestCode.__init__(self, name)
 
 
 def writeToFile( fname, payload ):

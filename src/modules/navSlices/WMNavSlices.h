@@ -174,7 +174,7 @@ private:
 
     class sliceNodeCallback : public osg::NodeCallback
     {
-public:
+    public: // NOLINT
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
             osg::ref_ptr< WMNavSlices > module = static_cast< WMNavSlices* > ( node->getUserData() );

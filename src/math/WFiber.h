@@ -44,6 +44,9 @@ class WFiber : public WLine
 {
 friend class WFiberTest;
 public:
+    /**
+     * Constructs a new fiber out of WPositions.
+     */
     explicit WFiber( const std::vector< WPosition > &points );
 
 protected:
@@ -57,10 +60,10 @@ private:
  * \param first First fiber
  * \param second Second fiber
  */
-inline bool hasGreaterLengthThen( const WFiber &first,
-                           const WFiber &second )
+inline bool hasGreaterLengthThen( const WFiber &first, const WFiber &second )
 {
     return first.size() > second.size();
 }
-}
+
+} // end of namespace
 #endif  // WFIBER_H

@@ -39,6 +39,7 @@
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/eegTest/WMEEGTest.h"
 #include "../modules/textureList/WMTextureList.h"
+#include "../modules/hud/WMHud.h"
 
 #include "exceptions/WPrototypeUnknown.h"
 #include "exceptions/WPrototypeNotUnique.h"
@@ -77,6 +78,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMTextureList() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMHud() ) );
 
     lock.unlock();
 

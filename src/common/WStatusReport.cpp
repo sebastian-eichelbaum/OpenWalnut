@@ -60,3 +60,18 @@ std::string WStatusReport::stringBar( char symbol, unsigned int finalNumOfSymbol
     unsigned int numSymbols = progress() * finalNumOfSymbols;
     return std::string( numSymbols, symbol );
 }
+
+unsigned int WStatusReport::getTotalSteps() const
+{
+    return m_totalSteps;
+}
+
+unsigned int WStatusReport::getFinishedSteps() const
+{
+    return m_finishedSteps;
+}
+
+double WStatusReport::progress() const
+{
+    return static_cast< double >( m_finishedSteps ) / m_totalSteps;
+}

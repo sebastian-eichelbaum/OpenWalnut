@@ -77,6 +77,7 @@ void WMCoordinateSystem::connectToGui()
 void WMCoordinateSystem::properties()
 {
     m_properties->addBool( "dataSetAdded", false, true );
+    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMCoordinateSystem::slotPropertyChanged, this, _1 ) );
 
     m_properties->addInt( "axialPos", 80 );
     m_properties->addInt( "coronalPos", 100 );
@@ -413,6 +414,21 @@ void WMCoordinateSystem::findBoundingBox()
                 m_properties->setValue( "brbZ", static_cast<float>( z ) );
                 break;
             }
+        }
+    }
+}
+
+void WMCoordinateSystem::slotPropertyChanged( std::string propertyName )
+{
+    if ( propertyName == "active" )
+    {
+        if ( m_properties->getValue<bool>( "active" ) )
+        {
+            m_rootNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_rootNode->setNodeMask( 0x0 );
         }
     }
 }

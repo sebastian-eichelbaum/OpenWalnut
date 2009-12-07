@@ -47,66 +47,66 @@ public:
     /**
      * Constructs a new line with the given points in the given order
      */
-    explicit WLine( const std::vector< WPosition > &points )
-        : m_points( points )
-    {
-    }
-
-    /**
-     * Copy constructor
-     */
-    WLine( const WLine& other ) : m_points( other.m_points )
-    {
-    }
+    explicit WLine( const std::vector< WPosition > &points );
 
     /**
      * \return true if both lines have a same point vector
      */
-    bool operator==( const WLine &rhs ) const
-    {
-        return m_points == rhs.m_points;
-    }
+    bool operator==( const WLine &rhs ) const;
 
     /**
      * \return false if both lines have a same point vector
      */
-    bool operator!=( const WLine &rhs ) const
-    {
-        return m_points != rhs.m_points;
-    }
+    bool operator!=( const WLine &rhs ) const;
 
     /**
      * Get number of points (length) the value consists of.
      */
-    size_t size() const
-    {
-        return m_points.size();
-    }
+    size_t size() const;
 
     /**
      * \return Const reference to the i'th position. This is const since
      * we want an read only access.
      */
-    const WPosition& operator[]( size_t index ) const
-    {
-        assert( index < m_points.size() );
-        return m_points[index];
-    }
+    const WPosition& operator[]( size_t index ) const;
 
     /**
      * Gives a meaningful representation of this object to the given
      * output stream.
      */
-    friend std::ostream& operator<<( std::ostream& os, const WLine &rhs )
-    {
-        using string_utils::operator<<;
-        return os << rhs.m_points;
-    }
+    friend std::ostream& operator<<( std::ostream& os, const WLine &rhs );
 
 protected:
 private:
     std::vector< WPosition > m_points;
 };
+
+inline size_t WLine::size() const
+{
+    return m_points.size();
 }
 
+inline bool WLine::operator==( const WLine &rhs ) const
+{
+    return m_points == rhs.m_points;
+}
+
+inline bool WLine::operator!=( const WLine &rhs ) const
+{
+    return m_points != rhs.m_points;
+}
+
+inline const WPosition& WLine::operator[]( size_t index ) const
+{
+    assert( index < m_points.size() );
+    return m_points[index];
+}
+
+inline std::ostream& operator<<( std::ostream& os, const WLine &rhs )
+{
+    using string_utils::operator<<;
+    return os << rhs.m_points;
+}
+
+} // end of namespace
 #endif  // WLINE_H

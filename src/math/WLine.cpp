@@ -22,4 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WLine.h"
+#include "WPosition.h"
+
+namespace wmath
+{
+WLine::WLine( const std::vector< WPosition > &points )
+    : m_points( points )
+{
+}
+} // end of namespace

@@ -243,7 +243,6 @@ private:
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 
-
     /**
      * Store the mesh in legacy vtk file format.
      * \param fileName the file where the triMesh will be written to
@@ -278,33 +277,38 @@ private:
 /**
  * Adapter object for realizing callbacks of the node representing the isosurface in the osg
  */
-class surfaceNodeCallback : public osg::NodeCallback
+class SurfaceNodeCallback : public osg::NodeCallback
 {
 public:
 	/**
 	 * Constructor of the callback adapter.
 	 * \param module A function of this module will be called
 	 */
-    explicit surfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module )
-        {
-            m_module = module;
-        }
+    explicit SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module );
 
     /**
      * Function that is called by the osg and that call the function in the module.
      * \param node The node we are called.
      * \param nv the visitor calling us.
      */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-        {
-            if ( m_module )
-            {
-                m_module->updateTextures();
-            }
-            traverse( node, nv );
-        }
+    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+
 private:
     boost::shared_ptr< WMMarchingCubes > m_module; //!< Pointer to the module to which the function that is called belongs to.
 };
+
+inline SurfaceNodeCallback::SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module )
+    : m_module( module )
+{
+}
+
+inline void SurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    if ( m_module )
+    {
+        m_module->updateTextures();
+    }
+    traverse( node, nv );
+}
 
 #endif  // WMMARCHINGCUBES_H

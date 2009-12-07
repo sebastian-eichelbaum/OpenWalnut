@@ -104,7 +104,8 @@ void WMNavSlices::connectors()
 void WMNavSlices::properties()
 {
     m_properties->addBool( "textureChanged", false, true );
-
+    //( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMNavSlices::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "active", true, true );
     m_properties->addInt( "axialPos", 80 );
     m_properties->addInt( "coronalPos", 100 );
     m_properties->addInt( "sagittalPos", 80 );
@@ -406,7 +407,7 @@ void WMNavSlices::updateTextures()
 
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
+                float t = dsl[i]->getTexture()->getThreshold() / 255.0;
                 float a = dsl[i]->getTexture()->getAlpha();
 
                 m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );

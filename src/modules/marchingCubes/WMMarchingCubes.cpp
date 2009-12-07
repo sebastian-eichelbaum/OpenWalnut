@@ -725,7 +725,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     shader = boost::shared_ptr< WShader > ( new WShader( "surface", shaderPath ) );
     state->setAttributeAndModes( shader->getProgramObject(), osg::StateAttribute::ON );
 
-    m_geode->setUpdateCallback( new surfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
+    m_geode->setUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
 
     //osgDB::writeNodeFile( *m_geode, "/tmp/saved.osg" ); //for debugging
 }
