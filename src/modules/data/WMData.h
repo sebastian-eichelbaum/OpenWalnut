@@ -36,6 +36,7 @@
 #include "../../kernel/WModuleOutputData.hpp"
 
 #include "../../dataHandler/WDataSet.h"
+#include "../../dataHandler/WDataSetSingle.h"
 
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its

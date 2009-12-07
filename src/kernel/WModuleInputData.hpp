@@ -32,7 +32,7 @@
 #include <boost/thread/locks.hpp>
 
 // this is necessary since we have some kind of cyclic includes
-template < typename T > class WModuleInputData;
+template < typename T > class WModuleOutputData;
 #include "WModuleOutputData.hpp"
 #include "exceptions/WModuleConnectorUnconnected.h"
 
@@ -54,7 +54,7 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+    WModuleInputData<T>( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
         :WModuleInputConnector( module, name, description )
     {
     };
@@ -62,7 +62,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WModuleInputData()
+    virtual ~WModuleInputData<T>()
     {
     };
 

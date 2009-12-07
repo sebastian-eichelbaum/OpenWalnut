@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 // this is necessary since we have some kind of cyclic includes
-template < typename T > class WModuleOutputData;
+template < typename T > class WModuleInputData;
 #include "WModuleInputData.hpp"
 
 #include "WModuleOutputConnector.h"
@@ -51,7 +51,7 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleOutputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+    WModuleOutputData< T >( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
         :WModuleOutputConnector( module, name, description )
     {
         m_data = boost::shared_ptr<T>();
@@ -60,14 +60,14 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WModuleOutputData()
+    virtual ~WModuleOutputData< T >()
     {
     };
 
     /**
      * Update the data associated
      *
-     * \param data
+     * \param data the data do send
      */
     virtual void updateData( boost::shared_ptr<T> data )
     {
