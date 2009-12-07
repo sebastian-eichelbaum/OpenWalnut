@@ -51,7 +51,7 @@ public:
     /**
      *
      */
-    WQtMenuPage* addTab( QString name );
+    WQtMenuPage* addTab( QString name, bool persistent = true );
 
     /**
      *

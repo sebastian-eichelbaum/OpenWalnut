@@ -52,6 +52,13 @@ public:
      */
     void setName( QString name );
 
+    /**
+     * Getter for this button's name.
+     *
+     * \return the name
+     */
+    QString getName();
+
 
 private:
     QString m_name;

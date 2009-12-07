@@ -42,6 +42,11 @@ void WQtPushButton::setName( QString name )
     m_name = name;
 }
 
+QString WQtPushButton::getName()
+{
+    return m_name;
+}
+
 void WQtPushButton::emitPressed()
 {
     emit pushButtonPressed( m_name, true );

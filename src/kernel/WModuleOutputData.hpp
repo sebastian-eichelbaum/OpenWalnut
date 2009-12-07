@@ -98,17 +98,10 @@ public:
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
-        //WLogger::getLogger()->addLogMessage( "MAGUCKN", getCanonicalName(), LL_ERROR );
-        //WLogger::getLogger()->addLogMessage( "Mit: " + con->getCanonicalName(), getCanonicalName(), LL_ERROR );
-
-        //if ( dynamic_cast< WModuleInputData< T >* >( con.get() ) )  // NOLINT - since we really need the dynamic cast here
-        {
-        //WLogger::getLogger()->addLogMessage( "GEIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIL" + con->getCanonicalName(), getCanonicalName(), LL_ERROR );
-            // NOTE: the upper cast already checked the compatibility completely. WModuleOutputConnector::connectable does the
-            // same check again. But since we do not know what checks will be added to WModuleOutputConnector::connectable in the
-            // future we forward the call.
-            return WModuleOutputConnector::connectable( con );
-        }
+        // NOTE: the upper cast already checked the compatibility completely. WModuleOutputConnector::connectable does the
+        // same check again. But since we do not know what checks will be added to WModuleOutputConnector::connectable in the
+        // future we forward the call.
+        return WModuleOutputConnector::connectable( con );
     };
 
 protected:

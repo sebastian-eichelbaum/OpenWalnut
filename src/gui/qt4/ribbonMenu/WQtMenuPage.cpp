@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WQtMenuPage.h"
 
 WQtMenuPage::WQtMenuPage( QString name, bool persistent )
@@ -47,11 +49,18 @@ QString WQtMenuPage::getName()
     return m_name;
 }
 
+std::vector< QString > WQtMenuPage::getButtons()
+{
+    return m_ownButtons;
+}
+
 void WQtMenuPage::addButton( WQtPushButton* button )
 {
     int count = m_pageLayout->count();
     m_pageLayout->insertWidget( count -1, button );
     this->setLayout( m_pageLayout );
+
+    m_ownButtons.push_back( button->getName() );
 }
 
 bool WQtMenuPage::isPersistent() const

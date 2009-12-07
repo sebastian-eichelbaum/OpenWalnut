@@ -25,6 +25,7 @@
 #ifndef WQTMENUPAGE_H
 #define WQTMENUPAGE_H
 
+#include <vector>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QWidget>
@@ -55,6 +56,13 @@ public:
      */
     void addButton( WQtPushButton* button );
 
+    /**
+     * Gives back the list of buttons associated with this tab.
+     *
+     * \return the list of buttons
+     */
+    std::vector< QString > getButtons();
+
     QString getName();
 
     /**
@@ -75,6 +83,11 @@ private:
     QHBoxLayout* m_pageLayout;
 
     QString m_name;
+
+    /**
+     * List of buttons belonging to this tab.
+     */
+    std::vector< QString > m_ownButtons;
 };
 
 #endif  // WQTMENUPAGE_H

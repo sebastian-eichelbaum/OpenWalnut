@@ -24,6 +24,8 @@
 
 #include <cassert>
 #include <iostream>
+#include <vector>
+#include <map>
 
 #include "WQtRibbonMenu.h"
 
@@ -42,12 +44,12 @@ WQtRibbonMenu::~WQtRibbonMenu()
 }
 
 
-WQtMenuPage* WQtRibbonMenu::addTab( QString name )
+WQtMenuPage* WQtRibbonMenu::addTab( QString name, bool persistent )
 {
     // don't add a tab with the same name twice
     assert( m_tabList.count( name ) == 0 );
 
-    WQtMenuPage* tab = new WQtMenuPage( name );
+    WQtMenuPage* tab = new WQtMenuPage( name, persistent );
 
     m_tabWidget->addTab( tab, name );
 
@@ -84,6 +86,12 @@ void WQtRibbonMenu::clearNonPersistentTabs()
         int idx = m_tabWidget->indexOf( ( *iter ).second );
         if ( !( *iter ).second->isPersistent() )
         {
+            std::vector< QString > buttons = ( *iter ).second->getButtons();
+
+            for ( std::vector< QString >::iterator bIter = buttons.begin(); bIter != buttons.end(); ++bIter )
+            {
+                m_buttonList.erase( *bIter );
+            }
             m_tabWidget->removeTab( idx );
             m_tabList.erase( iter );
         }

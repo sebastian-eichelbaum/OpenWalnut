@@ -103,6 +103,13 @@ public:
      */
     void connectSlots();
 
+    /**
+     * Returns the module currently selected in dataset browser.
+     *
+     * \return the module.
+     */
+    boost::shared_ptr< WModule > getSelectedModule();
+
 public slots:
     void slotSetIntProperty( QString name, int value );
     void slotSetBoolProperty( QString name, bool value );

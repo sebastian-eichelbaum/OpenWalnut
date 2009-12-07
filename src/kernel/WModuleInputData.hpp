@@ -108,14 +108,10 @@ public:
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
-        //if ( dynamic_cast<WModuleOutputData<T>* >( con.get() ) )  // NOLINT - since we really need them here
-        {
-            // NOTE: the upper cast already checked the compatibility completely. WModuleInputConnector::connectable does the
-            // same check again. But since we do not know what checks will be added to WModuleInputConnector::connectable in the
-            // future we forward the call.
-            return WModuleInputConnector::connectable( con );
-        }
-        return false;
+        // NOTE: the upper cast already checked the compatibility completely. WModuleInputConnector::connectable does the
+        // same check again. But since we do not know what checks will be added to WModuleInputConnector::connectable in the
+        // future we forward the call.
+        return WModuleInputConnector::connectable( con );
     };
 
 protected:

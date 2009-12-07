@@ -64,13 +64,13 @@ private:
 template < typename T >
 WTypeComparable< T >::WTypeComparable()
 {
-
+    // init
 }
 
 template < typename T >
 WTypeComparable< T >::~WTypeComparable()
 {
-
+    // clean up
 }
 
 #endif  // WTYPECOMPARABLE_H

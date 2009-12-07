@@ -126,6 +126,19 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
     return tiModules->addModuleItem( module );
 }
 
+boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
+{
+    if ( m_treeWidget->selectedItems().at( 0 )->type() == 1 )
+    {
+        return ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    }
+    else if ( m_treeWidget->selectedItems().at( 0 )->type() == 3 )
+    {
+        return ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    }
+
+    return boost::shared_ptr< WModule >();
+}
 
 void WQtDatasetBrowser::selectTreeItem()
 {
@@ -139,20 +152,23 @@ void WQtDatasetBrowser::selectTreeItem()
     }
     boost::shared_ptr< WModule >module;
 
+    m_mainWindow->getToolBar()->clearNonPersistentTabs();
+
     if ( m_treeWidget->selectedItems().at( 0 )->type() == 1 )
     {
         module = ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        // create ribbon menu entry
+        m_mainWindow->getToolBar()->addTab( QString( "Compatibles" ), false );
+        std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+        for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
+        {
+            m_mainWindow->getToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ), QString( "Compatibles" ),
+                    m_mainWindow->getIconManager()->getIcon( "load" ), QString( ( *iter )->getName().c_str() ) );
+        }
     }
     else
     {
         module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    }
-
-    // create ribbon menu entry
-    std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
-    for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
-    {
-        std::cout << "Name:" << ( *iter )->getName() << std::endl;
     }
 
     // create properties
