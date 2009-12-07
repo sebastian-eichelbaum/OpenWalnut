@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -38,6 +39,7 @@
 #include "WQtCheckBox.h"
 #include "WQtModuleHeaderTreeItem.h"
 
+#include "../../../kernel/WModuleFactory.h"
 #include "../WMainWindow.h"
 
 #include "../../../modules/data/WMData.h"
@@ -145,6 +147,15 @@ void WQtDatasetBrowser::selectTreeItem()
     {
         module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     }
+
+    // create ribbon menu entry
+    std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
+    {
+        std::cout << "Name:" << ( *iter )->getName() << std::endl;
+    }
+
+    // create properties
     std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
 
     WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );

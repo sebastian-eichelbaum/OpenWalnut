@@ -183,7 +183,7 @@ void WMData::moduleMain()
     }
 
     // notify
-    //m_output->updateData( m_dataSet );
+    m_output->updateData( m_dataSet );
     ready();
 
     // go to idle mode

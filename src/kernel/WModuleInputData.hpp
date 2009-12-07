@@ -54,7 +54,7 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputData<T>( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+    WModuleInputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
         :WModuleInputConnector( module, name, description )
     {
     };
@@ -62,7 +62,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WModuleInputData<T>()
+    virtual ~WModuleInputData()
     {
     };
 
@@ -108,12 +108,13 @@ public:
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
-        // check whether the datatypes are compatible
-//        if ( T::isCompatible( con.getData() ) )
+        //if ( dynamic_cast<WModuleOutputData<T>* >( con.get() ) )  // NOLINT - since we really need them here
         {
+            // NOTE: the upper cast already checked the compatibility completely. WModuleInputConnector::connectable does the
+            // same check again. But since we do not know what checks will be added to WModuleInputConnector::connectable in the
+            // future we forward the call.
             return WModuleInputConnector::connectable( con );
         }
-
         return false;
     };
 

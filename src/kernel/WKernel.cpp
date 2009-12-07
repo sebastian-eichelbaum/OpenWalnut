@@ -239,7 +239,6 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
             WLogger::getLogger()->addLogMessage( "Compatible Modules: " + ( *iter )->getName() , "Kernel", LL_ERROR );
         }*/
     }
-    exit(0);
 }
 
 boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const
