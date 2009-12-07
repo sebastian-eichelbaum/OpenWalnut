@@ -47,9 +47,9 @@ class WModuleInputData: public WModuleInputConnector
 {
 public:
 
-    /** 
+    /**
      * Constructor.
-     * 
+     *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
@@ -66,9 +66,9 @@ public:
     {
     };
 
-    /** 
+    /**
      * Gives the currently set data.
-     * 
+     *
      * \throw WModuleConnectorUnconnected if someone is requesting data but this connector is not connected.
      *
      * \return the data currently set.
@@ -99,22 +99,21 @@ public:
         return dat;
     };
 
-    /** 
+    /**
      * Checks whether the specified connector is an input connector and compatible with T.
-     * 
+     *
      * \param con the connector to check against.
-     * 
+     *
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
-        if ( dynamic_cast<WModuleOutputData<T>* >( con.get() ) )  // NOLINT - since we really need them here
+        // check whether the datatypes are compatible
+//        if ( T::isCompatible( con.getData() ) )
         {
-            // NOTE: the upper cast already checked the compatibility completely. WModuleInputConnector::connectable does the
-            // same check again. But since we do not know what checks will be added to WModuleInputConnector::connectable in the
-            // future we forward the call.
             return WModuleInputConnector::connectable( con );
         }
+
         return false;
     };
 

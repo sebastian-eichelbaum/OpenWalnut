@@ -44,9 +44,9 @@ class WModuleOutputData: public WModuleOutputConnector
 {
 public:
 
-    /** 
+    /**
      * Constructor.
-     * 
+     *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
@@ -64,10 +64,10 @@ public:
     {
     };
 
-    /** 
-     * Update the data associated 
-     * 
-     * \param data 
+    /**
+     * Update the data associated
+     *
+     * \param data
      */
     virtual void updateData( boost::shared_ptr<T> data )
     {
@@ -77,41 +77,41 @@ public:
         propagateDataChange();
     };
 
-    /** 
-     * Gives the currently set data.
-     * 
-     * \return the data currently set.
+    /**
+     * Gives back the currently set data.
+     *
+     * \return the data. If no data has been set, the prototype will be returned.
      */
     const boost::shared_ptr<T> getData() const
     {
         return m_data;
     };
 
-    /** 
+    /**
      * Checks whether the specified connector is an input connector and compatible with T.
-     * 
+     *
      * \param con the connector to check against.
-     * 
+     *
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
-        if ( dynamic_cast< WModuleInputData< T >* >( con.get() ) )  // NOLINT - since we really need the dynamic cast here
-        {
+        //if ( dynamic_cast< WModuleInputData< T >* >( con.get() ) )  // NOLINT - since we really need the dynamic cast here
+        //{
             // NOTE: the upper cast already checked the compatibility completely. WModuleOutputConnector::connectable does the
             // same check again. But since we do not know what checks will be added to WModuleOutputConnector::connectable in the
             // future we forward the call.
             return WModuleOutputConnector::connectable( con );
-        }
+        //}
 
-        return false;
+        //return false;
     };
 
 protected:
 
 private:
 
-    /** 
+    /**
      * The data associated with this connector.
      */
     boost::shared_ptr<T> m_data;
