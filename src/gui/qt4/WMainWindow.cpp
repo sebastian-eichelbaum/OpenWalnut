@@ -102,13 +102,14 @@ void WMainWindow::setupGUI( boost::program_options::variables_map guiConfigurati
         m_navSagittal->getGLWidget()->setBgColor( bgColor );
     }
 
-    m_datasetBrowser = new WQtDatasetBrowser();
+    setupToolBar();
+    m_toolBar->clearNonPersistentTabs();
+
+    m_datasetBrowser = new WQtDatasetBrowser( this );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "subject1" );
 
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-
-    setupToolBar();
 }
 
 void WMainWindow::setupToolBar()

@@ -135,8 +135,6 @@ void WKernel::threadMain()
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
     m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "HUD" ) ) , true );
-    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Fiber Display Module" ) ) , true );
-
 
     // actually there is nothing more to do here
     waitForStop();
@@ -233,13 +231,13 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
         mod->getProperties()->setValue( "filename" , ( *iter ) );
         m_moduleContainer->add( mod );
 
-        std::set< boost::shared_ptr< WModule > > comps = m_moduleFactory->getCompatiblePrototypes( mod );
+        /*std::set< boost::shared_ptr< WModule > > comps = m_moduleFactory->getCompatiblePrototypes( mod );
 
         WLogger::getLogger()->addLogMessage( "Compatible Modules? -> ", "Kernel", LL_ERROR );
         for ( std::set< boost::shared_ptr< WModule > >::iterator iter=comps.begin(); iter != comps.end(); ++iter )
         {
             WLogger::getLogger()->addLogMessage( "Compatible Modules: " + ( *iter )->getName() , "Kernel", LL_ERROR );
-        }
+        }*/
     }
     exit(0);
 }

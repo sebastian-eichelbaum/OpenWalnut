@@ -63,6 +63,10 @@ public:
      */
     WQtPushButton* getButton( QString name );
 
+    /**
+     * Removes tabs that are not marked persistent.
+     */
+    void clearNonPersistentTabs();
 protected:
 private:
     std::map< QString, WQtMenuPage*>m_tabList;

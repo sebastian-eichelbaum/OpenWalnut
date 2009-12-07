@@ -24,10 +24,12 @@
 
 #include "WQtMenuPage.h"
 
-WQtMenuPage::WQtMenuPage( QString name )
+WQtMenuPage::WQtMenuPage( QString name, bool persistent )
     : QWidget()
 {
     m_name = name;
+
+    m_persistent = persistent;
 
     m_pageLayout = new QHBoxLayout();
 
@@ -51,3 +53,9 @@ void WQtMenuPage::addButton( WQtPushButton* button )
     m_pageLayout->insertWidget( count -1, button );
     this->setLayout( m_pageLayout );
 }
+
+bool WQtMenuPage::isPersistent() const
+{
+    return m_persistent;
+}
+

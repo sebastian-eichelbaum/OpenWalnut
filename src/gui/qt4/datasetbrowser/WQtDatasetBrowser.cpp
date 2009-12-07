@@ -38,12 +38,16 @@
 #include "WQtCheckBox.h"
 #include "WQtModuleHeaderTreeItem.h"
 
+#include "../WMainWindow.h"
+
 #include "../../../modules/data/WMData.h"
 
 
-WQtDatasetBrowser::WQtDatasetBrowser( QWidget* parent )
+WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     : QDockWidget( parent )
 {
+    m_mainWindow = parent;
+
     m_panel = new QWidget( this );
     m_treeWidget = new WQtTreeWidget( m_panel );
 

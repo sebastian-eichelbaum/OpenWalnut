@@ -38,9 +38,12 @@ class WQtMenuPage : public QWidget
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * Constructor creates new tab.
+     *
+     * \param name name of tab
+     * \param persistent true if persistent
      */
-    explicit WQtMenuPage( QString name );
+    WQtMenuPage( QString name, bool persistent = true );
 
     /**
      * TODO(schurade): Document this!
@@ -54,7 +57,20 @@ public:
 
     QString getName();
 
+    /**
+     * Determines whether this tab is persistent.
+     *
+     * \return true if persistent.
+     */
+    bool isPersistent() const;
+
 protected:
+
+    /**
+     * True if the tab should not disappear when treeitem selection event occurs.
+     */
+    bool m_persistent;
+
 private:
     QHBoxLayout* m_pageLayout;
 

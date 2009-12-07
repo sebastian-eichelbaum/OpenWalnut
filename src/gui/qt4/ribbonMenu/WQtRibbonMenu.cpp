@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <cassert>
+#include <iostream>
 
 #include "WQtRibbonMenu.h"
 
@@ -75,3 +76,17 @@ WQtPushButton* WQtRibbonMenu::getButton( QString name )
     assert( m_buttonList.count( name ) == 1 );
     return m_buttonList[name];
 }
+
+void WQtRibbonMenu::clearNonPersistentTabs()
+{
+    for ( std::map< QString, WQtMenuPage*>::iterator iter = m_tabList.begin(); iter != m_tabList.end(); ++iter )
+    {
+        int idx = m_tabWidget->indexOf( ( *iter ).second );
+        if ( !( *iter ).second->isPersistent() )
+        {
+            m_tabWidget->removeTab( idx );
+            m_tabList.erase( iter );
+        }
+    }
+}
+

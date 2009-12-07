@@ -40,6 +40,8 @@
 
 #include "../../../dataHandler/WDataSet.h"
 
+class WMainWindow;
+
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
@@ -55,7 +57,7 @@ public:
      *
      * \return
      */
-    explicit WQtDatasetBrowser( QWidget* parent = 0 );
+    explicit WQtDatasetBrowser( WMainWindow* parent = 0 );
 
     /**
      * Destructor.
@@ -109,6 +111,10 @@ public slots:
 
 protected:
 
+    /**
+     * Reference to the main window of the application.
+     */
+    WMainWindow* m_mainWindow;
 
 private:
     WQtTreeWidget* m_treeWidget;
