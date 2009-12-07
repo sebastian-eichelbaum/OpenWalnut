@@ -29,9 +29,11 @@
 
 #include "WModule.h"
 #include "exceptions/WModuleUninitialized.h"
+#include "exceptions/WModuleAlreadyAssociated.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "../common/WLogger.h"
 #include "WKernel.h"
+#include "WModuleFactory.h"
 
 #include "WModuleContainer.h"
 
@@ -196,5 +198,31 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSi
             throw WModuleSignalSubscriptionFailed( s.str() );
             break;
     }
+}
+
+boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn, std::string what )
+{
+    return applyModule( applyOn, WModuleFactory::getModuleFactory()->getPrototypeByName( what ) );
+}
+
+boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype )
+{
+    // is this module already associated with another container?
+    if ( applyOn->isAssociated()() && ( applyOn->getAssociatedContainer() != shared_from_this() ) )
+    {
+        throw WModuleAlreadyAssociated( "The specified module \"" + applyOn->getName() + "\" is associated with another container." );
+    }
+
+    // create a new initialized instance of the module
+    boost::shared_ptr< WModule > m = WModuleFactory::getModuleFactory()->create( prototype );
+
+    // add it
+    add( m, true );
+
+    // TODO(ebaum): do actual connection stuff
+    WLogger::getLogger()->addLogMessage( "Combining modules \"" + applyOn->getName() + "\" and \"" + m->getName() + "\" not yet implemented.",
+            "ModuleContainer (" + m_name + ")", LL_WARNING );
+
+    return m;
 }
 

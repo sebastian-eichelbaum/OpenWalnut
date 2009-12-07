@@ -108,6 +108,26 @@ public:
      */
     virtual void addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
 
+    /**
+     * Function combines to modules.
+     *
+     * \param applyOn the module which already has to be in the container and to apply the other one on.
+     * \param what the prototype name of the module to apply on the other one specified.
+     *
+     * \return the newly created module connected with the one specified in applyOn.
+     */
+    virtual boost::shared_ptr< WModule > applyModule( boost::shared_ptr< WModule > applyOn, std::string what );
+
+    /**
+     * Function combines to modules.
+     *
+     * \param applyOn the module which already has to be in the container and to apply the other one on.
+     * \param prototype the prototype of the module to apply on the other one specified.
+     *
+     * \return the newly created module connected with the one specified in applyOn.
+     */
+    virtual boost::shared_ptr< WModule > applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype );
+
 protected:
 
     /**
