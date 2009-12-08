@@ -216,155 +216,155 @@ private:
  */
 namespace wlog
 {
+/**
+ * Resource class for streamed logging.
+ */
+class WStreamedLogger
+{
+public:
     /**
-     * Resource class for streamed logging.
+     * Creates new streamed logger instance. Logging is deferred until
+     * destruction of this instance.
+     *
+     * \param source Source from which the log message originates
+     * \param level The LogLevel of the message
      */
-    class WStreamedLogger
+    WStreamedLogger( const std::string& source, LogLevel level );
+
+    /**
+     * Appends something loggable (to std::string castable) to the log.
+     */
+    template< typename T > WStreamedLogger operator<<( const T& loggable );
+
+    // alias for std::endl etc. type
+    typedef std::basic_ostream< char, std::char_traits< char > > OutStreamType;
+    typedef OutStreamType& ( *StreamManipulatorFunctor )( OutStreamType& );
+
+    /**
+     * This is totally crazy man! Don't get dizzy on that, watch out and 
+     * ask a C++ guru next to your side, which is probably named Christian
+     * or have a look on that: http://stackoverflow.com/questions/1134388/stdendl-is-of-unknown-type-when-overloading-operator
+     *
+     * Allow std::endl to be streamed into log messages.
+     *
+     * \param manip Function pointer e.g. std::endl, std::flush, std::ends
+     */
+    WStreamedLogger operator<<( StreamManipulatorFunctor manip );
+
+protected:
+private:
+    /**
+     * Actually implementing the streaming functionality.
+     */
+    class Buffer
     {
-        public:
-            /**
-             * Creates new streamed logger instance. Logging is deferred until
-             * destruction of this instance.
-             *
-             * \param source Source from which the log message originates
-             * \param level The LogLevel of the message
-             */
-            WStreamedLogger( const std::string& source, LogLevel level );
+    public: // NOLINT inner classes may have also lables
+        /**
+         * Constructs a new stream for logging.
+         *
+         * \param source String identifying the source of the message
+         * \param level LogLevel of the message
+         */
+        Buffer( const std::string& source, LogLevel level );
 
-            /**
-             * Appends something loggable (to std::string castable) to the log.
-             */
-            template< typename T > WStreamedLogger operator<<( const T& loggable );
+        /**
+         * Commits the logging expression to our WLogger
+         */
+        virtual ~Buffer();
 
-            // alias for std::endl etc. type
-            typedef std::basic_ostream< char, std::char_traits< char > > OutStreamType;
-            typedef OutStreamType& ( *StreamManipulatorFunctor )( OutStreamType& );
-
-            /**
-             * This is totally crazy man! Don't get dizzy on that, watch out and 
-             * ask a C++ guru next to your side, which is probably named Christian
-             * or have a look on that: http://stackoverflow.com/questions/1134388/stdendl-is-of-unknown-type-when-overloading-operator
-             *
-             * Allow std::endl to be streamed into log messages.
-             *
-             * \param manip Function pointer e.g. std::endl, std::flush, std::ends
-             */
-            WStreamedLogger operator<<( StreamManipulatorFunctor manip );
-
-        protected:
-        private:
-            /**
-             * Actually implementing the streaming functionality.
-             */
-            class Buffer
-            {
-                public:
-                    /**
-                     * Constructs a new stream for logging.
-                     *
-                     * \param source String identifying the source of the message
-                     * \param level LogLevel of the message
-                     */
-                    Buffer( const std::string& source, LogLevel level );
-
-                    /**
-                     * Commits the logging expression to our WLogger
-                     */
-                    virtual ~Buffer();
-
-                    std::ostringstream m_logString; //!< queuing up parts of the log message
-                    LogLevel m_level; //!< Default logging level for this stream
-                    std::string m_source; //!< The source of the logging message
-            };
-
-            /**
-             * Forbid assignment
-             */
-            WStreamedLogger& operator=( const WStreamedLogger& rhs );
-
-            boost::shared_ptr< Buffer > m_buffer; //!< Collects the message parts.
+        std::ostringstream m_logString; //!< queuing up parts of the log message
+        LogLevel m_level; //!< Default logging level for this stream
+        std::string m_source; //!< The source of the logging message
     };
 
-    inline WStreamedLogger::WStreamedLogger( const std::string& source, LogLevel level )
-        : m_buffer( new Buffer( source, level ) )
-    {
-    }
-
-    template< typename T > inline WStreamedLogger WStreamedLogger::operator<<( const T& loggable )
-    {
-        m_buffer->m_logString << loggable;
-        return *this;
-    }
-
-    inline WStreamedLogger WStreamedLogger::operator<<( StreamManipulatorFunctor manip )
-    {
-        manip( m_buffer->m_logString );
-        return *this;
-    }
-
-    inline WStreamedLogger::Buffer::~Buffer()
-    {
-        WLogger::getLogger()->addLogMessage( m_logString.str(), m_source, m_level );
-    }
-
-    inline WStreamedLogger::Buffer::Buffer( const std::string& source, LogLevel level )
-        : m_logString(),
-          m_level( level ),
-          m_source( source )
-    {
-    }
-
     /**
-     * Convinient function for logging messages to our WLogger but not for
-     * public use outside of this module.
-     *
-     * \param source Indicate the source where this log message origins.
-     * \param level The LogLevel of this message
+     * Forbid assignment
      */
-    inline WStreamedLogger _wlog( const std::string& source, LogLevel level )
-    {
-        return WStreamedLogger( source, level );
-    }
+    WStreamedLogger& operator=( const WStreamedLogger& rhs );
 
-    /**
-     * Logging an error message.
-     *
-     * \param source Indicate the source where this log message origins.
-     */
-    inline WStreamedLogger error( const std::string& source )
-    {
-        return _wlog( source, LL_ERROR );
-    }
+    boost::shared_ptr< Buffer > m_buffer; //!< Collects the message parts.
+};
 
-    /**
-     * Loggin a warning message.
-     *
-     * \param source Indicate the source where this log message origins.
-     */
-    inline WStreamedLogger warn( const std::string& source )
-    {
-        return _wlog( source, LL_WARNING );
-    }
+inline WStreamedLogger::WStreamedLogger( const std::string& source, LogLevel level )
+    : m_buffer( new Buffer( source, level ) )
+{
+}
 
-    /**
-     * Loggin an information message.
-     *
-     * \param source Indicate the source where this log message origins.
-     */
-    inline WStreamedLogger info( const std::string& source )
-    {
-        return _wlog( source, LL_INFO );
-    }
+template< typename T > inline WStreamedLogger WStreamedLogger::operator<<( const T& loggable )
+{
+    m_buffer->m_logString << loggable;
+    return *this;
+}
 
-    /**
-     * Loggin a debug message.
-     *
-     * \param source Indicate the source where this log message origins.
-     */
-    inline WStreamedLogger debug( const std::string& source )
-    {
-        return _wlog( source, LL_DEBUG );
-    }
+inline WStreamedLogger WStreamedLogger::operator<<( StreamManipulatorFunctor manip )
+{
+    manip( m_buffer->m_logString );
+    return *this;
+}
+
+inline WStreamedLogger::Buffer::~Buffer()
+{
+    WLogger::getLogger()->addLogMessage( m_logString.str(), m_source, m_level );
+}
+
+inline WStreamedLogger::Buffer::Buffer( const std::string& source, LogLevel level )
+    : m_logString(),
+      m_level( level ),
+      m_source( source )
+{
+}
+
+/**
+ * Convinient function for logging messages to our WLogger but not for
+ * public use outside of this module.
+ *
+ * \param source Indicate the source where this log message origins.
+ * \param level The LogLevel of this message
+ */
+inline WStreamedLogger _wlog( const std::string& source, LogLevel level )
+{
+    return WStreamedLogger( source, level );
+}
+
+/**
+ * Logging an error message.
+ *
+ * \param source Indicate the source where this log message origins.
+ */
+inline WStreamedLogger error( const std::string& source )
+{
+    return _wlog( source, LL_ERROR );
+}
+
+/**
+ * Loggin a warning message.
+ *
+ * \param source Indicate the source where this log message origins.
+ */
+inline WStreamedLogger warn( const std::string& source )
+{
+    return _wlog( source, LL_WARNING );
+}
+
+/**
+ * Loggin an information message.
+ *
+ * \param source Indicate the source where this log message origins.
+ */
+inline WStreamedLogger info( const std::string& source )
+{
+    return _wlog( source, LL_INFO );
+}
+
+/**
+ * Loggin a debug message.
+ *
+ * \param source Indicate the source where this log message origins.
+ */
+inline WStreamedLogger debug( const std::string& source )
+{
+    return _wlog( source, LL_DEBUG );
+}
 } // end of namespace log
 
 #endif  // WLOGGER_H

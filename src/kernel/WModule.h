@@ -309,7 +309,7 @@ protected:
     wlog::WStreamedLogger logWarn() const;
 
     wlog::WStreamedLogger logError() const;
-    
+
     // **************************************************************************************************************************
     //
     // Members

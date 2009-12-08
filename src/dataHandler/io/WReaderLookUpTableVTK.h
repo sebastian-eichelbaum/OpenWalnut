@@ -41,11 +41,15 @@ public:
     /**
      * Creates a reader object for look up tables. On parameter documention
      * take a look into the WReader base class.
+     *
+     * \param fname file name
      */
     explicit WReaderLookUpTableVTK( std::string fname );
 
     /**
      * Perform reading from the file.
+     *
+     * \param table vector where to place the elements of the table
      */
     void readTable( boost::shared_ptr< std::vector< double > > table ) const;
 

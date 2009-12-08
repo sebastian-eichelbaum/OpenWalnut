@@ -25,9 +25,9 @@
 #ifndef WCOLOR_H
 #define WCOLOR_H
 
+#include <cassert>
 #include <istream>
 #include <ostream>
-#include <cassert>
 #include <string>
 #include <vector>
 
@@ -104,13 +104,20 @@ public:
 
 protected:
 private:
-    float m_red;
-    float m_green;
-    float m_blue;
-    float m_alpha;
+    float m_red; //!< Red channel
+    float m_green; //!< Green channel
+    float m_blue; //!< Blue channel
+    float m_alpha; //!< Alpha channel
 };
 
+/**
+ * Write a color in string represensation to the given output stream.
+ */
 std::ostream& operator<<( std::ostream& out, const WColor& c );
+
+/**
+ * Write a color in string represensation to the given input stream.
+ */
 std::istream& operator>>( std::istream& in, WColor& c );
 
 #endif  // WCOLOR_H
