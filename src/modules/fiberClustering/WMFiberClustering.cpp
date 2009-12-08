@@ -26,6 +26,7 @@
 #include <iomanip>
 #include <iostream>
 #include <list>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -106,6 +107,7 @@ void WMFiberClustering::checkDLtLookUpTable()
     {
         try
         {
+            logDebug() << "trying to read table from /tmp/pansen.dist" << std::endl;
             // TODO(math): replace this hard coded path when properties are available
             WReaderLookUpTableVTK r( "/tmp/pansen.dist" );
             using boost::shared_ptr;
@@ -132,6 +134,10 @@ void WMFiberClustering::checkDLtLookUpTable()
     {
         if( m_fibs->size() != m_lastFibsSize )
         {
+            wlog::debug( "WMFiberClustering" )
+                << "considered old table as invalid" << std::endl
+                << "current loaded fibers: " << m_fibs->size() << std::endl
+                << "old fibers: " << m_lastFibsSize << std::endl;
             // throw away old invalid table
             m_dLtTable.reset();
             m_dLtTableExists = false;
@@ -196,8 +202,9 @@ void WMFiberClustering::cluster()
                 }
             }
         }
-        std::cout << "\r" << std::fixed << std::setprecision( 2 );
-        std::cout << ( ++st ).progress() << " " << st.stringBar() << std::flush;
+        std::stringstream ss;
+        ss << "\r" << std::fixed << std::setprecision( 2 ) << ( ++st ).progress() << " " << st.stringBar() << std::flush;
+        std::cout << ss.str();
     }
     std::cout << std::endl;
     m_dLtTableExists = true;

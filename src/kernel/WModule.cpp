@@ -286,3 +286,22 @@ void WModule::threadMain()
     }
 }
 
+wlog::WStreamedLogger WModule::logInfo() const
+{
+    return wlog::info( getName() );
+}
+
+wlog::WStreamedLogger WModule::logError() const
+{
+    return wlog::error( getName() );
+}
+
+wlog::WStreamedLogger WModule::logDebug() const
+{
+    return wlog::debug( getName() );
+}
+
+wlog::WStreamedLogger WModule::logWarn() const
+{
+    return wlog::warn( getName() );
+}
