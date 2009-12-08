@@ -29,8 +29,9 @@
 
 #include <osg/Texture3D>
 
+
 #include "WValueSetBase.h"
-#include "WGrid.h"
+#include "WGridRegular3D.h"
 
 /**
  * Class encapsulating a 3D texture. It is able to use a value set and grid to create an OpenSceneGraph texture, that can be used
@@ -93,9 +94,9 @@ protected:
      * \param source Pointer to the raw data of a dataset
      * \param components Number of values used in a Voxel, usually 1, 3 or 4
      */
-    void createTexture3D( unsigned char* source, int components = 1 );
-    void createTexture3D( int16_t* source, int components = 1 );
-    void createTexture3D( float* source, int components = 1 );
+    osg::ref_ptr< osg::Image > createTexture3D( unsigned char* source, int components = 1 );
+    osg::ref_ptr< osg::Image > createTexture3D( int16_t* source, int components = 1 );
+    osg::ref_ptr< osg::Image > createTexture3D( float* source, int components = 1 );
 
     /**
      * Creates a 3D texture for the data set.
@@ -125,7 +126,7 @@ protected:
     /**
      * The grid used to set up the texture.
      */
-    boost::shared_ptr<WGrid> m_grid;
+    boost::shared_ptr< WGridRegular3D > m_grid;
 private:
 };
 
