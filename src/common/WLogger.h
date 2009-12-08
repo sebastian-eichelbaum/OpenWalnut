@@ -248,6 +248,7 @@ public:
      * Allow std::endl to be streamed into log messages.
      *
      * \param manip Function pointer e.g. std::endl, std::flush, std::ends
+     * \return The streamed logger for further use
      */
     WStreamedLogger operator<<( StreamManipulatorFunctor manip );
 
@@ -279,6 +280,8 @@ private:
 
     /**
      * Forbid assignment
+     *
+     * \param rhs The instance which SHOULD be copied over
      */
     WStreamedLogger& operator=( const WStreamedLogger& rhs );
 

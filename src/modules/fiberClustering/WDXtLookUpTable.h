@@ -69,6 +69,8 @@ public:
 
     /**
      * Resets the internal data (e.g. loaded from file).
+     *
+     * \param data Vector containing the new elements
      */
     void setData( const std::vector< double > &data );
 

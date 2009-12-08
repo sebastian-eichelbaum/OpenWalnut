@@ -40,11 +40,17 @@ public:
     /**
      * Constructs new algorithm with its threshold for minimal square
      * distances.
+     *
+     * \param thresholdSquare Threshold upto which the distances should be
+     * ignored given as square for reasons of performance.
      */
     explicit WZhangMetric( double thresholdSquare );
 
     /**
      * Resets the threshold for minimal point distances used in computation.
+     *
+     * \param thresholdSquare Threshold upto which the distances should be
+     * ignored given as square for reasons of performance.
      */
     void setThreshold( double thresholdSquare );
 

@@ -35,6 +35,9 @@ namespace color_utils
 {
     /**
      * Transforms a direction given via two points into a RGB color.
+     *
+     * \param pos1 First point
+     * \param pos2 Second point
      */
      WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
 }

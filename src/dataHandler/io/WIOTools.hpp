@@ -56,6 +56,8 @@ namespace wiotools
 
     /**
      * Transforms a value of type T into the opposite byte order.
+     *
+     * \param value The value where byte swapping should be applied to
      */
     template< class T > T switchByteOrder( const T value )
     {
