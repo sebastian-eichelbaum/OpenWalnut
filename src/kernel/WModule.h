@@ -302,13 +302,25 @@ protected:
      */
     void ready();
 
-    wlog::WStreamedLogger logInfo() const;
+    /**
+     * \return a logger instance for logging info messages to out WLogger
+     */
+    wlog::WStreamedLogger infoLog() const;
 
-    wlog::WStreamedLogger logDebug() const;
+    /**
+     * \return a logger instance for logging debug messages to out WLogger
+     */
+    wlog::WStreamedLogger debugLog() const;
 
-    wlog::WStreamedLogger logWarn() const;
+    /**
+     * \return a logger instance for logging warning messages to out WLogger
+     */
+    wlog::WStreamedLogger warnLog() const;
 
-    wlog::WStreamedLogger logError() const;
+    /**
+     * \return a logger instance for logging error messages to out WLogger
+     */
+    wlog::WStreamedLogger errorLog() const;
 
     // **************************************************************************************************************************
     //
