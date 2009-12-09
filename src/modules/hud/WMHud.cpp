@@ -171,12 +171,32 @@ void WMHud::init()
     // in numerical order so set bin number to 11
     HUDStateSet->setRenderBinDetails( 11, "RenderBin" );
 
+    m_osgPickText = osg::ref_ptr< osgText::Text>( new osgText::Text() );
+
+    HUDGeode->addDrawable( m_osgPickText );
+
+    m_osgPickText->setCharacterSize( 20 );
+    //m_osgPickText->setFont("C:/WINDOWS/Fonts/impact.ttf");
+    m_osgPickText->setText("nothing picked");
+    m_osgPickText->setAxisAlignment(osgText::Text::SCREEN);
+    m_osgPickText->setPosition( osg::Vec3(620,80,-1.5) );
+    m_osgPickText->setColor( osg::Vec4(0, 0, 0, 1) );
+
     m_rootNode->setUserData( this );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
+
+    WKernel::getRunningKernel()->getGui()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+}
+
+void WMHud::updatePickText( std::string text )
+{
+    m_pickText = text;
+    std::cout << text << std::endl;
 }
 
 void WMHud::update()
 {
+    m_osgPickText->setText( m_pickText.c_str() );
 }
 
 void WMHud::slotPropertyChanged( std::string propertyName )

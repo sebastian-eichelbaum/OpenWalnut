@@ -70,6 +70,11 @@ public:
      */
     void connectToGui();
 
+    /**
+     *
+     */
+    void updatePickText( std::string text );
+
 protected:
 
     /**
@@ -112,6 +117,12 @@ private:
     osg::ref_ptr<osg::Projection> m_rootNode;
 
     osg::ref_ptr<osg::Group>m_HUDs;
+
+    // Text instance that wil show up in the HUD:
+    osg::ref_ptr<osgText::Text> m_osgPickText;
+
+
+    std::string m_pickText;
 
     void init();
 

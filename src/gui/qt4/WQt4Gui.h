@@ -92,7 +92,9 @@ public:
     /**
      * getter functions for the signales proved by the gui
      */
-    boost::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
+    boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
+
+    boost::signals2::signal1< void, std::string >* getPickSignal();
 
     /**
      * this function allows modules to register their property object with the gui

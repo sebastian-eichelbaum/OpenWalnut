@@ -84,10 +84,8 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
 
         m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
 
-        osg::ref_ptr<osgText::Text> updateText = new osgText::Text;
-        m_View->addEventHandler( new WPickHandler( updateText.get() ) );
-
-        keyEvent( WGEViewer::KEYPRESS, ' ' );
+        m_pickHandler = osg::ref_ptr<WPickHandler>( new WPickHandler() );
+        m_View->addEventHandler( m_pickHandler );
     }
     catch( ... )
     {
@@ -162,3 +160,7 @@ std::string WGEViewer::getName() const
     return m_name;
 }
 
+osg::ref_ptr<WPickHandler>WGEViewer::getPickHandler()
+{
+    return m_pickHandler;
+}

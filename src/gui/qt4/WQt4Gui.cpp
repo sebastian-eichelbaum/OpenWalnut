@@ -183,10 +183,16 @@ std::vector< boost::shared_ptr< WDataSet > > WQt4Gui::getDataSetList( int subjec
     return m_gui->getDatasetBrowser()->getDataSetList( subjectId, onlyTextures );
 }
 
-boost::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()
+boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()
 {
     return m_gui->getLoaderSignal();
 }
+
+boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
+{
+    return m_gui->getPickSignal();
+}
+
 
 void WQt4Gui::connectProperties( boost::shared_ptr<WProperties> properties )
 {

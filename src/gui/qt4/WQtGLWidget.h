@@ -31,6 +31,7 @@
 #include <QtGui/QWidget>
 
 #include <boost/shared_ptr.hpp>
+#include "boost/signals2/signal.hpp"
 
 #include "../../graphicsEngine/WGECamera.h"
 #include "../../common/WFlag.hpp"
@@ -108,6 +109,8 @@ public:
      */
     const WBoolFlag& isInitialized() const;
 
+    boost::signals2::signal1< void, std::string >* getPickSignal();
+
 protected:
     /**
      * The viewer to the scene.
@@ -118,6 +121,7 @@ protected:
      * The name of the viewer.
      */
     std::string m_nameOfViewer;
+
 
     //  The GraphincsWindowWin32 implementation already takes care of message handling.
     //  We don't want to relay these on Windows, it will just cause duplicate messages
@@ -228,6 +232,8 @@ private:
      * True when initialized.
      */
     WBoolFlag m_isInitialized;
+
+    boost::signals2::signal1<void, std::string > m_pickSignal;
 };
 
 #endif  // WQTGLWIDGET_H

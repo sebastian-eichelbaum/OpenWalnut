@@ -145,8 +145,11 @@ void WMNavSlices::create()
     m_rootNode = osg::ref_ptr<osg::Group>( new osg::Group() );
 
     m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_xSliceNode->setName( "X-Slice");
     m_ySliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_ySliceNode->setName( "Y-Slice");
     m_zSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_zSliceNode->setName( "Z-Slice");
 
     m_xSliceNode->addDrawable( createGeometry( 0 ) );
     m_ySliceNode->addDrawable( createGeometry( 1 ) );
@@ -167,37 +170,32 @@ void WMNavSlices::create()
 
 osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 {
-    float axialPos = ( float )( m_properties->getValue< int >( "axialPos" ) ) + 0.5f;
-    float coronalPos = ( float )( m_properties->getValue< int >( "coronalPos" ) )  + 0.5f;
-    float sagittalPos = ( float )( m_properties->getValue< int >( "sagittalPos" ) )  + 0.5f;
+    float maxDim = 255.0;
 
-    float maxAxial = ( float )( m_properties->getValue<int>( "maxAxial") );
-    float maxCoronal = ( float )( m_properties->getValue<int>( "maxCoronal") );
-    float maxSagittal = ( float )( m_properties->getValue<int>( "maxSagittal") );
+    float xSlice = ( float )( m_properties->getValue< int >( "sagittalPos" ) );
+    float ySlice = ( float )( m_properties->getValue< int >( "coronalPos" ) );
+    float zSlice = ( float )( m_properties->getValue< int >( "axialPos" ) );
 
-    m_properties->setMax( "axialPos", maxAxial );
-    m_properties->setMax( "coronalPos", maxCoronal );
-    m_properties->setMax( "sagittalPos", maxSagittal );
-
-    float texAxial = axialPos / maxAxial;
-    float texCoronal = coronalPos / maxCoronal;
-    float texSagittal = sagittalPos / maxSagittal;
+    float xPos = xSlice + 0.5f;
+    float yPos = ySlice + 0.5f;
+    float zPos = zSlice + 0.5f;
 
     osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
     std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+
     if ( dsl.size() > 0 )
     {
         switch ( slice )
         {
             case 0:
             {
-                sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
-                sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
+                sliceVertices->push_back( osg::Vec3( 0,      yPos, 0      ) );
+                sliceVertices->push_back( osg::Vec3( 0,      yPos, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, yPos, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, yPos, 0      ) );
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
@@ -205,26 +203,35 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
                             boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+
+                    float maxX = ( float )( grid->getNbCoordsX() );
+                    float maxY = ( float )( grid->getNbCoordsY() );
+                    float maxZ = ( float )( grid->getNbCoordsZ() );
+
+                    float texX = xSlice / maxX;
+                    float texY = ySlice / maxY;
+                    float texZ = zSlice / maxZ;
+
+                    float texXOff = 255.0 / maxX;
+                    float texYOff = 255.0 / maxY;
+                    float texZOff = 255.0 / maxZ;
+
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 0.0 ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, texCoronal, 1.0 ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 1.0 ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, texCoronal, 0.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     texY, 0.0     ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     texY, texZOff ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, texY, texZOff ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, texY, 0.0     ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
-
-
-
-
                 break;
             }
             case 1:
             {
-                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
-                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
+                sliceVertices->push_back( osg::Vec3( xPos, 0,      0      ) );
+                sliceVertices->push_back( osg::Vec3( xPos, 0,      maxDim ) );
+                sliceVertices->push_back( osg::Vec3( xPos, maxDim, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( xPos, maxDim, 0      ) );
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
@@ -232,11 +239,24 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
                             boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+
+                    float maxX = ( float )( grid->getNbCoordsX() );
+                    float maxY = ( float )( grid->getNbCoordsY() );
+                    float maxZ = ( float )( grid->getNbCoordsZ() );
+
+                    float texX = xSlice / maxX;
+                    float texY = ySlice / maxY;
+                    float texZ = zSlice / maxZ;
+
+                    float texXOff = 255.0 / maxX;
+                    float texYOff = 255.0 / maxY;
+                    float texZOff = 255.0 / maxZ;
+
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 0.0 ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 0.0, 1.0 ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 1.0 ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texSagittal, 1.0, 0.0 ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, 0.0,     0.0     ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, 0.0,     texZOff ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, texYOff, texZOff ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, texYOff, 0.0     ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
@@ -244,22 +264,35 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             }
             case 2:
             {
-                sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
-                sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( 0,      0,      zPos ) );
+                sliceVertices->push_back( osg::Vec3( 0,      maxDim, zPos ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, maxDim, zPos ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, 0,      zPos ) );
                 sliceGeometry->setVertexArray( sliceVertices );
                 int c = 0;
                 for ( size_t i = 0; i < dsl.size(); ++i )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
                             boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+
+                    float maxX = ( float )( grid->getNbCoordsX() );
+                    float maxY = ( float )( grid->getNbCoordsY() );
+                    float maxZ = ( float )( grid->getNbCoordsZ() );
+
+                    float texX = xSlice / maxX;
+                    float texY = ySlice / maxY;
+                    float texZ = zSlice / maxZ;
+
+                    float texXOff = 255.0 / maxX;
+                    float texYOff = 255.0 / maxY;
+                    float texZOff = 255.0 / maxZ;
+
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 0.0, texAxial ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0, 1.0, texAxial ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 1.0, texAxial ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 1.0, 0.0, texAxial ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     0.0,     texZ ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     texYOff, texZ ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, texYOff, texZ ) ) );
+                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, 0.0,     texZ ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
@@ -269,43 +302,59 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     }
     else
     {
+        float maxX = ( float )( m_properties->getValue<int>( "maxSagittal") );
+        float maxY = ( float )( m_properties->getValue<int>( "maxCoronal") );
+        float maxZ = ( float )( m_properties->getValue<int>( "maxAxial") );
+
+        m_properties->setMax( "sagittalPos", maxX );
+        m_properties->setMax( "coronalPos", maxY );
+        m_properties->setMax( "axialPos", maxZ );
+
+        float texX = xSlice / maxX;
+        float texY = ySlice / maxY;
+        float texZ = zSlice / maxZ;
+
+        float texXOff = 255.0 / maxX;
+        float texYOff = 255.0 / maxY;
+        float texZOff = 255.0 / maxZ;
+
         osg::Vec3Array* texCoords = new osg::Vec3Array;
         switch ( slice )
         {
             case 0:
-                sliceVertices->push_back( osg::Vec3( 0, coronalPos, 0 ) );
-                sliceVertices->push_back( osg::Vec3( 0, coronalPos, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, coronalPos, 0 ) );
+                sliceVertices->push_back( osg::Vec3( 0,       yPos, 0      ) );
+                sliceVertices->push_back( osg::Vec3( 0,       yPos, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( maxDim,  yPos, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( maxDim,  yPos, 0      ) );
                 sliceGeometry->setVertexArray( sliceVertices );
-                texCoords->push_back( osg::Vec3( 0.0, texCoronal, 0.0 ) );
-                texCoords->push_back( osg::Vec3( 0.0, texCoronal, 1.0 ) );
-                texCoords->push_back( osg::Vec3( 1.0, texCoronal, 1.0 ) );
-                texCoords->push_back( osg::Vec3( 1.0, texCoronal, 0.0 ) );
+                texCoords->push_back( osg::Vec3( 0.0, texY, 0.0 ) );
+                texCoords->push_back( osg::Vec3( 0.0, texY, 1.0 ) );
+                texCoords->push_back( osg::Vec3( 1.0, texY, 1.0 ) );
+                texCoords->push_back( osg::Vec3( 1.0, texY, 0.0 ) );
                 sliceGeometry->setTexCoordArray( 0, texCoords );
                 break;
             case 1:
-                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, 0 ) );
-                sliceVertices->push_back( osg::Vec3( sagittalPos, 0, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, maxSagittal ) );
-                sliceVertices->push_back( osg::Vec3( sagittalPos, maxCoronal, 0 ) );
+                sliceVertices->push_back( osg::Vec3( xPos, 0,      0      ) );
+                sliceVertices->push_back( osg::Vec3( xPos, 0,      maxDim ) );
+                sliceVertices->push_back( osg::Vec3( xPos, maxDim, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( xPos, maxDim, 0      ) );
                 sliceGeometry->setVertexArray( sliceVertices );
-                texCoords->push_back( osg::Vec3( texSagittal, 0.0, 0.0 ) );
-                texCoords->push_back( osg::Vec3( texSagittal, 0.0, 1.0 ) );
-                texCoords->push_back( osg::Vec3( texSagittal, 1.0, 1.0 ) );
-                texCoords->push_back( osg::Vec3( texSagittal, 1.0, 0.0 ) );
+                texCoords->push_back( osg::Vec3( texX, 0.0, 0.0 ) );
+                texCoords->push_back( osg::Vec3( texX, 0.0, 1.0 ) );
+                texCoords->push_back( osg::Vec3( texX, 1.0, 1.0 ) );
+                texCoords->push_back( osg::Vec3( texX, 1.0, 0.0 ) );
                 sliceGeometry->setTexCoordArray( 0, texCoords );
                 break;
             case 2:
-                sliceVertices->push_back( osg::Vec3( 0, 0, axialPos ) );
-                sliceVertices->push_back( osg::Vec3( 0, maxCoronal, axialPos ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, maxCoronal, axialPos ) );
-                sliceVertices->push_back( osg::Vec3( maxAxial, 0, axialPos ) );
+                sliceVertices->push_back( osg::Vec3( 0,      0,      zPos ) );
+                sliceVertices->push_back( osg::Vec3( 0,      maxDim, zPos ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, maxDim, zPos ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, 0,      zPos ) );
                 sliceGeometry->setVertexArray( sliceVertices );
-                texCoords->push_back( osg::Vec3( 0.0, 0.0, texAxial ) );
-                texCoords->push_back( osg::Vec3( 0.0, 1.0, texAxial ) );
-                texCoords->push_back( osg::Vec3( 1.0, 1.0, texAxial ) );
-                texCoords->push_back( osg::Vec3( 1.0, 0.0, texAxial ) );
+                texCoords->push_back( osg::Vec3( 0.0, 0.0, texZ ) );
+                texCoords->push_back( osg::Vec3( 0.0, 1.0, texZ ) );
+                texCoords->push_back( osg::Vec3( 1.0, 1.0, texZ ) );
+                texCoords->push_back( osg::Vec3( 1.0, 0.0, texZ ) );
                 sliceGeometry->setTexCoordArray( 0, texCoords );
                 break;
         }

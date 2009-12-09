@@ -27,8 +27,7 @@
 
 #include "WPickHandler.h"
 
-WPickHandler::WPickHandler( osgText::Text* updateText ) :
-    m_updateText( updateText )
+WPickHandler::WPickHandler()
 {
 }
 
@@ -36,14 +35,9 @@ WPickHandler::~WPickHandler()
 {
 }
 
-void WPickHandler::setLabel( const std::string& name )
+std::string WPickHandler::getHitResult()
 {
-    //std::cout << name << std::endl;
-
-    if ( m_updateText.get() )
-    {
-        m_updateText->setText( name );
-    }
+    return m_hitResult;
 }
 
 bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa )
@@ -81,37 +75,28 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
 {
     osgUtil::LineSegmentIntersector::Intersections intersections;
 
-    std::string gdlist = "";
+    m_hitResult = "";
     float x = ea.getX();
     float y = ea.getY();
 
     if ( view->computeIntersections( x, y, intersections ) )
     {
-        for ( osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin(); hitr != intersections.end(); ++hitr )
+        osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin();
+        std::ostringstream os;
+        if ( !hitr->nodePath.empty() && !( hitr->nodePath.back()->getName().empty() ) )
         {
-            std::ostringstream os;
-            if ( !hitr->nodePath.empty() && !( hitr->nodePath.back()->getName().empty() ) )
-            {
-                // the geodes are identified by name.
-                os << "Object \"" << hitr->nodePath.back()->getName() << "\"" << std::endl;
-            }
-            else if ( hitr->drawable.valid() )
-            {
-                os << "Object \"" << hitr->drawable->className() << "\"" << std::endl;
-            }
-
-            os << "        local coords vertex(" << hitr->getLocalIntersectPoint() << ")" << "  normal(" << hitr->getLocalIntersectNormal() << ")"
-                    << std::endl;
-            os << "        world coords vertex(" << hitr->getWorldIntersectPoint() << ")" << "  normal(" << hitr->getWorldIntersectNormal() << ")"
-                    << std::endl;
-            const osgUtil::LineSegmentIntersector::Intersection::IndexList& vil = hitr->indexList;
-            for ( unsigned int i = 0; i < vil.size(); ++i )
-            {
-                os << "        vertex indices [" << i << "] = " << vil[i] << std::endl;
-            }
-
-            gdlist += os.str();
+            // the geodes are identified by name.
+            os << "Object \"" << hitr->nodePath.back()->getName() << "\"" << std::endl;
         }
+        else if ( hitr->drawable.valid() )
+        {
+            os << "Object \"" << hitr->drawable->className() << "\"" << std::endl;
+        }
+
+        os << "        local coords vertex(" << hitr->getLocalIntersectPoint() << ")" << "  normal(" << hitr->getLocalIntersectNormal() << ")"
+                << std::endl;
+        os << "        world coords vertex(" << hitr->getWorldIntersectPoint() << ")" << "  normal(" << hitr->getWorldIntersectNormal() << ")"
+                << std::endl;
+        m_hitResult += os.str();
     }
-    setLabel( gdlist );
 }

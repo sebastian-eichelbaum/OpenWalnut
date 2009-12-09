@@ -204,9 +204,14 @@ void WMainWindow::openLoadDialog()
     m_loaderSignal( stdFileNames );
 }
 
-boost::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
+boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
 {
     return &m_loaderSignal;
+}
+
+boost::signals2::signal1< void, std::string >* WMainWindow::getPickSignal()
+{
+    return m_mainGLWidget->getPickSignal();
 }
 
 WPropertyManager*  WMainWindow::getPropertyManager()

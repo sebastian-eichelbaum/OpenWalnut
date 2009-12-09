@@ -44,6 +44,7 @@
 
 #include "WGEGraphicsWindow.h"
 #include "WGECamera.h"
+#include "WPickHandler.h"
 #include "WGEZoomTrackballManipulator.h"
 
 
@@ -142,6 +143,8 @@ public:
 
     /**
      * Returns the name of the viewer.
+     *
+     * \return the name
      */
     std::string getName() const;
 
@@ -149,6 +152,13 @@ public:
      * Determine the color of the viewer's background.
      */
     void setBgColor( WColor bgColor );
+
+    /**
+     * Getter for the pick handler
+     *
+     * \return the pick handler
+     */
+    osg::ref_ptr<WPickHandler>getPickHandler();
 
 protected:
 
@@ -161,6 +171,11 @@ protected:
      * The name of the viewer.
      */
     std::string m_name;
+
+    /**
+     *
+     */
+    osg::ref_ptr<WPickHandler> m_pickHandler;
 
 private:
 };

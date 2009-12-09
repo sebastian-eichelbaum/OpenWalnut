@@ -29,11 +29,12 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include "boost/signals2/signal.hpp"
 
 #include "../common/WThreadedRunner.h"
 #include "../common/WFlag.hpp"
 #include "../kernel/WModule.h"
-#include "qt4/signalslib.hpp"
+
 
 /**
  * \defgroup gui GUI
@@ -113,7 +114,10 @@ public:
     /**
      * getter functions for the signales proved by the gui
      */
-    virtual boost::signal1< void, std::vector< std::string > >* getLoadButtonSignal() = 0;
+    virtual boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal() = 0;
+
+    virtual boost::signals2::signal1< void, std::string >* getPickSignal() = 0;
+
 
     /**
      * this function allows modules to register their property object with the gui

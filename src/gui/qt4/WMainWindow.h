@@ -31,6 +31,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
+#include "boost/signals2/signal.hpp"
 
 #include <QtGui/QIcon>
 #include <QtGui/QMainWindow>
@@ -38,7 +39,6 @@
 #include <QtGui/QWidget>
 #include <QtGui/QCloseEvent>
 
-#include "signalslib.hpp"
 #include "WQtNavGLWidget.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 
@@ -94,7 +94,12 @@ public:
     /**
      *
      */
-    boost::signal1< void, std::vector< std::string > >* getLoaderSignal();
+    boost::signals2::signal1< void, std::vector< std::string > >* getLoaderSignal();
+
+    /**
+     *
+     */
+    boost::signals2::signal1< void, std::string >* getPickSignal();
 
 protected:
 
@@ -128,7 +133,7 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal;
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal;
 
-    boost::signal1< void, std::vector< std::string > > m_loaderSignal;
+    boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal;
 };
 
 #endif  // WMAINWINDOW_H

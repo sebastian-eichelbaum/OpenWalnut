@@ -52,7 +52,7 @@ class WPickHandler: public osgGA::GUIEventHandler
 {
 public:
 
-    explicit WPickHandler( osgText::Text* updateText );
+    WPickHandler();
 
     virtual ~WPickHandler();
 
@@ -60,11 +60,10 @@ public:
 
     virtual void pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea );
 
-    void setLabel( const std::string& name );
+    std::string getHitResult();
 
 protected:
-
-    osg::ref_ptr< osgText::Text > m_updateText;
+    std::string m_hitResult;
 };
 
 #endif  // WPICKHANDLER_H
