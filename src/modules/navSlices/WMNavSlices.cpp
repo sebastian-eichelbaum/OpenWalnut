@@ -208,12 +208,12 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     float maxY = ( float )( grid->getNbCoordsY() );
                     float maxZ = ( float )( grid->getNbCoordsZ() );
 
-                    float texX = xSlice / maxX;
+                    //float texX = xSlice / maxX;
                     float texY = ySlice / maxY;
-                    float texZ = zSlice / maxZ;
+                    //float texZ = zSlice / maxZ;
 
                     float texXOff = 255.0 / maxX;
-                    float texYOff = 255.0 / maxY;
+                    //float texYOff = 255.0 / maxY;
                     float texZOff = 255.0 / maxZ;
 
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
@@ -245,10 +245,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     float maxZ = ( float )( grid->getNbCoordsZ() );
 
                     float texX = xSlice / maxX;
-                    float texY = ySlice / maxY;
-                    float texZ = zSlice / maxZ;
+                    //float texY = ySlice / maxY;
+                    //float texZ = zSlice / maxZ;
 
-                    float texXOff = 255.0 / maxX;
+                    //float texXOff = 255.0 / maxX;
                     float texYOff = 255.0 / maxY;
                     float texZOff = 255.0 / maxZ;
 
@@ -279,13 +279,13 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     float maxY = ( float )( grid->getNbCoordsY() );
                     float maxZ = ( float )( grid->getNbCoordsZ() );
 
-                    float texX = xSlice / maxX;
-                    float texY = ySlice / maxY;
+                    //float texX = xSlice / maxX;
+                    //float texY = ySlice / maxY;
                     float texZ = zSlice / maxZ;
 
                     float texXOff = 255.0 / maxX;
                     float texYOff = 255.0 / maxY;
-                    float texZOff = 255.0 / maxZ;
+                    //float texZOff = 255.0 / maxZ;
 
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
 
@@ -313,10 +313,6 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         float texX = xSlice / maxX;
         float texY = ySlice / maxY;
         float texZ = zSlice / maxZ;
-
-        float texXOff = 255.0 / maxX;
-        float texYOff = 255.0 / maxY;
-        float texZOff = 255.0 / maxZ;
 
         osg::Vec3Array* texCoords = new osg::Vec3Array;
         switch ( slice )
