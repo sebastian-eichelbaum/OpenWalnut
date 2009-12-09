@@ -209,6 +209,12 @@ boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLo
     return &m_loaderSignal;
 }
 
+boost::signals2::signal1< void, std::string >* WMainWindow::getModuleButtonSignal()
+{
+    return &m_moduleButtonSignal;
+}
+
+
 boost::signals2::signal1< void, std::string >* WMainWindow::getPickSignal()
 {
     return m_mainGLWidget->getPickSignal();
@@ -253,3 +259,7 @@ void WMainWindow::closeEvent( QCloseEvent* e )
     }
 }
 
+void WMainWindow::slotActivateModule( QString module )
+{
+    m_moduleButtonSignal( module.toStdString() );
+}

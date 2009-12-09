@@ -64,6 +64,7 @@ WQtPushButton* WQtRibbonMenu::addPushButton( QString name, QString tabName, QIco
     assert( m_buttonList.count( name ) == 0 );
 
     WQtPushButton* button = new WQtPushButton( icon, label );
+
     button->setName( name );
 
     m_tabList[tabName]->addButton( button );

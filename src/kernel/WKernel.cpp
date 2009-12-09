@@ -221,7 +221,7 @@ const WBoolFlag& WKernel::isFinishRequested() const
     return m_shutdownFlag;
 }
 
-void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
+void WKernel::slotLoadDataSets( std::vector< std::string > fileNames )
 {
     // add a new data module for each file to load
     using boost::shared_ptr;
@@ -231,6 +231,11 @@ void WKernel::doLoadDataSets( std::vector< std::string > fileNames )
         mod->getProperties()->setValue( "filename" , ( *iter ) );
         m_moduleContainer->add( mod );
     }
+}
+
+void WKernel::slotActivateModule( std::string module )
+{
+    std::cout << module << "<->" << m_gui->getSelectedModule()->getName() << std::endl;
 }
 
 boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const

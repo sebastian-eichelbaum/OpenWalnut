@@ -69,7 +69,7 @@ public slots:
     void emitPressed();
 
 signals:
-    void pushButtonPressed( QString name, bool value );
+    void pushButtonPressed( QString name );
     void pushButtonToggled( QString name, bool value );
 };
 

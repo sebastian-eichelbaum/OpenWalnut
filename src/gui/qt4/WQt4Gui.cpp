@@ -142,7 +142,9 @@ int WQt4Gui::run()
     m_gui->show();
 
     // connect out loader signal with krnel
-    getLoadButtonSignal()->connect( boost::bind( &WKernel::doLoadDataSets, m_kernel, _1 ) );
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::slotLoadDataSets, m_kernel, _1 ) );
+
+    m_gui->getModuleButtonSignal()->connect( boost::bind( &WKernel::slotActivateModule, m_kernel, _1 ) );
 
     // bind the GUI's slot with the ready signal
     t_ModuleGenericSignalHandlerType f = boost::bind( &WGUI::slotAddDatasetToBrowser, this, _1 );
@@ -154,7 +156,7 @@ int WQt4Gui::run()
     // check if we want to load data due to command line and call the respective function
     if( m_optionsMap.count("input") )
     {
-        m_kernel->doLoadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+        m_kernel->slotLoadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
     }
 
     // run
@@ -182,6 +184,12 @@ std::vector< boost::shared_ptr< WDataSet > > WQt4Gui::getDataSetList( int subjec
 {
     return m_gui->getDatasetBrowser()->getDataSetList( subjectId, onlyTextures );
 }
+
+boost::shared_ptr< WModule > WQt4Gui::getSelectedModule()
+{
+    return m_gui->getDatasetBrowser()->getSelectedModule();
+}
+
 
 boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()
 {

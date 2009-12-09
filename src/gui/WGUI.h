@@ -112,6 +112,13 @@ public:
     virtual std::vector< boost::shared_ptr< WDataSet > > getDataSetList( int subjectId, bool onlyTextures = false ) = 0;
 
     /**
+     * returns a pointer to the selected module in the dataset browser
+     *
+     * \return the module
+     */
+    virtual boost::shared_ptr< WModule > getSelectedModule() = 0;
+
+    /**
      * getter functions for the signales proved by the gui
      */
     virtual boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal() = 0;

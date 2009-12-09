@@ -49,7 +49,7 @@ QString WQtPushButton::getName()
 
 void WQtPushButton::emitPressed()
 {
-    emit pushButtonPressed( m_name, true );
+    emit pushButtonPressed( m_name );
     emit pushButtonToggled( m_name, this->isChecked() );
 }
 

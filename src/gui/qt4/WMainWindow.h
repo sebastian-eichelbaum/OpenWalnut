@@ -99,6 +99,12 @@ public:
     /**
      *
      */
+    boost::signals2::signal1< void, std::string >* getModuleButtonSignal();
+
+
+    /**
+     *
+     */
     boost::signals2::signal1< void, std::string >* getPickSignal();
 
 protected:
@@ -115,6 +121,11 @@ public slots:
      * gets called when menu option or toolbar button load is activated
      */
     void openLoadDialog();
+
+    /**
+     * get called when a module button
+     */
+    void slotActivateModule( QString module );
 
 private:
     void setupToolBar();
@@ -134,6 +145,8 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal;
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal;
+
+    boost::signals2::signal1< void, std::string > m_moduleButtonSignal;
 };
 
 #endif  // WMAINWINDOW_H

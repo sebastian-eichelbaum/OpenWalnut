@@ -162,8 +162,10 @@ void WQtDatasetBrowser::selectTreeItem()
         std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
         for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
         {
-            m_mainWindow->getToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ), QString( "Compatibles" ),
+            WQtPushButton* button = m_mainWindow->getToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ), QString( "Compatibles" ),
                     m_mainWindow->getIconManager()->getIcon( "load" ), QString( ( *iter )->getName().c_str() ) );
+
+            connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
         }
     }
     else

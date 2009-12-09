@@ -111,7 +111,12 @@ public:
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
      */
-    void doLoadDataSets( std::vector< std::string > fileNames );
+    void slotLoadDataSets( std::vector< std::string > fileNames );
+
+    /**
+     *
+     */
+    void slotActivateModule( std::string module );
 
     /**
      * Returns the root module container. This is the actual module graph container.
