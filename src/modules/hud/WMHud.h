@@ -118,7 +118,7 @@ private:
 
     osg::ref_ptr<osg::Group>m_HUDs;
 
-    // Text instance that wil show up in the HUD:
+    // Text instance that will show up in the HUD
     osg::ref_ptr<osgText::Text> m_osgPickText;
 
 

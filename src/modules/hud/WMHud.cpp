@@ -177,10 +177,10 @@ void WMHud::init()
 
     m_osgPickText->setCharacterSize( 20 );
     //m_osgPickText->setFont("C:/WINDOWS/Fonts/impact.ttf");
-    m_osgPickText->setText("nothing picked");
-    m_osgPickText->setAxisAlignment(osgText::Text::SCREEN);
-    m_osgPickText->setPosition( osg::Vec3(620,80,-1.5) );
-    m_osgPickText->setColor( osg::Vec4(0, 0, 0, 1) );
+    m_osgPickText->setText( "nothing picked" );
+    m_osgPickText->setAxisAlignment( osgText::Text::SCREEN );
+    m_osgPickText->setPosition( osg::Vec3( 620, 80, -1.5 ) );
+    m_osgPickText->setColor( osg::Vec4( 0, 0, 0, 1 ) );
 
     m_rootNode->setUserData( this );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );

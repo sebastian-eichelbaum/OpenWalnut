@@ -145,11 +145,11 @@ void WMNavSlices::create()
     m_rootNode = osg::ref_ptr<osg::Group>( new osg::Group() );
 
     m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_xSliceNode->setName( "X-Slice");
+    m_xSliceNode->setName( "X-Slice" );
     m_ySliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_ySliceNode->setName( "Y-Slice");
+    m_ySliceNode->setName( "Y-Slice" );
     m_zSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_zSliceNode->setName( "Z-Slice");
+    m_zSliceNode->setName( "Z-Slice" );
 
     m_xSliceNode->addDrawable( createGeometry( 0 ) );
     m_ySliceNode->addDrawable( createGeometry( 1 ) );
