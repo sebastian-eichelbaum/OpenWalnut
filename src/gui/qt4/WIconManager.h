@@ -37,16 +37,6 @@ class WIconManager
 {
 public:
     /**
-     * default constructor
-     */
-    WIconManager();
-
-    /**
-     * destructor
-     */
-    ~WIconManager();
-
-    /**
      * function to add an Icon to the icon store
      */
     void addIcon( std::string name, const char* const xpm[] );
