@@ -46,15 +46,19 @@ friend class ::WLineTest;
 public:
     /**
      * Constructs a new line with the given points in the given order
+     *
+     * \param points The points this line consists of
      */
     explicit WLine( const std::vector< WPosition > &points );
 
     /**
+     * \param rhs Right hand side operand
      * \return true if both lines have a same point vector
      */
     bool operator==( const WLine &rhs ) const;
 
     /**
+     * \param rhs Right hand side operand
      * \return false if both lines have a same point vector
      */
     bool operator!=( const WLine &rhs ) const;
@@ -65,6 +69,7 @@ public:
     size_t size() const;
 
     /**
+     * \param index Index for the i'th point of this line
      * \return Const reference to the i'th position. This is const since
      * we want an read only access.
      */
@@ -73,12 +78,15 @@ public:
     /**
      * Gives a meaningful representation of this object to the given
      * output stream.
+     *
+     * \param os The outputstream
+     * \param rhs Right hand side operand
      */
     friend std::ostream& operator<<( std::ostream& os, const WLine &rhs );
 
 protected:
 private:
-    std::vector< WPosition > m_points;
+    std::vector< WPosition > m_points; //!< stores the points of this line
 };
 
 inline size_t WLine::size() const

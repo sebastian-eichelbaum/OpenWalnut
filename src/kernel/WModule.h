@@ -34,8 +34,6 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
 
-#include "../common/WThreadedRunner.h"
-#include "../common/WFlag.hpp"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 
@@ -43,7 +41,10 @@
 #include "../dataHandler/WDataSetSingle.h"
 #include "../dataHandler/WValueSet.hpp"
 
+#include "../common/WFlag.hpp"
+#include "../common/WLogger.h"
 #include "../common/WProperties.h"
+#include "../common/WThreadedRunner.h"
 
 class WModuleConnector;
 class WModuleInputConnector;
@@ -300,6 +301,14 @@ protected:
      * Call this whenever your module is ready and can react on property changes.
      */
     void ready();
+
+    wlog::WStreamedLogger logInfo() const;
+
+    wlog::WStreamedLogger logDebug() const;
+
+    wlog::WStreamedLogger logWarn() const;
+
+    wlog::WStreamedLogger logError() const;
 
     // **************************************************************************************************************************
     //

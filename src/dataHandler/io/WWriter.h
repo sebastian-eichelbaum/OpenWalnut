@@ -47,6 +47,8 @@ public:
     /**
      * Reset file name and checks if the file already exists in case of
      * non overwriting is specified.
+     *
+     * \param fname file name
      */
     void setFileName( std::string fname );
 

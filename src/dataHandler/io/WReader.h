@@ -47,6 +47,7 @@ public:
     /**
      * Reset the file name and checks if it exists.
      *
+     * \param fname file name
      * \throws WDHNoSuchFile
      */
     void setFileName( std::string fname ) throw( WDHNoSuchFile );

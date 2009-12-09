@@ -38,6 +38,8 @@ public:
     /**
      * Constructs a new status reporter with the number of total steps
      * which it should reach to reach the 100 percent.
+     *
+     * \param totalSteps Number of total steps which symbolize 100 percent.
      */
     explicit WStatusReport( unsigned int totalSteps );
 
@@ -65,14 +67,16 @@ public:
     /**
      * Increments the finished work by the number of the given steps.
      *
+     * \param numSteps Number of steps to increment
      * \return The progress()
      */
     double operator+=( unsigned int numSteps );
 
     /**
-     * Generates a string which represents the progress in terms of
-     * characters. When reaching 100 percent finally finalNumOfSymbols are
-     * returned.
+     * Generates a string which represents the progress as bar of chars.
+     *
+     * \param symbol The char used for the progressbar indication
+     * \param finalNumOfSymbols How many symbols represent the 100 percent
      */
     std::string stringBar( char symbol = '#', unsigned int finalNumOfSymbols = 50 ) const;
 
@@ -81,6 +85,5 @@ private:
     unsigned int m_totalSteps; //!< indication of the overall work
     unsigned int m_finishedSteps; //!< indicates the work done so far
 };
-
 
 #endif  // WSTATUSREPORT_H

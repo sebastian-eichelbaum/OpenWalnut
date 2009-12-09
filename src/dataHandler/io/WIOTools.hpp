@@ -56,6 +56,8 @@ namespace wiotools
 
     /**
      * Transforms a value of type T into the opposite byte order.
+     *
+     * \param value The value where byte swapping should be applied to
      */
     template< class T > T switchByteOrder( const T value )
     {
@@ -77,6 +79,10 @@ namespace wiotools
     /**
      * Transform a whole array of elements (of type T and size of sizeof(T))
      * into opposite byte order.
+     *
+     * \param array Array containing the data
+     * \param arraySize The number of elements which is not the number of
+     * bytes but e.g. the number of floats
      */
     template< class T > void switchByteOrderOfArray( T *array, const size_t arraySize )
     {
@@ -87,6 +93,7 @@ namespace wiotools
     }
 
     /**
+     * \param name File name to get the extension or suffix from.
      * \return filename suffix
      */
     inline std::string getSuffix( std::string name )
@@ -96,17 +103,23 @@ namespace wiotools
 
     /**
      * Checks if a given path already exists or not
+     *
+     * \param path Path to be checked on existence
      */
     inline bool fileExists( std::string path )
     {
         return boost::filesystem::exists( boost::filesystem::path( path ) );
     }
 
+    /**
+     * Generate a file name with full path for a temp file. Watch out on all
+     * platforms!
+     */
     inline std::string tempFileName()
     {
         // REGARDING THE COMPILER WARNING
         // 1. mkstemp is only available for POSIX systems
-        // 2. the warning generated here is due to a race condition
+        // 2. reason: the warning generated here is due to a race condition
         //    while tmpnam invents the fileName it may be created by another process
         // 3. file names like "/tmp/pansen" or "C:\pansen" are platform dependent
         return std::string( std::tmpnam( NULL ) );
