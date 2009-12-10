@@ -114,13 +114,18 @@ public:
         // NOTE: please consider the following: the input only accepts data which is of type T or higher. So only up casts from
         // con's type T2 to T are needed/allowed what ever
 
+        if ( !WModuleInputConnector::connectable( con ) )
+        {
+            return false;
+        }
+
         // this calls virtual function to achieve the prototype of the WTransferable created with the type specified in
         // WOutputData< XYZ >
         boost::shared_ptr< WPrototyped > tProto =
             dynamic_cast< WModuleOutputConnector* >( con.get() )->getTransferPrototype(); // NOLINT
 
         // NOTE: Check the type of the transfered object and whether the connector is an output
-        return dynamic_cast< T* >( tProto.get() ) && WModuleInputConnector::connectable( con ); // NOLINT
+        return dynamic_cast< T* >( tProto.get() ); // NOLINT
     };
 
 protected:

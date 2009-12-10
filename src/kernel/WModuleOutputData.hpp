@@ -110,7 +110,7 @@ public:
      */
     virtual boost::shared_ptr< WPrototyped > getTransferPrototype()
     {
-        return boost::shared_ptr< WPrototyped >( T::getPrototype() );
+        return T::getPrototype();
     };
 
 protected:
