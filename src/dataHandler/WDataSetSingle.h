@@ -42,11 +42,20 @@ class WDataTexture3D;
 class WDataSetSingle : public WDataSet
 {
 public:
+
     /**
      * Constructs an instance out of a value set and a grid.
+     *
+     * \param newValueSet the value set to use
+     * \param newGrid the grid which maps world space to the value set
      */
     WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
                     boost::shared_ptr< WGrid > newGrid );
+
+    /**
+     * Construct an empty and unusable instance. This is useful for prototypes.
+     */
+    WDataSetSingle();
 
     /**
      * Destroys this DataSet instance
@@ -94,16 +103,44 @@ public:
      */
     virtual boost::shared_ptr< WDataTexture3D > getTexture();
 
-private:
     /**
-     * Stores the reference of the WGrid of this DataSetSingle instance.
+     * Gets the name of this prototype.
+     *
+     * \return the name.
      */
-    boost::shared_ptr< WGrid > m_grid;
+    virtual std::string getName() const;
 
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
+protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
+private:
     /**
      * Stores the reference of the WValueSet of this DataSetSingle instance.
      */
     boost::shared_ptr< WValueSetBase > m_valueSet;
+
+    /**
+     * Stores the reference of the WGrid of this DataSetSingle instance.
+     */
+    boost::shared_ptr< WGrid > m_grid;
 
     /**
      * The 3D texture representing this dataset.

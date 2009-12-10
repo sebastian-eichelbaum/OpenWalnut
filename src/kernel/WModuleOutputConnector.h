@@ -33,6 +33,7 @@
 #include "WModule.h"
 #include "WModuleConnector.h"
 #include "WModuleConnectorSignals.h"
+#include "../common/WPrototyped.h"
 
 /**
  * Class implementing output connection functionality between modules.
@@ -45,13 +46,13 @@ public:
     // Methods
     // **************************************************************************************************************************
 
-    /** 
+    /**
      * Constructor.
-     * 
+     *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
-     */    
+     */
     WModuleOutputConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
 
     /**
@@ -59,9 +60,9 @@ public:
      */
     virtual ~WModuleOutputConnector();
 
-    /** 
+    /**
      * Connects (subscribes) a specified notify function with a signal this module instance is offering.
-     * 
+     *
      * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
      *
      * \param signal the signal to connect to.
@@ -69,14 +70,21 @@ public:
      */
      boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
 
-    /** 
+    /**
      * Checks whether the specified connector is an input connector.
-     * 
+     *
      * \param con the connector to check against.
-     * 
+     *
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
+
+    /**
+     * Returns the prototype of the WTransferable used in this connector.
+     *
+     * \return the prototype of the transfered type.
+     */
+    virtual boost::shared_ptr< WPrototyped > getTransferPrototype() = 0;
 
 protected:
 
@@ -84,14 +92,14 @@ protected:
     // connectSignals
     // virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
 
-    /** 
+    /**
      * Propagates the signal "DATA_CHANGED" to all connected items.
      */
     virtual void propagateDataChange();
 
 private:
 
-    /** 
+    /**
      * Signal fired whenever new data should be propagated. Represented by DATA_CHANGED enum- element.
      */
     t_GenericSignalType signal_DataChanged;

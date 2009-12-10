@@ -25,6 +25,8 @@
 #ifndef WRECORDING_H
 #define WRECORDING_H
 
+#include "../common/WPrototyped.h"
+
 #include "WDataSet.h"
 
 /**
@@ -35,15 +37,40 @@
 class WRecording : public WDataSet
 {
 public:
+
     /**
      * Empty standard constructor for recordings
      */
-    explicit WRecording()
-        : WDataSet()
-    {
-    }
+    explicit WRecording();
+
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
 };
 

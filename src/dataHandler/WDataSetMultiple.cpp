@@ -22,5 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../common/WPrototyped.h"
+
 #include "WDataSetMultiple.h"
+
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetMultiple::m_prototype = boost::shared_ptr< WPrototyped >();
+
+WDataSetMultiple::WDataSetMultiple()
+    : WDataSet()
+{
+    // TODO(wiebel): implement this
+}
+
+std::string WDataSetMultiple::getName() const
+{
+    return "WDataSetMultiple";
+}
+
+std::string WDataSetMultiple::getDescription() const
+{
+    // TODO(all): write this
+    return "Please write me.";
+}
+
+boost::shared_ptr< WPrototyped > WDataSetMultiple::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetMultiple() );
+    }
+
+    return m_prototype;
+}
 

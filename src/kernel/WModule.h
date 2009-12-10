@@ -302,12 +302,32 @@ protected:
      */
     void ready();
 
+    /**
+     * Logger instance for comfortable info logging. Simply use logInfo() << "my info".
+     *
+     * \return the logger stream.
+     */
     wlog::WStreamedLogger logInfo() const;
 
+    /**
+     * Logger instance for comfortable debug logging. Simply use logDebug() << "my debug".
+     *
+     * \return the logger stream.
+     */
     wlog::WStreamedLogger logDebug() const;
 
+    /**
+     * Logger instance for comfortable warning- logs. Simply use logWarning() << "my warning".
+     *
+     * \return the logger stream.
+     */
     wlog::WStreamedLogger logWarn() const;
 
+    /**
+     * Logger instance for comfortable error logging. Simply use logError() << "my error".
+     *
+     * \return the logger stream.
+     */
     wlog::WStreamedLogger logError() const;
 
     // **************************************************************************************************************************

@@ -25,8 +25,12 @@
 #include "WDataTexture3D.h"
 #include "WValueSet.hpp"
 #include "WGrid.h"
+#include "../common/WPrototyped.h"
 
 #include "WDataSetSingle.h"
+
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetSingle::m_prototype = boost::shared_ptr< WPrototyped >();
 
 WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSetBase> newValueSet,
                                 boost::shared_ptr<WGrid> newGrid )
@@ -39,6 +43,15 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSetBase> newValueSet,
     m_valueSet = newValueSet;
     m_grid = newGrid;
     m_texture3D = boost::shared_ptr< WDataTexture3D >( new WDataTexture3D( m_valueSet, m_grid ) );
+}
+
+WDataSetSingle::WDataSetSingle()
+    : WDataSet(),
+    m_valueSet(),
+    m_grid(),
+    m_texture3D()
+{
+    // default constructor used by the prototype mechanism
 }
 
 WDataSetSingle::~WDataSetSingle()
@@ -57,12 +70,33 @@ boost::shared_ptr<WGrid> WDataSetSingle::getGrid() const
 
 bool WDataSetSingle::isTexture() const
 {
-    // TODO(seralph): this is not sophisticated. This should depend on type of data (vectors? scalars? tensors?)
+    // TODO(all): this is not sophisticated. This should depend on type of data (vectors? scalars? tensors?)
     return true;
 }
 
 boost::shared_ptr< WDataTexture3D > WDataSetSingle::getTexture()
 {
     return m_texture3D;
+}
+
+std::string WDataSetSingle::getName() const
+{
+    return "WDataSetSingle";
+}
+
+std::string WDataSetSingle::getDescription() const
+{
+    // TODO(all): write this
+    return "Please write me.";
+}
+
+boost::shared_ptr< WPrototyped > WDataSetSingle::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetSingle() );
+    }
+
+    return m_prototype;
 }
 

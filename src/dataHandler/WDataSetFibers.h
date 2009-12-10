@@ -44,6 +44,11 @@ public:
     explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs );
 
     /**
+     * Constructs a new set of WFibers. The constructed instance is not usable.
+     */
+    WDataSetFibers();
+
+    /**
      * Get number of fibers in this data set.
      */
     size_t size() const;
@@ -71,7 +76,34 @@ public:
      */
     virtual bool isTexture() const;
 
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
     boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
 };

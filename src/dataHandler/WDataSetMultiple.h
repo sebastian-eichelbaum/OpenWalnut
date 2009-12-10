@@ -25,6 +25,7 @@
 #ifndef WDATASETMULTIPLE_H
 #define WDATASETMULTIPLE_H
 
+#include "../common/WPrototyped.h"
 #include "WDataSet.h"
 
 /**
@@ -35,14 +36,38 @@ class WDataSetMultiple : public WDataSet
 {
 public:
     /**
-     * Dummy constructor.
+     * Constructs a new empty dataset. The constructed instance is not usable.
      */
-    explicit WDataSetMultiple()
-    : WDataSet()
-    {
-        // TODO(wiebel): implement this
-    };
+    WDataSetMultiple();
+
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
 };
 
