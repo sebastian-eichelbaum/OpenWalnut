@@ -209,7 +209,7 @@ std::set< boost::shared_ptr< WModule > > WModuleFactory::getCompatiblePrototypes
         }
 
         // check whether the outputs are compatible with the inputs of the prototypes
-        if ( ( *cons.begin() )->connectable( *pcons.begin() ) )
+        if (   ( *cons.begin() )->connectable( *pcons.begin() )  &&  ( *pcons.begin() )->connectable( *cons.begin() ) )
         {
             // it is compatible -> add to list
             compatibles.insert( *listIter );
