@@ -52,11 +52,6 @@ WMainWindow::WMainWindow( boost::program_options::variables_map guiConfiguration
     setupGUI( guiConfiguration );
 }
 
-WMainWindow::~WMainWindow()
-{
-}
-
-
 void WMainWindow::setupGUI( boost::program_options::variables_map guiConfiguration )
 {
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );

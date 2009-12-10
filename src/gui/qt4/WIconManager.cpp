@@ -27,14 +27,6 @@
 
 #include "WIconManager.h"
 
-WIconManager::WIconManager()
-{
-}
-
-WIconManager::~WIconManager()
-{
-}
-
 void WIconManager::addIcon( std::string name, const char* const xpm[] )
 {
     assert( ( m_iconList.count( name ) == 0 ) );

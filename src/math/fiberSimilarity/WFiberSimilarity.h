@@ -25,6 +25,7 @@
 #ifndef WFIBERSIMILARITY_H
 #define WFIBERSIMILARITY_H
 
+// forward declaration
 namespace wmath
 {
     class WFiber;
@@ -42,6 +43,10 @@ public:
     /**
      * Computes the similarity between two fibers Q and R. Values near 0
      * indicate very strong similarity and low distance.
+     *
+     * \param q First fiber
+     * \param r Second fiber
+     * \return Distance between fibers
      */
     virtual double dist( const wmath::WFiber &q, const wmath::WFiber &r ) const = 0;
 

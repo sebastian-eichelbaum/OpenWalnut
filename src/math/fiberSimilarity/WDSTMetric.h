@@ -40,9 +40,11 @@ public:
     explicit WDSTMetric( double thresholdSquare );
 
     /**
-     * \return The minimum of dt(Q, R, t) and dt(R, Q, t)
+     * \param q First fiber
+     * \param r Second fiber
+     * \return The minimum of dt(Q,R) and dt(R,Q)
      */
-    virtual double dist( const wmath::WFiber &q, const wmath::WFiber &ri ) const;
+    virtual double dist( const wmath::WFiber &q, const wmath::WFiber &r ) const;
 
 private:
 };

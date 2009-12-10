@@ -107,7 +107,7 @@ void WMFiberClustering::checkDLtLookUpTable()
     {
         try
         {
-            logDebug() << "trying to read table from /tmp/pansen.dist" << std::endl;
+            debugLog() << "trying to read table from /tmp/pansen.dist";
             // TODO(math): replace this hard coded path when properties are available
             WReaderLookUpTableVTK r( "/tmp/pansen.dist" );
             using boost::shared_ptr;
@@ -127,17 +127,16 @@ void WMFiberClustering::checkDLtLookUpTable()
         }
         catch( WDHException e )
         {
-            std::cout << e.what() << std::endl;
+            debugLog() << e.what() << std::endl;
         }
     }
     if( m_dLtTableExists )
     {
         if( m_fibs->size() != m_lastFibsSize )
         {
-            wlog::debug( "WMFiberClustering" )
-                << "considered old table as invalid" << std::endl
-                << "current loaded fibers: " << m_fibs->size() << std::endl
-                << "old fibers: " << m_lastFibsSize << std::endl;
+            debugLog() << "considered old table as invalid" << std::endl
+                     << "current loaded fibers: " << m_fibs->size() << std::endl
+                     << "old fibers: " << m_lastFibsSize << std::endl;
             // throw away old invalid table
             m_dLtTable.reset();
             m_dLtTableExists = false;
@@ -147,7 +146,7 @@ void WMFiberClustering::checkDLtLookUpTable()
 
 void WMFiberClustering::cluster()
 {
-    std::cout << "Start clustering with " << m_fibs->size() << " fibers." << std::endl;
+    infoLog() << "Start clustering with " << m_fibs->size() << " fibers.";
     m_clusters.clear();  // remove evtl. old clustering
     size_t numFibers = m_fibs->size();
     std::vector< size_t > cid( numFibers, 0 );  // cluster number for each fib where it belongs to
@@ -161,9 +160,9 @@ void WMFiberClustering::cluster()
         m_dLtTable.reset( new WDXtLookUpTable( numFibers ) );
     }
     m_proximity_t = 1.0;
-    std::cout << "Proximity threshold: " << m_proximity_t << std::endl;
+    infoLog() << "Proximity threshold: " << m_proximity_t;
     m_maxDistance_t = 6.5;
-    std::cout << "Maximum inter cluster distance threshold: " << m_maxDistance_t << std::endl;
+    infoLog() << "Maximum inter cluster distance threshold: " << m_maxDistance_t;
     WStatusReport st( numFibers );
 
     WDLTMetric dLt( m_proximity_t * m_proximity_t );  // metric instance for computation of the dLt measure
@@ -204,9 +203,9 @@ void WMFiberClustering::cluster()
         }
         std::stringstream ss;
         ss << "\r" << std::fixed << std::setprecision( 2 ) << ( ++st ).progress() << " " << st.stringBar() << std::flush;
-        std::cout << ss.str();
+        // std::cout << ss.str();
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
     m_dLtTableExists = true;
 
     // remove empty clusters
@@ -214,7 +213,6 @@ void WMFiberClustering::cluster()
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
 
     // determine #clusters and #small_clusters which are below a certain size
-    std::cout << "Found " << m_clusters.size() << " clusters where ";
     size_t numSmallClusters = 0;
     for( size_t i = 0; i < m_clusters.size(); ++i )
     {
@@ -225,11 +223,12 @@ void WMFiberClustering::cluster()
             ++numSmallClusters;
         }
     }
-    std::cout << numSmallClusters << " clusters are only of size ";
-    std::cout << m_minClusterSize << " or less." << std::endl;
+    infoLog() << "Found " << m_clusters.size() << " clusters where "
+              << numSmallClusters << " clusters are only of size "
+              << m_minClusterSize << " or less.";
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
-    std::cout << "Erased small clusters too." << std::endl;
-    std::cout << "Using " << m_clusters.size() << " clusters.";
+    infoLog() << "Erased small clusters too.";
+    infoLog() << "Using " << m_clusters.size() << " clusters.";
 
     m_lastFibsSize = m_fibs->size();
     WWriterLookUpTableVTK w( "/tmp/pansen.dist", true );
@@ -268,11 +267,12 @@ osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster
 
 void WMFiberClustering::paint()
 {
+    // get different colors via HSV color model for each cluster
     double hue = 0.0;
     double hue_increment = 1.0 / m_clusters.size();
     WColor color;
 
-    std::cout << "cluster: " << m_clusters.size() << std::endl;
+    infoLog() << "cluster: " << m_clusters.size();
     osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {

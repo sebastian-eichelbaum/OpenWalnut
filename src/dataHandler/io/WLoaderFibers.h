@@ -52,6 +52,10 @@ friend class WLoaderFibersTest;
 public:
     /**
      * Constructs and makes a new VTK loader for separate thread start.
+     *
+     * \param fname File name where to load data from
+     * \param dataHandler Pointer of the dataHandler (where to put the DataSet)
+     * \throws WDHIOFailure
      */
     WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure );
 

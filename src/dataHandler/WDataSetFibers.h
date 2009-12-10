@@ -41,6 +41,8 @@ class WDataSetFibers : public WDataSet
 public:
     /**
      * Constructs a new set of WFibers
+     *
+     * \param fibs Fiber vector to store in this data set
      */
     explicit WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs );
 
@@ -55,6 +57,7 @@ public:
     size_t size() const;
 
     /**
+     * \param index The index number of the fiber which should be returned
      * \return The i'th fiber.
      */
     const wmath::WFiber& operator[]( const size_t index ) const;
@@ -67,6 +70,9 @@ public:
     /**
      * Deletes all those fibers which are marked true in the given
      * unused vector.
+     *
+     * \param unused Vector having the those inidices set to true which should
+     * be deleted.
      */
     void erase( const std::vector< bool > &unused );
 
@@ -106,7 +112,7 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
-    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers;
+    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers; //!< stores all the fibers
 };
 
 #endif  // WDATASETFIBERS_H

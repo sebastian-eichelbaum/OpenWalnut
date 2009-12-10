@@ -42,11 +42,16 @@ public:
     /**
      * Constructs an cluster with one fiber and a reference to the fiber dataset
      * to compute the intercluster distance.
+     *
+     * \param index The index of the first fiber belonging to this cluster
+     * \param fibs Reference to the fiber dataset
      */
     WFiberCluster( size_t index, const boost::shared_ptr< WDataSetFibers > fibs );
 
     /**
      * Constructs an empty cluster with reference to the fiber dataset.
+     *
+     * \param fibs Reference to the fiber dataset
      */
     explicit WFiberCluster( const boost::shared_ptr< WDataSetFibers > fibs );
 
@@ -58,6 +63,8 @@ public:
     /**
      * Merge the fibers of the other cluster with the fibers of this cluster.
      * Afterwards the other cluster is empty.
+     *
+     * \param other The other WFiberCluster which should merged into this one
      */
     void merge( WFiberCluster &other ); // NOLINT
 
@@ -104,28 +111,22 @@ public:
     /**
      * Sets the color of which all fibers of this clusters should be painted
      * with.
+     *
+     * \param color The color for all fibers of this cluster.
      */
     void setColor( WColor color );
 
-//    Maybe generate here geodes?
-//    /**
-//     * Paint every fiber into the given FGE primitive.
-//     */
-//    void paintIntoFgePrimitive( FgeLineStrips *lstrips) const;
-//
-//    /**
-//     * Allocate new FGE primitive, paint all fibers to it and return the
-//     * reference of it.
-//     */
-//    FgeLineStrips* createNewFgePrimitive() const;
-
     /**
+     * \param other The other fiber which should be compared
      * \return true If both clusters having same fibers in same order!
      */
     bool operator==( const WFiberCluster& other ) const;
 
     /**
      * The opposite of the operator==
+     *
+     * \param other The other fiber which should be compared
+     * \return false If both clusters having same fibers in same order!
      */
     bool operator!=( const WFiberCluster& other ) const;
 

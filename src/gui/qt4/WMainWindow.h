@@ -66,11 +66,6 @@ public:
     void setupGUI( boost::program_options::variables_map guiConfiguration );
 
     /**
-     * Destructor.
-     */
-    virtual ~WMainWindow();
-
-    /**
      * returns a pointer to the dataset browser object
      */
     WQtDatasetBrowser* getDatasetBrowser();

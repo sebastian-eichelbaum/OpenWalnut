@@ -40,6 +40,8 @@ public:
     explicit WDLTMetric( double thresholdSquare );
 
     /**
+     * \param q First fiber
+     * \param r Second fiber
      * \return The maximum of dt(Q,R) and dt(R,Q)
      */
     virtual double dist( const wmath::WFiber &q, const wmath::WFiber &r ) const;

@@ -39,13 +39,17 @@ class WWriterFiberVTK : public WWriter
 {
 public:
     /**
-     * Creates a writer object for FiberVTK file writing. On parameter documentation
-     * take a look into the WWriter class.
+     * Creates a writer object for FiberVTK file writing.
+     *
+     * \param fname path to the target file where stuff will be written to
+     * \param overwrite If true existing files will be overwritten
      */
     WWriterFiberVTK( std::string fname, bool overwrite = false );
 
     /**
      * Writes a WDataSetFibers down to the previousely given file
+     *
+     * \param fiberDS The WDataSetFibers where the data is taken from
      */
     void writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const;
 

@@ -286,22 +286,22 @@ void WModule::threadMain()
     }
 }
 
-wlog::WStreamedLogger WModule::logInfo() const
+wlog::WStreamedLogger WModule::infoLog() const
 {
     return wlog::info( getName() );
 }
 
-wlog::WStreamedLogger WModule::logError() const
+wlog::WStreamedLogger WModule::errorLog() const
 {
     return wlog::error( getName() );
 }
 
-wlog::WStreamedLogger WModule::logDebug() const
+wlog::WStreamedLogger WModule::debugLog() const
 {
     return wlog::debug( getName() );
 }
 
-wlog::WStreamedLogger WModule::logWarn() const
+wlog::WStreamedLogger WModule::warnLog() const
 {
     return wlog::warn( getName() );
 }
