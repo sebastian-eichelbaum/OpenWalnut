@@ -22,34 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDLTMETRIC_H
-#define WDLTMETRIC_H
+#ifndef WOUTOFBOUNDS_H
+#define WOUTOFBOUNDS_H
 
-#include "WZhangMetric.h"
-#include "../WFiber.h"
+#include <string>
+
+#include "../WException.h"
 
 /**
- * This is the Larger thresholded distance as described by Zhang.
+ * Indicates invalid element access of a container.
  */
-class WDLTMetric : public WZhangMetric
+class WOutOfBounds : public WException
 {
 public:
     /**
-     * Constructs this metric with a certain threshold.
-     *
-     * \param thresholdSquare Threshold upto which the distances should be
-     * ignored given as square for reasons of performance.
+     * Default constructor.
+     * \param msg the exception message.
      */
-    explicit WDLTMetric( double thresholdSquare );
+    explicit WOutOfBounds( const std::string& msg = "Out Of Bounds" );
 
     /**
-     * \param q First fiber
-     * \param r Second fiber
-     * \return The maximum of dt(Q,R) and dt(R,Q)
+     * Destructor.
      */
-    virtual double dist( const wmath::WFiber &q, const wmath::WFiber &r ) const;
+    virtual ~WOutOfBounds() throw();
 
+protected:
 private:
 };
 
-#endif  // WDLTMETRIC_H
+#endif  // WOUTOFBOUNDS_H

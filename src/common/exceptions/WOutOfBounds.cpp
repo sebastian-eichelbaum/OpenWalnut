@@ -22,44 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cassert>
-#include <algorithm>
-#include <vector>
+#include <string>
 
-#include "WDXtLookUpTable.h"
+#include "WOutOfBounds.h"
 
-WDXtLookUpTable::WDXtLookUpTable( size_t dim )
-    : _data( ( dim * ( dim-1 ) ) / 2, 0.0 ),
-      _dim( dim )
+WOutOfBounds::WOutOfBounds( const std::string& msg )
+    : WException( msg )
 {
+    // init members
 }
 
-double& WDXtLookUpTable::operator()( size_t i, size_t j )
+WOutOfBounds::~WOutOfBounds() throw ()
 {
-    assert( i != j );
-    if( i > j )
-    {
-        std::swap( i, j );
-    }
-    return _data.at( i * _dim + j - ( i + 1 ) * ( i + 2 ) / 2 );
-}
-
-size_t WDXtLookUpTable::size() const
-{
-    return _data.size();
-}
-
-size_t WDXtLookUpTable::dim() const
-{
-    return _dim;
-}
-
-const std::vector< double >& WDXtLookUpTable::getData() const
-{
-    return _data;
-}
-
-void WDXtLookUpTable::setData( const std::vector< double > &data )
-{
-    _data = std::vector< double >( data ); // copy content
+    // clean up
 }

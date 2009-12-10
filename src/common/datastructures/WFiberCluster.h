@@ -46,14 +46,12 @@ public:
      * \param index The index of the first fiber belonging to this cluster
      * \param fibs Reference to the fiber dataset
      */
-    WFiberCluster( size_t index, const boost::shared_ptr< WDataSetFibers > fibs );
+    explicit WFiberCluster( size_t index );
 
     /**
-     * Constructs an empty cluster with reference to the fiber dataset.
-     *
-     * \param fibs Reference to the fiber dataset
+     * Constructs an empty cluster.
      */
-    explicit WFiberCluster( const boost::shared_ptr< WDataSetFibers > fibs );
+    WFiberCluster();
 
     /**
      * Returns true if there are no fibers in that cluster, false otherwise.
@@ -72,24 +70,6 @@ public:
      * Returns a const reference of all indices inside this cluster
      */
     const std::list< size_t >& getIndices() const;
-
-    /**
-     * Find the minimal distance for any pair of fibers where one fiber is
-     * in this cluster and the other is in the other cluster.
-     *
-     * \param other the cluster that will be compared with this cluster
-     * \param proximity_t Fiber distances below this threshold are not
-     * conisdered
-     */
-    double minDistance( const WFiberCluster& other,
-                        const double proximity_t = 0.0 ) const;
-
-    /**
-     * ToDo(math): Refactor! use merge function instead
-     * For all indices in this cluster, update their cluster number in the 
-     * given cid-vector with the given newCid cluster number.
-     */
-    void updateClusterIndices( std::vector< size_t >& cid, const size_t newCid ) const; // NOLINT
 
     /**
      * Sort the indices of fibers associated with this cluster in ascending
@@ -117,6 +97,12 @@ public:
     void setColor( WColor color );
 
     /**
+     * Gets the color of which all fibers of this clusters should be painted
+     * with.
+     */
+    WColor getColor() const;
+
+    /**
      * \param other The other fiber which should be compared
      * \return true If both clusters having same fibers in same order!
      */
@@ -135,11 +121,6 @@ private:
      * All indices in this set are members of this cluster
      */
     std::list< size_t > m_memberIndices;
-
-    /**
-     * Reference to the real fibers, so painting is possible.
-     */
-    boost::shared_ptr< WDataSetFibers > m_fibs;
 
     /**
      * Color which is used to paint the members of this cluster.
@@ -170,6 +151,11 @@ inline void WFiberCluster::clear()
 inline void WFiberCluster::setColor( WColor color )
 {
     m_color = color;
+}
+
+inline WColor WFiberCluster::getColor() const
+{
+    return m_color;
 }
 
 inline bool WFiberCluster::operator==( const WFiberCluster& other ) const

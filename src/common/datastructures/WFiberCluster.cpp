@@ -22,25 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDXTLOOKUPTABLE_TEST_H
-#define WDXTLOOKUPTABLE_TEST_H
+#include <list>
+#include <vector>
 
-#include <cxxtest/TestSuite.h>
+#include <boost/shared_ptr.hpp>
 
-#include "../WDXtLookUpTable.h"
+#include "WFiberCluster.h"
+#include "../../common/WLimits.h"
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../math/fiberSimilarity/WDLTMetric.h"
 
-/**
- * TODO(math): Document this!
- */
-class WDXtLookUpTableTest : public CxxTest::TestSuite
+WFiberCluster::WFiberCluster()
 {
-public:
-    /**
-     * TODO(math): Document this!
-     */
-    void testSomething( void )
-    {
-    }
-};
+}
 
-#endif  // WDXTLOOKUPTABLE_TEST_H
+WFiberCluster::WFiberCluster( size_t index )
+{
+    m_memberIndices.push_back( index );
+}
+
+void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
+{
+    std::list< size_t >::const_iterator cit = other.m_memberIndices.begin();
+    for( ; cit != other.m_memberIndices.end(); ++cit)
+    {
+        m_memberIndices.push_back( *cit );
+    }
+    // make sure that those indices aren't occuring anywhere else
+    other.clear();
+}

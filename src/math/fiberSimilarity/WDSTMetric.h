@@ -36,6 +36,9 @@ class WDSTMetric : WZhangMetric
 public:
     /**
      * Constructs this metric with a certain threshold.
+     *
+     * \param thresholdSquare Threshold upto which the distances should be
+     * ignored given as square for reasons of performance.
      */
     explicit WDSTMetric( double thresholdSquare );
 

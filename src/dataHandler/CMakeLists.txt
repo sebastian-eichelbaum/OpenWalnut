@@ -1,5 +1,4 @@
 ADD_SUBDIRECTORY( io )
-ADD_SUBDIRECTORY( exceptions )
 
 FILE( GLOB DATAHANDLER_SRC "*.[c,h]pp" )
 FILE( GLOB DATAHANDLER_EXCEPTIONS_SRC "exceptions/*.[c,h]pp" )

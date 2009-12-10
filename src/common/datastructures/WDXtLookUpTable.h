@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include "../exceptions/WOutOfBounds.h"
+
 /**
  * Represents a symmetric matrix-like look up table, meaning it stores only
  * the elements inside the triangular matrix without the main diagonal.
@@ -38,6 +40,7 @@
  */
 class WDXtLookUpTable
 {
+friend class WDXtLookUpTableTest;
 public:
     /**
      * Generates new look up table.
@@ -54,7 +57,7 @@ public:
      * \param j The j'th column
      * \return reference to the (i,j) element of the table
      */
-    double& operator()( size_t i, size_t j );
+    double& operator()( size_t i, size_t j ) throw( WOutOfBounds );
 
     /**
      * \return the number of distances inside this table.
@@ -76,16 +79,16 @@ public:
      *
      * \param data Vector containing the new elements
      */
-    void setData( const std::vector< double > &data );
+    void setData( const std::vector< double > &data ) throw( WOutOfBounds );
 
 private:
     /**
      * Internal data structure to store the elements. The order is line major
      * meaning first element (0,0)...(0,n-1),(1,0)...(1, n-1)...
      */
-    std::vector< double > _data;
+    std::vector< double > m_data;
 
-    size_t _dim;  //!< Matrix dimension
+    size_t m_dim;  //!< Matrix dimension
 };
 
 #endif  // WDXTLOOKUPTABLE_H

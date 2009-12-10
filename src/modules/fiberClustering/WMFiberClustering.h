@@ -32,8 +32,8 @@
 
 #include <osg/Geode>
 
-#include "WFiberCluster.h"
-#include "WDXtLookUpTable.h"
+#include "../../common/datastructures/WDXtLookUpTable.h"
+#include "../../common/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../math/WFiber.h"
@@ -68,8 +68,10 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
+     * Due to the prototype design pattern used to build modules, this method
+     * returns a new instance of this method. NOTE: it should never be
+     * initialized or modified in some other way. A simple new instance is
+     * required.
      * 
      * \return the prototype used to create every module in OpenWalnut.
      */
@@ -94,7 +96,7 @@ private:
      * \param color The color, which every fiber of the cluster should have
      * \return geode containing the graphical representation of the cluster
      */
-    osg::ref_ptr< osg::Geode > genFiberGeode( const WFiberCluster &cluster, const WColor color ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode( const WFiberCluster &cluster ) const;
 
     /**
      * Choose colors and build and commit new FgePrimitve
@@ -108,41 +110,32 @@ private:
     void checkDLtLookUpTable();
 
     /**
-     * Reference to the WDataSetFibers object to work with.
+     * Melds the given two clusters to the cluster with the lower ID.
+     *
+     * \param qClusterID ID of the first cluster
+     * \param rClusterID ID of the second cluster
      */
-    boost::shared_ptr< WDataSetFibers > m_fibs;
+    void meld( size_t qClusterID, size_t rClusterID );
 
     /**
-     * Maximum distance of two fibers in one cluster.
+     * Stores the cluster id of every fiber so it is fast to get the cluster
+     * of a given fiber.
      */
-    double m_maxDistance_t;
+    std::vector< size_t > m_clusterIDs;
 
-    /**
-     * Collection of all WFiberClusters containing their fiber indices.
-     */
-    std::vector< WFiberCluster > m_clusters;
+    boost::shared_ptr< WDataSetFibers > m_fibs; //!< Reference to the WDataSetFibers object
 
-    /**
-     * Flag whether there is already a dLt look up table or not.
-     */
-    bool m_dLtTableExists;
+    double m_maxDistance_t; //!< Maximum distance of two fibers in one cluster.
 
-    /**
-     * Look up table for the dLt fiber distance metric, so reclustering is very
-     * fast.
-     */
-    boost::shared_ptr< WDXtLookUpTable > m_dLtTable;
+    std::vector< WFiberCluster > m_clusters; //!< Stores all WFiberClusters
 
-    /**
-     * All clusters up to this size will be discarded after the clustering step
-     */
-    unsigned int m_minClusterSize;
+    bool m_dLtTableExists; //!< Flag whether there is already a dLt look up table or not.
 
-    /**
-     * If true all clusters have their own graphic primitives, so you may view
-     * or select them solitary.
-     */
-    bool m_separatePrimitives;
+    boost::shared_ptr< WDXtLookUpTable > m_dLtTable; //!< Distance matrix lookUpTable
+
+    unsigned int m_minClusterSize; //!< All clusters up to this size will be discarded
+
+    bool m_separatePrimitives; //!< If true each cluster has its own OSG node
 
     /**
      * Proximity threshold, which defines the minimum distance which should be
@@ -150,10 +143,7 @@ private:
      */
     double m_proximity_t;
 
-    /**
-     * Last known number of fibers
-     */
-    size_t m_lastFibsSize;
+    size_t m_lastFibsSize; //!< Last known number of fibers
 };
 
 inline const std::string WMFiberClustering::getName() const

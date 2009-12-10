@@ -33,21 +33,23 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "WMFiberClustering.h"
-#include "../../math/WFiber.h"
-#include "../../math/fiberSimilarity/WDLTMetric.h"
+#include "../../common/datastructures/WDXtLookUpTable.h"
+#include "../../common/datastructures/WFiberCluster.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
 #include "../../common/WStringUtils.hpp"
+#include "../../dataHandler/io/WIOTools.hpp"
+#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
+#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/io/WIOTools.hpp"
-#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
-#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../kernel/WKernel.h"
+#include "../../math/fiberSimilarity/WDLTMetric.h"
+#include "../../math/WFiber.h"
 #include "../../utils/WColorUtils.h"
+#include "WMFiberClustering.h"
 
 WMFiberClustering::WMFiberClustering()
     : WModule(),
@@ -89,6 +91,17 @@ void WMFiberClustering::moduleMain()
     assert( m_fibs = boost::shared_dynamic_cast< WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
 
     checkDLtLookUpTable();
+
+    if( !m_dLtTableExists )
+    {
+        m_dLtTable.reset( new WDXtLookUpTable( m_fibs->size() ) );
+    }
+
+    m_proximity_t = 1.0;
+    infoLog() << "Proximity threshold: " << m_proximity_t;
+    m_maxDistance_t = 6.5;
+    infoLog() << "Maximum inter cluster distance threshold: " << m_maxDistance_t;
+
     cluster();
     paint();
 
@@ -134,9 +147,8 @@ void WMFiberClustering::checkDLtLookUpTable()
     {
         if( m_fibs->size() != m_lastFibsSize )
         {
-            debugLog() << "considered old table as invalid" << std::endl
-                     << "current loaded fibers: " << m_fibs->size() << std::endl
-                     << "old fibers: " << m_lastFibsSize << std::endl;
+            debugLog() << "considered old table as invalid. #fibers loaded: "
+                       << m_fibs->size() << " but old #fibers: " << m_lastFibsSize;
             // throw away old invalid table
             m_dLtTable.reset();
             m_dLtTableExists = false;
@@ -149,67 +161,44 @@ void WMFiberClustering::cluster()
     infoLog() << "Start clustering with " << m_fibs->size() << " fibers.";
     m_clusters.clear();  // remove evtl. old clustering
     size_t numFibers = m_fibs->size();
-    std::vector< size_t > cid( numFibers, 0 );  // cluster number for each fib where it belongs to
+
+    m_clusterIDs = std::vector< size_t >( numFibers, 0 );
+
     for( size_t i = 0; i < numFibers; ++i )
     {
-        m_clusters.push_back( WFiberCluster( i, m_fibs ) );
-        cid[i] = i;
+        m_clusters.push_back( WFiberCluster( i ) );
+        m_clusterIDs[i] = i;
     }
-    if( !m_dLtTableExists )  // Refactor: methode mit bool returnvalue aufrufen
-    {
-        m_dLtTable.reset( new WDXtLookUpTable( numFibers ) );
-    }
-    m_proximity_t = 1.0;
-    infoLog() << "Proximity threshold: " << m_proximity_t;
-    m_maxDistance_t = 6.5;
-    infoLog() << "Maximum inter cluster distance threshold: " << m_maxDistance_t;
+
     WStatusReport st( numFibers );
 
     WDLTMetric dLt( m_proximity_t * m_proximity_t );  // metric instance for computation of the dLt measure
-    for( size_t i = 0; i < numFibers; ++i )  // loop over all "symmetric" fibers pairs
+    for( size_t q = 0; q < numFibers; ++q )  // loop over all "symmetric" fibers pairs
     {
-        const wmath::WFiber &q = (*m_fibs)[i];
-        for( size_t j = i + 1;  j < numFibers; ++j )
+        for( size_t r = q + 1;  r < numFibers; ++r )
         {
-            const wmath::WFiber& r = (*m_fibs)[j];
-
-            if( cid[i] != cid[j] )  // both fibs are in different clusters
+            if( m_clusterIDs[q] != m_clusterIDs[r] )  // both fibs are in different clusters
             {
                 if( !m_dLtTableExists )
                 {
-                    (*m_dLtTable)( i, j ) = dLt.dist( q, r );
+                    (*m_dLtTable)( q, r ) = dLt.dist( (*m_fibs)[q], (*m_fibs)[r] );
                 }
-                double dLt = (*m_dLtTable)( i, j );
-
-                if( dLt < m_maxDistance_t )  // q and r provide an inter-cluster-link
+                if( (*m_dLtTable)( q, r ) < m_maxDistance_t )  // q and r provide an inter-cluster-link
                 {
-                    size_t qID = cid[i];
-                    size_t rID = cid[j];
-                    size_t newID = qID;
-                    if( qID > rID )  // merge always to the cluster with the smaller id
-                    {
-                        newID = rID;
-                        std::swap( qID, rID );
-                    }
-
-                    WFiberCluster& qCluster = m_clusters[ qID ];
-                    WFiberCluster& rCluster = m_clusters[ rID ];
-                    assert( !qCluster.empty() && !rCluster.empty() );
-                    rCluster.updateClusterIndices( cid, newID );
-                    qCluster.merge( rCluster );
-                    assert( rCluster.empty() );
+                    meld( m_clusterIDs[q], m_clusterIDs[r] );
                 }
             }
         }
+
         std::stringstream ss;
-        ss << "\r" << std::fixed << std::setprecision( 2 ) << ( ++st ).progress() << " " << st.stringBar() << std::flush;
-        // std::cout << ss.str();
+        ss << "\r" << std::fixed << std::setprecision( 2 ) << ( ++st ).progress() << " " << st.stringBar();
+        std::cout << ss.str() << std::flush;
     }
-    // std::cout << std::endl;
+    std::cout << std::endl;
     m_dLtTableExists = true;
 
     // remove empty clusters
-    WFiberCluster emptyCluster( m_fibs );
+    WFiberCluster emptyCluster;
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
 
     // determine #clusters and #small_clusters which are below a certain size
@@ -227,7 +216,6 @@ void WMFiberClustering::cluster()
               << numSmallClusters << " clusters are only of size "
               << m_minClusterSize << " or less.";
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
-    infoLog() << "Erased small clusters too.";
     infoLog() << "Using " << m_clusters.size() << " clusters.";
 
     m_lastFibsSize = m_fibs->size();
@@ -235,7 +223,7 @@ void WMFiberClustering::cluster()
     w.writeTable( m_dLtTable->getData(), m_lastFibsSize );
 }
 
-osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster, const WColor color ) const
+osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster ) const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -249,13 +237,15 @@ osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
         }
-        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP,
+                                                        vertices->size() - fib.size(),
+                                                        fib.size() ) );
     }
 
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( color.getOSGColor() );
+    colors->push_back( cluster.getColor().getOSGColor() );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -277,8 +267,36 @@ void WMFiberClustering::paint()
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
         color.setHSV( hue, 1.0, 0.75 );
-        group->addChild( genFiberGeode( m_clusters[i], color ).get() );
+        m_clusters[i].setColor( color );
+        group->addChild( genFiberGeode( m_clusters[i] ).get() );
     }
     group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
+}
+
+void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )
+{
+    // first choose the cluster with the smaller ID
+    if( qClusterID > rClusterID )  // merge always to the cluster with the smaller id
+    {
+        std::swap( qClusterID, rClusterID );
+    }
+
+    WFiberCluster& qCluster = m_clusters[ qClusterID ];
+    WFiberCluster& rCluster = m_clusters[ rClusterID ];
+
+    assert( !qCluster.empty() && !rCluster.empty() );
+
+    // second update m_clusterIDs array
+    std::list< size_t >::const_iterator cit = rCluster.getIndices().begin();
+    std::list< size_t >::const_iterator cit_end = rCluster.getIndices().end();
+    for( ; cit != cit_end; ++cit )
+    {
+        m_clusterIDs[*cit] = qClusterID;
+    }
+
+    // and at last merge them
+    qCluster.merge( rCluster );
+
+    assert( rCluster.empty() );
 }
