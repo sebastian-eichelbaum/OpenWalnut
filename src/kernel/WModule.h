@@ -307,28 +307,28 @@ protected:
      *
      * \return the logger stream.
      */
-    wlog::WStreamedLogger logInfo() const;
+    wlog::WStreamedLogger infoLog() const;
 
     /**
      * Logger instance for comfortable debug logging. Simply use logDebug() << "my debug".
      *
      * \return the logger stream.
      */
-    wlog::WStreamedLogger logDebug() const;
+    wlog::WStreamedLogger debugLog() const;
 
     /**
      * Logger instance for comfortable warning- logs. Simply use logWarning() << "my warning".
      *
      * \return the logger stream.
      */
-    wlog::WStreamedLogger logWarn() const;
+    wlog::WStreamedLogger warnLog() const;
 
     /**
      * Logger instance for comfortable error logging. Simply use logError() << "my error".
      *
      * \return the logger stream.
      */
-    wlog::WStreamedLogger logError() const;
+    wlog::WStreamedLogger errorLog() const;
 
     // **************************************************************************************************************************
     //
