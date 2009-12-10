@@ -48,7 +48,11 @@ public:
 
     /**
      * Element acces operator as if the elements where stored as a matrix.
-     * Note! Acessing elements of the main diagonal is forbidden!
+     * \warning Acessing elements of the main diagonal is forbidden!
+     *
+     * \param i The i'th row
+     * \param j The j'th column
+     * \return reference to the (i,j) element of the table
      */
     double& operator()( size_t i, size_t j );
 

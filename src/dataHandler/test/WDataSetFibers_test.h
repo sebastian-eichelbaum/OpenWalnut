@@ -73,7 +73,7 @@ public:
         TS_ASSERT_EQUALS( d[2], expected );
     }
 private:
-    boost::shared_ptr< std::vector< wmath::WFiber > > m_somefibs;
+    boost::shared_ptr< std::vector< wmath::WFiber > > m_somefibs; //!< Default fiber dataset
 };
 
 #endif  // WDATASETFIBERS_TEST_H

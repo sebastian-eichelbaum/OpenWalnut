@@ -97,7 +97,7 @@ public:
     }
 
 private:
-    boost::shared_ptr< const WDataSetFibers > m_fiberDS;
+    boost::shared_ptr< const WDataSetFibers > m_fiberDS; //!< default fiber dataset
 };
 
 #endif  // WMFIBERDISPLAY_TEST_H

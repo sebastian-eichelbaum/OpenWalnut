@@ -87,6 +87,13 @@ private:
      */
     void cluster();
 
+    /**
+     * Generates an osg geode for the given cluster with the given color
+     *
+     * \param cluster The WFiberCluster which should be drawn
+     * \param color The color, which every fiber of the cluster should have
+     * \return geode containing the graphical representation of the cluster
+     */
     osg::ref_ptr< osg::Geode > genFiberGeode( const WFiberCluster &cluster, const WColor color ) const;
 
     /**

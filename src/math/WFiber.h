@@ -46,6 +46,8 @@ friend class WFiberTest;
 public:
     /**
      * Constructs a new fiber out of WPositions.
+     *
+     * \param points Reference to the points which belong to this fiber
      */
     explicit WFiber( const std::vector< WPosition > &points );
 
@@ -59,6 +61,7 @@ private:
  *
  * \param first First fiber
  * \param second Second fiber
+ * \return True if the first fiber is longer than the second
  */
 inline bool hasGreaterLengthThen( const WFiber &first, const WFiber &second )
 {

@@ -233,12 +233,18 @@ public:
 
     /**
      * Appends something loggable (to std::string castable) to the log.
+     *
+     * \param loggable Token that should be streamed into the Logger
+     * \return The streamed logger for further use
      */
     template< typename T > WStreamedLogger operator<<( const T& loggable );
 
-    // alias for std::endl etc. type
+    // Doxygen should ignore the TypeDef below which are just an alias for std::endl etc.
+    // \cond
     typedef std::basic_ostream< char, std::char_traits< char > > OutStreamType;
     typedef OutStreamType& ( *StreamManipulatorFunctor )( OutStreamType& );
+    // \endcond
+
 
     /**
      * This is totally crazy man! Don't get dizzy on that, watch out and 
