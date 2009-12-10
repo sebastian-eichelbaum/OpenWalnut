@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "../common/WPrototyped.h"
 #include "../common/WLimits.h"
 

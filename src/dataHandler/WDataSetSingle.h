@@ -25,6 +25,8 @@
 #ifndef WDATASETSINGLE_H
 #define WDATASETSINGLE_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WGrid.h"

@@ -25,6 +25,8 @@
 #ifndef WDATASETMULTIPLE_H
 #define WDATASETMULTIPLE_H
 
+#include <string>
+
 #include "../common/WPrototyped.h"
 #include "WDataSet.h"
 

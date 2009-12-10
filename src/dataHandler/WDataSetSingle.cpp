@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WDataTexture3D.h"
 #include "WValueSet.hpp"
 #include "WGrid.h"

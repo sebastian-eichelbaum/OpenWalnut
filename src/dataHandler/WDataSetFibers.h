@@ -25,6 +25,7 @@
 #ifndef WDATASETFIBERS_H
 #define WDATASETFIBERS_H
 
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>

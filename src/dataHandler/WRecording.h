@@ -25,6 +25,8 @@
 #ifndef WRECORDING_H
 #define WRECORDING_H
 
+#include <string>
+
 #include "../common/WPrototyped.h"
 
 #include "WDataSet.h"
