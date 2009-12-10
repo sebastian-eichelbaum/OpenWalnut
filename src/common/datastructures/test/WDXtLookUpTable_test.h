@@ -25,6 +25,9 @@
 #ifndef WDXTLOOKUPTABLE_TEST_H
 #define WDXTLOOKUPTABLE_TEST_H
 
+#include <string>
+#include <vector>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WDXtLookUpTable.h"
@@ -72,7 +75,8 @@ public:
         WDXtLookUpTable t( 4 );
         double mydata[] = { 1.6, .2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
-        TS_ASSERT_THROWS_EQUALS( t( 0, 0 ), WOutOfBounds &e, std::string( e.what() ), "Invalid Element Access ( 0, 0 ). Main Diagonal Elements are forbidden in this table." );
+        TS_ASSERT_THROWS_EQUALS( t( 0, 0 ), WOutOfBounds &e, std::string( e.what() ),
+                "Invalid Element Access ( 0, 0 ). Main Diagonal Elements are forbidden in this table." );
     }
 };
 

@@ -32,7 +32,7 @@ WOutOfBounds::WOutOfBounds( const std::string& msg )
     // init members
 }
 
-WOutOfBounds::~WOutOfBounds() throw ()
+WOutOfBounds::~WOutOfBounds() throw()
 {
     // clean up
 }
