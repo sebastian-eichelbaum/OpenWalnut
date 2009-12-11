@@ -30,16 +30,29 @@
 #include "../WFiberCluster.h"
 
 /**
- * TODO(math): Document this!
+ * Unit test the WFiberCluster class
  */
 class WFiberClusterTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(math): Document this!
+     * When merging two clusters the indices are merged and the second cluster
+     * becomes empty.
      */
-    void testSomething( void )
+    void testMerge( void )
     {
+        WFiberCluster a( 1 );
+        WFiberCluster b;
+        size_t mydata[] = { 16, 2, 77, 29 }; // NOLINT
+        std::list< size_t > data( mydata, mydata + sizeof( mydata ) / sizeof( size_t ) );
+        b.m_memberIndices = data;
+        a.merge( b );
+        TS_ASSERT( b.empty() );
+        size_t mxdata[] = { 1, 16, 2, 77, 29 }; // NOLINT
+        std::list< size_t > xdata( mxdata, mxdata + sizeof( mxdata ) / sizeof( size_t ) );
+        WFiberCluster expected;
+        expected.m_memberIndices = xdata;
+        TS_ASSERT_EQUALS( expected, a );
     }
 };
 

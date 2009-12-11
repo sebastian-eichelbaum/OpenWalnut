@@ -38,6 +38,7 @@
  */
 class WFiberCluster
 {
+friend class WFiberClusterTest;
 public:
     /**
      * Constructs an cluster with one fiber and a reference to the fiber dataset
@@ -104,7 +105,7 @@ public:
 
     /**
      * \param other The other fiber which should be compared
-     * \return true If both clusters having same fibers in same order!
+     * \return true If both clusters having same fibers IN SAME ORDER!
      */
     bool operator==( const WFiberCluster& other ) const;
 
@@ -112,7 +113,7 @@ public:
      * The opposite of the operator==
      *
      * \param other The other fiber which should be compared
-     * \return false If both clusters having same fibers in same order!
+     * \return false If both clusters having same fibers IN SAME ORDER!
      */
     bool operator!=( const WFiberCluster& other ) const;
 
