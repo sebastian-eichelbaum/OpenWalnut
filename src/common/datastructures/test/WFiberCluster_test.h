@@ -25,6 +25,8 @@
 #ifndef WFIBERCLUSTER_TEST_H
 #define WFIBERCLUSTER_TEST_H
 
+#include <list>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WFiberCluster.h"
