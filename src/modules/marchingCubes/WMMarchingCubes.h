@@ -181,7 +181,7 @@ private:
      */
     void renderMesh( WTriangleMesh* mesh );
 
-    boost::shared_ptr< WModuleInputData< boost::shared_ptr< WDataSet > > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
     static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
     static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.

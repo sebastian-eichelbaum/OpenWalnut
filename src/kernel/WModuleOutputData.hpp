@@ -34,6 +34,7 @@
 // this is necessary since we have some kind of cyclic includes
 template < typename T > class WModuleInputData;
 #include "WModuleInputData.hpp"
+#include "../common/WPrototyped.h"
 
 #include "WModuleOutputConnector.h"
 
@@ -56,7 +57,7 @@ public:
     WModuleOutputData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
         :WModuleOutputConnector( module, name, description )
     {
-        m_data = boost::shared_ptr<T>();
+        m_data = boost::shared_ptr< T >();
     };
 
     /**
@@ -71,7 +72,7 @@ public:
      *
      * \param data the data do send
      */
-    virtual void updateData( boost::shared_ptr<T> data )
+    virtual void updateData( boost::shared_ptr< T > data )
     {
         m_data = data;
 
@@ -84,7 +85,7 @@ public:
      *
      * \return the data. If no data has been set, the prototype will be returned.
      */
-    const boost::shared_ptr<T> getData() const
+    const boost::shared_ptr< T > getData() const
     {
         return m_data;
     };
@@ -98,10 +99,18 @@ public:
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
-        // NOTE: the upper cast already checked the compatibility completely. WModuleOutputConnector::connectable does the
-        // same check again. But since we do not know what checks will be added to WModuleOutputConnector::connectable in the
-        // future we forward the call.
+        // since WModuleInputData::connectable already does all the type checking, we simply forward the call
         return WModuleOutputConnector::connectable( con );
+    };
+
+    /**
+     * Returns the prototype of the Type T used in this connector.
+     *
+     * \return the prototype of the transfered type.
+     */
+    virtual boost::shared_ptr< WPrototyped > getTransferPrototype()
+    {
+        return T::getPrototype();
     };
 
 protected:
@@ -111,7 +120,7 @@ private:
     /**
      * The data associated with this connector.
      */
-    boost::shared_ptr<T> m_data;
+    boost::shared_ptr< T > m_data;
 };
 
 #endif  // WMODULEOUTPUTDATA_H

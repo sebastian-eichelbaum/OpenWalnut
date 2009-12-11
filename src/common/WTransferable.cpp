@@ -22,55 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETMULTIPLE_H
-#define WDATASETMULTIPLE_H
-
-#include <string>
-
 #include "../common/WPrototyped.h"
-#include "WDataSet.h"
 
-/**
- * TODO(math): Document this!
- * \ingroup dataHandler
- */
-class WDataSetMultiple : public WDataSet
+#include "WTransferable.h"
+
+WTransferable::WTransferable()
+    : WPrototyped()
 {
-public:
-    /**
-     * Constructs a new empty dataset. The constructed instance is not usable.
-     */
-    WDataSetMultiple();
+    // initialize members
+}
 
-    /**
-     * Gets the name of this prototype.
-     *
-     * \return the name.
-     */
-    virtual std::string getName() const;
+WTransferable::~WTransferable()
+{
+    // cleanup
+}
 
-    /**
-     * Gets the description for this prototype.
-     *
-     * \return the description
-     */
-    virtual std::string getDescription() const;
-
-    /**
-     * Returns a prototype instantiated with the true type of the deriving class.
-     *
-     * \return the prototype.
-     */
-    static boost::shared_ptr< WPrototyped > getPrototype();
-
-protected:
-
-    /**
-     * The prototype as singleton.
-     */
-    static boost::shared_ptr< WPrototyped > m_prototype;
-
-private:
-};
-
-#endif  // WDATASETMULTIPLE_H

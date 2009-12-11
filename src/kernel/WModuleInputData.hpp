@@ -35,8 +35,11 @@
 template < typename T > class WModuleOutputData;
 #include "WModuleOutputData.hpp"
 #include "exceptions/WModuleConnectorUnconnected.h"
+#include "../common/WTransferable.h"
+#include "../common/WPrototyped.h"
 
 #include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
 
 /**
  * Class offering an instantiate-able data connection between modules.
@@ -73,7 +76,7 @@ public:
      *
      * \return the data currently set.
      */
-    const boost::shared_ptr<T> getData()
+    const boost::shared_ptr< T > getData()
     {
         // get a lock
         boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_ConnectionListLock );
@@ -91,7 +94,7 @@ public:
         }
 
         // get data
-        boost::shared_ptr<T> dat = boost::shared_dynamic_cast<WModuleOutputData<T> >( *m_Connected.begin() )->getData();
+        boost::shared_ptr< T > dat = boost::shared_dynamic_cast<WModuleOutputData< T > >( *m_Connected.begin() )->getData();
 
         // unlock and return
         lock.unlock();
@@ -108,10 +111,21 @@ public:
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )
     {
-        // NOTE: the upper cast already checked the compatibility completely. WModuleInputConnector::connectable does the
-        // same check again. But since we do not know what checks will be added to WModuleInputConnector::connectable in the
-        // future we forward the call.
-        return WModuleInputConnector::connectable( con );
+        // NOTE: please consider the following: the input only accepts data which is of type T or higher. So only up casts from
+        // con's type T2 to T are needed/allowed what ever
+
+        if ( !WModuleInputConnector::connectable( con ) )
+        {
+            return false;
+        }
+
+        // this calls virtual function to achieve the prototype of the WTransferable created with the type specified in
+        // WOutputData< XYZ >
+        boost::shared_ptr< WPrototyped > tProto =
+            dynamic_cast< WModuleOutputConnector* >( con.get() )->getTransferPrototype(); // NOLINT
+
+        // NOTE: Check the type of the transfered object and whether the connector is an output
+        return dynamic_cast< T* >( tProto.get() ); // NOLINT
     };
 
 protected:

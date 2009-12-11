@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 /**
  * Interface class for the concept "Prototype". The requirements are a zero-param constructor.
  */
@@ -60,7 +62,6 @@ public:
     virtual std::string getDescription() const = 0;
 
 protected:
-
 private:
 };
 

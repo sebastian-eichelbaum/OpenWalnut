@@ -22,10 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
 #include <algorithm>
 #include <vector>
 
+#include "WDataSet.h"
+
 #include "WDataSetFibers.h"
+
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetFibers::m_prototype = boost::shared_ptr< WPrototyped >();
 
 void WDataSetFibers::sortDescLength()
 {
@@ -52,8 +58,17 @@ bool WDataSetFibers::isTexture() const
     return false;
 }
 
-WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs ) : m_fibers( fibs )
+WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs )
+    : WDataSet(),
+      m_fibers( fibs )
 {
+}
+
+WDataSetFibers::WDataSetFibers()
+    : WDataSet(),
+      m_fibers()
+{
+    // default constructor used by the prototype mechanism
 }
 
 size_t WDataSetFibers::size() const
@@ -66,3 +81,24 @@ const wmath::WFiber& WDataSetFibers::operator[]( const size_t index ) const
     assert( index < m_fibers->size() );
     return (*m_fibers)[index];
 }
+
+std::string WDataSetFibers::getName() const
+{
+    return "WDataSetFibers";
+}
+
+std::string WDataSetFibers::getDescription() const
+{
+    return "Contains tracked fiber data.";
+}
+
+boost::shared_ptr< WPrototyped > WDataSetFibers::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetFibers() );
+    }
+
+    return m_prototype;
+}
+

@@ -303,22 +303,30 @@ protected:
     void ready();
 
     /**
-     * \return a logger instance for logging info messages to out WLogger
+     * Logger instance for comfortable info logging. Simply use logInfo() << "my info".
+     *
+     * \return the logger stream.
      */
     wlog::WStreamedLogger infoLog() const;
 
     /**
-     * \return a logger instance for logging debug messages to out WLogger
+     * Logger instance for comfortable debug logging. Simply use logDebug() << "my debug".
+     *
+     * \return the logger stream.
      */
     wlog::WStreamedLogger debugLog() const;
 
     /**
-     * \return a logger instance for logging warning messages to out WLogger
+     * Logger instance for comfortable warning- logs. Simply use logWarning() << "my warning".
+     *
+     * \return the logger stream.
      */
     wlog::WStreamedLogger warnLog() const;
 
     /**
-     * \return a logger instance for logging error messages to out WLogger
+     * Logger instance for comfortable error logging. Simply use logError() << "my error".
+     *
+     * \return the logger stream.
      */
     wlog::WStreamedLogger errorLog() const;
 

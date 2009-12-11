@@ -22,9 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WEEG.h"
+#include <string>
+
+#include "../common/WPrototyped.h"
 #include "../common/WLimits.h"
 
+#include "WEEG.h"
+
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WEEG::m_prototype = boost::shared_ptr< WPrototyped >();
 
 WEEG::WEEG( const WEEGSegmentArray& data,
             const WEEGElectrodeLibrary& electrodeLib,
@@ -48,8 +54,34 @@ WEEG::WEEG( const WEEGSegmentArray& data,
     m_channelLabels = channelLabels;
 }
 
+WEEG::WEEG()
+    : WRecording()
+{
+    // do nothing here. Only useful for prototypes.
+}
+
 bool WEEG::isTexture() const
 {
     return false;
+}
+
+std::string WEEG::getName() const
+{
+    return "WEEG";
+}
+
+std::string WEEG::getDescription() const
+{
+    return "Contains data acquired using EEG.";
+}
+
+boost::shared_ptr< WPrototyped > WEEG::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WEEG() );
+    }
+
+    return m_prototype;
 }
 

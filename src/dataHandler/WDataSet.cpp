@@ -27,11 +27,15 @@
 #include "exceptions/WDHException.h"
 
 #include "WDataTexture3D.h"
-
+#include "../common/WTransferable.h"
 #include "WDataSet.h"
 
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSet::m_prototype = boost::shared_ptr< WPrototyped >();
+
 WDataSet::WDataSet()
-    : m_fileName( "" )
+    : WTransferable(),
+    m_fileName( "" )
 {
 }
 
@@ -54,5 +58,25 @@ bool WDataSet::isTexture() const
 boost::shared_ptr< WDataTexture3D > WDataSet::getTexture()
 {
     throw WDHException( "This dataset does not provide a texture." );
+}
+
+std::string WDataSet::getName() const
+{
+    return "WDataSet";
+}
+
+std::string WDataSet::getDescription() const
+{
+    return "Encapsulates the whole common feature set of all datasets.";
+}
+
+boost::shared_ptr< WPrototyped > WDataSet::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSet() );
+    }
+
+    return m_prototype;
 }
 

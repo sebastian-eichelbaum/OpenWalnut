@@ -22,5 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
+#include "../common/WPrototyped.h"
+
 #include "WRecording.h"
+
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WRecording::m_prototype = boost::shared_ptr< WPrototyped >();
+
+WRecording::WRecording()
+    : WDataSet()
+{
+}
+
+std::string WRecording::getName() const
+{
+    return "WRecording";
+}
+
+std::string WRecording::getDescription() const
+{
+    return "Contains several recorded data, like EEG or FMRT.";
+}
+
+boost::shared_ptr< WPrototyped > WRecording::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WRecording() );
+    }
+
+    return m_prototype;
+}
 

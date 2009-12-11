@@ -168,8 +168,8 @@ void WMMarchingCubes::connectors()
 {
     // initialize connectors
 
-    m_input = boost::shared_ptr<WModuleInputData< boost::shared_ptr< WDataSet > > >(
-        new WModuleInputData< boost::shared_ptr< WDataSet > >( shared_from_this(),
+    m_input = boost::shared_ptr<WModuleInputData< WDataSetSingle  > >(
+        new WModuleInputData< WDataSetSingle >( shared_from_this(),
                                                                "in", "Dataset to compute isosurface for." )
         );
 

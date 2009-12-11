@@ -28,6 +28,8 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WTransferable.h"
+
 class WDataTexture3D;
 
 /**
@@ -37,7 +39,7 @@ class WDataTexture3D;
  * steps) respectively.
  * \ingroup dataHandler
  */
-class WDataSet
+class WDataSet: public WTransferable
 {
 public:
     /**
@@ -79,7 +81,34 @@ public:
      */
     virtual boost::shared_ptr< WDataTexture3D > getTexture();
 
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
     /**
      * Name of the file this data set was loaded from. This information
