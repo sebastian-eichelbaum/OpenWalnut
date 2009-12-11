@@ -30,33 +30,9 @@
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
-#include <cxxtest/ValueTraits.h>
 
+#include "../../test/traits/WLineTraits.h"
 #include "../WLine.h"
-
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
-class ValueTraits< wmath::WLine >
-{
-private:
-    std::string _s;
-
-public:
-    explicit ValueTraits( const wmath::WLine &line )
-    {
-        std::stringstream ss;
-        ss << "WLine(" << line << ")";
-        _s = ss.str();
-    }
-    const char *asString() const
-    {
-        return _s.c_str();
-    }
-};
-}
-#endif  // CXXTEST_RUNNING
 
 /**
  * Unit tests the WLine class

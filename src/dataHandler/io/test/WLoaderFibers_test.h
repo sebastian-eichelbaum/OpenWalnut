@@ -32,60 +32,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 #include <cxxtest/TestSuite.h>
-#include <cxxtest/ValueTraits.h>
 
 #include "../WLoaderFibers.h"
 #include "../../WDataHandler.h"
-
-// New value trait for std::streampos
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
-class ValueTraits< std::streampos >
-{
-private:
-    std::string _s;
-
-public:
-    explicit ValueTraits( const std::streampos &pos )
-    {
-        std::stringstream ss;
-        ss << pos;
-        _s = ss.str();
-    }
-    const char *asString() const
-    {
-        return _s.c_str();
-    }
-};
-}
-#endif  // CXXTEST_RUNNING
-
-// New value trait for wmath::WFiber
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
-class ValueTraits< wmath::WFiber >
-{
-private:
-    std::string _s;
-
-public:
-    explicit ValueTraits( const wmath::WFiber &fib )
-    {
-        std::stringstream ss;
-        ss << fib;
-        _s = ss.str();
-    }
-    const char *asString() const
-    {
-        return _s.c_str();
-    }
-};
-}
-#endif  // CXXTEST_RUNNING
+#include "../../../test/traits/WFiberTraits.h"
+#include "../../../test/traits/WStreamPosTraits.h"
 
 /**
  * Unit tests the WLoaderFibers class.

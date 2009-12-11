@@ -32,43 +32,11 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WGridRegular3D.h"
+#include "../../test/traits/WVector3DTraits.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
 using wmath::WMatrix;
-
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
-/**
- * Allows usable output of WVector3D in tests
- */
-class ValueTraits<WVector3D>
-{
-    std::string _s; //!< The string representing the WVector
-
-public:
-    /**
-     * Constructor for class allowing usable output of WVector3D in tests
-     * \param m the WVector to print
-     */
-    explicit ValueTraits( const WVector3D &m )
-    {
-        std::stringstream tmp;
-        tmp.precision( 16 );
-        tmp << "WVector3D( " << m[0] << " " << m[1] << " " << m[2] << " )";
-        _s = tmp.str();
-    }
-
-    /**
-     * Get the string corresponding to the WVector
-     */
-    const char *asString() const
-    {
-        return _s.c_str();
-    }
-};
-}
 
 /**
  * Tests the WGridRegular3D class.

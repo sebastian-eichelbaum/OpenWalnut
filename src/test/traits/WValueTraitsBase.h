@@ -22,41 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBER_TEST_H
-#define WFIBER_TEST_H
+#ifndef WVALUETRAITSBASE_H
+#define WVALUETRAITSBASE_H
 
 #include <string>
-#include <vector>
-
-#include <cxxtest/TestSuite.h>
-
-#include "../WFiber.h"
-#include "../WPosition.h"
-#include "../../test/traits/WFiberTraits.h"
 
 /**
- * Unit tests our WFiber class
+ * Base class to all custom Value Traits for CxxTest. This is mainly not to
+ * rewrite the asString method again and again until my fingers are bleeding
+ * and hurt! ;)
  */
-class WFiberTest : public CxxTest::TestSuite
+class WValueTraitsBase
 {
 public:
     /**
-     * Two fibers are equal if they have equal WPositions in same order
+     * \return A WFiber as char array aka string
      */
-    void testEqualityOperator( void )
-    {
-        using wmath::WPosition;
-        std::vector< WPosition > lineData1;
-        lineData1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData1.push_back( WPosition( 7.8, 9.0, -1.2 ) );
-        std::vector< WPosition > lineData2;
-        lineData2.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData2.push_back( WPosition( 7.8, 9.0, -1.2 ) );
-        using wmath::WFiber;
-        WFiber fib1( lineData1 );
-        WFiber fib2( lineData2 );
-        TS_ASSERT_EQUALS( fib1, fib2 );
-    }
+    const char *asString() const;
+
+protected:
+    std::string m_s; // storing the string representation for output
 };
 
-#endif  // WFIBER_TEST_H
+inline const char* WValueTraitsBase::asString() const
+{
+    return m_s.c_str();
+}
+#endif  // WVALUETRAITSBASE_H

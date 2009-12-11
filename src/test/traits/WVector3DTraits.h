@@ -22,41 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBER_TEST_H
-#define WFIBER_TEST_H
+#ifndef WVECTOR3DTRAITS_H
+#define WVECTOR3DTRAITS_H
 
-#include <string>
-#include <vector>
+#include <sstream>
 
 #include <cxxtest/TestSuite.h>
+#include <cxxtest/ValueTraits.h>
 
-#include "../WFiber.h"
-#include "../WPosition.h"
-#include "../../test/traits/WFiberTraits.h"
+#include "../../math/WVector3D.h"
+#include "WValueTraitsBase.h"
 
+#ifdef CXXTEST_RUNNING
+namespace CxxTest
+{
+CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Unit tests our WFiber class
+ * Enables better UnitTest OutPut if something fails with WFibers, so you see
+ * immedeatly what is failing.
  */
-class WFiberTest : public CxxTest::TestSuite
+class ValueTraits< wmath::WVector3D > : public WValueTraitsBase
 {
 public:
     /**
-     * Two fibers are equal if they have equal WPositions in same order
+     * Constructor for class allowing usable output of WVector3D in tests
+     *
+     * \param m the WVector to print
      */
-    void testEqualityOperator( void )
+    explicit ValueTraits( const wmath::WVector3D &m )
     {
-        using wmath::WPosition;
-        std::vector< WPosition > lineData1;
-        lineData1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData1.push_back( WPosition( 7.8, 9.0, -1.2 ) );
-        std::vector< WPosition > lineData2;
-        lineData2.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData2.push_back( WPosition( 7.8, 9.0, -1.2 ) );
-        using wmath::WFiber;
-        WFiber fib1( lineData1 );
-        WFiber fib2( lineData2 );
-        TS_ASSERT_EQUALS( fib1, fib2 );
+        std::stringstream tmp;
+        tmp.precision( 16 );
+        tmp << "WVector3D( " << m[0] << " " << m[1] << " " << m[2] << " )";
+        m_s = tmp.str();
     }
 };
-
-#endif  // WFIBER_TEST_H
+}
+#endif  // CXXTEST_RUNNING
+#endif  // WVECTOR3DTRAITS_H
