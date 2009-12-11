@@ -29,15 +29,15 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "WMFiberDisplay.h"
-#include "../../math/WFiber.h"
-#include "../../common/WLogger.h"
 #include "../../common/WColor.h"
+#include "../../common/WLogger.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../kernel/WKernel.h"
+#include "../../math/WFiber.h"
 #include "../../utils/WColorUtils.h"
+#include "WMFiberDisplay.h"
 
 WMFiberDisplay::WMFiberDisplay()
     : WModule()
@@ -53,8 +53,7 @@ boost::shared_ptr< WModule > WMFiberDisplay::factory() const
     return boost::shared_ptr< WModule >( new WMFiberDisplay() );
 }
 
-osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode(
-        boost::shared_ptr< const WDataSetFibers > fibers,
+osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( boost::shared_ptr< const WDataSetFibers > fibers,
         bool globalColoring ) const
 {
     using osg::ref_ptr;
@@ -161,9 +160,7 @@ void WMFiberDisplay::connectors()
     using boost::shared_ptr;
     typedef WModuleInputData< const WDataSetFibers > FiberInputData;  // just an alias
 
-    m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData(
-                shared_from_this(), "fiberInput", "A loaded fiber dataset." )
-            );
+    m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
 
     addConnector( m_fiberInput );
     WModule::connectors();  // call WModules initialization

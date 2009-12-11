@@ -31,13 +31,14 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "WLoaderFibers.h"
-#include "WIOTools.hpp"
+#include "../../common/WStringUtils.hpp"
+#include "../../common/WLogger.h"
+#include "../../math/WPosition.h"
 #include "../WDataHandler.h"
 #include "../WDataSetFibers.h"
 #include "../WSubject.h"
-#include "../../common/WStringUtils.hpp"
-#include "../../math/WPosition.h"
+#include "WIOTools.hpp"
+#include "WLoaderFibers.h"
 
 WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )
     : WLoader( fname, dataHandler )
@@ -73,7 +74,7 @@ boost::shared_ptr< WDataSet > WLoaderFibers::load()
         // TODO(math): we should print the file name also, since knowing that
         // the file was malformated, doesn't give you the hint that there
         // could be thousands of them
-        std::cerr << "Error :: DataHandler :: Abort loading Fib-VTK file due to: " << e.what() << std::endl;
+        wlog::error( "DataHandler" ) << "Abort loading Fib-VTK file due to: " << e.what();
     }
     assert( !data->empty() && "loaded empty vector of fibers" );
     shared_ptr< WDataSetFibers > fibers = shared_ptr< WDataSetFibers >( new WDataSetFibers( data ) );

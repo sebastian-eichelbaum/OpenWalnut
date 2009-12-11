@@ -80,9 +80,15 @@ void WMFiberCulling::moduleMain()
     boost::shared_ptr< WDataSetFibers > fiberDS;
     assert( fiberDS = boost::shared_dynamic_cast< WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
 
+    // TODO(math): default parameters via property object
+    m_proximity_t = 1.0;
+    infoLog() << "Proximity threshold: " << m_proximity_t;
+    m_dSt_culling_t = 6.5;
+    infoLog() << "Culling threshold: " << m_dSt_culling_t;
+
     cullOutFibers( fiberDS );
 
-    std::cout << "done." << std::endl;
+    infoLog() << "done.";
 
     // Since the modules run in a separate thread: such loops are possible
     while ( !m_FinishRequested )
@@ -95,54 +101,52 @@ void WMFiberCulling::moduleMain()
 void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
 {
     size_t numFibers = fibers->size();
-    std::cout << "Recoginzed " << numFibers << " fibers" << std::endl;
+    infoLog() << "Recoginzed " << numFibers << " fibers";
 
-    fibers->sortDescLength();  // sort the fiber on their length (biggest first)
-    std::cout << "Sorted fibers done." << std::endl;
-    m_proximity_t = 1.0;
-    std::cout << "Proximity threshold: " << m_proximity_t << std::endl;
-    m_dSt_culling_t = 6.5;
-    std::cout << "Culling threshold: " << m_dSt_culling_t << std::endl;
+    fibers->sortDescLength();  // biggest first, this is for speed up
+    infoLog() << "Sorted fibers done.";
+
     std::vector< bool > unusedFibers( numFibers, false );
+
     WDSTMetric dSt( m_proximity_t * m_proximity_t );
     WStatusReport st( numFibers );
-    for( size_t i = 0; i < numFibers; ++i )  // loop over all streamlines
+
+    for( size_t q = 0; q < numFibers; ++q )  // loop over all streamlines
     {
-        if( unusedFibers[i] )
+        if( unusedFibers[q] )
         {
             continue;
         }
-        const wmath::WFiber& q = (*fibers)[ i ];
-        for( size_t j = i + 1;  j < numFibers; ++j )
+        for( size_t r = q + 1;  r < numFibers; ++r )
         {
-            if( unusedFibers[j] )
+            if( unusedFibers[r] )
             {
                 continue;
             }
-            const wmath::WFiber& r = (*fibers)[j];
-            double dst = dSt.dist( q, r );
+            double dst = dSt.dist( (*fibers)[q], (*fibers)[r] );
             if( dst < m_dSt_culling_t )  // cullout small fibs nearby long fibs
             {
-                if( q.size() < r.size() )
+                if( (*fibers)[q].size() < (*fibers)[r].size() )
                 {
-                    unusedFibers[i] = true;
+                    unusedFibers[q] = true;
                     break;
                 }
                 else
                 {
-                    unusedFibers[j] = true;
+                    unusedFibers[r] = true;
                 }
             }
         }
-        std::cout << "\r" << std::fixed << std::setprecision( 2 );
-        std::cout << ( ++st ).progress() << " " << st.stringBar() << std::flush;
+        std::stringstream ss;
+        ss << "\r" << std::fixed << std::setprecision( 2 ) << ( ++st ).progress() << " " << st.stringBar();
+        std::cout << ss.str() << std::flush;
     }
     std::cout << std::endl;
 
     fibers->erase( unusedFibers );
-    std::cout << "Erasing done." << std::endl;
-    std::cout << "Culled out " << numFibers - fibers->size() << " fibers" << std::endl;
-    std::cout << "There are " << fibers->size() << " fibers left." << std::endl;
+    infoLog() << "Erasing done.";
+    infoLog() << "Culled out " << numFibers - fibers->size() << " fibers";
+    infoLog() << "There are " << fibers->size() << " fibers left.";
 
     // TODO(math): make saving parameter dependent, and apply the desired path for saving
     WWriterFiberVTK w( "/tmp/pansen.fib", true );

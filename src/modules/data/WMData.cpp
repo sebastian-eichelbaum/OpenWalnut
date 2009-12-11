@@ -169,7 +169,7 @@ void WMData::moduleMain()
     {
         // This is a dummy implementation.
         // You need to provide a real implementation here if you want to load vtk.
-        std::cout << "VTK not implemented yet" << std::endl;
+        errorLog() << "VTK not implemented yet";
         assert( 0 );
     }
     else if( suffix == ".fib" )
