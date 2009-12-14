@@ -1,6 +1,6 @@
-FILE( GLOB COMMON_SRC "*.[c,h]pp" )
-FILE( GLOB COMMON_DATASTRUCTURES_SRC "datastructures/*.[c,h]pp" )
-FILE( GLOB COMMON_EXCEPTIONS_SRC "exceptions/*.[c,h]pp" )
+FILE( GLOB COMMON_SRC "*.cpp" )
+FILE( GLOB COMMON_DATASTRUCTURES_SRC "datastructures/*.cpp" )
+FILE( GLOB COMMON_EXCEPTIONS_SRC "exceptions/*.cpp" )
 
 ADD_SUBDIRECTORY( datastructures )
 
