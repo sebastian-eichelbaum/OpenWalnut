@@ -33,7 +33,7 @@
 
 
 ///======================================
-// TODO(wiebel): use this szuff or remove it
+// TODO(wiebel): use this stuff or remove it
 #include "../math/WPosition.h"
 typedef double WDummyType;
 
@@ -94,44 +94,27 @@ public:
     /**
      * Access operator for single samples.
      */
-    const double& operator()( size_t segment, size_t signal, size_t sample ) const
-    {
-        return m_segments[segment][signal][sample];
-    }
+    const double& operator()( size_t segment, size_t signal, size_t sample ) const;
 
     /**
      * Returns number of samples of a given segment.
      */
-    size_t getNumberOfSamples( size_t segmentId ) const
-    {
-        return m_segments[segmentId][0].size();
-    }
+    size_t getNumberOfSamples( size_t segmentId ) const;
 
     /**
      * Return the number of channels this EEG has.
      */
-    size_t getNumberOfChannels() const
-    {
-        return m_segments[0].size();
-    }
+    size_t getNumberOfChannels() const;
 
     /**
      * Return the number of segments this EEG consists of.
      */
-    size_t getNumberOfSegments() const
-    {
-        return m_segments.size();
-    }
+    size_t getNumberOfSegments() const;
 
     /**
      * Return the label of a certain channel.
      */
-    std::string getChannelLabel( size_t channelId ) const
-    {
-        // TODO(wiebel): put code into cpp file
-        // TODO(wiebel): what is done with the second string of the label?
-        return  m_channelLabels[channelId].first;
-    }
+    std::string getChannelLabel( size_t channelId ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.
@@ -204,6 +187,32 @@ private:
      */
     std::vector< bool > m_channelEnabled;
 };
+
+inline const double& WEEG::operator()( size_t segment, size_t signal, size_t sample ) const
+{
+    return m_segments[segment][signal][sample];
+}
+
+inline size_t WEEG::getNumberOfSamples( size_t segmentId ) const
+{
+    return m_segments[segmentId][0].size();
+}
+
+inline size_t WEEG::getNumberOfChannels() const
+{
+    return m_segments[0].size();
+}
+
+inline size_t WEEG::getNumberOfSegments() const
+{
+    return m_segments.size();
+}
+
+inline std::string WEEG::getChannelLabel( size_t channelId ) const
+{
+    // TODO(wiebel): what is done with the second string of the label?
+    return  m_channelLabels[channelId].first;
+}
 
 
 #endif  // WEEG_H
