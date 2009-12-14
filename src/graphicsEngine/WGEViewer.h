@@ -173,7 +173,7 @@ protected:
     std::string m_name;
 
     /**
-     *
+     * Reference to the pick handler of the viewer.
      */
     osg::ref_ptr<WPickHandler> m_pickHandler;
 

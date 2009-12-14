@@ -57,6 +57,7 @@ public:
     /**
      * Move the camera to the default position.
      * May be ignored by manipulators if home functionality is not appropriate.
+     * \param currentTime Variable specified in osg class but not used.
      */
     virtual void home( double currentTime );
 
