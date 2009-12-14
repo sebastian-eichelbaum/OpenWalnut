@@ -12,6 +12,6 @@ IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
                                "common"  # no libs for linking required
                                "WSegmentationFault.cpp"
-                               "WStringUtils.hpp" # since unit tests are already included via the .hpp file
+                               "WStringUtils.h" # since unit tests are already included via the .h file
                              )
 ENDIF( CXXTEST_FOUND )

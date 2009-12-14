@@ -38,7 +38,7 @@
 #include "../common/WException.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
-#include "../common/WFlag.hpp"
+#include "../common/WFlag.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 

@@ -30,12 +30,12 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "WIOTools.hpp"
+#include "WIOTools.h"
 #include "WReader.h"
 #include "WReaderLookUpTableVTK.h"
 #include "../exceptions/WDHException.h"
 #include "../exceptions/WDHIOFailure.h"
-#include "../../common/WStringUtils.hpp"
+#include "../../common/WStringUtils.h"
 
 WReaderLookUpTableVTK::WReaderLookUpTableVTK( std::string fname )
     : WReader( fname )

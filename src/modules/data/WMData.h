@@ -33,7 +33,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleOutputData.hpp"
+#include "../../kernel/WModuleOutputData.h"
 
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"

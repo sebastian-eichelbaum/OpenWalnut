@@ -33,8 +33,8 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WModuleConnector.h"
-#include "../WModuleInputData.hpp"
-#include "../WModuleOutputData.hpp"
+#include "../WModuleInputData.h"
+#include "../WModuleOutputData.h"
 #include "../WModuleInputConnector.h"
 #include "../WModuleOutputConnector.h"
 #include "../WModule.h"

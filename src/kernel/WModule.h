@@ -39,9 +39,9 @@
 
 #include "../dataHandler/WDataSet.h"
 #include "../dataHandler/WDataSetSingle.h"
-#include "../dataHandler/WValueSet.hpp"
+#include "../dataHandler/WValueSet.h"
 
-#include "../common/WFlag.hpp"
+#include "../common/WFlag.h"
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
 #include "../common/WThreadedRunner.h"

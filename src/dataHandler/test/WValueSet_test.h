@@ -29,7 +29,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WValueSet.hpp"
+#include "../WValueSet.h"
 #include "../WDataHandlerEnums.h"
 
 /**

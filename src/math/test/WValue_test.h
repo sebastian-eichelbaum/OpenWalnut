@@ -29,7 +29,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WValue.hpp"
+#include "../WValue.h"
 
 using wmath::WValue;
 

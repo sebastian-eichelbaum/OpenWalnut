@@ -28,7 +28,7 @@
 #include <string>
 
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.hpp"
+#include "../../kernel/WModuleInputData.h"
 
 /**
  * Computes a distance map from an anatomy dataset and renders it as isosurface.

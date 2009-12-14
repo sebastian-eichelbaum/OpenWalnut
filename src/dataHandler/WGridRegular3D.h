@@ -27,7 +27,7 @@
 
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
-#include "../math/WMatrix.hpp"
+#include "../math/WMatrix.h"
 
 #include <osg/Vec3>
 

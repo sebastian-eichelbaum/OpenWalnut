@@ -23,8 +23,8 @@
 //---------------------------------------------------------------------------
 
 
-#ifndef SIGNALSLIB_HPP_INCLUDED
-#define SIGNALSLIB_HPP_INCLUDED
+#ifndef SIGNALSLIB_H
+#define SIGNALSLIB_H
 
 #if defined(signals) && defined(QOBJECTDEFS_H) && \
   !defined( QT_MOC_CPP )
@@ -46,4 +46,4 @@ namespace signalslib = signals;
 #  define signals protected
 #endif
 
-#endif
+#endif  // SIGNALSLIB_H

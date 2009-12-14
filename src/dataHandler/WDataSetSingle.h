@@ -31,7 +31,7 @@
 
 #include "WGrid.h"
 #include "WGridRegular3D.h"
-#include "WValueSet.hpp"
+#include "WValueSet.h"
 
 #include "WDataSet.h"
 
