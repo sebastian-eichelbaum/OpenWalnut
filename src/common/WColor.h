@@ -88,11 +88,6 @@ public:
     float getAlpha() const;
 
     /**
-     * Makes a OSG compatible copy of this.
-     */
-    osg::Vec4 getOSGColor() const;
-
-    /**
      * Reset this color via a given HSV color.
      */
     void setHSV( double h, double s, double v );

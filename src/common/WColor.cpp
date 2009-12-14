@@ -86,11 +86,6 @@ float WColor::getAlpha() const
     return m_alpha;
 }
 
-osg::Vec4 WColor::getOSGColor() const
-{
-    return osg::Vec4( m_red, m_green, m_blue, m_alpha );
-}
-
 void WColor::setRGB( double r, double g, double b )
 {
     setRed( r );

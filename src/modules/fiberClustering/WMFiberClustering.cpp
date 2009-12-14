@@ -33,21 +33,22 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/datastructures/WDXtLookUpTable.h"
-#include "../../common/datastructures/WFiberCluster.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
 #include "../../common/WStringUtils.hpp"
-#include "../../dataHandler/io/WIOTools.hpp"
-#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
-#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../common/datastructures/WDXtLookUpTable.h"
+#include "../../common/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/io/WIOTools.hpp"
+#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
+#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
-#include "../../math/fiberSimilarity/WDLTMetric.h"
 #include "../../math/WFiber.h"
+#include "../../math/fiberSimilarity/WDLTMetric.h"
 #include "../../utils/WColorUtils.h"
 #include "WMFiberClustering.h"
 
@@ -245,7 +246,7 @@ osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( cluster.getColor().getOSGColor() );
+    colors->push_back( wge::osgColor( cluster.getColor() ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 

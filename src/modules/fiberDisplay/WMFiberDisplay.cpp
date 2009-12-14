@@ -34,6 +34,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
 #include "../../utils/WColorUtils.h"
@@ -80,7 +81,7 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( boost::shared_ptr< con
             {
                 c = color_utils::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
             }
-            colors->push_back( c.getOSGColor() );
+            colors->push_back( wge::osgColor( c ) );
         }
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertexNum - fib.size(), fib.size() ) );

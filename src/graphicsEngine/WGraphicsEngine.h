@@ -28,22 +28,21 @@
 #include <map>
 #include <string>
 
-
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
 
 #include <osg/Camera>
 #include <osg/Texture3D>
-#include <osgViewer/Viewer>
+#include <osg/Vec4>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
+#include <osgViewer/Viewer>
 
-#include "WGEScene.h"
-#include "WGEGraphicsWindow.h"
-#include "WGEViewer.h"
 #include "../common/WThreadedRunner.h"
-
+#include "WGEGraphicsWindow.h"
+#include "WGEScene.h"
+#include "WGEViewer.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
@@ -161,6 +160,20 @@ private:
  * \brief
  * This module implements the graphics engine for OpenWalnut.
  */
+
+/**
+ * Convinient functions for use with the graphics engine of OpenWalnut.
+ */
+namespace wge
+{
+    /**
+     * Converts a WColor to an OSG compatible color
+     *
+     *\param color The color in WColor format
+     *\return A color which may be used inside of OSG
+     */
+    osg::Vec4 osgColor( const WColor& color );
+} // end of namespace
 
 #endif  // WGRAPHICSENGINE_H
 
