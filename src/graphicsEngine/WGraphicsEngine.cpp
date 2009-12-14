@@ -105,12 +105,23 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
     m_Viewer->addView( viewer->getViewer().get() );
 
     // store it in viewer list
-    // TODO(cornimueller): someone has to care about a deregisterViewer function
     boost::mutex::scoped_lock lock( m_ViewersLock );
     assert( m_Viewers.insert( make_pair( name, viewer ) ).second == true );
     m_ViewersLock.unlock();
 
     return viewer;
+}
+
+void WGraphicsEngine::closeViewer( const std::string name )
+{
+    if (m_Viewers.count( name ) > 0 )
+    {
+        m_Viewers[name]->close();
+
+        boost::mutex::scoped_lock lock( m_ViewersLock );
+        m_Viewers.erase( name );
+        m_ViewersLock.unlock();
+    }
 }
 
 boost::shared_ptr<WGEViewer> WGraphicsEngine::getViewerByName( std::string name )

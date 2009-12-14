@@ -159,7 +159,7 @@ void WQtGLWidget::destroyEvent( bool /*destroyWindow*/, bool /*destroySubWindows
 void WQtGLWidget::closeEvent( QCloseEvent* event )
 {
     // forward events
-    m_Viewer->close();
+    WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_nameOfViewer );
 
     event->accept();
 }

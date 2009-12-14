@@ -104,6 +104,13 @@ public:
                                                WColor bgColor = WColor( .9, .9, .9 ) );
 
     /**
+     * Closes a viewer and deletes it from the list of viewers.
+     *
+     * \param name the name of the viewer
+     */
+    void closeViewer( const std::string name );
+
+    /**
      * Searchs for a viewer with a given name and returns it, if found.
      */
     boost::shared_ptr<WGEViewer> getViewerByName( std::string name );
