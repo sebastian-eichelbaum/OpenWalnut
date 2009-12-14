@@ -28,7 +28,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/thread.hpp>
 
-#include "WFlag.hpp"
+#include "WFlag.h"
 
 /**
  * Base class for all classes needing to be executed in a separate thread.

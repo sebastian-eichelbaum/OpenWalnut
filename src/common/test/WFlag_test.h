@@ -30,7 +30,7 @@
 #include <boost/thread.hpp>
 #include <cxxtest/TestSuite.h>
 
-#include "../WFlag.hpp"
+#include "../WFlag.h"
 #include "../WConditionOneShot.h"
 
 /** 

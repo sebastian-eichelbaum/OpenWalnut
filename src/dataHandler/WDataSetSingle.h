@@ -31,7 +31,7 @@
 
 #include "WGrid.h"
 #include "WGridRegular3D.h"
-#include "WValueSet.hpp"
+#include "WValueSet.h"
 
 #include "WDataSet.h"
 
@@ -80,16 +80,7 @@ public:
      * \param y index in y direction
      * \param z index in z direction
      */
-    template < typename T > T getValueAt( int x, int y, int z )
-    {
-        boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-
-        size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
-
-        T v = vs->getScalar( id );
-        return v;
-    }
+    template < typename T > T getValueAt( int x, int y, int z );
 
     /**
      * Determines whether this dataset can be used as a texture.
@@ -149,5 +140,16 @@ private:
      */
     boost::shared_ptr< WDataTexture3D > m_texture3D;
 };
+
+template < typename T > T WDataSetSingle::getValueAt( int x, int y, int z )
+{
+    boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+    T v = vs->getScalar( id );
+    return v;
+}
 
 #endif  // WDATASETSINGLE_H

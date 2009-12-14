@@ -31,7 +31,7 @@
 
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.hpp"
+#include "../../kernel/WModuleInputData.h"
 #include "../../math/WFiber.h"
 
 /**

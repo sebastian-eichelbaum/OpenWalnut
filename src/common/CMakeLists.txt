@@ -1,6 +1,6 @@
-FILE( GLOB COMMON_SRC "*.[c,h]pp" )
-FILE( GLOB COMMON_DATASTRUCTURES_SRC "datastructures/*.[c,h]pp" )
-FILE( GLOB COMMON_EXCEPTIONS_SRC "exceptions/*.[c,h]pp" )
+FILE( GLOB COMMON_SRC "*.cpp" )
+FILE( GLOB COMMON_DATASTRUCTURES_SRC "datastructures/*.cpp" )
+FILE( GLOB COMMON_EXCEPTIONS_SRC "exceptions/*.cpp" )
 
 ADD_SUBDIRECTORY( datastructures )
 
@@ -12,6 +12,6 @@ IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
                                "common"  # no libs for linking required
                                "WSegmentationFault.cpp"
-                               "WStringUtils.hpp" # since unit tests are already included via the .hpp file
+                               "WStringUtils.h" # since unit tests are already included via the .h file
                              )
 ENDIF( CXXTEST_FOUND )

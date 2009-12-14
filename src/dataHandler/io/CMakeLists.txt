@@ -1,7 +1,7 @@
 ADD_SUBDIRECTORY( nifti )
 ADD_SUBDIRECTORY( biosig )
 
-FILE( GLOB DATAHANDLER_IO_SRC "*.[c,h]pp" )
+FILE( GLOB DATAHANDLER_IO_SRC "*.cpp" )
 
 # Unit tests
 IF( CXXTEST_FOUND )

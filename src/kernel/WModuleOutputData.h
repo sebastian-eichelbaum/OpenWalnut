@@ -33,7 +33,7 @@
 
 // this is necessary since we have some kind of cyclic includes
 template < typename T > class WModuleInputData;
-#include "WModuleInputData.hpp"
+#include "WModuleInputData.h"
 #include "../common/WPrototyped.h"
 
 #include "WModuleOutputConnector.h"

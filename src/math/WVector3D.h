@@ -25,7 +25,7 @@
 #ifndef WVECTOR3D_H
 #define WVECTOR3D_H
 
-#include "WValue.hpp"
+#include "WValue.h"
 
 namespace wmath
 {

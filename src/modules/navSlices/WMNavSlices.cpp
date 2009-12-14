@@ -33,18 +33,16 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "boost/smart_ptr.hpp"
-
 #include "WMNavSlices.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleInputData.hpp"
+#include "../../kernel/WModuleInputData.h"
 
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WValueSet.hpp"
+#include "../../dataHandler/WValueSet.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
 

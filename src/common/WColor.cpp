@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "WColor.h"
-#include "WStringUtils.hpp"
+#include "WStringUtils.h"
 
 WColor::WColor( float red, float green, float blue, float alpha )
     :   m_red( red ),

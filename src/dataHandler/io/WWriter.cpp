@@ -25,7 +25,7 @@
 #include <string>
 
 #include "WWriter.h"
-#include "WIOTools.hpp"
+#include "WIOTools.h"
 #include "../exceptions/WDHIOFailure.h"
 
 WWriter::WWriter( std::string fname, bool overwrite )

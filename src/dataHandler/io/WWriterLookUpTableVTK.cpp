@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WWriterLookUpTableVTK.h"
-#include "WIOTools.hpp"
+#include "WIOTools.h"
 #include "../exceptions/WDHIOFailure.h"
 
 WWriterLookUpTableVTK::WWriterLookUpTableVTK( std::string fname, bool overwrite )

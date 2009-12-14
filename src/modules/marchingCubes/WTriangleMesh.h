@@ -62,18 +62,12 @@ public:
     /**
      * \return Size of the vertex container.
      */
-    size_t getNumVertices() const
-    {
-        return m_vertices.size();
-    }
+    size_t getNumVertices() const;
 
     /**
      * \return Size of the triangle container.
      */
-    size_t getNumTriangles() const
-    {
-        return m_triangles.size();
-    }
+    size_t getNumTriangles() const;
 
     /**
      * Clear all mesh information, i.e. do things like making
@@ -137,20 +131,14 @@ public:
      * \param id ID of vertex
      * \return position of id-th vertex.
      */
-    wmath::WPosition getVertex( size_t id ) const
-    {
-        return m_vertices[id];
-    }
+    wmath::WPosition getVertex( size_t id ) const;
 
     /**
      * \param triId id of the triangle in triangle list
      * \param vertId id of the vertex in the triangle's vertex list
      * \return global vertex id of the vertId-th vertex of the triId-th triangle.
      */
-    size_t getTriangleVertexId( size_t triId, size_t vertId ) const
-    {
-        return m_triangles[triId].pointID[vertId];
-    }
+    size_t getTriangleVertexId( size_t triId, size_t vertId ) const;
 
     /**
      * \param i ID of the triangle the normal will be computed for.
@@ -214,4 +202,23 @@ private:
     std::vector< wmath::WVector3D > m_vertNormals;  //!< Approximated normals for all vertices.
 };
 
+inline size_t WTriangleMesh::getNumVertices() const
+{
+    return m_vertices.size();
+}
+
+inline size_t WTriangleMesh::getNumTriangles() const
+{
+    return m_triangles.size();
+}
+
+inline  wmath::WPosition WTriangleMesh::getVertex( size_t id ) const
+{
+    return m_vertices[id];
+}
+
+inline size_t WTriangleMesh::getTriangleVertexId( size_t triId, size_t vertId ) const
+{
+    return m_triangles[triId].pointID[vertId];
+}
 #endif  // WTRIANGLEMESH_H

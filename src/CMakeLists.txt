@@ -26,9 +26,7 @@ ENDIF()
 #----------------------
 ### BOOST ###
 SET( Boost_USE_MULTITHREAD ON )
-IF( CMAKE_BUILD_TYPE STREQUAL "Static" )
-    SET( Boost_USE_STATIC_LIBS ON )
-ENDIF( CMAKE_BUILD_TYPE STREQUAL "Static" )
+
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
@@ -70,7 +68,7 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 # Set default build type
 IF( NOT CMAKE_BUILD_TYPE )
     SET( CMAKE_BUILD_TYPE Release 
-         CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo Static"
+         CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo"
          FORCE
        )
 ENDIF( NOT CMAKE_BUILD_TYPE )
@@ -85,44 +83,18 @@ MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
 SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wextra -Wno-long-long" CACHE STRING "" FORCE )
 SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
 SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
-SET( CMAKE_CXX_FLAGS_STATIC "-O3" CACHE STRING "" FORCE )
-MARK_AS_ADVANCED( CMAKE_CXX_FLAGS_STATIC )
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 
-IF( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
-    ADD_SUBDIRECTORY( math )
-    ADD_SUBDIRECTORY( dataHandler )
-    ADD_SUBDIRECTORY( graphicsEngine )
-    ADD_SUBDIRECTORY( gui )
-    ADD_SUBDIRECTORY( utils )
-    ADD_SUBDIRECTORY( kernel )
-    ADD_SUBDIRECTORY( common )
-    ADD_SUBDIRECTORY( modules )
-    ADD_EXECUTABLE( walnut OpenWalnut.cpp )
-    TARGET_LINK_LIBRARIES( walnut kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
-    
-ELSE( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
-    FILE( GLOB_RECURSE ALL_SRC ${PROJECT_SOURCE_DIR}/*.[c,h]pp )
-    FILE( GLOB NIFTI_SRC "dataHandler/io/nifti/*.c" )
-    ADD_DEFINITIONS( -DHAVE_ZLIB )
-
-    # Package dependencies:
-    FIND_PACKAGE( Qt4 REQUIRED )
-
-    # Includes:
-    INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
-
-    # Libraries for linking:
-    SET( QT_LINK_LIBRARIES ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTOPENGL_LIBRARY} )
-
-    # add here all classes that inherit from QObject 
-    SET( GUI_QT4_MOC_HDRS gui/qt4/WMainWindow.h )
-
-    QT4_WRAP_CPP( GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
-    
-    ADD_EXECUTABLE( walnut ${ALL_SRC}  ${NIFTI_SRC} ${GUI_QT4_MOC_SRCS} )
-    TARGET_LINK_LIBRARIES( walnut ${Boost_LIBRARIES} ${OSG_LIBRARIES} ${QT_LINK_LIBRARIES} )
-ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "Static" )
+ADD_SUBDIRECTORY( math )
+ADD_SUBDIRECTORY( dataHandler )
+ADD_SUBDIRECTORY( graphicsEngine )
+ADD_SUBDIRECTORY( gui )
+ADD_SUBDIRECTORY( utils )
+ADD_SUBDIRECTORY( kernel )
+ADD_SUBDIRECTORY( common )
+ADD_SUBDIRECTORY( modules )
+ADD_EXECUTABLE( walnut OpenWalnut.cpp )
+TARGET_LINK_LIBRARIES( walnut kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
 
 # By now this execute at any "cmake ." call. This will be optional in the future.
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
@@ -173,13 +145,13 @@ ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 # Checks style guide lines via the BrainLint tool against all source code files
 #    The output is colored when variable CMAKE_COLOR_MAKEFILE is set to ON,
 #    noncolored if it is set to OFF
-FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.[c,h]pp )
+FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
 # Set dirs to exclude from stylecheck
 SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosig/XMLParser/" )
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
-    FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.[c,h]pp )
+    FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
     
     FOREACH( fname ${EXCLUDE_H} )
         LIST( REMOVE_ITEM STYLE_H ${fname} )

@@ -1,4 +1,4 @@
-FILE( GLOB_RECURSE MODULES_SRC "*.[c,h]pp" )
+FILE( GLOB_RECURSE MODULES_SRC "*.cpp" )
 
 # Unit tests
 IF( CXXTEST_FOUND )

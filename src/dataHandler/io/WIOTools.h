@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WIOTOOLS_HPP
-#define WIOTOOLS_HPP
+#ifndef WIOTOOLS_H
+#define WIOTOOLS_H
 
 #include <stdint.h>
 
@@ -125,4 +125,4 @@ namespace wiotools
         return std::string( std::tmpnam( NULL ) );
     }
 }  // end of namespace
-#endif  // WIOTOOLS_HPP
+#endif  // WIOTOOLS_H
