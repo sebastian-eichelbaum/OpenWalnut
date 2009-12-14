@@ -30,7 +30,9 @@
 #include "../WMatrix.hpp"
 
 using wmath::WMatrix;
-
+/**
+ * Tests for WMatrix.
+ */
 class WMatrixTest : public CxxTest::TestSuite
 {
 public:
@@ -97,6 +99,9 @@ public:
         TS_ASSERT_EQUALS( matrix( 2 , 1 ), 0. );
     }
 
+    /**
+     * Test for equality comparison of two matrices
+     */
     void testEqualityOperator( void )
     {
         const size_t nbRows = 3, nbCols = 2;
@@ -134,6 +139,9 @@ public:
         TS_ASSERT_EQUALS( matrix1 == matrix2, false );
     }
 
+    /**
+     * Test for inequality comparison of two matrices
+     */
     void testInequalityOperator( void )
     {
         const size_t nbRows = 3, nbCols = 2;
@@ -171,6 +179,9 @@ public:
         TS_ASSERT_EQUALS( matrix1 != matrix2, true );
     }
 
+    /**
+     * Test assignment operator of WMatrix
+     */
     void testAssignmentOperator( void )
     {
         const size_t nbRows = 3, nbCols = 2;

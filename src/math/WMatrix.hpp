@@ -38,6 +38,8 @@ public:
     /**
      * Produces a matrix with the given number of components.
      * The components will be set to zero if T is a type representing numbers.
+     * \param nbRows number of rows in the matrix
+     * \param nbCols number of columns in the matrix
      */
     explicit WMatrix( size_t nbRows, size_t nbCols )
         : WValue< T >( nbRows * nbCols )
@@ -47,6 +49,7 @@ public:
 
     /**
      * Produces a matrix as copy of the one given as parameter.
+     * \param newMatrix The matrix to be copied.
      */
     WMatrix( const WMatrix& newMatrix )
         : WValue< T >( newMatrix )
@@ -73,6 +76,8 @@ public:
     /**
      * Returns a reference to the component an row i, colums j in order to
      * provide access to the component.
+     * \param i row
+     * \param j column
      */
     T& operator()( size_t i, size_t j )
     {
@@ -83,6 +88,8 @@ public:
     /**
      * Returns a const reference to the component an row i, colums j in order to
      * provide read-only access to the component.
+     * \param i row
+     * \param j column
      */
     const T& operator()( size_t i, size_t j ) const
     {
@@ -92,6 +99,7 @@ public:
 
     /**
      * Compares two matrices and returns true if they are equal.
+     * \param rhs The right hand side of the comparison
      */
     bool operator==( const WMatrix& rhs ) const
     {
@@ -100,6 +108,7 @@ public:
 
     /**
      * Compares two matrices and returns true if they are not equal.
+     * \param rhs The right hand side of the comparison
      */
     bool operator!=( const WMatrix& rhs ) const
     {
@@ -108,6 +117,7 @@ public:
 
     /**
      * Assigns the argument WMatrix to this WMatrix.
+     * \param rhs The right hand side of the assignment
      */
     WMatrix& operator=( const WMatrix& rhs )
     {

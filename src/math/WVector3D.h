@@ -46,27 +46,34 @@ public:
 
     /**
      * Produces a vector consisting of the given components.
+     * \param x first component of the vector
+     * \param y second component of the vector
+     * \param z third component of the vector
      */
     WVector3D( double x, double y, double z );
 
     /**
      * Copies the values of the given WVector3D.
+     * \param newVector The vector to be copied
      */
     WVector3D( const WVector3D& newVector );
 
     /**
      * TODO(wiebel): Ticket #141 (How to use WValue-operators in child classes)
      * Copies the values of the given WValue< double >. Used for casting.
+     * \param newVector The WValue to be cast to WVector3D
      */
-    WVector3D( const WValue< double >& newVector );  // NOLINT
+    WVector3D( const WValue< double >& newVector );  // NOLINT because this constructor is intended for implicit casting
 
     /**
      * Compute the cross product of the current WValue with the parameter.
+     * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
      */
     WVector3D crossProduct( const WVector3D& factor2 ) const;
 
     /**
      * Compute the dot product of the current WValue with the parameter.
+     * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
      */
     double dotProduct( const WVector3D& factor2 ) const;
 

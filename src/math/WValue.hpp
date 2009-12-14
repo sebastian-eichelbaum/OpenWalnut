@@ -42,6 +42,7 @@ public:
     /**
      * Create a WValue with the given number of components.
      * The components will be set to zero if T is a type representing numbers.
+     * \param nbComponents Number of elements the WValue consists of.
      */
     explicit WValue( size_t nbComponents )
         : m_components( nbComponents )
@@ -50,6 +51,7 @@ public:
 
     /**
      * Create a WValue as copy of the one given as parameter.
+     * \param newValue The WValue to be copied.
      */
     WValue( const WValue& newValue )
         : m_components( newValue.m_components )
@@ -67,6 +69,7 @@ public:
     /**
      * Returns a reference to the i-th component in order
      * to provide access to the component.
+     * \param i element id
      */
     T& operator[]( size_t i )
     {
@@ -77,6 +80,7 @@ public:
     /**
      * Returns a const reference to the i-th component in order
      * to provide read-only access to the component.
+     * \param i element id
      */
     const T& operator[]( size_t i ) const
     {
@@ -86,6 +90,7 @@ public:
 
     /**
      * Compares two WValues and returns true if they contain the same data.
+     * \param rhs The right hand side of the comparison
      */
     bool operator==( const WValue& rhs ) const
     {
@@ -94,6 +99,7 @@ public:
 
     /**
      * Compares two WValues and returns true if they contain the different data.
+     * \param rhs The right hand side of the comparison
      */
     bool operator!=( const WValue& rhs ) const
     {
@@ -102,6 +108,7 @@ public:
 
     /**
      * Assigns the contents of its argument to the contents of this WValue.
+     * \param rhs The right hand side of the assignment
      */
     WValue& operator=( const WValue& rhs )
     {
@@ -111,6 +118,7 @@ public:
 
     /**
      * Adds a the argument componentwise to the components of this WValue
+     * \param rhs The right hand side of the assignment
      */
     WValue& operator+=( const WValue& rhs )
     {
@@ -122,6 +130,7 @@ public:
 
     /**
      * Subtracts the argument componentwise from the components of this WValue
+     * \param rhs The right hand side of the assignment
      */
     WValue& operator-=( const WValue& rhs )
     {
@@ -133,6 +142,7 @@ public:
 
     /**
      * Scales each component of this WValue with the given scalar argument
+     * \param rhs The right hand side of the assignment
      */
     WValue& operator*=( double rhs )
     {
@@ -144,6 +154,7 @@ public:
     /**
      * Scales each component of this WValue with the coressponding
      * component of the given argument WValue
+     * \param rhs The right hand side of the assignment
      */
     WValue& operator*=( const WValue& rhs )
     {
@@ -155,6 +166,7 @@ public:
 
     /**
      * Scales each component of this WValue with the given scalar argument
+     * \param rhs The right hand side of the assignment
      */
     WValue& operator/=( const double rhs )
     {
@@ -166,6 +178,7 @@ public:
 
     /**
      * Componentwise addition.
+     * \param summand2 The right hand side of the summation
      */
     const WValue operator+( const WValue& summand2 ) const
     {
@@ -177,6 +190,7 @@ public:
 
     /**
      * Componentwise subtraction.
+     * \param subtrahend The right hand side of the subtraction
      */
     const WValue operator-( const WValue& subtrahend ) const
     {
@@ -188,6 +202,7 @@ public:
 
     /**
      * Componentwise multiplication.
+     * \param factor2 The right hand side of the product
      */
     const WValue operator*( const WValue& factor2 ) const
     {
@@ -253,7 +268,9 @@ public:
     }
 
     /**
-     * Writes a meaningful representation of that object to the given stream
+     * Writes a meaningful representation of that object to the given stream.
+     * \param os The operator will write to this stream.
+     * \param rhs This will be written to the stream.
      */
     friend std::ostream& operator<<( std::ostream& os, const WValue< T > &rhs )
     {

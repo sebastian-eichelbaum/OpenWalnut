@@ -33,10 +33,13 @@
 
 using wmath::WValue;
 
+/**
+ * Testsuite for WValue.
+ */
 class WValueTest : public CxxTest::TestSuite
 {
 private:
-    double delta;
+    double delta; //!< Some values are allowed to differ by delta.
 
 public:
     /**

@@ -30,11 +30,14 @@
 
 using wmath::WVector3D;
 
+/**
+ * Test for WVector3D
+ */
 class WVector3DTest : public CxxTest::TestSuite
 {
 private:
-    double delta;
-    double deltaLarge;
+    double delta; //!< Some values are allowed to differ this much
+    double deltaLarge; //!< Some values are allowed to differ this much. This is more then the delta above.
 
 public:
 

@@ -28,6 +28,9 @@
 #include <cxxtest/TestSuite.h>
 #include "../WPosition.h"
 
+/**
+ * Testsuite for WPosition.
+ */
 class WPositionTest : public CxxTest::TestSuite
 {
 public:
