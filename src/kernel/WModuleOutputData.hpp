@@ -110,7 +110,8 @@ public:
      */
     virtual boost::shared_ptr< WPrototyped > getTransferPrototype()
     {
-        return T::getPrototype();
+        // get prototype or the data pointer currently set
+        return ( m_data == boost::shared_ptr< T >() ) ? T::getPrototype() : boost::shared_static_cast< WPrototyped >( m_data );
     };
 
 protected:
