@@ -30,8 +30,8 @@
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
-#include "../../math/WLine.h"
-#include "WValueTraitsBase.h"
+#include "../../common/test/WTraitsBase.h"
+#include "../WLine.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
@@ -41,7 +41,7 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WLine, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WLine > : public WValueTraitsBase
+class ValueTraits< wmath::WLine > : public WTraitsBase
 {
 public:
     /**

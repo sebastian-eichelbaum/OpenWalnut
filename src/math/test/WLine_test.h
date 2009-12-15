@@ -31,7 +31,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../test/traits/WLineTraits.h"
+#include "WLineTraits.h"
 #include "../WLine.h"
 
 /**
@@ -84,7 +84,7 @@ public:
     }
 
     /**
-     * When accessing an item within 0..length-1 a const reference to the 
+     * When accessing an item within 0..length-1 a const reference to the
      * WPosition object should be returned.
      */
     void testAccessOperatorWithinValidBounds( void )
