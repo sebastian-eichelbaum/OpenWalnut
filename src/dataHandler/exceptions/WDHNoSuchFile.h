@@ -38,7 +38,7 @@ class WDHNoSuchFile : public WDHException
 public:
     /**
      * Default constructor.
-     * \param msg the exception message.
+     * \param fname the exception message.
      */
     explicit WDHNoSuchFile( const std::string &fname = "unknown file not found" );
 

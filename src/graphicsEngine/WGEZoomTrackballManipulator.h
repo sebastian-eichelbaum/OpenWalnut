@@ -39,7 +39,8 @@ public:
     WGEZoomTrackballManipulator();
 
     /**
-     * Set the position of the matrix manipulator using a 4x4 matrix.
+     * Set the position of the manipulator using a 4x4 matrix.
+     * \param matrix position of the manipulator
      */
     virtual void setByMatrix( const osg::Matrixd& matrix );
 
@@ -63,6 +64,8 @@ public:
 
     /**
      * Handle events, return true if handled, false otherwise.
+     * \param ea Event class for storing Keyboard, mouse and window events.
+     * \param us Interface by which GUIEventHandlers may request actions of the GUI system
      */
     virtual bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
@@ -73,6 +76,7 @@ public:
 
     /**
      * Set zoom factor.
+     * \param zoom the zoom factor to be set.
      */
     void setZoom( double zoom );
 
@@ -81,6 +85,8 @@ private:
 
     /**
      * Handles events related to zooming.
+     * \param ea Event class for storing Keyboard, mouse and window events.
+     * \param us Interface by which GUIEventHandlers may request actions of the GUI system
      */
     bool zoom( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 

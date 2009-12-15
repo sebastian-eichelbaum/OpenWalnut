@@ -288,6 +288,8 @@ private:
 
 /**
  * Multiplies a WValue with a scalar
+ * \param lhs left hand side of product
+ * \param rhs right hand side of product
  */
 template< typename T > const WValue< T > operator*( const WValue< T >& lhs, double rhs )
 {
@@ -298,6 +300,8 @@ template< typename T > const WValue< T > operator*( const WValue< T >& lhs, doub
 
 /**
  * This functions only exists to make scalar multiplication commutative
+ * \param lhs left hand side of product
+ * \param rhs right hand side of product
  */
 template< typename T > const WValue< T > operator*( double lhs, const WValue< T >& rhs )
 {
@@ -308,6 +312,8 @@ template< typename T > const WValue< T > operator*( double lhs, const WValue< T 
 
 /**
  * Divides a WValue by a scalar
+ * \param lhs left hand side of product
+ * \param rhs right hand side of product
  */
 template< typename T > const WValue< T > operator/( const WValue< T >& lhs, double rhs )
 {

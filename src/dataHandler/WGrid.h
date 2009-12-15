@@ -36,6 +36,7 @@ class WGrid
 public:
     /**
      * Constructs a new WGrid instance.
+     * \param size number of positions in grid
      */
     explicit WGrid( size_t size );
 

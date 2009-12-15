@@ -39,8 +39,10 @@ class WWriterLookUpTableVTK : public WWriter
 {
 public:
     /**
-     * Creates a writer object for FiberVTK file writing. On parameter documentation
-     * take a look into the WWriter class.
+     * Creates a writer object for FiberVTK file writing. 
+     *
+     * \param fname path to the target file where stuff will be written to
+     * \param overwrite If true existing files will be overwritten
      */
     WWriterLookUpTableVTK( std::string fname, bool overwrite = false );
 

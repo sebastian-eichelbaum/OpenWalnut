@@ -77,11 +77,13 @@ public:
 
     /**
      * Changes the size of the vertex container.
+     * \param size the new size of the vertex container
      */
     void resizeVertices( size_t size );
 
     /**
      * Changes the size of the triangle container.
+     * \param size the new size of the trinagle container
      */
     void resizeTriangles( size_t size );
 

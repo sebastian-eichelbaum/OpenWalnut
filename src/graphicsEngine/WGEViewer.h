@@ -150,6 +150,7 @@ public:
 
     /**
      * Determine the color of the viewer's background.
+     * \param bgColor the new background color
      */
     void setBgColor( WColor bgColor );
 

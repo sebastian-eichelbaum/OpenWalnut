@@ -80,7 +80,10 @@ public:
 
 
     /**
-     * TODO(wiebel): Document this!
+     * Constructs a WEEG object from the give infos.
+     * \param data Array of segments
+     * \param electrodeLib Information about the electrodes
+     * \param channelLabels The names of the channels.
      */
     explicit WEEG( const WEEGSegmentArray& data,
                    const WEEGElectrodeLibrary& electrodeLib,
@@ -93,11 +96,15 @@ public:
 
     /**
      * Access operator for single samples.
+     * \param segment id of segement to access
+     * \param signal id of signal to access
+     * \param sample id of sample to access
      */
     const double& operator()( size_t segment, size_t signal, size_t sample ) const;
 
     /**
      * Returns number of samples of a given segment.
+     * \param segmentId id of segment beeing inspected.
      */
     size_t getNumberOfSamples( size_t segmentId ) const;
 
@@ -113,6 +120,7 @@ public:
 
     /**
      * Return the label of a certain channel.
+     * \param channelId id of channel beeing inspected.
      */
     std::string getChannelLabel( size_t channelId ) const;
 

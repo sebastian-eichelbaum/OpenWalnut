@@ -38,6 +38,9 @@ public:
     /**
      * Despite this is an abstract class all subclasses should have an order
      * and dimension.
+     * \param order the tensor order of the values stored in this WValueSet
+     * \param dimension the tensor dimension of the values stored in this WValueSet
+     * \param inDataType indication of the primitive data type used to store the values
      */
     WValueSetBase( size_t order, size_t dimension, dataType inDataType );
 

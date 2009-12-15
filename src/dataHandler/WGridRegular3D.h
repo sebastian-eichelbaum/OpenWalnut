@@ -50,6 +50,18 @@ public:
      * Defines the position of the origin of the grid, the number of
      * samples in each coordinate direction and the offset between the
      * samples in the different coordinate directions as vector.
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param originX x-coordinate of grid origin
+     * \param originY y-coordinate of grid origin
+     * \param originZ z-coordinate of grid origin
+     * \param directionX direction of the first axis
+     * \param directionY direction of the second axis
+     * \param directionZ direction of the third axis
+     * \param offsetX distance of samples along first axis
+     * \param offsetY distance of samples along second axis
+     * \param offsetZ distance of samples along third axis
      */
     WGridRegular3D(
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -65,6 +77,13 @@ public:
      * samples in the different coordinate directions as one 4x4 transformation
      * matrix using homogeneous coordinates (but only affine transformations are
      * allowed).
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param mat 4x4 transformation matrix using homogeneous coordinates
+     * \param offsetX distance of samples along first axis
+     * \param offsetY distance of samples along second axis
+     * \param offsetZ distance of samples along third axis
      */
     WGridRegular3D(
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -75,6 +94,15 @@ public:
      * Defines the position of the origin of the grid, the number of
      * samples in each coordinate direction and the offset between the
      * samples in the different coordinate directions as scalar.
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param originX x-coordinate of grid origin
+     * \param originY y-coordinate of grid origin
+     * \param originZ z-coordinate of grid origin
+     * \param offsetX distance of samples along first axis
+     * \param offsetY distance of samples along second axis
+     * \param offsetZ distance of samples along third axis
      */
     WGridRegular3D(
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -84,6 +112,12 @@ public:
     /**
      * Convenience constructor that does the same as the one above but
      * uses the origin (0,0,0) as default.
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param offsetX distance of samples along first axis
+     * \param offsetY distance of samples along second axis
+     * \param offsetZ distance of samples along third axis
      */
     WGridRegular3D(
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -141,12 +175,16 @@ public:
 
     /**
      * Returns the i-th position on the grid.
+     * \param i id of position to be obtained
      */
     wmath::WPosition getPosition( unsigned int i ) const;
 
     /**
      * Returns the position that is the iX-th in x direction, the iY-th in
      * y direction and the iZ-th in z direction.
+     * \param iX id along first axis of position to be obtained
+     * \param iY id along second axis of position to be obtained
+     * \param iZ id along third axis of position to be obtained
      */
     wmath::WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
 

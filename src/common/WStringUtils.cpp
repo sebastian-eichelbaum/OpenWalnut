@@ -30,7 +30,7 @@
 
 #include "WStringUtils.h"
 
-const std::string string_utils::WHITESPACE( "\r\n\t " );
+const std::string string_utils::WHITESPACE( "\r\n\t " ); //!< These characters are regarded as whitespaces
 
 std::string string_utils::rTrim( const std::string &source, const std::string& t )
 {
