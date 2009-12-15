@@ -109,14 +109,14 @@ void WMMarchingCubes::moduleMain()
     {
         sleep( 1 );
     }
-    WLogger::getLogger()->addLogMessage( "Starting MC", "Marching Cubes", LL_DEBUG );
+    debugLog() << "Starting MC";
 
     boost::shared_ptr< WDataHandler > dh = WKernel::getRunningKernel()->getDataHandler();
     boost::shared_ptr< WSubject > subject = (*dh)[0];
     boost::shared_ptr< const WDataSetSingle > dataSet;
     dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
 
-    WLogger::getLogger()->addLogMessage( "Computing surface ...", "Marching Cubes", LL_DEBUG );
+    debugLog() << "Computing surface ...";
 
     // TODO(wiebel): MC set correct isoValue here
     const float testIsoValue = 80;
@@ -154,14 +154,14 @@ void WMMarchingCubes::moduleMain()
     // TODO(wiebel): MC remove this from here
     //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
 
-    WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Marching Cubes", LL_DEBUG );
+    debugLog() << "Rendering surface ...";
 
     // settings for normal isosurface
     m_shaderUseLighting = true;
 
     renderSurface();
 
-    WLogger::getLogger()->addLogMessage( "Done!", "Marching Cubes", LL_DEBUG );
+    debugLog() << "Done!";
 }
 
 void WMMarchingCubes::connectors()
