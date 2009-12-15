@@ -41,7 +41,7 @@ public:
     const char *asString() const;
 
 protected:
-    std::string m_s; // storing the string representation for output
+    std::string m_s; //!< storing the string representation for output
 };
 
 inline const char* WTraitsBase::asString() const
