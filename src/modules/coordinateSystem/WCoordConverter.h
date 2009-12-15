@@ -39,6 +39,10 @@ class WCoordConverter
 public:
     /**
      * standard constructor
+     *
+     * \param rotMat rotation matrix
+     * \param origin offset to point of origin
+     * \param scale voxel size
      */
     WCoordConverter( WMatrix<double> rotMat, WVector3D origin = WVector3D( 0, 0 , 0 ), WVector3D scale = WVector3D( 1.0, 1.0 , 1.0 ) );
 
@@ -48,16 +52,29 @@ public:
     virtual ~WCoordConverter();
 
     /**
+     * Operator ()
      *
+     * \param in vector to convert
+     *
+     * \return converted vector
      */
     WVector3D operator()( WVector3D in );
 
 protected:
 private:
+    /**
+     * the rotation matrix to use
+     */
     wmath::WMatrix<double> m_rotMat;
 
+    /**
+     * the offset to the point of origin
+     */
     wmath::WVector3D m_origin;
 
+    /**
+     * scaling of voxels
+     */
     wmath::WVector3D m_scale;
 };
 

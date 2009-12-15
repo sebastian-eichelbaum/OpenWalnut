@@ -146,9 +146,18 @@ private:
      */
     boost::shared_mutex m_updateLock;
 
+    /**
+     * Node callback to handle updates properly
+     */
     class coordinateNodeCallback : public osg::NodeCallback
     {
-public:
+    public: //NOLINT
+        /**
+         * operator ()
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
             osg::ref_ptr< WMCoordinateSystem > module = static_cast< WMCoordinateSystem* > ( node->getUserData() );

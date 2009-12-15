@@ -81,6 +81,11 @@ public:
      */
     void setThreshold( float threshold );
 
+    /**
+     * getter for the texture object
+     *
+     * \return the texture
+     */
     osg::ref_ptr< osg::Texture3D > getTexture();
 protected:
 
@@ -89,13 +94,32 @@ protected:
      * various data types. A template function is not recommended due to the different commands
      * in the image creation.
      *
-     * TODO(schurade): create other functions once dataset meta data is available again
      *
      * \param source Pointer to the raw data of a dataset
      * \param components Number of values used in a Voxel, usually 1, 3 or 4
      */
     osg::ref_ptr< osg::Image > createTexture3D( unsigned char* source, int components = 1 );
+
+    /**
+     * Creates a 3d texture from a dataset. This function will be overloaded for the
+     * various data types. A template function is not recommended due to the different commands
+     * in the image creation.
+     *
+     *
+     * \param source Pointer to the raw data of a dataset
+     * \param components Number of values used in a Voxel, usually 1, 3 or 4
+     */
     osg::ref_ptr< osg::Image > createTexture3D( int16_t* source, int components = 1 );
+
+    /**
+     * Creates a 3d texture from a dataset. This function will be overloaded for the
+     * various data types. A template function is not recommended due to the different commands
+     * in the image creation.
+     *
+     *
+     * \param source Pointer to the raw data of a dataset
+     * \param components Number of values used in a Voxel, usually 1, 3 or 4
+     */
     osg::ref_ptr< osg::Image > createTexture3D( float* source, int components = 1 );
 
     /**

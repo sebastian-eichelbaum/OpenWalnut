@@ -71,7 +71,9 @@ public:
     void connectToGui();
 
     /**
+     * Sets pick text member vairable
      *
+     * \param text the pick text
      */
     void updatePickText( std::string text );
 
@@ -113,30 +115,55 @@ protected:
 
 
 private:
-    // Projection node for defining view frustrum for HUD
+    /**
+     * Projection node for defining view frustrum for HUD
+     */
     osg::ref_ptr<osg::Projection> m_rootNode;
 
+    /**
+     * Geometry group for all hud related things
+     */
     osg::ref_ptr<osg::Group>m_HUDs;
 
-    // Text instance that will show up in the HUD
+    /**
+     * Text instance that will show up in the HUD
+     */
     osg::ref_ptr<osgText::Text> m_osgPickText;
 
-
+    /**
+     * string to store the pick result from the picking method
+     */
     std::string m_pickText;
 
+    /**
+     * init method
+     */
     void init();
 
+    /**
+     * update method
+     */
     void update();
 
     /**
      * Gets signaled from the properties object when something was changed
+     *
+     * \param propertyName the name of the property that has changed
      */
     void slotPropertyChanged( std::string propertyName );
 
-
+    /**
+     * Node callback to handle updates properly
+     */
     class HUDNodeCallback : public osg::NodeCallback
     {
     public: // NOLINT
+        /**
+         * operator ()
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
             osg::ref_ptr< WMHud > module = static_cast< WMHud* > ( node->getUserData() );

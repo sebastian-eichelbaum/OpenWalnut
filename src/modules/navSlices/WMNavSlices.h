@@ -41,7 +41,7 @@
 /**
  * \par Description:
  *
- * Simple module for testing some WKernel functionality.
+ * Navigation slice module
  */
 class WMNavSlices: public WModule, public osg::Referenced
 {
@@ -126,7 +126,11 @@ protected:
 
 
 private:
+    /**
+     * initial create method
+     */
     void create();
+
     /**
      * initial creation function for the slice geometry
      */
@@ -146,10 +150,16 @@ private:
      * nodes for each slice, to be reused in other widgets
      */
     osg::ref_ptr<osg::Geode> m_xSliceNode;
+
+    /**
+     * nodes for each slice, to be reused in other widgets
+     */
     osg::ref_ptr<osg::Geode> m_ySliceNode;
+
+    /**
+     * nodes for each slice, to be reused in other widgets
+     */
     osg::ref_ptr<osg::Geode> m_zSliceNode;
-
-
 
     /**
      * the shader object for this module
@@ -166,15 +176,38 @@ private:
      */
     boost::shared_mutex m_updateLock;
 
-
+    /**
+     * vector of uniforms for type of texture
+     */
     std::vector< osg::ref_ptr<osg::Uniform> > m_typeUniforms;
+
+    /**
+     * vector of alpha values per texture
+     */
     std::vector< osg::ref_ptr<osg::Uniform> > m_alphaUniforms;
+
+    /**
+     * vector of thresholds per texture
+     */
     std::vector< osg::ref_ptr<osg::Uniform> > m_thresholdUniforms;
+
+    /**
+     * vector of samplers
+     */
     std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
 
+    /**
+     * Node callback to handle updates properly
+     */
     class sliceNodeCallback : public osg::NodeCallback
     {
     public: // NOLINT
+        /**
+         * operator ()
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
             osg::ref_ptr< WMNavSlices > module = static_cast< WMNavSlices* > ( node->getUserData() );

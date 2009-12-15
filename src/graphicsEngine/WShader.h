@@ -32,6 +32,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+/**
+ * Class the encapsulates the loading and compiling of shader objects
+ * \ingroup ge
+ */
 class WShader
 {
 public:
@@ -41,9 +45,12 @@ public:
     WShader();
 
     /**
+     * constructor with initialization
      *
+     * \param fileName the file name
+     * \param shaderPath path to the directory where all shader file are stored
      */
-    explicit WShader( std::string fileName, std::string shaderPath );
+    WShader( std::string fileName, std::string shaderPath );
 
     /**
      * destructor
@@ -53,59 +60,88 @@ public:
 
 
     /**
+     * Returns the OSG program object
      *
+     * \return the program object
      */
     osg::Program* getProgramObject();
 
     /**
+     * Sets a define which is include into the shader source code.
+     * Not yet fully operational
      *
+     * \param key The name of the define
+     * \param value The value of the define.
      */
     void setDefine( std::string key, float value );
 
     /**
+     * Deletes a define from the internal list
      *
+     * \param key The name of the define
      */
     void eraseDefine( std::string key );
 
 private:
     /**
+     * Helper routine to load a shader program from a text file
      *
+     * \return An osg shader
+     *
+     * \param fileName the file name
+     * \param type The type of the shader, eg. Vertex or fragment shader
      */
     osg::Shader* readShaderFromFile( std::string fileName, osg::Shader::Type type );
 
     /**
+     * Helper routine to load a text file into a string
      *
+     * \return String
+     *
+     * \param fileName The file name
      */
     std::string readTextFile( std::string fileName );
 
     /**
+     * Helper routine to test if a line contains an include statement
      *
+     * \return true if line contains an include statement
+     *
+     * \param line a string with the line
      */
     bool isIncludeLine( std::string line );
 
     /**
+     * Parses a line with an include statement and returns the file name
      *
+     * \return string with the file name
+     *
+     * \param line a string with the line
      */
     std::string getIncludeFileName( std::string line );
 
+
+    /**
+     * String that stores the location of all shader files
+     */
     std::string m_shaderPath;
     /**
-     *
+     * the vertex shader object
      */
     osg::Shader* m_VertexObject;
 
     /**
-     *
+     * the fragment shader object
      */
     osg::Shader* m_FragmentObject;
 
     /**
-     *
+     * the shader program
      */
     osg::Program* m_ProgramObject;
 
     /**
-     *
+     * a map of all set defines
      */
     std::map< std::string, float>m_defines;
 };
