@@ -27,7 +27,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WMatrix.hpp"
+#include "../WMatrix.h"
 
 using wmath::WMatrix;
 /**

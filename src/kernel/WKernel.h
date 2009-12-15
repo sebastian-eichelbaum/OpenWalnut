@@ -36,7 +36,7 @@
 #include "WModuleContainer.h"
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
-#include "../common/WFlag.hpp"
+#include "../common/WFlag.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../gui/WGUI.h"

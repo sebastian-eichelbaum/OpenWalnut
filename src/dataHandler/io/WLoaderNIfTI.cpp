@@ -35,7 +35,7 @@
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
 #include "../WValueSetBase.h"
-#include "../WValueSet.hpp"
+#include "../WValueSet.h"
 #include "../WDataHandlerEnums.h"
 
 

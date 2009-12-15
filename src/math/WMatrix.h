@@ -25,7 +25,7 @@
 #ifndef WMATRIX_H
 #define WMATRIX_H
 
-#include "WValue.hpp"
+#include "WValue.h"
 
 namespace wmath
 {

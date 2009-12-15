@@ -27,7 +27,7 @@
 
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
-#include "../math/WMatrix.hpp"
+#include "../math/WMatrix.h"
 
 #include <osg/Vec3>
 
@@ -92,76 +92,52 @@ public:
     /**
      * Returns the number of samples in x direction.
      */
-    unsigned int getNbCoordsX() const
-    {
-        return m_nbPosX;
-    }
+    unsigned int getNbCoordsX() const;
+
     /**
      * Returns the number of samples in y direction.
      */
-    unsigned int getNbCoordsY() const
-    {
-        return m_nbPosY;
-    }
+    unsigned int getNbCoordsY() const;
+
     /**
      * Returns the number of samples in z direction.
      */
-    unsigned int getNbCoordsZ() const
-    {
-        return m_nbPosZ;
-    }
+    unsigned int getNbCoordsZ() const;
 
     /**
      * Returns the distance between samples in x direction.
      */
-    double getOffsetX() const
-    {
-        return m_directionX.norm();
-    }
+    double getOffsetX() const;
+
     /**
      * Returns the distance between samples in y direction.
      */
-    double getOffsetY() const
-    {
-        return m_directionY.norm();
-    }
+    double getOffsetY() const;
+
     /**
      * Returns the distance between samples in z direction.
      */
-    double getOffsetZ() const
-    {
-        return m_directionZ.norm();
-    }
+    double getOffsetZ() const;
 
     /**
      * Returns the vector determining the direction of samples in x direction.
      */
-    const wmath::WVector3D& getDirectionX() const
-    {
-        return m_directionX;
-    }
+    const wmath::WVector3D& getDirectionX() const;
+
     /**
      * Returns the vector determining the direction of samples in y direction.
      */
-    const wmath::WVector3D& getDirectionY() const
-    {
-        return m_directionY;
-    }
+    const wmath::WVector3D& getDirectionY() const;
+
     /**
      * Returns the vector determining the direction of samples in z direction.
      */
-    const wmath::WVector3D& getDirectionZ() const
-    {
-        return m_directionZ;
-    }
+    const wmath::WVector3D& getDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
      */
-    wmath::WPosition getOrigin() const
-    {
-        return m_origin;
-    }
+    wmath::WPosition getOrigin() const;
 
     /**
      * Returns the i-th position on the grid.
@@ -221,5 +197,56 @@ private:
 
     wmath::WMatrix<double> m_matrixInverse; //!< Inverse of m_matrix
 };
+
+inline unsigned int WGridRegular3D::getNbCoordsX() const
+{
+    return m_nbPosX;
+}
+
+inline unsigned int WGridRegular3D::getNbCoordsY() const
+{
+    return m_nbPosY;
+}
+
+inline unsigned int WGridRegular3D::getNbCoordsZ() const
+{
+    return m_nbPosZ;
+}
+
+inline double WGridRegular3D::getOffsetX() const
+{
+    return m_directionX.norm();
+}
+
+inline double WGridRegular3D::getOffsetY() const
+{
+    return m_directionY.norm();
+}
+
+inline double WGridRegular3D::getOffsetZ() const
+{
+    return m_directionZ.norm();
+}
+
+inline const wmath::WVector3D& WGridRegular3D::getDirectionX() const
+{
+    return m_directionX;
+}
+
+inline const wmath::WVector3D& WGridRegular3D::getDirectionY() const
+{
+    return m_directionY;
+}
+
+inline const wmath::WVector3D& WGridRegular3D::getDirectionZ() const
+{
+    return m_directionZ;
+}
+
+inline wmath::WPosition WGridRegular3D::getOrigin() const
+{
+    return m_origin;
+}
+
 
 #endif  // WGRIDREGULAR3D_H

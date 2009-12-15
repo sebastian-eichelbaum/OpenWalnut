@@ -27,7 +27,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WIOTools.hpp"
+#include "../WIOTools.h"
 
 /**
  * Unit test helper functions in the wiotools namespace

@@ -33,7 +33,7 @@
 #include "../WMMarchingCubes.h"
 #include "../../../common/WLogger.h"
 #include "../../../math/WPosition.h"
-#include "../../../dataHandler/io/WIOTools.hpp"
+#include "../../../dataHandler/io/WIOTools.h"
 
 static WLogger logger;
 static bool loggerInitialized = false;

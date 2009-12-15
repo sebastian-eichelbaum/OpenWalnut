@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "../common/WConditionOneShot.h"
-#include "../common/WFlag.hpp"
+#include "../common/WFlag.h"
 
 #include "WGUI.h"
 

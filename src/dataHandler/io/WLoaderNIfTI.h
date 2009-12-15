@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../WLoader.h"
-#include "../../math/WMatrix.hpp"
+#include "../../math/WMatrix.h"
 
 #include "nifti/nifti1_io.h"
 

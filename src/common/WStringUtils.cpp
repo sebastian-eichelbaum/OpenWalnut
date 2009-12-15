@@ -28,7 +28,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "WStringUtils.hpp"
+#include "WStringUtils.h"
 
 const std::string string_utils::WHITESPACE( "\r\n\t " );
 

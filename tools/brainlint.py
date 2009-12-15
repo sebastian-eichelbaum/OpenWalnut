@@ -1948,12 +1948,13 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, error):
     error(filename, linenum, 'whitespace/indent', 3,
           'Weird number of spaces at line-start.  '
           'Are you using a 2-space indent?')
-  # Labels should never be indented
-  elif initial_spaces and line[:2] != '//' and Search(r'[^:]:\s*$', line) and not Search(r'(case|default)', line):
-    error(filename, linenum, 'whitespace/labels', 4,
-          'Labels should never be indented.  '
-          'If this is a member-initializer list in a constructor, '
-          'the colon should be indented on the line after the definition header.')
+# Disabled, since it doesn't work with namespaces and nested classes
+#  # Labels should never be indented
+#  elif initial_spaces and line[:2] != '//' and Search(r'[^:]:\s*$', line) and not Search(r'(case|default)', line):
+#    error(filename, linenum, 'whitespace/labels', 4,
+#          'Labels should never be indented.  '
+#          'If this is a member-initializer list in a constructor, '
+#          'the colon should be indented on the line after the definition header.')
   # initializer lists should be indented too!
   elif not ( initial_spaces > 0 and initial_spaces % 4 == 0 ) and Search(r'^\s*:', line):
     error(filename, linenum, 'whitespace/lables', 4,

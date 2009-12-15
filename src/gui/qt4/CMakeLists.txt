@@ -26,7 +26,7 @@ SET(GUI_QT4_MOC_HDRS
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.[c,h]pp" "guiElements/*cpp" "datasetbrowser/*cpp" "ribbonMenu/*cpp" )
+FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*cpp" "datasetbrowser/*cpp" "ribbonMenu/*cpp" )
 
 ADD_LIBRARY( guiqt4 SHARED ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 

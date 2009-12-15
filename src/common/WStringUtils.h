@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSTRINGUTILS_HPP
-#define WSTRINGUTILS_HPP
+#ifndef WSTRINGUTILS_H
+#define WSTRINGUTILS_H
 
 #include <algorithm>
 #include <iostream>
@@ -161,4 +161,4 @@ namespace string_utils
     }
 }  // end of namespace
 
-#endif  // WSTRINGUTILS_HPP
+#endif  // WSTRINGUTILS_H

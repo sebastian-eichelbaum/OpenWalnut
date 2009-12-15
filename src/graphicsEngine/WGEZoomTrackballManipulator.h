@@ -57,6 +57,7 @@ public:
     /**
      * Move the camera to the default position.
      * May be ignored by manipulators if home functionality is not appropriate.
+     * \param currentTime Variable specified in osg class but not used.
      */
     virtual void home( double currentTime );
 
@@ -66,20 +67,14 @@ public:
     virtual bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
     /**
-     * Get zoom faktor.
+     * Get zoom factor.
      */
-    double getZoom() const
-    {
-        return m_zoom;
-    }
+    double getZoom() const;
 
     /**
-     * Set zoom faktor.
+     * Set zoom factor.
      */
-    void setZoom( double zoom )
-    {
-        m_zoom = zoom;
-    }
+    void setZoom( double zoom );
 
 protected:
 private:
@@ -91,5 +86,15 @@ private:
 
     double m_zoom; //!< Zoom factor.
 };
+
+inline double WGEZoomTrackballManipulator::getZoom() const
+{
+    return m_zoom;
+}
+
+inline void WGEZoomTrackballManipulator::setZoom( double zoom )
+{
+    m_zoom = zoom;
+}
 
 #endif  // WGEZOOMTRACKBALLMANIPULATOR_H

@@ -46,10 +46,10 @@ osg::Matrixd WGEZoomTrackballManipulator::getInverseMatrix() const
     return TrackballManipulator::getInverseMatrix() * osg::Matrixd::scale( m_zoom, m_zoom, 1.0 );
 }
 
-void WGEZoomTrackballManipulator::home( double currentTime )
+void WGEZoomTrackballManipulator::home( double /* currentTime */ )
 {
     m_zoom = 1.0;
-    TrackballManipulator::home( currentTime );
+    TrackballManipulator::home( 0 /* currentTime */ );
 }
 
 bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )

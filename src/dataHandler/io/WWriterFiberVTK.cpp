@@ -29,7 +29,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WWriterFiberVTK.h"
-#include "WIOTools.hpp"
+#include "WIOTools.h"
 #include "../WDataSetFibers.h"
 #include "../exceptions/WDHIOFailure.h"
 

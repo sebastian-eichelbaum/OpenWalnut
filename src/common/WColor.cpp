@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "WColor.h"
-#include "WStringUtils.hpp"
+#include "WStringUtils.h"
 
 WColor::WColor( float red, float green, float blue, float alpha )
     :   m_red( red ),
@@ -84,11 +84,6 @@ float WColor::getBlue() const
 float WColor::getAlpha() const
 {
     return m_alpha;
-}
-
-osg::Vec4 WColor::getOSGColor() const
-{
-    return osg::Vec4( m_red, m_green, m_blue, m_alpha );
 }
 
 void WColor::setRGB( double r, double g, double b )

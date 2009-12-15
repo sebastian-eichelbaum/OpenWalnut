@@ -30,7 +30,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WDataSetSingle.h"
-#include "../WValueSet.hpp"
+#include "../WValueSet.h"
 #include "../WGrid.h"
 #include "../WDataHandlerEnums.h"
 

@@ -32,7 +32,7 @@
 #include "boost/signals2/signal.hpp"
 
 #include "../common/WThreadedRunner.h"
-#include "../common/WFlag.hpp"
+#include "../common/WFlag.h"
 #include "../kernel/WModule.h"
 
 

@@ -30,7 +30,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WStringUtils.hpp"
+#include "../WStringUtils.h"
 
 namespace su = string_utils;
 

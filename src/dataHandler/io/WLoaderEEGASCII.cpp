@@ -32,7 +32,7 @@
 #include "../WSubject.h"
 #include "../WEEG.h"
 #include "../../common/WException.h"
-#include "../../common/WStringUtils.hpp"
+#include "../../common/WStringUtils.h"
 
 WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
     : WLoader( fileName, dataHandler )

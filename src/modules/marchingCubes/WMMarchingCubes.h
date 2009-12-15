@@ -34,7 +34,7 @@
 #include <osg/Uniform>
 
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.hpp"
+#include "../../kernel/WModuleInputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "WTriangleMesh.h"
 

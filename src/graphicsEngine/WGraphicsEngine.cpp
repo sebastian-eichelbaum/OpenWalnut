@@ -23,23 +23,22 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
-
 #include <list>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <osgViewer/Viewer>
+#include <osg/Vec4>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
+#include <osgViewer/Viewer>
 
-#include "exceptions/WGEInitFailed.h"
-#include "../common/WLogger.h"
 #include "../common/WColor.h"
-#include "WGraphicsEngine.h"
+#include "../common/WLogger.h"
 #include "WGEViewer.h"
-
+#include "WGraphicsEngine.h"
+#include "exceptions/WGEInitFailed.h"
 
 WGraphicsEngine::WGraphicsEngine():
     WThreadedRunner()
@@ -145,3 +144,7 @@ void WGraphicsEngine::notifyStop()
     m_Viewer->setDone( true );
 }
 
+osg::Vec4 wge::osgColor( const WColor& color )
+{
+    return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
+}

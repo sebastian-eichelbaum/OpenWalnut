@@ -33,7 +33,7 @@
 #include "../../dataHandler/io/WLoaderBiosig.h"
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
 #include "../../dataHandler/io/WLoaderFibers.h"
-#include "../../dataHandler/io/WIOTools.hpp"
+#include "../../dataHandler/io/WIOTools.h"
 
 #include "../../dataHandler/WDataTexture3D.h"
 #include "WMData.h"

@@ -25,7 +25,7 @@
 #include <string>
 
 #include "WDataTexture3D.h"
-#include "WValueSet.hpp"
+#include "WValueSet.h"
 #include "WGrid.h"
 #include "../common/WPrototyped.h"
 

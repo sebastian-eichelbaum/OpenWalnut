@@ -1,7 +1,7 @@
 ADD_SUBDIRECTORY( fiberSimilarity )
 
-FILE( GLOB MATH_SRC "*.[c,h]pp" )
-FILE( GLOB FIBERSIMILARITY_SRC "fiberSimilarity/*.[c,h]pp" )
+FILE( GLOB MATH_SRC "*.cpp" )
+FILE( GLOB FIBERSIMILARITY_SRC "fiberSimilarity/*.cpp" )
 
 ADD_LIBRARY( math SHARED ${MATH_SRC} ${FIBERSIMILARITY_SRC} )
 

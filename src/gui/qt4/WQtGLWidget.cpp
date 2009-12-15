@@ -30,7 +30,7 @@
 #include "WQtGLWidget.h"
 
 #include "../../graphicsEngine/WGEViewer.h"
-#include "../../common/WFlag.hpp"
+#include "../../common/WFlag.h"
 #include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
 

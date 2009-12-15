@@ -35,7 +35,7 @@
 #include "../../dataHandler/WDataSet.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleInputData.hpp"
+#include "../../kernel/WModuleInputData.h"
 
 /**
  * class that implements the various coordinate systems as overlays within the 3D view

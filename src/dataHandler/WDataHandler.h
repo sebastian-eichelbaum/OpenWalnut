@@ -29,7 +29,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include "../gui/qt4/signalslib.hpp"
+#include "../gui/qt4/signalslib.h"
 #include <boost/enable_shared_from_this.hpp>
 
 #include "WDataSet.h"
