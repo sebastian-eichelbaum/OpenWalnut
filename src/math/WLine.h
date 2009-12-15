@@ -43,6 +43,11 @@ namespace wmath
 class WLine
 {
 friend class ::WLineTest;
+// The following friend IS documented in this file
+// \cond
+friend std::ostream& operator<<( std::ostream& os, const WLine &rhs );
+// \endcond
+
 public:
     /**
      * Constructs a new line with the given points in the given order
@@ -75,14 +80,6 @@ public:
      */
     const WPosition& operator[]( size_t index ) const;
 
-    /**
-     * Gives a meaningful representation of this object to the given
-     * output stream.
-     *
-     * \param os The outputstream
-     * \param rhs Right hand side operand
-     */
-    friend std::ostream& operator<<( std::ostream& os, const WLine &rhs );
 
 protected:
 private:
@@ -110,6 +107,13 @@ inline const WPosition& WLine::operator[]( size_t index ) const
     return m_points[index];
 }
 
+/**
+ * Gives a meaningful representation of this object to the given
+ * output stream.
+ *
+ * \param os The outputstream
+ * \param rhs Right hand side operand
+ */
 inline std::ostream& operator<<( std::ostream& os, const WLine &rhs )
 {
     using string_utils::operator<<;

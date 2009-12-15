@@ -45,35 +45,33 @@ public:
     /**
      * Constructs basic Loader with access to the DataHandler (for inserting
      * new stuff) and a file name.
+     *
+     *\param fileName Path to be loaded
+     *\param dataHanlder A pointer where the loaded data set are stored
+     *\throw WDHIOFailure in case of an error
      */
     explicit WLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHanlder ) throw( WDHIOFailure );
 
+    /**
+     * Destructor is virtual since there are virtual methods.
+     */
     virtual ~WLoader()
     {
     };
 
     /**
      * Loads the dataset.
-     * 
+     *
      * \return the dataset loaded.
      */
     virtual boost::shared_ptr< WDataSet > load() = 0;
 
 protected:
-    /**
-     * Name of file to load.
-     */
-    std::string m_fileName;
+    std::string m_fileName; //!< Name of file to load.
 
-    /**
-     * Reference to DataHandler
-     */
-    boost::shared_ptr< WDataHandler > m_dataHandler;
+    boost::shared_ptr< WDataHandler > m_dataHandler; //!< Reference to DataHandler
 
-    /**
-     * Commit new data into the DataHandler.
-     */
-    void commitDataSet( boost::shared_ptr< WDataSet > data );
+    void commitDataSet( boost::shared_ptr< WDataSet > data ); //!< Commit new data into the DataHandler.
 
 private:
 };

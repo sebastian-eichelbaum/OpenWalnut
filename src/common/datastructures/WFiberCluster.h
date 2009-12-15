@@ -45,7 +45,6 @@ public:
      * to compute the intercluster distance.
      *
      * \param index The index of the first fiber belonging to this cluster
-     * \param fibs Reference to the fiber dataset
      */
     explicit WFiberCluster( size_t index );
 

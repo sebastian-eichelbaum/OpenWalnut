@@ -61,10 +61,15 @@ class WMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    /**
+     * Constructor of the main window
+     * \param guiConfiguration configuration information taken from config file or command line
+     */
     explicit WMainWindow( boost::program_options::variables_map guiConfiguration );
 
     /**
      * Set up all widgets menus an buttons in the main window.
+     * \param guiConfiguration configuration information taken from config file or command line
      */
     void setupGUI( boost::program_options::variables_map guiConfiguration );
 
@@ -123,6 +128,7 @@ public slots:
 
     /**
      * get called when a module button
+     * \param module name of teh module
      */
     void slotActivateModule( QString module );
 
@@ -133,15 +139,15 @@ private:
 
     WPropertyManager m_propertyManager;
 
-    QWidget* m_centralwidget;
+    QWidget* m_centralwidget; //!< the central widget of the docking facility. Thsi can not be moved.
     WQtRibbonMenu* m_toolBar;
 
     WQtDatasetBrowser* m_datasetBrowser;
 
-    boost::shared_ptr<WQtGLWidget> m_mainGLWidget;
-    boost::shared_ptr< WQtNavGLWidget > m_navAxial;
-    boost::shared_ptr< WQtNavGLWidget > m_navCoronal;
-    boost::shared_ptr< WQtNavGLWidget > m_navSagittal;
+    boost::shared_ptr<WQtGLWidget> m_mainGLWidget; //!< the main GL widget of the GUI
+    boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
+    boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
+    boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal;
 

@@ -92,6 +92,7 @@ public:
 
     /**
      * Sets the background color of the widget.
+     * \param bgColor the new backgorund color
      */
     void setBgColor( WColor bgColor );
 
@@ -143,6 +144,9 @@ protected:
 
     /**
      * Event handler for destroy events (called after close).
+     *
+     * \param destroyWindow flag indicatinng whether to destroy window
+     * \param destroySubWindows flag indicatinng whether to destroy sub windows
      */
     virtual void destroyEvent( bool destroyWindow = true, bool destroySubWindows = true );
 

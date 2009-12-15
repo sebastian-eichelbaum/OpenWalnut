@@ -72,7 +72,7 @@ public:
      * returns a new instance of this method. NOTE: it should never be
      * initialized or modified in some other way. A simple new instance is
      * required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
@@ -93,7 +93,6 @@ private:
      * Generates an osg geode for the given cluster with the given color
      *
      * \param cluster The WFiberCluster which should be drawn
-     * \param color The color, which every fiber of the cluster should have
      * \return geode containing the graphical representation of the cluster
      */
     osg::ref_ptr< osg::Geode > genFiberGeode( const WFiberCluster &cluster ) const;

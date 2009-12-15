@@ -44,26 +44,34 @@ public:
 
     /**
      * Standard way of constructing colors, alpha is optional, and black is default
+     * \param red red value between [0,1]
+     * \param green green value between [0,1]
+     * \param blue blue value between [0,1]
+     * \param alpha opacity value between [0,1]
      */
     WColor( float red = 0.0, float green = 0.0, float blue = 0.0, float alpha = 1.0 );
 
     /**
      * Sets the green channel for this color
+     * \param green green value between [0,1]
      */
     void setGreen( float green );
 
     /**
      * Sets the blue channel for this color
+     * \param blue blue value between [0,1]
      */
     void setBlue( float blue );
 
     /**
      * Sets the red channel for this color
+     * \param red red value between [0,1]
      */
     void setRed( float red );
 
     /**
      * Sets the alpha channel for this color
+     * \param alpha opacity value between [0,1]
      */
     void setAlpha( float alpha );
 
@@ -89,11 +97,17 @@ public:
 
     /**
      * Reset this color via a given HSV color.
+     * \param h hue
+     * \param s saturation
+     * \param v value
      */
     void setHSV( double h, double s, double v );
 
     /**
      * Reset all channels at once.
+     * \param r red value between [0,1]
+     * \param g green value between [0,1]
+     * \param b blue value between [0,1]
      */
     void setRGB( double r, double g, double b );
 

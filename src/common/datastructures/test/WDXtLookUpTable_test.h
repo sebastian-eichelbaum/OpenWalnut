@@ -62,6 +62,11 @@ public:
         TS_ASSERT_EQUALS( t( 2, 1 ), 7.7 );
     }
 
+    /**
+     * If new elements are set via the setData() method then it has to be
+     * checked if the dimension is valid for the number of elements which
+     * are given.
+     */
     void testSetDataWithInvalidLengthForDimension( void )
     {
         WDXtLookUpTable t( 4 );
@@ -70,6 +75,9 @@ public:
         TS_ASSERT_THROWS_EQUALS( t.setData( data ), WOutOfBounds &e, std::string( e.what() ), "Data vector length: 3 doesn't fit to dimension: 4" );
     }
 
+    /**
+     * Accessing diagonal elements is forbidden and an exception should be thrown
+     */
     void testInvalidAccessOnMainDiagonal( void )
     {
         WDXtLookUpTable t( 4 );

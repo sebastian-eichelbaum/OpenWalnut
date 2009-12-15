@@ -41,12 +41,14 @@ public:
     /**
      * Constructs a loader to be executed in its own thread and sets the data needed
      * for the loader when executed in its own thread.
+     * \param fileName this file will be loaded
+     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
     WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
 
     /**
      * Loads the dataset.
-     * 
+     *
      * \return the dataset loaded.
      */
     virtual boost::shared_ptr< WDataSet > load();

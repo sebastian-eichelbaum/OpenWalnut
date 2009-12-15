@@ -280,10 +280,10 @@ private:
 class SurfaceNodeCallback : public osg::NodeCallback
 {
 public:
-	/**
-	 * Constructor of the callback adapter.
-	 * \param module A function of this module will be called
-	 */
+    /**
+     * Constructor of the callback adapter.
+     * \param module A function of this module will be called
+     */
     explicit SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module );
 
     /**

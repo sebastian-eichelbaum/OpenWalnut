@@ -111,6 +111,7 @@ public:
 
     /**
      * Searchs for a viewer with a given name and returns it, if found.
+     * \param name The name of the viewer
      */
     boost::shared_ptr<WGEViewer> getViewerByName( std::string name );
 
