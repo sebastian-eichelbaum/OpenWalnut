@@ -25,6 +25,8 @@
 #ifndef WCONDITION_H
 #define WCONDITION_H
 
+#include <boost/function.hpp>
+#include <boost/signals2/signal.hpp>
 #include <boost/thread.hpp>
 
 /**
@@ -51,12 +53,43 @@ public:
      */
     virtual void wait() const;
 
-    /** 
+    /**
      * Notifies all waiting threads.
      */
     virtual void notify();
 
+    /**
+     * Type used for signalling condition changes.
+     */
+    typedef boost::function<void ( boost::shared_ptr< WCondition > )> t_ConditionNotifierType;
+
+    /**
+     * Subscribes a specified function to be notified on condition change.
+     *
+     * \param notifier the notifier function
+     *
+     * \return the connection.
+     */
+    boost::signals2::connection subscribeSignal( t_ConditionNotifierType notifier );
+
+    /**
+     * Disconnects a specified function from the signal.
+     *
+     * \param notifier the notifier function
+     */
+    void unsubscribeSignal( t_ConditionNotifierType notifier );
+
 protected:
+
+    /**
+     * Type used for condition notification.
+     */
+    typedef boost::signals2::signal<void ( boost::shared_ptr< WCondition > )>  t_ConditionSignalType;
+
+    /**
+     * Signal getting fired whenever the condition fires.
+     */
+    t_ConditionSignalType signal_ConditionFired;
 
     /**
      * The condition.

@@ -36,9 +36,9 @@ class WFlag
 {
 public:
 
-    /** 
+    /**
      * Constructor. Uses a given condition to realize the wait/notify functionality.
-     * 
+     *
      * \param condition the condition to use. NOTE: can also be a WConditionOneShot.
      * \param initial the initial value of this flag
      */
@@ -49,47 +49,47 @@ public:
      */
     virtual ~WFlag();
 
-    /** 
+    /**
      * Operator returns value of the flag.
-     * 
+     *
      * \return the value.
      */
     virtual const T get() const;
 
-    /** 
+    /**
      * Operator returns value of the flag.
-     * 
+     *
      * \return the value.
      */
     virtual const T operator()() const;
 
-    /** 
+    /**
      * Wait for the flag to change its value.
      */
     virtual void wait() const;
 
-    /** 
+    /**
      * Sets the new value for this flag. Also notifies waiting threads.
-     * 
+     *
      * \param value the new value
      */
     virtual void set( T value );
 
-    /** 
+    /**
      * Sets the new value for this flag. Also notifies waiting threads.
-     * 
+     *
      * \param value the new value
      */
     virtual void operator()( T value );
 
 protected:
 
-    /** 
+    /**
      * The condition to be used for waiting/notifying. Please note, that it gets deleted during destruction.
      */
     WCondition* m_condition;
 
-    /** 
+    /**
      * The flag value.
      */
     T m_flag;
@@ -97,7 +97,7 @@ protected:
 private:
 };
 
-/** 
+/**
  * Alias for easy usage of WFLag< bool >.
  */
 typedef WFlag< bool > WBoolFlag;

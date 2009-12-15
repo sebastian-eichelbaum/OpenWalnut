@@ -22,35 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WCondition.h"
+#include "WConditionSet.h"
 
-WCondition::WCondition()
+WConditionSet::WConditionSet():
+    WCondition()
 {
-    // initialize members
 }
 
-WCondition::~WCondition()
+WConditionSet::~WConditionSet()
 {
-    // cleanup
+    // clean conditions list
+    m_conditionSet.clear();
 }
 
-void WCondition::wait() const
+void WConditionSet::add( boost::shared_ptr< WCondition > condition )
 {
-    m_condition.wait( m_mutex );
+    // get write lock
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_conditionSetLock );
+    m_conditionSet.insert( condition );
+    lock.unlock();
+
+    condition->subscribeSignal( boost::bind( &WConditionSet::conditionFired, this, _1 ) );
 }
 
-void WCondition::notify()
+void WConditionSet::remove( boost::shared_ptr< WCondition > condition )
 {
-    m_condition.notify_all();
+    condition->unsubscribeSignal( boost::bind( &WConditionSet::conditionFired, this, _1 ) );
+
+    // get write lock
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_conditionSetLock );
+    m_conditionSet.erase( condition );
+    lock.unlock();
 }
 
-boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType notifier )
+void WConditionSet::conditionFired( boost::shared_ptr< WCondition > /* con */ )
 {
-    return signal_ConditionFired.connect( notifier );
-}
-
-void WCondition::unsubscribeSignal( t_ConditionNotifierType notifier )
-{
-    signal_ConditionFired.disconnect( &notifier );
+    notify();
 }
 
