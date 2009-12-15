@@ -256,21 +256,21 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
 
                 // Now create a triangulation of the isosurface in this
                 // cell.
-                if( m_edgeTable[tableIndex] != 0 )
+                if( wMarchingCubesCaseTables::edgeTable[tableIndex] != 0 )
                 {
-                    if( m_edgeTable[tableIndex] & 8 )
+                    if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 8 )
                     {
                         WPointXYZId pt = calculateIntersection( vals, x, y, z, 3 );
                         unsigned int id = getEdgeID( x, y, z, 3 );
                         m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                     }
-                    if( m_edgeTable[tableIndex] & 1 )
+                    if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 1 )
                     {
                         WPointXYZId pt = calculateIntersection( vals, x, y, z, 0 );
                         unsigned int id = getEdgeID( x, y, z, 0 );
                         m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                     }
-                    if( m_edgeTable[tableIndex] & 256 )
+                    if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 256 )
                     {
                         WPointXYZId pt = calculateIntersection( vals, x, y, z, 8 );
                         unsigned int id = getEdgeID( x, y, z, 8 );
@@ -279,13 +279,13 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
 
                     if( x == m_nCellsX - 1 )
                     {
-                        if( m_edgeTable[tableIndex] & 4 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 4 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 2 );
                             unsigned int id = getEdgeID( x, y, z, 2 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                        if( m_edgeTable[tableIndex] & 2048 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 2048 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 11 );
                             unsigned int id = getEdgeID( x, y, z, 11 );
@@ -294,13 +294,13 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
                     }
                     if( y == m_nCellsY - 1 )
                     {
-                        if( m_edgeTable[tableIndex] & 2 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 2 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 1 );
                             unsigned int id = getEdgeID( x, y, z, 1 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                        if( m_edgeTable[tableIndex] & 512 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 512 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 9 );
                             unsigned int id = getEdgeID( x, y, z, 9 );
@@ -309,13 +309,13 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
                     }
                     if( z == m_nCellsZ - 1 )
                     {
-                        if( m_edgeTable[tableIndex] & 16 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 16 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 4 );
                             unsigned int id = getEdgeID( x, y, z, 4 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
-                        if( m_edgeTable[tableIndex] & 128 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 128 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 7 );
                             unsigned int id = getEdgeID( x, y, z, 7 );
@@ -323,34 +323,34 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
                         }
                     }
                     if( ( x == m_nCellsX - 1 ) && ( y == m_nCellsY - 1 ) )
-                        if( m_edgeTable[tableIndex] & 1024 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 1024 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 10 );
                             unsigned int id = getEdgeID( x, y, z, 10 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
                     if( ( x == m_nCellsX - 1 ) && ( z == m_nCellsZ - 1 ) )
-                        if( m_edgeTable[tableIndex] & 64 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 64 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 6 );
                             unsigned int id = getEdgeID( x, y, z, 6 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
                     if( ( y == m_nCellsY - 1 ) && ( z == m_nCellsZ - 1 ) )
-                        if( m_edgeTable[tableIndex] & 32 )
+                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 32 )
                         {
                             WPointXYZId pt = calculateIntersection( vals, x, y, z, 5 );
                             unsigned int id = getEdgeID( x, y, z, 5 );
                             m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
                         }
 
-                    for( int i = 0; m_triTable[tableIndex][i] != -1; i += 3 )
+                    for( int i = 0; wMarchingCubesCaseTables::triTable[tableIndex][i] != -1; i += 3 )
                     {
                         WMCTriangle triangle;
                         unsigned int pointID0, pointID1, pointID2;
-                        pointID0 = getEdgeID( x, y, z, m_triTable[tableIndex][i] );
-                        pointID1 = getEdgeID( x, y, z, m_triTable[tableIndex][i + 1] );
-                        pointID2 = getEdgeID( x, y, z, m_triTable[tableIndex][i + 2] );
+                        pointID0 = getEdgeID( x, y, z, wMarchingCubesCaseTables::triTable[tableIndex][i] );
+                        pointID1 = getEdgeID( x, y, z, wMarchingCubesCaseTables::triTable[tableIndex][i + 1] );
+                        pointID2 = getEdgeID( x, y, z, wMarchingCubesCaseTables::triTable[tableIndex][i + 2] );
                         triangle.pointID[0] = pointID0;
                         triangle.pointID[1] = pointID1;
                         triangle.pointID[2] = pointID2;

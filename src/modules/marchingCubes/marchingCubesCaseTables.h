@@ -37,7 +37,9 @@
 
 #include "WMMarchingCubes.h"
 
-const unsigned int WMMarchingCubes::m_edgeTable[256] =
+namespace wMarchingCubesCaseTables
+{
+const unsigned int edgeTable[256] =
 { 0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09,  // NOLINT
   0xf00, 0x190, 0x99, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a,
   0xc93, 0xf99, 0xe90, 0x230, 0x339, 0x33, 0x13a, 0x636, 0x73f, 0x435, 0x53c, 0xa3c, 0xb35, 0x83f,
@@ -58,7 +60,7 @@ const unsigned int WMMarchingCubes::m_edgeTable[256] =
   0x190, 0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a,
   0x203, 0x109, 0x0 };  // NOLINT
 
-const int WMMarchingCubes::m_triTable[256][16] =
+const int triTable[256][16] =
 {
     { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // NOLINT
     { 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // NOLINT
@@ -316,5 +318,6 @@ const int WMMarchingCubes::m_triTable[256][16] =
     { 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // NOLINT
     { 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },  // NOLINT
     { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } };  // NOLINT
+}
 
 #endif  // MARCHINGCUBESCASETABLES_H
