@@ -27,7 +27,7 @@
 
 #include <sstream>
 
-#include "WValueTraitsBase.h"
+#include "WTraitsBase.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
@@ -37,7 +37,7 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with stream positions, so
  * you see immedeatly what is failing.
  */
-class ValueTraits< std::streampos > : public WValueTraitsBase
+class ValueTraits< std::streampos > : public WTraitsBase
 {
 public:
     /**

@@ -22,38 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WFIBERTRAITS_H
-#define WFIBERTRAITS_H
+#ifndef WTRAITSBASE_H
+#define WTRAITSBASE_H
 
-#include <sstream>
+#include <string>
 
-#include <cxxtest/TestSuite.h>
-#include <cxxtest/ValueTraits.h>
-
-#include "../../math/WFiber.h"
-#include "WValueTraitsBase.h"
-
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Enables better UnitTest OutPut if something fails with WFibers, so you see
- * immedeatly what is failing.
+ * Base class to all custom Value Traits for CxxTest. This is mainly not to
+ * rewrite the asString method again and again until my fingers are bleeding
+ * and hurt! ;)
  */
-class ValueTraits< wmath::WFiber > : public WValueTraitsBase
+class WTraitsBase
 {
 public:
     /**
-     * Constructs a new ValueTrait of a WFiber for better test output
+     * \return A WFiber as char array aka string
      */
-    explicit ValueTraits( const wmath::WFiber &fib )
-    {
-        std::stringstream ss;
-        ss << "WFiber(" << fib << ")";
-        m_s = ss.str();
-    }
+    const char *asString() const;
+
+protected:
+    std::string m_s; // storing the string representation for output
 };
+
+inline const char* WTraitsBase::asString() const
+{
+    return m_s.c_str();
 }
-#endif  // CXXTEST_RUNNING
-#endif  // WFIBERTRAITS_H
+#endif  // WTRAITSBASE_H

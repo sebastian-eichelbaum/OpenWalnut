@@ -22,30 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WVALUETRAITSBASE_H
-#define WVALUETRAITSBASE_H
+#ifndef WVECTOR3DTRAITS_H
+#define WVECTOR3DTRAITS_H
 
-#include <string>
+#include <sstream>
 
+#include <cxxtest/TestSuite.h>
+#include <cxxtest/ValueTraits.h>
+
+#include "../../common/test/WTraitsBase.h"
+#include "../WVector3D.h"
+
+#ifdef CXXTEST_RUNNING
+namespace CxxTest
+{
+CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Base class to all custom Value Traits for CxxTest. This is mainly not to
- * rewrite the asString method again and again until my fingers are bleeding
- * and hurt! ;)
+ * Enables better UnitTest OutPut if something fails with WFibers, so you see
+ * immedeatly what is failing.
  */
-class WValueTraitsBase
+class ValueTraits< wmath::WVector3D > : public WTraitsBase
 {
 public:
     /**
-     * \return A WFiber as char array aka string
+     * Constructor for class allowing usable output of WVector3D in tests
+     *
+     * \param m the WVector to print
      */
-    const char *asString() const;
-
-protected:
-    std::string m_s; // storing the string representation for output
+    explicit ValueTraits( const wmath::WVector3D &m )
+    {
+        std::stringstream tmp;
+        tmp.precision( 16 );
+        tmp << "WVector3D( " << m[0] << " " << m[1] << " " << m[2] << " )";
+        m_s = tmp.str();
+    }
 };
-
-inline const char* WValueTraitsBase::asString() const
-{
-    return m_s.c_str();
 }
-#endif  // WVALUETRAITSBASE_H
+#endif  // CXXTEST_RUNNING
+#endif  // WVECTOR3DTRAITS_H

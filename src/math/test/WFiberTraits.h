@@ -22,16 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WVECTOR3DTRAITS_H
-#define WVECTOR3DTRAITS_H
+#ifndef WFIBERTRAITS_H
+#define WFIBERTRAITS_H
 
 #include <sstream>
 
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
-#include "../../math/WVector3D.h"
-#include "WValueTraitsBase.h"
+#include "../../common/test/WTraitsBase.h"
+#include "../WFiber.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
@@ -41,22 +41,19 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WFibers, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WVector3D > : public WValueTraitsBase
+class ValueTraits< wmath::WFiber > : public WTraitsBase
 {
 public:
     /**
-     * Constructor for class allowing usable output of WVector3D in tests
-     *
-     * \param m the WVector to print
+     * Constructs a new ValueTrait of a WFiber for better test output
      */
-    explicit ValueTraits( const wmath::WVector3D &m )
+    explicit ValueTraits( const wmath::WFiber &fib )
     {
-        std::stringstream tmp;
-        tmp.precision( 16 );
-        tmp << "WVector3D( " << m[0] << " " << m[1] << " " << m[2] << " )";
-        m_s = tmp.str();
+        std::stringstream ss;
+        ss << "WFiber(" << fib << ")";
+        m_s = ss.str();
     }
 };
 }
 #endif  // CXXTEST_RUNNING
-#endif  // WVECTOR3DTRAITS_H
+#endif  // WFIBERTRAITS_H
