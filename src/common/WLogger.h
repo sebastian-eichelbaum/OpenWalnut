@@ -46,6 +46,8 @@ class WLogger: public WThreadedRunner
 public:
     /**
      * Constructor
+     * \param fileName the log will be stored in this file
+     * \param level logging level, i.e. verboseness
      */
     WLogger( std::string fileName = "walnut.log", LogLevel level = LL_DEBUG );
 
@@ -89,42 +91,42 @@ public:
 
     /**
      * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
-     * 
+     *
      * \param colors true if colors should be used.
      */
     void setColored( bool colors );
 
     /**
      * Getter determining whether to use colors or not.
-     * 
+     *
      * \return true if colors should be used.
      */
     bool isColored();
 
     /**
      * Set the default format used for log entries.
-     * 
+     *
      * \param format the format string. See WLogEntry for details.
      */
     void setDefaultFormat( std::string format );
 
     /**
      * Gets the default format used for log entries.
-     * 
+     *
      * \return format string. See WLogEntry for details.
      */
     std::string getDefaultFormat();
 
     /**
      * Set the default format used for log entries in log files.
-     * 
+     *
      * \param format the format string. See WLogEntry for details.
      */
     void setDefaultFileFormat( std::string format );
 
     /**
      * Gets the default format used for log entries in log files.
-     * 
+     *
      * \return format string. See WLogEntry for details.
      */
     std::string getDefaultFileFormat();
@@ -247,7 +249,7 @@ namespace wlog
 
 
         /**
-         * This is totally crazy man! Don't get dizzy on that, watch out and 
+         * This is totally crazy man! Don't get dizzy on that, watch out and
          * ask a C++ guru next to your side, which is probably named Christian
          * or have a look on that: http://stackoverflow.com/questions/1134388/stdendl-is-of-unknown-type-when-overloading-operator
          *

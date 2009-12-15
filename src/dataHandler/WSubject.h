@@ -50,6 +50,7 @@ public:
 
     /**
      * Allows to give the subject a name during construction
+     * \param name name of the subject
      */
     explicit WSubject( std::string name );
 
@@ -74,6 +75,8 @@ public:
 
     /**
      * Insert a new DataSet referenced by a pointer.
+     *
+     * \param newDataSet This WDataSet will be added
      */
     void addDataSet( boost::shared_ptr< WDataSet > newDataSet );
 

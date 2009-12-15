@@ -39,6 +39,9 @@ class Dummy : public WValueSetBase
 friend class WValueSetBaseTest;
 
 public:
+    /**
+     * Standar constructor of Dummy class.
+     */
     Dummy()
         : WValueSetBase( 0, 1, W_DT_INT8 )
     {
@@ -46,6 +49,7 @@ public:
 
     /**
      * Constructor of Dummy class for testing
+     * \param dimension tensor dimension
      */
     explicit Dummy( char dimension )
         : WValueSetBase( 0, dimension, W_DT_INT8 )
