@@ -45,7 +45,7 @@ public:
     /**
      * standard constructor
      */
-    explicit WProperties();
+    WProperties();
 
     /**
      * destructor
@@ -54,11 +54,15 @@ public:
 
     /**
      * sets a flag hidden, which can be used by the datasetbrowser for instance
+     *
+     * \param name of the property to hide
      */
     void hideProperty( std::string name );
 
     /**
      * sets a flag hidden, which can be used by the datasetbrowser for instance
+     *
+     * \param name name of the property to unhide
      */
     void unhideProperty( std::string name );
 
@@ -67,23 +71,118 @@ public:
      */
     std::vector< WProperty* >& getPropertyVector();
 
+    /**
+     * adds a boolean property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
     boost::signals2::signal1< void, std::string >*
         addBool( std::string name, bool value = false, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+
+    /**
+     * adds a char property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
     boost::signals2::signal1< void, std::string >*
         addChar( std::string name, char value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+
+    /**
+     * adds an integer property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
     boost::signals2::signal1< void, std::string >*
         addInt( std::string name, int value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+
+    /**
+     * adds a float property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
     boost::signals2::signal1< void, std::string >*
         addFloat( std::string name, float value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+
+    /**
+     * adds a double property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
     boost::signals2::signal1< void, std::string >*
         addDouble( std::string name, double value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+
+    /**
+     * adds a string property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
     boost::signals2::signal1< void, std::string >*
         addString( std::string name, std::string value = "", bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+
+    /**
+     * adds a color property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
     boost::signals2::signal1< void, std::string >*
         addColor( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
+    /**
+     * getter for the value of a property as std string
+     *
+     * \param prop the name of the property
+     * \return string of property
+     */
     std::string getValueString( const std::string prop );
 
+    /**
+     * sets the value of an existing property
+     *
+     * \param prop string with name of property
+     * \param arg value
+     */
     template < typename T >  void setValue( std::string prop, const T& arg )
     {
         boost::shared_lock< boost::shared_mutex > slock;
@@ -97,6 +196,12 @@ public:
         slock.unlock();
     }
 
+    /**
+     * sets the minimum value of an existing property
+     *
+     * \param prop string with name of property
+     * \param arg value
+     */
     template < typename T >  void setMin( std::string prop, const T& arg )
     {
         if( findProp( prop ) )
@@ -105,6 +210,12 @@ public:
         }
     }
 
+    /**
+     * sets the maximum value of an existing property
+     *
+     * \param prop string with name of property
+     * \param arg value
+     */
     template < typename T >  void setMax( std::string prop, const T& arg )
     {
         if( findProp( prop ) )
@@ -113,6 +224,12 @@ public:
         }
     }
 
+    /**
+     * returns the value of an existing property
+     *
+     * \param prop name of the property
+     * \return the value
+     */
     template < typename T >  T  getValue( std::string prop )
     {
         if( findProp( prop ) )
@@ -124,6 +241,12 @@ public:
         return 0;
     }
 
+    /**
+     * returns the minimum value of an existing property
+     *
+     * \param prop name of the property
+     * \return the minimum value
+     */
     template < typename T >  T  getMin( std::string prop )
     {
         if( findProp( prop ) )
@@ -135,6 +258,12 @@ public:
         return 0;
     }
 
+    /**
+     * returns the maximum value of an existing property
+     *
+     * \param prop name of the property
+     * \return the maximum value
+     */
     template < typename T >  T  getMax( std::string prop )
     {
         if( findProp( prop ) )
@@ -148,12 +277,28 @@ public:
 
 
 private:
+    /**
+     * helper function that finds a property by its name
+     *
+     * \param name
+     * \return pointer to a WProperty object
+     */
     WProperty* findProp( std::string name );
 
+    /**
+     * map of properties for easy access with name string
+     */
     std::map < std::string, WProperty* > m_propertyList;
 
+    /**
+     * vector of properties to retain the order of creation so that widgets created from this
+     * properties object always look the same
+     */
     std::vector< WProperty* > m_propertyVector;
 
+    /**
+     * boost mutex object for thread safety of updating of properties
+     */
     boost::shared_mutex m_updateLock;
 };
 
