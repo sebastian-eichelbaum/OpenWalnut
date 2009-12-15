@@ -40,6 +40,8 @@ class DummyLoader : public WLoader
 public:
     /**
      * Constructor of Dummy class for testing of WLoader
+     * \param fileName this file will be loaded
+     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
     explicit DummyLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
         : WLoader( fileName, dataHandler )

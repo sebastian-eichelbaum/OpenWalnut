@@ -45,12 +45,14 @@ public:
     /**
      * Constructs a loader to be executed in its own thread and sets the data needed
      * for the loader when executed in its own thread.
+     * \param fileName this file will be loaded
+     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
     WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
 
     /**
      * Loads the dataset.
-     * 
+     *
      * \return the dataset loaded.
      */
     virtual boost::shared_ptr< WDataSet > load();
@@ -59,6 +61,8 @@ protected:
 private:
     /**
      * Fill the data into the segment doing the needed conversions.
+     * \param segment the segment to be filled
+     * \param data the data to be filled into the segment
      */
     void fillSegment( std::vector<std::vector<double> >* segment, biosig_data_type* data );
 

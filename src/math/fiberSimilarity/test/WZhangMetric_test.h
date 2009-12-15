@@ -41,6 +41,7 @@ public:
     /**
      * Creates a dummy subclass from WZhangMetric instance to test the
      * dXt_optimized member function since WZhangMetric is abstract.
+     * \param thresholdSquare the threshold squared.
      */
     explicit Dummy( double thresholdSquare )
         : WZhangMetric( thresholdSquare )
@@ -49,6 +50,8 @@ public:
 
     /**
      * Computes the d_t(Q,R) if m_dtqr is true via inherited dXt_optimized.
+     * \param q first fibers
+     * \param r second fiber
      */
     virtual double dist( const wmath::WFiber &q, const wmath::WFiber &r ) const
     {

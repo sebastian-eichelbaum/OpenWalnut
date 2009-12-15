@@ -51,12 +51,14 @@ public:
     /**
      * Constructs a loader to be executed in its own thread and ets the data needed
      * for the loader when executed in its own thread.
+     * \param fileName this file will be loaded
+     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
     WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
 
     /**
      * Loads the dataset.
-     * 
+     *
      * \return the dataset loaded.
      */
     virtual boost::shared_ptr< WDataSet > load();
@@ -66,12 +68,16 @@ private:
     /**
      * This function allows to copy the data given as a T*
      * by niftilibio into a std::vector< T >
+     * \param dataArray data to copy
+     * \param countVoxels number of voxels stored in dataArray
+     * \param vDim number of values per voxel
      */
     template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t countVoxels, const size_t vDim );
 
     /**
      * This function converts a 4x4 matrix from the NIfTI libs into the format
      * used by OpenWalnut.
+     * \param in this matrix will be converted.
      */
     wmath::WMatrix< double > convertMatrix( const mat44& in );
 };

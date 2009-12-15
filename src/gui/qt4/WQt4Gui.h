@@ -107,6 +107,7 @@ public:
 
     /**
      * this function allows modules to register their property object with the gui
+     * \param properties the properties taht will be registered
      */
     virtual void connectProperties( boost::shared_ptr<WProperties> properties );
 
@@ -138,6 +139,8 @@ private:
      * At the moment it seems reasonable that different GUIs might have
      * different command line options, thus we implement their parsing
      * in the GUI implemntation itself, i.e. here.
+     * \param argc number of arguments given on command line.
+     * \param argv arguments given on command line.
      */
     bool parseOptions( int argc, char** argv );
 };
