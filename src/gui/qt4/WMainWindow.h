@@ -45,6 +45,9 @@
 #include "WIconManager.h"
 #include "WPropertyManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
+
+#include "../../kernel/WModule.h"
+
 // forward declarations
 class WQtGLWidget;
 
@@ -92,10 +95,11 @@ public:
     boost::signals2::signal1< void, std::vector< std::string > >* getLoaderSignal();
 
     /**
+     * Returns the signal emitted by those module buttons in the compatibility tab.
      *
+     * \return the signal.
      */
-    boost::signals2::signal1< void, std::string >* getModuleButtonSignal();
-
+    boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* getModuleButtonSignal();
 
     /**
      *
@@ -141,7 +145,7 @@ private:
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal;
 
-    boost::signals2::signal1< void, std::string > m_moduleButtonSignal;
+    boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > > m_moduleButtonSignal;
 };
 
 #endif  // WMAINWINDOW_H

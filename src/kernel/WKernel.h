@@ -111,12 +111,17 @@ public:
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
      */
-    void slotLoadDataSets( std::vector< std::string > fileNames );
+    void loadDataSets( std::vector< std::string > fileNames );
 
     /**
+     * Function combines to modules. This is a simple alias for "getRootContainer()->applyModule".
      *
+     * \param applyOn the module which already has to be in the container and to apply the other one on.
+     * \param prototype the prototype of the module to apply on the other one specified.
+     *
+     * \return the newly created module connected with the one specified in applyOn.
      */
-    void slotActivateModule( std::string module );
+    boost::shared_ptr< WModule > applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype );
 
     /**
      * Returns the root module container. This is the actual module graph container.

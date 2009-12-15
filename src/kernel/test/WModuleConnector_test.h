@@ -125,6 +125,9 @@ protected:
 private:
 };
 
+/**
+ * Derived test class used to test data transfer and compatibility checks, especially the inheritance checks.
+ */
 class WTestTransferableDerived: public WTestTransferableBase
 {
 friend class WModuleConnectorTest;

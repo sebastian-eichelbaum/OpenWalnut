@@ -204,7 +204,7 @@ boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLo
     return &m_loaderSignal;
 }
 
-boost::signals2::signal1< void, std::string >* WMainWindow::getModuleButtonSignal()
+boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* WMainWindow::getModuleButtonSignal()
 {
     return &m_moduleButtonSignal;
 }
@@ -256,5 +256,7 @@ void WMainWindow::closeEvent( QCloseEvent* e )
 
 void WMainWindow::slotActivateModule( QString module )
 {
-    m_moduleButtonSignal( module.toStdString() );
+    // TODO(schurade): do we really need the signal? Why can't we use the kernel directly?
+    m_moduleButtonSignal( getDatasetBrowser()->getSelectedModule(), WModuleFactory::getModuleFactory()->getPrototypeByName( module.toStdString() ) );
 }
+
