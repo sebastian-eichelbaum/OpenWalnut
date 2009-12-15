@@ -26,13 +26,13 @@
 #define WGRIDREGULAR3D_TEST_H
 
 #include <cstdio>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../math/test/WVector3DTraits.h"
 #include "../WGridRegular3D.h"
-#include "../../test/traits/WVector3DTraits.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;

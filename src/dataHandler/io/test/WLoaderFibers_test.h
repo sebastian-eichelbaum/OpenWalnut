@@ -31,12 +31,13 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
+
 #include <cxxtest/TestSuite.h>
 
-#include "../WLoaderFibers.h"
+#include "../../../common/test/WStreamPosTraits.h"
+#include "../../../math/test/WFiberTraits.h"
 #include "../../WDataHandler.h"
-#include "../../../test/traits/WFiberTraits.h"
-#include "../../../test/traits/WStreamPosTraits.h"
+#include "../WLoaderFibers.h"
 
 /**
  * Unit tests the WLoaderFibers class.
@@ -59,7 +60,7 @@ public:
      * 2. VTK description header stuff (max 256 chars)
      * 3. BINARY or ASCII
      * 4. DATASET type
-     * 
+     *
      * Further description about the DATASET e.g. ORIGIN in case of
      * STRUCTURED_POINTS does not belong to the header.
      *

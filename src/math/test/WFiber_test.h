@@ -32,7 +32,7 @@
 
 #include "../WFiber.h"
 #include "../WPosition.h"
-#include "../../test/traits/WFiberTraits.h"
+#include "WFiberTraits.h"
 
 /**
  * Unit tests our WFiber class
