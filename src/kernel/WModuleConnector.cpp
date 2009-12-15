@@ -28,9 +28,9 @@
 #include <sstream>
 #include <set>
 
-#include "boost/exception.hpp"
-#include "boost/signals2/signal.hpp"
-#include "boost/signals2/connection.hpp"
+#include <boost/exception.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include "WModule.h"
 #include "exceptions/WModuleConnectionFailed.h"

@@ -31,7 +31,7 @@
 #include <QtGui/QWidget>
 
 #include <boost/shared_ptr.hpp>
-#include "boost/signals2/signal.hpp"
+#include <boost/signals2/signal.hpp>
 
 #include "../../graphicsEngine/WGECamera.h"
 #include "../../common/WFlag.h"

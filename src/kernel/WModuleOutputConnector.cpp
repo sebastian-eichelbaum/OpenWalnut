@@ -25,8 +25,8 @@
 #include <string>
 #include <iostream>
 
-#include "boost/signals2/signal.hpp"
-#include "boost/signals2/connection.hpp"
+#include <boost/signals2/signal.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include "WModule.h"
 #include "WModuleInputConnector.h"

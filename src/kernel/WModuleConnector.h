@@ -30,8 +30,8 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
-#include "boost/signals2/signal.hpp"
-#include "boost/signals2/connection.hpp"
+#include <boost/signals2/signal.hpp>
+#include <boost/signals2/connection.hpp>
 #include <boost/bind.hpp>
 
 #include "WModule.h"
@@ -46,13 +46,13 @@ class WModuleConnector: public boost::enable_shared_from_this<WModuleConnector>
 friend class WModuleConnectorTest;
 public:
 
-    /** 
+    /**
      * Constructor.
-     * 
+     *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
-     */    
+     */
     WModuleConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
 
     /**
@@ -60,7 +60,7 @@ public:
      */
     virtual ~WModuleConnector();
 
-    /** 
+    /**
      * Disconnects this connector if connected. If it is not connected: nothing happens.
      *
      * \param con the connector to disconnect.
@@ -68,38 +68,38 @@ public:
      */
     virtual void disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList = true );
 
-    /** 
+    /**
      * Disconnects ALL connected connectors.
      */
     virtual void disconnectAll();
 
-    /** 
+    /**
      * Connects this Module Connector with another one. During connection process, just the connectibility flag from
      * WModuleConnector::connectable is used to determine whether the connection is possible or not.
-     * 
+     *
      * \param con the connector to connect.
-     * 
+     *
      * \exception WModuleConnectionFailed if connection can not be established.
      *
      * \return true if successful
      */
     virtual void connect( boost::shared_ptr<WModuleConnector> con );
 
-    /** 
+    /**
      * Checks whether this connector is connected to the given one. If there is the strange case where one connector is connected
      * with the other one but not vice versa it will throw an exception.
-     * 
+     *
      * \param con the connector to check connection with.
-     * 
+     *
      * \return true if connected
      *
      * \throw WModuleConnectionInvalid thrown if one connector thinks it is connected but the other one not.
      */
     bool isConnectedTo( boost::shared_ptr<WModuleConnector> con );
 
-    /** 
+    /**
      * Connects a specified notify function with a signal this module instance is offering.
-     * 
+     *
      * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
      *
      * \param signal the signal to connect to.
@@ -109,74 +109,74 @@ public:
      */
     virtual boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
 
-    /** 
+    /**
      * Gives information about this connection.
-     * 
+     *
      * \return The connection's description.
      */
     const std::string getDescription() const;
 
-    /** 
+    /**
      * Sets the connector's description. This is not thread-safe! Do not use it outside the WModule thread.
-     * 
+     *
      * \param desc the new description.
      */
     void setDescription( std::string desc );
 
-    /** 
+    /**
      * Gives name of connection.
-     * 
+     *
      * \return The name of this connection
      */
     const std::string getName() const;
 
-    /** 
+    /**
      * Gives canonical name of connection. The canonical name is a descriptor including module name.
-     * 
+     *
      * \return The name of this connection
      */
     const std::string getCanonicalName() const;
 
-    /** 
+    /**
      * Sets the connector's name. This is not thread-safe! Do not use it outside the WModule thread.
-     * 
+     *
      * \param name the new name.
      */
     void setName( std::string name );
 
-    /** 
+    /**
      * Checks whether the specified connector is connectable to this one.
-     * 
+     *
      * \param con the connector to check against.
-     * 
+     *
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )=0;
 
 protected:
 
-    /** 
+    /**
      * List of connectors connected to this connector.
      */
     std::set<boost::shared_ptr<WModuleConnector> > m_Connected;
 
-    /** 
+    /**
      * Lock for avoiding concurrent write to m_Connected (multiple reader, single writer lock). The read lock can be acquired using
      * the boost::shared_lock<boost::shared_mutex> lock( m_ConnectionListLock );.
      */
     boost::shared_mutex m_ConnectionListLock;
 
-    /** 
+    /**
      * Connect additional signals.
-     * 
+     *
      * \param con the connector that requests connection.
-     * 
+     *
      */
     virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
 
-    /** 
+    /**
      * Disconnect all signals subscribed by this connector from "con".
-     * 
+     *
      * \param con the connector that gets disconnected.
      */
     virtual void disconnectSignals( boost::shared_ptr<WModuleConnector> con );
@@ -185,36 +185,36 @@ protected:
      * Gives the signal handler function responsible for a given signal. Modules defining own signal handlers should overwrite
      * this function. This function is protected since boost::functions are callable, which is what is not wanted here. Just
      * signals should call them.
-     * 
+     *
      * \param signal the signal to get the handler for.
-     * 
+     *
      * \return the signal handler for "signal".
      */
     virtual const t_GenericSignalHandlerType getSignalHandler( MODULE_CONNECTOR_SIGNAL signal );
 
-    /** 
+    /**
      * The Module this connector belongs to
      */
     boost::shared_ptr<WModule> m_Module;
 
 private:
 
-    /** 
+    /**
      * The connections name.
      */
     std::string m_Name;
 
-    /** 
+    /**
      * The connections description.
      */
     std::string m_Description;
 
-    /** 
+    /**
      * Signal emitted whenever connection has been established.
      */
     t_GenericSignalType signal_ConnectionEstablished;
 
-    /** 
+    /**
      * Signal emitted whenever connection has been closed.
      */
     t_GenericSignalType signal_ConnectionClosed;

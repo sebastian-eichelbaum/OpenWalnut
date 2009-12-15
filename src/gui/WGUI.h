@@ -29,7 +29,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include "boost/signals2/signal.hpp"
+#include <boost/signals2/signal.hpp>
 
 #include "../common/WThreadedRunner.h"
 #include "../common/WFlag.h"

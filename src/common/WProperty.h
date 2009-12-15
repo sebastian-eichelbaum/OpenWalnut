@@ -28,8 +28,8 @@
 #include <string>
 
 #include <boost/lexical_cast.hpp>
-#include "boost/signals2/signal.hpp"
-#include "boost/signals2/connection.hpp"
+#include <boost/signals2/signal.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include "WColor.h"
 
