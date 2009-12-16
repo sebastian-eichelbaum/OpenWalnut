@@ -66,16 +66,26 @@ public:
 
     /**
      * adds a page to the context widget
+     *
+     * \param content A widget with controls
      */
     void addTabWidgetContent( WQtDSBWidget* content );
 
     /**
      * adds a subject entry to the tree widget
+     *
+     * \param name The entry name of the subjectin the tree widget
+     * \return A pointer to the tree widget item
      */
     WQtSubjectTreeItem* addSubject( std::string name );
 
     /**
      * adds a dataset entry to any given subject in the tree widget
+     *
+     * \param module shared pointer to the module associated with this tree widget entry
+     * \param subjectId subject id this dataset belongs to
+     *
+     * \return A pointer to the tree widget item
      */
     WQtDatasetTreeItem* addDataset( boost::shared_ptr< WModule > module, int subjectId = 0 );
 
@@ -111,8 +121,28 @@ public:
     boost::shared_ptr< WModule > getSelectedModule();
 
 public slots:
+    /**
+     * slot to connect dynamically created controls
+     *
+     * \param name The name of the control
+     * \param value
+     */
     void slotSetIntProperty( QString name, int value );
+
+    /**
+     * slot to connect dynamically created controls
+     *
+     * \param name The name of the control
+     * \param value
+     */
     void slotSetBoolProperty( QString name, bool value );
+
+    /**
+     * slot to connect dynamically created controls
+     *
+     * \param name The name of the control
+     * \param value
+     */
     void slotSetStringProperty( QString name, QString value );
 
 
@@ -124,25 +154,60 @@ protected:
     WMainWindow* m_mainWindow;
 
 private:
+    /**
+     * point to the tree widget
+     */
     WQtTreeWidget* m_treeWidget;
+
+    /**
+     * pointer to the tab widget
+     */
     QTabWidget* m_tabWidget;
+
+    /**
+     * button down
+     */
     QPushButton* m_downButton;
+
+    /**
+     * button up
+     */
     QPushButton* m_upButton;
 
+    /**
+     * tab 1
+     */
     QWidget* m_tab1;
+
+    /**
+     * tab 2
+     */
     QWidget* m_tab2;
+
+    /**
+     * tab 3
+     */
     QWidget* m_tab3;
+
+    /**
+     * panel
+     */
     QWidget* m_panel;
+
+    /**
+     * layout
+     */
     QVBoxLayout* m_layout;
 
 private slots:
     /**
-     *
+     * function that gets called when a tree item is selected, on a new select that tab widget
+     * is rebuilt with the controls provided by the tree item
      */
     void selectTreeItem();
 
     /**
-     *
+     * function gets called when a change to a tree item, eg. check box status, occurs
      */
     void changeTreeItem();
 
@@ -158,6 +223,12 @@ private slots:
 
 
 signals:
+    /**
+     * notifies the outside world of changes in the dsb
+     *
+     * \param name the name of the event
+     * \param value bool
+     */
     void dataSetBrowserEvent( QString name, bool value );
 };
 
