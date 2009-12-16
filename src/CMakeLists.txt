@@ -67,7 +67,7 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 #---------------
 # Set default build type
 IF( NOT CMAKE_BUILD_TYPE )
-    SET( CMAKE_BUILD_TYPE Release 
+    SET( CMAKE_BUILD_TYPE Release
          CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo"
          FORCE
        )
@@ -96,18 +96,15 @@ ADD_SUBDIRECTORY( modules )
 ADD_EXECUTABLE( walnut OpenWalnut.cpp )
 TARGET_LINK_LIBRARIES( walnut kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
 
-# By now this execute at any "cmake ." call. This will be optional in the future.
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders)
-FILE( GLOB_RECURSE ALL_GE_SHADERS ${CMAKE_SOURCE_DIR}/graphicsEngine/shaders/* )
-FOREACH( fname ${ALL_GE_SHADERS} )
-  #message( ${fname} )
-  configure_file(  ${fname} ${CMAKE_BINARY_DIR}/bin/shaders/ COPYONLY)
-ENDFOREACH( fname )
-FILE( GLOB_RECURSE ALL_MODULE_SHADERS ${CMAKE_SOURCE_DIR}/modules/*/shaders/* )
-FOREACH( fname ${ALL_MODULE_SHADERS} )
-  #message( ${fname} )
-  configure_file(  ${fname} ${CMAKE_BINARY_DIR}/bin/shaders/ COPYONLY)
-ENDFOREACH( fname )
+#---------- Shaders -------------
+option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
+if( OW_COPY_SHADERS )
+  add_custom_target( shaderDirectoryConfiguration
+    ALL
+    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
+    COMMENT "Put all shaders to the right place or update them if they are already there."
+    )
+endif( OW_COPY_SHADERS )
 
 
 # Special targets:
@@ -162,9 +159,9 @@ SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/i
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
     FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
-    
+
     FOREACH( fname ${EXCLUDE_H} )
-        LIST( REMOVE_ITEM STYLE_H ${fname} )
+      LIST( REMOVE_ITEM STYLE_H ${fname} )
     ENDFOREACH( fname )
 
     FOREACH( fname ${EXCLUDE_CPP} )
@@ -222,7 +219,7 @@ ADD_CUSTOM_TARGET( many
 # Make target for MacOS. The difference to the normal one is that we need to fix some paths in libraries.
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
 ADD_CUSTOM_TARGET( macos
-                   make all && ${PROJECT_SOURCE_DIR}/../tools/MacOS/macOS_install_tool 
+                   make all && ${PROJECT_SOURCE_DIR}/../tools/MacOS/macOS_install_tool
                    COMMENT "Make on MacOS. This incudes fixing paths in libraries."
                  )
 ENDIF()
