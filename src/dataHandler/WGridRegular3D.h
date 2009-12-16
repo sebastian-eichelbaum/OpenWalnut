@@ -198,16 +198,6 @@ public:
     /**
      *
      */
-    wmath::WVector3D multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec );
-
-    /**
-     *
-     */
-    wmath::WMatrix<double>  invertMatrix3x3( wmath::WMatrix<double> mat );
-
-    /**
-     *
-     */
     osg::Vec3 transformTexCoord( osg::Vec3 point );
 
 protected:

@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "WGridRegular3D.h"
+#include "../math/WLinearAlgebraFunctions.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
@@ -61,7 +62,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -89,7 +90,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix = mat;
 
-    m_matrixInverse = invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
 }
 
 
@@ -157,44 +158,11 @@ wmath::WMatrix<double> WGridRegular3D::getTransformationMatrix() const
     return m_matrix;
 }
 
-wmath::WVector3D WGridRegular3D::multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec )
-{
-    wmath::WVector3D result;
-    result[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2];
-    result[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2];
-    result[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2];
-    return result;
-}
-
-wmath::WMatrix<double> WGridRegular3D::invertMatrix3x3( wmath::WMatrix<double> mat )
-{
-    double det = mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) +
-                mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 0 ) +
-                mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 1 ) -
-                mat( 0, 2 ) * mat( 1, 1 ) * mat( 2, 0 ) -
-                mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
-                mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 );
-
-    wmath::WMatrix<double> r( 3, 3 );
-
-    r( 0, 0 ) = ( mat( 1, 1 ) * mat( 2, 2 ) - mat(  1, 2 ) * mat( 2, 1 ) ) / det;
-    r( 1, 0 ) = ( mat( 1, 2 ) * mat( 2, 0 ) - mat(  1, 0 ) * mat( 2, 2 ) ) / det;
-    r( 2, 0 ) = ( mat( 1, 0 ) * mat( 2, 1 ) - mat(  1, 1 ) * mat( 2, 0 ) ) / det;
-    r( 0, 1 ) = ( mat( 0, 2 ) * mat( 2, 1 ) - mat(  0, 1 ) * mat( 2, 2 ) ) / det;
-    r( 1, 1 ) = ( mat( 0, 0 ) * mat( 2, 2 ) - mat(  0, 2 ) * mat( 2, 0 ) ) / det;
-    r( 2, 1 ) = ( mat( 0, 1 ) * mat( 2, 0 ) - mat(  0, 0 ) * mat( 2, 1 ) ) / det;
-    r( 0, 2 ) = ( mat( 0, 1 ) * mat( 1, 2 ) - mat(  0, 2 ) * mat( 1, 1 ) ) / det;
-    r( 1, 2 ) = ( mat( 0, 2 ) * mat( 1, 0 ) - mat(  0, 0 ) * mat( 1, 2 ) ) / det;
-    r( 2, 2 ) = ( mat( 0, 0 ) * mat( 1, 1 ) - mat(  0, 1 ) * mat( 1, 0 ) ) / det;
-
-    return r;
-}
-
 osg::Vec3 WGridRegular3D::transformTexCoord( osg::Vec3 point )
 {
     wmath::WVector3D p( point.x() - 0.5 , point.y() - 0.5, point.z() - 0.5 );
 
-    wmath::WVector3D r( multMatrixWithVector3D( m_matrixInverse , p ) );
+    wmath::WVector3D r( wmath::multMatrixWithVector3D( m_matrixInverse , p ) );
 
     r[0] = r[0] * m_offsetX + 0.5;
     r[1] = r[1] * m_offsetY + 0.5;

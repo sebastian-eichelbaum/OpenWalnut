@@ -25,6 +25,7 @@
 #include <cassert>
 
 #include "WTalairachConverter.h"
+#include "../../math/WLinearAlgebraFunctions.h"
 
 WTalairachConverter::WTalairachConverter( wmath::WVector3D ac, wmath::WVector3D pc, wmath::WVector3D ihp ) :
     m_rotMat( 3, 3 ),
@@ -56,12 +57,12 @@ WTalairachConverter::~WTalairachConverter()
 wmath::WVector3D WTalairachConverter::Canonical2ACPC( const wmath::WVector3D point )
 {
     wmath::WVector3D rpoint = point - m_ac;
-    return multMatrixWithVector3D( m_rotMat, rpoint );
+    return wmath::multMatrixWithVector3D( m_rotMat, rpoint );
 }
 
 wmath::WVector3D WTalairachConverter::ACPC2Canonical( const wmath::WVector3D point )
 {
-    wmath::WVector3D rpoint = multMatrixWithVector3D( m_rotMatInvert, point );
+    wmath::WVector3D rpoint = wmath::multMatrixWithVector3D( m_rotMatInvert, point );
     return rpoint + m_ac;
 }
 
@@ -233,7 +234,7 @@ void WTalairachConverter::defineRotationMatrix()
     m_rotMat( 2, 1 ) = ez[1];
     m_rotMat( 2, 2 ) = ez[2];
 
-    m_rotMatInvert = invertMatrix3x3( m_rotMat );
+    m_rotMatInvert = wmath::invertMatrix3x3( m_rotMat );
 }
 
 wmath::WVector3D WTalairachConverter::getAc() const
@@ -337,38 +338,4 @@ wmath::WMatrix<double> WTalairachConverter::getRotMat()
 wmath::WMatrix<double> WTalairachConverter::getInvRotMat()
 {
     return m_rotMatInvert;
-}
-
-
-wmath::WVector3D WTalairachConverter::multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec )
-{
-    wmath::WVector3D result;
-    result[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2];
-    result[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2];
-    result[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2];
-    return result;
-}
-
-wmath::WMatrix<double> WTalairachConverter::invertMatrix3x3( wmath::WMatrix<double> mat )
-{
-    double det = mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) +
-                mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 0 ) +
-                mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 1 ) -
-                mat( 0, 2 ) * mat( 1, 1 ) * mat( 2, 0 ) -
-                mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
-                mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 );
-
-    wmath::WMatrix<double> r( 3, 3 );
-
-    r( 0, 0 ) = ( mat( 1, 1 ) * mat( 2, 2 ) - mat(  1, 2 ) * mat( 2, 1 ) ) / det;
-    r( 1, 0 ) = ( mat( 1, 2 ) * mat( 2, 0 ) - mat(  1, 0 ) * mat( 2, 2 ) ) / det;
-    r( 2, 0 ) = ( mat( 1, 0 ) * mat( 2, 1 ) - mat(  1, 1 ) * mat( 2, 0 ) ) / det;
-    r( 0, 1 ) = ( mat( 0, 2 ) * mat( 2, 1 ) - mat(  0, 1 ) * mat( 2, 2 ) ) / det;
-    r( 1, 1 ) = ( mat( 0, 0 ) * mat( 2, 2 ) - mat(  0, 2 ) * mat( 2, 0 ) ) / det;
-    r( 2, 1 ) = ( mat( 0, 1 ) * mat( 2, 0 ) - mat(  0, 0 ) * mat( 2, 1 ) ) / det;
-    r( 0, 2 ) = ( mat( 0, 1 ) * mat( 1, 2 ) - mat(  0, 2 ) * mat( 1, 1 ) ) / det;
-    r( 1, 2 ) = ( mat( 0, 2 ) * mat( 1, 0 ) - mat(  0, 0 ) * mat( 1, 2 ) ) / det;
-    r( 2, 2 ) = ( mat( 0, 0 ) * mat( 1, 1 ) - mat(  0, 1 ) * mat( 1, 0 ) ) / det;
-
-    return r;
 }

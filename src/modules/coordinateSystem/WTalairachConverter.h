@@ -254,23 +254,6 @@ private:
     void defineRotationMatrix();
 
     /**
-     * helper routine to multiply a 3x3 matrix with a vector
-     *
-     * \param mat 3x3 matrix
-     * \param vec vector
-     */
-    wmath::WVector3D multMatrixWithVector3D( wmath::WMatrix<double> mat, wmath::WVector3D vec );
-
-    /**
-     * helper routine to invert a 3x3 matrix
-     *
-     * \param mat 3x3 matrix
-     *
-     * \return inverted 3x3 matrix
-     */
-    wmath::WMatrix<double>  invertMatrix3x3( wmath::WMatrix<double> mat );
-
-    /**
      * the rotation matrix
      */
     wmath::WMatrix<double> m_rotMat;
