@@ -121,6 +121,16 @@ ADD_CUSTOM_TARGET( doc
                    VERBATIM
                  )
 
+# NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
+# but need "dot" from graphviz to render them.
+ADD_CUSTOM_TARGET( fulldoc
+                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfigFull
+                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                   COMMENT "Build doxygen documentation"
+                   VERBATIM
+                 )
+
 #-------------------------------------------------------------------------------------------------------------
 # Uses ctags to create source tags, usable in many editors like VIM or Emacs
 ADD_CUSTOM_COMMAND( OUTPUT ctags
