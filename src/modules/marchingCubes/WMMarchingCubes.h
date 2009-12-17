@@ -250,7 +250,11 @@ private:
      */
     WTriangleMesh load( std::string fileName );
 
+    // TODO(wiebel): MC need to document and rename this
+    void generateSurfacePre( double isoValue );
+    boost::shared_ptr< const WDataSetSingle > m_dataSet;
     boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for the dimensions of the texture.
+
 
     bool m_shaderUseTexture; //!< shall the shader use texturing?
     bool m_shaderUseLighting; //!< shall the shader use lighting?

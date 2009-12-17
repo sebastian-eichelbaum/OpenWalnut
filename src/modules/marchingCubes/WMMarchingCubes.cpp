@@ -116,43 +116,11 @@ void WMMarchingCubes::moduleMain()
 
     boost::shared_ptr< WDataHandler > dh = WKernel::getRunningKernel()->getDataHandler();
     boost::shared_ptr< WSubject > subject = (*dh)[0];
-    boost::shared_ptr< const WDataSetSingle > dataSet;
-    dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
+    m_dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
 
     debugLog() << "Computing surface ...";
 
-    // TODO(wiebel): MC set correct isoValue here
-    const float testIsoValue = 80;
-
-    switch( (*dataSet).getValueSet()->getDataType() )
-    {
-        case W_DT_UNSIGNED_CHAR:
-        {
-            boost::shared_ptr< WValueSet< unsigned char > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *dataSet ).getValueSet() );
-            assert( vals );
-            generateSurface( ( *dataSet ).getGrid(), vals, testIsoValue );
-            break;
-        }
-        case W_DT_INT16:
-        {
-            boost::shared_ptr< WValueSet< int16_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *dataSet ).getValueSet() );
-            assert( vals );
-            generateSurface( ( *dataSet ).getGrid(), vals, testIsoValue );
-            break;
-        }
-        case W_DT_FLOAT:
-        {
-            boost::shared_ptr< WValueSet< float > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *dataSet ).getValueSet() );
-            assert( vals );
-            generateSurface( ( *dataSet ).getGrid(), vals, testIsoValue );
-            break;
-        }
-        default:
-            assert( false && "Unknow data type in MarchingCubes module" );
-    }
+    generateSurfacePre( m_properties->getValue< int >( "Iso Value" ) );
 
     // TODO(wiebel): MC remove this from here
     //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
@@ -185,30 +153,70 @@ void WMMarchingCubes::connectors()
 
 void WMMarchingCubes::properties()
 {
-    // TODO(wiebel): MC this is not the recommended way!
-    //m_properties->addBool( "textureChanged", false );
+    m_properties->addBool( "textureChanged", false, true );
+    m_properties->addInt( "Iso Value", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
 }
 
 void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
 {
     // TODO(wiebel): MC improve this method when corresponding infrastructure is ready
-    if( propertyName == "isoValue" )
+    if( propertyName == "Iso Value" )
     {
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_geode );
+        generateSurfacePre( m_properties->getValue< int >( "Iso Value" ) );
+        renderSurface();
         // updateTextures();
     }
     else
     {
-        assert( 0 && "This property name is not soppurted by this function yet." );
+        assert( 0 && "This property name is not supported by this function yet." );
     }
 }
+
+void WMMarchingCubes::generateSurfacePre( double isoValue )
+{
+    infoLog() << "Isovalue: " << isoValue << std::endl;
+    switch( (*m_dataSet).getValueSet()->getDataType() )
+    {
+        case W_DT_UNSIGNED_CHAR:
+        {
+            boost::shared_ptr< WValueSet< unsigned char > > vals;
+            vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
+            assert( vals );
+            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            break;
+        }
+        case W_DT_INT16:
+        {
+            boost::shared_ptr< WValueSet< int16_t > > vals;
+            vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
+            assert( vals );
+            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            break;
+        }
+        case W_DT_FLOAT:
+        {
+            boost::shared_ptr< WValueSet< float > > vals;
+            vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
+            assert( vals );
+            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            break;
+        }
+        default:
+            assert( false && "Unknow data type in MarchingCubes module" );
+    }
+
+}
+
 
 template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr< WGrid > inGrid,
                                                               boost::shared_ptr< WValueSet< T > > vals,
                                                               double isoValue )
 {
-    // TODO(wiebel): MC have to move this
-    m_properties->addBool( "textureChanged", false );
     assert( vals );
+
+    m_idToVertices.clear();
+    m_trivecTriangles.clear();
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
     m_grid = grid;
