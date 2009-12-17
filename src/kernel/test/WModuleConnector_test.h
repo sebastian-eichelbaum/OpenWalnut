@@ -70,7 +70,7 @@ public:
      *
      * \return the name.
      */
-    virtual std::string getName() const
+    virtual const std::string getName() const
     {
         return "WTestTransferableBase";
     }
@@ -80,7 +80,7 @@ public:
      *
      * \return the description
      */
-    virtual std::string getDescription() const
+    virtual const std::string getDescription() const
     {
         return "Test class for testing transfer of data.";
     }
@@ -146,7 +146,7 @@ public:
      *
      * \return the name.
      */
-    virtual std::string getName() const
+    virtual const std::string getName() const
     {
         return "WTestTransferableDerived";
     }
@@ -156,7 +156,7 @@ public:
      *
      * \return the description
      */
-    virtual std::string getDescription() const
+    virtual const std::string getDescription() const
     {
         return "Test class for testing transfer of data.";
     }

@@ -37,12 +37,12 @@ WDataSetMultiple::WDataSetMultiple()
     // TODO(wiebel): implement this
 }
 
-std::string WDataSetMultiple::getName() const
+const std::string WDataSetMultiple::getName() const
 {
     return "WDataSetMultiple";
 }
 
-std::string WDataSetMultiple::getDescription() const
+const std::string WDataSetMultiple::getDescription() const
 {
     // TODO(all): write this
     return "Please write me.";

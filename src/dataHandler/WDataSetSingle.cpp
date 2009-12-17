@@ -81,12 +81,12 @@ boost::shared_ptr< WDataTexture3D > WDataSetSingle::getTexture()
     return m_texture3D;
 }
 
-std::string WDataSetSingle::getName() const
+const std::string WDataSetSingle::getName() const
 {
     return "WDataSetSingle";
 }
 
-std::string WDataSetSingle::getDescription() const
+const std::string WDataSetSingle::getDescription() const
 {
     // TODO(all): write this
     return "Please write me.";

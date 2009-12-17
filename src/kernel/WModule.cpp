@@ -50,6 +50,7 @@
 
 WModule::WModule():
     WThreadedRunner(),
+    WPrototyped(),
     m_initialized( new WCondition(), false ),
     m_isAssociated( new WCondition(), false ),
     m_isUsable( new WCondition(), false ),

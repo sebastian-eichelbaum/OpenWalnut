@@ -45,6 +45,7 @@
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
 #include "../common/WThreadedRunner.h"
+#include "../common/WPrototyped.h"
 #include "../common/WConditionSet.h"
 
 class WModuleConnector;
@@ -58,6 +59,7 @@ class WModuleFactory;
  * \ingroup kernel
  */
 class WModule: public WThreadedRunner,
+               public WPrototyped,
                public boost::enable_shared_from_this< WModule >
 {
 friend class WModuleConnector;  // requires access to notify members
@@ -76,18 +78,6 @@ public:
      * Destructor.
      */
     virtual ~WModule();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const = 0;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const = 0;
 
     /**
      * Gives back input connectors.
