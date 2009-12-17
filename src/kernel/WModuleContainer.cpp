@@ -100,9 +100,6 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     }
     slock.unlock();
 
-    // TODO(ebaum,schurade): this should be removes some days
-    module->connectToGui();
-
     // run it
     if ( run )
     {
@@ -130,6 +127,8 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     m_modules.erase( module );
     lock.unlock();
     module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
+
+    // TODO(ebaum): remove signal subscriptions
 
     // TODO(ebaum): flat or deep removal? What to do with associated modules?
 }

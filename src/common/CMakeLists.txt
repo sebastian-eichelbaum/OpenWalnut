@@ -13,6 +13,7 @@ IF( CXXTEST_FOUND )
                                "common"  # no libs for linking required
                                "WSegmentationFault.cpp"
                                "WTransferable.cpp"
+                               "WConditionSet.cpp"
                                "WPrototyped.cpp"
                                "WStringUtils.h" # since unit tests are already included via the .h file
                              )

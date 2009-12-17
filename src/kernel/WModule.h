@@ -45,6 +45,7 @@
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
 #include "../common/WThreadedRunner.h"
+#include "../common/WConditionSet.h"
 
 class WModuleConnector;
 class WModuleInputConnector;
@@ -142,12 +143,6 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const = 0;
-
-    /**
-     * Takes all the relevant GUI signals and connects them to own member functions.
-     * NOTE: this is only temporal. See ticket 142.
-     */
-    virtual void connectToGui();
 
     /**
      * Connects a specified notify function with a signal this module instance is offering.
@@ -355,6 +350,16 @@ protected:
      * True if associated && initialized.
      */
     WBoolFlag m_isUsable;
+
+    /**
+     * True if ready() was called.
+     */
+    WBoolFlag m_isReady;
+
+    /**
+     * The internal state of the module. This is, by default, simply the exit flag from WThreadedRunner.
+     */
+    WConditionSet m_moduleState;
 
     /**
      * The container this module belongs to.

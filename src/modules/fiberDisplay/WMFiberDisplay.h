@@ -73,12 +73,6 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Takes all the relevant GUI signals and connects them to own member functions.
-     * NOTE: this is only temporal. See ticket 142.
-     */
-    virtual void connectToGui();
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.

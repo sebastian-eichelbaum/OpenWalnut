@@ -18,6 +18,8 @@ IF( CXXTEST_FOUND )
                                "WModule.cpp"
                                "WModuleInputConnector.cpp"
                                "WModuleOutputConnector.cpp"
+                               "WModuleSignals.cpp"
+                               "WModuleConnectorSignals.cpp"
                                "WModuleInputData.h"
                                "WModuleOutputData.h"
                                "WModuleInputData.cpp"

@@ -37,12 +37,24 @@ class WFlag
 public:
 
     /**
-     * Constructor. Uses a given condition to realize the wait/notify functionality.
+     * Constructor. Uses a given condition to realize the wait/notify functionality. By using this constructor, the specified
+     * condition gets deleted whenever this WFlag is deleted.
      *
-     * \param condition the condition to use. NOTE: can also be a WConditionOneShot.
-     * \param initial the initial value of this flag
+     * \param condition the condition to use.
+     * \note condition can also be a WConditionOneShot.
+     * \param initial the initial value of this flag.
      */
     WFlag( WCondition* condition, T initial );
+
+    /**
+     * Constructor. Uses a given condition to realize the wait/notify functionality. By using this constructor, the specified
+     * condition gets NOT explicitely deleted when this WFlag gets deleted.
+     *
+     * \param condition the condition to use.
+     * \note condition can also be a WConditionOneShot.
+     * \param initial the initial value of this flag.
+     */
+    WFlag( boost::shared_ptr< WCondition > condition, T initial );
 
     /**
      * Destructor. It deletes the instance of WCondition specified on construction.
@@ -82,12 +94,19 @@ public:
      */
     virtual void operator()( T value );
 
+    /**
+     * Returns the condition that is used by this flag.
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getCondition();
+
 protected:
 
     /**
      * The condition to be used for waiting/notifying. Please note, that it gets deleted during destruction.
      */
-    WCondition* m_condition;
+    boost::shared_ptr< WCondition > m_condition;
 
     /**
      * The flag value.
@@ -105,6 +124,13 @@ typedef WFlag< bool > WBoolFlag;
 template < typename T >
 WFlag< T >::WFlag( WCondition* condition, T initial )
 {
+    m_condition = boost::shared_ptr< WCondition >( condition );
+    m_flag = initial;
+}
+
+template < typename T >
+WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, T initial )
+{
     m_condition = condition;
     m_flag = initial;
 }
@@ -112,7 +138,6 @@ WFlag< T >::WFlag( WCondition* condition, T initial )
 template < typename T >
 WFlag< T >::~WFlag()
 {
-    delete m_condition;
 }
 
 template < typename T >
@@ -147,6 +172,12 @@ void WFlag< T >::set( T value )
 
     m_flag = value;
     m_condition->notify();
+}
+
+template < typename T >
+boost::shared_ptr< WCondition > WFlag< T >::getCondition()
+{
+    return m_condition;
 }
 
 #endif  // WFLAG_H

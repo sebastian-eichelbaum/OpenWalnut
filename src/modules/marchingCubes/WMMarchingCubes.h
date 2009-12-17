@@ -86,7 +86,7 @@ typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
- * given on rgualr grids with axis-aligned cells.
+ * given on regular grids with axis-aligned cells.
  */
 class WMMarchingCubes : public WModule
 {
@@ -117,12 +117,6 @@ public:
      * \return description of module.
      */
     virtual const std::string getDescription() const;
-
-    /**
-     * Connect the listener function of the module to the gui signals
-     * this has to be called after full initialization fo the gui
-     */
-    void connectToGui();
 
     /**
      * Determine what to do if a property was changed.
@@ -256,7 +250,7 @@ private:
      */
     WTriangleMesh load( std::string fileName );
 
-    boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, becaus we need to acces the grid for the dimensions of the texture.
+    boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for the dimensions of the texture.
 
     bool m_shaderUseTexture; //!< shall the shader use texturing?
     bool m_shaderUseLighting; //!< shall the shader use lighting?

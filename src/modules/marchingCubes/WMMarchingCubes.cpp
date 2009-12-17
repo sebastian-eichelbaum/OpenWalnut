@@ -96,6 +96,9 @@ const std::string WMMarchingCubes::getDescription() const
 
 void WMMarchingCubes::moduleMain()
 {
+    // signal ready state
+    ready();
+
     // TODO(wiebel): MC fix this hack when possible by using an input connector.
     while ( !WKernel::getRunningKernel() )
     {
@@ -951,11 +954,4 @@ void WMMarchingCubes::updateTextures()
     }
     slock.unlock();
 }
-
-
-void WMMarchingCubes::connectToGui()
-{
-    WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
-}
-
 

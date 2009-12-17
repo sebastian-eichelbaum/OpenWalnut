@@ -74,12 +74,6 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Connect the listener function of the module to the gui signals
-     * this has to be called after full initialization fo the gui
-     */
-    void connectToGui();
-
-    /**
      * updates the positions of the navigation slices
      */
     void updateGeometry();

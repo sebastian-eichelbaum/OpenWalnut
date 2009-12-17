@@ -60,6 +60,9 @@ const std::string WMTest::getDescription() const
 
 void WMTest::moduleMain()
 {
+    // signal ready state
+    ready();
+
     // load the sample scene.
     osg::ref_ptr<osg::Geode> sceneDataGeode = new osg::Geode();
 

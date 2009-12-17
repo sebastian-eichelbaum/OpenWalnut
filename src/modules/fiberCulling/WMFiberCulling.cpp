@@ -62,6 +62,9 @@ boost::shared_ptr< WModule > WMFiberCulling::factory() const
 
 void WMFiberCulling::moduleMain()
 {
+    // signal ready state
+    ready();
+
     boost::shared_ptr< WDataHandler > dataHandler;
     // TODO(math): fix this hack when possible by using an input connector.
     while( !WKernel::getRunningKernel() )

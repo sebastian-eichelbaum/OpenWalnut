@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
@@ -35,6 +36,7 @@
 #include "WMainWindow.h"
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../modules/data/WMData.h"
 
 #include "WQt4Gui.h"
 
@@ -147,7 +149,7 @@ int WQt4Gui::run()
     m_gui->getModuleButtonSignal()->connect( boost::bind( &WKernel::applyModule, m_kernel, _1, _2 ) );
 
     // bind the GUI's slot with the ready signal
-    t_ModuleGenericSignalHandlerType f = boost::bind( &WGUI::slotAddDatasetToBrowser, this, _1 );
+    t_ModuleGenericSignalHandlerType f = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToBrowser, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( READY, f );
 
     // now we are initialized
@@ -169,16 +171,21 @@ int WQt4Gui::run()
     return qtRetCode;
 }
 
-void WQt4Gui::addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId )
+void WQt4Gui::slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > module )
 {
-    m_gui->getDatasetBrowser()->addDataset( module, subjectId );
-}
+    // get properties from the module and register them
+    m_gui->getPropertyManager()->connectProperties( module->getProperties() );
 
-void WQt4Gui::addModuleToBrowser( boost::shared_ptr< WModule > module )
-{
-    m_gui->getDatasetBrowser()->addModule( module );
+    // TODO(schurade): is this differentiation between data and "normal" modules really needed?
+    if ( boost::shared_dynamic_cast< WMData >( module ).get() )
+    {
+        m_gui->getDatasetBrowser()->addDataset( module, 0 );
+    }
+    else
+    {
+        m_gui->getDatasetBrowser()->addModule( module );
+    }
 }
-
 
 std::vector< boost::shared_ptr< WDataSet > > WQt4Gui::getDataSetList( int subjectId, bool onlyTextures )
 {
@@ -190,7 +197,6 @@ boost::shared_ptr< WModule > WQt4Gui::getSelectedModule()
     return m_gui->getDatasetBrowser()->getSelectedModule();
 }
 
-
 boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()
 {
     return m_gui->getLoaderSignal();
@@ -201,8 +207,3 @@ boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
     return m_gui->getPickSignal();
 }
 
-
-void WQt4Gui::connectProperties( boost::shared_ptr<WProperties> properties )
-{
-    m_gui->getPropertyManager()->connectProperties( properties );
-}

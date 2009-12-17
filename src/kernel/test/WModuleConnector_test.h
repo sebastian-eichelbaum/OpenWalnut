@@ -234,14 +234,6 @@ public:
     }
 
     /**
-     * Connect anything to GUI.
-     */
-    virtual void connectToGui()
-    {
-        // do nothing here
-    }
-
-    /**
      * Set up connectors.
      */
     virtual void connectors()
