@@ -42,11 +42,20 @@ namespace wmath
  */
 class WLine
 {
+/**
+ * UnitTest class
+ */
 friend class ::WLineTest;
-// The following friend IS documented in this file
-// \cond
+
+/**
+ * Gives a meaningful representation of this object to the given
+ * output stream.
+ *
+ * \param os The outputstream
+ * \param rhs Right hand side operand
+ * \return The outputstream for further use
+ */
 friend std::ostream& operator<<( std::ostream& os, const WLine &rhs );
-// \endcond
 
 public:
     /**
@@ -113,6 +122,7 @@ inline const WPosition& WLine::operator[]( size_t index ) const
  *
  * \param os The outputstream
  * \param rhs Right hand side operand
+ * \return The outputstream for further use
  */
 inline std::ostream& operator<<( std::ostream& os, const WLine &rhs )
 {
