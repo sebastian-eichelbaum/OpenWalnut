@@ -110,7 +110,7 @@ protected:
     /**
      * Redraws the scene.
      *
-     * \problem This might take a while with e.g. 70,000 fibers \approx 4 sec
+     * \problem This might take a while with e.g. 70,000 fibers approx 4 sec
      */
     void update();
 

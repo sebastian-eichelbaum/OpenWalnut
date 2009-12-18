@@ -33,6 +33,7 @@
 
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.h"
 #include "../../math/WFiber.h"
 
 /**
@@ -67,10 +68,27 @@ public:
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Initialize the connectors this module is using.
+     */
+    virtual void connectors();
+
+    /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
+     * ReCulls the scene.
+     *
+     * \problem This might take a while with e.g. 70,000 fibers approx 2h
+     */
+    void update();
 
 protected:
     /**
@@ -82,10 +100,8 @@ protected:
      * Detect and removes fibers that have a short distance in terms of the
      * dSt metric and are below the threshold given via the member
      * m_dSt_culling_t.
-     *
-     * \param fibers Fiber dataset, which should be processed.
      */
-    virtual void cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers );
+    virtual void cullOutFibers();
 
     /**
      * Proximity threshold, which defines the minimum distance which should be
@@ -98,6 +114,16 @@ protected:
     bool m_saveCulledCurves; //!< If true, remaining fibers are saved to a file.
 
     std::string m_savePath; //!< Path where remaining fibers should be stored
+
+    /**
+     * Input connector for a fiber dataset.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+
+    /**
+     * Pointer to the fiber data set
+     */
+    boost::shared_ptr< WDataSetFibers > m_dataset;
 
 private:
 };

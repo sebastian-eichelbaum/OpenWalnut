@@ -102,8 +102,6 @@ void WMFiberDisplay::moduleMain()
 
     ready();
 
-    boost::shared_ptr< const WDataSetFibers > fiberDS;
-
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         m_dataset = m_fiberInput->getData();
@@ -113,15 +111,11 @@ void WMFiberDisplay::moduleMain()
             continue;
         }
 
-        m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
-        m_osgNode->addChild( genFiberGeode( m_dataset, m_globalColoring ).get() );
-
-        m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
+        update();
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
+        // May be called twice
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
     }
 }
@@ -180,7 +174,8 @@ void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
     }
     else
     {
-        debugLog() << propertyName << std::endl;
+        // instead of WLogger we must use std::cerr since WLogger needs to much time!
+        std::cerr << propertyName << std::endl;
         assert( 0 && "This property name is not supported by this function yet." );
     }
 }

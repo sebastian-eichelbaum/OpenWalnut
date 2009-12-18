@@ -36,6 +36,7 @@
 #include "../../common/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.h"
 #include "../../math/WFiber.h"
 
 /**
@@ -77,11 +78,32 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Determine what to do if a property was changed.
+     * \param propertyName Name of the property.
+     */
+    void slotPropertyChanged( std::string propertyName );
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
+
+    /**
+     * Initialize the connectors this module is using.
+     */
+    virtual void connectors();
+
+    /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
+     * Reclusters the scene.
+     */
+    void update();
 
 private:
     /**
@@ -143,6 +165,17 @@ private:
     double m_proximity_t;
 
     size_t m_lastFibsSize; //!< Last known number of fibers
+
+    /**
+     * Input connector for a fiber dataset.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+
+    /**
+     * OSG node for this module. All other OSG nodes of this module should be
+     * placed as child to this node.
+     */
+    osg::ref_ptr< osg::Group > m_osgNode;
 };
 
 inline const std::string WMFiberClustering::getName() const

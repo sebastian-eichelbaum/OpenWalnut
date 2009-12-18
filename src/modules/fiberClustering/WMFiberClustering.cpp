@@ -54,11 +54,11 @@
 
 WMFiberClustering::WMFiberClustering()
     : WModule(),
-      m_maxDistance_t( 0.0 ),
+      m_maxDistance_t( 6.5 ),
       m_dLtTableExists( false ),
       m_minClusterSize( 10 ),
       m_separatePrimitives( true ),
-      m_proximity_t( 0.0 ),
+      m_proximity_t( 1.0 ),
       m_lastFibsSize( 0 )
 {
 }
@@ -74,26 +74,31 @@ boost::shared_ptr< WModule > WMFiberClustering::factory() const
 
 void WMFiberClustering::moduleMain()
 {
-    // signal ready state
+    // additional fire-condition: "data changed" flag
+    m_moduleState.add( m_fiberInput->getDataChangedCondition() );
+
     ready();
 
-    boost::shared_ptr< WDataHandler > dataHandler;
-    // TODO(math): fix this hack when possible by using an input connector.
-    while( !WKernel::getRunningKernel() )
+    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        sleep( 1 );
-    }
-    while( !( dataHandler = WKernel::getRunningKernel()->getDataHandler() ) )
-    {
-        sleep( 1 );
-    }
-    while( !dataHandler->getNumberOfSubjects() )
-    {
-        sleep( 1 );
-    }
+        m_fibs = m_fiberInput->getData();
+        if ( !m_fibs.get() ) // ok, the output has not yet sent data
+        {
+            m_moduleState.wait();
+            continue;
+        }
 
-    assert( m_fibs = boost::shared_dynamic_cast< WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
+        update();
 
+        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
+
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+    }
+}
+
+void WMFiberClustering::update()
+{
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
     checkDLtLookUpTable();
 
     if( !m_dLtTableExists )
@@ -101,20 +106,11 @@ void WMFiberClustering::moduleMain()
         m_dLtTable.reset( new WDXtLookUpTable( m_fibs->size() ) );
     }
 
-    m_proximity_t = 1.0;
     infoLog() << "Proximity threshold: " << m_proximity_t;
-    m_maxDistance_t = 6.5;
     infoLog() << "Maximum inter cluster distance threshold: " << m_maxDistance_t;
 
     cluster();
     paint();
-
-    // Since the modules run in a separate thread: such loops are possible
-    while ( !m_FinishRequested )
-    {
-        // do fancy stuff
-        sleep( 1 );
-    }
 }
 
 void WMFiberClustering::checkDLtLookUpTable()
@@ -267,15 +263,15 @@ void WMFiberClustering::paint()
     WColor color;
 
     infoLog() << "cluster: " << m_clusters.size();
-    osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
+    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
         color.setHSV( hue, 1.0, 0.75 );
         m_clusters[i].setColor( color );
-        group->addChild( genFiberGeode( m_clusters[i] ).get() );
+        m_osgNode->addChild( genFiberGeode( m_clusters[i] ).get() );
     }
-    group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
+    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 }
 
 void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )
@@ -303,4 +299,49 @@ void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )
     qCluster.merge( rCluster );
 
     assert( rCluster.empty() );
+}
+
+void WMFiberClustering::connectors()
+{
+    using boost::shared_ptr;
+    typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
+
+    m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
+
+    addConnector( m_fiberInput );
+    WModule::connectors();  // call WModules initialization
+}
+
+void WMFiberClustering::properties()
+{
+    m_properties->addString( "Fibers Display Module", "Display fibers" );
+    // this bool is hidden
+    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addDouble( "Threshold", 6.5 )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+}
+
+void WMFiberClustering::slotPropertyChanged( std::string propertyName )
+{
+    if( propertyName == "active" )
+    {
+        if ( m_properties->getValue< bool >( propertyName ) )
+        {
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_osgNode->setNodeMask( 0x0 );
+        }
+    }
+    else if( propertyName == "Threshold" )
+    {
+        m_maxDistance_t = m_properties->getValue< double >( propertyName );
+        update();
+    }
+    else
+    {
+        // instead of WLogger we must use std::cerr since WLogger needs to much time!
+        std::cerr << propertyName << std::endl;
+        assert( 0 && "This property name is not supported by this function yet." );
+    }
 }

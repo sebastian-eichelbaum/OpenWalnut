@@ -30,23 +30,23 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "WMFiberCulling.h"
-#include "../../math/WFiber.h"
-#include "../../math/fiberSimilarity/WDSTMetric.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
+#include "../../math/WFiber.h"
+#include "../../math/fiberSimilarity/WDSTMetric.h"
 #include "../../utils/WColorUtils.h"
+#include "WMFiberCulling.h"
 
 WMFiberCulling::WMFiberCulling()
     : WModule(),
-      m_proximity_t( 0.0 ),
-      m_dSt_culling_t( 0.0 ),
+      m_proximity_t( 1.0 ),
+      m_dSt_culling_t( 6.5 ),
       m_saveCulledCurves( false )
 {
 }
@@ -62,51 +62,58 @@ boost::shared_ptr< WModule > WMFiberCulling::factory() const
 
 void WMFiberCulling::moduleMain()
 {
-    // signal ready state
+    // additional fire-condition: "data changed" flag
+    m_moduleState.add( m_fiberInput->getDataChangedCondition() );
+
     ready();
 
-    boost::shared_ptr< WDataHandler > dataHandler;
-    // TODO(math): fix this hack when possible by using an input connector.
-    while( !WKernel::getRunningKernel() )
+    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        sleep( 1 );
-    }
-    while( !( dataHandler = WKernel::getRunningKernel()->getDataHandler() ) )
-    {
-        sleep( 1 );
-    }
-    while( !dataHandler->getNumberOfSubjects() )
-    {
-        sleep( 1 );
-    }
+        m_dataset = m_fiberInput->getData();
+        if ( !m_dataset.get() ) // ok, the output has not yet sent data
+        {
+            m_moduleState.wait();
+            continue;
+        }
 
-    boost::shared_ptr< WDataSetFibers > fiberDS;
-    assert( fiberDS = boost::shared_dynamic_cast< WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) );
+        update();
 
-    // TODO(math): default parameters via property object
-    m_proximity_t = 1.0;
-    infoLog() << "Proximity threshold: " << m_proximity_t;
-    m_dSt_culling_t = 6.5;
-    infoLog() << "Culling threshold: " << m_dSt_culling_t;
-
-    cullOutFibers( fiberDS );
-
-    infoLog() << "done.";
-
-    // Since the modules run in a separate thread: such loops are possible
-    while ( !m_FinishRequested )
-    {
-        // do fancy stuff
-        sleep( 1 );
+        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 }
 
-void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
+void WMFiberCulling::update()
 {
-    size_t numFibers = fibers->size();
+    infoLog() << "Proximity threshold: " << m_proximity_t;
+    infoLog() << "Culling threshold: " << m_dSt_culling_t;
+
+    cullOutFibers();
+
+    infoLog() << "Clulling done.";
+}
+
+void WMFiberCulling::connectors()
+{
+    using boost::shared_ptr;
+    typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
+
+    m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
+
+    addConnector( m_fiberInput );
+    WModule::connectors();  // call WModules initialization
+}
+
+void WMFiberCulling::properties()
+{
+    m_properties->addString( "Fibers Display Module", "Display fibers" );
+}
+
+void WMFiberCulling::cullOutFibers()
+{
+    size_t numFibers = m_dataset->size();
     infoLog() << "Recoginzed " << numFibers << " fibers";
 
-    fibers->sortDescLength();  // biggest first, this is for speed up
+    m_dataset->sortDescLength();  // biggest first, this is for speed up
     infoLog() << "Sorted fibers done.";
 
     std::vector< bool > unusedFibers( numFibers, false );
@@ -126,10 +133,10 @@ void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
             {
                 continue;
             }
-            double dst = dSt.dist( (*fibers)[q], (*fibers)[r] );
+            double dst = dSt.dist( (*m_dataset)[q], (*m_dataset)[r] );
             if( dst < m_dSt_culling_t )  // cullout small fibs nearby long fibs
             {
-                if( (*fibers)[q].size() < (*fibers)[r].size() )
+                if( (*m_dataset)[q].size() < (*m_dataset)[r].size() )
                 {
                     unusedFibers[q] = true;
                     break;
@@ -146,12 +153,12 @@ void WMFiberCulling::cullOutFibers( boost::shared_ptr< WDataSetFibers > fibers )
     }
     std::cout << std::endl;
 
-    fibers->erase( unusedFibers );
+    m_dataset->erase( unusedFibers );
     infoLog() << "Erasing done.";
-    infoLog() << "Culled out " << numFibers - fibers->size() << " fibers";
-    infoLog() << "There are " << fibers->size() << " fibers left.";
+    infoLog() << "Culled out " << numFibers - m_dataset->size() << " fibers";
+    infoLog() << "There are " << m_dataset->size() << " fibers left.";
 
     // TODO(math): make saving parameter dependent, and apply the desired path for saving
     WWriterFiberVTK w( "/tmp/pansen.fib", true );
-    w.writeFibs( fibers );
+    w.writeFibs( m_dataset );
 }
