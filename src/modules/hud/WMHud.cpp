@@ -60,7 +60,7 @@ void WMHud::connectors()
 
 void WMHud::properties()
 {
-    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMHud::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addBool( "active", false, true ) )->connect( boost::bind( &WMHud::slotPropertyChanged, this, _1 ) );
     m_properties->addBool( "showHUD1", false );
 }
 
@@ -175,6 +175,15 @@ void WMHud::init()
 
     m_rootNode->setUserData( this );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
+
+    if ( m_properties->getValue<bool>( "active" ) )
+    {
+        m_rootNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_rootNode->setNodeMask( 0x0 );
+    }
 
     WKernel::getRunningKernel()->getGui()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
