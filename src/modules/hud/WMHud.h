@@ -65,12 +65,6 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Connect the listener function of the module to the gui signals
-     * this has to be called after full initialization fo the gui
-     */
-    void connectToGui();
-
-    /**
      * Sets pick text member vairable
      *
      * \param text the pick text
@@ -96,23 +90,12 @@ protected:
     virtual void properties();
 
     /**
-     * Receive DATA_CHANGE notifications.
-     *
-     * \param input the input connector that got the change signal. Typically it is one of the input connectors from this module.
-     * \param output the output connector that sent the signal. Not part of this module instance.
-     */
-    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-                                   boost::shared_ptr<WModuleConnector> output );
-
-    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
-
-
 
 private:
     /**

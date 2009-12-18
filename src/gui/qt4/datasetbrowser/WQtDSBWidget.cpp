@@ -112,6 +112,23 @@ WQtSliderWithEdit* WQtDSBWidget::addSliderInt( QString label, int value, int min
     return slider;
 }
 
+WQtNumberEditDouble* WQtDSBWidget::addNumberEditDouble( QString label, double value )
+{
+    int row = m_controlLayout.rowCount();
+    QLabel* qlabel = new QLabel( label );
+
+    WQtNumberEditDouble* numberEdit = new WQtNumberEditDouble( label );
+
+    numberEdit->setDouble( value );
+
+    m_controlLayout.addWidget( qlabel, row, 0 );
+    m_controlLayout.addWidget( numberEdit, row, 1 );
+
+    setLayout( &m_pageLayout );
+
+    return numberEdit;
+}
+
 void WQtDSBWidget::addSpacer()
 {
     m_pageLayout.addStretch();

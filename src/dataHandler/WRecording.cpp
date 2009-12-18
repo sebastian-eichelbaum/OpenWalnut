@@ -36,12 +36,12 @@ WRecording::WRecording()
 {
 }
 
-std::string WRecording::getName() const
+const std::string WRecording::getName() const
 {
     return "WRecording";
 }
 
-std::string WRecording::getDescription() const
+const std::string WRecording::getDescription() const
 {
     return "Contains several recorded data, like EEG or FMRT.";
 }

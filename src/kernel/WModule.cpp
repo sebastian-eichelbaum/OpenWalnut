@@ -43,18 +43,26 @@
 #include "exceptions/WModuleUninitialized.h"
 #include "../common/WException.h"
 #include "../common/WLogger.h"
+#include "../common/WCondition.h"
+#include "../common/WConditionOneShot.h"
 
 #include "WModule.h"
 
 WModule::WModule():
     WThreadedRunner(),
+    WPrototyped(),
     m_initialized( new WCondition(), false ),
     m_isAssociated( new WCondition(), false ),
-    m_isUsable( new WCondition(), false )
+    m_isUsable( new WCondition(), false ),
+    m_isReady( new WConditionOneShot(), false ),
+    m_moduleState()
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
     m_container = boost::shared_ptr< WModuleContainer >();
+
+    // our internal state consist out of two conditions: data changed and the exit flag from WThreadedRunner.
+    m_moduleState.add( m_shutdownFlag.getCondition() );
 }
 
 WModule::~WModule()
@@ -249,11 +257,8 @@ boost::shared_ptr< WProperties > WModule::getProperties() const
 
 void WModule::ready()
 {
+    m_isReady( true );
     signal_ready( shared_from_this() );
-}
-
-void WModule::connectToGui()
-{
 }
 
 void WModule::threadMain()

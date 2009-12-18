@@ -65,12 +65,12 @@ bool WEEG::isTexture() const
     return false;
 }
 
-std::string WEEG::getName() const
+const std::string WEEG::getName() const
 {
     return "WEEG";
 }
 
-std::string WEEG::getDescription() const
+const std::string WEEG::getDescription() const
 {
     return "Contains data acquired using EEG.";
 }

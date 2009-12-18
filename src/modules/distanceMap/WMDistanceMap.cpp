@@ -66,6 +66,9 @@ const std::string WMDistanceMap::getDescription() const
 
 void WMDistanceMap::moduleMain()
 {
+    // signal ready state
+    ready();
+
     // TODO(wiebel): MC fix this hack when possible by using an input connector.
     while ( !WKernel::getRunningKernel() )
     {
@@ -88,7 +91,6 @@ void WMDistanceMap::moduleMain()
     boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( dataSet );
     boost::shared_ptr< WMMarchingCubes > mc = boost::shared_ptr< WMMarchingCubes >( new WMMarchingCubes() );
 
-    mc->connectToGui();
     mc->generateSurface( dataSet->getGrid(), distanceMapValueSet, .4 );
 
     WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
@@ -148,6 +150,9 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
             break;
         case W_DT_INT16:
             return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< int16_t > >( inSet ) );
+            break;
+        case W_DT_SIGNED_INT:
+            return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< int32_t > >( inSet ) );
             break;
         case W_DT_FLOAT:
             return boost::shared_dynamic_cast< WValueSet< float > >( inSet );

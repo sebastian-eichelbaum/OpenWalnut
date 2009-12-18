@@ -60,6 +60,9 @@ const std::string WMTextureList::getDescription() const
 
 void WMTextureList::moduleMain()
 {
+    // signal ready state
+    ready();
+
     // TODO(seralph): write me
     // load the sample scene.
     osg::ref_ptr<osg::Geode> sceneDataGeode = new osg::Geode();

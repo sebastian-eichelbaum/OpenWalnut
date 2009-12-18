@@ -125,6 +125,9 @@ void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
 
 void WMNavSlices::moduleMain()
 {
+    // signal ready state
+    ready();
+
     create();
 
     // Since the modules run in a separate thread: wait
@@ -460,13 +463,6 @@ void WMNavSlices::updateTextures()
     }
     slock.unlock();
 }
-
-void WMNavSlices::connectToGui()
-{
-    WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
-    WKernel::getRunningKernel()->getGui()->addModuleToBrowser( shared_from_this() );
-}
-
 
 void WMNavSlices::initUniforms( osg::StateSet* rootState )
 {

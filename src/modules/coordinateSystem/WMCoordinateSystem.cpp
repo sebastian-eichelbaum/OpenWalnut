@@ -48,6 +48,9 @@ boost::shared_ptr< WModule > WMCoordinateSystem::factory() const
 
 void WMCoordinateSystem::moduleMain()
 {
+    // signal ready state
+    ready();
+
     createGeometry();
 
     // Since the modules run in a separate thread: wait
@@ -66,12 +69,6 @@ const std::string WMCoordinateSystem::getName() const
 const std::string WMCoordinateSystem::getDescription() const
 {
     return "This module displays coordinate systems as overlay withn the main 3D view.";
-}
-
-void WMCoordinateSystem::connectToGui()
-{
-    WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
-    WKernel::getRunningKernel()->getGui()->addModuleToBrowser( shared_from_this() );
 }
 
 void WMCoordinateSystem::properties()

@@ -47,14 +47,14 @@ public:
      *
      * \return the name.
      */
-    virtual std::string getName() const;
+    virtual const std::string getName() const;
 
     /**
      * Gets the description for this prototype.
      *
      * \return the description
      */
-    virtual std::string getDescription() const;
+    virtual const std::string getDescription() const;
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.

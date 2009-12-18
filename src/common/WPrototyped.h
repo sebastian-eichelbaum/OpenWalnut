@@ -52,14 +52,14 @@ public:
      *
      * \return the name.
      */
-    virtual std::string getName() const = 0;
+    virtual const std::string getName() const = 0;
 
     /**
      * Gets the description for this prototype.
      *
      * \return the description
      */
-    virtual std::string getDescription() const = 0;
+    virtual const std::string getDescription() const = 0;
 
 protected:
 private:

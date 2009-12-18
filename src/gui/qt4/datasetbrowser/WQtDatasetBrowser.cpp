@@ -36,6 +36,7 @@
 
 #include "WQtDatasetBrowser.h"
 #include "WQtNumberEdit.h"
+#include "WQtNumberEditDouble.h"
 #include "WQtCheckBox.h"
 #include "WQtModuleHeaderTreeItem.h"
 
@@ -208,7 +209,12 @@ void WQtDatasetBrowser::selectTreeItem()
                 case P_FLOAT:
                     break;
                 case P_DOUBLE:
+                {
+                    QString name = QString( props.at( i )->getName().c_str() );
+                    WQtNumberEditDouble* numberEdit = tab1->addNumberEditDouble( name, props.at( i )->getValue<double>() );
+                    connect( numberEdit, SIGNAL( signalNumberWithName( QString, double ) ), this, SLOT( slotSetDoubleProperty( QString, double ) ) );
                     break;
+                }
                 case P_STRING:
                 {
                     QString name = QString( props.at( i )->getName().c_str() );
@@ -266,6 +272,14 @@ void WQtDatasetBrowser::slotSetIntProperty( QString name, int value )
 {
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     module->getProperties()->setValue<int>( name.toStdString(), value );
+
+    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
+}
+
+void WQtDatasetBrowser::slotSetDoubleProperty( QString name, double value )
+{
+    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+    module->getProperties()->setValue<double>( name.toStdString(), value );
 
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }

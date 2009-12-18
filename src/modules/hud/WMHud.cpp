@@ -64,13 +64,11 @@ void WMHud::properties()
     m_properties->addBool( "showHUD1", false );
 }
 
-void WMHud::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
-                                               boost::shared_ptr<WModuleConnector> /*output*/ )
-{
-}
-
 void WMHud::moduleMain()
 {
+    // signal ready state
+    ready();
+
     init();
 
     // Since the modules run in a separate thread: wait
@@ -80,13 +78,6 @@ void WMHud::moduleMain()
     // NOTE: ALLAWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_rootNode );
 }
-
-void WMHud::connectToGui()
-{
-    WKernel::getRunningKernel()->getGui()->connectProperties( m_properties );
-    WKernel::getRunningKernel()->getGui()->addModuleToBrowser( shared_from_this() );
-}
-
 
 void WMHud::init()
 {

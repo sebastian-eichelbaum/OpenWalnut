@@ -60,12 +60,12 @@ boost::shared_ptr< WDataTexture3D > WDataSet::getTexture()
     throw WDHException( "This dataset does not provide a texture." );
 }
 
-std::string WDataSet::getName() const
+const std::string WDataSet::getName() const
 {
     return "WDataSet";
 }
 
-std::string WDataSet::getDescription() const
+const std::string WDataSet::getDescription() const
 {
     return "Encapsulates the whole common feature set of all datasets.";
 }

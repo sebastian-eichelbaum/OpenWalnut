@@ -106,6 +106,9 @@ void drawChannel( boost::shared_ptr< const WEEG > eegData, size_t channelId, osg
 
 void WMEEGTest::moduleMain()
 {
+    // signal ready state
+    ready();
+
     // load the sample scene.
     //osg::Geode* sceneDataGeode = new osg::Geode();
 

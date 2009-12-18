@@ -82,12 +82,12 @@ const wmath::WFiber& WDataSetFibers::operator[]( const size_t index ) const
     return (*m_fibers)[index];
 }
 
-std::string WDataSetFibers::getName() const
+const std::string WDataSetFibers::getName() const
 {
     return "WDataSetFibers";
 }
 
-std::string WDataSetFibers::getDescription() const
+const std::string WDataSetFibers::getDescription() const
 {
     return "Contains tracked fiber data.";
 }

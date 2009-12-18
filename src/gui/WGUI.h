@@ -83,25 +83,6 @@ public:
     virtual int run() = 0;
 
     /**
-     * Slot gets called whenever a new module is added.
-     *
-     * \param module
-     */
-    virtual void slotAddDatasetToBrowser( boost::shared_ptr< WModule > module );
-
-    /**
-     *  adds a dataset to the dataset browser for a give subject
-     */
-    virtual void addDatasetToBrowser( boost::shared_ptr< WModule > module, int subjectId ) = 0;
-
-    /**
-     * adds a module to the dataset browser
-     *
-     * \param module
-     */
-    virtual void addModuleToBrowser( boost::shared_ptr< WModule > module ) = 0;
-
-    /**
      * returns a vector of pointers to the loaded datasets for a given subject.
      *
      * \param subjectId the ID of the subject to get the list for.
@@ -112,24 +93,9 @@ public:
     virtual std::vector< boost::shared_ptr< WDataSet > > getDataSetList( int subjectId, bool onlyTextures = false ) = 0;
 
     /**
-     * returns a pointer to the selected module in the dataset browser
-     *
-     * \return the module
-     */
-    virtual boost::shared_ptr< WModule > getSelectedModule() = 0;
-
-    /**
      * getter functions for the signales proved by the gui
      */
-    virtual boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal() = 0;
-
     virtual boost::signals2::signal1< void, std::string >* getPickSignal() = 0;
-
-
-    /**
-     * this function allows modules to register their property object with the gui
-     */
-    virtual void connectProperties( boost::shared_ptr<WProperties> properties ) = 0;
 
 protected:
 

@@ -22,58 +22,58 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WRECORDING_H
-#define WRECORDING_H
+#ifndef WQTNUMBEREDITDOUBLE_H
+#define WQTNUMBEREDITDOUBLE_H
 
 #include <string>
 
-#include "../common/WPrototyped.h"
-
-#include "WDataSet.h"
+#include <QtGui/QLineEdit>
 
 /**
- * Base class for all recorded data and results with events
- * and sensor positions.
- * \ingroup dataHandler
+ * a QLineEdit modified to deal only with double numbers
  */
-class WRecording : public WDataSet
+class WQtNumberEditDouble : public QLineEdit
 {
+    Q_OBJECT
+
 public:
+    /**
+     * Default constructor, that connects the slot of the edit
+     */
+    explicit WQtNumberEditDouble( QString name, QWidget* parent = 0 );
 
     /**
-     * Empty standard constructor for recordings
+     * setter for name
      */
-    explicit WRecording();
+    void setName( QString name );
+
 
     /**
-     * Gets the name of this prototype.
-     *
-     * \return the name.
+     * destructor
      */
-    virtual const std::string getName() const;
+    virtual ~WQtNumberEditDouble();
+
+public slots:
+    /**
+     * Sets the edit field to a certain number.
+     * \param number The double to be put into the field.
+     */
+    void setDouble( double number );
 
     /**
-     * Gets the description for this prototype.
-     *
-     * \return the description
+     * Updated the number in the lineEdit if the number has changed.
      */
-    virtual const std::string getDescription() const;
+    void numberChanged();
 
+signals:
     /**
-     * Returns a prototype instantiated with the true type of the deriving class.
-     *
-     * \return the prototype.
+     * Signal to distribute the number set in the lineEdit.
      */
-    static boost::shared_ptr< WPrototyped > getPrototype();
+    void signalNumberWithName( QString name, double number );
 
 protected:
-
-    /**
-     * The prototype as singleton.
-     */
-    static boost::shared_ptr< WPrototyped > m_prototype;
-
 private:
+    QString m_name;
 };
 
-#endif  // WRECORDING_H
+#endif  // WQTNUMBEREDITDOUBLE_H

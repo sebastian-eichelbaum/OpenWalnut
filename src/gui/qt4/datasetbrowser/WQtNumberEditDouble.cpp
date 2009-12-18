@@ -22,58 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WRECORDING_H
-#define WRECORDING_H
-
 #include <string>
 
-#include "../common/WPrototyped.h"
+#include "WQtNumberEditDouble.h"
 
-#include "WDataSet.h"
-
-/**
- * Base class for all recorded data and results with events
- * and sensor positions.
- * \ingroup dataHandler
- */
-class WRecording : public WDataSet
+WQtNumberEditDouble::WQtNumberEditDouble( QString name, QWidget* parent )
+    : QLineEdit( parent ),
+      m_name( name )
 {
-public:
+    connect( this, SIGNAL( returnPressed() ), this, SLOT( numberChanged() ) );
+}
 
-    /**
-     * Empty standard constructor for recordings
-     */
-    explicit WRecording();
+WQtNumberEditDouble::~WQtNumberEditDouble()
+{
+}
 
-    /**
-     * Gets the name of this prototype.
-     *
-     * \return the name.
-     */
-    virtual const std::string getName() const;
+void WQtNumberEditDouble::setName( QString name )
+{
+    m_name = name;
+}
 
-    /**
-     * Gets the description for this prototype.
-     *
-     * \return the description
-     */
-    virtual const std::string getDescription() const;
 
-    /**
-     * Returns a prototype instantiated with the true type of the deriving class.
-     *
-     * \return the prototype.
-     */
-    static boost::shared_ptr< WPrototyped > getPrototype();
+void WQtNumberEditDouble::setDouble( double number )
+{
+    setText( QString::number( number ) );
+    emit signalNumberWithName( m_name, number );
+}
 
-protected:
-
-    /**
-     * The prototype as singleton.
-     */
-    static boost::shared_ptr< WPrototyped > m_prototype;
-
-private:
-};
-
-#endif  // WRECORDING_H
+void WQtNumberEditDouble::numberChanged()
+{
+    bool ok;
+    double number = text().toDouble( &ok );
+    if ( ok )
+    {
+        emit signalNumberWithName( m_name, number );
+    }
+    else
+    {
+        setText( QString::number( 0 ) );
+        emit signalNumberWithName( m_name, 0 );
+    }
+}

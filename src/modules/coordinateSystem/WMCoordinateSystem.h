@@ -73,12 +73,6 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Connect the listener function of the module to the gui signals
-     * this has to be called after full initialization fo the gui
-     */
-    void connectToGui();
-
-    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
      *

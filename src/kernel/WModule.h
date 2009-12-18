@@ -45,6 +45,8 @@
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
 #include "../common/WThreadedRunner.h"
+#include "../common/WPrototyped.h"
+#include "../common/WConditionSet.h"
 
 class WModuleConnector;
 class WModuleInputConnector;
@@ -57,6 +59,7 @@ class WModuleFactory;
  * \ingroup kernel
  */
 class WModule: public WThreadedRunner,
+               public WPrototyped,
                public boost::enable_shared_from_this< WModule >
 {
 friend class WModuleConnector;  // requires access to notify members
@@ -75,18 +78,6 @@ public:
      * Destructor.
      */
     virtual ~WModule();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const = 0;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const = 0;
 
     /**
      * Gives back input connectors.
@@ -142,12 +133,6 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const = 0;
-
-    /**
-     * Takes all the relevant GUI signals and connects them to own member functions.
-     * NOTE: this is only temporal. See ticket 142.
-     */
-    virtual void connectToGui();
 
     /**
      * Connects a specified notify function with a signal this module instance is offering.
@@ -355,6 +340,16 @@ protected:
      * True if associated && initialized.
      */
     WBoolFlag m_isUsable;
+
+    /**
+     * True if ready() was called.
+     */
+    WBoolFlag m_isReady;
+
+    /**
+     * The internal state of the module. This is, by default, simply the exit flag from WThreadedRunner.
+     */
+    WConditionSet m_moduleState;
 
     /**
      * The container this module belongs to.
