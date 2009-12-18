@@ -38,6 +38,9 @@ WModuleInputConnector::WModuleInputConnector( boost::shared_ptr<WModule> module,
     // connect some signals
     // This signal is some kind of "forwarder" for the data_changed signal of an output connector.
     signal_DataChanged.connect( getSignalHandler( DATA_CHANGED ) );
+
+    // setup conditions
+    m_dataChangedCondition = boost::shared_ptr< WCondition >( new WCondition() );
 }
 
 WModuleInputConnector::~WModuleInputConnector()
@@ -81,5 +84,11 @@ void WModuleInputConnector::notifyDataChange( boost::shared_ptr<WModuleConnector
     // since the output connector is not able to fill the parameter "input" we need to forward this message and fill it with the
     // proper information
     signal_DataChanged( shared_from_this(), output );
+    m_dataChangedCondition->notify();
+}
+
+boost::shared_ptr< WCondition > WModuleInputConnector::getDataChangedCondition()
+{
+    return m_dataChangedCondition;
 }
 

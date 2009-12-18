@@ -34,6 +34,8 @@
 #include "../common/WLogger.h"
 #include "WKernel.h"
 #include "WModuleFactory.h"
+#include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
 
 #include "WModuleContainer.h"
 
@@ -218,9 +220,15 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     // add it
     add( m, true );
 
-    // TODO(ebaum): do actual connection stuff
-    WLogger::getLogger()->addLogMessage( "Combining modules \"" + applyOn->getName() + "\" and \"" + m->getName() + "\" not yet implemented.",
-            "ModuleContainer (" + m_name + ")", LL_WARNING );
+    // get offered outputs
+    std::set<boost::shared_ptr<WModuleInputConnector> > ins = m->getInputConnectors();
+    // get offered inputs
+    std::set<boost::shared_ptr<WModuleOutputConnector> > outs = applyOn->getOutputConnectors();
+
+    // TODO(ebaum): search best matching instead of simply connecting both
+    WLogger::getLogger()->addLogMessage( "Connecting " + ( *outs.begin() )->getCanonicalName() + " with " + ( *ins.begin() )->getCanonicalName()
+            , "ModuleContainer", LL_INFO );
+    ( *ins.begin() )->connect( ( *outs.begin() ) );
 
     return m;
 }

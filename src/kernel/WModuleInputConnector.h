@@ -31,6 +31,8 @@
 #include "WModuleConnector.h"
 #include "WModuleConnectorSignals.h"
 
+#include "../common/WCondition.h"
+
 /**
  * Class implementing input connection functionality between modules.
  */
@@ -40,11 +42,11 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
      * \param description Short description of this connector.
-     */    
+     */
     WModuleInputConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
 
     /**
@@ -52,35 +54,42 @@ public:
      */
     virtual ~WModuleInputConnector();
 
-    /** 
+    /**
      * Checks whether the specified connector is an output connector.
-     * 
+     *
      * \param con the connector to check against.
-     * 
+     *
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
 
+    /**
+     * Gets the condition variable that gets fired whenever new data has been sent.
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getDataChangedCondition();
+
 protected:
 
-    /** 
+    /**
      * Connect additional signals.
-     * 
+     *
      * \param con the connector that requests connection.
-     * 
+     *
      */
     virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
 
-    /** 
+    /**
      * Disconnect all signals subscribed by this connector from "con".
-     * 
+     *
      * \param con the connector that gets disconnected.
      */
     virtual void disconnectSignals( boost::shared_ptr<WModuleConnector> con );
 
-    /** 
+    /**
      * Gets called when the data on this input connector changed.
-     * 
+     *
      * \param input the input connector receiving the change.
      * \param output the output connector sending the change notification.
      */
@@ -89,14 +98,19 @@ protected:
 
 private:
 
-    /** 
+    /**
      * Signal for "DATA_CHANGED" Events. We use a separate signal here (instead of using the signal send by the connected output)
      * since the output can not determine the receiver when signalling. So we use an own signal handler and signal to "forward"
      * the message and complete the information with a this-pointer.
      */
     t_GenericSignalType signal_DataChanged;
 
-    /** 
+    /**
+     * Condition fired whenever data changes.
+     */
+    boost::shared_ptr< WCondition > m_dataChangedCondition;
+
+    /**
      * Connection for Data Changed signal of the connected output connector.
      */
     boost::signals2::connection m_DataChangedConnection;

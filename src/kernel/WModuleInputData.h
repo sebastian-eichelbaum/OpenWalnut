@@ -72,9 +72,7 @@ public:
     /**
      * Gives the currently set data.
      *
-     * \throw WModuleConnectorUnconnected if someone is requesting data but this connector is not connected.
-     *
-     * \return the data currently set.
+     * \return the data currently set. NULL if no data has been sent yet or the connector is unconnected.
      */
     const boost::shared_ptr< T > getData()
     {
@@ -85,16 +83,13 @@ public:
         if ( m_Connected.begin() == m_Connected.end() )
         {
             lock.unlock();
-
-            // throw an exception
-            std::ostringstream s;
-            s << "Unable to acquire data from unconnected input \"" << getCanonicalName() << "\".";
-
-            throw WModuleConnectorUnconnected( s.str() );
+            return boost::shared_ptr< T >();
         }
 
         // get data
-        boost::shared_ptr< T > dat = boost::shared_dynamic_cast<WModuleOutputData< T > >( *m_Connected.begin() )->getData();
+        boost::shared_ptr< T > dat = boost::shared_dynamic_cast< T >(
+                boost::shared_dynamic_cast< WModuleOutputConnector >( *m_Connected.begin() )->getRawData()
+        );
 
         // unlock and return
         lock.unlock();

@@ -35,6 +35,7 @@
 template < typename T > class WModuleInputData;
 #include "WModuleInputData.h"
 #include "../common/WPrototyped.h"
+#include "../common/WTransferable.h"
 
 #include "WModuleOutputConnector.h"
 
@@ -81,9 +82,19 @@ public:
     };
 
     /**
+     * Gives back the currently set data as WTransferable.
+     *
+     * \return the data. If no data has been set: a NULL pointer is returned.
+     */
+    virtual const boost::shared_ptr< WTransferable > getRawData() const
+    {
+        return m_data;
+    };
+
+    /**
      * Gives back the currently set data.
      *
-     * \return the data. If no data has been set, the prototype will be returned.
+     * \return the data. If no data has been set: a NULL pointer is returned.
      */
     const boost::shared_ptr< T > getData() const
     {

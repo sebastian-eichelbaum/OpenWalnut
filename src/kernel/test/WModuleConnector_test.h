@@ -627,7 +627,7 @@ public:
         initConnections();
 
         // try to get data from an unconnected connector
-        TS_ASSERT_THROWS( m3->m_input->getData(), WModuleConnectorUnconnected );
+        TS_ASSERT( !m3->m_input->getData().get() );
 
         // try to get uninitialized data -> should return an "NULL" Pointer
         TS_ASSERT( m2->m_input->getData() == boost::shared_ptr< WTestTransferableBase >() );

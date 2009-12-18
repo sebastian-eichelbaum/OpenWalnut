@@ -34,6 +34,7 @@
 #include "WModuleConnector.h"
 #include "WModuleConnectorSignals.h"
 #include "../common/WPrototyped.h"
+#include "../common/WTransferable.h"
 
 /**
  * Class implementing output connection functionality between modules.
@@ -85,6 +86,13 @@ public:
      * \return the prototype of the transfered type.
      */
     virtual boost::shared_ptr< WPrototyped > getTransferPrototype() = 0;
+
+    /**
+     * Gives back the currently set data as WTransferable.
+     *
+     * \return the data. If no data has been set: a NULL pointer is returned.
+     */
+    virtual const boost::shared_ptr< WTransferable > getRawData() const = 0;
 
 protected:
 
