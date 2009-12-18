@@ -61,6 +61,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_fCellLengthY( 1 ),
     m_fCellLengthZ( 1 ),
     m_tIsoLevel( 0 ),
+    m_dataSet(),
     m_shaderUseTexture( true ),
     m_shaderUseLighting( false )
 {
@@ -88,7 +89,7 @@ const std::string WMMarchingCubes::getDescription() const
 {
     return "This description has to be improved when the module is completed."
 " By now lets say the following: This module implement the marching cubes"
-" algorithm with a consisten triangulation. It allows to compute isosurfaces"
+" algorithm with a consistent triangulation. It allows to compute isosurfaces"
 " for a given isovalue on data given on grid only consisting of cubes. It yields"
 " the surface as triangle soup.";
 }
@@ -96,50 +97,52 @@ const std::string WMMarchingCubes::getDescription() const
 
 void WMMarchingCubes::moduleMain()
 {
+    // use the m_input "data changed" flag
+    m_moduleState.add( m_input->getDataChangedCondition() );
+
     // signal ready state
     ready();
 
-    // TODO(wiebel): MC fix this hack when possible by using an input connector.
-    while ( !WKernel::getRunningKernel() )
+    // loop until the module container requests the module to quit
+    while ( !m_shutdownFlag() )
     {
-        sleep( 1 );
+        // acquire data from the input connector
+        m_dataSet = m_input->getData();
+        if ( !m_dataSet.get() )
+        {
+            // ok, the output has not yet sent data
+            // NOTE: see comment at the end of this while loop for m_moduleState
+            m_moduleState.wait();
+            continue;
+        }
+
+        // update ISO surface
+        debugLog() << "Computing surface ...";
+
+        generateSurfacePre( m_properties->getValue< int >( "Iso Value" ) );
+
+        // TODO(wiebel): MC remove this from here
+        //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
+
+        debugLog() << "Rendering surface ...";
+
+        // settings for normal isosurface
+        m_shaderUseLighting = true;
+
+        renderSurface();
+
+        debugLog() << "Done!";
+
+        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
+        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
+        m_moduleState.wait();
     }
-    while ( !WKernel::getRunningKernel()->getDataHandler() )
-    {
-        sleep( 1 );
-    }
-    while ( !WKernel::getRunningKernel()->getDataHandler()->getNumberOfSubjects() )
-    {
-        sleep( 1 );
-    }
-    debugLog() << "Starting MC";
-
-    boost::shared_ptr< WDataHandler > dh = WKernel::getRunningKernel()->getDataHandler();
-    boost::shared_ptr< WSubject > subject = (*dh)[0];
-    m_dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
-
-    debugLog() << "Computing surface ...";
-
-    generateSurfacePre( m_properties->getValue< int >( "Iso Value" ) );
-
-    // TODO(wiebel): MC remove this from here
-    //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
-
-    debugLog() << "Rendering surface ...";
-
-    // settings for normal isosurface
-    m_shaderUseLighting = true;
-
-    renderSurface();
-
-    debugLog() << "Done!";
 }
 
 void WMMarchingCubes::connectors()
 {
     // initialize connectors
-
-    m_input = boost::shared_ptr<WModuleInputData< WDataSetSingle  > >(
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
         new WModuleInputData< WDataSetSingle >( shared_from_this(),
                                                                "in", "Dataset to compute isosurface for." )
         );
