@@ -40,7 +40,7 @@ public:
     /**
      * Default constructor, that connects the slot of the edit
      */
-    explicit WQtNumberEditDouble(  QString name, QWidget* parent = 0 );
+    explicit WQtNumberEditDouble( QString name, QWidget* parent = 0 );
 
     /**
      * setter for name
