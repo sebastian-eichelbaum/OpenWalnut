@@ -164,10 +164,9 @@ void WMMarchingCubes::properties()
 
 void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
 {
-    // TODO(wiebel): MC improve this method when corresponding infrastructure is ready
     if( propertyName == "Iso Value" )
     {
-        double isoValue = m_properties->getValue< double >( "Iso Value" );
+        double isoValue = m_properties->getValue< double >( propertyName );
         debugLog() << "Update isosurface for isovalue: " << isoValue << std::endl;
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_geode );
         generateSurfacePre( isoValue );
@@ -177,12 +176,12 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     else if( propertyName == "Use Texture" )
     {
         debugLog() << "Change Texture property." << std::endl;
-        m_shaderUseTexture = m_properties->getValue< bool >( "Use Texture" );
+        m_shaderUseTexture = m_properties->getValue< bool >( propertyName );
         updateTextures();
     }
     else if( propertyName == "active" )
     {
-        if ( m_properties->getValue<bool>( "active" ) )
+        if ( m_properties->getValue<bool>( propertyName ) )
         {
             m_geode->setNodeMask( 0xFFFFFFFF );
         }
