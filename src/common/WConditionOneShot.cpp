@@ -55,5 +55,7 @@ void WConditionOneShot::notify()
 {
     // release the write lock to allow waiting threads to achieve read lock
     m_lock.unlock();
+
+    WCondition::notify();
 }
 

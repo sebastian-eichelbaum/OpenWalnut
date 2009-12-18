@@ -61,7 +61,7 @@ public:
     /**
      * Type used for signalling condition changes.
      */
-    typedef boost::function<void ( boost::shared_ptr< WCondition > )> t_ConditionNotifierType;
+    typedef boost::function<void ( void )> t_ConditionNotifierType;
 
     /**
      * Subscribes a specified function to be notified on condition change.
@@ -84,7 +84,7 @@ protected:
     /**
      * Type used for condition notification.
      */
-    typedef boost::signals2::signal<void ( boost::shared_ptr< WCondition > )>  t_ConditionSignalType;
+    typedef boost::signals2::signal<void ( void )>  t_ConditionSignalType;
 
     /**
      * Signal getting fired whenever the condition fires.

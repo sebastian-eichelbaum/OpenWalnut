@@ -80,10 +80,8 @@ protected:
 
     /**
      * Notifier function getting notified whenever a condition got fired.
-     *
-     * \param con the connection that actually fires.
      */
-    virtual void conditionFired( boost::shared_ptr< WCondition > con );
+    virtual void conditionFired();
 
 private:
 };

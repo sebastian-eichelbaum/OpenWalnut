@@ -41,6 +41,7 @@ void WCondition::wait() const
 
 void WCondition::notify()
 {
+    signal_ConditionFired();
     m_condition.notify_all();
 }
 

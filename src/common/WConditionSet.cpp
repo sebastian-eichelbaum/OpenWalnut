@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "iostream"
+
 #include "WConditionSet.h"
 
 WConditionSet::WConditionSet():
@@ -42,12 +44,12 @@ void WConditionSet::add( boost::shared_ptr< WCondition > condition )
     m_conditionSet.insert( condition );
     lock.unlock();
 
-    condition->subscribeSignal( boost::bind( &WConditionSet::conditionFired, this, _1 ) );
+    condition->subscribeSignal( boost::bind( &WConditionSet::conditionFired, this ) );
 }
 
 void WConditionSet::remove( boost::shared_ptr< WCondition > condition )
 {
-    condition->unsubscribeSignal( boost::bind( &WConditionSet::conditionFired, this, _1 ) );
+    condition->unsubscribeSignal( boost::bind( &WConditionSet::conditionFired, this ) );
 
     // get write lock
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_conditionSetLock );
@@ -55,8 +57,9 @@ void WConditionSet::remove( boost::shared_ptr< WCondition > condition )
     lock.unlock();
 }
 
-void WConditionSet::conditionFired( boost::shared_ptr< WCondition > /* con */ )
+void WConditionSet::conditionFired()
 {
+    std::cout << "hallo" << std::endl;
     notify();
 }
 
