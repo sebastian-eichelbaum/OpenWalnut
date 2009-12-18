@@ -42,7 +42,7 @@ WQtSliderWithEdit::WQtSliderWithEdit( QString name, QWidget* parent )
 
     setLayout( &m_layout );
 
-    connect( &m_slider, SIGNAL( valueChanged( int ) ), &m_edit, SLOT( setNumber( double ) ) );
+    connect( &m_slider, SIGNAL( valueChanged( int ) ), &m_edit, SLOT( setInt( int ) ) );
     connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( emitValue() ) );
     connect( &m_edit, SIGNAL( signalNumber( int ) ), &m_slider, SLOT( setValue( int ) ) );
 }
