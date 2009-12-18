@@ -162,7 +162,7 @@ private:
     /**
      * Input connector required by this module.
      */
-    boost::shared_ptr<WModuleInputData< WDataSet > > m_input;
+    boost::shared_ptr<WModuleInputData< WDataSetSingle > > m_input;
 
     /**
      * lock to prevent concurrent threads trying to update the osg node
