@@ -237,7 +237,7 @@ osg::ref_ptr<osg::Geometry> WMCoordinateSystem::createGeometryNode()
     unsigned int rawData[] = { 1, 2, 2, 3, 3, 4, 4, 1,
                                5, 6, 6, 7, 7, 8, 8, 5,
                                1, 5, 2, 6, 3, 7, 4, 8,
-                               9, 10, 11, 12, 13, 14 };
+                               9, 10, 11, 12, 13, 14 }; // NOLINT
     std::vector< unsigned int > data( rawData, rawData + sizeof( rawData ) / sizeof( unsigned int ) );
     osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, data.begin(), data.end() );
 
