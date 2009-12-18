@@ -235,41 +235,14 @@ osg::ref_ptr<osg::Geometry> WMCoordinateSystem::createGeometryNode()
 
     geometry->setVertexArray( vertices );
 
-    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-
-    lines->push_back( 1 );
-    lines->push_back( 2 );
-    lines->push_back( 2 );
-    lines->push_back( 3 );
-    lines->push_back( 3 );
-    lines->push_back( 4 );
-    lines->push_back( 4 );
-    lines->push_back( 1 );
-
-    lines->push_back( 5 );
-    lines->push_back( 6 );
-    lines->push_back( 6 );
-    lines->push_back( 7 );
-    lines->push_back( 7 );
-    lines->push_back( 8 );
-    lines->push_back( 8 );
-    lines->push_back( 5 );
-
-    lines->push_back( 1 );
-    lines->push_back( 5 );
-    lines->push_back( 2 );
-    lines->push_back( 6 );
-    lines->push_back( 3 );
-    lines->push_back( 7 );
-    lines->push_back( 4 );
-    lines->push_back( 8 );
-
-    lines->push_back( 9 );
-    lines->push_back( 10 );
-    lines->push_back( 11 );
-    lines->push_back( 12 );
-    lines->push_back( 13 );
-    lines->push_back( 14 );
+    // TODO(schurade): Hi, here is math, I really don't now what this is for, so maybe you can give "data" and "rawData" a better
+    // name? Thanks.
+    unsigned int rawData[] = { 1, 2, 2, 3, 3, 4, 4, 1,
+                               5, 6, 6, 7, 7, 8, 8, 5,
+                               1, 5, 2, 6, 3, 7, 4, 8,
+                               9, 10, 11, 12, 13, 14 };
+    std::vector< unsigned int > data( rawData, rawData + sizeof( rawData ) / sizeof( unsigned int ) );
+    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, data.begin(), data.end() );
 
     geometry->addPrimitiveSet( lines );
 
