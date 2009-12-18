@@ -84,8 +84,8 @@ void WMNavSlices::connectors()
     // initialize connectors
     // XXX to add a new connector and to offer it, these simple steps need to be done
     // initialize it first
-    m_input= boost::shared_ptr<WModuleInputData< WDataSet > >(
-            new WModuleInputData< WDataSet >( shared_from_this(),
+    m_input= boost::shared_ptr<WModuleInputData< WDataSetSingle > >(
+            new WModuleInputData< WDataSetSingle >( shared_from_this(),
                 "in1", "List of datasets to show on the slices." )
     );
 

@@ -104,9 +104,9 @@ void WMDistanceMap::connectors()
 {
     // initialize connectors
 
-    m_input = boost::shared_ptr<WModuleInputData< WDataSet > >(
-        new WModuleInputData< WDataSet >( shared_from_this(),
-                                                               "in", "Dataset to compute isosurface for." )
+    m_input = boost::shared_ptr<WModuleInputData< WDataSetSingle > >(
+        new WModuleInputData< WDataSetSingle >( shared_from_this(),
+                                                               "in", "Dataset to compute distance map for." )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.

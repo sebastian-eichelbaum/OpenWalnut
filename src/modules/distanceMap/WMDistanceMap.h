@@ -88,7 +88,7 @@ protected:
     virtual void properties();
 
 private:
-    boost::shared_ptr< WModuleInputData< WDataSet > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
     /**
      * Function to create a distance map from Anatomy data set.
