@@ -73,6 +73,12 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Determine what to do if a property was changed.
+     * \param propertyName Name of the property.
+     */
+    void slotPropertyChanged( std::string propertyName );
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -91,15 +97,44 @@ protected:
             boost::shared_ptr< const WDataSetFibers > fibers,
             bool globalColoring = true ) const;
 
+    /**
+     * Initialize the connectors this module is using.
+     */
     virtual void connectors();
 
+    /**
+     * Initialize the properties for this module.
+     */
     virtual void properties();
+
+    /**
+     * Redraws the scene.
+     *
+     * \problem This might take a while with e.g. 70,000 fibers \approx 4 sec
+     */
+    void update();
+
+    /**
+     * If the fibers have to be drawn in global coloring mode this is true, otherwise false.
+     */
+    bool m_globalColoring;
 
 private:
     /**
      * Input connector for a fiber dataset.
      */
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
+
+    /**
+     * Pointer to the fiber data set
+     */
+    boost::shared_ptr< const WDataSetFibers > m_dataset;
+
+    /**
+     * OSG node for this module. All other OSG nodes of this module should be
+     * placed as child to this node.
+     */
+    osg::ref_ptr< osg::Group > m_osgNode;
 };
 
 inline const std::string WMFiberDisplay::getName() const

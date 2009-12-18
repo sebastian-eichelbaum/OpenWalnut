@@ -41,7 +41,8 @@
 #include "WMFiberDisplay.h"
 
 WMFiberDisplay::WMFiberDisplay()
-    : WModule()
+    : WModule(),
+      m_globalColoring( true )
 {
 }
 
@@ -96,61 +97,45 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( boost::shared_ptr< con
 
 void WMFiberDisplay::moduleMain()
 {
-    // signal ready state
+    // additional fire-condition: "data changed" flag
+    m_moduleState.add( m_fiberInput->getDataChangedCondition() );
+
     ready();
 
-//    ready();
-//    while( !m_FinishRequested )
-//    {
-//        if( m_fiberInput->getData() != boost::shared_ptr< const WDataSetFibers >() )
-//        {
-//            boost::shared_ptr< const WDataSetFibers > fiberDS = m_fiberInput->getData();
-//
-//            osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
-//            group->addChild( genFiberGeode( fiberDS, false ).get() );
-//            group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-//
-//            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
-//        }
-//        // TODO(math): implement some redraw if data has changed
-//        //  - replacing the OSG group node?
-//        //  - using notifyDataChange() method
-//        while( !m_FinishRequested )
-//        {
-//            sleep( 1 );
-//        }
-//    }
-    boost::shared_ptr< WDataHandler > dataHandler;
-    // TODO(math): fix this hack when possible by using an input connector.
-    while( !WKernel::getRunningKernel() )
-    {
-        sleep( 1 );
-    }
-    while( !( dataHandler = WKernel::getRunningKernel()->getDataHandler() ) )
-    {
-        sleep( 1 );
-    }
-    while( !dataHandler->getNumberOfSubjects() )
-    {
-        sleep( 1 );
-    }
-
     boost::shared_ptr< const WDataSetFibers > fiberDS;
-    if( fiberDS = boost::shared_dynamic_cast< const WDataSetFibers >( dataHandler->getSubject( 0 )->getDataSet( 0 ) ) )
-    {
-        osg::ref_ptr< osg::Group > group = osg::ref_ptr< osg::Group >( new osg::Group );
-        group->addChild( genFiberGeode( fiberDS, false ).get() );
-        group->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( group.get() );
-    }
-
-    // Since the modules run in a separate thread: such loops are possible
-    while ( !m_FinishRequested )
+    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        // do fancy stuff
-        sleep( 1 );
+        m_dataset = m_fiberInput->getData();
+        if ( !m_dataset.get() ) // ok, the output has not yet sent data
+        {
+            m_moduleState.wait();
+            continue;
+        }
+
+        m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+        m_osgNode->addChild( genFiberGeode( m_dataset, m_globalColoring ).get() );
+
+        m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
+
+        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
+
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
     }
+}
+
+void WMFiberDisplay::update()
+{
+    // remove nodes if they are any
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+
+    // create new node
+    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+    m_osgNode->addChild( genFiberGeode( m_dataset, m_globalColoring ).get() );
+    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 }
 
 void WMFiberDisplay::connectors()
@@ -167,4 +152,35 @@ void WMFiberDisplay::connectors()
 void WMFiberDisplay::properties()
 {
     m_properties->addString( "Fibers Display Module", "Display fibers" );
+    // this bool is hidden
+    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "Local Color", true )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
+}
+
+void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
+{
+    if( propertyName == "active" )
+    {
+        if ( m_properties->getValue< bool >( propertyName ) )
+        {
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_osgNode->setNodeMask( 0x0 );
+        }
+    }
+    else if ( propertyName == "Local Color" )
+    {
+        if( m_properties->getValue< bool >( propertyName ) != m_globalColoring )
+        {
+            m_globalColoring = m_properties->getValue< bool >( propertyName );
+            update();
+        }
+    }
+    else
+    {
+        debugLog() << propertyName << std::endl;
+        assert( 0 && "This property name is not supported by this function yet." );
+    }
 }
