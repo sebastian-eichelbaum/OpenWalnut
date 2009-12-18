@@ -205,7 +205,6 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         default:
             assert( false && "Unknow data type in MarchingCubes module" );
     }
-
 }
 
 
