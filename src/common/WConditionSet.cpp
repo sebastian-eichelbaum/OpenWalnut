@@ -59,7 +59,6 @@ void WConditionSet::remove( boost::shared_ptr< WCondition > condition )
 
 void WConditionSet::conditionFired()
 {
-    std::cout << "hallo" << std::endl;
     notify();
 }
 
