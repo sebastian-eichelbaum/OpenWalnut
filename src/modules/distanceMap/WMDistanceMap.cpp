@@ -151,6 +151,9 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
         case W_DT_INT16:
             return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< int16_t > >( inSet ) );
             break;
+        case W_DT_SIGNED_INT:
+            return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< int32_t > >( inSet ) );
+            break;
         case W_DT_FLOAT:
             return boost::shared_dynamic_cast< WValueSet< float > >( inSet );
             break;

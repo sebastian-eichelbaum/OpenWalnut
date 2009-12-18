@@ -36,6 +36,7 @@
 
 #include "WQtCheckBox.h"
 #include "WQtLineEdit.h"
+#include "WQtNumberEditDouble.h"
 #include "WQtSliderWithEdit.h"
 
 
@@ -71,6 +72,13 @@ public:
      * helper function to add a generic line edit
      */
     WQtLineEdit* addLineEdit( QString label, QString text = QString( "" ) );
+
+    /**
+     * helper function to add a double number edit control
+     * \param label name of the control
+     * \param value value of the control
+     */
+    WQtNumberEditDouble* addNumberEditDouble( QString label, double value );
 
     /**
      * helper function to add a slider with a connect line edit

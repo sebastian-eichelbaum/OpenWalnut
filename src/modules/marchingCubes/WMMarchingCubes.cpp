@@ -154,7 +154,7 @@ void WMMarchingCubes::connectors()
 void WMMarchingCubes::properties()
 {
     m_properties->addBool( "textureChanged", false, true );
-    m_properties->addInt( "Iso Value", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+    m_properties->addDouble( "Iso Value", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
 }
 
 void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
@@ -162,9 +162,12 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     // TODO(wiebel): MC improve this method when corresponding infrastructure is ready
     if( propertyName == "Iso Value" )
     {
+        double isoValue = m_properties->getValue< double >( "Iso Value" );
+        infoLog() << "Update isosurface for isovalue: " << isoValue << std::endl;
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_geode );
-        generateSurfacePre( m_properties->getValue< int >( "Iso Value" ) );
+        generateSurfacePre( isoValue );
         renderSurface();
+        infoLog() << "Updating done." << std::endl;
         // updateTextures();
     }
     else
@@ -190,6 +193,14 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< int16_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
+            assert( vals );
+            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            break;
+        }
+        case W_DT_SIGNED_INT:
+        {
+            boost::shared_ptr< WValueSet< int32_t > > vals;
+            vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
             assert( vals );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
