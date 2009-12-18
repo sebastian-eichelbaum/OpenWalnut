@@ -109,6 +109,14 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
             break;
         }
 
+        case DT_INT32:
+        {
+            std::vector< int32_t > data = copyArray( reinterpret_cast< int32_t* >( filedata->data ), countVoxels, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int32_t >( order, vDim, data, W_DT_SIGNED_INT ) );
+            break;
+        }
+
+
         case DT_FLOAT:
         {
             std::vector< float > data = copyArray( reinterpret_cast< float* >( filedata->data ), countVoxels, vDim );

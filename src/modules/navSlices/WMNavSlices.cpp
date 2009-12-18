@@ -23,32 +23,29 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
 
 #include <boost/shared_ptr.hpp>
 
-#include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/Group>
 
-#include "WMNavSlices.h"
+#include "../../dataHandler/WDataSet.h"
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WValueSet.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.h"
-
-#include "../../dataHandler/WDataSet.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WValueSet.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataTexture3D.h"
-
 #include "../data/WMData.h"
-
-#include "../../graphicsEngine/WShader.h"
+#include "WMNavSlices.h"
 
 WMNavSlices::WMNavSlices():
     WModule()

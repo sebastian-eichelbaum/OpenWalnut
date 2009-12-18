@@ -32,11 +32,10 @@
 #include <osg/Node>
 
 #include "../../dataHandler/WDataSet.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../graphicsEngine/WShader.h"
-
 
 /**
  * \par Description:

@@ -21,6 +21,7 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WQtLineEdit.h
     datasetbrowser/WQtSliderWithEdit.h
     datasetbrowser/WQtNumberEdit.h
+    datasetbrowser/WQtNumberEditDouble.h
     datasetbrowser/WQtTreeWidget.h
 )
 

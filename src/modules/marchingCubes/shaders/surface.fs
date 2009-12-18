@@ -55,7 +55,7 @@ void lookupTex(inout vec4 col, in int type, in sampler3D tex, in vec3 v, in floa
 
 void main()
 {
-    vec4 col = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 col = vec4(0.3, 0.3, 0.3, 0.0);
 
     vec4 ambient = vec4(0.0);
     vec4 diffuse = vec4(0.0);

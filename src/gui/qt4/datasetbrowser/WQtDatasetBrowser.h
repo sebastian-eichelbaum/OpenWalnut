@@ -133,6 +133,14 @@ public slots:
      * slot to connect dynamically created controls
      *
      * \param name The name of the control
+     * \param value The value of the property
+     */
+    void slotSetDoubleProperty( QString name, double value );
+
+    /**
+     * slot to connect dynamically created controls
+     *
+     * \param name The name of the control
      * \param value
      */
     void slotSetBoolProperty( QString name, bool value );
