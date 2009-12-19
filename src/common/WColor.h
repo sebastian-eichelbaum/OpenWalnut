@@ -33,8 +33,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <osg/Vec4>
-
 /**
  * Represents a RGBA Color
  */
