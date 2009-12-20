@@ -30,7 +30,9 @@
 
 #include "../../dataHandler/exceptions/WDHException.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
+#ifndef _WIN32
 #include "../../dataHandler/io/WLoaderBiosig.h"
+#endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
 #include "../../dataHandler/io/WLoaderFibers.h"
 #include "../../dataHandler/io/WIOTools.h"
@@ -155,11 +157,13 @@ void WMData::moduleMain()
         WLoaderNIfTI niiLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
         m_dataSet = niiLoader.load();
     }
+#ifndef _WIN32
     else if( suffix == ".edf" )
     {
         WLoaderBiosig biosigLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
         m_dataSet = biosigLoader.load();
     }
+#endif
     else if( suffix == ".asc" )
     {
         WLoaderEEGASCII eegAsciiLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
