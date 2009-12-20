@@ -98,7 +98,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
     for ( std::list< t_ModuleErrorSignalHandlerType >::iterator iter = m_errorNotifiers.begin(); iter != m_errorNotifiers.end(); ++iter)
     {
-        module->subscribeSignal( ERROR, ( *iter ) );
+        module->subscribeSignal( WM_ERROR, ( *iter ) );
     }
     slock.unlock();
 
@@ -188,7 +188,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSi
     boost::unique_lock<boost::shared_mutex> lock;
     switch (signal)
     {
-        case ERROR:
+        case WM_ERROR:
             lock = boost::unique_lock<boost::shared_mutex>( m_errorNotifiersLock );
             m_errorNotifiers.push_back( notifier );
             lock.unlock();

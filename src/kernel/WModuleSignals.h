@@ -37,7 +37,7 @@ class WException;
 typedef enum
 {
     READY,  // module ready
-    ERROR   // error during execution
+    WM_ERROR   // error during execution
 }
 MODULE_SIGNAL;
 
@@ -61,7 +61,7 @@ typedef boost::function< void ( boost::shared_ptr< WModule > ) > t_ModuleGeneric
 typedef boost::signals2::signal< void ( boost::shared_ptr< WModule > ) >  t_ModuleGenericSignalType;
 
 /**
- * Signal for error events like "ERROR".
+ * Signal for error events like "WM_ERROR".
  *
  * \param module The module emitting the signal.
  *
