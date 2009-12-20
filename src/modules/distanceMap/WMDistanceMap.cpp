@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <stdint.h>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -191,8 +192,11 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     nbands = grid->getNbCoordsZ();
     nrows = grid->getNbCoordsY();
     ncols = grid->getNbCoordsX();
-
+#ifdef _WIN32
+    npixels = max( nbands, nrows );
+#else
     npixels = std::max( nbands, nrows );
+#endif
     array = new double[npixels];
 
     npixels = nbands * nrows * ncols;
