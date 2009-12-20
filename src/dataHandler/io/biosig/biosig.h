@@ -50,12 +50,7 @@ typedef unsigned char		uint8_t;
 typedef char			int8_t;
 
 #else
-
-#ifdef WIN32
-#include "inttypes.h"
-#else
 #include <inttypes.h>
-#endif
 
 #endif
 

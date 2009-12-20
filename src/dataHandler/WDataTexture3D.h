@@ -25,6 +25,8 @@
 #ifndef WDATATEXTURE3D_H
 #define WDATATEXTURE3D_H
 
+#include <stdint.h>
+
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Texture3D>
