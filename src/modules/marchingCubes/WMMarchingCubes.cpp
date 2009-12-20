@@ -772,6 +772,27 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     //osgDB::writeNodeFile( *m_geode, "/tmp/saved.osg" ); //for debugging
 }
 
+// TODO(wiebel): move this somewhere, where more classes can use it
+int myIsfinite( double number )
+{
+#if defined( __linux__ ) || defined( __APPLE__ )
+    /*
+    * C99 defines isfinite() as a macro.
+    */
+    return std::isfinite(number);
+  
+#elif defined( _WIN32 )
+    /*
+    * Microsoft Visual C++ and Borland C++ Builder use _finite().
+    */
+    return _finite(number);
+
+#else
+    assert( 0 && "isfinite not provided on this platform or platform not known" );
+#endif
+}
+
+
 // TODO(wiebel): MC move this to a separate module in the future
 bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh ) const
 {
@@ -813,7 +834,7 @@ bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh )
     for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
     {
         point = triMesh.getVertex( i );
-        if( !( std::isfinite( point[0] ) && std::isfinite( point[1] ) && std::isfinite( point[2] ) ) )
+        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
             return false;
