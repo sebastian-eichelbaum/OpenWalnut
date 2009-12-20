@@ -210,7 +210,7 @@ bool WKernel::findAppPath()
         assert( size <= sizeof( path ) );
     }
 #else
-#error findAppPath not implemented for this platform
+#pragma message ( "Error: findAppPath not implemented for this platform" )
 #endif
 
     return false;
