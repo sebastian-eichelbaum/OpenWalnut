@@ -33,6 +33,7 @@
 #include <boost/thread.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
