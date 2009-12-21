@@ -49,7 +49,7 @@ WQt4Gui::~WQt4Gui()
 {
 }
 
-const unsigned int boost::program_options::options_description::m_default_line_length = ( unsigned int )2048;
+const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
 
 bool WQt4Gui::parseOptions( int argc, char** argv )
 {
