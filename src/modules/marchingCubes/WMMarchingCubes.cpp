@@ -776,17 +776,11 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
 int myIsfinite( double number )
 {
 #if defined( __linux__ ) || defined( __APPLE__ )
-    /*
-    * C99 defines isfinite() as a macro.
-    */
+    // C99 defines isfinite() as a macro.
     return std::isfinite(number);
-  
 #elif defined( _WIN32 )
-    /*
-    * Microsoft Visual C++ and Borland C++ Builder use _finite().
-    */
+    // Microsoft Visual C++ and Borland C++ Builder use _finite().
     return _finite(number);
-
 #else
     assert( 0 && "isfinite not provided on this platform or platform not known" );
 #endif
