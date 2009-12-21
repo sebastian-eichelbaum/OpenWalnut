@@ -29,20 +29,20 @@
 
 
 WSubject::WSubject()
-    : m_name( "Not named yet" ),
+    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
       m_dataSets( 0 )
 {
 }
 
-WSubject::WSubject( std::string name )
-    : m_name( name ),
+WSubject::WSubject( WPersonalInformation personInfo )
+    : m_personalInfo( personInfo ),
       m_dataSets( 0 )
 {
 }
 
 std::string WSubject::getName() const
 {
-    return m_name;
+    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
 }
 
 boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const

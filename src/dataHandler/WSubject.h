@@ -29,10 +29,12 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
+#include "WPersonalInformation.h"
+
 class WDataSet;
 
 /**
- * Container for all WDataSets belonging to one subject.
+ * Container for all WDataSets belonging to one subject or patient.
  * \ingroup dataHandler
  */
 class WSubject
@@ -44,15 +46,15 @@ class WSubject
 
 public:
     /**
-     * Empty standard constructor.
+     * Constructs a dummy subject.
      */
     WSubject();
 
     /**
-     * Allows to give the subject a name during construction
-     * \param name name of the subject
+     * Allows to give the subject information the person during construction
+     * \param personInfo personal information object
      */
-    explicit WSubject( std::string name );
+    explicit WSubject( WPersonalInformation personInfo );
 
     /**
      * Returns the name of the subject. See WSubject::m_name for details on the name.
@@ -86,11 +88,7 @@ public:
     unsigned int getNumberOfDataSets() const;
 protected:
 private:
-    /**
-     * Name of subject. As not all data formats contain real names
-     * this may also be some kind of id (e.g. initials).
-     */
-    std::string m_name;
+    WPersonalInformation m_personalInfo;
 
     /**
      * A container for all WDataSets belonging to the subject.
