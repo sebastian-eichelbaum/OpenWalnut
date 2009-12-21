@@ -36,7 +36,7 @@ class WException;
  */
 typedef enum
 {
-    READY,  // module ready
+    WM_READY,  // module ready
     WM_ERROR   // error during execution
 }
 MODULE_SIGNAL;

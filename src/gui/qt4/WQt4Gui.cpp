@@ -158,7 +158,7 @@ int WQt4Gui::run()
 
     // bind the GUI's slot with the ready signal
     t_ModuleGenericSignalHandlerType f = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToBrowser, this, _1 );
-    m_kernel->getRootContainer()->addDefaultNotifier( READY, f );
+    m_kernel->getRootContainer()->addDefaultNotifier( WM_READY, f );
 
     // now we are initialized
     m_isInitialized( true );

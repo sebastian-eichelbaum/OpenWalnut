@@ -169,7 +169,7 @@ boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_Mo
 {
     switch (signal)
     {
-        case READY:
+        case WM_READY:
             return signal_ready.connect( notifier );
         default:
             std::ostringstream s;
