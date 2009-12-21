@@ -2,7 +2,12 @@ ADD_SUBDIRECTORY( qt4 )
 
 FILE( GLOB GUI_SRC "*.cpp" )
 
-ADD_LIBRARY( gui SHARED ${GUI_SRC} )
+IF( CMAKE_HOST_SYSTEM MATCHES Windows )
+    ADD_LIBRARY( gui ${GUI_SRC} )
+ELSE()
+    ADD_LIBRARY( gui SHARED ${GUI_SRC} )
+ENDIF()
+
 TARGET_LINK_LIBRARIES( gui common )
 
 # Unit tests

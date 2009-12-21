@@ -29,6 +29,10 @@ QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
 FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*cpp" "datasetbrowser/*cpp" "ribbonMenu/*cpp" )
 
-ADD_LIBRARY( guiqt4 SHARED ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
+IF( CMAKE_HOST_SYSTEM MATCHES Windows )
+    ADD_LIBRARY( guiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
+ELSE()
+    ADD_LIBRARY( guiqt4 SHARED ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
+ENDIF()
 
 TARGET_LINK_LIBRARIES( guiqt4 common gui ge kernel ${QT_LIBS} ${Boost_LIBRARIES} )
