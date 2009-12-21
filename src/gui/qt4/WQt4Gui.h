@@ -97,6 +97,21 @@ public:
 
     boost::signals2::signal1< void, std::string >* getPickSignal();
 
+    /**
+     * Instruct the WMainWindow to create a new custom widget.
+     *
+     * \param title The title of the widget
+     */
+    virtual void createCustomWidget( std::string title );
+
+    /**
+     * Instruct the WMainWindow to close a custom widget.
+     *
+     * \param title The title of the widget
+     */
+    virtual void closeCustomWidget( std::string title );
+
+
 protected:
 
 private:

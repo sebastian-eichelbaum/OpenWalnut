@@ -97,6 +97,20 @@ public:
      */
     virtual boost::signals2::signal1< void, std::string >* getPickSignal() = 0;
 
+    /**
+     * Instruct the MainWindow to create a new custom widget.
+     *
+     * \param title The title of the widget
+     */
+    virtual void createCustomWidget( std::string title ) = 0;
+
+    /**
+     * Instruct the MainWindow to close a custom widget.
+     *
+     * \param title The title of the widget
+     */
+    virtual void closeCustomWidget( std::string title ) = 0;
+
 protected:
 
     /**
