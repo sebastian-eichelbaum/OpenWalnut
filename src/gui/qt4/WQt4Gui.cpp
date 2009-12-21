@@ -49,15 +49,20 @@ WQt4Gui::~WQt4Gui()
 {
 }
 
+const unsigned int boost::program_options::options_description::m_default_line_length = (unsigned int)2048;
+
 bool WQt4Gui::parseOptions( int argc, char** argv )
 {
     // since the namespace is far to big we use a shortcut here
     namespace po = boost::program_options;
 
-    po::options_description desc( "Allowed options" );
+    po::options_description desc( "Allowed options", 2048 );
+#ifndef _WIN32
+// TODO(wiebel): this does not link on windows at the moment. But it should!
     desc.add_options()
         ( "help,h", "Prints this help message" )
         ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" );
+#endif
 
     po::positional_options_description p;
     p.add( "input", -1 );
@@ -82,10 +87,13 @@ bool WQt4Gui::parseOptions( int argc, char** argv )
     //=====================
     // CONFIGURATION FILE
     po::options_description guiConfigurationDescription( "GUI configuration" );
+#ifndef _WIN32
+// TODO(wiebel): this does not link on windows at the moment. But it should!
     guiConfigurationDescription.add_options()
         ( "ge.bgColor.r", po::value< float >() )
         ( "ge.bgColor.g", po::value< float >() )
         ( "ge.bgColor.b", po::value< float >() );
+#endif
 
     std::ifstream ifs;
     ifs.open( "walnut.cfg", std::ifstream::in );
