@@ -24,45 +24,15 @@
 
 #include <string>
 
-#include "WSubject.h"
-#include "exceptions/WDHNoSuchDataSet.h"
+#include "WCreateCustomDockWidgetEvent.h"
 
-
-WSubject::WSubject()
-    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
-      m_dataSets( 0 )
+WCreateCustomDockWidgetEvent::WCreateCustomDockWidgetEvent( std::string title )
+    : QEvent( CUSTOM_TYPE ),
+      m_title( title )
 {
 }
 
-WSubject::WSubject( WPersonalInformation personInfo )
-    : m_personalInfo( personInfo ),
-      m_dataSets( 0 )
+std::string WCreateCustomDockWidgetEvent::getTitle() const
 {
-}
-
-std::string WSubject::getName() const
-{
-    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
-}
-
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
-{
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
-}
-
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
-{
-    return getDataSet( dataSetId );
-}
-
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
-{
-    m_dataSets.push_back( newDataSet );
-}
-
-unsigned int WSubject::getNumberOfDataSets() const
-{
-    return m_dataSets.size();
+    return m_title;
 }

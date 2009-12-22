@@ -25,6 +25,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/thread.hpp>
 
@@ -41,6 +42,8 @@
 #include "../../kernel/WKernel.h"
 
 #include "WQtNavGLWidget.h"
+#include "WCreateCustomDockWidgetEvent.h"
+#include "WQtCustomDockWidget.h"
 
 #include "../icons/WIcons.h"
 
@@ -245,6 +248,15 @@ void WMainWindow::closeEvent( QCloseEvent* e )
         m_navCoronal->close();
         m_navSagittal->close();
 
+        // delete CustomDockWidgets
+        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
+        for( std::map< std::string, boost::shared_ptr< WQtCustomDockWidget > >::iterator it = m_customDockWidgets.begin();
+             it != m_customDockWidgets.end(); ++it )
+        {
+            it->second->close();
+        }
+        m_customDockWidgetsLock.unlock();
+
         // finally close
         e->accept();
     }
@@ -252,6 +264,41 @@ void WMainWindow::closeEvent( QCloseEvent* e )
     {
         e->ignore();
     }
+}
+
+void WMainWindow::customEvent( QEvent* event )
+{
+    if( event->type() == WCreateCustomDockWidgetEvent::CUSTOM_TYPE )
+    {
+        // CreateCustomDockWidgetEvent
+        WCreateCustomDockWidgetEvent* ccdwEvent = static_cast< WCreateCustomDockWidgetEvent* >( event );
+        std::string title = ccdwEvent->getTitle();
+
+        boost::shared_ptr< WQtCustomDockWidget > widget = boost::shared_ptr< WQtCustomDockWidget >( new WQtCustomDockWidget( title, this ) );
+        addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
+
+        // store it in CustomDockWidget list
+        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
+        assert( m_customDockWidgets.insert( make_pair( title, widget ) ).second == true );
+        m_customDockWidgetsLock.unlock();
+    }
+    else
+    {
+        // other event
+        QMainWindow::customEvent( event );
+    }
+}
+
+void WMainWindow::closeCustomDockWidget( std::string title )
+{
+    boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
+    if (m_customDockWidgets.count( title ) > 0 )
+    {
+        m_customDockWidgets[title]->close();
+
+        m_customDockWidgets.erase( title );
+    }
+    m_customDockWidgetsLock.unlock();
 }
 
 void WMainWindow::slotActivateModule( QString module )

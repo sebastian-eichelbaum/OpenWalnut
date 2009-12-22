@@ -28,6 +28,7 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
@@ -41,6 +42,7 @@
 
 #include "WQtNavGLWidget.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
+#include "WQtCustomDockWidget.h"
 
 #include "WIconManager.h"
 #include "WPropertyManager.h"
@@ -111,6 +113,13 @@ public:
      */
     boost::signals2::signal1< void, std::string >* getPickSignal();
 
+    /**
+     * Close one of the custom dock widget saved in the map of customDockWidgets
+     *
+     * \param title the title of the widget to close
+     */
+    void closeCustomDockWidget( std::string title );
+
 protected:
 
     /**
@@ -119,6 +128,14 @@ protected:
      * \param e the close event.
      */
     void closeEvent( QCloseEvent* e );
+
+    /**
+     * Handle custom events.
+     * Currently only WCreateCustomDockWidgetEvent.
+     *
+     * \param event the custom event
+     */
+    virtual void customEvent( QEvent* event );
 
 public slots:
     /**
@@ -148,6 +165,16 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
+
+    /**
+     * All registered WQtCustomDockWidgets.
+     */
+    std::map< std::string, boost::shared_ptr< WQtCustomDockWidget > > m_customDockWidgets;
+
+    /**
+     * Mutex used to lock the map of WQtCustomDockWidgets.
+     */
+    boost::mutex m_customDockWidgetsLock;
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal;
 

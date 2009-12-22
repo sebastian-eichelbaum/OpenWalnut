@@ -29,10 +29,10 @@
 #include <osgViewer/api/Win32/GraphicsWindowWin32>
 typedef HWND WindowHandle;
 typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
-#elif defined( __APPLE__ )  // Assume using Carbon on Mac.
-#include <osgViewer/api/Carbon/GraphicsWindowCarbon>
-typedef WindowRef WindowHandle;
-typedef osgViewer::GraphicsWindowCarbon::WindowData WindowData;
+//#elif defined( __APPLE__ )  // Assume using Carbon on Mac.
+//#include <osgViewer/api/Carbon/GraphicsWindowCarbon>
+//typedef WindowRef WindowHandle;
+//typedef osgViewer::GraphicsWindowCarbon::WindowData WindowData;
 #else  // all other unix
 #include <osgViewer/api/X11/GraphicsWindowX11>
 typedef Window WindowHandle;

@@ -39,6 +39,7 @@
 #include "../../modules/data/WMData.h"
 
 #include "WQt4Gui.h"
+#include "WCreateCustomDockWidgetEvent.h"
 
 WQt4Gui::WQt4Gui( int argc, char** argv ):
     WGUI( argc, argv )
@@ -49,7 +50,7 @@ WQt4Gui::~WQt4Gui()
 {
 }
 
-const unsigned int boost::program_options::options_description::m_default_line_length = ( unsigned int )2048;
+const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
 
 bool WQt4Gui::parseOptions( int argc, char** argv )
 {
@@ -215,3 +216,12 @@ boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
     return m_gui->getPickSignal();
 }
 
+void WQt4Gui::createCustomWidget( std::string title )
+{
+    QCoreApplication::postEvent( m_gui, new WCreateCustomDockWidgetEvent( title ) );
+}
+
+void WQt4Gui::closeCustomWidget( std::string title )
+{
+    m_gui->closeCustomDockWidget( title );
+}

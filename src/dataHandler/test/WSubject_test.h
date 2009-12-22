@@ -50,7 +50,8 @@ public:
      */
     void testInstantiationWithName( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WSubject( "TestName" ) );
+        WPersonalInformation testInfo( WPersonalInformation::createDummyInformation() );
+        TS_ASSERT_THROWS_NOTHING( WSubject( testInfo ) );
     }
 
     /**
@@ -60,28 +61,30 @@ public:
     {
         WSubject dummySubject;
         TS_ASSERT_EQUALS( 0, dummySubject.m_dataSets.size() );
-        TS_ASSERT_EQUALS( "Not named yet", dummySubject.m_name );
+        TS_ASSERT_EQUALS( 0, dummySubject.m_personalInfo.getSubjectID() );
     }
 
     /**
-     * Test whether we have put the name where it belongs and intialized the rest.
+     * Test whether we have put the info where it belongs and intialized the rest.
      */
-    void TestConstructorWithName()
+    void TestConstructorWithInfo()
     {
-        std::string testName( "TestName" );
-        WSubject dummySubject( testName );
-        TS_ASSERT_EQUALS( testName, dummySubject.m_name );
+        WPersonalInformation testInfo( WPersonalInformation::createDummyInformation() );
+        WSubject dummySubject( testInfo );
+        TS_ASSERT_EQUALS( testInfo, dummySubject.m_personalInfo );
     }
 
 
     /**
-     * Test whether we can retrieve the right name with getName function.
+     * Test whether we can retrieve the right info with getName function.
      */
     void testGetName()
     {
-        std::string testName( "TestName" );
-        WSubject dummySubject( testName );
-        TS_ASSERT_EQUALS( testName, dummySubject.getName() );
+        WPersonalInformation testInfo( WPersonalInformation::createDummyInformation() );
+        testInfo.setSubjectID( 1 );
+        testInfo.setLastName( "Testname" );
+        WSubject dummySubject( testInfo );
+        TS_ASSERT_EQUALS( testInfo.getLastName()+",  " , dummySubject.getName() );
     }
 
     /**

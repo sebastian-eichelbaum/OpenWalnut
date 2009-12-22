@@ -24,45 +24,42 @@
 
 #include <string>
 
-#include "WSubject.h"
-#include "exceptions/WDHNoSuchDataSet.h"
+#include "WMEEGView.h"
+#include "../../kernel/WKernel.h"
 
-
-WSubject::WSubject()
-    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
-      m_dataSets( 0 )
+WMEEGView::WMEEGView()
+    : WModule()
 {
 }
 
-WSubject::WSubject( WPersonalInformation personInfo )
-    : m_personalInfo( personInfo ),
-      m_dataSets( 0 )
+WMEEGView::~WMEEGView()
 {
 }
 
-std::string WSubject::getName() const
+boost::shared_ptr< WModule > WMEEGView::factory() const
 {
-    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
+    return boost::shared_ptr< WModule >( new WMEEGView() );
 }
 
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
+const std::string WMEEGView::getName() const
 {
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
+    return "EEG View";
 }
 
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
+const std::string WMEEGView::getDescription() const
 {
-    return getDataSet( dataSetId );
+    return "Test module to open an EEG View.";
 }
 
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
+void WMEEGView::moduleMain()
 {
-    m_dataSets.push_back( newDataSet );
-}
+    // do initialization
+    //std::cout << "Load EEG View module\n";
+    WKernel::getRunningKernel()->getGui()->createCustomWidget( "EEG View" );
 
-unsigned int WSubject::getNumberOfDataSets() const
-{
-    return m_dataSets.size();
+    ready();
+
+    waitForStop();
+
+    WKernel::getRunningKernel()->getGui()->closeCustomWidget( "EEG View" );
 }

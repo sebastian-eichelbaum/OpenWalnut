@@ -22,47 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WQTCUSTOMDOCKWIDGET_H
+#define WQTCUSTOMDOCKWIDGET_H
+
 #include <string>
+#include <QtGui/QDockWidget>
+#include "WQtGLWidget.h"
 
-#include "WSubject.h"
-#include "exceptions/WDHNoSuchDataSet.h"
-
-
-WSubject::WSubject()
-    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
-      m_dataSets( 0 )
+/**
+ * Dock Widget which is created by a module to display custom information.
+ */
+class WQtCustomDockWidget : public QDockWidget
 {
-}
+public:
+    /**
+     * constructor
+     *
+     * \param title the title of the widget
+     * \param parent the parent of the widget
+     */
+    WQtCustomDockWidget( std::string title, QWidget* parent );
 
-WSubject::WSubject( WPersonalInformation personInfo )
-    : m_personalInfo( personInfo ),
-      m_dataSets( 0 )
-{
-}
+protected:
+    /**
+     * Event handler for close events
+     *
+     * \param event the event description.
+     */
+    virtual void closeEvent( QCloseEvent* event );
 
-std::string WSubject::getName() const
-{
-    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
-}
+private:
+    /**
+     * the included GL widget
+     */
+    boost::shared_ptr<WQtGLWidget> m_glWidget;
+};
 
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
-{
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
-}
-
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
-{
-    return getDataSet( dataSetId );
-}
-
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
-{
-    m_dataSets.push_back( newDataSet );
-}
-
-unsigned int WSubject::getNumberOfDataSets() const
-{
-    return m_dataSets.size();
-}
+#endif  // WQTCUSTOMDOCKWIDGET_H

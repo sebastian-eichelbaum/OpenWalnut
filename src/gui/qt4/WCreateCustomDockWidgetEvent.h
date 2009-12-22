@@ -22,47 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WCREATECUSTOMDOCKWIDGETEVENT_H
+#define WCREATECUSTOMDOCKWIDGETEVENT_H
+
 #include <string>
+#include <QtCore/QEvent>
 
-#include "WSubject.h"
-#include "exceptions/WDHNoSuchDataSet.h"
-
-
-WSubject::WSubject()
-    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
-      m_dataSets( 0 )
+/**
+ * A Qt event to create a new custom dock widget if posted to the WMainWindow.
+ */
+class WCreateCustomDockWidgetEvent : public QEvent
 {
-}
+public:
+    /**
+     * constructor
+     *
+     * \param title The title of the widget to create.
+     */
+    explicit WCreateCustomDockWidgetEvent( std::string title );
 
-WSubject::WSubject( WPersonalInformation personInfo )
-    : m_personalInfo( personInfo ),
-      m_dataSets( 0 )
-{
-}
+    /**
+     * Get the title of the widget to create.
+     *
+     * \return title of the widget to create
+     */
+    std::string getTitle() const;
 
-std::string WSubject::getName() const
-{
-    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
-}
+    /**
+     * Constant which saves the number used to distinguish this event from other
+     * custom events.
+     */
+    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( 51051 );
 
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
-{
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
-}
+protected:
+private:
+    /**
+     * the title of the widget to create
+     */
+    std::string m_title;
+};
 
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
-{
-    return getDataSet( dataSetId );
-}
-
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
-{
-    m_dataSets.push_back( newDataSet );
-}
-
-unsigned int WSubject::getNumberOfDataSets() const
-{
-    return m_dataSets.size();
-}
+#endif  // WCREATECUSTOMDOCKWIDGETEVENT_H

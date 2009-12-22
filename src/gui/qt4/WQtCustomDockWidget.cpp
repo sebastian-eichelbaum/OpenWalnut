@@ -24,45 +24,25 @@
 
 #include <string>
 
-#include "WSubject.h"
-#include "exceptions/WDHNoSuchDataSet.h"
+#include "WQtCustomDockWidget.h"
+#include <QtGui/QCloseEvent>
 
-
-WSubject::WSubject()
-    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
-      m_dataSets( 0 )
+WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent )
+    : QDockWidget( QString::fromStdString( title ), parent )
 {
+    // setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+    setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
+
+    m_glWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( title, this, WGECamera::PERSPECTIVE ) );
+    m_glWidget->initialize();
+
+    setWidget( m_glWidget.get() );
 }
 
-WSubject::WSubject( WPersonalInformation personInfo )
-    : m_personalInfo( personInfo ),
-      m_dataSets( 0 )
+void WQtCustomDockWidget::closeEvent( QCloseEvent* event )
 {
-}
+    // forward events
+    m_glWidget->close();
 
-std::string WSubject::getName() const
-{
-    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
-}
-
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
-{
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
-}
-
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
-{
-    return getDataSet( dataSetId );
-}
-
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
-{
-    m_dataSets.push_back( newDataSet );
-}
-
-unsigned int WSubject::getNumberOfDataSets() const
-{
-    return m_dataSets.size();
+    event->accept();
 }
