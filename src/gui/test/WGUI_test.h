@@ -29,6 +29,9 @@
 
 #include "../WGUI.h"
 
+/**
+ * Tests for WGUI: Since WGUI is abstrac no test are here to define
+ */
 class WGUITest : public CxxTest::TestSuite
 {
 public:

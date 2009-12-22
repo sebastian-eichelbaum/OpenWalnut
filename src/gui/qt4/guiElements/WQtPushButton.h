@@ -37,8 +37,10 @@ class WQtPushButton : public QPushButton
     Q_OBJECT
 
 public:
-     /**
+    /**
      * standard constructor
+     * \param icon The icon being displayed on the button.
+     * \param label The optional label that will be displayed besides the icon.
      */
     explicit WQtPushButton( QIcon icon, QString label );
 
@@ -49,6 +51,7 @@ public:
 
     /**
      * setter for name
+     * \param name The new name of the button
      */
     void setName( QString name );
 
@@ -61,9 +64,7 @@ public:
 
 
 private:
-    QString m_name;
-
-
+    QString m_name; //!< name of the push button
 
 public slots:
     void emitPressed();

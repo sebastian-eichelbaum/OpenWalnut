@@ -63,6 +63,9 @@ public:
      */
     std::vector< QString > getButtons();
 
+    /**
+     * Returns the name of the tab
+     */
     QString getName();
 
     /**
@@ -80,9 +83,9 @@ protected:
     bool m_persistent;
 
 private:
-    QHBoxLayout* m_pageLayout;
+    QHBoxLayout* m_pageLayout; //!< Organizes the layout of the tab horizontally.
 
-    QString m_name;
+    QString m_name; //!< Name of the tab.
 
     /**
      * List of buttons belonging to this tab.

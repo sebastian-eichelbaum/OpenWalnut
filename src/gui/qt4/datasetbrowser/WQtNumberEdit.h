@@ -39,6 +39,7 @@ class WQtNumberEdit : public QLineEdit
 public:
     /**
      * default constructor
+     * \param parent The parent widget of this widget, i.e. the widget that manages it.
      */
     explicit WQtNumberEdit( QWidget* parent = 0 );
 
@@ -48,7 +49,12 @@ public:
     virtual ~WQtNumberEdit();
 
 public slots:
+    /**
+     * Set the value of the number edit.
+     * \param number the new number of the number edit.
+     */
     void setInt( int number );
+
     void numberChanged();
 
 signals:

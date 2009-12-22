@@ -88,7 +88,7 @@ public:
     unsigned int getNumberOfDataSets() const;
 protected:
 private:
-    WPersonalInformation m_personalInfo;
+    WPersonalInformation m_personalInfo; //<! Information on the person represented by this WSubject.
 
     /**
      * A container for all WDataSets belonging to the subject.

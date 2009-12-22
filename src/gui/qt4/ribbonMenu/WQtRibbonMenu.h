@@ -40,6 +40,7 @@ class WQtRibbonMenu  : public QToolBar
 public:
     /**
      * default constructor
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
     explicit WQtRibbonMenu( QWidget* parent );
 
@@ -49,17 +50,24 @@ public:
     virtual ~WQtRibbonMenu();
 
     /**
-     *
+     * Adds a new tab to the ribbon menu and gives it a name.
+     * \param name The name of the tab.
+     * \param persistent Determines whether the new will be removed when removing non-persistent tabs.
      */
     WQtMenuPage* addTab( QString name, bool persistent = true );
 
     /**
-     *
+     * Adds a push button to the menu. The button is identifiable by its name.
+     * \param name a name for the new button to identifie it
+     * \param tabName the name of the tab to which the button is added.
+     * \param icon and icon for the button
+     * \param label The optional text that is displayed besides the icon on the button.
      */
     WQtPushButton* addPushButton( QString name, QString tabName, QIcon icon, QString label = 0 );
 
     /**
-     *
+     * Get a button by its name.
+     * \param name The name that identifies the button.
      */
     WQtPushButton* getButton( QString name );
 
@@ -69,11 +77,11 @@ public:
     void clearNonPersistentTabs();
 protected:
 private:
-    std::map< QString, WQtMenuPage*>m_tabList;
+    std::map< QString, WQtMenuPage*> m_tabList;
 
-    std::map< QString, WQtPushButton*>m_buttonList;
+    std::map< QString, WQtPushButton*> m_buttonList;
 
-    QTabWidget* m_tabWidget;
+    QTabWidget* m_tabWidget; //!< The tab widget beeing the basis for the ribbon menu.
 };
 
 #endif  // WQTRIBBONMENU_H

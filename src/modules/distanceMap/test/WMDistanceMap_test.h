@@ -30,13 +30,13 @@
 #include "../WMDistanceMap.h"
 
 /**
- * TODO(wiebel): Document this!
+ * Tests for Module "Distance Map"
  */
 class WMDistanceMapTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(wiebel): Document this!
+     * TODO(wiebel):implement some tests and document them
      */
     void testSomething( void )
     {

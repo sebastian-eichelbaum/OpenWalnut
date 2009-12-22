@@ -41,6 +41,8 @@ class WQtSliderWithEdit : public QWidget
 public:
     /**
      * default constructor
+     * \param name Name of this GUI element.
+     * \param parent the widget that is the parent of this widget and thus manages it.
      */
     explicit WQtSliderWithEdit( QString name, QWidget* parent = 0 );
 
@@ -51,21 +53,25 @@ public:
 
     /**
      * setter for name
+     * \param name the new name for the GUI element.wo bin ich? hilfe! ich will hier raus
      */
     void setName( QString name );
 
     /**
      * setter for min value
+     * \param min the new minimum value
      */
     void setMin( int min );
 
     /**
      * setter for max value
+     * \param max the new maximum value
      */
     void setMax( int max );
 
     /**
      * setter for current value
+     * \param value the new current value
      */
     void setValue( int value );
 
@@ -78,11 +84,11 @@ public slots:
 
 protected:
 private:
-    QSlider m_slider;
-    WQtNumberEdit m_edit;
-    QHBoxLayout m_layout;
+    QSlider m_slider; //!< The slider of this GUI element;
+    WQtNumberEdit m_edit; //!< The number field of the this GUI element.
+    QHBoxLayout m_layout; //!< The layout organizing the positioning of the edit and the slider.
 
-    QString m_name;
+    QString m_name; //!< The name of this gui element.
 
 signals:
     void signalNumberWithName( QString name, int number );

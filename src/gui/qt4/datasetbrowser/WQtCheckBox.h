@@ -53,14 +53,20 @@ public:
     void setName( QString name );
 
 private:
-    QString m_name;
-
-
+    QString m_name; //!< Name of the check box.
 
 public slots:
+    /**
+     * This function emits checkBoxStateChanged signal.
+     */
     void emitStateChanged();
 
 signals:
+    /**
+     * Signal indicating that the state of the check box has changed.
+     * \param name name of the check box
+     * \param value Indicated whether the box is checked or not.
+     */
     void checkBoxStateChanged( QString name, bool value );
 };
 
