@@ -153,6 +153,10 @@ void WMainWindow::setupToolBar()
     m_toolBar->getButton( QString( "showCoronal" ) )->setChecked( true );
     m_toolBar->getButton( QString( "showSagittal" ) )->setChecked( true );
 
+    m_toolBar->getButton( QString( "showAxial" ) )->setToolTip( "Axial" );
+    m_toolBar->getButton( QString( "showCoronal" ) )->setToolTip( "Coronal" );
+    m_toolBar->getButton( QString( "showSagittal" ) )->setToolTip( "Sagittal" );
+
     connect( m_toolBar->getButton( QString( "showAxial" ) ),
             SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
     connect( m_toolBar->getButton( QString( "showCoronal" ) ),
