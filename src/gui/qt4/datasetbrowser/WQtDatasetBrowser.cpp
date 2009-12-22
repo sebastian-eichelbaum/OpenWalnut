@@ -153,18 +153,20 @@ void WQtDatasetBrowser::selectTreeItem()
     }
     boost::shared_ptr< WModule >module;
 
-    m_mainWindow->getRibbonMenu()->clearNonPersistentTabs();
+    m_mainWindow->getCompatiblesToolBar()->clearNonPersistentTabs();
 
     if ( m_treeWidget->selectedItems().at( 0 )->type() == 1 )
     {
         module = ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
         // create ribbon menu entry
-        m_mainWindow->getRibbonMenu()->addTab( QString( "Compatibles" ), false );
+        m_mainWindow->getCompatiblesToolBar()->addTab( QString( "Compatible Modules" ), false );
         std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
         for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
         {
-            WQtPushButton* button = m_mainWindow->getRibbonMenu()->addPushButton( QString( ( *iter )->getName().c_str() ), QString( "Compatibles" ),
-                    m_mainWindow->getIconManager()->getIcon( "load" ), QString( ( *iter )->getName().c_str() ) );
+            WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
+                                                                                          QString( "Compatible Modules" ),
+                                                                                          m_mainWindow->getIconManager()->getIcon( "load" ),
+                                                                                          QString( ( *iter )->getName().c_str() ) );
 
             connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
         }

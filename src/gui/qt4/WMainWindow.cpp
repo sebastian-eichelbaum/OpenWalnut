@@ -103,6 +103,8 @@ void WMainWindow::setupGUI( boost::program_options::variables_map guiConfigurati
     setupRibbonMenu();
     m_ribbonMenu->clearNonPersistentTabs();
 
+    setupCompatiblesToolBar();
+
     m_datasetBrowser = new WQtDatasetBrowser( this );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "subject1" );
@@ -167,6 +169,12 @@ void WMainWindow::setupRibbonMenu()
     addToolBar( Qt::TopToolBarArea, m_ribbonMenu );
 }
 
+void WMainWindow::setupCompatiblesToolBar()
+{
+    m_compatiblesToolBar = new WQtRibbonMenu( this );
+
+    addToolBar( Qt::TopToolBarArea, m_compatiblesToolBar );
+}
 
 WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 {
@@ -176,6 +184,11 @@ WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 WQtRibbonMenu* WMainWindow::getRibbonMenu()
 {
     return m_ribbonMenu;
+}
+
+WQtRibbonMenu* WMainWindow::getCompatiblesToolBar()
+{
+    return m_compatiblesToolBar;
 }
 
 void WMainWindow::openLoadDialog()

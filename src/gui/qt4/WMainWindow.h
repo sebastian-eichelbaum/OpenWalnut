@@ -85,6 +85,11 @@ public:
      */
     WQtRibbonMenu* getRibbonMenu();
 
+    /**
+     *  returns a pointer to the tool bar showing the compatible modules
+     */
+    WQtRibbonMenu* getCompatiblesToolBar();
+
 
     /**
      * Return property manager
@@ -150,7 +155,15 @@ public slots:
     void slotActivateModule( QString module );
 
 private:
+    /**
+     * Sets up the initial state of the ribbon menu
+     */
     void setupRibbonMenu();
+
+    /**
+     * Sets up the initial state of the tool bar showing the compatible modules
+     */
+    void setupCompatiblesToolBar();
 
     WIconManager m_iconManager;
 
@@ -158,6 +171,8 @@ private:
 
     QWidget* m_centralwidget; //!< the central widget of the docking facility. Thsi can not be moved.
     WQtRibbonMenu* m_ribbonMenu; //!< The ribbon menu of the main window.
+
+    WQtRibbonMenu* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selcted in the dataset browser
 
     WQtDatasetBrowser* m_datasetBrowser;
 
