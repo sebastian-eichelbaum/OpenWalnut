@@ -81,9 +81,9 @@ public:
     WQtDatasetBrowser* getDatasetBrowser();
 
     /**
-     *  returns a pointer to the toolbar object
+     *  returns a pointer to the ribbon menu object
      */
-    WQtRibbonMenu* getToolBar();
+    WQtRibbonMenu* getRibbonMenu();
 
 
     /**
@@ -150,14 +150,14 @@ public slots:
     void slotActivateModule( QString module );
 
 private:
-    void setupToolBar();
+    void setupRibbonMenu();
 
     WIconManager m_iconManager;
 
     WPropertyManager m_propertyManager;
 
     QWidget* m_centralwidget; //!< the central widget of the docking facility. Thsi can not be moved.
-    WQtRibbonMenu* m_toolBar;
+    WQtRibbonMenu* m_ribbonMenu; //!< The ribbon menu of the main window.
 
     WQtDatasetBrowser* m_datasetBrowser;
 

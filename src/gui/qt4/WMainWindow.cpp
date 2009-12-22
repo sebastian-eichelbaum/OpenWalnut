@@ -100,8 +100,8 @@ void WMainWindow::setupGUI( boost::program_options::variables_map guiConfigurati
         m_navSagittal->getGLWidget()->setBgColor( bgColor );
     }
 
-    setupToolBar();
-    m_toolBar->clearNonPersistentTabs();
+    setupRibbonMenu();
+    m_ribbonMenu->clearNonPersistentTabs();
 
     m_datasetBrowser = new WQtDatasetBrowser( this );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
@@ -110,61 +110,61 @@ void WMainWindow::setupGUI( boost::program_options::variables_map guiConfigurati
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
 
-void WMainWindow::setupToolBar()
+void WMainWindow::setupRibbonMenu()
 {
-    m_toolBar = new WQtRibbonMenu( this );
+    m_ribbonMenu = new WQtRibbonMenu( this );
 
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
     m_iconManager.addIcon( std::string( "save" ), disc_xpm );
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
 
-    m_toolBar->addTab( QString( "File" ) );
-    m_toolBar->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "Load" ) );
-    m_toolBar->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "Save" ) );
-    m_toolBar->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "Exit" ) );
+    m_ribbonMenu->addTab( QString( "File" ) );
+    m_ribbonMenu->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "Load" ) );
+    m_ribbonMenu->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "Save" ) );
+    m_ribbonMenu->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "Exit" ) );
 
     // the parent (this) will take care for deleting the shortcut
     QShortcut* shortcut = new QShortcut( QKeySequence( tr( "Ctrl+Q", "File|Exit" ) ), this );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( close() ) );
 
-    connect( m_toolBar->getButton( QString( "buttonQuit" ) ), SIGNAL( pressed() ), this, SLOT( close() ) );
-    connect( m_toolBar->getButton( QString( "buttonLoad" ) ), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( m_ribbonMenu->getButton( QString( "buttonQuit" ) ), SIGNAL( pressed() ), this, SLOT( close() ) );
+    connect( m_ribbonMenu->getButton( QString( "buttonLoad" ) ), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
 
-    m_toolBar->addTab( QString( "Modules" ) );
-    m_toolBar->addTab( QString( "Help" ) );
+    m_ribbonMenu->addTab( QString( "Modules" ) );
+    m_ribbonMenu->addTab( QString( "Help" ) );
 
     m_iconManager.addIcon( std::string( "axial" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
 
-    m_toolBar->addPushButton( QString( "showAxial" ), QString( "Modules" ), m_iconManager.getIcon( "axial" ) );
-    m_toolBar->addPushButton( QString( "showCoronal" ), QString( "Modules" ), m_iconManager.getIcon( "coronal" ) );
-    m_toolBar->addPushButton( QString( "showSagittal" ), QString( "Modules" ), m_iconManager.getIcon( "sagittal" ) );
+    m_ribbonMenu->addPushButton( QString( "showAxial" ), QString( "Modules" ), m_iconManager.getIcon( "axial" ) );
+    m_ribbonMenu->addPushButton( QString( "showCoronal" ), QString( "Modules" ), m_iconManager.getIcon( "coronal" ) );
+    m_ribbonMenu->addPushButton( QString( "showSagittal" ), QString( "Modules" ), m_iconManager.getIcon( "sagittal" ) );
 
-    m_toolBar->getButton( QString( "showAxial" ) )->setMaximumSize( 24, 24 );
-    m_toolBar->getButton( QString( "showCoronal" ) )->setMaximumSize( 24, 24 );
-    m_toolBar->getButton( QString( "showSagittal" ) )->setMaximumSize( 24, 24 );
+    m_ribbonMenu->getButton( QString( "showAxial" ) )->setMaximumSize( 24, 24 );
+    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setMaximumSize( 24, 24 );
+    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setMaximumSize( 24, 24 );
 
-    m_toolBar->getButton( QString( "showAxial" ) )->setCheckable( true );
-    m_toolBar->getButton( QString( "showCoronal" ) )->setCheckable( true );
-    m_toolBar->getButton( QString( "showSagittal" ) )->setCheckable( true );
+    m_ribbonMenu->getButton( QString( "showAxial" ) )->setCheckable( true );
+    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setCheckable( true );
+    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setCheckable( true );
 
-    m_toolBar->getButton( QString( "showAxial" ) )->setChecked( true );
-    m_toolBar->getButton( QString( "showCoronal" ) )->setChecked( true );
-    m_toolBar->getButton( QString( "showSagittal" ) )->setChecked( true );
+    m_ribbonMenu->getButton( QString( "showAxial" ) )->setChecked( true );
+    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setChecked( true );
+    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setChecked( true );
 
-    m_toolBar->getButton( QString( "showAxial" ) )->setToolTip( "Axial" );
-    m_toolBar->getButton( QString( "showCoronal" ) )->setToolTip( "Coronal" );
-    m_toolBar->getButton( QString( "showSagittal" ) )->setToolTip( "Sagittal" );
+    m_ribbonMenu->getButton( QString( "showAxial" ) )->setToolTip( "Axial" );
+    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setToolTip( "Coronal" );
+    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setToolTip( "Sagittal" );
 
-    connect( m_toolBar->getButton( QString( "showAxial" ) ),
+    connect( m_ribbonMenu->getButton( QString( "showAxial" ) ),
             SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( m_toolBar->getButton( QString( "showCoronal" ) ),
+    connect( m_ribbonMenu->getButton( QString( "showCoronal" ) ),
             SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( m_toolBar->getButton( QString( "showSagittal" ) ),
+    connect( m_ribbonMenu->getButton( QString( "showSagittal" ) ),
             SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
-    addToolBar( Qt::TopToolBarArea, m_toolBar );
+    addToolBar( Qt::TopToolBarArea, m_ribbonMenu );
 }
 
 
@@ -173,9 +173,9 @@ WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
     return m_datasetBrowser;
 }
 
-WQtRibbonMenu* WMainWindow::getToolBar()
+WQtRibbonMenu* WMainWindow::getRibbonMenu()
 {
-    return m_toolBar;
+    return m_ribbonMenu;
 }
 
 void WMainWindow::openLoadDialog()
