@@ -103,12 +103,12 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
     }
 
     us.requestContinuousUpdate( false );
-    _thrown = false;
     return true;
 }
 
 bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
 {
+    _thrown = false; // We do not want the auto-rotation thingy.
     if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
     {
         return zoom( ea, us );
