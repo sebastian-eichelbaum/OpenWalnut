@@ -191,7 +191,6 @@ void WMHud::init()
 void WMHud::updatePickText( std::string text )
 {
     m_pickText = text;
-    std::cout << text << std::endl;
 }
 
 void WMHud::update()

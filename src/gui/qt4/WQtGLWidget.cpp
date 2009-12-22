@@ -220,7 +220,6 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 void WQtGLWidget::mousePressEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
-    std::cout << m_Viewer->getPickHandler()->getHitResult() << std::endl;
     m_pickSignal( m_Viewer->getPickHandler()->getHitResult() );
 }
 
