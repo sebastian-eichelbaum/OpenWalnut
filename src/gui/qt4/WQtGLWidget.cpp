@@ -125,7 +125,7 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
             break;
         case TRACKBALL:
         default:
-            std::cout << "selected trackball manipulator" << std::endl;
+            std::cout << "selected OpwnWalnut's zoom trackball manipulator" << std::endl;
 
             m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
             break;
