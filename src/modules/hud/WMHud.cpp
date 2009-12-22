@@ -121,10 +121,10 @@ void WMHud::init()
     osg::Geometry* HUDBackgroundGeometry = new osg::Geometry();
 
     osg::Vec3Array* HUDBackgroundVertices = new osg::Vec3Array;
-    HUDBackgroundVertices->push_back( osg::Vec3( 600, 0, -1 ) );
+    HUDBackgroundVertices->push_back( osg::Vec3( 580, 0, -1 ) );
     HUDBackgroundVertices->push_back( osg::Vec3( 1024, 0, -1 ) );
     HUDBackgroundVertices->push_back( osg::Vec3( 1024, 100, -1 ) );
-    HUDBackgroundVertices->push_back( osg::Vec3( 600, 100, -1 ) );
+    HUDBackgroundVertices->push_back( osg::Vec3( 580, 100, -1 ) );
 
     osg::DrawElementsUInt* HUDBackgroundIndices = new osg::DrawElementsUInt( osg::PrimitiveSet::POLYGON, 0 );
     HUDBackgroundIndices->push_back( 0 );
@@ -166,11 +166,12 @@ void WMHud::init()
 
     HUDGeode->addDrawable( m_osgPickText );
 
-    m_osgPickText->setCharacterSize( 20 );
-    //m_osgPickText->setFont("C:/WINDOWS/Fonts/impact.ttf");
+    std::string fontPath = WKernel::getRunningKernel()->getAppPath() + "/fonts/";
+    m_osgPickText->setCharacterSize( 14 );
+    m_osgPickText->setFont( fontPath + "LiberationSans-Regular.ttf" );
     m_osgPickText->setText( "nothing picked" );
     m_osgPickText->setAxisAlignment( osgText::Text::SCREEN );
-    m_osgPickText->setPosition( osg::Vec3( 620, 80, -1.5 ) );
+    m_osgPickText->setPosition( osg::Vec3( 600, 80, -1.5 ) );
     m_osgPickText->setColor( osg::Vec4( 0, 0, 0, 1 ) );
 
     m_rootNode->setUserData( this );
