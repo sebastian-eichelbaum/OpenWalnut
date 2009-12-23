@@ -170,38 +170,40 @@ void WKernel::findAppPath()
 
     // This might be the better alternative to the below code but it does not print the path to the executable, but to the current
     // working directory, which in the unix world is the better choice as path
-    // char* sappPath = get_current_dir_name();
+    char* appPath = get_current_dir_name();
 
-    int length;
-    char appPath[255];
+    // int length;
+    //char appPath[255];
 
-    length = readlink( "/proc/self/exe", appPath, sizeof( appPath ) );
+    //length = readlink( "/proc/self/exe", appPath, sizeof( appPath ) );
 
-    // Catch some errors
-    if ( length < 0 )
-    {
-        WLogger::getLogger()->addLogMessage( "Error resolving symlink /proc/self/exe.", "Kernel", LL_ERROR );
-    }
-    if ( length >= 255 )
-    {
-        WLogger::getLogger()->addLogMessage( "Path too long. Truncated.", "Kernel", LL_ERROR );
-    }
+    //// Catch some errors
+    //if ( length < 0 )
+    //{
+    //    WLogger::getLogger()->addLogMessage( "Error resolving symlink /proc/self/exe.", "Kernel", LL_ERROR );
+    //}
+    //if ( length >= 255 )
+    //{
+    //    WLogger::getLogger()->addLogMessage( "Path too long. Truncated.", "Kernel", LL_ERROR );
+    //}
 
-    // the string this readlink() function returns is appended with a '@'.
-    appPath[length] = '\0';
+    //// the string this readlink() function returns is appended with a '@'.
+    //appPath[length] = '\0';
 
-    // strip off the executable name
-    while ( appPath[length] != '/' )
-    {
-        appPath[length] = '\0';
-        --length;
-        assert( length >= 0 );
-    }
+    //// strip off the executable name
+    //while ( appPath[length] != '/' )
+    //{
+    //    appPath[length] = '\0';
+    //    --length;
+    //    assert( length >= 0 );
+    //}
 
     m_AppPath = appPath;
+    m_AppPath += "/";
+    m_shaderPath = m_AppPath + "shaders/";
 
-    std::string shaderPath( appPath );
-    m_shaderPath = shaderPath + "shaders/";
+    // getcwd/get_current_dir_name() mallocs memory, free it here
+    delete appPath;
 
 #elif defined( __APPLE__ )
     char path[1024];
