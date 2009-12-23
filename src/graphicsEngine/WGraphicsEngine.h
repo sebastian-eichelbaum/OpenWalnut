@@ -110,10 +110,26 @@ public:
     void closeViewer( const std::string name );
 
     /**
-     * Searchs for a viewer with a given name and returns it, if found.
+     * Searches for a viewer with a given name and returns it, if found.
      * \param name The name of the viewer
      */
     boost::shared_ptr<WGEViewer> getViewerByName( std::string name );
+
+    /**
+     * Returns the currently selected default font usable in osgText nodes.
+     *
+     * \return Filename of the default font.
+     *
+     * \note this also contains the absolute path.
+     */
+    std::string getDefaultFont();
+
+    /**
+     * Returns instance of the graphics engine. If it does not exists, it will be created.
+     *
+     * \return the running graphics engine instance.
+     */
+    static boost::shared_ptr< WGraphicsEngine > getGraphicsEngine();
 
 protected:
 
@@ -153,6 +169,11 @@ protected:
     osg::ref_ptr<osgViewer::CompositeViewer> m_Viewer;
 
 private:
+
+    /**
+     * Singleton instance of WGraphicsEngine.
+     */
+    static boost::shared_ptr< WGraphicsEngine > m_instance;
 };
 
 /**

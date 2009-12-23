@@ -28,6 +28,7 @@
 #include <osg/Projection>
 
 #include "../../kernel/WKernel.h"
+#include "../../graphicsEngine/WGEResourceManager.h"
 
 #include "WMHud.h"
 
@@ -166,9 +167,8 @@ void WMHud::init()
 
     HUDGeode->addDrawable( m_osgPickText );
 
-    std::string fontPath = WKernel::getRunningKernel()->getAppPath() + "/fonts/";
     m_osgPickText->setCharacterSize( 14 );
-    m_osgPickText->setFont( fontPath + "LiberationSans-Regular.ttf" );
+    m_osgPickText->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
     m_osgPickText->setText( "nothing picked" );
     m_osgPickText->setAxisAlignment( osgText::Text::SCREEN );
     m_osgPickText->setPosition( osg::Vec3( 600, 80, -1.5 ) );

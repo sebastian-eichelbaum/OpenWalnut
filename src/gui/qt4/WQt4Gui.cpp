@@ -143,7 +143,7 @@ int WQt4Gui::run()
     QApplication appl( argc, argv, true );
 
     // startup graphics engine
-    m_ge = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine() );
+    m_ge = WGraphicsEngine::getGraphicsEngine();
 
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );

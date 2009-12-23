@@ -140,12 +140,12 @@ public:
     /**
      * get for application path
      */
-    std::string getAppPath() const;
+    static std::string getAppPath();
 
     /**
      * getter for shader path
      */
-    std::string getShaderPath() const;
+    static std::string getShaderPath();
 
 protected:
 
@@ -193,17 +193,17 @@ private:
     /**
      * Determine and store the application path
      */
-    bool findAppPath();
+    static void findAppPath();
 
     /**
      * the location of the openwalnut executable
      */
-    std::string m_AppPath;
+    static std::string m_AppPath;
 
     /**
      * the location of the openwalnut executable
      */
-    std::string m_shaderPath;
+    static std::string m_shaderPath;
 };
 
 #endif  // WKERNEL_H
