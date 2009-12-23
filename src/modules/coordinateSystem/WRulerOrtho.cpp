@@ -32,6 +32,8 @@
 #include <osg/PositionAttitudeTransform>
 #include <osgText/Text>
 
+#include "../../graphicsEngine/WGEResourceManager.h"
+
 #include "WRulerOrtho.h"
 
 WRulerOrtho::WRulerOrtho() :
@@ -47,9 +49,14 @@ void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
 {
     osg::ref_ptr<osgText::Text> label = osg::ref_ptr<osgText::Text>( new osgText::Text() );
     osg::ref_ptr<osg::Geode> labelGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+
     labelGeode->addDrawable( label );
-    label->setCharacterSize( 8 );
-    //testLabel->setFont( "/fonts/arial.ttf" );
+
+    // setup font
+    label->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+    label->setBackdropType( osgText::Text::OUTLINE );
+    label->setCharacterSize( 6 );
+
     label->setText( text );
     label->setAxisAlignment( osgText::Text::SCREEN );
     label->setDrawMode( osgText::Text::TEXT );

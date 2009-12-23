@@ -36,9 +36,14 @@
 
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
+#include "../kernel/WKernel.h"
 #include "WGEViewer.h"
 #include "WGraphicsEngine.h"
 #include "exceptions/WGEInitFailed.h"
+#include "WGEResourceManager.h"
+
+// graphics engine instance as singleton
+boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::m_instance = boost::shared_ptr< WGraphicsEngine >();
 
 WGraphicsEngine::WGraphicsEngine():
     WThreadedRunner()
@@ -63,12 +68,26 @@ WGraphicsEngine::WGraphicsEngine():
     //  ThreadPerCamera
     //  AutomaticSelection
     m_Viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
+
+    // init resource manager ( it is a singleton and gets created during first "getResourceManager" request.
+    WGEResourceManager::getResourceManager();
 }
 
 WGraphicsEngine::~WGraphicsEngine()
 {
     // cleanup
     WLogger::getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_INFO );
+}
+
+
+boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::getGraphicsEngine()
+{
+    if ( !m_instance )
+    {
+        m_instance = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine() );
+    }
+
+    return m_instance;
 }
 
 osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
@@ -148,3 +167,4 @@ osg::Vec4 wge::osgColor( const WColor& color )
 {
     return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
 }
+

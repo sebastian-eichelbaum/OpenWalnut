@@ -112,6 +112,7 @@ void WMMarchingCubes::moduleMain()
         {
             // ok, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
+            debugLog() << "Waiting for data ...";
             m_moduleState.wait();
             continue;
         }

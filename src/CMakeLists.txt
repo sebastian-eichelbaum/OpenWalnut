@@ -122,6 +122,13 @@ add_custom_target( fontsDirectoryConfiguration
   COMMENT "Put all fonts to the right place."
   )
 
+#---------- shell scripts -------------
+add_custom_target( binDirectoryConfiguration
+  ALL
+  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyShellScripts.cmake
+  COMMENT "Put all shell scripts to the right place."
+  )
+
 # Special targets:
 #-------------------------------------------------------------------------------------------------------------
 # Creates API via Doxygen

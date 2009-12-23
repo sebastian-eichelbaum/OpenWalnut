@@ -22,6 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef __linux__
+#include <unistd.h> // used for getcwd (to get current directory)
+#endif
+
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
 #endif
@@ -49,6 +53,16 @@
  */
 WKernel* kernel = NULL;
 
+/**
+ * Define shader path.
+ */
+std::string WKernel::m_shaderPath = std::string();
+
+/**
+ * Define app path.
+ */
+std::string WKernel::m_AppPath = std::string();
+
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
 {
@@ -73,7 +87,7 @@ WKernel::~WKernel()
 
 void WKernel::init()
 {
-     // initialize
+    // initialize
     findAppPath();
 
     // get module factory
@@ -84,7 +98,7 @@ void WKernel::init()
                 "Root module container in Kernel." ) );
 
     // initialize graphics engine, or, at least set some stuff
-    m_graphicsEngine->setShaderPath( m_shaderPath );
+    m_graphicsEngine->setShaderPath( WKernel::m_shaderPath );
 
     // initialize Datahandler
     m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
@@ -142,45 +156,55 @@ void WKernel::threadMain()
     WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_INFO );
 }
 
-bool WKernel::findAppPath()
+void WKernel::findAppPath()
 {
+    // only get the path if not already done
+    if ( m_AppPath != "" )
+    {
+        return;
+    }
+
     // FIXME (schurade)
     // this should work on linux, have to implement it for windows and mac later
 #ifdef __linux__
-    int length;
-    char appPath[255];
 
-    length = readlink( "/proc/self/exe", appPath, sizeof( appPath ) );
+    // This might be the better alternative to the below code but it does not print the path to the executable, but to the current
+    // working directory, which in the unix world is the better choice as path
+    char* appPath = get_current_dir_name();
 
-    // Catch some errors
-    if ( length < 0 )
-    {
-        WLogger::getLogger()->addLogMessage( "Error resolving symlink /proc/self/exe.", "Kernel", LL_ERROR );
-        return false;
-    }
-    if ( length >= 255 )
-    {
-        WLogger::getLogger()->addLogMessage( "Path too long. Truncated.", "Kernel", LL_ERROR );
-        return false;
-    }
+    // int length;
+    //char appPath[255];
 
-    // the string this readlink() function returns is appended with a '@'.
-    appPath[length] = '\0';
+    //length = readlink( "/proc/self/exe", appPath, sizeof( appPath ) );
 
-    // strip off the executable name
-    while ( appPath[length] != '/' )
-    {
-        appPath[length] = '\0';
-        --length;
-        assert( length >= 0 );
-    }
+    //// Catch some errors
+    //if ( length < 0 )
+    //{
+    //    WLogger::getLogger()->addLogMessage( "Error resolving symlink /proc/self/exe.", "Kernel", LL_ERROR );
+    //}
+    //if ( length >= 255 )
+    //{
+    //    WLogger::getLogger()->addLogMessage( "Path too long. Truncated.", "Kernel", LL_ERROR );
+    //}
+
+    //// the string this readlink() function returns is appended with a '@'.
+    //appPath[length] = '\0';
+
+    //// strip off the executable name
+    //while ( appPath[length] != '/' )
+    //{
+    //    appPath[length] = '\0';
+    //    --length;
+    //    assert( length >= 0 );
+    //}
 
     m_AppPath = appPath;
+    m_AppPath += "/";
+    m_shaderPath = m_AppPath + "shaders/";
 
-    std::string shaderPath( appPath );
-    m_shaderPath = shaderPath + "shaders/";
+    // getcwd/get_current_dir_name() mallocs memory, free it here
+    delete appPath;
 
-    return true;
 #elif defined( __APPLE__ )
     char path[1024];
     uint32_t size = sizeof( path );
@@ -200,8 +224,6 @@ bool WKernel::findAppPath()
 
         std::string shaderPath( path );
         m_shaderPath = shaderPath + "shaders/";
-
-        return true;
     }
     else
     {
@@ -211,9 +233,12 @@ bool WKernel::findAppPath()
     }
 #else
 #pragma message( "Error: findAppPath not implemented for this platform" )
+    // for windows, use something like this:
+    // DWORD GetModuleFileName( NULL, HMODULE hModule, // handle to module
+    //                                LPTSTR lpFilename, // path buffer
+    //                                DWORD nSize // size of buffer
+    // );
 #endif
-
-    return false;
 }
 
 const WBoolFlag& WKernel::isFinishRequested() const
@@ -243,12 +268,14 @@ boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const
     return m_dataHandler;
 }
 
-std::string WKernel::getAppPath() const
+std::string WKernel::getAppPath()
 {
-    return m_AppPath;
+    findAppPath();
+    return WKernel::m_AppPath;
 }
 
-std::string WKernel::getShaderPath() const
+std::string WKernel::getShaderPath()
 {
-    return m_shaderPath;
+    findAppPath();
+    return WKernel::m_shaderPath;
 }
