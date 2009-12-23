@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# get path of this script
+BINDIR=`dirname $0`
+
+# assume that this script is in the bin dir
+WALNUTPATH="$PWD/$BINDIR"
+
+# go there and run walnut to ensure walnuts working directory is set correctly
+cd $WALNUTPATH
+walnut
