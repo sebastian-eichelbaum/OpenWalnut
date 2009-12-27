@@ -102,8 +102,8 @@ ADD_SUBDIRECTORY( utils )
 ADD_SUBDIRECTORY( kernel )
 ADD_SUBDIRECTORY( common )
 ADD_SUBDIRECTORY( modules )
-ADD_EXECUTABLE( walnut OpenWalnut.cpp )
-TARGET_LINK_LIBRARIES( walnut kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
+ADD_EXECUTABLE( walnut-bin OpenWalnut.cpp )
+TARGET_LINK_LIBRARIES( walnut-bin kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )

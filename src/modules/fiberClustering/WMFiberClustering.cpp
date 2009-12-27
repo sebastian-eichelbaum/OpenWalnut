@@ -36,13 +36,11 @@
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
-#include "../../common/WStringUtils.h"
 #include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/io/WIOTools.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
@@ -50,6 +48,8 @@
 #include "../../math/WFiber.h"
 #include "../../math/fiberSimilarity/WDLTMetric.h"
 #include "../../utils/WColorUtils.h"
+#include "../../utils/WIOTools.h"
+#include "../../utils/WStringUtils.h"
 #include "WMFiberClustering.h"
 
 WMFiberClustering::WMFiberClustering()

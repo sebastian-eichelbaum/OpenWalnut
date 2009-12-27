@@ -28,10 +28,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WWriterFiberVTK.h"
-#include "WIOTools.h"
+#include "../../utils/WIOTools.h"
 #include "../WDataSetFibers.h"
 #include "../exceptions/WDHIOFailure.h"
+#include "WWriterFiberVTK.h"
 
 WWriterFiberVTK::WWriterFiberVTK( std::string fname, bool overwrite )
     : WWriter( fname, overwrite )

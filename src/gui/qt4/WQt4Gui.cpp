@@ -33,13 +33,13 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 
-#include "WMainWindow.h"
-#include "../../kernel/WKernel.h"
+#include "WMainWindow.h" // this has to be included before any other includes
 #include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../kernel/WKernel.h"
 #include "../../modules/data/WMData.h"
-
-#include "WQt4Gui.h"
+#include "../../utils/WIOTools.h"
 #include "WCreateCustomDockWidgetEvent.h"
+#include "WQt4Gui.h"
 
 WQt4Gui::WQt4Gui( int argc, char** argv ):
     WGUI( argc, argv )
@@ -50,14 +50,17 @@ WQt4Gui::~WQt4Gui()
 {
 }
 
+#ifdef _WIN32
+// TODO(wiebel): Hi, this is math. I assume the line below is due to linker errors with boost. I just marked it with this todo
+// since we don't forget this. When using Linux or Mac I _think_ we don't need this.
 const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
+#endif
 
 bool WQt4Gui::parseOptions( int argc, char** argv )
 {
-    // since the namespace is far to big we use a shortcut here
-    namespace po = boost::program_options;
+    namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
+    po::options_description desc( "Allowed options" );
 
-    po::options_description desc( "Allowed options", 2048 );
 #ifndef _WIN32
 // TODO(wiebel): this does not link on windows at the moment. But it should!
     desc.add_options()
@@ -72,14 +75,9 @@ bool WQt4Gui::parseOptions( int argc, char** argv )
     {
         po::store( po::command_line_parser( argc, argv ).options( desc ).positional( p ).run(), m_optionsMap );
     }
-    catch( boost::program_options::unknown_option e )
+    catch( const po::error &e )
     {
-        std::cout << e.what() << std::endl;
-        return false;
-    }
-    catch( boost::program_options::invalid_command_line_syntax e )
-    {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return false;
     }
 
@@ -88,6 +86,7 @@ bool WQt4Gui::parseOptions( int argc, char** argv )
     //=====================
     // CONFIGURATION FILE
     po::options_description guiConfigurationDescription( "GUI configuration" );
+
 #ifndef _WIN32
 // TODO(wiebel): this does not link on windows at the moment. But it should!
     guiConfigurationDescription.add_options()
@@ -96,19 +95,26 @@ bool WQt4Gui::parseOptions( int argc, char** argv )
         ( "ge.bgColor.b", po::value< float >() );
 #endif
 
-    std::ifstream ifs;
-    ifs.open( "walnut.cfg", std::ifstream::in );
+    std::string cfgFileName( "walnut.cfg" );
 
-    po::variables_map guiConfiguration;
-
-    try
+    if( wiotools::fileExists( cfgFileName ) )
     {
-        po::store( po::parse_config_file( ifs, guiConfigurationDescription ), m_guiConfiguration );
+        wlog::info( "GUI" ) << "Reading config file: " << cfgFileName;
+        std::ifstream ifs( cfgFileName.c_str(), std::ifstream::in );
+
+        try
+        {
+            po::store( po::parse_config_file( ifs, guiConfigurationDescription ), m_guiConfiguration );
+        }
+        catch( const po::error &e )
+        {
+            std::cerr << "Error in configuration file \"" << cfgFileName << "\": " << e.what() << std::endl;
+            return false;
+        }
     }
-    catch( boost::program_options::unknown_option e )
+    else
     {
-        std::cout << "Syntax error in configuration file \"walnut.cfg\"." << std::endl;
-        return false;
+        wlog::info( "GUI" ) << "No Config file: " << cfgFileName << " found";
     }
 
     po::notify( m_guiConfiguration );

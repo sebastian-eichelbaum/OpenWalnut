@@ -23,21 +23,22 @@
 //---------------------------------------------------------------------------
 
 #include <stdint.h>
+
 #include <cassert>
 #include <fstream>
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include "../../common/WStringUtils.h"
 #include "../../common/WLogger.h"
 #include "../../math/WPosition.h"
+#include "../../utils/WIOTools.h"
+#include "../../utils/WStringUtils.h"
 #include "../WDataHandler.h"
 #include "../WDataSetFibers.h"
 #include "../WSubject.h"
-#include "WIOTools.h"
 #include "WLoaderFibers.h"
 
 WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )

@@ -24,9 +24,9 @@
 
 #include <string>
 
+#include "../utils/WIOTools.h"
 #include "WLoader.h"
 #include "exceptions/WDHIOFailure.h"
-#include "io/WIOTools.h"
 
 
 WLoader::WLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )

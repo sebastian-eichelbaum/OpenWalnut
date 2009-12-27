@@ -30,10 +30,10 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WMMarchingCubes.h"
 #include "../../../common/WLogger.h"
 #include "../../../math/WPosition.h"
-#include "../../../dataHandler/io/WIOTools.h"
+#include "../../../utils/WIOTools.h"
+#include "../WMMarchingCubes.h"
 
 static WLogger logger;
 static bool loggerInitialized = false;

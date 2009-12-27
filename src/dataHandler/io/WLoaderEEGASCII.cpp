@@ -26,13 +26,14 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include <boost/lexical_cast.hpp>
 
-#include "WLoaderEEGASCII.h"
-#include "../WSubject.h"
-#include "../WEEG.h"
 #include "../../common/WException.h"
-#include "../../common/WStringUtils.h"
+#include "../../utils/WStringUtils.h"
+#include "../WEEG.h"
+#include "../WSubject.h"
+#include "WLoaderEEGASCII.h"
 
 WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
     : WLoader( fileName, dataHandler )

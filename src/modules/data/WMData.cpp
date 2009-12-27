@@ -27,17 +27,15 @@
 
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
-
+#include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/exceptions/WDHException.h"
-#include "../../dataHandler/io/WLoaderNIfTI.h"
 #ifndef _WIN32
 #include "../../dataHandler/io/WLoaderBiosig.h"
 #endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
 #include "../../dataHandler/io/WLoaderFibers.h"
-#include "../../dataHandler/io/WIOTools.h"
-
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/io/WLoaderNIfTI.h"
+#include "../../utils/WIOTools.h"
 #include "WMData.h"
 
 WMData::WMData():

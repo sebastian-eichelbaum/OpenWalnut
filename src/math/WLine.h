@@ -28,8 +28,8 @@
 #include <iostream>
 #include <vector>
 
+#include "../utils/WStringUtils.h"
 #include "WPosition.h"
-#include "../common/WStringUtils.h"
 
 // we need this to find the WLineTest class which is not inside wmath namespace
 class WLineTest;

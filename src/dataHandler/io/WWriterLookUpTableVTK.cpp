@@ -29,9 +29,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WWriterLookUpTableVTK.h"
-#include "WIOTools.h"
+#include "../../utils/WIOTools.h"
 #include "../exceptions/WDHIOFailure.h"
+#include "WWriterLookUpTableVTK.h"
 
 WWriterLookUpTableVTK::WWriterLookUpTableVTK( std::string fname, bool overwrite )
     : WWriter( fname, overwrite )

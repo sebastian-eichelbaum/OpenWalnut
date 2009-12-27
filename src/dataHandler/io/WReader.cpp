@@ -24,9 +24,9 @@
 
 #include <string>
 
-#include "WReader.h"
-#include "WIOTools.h"
+#include "../../utils/WIOTools.h"
 #include "../exceptions/WDHNoSuchFile.h"
+#include "WReader.h"
 
 WReader::WReader( std::string fname )
 {

@@ -11,7 +11,7 @@ ENDIF()
 
 # Unit tests
 IF( CXXTEST_FOUND )
-  CXXTEST_ADD_TESTS_FROM_LIST( "${MATH_SRC}" 
-                               "math;common" 
+  CXXTEST_ADD_TESTS_FROM_LIST( "${MATH_SRC}"
+                               "math;common;utils"
                               )
 ENDIF( CXXTEST_FOUND )
