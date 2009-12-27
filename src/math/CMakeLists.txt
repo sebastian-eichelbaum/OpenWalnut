@@ -13,5 +13,6 @@ ENDIF()
 IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${MATH_SRC}"
                                "math;common;utils"
-                              )
+                               "WMath.cpp" # this declares only a namespace
+                             )
 ENDIF( CXXTEST_FOUND )

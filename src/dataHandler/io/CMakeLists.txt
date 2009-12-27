@@ -5,5 +5,12 @@ FILE( GLOB DATAHANDLER_IO_SRC "*.cpp" )
 
 # Unit tests
 IF( CXXTEST_FOUND )
-  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_IO_SRC}" "dataHandler;niftiio;biosig" )
+  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_IO_SRC}"
+                               "dataHandler;niftiio;biosig"
+                               "WWriter.cpp" # too simple to test
+                               "WReader.cpp" # too simple to test
+                               "WWriterLookUpTableVTK.cpp" # there is only one member function which is not trivial, but its more an integration test
+                               "WReaderLookUpTableVTK.cpp" # there is only one member function which is not trivial, but its more an integration test
+                               "WWriterFiberVTK.cpp" # there is only one member function which is not trivial, but its more an integration test
+                             )
 ENDIF( CXXTEST_FOUND )

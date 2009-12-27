@@ -24,14 +24,14 @@
 
 #include "../common/WConditionOneShot.h"
 #include "../common/WFlag.h"
-
 #include "WGUI.h"
 
-WGUI::WGUI( int argc, char** argv ): boost::enable_shared_from_this< WGUI >(),
-    m_isInitialized( new WConditionOneShot(), false )
+WGUI::WGUI( int argc, char** argv )
+    : boost::enable_shared_from_this< WGUI >(),
+      m_isInitialized( new WConditionOneShot(), false ),
+      m_argc( argc ),
+      m_argv( argv )
 {
-    this->argc = argc;
-    this->argv = argv;
 }
 
 WGUI::~WGUI()

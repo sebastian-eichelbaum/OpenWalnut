@@ -109,6 +109,25 @@ public:
      */
     void setRGB( double r, double g, double b );
 
+
+    /**
+     * Compares two WColor instances on all four channels.
+     *
+     * \param rhs The other WColor instance
+     * \return True if they share the same values in all four channles:
+     * red, green, blue and alpha
+     */
+    bool operator==( const WColor &rhs ) const;
+
+    /**
+     * Opposite of the operator==.
+     *
+     * \param rhs The other WColor instance
+     * \return True if they don't share the same values in all four channles:
+     * red, green, blue and alpha
+     */
+    bool operator!=( const WColor &rhs ) const;
+
 protected:
 private:
     float m_red; //!< Red channel

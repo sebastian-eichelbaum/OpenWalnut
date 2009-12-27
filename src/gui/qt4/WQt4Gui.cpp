@@ -41,8 +41,8 @@
 #include "WCreateCustomDockWidgetEvent.h"
 #include "WQt4Gui.h"
 
-WQt4Gui::WQt4Gui( int argc, char** argv ):
-    WGUI( argc, argv )
+WQt4Gui::WQt4Gui( int argc, char** argv )
+    : WGUI( argc, argv )
 {
 }
 
@@ -56,7 +56,7 @@ WQt4Gui::~WQt4Gui()
 const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
 #endif
 
-bool WQt4Gui::parseOptions( int argc, char** argv )
+bool WQt4Gui::parseOptions()
 {
     namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
     po::options_description desc( "Allowed options" );
@@ -73,7 +73,7 @@ bool WQt4Gui::parseOptions( int argc, char** argv )
 
     try
     {
-        po::store( po::command_line_parser( argc, argv ).options( desc ).positional( p ).run(), m_optionsMap );
+        po::store( po::command_line_parser( m_argc, m_argv ).options( desc ).positional( p ).run(), m_optionsMap );
     }
     catch( const po::error &e )
     {
@@ -129,8 +129,7 @@ bool WQt4Gui::parseOptions( int argc, char** argv )
 
 int WQt4Gui::run()
 {
-    bool parsingSuccessful = false;
-    parsingSuccessful = parseOptions( argc, argv );
+    bool parsingSuccessful = parseOptions();
 
     if( !parsingSuccessful )
     {
@@ -146,7 +145,7 @@ int WQt4Gui::run()
     WLogger::getLogger()->run();
     WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_INFO );
 
-    QApplication appl( argc, argv, true );
+    QApplication appl( m_argc, m_argv, true );
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();

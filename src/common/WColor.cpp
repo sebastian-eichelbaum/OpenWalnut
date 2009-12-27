@@ -203,3 +203,16 @@ std::istream& operator>>( std::istream& in, WColor& c )
 
     return in;
 }
+
+bool WColor::operator==( const WColor &rhs ) const
+{
+    return m_red == rhs.m_red &&
+           m_green == rhs.m_green &&
+           m_blue == rhs.m_blue &&
+           m_alpha == rhs.m_alpha;
+}
+
+bool WColor::operator!=( const WColor &rhs ) const
+{
+    return !( *this == rhs );
+}

@@ -20,5 +20,6 @@ IF( CXXTEST_FOUND )
                                "WTransferable.cpp"
                                "WConditionSet.cpp"
                                "WPrototyped.cpp"
+                               "WLimits.cpp" # there are only some definitions
                              )
 ENDIF( CXXTEST_FOUND )

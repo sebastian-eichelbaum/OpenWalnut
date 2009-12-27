@@ -25,12 +25,13 @@
 #ifndef WCOLOR_TEST_H
 #define WCOLOR_TEST_H
 
-#include <string>
 #include <sstream>
+#include <string>
 
 #include <cxxtest/TestSuite.h>
 
 #include "../WColor.h"
+#include "WColorTraits.h"
 
 /**
  * Unit tests the WColor class
@@ -40,7 +41,7 @@ class WColorTest : public CxxTest::TestSuite
 public:
     /**
      * To write a WColor object to an output stream we must ensure that every
-     * component (red, green, blue and alpha) are written to that stream and 
+     * component (red, green, blue and alpha) are written to that stream and
      * that we have a special delimiter char.
      */
     void testOutputOperator( void )
@@ -92,6 +93,18 @@ public:
         TS_ASSERT_DELTA( c.getRed(), 0.2280, 0.0001 );
         TS_ASSERT_DELTA( c.getGreen(), 0.3, 0.0001 );
         TS_ASSERT_DELTA( c.getBlue(), 0.2099, 0.0001 );
+    }
+
+    /**
+     * Two colors are equal if they share the same value in all four channels.
+     */
+    void testEquality( void )
+    {
+        WColor foo( 0.1, 0.2, 0.3, 0.4 );
+        WColor bar( 0.10001, 0.2, 0.3, 0.4 );
+        TS_ASSERT_DIFFERS( foo, bar );
+        WColor pansen( 0.1, 0.2, 0.3, 0.4 );
+        TS_ASSERT_EQUALS( foo, pansen );
     }
 };
 

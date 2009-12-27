@@ -14,5 +14,6 @@ TARGET_LINK_LIBRARIES( gui common )
 IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${GUI_SRC}"
                                "common;utils"
+                               "WGUI.cpp"
                              )
 ENDIF( CXXTEST_FOUND )

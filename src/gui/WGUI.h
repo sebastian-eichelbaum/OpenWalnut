@@ -121,12 +121,12 @@ protected:
     /**
      * Number of command line arguments given.
      */
-    int argc;
+    int m_argc;
 
     /**
      * Command line arguments given.
      */
-    char** argv;
+    char** m_argv;
 };
 
 #endif  // WGUI_H

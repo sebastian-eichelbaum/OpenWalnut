@@ -314,10 +314,28 @@ void WMFiberClustering::connectors()
 
 void WMFiberClustering::properties()
 {
-    m_properties->addString( "Fibers Display Module", "Display fibers" );
-    // this bool is hidden
+    // this bool is hidden and used for hiding the osgNode
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addDouble( "Threshold", 6.5 )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addDouble( "max distance threshold",
+                             m_maxDistance_t,
+                             false,
+                             "Maximum distance of two fibers in one cluster."
+                           )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addDouble( "max distance threshold",
+                             m_proximity_t,
+                             false,
+                             "defines the minimum distance between two fibers which should be considered in distance measure."
+                           )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addInt( "min cluster size",
+                          m_minClusterSize,
+                          false,
+                          "All clusters up to this size will be discarded."
+                        )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "separate primitives",
+                           m_separatePrimitives,
+                           false,
+                           "If true each cluster has its own OSG node"
+                         )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
 }
 
 void WMFiberClustering::slotPropertyChanged( std::string propertyName )
@@ -333,7 +351,7 @@ void WMFiberClustering::slotPropertyChanged( std::string propertyName )
             m_osgNode->setNodeMask( 0x0 );
         }
     }
-    else if( propertyName == "Threshold" )
+    else if( propertyName == "max distance threshold" )
     {
         m_maxDistance_t = m_properties->getValue< double >( propertyName );
         update();
