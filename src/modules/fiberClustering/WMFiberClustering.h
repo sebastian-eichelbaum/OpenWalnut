@@ -139,6 +139,16 @@ private:
     void meld( size_t qClusterID, size_t rClusterID );
 
     /**
+     * Computes from the file name inside the given WDataSetFibers the
+     * corresponding file name for the lookup table. This has the same
+     * basename but the extension is now '.dlt' not '.fib' and resides
+     * in the same directory as the fib file.
+     *
+     * \return fib file name where the extension is changed to ".dlt"
+     */
+    std::string lookUpTableFileName() const;
+
+    /**
      * Stores the cluster id of every fiber so it is fast to get the cluster
      * of a given fiber.
      */

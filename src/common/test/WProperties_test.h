@@ -42,7 +42,7 @@ public:
     {
         WProperties props;
         props.addInt( "test", 57, "test57", "longDesc57" );
-        TS_ASSERT_EQUALS( props.getValue<int>( "test" ), 57 );
+        TS_ASSERT_EQUALS( props.getValue< int >( "test" ), 57 );
     }
 
     /**
@@ -53,7 +53,7 @@ public:
         WProperties props;
         props.addInt( "test", 57, "test57", "longDesc57" );
         props.setValue( "test", 61 );
-        TS_ASSERT_EQUALS( props.getValue<int>( "test" ), 61 );
+        TS_ASSERT_EQUALS( props.getValue< int >( "test" ), 61 );
     }
 };
 

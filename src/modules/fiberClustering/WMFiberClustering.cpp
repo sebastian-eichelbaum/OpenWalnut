@@ -115,14 +115,16 @@ void WMFiberClustering::update()
 
 void WMFiberClustering::checkDLtLookUpTable()
 {
+    std::string dLtFileName = lookUpTableFileName();
+
     // TODO(math): replace this hard coded path when properties are available
-    if( wiotools::fileExists( "/tmp/pansen.dist" ) )
+    if( wiotools::fileExists( dLtFileName ) )
     {
         try
         {
-            debugLog() << "trying to read table from /tmp/pansen.dist";
+            debugLog() << "trying to read table from: " << dLtFileName;
             // TODO(math): replace this hard coded path when properties are available
-            WReaderLookUpTableVTK r( "/tmp/pansen.dist" );
+            WReaderLookUpTableVTK r( dLtFileName );
             using boost::shared_ptr;
             using std::vector;
             shared_ptr< vector< double > > data = shared_ptr< vector < double > >( new vector< double >() );
@@ -219,7 +221,8 @@ void WMFiberClustering::cluster()
     infoLog() << "Using " << m_clusters.size() << " clusters.";
 
     m_lastFibsSize = m_fibs->size();
-    WWriterLookUpTableVTK w( "/tmp/pansen.dist", true );
+
+    WWriterLookUpTableVTK w( lookUpTableFileName(), true );
     w.writeTable( m_dLtTable->getData(), m_lastFibsSize );
 }
 
@@ -362,4 +365,10 @@ void WMFiberClustering::slotPropertyChanged( std::string propertyName )
         std::cerr << propertyName << std::endl;
         assert( 0 && "This property name is not supported by this function yet." );
     }
+}
+
+std::string WMFiberClustering::lookUpTableFileName() const
+{
+    boost::filesystem::path fibFileName( m_fibs->getFileName() );
+    return fibFileName.replace_extension( ".dlt" ).string();
 }
