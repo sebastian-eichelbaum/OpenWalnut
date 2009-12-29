@@ -107,7 +107,7 @@ void WMainWindow::setupGUI( boost::program_options::variables_map guiConfigurati
 
     m_datasetBrowser = new WQtDatasetBrowser( this );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
-    m_datasetBrowser->addSubject( "subject1" );
+    m_datasetBrowser->addSubject( "Default Subject" );
 
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
