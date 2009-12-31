@@ -54,8 +54,8 @@ const std::string WMEEGView::getDescription() const
 void WMEEGView::moduleMain()
 {
     // do initialization
-    //std::cout << "Load EEG View module\n";
     WKernel::getRunningKernel()->getGui()->createCustomWidget( "EEG View" );
+    std::cout << "Loaded EEG View widget\n";
 
     ready();
 

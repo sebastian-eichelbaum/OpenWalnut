@@ -298,6 +298,8 @@ void WMainWindow::customEvent( QEvent* event )
         boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
         assert( m_customDockWidgets.insert( make_pair( title, widget ) ).second == true );
         m_customDockWidgetsLock.unlock();
+
+        ccdwEvent->getCondition()->notify();
     }
     else
     {

@@ -24,15 +24,22 @@
 
 #include <string>
 
+#include "../../common/WConditionOneShot.h"
 #include "WCreateCustomDockWidgetEvent.h"
 
-WCreateCustomDockWidgetEvent::WCreateCustomDockWidgetEvent( std::string title )
+WCreateCustomDockWidgetEvent::WCreateCustomDockWidgetEvent( std::string title, boost::shared_ptr< WConditionOneShot > condition )
     : QEvent( CUSTOM_TYPE ),
-      m_title( title )
+      m_title( title ),
+      m_condition( condition )
 {
 }
 
 std::string WCreateCustomDockWidgetEvent::getTitle() const
 {
     return m_title;
+}
+
+boost::shared_ptr< WConditionOneShot > WCreateCustomDockWidgetEvent::getCondition() const
+{
+    return m_condition;
 }
