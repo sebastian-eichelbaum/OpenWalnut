@@ -36,6 +36,8 @@ class WQtDatasetTreeItem : public QTreeWidgetItem
 public:
     /**
      * standard constructor
+     * \param parent The parent widget that manages this widget.
+     * \param module The module that will be represented by the item.
      */
     explicit WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
@@ -51,7 +53,7 @@ public:
 
 protected:
 private:
-     boost::shared_ptr< WModule >m_module;
+    boost::shared_ptr< WModule > m_module; //!< The module represented by this item.
 };
 
 #endif  // WQTDATASETTREEITEM_H

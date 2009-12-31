@@ -125,14 +125,16 @@ private:
     void create();
 
     /**
-     * initial creation function for the slice geometry
+     * Initial creation function for the slice geometry
+     * \param slice ID of the slice to be drawn. 0=y, 1=x, 2=z
      */
     osg::ref_ptr<osg::Geometry> createGeometry( int slice );
 
     /**
      * creates and initializes the uniform parameters for the shader
+     * \param rootState The uniforms will be applied to this state.
      */
-    void initUniforms( osg::StateSet* sliceState );
+    void initUniforms( osg::StateSet* rootState );
 
     /**
      * the root node for this module

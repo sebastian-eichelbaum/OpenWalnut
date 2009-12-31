@@ -49,6 +49,7 @@ public:
 
     /**
      * setter for name
+     * \param name The new name of the check box
      */
     void setName( QString name );
 

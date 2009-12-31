@@ -65,27 +65,32 @@ public:
 
     /**
      * Sets the global log level
+     * \param level the new global logging level
      */
     void setLogLevel( LogLevel level );
 
     /**
      * Sets the log level for stdout.
+     * \param level the new logging level for stdout
      */
     void setSTDOUTLevel( LogLevel level );
 
     /**
      * Sets the log level for stderr.
+     * \param level the new logging level for stderr
      */
     void setSTDERRLevel( LogLevel level );
 
     /**
      * Sets the log level for the given log file.
+     * \param level the new level for logging to file
      */
     void setLogFileLevel( LogLevel level );
 
     /**
      * Specifies the path for logging to this file and checks if the path
      * exists by an assertion.
+     * \param fileName the name and path of the file to be used for logging.
      */
     void setLogFileName( std::string fileName );
 
@@ -133,6 +138,9 @@ public:
 
     /**
      * Appends a log message to the logging queue.
+     * \param message the log entry
+     * \param source indicates where this entry comes from
+     * \param level The logging level of the current message
      */
     void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
 

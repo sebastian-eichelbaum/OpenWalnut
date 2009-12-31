@@ -37,6 +37,7 @@ class WQtTreeWidget  : public QTreeWidget
 public:
     /**
      * default constructor
+     * \param parent the parent widget of this widget, i.e. the widget that manages this widget
      */
     explicit WQtTreeWidget( QWidget* parent = 0 );
 

@@ -50,7 +50,7 @@ public:
 
     /**
      * Creates a new log message.
-     * 
+     *
      * \param logTime  the time
      * \param message  the message
      * \param level    the log level
@@ -65,6 +65,7 @@ public:
     virtual ~WLogEntry();
 
     /**
+     * \param format A string describing the output format in c printf style
      * \return String of this log entry.
      */
     std::string getLogString( std::string format = "[%t] *%l* %m \n" );
@@ -76,14 +77,14 @@ public:
 
     /**
      * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
-     * 
+     *
      * \param colors true if colors should be used.
      */
     void setColored( bool colors );
 
     /**
      * Getter determining whether to use colors or not.
-     * 
+     *
      * \return true if colors should be used.
      */
     bool isColored();

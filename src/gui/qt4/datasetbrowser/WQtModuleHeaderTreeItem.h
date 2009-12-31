@@ -39,6 +39,7 @@ class WQtModuleHeaderTreeItem : public QTreeWidgetItem
 public:
     /**
      * TODO(schurade): Document this!
+     * \param parent The widget managing this widget.
      */
     explicit WQtModuleHeaderTreeItem( QTreeWidget * parent );
 
@@ -47,6 +48,10 @@ public:
      */
     virtual ~WQtModuleHeaderTreeItem();
 
+    /**
+     * Add an module to the tree view.
+     * \param module The new module.
+     */
     WQtModuleTreeItem* addModuleItem( boost::shared_ptr< WModule > module );
 
 protected:
