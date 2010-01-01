@@ -28,6 +28,8 @@
 #include <string>
 #include <QtCore/QEvent>
 
+#include "../../common/WConditionOneShot.h"
+
 /**
  * A Qt event to create a new custom dock widget if posted to the WMainWindow.
  */
@@ -38,8 +40,9 @@ public:
      * constructor
      *
      * \param title The title of the widget to create.
+     * \param condition The condition which waits until the widget is created.
      */
-    explicit WCreateCustomDockWidgetEvent( std::string title );
+    explicit WCreateCustomDockWidgetEvent( std::string title, boost::shared_ptr< WConditionOneShot > condition );
 
     /**
      * Get the title of the widget to create.
@@ -47,6 +50,13 @@ public:
      * \return title of the widget to create
      */
     std::string getTitle() const;
+
+    /**
+     * Get the condition which waits until the widget is created.
+     *
+     * \return a shared pointer to the condition
+     */
+    boost::shared_ptr< WConditionOneShot > getCondition() const;
 
     /**
      * Constant which saves the number used to distinguish this event from other
@@ -60,6 +70,11 @@ private:
      * the title of the widget to create
      */
     std::string m_title;
+
+    /**
+     * Condition which waits until the widget is created.
+     */
+    boost::shared_ptr< WConditionOneShot > m_condition;
 };
 
 #endif  // WCREATECUSTOMDOCKWIDGETEVENT_H

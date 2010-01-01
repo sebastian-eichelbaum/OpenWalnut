@@ -39,6 +39,7 @@
 #include "../../modules/data/WMData.h"
 #include "../../utils/WIOTools.h"
 #include "WCreateCustomDockWidgetEvent.h"
+#include "../../common/WConditionOneShot.h"
 #include "WQt4Gui.h"
 
 WQt4Gui::WQt4Gui( int argc, char** argv )
@@ -223,7 +224,9 @@ boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
 
 void WQt4Gui::createCustomWidget( std::string title )
 {
-    QCoreApplication::postEvent( m_gui, new WCreateCustomDockWidgetEvent( title ) );
+    boost::shared_ptr< WConditionOneShot > condition( new WConditionOneShot );
+    QCoreApplication::postEvent( m_gui, new WCreateCustomDockWidgetEvent( title, condition ) );
+    condition->wait();
 }
 
 void WQt4Gui::closeCustomWidget( std::string title )
