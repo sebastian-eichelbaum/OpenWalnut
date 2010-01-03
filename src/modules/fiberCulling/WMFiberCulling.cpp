@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/filesystem.hpp>
+
 #include <osg/Geode>
 #include <osg/Geometry>
 
@@ -76,8 +78,6 @@ void WMFiberCulling::moduleMain()
             continue;
         }
 
-        update();
-
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 }
@@ -105,7 +105,44 @@ void WMFiberCulling::connectors()
 
 void WMFiberCulling::properties()
 {
-    m_properties->addString( "Fibers Display Module", "Display fibers" );
+    m_properties->addDouble( "min distance threshold",
+                             m_dSt_culling_t,
+                             false,
+                             "Minimum distance of two \"different\" fibers."
+                           )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
+    m_properties->addDouble( "proximity threshold",
+                             m_proximity_t,
+                             false,
+                             "defines the minimum distance between two fibers which should be considered in distance measure."
+                           )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "GO",
+                           false,
+                           false,
+                           "initiate run"
+                         )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
+}
+
+void WMFiberCulling::slotPropertyChanged( std::string propertyName )
+{
+    std::cout << "prop: " << propertyName << " has changed" << std::endl;
+    if( propertyName == "GO" )
+    {
+        update();
+    }
+    else if( propertyName == "min distance threshold" )
+    {
+        m_dSt_culling_t = m_properties->getValue< double >( propertyName );
+    }
+    else if( propertyName == "proximity threshold" )
+    {
+        m_proximity_t = m_properties->getValue< double >( propertyName );
+    }
+    else
+    {
+        // instead of WLogger we must use std::cerr since WLogger needs to much time!
+        std::cerr << propertyName << std::endl;
+        assert( 0 && "This property name is not supported by this function yet." );
+    }
 }
 
 void WMFiberCulling::cullOutFibers()
@@ -158,7 +195,15 @@ void WMFiberCulling::cullOutFibers()
     infoLog() << "Culled out " << numFibers - m_dataset->size() << " fibers";
     infoLog() << "There are " << m_dataset->size() << " fibers left.";
 
-    // TODO(math): make saving parameter dependent, and apply the desired path for saving
-    WWriterFiberVTK w( "/tmp/pansen.fib", true );
+    WWriterFiberVTK w( saveFileName(), true );
     w.writeFibs( m_dataset );
+}
+
+std::string WMFiberCulling::saveFileName() const
+{
+    std::stringstream newExtension;
+    newExtension << std::fixed << std::setprecision( 2 );
+    newExtension << ".pt-" << m_proximity_t << ".dst-" << m_dSt_culling_t << ".fib";
+    boost::filesystem::path fibFileName( m_dataset->getFileName() );
+    return fibFileName.replace_extension( newExtension.str() ).string();
 }

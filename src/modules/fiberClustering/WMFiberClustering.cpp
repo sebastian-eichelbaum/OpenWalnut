@@ -324,7 +324,7 @@ void WMFiberClustering::properties()
                              false,
                              "Maximum distance of two fibers in one cluster."
                            )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addDouble( "max distance threshold",
+    m_properties->addDouble( "proximity threshold",
                              m_proximity_t,
                              false,
                              "defines the minimum distance between two fibers which should be considered in distance measure."
@@ -357,6 +357,16 @@ void WMFiberClustering::slotPropertyChanged( std::string propertyName )
     else if( propertyName == "max distance threshold" )
     {
         m_maxDistance_t = m_properties->getValue< double >( propertyName );
+        update();
+    }
+    else if( propertyName == "min cluster size" )
+    {
+        m_minClusterSize = m_properties->getValue< double >( propertyName );
+        update();
+    }
+    else if( propertyName == "proximity threshold" )
+    {
+        m_proximity_t = m_properties->getValue< double >( propertyName );
         update();
     }
     else

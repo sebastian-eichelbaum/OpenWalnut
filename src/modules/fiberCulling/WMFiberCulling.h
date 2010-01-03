@@ -90,6 +90,12 @@ public:
      */
     void update();
 
+    /**
+     * Determine what to do if a property was changed.
+     * \param propertyName Name of the property.
+     */
+    void slotPropertyChanged( std::string propertyName );
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -102,6 +108,14 @@ protected:
      * m_dSt_culling_t.
      */
     virtual void cullOutFibers();
+
+    /**
+     * Generates the file name for saving the culled fibers out of some
+     * culling parameters: the proximity threshold and the dSt distance.
+     *
+     * \return file name in which to store the culled fibers.
+     */
+    std::string saveFileName() const;
 
     /**
      * Proximity threshold, which defines the minimum distance which should be
