@@ -41,7 +41,10 @@ public:
     /**
      * default constructor
      *
-     * \param parent the parent widget.
+     * \param title Title will be displayed above the widget
+     * \param parent The widget that manages this widget
+     * \param maxValue Maximum value for the corresponding nav slice slider
+     * \param sliderTitle Name of the slider corresponding to the property it manipulates
      */
     explicit WQtNavGLWidget( QString title, QWidget* parent, int maxValue = 100, std::string sliderTitle="pos" );
 

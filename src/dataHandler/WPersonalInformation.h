@@ -63,7 +63,7 @@ public:
 
     /**
      * Sets the subjectID of the person. This must be non-zero as changed information is not considered dummy anymore.
-     * \param subjectId New globally unique identifier
+     * \param subjectID New globally unique identifier
      */
     void setSubjectID( uint64_t subjectID );
 

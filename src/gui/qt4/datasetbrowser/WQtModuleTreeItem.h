@@ -36,6 +36,8 @@ class WQtModuleTreeItem  : public QTreeWidgetItem
 public:
     /**
      * TODO(schurade): Document this!
+     * \param parent The widget managing this widget
+     * \param module The represented module
      */
     WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 

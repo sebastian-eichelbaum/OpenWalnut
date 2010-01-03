@@ -49,6 +49,7 @@ public:
 
     /**
      * setter for name
+     * \param name the new name for the line edit
      */
     void setName( QString name );
 

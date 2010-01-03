@@ -38,17 +38,20 @@ class WIconManager
 public:
     /**
      * function to add an Icon to the icon store
+     * \param name the icon's name
+     * \param xpm the icon itself in XPM format
      */
     void addIcon( std::string name, const char* const xpm[] );
 
     /**
-     * returns i previously stored icon
+     * returns a previously stored icon
+     * \param name name of the requested icon
      */
     QIcon getIcon( const std::string name );
 
 protected:
 private:
-    std::map< std::string, QIcon* >m_iconList;
+    std::map< std::string, QIcon* >m_iconList; //!< A map storing icons and the names used to identify them
 };
 
 #endif  // WICONMANAGER_H

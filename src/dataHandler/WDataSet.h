@@ -58,6 +58,7 @@ public:
 
     /**
      * Set the name of the file that this data set stems from.
+     * \param fileName the string representing the name
      */
     void setFileName( const std::string fileName );
 

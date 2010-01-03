@@ -39,11 +39,14 @@ class WQtNumberEditDouble : public QLineEdit
 public:
     /**
      * Default constructor, that connects the slot of the edit
+     * \param name The name of teh widget
+     * \param parent The widget managing this widget
      */
     explicit WQtNumberEditDouble( QString name, QWidget* parent = 0 );
 
     /**
      * setter for name
+     * \param name The new name for the widget
      */
     void setName( QString name );
 

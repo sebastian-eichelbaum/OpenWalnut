@@ -39,6 +39,7 @@ class WQtSubjectTreeItem : public QTreeWidgetItem
 public:
     /**
      * default constructor
+     * \param parent the parent widget of this item, i.e. the widget that manages this item
      */
     explicit WQtSubjectTreeItem( QTreeWidget * parent );
 
@@ -49,6 +50,7 @@ public:
 
     /**
      * add a dataset item below this subject in the tree
+     * \param module the module that has the dataset as output
      */
     WQtDatasetTreeItem* addDatasetItem( boost::shared_ptr< WModule > module );
 

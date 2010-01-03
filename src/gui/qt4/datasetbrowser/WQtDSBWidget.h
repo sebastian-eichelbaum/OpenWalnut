@@ -49,7 +49,9 @@ class WQtDSBWidget : public QWidget
 
 public:
     /**
-     * default constructor
+     * Creates new data set browser widget
+     * \param name Name of the widget
+     * \param parent The widget managing this widget
      */
     explicit WQtDSBWidget( std::string name, QWidget* parent = 0 );
 
@@ -60,16 +62,21 @@ public:
 
     /**
      * helper function to add a generic button
+     * \param label Text on the push button
      */
     QPushButton* addPushButton( QString label );
 
     /**
      * helper function to add a generic checkbox
+     * \param label The text next to the check box
+     * \param isChecked the initial state of the check box
      */
     WQtCheckBox* addCheckBox( QString label, bool isChecked = false );
 
     /**
      * helper function to add a generic line edit
+     * \param label The text next to the line edit
+     * \param text The text intially in the line edit
      */
     WQtLineEdit* addLineEdit( QString label, QString text = QString( "" ) );
 
@@ -82,6 +89,10 @@ public:
 
     /**
      * helper function to add a slider with a connect line edit
+     * \param label The text next to the slider and the edit field
+     * \param value Initial value of slider and field
+     * \param min Minimum value for slider
+     * \param max Maximum value for slider
      */
     WQtSliderWithEdit* addSliderInt( QString label, int value = 0, int min = 0, int max = 100 );
 

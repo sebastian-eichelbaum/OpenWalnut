@@ -70,8 +70,11 @@ protected:
     std::string m_fileName; //!< Name of file to load.
 
     boost::shared_ptr< WDataHandler > m_dataHandler; //!< Reference to DataHandler
-
-    void commitDataSet( boost::shared_ptr< WDataSet > data ); //!< Commit new data into the DataHandler.
+    /**
+     * Commit new data into the DataHandler.
+     * \param data This dataset will be added to the WDataHandler
+     */
+    void commitDataSet( boost::shared_ptr< WDataSet > data );
 
 private:
 };

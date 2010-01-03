@@ -42,6 +42,7 @@ class WDHNoSuchDataSet : public WDHException
 public:
     /**
      * Constructs new exception.
+     * \param msg the reason for this exception.
      */
     explicit WDHNoSuchDataSet( const std::string& msg = "DataHandler Exception: Invalid DataSet Access" );
 

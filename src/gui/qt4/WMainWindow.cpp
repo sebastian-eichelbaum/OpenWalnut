@@ -107,7 +107,7 @@ void WMainWindow::setupGUI( boost::program_options::variables_map guiConfigurati
 
     m_datasetBrowser = new WQtDatasetBrowser( this );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
-    m_datasetBrowser->addSubject( "subject1" );
+    m_datasetBrowser->addSubject( "Default Subject" );
 
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
@@ -298,6 +298,8 @@ void WMainWindow::customEvent( QEvent* event )
         boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
         assert( m_customDockWidgets.insert( make_pair( title, widget ) ).second == true );
         m_customDockWidgetsLock.unlock();
+
+        ccdwEvent->getCondition()->notify();
     }
     else
     {

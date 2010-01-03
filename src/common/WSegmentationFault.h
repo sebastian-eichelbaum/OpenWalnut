@@ -39,7 +39,7 @@
 #ifdef __linux__
 // This is highly platform dependent. Used for backtrace functionality.
 
-/** 
+/**
  * Template class for every signal which can be handled.
  */
 template <class SignalExceptionClass> class SignalTranslator
@@ -82,6 +82,7 @@ public:
 
     /**
      * Default constructor.
+     * \param msg name of the exception. mostly the default "Segmentation Fault"
      */
     explicit WSegmentationFault( const std::string& msg = "Segmentation Fault" );
 
@@ -90,14 +91,14 @@ public:
      */
     virtual ~WSegmentationFault() throw();
 
-    /** 
-     * Defines signal type to handle. 
+    /**
+     * Defines signal type to handle.
      * @return The signal number.
      */
     static int getSignalNumber() throw();
 
-    /** 
-     * Installs this exception as signal handler for SIGSEGV. 
+    /**
+     * Installs this exception as signal handler for SIGSEGV.
      * This will just work on Linux.
      */
     static void installSignalHandler() throw();
