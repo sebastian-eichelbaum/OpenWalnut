@@ -232,6 +232,11 @@ const WBoolFlag& WModule::isUseable() const
     //return isInitialized() && isAssociated();
 }
 
+const WBoolFlag& WModule::isReady() const
+{
+    return m_isReady;
+}
+
 void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
                                            boost::shared_ptr< WModuleConnector > /*there*/ )
 {

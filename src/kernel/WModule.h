@@ -121,6 +121,13 @@ public:
     const WBoolFlag&  isAssociated() const;
 
      /**
+      * Checks whether this module is ready.
+      *
+      * \return true if ready.
+      */
+    const WBoolFlag&  isReady() const;
+
+     /**
       * The container this module is associated with.
       *
       * \return the container.
