@@ -76,7 +76,7 @@ public:
     virtual const T operator()() const;
 
     /**
-     * Wait for the flag to change its value.
+     * Wait for the flag to change its value. For WConditionOneShot is also recognizes if the flag has changed before.
      */
     virtual void wait() const;
 
