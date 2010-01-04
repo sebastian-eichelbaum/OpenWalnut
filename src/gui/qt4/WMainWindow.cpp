@@ -197,10 +197,11 @@ void WMainWindow::openLoadDialog()
     fd.setFileMode( QFileDialog::ExistingFiles );
 
     QStringList filters;
-    filters << "Any files (*)"
-            << "EEG files (*.cnt *.edf)"
+    filters << "Known file types (*.edf *.asc *.nii *.nii.gz *.fib)"
+            << "EEG files (*.asc *.edf)"
             << "NIfTI (*.nii *.nii.gz)"
-            << "VTK (*.vtk)";
+            << "Fibers (*.fib)"
+            << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
     QStringList fileNames;
