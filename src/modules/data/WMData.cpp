@@ -174,7 +174,6 @@ void WMData::moduleMain()
 
         // hide other properties since they make no sense at all
         m_properties->hideProperty( "filename" ); // File name is got via m_dataSet->getFileName()
-        m_properties->hideProperty( "name" );
         m_properties->hideProperty( "active" );
         m_properties->hideProperty( "interpolation" );
         m_properties->hideProperty( "threshold" );
