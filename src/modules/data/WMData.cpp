@@ -167,13 +167,6 @@ void WMData::moduleMain()
         WLoaderEEGASCII eegAsciiLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
         m_dataSet = eegAsciiLoader.load();
     }
-    else if( suffix == ".vtk" )
-    {
-        // This is a dummy implementation.
-        // You need to provide a real implementation here if you want to load vtk.
-        errorLog() << "VTK not implemented yet";
-        assert( 0 );
-    }
     else if( suffix == ".fib" )
     {
         WLoaderFibers fibLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
@@ -181,7 +174,6 @@ void WMData::moduleMain()
 
         // hide other properties since they make no sense at all
         m_properties->hideProperty( "filename" ); // File name is got via m_dataSet->getFileName()
-        m_properties->hideProperty( "name" );
         m_properties->hideProperty( "active" );
         m_properties->hideProperty( "interpolation" );
         m_properties->hideProperty( "threshold" );

@@ -52,8 +52,7 @@ WQt4Gui::~WQt4Gui()
 }
 
 #ifdef _WIN32
-// TODO(wiebel): Hi, this is math. I assume the line below is due to linker errors with boost. I just marked it with this todo
-// since we don't forget this. When using Linux or Mac I _think_ we don't need this.
+// need this on windows to make it link correctly.
 const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
 #endif
 
