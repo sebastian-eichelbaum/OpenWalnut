@@ -137,7 +137,7 @@ void WMData::moduleMain()
     using wiotools::getSuffix;
     std::string fileName = m_properties->getValue< std::string >( "filename" );
 
-    WLogger::getLogger()->addLogMessage( "Loading data from \"" + fileName + "\".", getName(), LL_DEBUG );
+    debugLog() << "Loading data from \"" << fileName << "\".";
     m_properties->setValue( "name", fileName );
 
     // load it now
@@ -184,6 +184,7 @@ void WMData::moduleMain()
         throw WDHException( "Unknown file type: '" + suffix + "'" );
     }
 
+    debugLog() << "Loading data done.";
     // notify
     m_output->updateData( m_dataSet );
     ready();
