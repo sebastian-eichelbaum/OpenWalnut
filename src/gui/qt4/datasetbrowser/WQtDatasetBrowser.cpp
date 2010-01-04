@@ -179,7 +179,7 @@ void WQtDatasetBrowser::selectTreeItem()
     // create properties
     std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
 
-    WQtDSBWidget* tab1 = new WQtDSBWidget( "settings" );
+    WQtDSBWidget* tab1 = new WQtDSBWidget( "Settings" );
 
     for ( size_t i = 0; i < props.size(); ++i )
     {
