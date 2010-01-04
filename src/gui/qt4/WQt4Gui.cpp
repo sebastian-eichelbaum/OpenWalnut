@@ -66,7 +66,8 @@ bool WQt4Gui::parseOptions()
 // TODO(wiebel): this does not link on windows at the moment. But it should!
     desc.add_options()
         ( "help,h", "Prints this help message" )
-        ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" );
+        ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" )
+        ( "timed-output,t", "Flag indicating if all log strings should have a time string preceding" );
 #endif
 
     po::positional_options_description p;
@@ -124,6 +125,11 @@ bool WQt4Gui::parseOptions()
     if( m_optionsMap.count( "help" ) )
     {
         std::cout << desc << std::endl;
+    }
+    else if( m_optionsMap.count( "timed-output" ) )
+    {
+        WLogger::getLogger()->setDefaultFormat( "[%t] *%l [%s] %m \n" );
+        wlog::info( "GUI" ) << "Timed output enabled";
     }
     return true;
 }
