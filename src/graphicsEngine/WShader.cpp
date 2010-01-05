@@ -141,7 +141,7 @@ std::string WShader::getIncludeFileName( std::string line )
     }
     if ( count < 2 )
     {
-        WLogger::getLogger()->addLogMessage( "Missing quotes around file name in include statement of shader.", "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Missing quotes around file name in include statement of shader.", "WShader", LL_ERROR );
         // TODO(schurade): here we could throw an exception
         return 0;
     }
