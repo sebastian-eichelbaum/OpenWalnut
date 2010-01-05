@@ -46,7 +46,7 @@ MODULE_SIGNAL;
 // **************************************************************************************************************************
 
 /**
- * Signal for generic events like "READY".
+ * Signal for generic events like "WM_READY".
  *
  * \param module The module emitting the signal.
  *
