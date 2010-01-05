@@ -255,7 +255,7 @@ void WKernel::loadDataSets( std::vector< std::string > fileNames )
         shared_ptr< WModule > mod = m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Data Module" ) );
         mod->getProperties()->setValue( "filename" , ( *iter ) );
         m_moduleContainer->add( mod );
-        // searialize loading of a couple of data sets
+        // serialize loading of a couple of data sets
         mod->isReady().wait();
     }
 }
