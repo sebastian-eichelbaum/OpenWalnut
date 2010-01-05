@@ -46,7 +46,7 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFibers > fiber
     {
         throw WDHIOFailure( "Invalid file, or permission: " + m_fname );
     }
-    out << "# VTK DataFile Version 3.0" << std::endl;
+    out << "# vtk DataFile Version 3.0" << std::endl;
     out << "Fibers from OpenWalnut" << std::endl;
     out << "BINARY" << std::endl;
     out << "DATASET POLYDATA" << std::endl;
