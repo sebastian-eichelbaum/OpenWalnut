@@ -36,8 +36,6 @@
 #include "../../math/WPosition.h"
 #include "../../math/WFiber.h"
 
-class WDataHandler;
-
 /**
  * Loader for the VTK file formats. For VTK just see http://www.vtk.org.
  * Currently only a subset of the legacy format is supported: MedInria's
@@ -54,10 +52,9 @@ public:
      * Constructs and makes a new VTK loader for separate thread start.
      *
      * \param fname File name where to load data from
-     * \param dataHandler Pointer of the dataHandler (where to put the DataSet)
      * \throws WDHIOFailure
      */
-    WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure );
+    explicit WLoaderFibers( std::string fname ) throw( WDHIOFailure );
 
     /**
      * Destroys this instance and closes the file.

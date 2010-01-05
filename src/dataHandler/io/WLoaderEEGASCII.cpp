@@ -35,8 +35,8 @@
 #include "../WSubject.h"
 #include "WLoaderEEGASCII.h"
 
-WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-    : WLoader( fileName, dataHandler )
+WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName )
+    : WLoader( fileName )
 {
 }
 
@@ -84,7 +84,6 @@ boost::shared_ptr< WDataSet > WLoaderEEGASCII::load()
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
     eeg->setFileName( m_fileName );
-    commitDataSet( eeg );
     return eeg;
 }
 

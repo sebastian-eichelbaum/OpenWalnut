@@ -36,13 +36,12 @@
 #include "../../math/WPosition.h"
 #include "../../utils/WIOTools.h"
 #include "../../utils/WStringUtils.h"
-#include "../WDataHandler.h"
 #include "../WDataSetFibers.h"
 #include "../WSubject.h"
 #include "WLoaderFibers.h"
 
-WLoaderFibers::WLoaderFibers( std::string fname, boost::shared_ptr< WDataHandler > dataHandler ) throw( WDHIOFailure )
-    : WLoader( fname, dataHandler )
+WLoaderFibers::WLoaderFibers( std::string fname ) throw( WDHIOFailure )
+    : WLoader( fname )
 {
     m_ifs = boost::shared_ptr< std::ifstream >( new std::ifstream() );
     m_ifs->open( m_fileName.c_str(), std::ifstream::in | std::ifstream::binary );
@@ -81,7 +80,6 @@ boost::shared_ptr< WDataSet > WLoaderFibers::load()
     shared_ptr< WDataSetFibers > fibers = shared_ptr< WDataSetFibers >( new WDataSetFibers( data ) );
     fibers->setFileName( m_fileName );
 
-    commitDataSet( fibers );
     assert( !m_ifs->is_open() );
     return fibers;
 }

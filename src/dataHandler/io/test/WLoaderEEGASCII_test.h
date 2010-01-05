@@ -46,25 +46,8 @@ public:
         std::string fileName = "../fixtures/eeg_testData.asc";
         std::cout << std::endl << "Test loading of " << fileName << "." << std::endl;
 
-        boost::shared_ptr< WDataHandler > dataHandler =
-            boost::shared_ptr< WDataHandler >( new WDataHandler() );
-        TS_ASSERT_EQUALS( dataHandler->getNumberOfSubjects(), 0 );
-
-        WLoaderEEGASCII eegASCIILoader( fileName, dataHandler );
-        eegASCIILoader.load();
-
-        std::clock_t startTime;
-        startTime = std::clock();
-        std::clock_t elapsedTime = 0;
-
-        while( dataHandler->getNumberOfSubjects() == 0 && ( elapsedTime / static_cast< double >( CLOCKS_PER_SEC ) ) < 4 )
-        {
-            elapsedTime = std::clock() - startTime;
-        }
-
-        // TODO(wiebel): we need to change this because loading, in the end,
-        // should not always increase the number of subjects.
-        TS_ASSERT_EQUALS( dataHandler->getNumberOfSubjects(), 1 );
+        WLoaderEEGASCII eegASCIILoader( fileName );
+        TS_ASSERT( eegASCIILoader.load() );
     }
 };
 

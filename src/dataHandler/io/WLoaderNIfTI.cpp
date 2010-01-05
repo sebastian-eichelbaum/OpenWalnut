@@ -30,7 +30,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WLoaderNIfTI.h"
-#include "../WDataHandler.h"
 #include "../WDataSet.h"
 #include "../WSubject.h"
 #include "../WDataSetSingle.h"
@@ -41,8 +40,8 @@
 #include "../WDataHandlerEnums.h"
 
 
-WLoaderNIfTI::WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-    : WLoader( fileName, dataHandler )
+WLoaderNIfTI::WLoaderNIfTI( std::string fileName )
+    : WLoader( fileName )
 {
 }
 
@@ -152,7 +151,6 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 
     boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
     newDataSet->setFileName( m_fileName );
-    commitDataSet( newDataSet );
 
     return newDataSet;
 }

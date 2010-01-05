@@ -38,7 +38,6 @@
 #include "../common/WThreadedRunner.h"
 #include "../common/WFlag.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
-#include "../dataHandler/WDataHandler.h"
 #include "../gui/WGUI.h"
 
 /**
@@ -83,13 +82,6 @@ public:
      * \return the graphics engine instance.
      */
     boost::shared_ptr< WGraphicsEngine > getGraphicsEngine() const;
-
-    /**
-     * Returns pointer to the DataHandler.
-     *
-     * \return the data handler instance.
-     */
-    boost::shared_ptr< WDataHandler > getDataHandler() const;
 
     /**
      * Returns pointer to the currently running kernel.
@@ -164,11 +156,6 @@ protected:
      * Pointer to an initialized graphics engine.
      */
     boost::shared_ptr< WGraphicsEngine > m_graphicsEngine;
-
-    /**
-     * The Datahandler.
-     */
-    boost::shared_ptr< WDataHandler > m_dataHandler;
 
     /**
      * The module factory to use.

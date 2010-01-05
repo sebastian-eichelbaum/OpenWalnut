@@ -28,7 +28,6 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "../WDataHandler.h"
 #include "../WLoader.h"
 
 /**
@@ -42,9 +41,8 @@ public:
      * Constructs a loader to be executed in its own thread and sets the data needed
      * for the loader when executed in its own thread.
      * \param fileName this file will be loaded
-     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
-    WLoaderEEGASCII( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    explicit WLoaderEEGASCII( std::string fileName );
 
     /**
      * Loads the dataset.

@@ -34,8 +34,6 @@
 
 #include "nifti/nifti1_io.h"
 
-class WDataHandler;
-
 /**
  * Loader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
  * \ingroup dataHandler
@@ -52,9 +50,8 @@ public:
      * Constructs a loader to be executed in its own thread and ets the data needed
      * for the loader when executed in its own thread.
      * \param fileName this file will be loaded
-     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
-    WLoaderNIfTI( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    explicit WLoaderNIfTI( std::string fileName );
 
     /**
      * Loads the dataset.

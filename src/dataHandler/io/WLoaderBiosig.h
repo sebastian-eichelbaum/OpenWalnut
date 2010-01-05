@@ -32,8 +32,6 @@
 #include "../WLoader.h"
 #include "biosig/biosig.h"
 
-class WDataHandler;
-
 /**
  * Loader for several formats for biological signal.
  * Uses BiosigC++ 4.
@@ -46,9 +44,8 @@ public:
      * Constructs a loader to be executed in its own thread and sets the data needed
      * for the loader when executed in its own thread.
      * \param fileName this file will be loaded
-     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
-    WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler );
+    explicit WLoaderBiosig( std::string fileName );
 
     /**
      * Loads the dataset.

@@ -36,7 +36,6 @@
 
 #include "../../../common/test/WStreamPosTraits.h"
 #include "../../../math/test/WFiberTraits.h"
-#include "../../WDataHandler.h"
 #include "../WLoaderFibers.h"
 
 /**
@@ -45,14 +44,6 @@
 class WLoaderFibersTest : public CxxTest::TestSuite
 {
 public:
-    /**
-     * Create test environment.
-     */
-    void setUp( void )
-    {
-        m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
-    }
-
     /**
      * A valid "header" of a VTK file consists of 4 lines of text (this is
      * arbitrary specified by me, the author of this class)
@@ -70,7 +61,7 @@ public:
      */
     void testReadHeader( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib" );
         std::vector< std::string > expected;
         expected.push_back( "# vtk DataFile Version 3.0" );
         expected.push_back( "Neural Pathways aka as fibers." );
@@ -85,7 +76,7 @@ public:
      */
     void testUnsupportedVTKFileFormatString( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/unsupported_format_version_string.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/unsupported_format_version_string.fib" );
         TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
                                  const WDHException &e,
                                  e.what(),
@@ -97,7 +88,7 @@ public:
      */
     void testReadHeaderOnTooBigVTKHeader( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/invalid_header_length.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/invalid_header_length.fib" );
         TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
                                  const WDHException &e,
                                  e.what(),
@@ -109,7 +100,7 @@ public:
      */
     void testBinaryOrAscii( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/ascii.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/ascii.fib" );
         TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
                                  const WDHException &e,
                                  e.what(),
@@ -122,7 +113,7 @@ public:
      */
     void testCheckDatasetType( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/invalid_dataset.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/invalid_dataset.fib" );
         TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
                                  const WDHException &e,
                                  e.what(),
@@ -135,7 +126,7 @@ public:
      */
     void testStreamPosIsValidAfterReadHeaderCall( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib" );
         loader.readHeader();
         TS_ASSERT_EQUALS( loader.m_ifs->tellg(), 82 );
     }
@@ -145,7 +136,7 @@ public:
      */
     void testNoHeaderThere( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/no_header.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/no_header.fib" );
         TS_ASSERT_THROWS( loader.readHeader(), WDHException );
     }
 
@@ -154,7 +145,7 @@ public:
      */
     void testOnAbruptHeader( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/crippled_header.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/crippled_header.fib" );
         TS_ASSERT_THROWS_EQUALS( loader.readHeader(),
                                  const WDHException &e,
                                  e.what(),
@@ -167,7 +158,7 @@ public:
      */
     void testReadPoints( void )
     {
-        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib" );
         loader.readHeader();
         loader.readPoints();
         double delta = 0.0001;
@@ -189,7 +180,7 @@ public:
         using std::vector;
         using wmath::WFiber;
         using wmath::WPosition;
-        WLoaderFibers loader( "fixtures/Fibers/small_example_one_fiber.fib", m_dataHandler );
+        WLoaderFibers loader( "fixtures/Fibers/small_example_one_fiber.fib" );
         loader.readHeader();
         loader.readPoints();
         shared_ptr< vector< WFiber > > actual = loader.readLines();
@@ -212,7 +203,7 @@ public:
     {
         std::vector< WLoaderFibers > loaders;
         {
-            WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
+            WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib" );
             loaders.push_back( loader );
             // destructor invoked
         }
@@ -226,17 +217,9 @@ public:
      */
     void testBracesOperatorTerminatesWell( void )
     {
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 0 );
-        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib", m_dataHandler );
-        loader.load();
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
+        WLoaderFibers loader( "fixtures/Fibers/valid_small_example.fib" );
+        TS_ASSERT( loader.load() );
     }
-
-private:
-    /**
-     * Dummy DataHandler instance
-     */
-    boost::shared_ptr< WDataHandler > m_dataHandler;
 };
 
 #endif  // WLOADERFIBERS_TEST_H

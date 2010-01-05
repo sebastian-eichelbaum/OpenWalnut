@@ -31,34 +31,19 @@
 
 #include "../WLoaderNIfTI.h"
 #include "../WLoaderNIfTI.cpp" //need this to be able instatiate template function
-#include "../../WDataHandler.h"
 
 /**
  * test class the nifti loader class
  */
 class WLoaderNIfTITest : public CxxTest::TestSuite
 {
-private: // private normally comes behind public, but I would like to make it easily visible here.
-    /**
-     * Dummy DataHandler instance
-     */
-    boost::shared_ptr< WDataHandler > m_dataHandler;
-
 public:
-    /**
-     * Create test environment.
-     */
-    void setUp( void )
-    {
-        m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
-    }
-
     /**
      * Test instantiation with non existing file
      */
     void testInstantiationNonExisting( void )
     {
-        TS_ASSERT_THROWS( WLoaderNIfTI( "no such file", m_dataHandler ), WDHIOFailure );
+        TS_ASSERT_THROWS( WLoaderNIfTI( "no such file" ), WDHIOFailure );
     }
 
     /**
@@ -66,59 +51,32 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_signed_short.nii.gz", m_dataHandler ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_unsigned_char.nii.gz", m_dataHandler ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_float.nii.gz", m_dataHandler ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/vector_float.nii.gz", m_dataHandler ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz", m_dataHandler ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/vector_unsigned_char.nii.gz", m_dataHandler ) );
-
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 0 );
+        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_signed_short.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_unsigned_char.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/vector_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/vector_unsigned_char.nii.gz" ) );
     }
 
     /**
-     * Test if the loaded files are really in the dataHandler
+     * Test if the loaded files are really loaded
      */
     void testLoading( void )
     {
-        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz", m_dataHandler );
-        WLoaderNIfTI loader2( "../fixtures/scalar_unsigned_char.nii.gz", m_dataHandler );
-        WLoaderNIfTI loader3( "../fixtures/scalar_float.nii.gz", m_dataHandler );
-        WLoaderNIfTI loader4( "../fixtures/vector_float.nii.gz", m_dataHandler );
-        WLoaderNIfTI loader5( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz", m_dataHandler );
-        WLoaderNIfTI loader6( "../fixtures/vector_unsigned_char.nii.gz", m_dataHandler );
+        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz" );
+        WLoaderNIfTI loader2( "../fixtures/scalar_unsigned_char.nii.gz" );
+        WLoaderNIfTI loader3( "../fixtures/scalar_float.nii.gz" );
+        WLoaderNIfTI loader4( "../fixtures/vector_float.nii.gz" );
+        WLoaderNIfTI loader5( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" );
+        WLoaderNIfTI loader6( "../fixtures/vector_unsigned_char.nii.gz" );
 
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 0 );
-
-        loader1.load();
-
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
-        TS_ASSERT_EQUALS( m_dataHandler->getSubject( 0 )->getNumberOfDataSets(), 1 );
-
-        loader2.load();
-
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
-        TS_ASSERT_EQUALS( m_dataHandler->getSubject( 0 )->getNumberOfDataSets(), 2 );
-
-        loader3.load();
-
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
-        TS_ASSERT_EQUALS( m_dataHandler->getSubject( 0 )->getNumberOfDataSets(), 3 );
-
-        loader4.load();
-
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
-        TS_ASSERT_EQUALS( m_dataHandler->getSubject( 0 )->getNumberOfDataSets(), 4 );
-
-        loader5.load();
-
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
-        TS_ASSERT_EQUALS( m_dataHandler->getSubject( 0 )->getNumberOfDataSets(), 5 );
-
-        loader6.load();
-
-        TS_ASSERT_EQUALS( m_dataHandler->getNumberOfSubjects(), 1 );
-        TS_ASSERT_EQUALS( m_dataHandler->getSubject( 0 )->getNumberOfDataSets(), 6 );
+        TS_ASSERT( loader1.load() );
+        TS_ASSERT( loader2.load() );
+        TS_ASSERT( loader3.load() );
+        TS_ASSERT( loader4.load() );
+        TS_ASSERT( loader5.load() );
+        TS_ASSERT( loader6.load() );
     }
 
     /**
@@ -145,7 +103,7 @@ public:
         dummy.m[3][3] = 1.17;
 
         // need this for calling the function
-        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz", m_dataHandler );
+        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz" );
 
         wmath::WMatrix< double >  result = loader1.convertMatrix( dummy );
 
@@ -177,7 +135,7 @@ public:
     void testCopyArray( void )
     {
         // need this for calling the function
-        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz", m_dataHandler );
+        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz" );
 
         const size_t nbVoxels = 10;
         const size_t vDim = 3;

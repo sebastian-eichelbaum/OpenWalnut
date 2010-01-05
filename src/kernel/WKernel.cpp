@@ -100,9 +100,6 @@ void WKernel::init()
     // initialize graphics engine, or, at least set some stuff
     m_graphicsEngine->setShaderPath( WKernel::m_shaderPath );
 
-    // initialize Datahandler
-    m_dataHandler = boost::shared_ptr< WDataHandler >( new WDataHandler() );
-
     // load all modules
     m_moduleFactory->load();
 }
@@ -263,11 +260,6 @@ void WKernel::loadDataSets( std::vector< std::string > fileNames )
 boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype )
 {
     return getRootContainer()->applyModule( applyOn, prototype );
-}
-
-boost::shared_ptr< WDataHandler > WKernel::getDataHandler() const
-{
-    return m_dataHandler;
 }
 
 std::string WKernel::getAppPath()

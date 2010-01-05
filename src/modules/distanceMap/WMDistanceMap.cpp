@@ -67,38 +67,32 @@ const std::string WMDistanceMap::getDescription() const
 
 void WMDistanceMap::moduleMain()
 {
+    // use the m_input "data changed" flag
+    m_moduleState.add( m_input->getDataChangedCondition() );
+
     // signal ready state
     ready();
 
-    // TODO(wiebel): MC fix this hack when possible by using an input connector.
-    while ( !WKernel::getRunningKernel() )
+    // loop until the module container requests the module to quit
+    while ( !m_shutdownFlag() )
     {
-        sleep( 1 );
+        boost::shared_ptr< const WDataSetSingle > dataSet = m_input->getData();
+
+        boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( dataSet );
+        boost::shared_ptr< WMMarchingCubes > mc = boost::shared_ptr< WMMarchingCubes >( new WMMarchingCubes() );
+
+        mc->generateSurface( dataSet->getGrid(), distanceMapValueSet, .4 );
+
+        WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
+
+        mc->renderSurface();
+
+        WLogger::getLogger()->addLogMessage( "Done!", "Distance Map", LL_INFO );
+
+        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
+        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
+        m_moduleState.wait();
     }
-    while ( !WKernel::getRunningKernel()->getDataHandler() )
-    {
-        sleep( 1 );
-    }
-    while ( !WKernel::getRunningKernel()->getDataHandler()->getNumberOfSubjects() )
-    {
-        sleep( 1 );
-    }
-    boost::shared_ptr< WDataHandler > dh = WKernel::getRunningKernel()->getDataHandler();
-    boost::shared_ptr< WSubject > subject = (*dh)[0];
-    boost::shared_ptr< const WDataSetSingle > dataSet;
-
-    dataSet = boost::shared_dynamic_cast< const WDataSetSingle >( (*subject)[0] );
-
-    boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( dataSet );
-    boost::shared_ptr< WMMarchingCubes > mc = boost::shared_ptr< WMMarchingCubes >( new WMMarchingCubes() );
-
-    mc->generateSurface( dataSet->getGrid(), distanceMapValueSet, .4 );
-
-    WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
-
-    mc->renderSurface();
-
-    WLogger::getLogger()->addLogMessage( "Done!", "Distance Map", LL_INFO );
 }
 
 void WMDistanceMap::connectors()

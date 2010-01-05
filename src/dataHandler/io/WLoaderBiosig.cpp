@@ -31,13 +31,12 @@
 
 
 #include "WLoaderBiosig.h"
-#include "../WDataHandler.h"
 #include "../WEEG.h"
 #include "../WSubject.h"
 #include "../../common/WException.h"
 
-WLoaderBiosig::WLoaderBiosig( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-    : WLoader( fileName, dataHandler ),
+WLoaderBiosig::WLoaderBiosig( std::string fileName )
+    : WLoader( fileName ),
       m_columns( 0 ),
       m_rows( 0 )
 {
@@ -127,7 +126,6 @@ boost::shared_ptr< WDataSet> WLoaderBiosig::load()
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
     eeg->setFileName( m_fileName );
-    commitDataSet( eeg );
 
     std::cout << "BIOSIG loading done." << std::endl;
     std::cout << "===================================" << std::endl;

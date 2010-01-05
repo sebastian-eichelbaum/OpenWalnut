@@ -152,24 +152,24 @@ void WMData::moduleMain()
             suffix = getSuffix( p.string() );
             assert( suffix == ".nii" && "currently only nii files may be gzipped" );
         }
-        WLoaderNIfTI niiLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
     }
 #ifndef _WIN32
     else if( suffix == ".edf" )
     {
-        WLoaderBiosig biosigLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        WLoaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
 #endif
     else if( suffix == ".asc" )
     {
-        WLoaderEEGASCII eegAsciiLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        WLoaderEEGASCII eegAsciiLoader( fileName );
         m_dataSet = eegAsciiLoader.load();
     }
     else if( suffix == ".fib" )
     {
-        WLoaderFibers fibLoader( fileName, WKernel::getRunningKernel()->getDataHandler() );
+        WLoaderFibers fibLoader( fileName );
         m_dataSet = fibLoader.load();
 
         // hide other properties since they make no sense at all

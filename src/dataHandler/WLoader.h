@@ -30,7 +30,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "exceptions/WDHIOFailure.h"
-#include "WDataHandler.h"
 #include "WSubject.h"
 
 /**
@@ -43,14 +42,12 @@ class WLoader
 {
 public:
     /**
-     * Constructs basic Loader with access to the DataHandler (for inserting
-     * new stuff) and a file name.
+     * Constructs basic Loader with a file name.
      *
      *\param fileName Path to be loaded
-     *\param dataHanlder A pointer where the loaded data set are stored
      *\throw WDHIOFailure in case of an error
      */
-    explicit WLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHanlder ) throw( WDHIOFailure );
+    explicit WLoader( std::string fileName ) throw( WDHIOFailure );
 
     /**
      * Destructor is virtual since there are virtual methods.
@@ -68,13 +65,6 @@ public:
 
 protected:
     std::string m_fileName; //!< Name of file to load.
-
-    boost::shared_ptr< WDataHandler > m_dataHandler; //!< Reference to DataHandler
-    /**
-     * Commit new data into the DataHandler.
-     * \param data This dataset will be added to the WDataHandler
-     */
-    void commitDataSet( boost::shared_ptr< WDataSet > data );
 
 private:
 };

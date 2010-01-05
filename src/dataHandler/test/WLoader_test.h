@@ -41,10 +41,9 @@ public:
     /**
      * Constructor of Dummy class for testing of WLoader
      * \param fileName this file will be loaded
-     * \param dataHandler a pointer to the dataHandler to be able to add the loaded data
      */
-    explicit DummyLoader( std::string fileName, boost::shared_ptr< WDataHandler > dataHandler )
-        : WLoader( fileName, dataHandler )
+    explicit DummyLoader( std::string fileName )
+        : WLoader( fileName )
     {
     }
 
@@ -65,12 +64,11 @@ public:
      */
     void testExceptionOnInvalidFilename( void )
     {
-        boost::shared_ptr< WDataHandler > dummyDH = boost::shared_ptr< WDataHandler >( new WDataHandler() );
-        TS_ASSERT_THROWS_EQUALS( DummyLoader( "no such file", dummyDH ),
+        TS_ASSERT_THROWS_EQUALS( DummyLoader( "no such file" ),
                                  const WDHIOFailure &e,
                                  e.what(),
                                  std::string( "file 'no such file' doesn't exists." ) );
-        TS_ASSERT_THROWS_NOTHING( DummyLoader( "fixtures/scalar_float.nii.gz", dummyDH ) );
+        TS_ASSERT_THROWS_NOTHING( DummyLoader( "fixtures/scalar_float.nii.gz" ) );
     }
 };
 
