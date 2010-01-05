@@ -2,6 +2,7 @@ varying vec4 VaryingTexCoord0;
 
 uniform bool useLighting;
 uniform bool useTexture;
+uniform int opacity;
 
 uniform sampler3D tex0;
 uniform sampler3D tex1;
@@ -74,7 +75,7 @@ void lookupTex(inout vec4 col, in int type, in sampler3D tex,  in float threshol
 
 void main()
 {
-    vec4 col = vec4(0.3, 0.3, 0.3, 0.0);
+    vec4 col = vec4(0.3, 0.3, 0.3, 1.0);
 
     vec4 ambient = vec4(0.0);
     vec4 diffuse = vec4(0.0);
@@ -101,11 +102,12 @@ void main()
 
     col = clamp(col, 0.0, 1.0);
 
-    col.a = sqrt( col.r * col.r + col.g * col.g + col.b * col.b);
 
     //discard completely black voxels. So if no texture is active we will see nothing
     if ( ( col.r + col.g + col.b ) < 0.01 )
         discard;
+
+    col.a = opacity * .01;
 
     gl_FragColor = col;
 }

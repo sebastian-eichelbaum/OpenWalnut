@@ -63,7 +63,8 @@ WMMarchingCubes::WMMarchingCubes():
     m_tIsoLevel( 0 ),
     m_dataSet(),
     m_shaderUseTexture( true ),
-    m_shaderUseLighting( false )
+    m_shaderUseLighting( false ),
+    m_shaderUseTransparency( false )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -129,6 +130,7 @@ void WMMarchingCubes::moduleMain()
 
         // settings for normal isosurface
         m_shaderUseLighting = true;
+        m_shaderUseTransparency = true;
 
         renderSurface();
 
@@ -160,6 +162,7 @@ void WMMarchingCubes::properties()
     m_properties->addBool( "textureChanged", false, true );
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
     m_properties->addDouble( "Iso Value", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+    m_properties->addInt( "Opacity %", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
     m_properties->addBool( "Use Texture", true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
 }
 
@@ -178,6 +181,11 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     {
         debugLog() << "Change Texture property." << std::endl;
         m_shaderUseTexture = m_properties->getValue< bool >( propertyName );
+        updateTextures();
+    }
+    else if( propertyName == "Opacity %" )
+    {
+        debugLog() << "Change opacity." << std::endl;
         updateTextures();
     }
     else if( propertyName == "active" )
@@ -662,6 +670,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
 
     // ------------------------------------------------
     // Shader stuff
@@ -732,8 +741,23 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         state->addUniform( m_samplerUniforms[i] );
     }
 
-    state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_shaderUseTexture ) ) );
+    if( !m_shaderUseTexture )
+    {
+        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+    }
+    else
+    {
+        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", true ) ) );
+    }
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
+    if( m_shaderUseTransparency )
+    {
+        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_properties->getValue< int >( "Opacity %" ) ) ) );
+    }
+    else
+    {
+        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
+    }
 
     std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
     if ( dsl.size() > 0 )
@@ -988,16 +1012,32 @@ void WMMarchingCubes::updateTextures()
                 m_typeUniforms[i]->set( 0 );
             }
 
-            osg::StateSet* rootState = m_geode->getOrCreateStateSet();
-            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_shaderUseTexture ) ) );
-            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
+            osg::StateSet* state = m_geode->getOrCreateStateSet();
+
+            if( !m_shaderUseTexture )
+            {
+                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+            }
+            else
+            {
+                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", true ) ) );
+            }
+            state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
+            if( m_shaderUseTransparency )
+            {
+                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_properties->getValue< int >( "Opacity %" ) ) ) );
+            }
+            else
+            {
+                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
+            }
 
             int c = 0;
             for ( size_t i = 0; i < dsl.size(); ++i )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
 
-                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                state->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
                 float a = dsl[i]->getTexture()->getAlpha();
