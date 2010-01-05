@@ -31,7 +31,6 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"

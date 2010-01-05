@@ -30,10 +30,9 @@
 #include "WDHException.h"
 
 /**
- * Should be thrown when an invalid index is used to get a WSubject from
- * the WDataHandler or a WDataSet from the
+ * Should be thrown when an invalid index is used to get a WDataSet from the
  * WSubject. An index is invalid if it's greater or equal than the number
- * of WDataSets in that WDataHandler.
+ * of WDataSets in that WSubject.
  *
  * \ingroup dataHandler
  */

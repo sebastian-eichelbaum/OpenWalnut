@@ -38,7 +38,6 @@
 #include "../../common/WStatusReport.h"
 #include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"

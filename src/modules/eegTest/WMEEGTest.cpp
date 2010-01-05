@@ -35,7 +35,6 @@
 #include "WMEEGTest.h"
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WEEG.h"
-#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 
 WMEEGTest::WMEEGTest():
@@ -116,8 +115,6 @@ void WMEEGTest::moduleMain()
     //std::string fileName = "dataHandler/fixtures/eeg_testData.asc";
     ////    std::string fileName = "/dargb/bv_data/Medical/MPI-CBS/EEG-Test/Alex_Segment_1.edf";
     //std::cout << "Test loading of " << fileName << "." << std::endl;
-    //boost::shared_ptr< WDataHandler > dataHandler =
-        //boost::shared_ptr< WDataHandler >( new WDataHandler() );
     //WLoaderManager testLoaderManager;
     //testLoaderManager.load( fileName, dataHandler );
     //std::cout << "Number of DS: " << dataHandler->getNumberOfSubjects() << std::endl;

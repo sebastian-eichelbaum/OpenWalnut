@@ -35,7 +35,6 @@
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStatusReport.h"
-#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
