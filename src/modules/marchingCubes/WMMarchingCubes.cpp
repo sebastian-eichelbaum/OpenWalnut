@@ -82,7 +82,7 @@ boost::shared_ptr< WModule > WMMarchingCubes::factory() const
 
 const std::string WMMarchingCubes::getName() const
 {
-    return "Marching Cubes";
+    return "Isosurface";
 }
 
 const std::string WMMarchingCubes::getDescription() const
