@@ -369,20 +369,6 @@ void WMNavSlices::updateGeometry()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-//    std::vector< boost::shared_ptr< WModule > > datasetList = WKernel::getRunningKernel()->getGui()->getDataSetList( 0 );
-//    if ( datasetList.size() > 0 )
-//    {
-//        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( datasetList[0] );
-//        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
-//
-//        float mx = grid->getNbCoordsX() * grid->getOffsetX();
-//        float my = grid->getNbCoordsY() * grid->getOffsetY();
-//        float mz = grid->getNbCoordsZ() * grid->getOffsetZ();
-//
-//        m_properties->setValue( "maxAxial", mx );
-//        m_properties->setValue( "maxCoronal", my );
-//        m_properties->setValue( "maxSagittal", mz );
-//    }
     osg::ref_ptr<osg::Geometry> xSliceGeometry = createGeometry( 0 );
     osg::ref_ptr<osg::Geometry> ySliceGeometry = createGeometry( 1 );
     osg::ref_ptr<osg::Geometry> zSliceGeometry = createGeometry( 2 );
@@ -394,7 +380,10 @@ void WMNavSlices::updateGeometry()
     osg::ref_ptr<osg::Drawable> oldz = osg::ref_ptr<osg::Drawable>( m_zSliceNode->getDrawable( 0 ) );
     m_zSliceNode->replaceDrawable( oldz, zSliceGeometry );
 
-    if ( m_properties->getValue<bool>( "showAxial" ) )
+    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+    bool noTexture = ( dsl.size() == 0 );
+
+    if ( m_properties->getValue<bool>( "showAxial" ) && !noTexture )
     {
         m_zSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -403,7 +392,7 @@ void WMNavSlices::updateGeometry()
         m_zSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_properties->getValue<bool>( "showCoronal" ) )
+    if ( m_properties->getValue<bool>( "showCoronal" ) && !noTexture )
     {
         m_xSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -412,7 +401,7 @@ void WMNavSlices::updateGeometry()
         m_xSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_properties->getValue<bool>( "showSagittal" ) )
+    if ( m_properties->getValue<bool>( "showSagittal" ) && !noTexture )
     {
         m_ySliceNode->setNodeMask( 0xFFFFFFFF );
     }
