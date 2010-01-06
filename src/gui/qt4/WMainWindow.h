@@ -102,7 +102,9 @@ public:
     WIconManager* getIconManager();
 
     /**
+     * Returns a pointer to a signal object which signals a list of filenames to load
      *
+     * \return the signal
      */
     boost::signals2::signal1< void, std::vector< std::string > >* getLoaderSignal();
 
@@ -114,7 +116,9 @@ public:
     boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* getModuleButtonSignal();
 
     /**
+     * Returns a point to a boost signal object which emits the coordinates of a mouseclick
      *
+     * \return the signal
      */
     boost::signals2::signal1< void, std::string >* getPickSignal();
 
@@ -165,16 +169,17 @@ private:
      */
     void setupCompatiblesToolBar();
 
-    WIconManager m_iconManager;
+    WIconManager m_iconManager; //!< manager to provide icons in the gui thread
 
-    WPropertyManager m_propertyManager;
+    WPropertyManager m_propertyManager; //!< transmit gui interactions to connected modules
 
     QWidget* m_centralwidget; //!< the central widget of the docking facility. Thsi can not be moved.
+
     WQtRibbonMenu* m_ribbonMenu; //!< The ribbon menu of the main window.
 
     WQtRibbonMenu* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selcted in the dataset browser
 
-    WQtDatasetBrowser* m_datasetBrowser;
+    WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
 
     boost::shared_ptr<WQtGLWidget> m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
@@ -191,8 +196,11 @@ private:
      */
     boost::mutex m_customDockWidgetsLock;
 
-    boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal;
+    boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal; //!< boost signal for open file dialog
 
+    /**
+     * boost signal object
+     */
     boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > > m_moduleButtonSignal;
 };
 
