@@ -125,10 +125,12 @@ private:
     void paint();
 
     /**
-     * Checks if the look up table is still valid (e.g. size() of m_fibs has
-     * changed.
+     * Checks if the look up table exists. This is done via the original file
+     * name containing the fibers but different suffix.
+     *
+     *\return True if it look up table detection was successfull.
      */
-    void checkDLtLookUpTable();
+    bool dLtTableExists();
 
     /**
      * Melds the given two clusters to the cluster with the lower ID.
@@ -148,6 +150,16 @@ private:
      */
     std::string lookUpTableFileName() const;
 
+
+    /**
+     * For each cluster a dataset is generated in which its fibers are blurred.
+     *
+     *\return Datasets containing the blurred clusters.
+     */
+    boost::shared_ptr< WDataSetSingle > blurClusters() const;
+
+    bool m_dLtTableExists; //!< Flag whether there is already a dLt look up table or not.
+
     /**
      * Stores the cluster id of every fiber so it is fast to get the cluster
      * of a given fiber.
@@ -159,8 +171,6 @@ private:
     double m_maxDistance_t; //!< Maximum distance of two fibers in one cluster.
 
     std::vector< WFiberCluster > m_clusters; //!< Stores all WFiberClusters
-
-    bool m_dLtTableExists; //!< Flag whether there is already a dLt look up table or not.
 
     boost::shared_ptr< WDXtLookUpTable > m_dLtTable; //!< Distance matrix lookUpTable
 
@@ -180,6 +190,12 @@ private:
      * Input connector for a fiber dataset.
      */
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+
+    /**
+     * Output connector for a value datasets for each cluster representing
+     * blurred clusters.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_blurredClusters;
 
     /**
      * OSG node for this module. All other OSG nodes of this module should be

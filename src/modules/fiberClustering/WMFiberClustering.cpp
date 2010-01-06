@@ -53,11 +53,11 @@
 
 WMFiberClustering::WMFiberClustering()
     : WModule(),
-      m_maxDistance_t( 6.5 ),
       m_dLtTableExists( false ),
+      m_maxDistance_t( 6.5 ),
       m_minClusterSize( 10 ),
       m_separatePrimitives( true ),
-      m_proximity_t( 1.0 ),
+      m_proximity_t( 0.0 ),
       m_lastFibsSize( 0 )
 {
 }
@@ -98,10 +98,10 @@ void WMFiberClustering::moduleMain()
 void WMFiberClustering::update()
 {
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
-    checkDLtLookUpTable();
 
-    if( !m_dLtTableExists )
+    if( !( m_dLtTableExists = dLtTableExists() ) )
     {
+        debugLog() << "Consider old table as invalid.";
         m_dLtTable.reset( new WDXtLookUpTable( m_fibs->size() ) );
     }
 
@@ -110,9 +110,20 @@ void WMFiberClustering::update()
 
     cluster();
     paint();
+    // m_blurredClusters->updateData( blurClusters() );
 }
 
-void WMFiberClustering::checkDLtLookUpTable()
+boost::shared_ptr< WDataSetSingle > WMFiberClustering::blurClusters() const
+{
+    boost::shared_ptr< WValueSet< double > > valueSet;
+    boost::shared_ptr< WGridRegular3D > grid;
+    std::vector< double > data;
+    valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 3, data, W_DT_DOUBLE ) );
+    grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 100, 100, 100, 0.5, 0.5, 0.5 ) );
+    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, grid ) );
+}
+
+bool WMFiberClustering::dLtTableExists()
 {
     std::string dLtFileName = lookUpTableFileName();
 
@@ -136,25 +147,14 @@ void WMFiberClustering::checkDLtLookUpTable()
 
             m_dLtTable->setData( *data );
 
-            // check if elements match number of fibers and reset m_lastFibsSize
-            m_dLtTableExists = true;
+            return true;
         }
         catch( WDHException e )
         {
             debugLog() << e.what() << std::endl;
         }
     }
-    if( m_dLtTableExists )
-    {
-        if( m_fibs->size() != m_lastFibsSize )
-        {
-            debugLog() << "considered old table as invalid. #fibers loaded: "
-                       << m_fibs->size() << " but old #fibers: " << m_lastFibsSize;
-            // throw away old invalid table
-            m_dLtTable.reset();
-            m_dLtTableExists = false;
-        }
-    }
+    return false;
 }
 
 void WMFiberClustering::cluster()
@@ -266,12 +266,18 @@ void WMFiberClustering::paint()
 
     infoLog() << "cluster: " << m_clusters.size();
     m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+    size_t numFibers = 0;
+    std::stringstream clusterLog;
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
         color.setHSV( hue, 1.0, 0.75 );
         m_clusters[i].setColor( color );
         m_osgNode->addChild( genFiberGeode( m_clusters[i] ).get() );
+        clusterLog << m_clusters[i].size() << " ";
+        numFibers += m_clusters[i].size();
     }
+    debugLog() << "Clusters of sizes: " << clusterLog.str();
+    debugLog() << "Painted: " << numFibers << " fibers out of: " << m_fibs->size();
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 }
@@ -378,6 +384,9 @@ void WMFiberClustering::slotPropertyChanged( std::string propertyName )
 
 std::string WMFiberClustering::lookUpTableFileName() const
 {
+    std::stringstream newExtension;
+    newExtension << std::fixed << std::setprecision( 2 );
+    newExtension << ".pt-" << m_proximity_t << ".dlt";
     boost::filesystem::path fibFileName( m_fibs->getFileName() );
-    return fibFileName.replace_extension( ".dlt" ).string();
+    return fibFileName.replace_extension( newExtension.str() ).string();
 }

@@ -161,6 +161,7 @@ void WMFiberCulling::cullOutFibers()
     {
         if( unusedFibers[q] )
         {
+            ++st;
             continue;
         }
         for( size_t r = q + 1;  r < numFibers; ++r )
