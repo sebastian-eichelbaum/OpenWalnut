@@ -163,6 +163,7 @@ void WMMarchingCubes::properties()
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
     m_properties->addDouble( "Iso Value", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
     m_properties->addInt( "Opacity %", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+    m_properties->setMax( "Opacity %", 100 );
     m_properties->addBool( "Use Texture", true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
 }
 
