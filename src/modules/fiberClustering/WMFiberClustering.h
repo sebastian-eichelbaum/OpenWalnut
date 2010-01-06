@@ -206,7 +206,7 @@ private:
 
 inline const std::string WMFiberClustering::getName() const
 {
-    return std::string( "Fiber Clustering Module" );
+    return std::string( "Fiber Clustering" );
 }
 
 inline const std::string WMFiberClustering::getDescription() const
