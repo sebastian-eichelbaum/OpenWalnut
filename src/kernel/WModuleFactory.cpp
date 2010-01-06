@@ -41,6 +41,7 @@
 #include "../modules/textureList/WMTextureList.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/eegView/WMEEGView.h"
+#include "../modules/prototypeBoxManipulation/WMPrototypeBoxManipulation.h"
 
 #include "exceptions/WPrototypeUnknown.h"
 #include "exceptions/WPrototypeNotUnique.h"
@@ -81,6 +82,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMTextureList() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMHud() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMPrototypeBoxManipulation() ) );
 
     lock.unlock();
 
