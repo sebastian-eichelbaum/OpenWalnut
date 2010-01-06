@@ -258,6 +258,7 @@ private:
 
     bool m_shaderUseTexture; //!< shall the shader use texturing?
     bool m_shaderUseLighting; //!< shall the shader use lighting?
+    bool m_shaderUseTransparency; //!< shall the shader use transparency?
 
     /**
      * Lock to prevent concurrent threads trying to update the osg node
