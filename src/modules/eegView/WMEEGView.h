@@ -76,6 +76,12 @@ protected:
     virtual void moduleMain();
 
 private:
+    /**
+     * Sample HUD-Text. Copied from an OSG-Example
+     *
+     * \return OSG-Graph
+     */
+    osg::Node* createText();
 };
 
 #endif  // WMEEGVIEW_H

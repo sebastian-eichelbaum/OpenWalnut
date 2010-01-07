@@ -50,7 +50,8 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
     int width, int height, WGECamera::ProjectionMode projectionMode )
     : WGEGraphicsWindow( wdata, x, y, width, height ),
       boost::enable_shared_from_this< WGEViewer >(),
-      m_name( name )
+      m_name( name ),
+      m_projectionMode( projectionMode )
 {
     try
     {
@@ -62,10 +63,22 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
             case( WGECamera::ORTHOGRAPHIC ):
                 m_View->getCamera()->setProjectionMatrixAsOrtho(
                     -120.0 * width / height, 120.0 * width / height, -120.0, 120.0, -1000.0, +1000.0 );
+                m_View->getCamera()->setProjectionResizePolicy( osg::Camera::HORIZONTAL );
+
+                // camera manipulator
+                m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
                 break;
             case( WGECamera::PERSPECTIVE ):
                 m_View->getCamera()->setProjectionMatrixAsPerspective(
                     30.0, static_cast< double >( width ) / static_cast< double >( height ), 1.0, 1000.0 );
+                m_View->getCamera()->setProjectionResizePolicy( osg::Camera::HORIZONTAL );
+
+                // camera manipulator
+                m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
+                break;
+            case( WGECamera::TWO_D ):
+                m_View->getCamera()->setProjectionMatrixAsOrtho2D( 0.0, width, 0.0, height );
+                m_View->getCamera()->setProjectionResizePolicy( osg::Camera::FIXED );
                 break;
             default:
                 throw WGEInitFailed( "Unknown projection mode" );
@@ -73,14 +86,10 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
         }
 
         m_View->getCamera()->setViewport( 0, 0, width, height );
-        m_View->getCamera()->setProjectionResizePolicy( osg::Camera::HORIZONTAL );
         m_View->getCamera()->setClearColor( osg::Vec4( .9, .9, .9, 1. ) );
 
         // add the stats handler
         m_View->addEventHandler( new osgViewer::StatsHandler );
-
-        // camera manipulator
-        m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
 
         m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
 
@@ -147,6 +156,11 @@ void WGEViewer::resize( int width, int height )
 
     // also update the camera
     m_View->getCamera()->setViewport( 0, 0, width, height );
+
+    if( m_projectionMode == WGECamera::TWO_D )
+    {
+        m_View->getCamera()->setProjectionMatrixAsOrtho2D( 0.0, width, 0.0, height );
+    }
 }
 
 void WGEViewer::close()

@@ -34,6 +34,7 @@
 #include "../common/WThreadedRunner.h"
 #include "../common/WFlag.h"
 #include "../kernel/WModule.h"
+#include "../graphicsEngine/WGECamera.h"
 
 
 /**
@@ -101,8 +102,9 @@ public:
      * Instruct the MainWindow to create a new custom widget.
      *
      * \param title The title of the widget
+     * \param projectionMode The kind of projection which should be used
      */
-    virtual void createCustomWidget( std::string title ) = 0;
+    virtual void createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC ) = 0;
 
     /**
      * Instruct the MainWindow to close a custom widget.

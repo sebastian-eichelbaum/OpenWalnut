@@ -41,7 +41,7 @@ public:
      */
     enum ProjectionMode
     {
-        ORTHOGRAPHIC, PERSPECTIVE
+        ORTHOGRAPHIC, PERSPECTIVE, TWO_D
     };
 
     /**

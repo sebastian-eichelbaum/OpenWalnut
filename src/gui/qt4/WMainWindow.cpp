@@ -292,7 +292,8 @@ void WMainWindow::customEvent( QEvent* event )
         WCreateCustomDockWidgetEvent* ccdwEvent = static_cast< WCreateCustomDockWidgetEvent* >( event );
         std::string title = ccdwEvent->getTitle();
 
-        boost::shared_ptr< WQtCustomDockWidget > widget = boost::shared_ptr< WQtCustomDockWidget >( new WQtCustomDockWidget( title, this ) );
+        boost::shared_ptr< WQtCustomDockWidget > widget = boost::shared_ptr< WQtCustomDockWidget >(
+            new WQtCustomDockWidget( title, this, ccdwEvent->getProjectionMode() ) );
         addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
 
         // store it in CustomDockWidget list

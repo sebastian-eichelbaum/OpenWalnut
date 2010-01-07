@@ -28,6 +28,7 @@
 #include <string>
 #include <QtCore/QEvent>
 
+#include "../../graphicsEngine/WGECamera.h"
 #include "../../common/WConditionOneShot.h"
 
 /**
@@ -40,9 +41,11 @@ public:
      * constructor
      *
      * \param title The title of the widget to create.
+     * \param projectionMode The kind of projection which should be used
      * \param condition The condition which waits until the widget is created.
      */
-    explicit WCreateCustomDockWidgetEvent( std::string title, boost::shared_ptr< WConditionOneShot > condition );
+    explicit WCreateCustomDockWidgetEvent(
+        std::string title, WGECamera::ProjectionMode projectionMode, boost::shared_ptr< WConditionOneShot > condition );
 
     /**
      * Get the title of the widget to create.
@@ -50,6 +53,13 @@ public:
      * \return title of the widget to create
      */
     std::string getTitle() const;
+
+    /**
+     * Get the kind of projection which should be used.
+     *
+     * \return the kind of projection which should be used
+     */
+    WGECamera::ProjectionMode getProjectionMode() const;
 
     /**
      * Get the condition which waits until the widget is created.
@@ -70,6 +80,11 @@ private:
      * the title of the widget to create
      */
     std::string m_title;
+
+    /**
+     * the kind of projection which should be used
+     */
+    WGECamera::ProjectionMode m_projectionMode;
 
     /**
      * Condition which waits until the widget is created.

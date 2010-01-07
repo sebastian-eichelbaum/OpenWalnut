@@ -40,8 +40,9 @@ public:
      *
      * \param title the title of the widget
      * \param parent the parent of the widget
+     * \param projectionMode The kind of projection which should be used
      */
-    WQtCustomDockWidget( std::string title, QWidget* parent );
+    WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode );
 
 protected:
     /**

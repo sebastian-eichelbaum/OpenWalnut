@@ -227,10 +227,10 @@ boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
     return m_gui->getPickSignal();
 }
 
-void WQt4Gui::createCustomWidget( std::string title )
+void WQt4Gui::createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode )
 {
     boost::shared_ptr< WConditionOneShot > condition( new WConditionOneShot );
-    QCoreApplication::postEvent( m_gui, new WCreateCustomDockWidgetEvent( title, condition ) );
+    QCoreApplication::postEvent( m_gui, new WCreateCustomDockWidgetEvent( title, projectionMode, condition ) );
     condition->wait();
 }
 

@@ -27,13 +27,13 @@
 #include "WQtCustomDockWidget.h"
 #include <QtGui/QCloseEvent>
 
-WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent )
+WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : QDockWidget( QString::fromStdString( title ), parent )
 {
     // setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
 
-    m_glWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( title, this, WGECamera::PERSPECTIVE ) );
+    m_glWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( title, this, projectionMode ) );
     m_glWidget->initialize();
 
     setWidget( m_glWidget.get() );

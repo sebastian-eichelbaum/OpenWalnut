@@ -101,8 +101,9 @@ public:
      * Instruct the WMainWindow to create a new custom widget.
      *
      * \param title The title of the widget
+     * \param projectionMode The kind of projection which should be used
      */
-    virtual void createCustomWidget( std::string title );
+    virtual void createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
      * Instruct the WMainWindow to close a custom widget.
