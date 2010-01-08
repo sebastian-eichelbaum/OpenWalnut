@@ -22,35 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
-#include <vector>
+#ifndef WVOXELIZER_TEST_H
+#define WVOXELIZER_TEST_H
 
-#include <boost/shared_ptr.hpp>
+#include <cxxtest/TestSuite.h>
 
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../math/fiberSimilarity/WDLTMetric.h"
-#include "../WLimits.h"
-#include "../WTransferable.h"
-#include "WFiberCluster.h"
+#include "../WVoxelizer.h"
 
-WFiberCluster::WFiberCluster()
-    : WTransferable()
+/**
+ * TODO(lmath): Document this!
+ */
+class WVoxelizerTest : public CxxTest::TestSuite
 {
-}
-
-WFiberCluster::WFiberCluster( size_t index )
-    : WTransferable()
-{
-    m_memberIndices.push_back( index );
-}
-
-void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
-{
-    std::list< size_t >::const_iterator cit = other.m_memberIndices.begin();
-    for( ; cit != other.m_memberIndices.end(); ++cit)
+public:
+    /**
+     * TODO(lmath): Document this!
+     */
+    void testSomething( void )
     {
-        m_memberIndices.push_back( *cit );
     }
-    // make sure that those indices aren't occuring anywhere else
-    other.clear();
-}
+};
+
+#endif  // WVOXELIZER_TEST_H

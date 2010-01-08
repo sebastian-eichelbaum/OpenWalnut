@@ -313,10 +313,13 @@ void WMFiberClustering::connectors()
 {
     using boost::shared_ptr;
     typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
+    typedef WModuleOutputData< WDataSetSingle > SingleOutputData; // -"-
 
     m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
+    m_blurredClusters = shared_ptr< SingleOutputData >( new SingleOutputData( shared_from_this(), "DataSetOutput", "gsdjf g" ) );
 
     addConnector( m_fiberInput );
+    addConnector( m_blurredClusters );
     WModule::connectors();  // call WModules initialization
 }
 

@@ -28,25 +28,23 @@
 #include <typeinfo>
 
 #include "../common/WLogger.h"
-
-#include "../modules/data/WMData.h"
-#include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
-#include "../modules/fiberDisplay/WMFiberDisplay.h"
-#include "../modules/fiberCulling/WMFiberCulling.h"
-#include "../modules/fiberClustering/WMFiberClustering.h"
-#include "../modules/marchingCubes/WMMarchingCubes.h"
+#include "../modules/data/WMData.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/eegTest/WMEEGTest.h"
-#include "../modules/textureList/WMTextureList.h"
-#include "../modules/hud/WMHud.h"
 #include "../modules/eegView/WMEEGView.h"
+#include "../modules/fiberClustering/WMFiberClustering.h"
+#include "../modules/fiberCulling/WMFiberCulling.h"
+#include "../modules/fiberDisplay/WMFiberDisplay.h"
+#include "../modules/hud/WMHud.h"
+#include "../modules/marchingCubes/WMMarchingCubes.h"
+#include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/prototypeBoxManipulation/WMPrototypeBoxManipulation.h"
-
-#include "exceptions/WPrototypeUnknown.h"
-#include "exceptions/WPrototypeNotUnique.h"
-
+#include "../modules/textureList/WMTextureList.h"
+#include "../modules/voxelizer/WMVoxelizer.h"
 #include "WModuleFactory.h"
+#include "exceptions/WPrototypeNotUnique.h"
+#include "exceptions/WPrototypeUnknown.h"
 
 // factory instance as singleton
 boost::shared_ptr< WModuleFactory > WModuleFactory::m_instance = boost::shared_ptr< WModuleFactory >();
@@ -83,6 +81,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMHud() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMPrototypeBoxManipulation() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
 
     lock.unlock();
 

@@ -26,17 +26,19 @@
 #define WFIBERCLUSTER_H
 
 #include <list>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WColor.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../WColor.h"
+#include "../WTransferable.h"
 
 /**
  * Represents a cluster of indices of a WDataSetFibers.
  */
-class WFiberCluster
+class WFiberCluster : public WTransferable
 {
 friend class WFiberClusterTest;
 public:
@@ -103,6 +105,22 @@ public:
     WColor getColor() const;
 
     /**
+     * The only reason for implementing is here, to prevent this class from
+     * beeing abstract.
+     *
+     *\return A name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * The only reason for implementing is here, to prevent this class from
+     * beeing abstract.
+     *
+     *\return A name.
+     */
+    virtual const std::string getDescription() const;
+
+    /**
      * \param other The other fiber which should be compared
      * \return true If both clusters having same fibers IN SAME ORDER!
      */
@@ -156,6 +174,16 @@ inline void WFiberCluster::setColor( WColor color )
 inline WColor WFiberCluster::getColor() const
 {
     return m_color;
+}
+
+inline const std::string WFiberCluster::getName() const
+{
+    return "FiberCluster";
+}
+
+inline const std::string WFiberCluster::getDescription() const
+{
+    return "A collection of indices for fibers representing a fiber cluster";
 }
 
 inline bool WFiberCluster::operator==( const WFiberCluster& other ) const
