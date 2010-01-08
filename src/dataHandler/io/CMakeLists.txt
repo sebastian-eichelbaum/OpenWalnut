@@ -4,7 +4,7 @@ ADD_SUBDIRECTORY( biosig )
 FILE( GLOB DATAHANDLER_IO_SRC "*.cpp" )
 
 # Unit tests
-IF( CXXTEST_FOUND )
+IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_IO_SRC}"
                                "dataHandler;niftiio;biosig"
                                "WWriter.cpp" # too simple to test
@@ -13,4 +13,4 @@ IF( CXXTEST_FOUND )
                                "WReaderLookUpTableVTK.cpp" # there is only one member function which is not trivial, but its more an integration test
                                "WWriterFiberVTK.cpp" # there is only one member function which is not trivial, but its more an integration test
                              )
-ENDIF( CXXTEST_FOUND )
+ENDIF( OW_COMPILE_TESTS )

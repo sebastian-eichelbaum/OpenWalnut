@@ -13,7 +13,7 @@ ENDIF()
 TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} )
 
 # Unit tests
-IF( CXXTEST_FOUND )
+IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
                                "common;utils"
                                "WSegmentationFault.cpp"
@@ -22,4 +22,4 @@ IF( CXXTEST_FOUND )
                                "WPrototyped.cpp"
                                "WLimits.cpp" # there are only some definitions
                              )
-ENDIF( CXXTEST_FOUND )
+ENDIF( OW_COMPILE_TESTS )

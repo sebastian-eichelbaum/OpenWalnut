@@ -10,9 +10,9 @@ ELSE()
 ENDIF()
 
 # Unit tests
-IF( CXXTEST_FOUND )
+IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${MATH_SRC}"
                                "math;common;utils"
                                "WMath.cpp" # this declares only a namespace
                              )
-ENDIF( CXXTEST_FOUND )
+ENDIF( OW_COMPILE_TESTS )

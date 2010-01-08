@@ -15,7 +15,7 @@ TARGET_LINK_LIBRARIES( kernel common dataHandler ge math utils ${OPENSCENEGRAPH_
 
 
 # Unit tests
-IF( CXXTEST_FOUND )
+IF( OW_COMPILE_TESTS )
     #    SET( testLibs guiqt4 )
   CXXTEST_ADD_TESTS_FROM_LIST( "${KERNEL_SRC}"
                                "kernel"
@@ -34,4 +34,4 @@ IF( CXXTEST_FOUND )
                                "../modules/navSlices/WMNavSlices.cpp"
                                "../modules/eegTest/WMEEGTest.cpp"
                              )
-ENDIF( CXXTEST_FOUND )
+ENDIF( OW_COMPILE_TESTS )
