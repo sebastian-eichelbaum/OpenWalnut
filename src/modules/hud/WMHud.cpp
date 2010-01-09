@@ -186,7 +186,10 @@ void WMHud::init()
         m_rootNode->setNodeMask( 0x0 );
     }
 
-    WKernel::getRunningKernel()->getGui()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+    // connect updateGFX with picking
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    assert( viewer );
+    viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 
 void WMHud::updatePickText( std::string text )

@@ -82,6 +82,11 @@ void WMPrototypeBoxManipulation::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.add( m_input->getDataChangedCondition() );
 
+    // connect updateGFX with picking
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    assert( viewer );
+    viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPrototypeBoxManipulation::updateGFX, this, _1 ) );
+
     // signal ready state
     ready();
 
@@ -253,17 +258,22 @@ void WMPrototypeBoxManipulation::draw()
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+    state->setMode( GL_BLEND, osg::StateAttribute::ON  );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
 
     debugLog() << "Intial draw " << std::endl;
 }
 
-void WMPrototypeBoxManipulation::updateGFX()
+void WMPrototypeBoxManipulation::updateGFX( std::string text )
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
+    if( text.find( "Object ") != std::string::npos
+        && text.find( "\"Box\"" ) != std::string::npos )
+    {
+        std::cout << "Picked Box with Info: " << text << std::endl;
+    }
     slock.unlock();
 }
 

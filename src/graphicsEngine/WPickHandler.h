@@ -28,6 +28,8 @@
 #include <sstream>
 #include <string>
 
+#include <boost/signals2/signal.hpp>
+
 #include <osgUtil/Optimizer>
 #include <osgDB/ReadFile>
 #include <osgViewer/Viewer>
@@ -51,19 +53,30 @@
 class WPickHandler: public osgGA::GUIEventHandler
 {
 public:
-
-    WPickHandler();
-
+    /**
+     * Virtual destructor needed because of virtual fuction.
+     */
     virtual ~WPickHandler();
 
     bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
 
     virtual void pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea );
 
+    /**
+     * Gives information about the picked object.
+     */
     std::string getHitResult();
 
+    /**
+     * returns the m_pickSignal to for registering to it.
+     */
+    boost::signals2::signal1< void, std::string >* getPickSignal();
+
 protected:
-    std::string m_hitResult;
+    std::string m_hitResult; //!< Textual representation of the result of a pick.
+
+private:
+    boost::signals2::signal1<void, std::string > m_pickSignal; //!< One can register to this signal to receive pick events.
 };
 
 #endif  // WPICKHANDLER_H

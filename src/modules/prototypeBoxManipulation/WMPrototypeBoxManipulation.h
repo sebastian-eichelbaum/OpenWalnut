@@ -81,8 +81,9 @@ public:
 
     /**
      *  updates the graphics
+     * \param text text info from pick
      */
-    void updateGFX();
+    void updateGFX( std::string text );
 
 protected:
     /**
@@ -146,7 +147,7 @@ inline void BoxNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     if ( m_module )
     {
-        m_module->updateGFX();
+        m_module->updateGFX( "..." );
     }
     traverse( node, nv );
 }

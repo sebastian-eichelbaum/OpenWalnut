@@ -27,10 +27,6 @@
 
 #include "WPickHandler.h"
 
-WPickHandler::WPickHandler()
-{
-}
-
 WPickHandler::~WPickHandler()
 {
 }
@@ -40,18 +36,25 @@ std::string WPickHandler::getHitResult()
     return m_hitResult;
 }
 
+boost::signals2::signal1< void, std::string >* WPickHandler::getPickSignal()
+{
+    return &m_pickSignal;
+}
+
 bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa )
 {
     switch ( ea.getEventType() )
     {
-        case( osgGA::GUIEventAdapter::PUSH ):
+        case osgGA::GUIEventAdapter::PUSH : // Mousebutton pushed
         {
             osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
             if ( view )
+            {
                 pick( view, ea );
+            }
             return false;
         }
-        case( osgGA::GUIEventAdapter::KEYDOWN ):
+        case osgGA::GUIEventAdapter::KEYDOWN : // Key on keyboard pushed.
         {
             if ( ea.getKey() == 'c' )
             {
@@ -99,4 +102,5 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
                 << std::endl;
         m_hitResult += os.str();
     }
+    m_pickSignal( getHitResult() );
 }
