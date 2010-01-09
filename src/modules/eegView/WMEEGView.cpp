@@ -77,16 +77,24 @@ void WMEEGView::moduleMain()
 {
     // do initialization
     WKernel::getRunningKernel()->getGui()->createCustomWidget( "EEG View", WGECamera::TWO_D );
-    std::cout << "Loaded EEG View widget\n";
-
     boost::shared_ptr< WGEViewer > viewer = WGraphicsEngine::getGraphicsEngine()->getViewerByName( "EEG View" );
-    viewer->setScene( createText() ); //should created OSG-Nodes be deleted?
+    if( viewer.get() )
+    {
+        infoLog() << "Successfully created EEG View widget.";
+
+        viewer->setScene( createText() );
+    }
+    else
+    {
+        warnLog() << "Could not create EEG View widget.";
+    }
 
     ready();
 
     waitForStop();
 
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( "EEG View" );
+    // This should also delete the scene which was only referenced by this viewer.
 }
 
 osg::Node* WMEEGView::createText()

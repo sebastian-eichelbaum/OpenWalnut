@@ -22,12 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
+#include "exceptions/WGEInitFailed.h"
 #include "WGECamera.h"
 
-WGECamera::WGECamera():
-    osg::Camera()
+WGECamera::WGECamera( int width, int height, ProjectionMode projectionMode )
+    : osg::Camera(),
+      m_DefProjMode( projectionMode )
 {
-    // initialize members
+    setViewport( 0, 0, width, height );
+    setClearColor( osg::Vec4( 0.9, 0.9, 0.9, 1.0 ) );
+    reset();
 }
 
 WGECamera::~WGECamera()
@@ -47,6 +51,22 @@ WGECamera::ProjectionMode WGECamera::getDefaultProjectionMode()
 
 void WGECamera::reset()
 {
-    // not yet implemented
+    switch( m_DefProjMode )
+    {
+        case( ORTHOGRAPHIC ):
+            setProjectionMatrixAsOrtho( -120.0 * getViewport()->aspectRatio(), 120.0 * getViewport()->aspectRatio(),
+                -120.0, 120.0, -1000.0, +1000.0 );
+            setProjectionResizePolicy( HORIZONTAL );
+            break;
+        case( PERSPECTIVE ):
+            setProjectionMatrixAsPerspective( 30.0, getViewport()->aspectRatio(), 1.0, 1000.0 );
+            setProjectionResizePolicy( osg::Camera::HORIZONTAL );
+            break;
+        case( TWO_D ):
+            setProjectionMatrixAsOrtho2D( 0.0, getViewport()->width(), 0.0, getViewport()->height() );
+            setProjectionResizePolicy( osg::Camera::FIXED );
+            break;
+        default:
+            throw WGEInitFailed( "Unknown projection mode" );
+    }
 }
-

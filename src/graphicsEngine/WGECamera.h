@@ -28,15 +28,14 @@
 #include <osg/Camera>
 
 /**
- * Class for wrapping around the OSG Camera class. It adds some utility functions for simply setting some
- * camera defaults.
+ * Class for wrapping around the OSG Camera class. It adds some utility
+ * functions for simply setting some camera defaults.
  * \ingroup ge
  */
 class WGECamera: public osg::Camera
 {
 public:
-
-    /** 
+    /**
      * List of possible camera modes.
      */
     enum ProjectionMode
@@ -45,9 +44,13 @@ public:
     };
 
     /**
-     * Default constructor.
+     * Constructor which sets defaults
+     *
+     * \param width width of the viewport.
+     * \param height height of the viewport.
+     * \param projectionMode projection mode of the viewer.
      */
-    WGECamera();
+    WGECamera( int width, int height, ProjectionMode projectionMode );
 
     /**
      * Sets the default projection mode used for cameras getting reset.
@@ -56,28 +59,29 @@ public:
      */
     void setDefaultProjectionMode( ProjectionMode mode );
 
-    /** 
+    /**
      * Returns the current default projection mode.
-     * 
+     *
      * \return the currently set mode.
      */
     ProjectionMode getDefaultProjectionMode();
 
-    /** 
+    /**
      * Resets the camera and activates the prior set defaults.
      */
     void reset();
 
 protected:
-
     /**
-     * Destructor. This desctructor is protected to avoid accidentally deleting a instance of WGECamera.
-     * This follows the philosophy of OSG to avoid problems in multithreaded environments, since these camera
-     * pointers are used deep in the OSG where an deletion could cause a segfault.
+     * Destructor. This desctructor is protected to avoid accidentally deleting
+     * a instance of WGECamera.
+     * This follows the philosophy of OSG to avoid problems in multithreaded
+     * environments, since these camera pointers are used deep in the OSG where
+     * an deletion could cause a segfault.
      */
     virtual ~WGECamera();
 
-    /** 
+    /**
      * The projection mode used as default.
      */
     ProjectionMode m_DefProjMode;
@@ -86,4 +90,3 @@ private:
 };
 
 #endif  // WGECAMERA_H
-

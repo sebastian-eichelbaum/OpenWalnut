@@ -56,37 +56,14 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
     try
     {
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
+
+        m_View->setCamera( new WGECamera( width, height, projectionMode ) );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
-
-        switch( projectionMode )
+        if( projectionMode == WGECamera::ORTHOGRAPHIC || projectionMode == WGECamera::PERSPECTIVE )
         {
-            case( WGECamera::ORTHOGRAPHIC ):
-                m_View->getCamera()->setProjectionMatrixAsOrtho(
-                    -120.0 * width / height, 120.0 * width / height, -120.0, 120.0, -1000.0, +1000.0 );
-                m_View->getCamera()->setProjectionResizePolicy( osg::Camera::HORIZONTAL );
-
-                // camera manipulator
-                m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
-                break;
-            case( WGECamera::PERSPECTIVE ):
-                m_View->getCamera()->setProjectionMatrixAsPerspective(
-                    30.0, static_cast< double >( width ) / static_cast< double >( height ), 1.0, 1000.0 );
-                m_View->getCamera()->setProjectionResizePolicy( osg::Camera::HORIZONTAL );
-
-                // camera manipulator
-                m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
-                break;
-            case( WGECamera::TWO_D ):
-                m_View->getCamera()->setProjectionMatrixAsOrtho2D( 0.0, width, 0.0, height );
-                m_View->getCamera()->setProjectionResizePolicy( osg::Camera::FIXED );
-                break;
-            default:
-                throw WGEInitFailed( "Unknown projection mode" );
-                break;
+            // camera manipulator
+            m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
         }
-
-        m_View->getCamera()->setViewport( 0, 0, width, height );
-        m_View->getCamera()->setClearColor( osg::Vec4( .9, .9, .9, 1. ) );
 
         // add the stats handler
         m_View->addEventHandler( new osgViewer::StatsHandler );
