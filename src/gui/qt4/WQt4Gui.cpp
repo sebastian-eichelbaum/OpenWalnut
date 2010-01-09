@@ -160,13 +160,13 @@ int WQt4Gui::run()
     m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
     m_kernel->run();
     // create the window
-    m_gui = new WMainWindow( m_guiConfiguration );
-    m_gui->show();
+    m_mainWindow = new WMainWindow( m_guiConfiguration );
+    m_mainWindow->show();
 
     // connect out loader signal with krnel
     getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
 
-    m_gui->getModuleButtonSignal()->connect( boost::bind( &WKernel::applyModule, m_kernel, _1, _2 ) );
+    m_mainWindow->getModuleButtonSignal()->connect( boost::bind( &WKernel::applyModule, m_kernel, _1, _2 ) );
 
     // bind the GUI's slot with the ready signal
     t_ModuleGenericSignalHandlerType f = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToBrowser, this, _1 );
@@ -194,47 +194,47 @@ int WQt4Gui::run()
 void WQt4Gui::slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > module )
 {
     // get properties from the module and register them
-    m_gui->getPropertyManager()->connectProperties( module->getProperties() );
+    m_mainWindow->getPropertyManager()->connectProperties( module->getProperties() );
 
     // TODO(schurade): is this differentiation between data and "normal" modules really needed?
     if ( boost::shared_dynamic_cast< WMData >( module ).get() )
     {
-        m_gui->getDatasetBrowser()->addDataset( module, 0 );
+        m_mainWindow->getDatasetBrowser()->addDataset( module, 0 );
     }
     else
     {
-        m_gui->getDatasetBrowser()->addModule( module );
+        m_mainWindow->getDatasetBrowser()->addModule( module );
     }
 }
 
 std::vector< boost::shared_ptr< WDataSet > > WQt4Gui::getDataSetList( int subjectId, bool onlyTextures )
 {
-    return m_gui->getDatasetBrowser()->getDataSetList( subjectId, onlyTextures );
+    return m_mainWindow->getDatasetBrowser()->getDataSetList( subjectId, onlyTextures );
 }
 
 boost::shared_ptr< WModule > WQt4Gui::getSelectedModule()
 {
-    return m_gui->getDatasetBrowser()->getSelectedModule();
+    return m_mainWindow->getDatasetBrowser()->getSelectedModule();
 }
 
 boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()
 {
-    return m_gui->getLoaderSignal();
+    return m_mainWindow->getLoaderSignal();
 }
 
 boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
 {
-    return m_gui->getPickSignal();
+    return m_mainWindow->getPickSignal();
 }
 
 void WQt4Gui::createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode )
 {
     boost::shared_ptr< WConditionOneShot > condition( new WConditionOneShot );
-    QCoreApplication::postEvent( m_gui, new WCreateCustomDockWidgetEvent( title, projectionMode, condition ) );
+    QCoreApplication::postEvent( m_mainWindow, new WCreateCustomDockWidgetEvent( title, projectionMode, condition ) );
     condition->wait();
 }
 
 void WQt4Gui::closeCustomWidget( std::string title )
 {
-    m_gui->closeCustomDockWidget( title );
+    m_mainWindow->closeCustomDockWidget( title );
 }

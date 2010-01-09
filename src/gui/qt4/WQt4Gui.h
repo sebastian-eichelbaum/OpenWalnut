@@ -120,7 +120,7 @@ private:
     /**
      * Main window containing all needed widgets.
      */
-    WMainWindow* m_gui;
+    WMainWindow* m_mainWindow;
 
     /**
      * Graphics Engine instance.
