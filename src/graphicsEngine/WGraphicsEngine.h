@@ -98,7 +98,7 @@ public:
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    boost::shared_ptr<WGEViewer> createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
+    boost::shared_ptr< WGEViewer > createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
                                                int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
                                                WColor bgColor = WColor( .9, .9, .9 ) );
 
@@ -111,9 +111,11 @@ public:
 
     /**
      * Searches for a viewer with a given name and returns it, if found.
-     * \param name The name of the viewer
+     *
+     * \param name the name of the viewer
+     * \returns a shared pointer to the viewer or NULL if not found
      */
-    boost::shared_ptr<WGEViewer> getViewerByName( std::string name );
+    boost::shared_ptr< WGEViewer > getViewerByName( std::string name );
 
     /**
      * Returns the currently selected default font usable in osgText nodes.

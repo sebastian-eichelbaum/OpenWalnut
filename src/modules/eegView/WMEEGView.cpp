@@ -76,25 +76,69 @@ const std::string WMEEGView::getDescription() const
 void WMEEGView::moduleMain()
 {
     // do initialization
-    WKernel::getRunningKernel()->getGui()->createCustomWidget( "EEG View", WGECamera::TWO_D );
-    boost::shared_ptr< WGEViewer > viewer = WGraphicsEngine::getGraphicsEngine()->getViewerByName( "EEG View" );
-    if( viewer.get() )
+    m_widget = WKernel::getRunningKernel()->getGui()->createCustomWidget(
+        "EEG View", WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+    if( m_widget.get() )
     {
-        infoLog() << "Successfully created EEG View widget.";
+        debugLog() << "Succesfully opened EEG View widget.";
+        m_node = createText();
+        m_widget->getScene()->addChild( m_node );
 
-        viewer->setScene( createText() );
+        // signal ready
+        ready();
+
+        waitForStop();
     }
     else
     {
         warnLog() << "Could not create EEG View widget.";
     }
 
-    ready();
-
-    waitForStop();
-
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( "EEG View" );
     // This should also delete the scene which was only referenced by this viewer.
+}
+
+void WMEEGView::connectors()
+{
+    // initialize connectors
+    m_input = boost::shared_ptr< WModuleInputData< WEEG > >( new WModuleInputData< WEEG >(
+        shared_from_this(), "in", "Loaded EEG-dataset." ) );
+
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_input );
+
+    // call WModules initialization
+    WModule::connectors();
+}
+
+void WMEEGView::properties()
+{
+    // properties
+    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMEEGView::slotPropertyChanged, this, _1 ) );
+}
+
+void WMEEGView::slotPropertyChanged( std::string propertyName )
+{
+    if( propertyName == "active" )
+    {
+        if ( m_properties->getValue< bool >( propertyName ) )
+        {
+            if( !m_widget->getScene()->containsNode( m_node) )
+            {
+                m_widget->getScene()->addChild( m_node );
+            }
+        }
+        else
+        {
+            m_widget->getScene()->removeChild( m_node );
+        }
+    }
+    else
+    {
+        // instead of WLogger we must use std::cerr since WLogger needs to much time!
+        std::cerr << propertyName << std::endl;
+        assert( 0 && "This property name is not supported by this function yet." );
+    }
 }
 
 osg::Node* WMEEGView::createText()

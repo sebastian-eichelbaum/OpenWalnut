@@ -133,7 +133,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
 void WGraphicsEngine::closeViewer( const std::string name )
 {
     boost::mutex::scoped_lock lock( m_ViewersLock );
-    if (m_Viewers.count( name ) > 0 )
+    if( m_Viewers.count( name ) > 0 )
     {
         m_Viewers[name]->close();
 
@@ -142,9 +142,14 @@ void WGraphicsEngine::closeViewer( const std::string name )
     m_ViewersLock.unlock();
 }
 
-boost::shared_ptr<WGEViewer> WGraphicsEngine::getViewerByName( std::string name )
+boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string name )
 {
-    return m_Viewers[name];
+    boost::mutex::scoped_lock lock( m_ViewersLock );
+    boost::shared_ptr< WGEViewer > out = m_Viewers.count( name ) > 0 ?
+        m_Viewers[name] :
+        boost::shared_ptr< WGEViewer >();
+    m_ViewersLock.unlock();
+    return out;
 }
 
 void WGraphicsEngine::threadMain()

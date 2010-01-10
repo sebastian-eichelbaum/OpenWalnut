@@ -29,7 +29,8 @@
 #include <QtCore/QEvent>
 
 #include "../../graphicsEngine/WGECamera.h"
-#include "../../common/WConditionOneShot.h"
+#include "../../common/WFlag.h"
+#include "../WCustomWidget.h"
 
 /**
  * A Qt event to create a new custom dock widget if posted to the WMainWindow.
@@ -38,14 +39,14 @@ class WCreateCustomDockWidgetEvent : public QEvent
 {
 public:
     /**
-     * constructor
+     * Constructor
      *
-     * \param title The title of the widget to create.
-     * \param projectionMode The kind of projection which should be used
-     * \param condition The condition which waits until the widget is created.
+     * \param title the title of the widget to create.
+     * \param projectionMode the kind of projection which should be used
+     * \param flag The WFlag which contains the widget after its creation.
      */
-    explicit WCreateCustomDockWidgetEvent(
-        std::string title, WGECamera::ProjectionMode projectionMode, boost::shared_ptr< WConditionOneShot > condition );
+    explicit WCreateCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
+        boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > flag );
 
     /**
      * Get the title of the widget to create.
@@ -62,11 +63,11 @@ public:
     WGECamera::ProjectionMode getProjectionMode() const;
 
     /**
-     * Get the condition which waits until the widget is created.
+     * Get the WFlag which contains the widget after its creation.
      *
-     * \return a shared pointer to the condition
+     * \return a shared pointer to the WFlag
      */
-    boost::shared_ptr< WConditionOneShot > getCondition() const;
+    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > getFlag() const;
 
     /**
      * Constant which saves the number used to distinguish this event from other
@@ -87,9 +88,9 @@ private:
     WGECamera::ProjectionMode m_projectionMode;
 
     /**
-     * Condition which waits until the widget is created.
+     * WFlag which contains the widget after its creation.
      */
-    boost::shared_ptr< WConditionOneShot > m_condition;
+    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > m_flag;
 };
 
 #endif  // WCREATECUSTOMDOCKWIDGETEVENT_H

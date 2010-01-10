@@ -100,10 +100,13 @@ public:
     /**
      * Instruct the WMainWindow to create a new custom widget.
      *
-     * \param title The title of the widget
-     * \param projectionMode The kind of projection which should be used
+     * \param title the title of the widget
+     * \param projectionMode the kind of projection which should be used
+     * \param shutdownCondition condition to wait for the shutdown of a module
+     * \return the created widget
      */
-    virtual void createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
+    virtual boost::shared_ptr< WCustomWidget > createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
+        boost::shared_ptr< WCondition > shutdownCondition );
 
     /**
      * Instruct the WMainWindow to close a custom widget.

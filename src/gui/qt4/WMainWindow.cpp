@@ -292,16 +292,23 @@ void WMainWindow::customEvent( QEvent* event )
         WCreateCustomDockWidgetEvent* ccdwEvent = static_cast< WCreateCustomDockWidgetEvent* >( event );
         std::string title = ccdwEvent->getTitle();
 
-        boost::shared_ptr< WQtCustomDockWidget > widget = boost::shared_ptr< WQtCustomDockWidget >(
-            new WQtCustomDockWidget( title, this, ccdwEvent->getProjectionMode() ) );
-        addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
-
-        // store it in CustomDockWidget list
         boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-        assert( m_customDockWidgets.insert( make_pair( title, widget ) ).second == true );
-        m_customDockWidgetsLock.unlock();
+        if( m_customDockWidgets.count( title ) == 0 )
+        {
+            boost::shared_ptr< WQtCustomDockWidget > widget = boost::shared_ptr< WQtCustomDockWidget >(
+                new WQtCustomDockWidget( title, this, ccdwEvent->getProjectionMode() ) );
+            addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
 
-        ccdwEvent->getCondition()->notify();
+            // store it in CustomDockWidget list
+            m_customDockWidgets.insert( make_pair( title, widget ) );
+
+            ccdwEvent->getFlag()->set( widget );
+        }
+        else
+        {
+            ccdwEvent->getFlag()->set( m_customDockWidgets[title] );
+        }
+        m_customDockWidgetsLock.unlock();
     }
     else
     {
@@ -310,10 +317,21 @@ void WMainWindow::customEvent( QEvent* event )
     }
 }
 
+boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::string title )
+{
+    boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
+    boost::shared_ptr< WQtCustomDockWidget > out = m_customDockWidgets.count( title ) > 0 ?
+        m_customDockWidgets[title] :
+        boost::shared_ptr< WQtCustomDockWidget >();
+    m_customDockWidgetsLock.unlock();
+    return out;
+}
+
+
 void WMainWindow::closeCustomDockWidget( std::string title )
 {
     boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-    if (m_customDockWidgets.count( title ) > 0 )
+    if( m_customDockWidgets.count( title ) > 0 )
     {
         m_customDockWidgets[title]->close();
 

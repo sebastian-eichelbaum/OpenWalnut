@@ -104,6 +104,13 @@ public:
     CameraManipulators getCameraManipulators();
 
     /**
+     * Get the included viewer.
+     *
+     * \return a shared pointer to the viewer
+     */
+    boost::shared_ptr< WGEViewer > getViewer() const;
+
+    /**
      * Determines whether the widget is properly initialized.
      *
      * \return flag - initialized.

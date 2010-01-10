@@ -28,11 +28,13 @@
 #include <string>
 #include <QtGui/QDockWidget>
 #include "WQtGLWidget.h"
+#include "../WCustomWidget.h"
 
 /**
  * Dock Widget which is created by a module to display custom information.
  */
-class WQtCustomDockWidget : public QDockWidget
+class WQtCustomDockWidget : public QDockWidget,
+                            public WCustomWidget
 {
 public:
     /**
@@ -43,6 +45,13 @@ public:
      * \param projectionMode The kind of projection which should be used
      */
     WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode );
+
+    /**
+     * Get the scene which is displayed by the GL widget
+     *
+     * \return the scene as osg::ref_ptr
+     */
+    virtual osg::ref_ptr< osg::Group > getScene() const;
 
 protected:
     /**
@@ -57,6 +66,11 @@ private:
      * the included GL widget
      */
     boost::shared_ptr<WQtGLWidget> m_glWidget;
+
+    /**
+     * the scene which is displayed by the GL widget
+     */
+    osg::ref_ptr< osg::Group > m_scene;
 };
 
 #endif  // WQTCUSTOMDOCKWIDGET_H

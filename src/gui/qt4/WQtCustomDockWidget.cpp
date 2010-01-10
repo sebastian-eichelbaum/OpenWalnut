@@ -24,8 +24,10 @@
 
 #include <string>
 
-#include "WQtCustomDockWidget.h"
 #include <QtGui/QCloseEvent>
+
+#include "WQtCustomDockWidget.h"
+#include "../../graphicsEngine/WGEViewer.h"
 
 WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : QDockWidget( QString::fromStdString( title ), parent )
@@ -35,8 +37,15 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
 
     m_glWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( title, this, projectionMode ) );
     m_glWidget->initialize();
+    m_scene = new osg::Group;
+    m_glWidget->getViewer()->setScene( m_scene );
 
     setWidget( m_glWidget.get() );
+}
+
+osg::ref_ptr< osg::Group > WQtCustomDockWidget::getScene() const
+{
+    return m_scene;
 }
 
 void WQtCustomDockWidget::closeEvent( QCloseEvent* event )

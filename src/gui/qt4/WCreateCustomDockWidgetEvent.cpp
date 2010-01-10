@@ -24,15 +24,14 @@
 
 #include <string>
 
-#include "../../common/WConditionOneShot.h"
 #include "WCreateCustomDockWidgetEvent.h"
 
-WCreateCustomDockWidgetEvent::WCreateCustomDockWidgetEvent(
-    std::string title, WGECamera::ProjectionMode projectionMode, boost::shared_ptr< WConditionOneShot > condition )
+WCreateCustomDockWidgetEvent::WCreateCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
+    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > flag )
     : QEvent( CUSTOM_TYPE ),
       m_title( title ),
       m_projectionMode( projectionMode ),
-      m_condition( condition )
+      m_flag( flag )
 {
 }
 
@@ -46,7 +45,7 @@ WGECamera::ProjectionMode WCreateCustomDockWidgetEvent::getProjectionMode() cons
     return m_projectionMode;
 }
 
-boost::shared_ptr< WConditionOneShot > WCreateCustomDockWidgetEvent::getCondition() const
+boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > WCreateCustomDockWidgetEvent::getFlag() const
 {
-    return m_condition;
+    return m_flag;
 }

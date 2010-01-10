@@ -143,6 +143,11 @@ WQtGLWidget::CameraManipulators WQtGLWidget::getCameraManipulators()
     return m_CurrentManipulator;
 }
 
+boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
+{
+    return m_Viewer;
+}
+
 void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 {
     // m_Viewer->paint();

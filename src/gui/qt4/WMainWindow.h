@@ -123,6 +123,15 @@ public:
     boost::signals2::signal1< void, std::string >* getPickSignal();
 
     /**
+     * Searches for a custom dock widget with a given name and returns it, if
+     * found.
+     *
+     * \param name the name of the widget
+     * \returns a shared pointer to the widget or NULL if not found
+     */
+    boost::shared_ptr< WQtCustomDockWidget > getCustomDockWidget( std::string name );
+
+    /**
      * Close one of the custom dock widget saved in the map of customDockWidgets
      *
      * \param title the title of the widget to close

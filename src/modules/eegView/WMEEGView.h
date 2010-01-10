@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include "../../dataHandler/WEEG.h"
+#include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModule.h"
 
 /**
@@ -69,13 +71,45 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Determine what to do if a property was changed.
+     * \param propertyName Name of the property.
+     */
+    void slotPropertyChanged( std::string propertyName );
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
 
+    /**
+     * Initialize connectors in this function.
+     */
+    virtual void connectors();
+
+    /**
+     * Initialize properties in this function.
+     */
+    virtual void properties();
+
 private:
+    /**
+     * Loaded EEG-Dataset
+     */
+    boost::shared_ptr< WModuleInputData< WEEG > > m_input;
+
+    /**
+     * Custom widget which is used by this module to display its data.
+     */
+    boost::shared_ptr< WCustomWidget > m_widget;
+
+    /**
+     * OSG node for this module. All other OSG nodes of this module should be
+     * placed as child to this node.
+     */
+    osg::ref_ptr< osg::Node > m_node;
+
     /**
      * Sample HUD-Text. Copied from an OSG-Example
      *

@@ -35,6 +35,7 @@
 #include "../common/WFlag.h"
 #include "../kernel/WModule.h"
 #include "../graphicsEngine/WGECamera.h"
+#include "WCustomWidget.h"
 
 
 /**
@@ -101,10 +102,13 @@ public:
     /**
      * Instruct the MainWindow to create a new custom widget.
      *
-     * \param title The title of the widget
-     * \param projectionMode The kind of projection which should be used
+     * \param title the title of the widget
+     * \param projectionMode the kind of projection which should be used
+     * \param shutdownCondition condition to wait for the shutdown of a module
+     * \return the created widget
      */
-    virtual void createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC ) = 0;
+    virtual boost::shared_ptr< WCustomWidget > createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
+        boost::shared_ptr< WCondition > shutdownCondition ) = 0;
 
     /**
      * Instruct the MainWindow to close a custom widget.
