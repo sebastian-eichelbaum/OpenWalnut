@@ -77,7 +77,7 @@ void WMEEGView::moduleMain()
 {
     // do initialization
     m_widget = WKernel::getRunningKernel()->getGui()->createCustomWidget(
-        "EEG View", WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+        getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
     if( m_widget.get() )
     {
         debugLog() << "Succesfully opened EEG View widget.";
@@ -94,7 +94,7 @@ void WMEEGView::moduleMain()
         warnLog() << "Could not create EEG View widget.";
     }
 
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( "EEG View" );
+    WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
     // This should also delete the scene which was only referenced by this viewer.
 }
 
