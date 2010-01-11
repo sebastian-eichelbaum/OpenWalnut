@@ -55,11 +55,6 @@ class WPickHandler: public osgGA::GUIEventHandler
 {
 public:
     /**
-     * Virtual destructor needed because of virtual fuction.
-     */
-    virtual ~WPickHandler();
-
-    /**
      * Deals with the events found by the osg.
      */
     bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
@@ -90,6 +85,17 @@ public:
     boost::signals2::signal1< void, std::string >* getPickSignal();
 
 protected:
+    /**
+     * Virtual destructor needed because of virtual function.
+     *
+     * This desctructor is protected to avoid accidentally deleting
+     * a instance of WPickHandler.
+     * This follows the philosophy of OSG to avoid problems in multithreaded
+     * environments, since these pointers are used deep in the OSG where
+     * an deletion could cause a segfault.
+     */
+    virtual ~WPickHandler();
+
     std::string m_hitResult; //!< Textual representation of the result of a pick.
     wmath::WPosition m_hitPosGlobal; //!< Global coordinates of the first hit of the pick.
 

@@ -70,8 +70,8 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
 
         m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
 
-        m_pickHandler = boost::shared_ptr< WPickHandler >( new WPickHandler() );
-        m_View->addEventHandler( osg::ref_ptr< WPickHandler >( m_pickHandler.get() ) );
+        m_pickHandler = new WPickHandler();
+        m_View->addEventHandler( m_pickHandler );
     }
     catch( ... )
     {
@@ -151,7 +151,7 @@ std::string WGEViewer::getName() const
     return m_name;
 }
 
-boost::shared_ptr< WPickHandler > WGEViewer::getPickHandler()
+osg::ref_ptr< WPickHandler > WGEViewer::getPickHandler()
 {
     return m_pickHandler;
 }

@@ -125,7 +125,7 @@ private:
     wmath::WPosition m_minPos; //!< The minimum position of the box
     wmath::WPosition m_maxPos; //!< The maximum position of the box
 
-    boost::shared_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
+    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
 };
 
 /**
