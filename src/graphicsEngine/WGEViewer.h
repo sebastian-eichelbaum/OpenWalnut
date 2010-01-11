@@ -160,7 +160,7 @@ public:
      *
      * \return the pick handler
      */
-    osg::ref_ptr<WPickHandler>getPickHandler();
+    boost::shared_ptr< WPickHandler > getPickHandler();
 
 protected:
 
@@ -180,9 +180,9 @@ protected:
     WGECamera::ProjectionMode m_projectionMode;
 
     /**
-     * Reference to the pick handler of the viewer.
+     * Pointer to the pick handler of the viewer.
      */
-    osg::ref_ptr<WPickHandler> m_pickHandler;
+    boost::shared_ptr<WPickHandler> m_pickHandler;
 
 private:
 };

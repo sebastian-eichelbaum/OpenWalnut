@@ -86,11 +86,13 @@ void WMPrototypeBoxManipulation::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.add( m_input->getDataChangedCondition() );
+    WKernel::getRunningKernel()->getGui()->getPickSignal()->connect( boost::bind( &WMPrototypeBoxManipulation::updateGFX, this, _1 ) );
 
     // connect updateGFX with picking
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     assert( viewer );
-    viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPrototypeBoxManipulation::updateGFX, this, _1 ) );
+    m_pickHandler = viewer->getPickHandler();
+    m_pickHandler->getPickSignal()->connect( boost::bind( &WMPrototypeBoxManipulation::updateGFX, this, _1 ) );
 
     // signal ready state
     ready();
@@ -270,15 +272,6 @@ void WMPrototypeBoxManipulation::draw( wmath::WPosition minPos, wmath::WPosition
     debugLog() << "Intial draw " << std::endl;
 }
 
-wmath::WPosition getPosFromText( std::string posText )
-{
-    std::vector< std::string > coordText = string_utils::tokenize( posText );
-    double x =  boost::lexical_cast< double >( coordText[0] );
-    double y =  boost::lexical_cast< double >( coordText[1] );
-    double z =  boost::lexical_cast< double >( coordText[2] );
-    return wmath::WPosition( x, y, z );
-}
-
 void WMPrototypeBoxManipulation::updateGFX( std::string text )
 {
     boost::shared_lock<boost::shared_mutex> slock;
@@ -287,8 +280,7 @@ void WMPrototypeBoxManipulation::updateGFX( std::string text )
     if( text.find( "Object ") != std::string::npos
         && text.find( "\"Box\"" ) != std::string::npos )
     {
-        std::string posText = string_utils::tokenize( text, "()" )[1];
-        wmath::WPosition newPos = getPosFromText( posText );
+        wmath::WPosition newPos( m_pickHandler->getHitPosition() );
         if( m_isPicked )
         {
             wmath::WVector3D moveVec = m_pickedPosition - newPos;

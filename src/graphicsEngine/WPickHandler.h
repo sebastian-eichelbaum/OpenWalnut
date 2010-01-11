@@ -44,8 +44,9 @@
 #include <osg/Camera>
 #include <osg/io_utils>
 #include <osg/ShapeDrawable>
-
 #include <osgText/Text>
+
+#include "../math/WPosition.h"
 
 /**
  * class to handle events with a pick
@@ -58,9 +59,19 @@ public:
      */
     virtual ~WPickHandler();
 
+    /**
+     * Deals with the events found by the osg.
+     */
     bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
 
+    /**
+     * Send a pick signal with the pick information as string
+     */
     virtual void pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea );
+
+    /**
+     * Send a pick signal with the string "unpick"
+     */
     virtual void unpick();
 
     /**
@@ -69,12 +80,18 @@ public:
     std::string getHitResult();
 
     /**
+     * Returns the position where the first object was picked.
+     */
+    wmath::WPosition getHitPosition();
+
+    /**
      * returns the m_pickSignal to for registering to it.
      */
     boost::signals2::signal1< void, std::string >* getPickSignal();
 
 protected:
     std::string m_hitResult; //!< Textual representation of the result of a pick.
+    wmath::WPosition m_hitPosGlobal; //!< Global coordinates of the first hit of the pick.
 
 private:
     boost::signals2::signal1<void, std::string > m_pickSignal; //!< One can register to this signal to receive pick events.

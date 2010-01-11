@@ -25,6 +25,8 @@
 #include <iostream>
 #include <string>
 
+#include <osg/Vec3>
+
 #include "WPickHandler.h"
 
 WPickHandler::~WPickHandler()
@@ -34,6 +36,11 @@ WPickHandler::~WPickHandler()
 std::string WPickHandler::getHitResult()
 {
     return m_hitResult;
+}
+
+wmath::WPosition WPickHandler::getHitPosition()
+{
+    return m_hitPosGlobal;
 }
 
 boost::signals2::signal1< void, std::string >* WPickHandler::getPickSignal()
@@ -124,6 +131,9 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         os << "        world coords vertex(" << hitr->getWorldIntersectPoint() << ")" << "  normal(" << hitr->getWorldIntersectNormal() << ")"
                 << std::endl;
         m_hitResult += os.str();
+
+        osg::Vec3 globalHit = hitr->getWorldIntersectPoint();
+        m_hitPosGlobal = wmath::WPosition( globalHit[0], globalHit[1], globalHit[2] );
     }
     m_pickSignal( getHitResult() );
 }
