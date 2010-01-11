@@ -36,6 +36,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
+#include "../../math/WVector3D.h"
 
 /**
  * Prototype module
@@ -105,14 +106,21 @@ private:
 
     /**
      * draw initial graphics
+     * \param minPos the lower left front corener of the box
+     * \param maxPos the upper right back corner of the box
      */
-    void draw();
+    void draw( wmath::WPosition minPos, wmath::WPosition maxPos );
 
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
 
     osg::Geode* m_geode; //!< Pointer to geode. We need it to be able to update it when callback is invoked.
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+
+    bool m_isPicked; //!< Indicates whether the box is currently picked or not.
+    wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
+    wmath::WPosition m_minPos; //!< The minimum position of the box
+    wmath::WPosition m_maxPos; //!< The maximum position of the box
 };
 
 /**

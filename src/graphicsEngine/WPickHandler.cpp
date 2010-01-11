@@ -45,12 +45,26 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
 {
     switch ( ea.getEventType() )
     {
+        case osgGA::GUIEventAdapter::DRAG : // Mouse pushed an dragged
         case osgGA::GUIEventAdapter::PUSH : // Mousebutton pushed
+        {
+            unsigned int buttonMask = ea.getButtonMask();
+            if( buttonMask == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
+            {
+                osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
+                if ( view )
+                {
+                    pick( view, ea );
+                }
+            }
+            return false;
+        }
+        case osgGA::GUIEventAdapter::RELEASE : // Mousebutton released
         {
             osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
             if ( view )
             {
-                pick( view, ea );
+                unpick();
             }
             return false;
         }
@@ -72,6 +86,15 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
         default:
             return false;
     }
+}
+
+void WPickHandler::unpick( )
+{
+    if( m_hitResult != "" )
+    {
+        m_hitResult = "unpick";
+    }
+    m_pickSignal( getHitResult() );
 }
 
 void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea )

@@ -61,6 +61,7 @@ public:
     bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
 
     virtual void pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea );
+    virtual void unpick();
 
     /**
      * Gives information about the picked object.
