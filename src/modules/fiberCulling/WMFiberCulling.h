@@ -38,6 +38,7 @@
 
 /**
  * Test module for culling fibers
+ * \ingroup modules
  */
 class WMFiberCulling : public WModule
 {

@@ -41,6 +41,7 @@
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its
  * inherited classes. This class builds a "source" in OpenWalnut's DataFlow Network.
+ * \ingroup modules
  */
 class WMData: public WModule
 {

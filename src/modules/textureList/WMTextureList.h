@@ -31,7 +31,7 @@
 
 /**
  * Module representing the available textures. It is currently just a skeleton.
- * \ingroup kernel
+ * \ingroup modules
  */
 class WMTextureList: public WModule
 {

@@ -33,6 +33,7 @@
 
 /**
  * Test module to open a new widget and display EEG data
+ * \ingroup modules
  */
 class WMEEGView: public WModule
 {

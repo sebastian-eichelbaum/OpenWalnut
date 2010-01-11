@@ -35,6 +35,10 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
+/**
+ * TODO(math): document this
+ * \ingroup modules
+ */
 class WMVoxelizer : public WModule
 {
 friend class WMVoxelizerTest;

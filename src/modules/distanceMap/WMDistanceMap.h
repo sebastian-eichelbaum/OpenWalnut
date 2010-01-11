@@ -32,6 +32,7 @@
 
 /**
  * Computes a distance map from an anatomy dataset and renders it as isosurface.
+ * \ingroup modules
  */
 class WMDistanceMap : public WModule
 {

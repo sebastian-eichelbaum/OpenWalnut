@@ -41,6 +41,7 @@
 
 /**
  * Test module for Clustering fibers
+ * \ingroup modules
  */
 class WMFiberClustering : public WModule
 {

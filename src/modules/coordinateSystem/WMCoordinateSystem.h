@@ -39,6 +39,7 @@
 
 /**
  * class that implements the various coordinate systems as overlays within the 3D view
+ * \ingroup modules
  */
 class WMCoordinateSystem : public WModule, public osg::Referenced
 {

@@ -31,7 +31,7 @@
 
 /**
  * Simple module for testing Eeg loading stuff.
- * \ingroup kernel
+ * \ingroup modules
  */
 class WMEEGTest: public WModule
 {

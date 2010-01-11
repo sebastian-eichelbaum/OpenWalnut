@@ -31,7 +31,7 @@
 
 /**
  * Simple module for testing some WKernel functionality.
- * \ingroup kernel
+ * \ingroup modules
  */
 class WMTest: public WModule
 {

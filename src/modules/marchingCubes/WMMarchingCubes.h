@@ -87,6 +87,7 @@ typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
  * given on regular grids with axis-aligned cells.
+ * \ingroup modules
  */
 class WMMarchingCubes : public WModule
 {

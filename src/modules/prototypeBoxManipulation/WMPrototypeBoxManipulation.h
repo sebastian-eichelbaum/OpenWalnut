@@ -42,6 +42,7 @@ class WPickHandler;
 
 /**
  * Prototype module
+ * \ingroup modules
  */
 class WMPrototypeBoxManipulation : public WModule
 {

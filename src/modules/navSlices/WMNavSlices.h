@@ -38,9 +38,8 @@
 #include "../../kernel/WModuleInputData.h"
 
 /**
- * \par Description:
- *
  * Navigation slice module
+ * \ingroup modules
  */
 class WMNavSlices: public WModule, public osg::Referenced
 {
