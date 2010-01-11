@@ -154,33 +154,3 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 
     return newDataSet;
 }
-
-
-// TODO(wiebel): fill this info into the subject instead
-// void WLoaderNIfTI::fillMetaInfo( boost::shared_ptr< WMetaInfo > metaInfo, nifti_image* header )
-// {
-//     metaInfo->setNx( header->nx );
-//     metaInfo->setNy( header->ny );
-//     metaInfo->setNz( header->nz );
-//     metaInfo->setXyzUnits( header->xyz_units );
-//     metaInfo->setQuaternB( header->quatern_b );
-//     metaInfo->setQuaternC( header->quatern_c );
-//     metaInfo->setQuaternD( header->quatern_d );
-//     metaInfo->setQoffsetX( header->qoffset_x );
-//     metaInfo->setQoffsetY( header->qoffset_y );
-//     metaInfo->setQoffsetZ( header->qoffset_z );
-//     metaInfo->setQfac( header->qfac );
-//     metaInfo->setFreqDim( header->freq_dim );
-//     metaInfo->setPhaseDim( header->phase_dim );
-//     metaInfo->setSliceDim( header->slice_dim );
-
-//     std::vector<float>ijkMatrix( 16, 0 );
-//     for ( int i = 0; i < 4; ++i )
-//     {
-//         for ( int j = 0; j < 4; ++j)
-//         {
-//             ijkMatrix[ i * 4 + j ] = header->qto_ijk.m[i][j];
-//         }
-//     }
-//     metaInfo->setQtoIjkMatrix( ijkMatrix );
-// }
