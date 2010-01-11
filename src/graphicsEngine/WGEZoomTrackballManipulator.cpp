@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "WGEZoomTrackballManipulator.h"
+#include "../common/WPreferences.h"
 
 WGEZoomTrackballManipulator::WGEZoomTrackballManipulator():
     TrackballManipulator()
@@ -108,7 +109,11 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
 
 bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
 {
-    _thrown = false; // We do not want the auto-rotation thingy.
+    bool allowThrow;
+    if( !( WPreferences::getPreference( "ge.zoomTrackballManipulator.allowThrow", &allowThrow ) && allowThrow ) )
+    {
+        _thrown = false; // By default we do not want the auto-rotation thingy.
+    }
     if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
     {
         return zoom( ea, us );

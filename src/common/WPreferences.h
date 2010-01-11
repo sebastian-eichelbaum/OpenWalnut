@@ -82,7 +82,6 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     boost::program_options::variables_map configuration;
     if( wiotools::fileExists( cfgFileName ) )
     {
-        wlog::info( "GUI" ) << "Reading config file: " << cfgFileName;
         std::ifstream ifs( cfgFileName.c_str(), std::ifstream::in );
 
         try
