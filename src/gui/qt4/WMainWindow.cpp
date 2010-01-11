@@ -38,24 +38,25 @@
 #include <QtGui/QVBoxLayout>
 
 #include "WMainWindow.h"
-#include "WQtGLWidget.h"
-#include "../../kernel/WKernel.h"
-
-#include "WQtNavGLWidget.h"
 #include "WCreateCustomDockWidgetEvent.h"
+#include "WQtGLWidget.h"
+#include "WQtNavGLWidget.h"
 #include "WQtCustomDockWidget.h"
+#include "../../common/WColor.h"
+#include "../../common/WPreferences.h"
+#include "../../kernel/WKernel.h"
 
 #include "../icons/WIcons.h"
 
-WMainWindow::WMainWindow( boost::program_options::variables_map guiConfiguration ) :
+WMainWindow::WMainWindow() :
     QMainWindow(),
     m_iconManager(),
     m_propertyManager()
 {
-    setupGUI( guiConfiguration );
+    setupGUI();
 }
 
-void WMainWindow::setupGUI( boost::program_options::variables_map guiConfiguration )
+void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
 
@@ -75,29 +76,45 @@ void WMainWindow::setupGUI( boost::program_options::variables_map guiConfigurati
     m_mainGLWidget->initialize();
     setCentralWidget( m_mainGLWidget.get() );
 
-    // initially 3 views
-    m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
-    addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
-
-    m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
-    addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
-
-    m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
-    addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
-
-    connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-    connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ), &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
-
-    if( guiConfiguration.count( "ge.bgColor.r" ) && guiConfiguration.count( "ge.bgColor.g" ) && guiConfiguration.count( "ge.bgColor.b" ) )
+    // initially 3 navigation views
     {
-        WColor bgColor( guiConfiguration["ge.bgColor.r"].as< float >(),
-                        guiConfiguration["ge.bgColor.g"].as< float >(),
-                        guiConfiguration["ge.bgColor.b"].as< float >() );
-        m_mainGLWidget->setBgColor( bgColor );
-        m_navAxial->getGLWidget()->setBgColor( bgColor );
-        m_navCoronal->getGLWidget()->setBgColor( bgColor );
-        m_navSagittal->getGLWidget()->setBgColor( bgColor );
+        bool hideWidget;
+        if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
+        {
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
+            connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+        }
+        if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
+        {
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
+            connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+        }
+        if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
+        {
+            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
+            connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+        }
+    }
+
+    // Default background color from config file
+    {
+        WColor bgColor;
+        double r;
+        double g;
+        double b;
+        if( WPreferences::getPreference( "ge.bgColor.r", &r )
+            && WPreferences::getPreference( "ge.bgColor.g", &g )
+            && WPreferences::getPreference( "ge.bgColor.b", &b ) )
+        {
+            bgColor.setRGB( r, g, b );
+            m_mainGLWidget->setBgColor( bgColor );
+        }
     }
 
     setupRibbonMenu();

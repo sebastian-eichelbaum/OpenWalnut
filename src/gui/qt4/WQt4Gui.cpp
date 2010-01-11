@@ -84,42 +84,6 @@ bool WQt4Gui::parseOptions()
 
     po::notify( m_optionsMap );
 
-    //=====================
-    // CONFIGURATION FILE
-    po::options_description guiConfigurationDescription( "GUI configuration" );
-
-#ifndef _WIN32
-// TODO(wiebel): this does not link on windows at the moment. But it should!
-    guiConfigurationDescription.add_options()
-        ( "ge.bgColor.r", po::value< float >() )
-        ( "ge.bgColor.g", po::value< float >() )
-        ( "ge.bgColor.b", po::value< float >() );
-#endif
-
-    std::string cfgFileName( "walnut.cfg" );
-
-    if( wiotools::fileExists( cfgFileName ) )
-    {
-        wlog::info( "GUI" ) << "Reading config file: " << cfgFileName;
-        std::ifstream ifs( cfgFileName.c_str(), std::ifstream::in );
-
-        try
-        {
-            po::store( po::parse_config_file( ifs, guiConfigurationDescription ), m_guiConfiguration );
-        }
-        catch( const po::error &e )
-        {
-            std::cerr << "Error in configuration file \"" << cfgFileName << "\": " << e.what() << std::endl;
-            return false;
-        }
-    }
-    else
-    {
-        wlog::info( "GUI" ) << "No Config file: " << cfgFileName << " found";
-    }
-
-    po::notify( m_guiConfiguration );
-
     // print usage information if command line asks for help.
     if( m_optionsMap.count( "help" ) )
     {
@@ -160,7 +124,7 @@ int WQt4Gui::run()
     m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
     m_kernel->run();
     // create the window
-    m_mainWindow = new WMainWindow( m_guiConfiguration );
+    m_mainWindow = new WMainWindow();
     m_mainWindow->show();
 
     // connect out loader signal with krnel

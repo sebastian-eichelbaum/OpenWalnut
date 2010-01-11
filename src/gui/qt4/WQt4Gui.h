@@ -136,7 +136,6 @@ private:
     boost::shared_ptr< WKernel > m_kernel;
 
     boost::program_options::variables_map m_optionsMap; //!< Map storing the program options.
-    boost::program_options::variables_map m_guiConfiguration; //!< Map storing the configuration of the GUI
 
     /**
      * This function defines and parses the valid command line options.

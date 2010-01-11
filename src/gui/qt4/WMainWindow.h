@@ -65,15 +65,13 @@ class WMainWindow : public QMainWindow
 public:
     /**
      * Constructor of the main window
-     * \param guiConfiguration configuration information taken from config file or command line
      */
-    explicit WMainWindow( boost::program_options::variables_map guiConfiguration );
+    explicit WMainWindow();
 
     /**
      * Set up all widgets menus an buttons in the main window.
-     * \param guiConfiguration configuration information taken from config file or command line
      */
-    void setupGUI( boost::program_options::variables_map guiConfiguration );
+    void setupGUI();
 
     /**
      * returns a pointer to the dataset browser object

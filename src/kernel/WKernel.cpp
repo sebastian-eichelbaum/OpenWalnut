@@ -43,6 +43,7 @@
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
 #include "../common/WFlag.h"
+#include "../common/WPreferences.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
@@ -143,9 +144,15 @@ void WKernel::threadMain()
     m_graphicsEngine->run();
 
     // default modules
-    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
-    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
-    m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "HUD" ) ) , true );
+    {
+        bool ignore;
+        m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
+        m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
+        if( !( WPreferences::getPreference( "modules.standard.ignoreHUD", &ignore ) && ignore ) )
+        {
+            m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "HUD" ) ) , true );
+        }
+    }
 
     // actually there is nothing more to do here
     waitForStop();
