@@ -74,6 +74,7 @@ public:
 
     /**
      * Determine what to do if a property was changed.
+     *
      * \param propertyName Name of the property.
      */
     void slotPropertyChanged( std::string propertyName );
@@ -110,6 +111,30 @@ private:
      * placed as child to this node.
      */
     osg::ref_ptr< osg::Node > m_node;
+
+    /**
+     * Bool flag to represent the state which is selected in the GUI.
+     * The module thread waits for changes of this flag and hiddes/displays its
+     * data according to it.
+     */
+    WBoolFlag m_isActive;
+
+    /**
+     * The current active-state. Whether the widget is open and usable.
+     */
+    bool m_wasActive;
+
+    /**
+     * Opens a custom widget and connects the m_node with it.
+     *
+     * \returns whether the custom widget could be opened successfully
+     */
+    bool openCustomWidget();
+
+    /**
+     * Disconnects the m_node from the custom widget and closes the widget.
+     */
+    void closeCustomWidget();
 
     /**
      * Sample HUD-Text. Copied from an OSG-Example

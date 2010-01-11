@@ -38,7 +38,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../modules/data/WMData.h"
 #include "../../utils/WIOTools.h"
-#include "WCreateCustomDockWidgetEvent.h"
+#include "WOpenCustomDockWidgetEvent.h"
 #include "../../common/WConditionOneShot.h"
 #include "WQt4Gui.h"
 
@@ -191,12 +191,12 @@ boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
     return m_mainWindow->getPickSignal();
 }
 
-boost::shared_ptr< WCustomWidget > WQt4Gui::createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
+boost::shared_ptr< WCustomWidget > WQt4Gui::openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
     boost::shared_ptr< WCondition > shutdownCondition )
 {
     boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > widgetFlag(
         new WFlag< boost::shared_ptr< WCustomWidget > >( new WConditionOneShot, boost::shared_ptr< WCustomWidget >() ) );
-    QCoreApplication::postEvent( m_mainWindow, new WCreateCustomDockWidgetEvent( title, projectionMode, widgetFlag ) );
+    QCoreApplication::postEvent( m_mainWindow, new WOpenCustomDockWidgetEvent( title, projectionMode, widgetFlag ) );
 
     WConditionSet conditionSet;
     conditionSet.add( widgetFlag->getCondition() );

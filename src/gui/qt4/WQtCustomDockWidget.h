@@ -53,6 +53,18 @@ public:
      */
     virtual osg::ref_ptr< osg::Group > getScene() const;
 
+    /**
+     * Notify the widget that another module needs it.
+     */
+    void increaseUseCount();
+
+    /**
+     * Notify the widget that it is not needed by one module anymore.
+     *
+     * \returns whether the widget is not needed at all and should be deleted
+     */
+    bool decreaseUseCount();
+
 protected:
     /**
      * Event handler for close events
@@ -71,6 +83,15 @@ private:
      * the scene which is displayed by the GL widget
      */
     osg::ref_ptr< osg::Group > m_scene;
+
+    /**
+     * How many modules currently need this widget?
+     * Widget should be closed if this count reaches 0.
+     *
+     * \note It is not thread safe. But concurrent access is prevented by
+     *       WMainWindow's m_customDockWidgetsLock
+     */
+    unsigned int m_useCount;
 };
 
 #endif  // WQTCUSTOMDOCKWIDGET_H

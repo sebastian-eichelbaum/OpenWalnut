@@ -38,7 +38,7 @@
 #include <QtGui/QVBoxLayout>
 
 #include "WMainWindow.h"
-#include "WCreateCustomDockWidgetEvent.h"
+#include "WOpenCustomDockWidgetEvent.h"
 #include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtCustomDockWidget.h"
@@ -303,29 +303,33 @@ void WMainWindow::closeEvent( QCloseEvent* e )
 
 void WMainWindow::customEvent( QEvent* event )
 {
-    if( event->type() == WCreateCustomDockWidgetEvent::CUSTOM_TYPE )
+    if( event->type() == WOpenCustomDockWidgetEvent::CUSTOM_TYPE )
     {
-        // CreateCustomDockWidgetEvent
-        WCreateCustomDockWidgetEvent* ccdwEvent = static_cast< WCreateCustomDockWidgetEvent* >( event );
-        std::string title = ccdwEvent->getTitle();
+        // OpenCustomDockWidgetEvent
+        WOpenCustomDockWidgetEvent* ocdwEvent = static_cast< WOpenCustomDockWidgetEvent* >( event );
+        std::string title = ocdwEvent->getTitle();
+
+        boost::shared_ptr< WQtCustomDockWidget > widget;
 
         boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
         if( m_customDockWidgets.count( title ) == 0 )
         {
-            boost::shared_ptr< WQtCustomDockWidget > widget = boost::shared_ptr< WQtCustomDockWidget >(
-                new WQtCustomDockWidget( title, this, ccdwEvent->getProjectionMode() ) );
+            // create new custom dock widget
+            widget = boost::shared_ptr< WQtCustomDockWidget >(
+                new WQtCustomDockWidget( title, this, ocdwEvent->getProjectionMode() ) );
             addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
 
             // store it in CustomDockWidget list
             m_customDockWidgets.insert( make_pair( title, widget ) );
-
-            ccdwEvent->getFlag()->set( widget );
         }
         else
         {
-            ccdwEvent->getFlag()->set( m_customDockWidgets[title] );
+            widget = m_customDockWidgets[title];
+            widget->increaseUseCount();
         }
         m_customDockWidgetsLock.unlock();
+
+        ocdwEvent->getFlag()->set( widget );
     }
     else
     {
@@ -350,9 +354,11 @@ void WMainWindow::closeCustomDockWidget( std::string title )
     boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
     if( m_customDockWidgets.count( title ) > 0 )
     {
-        m_customDockWidgets[title]->close();
-
-        m_customDockWidgets.erase( title );
+        if( m_customDockWidgets[title]->decreaseUseCount() )
+        {
+            // custom dock widget should be deleted
+            m_customDockWidgets.erase( title );
+        }
     }
     m_customDockWidgetsLock.unlock();
 }

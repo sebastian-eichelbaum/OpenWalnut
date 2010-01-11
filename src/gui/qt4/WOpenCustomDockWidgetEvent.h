@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCREATECUSTOMDOCKWIDGETEVENT_H
-#define WCREATECUSTOMDOCKWIDGETEVENT_H
+#ifndef WOPENCUSTOMDOCKWIDGETEVENT_H
+#define WOPENCUSTOMDOCKWIDGETEVENT_H
 
 #include <string>
 #include <QtCore/QEvent>
@@ -33,25 +33,25 @@
 #include "../WCustomWidget.h"
 
 /**
- * A Qt event to create a new custom dock widget if posted to the WMainWindow.
+ * A Qt event to open a new custom dock widget if posted to the WMainWindow.
  */
-class WCreateCustomDockWidgetEvent : public QEvent
+class WOpenCustomDockWidgetEvent : public QEvent
 {
 public:
     /**
      * Constructor
      *
-     * \param title the title of the widget to create.
+     * \param title the title of the widget to open
      * \param projectionMode the kind of projection which should be used
      * \param flag The WFlag which contains the widget after its creation.
      */
-    explicit WCreateCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
+    explicit WOpenCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
         boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > flag );
 
     /**
-     * Get the title of the widget to create.
+     * Get the title of the widget to open.
      *
-     * \return title of the widget to create
+     * \return title of the widget to open
      */
     std::string getTitle() const;
 
@@ -93,4 +93,4 @@ private:
     boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > m_flag;
 };
 
-#endif  // WCREATECUSTOMDOCKWIDGETEVENT_H
+#endif  // WOPENCUSTOMDOCKWIDGETEVENT_H
