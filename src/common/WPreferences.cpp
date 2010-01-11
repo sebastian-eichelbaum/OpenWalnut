@@ -23,3 +23,5 @@
 //---------------------------------------------------------------------------
 
 #include "WPreferences.h"
+
+WProperties WPreferences::m_preferences;

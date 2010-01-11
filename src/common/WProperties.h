@@ -170,6 +170,20 @@ public:
         addColor( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
     /**
+     * adds a color property to the list of properties
+     *
+     * \param name of the property
+     * \param value of the property
+     * \param hidden true if hidden from automatic widget generation
+     * \param shortDesc short description
+     * \param longDesc long description
+     *
+     * \return pointer to boost signal object that is fired whern a property changes
+     */
+    template< typename T> boost::signals2::signal1< void, std::string >*
+    addProperty( std::string name, T value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+
+    /**
      * getter for the value of a property as std string
      *
      * \param prop the name of the property
@@ -275,12 +289,18 @@ public:
         return 0;
     }
 
+    /**
+     * helper function that finds a property by its name
+     *
+     * \param name name of searched property.
+     */
+    bool existsProp( std::string name );
 
 private:
     /**
      * helper function that finds a property by its name
      *
-     * \param name
+     * \param name the name of the property
      * \return pointer to a WProperty object
      */
     WProperty* findProp( std::string name );
@@ -301,5 +321,14 @@ private:
      */
     boost::shared_mutex m_updateLock;
 };
+
+template< typename T > boost::signals2::signal1< void, std::string >* WProperties::addProperty( std::string name, T value, bool hidden,
+        std::string shortDesc, std::string longDesc )
+{
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
+    m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
+    return prop->getSignalValueChanged();
+}
 
 #endif  // WPROPERTIES_H
