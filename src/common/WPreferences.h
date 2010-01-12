@@ -44,7 +44,7 @@ public:
     /**
      * Get the value of a preference with a given name.
      * \param prefName string that identifies the preference inf the config file
-     * \param retVal pointer to the value belonging to the name
+     * \param retVal pointer to the value belonging to the name. This parameter is left unchanged if there is no preference with prefName.
      * \return True if value could be found, false otherwise.
      */
     template< typename T> static bool getPreference( std::string prefName, T* retVal );
