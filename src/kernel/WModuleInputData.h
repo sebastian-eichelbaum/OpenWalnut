@@ -77,10 +77,10 @@ public:
     const boost::shared_ptr< T > getData()
     {
         // get a lock
-        boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_ConnectionListLock );
+        boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_connectionListLock );
 
         // is there something in the list?
-        if ( m_Connected.begin() == m_Connected.end() )
+        if ( m_connected.begin() == m_connected.end() )
         {
             lock.unlock();
             return boost::shared_ptr< T >();
@@ -88,7 +88,7 @@ public:
 
         // get data
         boost::shared_ptr< T > dat = boost::shared_dynamic_cast< T >(
-                boost::shared_dynamic_cast< WModuleOutputConnector >( *m_Connected.begin() )->getRawData()
+                boost::shared_dynamic_cast< WModuleOutputConnector >( *m_connected.begin() )->getRawData()
         );
 
         // unlock and return
