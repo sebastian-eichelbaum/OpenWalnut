@@ -45,6 +45,7 @@
 #include "../common/WFlag.h"
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
+#include "../common/WProgressCombiner.h"
 #include "../common/WThreadedRunner.h"
 #include "../common/WPrototyped.h"
 #include "../common/WConditionSet.h"
@@ -333,6 +334,11 @@ protected:
      * the property object for the module
      */
     boost::shared_ptr< WProperties > m_properties;
+
+    /**
+     * Progress indicator used as parent for all progress' of this module.
+     */
+    boost::shared_ptr< WProgressCombiner > m_progress;
 
     /**
      * True if everything is initialized and ready to be used.

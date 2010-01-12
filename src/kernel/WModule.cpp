@@ -45,6 +45,7 @@
 #include "../common/WLogger.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
+#include "../common/WProgressCombiner.h"
 
 #include "WModule.h"
 
@@ -60,6 +61,7 @@ WModule::WModule():
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
     m_container = boost::shared_ptr< WModuleContainer >();
+    m_progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
 
     // our internal state consist out of two conditions: data changed and the exit flag from WThreadedRunner.
     m_moduleState.add( m_shutdownFlag.getCondition() );
