@@ -29,7 +29,6 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
 
 /**
  * Class managing progress inside of modules. It interacts with the abstract WGUI class to present those information to the user.
@@ -47,9 +46,10 @@ public:
      *
      * \param parent parent progress or NULL if there is no parent.
      * \param name   name of the progress, can be empty.
-     * \param count  value denoting the final value.
+     * \param count  value denoting the final value. A value of zero will cause this progress to be indetermined.
      *
-     * \note reaching the count does not automatically stop the progress. You still need to call stop().
+     * \note Reaching the count does not automatically stop the progress. You still need to call stop().
+     * \note An indetermined progress is just indicating a pending progress without progress information.
      */
     WProgress( std::string name, unsigned int count = 0 );
 
@@ -99,6 +99,14 @@ public:
      */
     virtual void update();
 
+    /**
+     * Returns true whenever the progress has a known end. If this instance has m_max==0 then this will be false, as there is no
+     * known end point.
+     *
+     * \return false if no end point is known.
+     */
+    virtual bool isDetermined();
+
 protected:
 
     /**
@@ -120,6 +128,11 @@ protected:
      * Flag denoting whether the progress is running or not.
      */
     bool m_pending;
+
+    /**
+     * True if the progress has a known end point.
+     */
+    bool m_determined;
 
 private:
 };

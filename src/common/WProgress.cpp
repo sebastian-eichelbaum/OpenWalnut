@@ -34,7 +34,7 @@ WProgress::WProgress( std::string name, unsigned int count )
       m_count ( 0 ),
       m_pending ( true )
 {
-    // nothing more to do here
+    m_determined = !( m_max == 0 );
 }
 
 WProgress::~WProgress()
@@ -81,7 +81,10 @@ void WProgress::finish()
 
 WProgress& WProgress::operator++()
 {
-    m_count = std::max ( m_max - 1 , m_count + 1 );
+    if ( isDetermined() )
+    {
+        m_count = std::max ( m_max - 1 , m_count + 1 );
+    }
 
     return *this;
 }
@@ -100,4 +103,10 @@ std::string WProgress::getName() const
 {
     return m_name;
 }
+
+bool WProgress::isDetermined()
+{
+    return m_determined;
+}
+
 

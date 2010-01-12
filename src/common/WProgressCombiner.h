@@ -25,7 +25,10 @@
 #ifndef WPROGRESSCOMBINER_H
 #define WPROGRESSCOMBINER_H
 
+#include <set>
 #include <string>
+
+#include <boost/thread.hpp>
 
 #include "WProgress.h"
 
@@ -49,12 +52,54 @@ public:
      */
     virtual ~WProgressCombiner();
 
+    /**
+     * Stops the progress. After finishing, the progress de-registers from its parent (if any).
+     */
+    virtual void finish();
+
+    /**
+     * Simple increment operator to signal a forward stepping.
+     *
+     * \note this actually is for ++p. p++ is not useful since it returns a copy of WProgress with the old count.
+     *
+     * \return the incremented WProgress instance.
+     */
+    virtual WProgressCombiner& operator++();
+
+    /**
+     * Returns the overall progress of this progress instance, including the child progress'.
+     *
+     * \return the progress.
+     */
+    virtual float getProgress();
+
+    /**
+     * Function updating the internal state. This needs to be called before any get function to ensure the getter return the right
+     * values.
+     */
+    virtual void update();
+
 protected:
 
     /**
      * The name of the combiner.
      */
     std::string m_name;
+
+    /**
+     * The current conglomerated progress. Set by update().
+     */
+    float m_progress;
+
+    /**
+     * Set of all child progress.
+     */
+    std::set< boost::shared_ptr< WProgress > > m_childs;
+
+    /**
+     * Lock for the above child set and the internal state update.
+     */
+    boost::shared_mutex m_updateLock;
 
 private:
 };
