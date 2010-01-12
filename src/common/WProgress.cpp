@@ -30,11 +30,16 @@
 
 WProgress::WProgress( std::string name, unsigned int count )
     : m_name( name ),
-      m_max ( count ),
-      m_count ( 0 ),
-      m_pending ( true )
+      m_max( count - 1 ),
+      m_count( 0 ),
+      m_pending( true ),
+     m_determined( true )
 {
-    m_determined = !( m_max == 0 );
+    if ( count == 0 )
+    {
+        m_max = 0;
+        m_determined = false;
+    }
 }
 
 WProgress::~WProgress()
@@ -45,45 +50,19 @@ WProgress::~WProgress()
 void WProgress::update()
 {
     // This updates the internal state. But as this class updates its state directly -> do nothing here
-
-    /*
-    //return 100.0 * static_cast< float >( m_max ) / static_cast< float >( m_count );
-    // get read lock
-    boost::shared_lock< boost::shared_mutex > rlock;
-    rlock = boost::shared_lock< boost::shared_mutex >( m_childLock );
-
-    // if there are no childs, the state is defined by m_count and m_started
-    if ( !m_childs.empty() )
-    {
-        m_started = false;
-        m_count = 0;
-        m_max = 0;
-        // as the childs define this progress' state -> iterate childs
-        for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_childs.begin(); i != m_childs.end(); ++i )
-        {
-            ( *i )->update();
-            m_started |= ( *i )->isStarted();
-            if ( ( *i )->isStarted() )
-            {
-                m_count += ( *i )->getCurrentCount();
-            }
-        }
-    }
-
-    rlock.unlock();*/
 }
 
 void WProgress::finish()
 {
     m_pending = false;
-    m_count = m_max - 1;
+    m_count = m_max;
 }
 
 WProgress& WProgress::operator++()
 {
     if ( isDetermined() )
     {
-        m_count = std::max ( m_max - 1 , m_count + 1 );
+        m_count = std::min( m_max, m_count + 1 );
     }
 
     return *this;
@@ -91,7 +70,7 @@ WProgress& WProgress::operator++()
 
 float WProgress::getProgress()
 {
-    return 100.0 * static_cast< float >( m_max ) / static_cast< float >( m_count );
+    return 100.0 * ( static_cast< float >( m_count ) / static_cast< float >( m_max ) );
 }
 
 bool WProgress::isPending()

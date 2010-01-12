@@ -39,6 +39,7 @@
  */
 class WProgress
 {
+friend class WProgressTest;
 public:
 
     /**
