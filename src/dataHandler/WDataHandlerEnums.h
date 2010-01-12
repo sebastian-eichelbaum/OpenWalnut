@@ -62,5 +62,10 @@ enum qformOrientation
     Inferior_to_Superior
 };
 
-
+/**
+ * \defgroup dataHandler Data Handler
+ *
+ * \brief
+ * This module implements the data storage facility of OpenWalnut.
+ */
 #endif  // WDATAHANDLERENUMS_H

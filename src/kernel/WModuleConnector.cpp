@@ -46,10 +46,10 @@ WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::stri
     boost::enable_shared_from_this<WModuleConnector>()
 {
     // initialize members
-    m_Module = module;
+    m_module = module;
 
-    m_Name = name;
-    m_Description = description;
+    m_name = name;
+    m_description = description;
 
     // connect standard signals
     // NOTE: these signals are NOT emitted by the connector this one is connected to, since a module can't send a "connection
@@ -70,12 +70,12 @@ WModuleConnector::~WModuleConnector()
 bool WModuleConnector::isConnectedTo( boost::shared_ptr<WModuleConnector> con )
 {
     boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_ConnectionListLock );
-    int c1 = m_Connected.count( con );
+    slock = boost::shared_lock<boost::shared_mutex>( m_connectionListLock );
+    int c1 = m_connected.count( con );
     slock.unlock();
 
-    slock = boost::shared_lock<boost::shared_mutex>( con->m_ConnectionListLock );
-    int c2 = con->m_Connected.count( shared_from_this() );
+    slock = boost::shared_lock<boost::shared_mutex>( con->m_connectionListLock );
+    int c2 = con->m_connected.count( shared_from_this() );
     slock.unlock();
 
     // if the count is different the connection is invalid
@@ -110,13 +110,13 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     try
     {
         // add to list
-        lock = boost::unique_lock<boost::shared_mutex>( m_ConnectionListLock );
-        m_Connected.insert( con );
+        lock = boost::unique_lock<boost::shared_mutex>( m_connectionListLock );
+        m_connected.insert( con );
         lock.unlock();
 
         // add to list of partner
-        lock = boost::unique_lock<boost::shared_mutex>( con->m_ConnectionListLock );
-        con->m_Connected.insert( shared_from_this() );
+        lock = boost::unique_lock<boost::shared_mutex>( con->m_connectionListLock );
+        con->m_connected.insert( shared_from_this() );
         lock.unlock();
     }
     catch( const std::exception& e )
@@ -124,8 +124,8 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
         lock.unlock();
 
         // undo changes
-        m_Connected.erase( con );
-        con->m_Connected.erase( con );
+        m_connected.erase( con );
+        con->m_connected.erase( con );
 
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
@@ -136,8 +136,8 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
         lock.unlock();
 
         // undo changes
-        m_Connected.erase( con );
-        con->m_Connected.erase( con );
+        m_connected.erase( con );
+        con->m_connected.erase( con );
 
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
@@ -186,7 +186,7 @@ boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_
 const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
 {
     // the module instance knows that
-    return m_Module->getSignalHandler( signal );
+    return m_module->getSignalHandler( signal );
 }
 
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
@@ -207,15 +207,15 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         // remove from list
         if ( removeFromOwnList )
         {
-            lock = boost::unique_lock<boost::shared_mutex>( m_ConnectionListLock );
+            lock = boost::unique_lock<boost::shared_mutex>( m_connectionListLock );
             // since we use shared pointers, erasing the item should be enough
-            m_Connected.erase( con );
+            m_connected.erase( con );
             lock.unlock();
         }
 
         // remove me from his list
-        lock = boost::unique_lock<boost::shared_mutex>( con->m_ConnectionListLock );
-        con->m_Connected.erase( shared_from_this() );
+        lock = boost::unique_lock<boost::shared_mutex>( con->m_connectionListLock );
+        con->m_connected.erase( shared_from_this() );
         lock.unlock();
 
         // signal closed connection
@@ -245,10 +245,10 @@ void WModuleConnector::disconnectAll()
     // remove from list
 
     // acquire read lock
-    boost::shared_lock<boost::shared_mutex> rlock( m_ConnectionListLock );
+    boost::shared_lock<boost::shared_mutex> rlock( m_connectionListLock );
 
     // each connector needs to be notified and disconnected properly
-    for( std::set<boost::shared_ptr<WModuleConnector> >::iterator listIter = m_Connected.begin(); listIter != m_Connected.end();
+    for( std::set<boost::shared_ptr<WModuleConnector> >::iterator listIter = m_connected.begin(); listIter != m_connected.end();
          ++listIter )
     {
         disconnect( *listIter, false );
@@ -256,36 +256,36 @@ void WModuleConnector::disconnectAll()
     rlock.unlock();
 
     // lock it for writing
-    boost::unique_lock<boost::shared_mutex> lock( m_ConnectionListLock );
-    m_Connected.clear();
+    boost::unique_lock<boost::shared_mutex> lock( m_connectionListLock );
+    m_connected.clear();
     lock.unlock();
 }
 
 const std::string WModuleConnector::getDescription() const
 {
-    return m_Description;
+    return m_description;
 }
 
 const std::string WModuleConnector::getName() const
 {
-    return m_Name;
+    return m_name;
 }
 
 const std::string WModuleConnector::getCanonicalName() const
 {
     std::ostringstream s;
-    s << m_Module->getName() << ":" << getName();
+    s << m_module->getName() << ":" << getName();
 
     return s.str();
 }
 
 void WModuleConnector::setDescription( std::string desc )
 {
-    m_Description = desc;
+    m_description = desc;
 }
 
 void WModuleConnector::setName( std::string name )
 {
-    m_Name = name;
+    m_name = name;
 }
 

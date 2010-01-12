@@ -81,11 +81,6 @@ public:
 
 protected:
     /**
-     * Entry point after loading the module. Runs in separate thread.
-     */
-    virtual void moduleMain();
-
-    /**
      * Initialize connectors in this function.
      */
     virtual void connectors();
@@ -95,11 +90,28 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Gets called when the data on one input connector changed.
+     * Sets the m_dataChanged flag.
+     */
+
+    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ );
+
+    /**
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void moduleMain();
+
 private:
     /**
-     * Loaded EEG-Dataset
+     * Input connector for a EEG dataset
      */
     boost::shared_ptr< WModuleInputData< WEEG > > m_input;
+
+    /**
+     * Pointer to the loaded EEG dataset
+     */
+    boost::shared_ptr< WEEG > m_eeg;
 
     /**
      * Custom widget which is used by this module to display its data.
@@ -110,7 +122,13 @@ private:
      * OSG node for this module. All other OSG nodes of this module should be
      * placed as child to this node.
      */
-    osg::ref_ptr< osg::Node > m_node;
+    osg::ref_ptr< osg::Group > m_rootNode;
+
+    /**
+     * Bool flag which gets set when the data was changed.
+     * The module threads waits for this flag and performs a redraw.
+     */
+    WBoolFlag m_dataChanged;
 
     /**
      * Bool flag to represent the state which is selected in the GUI.

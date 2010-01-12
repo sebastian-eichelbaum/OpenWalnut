@@ -51,8 +51,9 @@
 
 WMEEGView::WMEEGView()
     : WModule(),
+      m_dataChanged( new WCondition, true ),
       m_isActive( new WCondition, true ),
-      m_wasActive( true )
+      m_wasActive( false )
 {
 }
 
@@ -73,47 +74,6 @@ const std::string WMEEGView::getName() const
 const std::string WMEEGView::getDescription() const
 {
     return "Test module to open an EEG View.";
-}
-
-void WMEEGView::moduleMain()
-{
-    // do initialization
-    m_moduleState.add( m_isActive.getCondition() );
-    m_node = createText();
-
-    if( openCustomWidget() )
-    {
-        // signal ready
-        ready();
-
-        while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
-        {
-            bool isActive = m_isActive();
-            if( isActive != m_wasActive )
-            {
-                // "active" property changed
-                if ( isActive )
-                {
-                    if( !openCustomWidget() )
-                    {
-                        // Shut down module if widget could not be opened.
-                        m_FinishRequested = true;
-                        m_shutdownFlag.set( true );
-                    }
-                }
-                else
-                {
-                    closeCustomWidget();
-                }
-                m_wasActive = isActive;
-            }
-
-            m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
-        }
-    }
-
-    // clean up
-    closeCustomWidget();
 }
 
 void WMEEGView::connectors()
@@ -149,6 +109,64 @@ void WMEEGView::slotPropertyChanged( std::string propertyName )
     }
 }
 
+void WMEEGView::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ )
+{
+    m_dataChanged.set( true );
+}
+
+void WMEEGView::moduleMain()
+{
+    // do initialization
+    m_moduleState.add( m_dataChanged.getCondition() );
+    m_moduleState.add( m_isActive.getCondition() );
+    m_rootNode = new osg::Group;
+
+    // signal ready
+    ready();
+
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    {
+        // data changed?
+        if( m_dataChanged() )
+        {
+            m_dataChanged.set( false );
+            m_eeg = m_input->getData();
+            if( m_eeg.get() )
+            {
+                m_rootNode->addChild( createText() );
+            }
+        }
+
+        // "active" property changed?
+        bool isActive = m_isActive();
+        if( isActive != m_wasActive )
+        {
+            if ( isActive )
+            {
+                if( !openCustomWidget() )
+                {
+                    // Shut down module if widget could not be opened.
+                    m_FinishRequested = true;
+                    m_shutdownFlag.set( true );
+                }
+            }
+            else
+            {
+                closeCustomWidget();
+            }
+            m_wasActive = isActive;
+        }
+
+        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
+    }
+
+    // clean up
+    if( m_wasActive )
+    {
+        closeCustomWidget();
+    }
+}
+
 bool WMEEGView::openCustomWidget()
 {
     m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget(
@@ -157,7 +175,7 @@ bool WMEEGView::openCustomWidget()
     if( success )
     {
         debugLog() << "Succesfully opened EEG View widget.";
-        m_widget->getScene()->addChild( m_node );
+        m_widget->getScene()->addChild( m_rootNode );
     }
     else
     {
@@ -168,7 +186,7 @@ bool WMEEGView::openCustomWidget()
 
 void WMEEGView::closeCustomWidget()
 {
-    m_widget->getScene()->removeChild( m_node );
+    m_widget->getScene()->removeChild( m_rootNode );
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
 
