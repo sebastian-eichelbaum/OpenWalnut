@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROGRESSCOMBINERTEST_H
-#define WPROGRESSCOMBINERTEST_H
+#ifndef WPROGRESSCOMBINER_TEST_H
+#define WPROGRESSCOMBINER_TEST_H
 
 #include <iostream>
 
@@ -121,9 +121,7 @@ public:
         p.finish();
         TS_ASSERT( p.m_children.empty() );
     }
-
-
 };
 
-#endif  // WPROGRESSCOMBINERTEST_H
+#endif  // WPROGRESSCOMBINER_TEST_H
 

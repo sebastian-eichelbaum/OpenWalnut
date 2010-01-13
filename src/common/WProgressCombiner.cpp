@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <set>
+
 #include "WProgressCombiner.h"
 
 WProgressCombiner::WProgressCombiner( std::string name ):

@@ -22,7 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cmath>
+#include <string>
 
 #include "../common/WCondition.h"
 
@@ -87,5 +89,4 @@ bool WProgress::isDetermined()
 {
     return m_determined;
 }
-
 

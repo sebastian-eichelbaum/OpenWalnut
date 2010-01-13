@@ -38,6 +38,7 @@
  */
 class WProgressCombiner: public WProgress
 {
+friend class WProgressCombinerTest;
 public:
 
     /**

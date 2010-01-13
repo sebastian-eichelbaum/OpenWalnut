@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROGRESSTEST_H
-#define WPROGRESSTEST_H
+#ifndef WPROGRESS_TEST_H
+#define WPROGRESS_TEST_H
 
 #include <iostream>
 
@@ -67,7 +67,6 @@ public:
         // finishing it should set isPending to false
         p1.finish();
         TS_ASSERT( !p1.isPending() );
-
     }
 
     /**
@@ -121,10 +120,8 @@ public:
         TS_ASSERT_THROWS_NOTHING( p.update() );
         TS_ASSERT( p.m_count == 0 );
         TS_ASSERT( p.getProgress() == 0.0 );
-
     }
-
 };
 
-#endif  // WPROGRESSTEST_H
+#endif  // WPROGRESS_TEST_H
 
