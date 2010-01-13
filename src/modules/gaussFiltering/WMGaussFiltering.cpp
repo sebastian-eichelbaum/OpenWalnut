@@ -118,7 +118,7 @@ void WMGaussFiltering::slotPropertyChanged( std::string propertyName )
 {
     if( propertyName == "Filter Size" )
     {
-#warning need code here
+        // TODO(wiebel): need code here
     }
     else
     {
