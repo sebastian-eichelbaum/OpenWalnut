@@ -129,7 +129,6 @@ WROIBox::WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos ) :
     ss <<  "ROIBox" << boxId;
 
     m_geode->setName( ss.str() );
-    std::cout << "..." << m_geode->getName()  << std::endl;
 
     osg::Vec3Array* vertices = new osg::Vec3Array;
     setVertices( vertices, minPos, maxPos );
@@ -190,7 +189,6 @@ void WROIBox::updateGFX( std::string text )
 
     std::stringstream ss;
     ss <<  "\"ROIBox" << boxId << "\"";
-    std::cout <<  text << std::endl;
     if( text.find( "Object ") != std::string::npos
         && text.find( ss.str() ) != std::string::npos )
     {

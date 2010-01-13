@@ -100,31 +100,54 @@ void WPickHandler::unpick( )
     if( m_hitResult != "" )
     {
         m_hitResult = "unpick";
+        m_lastPick = "";
     }
     m_pickSignal( getHitResult() );
+}
+
+std::string extractSuitableName( osgUtil::LineSegmentIntersector::Intersections::iterator hitr )
+{
+    if( !hitr->nodePath.empty()  && !( hitr->nodePath.back()->getName().empty() ) )
+    {
+        return hitr->nodePath.back()->getName();
+    }
+    else if ( hitr->drawable.valid() )
+    {
+        return  hitr->drawable->className();
+    }
 }
 
 void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea )
 {
     osgUtil::LineSegmentIntersector::Intersections intersections;
-
     m_hitResult = "";
     float x = ea.getX();
     float y = ea.getY();
 
+
     if ( view->computeIntersections( x, y, intersections ) )
     {
+        bool lastPickIsStillInList = false;
         osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin();
+
+        while( ( hitr != intersections.end() ) && !lastPickIsStillInList ) // got to lastPicked if it can be found in intersections list
+        {
+            lastPickIsStillInList |= ( extractSuitableName( hitr ) == m_lastPick );
+
+            if( !lastPickIsStillInList ) // if iteration not finished yet go on in list
+            {
+                ++hitr;
+            }
+        }
+
+        if( !lastPickIsStillInList ) // if lastPicked is not found use the first in intersections list
+        {
+            hitr = intersections.begin();
+        }
+
         std::ostringstream os;
-        if ( !hitr->nodePath.empty() && !( hitr->nodePath.back()->getName().empty() ) )
-        {
-            // the geodes are identified by name.
-            os << "Object \"" << hitr->nodePath.back()->getName() << "\"" << std::endl;
-        }
-        else if ( hitr->drawable.valid() )
-        {
-            os << "Object \"" << hitr->drawable->className() << "\"" << std::endl;
-        }
+        os << "Object \"" <<  extractSuitableName( hitr ) << "\"" << std::endl;
+        m_lastPick = extractSuitableName( hitr );
 
         os << "        local coords vertex(" << hitr->getLocalIntersectPoint() << ")" << "  normal(" << hitr->getLocalIntersectNormal() << ")"
                 << std::endl;
