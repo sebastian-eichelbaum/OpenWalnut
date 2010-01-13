@@ -100,14 +100,14 @@ public:
     virtual boost::signals2::signal1< void, std::string >* getPickSignal() = 0;
 
     /**
-     * Instruct the MainWindow to create a new custom widget.
+     * Instruct the MainWindow to open a new custom widget.
      *
      * \param title the title of the widget
      * \param projectionMode the kind of projection which should be used
      * \param shutdownCondition condition to wait for the shutdown of a module
      * \return the created widget
      */
-    virtual boost::shared_ptr< WCustomWidget > createCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
+    virtual boost::shared_ptr< WCustomWidget > openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
         boost::shared_ptr< WCondition > shutdownCondition ) = 0;
 
     /**

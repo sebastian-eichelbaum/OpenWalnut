@@ -30,7 +30,8 @@
 #include "../../graphicsEngine/WGEViewer.h"
 
 WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
-    : QDockWidget( QString::fromStdString( title ), parent )
+    : QDockWidget( QString::fromStdString( title ), parent ),
+      m_useCount( 1 )
 {
     // setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
@@ -46,6 +47,22 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
 osg::ref_ptr< osg::Group > WQtCustomDockWidget::getScene() const
 {
     return m_scene;
+}
+
+void WQtCustomDockWidget::increaseUseCount()
+{
+    ++m_useCount;
+}
+
+bool WQtCustomDockWidget::decreaseUseCount()
+{
+    --m_useCount;
+    bool shouldClose = ( m_useCount == 0 );
+    if( shouldClose )
+    {
+        close();
+    }
+    return shouldClose;
 }
 
 void WQtCustomDockWidget::closeEvent( QCloseEvent* event )

@@ -468,10 +468,10 @@ public:
         TS_ASSERT_THROWS( m1->m_output->connect( m2->m_output ), WModuleConnectorsIncompatible );
 
         // there should be nothing connected.
-        TS_ASSERT( m1->m_output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_input->m_Connected.size() == 0 );
-        TS_ASSERT( m2->m_output->m_Connected.size() == 0 );
-        TS_ASSERT( m2->m_input->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_output->m_connected.size() == 0 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 0 );
+        TS_ASSERT( m2->m_output->m_connected.size() == 0 );
+        TS_ASSERT( m2->m_input->m_connected.size() == 0 );
     }
 
     /**
@@ -484,20 +484,20 @@ public:
         createModules();
         initModules();
 
-        TS_ASSERT( m1->m_input->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_inputDerived->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_outputDerived->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 0 );
+        TS_ASSERT( m1->m_output->m_connected.size() == 0 );
+        TS_ASSERT( m1->m_inputDerived->m_connected.size() == 0 );
+        TS_ASSERT( m1->m_outputDerived->m_connected.size() == 0 );
 
         // connect an input with base type to output of derived type
         TS_ASSERT_THROWS_NOTHING( m1->m_input->connect( m2->m_outputDerived ) );
-        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_outputDerived->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 1 );
+        TS_ASSERT( m2->m_outputDerived->m_connected.size() == 1 );
 
         // connect an input of derived type with output of base type
         TS_ASSERT_THROWS( m1->m_output->connect( m2->m_inputDerived ), WModuleConnectorsIncompatible );
-        TS_ASSERT( m1->m_output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_inputDerived->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_output->m_connected.size() == 0 );
+        TS_ASSERT( m1->m_inputDerived->m_connected.size() == 0 );
     }
 
     /**
@@ -511,10 +511,10 @@ public:
         TS_ASSERT_THROWS_NOTHING( initConnections() );
 
         // check that every connector has a connection count of 1
-        TS_ASSERT( m1->m_output->m_Connected.size() == 1 );
-        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_output->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_input->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_output->m_connected.size() == 1 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_connected.size() == 1 );
+        TS_ASSERT( m2->m_input->m_connected.size() == 1 );
     }
 
     /**
@@ -529,10 +529,10 @@ public:
         // try to connect twice
         TS_ASSERT_THROWS_NOTHING( m1->m_output->connect( m2->m_input ) );
         TS_ASSERT_THROWS_NOTHING( m1->m_input->connect( m2->m_output ) );
-        TS_ASSERT( m1->m_output->m_Connected.size() == 1 );
-        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_output->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_input->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_output->m_connected.size() == 1 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_connected.size() == 1 );
+        TS_ASSERT( m2->m_input->m_connected.size() == 1 );
     }
 
     /**
@@ -546,15 +546,15 @@ public:
 
         // Disconnect something not connected
         TS_ASSERT_THROWS_NOTHING( m1->m_output->disconnect( m1->m_input ) );
-        TS_ASSERT( m1->m_output->m_Connected.size() == 1 );
-        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
+        TS_ASSERT( m1->m_output->m_connected.size() == 1 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 1 );
 
         // Disconnect a connected
         TS_ASSERT_THROWS_NOTHING( m1->m_output->disconnect( m2->m_input ) );
-        TS_ASSERT( m1->m_output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_input->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_output->m_Connected.size() == 1 );
-        TS_ASSERT( m2->m_input->m_Connected.size() == 0 );
+        TS_ASSERT( m1->m_output->m_connected.size() == 0 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_connected.size() == 1 );
+        TS_ASSERT( m2->m_input->m_connected.size() == 0 );
     }
 
     /**
@@ -570,14 +570,14 @@ public:
         TS_ASSERT_THROWS_NOTHING( m3->m_input->connect( m2->m_output ) );
 
         // now m2->out should have 2 connections
-        TS_ASSERT( m2->m_output->m_Connected.size() == 2 );
-        TS_ASSERT( m3->m_input->m_Connected.size() == 1 );
+        TS_ASSERT( m2->m_output->m_connected.size() == 2 );
+        TS_ASSERT( m3->m_input->m_connected.size() == 1 );
 
         // remove both connections
         m2->m_output->disconnectAll();
-        TS_ASSERT( m2->m_output->m_Connected.size() == 0 );
-        TS_ASSERT( m1->m_input->m_Connected.size() == 0 );
-        TS_ASSERT( m3->m_input->m_Connected.size() == 0 );
+        TS_ASSERT( m2->m_output->m_connected.size() == 0 );
+        TS_ASSERT( m1->m_input->m_connected.size() == 0 );
+        TS_ASSERT( m3->m_input->m_connected.size() == 0 );
     }
 
     /**

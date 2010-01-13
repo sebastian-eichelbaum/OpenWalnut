@@ -42,6 +42,7 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
+#include "../../common/WPreferences.h"
 #include "../../math/WVector3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -60,7 +61,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_fCellLengthX( 1 ),
     m_fCellLengthY( 1 ),
     m_fCellLengthZ( 1 ),
-    m_tIsoLevel( 0 ),
+    m_tIsoLevel( 100 ),
     m_dataSet(),
     m_shaderUseTexture( true ),
     m_shaderUseLighting( false ),
@@ -161,7 +162,20 @@ void WMMarchingCubes::properties()
 {
     m_properties->addBool( "textureChanged", false, true );
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
-    m_properties->addDouble( "Iso Value", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+
+    {
+        // If set in config file use standard isovalue from config file
+        double tmpIsoValue;
+        if( WPreferences::getPreference( "modules.MC.isoValue", &tmpIsoValue ) )
+        {
+            m_properties->addDouble( "Iso Value", tmpIsoValue )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+        }
+        else
+        {
+            m_properties->addDouble( "Iso Value", m_tIsoLevel )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+        }
+    }
+
     m_properties->addInt( "Opacity %", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
     m_properties->setMax( "Opacity %", 100 );
     m_properties->addBool( "Use Texture", true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );

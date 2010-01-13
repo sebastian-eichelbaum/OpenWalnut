@@ -50,7 +50,10 @@
 #include "WMEEGView.h"
 
 WMEEGView::WMEEGView()
-    : WModule()
+    : WModule(),
+      m_dataChanged( new WCondition, true ),
+      m_isActive( new WCondition, true ),
+      m_wasActive( false )
 {
 }
 
@@ -71,31 +74,6 @@ const std::string WMEEGView::getName() const
 const std::string WMEEGView::getDescription() const
 {
     return "Test module to open an EEG View.";
-}
-
-void WMEEGView::moduleMain()
-{
-    // do initialization
-    m_widget = WKernel::getRunningKernel()->getGui()->createCustomWidget(
-        getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
-    if( m_widget.get() )
-    {
-        debugLog() << "Succesfully opened EEG View widget.";
-        m_node = createText();
-        m_widget->getScene()->addChild( m_node );
-
-        // signal ready
-        ready();
-
-        waitForStop();
-    }
-    else
-    {
-        warnLog() << "Could not create EEG View widget.";
-    }
-
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
-    // This should also delete the scene which was only referenced by this viewer.
 }
 
 void WMEEGView::connectors()
@@ -121,17 +99,7 @@ void WMEEGView::slotPropertyChanged( std::string propertyName )
 {
     if( propertyName == "active" )
     {
-        if ( m_properties->getValue< bool >( propertyName ) )
-        {
-            if( !m_widget->getScene()->containsNode( m_node) )
-            {
-                m_widget->getScene()->addChild( m_node );
-            }
-        }
-        else
-        {
-            m_widget->getScene()->removeChild( m_node );
-        }
+        m_isActive.set( m_properties->getValue< bool >( propertyName ) );
     }
     else
     {
@@ -139,6 +107,87 @@ void WMEEGView::slotPropertyChanged( std::string propertyName )
         std::cerr << propertyName << std::endl;
         assert( 0 && "This property name is not supported by this function yet." );
     }
+}
+
+void WMEEGView::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ )
+{
+    m_dataChanged.set( true );
+}
+
+void WMEEGView::moduleMain()
+{
+    // do initialization
+    m_moduleState.add( m_dataChanged.getCondition() );
+    m_moduleState.add( m_isActive.getCondition() );
+    m_rootNode = new osg::Group;
+
+    // signal ready
+    ready();
+
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    {
+        // data changed?
+        if( m_dataChanged() )
+        {
+            m_dataChanged.set( false );
+            m_eeg = m_input->getData();
+            if( m_eeg.get() )
+            {
+                m_rootNode->addChild( createText() );
+            }
+        }
+
+        // "active" property changed?
+        bool isActive = m_isActive();
+        if( isActive != m_wasActive )
+        {
+            if ( isActive )
+            {
+                if( !openCustomWidget() )
+                {
+                    // Shut down module if widget could not be opened.
+                    m_FinishRequested = true;
+                    m_shutdownFlag.set( true );
+                }
+            }
+            else
+            {
+                closeCustomWidget();
+            }
+            m_wasActive = isActive;
+        }
+
+        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
+    }
+
+    // clean up
+    if( m_wasActive )
+    {
+        closeCustomWidget();
+    }
+}
+
+bool WMEEGView::openCustomWidget()
+{
+    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget(
+        getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+    bool success = m_widget.get();
+    if( success )
+    {
+        debugLog() << "Succesfully opened EEG View widget.";
+        m_widget->getScene()->addChild( m_rootNode );
+    }
+    else
+    {
+        warnLog() << "Could not create EEG View widget.";
+    }
+    return success;
+}
+
+void WMEEGView::closeCustomWidget()
+{
+    m_widget->getScene()->removeChild( m_rootNode );
+    WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
 
 osg::Node* WMEEGView::createText()

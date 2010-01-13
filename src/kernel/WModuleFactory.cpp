@@ -36,6 +36,7 @@
 #include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../modules/fiberCulling/WMFiberCulling.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
+#include "../modules/gaussFiltering/WMGaussFiltering.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
 #include "../modules/navSlices/WMNavSlices.h"
@@ -78,6 +79,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMTextureList() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMHud() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMPrototypeBoxManipulation() ) );

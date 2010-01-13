@@ -22,6 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPreferences.h"
+#ifndef WMGAUSSFILTERING_TEST_H
+#define WMGAUSSFILTERING_TEST_H
 
-WProperties WPreferences::m_preferences;
+#include <cxxtest/TestSuite.h>
+
+#include "../WGaussFiltering.h"
+
+/**
+ * TODO(wiebel): Document this!
+ */
+class WGaussFilteringTest : public CxxTest::TestSuite
+{
+public:
+    /**
+     * TODO(wiebel): Document this!
+     */
+    void testSomething( void )
+    {
+    }
+};
+
+#endif  // WMGAUSSFILTERING_TEST_H

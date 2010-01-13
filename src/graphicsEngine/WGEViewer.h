@@ -160,7 +160,7 @@ public:
      *
      * \return the pick handler
      */
-    boost::shared_ptr< WPickHandler > getPickHandler();
+    osg::ref_ptr< WPickHandler > getPickHandler();
 
 protected:
 
@@ -182,7 +182,7 @@ protected:
     /**
      * Pointer to the pick handler of the viewer.
      */
-    boost::shared_ptr<WPickHandler> m_pickHandler;
+    osg::ref_ptr<WPickHandler> m_pickHandler;
 
 private:
 };

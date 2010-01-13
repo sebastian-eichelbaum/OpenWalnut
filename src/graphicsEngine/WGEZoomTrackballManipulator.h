@@ -91,6 +91,7 @@ private:
     bool zoom( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
     double m_zoom; //!< Zoom factor.
+    bool m_allowThrow; //!< Do we want the auto-rotation thingy?
 };
 
 inline double WGEZoomTrackballManipulator::getZoom() const

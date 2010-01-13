@@ -147,7 +147,7 @@ protected:
 
     /**
      * Handle custom events.
-     * Currently only WCreateCustomDockWidgetEvent.
+     * Currently only WOpenCustomDockWidgetEvent.
      *
      * \param event the custom event
      */

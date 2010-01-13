@@ -32,6 +32,7 @@
 #include <boost/program_options.hpp>
 
 #include "../utils/WIOTools.h"
+#include "WProperties.h"
 #include "WLogger.h"
 
 /**
@@ -43,14 +44,13 @@ public:
     /**
      * Get the value of a preference with a given name.
      * \param prefName string that identifies the preference inf the config file
-     * \param retVal pointer to the value belonging to the name
+     * \param retVal pointer to the value belonging to the name. This parameter is left unchanged if there is no preference with prefName.
      * \return True if value could be found, false otherwise.
      */
     template< typename T> static bool getPreference( std::string prefName, T* retVal );
 protected:
 private:
-// TODO(wiebel): preference caching structure
-//    static WProperties m_preferences; //!< Structure for caching the preferences.
+    static WProperties m_preferences; //!< Structure for caching the preferences.
 };
 
 template< typename T > bool WPreferences::getPreference( std::string prefName, T* retVal )
@@ -59,7 +59,11 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     {
         return false;
     }
-    // TODO(wiebel): insert check for cached value here
+    if( m_preferences.existsProp( prefName ) )
+    {
+        *retVal =  m_preferences.getValue< T >( prefName );
+        return true;
+    }
 
     namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
 
@@ -78,7 +82,6 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     boost::program_options::variables_map configuration;
     if( wiotools::fileExists( cfgFileName ) )
     {
-        wlog::info( "GUI" ) << "Reading config file: " << cfgFileName;
         std::ifstream ifs( cfgFileName.c_str(), std::ifstream::in );
 
         try
@@ -100,6 +103,7 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     if( configuration.count( prefName ) )
     {
         *retVal = configuration[ prefName ].as< T >();
+        m_preferences.addProperty( prefName, *retVal, true );
         return true;
     }
     else

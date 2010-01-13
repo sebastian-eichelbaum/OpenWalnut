@@ -77,7 +77,7 @@ public:
         TS_ASSERT_EQUALS( mc.m_fCellLengthX, 1 );
         TS_ASSERT_EQUALS( mc.m_fCellLengthY, 1 );
         TS_ASSERT_EQUALS( mc.m_fCellLengthZ, 1 );
-        TS_ASSERT_EQUALS( mc.m_tIsoLevel, 0 );
+        TS_ASSERT_EQUALS( mc.m_tIsoLevel, 100 );
         TS_ASSERT_EQUALS( mc.m_idToVertices.size(), 0 );
         TS_ASSERT_EQUALS( mc.m_trivecTriangles.size(), 0 );
     }

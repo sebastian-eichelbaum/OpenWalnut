@@ -24,9 +24,9 @@
 
 #include <string>
 
-#include "WCreateCustomDockWidgetEvent.h"
+#include "WOpenCustomDockWidgetEvent.h"
 
-WCreateCustomDockWidgetEvent::WCreateCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
+WOpenCustomDockWidgetEvent::WOpenCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
     boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > flag )
     : QEvent( CUSTOM_TYPE ),
       m_title( title ),
@@ -35,17 +35,17 @@ WCreateCustomDockWidgetEvent::WCreateCustomDockWidgetEvent( std::string title, W
 {
 }
 
-std::string WCreateCustomDockWidgetEvent::getTitle() const
+std::string WOpenCustomDockWidgetEvent::getTitle() const
 {
     return m_title;
 }
 
-WGECamera::ProjectionMode WCreateCustomDockWidgetEvent::getProjectionMode() const
+WGECamera::ProjectionMode WOpenCustomDockWidgetEvent::getProjectionMode() const
 {
     return m_projectionMode;
 }
 
-boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > WCreateCustomDockWidgetEvent::getFlag() const
+boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > WOpenCustomDockWidgetEvent::getFlag() const
 {
     return m_flag;
 }

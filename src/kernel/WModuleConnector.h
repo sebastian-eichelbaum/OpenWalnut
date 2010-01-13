@@ -158,13 +158,13 @@ protected:
     /**
      * List of connectors connected to this connector.
      */
-    std::set<boost::shared_ptr<WModuleConnector> > m_Connected;
+    std::set<boost::shared_ptr<WModuleConnector> > m_connected;
 
     /**
      * Lock for avoiding concurrent write to m_Connected (multiple reader, single writer lock). The read lock can be acquired using
      * the boost::shared_lock<boost::shared_mutex> lock( m_ConnectionListLock );.
      */
-    boost::shared_mutex m_ConnectionListLock;
+    boost::shared_mutex m_connectionListLock;
 
     /**
      * Connect additional signals.
@@ -195,19 +195,19 @@ protected:
     /**
      * The Module this connector belongs to
      */
-    boost::shared_ptr<WModule> m_Module;
+    boost::shared_ptr<WModule> m_module;
 
 private:
 
     /**
      * The connections name.
      */
-    std::string m_Name;
+    std::string m_name;
 
     /**
      * The connections description.
      */
-    std::string m_Description;
+    std::string m_description;
 
     /**
      * Signal emitted whenever connection has been established.
