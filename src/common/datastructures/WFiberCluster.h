@@ -134,11 +134,32 @@ public:
      */
     bool operator!=( const WFiberCluster& other ) const;
 
+    // TODO(math): The only reason why we store here a Reference to the fiber
+    // dataset is, we need it in the WMVoxelizer module as well as the clustering
+    // information. Since we don't have the possibility of multiple
+    // InputConnectors we must agglomerate those into one object. Please remove this.
+    void setDataSetReference( boost::shared_ptr< const WDataSetFibers > fibs );
+    boost::shared_ptr< const WDataSetFibers > getDataSetReference() const;
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
+protected:
+    // TODO(math): The only reason why we store here a Reference to the fiber
+    // dataset is, we need it in the WMVoxelizer module as well as the clustering
+    // information. Since we don't have the possibility of multiple
+    // InputConnectors we must agglomerate those into one object. Please remove this.
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
+
     /**
      * All indices in this set are members of this cluster
      */
     std::list< size_t > m_memberIndices;
+
+    /**
+     * Reference to the real fibers of the brain this cluster belongs to.
+     */
+    boost::shared_ptr< const WDataSetFibers > m_fibs;
 
     /**
      * Color which is used to paint the members of this cluster.

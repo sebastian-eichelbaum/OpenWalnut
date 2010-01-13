@@ -192,11 +192,7 @@ private:
      */
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
 
-    /**
-     * Output connector for a value datasets for each cluster representing
-     * blurred clusters.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_blurredClusters;
+    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_output;
 
     /**
      * OSG node for this module. All other OSG nodes of this module should be

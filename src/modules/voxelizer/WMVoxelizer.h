@@ -97,18 +97,24 @@ protected:
      */
     virtual void properties();
 
+    osg::ref_ptr< osg::Geode > genFiberGeode( boost::shared_ptr< const WDataSetFibers > fibers ) const;
     void update();
 
     /**
      * Mark the given Voxel as visited by the Rasterization Algorithm.
+     *
+     * \param center The centroid of the voxel
+     * \param dataset The dataset of all voxels
      */
-    void putVoxel( const wmath::WPosition& center );
+    void putVoxel( const wmath::WPosition& center, boost::shared_ptr< WDataSetSingle > dataset );
 
     /**
      * Builds an OSG geode where all voxels inside the dataSet which are not
      * zero are drawn as cuboids.
+     *
+     * \return OSG Geode with the voxels as cuboids.
      */
-    void drawVoxel() const;
+    osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const;
 
     /**
      * Generates a list of vertices representing a QUAD_STRIP for a cuboid
@@ -129,8 +135,8 @@ protected:
      *
      *\return The dataset where to store our voxel.
      */
-    boost::shared_ptr< WDataSetSingle > createDataSet( const wmath::WPosition& lowerLeft,
-                                                       const wmath::WPosition& upperRight ) const;
+    boost::shared_ptr< WDataSetSingle > createDataSet( const wmath::WPosition& fll,
+                                                       const wmath::WPosition& bur ) const;
 
     /**
      * Creates two vertices describing the bounding box of a cluster.
@@ -141,11 +147,20 @@ protected:
      */
     std::pair< wmath::WPosition, wmath::WPosition > createBoundingBox( const WFiberCluster& cluster ) const;
 
+    osg::ref_ptr< osg::Geode > genBBGeode( const wmath::WPosition& fll,
+                                           const wmath::WPosition& bur ) const;
+
+
 private:
     /**
      * Input connector for a fiber cluster dataset.
      */
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input;
+
+    /**
+     * Reference to the fiber clusters
+     */
+    boost::shared_ptr< const WFiberCluster > m_clusters;
 
     /**
      * OSG node for this module. All other OSG nodes of this module should be

@@ -110,7 +110,11 @@ void WMFiberClustering::update()
 
     cluster();
     paint();
-    // m_blurredClusters->updateData( blurClusters() );
+    // TODO(math): For reasons of simplicity just forward one cluster to the voxelizer
+    m_clusters[0].setDataSetReference( m_fibs );
+    boost::shared_ptr< WFiberCluster > c;
+    c = boost::shared_ptr< WFiberCluster >( &m_clusters[0] );
+    m_output->updateData( c );
 }
 
 boost::shared_ptr< WDataSetSingle > WMFiberClustering::blurClusters() const
@@ -312,14 +316,14 @@ void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )
 void WMFiberClustering::connectors()
 {
     using boost::shared_ptr;
-    typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
-    typedef WModuleOutputData< WDataSetSingle > SingleOutputData; // -"-
+    typedef WModuleInputData< WDataSetFibers > InputData;  // just an alias
+    typedef WModuleOutputData< WFiberCluster > OutputData; // -"-
 
-    m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
-    m_blurredClusters = shared_ptr< SingleOutputData >( new SingleOutputData( shared_from_this(), "DataSetOutput", "gsdjf g" ) );
+    m_fiberInput = shared_ptr< InputData >( new InputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
+    m_output = shared_ptr< OutputData >( new OutputData( shared_from_this(), "One Clulster", "One Cluster" ) );
 
     addConnector( m_fiberInput );
-    addConnector( m_blurredClusters );
+    addConnector( m_output );
     WModule::connectors();  // call WModules initialization
 }
 
