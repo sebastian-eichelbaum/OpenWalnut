@@ -57,11 +57,20 @@ public:
 protected:
 private:
     /**
-     * Fill the data into the segment doing the needed conversions.
+     * Fill the data into the segment doing the needed conversions, assuming
+     * column based channels
      * \param segment the segment to be filled
      * \param data the data to be filled into the segment
      */
-    void fillSegment( std::vector<std::vector<double> >* segment, biosig_data_type* data );
+    void fillSegmentColumnBased( std::vector<std::vector<double> >* segment, biosig_data_type* data );
+
+    /**
+     * Fill the data into the segment doing the needed conversions, assuming
+     * row based channels
+     * \param segment the segment to be filled
+     * \param data the data to be filled into the segment
+     */
+    void fillSegmentRowBased( std::vector<std::vector<double> >* segment, biosig_data_type* data );
 
     HDRTYPE* hd; //!< Header of file
     size_t m_columns; //!< columns of the storage in the file

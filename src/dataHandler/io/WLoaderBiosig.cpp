@@ -42,12 +42,25 @@ WLoaderBiosig::WLoaderBiosig( std::string fileName )
 {
 }
 
-void WLoaderBiosig::fillSegment( std::vector<std::vector<double> >* segment, biosig_data_type* data )
+void WLoaderBiosig::fillSegmentColumnBased( std::vector<std::vector<double> >* segment, biosig_data_type* data )
 {
     for( unsigned int i = 0; i < m_columns; ++i )
     {
         WEEGElectrode channel( 0 );
         for( unsigned int j = 0; j < m_rows; ++j )
+        {
+            channel.push_back( data[i*m_rows+j] );
+        }
+        segment->push_back( channel );
+    }
+}
+
+void WLoaderBiosig::fillSegmentRowBased( std::vector<std::vector<double> >* segment, biosig_data_type* data )
+{
+    for( unsigned int j = 0; j < m_rows; ++j )
+    {
+        WEEGElectrode channel( 0 );
+        for( unsigned int i = 0; i < m_columns; ++i )
         {
             channel.push_back( data[i*m_rows+j] );
         }
@@ -89,7 +102,8 @@ boost::shared_ptr< WDataSet> WLoaderBiosig::load()
     }
 
 
-    if( hd->FLAG.ROW_BASED_CHANNELS )
+    bool rowBasedChannels = hd->FLAG.ROW_BASED_CHANNELS;
+    if( rowBasedChannels )
         std::cout << "BIOSIG channels stored as rows." << std::endl;
     else
         std::cout << "BIOSIG channels stored as cols." << std::endl;
@@ -107,7 +121,14 @@ boost::shared_ptr< WDataSet> WLoaderBiosig::load()
 
 
     std::vector<std::vector<double> > segment;
-    fillSegment( &segment, hd->data.block );
+    if( rowBasedChannels )
+    {
+        fillSegmentRowBased( &segment, hd->data.block );
+    }
+    else
+    {
+        fillSegmentColumnBased( &segment, hd->data.block );
+    }
 
 
     std::vector<std::vector<std::vector<double> > > segments( 0 );
@@ -131,4 +152,3 @@ boost::shared_ptr< WDataSet> WLoaderBiosig::load()
     std::cout << "===================================" << std::endl;
     return eeg;
 }
-
