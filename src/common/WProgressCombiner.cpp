@@ -90,8 +90,22 @@ void WProgressCombiner::finish()
 {
     // combiner just propagate the finish request down to all children
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_updateLock );
-    // add the progress to the children list
+
+    // as the children define this progress' state -> iterate children
+    for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
+    {
+        // enforce child to update
+        ( *i )->finish();
+        ( *i )->update();
+    }
+
+    // remove the children
     m_children.clear();
+
+    // set the defaults
+    WProgress::finish();
+    m_progress = 0.0;
+
     lock.unlock();
 }
 

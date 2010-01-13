@@ -56,12 +56,16 @@ WModule::WModule():
     m_isAssociated( new WCondition(), false ),
     m_isUsable( new WCondition(), false ),
     m_isReady( new WConditionOneShot(), false ),
+    m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
     m_moduleState()
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
     m_container = boost::shared_ptr< WModuleContainer >();
     m_progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
+
+    // add a progress indicator which finishes on "ready()"
+    m_progress->addSubProgress( m_readyProgress );
 
     // our internal state consist out of two conditions: data changed and the exit flag from WThreadedRunner.
     m_moduleState.add( m_shutdownFlag.getCondition() );

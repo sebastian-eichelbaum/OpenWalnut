@@ -89,16 +89,21 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     // -> so run it
 
     // connect default ready/error notifiers
-    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_readyNotifiersLock );
-    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_readyNotifiers.begin(); iter != m_readyNotifiers.end(); ++iter)
-    {
-        module->subscribeSignal( WM_READY, ( *iter ) );
-    }
-    slock.unlock();
-    slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
+    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
     for ( std::list< t_ModuleErrorSignalHandlerType >::iterator iter = m_errorNotifiers.begin(); iter != m_errorNotifiers.end(); ++iter)
     {
         module->subscribeSignal( WM_ERROR, ( *iter ) );
+    }
+    slock = boost::shared_lock<boost::shared_mutex>( m_associatedNotifiersLock );
+    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_associatedNotifiers.begin(); iter != m_associatedNotifiers.end(); ++iter)
+    {
+        // call associated notifier
+        ( *iter )( module );
+    }
+    slock = boost::shared_lock<boost::shared_mutex>( m_readyNotifiersLock );
+    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_readyNotifiers.begin(); iter != m_readyNotifiers.end(); ++iter)
+    {
+        module->subscribeSignal( WM_READY, ( *iter ) );
     }
     slock.unlock();
 
@@ -170,6 +175,11 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGeneric
     boost::unique_lock<boost::shared_mutex> lock;
     switch (signal)
     {
+        case WM_ASSOCIATED:
+            lock = boost::unique_lock<boost::shared_mutex>( m_associatedNotifiersLock );
+            m_associatedNotifiers.push_back( notifier );
+            lock.unlock();
+            break;
         case WM_READY:
             lock = boost::unique_lock<boost::shared_mutex>( m_readyNotifiersLock );
             m_readyNotifiers.push_back( notifier );

@@ -46,6 +46,7 @@
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
 #include "../common/WProgressCombiner.h"
+#include "../common/WProgress.h"
 #include "../common/WThreadedRunner.h"
 #include "../common/WPrototyped.h"
 #include "../common/WConditionSet.h"
@@ -359,6 +360,11 @@ protected:
      * True if ready() was called.
      */
     WBoolFlag m_isReady;
+
+    /**
+     * Progress indicator for the "ready" state.
+     */
+    boost::shared_ptr< WProgress > m_readyProgress;
 
     /**
      * The internal state of the module. This is, by default, simply the exit flag from WThreadedRunner.

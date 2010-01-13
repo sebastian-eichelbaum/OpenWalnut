@@ -170,6 +170,16 @@ protected:
      */
     std::list< t_ModuleGenericSignalHandlerType > m_readyNotifiers;
 
+    /**
+     * Lock for associated notifiers set.
+     */
+    boost::shared_mutex m_associatedNotifiersLock;
+
+    /**
+     * The notifiers connected to added modules by default and fired whenever the module got associated.
+     */
+    std::list< t_ModuleGenericSignalHandlerType > m_associatedNotifiers;
+
 private:
 };
 

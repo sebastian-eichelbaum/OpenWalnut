@@ -117,14 +117,18 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     subject->setExpanded( true );
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
-    return subject->addDatasetItem( module );
+    WQtDatasetTreeItem* item = subject->addDatasetItem( module );
+    item->setDisabled( true );
+    return item;
 }
 
 WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > module )
 {
     WQtModuleHeaderTreeItem* tiModules = ( WQtModuleHeaderTreeItem* )m_treeWidget->topLevelItem( 0 );
     tiModules->setExpanded( true );
-    return tiModules->addModuleItem( module );
+    WQtModuleTreeItem* item = tiModules->addModuleItem( module );
+    item->setDisabled( true );
+    return item;
 }
 
 boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()

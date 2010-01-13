@@ -133,8 +133,8 @@ int WQt4Gui::run()
     m_mainWindow->getModuleButtonSignal()->connect( boost::bind( &WKernel::applyModule, m_kernel, _1, _2 ) );
 
     // bind the GUI's slot with the ready signal
-    t_ModuleGenericSignalHandlerType f = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToBrowser, this, _1 );
-    m_kernel->getRootContainer()->addDefaultNotifier( WM_READY, f );
+    t_ModuleGenericSignalHandlerType assocSignal = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToBrowser, this, _1 );
+    m_kernel->getRootContainer()->addDefaultNotifier( WM_ASSOCIATED, assocSignal );
 
     // now we are initialized
     m_isInitialized( true );
