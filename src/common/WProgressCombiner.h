@@ -53,7 +53,8 @@ public:
     virtual ~WProgressCombiner();
 
     /**
-     * Stops the progress. After finishing, the progress de-registers from its parent (if any).
+     * Stops the progress. Progress combiner propagate this request to their children. Please not that this operation is
+     * expansive. It locks the updateLock and removes all child progress.
      */
     virtual void finish();
 
@@ -74,8 +75,20 @@ public:
     virtual float getProgress();
 
     /**
+     * Adds a new progress to this combiner. It does not check whether the specified progress already is associated with another
+     * combiner, which allows some kind of "shared" progress. The progress stays in the progress list until finish() is called,
+     * which actually cleans up and resets a combiner.
+     *
+     * \param progress the progress to add as a child.
+     * \note it is possible to add ProgressCombiner instances as well.
+     */
+    virtual void addSubProgress( boost::shared_ptr< WProgress > progress );
+
+    /**
      * Function updating the internal state. This needs to be called before any get function to ensure the getter return the right
      * values.
+     *
+     * \note this method is expansive. It uses a lock to avoid concurrent write and iterates over this combiners children.
      */
     virtual void update();
 
@@ -94,7 +107,7 @@ protected:
     /**
      * Set of all child progress.
      */
-    std::set< boost::shared_ptr< WProgress > > m_childs;
+    std::set< boost::shared_ptr< WProgress > > m_children;
 
     /**
      * Lock for the above child set and the internal state update.

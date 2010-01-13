@@ -30,13 +30,13 @@ WProgressCombiner::WProgressCombiner( std::string name ):
     m_progress( 0.0 )
 {
     // initialize members
+    m_pending = false;
 }
 
 WProgressCombiner::~WProgressCombiner()
 {
     // cleanup
 }
-
 
 void WProgressCombiner::update()
 {
@@ -49,10 +49,10 @@ void WProgressCombiner::update()
     m_pending = false;
     m_determined = true;
     m_progress = 0.0;
-    unsigned int numPendingChilds = 0;
+    unsigned int numPendingChildren = 0;
 
-    // as the childs define this progress' state -> iterate childs
-    for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_childs.begin(); i != m_childs.end(); ++i )
+    // as the children define this progress' state -> iterate children
+    for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
     {
         // enforce child to update
         ( *i )->update();
@@ -62,23 +62,39 @@ void WProgressCombiner::update()
         {
             // TODO(ebaum): this actually builds the mean value. This might cause backstepping in progress, which is not wanted.
             m_pending = true;
-            m_determined |= ( *i )->isDetermined();
+            m_determined &= ( *i )->isDetermined();
             m_progress += ( *i )->getProgress();
-            numPendingChilds++;
+            numPendingChildren++;
         }
+    }
+    if ( numPendingChildren )
+    {
+        m_progress /= static_cast< float >( numPendingChildren );
     }
 
     rlock.unlock();
 }
 
+void WProgressCombiner::addSubProgress( boost::shared_ptr< WProgress > progress )
+{
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_updateLock );
+    // add the progress to the children list
+    m_children.insert( progress );
+    lock.unlock();
+}
+
 void WProgressCombiner::finish()
 {
-    // in progress combiners, this can be ignored, as it is marked "finished" when all childs are finished.
+    // combiner just propagate the finish request down to all children
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_updateLock );
+    // add the progress to the children list
+    m_children.clear();
+    lock.unlock();
 }
 
 WProgressCombiner& WProgressCombiner::operator++()
 {
-    // in progress combiners, this can be ignored. The progress is defined by the childs.
+    // in progress combiners, this can be ignored. The progress is defined by the children.
     return *this;
 }
 

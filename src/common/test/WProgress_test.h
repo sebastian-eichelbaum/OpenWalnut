@@ -85,18 +85,22 @@ public:
 
         // increment it a bit
         ++++++++++p;
+        TS_ASSERT_THROWS_NOTHING( p.update() );
         TS_ASSERT( p.m_count == 5 );
         TS_ASSERT( p.getProgress() == 50.0 );
         ++++++++++p;
+        TS_ASSERT_THROWS_NOTHING( p.update() );
         TS_ASSERT( p.m_count == 10 );
         TS_ASSERT( p.getProgress() == 100.0 );
 
         // does another step increase the count! It shouldn't
         ++p;
+        TS_ASSERT_THROWS_NOTHING( p.update() );
         TS_ASSERT( p.m_count == 10 );
         TS_ASSERT( p.getProgress() == 100.0 );
 
         // reaching the max counter should not finish the progress.
+        // update
         TS_ASSERT( p.isPending() );
     }
 
@@ -114,6 +118,7 @@ public:
         TS_ASSERT( p.getProgress() == 0.0 );
         // increment it a bit
         ++++++++++p;
+        TS_ASSERT_THROWS_NOTHING( p.update() );
         TS_ASSERT( p.m_count == 0 );
         TS_ASSERT( p.getProgress() == 0.0 );
 
