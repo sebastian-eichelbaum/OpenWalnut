@@ -70,7 +70,7 @@ WProgress& WProgress::operator++()
 
 float WProgress::getProgress()
 {
-    return 100.0 * ( static_cast< float >( m_count ) / static_cast< float >( m_max ) );
+    return isDetermined() ? 100.0 * ( static_cast< float >( m_count ) / static_cast< float >( m_max ) ) : 0.0;
 }
 
 bool WProgress::isPending()

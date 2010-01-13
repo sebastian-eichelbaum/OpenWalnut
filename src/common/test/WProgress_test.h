@@ -109,6 +109,14 @@ public:
 
         // update
         TS_ASSERT_THROWS_NOTHING( p.update() );
+
+        // get progress
+        TS_ASSERT( p.getProgress() == 0.0 );
+        // increment it a bit
+        ++++++++++p;
+        TS_ASSERT( p.m_count == 0 );
+        TS_ASSERT( p.getProgress() == 0.0 );
+
     }
 
 };
