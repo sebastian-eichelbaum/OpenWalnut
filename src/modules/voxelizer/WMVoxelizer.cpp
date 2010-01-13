@@ -333,6 +333,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genBBGeode( const wmath::WPosition& fll,
     return geode;
 }
 
+// TODO(math): obsolete, since we need only a grid, and cannot change a WDataSet afterwards either!
 boost::shared_ptr< WDataSetSingle > WMVoxelizer::createDataSet( const wmath::WPosition& fll,
                                                                 const wmath::WPosition& bur ) const
 {
