@@ -25,6 +25,8 @@
 #include <algorithm>
 #include <list>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
