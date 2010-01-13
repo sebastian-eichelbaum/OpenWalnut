@@ -33,6 +33,13 @@
 #include "../WTransferable.h"
 #include "WFiberCluster.h"
 
+// TODO(math): The only reason why we store here a Reference to the fiber
+// dataset is, we need it in the WMVoxelizer module as well as the clustering
+// information. Since we don't have the possibility of multiple
+// InputConnectors we must agglomerate those into one object. Please remove this.
+// initializes the variable and provides a linker reference
+boost::shared_ptr< WPrototyped > WFiberCluster::m_prototype = boost::shared_ptr< WPrototyped >();
+
 WFiberCluster::WFiberCluster()
     : WTransferable()
 {
@@ -53,4 +60,27 @@ void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
     }
     // make sure that those indices aren't occuring anywhere else
     other.clear();
+}
+
+void WFiberCluster::setDataSetReference( boost::shared_ptr< const WDataSetFibers > fibs )
+{
+    m_fibs = fibs;
+}
+
+boost::shared_ptr< const WDataSetFibers > WFiberCluster::getDataSetReference() const
+{
+    return m_fibs;
+}
+
+// TODO(math): The only reason why we store here a Reference to the fiber
+// dataset is, we need it in the WMVoxelizer module as well as the clustering
+// information. Since we don't have the possibility of multiple
+// InputConnectors we must agglomerate those into one object. Please remove this.
+boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WFiberCluster() );
+    }
+    return m_prototype;
 }
