@@ -155,11 +155,10 @@ private:
     void closeCustomWidget();
 
     /**
-     * Sample HUD-Text. Copied from an OSG-Example
-     *
-     * \return OSG-Graph
+     * Removes all Nodes from m_rootNode and adds new ones based on the current
+     * data stored in m_eeg.
      */
-    osg::Node* createText();
+    void redraw();
 };
 
 #endif  // WMEEGVIEW_H

@@ -32,6 +32,5 @@ IF( OW_COMPILE_TESTS )
                                "WModuleContainer.cpp"
                                "WModuleFactory.cpp"
                                "../modules/navSlices/WMNavSlices.cpp"
-                               "../modules/eegTest/WMEEGTest.cpp"
                              )
 ENDIF( OW_COMPILE_TESTS )
