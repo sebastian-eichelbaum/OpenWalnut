@@ -300,7 +300,7 @@ void WQtDatasetBrowser::slotSetStringProperty( QString name, QString value )
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     module->getProperties()->setValue<std::string>( name.toStdString(), value.toStdString() );
 
-    if ( name == "name")
+    if ( name == "Name")
     {
         m_treeWidget->selectedItems().at( 0 )->setText( 0, value );
     }
