@@ -37,5 +37,6 @@
 #include "cor.xpm"
 #include "sag.xpm"
 
+#include "o.xpm"
 
 #endif  // WICONS_H

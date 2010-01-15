@@ -188,6 +188,8 @@ void WMainWindow::setupRibbonMenu()
 
 void WMainWindow::setupCompatiblesToolBar()
 {
+    m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
+
     m_compatiblesToolBar = new WQtRibbonMenu( this );
 
     addToolBar( Qt::TopToolBarArea, m_compatiblesToolBar );
