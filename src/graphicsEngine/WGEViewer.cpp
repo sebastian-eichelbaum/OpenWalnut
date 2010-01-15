@@ -50,8 +50,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
     int width, int height, WGECamera::ProjectionMode projectionMode )
     : WGEGraphicsWindow( wdata, x, y, width, height ),
       boost::enable_shared_from_this< WGEViewer >(),
-      m_name( name ),
-      m_projectionMode( projectionMode )
+      m_name( name )
 {
     try
     {
@@ -133,10 +132,10 @@ void WGEViewer::resize( int width, int height )
 
     // also update the camera
     m_View->getCamera()->setViewport( 0, 0, width, height );
-
-    if( m_projectionMode == WGECamera::TWO_D )
+    WGECamera* camera = dynamic_cast< WGECamera* >( m_View->getCamera() );
+    if( camera )
     {
-        m_View->getCamera()->setProjectionMatrixAsOrtho2D( 0.0, width, 0.0, height );
+        camera->resize();
     }
 }
 
