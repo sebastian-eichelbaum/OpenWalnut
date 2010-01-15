@@ -278,10 +278,18 @@ void WMainWindow::closeEvent( QCloseEvent* e )
         // now nobody acesses the osg anymore
         // clean up gl widgets
         m_mainGLWidget->close();
-
-        m_navAxial->close();
-        m_navCoronal->close();
-        m_navSagittal->close();
+        if( m_navAxial )
+        {
+            m_navAxial->close();
+        }
+        if( m_navCoronal )
+        {
+            m_navCoronal->close();
+        }
+        if( m_navSagittal )
+        {
+            m_navSagittal->close();
+        }
 
         // delete CustomDockWidgets
         boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
