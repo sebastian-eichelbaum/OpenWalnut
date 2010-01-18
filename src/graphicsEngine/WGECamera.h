@@ -71,6 +71,11 @@ public:
      */
     void reset();
 
+    /**
+     * Change camera parameters which should be changed on a resize.
+     */
+    void resize();
+
 protected:
     /**
      * Destructor. This desctructor is protected to avoid accidentally deleting
