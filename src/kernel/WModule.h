@@ -410,5 +410,12 @@ private:
     t_ModuleErrorSignalType signal_error;
 };
 
+/**
+ * \defgroup modules Modules
+ *
+ * \brief
+ * This group contains modules of OpenWalnut.
+ * The term modules can be understood as "plugin" or "algorithm" in this context.
+ */
 #endif  // WMODULE_H
 

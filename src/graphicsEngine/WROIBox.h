@@ -42,6 +42,8 @@ class WROIBox : public WROI
 public:
     /**
      * Yields box with desired extremal points minPos and maxPos
+     * \param minPos Left, lower, front corner. Minimal x, y and z coordinates.
+     * \param maxPos Right, upper, back corner. Maximal x, y and z coordinates.
      */
     WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos );
 

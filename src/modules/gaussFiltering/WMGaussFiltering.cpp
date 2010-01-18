@@ -127,14 +127,14 @@ void WMGaussFiltering::moduleMain()
         }
         assert( m_dataSet );
 
-        m_vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
+        m_vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
         assert( m_vals );
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
         assert( grid );
         size_t nX = grid->getNbCoordsX();
         size_t nY = grid->getNbCoordsY();
         size_t nZ = grid->getNbCoordsZ();
-        std::vector< float > newVals( nX * nY * nZ, 0. );
+        std::vector< double > newVals( nX * nY * nZ, 0. );
         for( size_t z = 1; z < nZ - 1; z++ )
         {
             for( size_t y = 1; y < nY - 1; y++ )
@@ -146,8 +146,8 @@ void WMGaussFiltering::moduleMain()
             }
         }
 
-        boost::shared_ptr< WValueSet< float > > values;
-        values = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( 0, 1, newVals, W_DT_FLOAT ) );
+        boost::shared_ptr< WValueSet< double > > values;
+        values = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, newVals, W_DT_DOUBLE ) );
 
         m_dataSet = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( values, m_dataSet->getGrid() ) );
         m_output->updateData( m_dataSet );

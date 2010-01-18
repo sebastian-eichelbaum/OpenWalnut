@@ -262,6 +262,14 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
+        case W_DT_DOUBLE:
+        {
+            boost::shared_ptr< WValueSet< double > > vals;
+            vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
+            assert( vals );
+            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            break;
+        }
         default:
             assert( false && "Unknow data type in MarchingCubes module" );
     }

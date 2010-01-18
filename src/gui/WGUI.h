@@ -42,7 +42,7 @@
  * \defgroup gui GUI
  *
  * \brief
- * This module implements the graphical user interface for OpenWalnut.
+ * This library implements the graphical user interface for OpenWalnut.
  *
  */
 

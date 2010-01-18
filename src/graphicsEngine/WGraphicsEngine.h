@@ -186,7 +186,7 @@ private:
  * \defgroup ge GraphicsEngine
  *
  * \brief
- * This module implements the graphics engine for OpenWalnut.
+ * This library implements the graphics engine for OpenWalnut.
  */
 
 /**

@@ -47,6 +47,7 @@ public:
      * Creates new raster algorithm within the given grid. The grid may later
      * also be used to generate a real DataSet, \see generateDataSet() for
      * furter instructions.
+     * \param grid the grid definix the voxel raster.
      */
     explicit WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid );
 

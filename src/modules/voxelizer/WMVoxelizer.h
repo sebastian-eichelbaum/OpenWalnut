@@ -132,6 +132,11 @@ private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input;
 
     /**
+     * Output connector for a voxelized fiber cluster dataset.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+
+    /**
      * Reference to the fiber clusters
      */
     boost::shared_ptr< const WFiberCluster > m_clusters;

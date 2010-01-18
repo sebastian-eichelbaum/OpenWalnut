@@ -45,7 +45,7 @@
  * \defgroup kernel Kernel
  *
  * \brief
- * This module implements the central part of OpenWalnut that manages
+ * This library implements the central part of OpenWalnut that manages
  * the interaction between GUI, GraphicsEngine and DataHandler.
  */
 
