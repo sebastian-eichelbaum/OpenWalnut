@@ -24,6 +24,7 @@
 
 #include <list>
 #include <set>
+#include <vector>
 #include <string>
 #include <sstream>
 
@@ -148,7 +149,8 @@ void WModuleContainer::stop()
 
     // read lock
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_pendingThreadsLock );
-    for( std::set< boost::shared_ptr< WThreadedRunner > >::iterator listIter = m_pendingThreads.begin(); listIter != m_pendingThreads.end(); ++listIter )
+    for( std::set< boost::shared_ptr< WThreadedRunner > >::iterator listIter = m_pendingThreads.begin(); listIter != m_pendingThreads.end();
+            ++listIter )
     {
         ( *listIter )->wait( true );
     }

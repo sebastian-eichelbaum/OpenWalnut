@@ -24,7 +24,10 @@
 
 #ifndef WBATCHLOADER_H
 #define WBATCHLOADER_H
-#include <iostream>
+
+#include <string>
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WThreadedRunner.h"
