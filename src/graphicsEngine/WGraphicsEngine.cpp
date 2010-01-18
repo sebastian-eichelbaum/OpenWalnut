@@ -25,11 +25,14 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <osg/Vec3>
 #include <osg/Vec4>
+#include <osg/ref_ptr>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
 #include <osgViewer/Viewer>
@@ -37,6 +40,7 @@
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
 #include "../kernel/WKernel.h"
+#include "../math/WPosition.h"
 #include "WGEViewer.h"
 #include "WGraphicsEngine.h"
 #include "exceptions/WGEInitFailed.h"
@@ -173,3 +177,56 @@ osg::Vec4 wge::osgColor( const WColor& color )
     return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
 }
 
+osg::Vec3 wge::osgVec3( const wmath::WPosition& pos )
+{
+    return osg::Vec3( pos[0], pos[1], pos[2] );
+}
+
+osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPosition >& posArray )
+{
+    osg::ref_ptr< osg::Vec3Array > result = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    result->reserve( posArray.size() );
+    std::vector< wmath::WPosition >::const_iterator cit;
+    for( cit = posArray.begin(); cit != posArray.end(); ++cit )
+    {
+        result->push_back( osgVec3( *cit ) );
+    }
+    return result;
+}
+
+osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
+{
+    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+
+    // Surfaces
+    vertices->push_back( wge::osgVec3( corners[0] ) );
+    vertices->push_back( wge::osgVec3( corners[1] ) );
+    vertices->push_back( wge::osgVec3( corners[2] ) );
+    vertices->push_back( wge::osgVec3( corners[3] ) );
+
+    vertices->push_back( wge::osgVec3( corners[1] ) );
+    vertices->push_back( wge::osgVec3( corners[5] ) );
+    vertices->push_back( wge::osgVec3( corners[6] ) );
+    vertices->push_back( wge::osgVec3( corners[2] ) );
+
+    vertices->push_back( wge::osgVec3( corners[5] ) );
+    vertices->push_back( wge::osgVec3( corners[4] ) );
+    vertices->push_back( wge::osgVec3( corners[7] ) );
+    vertices->push_back( wge::osgVec3( corners[6] ) );
+
+    vertices->push_back( wge::osgVec3( corners[4] ) );
+    vertices->push_back( wge::osgVec3( corners[0] ) );
+    vertices->push_back( wge::osgVec3( corners[3] ) );
+    vertices->push_back( wge::osgVec3( corners[7] ) );
+
+    vertices->push_back( wge::osgVec3( corners[3] ) );
+    vertices->push_back( wge::osgVec3( corners[2] ) );
+    vertices->push_back( wge::osgVec3( corners[6] ) );
+    vertices->push_back( wge::osgVec3( corners[7] ) );
+
+    vertices->push_back( wge::osgVec3( corners[0] ) );
+    vertices->push_back( wge::osgVec3( corners[1] ) );
+    vertices->push_back( wge::osgVec3( corners[5] ) );
+    vertices->push_back( wge::osgVec3( corners[4] ) );
+    return vertices;
+}

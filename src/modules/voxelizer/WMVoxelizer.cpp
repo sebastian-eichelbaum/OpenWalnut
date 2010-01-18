@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <iomanip>
 #include <list>
 #include <string>
 #include <utility>
@@ -41,7 +42,9 @@
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
 #include "../../utils/WColorUtils.h"
+#include "WBresenham.h"
 #include "WMVoxelizer.h"
+#include "WRasterAlgorithm.h"
 
 WMVoxelizer::WMVoxelizer()
     : WModule()
@@ -57,101 +60,9 @@ boost::shared_ptr< WModule > WMVoxelizer::factory() const
     return boost::shared_ptr< WModule >( new WMVoxelizer() );
 }
 
-//osg::ref_ptr< osg::Geode > WMVoxelizer::generateGrid() const
-//{
-//    using osg::ref_ptr;
-//    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-//    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-//    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-//
-//    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_dataSet ).getGrid() );
-//    assert( grid.get() );
-//    const wmath::WPosition& origin = grid->getOrigin();
-//    double dx = grid->getOffsetX();
-//    double dy = grid->getOffsetY();
-//    double dz = grid->getOffsetZ();
-//    double nbCoordsX = 8;
-//    double nbCoordsY = 8;
-//    double nbCoordsZ = 10;
-//
-//
-//    for( size_t x = 0; x < nbCoordsX; ++x )
-//    {
-//        vertices->push_back( osg::Vec3( x * dx, 0, 0 ) );
-//        vertices->push_back( osg::Vec3( x * dx, 0, nbCoordsZ * dz ) );
-//        vertices->push_back( osg::Vec3( x * dx, nbCoordsY * dy, nbCoordsZ * dz ) );
-//        vertices->push_back( osg::Vec3( x * dx, nbCoordsY * dy, 0 ) );
-//        vertices->push_back( osg::Vec3( x * dx, 0, 0 ) );
-//        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 5, 5 ) );
-//        for( size_t i = 0; i < nbCoordsZ; ++i )
-//        {
-//            vertices->push_back( osg::Vec3( x * dx, 0, i * dz ) );
-//            vertices->push_back( osg::Vec3( x * dx, nbCoordsY * dy, i * dz ) );
-//            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 2, 2 ) );
-//        }
-//    }
-//    for( size_t y = 0; y < nbCoordsY; ++y )
-//    {
-//        vertices->push_back( osg::Vec3(  0, y * dy, 0 ) );
-//        vertices->push_back( osg::Vec3(  0, y * dy, nbCoordsZ * dz ) );
-//        vertices->push_back( osg::Vec3(  nbCoordsX * dx, y * dy, nbCoordsZ * dz ) );
-//        vertices->push_back( osg::Vec3(  nbCoordsX * dx, y * dy, 0 ) );
-//        vertices->push_back( osg::Vec3(  0, y * dy, 0 ) );
-//        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() -5 , 5 ) );
-//        for( size_t i = 0; i < nbCoordsZ; ++i )
-//        {
-//            vertices->push_back( osg::Vec3( 0 , y * dy, i * dz ) );
-//            vertices->push_back( osg::Vec3( nbCoordsX * dx, y * dy, i * dz ) );
-//            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 2, 2 ) );
-//        }
-//    }
-//    for( size_t z = 0; z < nbCoordsZ; ++z )
-//    {
-//        vertices->push_back( osg::Vec3(  0, 0, z * dz ) );
-//        vertices->push_back( osg::Vec3(  nbCoordsX * dx, 0, z * dz ) );
-//        vertices->push_back( osg::Vec3(  nbCoordsX * dx, nbCoordsY * dy, z * dz ) );
-//        vertices->push_back( osg::Vec3(  0, nbCoordsY * dy, z * dz ) );
-//        vertices->push_back( osg::Vec3(  0, 0, z * dz ) );
-//        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 5, 5 ) );
-//    }
-//    for( size_t x = 0; x < nbCoordsX; ++x )
-//    {
-//        for( size_t y = 0; y < nbCoordsY; ++y )
-//        {
-//            vertices->push_back( osg::Vec3( x * dx, y * dy, 0 ) );
-//            vertices->push_back( osg::Vec3( x * dx, y * dy, nbCoordsZ * dz ) );
-//            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 2, 2 ) );
-//        }
-//    }
-//    // draw quad
-//    vertices->push_back( osg::Vec3( , , ) );
-//    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 2, 2 ) );
-//
-//  geometry->setVertexArray( vertices );
-//  colors->push_back( osg::Vec4( 0.3, 0.3, 0.3, 0 ) );
-//  geometry->setColorArray( colors );
-//  geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-//  osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-//  geode->addDrawable( geometry.get() );
-//  return geode;
-//}
-////void WMVoxelizer::addCuboid( ref_ptr< osg::Geometry > geometry,
-////                             const WPosition& lowerLeft,
-////                             const WPosition& upperRight,
-////                             const WColor& color,
-////                             double transparency
-////                           ) const
-////{
-////    using osg::ref_ptr;
-////    ref_ptr< osg::Vec3Array > vertices = geometry->getVertexArray();
-////    ref_ptr< osg::Vec4Array > colors = geometry->getColorArray();
-////    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, vertices->size() - 2, 2 ) );
-////}
-
 void WMVoxelizer::moduleMain()
 {
-    // additional fire-condition: "data changed" flag
-    m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
 
     ready();
 
@@ -173,7 +84,7 @@ void WMVoxelizer::moduleMain()
     }
 }
 
-osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode( boost::shared_ptr< const WDataSetFibers > fibers ) const
+osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -201,6 +112,12 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode( boost::shared_ptr< const 
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
     }
+    // TODO(math): This is just a line for testing purposes
+    // vertices->push_back( osg::Vec3( 73, 38, 29 ) );
+    // vertices->push_back( osg::Vec3( 120, 150, 130 ) );
+    // colors->push_back( colors->back() );
+    // colors->push_back( colors->back() );
+    // geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
 
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
@@ -212,18 +129,51 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode( boost::shared_ptr< const 
 
 void WMVoxelizer::update()
 {
-    // remove nodes if they are any
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
 
-    // create new node
     m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
-    m_osgNode->addChild( genFiberGeode( m_clusters->getDataSetReference() ) );
-    std::pair< wmath::WPosition, wmath::WPosition > x = createBoundingBox( *m_clusters );
-    boost::shared_ptr< WDataSetSingle > ds = createDataSet( x.first, x.second );
-    m_osgNode->addChild( genDataSetGeode( ds ) );
+    m_osgNode->addChild( genFiberGeode() );
+    std::pair< wmath::WPosition, wmath::WPosition > bb = createBoundingBox( *m_clusters );
+
+    boost::shared_ptr< WGridRegular3D > grid;
+
+    // TODO(math): implement the snap-to-grid (of the T1 image) feature for fll and bur.
+    // TODO(math): remove hardcoded meta grid here.
+    size_t nbPosX = std::ceil( bb.second[0] - bb.first[0] ) + 1;
+    size_t nbPosY = std::ceil( bb.second[1] - bb.first[1] ) + 1;
+    size_t nbPosZ = std::ceil( bb.second[2] - bb.first[2] ) + 1;
+    debugLog() << "Bounding Box: " << bb.first << " " << bb.second;
+
+    grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbPosX, nbPosY, nbPosZ, bb.first, 1, 1, 1 ) );
+    debugLog() << "Created grid of size: " << grid->size();
+    boost::shared_ptr< WBresenham > bresenham = boost::shared_ptr< WBresenham >( new WBresenham( grid ) );
+    raster( bresenham );
+    m_osgNode->addChild( genDataSetGeode( bresenham->generateDataSet() ) );
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode );
+}
+
+void WMVoxelizer::raster( boost::shared_ptr< WBresenham > algo ) const
+{
+    const WDataSetFibers& fibs = *m_clusters->getDataSetReference();
+    const std::list< size_t >& fiberIDs = m_clusters->getIndices();
+    std::list< size_t >::const_iterator cit = fiberIDs.begin();
+
+    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
+    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
+    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
+
+    for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
+    {
+        algo->raster( fibs[*cit] );
+    }
+    // TODO(math): This is just a line for testing purposes
+    // std::vector< wmath::WPosition > lineData;
+    // lineData.push_back( wmath::WPosition( 73, 38, 29 ) );
+    // lineData.push_back( wmath::WPosition( 120, 150, 130 ) );
+    // wmath::WLine l( lineData );
+    // algo->raster( l );
 }
 
 void WMVoxelizer::connectors()
@@ -333,31 +283,6 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genBBGeode( const wmath::WPosition& fll,
     return geode;
 }
 
-boost::shared_ptr< WDataSetSingle > WMVoxelizer::createDataSet( const wmath::WPosition& fll,
-                                                                const wmath::WPosition& bur ) const
-{
-    boost::shared_ptr< WDataSetSingle > result;
-    boost::shared_ptr< WGridRegular3D > grid;
-
-    // TODO(math): implement the snap-to-grid (of the T1 image) feature for fll and bur.
-
-    // TODO(math): remove hardcoded meta grid here.
-    size_t nbPosX = bur[0] - fll[0] + 1; // round to next integer
-    size_t nbPosY = bur[1] - fll[1] + 1; // -"-
-    size_t nbPosZ = bur[2] - fll[2] + 1; // -"-
-    const wmath::WPosition& origin = fll;
-
-    // TODO(math): code a convinient constructor for WGridRegular3D allowing alos WPositions
-    // please take care of tests.
-    grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbPosX, nbPosY, nbPosZ, origin[0], origin[1], origin[2], 1, 1, 1 ) );
-
-    boost::shared_ptr< WValueSet< double > > values;
-    std::vector< double > valueData( nbPosX * nbPosY * nbPosZ, 0.0 );
-    values = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, valueData, W_DT_DOUBLE ) );
-    result = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( values, grid ) );
-    return result;
-}
-
 osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const
 {
     using osg::ref_ptr;
@@ -375,17 +300,14 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     {
         if( values[i] != 0.0 )
         {
-            // TODO(math): enahnce WGridRegular3D so, it may return the vertices the
-            //             voxel which holds the position of the i'th value
-            //             This is because not every grid has cubes as voxels but cuboids
-            ref_ptr< osg::Vec3Array > ver = generateCuboidVertices( grid->getPosition( i ), 1 );
+            wmath::WPosition pos = grid->getPosition( i );
+            boost::shared_ptr< std::vector< wmath::WPosition > > voxelCornerVertices = grid->getVoxelVertices( pos );
+            osg::ref_ptr< osg::Vec3Array > ver = wge::generateCuboidQuads( *voxelCornerVertices );
             vertices->insert( vertices->end(), ver->begin(), ver->end() );
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS,
-                                                            vertices->size() - ver->size(),
-                                                            ver->size() ) );
-            for( size_t i = 0; i < ver->size(); ++i )
+            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, vertices->size() - ver->size(), ver->size() ) );
+            for( size_t j = 0; j < ver->size(); ++j )
             {
-                colors->push_back( wge::osgColor( WColor( 1, 0, 0, values[i] ) ) );
+                colors->push_back( wge::osgColor( WColor( 0.8 * values[i], 0, 0, 0.8 * values[i] ) ) );
             }
         }
     }
@@ -397,61 +319,4 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
     return geode;
-}
-
-osg::ref_ptr< osg::Vec3Array > WMVoxelizer::generateCuboidVertices( const wmath::WPosition& center, double margin ) const
-{
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    double halfMargin = margin / 2.0;
-
-    // Vertices
-    //     h_____g
-    //    /:    /|
-    //   d_:___c |
-    //   | :...|.|
-    //   |.e   | f
-    //   |_____|/
-    //  a      b
-    //
-    osg::Vec3 a( center[0] - halfMargin, center[1] - halfMargin, center[2] - halfMargin );
-    osg::Vec3 b( center[0] + halfMargin, center[1] - halfMargin, center[2] - halfMargin );
-    osg::Vec3 c( center[0] + halfMargin, center[1] - halfMargin, center[2] + halfMargin );
-    osg::Vec3 d( center[0] - halfMargin, center[1] - halfMargin, center[2] + halfMargin );
-    osg::Vec3 e( center[0] - halfMargin, center[1] + halfMargin, center[2] - halfMargin );
-    osg::Vec3 f( center[0] + halfMargin, center[1] + halfMargin, center[2] - halfMargin );
-    osg::Vec3 g( center[0] + halfMargin, center[1] + halfMargin, center[2] + halfMargin );
-    osg::Vec3 h( center[0] - halfMargin, center[1] + halfMargin, center[2] + halfMargin );
-
-    // Surfaces
-    vertices->push_back( a );
-    vertices->push_back( b );
-    vertices->push_back( c );
-    vertices->push_back( d );
-
-    vertices->push_back( b );
-    vertices->push_back( f );
-    vertices->push_back( g );
-    vertices->push_back( c );
-
-    vertices->push_back( f );
-    vertices->push_back( e );
-    vertices->push_back( h );
-    vertices->push_back( g );
-
-    vertices->push_back( e );
-    vertices->push_back( a );
-    vertices->push_back( d );
-    vertices->push_back( h );
-
-    vertices->push_back( d );
-    vertices->push_back( c );
-    vertices->push_back( g );
-    vertices->push_back( h );
-
-    vertices->push_back( a );
-    vertices->push_back( b );
-    vertices->push_back( f );
-    vertices->push_back( e );
-    return vertices;
 }

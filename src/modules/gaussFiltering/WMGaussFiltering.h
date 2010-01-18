@@ -100,7 +100,21 @@ protected:
     virtual void properties();
 
 private:
+
+    /**
+     * Simple convolution using a small gauss-like mask
+     * \param nX number of positions in x direction
+     * \param nY number of positions in y direction
+     * \param nZ number of positions in z direction
+     * \param x index for x direction
+     * \param y index for x direction
+     * \param z index for x direction
+     */
+    double filterSimple( size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z );
+
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
+    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
+    boost::shared_ptr< WValueSet< int16_t > > m_vals; //!< Pointer providing access to the treated value set in the whole module.
 };
 #endif  // WMGAUSSFILTERING_H

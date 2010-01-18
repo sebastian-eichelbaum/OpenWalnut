@@ -34,6 +34,8 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "WBresenham.h"
+#include "WRasterAlgorithm.h"
 
 /**
  * TODO(math): document this
@@ -97,16 +99,8 @@ protected:
      */
     virtual void properties();
 
-    osg::ref_ptr< osg::Geode > genFiberGeode( boost::shared_ptr< const WDataSetFibers > fibers ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode() const;
     void update();
-
-    /**
-     * Mark the given Voxel as visited by the Rasterization Algorithm.
-     *
-     * \param center The centroid of the voxel
-     * \param dataset The dataset of all voxels
-     */
-    void putVoxel( const wmath::WPosition& center, boost::shared_ptr< WDataSetSingle > dataset );
 
     /**
      * Builds an OSG geode where all voxels inside the dataSet which are not
@@ -116,27 +110,7 @@ protected:
      */
     osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const;
 
-    /**
-     * Generates a list of vertices representing a QUAD_STRIP for a cuboid
-     * where the center is given as WPosition.
-     *
-     *\param center The center of the cuboid.
-     *\param margin The margin from the center to the voxel boundaries.
-     *
-     *\return The array of vertices.
-     */
-    osg::ref_ptr< osg::Vec3Array > generateCuboidVertices( const wmath::WPosition& center, double margin ) const;
-
-    /**
-     * Construtcs out of the given boundary vertices a new dataset.
-     *
-     *\param lowerLeft The front lower left vertex.
-     *\param upperRight The back upper right.
-     *
-     *\return The dataset where to store our voxel.
-     */
-    boost::shared_ptr< WDataSetSingle > createDataSet( const wmath::WPosition& fll,
-                                                       const wmath::WPosition& bur ) const;
+    void raster( boost::shared_ptr< WBresenham > algo ) const;
 
     /**
      * Creates two vertices describing the bounding box of a cluster.

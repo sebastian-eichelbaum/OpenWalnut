@@ -164,7 +164,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     std::vector<float> floatDataset;
 
     // wiebel: I know that this is not the most speed and memory efficient way to deal with different data types.
-    //         Wowever, it seems the most feasible at the moment (2009-11-24).
+    //         However, it seems the most feasible at the moment (2009-11-24).
     boost::shared_ptr< WValueSet< float > > valueSet = makeFloatValueSet( ( *dataSet ).getValueSet() );
     assert( valueSet );
 

@@ -24,27 +24,6 @@
 
 #include <string>
 
-#include <osgUtil/Optimizer>
-#include <osgDB/ReadFile>
-
-#include <osgViewer/Viewer>
-#include <osgViewer/CompositeViewer>
-
-#include <osgGA/TrackballManipulator>
-
-#include <osg/Material>
-#include <osg/Geode>
-#include <osg/BlendFunc>
-#include <osg/Depth>
-#include <osg/PolygonOffset>
-#include <osg/MatrixTransform>
-#include <osg/Camera>
-#include <osg/RenderInfo>
-
-#include <osgDB/WriteFile>
-
-#include <osgText/Text>
-
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WGEViewer.h"
 #include "WMEEGView.h"
@@ -119,7 +98,10 @@ void WMEEGView::moduleMain()
     // do initialization
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_isActive.getCondition() );
+
     m_rootNode = new osg::Group;
+    osg::StateSet* stateset = m_rootNode->getOrCreateStateSet();
+    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
     // signal ready
     ready();
@@ -131,10 +113,7 @@ void WMEEGView::moduleMain()
         {
             m_dataChanged.set( false );
             m_eeg = m_input->getData();
-            if( m_eeg.get() )
-            {
-                m_rootNode->addChild( createText() );
-            }
+            redraw();
         }
 
         // "active" property changed?
@@ -190,124 +169,82 @@ void WMEEGView::closeCustomWidget()
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
 
-osg::Node* WMEEGView::createText()
+void WMEEGView::redraw()
 {
-    osg::Geode* geode = new osg::Geode();
+    m_rootNode->removeChildren( 0, m_rootNode->getNumChildren() );
 
-    std::string timesFont( "fonts/arial.ttf" );
-
-    // turn lighting off for the text and disable depth test to ensure its always ontop.
-    osg::StateSet* stateset = geode->getOrCreateStateSet();
-    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-
-    osg::Vec3 position( 150.0f, 800.0f, 0.0f );
-    osg::Vec3 delta( 0.0f, -120.0f, 0.0f );
-
+    if( m_eeg.get() )
     {
-        osgText::Text* text = new  osgText::Text;
-        geode->addDrawable( text );
+        const osg::Vec3 textOffset( -8.0, 0.0, 0.0 );
+        const double textSize = 32.0;
+        const osg::Vec4 textColor( 0.0, 0.0, 0.0, 1.0 );
+        const osg::Vec4 linesColor( 0.0, 0.0, 0.0, 1.0 );
+        const osg::Matrix scaleMatrix = osg::Matrix::scale( 1.0, 0.01, 1.0 );
+        const double xOffset = 64.0;
+        const unsigned int spacing = 16;
 
-        text->setFont( timesFont );
-        text->setPosition( position );
-        text->setText( "Head Up Displays are simple :-)" );
+        debugLog() << "Displaying EEG " << m_eeg->getFileName();
+        debugLog() << "  Number of segments: " << m_eeg->getNumberOfSegments();
+        size_t nbChannels = m_eeg->getNumberOfChannels();
+        debugLog() << "  Number of channels: " << nbChannels;
 
-        position += delta;
-    }
-
-    {
-        osgText::Text* text = new  osgText::Text;
-        geode->addDrawable( text );
-
-        text->setFont( timesFont );
-        text->setPosition( position );
-        text->setText( "All you need to do is create your text in a subgraph." );
-
-        position += delta;
-    }
-
-    {
-        osgText::Text* text = new  osgText::Text;
-        geode->addDrawable( text );
-
-        text->setFont( timesFont );
-        text->setPosition( position );
-        text->setText( "Then place an osg::Camera above the subgraph\n"
-                        "to create an orthographic projection.\n" );
-
-        position += delta;
-    }
-
-    {
-        osgText::Text* text = new  osgText::Text;
-        geode->addDrawable( text );
-
-        text->setFont( timesFont );
-        text->setPosition( position );
-        text->setText( "Set the Camera's ReferenceFrame to ABSOLUTE_RF to ensure\n"
-                        "it remains independent from any external model view matrices." );
-
-        position += delta;
-    }
-
-    {
-        osgText::Text* text = new  osgText::Text;
-        geode->addDrawable( text );
-
-        text->setFont( timesFont );
-        text->setPosition( position );
-        text->setText( "And set the Camera's clear mask to just clear the depth buffer." );
-
-        position += delta;
-    }
-
-    {
-        osgText::Text* text = new  osgText::Text;
-        geode->addDrawable( text );
-
-        text->setFont( timesFont );
-        text->setPosition( position );
-        text->setText( "And finally set the Camera's RenderOrder to POST_RENDER\n"
-                        "to make sure its drawn last." );
-
-        position += delta;
-    }
-
-    {
-        osg::BoundingBox bb;
-        for( unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+        for( size_t segment = 0; segment < m_eeg->getNumberOfSegments(); ++segment )
         {
-            bb.expandBy( geode->getDrawable( i )->getBound() );
+            debugLog() << "  Segment " << segment;
+            size_t nbSamples = m_eeg->getNumberOfSamples( segment );
+            debugLog() << "    Number of Samples: " << nbSamples;
+
+            for( size_t channel = 0; channel < nbChannels; ++channel )
+            {
+                debugLog() << "    Channel " << channel;
+                debugLog() << "      Channel label: " << m_eeg->getChannelLabel( channel );
+
+                // create text geode for the channel label
+                osgText::Text* text = new osgText::Text;
+                text->setText( m_eeg->getChannelLabel( channel ) );
+                text->setPosition( textOffset );
+                text->setAlignment( osgText::Text::RIGHT_CENTER );
+                text->setAxisAlignment( osgText::Text::SCREEN );
+                text->setCharacterSize( textSize );
+                text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+                text->setColor( textColor );
+
+                osg::Geode* textGeode = new osg::Geode;
+                textGeode->addDrawable( text );
+
+                // create geode to draw the actual data as line strip
+                osg::Geometry* geometry = new osg::Geometry;
+
+                osg::Vec3Array* vertices = new osg::Vec3Array( nbSamples );
+                for( size_t sample = 0; sample < nbSamples; ++sample )
+                {
+                    (*vertices)[sample] = osg::Vec3( sample, (*m_eeg)( segment, channel, sample ), 0.0 );
+                }
+                geometry->setVertexArray( vertices );
+
+                osg::Vec4Array* colors = new osg::Vec4Array;
+                colors->push_back( linesColor );
+                geometry->setColorArray( colors );
+                geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+                geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, nbSamples ) );
+
+                osg::Geode* linesGeode = new osg::Geode;
+                linesGeode->addDrawable( geometry );
+
+                // create the matrix transform nodes
+                osg::MatrixTransform* scale = new osg::MatrixTransform;
+                scale->setMatrix( scaleMatrix );
+
+                osg::MatrixTransform* translate = new osg::MatrixTransform;
+                translate->setMatrix( osg::Matrix::translate( xOffset, 2 * spacing * ( nbChannels - channel ) - spacing, 0.0 ) );
+
+                // connect all creates nodes
+                scale->addChild( linesGeode );
+                translate->addChild( textGeode );
+                translate->addChild( scale );
+                m_rootNode->addChild( translate );
+            }
         }
-
-        osg::Geometry* geom = new osg::Geometry;
-
-        osg::Vec3Array* vertices = new osg::Vec3Array;
-        float depth = bb.zMin()-0.1;
-        vertices->push_back( osg::Vec3( bb.xMin(), bb.yMax(), depth ) );
-        vertices->push_back( osg::Vec3( bb.xMin(), bb.yMin(), depth ) );
-        vertices->push_back( osg::Vec3( bb.xMax(), bb.yMin(), depth ) );
-        vertices->push_back( osg::Vec3( bb.xMax(), bb.yMax(), depth ) );
-        geom->setVertexArray( vertices );
-
-        osg::Vec3Array* normals = new osg::Vec3Array;
-        normals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
-        geom->setNormalArray( normals );
-        geom->setNormalBinding( osg::Geometry::BIND_OVERALL );
-
-        osg::Vec4Array* colors = new osg::Vec4Array;
-        colors->push_back( osg::Vec4( 1.0f, 1.0, 0.8f, 0.2f ) );
-        geom->setColorArray( colors );
-        geom->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-        geom->addPrimitiveSet( new osg::DrawArrays( GL_QUADS, 0, 4 ) );
-
-        osg::StateSet* stateset = geom->getOrCreateStateSet();
-        stateset->setMode( GL_BLEND, osg::StateAttribute::ON );
-        //stateset->setAttribute(new osg::PolygonOffset(1.0f,1.0f),osg::StateAttribute::ON);
-        stateset->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-
-        geode->addDrawable( geom );
     }
-
-    return geode;
 }

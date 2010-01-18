@@ -30,16 +30,25 @@
 #include "../WROIBox.h"
 
 /**
- * TODO(wiebel): Document this!
+ * Test for WROIBox
  */
 class WROIBoxTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(wiebel): Document this!
+     * I would like to test instantiation here, but WROIBox needs nearly a complete
+     * running GUI and GE with the "main" viewer. This seemed to much effort for
+     * this small test to me.
      */
-    void testSomething( void )
+    void testInstantiation( void )
     {
+//         wmath::WPosition maxPos;
+//         wmath::WPosition minPos;
+//         WLogger logger;
+//         boost::shared_ptr< WGUI > gui = boost::shared_ptr< WGUI >( new WQt4Gui( 0, 0 ) );
+//         boost::shared_ptr< WGraphicsEngine > ge = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine );
+//         WKernel kernel( ge, gui );
+//         TS_ASSERT_THROWS_NOTHING( WROIBox( minPos, maxPos ) );
     }
 };
 

@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
+#include <vector>
+
 #include "WGridRegular3D.h"
 #include "../math/WLinearAlgebraFunctions.h"
 
@@ -122,6 +125,33 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                                wmath::WPosition origin,
+                                double offsetX, double offsetY, double offsetZ )
+    : WGrid( nbPosX * nbPosY * nbPosZ ),
+      m_origin( origin ),
+      m_nbPosX( nbPosX ),
+      m_nbPosY( nbPosY ),
+      m_nbPosZ( nbPosZ ),
+      m_directionX( WVector3D( offsetX, 0., 0. ) ),
+      m_directionY( WVector3D( 0., offsetY, 0. ) ),
+      m_directionZ( WVector3D( 0., 0., offsetZ ) ),
+      m_offsetX( offsetX ),
+      m_offsetY( offsetY ),
+      m_offsetZ( offsetZ ),
+      m_matrix( 4, 4 ),
+      m_matrixInverse( 3, 3 )
+{
+    m_matrix( 0, 0 ) = offsetX;
+    m_matrix( 1, 1 ) = offsetY;
+    m_matrix( 2, 2 ) = offsetZ;
+    m_matrix( 0, 3 ) = origin[0];
+    m_matrix( 1, 3 ) = origin[1];
+    m_matrix( 2, 3 ) = origin[2];
+
+    m_matrix( 3, 3 ) = 1.;
+}
+
+WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double offsetX, double offsetY, double offsetZ )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
       m_origin( WPosition( 0., 0., 0. ) ),
@@ -153,7 +183,8 @@ WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigne
 {
     return m_origin + iX * m_directionX + iY * m_directionY + iZ * m_directionZ;
 }
-wmath::WMatrix<double> WGridRegular3D::getTransformationMatrix() const
+
+wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
 {
     return m_matrix;
 }
@@ -170,3 +201,102 @@ osg::Vec3 WGridRegular3D::transformTexCoord( osg::Vec3 point )
 
     return osg::Vec3( r[0], r[1], r[2] );
 }
+
+int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const
+{
+    // Note: the reason for the +1 is that the first and last Voxel in a x-axis
+    // row are cutted.
+    //
+    //  y-axis
+    //  _|_______     ___ this is the 3rd Voxel
+    // 1 |   |   |   v
+    //   |...............
+    //  _|_:_|_:_|_:_|_:____ x-axis
+    //   | : | : | : | :
+    //   |.:...:...:...:.
+    //   0   1   2
+    int xVoxelCoord = getXVoxelCoord( pos );
+    int yVoxelCoord = getYVoxelCoord( pos );
+    int zVoxelCoord = getZVoxelCoord( pos );
+    if( xVoxelCoord == -1 || yVoxelCoord == -1 || zVoxelCoord == -1 )
+    {
+        return -1;
+    }
+    return xVoxelCoord
+         + yVoxelCoord * ( m_nbPosX + 1 )
+         + zVoxelCoord * ( m_nbPosX + 1 ) * ( m_nbPosY + 1 );
+}
+
+int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const
+{
+    double result = pos[ axis ] - m_origin[ axis ];
+    unsigned int nbAxisPos = 0;
+    double offsetAxis = 0;
+    switch( axis )
+    {
+        case 0 : nbAxisPos = m_nbPosX;
+                 offsetAxis = m_offsetX;
+                 break;
+        case 1 : nbAxisPos = m_nbPosY;
+                 offsetAxis = m_offsetY;
+                 break;
+        case 2 : nbAxisPos = m_nbPosZ;
+                 offsetAxis = m_offsetZ;
+                 break;
+        default : assert( 1 == 0 && "invalid axis selected, must be between 0 and 2, including 0 and 2" );
+    }
+    if( result < 0 || result >= offsetAxis * nbAxisPos )
+    {
+        return -1;
+    }
+    assert( offsetAxis != 0.0 );
+    int integerFactor = std::floor( result / offsetAxis );
+    double remainder = result - integerFactor * offsetAxis;
+    double x = integerFactor + std::floor( remainder / ( offsetAxis * 0.5 ) );
+    // std::cout << "Axis: factor, remainder, Voxelpos: " << axis << " " << integerFactor << " " << remainder << " " << x << std::endl;
+    return x;
+}
+
+int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
+{
+    return getNVoxelCoord( pos, 0 );
+}
+
+int WGridRegular3D::getYVoxelCoord( const wmath::WPosition& pos ) const
+{
+    return getNVoxelCoord( pos, 1 );
+}
+
+int WGridRegular3D::getZVoxelCoord( const wmath::WPosition& pos ) const
+{
+    return getNVoxelCoord( pos, 2 );
+}
+
+wmath::WValue< int > WGridRegular3D::getVoxelCoord( const wmath::WPosition& pos ) const
+{
+    wmath::WValue< int > result( 3 );
+    result[0] = getXVoxelCoord( pos );
+    result[1] = getYVoxelCoord( pos );
+    result[2] = getZVoxelCoord( pos );
+    return result;
+}
+
+boost::shared_ptr< std::vector< wmath::WPosition > > WGridRegular3D::getVoxelVertices( const wmath::WPosition& point ) const
+{
+    typedef boost::shared_ptr< std::vector< wmath::WPosition > > ReturnType;
+    ReturnType result = ReturnType( new std::vector< wmath::WPosition > );
+    result->reserve( 8 );
+    double halfMarginX = m_offsetX / 2.0;
+    double halfMarginY = m_offsetY / 2.0;
+    double halfMarginZ = m_offsetZ / 2.0;
+    result->push_back( wmath::WPosition( point[0] - halfMarginX, point[1] - halfMarginY, point[2] - halfMarginZ ) ); // a
+    result->push_back( wmath::WPosition( point[0] + halfMarginX, point[1] - halfMarginY, point[2] - halfMarginZ ) ); // b
+    result->push_back( wmath::WPosition( point[0] + halfMarginX, point[1] - halfMarginY, point[2] + halfMarginZ ) ); // c
+    result->push_back( wmath::WPosition( point[0] - halfMarginX, point[1] - halfMarginY, point[2] + halfMarginZ ) ); // d
+    result->push_back( wmath::WPosition( point[0] - halfMarginX, point[1] + halfMarginY, point[2] - halfMarginZ ) ); // e
+    result->push_back( wmath::WPosition( point[0] + halfMarginX, point[1] + halfMarginY, point[2] - halfMarginZ ) ); // f
+    result->push_back( wmath::WPosition( point[0] + halfMarginX, point[1] + halfMarginY, point[2] + halfMarginZ ) ); // g
+    result->push_back( wmath::WPosition( point[0] - halfMarginX, point[1] + halfMarginY, point[2] + halfMarginZ ) ); // h
+    return result;
+}
+

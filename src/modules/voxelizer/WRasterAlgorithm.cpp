@@ -22,25 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WVOXELIZER_TEST_H
-#define WVOXELIZER_TEST_H
+#include <vector>
 
-#include <cxxtest/TestSuite.h>
+#include <boost/shared_ptr.hpp>
 
-#include "../WVoxelizer.h"
+#include "../../common/WLogger.h"
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "WRasterAlgorithm.h"
 
-/**
- * TODO(lmath): Document this!
- */
-class WVoxelizerTest : public CxxTest::TestSuite
+WRasterAlgorithm::WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid )
+    : m_grid( grid ),
+      m_values( grid->size(), 0.0 )
 {
-public:
-    /**
-     * TODO(lmath): Document this!
-     */
-    void testSomething( void )
-    {
-    }
-};
+    // NOTE: I assume the Voxelizer class is only used by the WMVoxelizer module, hence the
+    // source is "Voxelizer".
+    wlog::debug( "Voxelizer" ) << "WRasterAlogrithm created " << m_values.size() << " values.";
+}
 
-#endif  // WVOXELIZER_TEST_H
+WRasterAlgorithm::~WRasterAlgorithm()
+{
+}
+
+boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateDataSet() const
+{
+    boost::shared_ptr< WDataSetSingle > result;
+    boost::shared_ptr< WValueSet< double > > valueSet;
+    valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, m_values, W_DT_DOUBLE ) );
+    result = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
+    return result;
+}

@@ -1253,7 +1253,7 @@ def CheckForNonStandardConstructs(filename, clean_lines, linenum,
 
   # Track class entry and exit, and attempt to find cases within the
   # class declaration that don't meet the C++ style
-  # guidelines. Tracking is very dependent on the code matching Google
+  # guidelines. Tracking is very dependent on the code matching OpenWalnut
   # style guidelines, but it seems to perform well enough in testing
   # to be a worthwhile addition to the checks.
   classinfo_stack = class_state.classinfo_stack
@@ -2260,13 +2260,6 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
           'For a static/global string constant, use a C style string instead: '
           '"%schar %s[]".' %
           (match.group(1), match.group(2)))
-
-  # Check that we're not using RTTI outside of testing code.
-  if Search(r'\bdynamic_cast<', line) and not _IsTestFilename(filename):
-    error(filename, linenum, 'runtime/rtti', 5,
-          'Do not use dynamic_cast<>.  If you need to cast within a class '
-          "hierarchy, use static_cast<> to upcast.  Google doesn't support "
-          'RTTI.')
 
   if Search(r'\b([A-Za-z0-9_]*_)\(\1\)', line):
     error(filename, linenum, 'runtime/init', 4,

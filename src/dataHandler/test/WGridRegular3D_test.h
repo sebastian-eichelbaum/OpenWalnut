@@ -29,6 +29,8 @@
 #include <sstream>
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../../math/test/WVector3DTraits.h"
@@ -322,6 +324,109 @@ public:
         TS_ASSERT_DELTA( grid.getPosition( i )[0], expected[0], m_delta );
         TS_ASSERT_DELTA( grid.getPosition( i )[1], expected[1], m_delta );
         TS_ASSERT_DELTA( grid.getPosition( i )[2], expected[2], m_delta );
+    }
+
+    /**
+     * The cell number of a Position is defined as follows:
+     *
+       \verbatim
+        y-axis
+          |_____ _____ ___   _
+        3 |     |     |       |
+          |     |     | ...   + dy
+          |_____|_____|___   _|
+        2 |     | . Line
+          |     |/    | ...
+          |_____/___ _|___
+        1 |    /|     |
+          |   ' |     | ...
+          |_____|_____|______ x-axis
+         /0     1     2
+        / `--.--´
+       /    dx
+       origin e.g. ( 3.1, 3.2, -6 ) and dx == dy == 1.0 ( the z-axis is ignored in this example )
+       \endverbatim
+     *
+     * Hence the line starts at approx. ( 3.85, 3.7, -6 ) and ends at
+     * approx. ( 4.35, 5.0 , -6 ). The Cell number e.g. of the start point
+     * is then: 4 and of the end point: 7.
+     */
+    void testGetVoxelNumberOfGeneralPosition( void )
+    {
+        using boost::shared_ptr;
+        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 2, 2, 2, 3.1, 3.2, -6, 1, 1, 1 ) );
+        // std::cout << std::fixed << std::setprecision( 16 ) << g->getCellCoord( wmath::WPosition( 4.35, 5.0, -6 ) ) << std::endl;
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 4.35, 5.0, -6 ) ), 7 );
+    }
+
+    /**
+     * If a grid point is outside of the grid then -1 should be returned.
+     */
+    void testGetVoxelNumberOfPositionOutsideOfGrid( void )
+    {
+        using boost::shared_ptr;
+        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 2, 2, 2, 0, 0, 0, 1, 1, 1 ) );
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0 - m_delta, 0, 0 ) ), -1 );
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0, 2 + m_delta, 0 ) ), -1 );
+    }
+
+    /**
+     * All points of the surfaces belonging to the lower,left,front corner of a
+     * voxel belong to this voxel. Instead all points located on the three
+     * surfaces belonging to the upper right back corner are considered not to
+     * belong to this voxel.
+     */
+    void testGetVoxelNumberOfPositionExactlyBetweenVoxels( void )
+    {
+        // A voxel is defined as this ( a cuboid with a center which is a grid point ):
+        //             ______________ ____ (0.5, 0.5, 0.5)
+        //            /:            /|
+        //           / :           / |
+        //          /  :          /  |
+        //         /   :         /   |
+        //       _/____:_ ___ __/    |
+        //        |    :        |    |
+        //        |    :    *<--|--------- grid point (0, 0, 0)
+        //        |    :........|....|__
+        // dz == 1|   ´         |   /
+        //        |  ´          |  / dy == 1
+        //        | ´           | /
+        //       _|´____________|/__
+        //        |<- dx == 1 ->|
+        // -0.5,-0.5,-0.5
+        //
+        // the grid is as follows
+        //         ______________ ____ 2,2,2
+        //        /:     /      /|
+        //       / :    /:     / |
+        //      /------+------/| |
+        //     /   :……/……:………/…|…|
+        //    /____:_/___:__/  | |---- 2,2,1
+        //    |    : |   :  |  |/|
+        //    |    : |   :  |  | |
+        //    |    :.|...:..| /| |____ 2,2,0
+        //    +------+------+´ |/
+        //    |  '   |      |  /---- 2,1,0
+        //    | '    |      | /
+        //    |'_____|______|/____
+        //    |      |      |
+        // 0,0,0   1,0,0  2,0,0
+
+        using boost::shared_ptr;
+        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 2, 2, 2, 0, 0, 0, 1, 1, 1 ) );
+
+        // center point of the grid
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 1, 1, 1 ) ), 13 );
+
+        // front lower left corner of the last cell
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 1.5, 1.5, 1.5 ) ), 26 );
+
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 1, 1, 0.5 ) ), 13 );
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0 , 1.5 , 1 ) ), 15 );
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0.5, 1, 0 ) ), 4 );
+
+        // origin
+        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0, 0, 0 ) ), 0 );
     }
 
 private:

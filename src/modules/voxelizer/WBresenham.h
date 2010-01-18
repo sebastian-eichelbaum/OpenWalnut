@@ -22,60 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEEGTEST_H
-#define WMEEGTEST_H
+#ifndef WBRESENHAM_H
+#define WBRESENHAM_H
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
-#include "../../kernel/WModule.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../math/WLine.h"
+#include "WRasterAlgorithm.h"
 
 /**
- * Simple module for testing Eeg loading stuff.
- * \ingroup modules
+ * Implementes basic bresenham algorithm for rasterization.
  */
-class WMEEGTest: public WModule
+class WBresenham : public WRasterAlgorithm
 {
 public:
+    /**
+     * Initializes new raster algo.
+     */
+    explicit WBresenham( boost::shared_ptr< WGridRegular3D > grid );
 
     /**
-     * Default constructor.
+     * Finishes this raster algo.
      */
-    WMEEGTest();
+    virtual ~WBresenham();
 
     /**
-     * Destructor.
+     * Rasterize the given line into the grid of dataset.
+     * The value of the voxel which will be hit changes its value.
+     *
+     *\param line Polyline which is about to be rastered.
      */
-    virtual ~WMEEGTest();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
-
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual boost::shared_ptr< WModule > factory() const;
+    virtual void raster( const wmath::WLine& line );
 
 protected:
-
     /**
-     * Entry point after loading the module. Runs in separate thread.
+     *
+     *
+     *\param start
+     *\param stop
      */
-    virtual void moduleMain();
+    void rasterSegment( const wmath::WValue< int >& start, const wmath::WValue< int >& stop );
 
 private:
 };
 
-#endif  // WMEEGTEST_H
-
+#endif  // WBRESENHAM_H

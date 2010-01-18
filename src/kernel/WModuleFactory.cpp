@@ -31,7 +31,6 @@
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/data/WMData.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
-#include "../modules/eegTest/WMEEGTest.h"
 #include "../modules/eegView/WMEEGView.h"
 #include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../modules/fiberCulling/WMFiberCulling.h"
@@ -75,7 +74,6 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberCulling() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMCoordinateSystem() ) );
-    m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGTest() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMTextureList() ) );

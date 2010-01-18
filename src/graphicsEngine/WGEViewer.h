@@ -175,11 +175,6 @@ protected:
     std::string m_name;
 
     /**
-     * The projection mode of the viewer.
-     */
-    WGECamera::ProjectionMode m_projectionMode;
-
-    /**
      * Pointer to the pick handler of the viewer.
      */
     osg::ref_ptr<WPickHandler> m_pickHandler;

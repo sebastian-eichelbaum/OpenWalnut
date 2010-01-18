@@ -98,6 +98,7 @@ protected:
 
     std::string m_hitResult; //!< Textual representation of the result of a pick.
     wmath::WPosition m_hitPosGlobal; //!< Global coordinates of the first hit of the pick.
+    std::string m_lastPick; //!< indicates what was last picked. Should be "" after unpick.
 
 private:
     boost::signals2::signal1<void, std::string > m_pickSignal; //!< One can register to this signal to receive pick events.

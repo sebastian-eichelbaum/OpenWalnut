@@ -46,11 +46,6 @@ public:
     WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos );
 
     /**
-     * Yields minimal box with both extremal points minPos and maxPos at the origin.
-     */
-    WROIBox();
-
-    /**
      * Get the corner of the box that has minimal x, y and z values
      */
     wmath::WPosition getMinPos() const;
@@ -62,7 +57,7 @@ public:
 
 protected:
 private:
-    static size_t maxBoxId; //!< Current macimum boxId over all boxes.
+    static size_t maxBoxId; //!< Current maximum boxId over all boxes.
     size_t boxId; //!< Id of the current box.
 
     wmath::WPosition m_minPos; //!< The minimum position of the box
