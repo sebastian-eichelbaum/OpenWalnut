@@ -26,12 +26,13 @@
 #define WQTMODULETREEITEM_H
 
 #include <QtGui/QTreeWidgetItem>
+#include <QtGui/QProgressBar>
 #include "../../../kernel/WModule.h"
 
 /**
  * TODO(schurade): Document this!
  */
-class WQtModuleTreeItem  : public QTreeWidgetItem
+class WQtModuleTreeItem: public QTreeWidgetItem
 {
 public:
     /**
@@ -50,7 +51,6 @@ public:
      * get for the module pointer
      */
     boost::shared_ptr< WModule >getModule();
-
 
 protected:
 private:

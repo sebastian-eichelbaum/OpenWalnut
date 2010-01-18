@@ -46,6 +46,7 @@ public:
      * Initializes the batchloader but does not start it. Use run().
      *
      * \param fileNames the files to load.
+     * \param targetContainer the container to which the data modules should be added.
      */
     WBatchLoader( std::vector< std::string > fileNames, boost::shared_ptr< WModuleContainer > targetContainer );
 

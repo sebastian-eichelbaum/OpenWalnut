@@ -266,6 +266,11 @@ boost::shared_ptr< WProperties > WModule::getProperties() const
     return m_properties;
 }
 
+boost::shared_ptr< WProgressCombiner > WModule::getRootProgressCombiner()
+{
+    return m_progress;
+}
+
 void WModule::ready()
 {
     m_isReady( true );

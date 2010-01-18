@@ -175,6 +175,13 @@ public:
      */
     virtual std::set< boost::shared_ptr< WModule > > getCompatibles();
 
+    /**
+     * Gets the modules base progress. This is actually a progress combiner, which bundles all progresses.
+     *
+     * \return the progress combiner for this module.
+     */
+    virtual boost::shared_ptr< WProgressCombiner > getRootProgressCombiner();
+
 protected:
 
     /**
