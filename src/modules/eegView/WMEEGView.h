@@ -91,11 +91,18 @@ protected:
     virtual void properties();
 
     /**
+     * Gets called whenever a connector gets connected to the specified input.
+     * Sets the m_dataChanged flag.
+     */
+    virtual void notifyConnectionEstablished(
+        boost::shared_ptr< WModuleConnector > /*here*/, boost::shared_ptr< WModuleConnector > /*there*/ );
+
+    /**
      * Gets called when the data on one input connector changed.
      * Sets the m_dataChanged flag.
      */
-
-    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ );
+    virtual void notifyDataChange(
+        boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ );
 
     /**
      * Entry point after loading the module. Runs in separate thread.

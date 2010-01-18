@@ -24,14 +24,16 @@
 
 #include <string>
 
-#include "../../kernel/WKernel.h"
+#include "../../common/WConditionOneShot.h"
 #include "../../graphicsEngine/WGEViewer.h"
+#include "../../kernel/WKernel.h"
 #include "WMEEGView.h"
+
 
 WMEEGView::WMEEGView()
     : WModule(),
-      m_dataChanged( new WCondition, true ),
-      m_isActive( new WCondition, true ),
+      m_dataChanged( new WConditionOneShot, true ), // should be false, workaround until ticket #225 is fixed
+      m_isActive( new WConditionOneShot, true ),
       m_wasActive( false )
 {
 }
@@ -88,7 +90,14 @@ void WMEEGView::slotPropertyChanged( std::string propertyName )
     }
 }
 
-void WMEEGView::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ )
+void WMEEGView::notifyConnectionEstablished(
+    boost::shared_ptr< WModuleConnector > /*here*/, boost::shared_ptr< WModuleConnector > /*there*/ )
+{
+    m_dataChanged.set( true );
+}
+
+void WMEEGView::notifyDataChange(
+    boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ )
 {
     m_dataChanged.set( true );
 }
@@ -106,12 +115,17 @@ void WMEEGView::moduleMain()
     // signal ready
     ready();
 
+    sleep( 1 ); // should not be there, workaround until ticket #225 is fixed
+
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         // data changed?
         if( m_dataChanged() )
         {
-            m_dataChanged.set( false );
+            debugLog() << "Data changed";
+            m_moduleState.remove( m_dataChanged.getCondition() );
+            m_dataChanged = WBoolFlag( new WConditionOneShot, false );
+            m_moduleState.add( m_dataChanged.getCondition() );
             m_eeg = m_input->getData();
             redraw();
         }
@@ -120,7 +134,10 @@ void WMEEGView::moduleMain()
         bool isActive = m_isActive();
         if( isActive != m_wasActive )
         {
-            if ( isActive )
+            m_moduleState.remove( m_isActive.getCondition() );
+            m_isActive = WBoolFlag( new WConditionOneShot, isActive );
+            m_moduleState.add( m_isActive.getCondition() );
+            if( isActive )
             {
                 if( !openCustomWidget() )
                 {
