@@ -216,9 +216,9 @@ public:
     wmath::WMatrix<double> getTransformationMatrix() const;
 
     /**
-     *
+     * Transforms coordinates from world to texture space
      */
-    osg::Vec3 transformTexCoord( osg::Vec3 point );
+    wmath::WVector3D transformTexCoord( wmath::WPosition point );
 
     /**
      * Returns the i'th voxel where the given position belongs too.

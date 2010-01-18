@@ -166,6 +166,11 @@ void WMNavSlices::create()
     m_rootNode->setUpdateCallback( new sliceNodeCallback );
 }
 
+osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
+{
+    return osg::Vec3( v[0], v[1], v[2] );
+}
+
 osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 {
     float maxDim = 255.0;
@@ -215,10 +220,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     float texZOff = 255.0 / maxZ;
 
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     texY, 0.0     ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     texY, texZOff ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, texY, texZOff ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, texY, 0.0     ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, 0.0     ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, texZOff ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, texZOff ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, 0.0     ) ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
@@ -251,10 +256,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     float texZOff = 255.0 / maxZ;
 
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, 0.0,     0.0     ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, 0.0,     texZOff ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, texYOff, texZOff ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texX, texYOff, 0.0     ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texX, 0.0,     0.0     ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texX, 0.0,     texZOff ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texX, texYOff, texZOff ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texX, texYOff, 0.0     ) ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
@@ -287,10 +292,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     0.0,     texZ ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( 0.0,     texYOff, texZ ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, texYOff, texZ ) ) );
-                    texCoords->push_back( grid->transformTexCoord( osg::Vec3( texXOff, 0.0,     texZ ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     0.0,     texZ ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texYOff, texZ ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texYOff, texZ ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, 0.0,     texZ ) ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
