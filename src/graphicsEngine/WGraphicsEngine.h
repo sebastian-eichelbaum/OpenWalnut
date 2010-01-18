@@ -27,6 +27,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
@@ -34,12 +35,15 @@
 
 #include <osg/Camera>
 #include <osg/Texture3D>
+#include <osg/Vec3>
 #include <osg/Vec4>
+#include <osg/ref_ptr>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
 #include <osgViewer/Viewer>
 
 #include "../common/WThreadedRunner.h"
+#include "../math/WPosition.h"
 #include "WGEGraphicsWindow.h"
 #include "WGEScene.h"
 #include "WGEViewer.h"
@@ -197,6 +201,45 @@ namespace wge
      *\return A color which may be used inside of OSG
      */
     osg::Vec4 osgColor( const WColor& color );
+
+    /**
+     * Converts a given WPosition into an osg::Vec3.
+     *
+     * \param pos The WPosition which should be converted
+     *
+     * \return The osg::Vec3 vector of pos
+     */
+    osg::Vec3 osgVec3( const wmath::WPosition& pos );
+
+    /**
+     * Converts a whole vector of WPositions into an osg::Vec3Array.
+     *
+     * \param posArray The given positions vector
+     *
+     * \return Refernce to the same vector but as osg::Vec3Array.
+     */
+    osg::ref_ptr< osg::Vec3Array > osgVec3Array( const std::vector< wmath::WPosition >& posArray );
+
+    /**
+     * Creates out of eight corner vertices QUAD vertices.
+     *
+     * \param corners The eight corner vertices which must be in the following order:
+     *
+     * \verbatim
+        z-axis  y-axis
+        |      /
+        | h___/_g
+        |/:    /|
+        d_:___c |
+        | :...|.|
+        |.e   | f
+        |_____|/ ____x-axis
+       a      b
+       \endverbatim
+     *
+     * \return OSG vertex array where every four vertices describing a QUAD.
+     */
+    osg::ref_ptr< osg::Vec3Array > generateCuboidQuads( const std::vector< wmath::WPosition >& corners );
 } // end of namespace
 
 #endif  // WGRAPHICSENGINE_H

@@ -25,6 +25,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../math/WLine.h"
+#include "../../math/WValue.h"
 #include "WBresenham.h"
 
 WBresenham::WBresenham( boost::shared_ptr< WGridRegular3D > grid )
@@ -34,4 +36,116 @@ WBresenham::WBresenham( boost::shared_ptr< WGridRegular3D > grid )
 
 WBresenham::~WBresenham()
 {
+}
+
+void WBresenham::raster( const wmath::WLine& line )
+{
+    assert( line.size() > 1 );
+    for( size_t i = 1; i < line.size(); ++i )
+    {
+        wmath::WValue< int > start = m_grid->getVoxelCoord( line[i-1] );
+        wmath::WValue< int > stop = m_grid->getVoxelCoord( line[i] );
+        rasterSegment( start, stop );
+    }
+}
+
+void WBresenham::rasterSegment( const wmath::WValue< int >& start, const wmath::WValue< int >& stop )
+{
+    int x1 = start[0];
+    int y1 = start[1];
+    int z1 = start[2];
+    int x2 = stop[0];
+    int y2 = stop[1];
+    int z2 = stop[2];
+    int i;
+    int dx, dy, dz;
+    int l, m, n;
+    int x_inc, y_inc, z_inc;
+    int err_1, err_2;
+    int dx2, dy2, dz2;
+    wmath::WValue< int > voxel( 3 );
+
+    voxel[0] = x1;
+    voxel[1] = y1;
+    voxel[2] = z1;
+    dx = x2 - x1;
+    dy = y2 - y1;
+    dz = z2 - z1;
+    x_inc = ( dx < 0 ) ? -1 : 1;
+    l = std::abs( dx );
+    y_inc = ( dy < 0 ) ? -1 : 1;
+    m = std::abs( dy );
+    z_inc = ( dz < 0 ) ? -1 : 1;
+    n = std::abs( dz );
+    dx2 = l << 1;
+    dy2 = m << 1;
+    dz2 = n << 1;
+
+    if( ( l >= m ) && ( l >= n ) )
+    {
+        err_1 = dy2 - l;
+        err_2 = dz2 - l;
+        for( i = 0; i < l; i++ )
+        {
+            markVoxel( voxel );
+            if( err_1 > 0 )
+            {
+                voxel[1] += y_inc;
+                err_1 -= dx2;
+            }
+            if( err_2 > 0 )
+            {
+                voxel[2] += z_inc;
+                err_2 -= dx2;
+            }
+            err_1 += dy2;
+            err_2 += dz2;
+            voxel[0] += x_inc;
+        }
+    }
+    else if( ( m >= l ) && ( m >= n ) )
+    {
+        err_1 = dx2 - m;
+        err_2 = dz2 - m;
+        for( i = 0; i < m; i++ )
+        {
+            markVoxel( voxel );
+            if( err_1 > 0 )
+            {
+                voxel[0] += x_inc;
+                err_1 -= dy2;
+            }
+            if( err_2 > 0 )
+            {
+                voxel[2] += z_inc;
+                err_2 -= dy2;
+            }
+            err_1 += dx2;
+            err_2 += dz2;
+            voxel[1] += y_inc;
+        }
+    }
+    else
+    {
+        err_1 = dy2 - n;
+        err_2 = dx2 - n;
+        for( i = 0; i < n; i++ )
+        {
+            markVoxel( voxel );
+            if( err_1 > 0 )
+            {
+                voxel[1] += y_inc;
+                err_1 -= dz2;
+            }
+            if( err_2 > 0 )
+            {
+                voxel[0] += x_inc;
+                err_2 -= dz2;
+            }
+            err_1 += dy2;
+            err_2 += dx2;
+            voxel[2] += z_inc;
+        }
+    }
+    markVoxel( voxel );
 }

@@ -25,12 +25,15 @@
 #ifndef WGRIDREGULAR3D_H
 #define WGRIDREGULAR3D_H
 
-#include "../math/WPosition.h"
-#include "../math/WVector3D.h"
-#include "../math/WMatrix.h"
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include <osg/Vec3>
 
+#include "../math/WMatrix.h"
+#include "../math/WPosition.h"
+#include "../math/WVector3D.h"
 #include "WGrid.h"
 
 /**
@@ -107,6 +110,23 @@ public:
     WGridRegular3D(
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                    double originX, double originY, double originZ,
+                   double offsetX, double offsetY, double offsetZ );
+
+    /**
+     * Defines the position of the origin of the grid, the number of
+     * samples in each coordinate direction and the offset between the
+     * samples in the different coordinate directions as scalar.
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param origin the point of origin of this grid
+     * \param offsetX distance of samples along first axis
+     * \param offsetY distance of samples along second axis
+     * \param offsetZ distance of samples along third axis
+     */
+    WGridRegular3D(
+                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                   wmath::WPosition origin,
                    double offsetX, double offsetY, double offsetZ );
 
     /**
@@ -200,8 +220,122 @@ public:
      */
     osg::Vec3 transformTexCoord( osg::Vec3 point );
 
+    /**
+     * Returns the i'th voxel where the given position belongs too.
+     *
+     * A voxel is a cuboid which surrounds a point on the grid.
+     *
+     * \verbatim
+      Voxel:
+                     ______________ ____ (0.5, 0.5, 0.5)
+                    /:            /|
+                   / :           / |
+                  /  :          /  |
+                 /   :         /   |
+               _/____:_ ___ __/    |
+                |    :        |    |
+                |    :    *<--|--------- grid point (0, 0, 0)
+                |    :........|....|__
+         dz == 1|   ´         |   /
+                |  ´          |  / dy == 1
+                | ´           | /
+               _|´____________|/__
+                |<- dx == 1 ->|
+         -0.5,-0.5,-0.5
+       \endverbatim
+     *
+     * Please note the first voxel has only 1/8 of the size a normal voxel
+     * would have since all positions outside the grid does not belonging
+     * to any voxel. Note: a cell is different to a voxel in terms of position.
+     * A voxel has a grid point as center whereas a cell has grid points as
+     * corners.
+     * \param pos Position for which we want to have the voxel number.
+     *
+     * \return Voxel number or -1 if the position refers to a point outside of
+     * the grid.
+     */
+    int getVoxelNum( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the X coordinate of that voxel that contains the
+     * position pos.
+     *
+     * \param pos The position which selects the voxel for which the X
+     * coordinate is computed.
+     *
+     * \return The X coordinate or -1 if pos refers to point outside of the
+     * grid.
+     */
+    int getXVoxelCoord( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the Y coordinate of that voxel that contains the
+     * position pos.
+     *
+     * \param pos The position which selects the voxel for which the Y
+     * coordinate is computed.
+     *
+     * \return The Y coordinate or -1 if pos refers to point outside of the
+     * grid.
+     */
+    int getYVoxelCoord( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the Z coordinate of that voxel that contains the
+     * position pos.
+     *
+     * \param pos The position which selects the voxel for which the Z
+     * coordinate is computed.
+     *
+     * \return The Z coordinate or -1 if pos refers to point outside of the
+     * grid.
+     */
+    int getZVoxelCoord( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the voxel coordinates of that voxel which contains
+     * the position pos.
+     *
+     * \param pos The position selecting the voxel.
+     *
+     * \return A vector of ints where the first component is the X voxel
+     * coordinate, the second the Y component voxel coordinate and the last the
+     * Z component of the voxel coordinate. If the selecting position is
+     * outside of the grid then -1 -1 -1 is returned.
+     */
+    wmath::WValue< int > getVoxelCoord( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the vertices for a voxel cuboid around the given point:
+     *
+     * \verbatim
+        z-axis  y-axis
+        |      /
+        | h___/_g
+        |/:    /|
+        d_:___c |
+        | :...|.|
+        |.e   | f
+        |_____|/ ____x-axis
+       a      b
+       \endverbatim
+     *
+     * As you can see the order of the points is: a, b, c, d, e, f, g, h.
+     *
+     * \param point Center of the cuboid which must not necesarrily be a point
+     * of the grid.
+     *
+     * \return Reference to a list of vertices which are the corner points of
+     * the cube. Note this must not be a voxel, but has the same size of the an
+     * voxel. If you need voxels at grid positions fill this function with
+     * voxel center positions aka grid points.
+     */
+    boost::shared_ptr< std::vector< wmath::WPosition > > getVoxelVertices( const wmath::WPosition& point ) const;
+
 protected:
 private:
+    int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
+
     wmath::WPosition m_origin; //!< Origin of the grid.
 
     unsigned int m_nbPosX; //!< Number of positions in x direction

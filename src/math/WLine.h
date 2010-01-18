@@ -66,6 +66,13 @@ public:
     explicit WLine( const std::vector< WPosition > &points );
 
     /**
+     * Delivers a reference to the last point.
+     *
+     *\return Reference of the last point.
+     */
+    const WPosition& back() const;
+
+    /**
      * \param rhs Right hand side operand
      * \return true if both lines have a same point vector
      */
@@ -114,6 +121,11 @@ inline const WPosition& WLine::operator[]( size_t index ) const
 {
     assert( index < m_points.size() );
     return m_points[index];
+}
+
+inline const WPosition& WLine::back() const
+{
+    return m_points.back();
 }
 
 /**

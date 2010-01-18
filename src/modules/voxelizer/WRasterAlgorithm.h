@@ -35,18 +35,23 @@
 #include "WRasterAlgorithm.h"
 
 /**
- * TODO(math): Document this!
+ * Base class for all rasterization algorithms. The interface will be as
+ * follows: You need a WGridRegular3D grid and some geometry. The grid
+ * specifies the volume where you raster the geometry. For other geometries
+ * than lines please overload the raster() member function.
  */
 class WRasterAlgorithm
 {
 public:
     /**
-     * TODO(math): Document this!
+     * Creates new raster algorithm within the given grid. The grid may later
+     * also be used to generate a real DataSet, \see generateDataSet() for
+     * furter instructions.
      */
     explicit WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid );
 
     /**
-     * TODO(math): Document this!
+     * Dispose a this raster algorithm.
      */
     virtual ~WRasterAlgorithm();
 
@@ -71,7 +76,7 @@ protected:
     /**
      * Marks a given voxel as hit.
      */
-    virtual void markVoxel( int x, int y, int z );
+    virtual void markVoxel( const wmath::WValue< int >& voxel );
 
     /**
      * The grid is used for the following purposes:
@@ -91,9 +96,10 @@ protected:
 private:
 };
 
-inline void WRasterAlgorithm::markVoxel( int x, int y, int z )
+inline void WRasterAlgorithm::markVoxel( const wmath::WValue< int >& voxel )
 {
-    size_t idx = x + y * m_grid->getNbCoordsX() + z * m_grid->getNbCoordsX() * m_grid->getNbCoordsY();
+    assert( voxel.size() == 3 );
+    size_t idx = voxel[0] + voxel[1] * m_grid->getNbCoordsX() + voxel[2] * m_grid->getNbCoordsX() * m_grid->getNbCoordsY();
     m_values[ idx ] = 1.0;
 }
 

@@ -26,6 +26,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WLogger.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "WRasterAlgorithm.h"
@@ -34,6 +35,9 @@ WRasterAlgorithm::WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid )
     : m_grid( grid ),
       m_values( grid->size(), 0.0 )
 {
+    // NOTE: I assume the Voxelizer class is only used by the WMVoxelizer module, hence the
+    // source is "Voxelizer".
+    wlog::debug( "Voxelizer" ) << "WRasterAlogrithm created " << m_values.size() << " values.";
 }
 
 WRasterAlgorithm::~WRasterAlgorithm()

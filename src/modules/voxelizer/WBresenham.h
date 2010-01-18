@@ -28,25 +28,42 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../math/WLine.h"
 #include "WRasterAlgorithm.h"
 
 /**
- * TODO(lmath): Document this!
+ * Implementes basic bresenham algorithm for rasterization.
  */
 class WBresenham : public WRasterAlgorithm
 {
 public:
     /**
-     * TODO(lmath): Document this!
+     * Initializes new raster algo.
      */
     explicit WBresenham( boost::shared_ptr< WGridRegular3D > grid );
 
     /**
-     * TODO(lmath): Document this!
+     * Finishes this raster algo.
      */
     virtual ~WBresenham();
 
+    /**
+     * Rasterize the given line into the grid of dataset.
+     * The value of the voxel which will be hit changes its value.
+     *
+     *\param line Polyline which is about to be rastered.
+     */
+    virtual void raster( const wmath::WLine& line );
+
 protected:
+    /**
+     *
+     *
+     *\param start
+     *\param stop
+     */
+    void rasterSegment( const wmath::WValue< int >& start, const wmath::WValue< int >& stop );
+
 private:
 };
 
