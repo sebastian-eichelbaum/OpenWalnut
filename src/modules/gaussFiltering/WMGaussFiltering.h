@@ -42,6 +42,10 @@ class WPickHandler;
 
 /**
  * Gauss filtering for WDataSetSingle
+ *
+ * \problem It works only on double value sets so far.
+ * \reminder The boundary values will not be touched an considered to be zero. 
+ *
  * \ingroup modules
  */
 class WMGaussFiltering : public WModule
@@ -115,6 +119,6 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
-    boost::shared_ptr< WValueSet< int16_t > > m_vals; //!< Pointer providing access to the treated value set in the whole module.
+    boost::shared_ptr< WValueSet< double > > m_vals; //!< Pointer providing access to the treated value set in the whole module.
 };
 #endif  // WMGAUSSFILTERING_H
