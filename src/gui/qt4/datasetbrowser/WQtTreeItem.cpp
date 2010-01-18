@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <sstream>
+
 #include "../../../common/WProgressCombiner.h"
 #include "../../../common/WProgress.h"
 
@@ -67,14 +69,23 @@ void WQtTreeItem::update()
     // is it pending?
     if ( p->isPending() )
     {
-        std::string title = m_module->getName() + " - Pending";
-        setText(0, title.c_str() );
+        std::ostringstream title;
+        title << m_module->getName();
+
+        if ( p->isDetermined() )
+        {
+            title << " - " << p->getProgress() << "%";
+        }
+        else
+        {
+            title << " - Pending";
+        }
+
+        setText(0, title.str().c_str() );
     }
     else
     {
-        std::string title = m_module->getName();
-
-        setText(0, title.c_str() );
+        setText(0, m_module->getName().c_str() );
     }
 }
 
