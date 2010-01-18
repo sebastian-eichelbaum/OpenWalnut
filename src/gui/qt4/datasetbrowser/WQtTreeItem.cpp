@@ -81,11 +81,11 @@ void WQtTreeItem::update()
             title << " - Pending";
         }
 
-        setText(0, title.str().c_str() );
+        setText( 0, title.str().c_str() );
     }
     else
     {
-        setText(0, m_module->getName().c_str() );
+        setText( 0, m_module->getName().c_str() );
     }
 }
 

@@ -51,7 +51,6 @@ public:
 protected:
 
 private:
-
 };
 
 #endif  // WQTDATASETTREEITEM_H

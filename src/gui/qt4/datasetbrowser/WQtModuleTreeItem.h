@@ -53,7 +53,6 @@ public:
 protected:
 
 private:
-
 };
 
 #endif  // WQTMODULETREEITEM_H
