@@ -34,6 +34,7 @@
 #include <QtGui/QFileDialog>
 
 #include "WMainWindow.h" // this has to be included before any other includes
+#include "WModuleAssocEvent.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../modules/data/WMData.h"
@@ -160,15 +161,8 @@ void WQt4Gui::slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > modu
     // get properties from the module and register them
     m_mainWindow->getPropertyManager()->connectProperties( module->getProperties() );
 
-    // TODO(schurade): is this differentiation between data and "normal" modules really needed?
-    if ( boost::shared_dynamic_cast< WMData >( module ).get() )
-    {
-        m_mainWindow->getDatasetBrowser()->addDataset( module, 0 );
-    }
-    else
-    {
-        m_mainWindow->getDatasetBrowser()->addModule( module );
-    }
+    // create a new event for this and insert it into event queue
+    QCoreApplication::postEvent ( m_mainWindow->getDatasetBrowser(), new WModuleAssocEvent( module ) );
 }
 
 std::vector< boost::shared_ptr< WDataSet > > WQt4Gui::getDataSetList( int subjectId, bool onlyTextures )

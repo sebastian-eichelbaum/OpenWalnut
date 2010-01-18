@@ -157,6 +157,16 @@ public slots:
 protected:
 
     /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes several custom events, like WModuleAssocEvent.
+     *
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
+    /**
      * Reference to the main window of the application.
      */
     WMainWindow* m_mainWindow;

@@ -35,6 +35,8 @@
 #include "../../../dataHandler/WDataSet.h"
 
 #include "WQtDatasetBrowser.h"
+#include "../WModuleAssocEvent.h"
+#include "../WEventTypes.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtCheckBox.h"
@@ -110,6 +112,37 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
     return subject;
 }
 
+bool WQtDatasetBrowser::event( QEvent* event )
+{
+    // a module got associated with the root container -> add it to the list
+    if ( event->type() == WQT_ASSOC_EVENT )
+    {
+        // convert event to assoc event
+        WModuleAssocEvent* e = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_ASSOC_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModueAssocEvent although its type claims it.", "DatasetBrowser", LL_WARNING );
+        }
+
+        WLogger::getLogger()->addLogMessage( "Inserting module " + e->getModule()->getName() + " to dataset browser.", "DatasetBrowser", LL_DEBUG );
+
+        // finally add the module
+        // TODO(schurade): is this differentiation between data and "normal" modules really needed?
+        if ( boost::shared_dynamic_cast< WMData >( e->getModule() ).get() )
+        {
+            addDataset( e->getModule(), 0 );
+        }
+        else
+        {
+            addModule( e->getModule() );
+        }
+
+        return true;
+    }
+
+    return QDockWidget::event( event );
+}
 
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
@@ -118,7 +151,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
-    item->setDisabled( true );
+    item->setDisabled( false );
     return item;
 }
 
