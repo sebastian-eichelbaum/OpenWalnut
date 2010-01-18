@@ -216,7 +216,8 @@ public:
     wmath::WMatrix<double> getTransformationMatrix() const;
 
     /**
-     * Transforms coordinates from world to texture space
+     * Transforms texture coordinates according to transforation of the grid.
+     * \param point The point with these coordinated will be transformed.
      */
     wmath::WVector3D transformTexCoord( wmath::WPosition point );
 
@@ -334,6 +335,11 @@ public:
 
 protected:
 private:
+    /**
+     * Return the id of the sample along axis for a given position.
+     * \param pos The id will be computed for this position
+     * \param axis Id of the axis along which the corresponding voxel is searched.
+     */
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
 
     wmath::WPosition m_origin; //!< Origin of the grid.

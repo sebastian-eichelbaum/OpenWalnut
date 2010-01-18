@@ -76,6 +76,7 @@ public:
 protected:
     /**
      * Marks a given voxel as hit.
+     * \param voxel thre numbers inidcating the id along the x, y and z axis.
      */
     virtual void markVoxel( const wmath::WValue< int >& voxel );
 

@@ -58,6 +58,9 @@ public:
         TS_ASSERT(  p2.isDetermined() );
     }
 
+    /**
+     * Test whether finish() sets pending to false.
+     */
     void testFinish()
     {
         // this instance should be pending

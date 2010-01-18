@@ -99,17 +99,29 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Creates the geode that contains the lines representing the fibers.
+     */
     osg::ref_ptr< osg::Geode > genFiberGeode() const;
+
+    /**
+     * Coordinates all the work that is needed if the input changes.
+     */
     void update();
 
     /**
      * Builds an OSG geode where all voxels inside the dataSet which are not
      * zero are drawn as cuboids.
+     * \param dataset contains the rasterized fibers.
      *
      * \return OSG Geode with the voxels as cuboids.
      */
     osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const;
 
+    /**
+     * Uses bresenham provided for rasterizing the fibers in a loop.
+     * \param algo The rasterizer.
+     */
     void raster( boost::shared_ptr< WBresenham > algo ) const;
 
     /**
@@ -121,6 +133,11 @@ protected:
      */
     std::pair< wmath::WPosition, wmath::WPosition > createBoundingBox( const WFiberCluster& cluster ) const;
 
+    /**
+     * Generate the graphical representation of the bounding box-
+     * \param fll front lower left, i.e. minimum coordinate corner
+     * \param bur back upper right, i.e. maximum coordinate corner
+     */
     osg::ref_ptr< osg::Geode > genBBGeode( const wmath::WPosition& fll,
                                            const wmath::WPosition& bur ) const;
 

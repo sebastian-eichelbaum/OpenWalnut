@@ -56,11 +56,15 @@ class WPickHandler: public osgGA::GUIEventHandler
 public:
     /**
      * Deals with the events found by the osg.
+     * \param ea Event class for storing Keyboard, mouse and window events.
+     * \param aa Interface by which GUIEventHandlers may request actions of the GUI system
      */
     bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
 
     /**
      * Send a pick signal with the pick information as string
+     * \param view the view in which we pick.
+     * \param ea Event class for storing Keyboard, mouse and window events.
      */
     virtual void pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea );
 

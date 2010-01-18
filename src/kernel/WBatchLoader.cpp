@@ -47,7 +47,7 @@ WBatchLoader::~WBatchLoader()
 
 void WBatchLoader::run()
 {
-    // the module needs to be add here, as it else could be freed before the thread finishes ( remember: it is a shared_ptr).
+    // the module needs to be added here, as it else could be freed before the thread finishes ( remember: it is a shared_ptr).
     m_targetContainer->addPendingThread( shared_from_this() );
 
     // actually run
