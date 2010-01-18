@@ -148,7 +148,9 @@ void WMVoxelizer::update()
     debugLog() << "Created grid of size: " << grid->size();
     boost::shared_ptr< WBresenham > bresenham = boost::shared_ptr< WBresenham >( new WBresenham( grid ) );
     raster( bresenham );
-    m_osgNode->addChild( genDataSetGeode( bresenham->generateDataSet() ) );
+    boost::shared_ptr< WDataSetSingle > outputDataSet = bresenham->generateDataSet();
+    m_output->updateData( outputDataSet );
+    m_osgNode->addChild( genDataSetGeode( outputDataSet ) );
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode );
@@ -184,6 +186,14 @@ void WMVoxelizer::connectors()
     m_input = shared_ptr< InputData >( new InputData( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
 
     addConnector( m_input );
+
+    m_output = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >( new WModuleOutputData< WDataSetSingle >(
+                shared_from_this(), "out", "The voxelized data set." )
+            );
+
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_output );
+
     WModule::connectors();  // call WModules initialization
 }
 
