@@ -28,10 +28,16 @@
 #include <QtCore/QEvent>
 
 /**
- * This header contains every custom event ID used in QT's event mechanism.
+ * This header contains every custom event ID used in QT's event mechanism. Please note, that since Qt4.4 there is
+ * QEvent::registerEventType which can handle this job better than this header. But as we use an older Qt Version we need to do it
+ * this way.
  */
 
+// when a module got associated
 #define WQT_ASSOC_EVENT QEvent::User + 1
+
+// when a module signals its ready state
+#define WQT_READY_EVENT QEvent::User + 2
 
 #endif  // WEVENTTYPES_H
 

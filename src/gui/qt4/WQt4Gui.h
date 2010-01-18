@@ -91,6 +91,13 @@ public:
     virtual void slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > module );
 
     /**
+     * Slot gets called whenever a module switches its state to "ready".
+     *
+     * \param module the module.
+     */
+    virtual void slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
+
+    /**
      * getter functions for the signales proved by the gui
      */
     boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();

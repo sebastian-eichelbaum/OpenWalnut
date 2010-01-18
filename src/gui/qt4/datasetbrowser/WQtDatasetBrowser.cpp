@@ -35,8 +35,9 @@
 #include "../../../dataHandler/WDataSet.h"
 
 #include "WQtDatasetBrowser.h"
-#include "../WModuleAssocEvent.h"
-#include "../WEventTypes.h"
+#include "../events/WModuleAssocEvent.h"
+#include "../events/WModuleReadyEvent.h"
+#include "../events/WEventTypes.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtCheckBox.h"
@@ -122,7 +123,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if ( !e )
         {
             // this should never happen, since the type is set to WQT_ASSOC_EVENT.
-            WLogger::getLogger()->addLogMessage( "Event is not an WModueAssocEvent although its type claims it.", "DatasetBrowser", LL_WARNING );
+            WLogger::getLogger()->addLogMessage( "Event is not an WModueAssocEvent although its type claims it. Ignoring event.", "DatasetBrowser", LL_WARNING );
         }
 
         WLogger::getLogger()->addLogMessage( "Inserting module " + e->getModule()->getName() + " to dataset browser.", "DatasetBrowser", LL_DEBUG );
@@ -139,6 +140,59 @@ bool WQtDatasetBrowser::event( QEvent* event )
         }
 
         return true;
+    }
+
+    // a module changed its state to "ready" -> activate it in dataset browser
+    if ( event->type() == WQT_READY_EVENT )
+    {
+        // convert event to assoc event
+        WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.", "DatasetBrowser", LL_WARNING );
+        }
+
+        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.", "DatasetBrowser", LL_DEBUG );
+
+        // iterate tree items and find proper one
+        QTreeWidgetItemIterator it( m_treeWidget );
+        while ( *it )
+        {
+            // convert to the different types
+            // This is ugly. Why do we need to differentiate different types?!
+            WQtModuleTreeItem* itemM = dynamic_cast< WQtModuleTreeItem* >( *it );
+            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >();
+            if ( itemM )
+            {
+                module = itemM->getModule();
+            }
+
+            // if both would be derived from a common parent class this two casts would not be needed!
+            // But unfortunately they aren't.
+            WQtDatasetTreeItem* itemD = dynamic_cast< WQtDatasetTreeItem* >( *it );
+            if ( itemD )
+            {
+                module = itemD->getModule();
+            }
+
+            // if the pointer is NULL the item was none of the above
+            if ( !module.get() )
+            {
+                ++it;
+                continue;
+            }
+
+            // we found it
+            if ( e->getModule() == module )
+            {
+                // activate it
+                //itemD->setDisabled( false );
+                //itemM->setDisabled( false );
+            }
+
+            ++it;
+        }
     }
 
     return QDockWidget::event( event );
