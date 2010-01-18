@@ -65,7 +65,8 @@ WMMarchingCubes::WMMarchingCubes():
     m_dataSet(),
     m_shaderUseTexture( true ),
     m_shaderUseLighting( false ),
-    m_shaderUseTransparency( false )
+    m_shaderUseTransparency( false ),
+    m_geode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -96,7 +97,6 @@ const std::string WMMarchingCubes::getDescription() const
 " the surface as triangle soup.";
 }
 
-
 void WMMarchingCubes::moduleMain()
 {
     // use the m_input "data changed" flag
@@ -108,6 +108,7 @@ void WMMarchingCubes::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
+        sleep( 3 ); // TODO(wiebel): remove this.
         // acquire data from the input connector
         m_dataSet = m_input->getData();
         if ( !m_dataSet.get() )
@@ -122,7 +123,7 @@ void WMMarchingCubes::moduleMain()
         // update ISO surface
         debugLog() << "Computing surface ...";
 
-        generateSurfacePre( m_properties->getValue< int >( "Iso Value" ) );
+        generateSurfacePre( m_properties->getValue< double >( "Iso Value" ) );
 
         // TODO(wiebel): MC remove this from here
         //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
@@ -205,13 +206,16 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     }
     else if( propertyName == "active" )
     {
-        if ( m_properties->getValue<bool>( propertyName ) )
+        if( m_geode && m_properties )
         {
-            m_geode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_geode->setNodeMask( 0x0 );
+            if ( m_properties->getValue<bool>( propertyName ) )
+            {
+                m_geode->setNodeMask( 0xFFFFFFFF );
+            }
+            else
+            {
+                m_geode->setNodeMask( 0x0 );
+            }
         }
     }
     else

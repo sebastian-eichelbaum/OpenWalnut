@@ -109,7 +109,7 @@ void setVertices( osg::Vec3Array* vertices, wmath::WPosition minPos, wmath::WPos
     vertices->push_back( osg::Vec3( maxPos[0], maxPos[1], maxPos[2] ) );
 }
 
-WROIBox::WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos ) :
+WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     WROI(),
     boxId( maxBoxId++ )
 {
@@ -117,7 +117,9 @@ WROIBox::WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_maxPos = maxPos;
 
     // connect updateGFX with picking
-    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    WKernel* kernel = WKernel::getRunningKernel();
+    assert( kernel );
+    boost::shared_ptr< WGEViewer > viewer = kernel->getGraphicsEngine()->getViewerByName( "main" );
     assert( viewer );
     m_pickHandler = viewer->getPickHandler();
     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::updateGFX, this, _1 ) );
@@ -165,10 +167,6 @@ WROIBox::WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos ) :
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON  );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
-}
-
-WROIBox::WROIBox()
-{
 }
 
 wmath::WPosition WROIBox::getMinPos() const

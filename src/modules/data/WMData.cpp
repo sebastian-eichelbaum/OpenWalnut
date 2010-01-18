@@ -89,23 +89,23 @@ void WMData::properties()
 
     // filename of file to load and handle
     m_properties->addString( "filename", "", true );
-    m_properties->addString( "name" );
+    m_properties->addString( "Name" );
     ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    ( m_properties->addBool( "interpolation", true ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    ( m_properties->addInt( "threshold", 0 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    ( m_properties->addInt( "alpha", 100 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    m_properties->setMax( "alpha", 100 );
+    ( m_properties->addBool( "Interpolation", true ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addInt( "Threshold", 0 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addInt( "Opacity %", 100 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
+    m_properties->setMax( "Opacity %", 100 );
 }
 
 void WMData::slotPropertyChanged( std::string propertyName )
 {
-    if ( propertyName == "threshold" )
+    if ( propertyName == "Threshold" )
     {
-        m_dataSet->getTexture()->setThreshold( m_properties->getValue<float>( "threshold" ) );
+        m_dataSet->getTexture()->setThreshold( m_properties->getValue<float>( "Threshold" ) );
     }
-    if ( propertyName == "alpha" )
+    if ( propertyName == "Opacity %" )
     {
-        m_dataSet->getTexture()->setAlpha( m_properties->getValue<float>( "alpha" ) / 100.0 );
+        m_dataSet->getTexture()->setAlpha( m_properties->getValue<float>( "Opacity %" ) / 100.0 );
     }
 }
 
@@ -138,7 +138,7 @@ void WMData::moduleMain()
     std::string fileName = m_properties->getValue< std::string >( "filename" );
 
     debugLog() << "Loading data from \"" << fileName << "\".";
-    m_properties->setValue( "name", fileName );
+    m_properties->setValue( "Name", fileName );
 
     // load it now
     std::string suffix = getSuffix( fileName );
@@ -171,17 +171,22 @@ void WMData::moduleMain()
     {
         WLoaderFibers fibLoader( fileName );
         m_dataSet = fibLoader.load();
-
-        // hide other properties since they make no sense at all
-        m_properties->hideProperty( "filename" ); // File name is got via m_dataSet->getFileName()
-        m_properties->hideProperty( "active" );
-        m_properties->hideProperty( "interpolation" );
-        m_properties->hideProperty( "threshold" );
-        m_properties->hideProperty( "alpha" );
     }
     else
     {
         throw WDHException( "Unknown file type: '" + suffix + "'" );
+    }
+
+    if( suffix == ".fib"
+        || suffix == ".asc"
+        || suffix == ".edf" )
+    {
+        // hide other properties since they make no sense fo these data set types.
+        m_properties->hideProperty( "filename" ); // File name is got via m_dataSet->getFileName()
+        m_properties->hideProperty( "active" );
+        m_properties->hideProperty( "Interpolation" );
+        m_properties->hideProperty( "Threshold" );
+        m_properties->hideProperty( "Opacity %" );
     }
 
     debugLog() << "Loading data done.";

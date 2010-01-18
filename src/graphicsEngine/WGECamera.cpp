@@ -70,3 +70,11 @@ void WGECamera::reset()
             throw WGEInitFailed( "Unknown projection mode" );
     }
 }
+
+void WGECamera::resize()
+{
+    if( m_DefProjMode == TWO_D )
+    {
+        setProjectionMatrixAsOrtho2D( 0.0, getViewport()->width(), 0.0, getViewport()->height() );
+    }
+}

@@ -171,7 +171,7 @@ void WQtDatasetBrowser::selectTreeItem()
     {
         WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
                 QString( "Compatible Modules" ),
-                m_mainWindow->getIconManager()->getIcon( "load" ),
+                m_mainWindow->getIconManager()->getIcon( "o" ),
                 QString( ( *iter )->getName().c_str() ) );
 
         connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
@@ -300,7 +300,7 @@ void WQtDatasetBrowser::slotSetStringProperty( QString name, QString value )
     boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     module->getProperties()->setValue<std::string>( name.toStdString(), value.toStdString() );
 
-    if ( name == "name")
+    if ( name == "Name")
     {
         m_treeWidget->selectedItems().at( 0 )->setText( 0, value );
     }

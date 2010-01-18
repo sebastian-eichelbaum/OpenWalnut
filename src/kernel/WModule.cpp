@@ -290,7 +290,7 @@ void WModule::threadMain()
     }
     catch( const std::exception& e )
     {
-        WLogger::getLogger()->addLogMessage( "Exception. Notifying.", "Module (" + getName() + ")", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), " Module (" + getName() + ")", LL_ERROR );
 
         // convert these exceptions to WException
         WException ce = WException( e );
