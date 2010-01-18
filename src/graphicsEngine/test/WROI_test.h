@@ -30,13 +30,14 @@
 #include "../WROI.h"
 
 /**
- * TODO(wiebel): Document this!
+ * Test for WROI
  */
 class WROITest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(wiebel): Document this!
+     * So far nothing to test here, because WROI is pure virtual and has no
+     * implemented member functions yet.
      */
     void testSomething( void )
     {
