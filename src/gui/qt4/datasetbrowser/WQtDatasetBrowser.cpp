@@ -187,8 +187,13 @@ bool WQtDatasetBrowser::event( QEvent* event )
             if ( e->getModule() == module )
             {
                 // activate it
-                //itemD->setDisabled( false );
-                //itemM->setDisabled( false );
+                itemD ? itemD->setDisabled( false ) : itemM->setDisabled( false );
+
+                if ( itemD )
+                {
+                    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
+                    emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
+                }
             }
 
             ++it;
@@ -202,8 +207,6 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
 {
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + 1 );
     subject->setExpanded( true );
-    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
-    emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
     item->setDisabled( false );
     return item;
