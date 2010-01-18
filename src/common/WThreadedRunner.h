@@ -27,6 +27,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/function.hpp>
 
 #include "WFlag.h"
 
@@ -36,6 +37,11 @@
 class WThreadedRunner
 {
 public:
+
+    /**
+     * Type used for simple thread functions.
+     */
+    typedef boost::function< void ( void ) > THREADFUNCTION;
 
     /**
      * Default constructor.
@@ -50,7 +56,12 @@ public:
     /**
      * Run thread.
      */
-    void run();
+    virtual void run();
+
+    /**
+     * Run thread. This does not start threadMain(() but runs a specified function instead.
+     */
+    void run( THREADFUNCTION f );
 
     /**
      * Wait for the thread to be finished.

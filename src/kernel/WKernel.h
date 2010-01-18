@@ -34,6 +34,7 @@
 #include "WModule.h"
 #include "WModuleFactory.h"
 #include "WModuleContainer.h"
+#include "WBatchLoader.h"
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
 #include "../common/WFlag.h"
@@ -98,12 +99,20 @@ public:
     const WBoolFlag& isFinishRequested() const;
 
     /**
-     * Load specified datasets.
+     * Load specified datasets. It immediately returns and starts another thread, which actually loads the data.
      *
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
      */
     void loadDataSets( std::vector< std::string > fileNames );
+
+    /**
+     * Loads the specified files synchronously.
+     *
+     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * error and success.
+     */
+    void loadDataSetsSynchronously( std::vector< std::string > fileNames );
 
     /**
      * Function combines to modules. This is a simple alias for "getRootContainer()->applyModule".

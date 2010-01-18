@@ -32,6 +32,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
+#include "WModuleSignals.h"
+
+class WThreadedRunner;
+class WBatchLoader;
 class WModule;
 
 /**
@@ -128,6 +132,40 @@ public:
      */
     virtual boost::shared_ptr< WModule > applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype );
 
+    /**
+     * Load specified datasets. It immediately returns and starts another thread, which actually loads the data.
+     *
+     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * error and success.
+     */
+    boost::shared_ptr< WBatchLoader > loadDataSets( std::vector< std::string > fileNames );
+
+    /**
+     * Loads the specified files synchronously.
+     *
+     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * error and success.
+     */
+    void loadDataSetsSynchronously( std::vector< std::string > fileNames );
+
+    /**
+     * Add the specified thread to the list of pending jobs. Only this ensures, that ALL pending threads got stopped before the
+     * container gets stopped.
+     *
+     * \note use this to register threads whenever you start threads belonging to this container. This avoids shutting down the
+     * container while other threads depend upon them.
+     *
+     * \param thread the thread to add
+     */
+    void addPendingThread( boost::shared_ptr< WThreadedRunner > thread );
+
+    /**
+     * The specified thread has finished and does not longer depend upon this container instance.
+     *
+     * \param thread the thread.
+     */
+    void finishedPendingThread( boost::shared_ptr< WThreadedRunner > thread );
+
 protected:
 
     /**
@@ -179,6 +217,16 @@ protected:
      * The notifiers connected to added modules by default and fired whenever the module got associated.
      */
     std::list< t_ModuleGenericSignalHandlerType > m_associatedNotifiers;
+
+    /**
+     * Set of all threads that currently depend upon this container.
+     */
+    std::set< boost::shared_ptr< WThreadedRunner > > m_pendingThreads;
+
+    /**
+     * Lock for m_pendingThreads.
+     */
+    boost::shared_mutex m_pendingThreadsLock;
 
 private:
 };

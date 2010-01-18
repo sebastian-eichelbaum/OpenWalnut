@@ -39,6 +39,7 @@
 
 #include "WModule.h"
 #include "WModuleFactory.h"
+#include "WBatchLoader.h"
 #include "../common/WException.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
@@ -147,10 +148,10 @@ void WKernel::threadMain()
     {
         bool ignore;
         m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
-        m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
+        //m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
         if( !( WPreferences::getPreference( "modules.standard.ignoreHUD", &ignore ) && ignore ) )
         {
-            m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "HUD" ) ) , true );
+          //  m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "HUD" ) ) , true );
         }
     }
 
@@ -252,16 +253,12 @@ const WBoolFlag& WKernel::isFinishRequested() const
 
 void WKernel::loadDataSets( std::vector< std::string > fileNames )
 {
-    // add a new data module for each file to load
-    using boost::shared_ptr;
-    for( std::vector< std::string >::iterator iter = fileNames.begin(); iter != fileNames.end(); ++iter )
-    {
-        shared_ptr< WModule > mod = m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Data Module" ) );
-        mod->getProperties()->setValue( "filename" , ( *iter ) );
-        m_moduleContainer->add( mod );
-        // serialize loading of a couple of data sets
-        mod->isReady().wait();
-    }
+    getRootContainer()->loadDataSets( fileNames );
+}
+
+void WKernel::loadDataSetsSynchronously( std::vector< std::string > fileNames )
+{
+    getRootContainer()->loadDataSetsSynchronously( fileNames );
 }
 
 boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype )

@@ -212,7 +212,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + 1 );
     subject->setExpanded( true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
-    item->setDisabled( false );
+    item->setDisabled( true );
     return item;
 }
 
@@ -419,7 +419,7 @@ std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( 
         boost::shared_ptr< WMData > dm = boost::shared_dynamic_cast< WMData >( ( ( WQtDatasetTreeItem* )m_treeWidget->invisibleRootItem()->child(
                         subjectId + 1 )->child( i ) )->getModule() );
 
-        if ( !onlyTextures || dm->getDataSet()->isTexture() )
+        if ( dm->isReady()() && ( !onlyTextures || dm->getDataSet()->isTexture() ) )
         {
             if ( dm->getProperties()->getValue<bool>( "active" ) )
             {
