@@ -123,10 +123,12 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if ( !e )
         {
             // this should never happen, since the type is set to WQT_ASSOC_EVENT.
-            WLogger::getLogger()->addLogMessage( "Event is not an WModueAssocEvent although its type claims it. Ignoring event.", "DatasetBrowser", LL_WARNING );
+            WLogger::getLogger()->addLogMessage( "Event is not an WModueAssocEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
         }
 
-        WLogger::getLogger()->addLogMessage( "Inserting module " + e->getModule()->getName() + " to dataset browser.", "DatasetBrowser", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Inserting module " + e->getModule()->getName() + " to dataset browser.",
+                                             "DatasetBrowser", LL_DEBUG );
 
         // finally add the module
         // TODO(schurade): is this differentiation between data and "normal" modules really needed?
@@ -150,10 +152,12 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if ( !e )
         {
             // this should never happen, since the type is set to WQT_Ready_EVENT.
-            WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.", "DatasetBrowser", LL_WARNING );
+            WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
         }
 
-        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.", "DatasetBrowser", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
+                                             "DatasetBrowser", LL_DEBUG );
 
         // iterate tree items and find proper one
         QTreeWidgetItemIterator it( m_treeWidget );

@@ -165,13 +165,13 @@ void WQt4Gui::slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > modu
     m_mainWindow->getPropertyManager()->connectProperties( module->getProperties() );
 
     // create a new event for this and insert it into event queue
-    QCoreApplication::postEvent ( m_mainWindow->getDatasetBrowser(), new WModuleAssocEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleAssocEvent( module ) );
 }
 
 void WQt4Gui::slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
-    QCoreApplication::postEvent ( m_mainWindow->getDatasetBrowser(), new WModuleReadyEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleReadyEvent( module ) );
 }
 
 std::vector< boost::shared_ptr< WDataSet > > WQt4Gui::getDataSetList( int subjectId, bool onlyTextures )
