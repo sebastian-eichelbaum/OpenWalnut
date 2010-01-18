@@ -274,6 +274,7 @@ boost::shared_ptr< WProgressCombiner > WModule::getRootProgressCombiner()
 void WModule::ready()
 {
     m_isReady( true );
+    m_readyProgress->finish();
     signal_ready( shared_from_this() );
 }
 

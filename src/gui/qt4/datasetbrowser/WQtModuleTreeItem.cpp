@@ -25,26 +25,11 @@
 #include "WQtModuleTreeItem.h"
 
 WQtModuleTreeItem::WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module ) :
-    QTreeWidgetItem( parent, 3 )
+    WQtTreeItem( parent, 3, module )
 {
-    m_module = module;
-
-    if ( module->getProperties()->getValue< bool > ( "active" ) )
-    {
-        this->setCheckState( 0, Qt::Checked );
-    }
-    else
-    {
-        this->setCheckState( 0, Qt::Unchecked );
-    }
-this->setFlags( Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
 }
 
 WQtModuleTreeItem::~WQtModuleTreeItem()
 {
 }
 
-boost::shared_ptr< WModule > WQtModuleTreeItem::getModule()
-{
-    return m_module;
-}

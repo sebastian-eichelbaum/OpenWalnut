@@ -27,12 +27,15 @@
 
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QProgressBar>
+#include <QtCore/QTimer>
+
+#include "WQtTreeItem.h"
 #include "../../../kernel/WModule.h"
 
 /**
  * TODO(schurade): Document this!
  */
-class WQtModuleTreeItem: public QTreeWidgetItem
+class WQtModuleTreeItem: public WQtTreeItem
 {
 public:
     /**
@@ -43,18 +46,14 @@ public:
     WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
     /**
-     * TODO(schurade): Document this!
+     * Destructor.
      */
     virtual ~WQtModuleTreeItem();
 
-    /**
-     * get for the module pointer
-     */
-    boost::shared_ptr< WModule >getModule();
-
 protected:
+
 private:
-    boost::shared_ptr< WModule >m_module;
+
 };
 
 #endif  // WQTMODULETREEITEM_H
