@@ -300,7 +300,7 @@ void WMainWindow::closeEvent( QCloseEvent* e )
         {
             it->second->close();
         }
-        m_customDockWidgetsLock.unlock();
+        //m_customDockWidgetsLock.unlock();
 
         // finally close
         e->accept();
@@ -337,7 +337,7 @@ void WMainWindow::customEvent( QEvent* event )
             widget = m_customDockWidgets[title];
             widget->increaseUseCount();
         }
-        m_customDockWidgetsLock.unlock();
+        //m_customDockWidgetsLock.unlock();
 
         ocdwEvent->getFlag()->set( widget );
     }
@@ -354,7 +354,7 @@ boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::
     boost::shared_ptr< WQtCustomDockWidget > out = m_customDockWidgets.count( title ) > 0 ?
         m_customDockWidgets[title] :
         boost::shared_ptr< WQtCustomDockWidget >();
-    m_customDockWidgetsLock.unlock();
+    //m_customDockWidgetsLock.unlock();
     return out;
 }
 
@@ -370,7 +370,7 @@ void WMainWindow::closeCustomDockWidget( std::string title )
             m_customDockWidgets.erase( title );
         }
     }
-    m_customDockWidgetsLock.unlock();
+    //m_customDockWidgetsLock.unlock();
 }
 
 void WMainWindow::slotActivateModule( QString module )

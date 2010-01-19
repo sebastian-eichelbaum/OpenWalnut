@@ -129,7 +129,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
     // store it in viewer list
     boost::mutex::scoped_lock lock( m_viewersLock );
     assert( m_viewers.insert( make_pair( name, viewer ) ).second == true );
-    m_viewersLock.unlock();
+    //m_viewersLock.unlock();
 
     return viewer;
 }
@@ -143,7 +143,7 @@ void WGraphicsEngine::closeViewer( const std::string name )
 
         m_viewers.erase( name );
     }
-    m_viewersLock.unlock();
+    //m_viewersLock.unlock();
 }
 
 boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string name )
@@ -152,7 +152,7 @@ boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string nam
     boost::shared_ptr< WGEViewer > out = m_viewers.count( name ) > 0 ?
         m_viewers[name] :
         boost::shared_ptr< WGEViewer >();
-    m_viewersLock.unlock();
+    //m_viewersLock.unlock();
     return out;
 }
 
