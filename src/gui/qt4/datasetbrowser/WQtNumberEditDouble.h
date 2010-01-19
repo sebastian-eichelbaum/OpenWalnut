@@ -38,18 +38,19 @@ class WQtNumberEditDouble : public QLineEdit
 
 public:
     /**
-     * Default constructor, that connects the slot of the edit
+     * Default constructor, that connects the slot of the edit.
+     *
      * \param name The name of teh widget
      * \param parent The widget managing this widget
      */
     explicit WQtNumberEditDouble( QString name, QWidget* parent = 0 );
 
     /**
-     * setter for name
+     * setter for name.
+     *
      * \param name The new name for the widget
      */
     void setName( QString name );
-
 
     /**
      * destructor
@@ -57,8 +58,10 @@ public:
     virtual ~WQtNumberEditDouble();
 
 public slots:
+
     /**
      * Sets the edit field to a certain number.
+     *
      * \param number The double to be put into the field.
      */
     void setDouble( double number );
@@ -69,13 +72,20 @@ public slots:
     void numberChanged();
 
 signals:
+
     /**
      * Signal to distribute the number set in the lineEdit.
+     *
+     * \param name name of the edit field.
+     * \param number new value of the edit field.
      */
     void signalNumberWithName( QString name, double number );
 
 protected:
 private:
+    /**
+     * Name if the value.
+     */
     QString m_name;
 };
 

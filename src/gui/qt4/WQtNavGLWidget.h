@@ -49,17 +49,21 @@ public:
     explicit WQtNavGLWidget( QString title, QWidget* parent, int maxValue = 100, std::string sliderTitle="pos" );
 
     /**
-     * destructor
+     * destructor.
      */
     virtual ~WQtNavGLWidget();
 
     /**
+     * Gets the contained GL widget instance.
+     *
      * \return pointer to GL widget
      */
-    boost::shared_ptr<WQtGLWidget>getGLWidget();
+    boost::shared_ptr< WQtGLWidget > getGLWidget();
 
     /**
+     * Set the title of the slider used in this nav widget
      *
+     * \param title the title
      */
     void setSliderTitle( std::string title );
 
@@ -73,6 +77,10 @@ protected:
     virtual void closeEvent( QCloseEvent* event );
 
 private:
+
+    /**
+     * The slider's title.
+     */
     QString m_sliderTitle;
 
     /**
@@ -81,9 +89,22 @@ private:
     boost::shared_ptr<WQtGLWidget> m_glWidget;
 
 private slots:
+
+    /**
+     * Slot getting called whenever the slider gets moved.
+     *
+     * \param value the new value of the slider.
+     */
     void sliderValueChanged( int value );
 
 signals:
+
+    /**
+     * Signals a value change event inside the slider.
+     *
+     * \param name name of the slider.
+     * \param value value of the slider.
+     */
     void navSliderValueChanged( QString name, int value );
 };
 

@@ -76,6 +76,9 @@ protected:
 
 private:
 
+    /**
+     * The module represented by this tree item.
+     */
     boost::shared_ptr< WModule > m_module;
 };
 

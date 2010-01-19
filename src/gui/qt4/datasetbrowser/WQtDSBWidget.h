@@ -41,7 +41,7 @@
 
 
 /**
- * container widget to contain the context widget for the dataset browser
+ * Container widget to contain the context widget for the dataset browser.
  */
 class WQtDSBWidget : public QWidget
 {
@@ -101,8 +101,6 @@ public:
      */
     void addSpacer();
 
-
-
     /**
      * getter for m_name
      */
@@ -110,8 +108,20 @@ public:
 
 protected:
 private:
+
+    /**
+     * The name used for this widget.
+     */
     QString m_name;
+
+    /**
+     * Layout used for each "widget combination".
+     */
     QGridLayout m_controlLayout;
+
+    /**
+     * Layout used for the whole widget.
+     */
     QVBoxLayout m_pageLayout;
 };
 
