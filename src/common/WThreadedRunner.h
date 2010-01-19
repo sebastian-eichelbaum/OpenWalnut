@@ -60,6 +60,8 @@ public:
 
     /**
      * Run thread. This does not start threadMain(() but runs a specified function instead.
+     *
+     * \param f the function to run instead of the threadMain method.
      */
     void run( THREADFUNCTION f );
 

@@ -44,6 +44,9 @@ public:
         TS_ASSERT_EQUALS( prop.getValue<bool>(), true );
     }
 
+    /**
+     * Test whether a value can be set to a property.
+     */
     void testBoolSetFalse( void )
     {
         WProperty prop( "testProp", true );
@@ -51,6 +54,9 @@ public:
         TS_ASSERT_EQUALS( prop.getValue<bool>(), false );
     }
 
+    /**
+     * Test whether the boolean is properly stored as string internally.
+     */
     void testBoolGetString( void )
     {
         WProperty prop( "testProp", true );
