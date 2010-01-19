@@ -42,7 +42,7 @@ friend class WTalairachConverter;
 
 public:
     /**
-     *
+     * TODO(schurade): Document this!
      */
     void setUp( void )
     {
@@ -60,7 +60,7 @@ public:
     }
 
     /**
-     *
+     * TODO(schurade): Document this!
      */
     void tearDown( void )
     {
@@ -122,6 +122,9 @@ public:
 
 
 private:
+    /**
+     * TODO(schurade): Document this!
+     */
     boost::shared_ptr<WTalairachConverter> m_tc;
 };
 

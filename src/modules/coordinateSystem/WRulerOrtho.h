@@ -56,12 +56,27 @@ public:
      */
     ~WRulerOrtho();
 
+    /**
+     *
+     * \param start start point in space
+     * \param length lenght of ruler in milimeter
+     * \param mode orientation of the ruler
+     */
     void create( osg::Vec3 start, float length, scaleMode mode );
 
 protected:
 private:
+    /**
+     * helper function to add a label to the ruler
+     *
+     * \param position position of thelabel
+     * \param text text
+     */
     void addLabel( osg::Vec3 position, std::string text );
 
+    /**
+     * orientation of ruler
+     */
     scaleMode m_scaleMode;
 };
 
