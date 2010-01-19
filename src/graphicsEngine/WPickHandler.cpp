@@ -115,6 +115,8 @@ std::string extractSuitableName( osgUtil::LineSegmentIntersector::Intersections:
     {
         return  hitr->drawable->className();
     }
+    assert( 0 && "This should not happen. Tell \"wiebel\" if it does." );
+    return ""; // This line will not be reached.
 }
 
 void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea )
