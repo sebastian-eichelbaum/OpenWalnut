@@ -179,11 +179,14 @@ TAB_SIZE               = 4
 # will result in a user-defined paragraph with heading "Side Effects:".
 # You can put \n's in the value part of an alias to insert newlines.
 
-ALIASES                = "note=\par Notes:\n" \
-                         "problem=\par Problems:\n" \
-                         "reminder=\xrefitem reminders \"Reminder\" \"Reminders\"" \
-                         "todo=\xrefitem todo \"Todo\" \"Todo List\"  <b>All:</b>" \
-                         "todo{1}=\xrefitem todo \"Todo\" \"Todo List\" <b>\1:</b>"
+# for simple notes/problem notes
+ALIASES                +=  "note=\par Notes:\n"
+ALIASES                +=  "problem=\par Problems:\n"
+
+# reminders and todos which are referenced on "related pages" tab
+ALIASES                +=  "reminder=\xrefitem reminders \"Reminder\" \"Reminders\""
+ALIASES                +=  "todo=\xrefitem todo \"Todo\" \"Todo List\"  <b>All:</b>"
+ALIASES                +=  "todo{1}=\xrefitem todo \"Todo\" \"Todo List\" <b>\1:</b>"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C
 # sources only. Doxygen will then generate output that is more tailored for C.
@@ -567,7 +570,7 @@ WARN_FORMAT            = "$file:$line: $text"
 # and error messages should be written. If left blank the output is written
 # to stderr.
 
-WARN_LOGFILE           = 
+WARN_LOGFILE           =
 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
@@ -984,11 +987,18 @@ ENUM_VALUES_PER_LINE   = 4
 
 # The GENERATE_TREEVIEW tag is used to specify whether a tree-like index
 # structure should be generated to display hierarchical information.
-# If the tag value is set to YES, a side panel will be generated
+# If the tag value is set to FRAME, a side panel will be generated
 # containing a tree-like index structure (just like the one that
 # is generated for HTML Help). For this to work a browser that supports
-# JavaScript, DHTML, CSS and frames is required (i.e. any modern browser).
-# Windows users are probably better off using the HTML help feature.
+# JavaScript, DHTML, CSS and frames is required (for instance Mozilla 1.0+,
+# Netscape 6.0+, Internet explorer 5.0+, or Konqueror). Windows users are
+# probably better off using the HTML help feature. Other possible values
+# for this tag are: HIERARCHIES, which will generate the Groups, Directories,
+# and Class Hierarchy pages using a tree view instead of an ordered list;
+# ALL, which combines the behavior of FRAME and HIERARCHIES; and NONE, which
+# disables this behavior completely. For backwards compatibility with previous
+# releases of Doxygen, the values YES and NO are equivalent to FRAME and NONE
+# respectively.
 
 GENERATE_TREEVIEW      = NO
 
