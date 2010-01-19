@@ -251,9 +251,14 @@ private:
      */
     WTriangleMesh load( std::string fileName );
 
-    // TODO(wiebel): MC need to document and rename this
+    /**
+     * Kind of a convenience function for generate surface.
+     * It performs the conversions of the value sets of different data types.
+     * \param isoValue The surface will represent this value.
+     */
     void generateSurfacePre( double isoValue );
-    boost::shared_ptr< const WDataSetSingle > m_dataSet;
+
+    boost::shared_ptr< const WDataSetSingle > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
     boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for the dimensions of the texture.
 
 

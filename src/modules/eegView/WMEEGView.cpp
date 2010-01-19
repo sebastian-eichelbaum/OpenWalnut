@@ -24,14 +24,16 @@
 
 #include <string>
 
-#include "../../kernel/WKernel.h"
+#include "../../common/WConditionOneShot.h"
 #include "../../graphicsEngine/WGEViewer.h"
+#include "../../kernel/WKernel.h"
 #include "WMEEGView.h"
+
 
 WMEEGView::WMEEGView()
     : WModule(),
-      m_dataChanged( new WCondition, true ),
-      m_isActive( new WCondition, true ),
+      m_dataChanged( new WConditionOneShot, true ), // should be false, workaround until ticket #225 is fixed
+      m_isActive( new WConditionOneShot, true ),
       m_wasActive( false )
 {
 }
@@ -88,7 +90,14 @@ void WMEEGView::slotPropertyChanged( std::string propertyName )
     }
 }
 
-void WMEEGView::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ )
+void WMEEGView::notifyConnectionEstablished(
+    boost::shared_ptr< WModuleConnector > /*here*/, boost::shared_ptr< WModuleConnector > /*there*/ )
+{
+    m_dataChanged.set( true );
+}
+
+void WMEEGView::notifyDataChange(
+    boost::shared_ptr< WModuleConnector > /*input*/, boost::shared_ptr< WModuleConnector > /*output*/ )
 {
     m_dataChanged.set( true );
 }
@@ -98,20 +107,22 @@ void WMEEGView::moduleMain()
     // do initialization
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_isActive.getCondition() );
-
-    m_rootNode = new osg::Group;
-    osg::StateSet* stateset = m_rootNode->getOrCreateStateSet();
-    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    m_updateChildNodeCallback = new UpdateChildNodeCallback;
 
     // signal ready
     ready();
+
+    sleep( 1 ); // should not be there, workaround until ticket #225 is fixed
 
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         // data changed?
         if( m_dataChanged() )
         {
-            m_dataChanged.set( false );
+            debugLog() << "Data changed";
+            m_moduleState.remove( m_dataChanged.getCondition() );
+            m_dataChanged = WBoolFlag( new WConditionOneShot, false );
+            m_moduleState.add( m_dataChanged.getCondition() );
             m_eeg = m_input->getData();
             redraw();
         }
@@ -120,7 +131,10 @@ void WMEEGView::moduleMain()
         bool isActive = m_isActive();
         if( isActive != m_wasActive )
         {
-            if ( isActive )
+            m_moduleState.remove( m_isActive.getCondition() );
+            m_isActive = WBoolFlag( new WConditionOneShot, isActive );
+            m_moduleState.add( m_isActive.getCondition() );
+            if( isActive )
             {
                 if( !openCustomWidget() )
                 {
@@ -154,7 +168,8 @@ bool WMEEGView::openCustomWidget()
     if( success )
     {
         debugLog() << "Succesfully opened EEG View widget.";
-        m_widget->getScene()->addChild( m_rootNode );
+        m_updateChildNodeCallback->setActive( true );
+        m_widget->getScene()->addUpdateCallback( m_updateChildNodeCallback );
     }
     else
     {
@@ -165,13 +180,13 @@ bool WMEEGView::openCustomWidget()
 
 void WMEEGView::closeCustomWidget()
 {
-    m_widget->getScene()->removeChild( m_rootNode );
+    m_updateChildNodeCallback->setActive( false );
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
 
 void WMEEGView::redraw()
 {
-    m_rootNode->removeChildren( 0, m_rootNode->getNumChildren() );
+    osg::ref_ptr< osg::Group > rootNode;
 
     if( m_eeg.get() )
     {
@@ -182,6 +197,10 @@ void WMEEGView::redraw()
         const osg::Matrix scaleMatrix = osg::Matrix::scale( 1.0, 0.01, 1.0 );
         const double xOffset = 64.0;
         const unsigned int spacing = 16;
+
+        rootNode = new osg::Group;
+        osg::StateSet* stateset = rootNode->getOrCreateStateSet();
+        stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
         debugLog() << "Displaying EEG " << m_eeg->getFileName();
         debugLog() << "  Number of segments: " << m_eeg->getNumberOfSegments();
@@ -243,8 +262,51 @@ void WMEEGView::redraw()
                 scale->addChild( linesGeode );
                 translate->addChild( textGeode );
                 translate->addChild( scale );
-                m_rootNode->addChild( translate );
+                rootNode->addChild( translate );
             }
         }
     }
+
+    m_updateChildNodeCallback->setTargetChild( rootNode );
+}
+
+void WMEEGView::UpdateChildNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    osg::ref_ptr <osg::Node> targetChild;
+
+    if( m_active)
+    {
+        targetChild = m_targetChild;
+    }
+    else
+    {
+        targetChild = NULL;
+        node->removeUpdateCallback( this );
+    }
+
+    if( targetChild != m_currentChild )
+    {
+        osg::Group* group = static_cast< osg::Group* >( node );
+        if( m_currentChild.valid() )
+        {
+            group->removeChild( m_currentChild );
+        }
+        if( targetChild.valid() )
+        {
+            group->addChild( targetChild );
+        }
+        m_currentChild = targetChild;
+    }
+
+    traverse( node, nv );
+}
+
+void WMEEGView::UpdateChildNodeCallback::setTargetChild( osg::ref_ptr< osg::Node > targetChild )
+{
+    m_targetChild = targetChild;
+}
+
+void WMEEGView::UpdateChildNodeCallback::setActive( bool active )
+{
+    m_active = active;
 }

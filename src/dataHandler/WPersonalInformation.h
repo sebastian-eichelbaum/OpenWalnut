@@ -126,7 +126,7 @@ private:
     std::string m_handicaps; //!< Description of the handicaps of the person.
     Sex m_sex; //!< The gender of the person.
     // TODO(wiebel):  Should better be something like dotnet's System.Nullable<byte>
-    char m_categoryId;
+    char m_categoryId; //!< not documented.
     std::string m_handedness; //!< preference for using right or left hand
     std::string m_notes; //!< Notes.
     std::string m_diagnostic; //!< The diagnosis for the person.

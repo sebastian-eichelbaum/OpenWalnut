@@ -29,7 +29,9 @@
 
 #include "WQtGLWidget.h"
 
+#include "../../graphicsEngine/WGE2DManipulator.h"
 #include "../../graphicsEngine/WGEViewer.h"
+#include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../common/WFlag.h"
 #include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
@@ -123,9 +125,14 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
 
             m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
             break;
+        case TWO_D:
+            std::cout << "selected 2d manipulator" << std::endl;
+
+            m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
+            break;
         case TRACKBALL:
         default:
-            std::cout << "selected OpwnWalnut's zoom trackball manipulator" << std::endl;
+            std::cout << "selected OpenWalnut's zoom trackball manipulator" << std::endl;
 
             m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
             break;
@@ -215,6 +222,9 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
             break;
         case Qt::Key_5:
             setCameraManipulator( UFO );
+            break;
+        case Qt::Key_6:
+            setCameraManipulator( TWO_D );
             break;
     }
 

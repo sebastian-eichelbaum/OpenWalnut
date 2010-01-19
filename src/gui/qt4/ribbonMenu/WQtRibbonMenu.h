@@ -77,9 +77,9 @@ public:
     void clearNonPersistentTabs();
 protected:
 private:
-    std::map< QString, WQtMenuPage*> m_tabList;
+    std::map< QString, WQtMenuPage*> m_tabList; //!< List holding the widgets representing the tabs of the menu.
 
-    std::map< QString, WQtPushButton*> m_buttonList;
+    std::map< QString, WQtPushButton*> m_buttonList; //!< List holding the buttons that appear in the menu.
 
     QTabWidget* m_tabWidget; //!< The tab widget beeing the basis for the ribbon menu.
 };

@@ -23,6 +23,7 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WQtNumberEdit.h
     datasetbrowser/WQtNumberEditDouble.h
     datasetbrowser/WQtTreeWidget.h
+    datasetbrowser/WQtTreeItem.h
 )
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )

@@ -129,7 +129,7 @@ int WQt4Gui::run()
     m_mainWindow = new WMainWindow();
     m_mainWindow->show();
 
-    // connect out loader signal with krnel
+    // connect out loader signal with kernel
     getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
 
     m_mainWindow->getModuleButtonSignal()->connect( boost::bind( &WKernel::applyModule, m_kernel, _1, _2 ) );

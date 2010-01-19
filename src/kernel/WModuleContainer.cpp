@@ -24,6 +24,7 @@
 
 #include <list>
 #include <set>
+#include <vector>
 #include <string>
 #include <sstream>
 
@@ -32,10 +33,12 @@
 #include "exceptions/WModuleAlreadyAssociated.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "../common/WLogger.h"
+#include "../common/WThreadedRunner.h"
 #include "WKernel.h"
 #include "WModuleFactory.h"
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
+#include "WBatchLoader.h"
 
 #include "WModuleContainer.h"
 
@@ -142,10 +145,21 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 
 void WModuleContainer::stop()
 {
+    WLogger::getLogger()->addLogMessage( "Stopping pending threads." , "ModuleContainer (" + m_name + ")", LL_INFO );
+
+    // read lock
+    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_pendingThreadsLock );
+    for( std::set< boost::shared_ptr< WThreadedRunner > >::iterator listIter = m_pendingThreads.begin(); listIter != m_pendingThreads.end();
+            ++listIter )
+    {
+        ( *listIter )->wait( true );
+    }
+    slock.unlock();
+
     WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + m_name + ")", LL_INFO );
 
     // read lock
-    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
+    slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_modules.begin(); listIter != m_modules.end(); ++listIter )
     {
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + ( *listIter )->getName() + "\" to finish." ,
@@ -241,5 +255,35 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     ( *ins.begin() )->connect( ( *outs.begin() ) );
 
     return m;
+}
+
+boost::shared_ptr< WBatchLoader > WModuleContainer::loadDataSets( std::vector< std::string > fileNames )
+{
+    // create thread which actually loads the data
+    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames, shared_from_this() ) );
+    t->run();
+    return t;
+}
+
+void WModuleContainer::loadDataSetsSynchronously( std::vector< std::string > fileNames )
+{
+    // create thread which actually loads the data
+    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames, shared_from_this() ) );
+    t->run();
+    t->wait();
+}
+
+void WModuleContainer::addPendingThread( boost::shared_ptr< WThreadedRunner > thread )
+{
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_pendingThreadsLock );
+    m_pendingThreads.insert( thread );
+    lock.unlock();
+}
+
+void WModuleContainer::finishedPendingThread( boost::shared_ptr< WThreadedRunner > thread )
+{
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_pendingThreadsLock );
+    m_pendingThreads.erase( thread );
+    lock.unlock();
 }
 

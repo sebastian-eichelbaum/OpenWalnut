@@ -45,11 +45,10 @@ public:
     /**
      * Creates a new progress instance as child of the specified progress. The instance is instantly marked "running".
      *
-     * \param parent parent progress or NULL if there is no parent.
      * \param name   name of the progress, can be empty.
      * \param count  value denoting the final value. A value of zero will cause this progress to be indetermined.
      *
-     * \note Reaching the count does not automatically stop the progress. You still need to call stop().
+     * \note Reaching the count does not automatically stop the progress. You still need to call finish().
      * \note An indetermined progress is just indicating a pending progress without progress information.
      */
     WProgress( std::string name, unsigned int count = 0 );

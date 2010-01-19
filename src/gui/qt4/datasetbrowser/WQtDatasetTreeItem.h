@@ -26,12 +26,14 @@
 #define WQTDATASETTREEITEM_H
 
 #include <QtGui/QTreeWidgetItem>
+
 #include "../../../kernel/WModule.h"
+#include "WQtTreeItem.h"
 
 /**
  * tree widget item to represent a dataset in the dataset browser tree widget
  */
-class WQtDatasetTreeItem : public QTreeWidgetItem
+class WQtDatasetTreeItem : public WQtTreeItem
 {
 public:
     /**
@@ -46,14 +48,9 @@ public:
      */
     virtual ~WQtDatasetTreeItem();
 
-    /**
-     * get for the module pointer
-     */
-    boost::shared_ptr< WModule >getModule();
-
 protected:
+
 private:
-    boost::shared_ptr< WModule > m_module; //!< The module represented by this item.
 };
 
 #endif  // WQTDATASETTREEITEM_H

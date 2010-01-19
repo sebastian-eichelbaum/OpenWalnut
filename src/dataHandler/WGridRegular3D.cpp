@@ -189,9 +189,9 @@ wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
     return m_matrix;
 }
 
-osg::Vec3 WGridRegular3D::transformTexCoord( osg::Vec3 point )
+wmath::WVector3D WGridRegular3D::transformTexCoord( wmath::WPosition point )
 {
-    wmath::WVector3D p( point.x() - 0.5 , point.y() - 0.5, point.z() - 0.5 );
+    wmath::WVector3D p( point[0] - 0.5 , point[1] - 0.5, point[2] - 0.5 );
 
     wmath::WVector3D r( wmath::multMatrixWithVector3D( m_matrixInverse , p ) );
 
@@ -199,7 +199,7 @@ osg::Vec3 WGridRegular3D::transformTexCoord( osg::Vec3 point )
     r[1] = r[1] * m_offsetY + 0.5;
     r[2] = r[2] * m_offsetZ + 0.5;
 
-    return osg::Vec3( r[0], r[1], r[2] );
+    return r;
 }
 
 int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const

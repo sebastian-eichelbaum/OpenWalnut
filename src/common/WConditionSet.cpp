@@ -27,7 +27,9 @@
 #include "WConditionSet.h"
 
 WConditionSet::WConditionSet():
-    WCondition()
+    WCondition(),
+    m_resetable( false ),
+    m_fired( false )
 {
 }
 
@@ -59,6 +61,30 @@ void WConditionSet::remove( boost::shared_ptr< WCondition > condition )
 
 void WConditionSet::conditionFired()
 {
+    m_fired = true;
     notify();
+}
+
+void WConditionSet::wait() const
+{
+    if ( !m_resetable || !m_fired )
+    {
+        WCondition::wait();
+    }
+}
+
+void WConditionSet::reset()
+{
+    m_fired = false;
+}
+
+void WConditionSet::setResetable( bool resetable )
+{
+    m_resetable = resetable;
+}
+
+bool WConditionSet::isResetable()
+{
+    return m_resetable;
 }
 

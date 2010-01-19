@@ -52,35 +52,39 @@ public:
     virtual ~WQtSliderWithEdit();
 
     /**
-     * setter for name
-     * \param name the new name for the GUI element.wo bin ich? hilfe! ich will hier raus
+     * Setter for name.
+     *
+     * \param name the new name for the GUI element.
      */
     void setName( QString name );
 
     /**
-     * setter for min value
-     * \param min the new minimum value
+     * Setter for min value.
+     *
+     * \param min the new minimum value.
      */
     void setMin( int min );
 
     /**
-     * setter for max value
-     * \param max the new maximum value
+     * Setter for max value.
+     *
+     * \param max the new maximum value.
      */
     void setMax( int max );
 
     /**
-     * setter for current value
-     * \param value the new current value
+     * Setter for current value.
+     *
+     * \param value the new current value.
      */
     void setValue( int value );
 
 public slots:
+
     /**
      * emits the slider value to the outside world
      */
     void emitValue();
-
 
 protected:
 private:
@@ -91,6 +95,12 @@ private:
     QString m_name; //!< The name of this gui element.
 
 signals:
+    /**
+     * Signal to propagate the value of the slider.
+     *
+     * \param name name of the slider
+     * \param number actual value
+     */
     void signalNumberWithName( QString name, int number );
 };
 

@@ -30,7 +30,7 @@
 #include <QtGui/QPushButton>
 
 /**
- * implements a QPushButton with a boost signal
+ * Implements a QPushButton with a boost signal for convenience.
  */
 class WQtPushButton : public QPushButton
 {
@@ -50,7 +50,8 @@ public:
     virtual ~WQtPushButton();
 
     /**
-     * setter for name
+     * Setter for name.
+     *
      * \param name The new name of the button
      */
     void setName( QString name );
@@ -62,15 +63,32 @@ public:
      */
     QString getName();
 
-
 private:
+
     QString m_name; //!< name of the push button
 
 public slots:
+
+    /**
+     * Slot getting called when the button got pressed.
+     */
     void emitPressed();
 
 signals:
+
+    /**
+     * Signal whenever the button got pressed.
+     *
+     * \param name the name of the button.
+     */
     void pushButtonPressed( QString name );
+
+    /**
+     * Signals whenever the button got toggled.
+     *
+     * \param name the name of the button.
+     * \param value true if toggled.
+     */
     void pushButtonToggled( QString name, bool value );
 };
 

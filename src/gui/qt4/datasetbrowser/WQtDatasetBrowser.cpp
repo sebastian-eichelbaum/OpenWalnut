@@ -163,21 +163,11 @@ bool WQtDatasetBrowser::event( QEvent* event )
         QTreeWidgetItemIterator it( m_treeWidget );
         while ( *it )
         {
-            // convert to the different types
-            // This is ugly. Why do we need to differentiate different types?!
-            WQtModuleTreeItem* itemM = dynamic_cast< WQtModuleTreeItem* >( *it );
+            WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
             boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >();
-            if ( itemM )
+            if ( item )
             {
-                module = itemM->getModule();
-            }
-
-            // if both would be derived from a common parent class this two casts would not be needed!
-            // But unfortunately they aren't.
-            WQtDatasetTreeItem* itemD = dynamic_cast< WQtDatasetTreeItem* >( *it );
-            if ( itemD )
-            {
-                module = itemD->getModule();
+                module = item->getModule();
             }
 
             // if the pointer is NULL the item was none of the above
@@ -191,9 +181,10 @@ bool WQtDatasetBrowser::event( QEvent* event )
             if ( e->getModule() == module )
             {
                 // activate it
-                itemD ? itemD->setDisabled( false ) : itemM->setDisabled( false );
+                item->setDisabled( false );
 
-                if ( itemD )
+                // if the type number is 1 (dataset item) emit change event
+                if ( item->type() == 1 )
                 {
                     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
                     emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
@@ -212,7 +203,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + 1 );
     subject->setExpanded( true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
-    item->setDisabled( false );
+    item->setDisabled( true );
     return item;
 }
 
@@ -419,7 +410,7 @@ std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( 
         boost::shared_ptr< WMData > dm = boost::shared_dynamic_cast< WMData >( ( ( WQtDatasetTreeItem* )m_treeWidget->invisibleRootItem()->child(
                         subjectId + 1 )->child( i ) )->getModule() );
 
-        if ( !onlyTextures || dm->getDataSet()->isTexture() )
+        if ( dm->isReady()() && ( !onlyTextures || dm->getDataSet()->isTexture() ) )
         {
             if ( dm->getProperties()->getValue<bool>( "active" ) )
             {

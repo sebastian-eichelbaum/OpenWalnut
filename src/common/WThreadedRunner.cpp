@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include "WConditionOneShot.h"
+#include "../common/WLogger.h"
 
 #include "WThreadedRunner.h"
 
@@ -48,6 +49,11 @@ void WThreadedRunner::run()
     m_Thread = new boost::thread( boost::bind( &WThreadedRunner::threadMain, this ) );
 }
 
+void WThreadedRunner::run( THREADFUNCTION f )
+{
+    m_Thread = new boost::thread( f );
+}
+
 void WThreadedRunner::wait( bool requestFinish )
 {
     if( requestFinish )
@@ -69,6 +75,7 @@ void WThreadedRunner::waitForStop()
 
 void WThreadedRunner::threadMain()
 {
+    WLogger::getLogger()->addLogMessage( "This should never be called. Implement a thread function here.", "WThreadedRunner", LL_WARNING );
 }
 
 void WThreadedRunner::notifyStop()

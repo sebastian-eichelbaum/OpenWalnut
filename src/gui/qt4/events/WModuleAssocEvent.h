@@ -41,6 +41,8 @@ public:
 
     /**
      * Creates a new event instance denoting that the specified module got associated in the root container.
+     *
+     * \param module the module that got associated.
      */
     explicit WModuleAssocEvent( boost::shared_ptr< WModule > module );
 

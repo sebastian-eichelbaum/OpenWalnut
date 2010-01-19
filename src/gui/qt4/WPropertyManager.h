@@ -41,45 +41,66 @@ class WPropertyManager : public QObject
 
 public:
     /**
-     * standard constructor
+     * Standard constructor. Creates an empty property manager.
      */
     WPropertyManager();
 
     /**
-     * destructor
+     * Destructor.
      */
     virtual ~WPropertyManager();
 
     /**
-     * adds a property pointer to the list
+     * Add a property to the list of managed properties.
+     *
+     * \param properties the property to add.
      */
     void connectProperties( boost::shared_ptr< WProperties > properties );
 
 public slots:
+
     /**
-     * slot function that writes a boolean value to all properties objects that contain an entry
-     * with that name
+     * Slot function that writes a boolean value to all properties objects that contain an entry
+     * with that name.
+     *
+     * \param name the name of the property to set the bool for.
+     * \param value the bool value to set.
      */
     void slotBoolChanged( QString name, bool value );
+
     /**
-     * slot function that writes a integer value to all properties objects that contain an entry
+     * Slot function that writes a integer value to all properties objects that contain an entry
      * with that name
+     *
+     * \param name the name of the property to set the value for.
+     * \param value the value to set.
      */
     void slotIntChanged( QString name, int value );
+
     /**
      * slot function that writes a float value to all properties objects that contain an entry
      * with that name
+     *
+     * \param name the name of the property to set the value for.
+     * \param value the value to set.
      */
     void slotFloatChanged( QString name, float value );
+
     /**
      * slot function that writes a string value to all properties objects that contain an entry
      * with that name
+     *
+     * \param name the name of the property to set the value for.
+     * \param value the value to set.
      */
     void slotStringChanged( QString name, QString value );
 
-
 protected:
 private:
+
+    /**
+     * List of all properties actually connected with this manager instance.
+     */
     std::vector< boost::shared_ptr< WProperties > > m_connectedProperties;
 };
 

@@ -60,7 +60,7 @@ WGraphicsEngine::WGraphicsEngine():
     m_shaderPath = "";
 
     // initialize OSG render window
-    m_Viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
+    m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
 
     // ThreadingModel: enum with the following possibilities
     //
@@ -71,7 +71,7 @@ WGraphicsEngine::WGraphicsEngine():
     //  CullThreadPerCameraDrawThreadPerContext
     //  ThreadPerCamera
     //  AutomaticSelection
-    m_Viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
+    m_viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
 
     // init resource manager ( it is a singleton and gets created during first "getResourceManager" request.
     WGEResourceManager::getResourceManager();
@@ -114,7 +114,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
                                                             WColor bgColor )
 {
     // init the composite viewer if not already done
-    if ( m_Viewer == osg::ref_ptr< osgViewer::CompositeViewer >() )
+    if ( m_viewer == osg::ref_ptr< osgViewer::CompositeViewer >() )
     {
     }
 
@@ -124,35 +124,35 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
     viewer->setScene( getScene() );
 
     // finally add view
-    m_Viewer->addView( viewer->getViewer().get() );
+    m_viewer->addView( viewer->getView() );
 
     // store it in viewer list
-    boost::mutex::scoped_lock lock( m_ViewersLock );
-    assert( m_Viewers.insert( make_pair( name, viewer ) ).second == true );
-    m_ViewersLock.unlock();
+    boost::mutex::scoped_lock lock( m_viewersLock );
+    assert( m_viewers.insert( make_pair( name, viewer ) ).second == true );
+    m_viewersLock.unlock();
 
     return viewer;
 }
 
 void WGraphicsEngine::closeViewer( const std::string name )
 {
-    boost::mutex::scoped_lock lock( m_ViewersLock );
-    if( m_Viewers.count( name ) > 0 )
+    boost::mutex::scoped_lock lock( m_viewersLock );
+    if( m_viewers.count( name ) > 0 )
     {
-        m_Viewers[name]->close();
+        m_viewers[name]->close();
 
-        m_Viewers.erase( name );
+        m_viewers.erase( name );
     }
-    m_ViewersLock.unlock();
+    m_viewersLock.unlock();
 }
 
 boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string name )
 {
-    boost::mutex::scoped_lock lock( m_ViewersLock );
-    boost::shared_ptr< WGEViewer > out = m_Viewers.count( name ) > 0 ?
-        m_Viewers[name] :
+    boost::mutex::scoped_lock lock( m_viewersLock );
+    boost::shared_ptr< WGEViewer > out = m_viewers.count( name ) > 0 ?
+        m_viewers[name] :
         boost::shared_ptr< WGEViewer >();
-    m_ViewersLock.unlock();
+    m_viewersLock.unlock();
     return out;
 }
 
@@ -160,16 +160,16 @@ void WGraphicsEngine::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
 
-    m_Viewer->startThreading();
-    m_Viewer->run();
-    m_Viewer->stopThreading();
+    m_viewer->startThreading();
+    m_viewer->run();
+    m_viewer->stopThreading();
 }
 
 void WGraphicsEngine::notifyStop()
 {
     WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
 
-    m_Viewer->setDone( true );
+    m_viewer->setDone( true );
 }
 
 osg::Vec4 wge::osgColor( const WColor& color )

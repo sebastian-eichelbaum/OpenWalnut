@@ -33,7 +33,7 @@
 #include "../guiElements/WQtPushButton.h"
 
 /**
- * TODO(schurade): Document this!
+ * This class represents a menu page inside the ribbon menu. It offers several methods to add buttons and manage the menu.
  */
 class WQtMenuPage : public QWidget
 {
@@ -47,12 +47,14 @@ public:
     WQtMenuPage( QString name, bool persistent = true );
 
     /**
-     * TODO(schurade): Document this!
+     * Destructor.
      */
     virtual ~WQtMenuPage();
 
     /**
+     * Add a new button to this menu page in the ribbon menu.
      *
+     * \param button the new button to add
      */
     void addButton( WQtPushButton* button );
 
@@ -64,7 +66,9 @@ public:
     std::vector< QString > getButtons();
 
     /**
-     * Returns the name of the tab
+     * Returns the name of the tab.
+     *
+     * \return the name of this menu page.
      */
     QString getName();
 
