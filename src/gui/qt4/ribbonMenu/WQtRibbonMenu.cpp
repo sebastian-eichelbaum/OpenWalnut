@@ -82,7 +82,7 @@ WQtPushButton* WQtRibbonMenu::getButton( QString name )
 
 void WQtRibbonMenu::clearNonPersistentTabs()
 {
-    for ( std::map< QString, WQtMenuPage*>::iterator iter = m_tabList.begin(); iter != m_tabList.end(); ++iter )
+    for ( std::map< QString, WQtMenuPage*>::iterator iter = m_tabList.begin(); iter != m_tabList.end(); )
     {
         int idx = m_tabWidget->indexOf( ( *iter ).second );
         if ( !( *iter ).second->isPersistent() )
@@ -94,7 +94,11 @@ void WQtRibbonMenu::clearNonPersistentTabs()
                 m_buttonList.erase( *bIter );
             }
             m_tabWidget->removeTab( idx );
-            m_tabList.erase( iter );
+            m_tabList.erase( iter++ );
+        } 
+        else
+        {
+            ++iter;
         }
     }
 }
