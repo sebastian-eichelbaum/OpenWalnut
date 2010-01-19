@@ -780,7 +780,8 @@ GENERATE_HTML          = YES
 # If the HTML_FOOTER_DESCRIPTION tag is set to YES, Doxygen will 
 # add generated date, project name and doxygen version to HTML footer.
 
-HTML_FOOTER_DESCRIPTION= NO
+# THIS IS A SuSE only addon
+# HTML_FOOTER_DESCRIPTION= NO
 
 # The HTML_OUTPUT tag is used to specify where the HTML docs will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
