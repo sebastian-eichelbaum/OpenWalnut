@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WQtDatasetTreeItem.h"
 
 WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module )

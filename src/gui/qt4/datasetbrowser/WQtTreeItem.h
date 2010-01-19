@@ -25,6 +25,8 @@
 #ifndef WQTTREEITEM_H
 #define WQTTREEITEM_H
 
+#include <string>
+
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QProgressBar>
 #include <QtCore/QTimer>

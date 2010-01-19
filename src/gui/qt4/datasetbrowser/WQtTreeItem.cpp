@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <sstream>
+#include <string>
 
 #include "../../../common/WProgressCombiner.h"
 #include "../../../common/WProgress.h"
@@ -85,7 +86,7 @@ void WQtTreeItem::updateState()
 
         if ( p->isDetermined() )
         {
-            title << " - " << std::setprecision(0) << p->getProgress() << "%";
+            title << " - " << std::setprecision( 0 ) << p->getProgress() << "%";
         }
         else
         {
