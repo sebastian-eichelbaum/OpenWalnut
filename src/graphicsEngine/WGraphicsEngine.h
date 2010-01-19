@@ -68,7 +68,7 @@ public:
     virtual ~WGraphicsEngine();
 
     /**
-     * Returns the root node of the WGraphicsEngine ( this is not the root node of the OSG).
+     * Returns the root node of the WGraphicsEngine (this is not the root node of the OSG).
      *
      * \return the root node.
      */
@@ -157,12 +157,12 @@ protected:
     /**
      * All registered viewers.
      */
-    std::map< std::string, boost::shared_ptr< WGEViewer > > m_Viewers;
+    std::map< std::string, boost::shared_ptr< WGEViewer > > m_viewers;
 
     /**
      * Mutex used to lock the map of viewers.
      */
-    boost::mutex m_ViewersLock;
+    boost::mutex m_viewersLock;
 
     /**
      * Path to the shaders.
@@ -170,12 +170,11 @@ protected:
     std::string m_shaderPath;
 
     /**
-     * OpenSceneGraph composite viewer. Contains all created osg::Viewer.
+     * OpenSceneGraph composite viewer. Contains all created osgViewer::Views.
      */
-    osg::ref_ptr<osgViewer::CompositeViewer> m_Viewer;
+    osg::ref_ptr<osgViewer::CompositeViewer> m_viewer;
 
 private:
-
     /**
      * Singleton instance of WGraphicsEngine.
      */
@@ -243,4 +242,3 @@ namespace wge
 } // end of namespace
 
 #endif  // WGRAPHICSENGINE_H
-

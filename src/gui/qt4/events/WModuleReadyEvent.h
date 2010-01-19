@@ -41,6 +41,8 @@ public:
 
     /**
      * Creates a new event instance denoting that the specified module got associated in the root container.
+     *
+     * \param module the module that switched its state.
      */
     explicit WModuleReadyEvent( boost::shared_ptr< WModule > module );
 

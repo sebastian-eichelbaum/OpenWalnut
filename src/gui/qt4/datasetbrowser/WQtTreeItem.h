@@ -22,37 +22,64 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTMODULETREEITEM_H
-#define WQTMODULETREEITEM_H
+#ifndef WQTTREEITEM_H
+#define WQTTREEITEM_H
 
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QProgressBar>
 #include <QtCore/QTimer>
-
-#include "WQtTreeItem.h"
 #include "../../../kernel/WModule.h"
 
 /**
- * TODO(schurade): Document this!
+ * Base class for all items in the dataset browser.
  */
-class WQtModuleTreeItem: public WQtTreeItem
+class WQtTreeItem: public QObject,
+                   public QTreeWidgetItem
 {
+    Q_OBJECT
+
 public:
     /**
-     * TODO(schurade): Document this!
+     * Constructor creates an empty item.
+     *
      * \param parent The widget managing this widget
      * \param module The represented module
+     * \param type the type used for the treeitem. Used to identify the items.
      */
-    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
+    WQtTreeItem( QTreeWidgetItem * parent, int type, boost::shared_ptr< WModule > module );
 
     /**
      * Destructor.
      */
-    virtual ~WQtModuleTreeItem();
+    virtual ~WQtTreeItem();
+
+    /**
+     * Get for the module pointer.
+     *
+     * \return the pointer to the module associated with this item.
+     */
+    boost::shared_ptr< WModule >getModule();
+
+public slots:
+
+    /**
+     * Gets called by m_updateTimer in some interval to update the item state, basing on the state of m_module.
+     */
+    void update();
 
 protected:
 
+    /**
+     * Updates this item in regular intervals.
+     */
+    boost::shared_ptr< QTimer > m_updateTimer;
+
 private:
+
+    /**
+     * The module represented by this tree item.
+     */
+    boost::shared_ptr< WModule > m_module;
 };
 
-#endif  // WQTMODULETREEITEM_H
+#endif  // WQTTREEITEM_H

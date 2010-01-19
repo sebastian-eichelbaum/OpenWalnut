@@ -40,7 +40,7 @@ public:
     /**
      * standard constructor
      */
-    explicit WQtLineEdit();
+    WQtLineEdit();
 
     /**
      * destructor
@@ -48,18 +48,34 @@ public:
     virtual ~WQtLineEdit();
 
     /**
-     * setter for name
+     * Setter for name.
+     *
      * \param name the new name for the line edit
      */
     void setName( QString name );
 
 private:
+
+    /**
+     * Name of the edit and its value.
+     */
     QString m_name;
 
 public slots:
+
+    /**
+     * Value of the edit field changed.
+     */
     void emitStateChanged();
 
 signals:
+
+    /**
+     * Signal a state change in the line edit.
+     *
+     * \param name name of the line edit.
+     * \param text new text inside the edit field.
+     */
     void lineEditStateChanged( QString name, QString text );
 };
 

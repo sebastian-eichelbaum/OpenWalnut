@@ -66,7 +66,41 @@ public:
      */
     virtual void remove( boost::shared_ptr< WCondition > condition );
 
+    /**
+     * Wait for the condition. Sets the calling thread asleep. If the condition set is resetable, this will return immediately
+     * when a condition in the set fired in the past and there has been no reset() call until now.
+     */
+    virtual void wait() const;
+
+    /**
+     * Resets the internal fire state. This does nothing if !isResetable().
+     */
+    virtual void reset();
+
+    /**
+     * Sets the resetable flag. This causes the condition set to act like a WConditionOneShot. There are several implications to
+     * this you should consider when using the condition set as a resetable. If one condition in the condition set fires, a
+     * subsequent call to wait() will immediately return until a reset() call has been done. If you share one condition set among
+     * several threads, you should consider, that one thread can reset the condition set before the other thread had a chance to
+     * call wait() which causes the other thread to wait until the next condition in the set fires.
+     *
+     * \param resetable true if the fire state should be delayed and can be reseted.
+     */
+    void setResetable( bool resetable = true );
+
+    /**
+     * Returns whether the condition set acts like a one shot condition.
+     *
+     * \return true if the fire state is delayed and can be reseted.
+     */
+    bool isResetable();
+
 protected:
+
+    /**
+     * Flag denoting whether the condition set should act like a one shot condition.
+     */
+    bool m_resetable;
 
     /**
      * Set of conditions to be waited for.
@@ -82,6 +116,11 @@ protected:
      * Notifier function getting notified whenever a condition got fired.
      */
     virtual void conditionFired();
+
+    /**
+     * Flag denoting whether one condition fired in the past. Just useful when m_resetable is true.
+     */
+    bool m_fired;
 
 private:
 };

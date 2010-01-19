@@ -22,71 +22,64 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTNUMBEREDITDOUBLE_H
-#define WQTNUMBEREDITDOUBLE_H
+#ifndef WBATCHLOADER_H
+#define WBATCHLOADER_H
 
 #include <string>
+#include <vector>
 
-#include <QtGui/QLineEdit>
+#include <boost/shared_ptr.hpp>
+
+#include "../common/WThreadedRunner.h"
+
+class WModuleContainer;
 
 /**
- * a QLineEdit modified to deal only with double numbers
+ * Class for loading many datasets. It runs in a separate thread.
  */
-class WQtNumberEditDouble : public QLineEdit
+class WBatchLoader: public WThreadedRunner,
+                    public boost::enable_shared_from_this< WBatchLoader >
 {
-    Q_OBJECT
-
 public:
+
     /**
-     * Default constructor, that connects the slot of the edit.
+     * Initializes the batchloader but does not start it. Use run().
      *
-     * \param name The name of teh widget
-     * \param parent The widget managing this widget
+     * \param fileNames the files to load.
+     * \param targetContainer the container to which the data modules should be added.
      */
-    explicit WQtNumberEditDouble( QString name, QWidget* parent = 0 );
+    WBatchLoader( std::vector< std::string > fileNames, boost::shared_ptr< WModuleContainer > targetContainer );
 
     /**
-     * setter for name.
-     *
-     * \param name The new name for the widget
+     * Destructor.
      */
-    void setName( QString name );
+    virtual ~WBatchLoader();
 
     /**
-     * destructor
+     * Run thread and load the data.
      */
-    virtual ~WQtNumberEditDouble();
-
-public slots:
-
-    /**
-     * Sets the edit field to a certain number.
-     *
-     * \param number The double to be put into the field.
-     */
-    void setDouble( double number );
-
-    /**
-     * Updated the number in the lineEdit if the number has changed.
-     */
-    void numberChanged();
-
-signals:
-
-    /**
-     * Signal to distribute the number set in the lineEdit.
-     *
-     * \param name name of the edit field.
-     * \param number new value of the edit field.
-     */
-    void signalNumberWithName( QString name, double number );
+    virtual void run();
 
 protected:
-private:
+
     /**
-     * Name if the value.
+     * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
+     * has been called.
      */
-    QString m_name;
+    virtual void threadMain();
+
+    /**
+     * List of files to load.
+     */
+    std::vector< std::string > m_fileNamesToLoad;
+
+    /**
+     * The container which later will contain the loaded datasets.
+     */
+    boost::shared_ptr< WModuleContainer > m_targetContainer;
+
+private:
 };
 
-#endif  // WQTNUMBEREDITDOUBLE_H
+#endif  // WBATCHLOADER_H
+

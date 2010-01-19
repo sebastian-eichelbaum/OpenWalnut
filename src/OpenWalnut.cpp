@@ -30,11 +30,16 @@
 #include "gui/qt4/WQt4Gui.h"
 
 /**
- * The main routine starting up the whole application.
- *
  * \mainpage OpenWalnut Inline Documentation
- *
- * For a list of the current modules see the "Modules" tab in the navigation bar above.
+ * \par
+ * http://www.openwalnut.org
+ * \par
+ * Copyright 2009 OpenWalnut Community, BSV\@Uni-Leipzig and CNCF\@MPI-CBS.
+ * For more information see http://www.openwalnut.org/copying
+ */
+
+/**
+ * The main routine starting up the whole application.
  */
 int main( int argc, char** argv )
 {

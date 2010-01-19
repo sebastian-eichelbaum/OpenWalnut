@@ -96,6 +96,8 @@ private:
 
     /**
      * Gets signaled from the properties object when something was changed
+     *
+     * \param propertyName the name of the property that has changed.
      */
     void slotPropertyChanged( std::string propertyName );
 

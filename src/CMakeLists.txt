@@ -147,12 +147,12 @@ ADD_CUSTOM_TARGET( doc
                  )
 
 # NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
-# but need "dot" from graphviz to render them.
+# but needs "dot" from graphviz to render them.
 ADD_CUSTOM_TARGET( fulldoc
                    COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfigFull
                    COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
-                   COMMENT "Build doxygen documentation"
+                   COMMENT "Build verbose doxygen documentation"
                    VERBATIM
                  )
 

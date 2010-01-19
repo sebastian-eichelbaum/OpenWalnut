@@ -136,6 +136,8 @@ protected:
 
     /**
      * Gets signaled from the properties object when something was changed
+     *
+     * \param propertyName the name of the property that actually changed.
      */
     void slotPropertyChanged( std::string propertyName );
 

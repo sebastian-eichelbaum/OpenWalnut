@@ -40,6 +40,8 @@ WVector3D multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec )
 
 WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
 {
+    assert( mat.getNbRows() );
+    assert( mat.getNbCols() );
     double det = mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) +
                 mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 0 ) +
                 mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 1 ) -

@@ -22,37 +22,52 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTMODULETREEITEM_H
-#define WQTMODULETREEITEM_H
+#ifndef WBRESENHAMDBL_H
+#define WBRESENHAMDBL_H
 
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QProgressBar>
-#include <QtCore/QTimer>
+#include <boost/shared_ptr.hpp>
 
-#include "WQtTreeItem.h"
-#include "../../../kernel/WModule.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../math/WLine.h"
+#include "../../math/WPosition.h"
+#include "WRasterAlgorithm.h"
 
 /**
- * TODO(schurade): Document this!
+ * Implementes basic bresenham algorithm for rasterization.
  */
-class WQtModuleTreeItem: public WQtTreeItem
+class WBresenhamDBL : public WRasterAlgorithm
 {
 public:
     /**
-     * TODO(schurade): Document this!
-     * \param parent The widget managing this widget
-     * \param module The represented module
+     * Initializes new raster algo.
+     *
+     * \param grid The grid which defines the voxels which should be marked.
      */
-    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
+    explicit WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid );
 
     /**
-     * Destructor.
+     * Finishes this raster algo.
      */
-    virtual ~WQtModuleTreeItem();
+    virtual ~WBresenhamDBL();
+
+    /**
+     * Rasterize the given line into the grid of dataset.
+     * The value of the voxel which will be hit changes its value.
+     *
+     * \param line Polyline which is about to be rastered.
+     */
+    virtual void raster( const wmath::WLine& line );
 
 protected:
+    /**
+     *
+     *
+     * \param start
+     * \param stop
+     */
+    void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& stop );
 
 private:
 };
 
-#endif  // WQTMODULETREEITEM_H
+#endif  // WBRESENHAMDBL_H
