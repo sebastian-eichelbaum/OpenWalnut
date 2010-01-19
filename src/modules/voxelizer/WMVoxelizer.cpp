@@ -245,8 +245,13 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
         {
             for( int x = 0; x < 3; ++x )
             {
+#ifdef _WIN32
+                fll[x] = min( fiber[i][x], fll[x] );
+                bur[x] = max( fiber[i][x], bur[x] );
+#else
                 fll[x] = std::min( fiber[i][x], fll[x] );
                 bur[x] = std::max( fiber[i][x], bur[x] );
+#endif
             }
         }
     }

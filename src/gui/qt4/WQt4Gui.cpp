@@ -55,7 +55,7 @@ WQt4Gui::~WQt4Gui()
 
 #ifdef _WIN32
 // need this on windows to make it link correctly.
-const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
+//const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
 #endif
 
 bool WQt4Gui::parseOptions()
