@@ -38,7 +38,9 @@
 // information. Since we don't have the possibility of multiple
 // InputConnectors we must agglomerate those into one object. Please remove this.
 // initializes the variable and provides a linker reference
+// \cond
 boost::shared_ptr< WPrototyped > WFiberCluster::m_prototype = boost::shared_ptr< WPrototyped >();
+// \endcond
 
 WFiberCluster::WFiberCluster()
     : WTransferable()
@@ -62,6 +64,8 @@ void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
     other.clear();
 }
 
+// NODOXYGEN
+// \cond
 void WFiberCluster::setDataSetReference( boost::shared_ptr< const WDataSetFibers > fibs )
 {
     m_fibs = fibs;
@@ -84,3 +88,4 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
     }
     return m_prototype;
 }
+// \endcond

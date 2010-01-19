@@ -108,7 +108,7 @@ public:
      * The only reason for implementing is here, to prevent this class from
      * beeing abstract.
      *
-     *\return A name.
+     * \return A name.
      */
     virtual const std::string getName() const;
 
@@ -116,7 +116,7 @@ public:
      * The only reason for implementing is here, to prevent this class from
      * beeing abstract.
      *
-     *\return A name.
+     * \return A name.
      */
     virtual const std::string getDescription() const;
 
@@ -138,6 +138,8 @@ public:
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
     // information. Since we don't have the possibility of multiple
     // InputConnectors we must agglomerate those into one object. Please remove this.
+    // DISABLE DOXYGEN HERE
+    // \cond
     void setDataSetReference( boost::shared_ptr< const WDataSetFibers > fibs );
     boost::shared_ptr< const WDataSetFibers > getDataSetReference() const;
     static boost::shared_ptr< WPrototyped > getPrototype();
@@ -148,6 +150,8 @@ protected:
     // information. Since we don't have the possibility of multiple
     // InputConnectors we must agglomerate those into one object. Please remove this.
     static boost::shared_ptr< WPrototyped > m_prototype;
+    // \endcond
+    // ENDABLE DOXYGEN HERE
 
 private:
 

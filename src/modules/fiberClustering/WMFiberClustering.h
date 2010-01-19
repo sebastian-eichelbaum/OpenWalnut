@@ -129,7 +129,7 @@ private:
      * Checks if the look up table exists. This is done via the original file
      * name containing the fibers but different suffix.
      *
-     *\return True if it look up table detection was successfull.
+     * \return True if it look up table detection was successfull.
      */
     bool dLtTableExists();
 
@@ -155,7 +155,7 @@ private:
     /**
      * For each cluster a dataset is generated in which its fibers are blurred.
      *
-     *\return Datasets containing the blurred clusters.
+     * \return Datasets containing the blurred clusters.
      */
     boost::shared_ptr< WDataSetSingle > blurClusters() const;
 
@@ -192,6 +192,9 @@ private:
      */
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
 
+    /**
+     * Output connector for the first cluster.
+     */
     boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_output;
 
     /**

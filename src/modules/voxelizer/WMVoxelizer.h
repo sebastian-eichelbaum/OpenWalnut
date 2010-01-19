@@ -34,7 +34,7 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "WBresenham.h"
+#include "WBresenhamDBL.h"
 #include "WRasterAlgorithm.h"
 
 /**
@@ -99,28 +99,57 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Generates an OSG geode for the fibers in the given cluster to display
+     * only this cluster.
+     *
+     * \return OSG geode containing the fibers of the cluster.
+     */
     osg::ref_ptr< osg::Geode > genFiberGeode() const;
+
+    /**
+     * Every parameter change this function is doing:
+     *  - bounding box and grid generation
+     *  - executing a rasterization algo for the fibers
+     *  - generate dataset out of the grid and a value set
+     *  - display the rastered voxels
+     */
     void update();
 
     /**
      * Builds an OSG geode where all voxels inside the dataSet which are not
      * zero are drawn as cuboids.
      *
+     * \param dataset The dataset which should be drawn
+     *
      * \return OSG Geode with the voxels as cuboids.
      */
     osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const;
 
-    void raster( boost::shared_ptr< WBresenham > algo ) const;
+    /**
+     * Performs rasterization with the given algorithm.
+     *
+     * \param algo The algorithm which actualy rasters every fiber.
+     */
+    void raster( boost::shared_ptr< WBresenhamDBL > algo ) const;
 
     /**
      * Creates two vertices describing the bounding box of a cluster.
      *
-     *\param cluster With its fibers
+     * \param cluster With its fibers
      *
-     *\return Pair of WPositions: first == front lower left, second == back upper right
+     * \return Pair of WPositions: first == front lower left, second == back upper right
      */
     std::pair< wmath::WPosition, wmath::WPosition > createBoundingBox( const WFiberCluster& cluster ) const;
 
+    /**
+     * Generates an OSG geode for the bounding box.
+     *
+     * \param fll Front lower left corner of the bounding box.
+     * \param bur Back upper right corner of the bounding box.
+     *
+     * \return The OSG geode containing the 12 edges of the box.
+     */
     osg::ref_ptr< osg::Geode > genBBGeode( const wmath::WPosition& fll,
                                            const wmath::WPosition& bur ) const;
 

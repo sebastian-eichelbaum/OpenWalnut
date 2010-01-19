@@ -42,7 +42,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
 #include "../../utils/WColorUtils.h"
-#include "WBresenham.h"
+#include "WBresenhamDBL.h"
 #include "WMVoxelizer.h"
 #include "WRasterAlgorithm.h"
 
@@ -146,7 +146,7 @@ void WMVoxelizer::update()
 
     grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbPosX, nbPosY, nbPosZ, bb.first, 1, 1, 1 ) );
     debugLog() << "Created grid of size: " << grid->size();
-    boost::shared_ptr< WBresenham > bresenham = boost::shared_ptr< WBresenham >( new WBresenham( grid ) );
+    boost::shared_ptr< WBresenhamDBL > bresenham = boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid ) );
     raster( bresenham );
     boost::shared_ptr< WDataSetSingle > outputDataSet = bresenham->generateDataSet();
     m_output->updateData( outputDataSet );
@@ -156,7 +156,7 @@ void WMVoxelizer::update()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode );
 }
 
-void WMVoxelizer::raster( boost::shared_ptr< WBresenham > algo ) const
+void WMVoxelizer::raster( boost::shared_ptr< WBresenhamDBL > algo ) const
 {
     const WDataSetFibers& fibs = *m_clusters->getDataSetReference();
     const std::list< size_t >& fiberIDs = m_clusters->getIndices();

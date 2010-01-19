@@ -44,8 +44,8 @@ public:
     /**
      * Constructs basic Loader with a file name.
      *
-     *\param fileName Path to be loaded
-     *\throw WDHIOFailure in case of an error
+     * \param fileName Path to be loaded
+     * \throw WDHIOFailure in case of an error
      */
     explicit WLoader( std::string fileName ) throw( WDHIOFailure );
 

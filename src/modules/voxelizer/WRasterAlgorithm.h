@@ -47,6 +47,8 @@ public:
      * Creates new raster algorithm within the given grid. The grid may later
      * also be used to generate a real DataSet, \see generateDataSet() for
      * furter instructions.
+     *
+     * \param grid The grid specifying the voxels.
      */
     explicit WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid );
 
@@ -59,7 +61,7 @@ public:
      * Rasterize the given line into the grid of dataset.
      * The value of the voxel which will be hit changes its value.
      *
-     *\param line Polyline which is about to be rastered.
+     * \param line Polyline which is about to be rastered.
      */
     virtual void raster( const wmath::WLine& line ) = 0;
 
@@ -67,7 +69,7 @@ public:
      * Computes a dataset out of our voxel values and the previously given
      * grid. Note this may take some time.
      *
-     *\return Dataset where all voxels which are hit by the rastered lines are
+     * \return Dataset where all voxels which are hit by the rastered lines are
      * non zero.
      */
     boost::shared_ptr< WDataSetSingle > generateDataSet() const;
@@ -75,6 +77,8 @@ public:
 protected:
     /**
      * Marks a given voxel as hit.
+     *
+     * \param voxel The voxel coordinates
      */
     virtual void markVoxel( const wmath::WValue< int >& voxel );
 

@@ -334,6 +334,16 @@ public:
 
 protected:
 private:
+    /**
+     * Computes for the n'th component of the voxel coordinate where the voxel
+     * contains the position pos.
+     *
+     * \param pos The position for which the n'th component of the voxel
+     * coordinates should be computed.
+     * \param axis The number of the component. (0 == x-axis, 1 == y-axis, ...)
+     *
+     * \return The n'th component of the voxel coordinate
+     */
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
 
     wmath::WPosition m_origin; //!< Origin of the grid.

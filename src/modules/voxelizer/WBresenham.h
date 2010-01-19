@@ -39,6 +39,8 @@ class WBresenham : public WRasterAlgorithm
 public:
     /**
      * Initializes new raster algo.
+     *
+     * \param grid The grid which defines the voxels which should be marked.
      */
     explicit WBresenham( boost::shared_ptr< WGridRegular3D > grid );
 
@@ -51,16 +53,16 @@ public:
      * Rasterize the given line into the grid of dataset.
      * The value of the voxel which will be hit changes its value.
      *
-     *\param line Polyline which is about to be rastered.
+     * \param line Polyline which is about to be rastered.
      */
     virtual void raster( const wmath::WLine& line );
 
 protected:
     /**
+     * Rasters a line segement of a polyline.
      *
-     *
-     *\param start
-     *\param stop
+     * \param start Start point of the line segement.
+     * \param stop End point of the line segement.
      */
     void rasterSegment( const wmath::WValue< int >& start, const wmath::WValue< int >& stop );
 

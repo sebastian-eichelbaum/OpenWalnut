@@ -68,7 +68,7 @@ public:
     /**
      * Delivers a reference to the last point.
      *
-     *\return Reference of the last point.
+     * \return Reference of the last point.
      */
     const WPosition& back() const;
 

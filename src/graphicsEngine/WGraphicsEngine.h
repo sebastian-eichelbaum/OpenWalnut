@@ -197,8 +197,8 @@ namespace wge
     /**
      * Converts a WColor to an OSG compatible color
      *
-     *\param color The color in WColor format
-     *\return A color which may be used inside of OSG
+     * \param color The color in WColor format
+     * \return A color which may be used inside of OSG
      */
     osg::Vec4 osgColor( const WColor& color );
 
