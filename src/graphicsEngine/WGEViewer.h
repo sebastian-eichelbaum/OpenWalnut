@@ -37,8 +37,6 @@
 #include <osgGA/TerrainManipulator>
 #include <osgGA/UFOManipulator>
 
-#include <osgViewer/Viewer>
-#include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
 
 #include "../common/WThreadedRunner.h"
@@ -52,7 +50,7 @@
 class WColor;
 
 /**
- * Class for managing one viewer to the scene. This includes viewport, camera and graphics context.
+ * Class for managing one view to the scene. This includes viewport, camera and graphics context.
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
@@ -94,11 +92,11 @@ public:
     virtual void close();
 
     /**
-     * Getter for OpenSceneGraph Viewer instance.
+     * Getter for OpenSceneGraph View instance.
      *
      * \return the OSG Viewer instance.
      */
-    osg::ref_ptr<osgViewer::Viewer> getViewer();
+    osg::ref_ptr<osgViewer::View> getView();
 
     /**
      * Sets the camera manipulator to use.
@@ -163,11 +161,10 @@ public:
     osg::ref_ptr< WPickHandler > getPickHandler();
 
 protected:
-
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
      */
-    osg::ref_ptr< osgViewer::Viewer > m_View;
+    osg::ref_ptr< osgViewer::View > m_View;
 
     /**
      * The name of the viewer.
