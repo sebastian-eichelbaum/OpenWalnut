@@ -1,7 +1,7 @@
 ADD_SUBDIRECTORY( fiberSimilarity )
 
-FILE( GLOB MATH_SRC "*.cpp" )
-FILE( GLOB FIBERSIMILARITY_SRC "fiberSimilarity/*.cpp" )
+FILE( GLOB MATH_SRC "*.cpp" "*.h" )
+FILE( GLOB FIBERSIMILARITY_SRC "fiberSimilarity/*.cpp" "fiberSimilarity/*.h" )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     ADD_LIBRARY( math ${MATH_SRC} ${FIBERSIMILARITY_SRC} )

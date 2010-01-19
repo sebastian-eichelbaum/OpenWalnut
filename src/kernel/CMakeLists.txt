@@ -1,9 +1,9 @@
-FILE( GLOB KERNEL_SRC "*.cpp" )
+FILE( GLOB KERNEL_SRC "*.cpp" "*.h" )
 
-FILE( GLOB_RECURSE MODULES_SRC "../modules/*.cpp" )
+FILE( GLOB_RECURSE MODULES_SRC "../modules/*.cpp" "../modules/*.h" )
 
 ADD_SUBDIRECTORY( exceptions )
-FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.cpp" )
+FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     ADD_LIBRARY( kernel ${KERNEL_SRC} ${MODULES_SRC} ${KERNEL_EXCEPTIONS_SRC} )

@@ -1,8 +1,8 @@
 # Package dependencies:
 ADD_SUBDIRECTORY( exceptions )
 
-FILE( GLOB GE_EXCEPTIONS_SRC "exceptions/*.cpp" )
-FILE( GLOB GE_SRC "*.cpp" )
+FILE( GLOB GE_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
+FILE( GLOB GE_SRC "*.cpp" "*.h" )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     ADD_LIBRARY( ge ${GE_SRC} ${GE_EXCEPTIONS_SRC} )

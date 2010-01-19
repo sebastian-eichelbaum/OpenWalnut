@@ -1,7 +1,7 @@
 ADD_SUBDIRECTORY( nifti )
 ADD_SUBDIRECTORY( biosig )
 
-FILE( GLOB DATAHANDLER_IO_SRC "*.cpp" )
+FILE( GLOB DATAHANDLER_IO_SRC "*.cpp" "*.h" )
 
 # Unit tests
 IF( OW_COMPILE_TESTS )

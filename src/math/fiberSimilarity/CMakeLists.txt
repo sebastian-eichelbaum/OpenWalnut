@@ -1,4 +1,4 @@
-FILE( GLOB FIBERSIMILARITY_SRC "*.cpp" )
+FILE( GLOB FIBERSIMILARITY_SRC "*.cpp" "*.h" )
 
 # Unit tests
 IF( OW_COMPILE_TESTS )

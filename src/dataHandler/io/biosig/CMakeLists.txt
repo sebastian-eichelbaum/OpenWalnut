@@ -10,5 +10,5 @@ ELSE()
 	SET( CMAKE_C_FLAGS "-w")
 ENDIF()
 
-FILE( GLOB BIOSIG_SRC "*.c" "*.cpp" "XMLParser/*.cpp" )
+FILE( GLOB BIOSIG_SRC "*.c" "*.cpp" "*.h" "XMLParser/*.cpp" "XMLParser/*.h" )
 ADD_LIBRARY( biosig SHARED ${BIOSIG_SRC} )
