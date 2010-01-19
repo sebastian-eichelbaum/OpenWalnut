@@ -475,6 +475,16 @@ SHOW_NAMESPACES        = YES
 
 FILE_VERSION_FILTER    = 
 
+# The LAYOUT_FILE tag can be used to specify a layout file which will be parsed by
+# doxygen. The layout file controls the global structure of the generated output files
+# in an output format independent way. The create the layout file that represents
+# doxygen's defaults, run doxygen with the -l option. You can optionally specify a
+# file name after the option, if omitted DoxygenLayout.xml will be used as the name
+# of the layout file.
+
+LAYOUT_FILE            = doc/developer/doxygenLayout.xml
+
+
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
@@ -524,7 +534,7 @@ WARN_FORMAT            = "$file:$line: $text"
 # and error messages should be written. If left blank the output is written 
 # to stderr.
 
-WARN_LOGFILE           = doc/developer/doxyerror.log
+WARN_LOGFILE           =
 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
@@ -566,7 +576,8 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = src/dataHandler/io/nifti src/dataHandler/io/biosig
+EXCLUDE                = src/dataHandler/io/nifti src/dataHandler/io/biosig \
+                         src/common/platformDependent/visualStudio/inttypes.h
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 
