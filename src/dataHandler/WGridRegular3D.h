@@ -216,9 +216,10 @@ public:
     wmath::WMatrix<double> getTransformationMatrix() const;
 
     /**
-     *
+     * Transforms texture coordinates according to transforation of the grid.
+     * \param point The point with these coordinated will be transformed.
      */
-    osg::Vec3 transformTexCoord( osg::Vec3 point );
+    wmath::WVector3D transformTexCoord( wmath::WPosition point );
 
     /**
      * Returns the i'th voxel where the given position belongs too.
