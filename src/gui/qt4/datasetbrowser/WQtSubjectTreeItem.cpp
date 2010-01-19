@@ -41,15 +41,5 @@ WQtDatasetTreeItem* WQtSubjectTreeItem::addDatasetItem( boost::shared_ptr< WModu
 {
     WQtDatasetTreeItem* ds = new WQtDatasetTreeItem( this, module );
 
-    std::string name = module->getProperties()->getValueString( "Name" );
-
-    // remove the path up to the file name
-    if ( name != "" )
-    {
-        name = string_utils::tokenize( name, "/" ).back();
-    }
-
-    ds->setText( 0, QString( name.c_str() ) );
-
     return ds;
 }

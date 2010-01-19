@@ -33,6 +33,7 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, int type, boost::shared_ptr<
     QTreeWidgetItem( parent, type )
 {
     m_module = module;
+    m_name = module->getName();
 
     if ( module->getProperties()->getValue< bool > ( "active" ) )
     {
@@ -47,7 +48,7 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, int type, boost::shared_ptr<
 
     m_updateTimer = boost::shared_ptr< QTimer >( new QTimer() );
     connect( m_updateTimer.get(), SIGNAL( timeout() ), this, SLOT( update() ) );
-    m_updateTimer->start( 500 );
+    m_updateTimer->start( 250 );
 }
 
 WQtTreeItem::~WQtTreeItem()
@@ -59,7 +60,17 @@ boost::shared_ptr< WModule > WQtTreeItem::getModule()
     return m_module;
 }
 
+std::string WQtTreeItem::getName()
+{
+    return m_name;
+}
+
 void WQtTreeItem::update()
+{
+    updateState();
+}
+
+void WQtTreeItem::updateState()
 {
     boost::shared_ptr< WProgressCombiner> p = m_module->getRootProgressCombiner();
 
@@ -70,11 +81,11 @@ void WQtTreeItem::update()
     if ( p->isPending() )
     {
         std::ostringstream title;
-        title << m_module->getName();
+        title << m_name;
 
         if ( p->isDetermined() )
         {
-            title << " - " << p->getProgress() << "%";
+            title << " - " << std::setprecision(0) << p->getProgress() << "%";
         }
         else
         {
@@ -85,7 +96,7 @@ void WQtTreeItem::update()
     }
     else
     {
-        setText( 0, m_module->getName().c_str() );
+        setText( 0, m_name.c_str() );
     }
 }
 

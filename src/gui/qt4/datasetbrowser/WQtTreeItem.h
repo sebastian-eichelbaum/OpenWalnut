@@ -60,6 +60,13 @@ public:
      */
     boost::shared_ptr< WModule >getModule();
 
+    /**
+     * Returns the name used for this tree item.
+     *
+     * \return the name.
+     */
+    std::string getName();
+
 public slots:
 
     /**
@@ -70,9 +77,19 @@ public slots:
 protected:
 
     /**
+     * Updates the state of the tree item basing on the module's state.
+     */
+    virtual void updateState();
+
+    /**
      * Updates this item in regular intervals.
      */
     boost::shared_ptr< QTimer > m_updateTimer;
+
+    /**
+     * Name of the tree item.
+     */
+    std::string m_name;
 
 private:
 
