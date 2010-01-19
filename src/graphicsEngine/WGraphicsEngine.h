@@ -200,7 +200,6 @@ namespace wge
      * \return A color which may be used inside of OSG
      */
     osg::Vec4 osgColor( const WColor& color );
-
     /**
      * Converts a given WPosition into an osg::Vec3.
      *
@@ -236,9 +235,57 @@ namespace wge
        a      b
        \endverbatim
      *
+     * The QUADS are generated in the following order:
+     * - a,b,c,d
+     * - b,f,g,c
+     * - f,e,h,g
+     * - e,a,d,h
+     * - d,c,g,h
+     * - a,b,f,e
+     *
      * \return OSG vertex array where every four vertices describing a QUAD.
      */
     osg::ref_ptr< osg::Vec3Array > generateCuboidQuads( const std::vector< wmath::WPosition >& corners );
+
+    /**
+     * Generates for a QUAD given via 3 three points ( the fourth is not needed ) the
+     * normal.
+     *
+     *\param a First point of the QUAD
+     *\param b Second point of the QUAD
+     *\param c Third point of the QUAD
+     *
+     *\return OSG Vector of the normal of the QUAD
+     */
+    osg::Vec3 getQuadNormal( const wmath::WPosition& a, const wmath::WPosition& b, const wmath::WPosition& c );
+
+    /**
+     * Generates for all QUADS of the Cuboid the normals in the following order:
+     *
+     * \verbatim
+        z-axis  y-axis
+        |      /
+        | h___/_g
+        |/:    /|
+        d_:___c |
+        | :...|.|
+        |.e   | f
+        |_____|/ ____x-axis
+       a      b
+       \endverbatim
+     *
+     * - a,b,c,d
+     * - b,f,g,c
+     * - f,e,h,g
+     * - e,a,d,h
+     * - d,c,g,h
+     * - a,b,f,e
+     *
+     *\param corners Corner points of the cuboid.
+     *
+     *\return Array of normals in the order as shown above.
+     */
+    osg::ref_ptr< osg::Vec3Array > generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners );
 } // end of namespace
 
 #endif  // WGRAPHICSENGINE_H

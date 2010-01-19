@@ -34,7 +34,7 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "WBresenhamDBL.h"
+#include "WBresenham.h"
 #include "WRasterAlgorithm.h"
 
 /**
@@ -131,7 +131,7 @@ protected:
      *
      * \param algo The algorithm which actualy rasters every fiber.
      */
-    void raster( boost::shared_ptr< WBresenhamDBL > algo ) const;
+    void raster( boost::shared_ptr< WBresenham > algo ) const;
 
     /**
      * Creates two vertices describing the bounding box of a cluster.

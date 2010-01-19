@@ -66,6 +66,14 @@ protected:
      */
     void rasterSegment( const wmath::WValue< int >& start, const wmath::WValue< int >& stop );
 
+    /**
+     * Marks a given voxel as hit.
+     *
+     * \param voxel The voxel coordinates
+     * \param intensity Marks the voxel with this intensity.
+     */
+    virtual void markVoxel( const wmath::WValue< int >& voxel, const double intensity = 1.0 );
+
 private:
 };
 

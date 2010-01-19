@@ -325,13 +325,15 @@ public:
      *
      * \param point Center of the cuboid which must not necesarrily be a point
      * of the grid.
+     * \param margin If you need to shrink the Voxel put here the delta > 0.
      *
      * \return Reference to a list of vertices which are the corner points of
      * the cube. Note this must not be a voxel, but has the same size of the an
      * voxel. If you need voxels at grid positions fill this function with
      * voxel center positions aka grid points.
      */
-    boost::shared_ptr< std::vector< wmath::WPosition > > getVoxelVertices( const wmath::WPosition& point ) const;
+    boost::shared_ptr< std::vector< wmath::WPosition > > getVoxelVertices( const wmath::WPosition& point,
+                                                                           const double margin = 0.0 ) const;
 
 protected:
 private:

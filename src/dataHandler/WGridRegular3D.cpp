@@ -281,14 +281,14 @@ wmath::WValue< int > WGridRegular3D::getVoxelCoord( const wmath::WPosition& pos 
     return result;
 }
 
-boost::shared_ptr< std::vector< wmath::WPosition > > WGridRegular3D::getVoxelVertices( const wmath::WPosition& point ) const
+boost::shared_ptr< std::vector< wmath::WPosition > > WGridRegular3D::getVoxelVertices( const wmath::WPosition& point, const double margin ) const
 {
     typedef boost::shared_ptr< std::vector< wmath::WPosition > > ReturnType;
     ReturnType result = ReturnType( new std::vector< wmath::WPosition > );
     result->reserve( 8 );
-    double halfMarginX = m_offsetX / 2.0;
-    double halfMarginY = m_offsetY / 2.0;
-    double halfMarginZ = m_offsetZ / 2.0;
+    double halfMarginX = m_offsetX / 2.0 - std::abs( margin );
+    double halfMarginY = m_offsetY / 2.0 - std::abs( margin );
+    double halfMarginZ = m_offsetZ / 2.0 - std::abs( margin );
     result->push_back( wmath::WPosition( point[0] - halfMarginX, point[1] - halfMarginY, point[2] - halfMarginZ ) ); // a
     result->push_back( wmath::WPosition( point[0] + halfMarginX, point[1] - halfMarginY, point[2] - halfMarginZ ) ); // b
     result->push_back( wmath::WPosition( point[0] + halfMarginX, point[1] - halfMarginY, point[2] + halfMarginZ ) ); // c

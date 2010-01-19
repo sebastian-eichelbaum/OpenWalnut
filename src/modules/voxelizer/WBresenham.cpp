@@ -149,3 +149,10 @@ void WBresenham::rasterSegment( const wmath::WValue< int >& start, const wmath::
     }
     markVoxel( voxel );
 }
+
+void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const double intensity )
+{
+    assert( voxel.size() == 3 );
+    size_t idx = voxel[0] + voxel[1] * m_grid->getNbCoordsX() + voxel[2] * m_grid->getNbCoordsX() * m_grid->getNbCoordsY();
+    m_values[ idx ] = intensity;
+}

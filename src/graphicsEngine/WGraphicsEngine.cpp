@@ -230,3 +230,27 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmat
     vertices->push_back( wge::osgVec3( corners[4] ) );
     return vertices;
 }
+
+osg::Vec3 wge::getQuadNormal( const wmath::WPosition& a,
+                              const wmath::WPosition& b,
+                              const wmath::WPosition& c )
+{
+    wmath::WPosition vec1 = a - b;
+    wmath::WPosition vec2 = c - b;
+    wmath::WPosition normal = vec2.crossProduct( vec1 );
+    normal.normalize();
+    return osgVec3( normal );
+}
+
+osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners )
+{
+    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+
+    vertices->push_back( getQuadNormal( corners[0], corners[1], corners[2] ) );
+    vertices->push_back( getQuadNormal( corners[1], corners[5], corners[6] ) );
+    vertices->push_back( getQuadNormal( corners[5], corners[4], corners[7] ) );
+    vertices->push_back( getQuadNormal( corners[4], corners[0], corners[3] ) );
+    vertices->push_back( getQuadNormal( corners[3], corners[2], corners[6] ) );
+    vertices->push_back( getQuadNormal( corners[0], corners[1], corners[5] ) );
+    return vertices;
+}

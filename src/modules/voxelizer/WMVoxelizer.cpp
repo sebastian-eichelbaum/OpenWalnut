@@ -42,7 +42,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
 #include "../../utils/WColorUtils.h"
-#include "WBresenhamDBL.h"
+#include "WBresenham.h"
 #include "WMVoxelizer.h"
 #include "WRasterAlgorithm.h"
 
@@ -146,17 +146,17 @@ void WMVoxelizer::update()
 
     grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbPosX, nbPosY, nbPosZ, bb.first, 1, 1, 1 ) );
     debugLog() << "Created grid of size: " << grid->size();
-    boost::shared_ptr< WBresenhamDBL > bresenham = boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid ) );
+    boost::shared_ptr< WBresenham > bresenham = boost::shared_ptr< WBresenham >( new WBresenham( grid ) );
     raster( bresenham );
     boost::shared_ptr< WDataSetSingle > outputDataSet = bresenham->generateDataSet();
     m_output->updateData( outputDataSet );
     m_osgNode->addChild( genDataSetGeode( outputDataSet ) );
-    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode );
 }
 
-void WMVoxelizer::raster( boost::shared_ptr< WBresenhamDBL > algo ) const
+void WMVoxelizer::raster( boost::shared_ptr< WBresenham > algo ) const
 {
     const WDataSetFibers& fibs = *m_clusters->getDataSetReference();
     const std::list< size_t >& fiberIDs = m_clusters->getIndices();
@@ -299,6 +299,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
     // cycle through all positions in the dataSet
     boost::shared_ptr< WValueSet< double > > valueset = boost::shared_dynamic_cast< WValueSet< double > >( dataset->getValueSet() );
@@ -311,9 +312,11 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
         if( values[i] != 0.0 )
         {
             wmath::WPosition pos = grid->getPosition( i );
-            boost::shared_ptr< std::vector< wmath::WPosition > > voxelCornerVertices = grid->getVoxelVertices( pos );
+            boost::shared_ptr< std::vector< wmath::WPosition > > voxelCornerVertices = grid->getVoxelVertices( pos, 0.01 );
             osg::ref_ptr< osg::Vec3Array > ver = wge::generateCuboidQuads( *voxelCornerVertices );
             vertices->insert( vertices->end(), ver->begin(), ver->end() );
+            osg::ref_ptr< osg::Vec3Array > nor = wge::generateCuboidQuadNormals( *voxelCornerVertices );
+            normals->insert( normals->end(), nor->begin(), nor->end() );
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, vertices->size() - ver->size(), ver->size() ) );
             for( size_t j = 0; j < ver->size(); ++j )
             {
@@ -326,6 +329,8 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     colors->push_back( wge::osgColor( WColor( 1, 0, 0, 0.1 ) ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    geometry->setNormalArray( normals );
+    geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
     return geode;
