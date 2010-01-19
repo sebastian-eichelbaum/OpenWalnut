@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include "../kernel/WKernel.h"
 
 #include "WGEResourceManager.h"
@@ -38,9 +40,15 @@ WGEResourceManager::WGEResourceManager()
     // (https://fedorahosted.org/liberation-fonts/) to "arial.ttf"
 
     // initialize members
-    m_regularFont = WKernel::getAppPath() + "/fonts/LiberationMono-Regular.ttf";
-    m_boldFont    = WKernel::getAppPath() + "/fonts/LiberationMono-Bold.ttf";
-    m_italicFont  = WKernel::getAppPath() + "/fonts/LiberationMono-Italic.ttf";
+    //m_regularFont = WKernel::getAppPath() + "/fonts/LiberationMono-Regular.ttf";
+    //m_boldFont    = WKernel::getAppPath() + "/fonts/LiberationMono-Bold.ttf";
+    //m_italicFont  = WKernel::getAppPath() + "/fonts/LiberationMono-Italic.ttf";
+
+    namespace fs = boost::filesystem;
+    fs::path fontPath = fs::path( WKernel::getAppPath() ) / "fonts";
+    m_regularFont = fs::path( fontPath / "LiberationMono-Regular.ttf" ).file_string();
+    m_boldFont = fs::path( fontPath / "LiberationMono-Bold.ttf" ).file_string();
+    m_italicFont = fs::path( fontPath / "LiberationMono-Italic.ttf" ).file_string();
 }
 
 WGEResourceManager::~WGEResourceManager()
