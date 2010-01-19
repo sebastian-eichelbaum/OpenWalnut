@@ -63,13 +63,13 @@ bool WQt4Gui::parseOptions()
     namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
     po::options_description desc( "Allowed options" );
 
-#ifndef _WIN32
+//#ifndef _WIN32
 // TODO(wiebel): this does not link on windows at the moment. But it should!
     desc.add_options()
         ( "help,h", "Prints this help message" )
         ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" )
         ( "timed-output,t", "Flag indicating if all log strings should have a time string preceding" );
-#endif
+//#endif
 
     po::positional_options_description p;
     p.add( "input", -1 );

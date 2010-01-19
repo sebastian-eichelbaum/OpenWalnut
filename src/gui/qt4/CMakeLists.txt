@@ -28,7 +28,7 @@ SET(GUI_QT4_MOC_HDRS
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "datasetbrowser/*.cpp" "ribbonMenu/*.cpp" "*.h" "guiElements/*.h" "datasetbrowser/*.h" "ribbonMenu/*.h" )
+FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "datasetbrowser/*.cpp" "ribbonMenu/*.cpp" "events/*.cpp" "*.h" "guiElements/*.h" "datasetbrowser/*.h" "ribbonMenu/*.h" "events/*.h" )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     ADD_LIBRARY( guiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )

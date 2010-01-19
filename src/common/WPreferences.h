@@ -71,11 +71,11 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     // CONFIGURATION FILE
     po::options_description configurationDescription( "OpenWalnut Preferences" );
 
-#ifndef _WIN32
+//#ifndef _WIN32
 // TODO(wiebel): this does not link on windows at the moment. But it should!
     configurationDescription.add_options()
         ( prefName.c_str(), po::value< T >() );
-#endif
+//#endif
 
     std::string cfgFileName( "walnut.cfg" );
 
