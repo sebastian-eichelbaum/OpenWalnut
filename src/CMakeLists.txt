@@ -150,7 +150,7 @@ ADD_CUSTOM_TARGET( doc
 # but needs "dot" from graphviz to render them.
 ADD_CUSTOM_TARGET( fulldoc
                    COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfigFull
-                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
+                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/htmlFull
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
                    COMMENT "Build verbose doxygen documentation"
                    VERBATIM
