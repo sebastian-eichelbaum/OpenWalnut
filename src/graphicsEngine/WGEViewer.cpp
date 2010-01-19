@@ -41,6 +41,8 @@
 #include <osgDB/ReadFile>
 
 #include "exceptions/WGEInitFailed.h"
+#include "WGE2DManipulator.h"
+#include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
 #include "../kernel/WKernel.h"
 
@@ -58,10 +60,19 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
 
         m_View->setCamera( new WGECamera( width, height, projectionMode ) );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
-        if( projectionMode == WGECamera::ORTHOGRAPHIC || projectionMode == WGECamera::PERSPECTIVE )
+
+        // camera manipulator
+        switch( projectionMode )
         {
-            // camera manipulator
-            m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
+            case( WGECamera::ORTHOGRAPHIC ):
+            case( WGECamera::PERSPECTIVE ):
+                m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
+                break;
+            case( WGECamera::TWO_D ):
+                m_View->setCameraManipulator( new WGE2DManipulator() );
+                break;
+            default:
+                throw WGEInitFailed( "Unknown projection mode" );
         }
 
         // add the stats handler

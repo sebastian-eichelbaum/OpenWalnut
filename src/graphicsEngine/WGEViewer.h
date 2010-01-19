@@ -44,7 +44,6 @@
 #include "WGEGraphicsWindow.h"
 #include "WGECamera.h"
 #include "WPickHandler.h"
-#include "WGEZoomTrackballManipulator.h"
 
 
 class WColor;
