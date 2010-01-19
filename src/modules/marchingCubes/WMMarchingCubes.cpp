@@ -42,6 +42,7 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
+#include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
 #include "../../math/WVector3D.h"
 #include "../../dataHandler/WSubject.h"
@@ -135,7 +136,6 @@ void WMMarchingCubes::moduleMain()
         m_shaderUseTransparency = true;
 
         renderSurface();
-
         debugLog() << "Done!";
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
@@ -305,9 +305,12 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
 
     unsigned int nPointsInSlice = nX * nY;
 
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Alex", m_nCellsZ ) );
+    m_progress->addSubProgress( progress );
     // Generate isosurface.
     for( unsigned int z = 0; z < m_nCellsZ; z++ )
     {
+        ++*progress;
         for( unsigned int y = 0; y < m_nCellsY; y++ )
         {
             for( unsigned int x = 0; x < m_nCellsX; x++ )
@@ -438,6 +441,7 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
             }
         }
     }
+    progress->finish();
 }
 
 template< typename T > WPointXYZId WMMarchingCubes::calculateIntersection( boost::shared_ptr< WValueSet< T > > vals,
