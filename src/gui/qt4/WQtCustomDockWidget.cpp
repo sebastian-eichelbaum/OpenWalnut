@@ -39,6 +39,7 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
     m_glWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( title, this, projectionMode ) );
     m_glWidget->initialize();
     m_scene = new osg::Group;
+    m_scene->setDataVariance( osg::Object::DYNAMIC );
     m_glWidget->getViewer()->setScene( m_scene );
 
     setWidget( m_glWidget.get() );
