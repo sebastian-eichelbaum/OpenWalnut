@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/thread/mutex.hpp>
+
 #include <QtCore/QObject>
 
 #include "../../common/WProperties.h"
@@ -97,6 +99,10 @@ public slots:
 
 protected:
 private:
+    /**
+    * Mutex used to lock the properties.
+    */
+    boost::mutex m_PropertiesLock;
 
     /**
      * List of all properties actually connected with this manager instance.

@@ -1,4 +1,4 @@
-FILE( GLOB_RECURSE MODULES_SRC "*.cpp" )
+FILE( GLOB_RECURSE MODULES_SRC "*.cpp" "*.h" )
 
 # Unit tests
 IF( OW_COMPILE_TESTS )

@@ -1,4 +1,4 @@
-FILE(GLOB UTILS_SRC "*.cpp")
+FILE(GLOB UTILS_SRC "*.cpp" "*.h" )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     ADD_LIBRARY( utils ${UTILS_SRC} )

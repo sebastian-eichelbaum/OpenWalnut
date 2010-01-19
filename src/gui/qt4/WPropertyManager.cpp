@@ -25,6 +25,8 @@
 #include <iostream>
 #include <string>
 
+#include <boost/thread/locks.hpp>
+
 #include "WPropertyManager.h"
 
 WPropertyManager::WPropertyManager()
@@ -37,11 +39,16 @@ WPropertyManager::~WPropertyManager()
 
 void WPropertyManager::connectProperties( boost::shared_ptr< WProperties > properties )
 {
+    // make sure only one property gets connected at a time
+    boost::mutex::scoped_lock lock( m_PropertiesLock );
+
     m_connectedProperties.push_back( properties );
 }
 
 void WPropertyManager::slotBoolChanged( QString name, bool value )
 {
+    boost::mutex::scoped_lock lock( m_PropertiesLock );
+
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
         m_connectedProperties[i]->setValue( name.toStdString(), value );
@@ -50,6 +57,8 @@ void WPropertyManager::slotBoolChanged( QString name, bool value )
 
 void WPropertyManager::slotIntChanged( QString name, int value )
 {
+    boost::mutex::scoped_lock lock( m_PropertiesLock );
+
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
         m_connectedProperties[i]->setValue( name.toStdString(), value );
@@ -58,6 +67,8 @@ void WPropertyManager::slotIntChanged( QString name, int value )
 
 void WPropertyManager::slotFloatChanged( QString name, float value )
 {
+    boost::mutex::scoped_lock lock( m_PropertiesLock );
+
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
         m_connectedProperties[i]->setValue( name.toStdString(), value );
@@ -66,6 +77,8 @@ void WPropertyManager::slotFloatChanged( QString name, float value )
 
 void WPropertyManager::slotStringChanged( QString name, QString value )
 {
+    boost::mutex::scoped_lock lock( m_PropertiesLock );
+
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
         m_connectedProperties[i]->setValue( name.toStdString(), value.toStdString() );

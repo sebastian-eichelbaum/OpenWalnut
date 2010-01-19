@@ -1,6 +1,6 @@
 ADD_SUBDIRECTORY( qt4 )
 
-FILE( GLOB GUI_SRC "*.cpp" )
+FILE( GLOB GUI_SRC "*.cpp" "*.h" )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     ADD_LIBRARY( gui ${GUI_SRC} )

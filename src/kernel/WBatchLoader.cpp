@@ -25,8 +25,8 @@
 #include <string>
 #include <vector>
 
-#include "WModuleContainer.h"
 #include "WModule.h"
+#include "WModuleContainer.h"
 #include "WModuleFactory.h"
 
 #include "WBatchLoader.h"

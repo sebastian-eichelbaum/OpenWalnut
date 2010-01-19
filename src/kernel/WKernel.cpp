@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 
 #include "WModule.h"
@@ -169,6 +170,21 @@ void WKernel::findAppPath()
         return;
     }
 
+    if ( m_AppPath != "" )
+    {
+        return;
+    }
+
+    // unified version with boost::filesystem
+    namespace fs = boost::filesystem;
+    fs::path currentDir( fs::initial_path<fs::path>() );
+
+    m_AppPath = currentDir.file_string();
+//    std::cout << "Set app path to " << m_AppPath << std::endl;
+
+    m_shaderPath = fs::path( currentDir / "shaders" ).file_string();
+//    std::cout << "Set shader path to " << m_shaderPath << std::endl;
+/*
     // FIXME (schurade)
     // this should work on linux, have to implement it for windows and mac later
 #ifdef __linux__
@@ -244,6 +260,7 @@ void WKernel::findAppPath()
     //                                DWORD nSize // size of buffer
     // );
 #endif
+*/
 }
 
 const WBoolFlag& WKernel::isFinishRequested() const

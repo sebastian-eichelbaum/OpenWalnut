@@ -28,6 +28,7 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -82,7 +83,10 @@ std::string WShader::readTextFile( std::string fileName )
 {
     std::string fileText;
 
-    std::ifstream ifs( (  m_shaderPath + fileName ).c_str() );
+    namespace fs = boost::filesystem;
+
+    std::ifstream ifs( ( ( fs::path( m_shaderPath ) / fileName ).file_string() ).c_str() );
+//    std::ifstream ifs( (  m_shaderPath + fileName ).c_str() );
     std::string line;
 
     std::map< std::string, float >::const_iterator mi = m_defines.begin();
