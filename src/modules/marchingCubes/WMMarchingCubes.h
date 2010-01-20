@@ -271,7 +271,7 @@ private:
      */
     boost::shared_mutex m_updateLock;
 
-    osg::Geode* m_geode; //!< Pointer to geode. We need it to be able to update it when callback is invoked.
+    osg::ref_ptr< osg::Geode > m_geode; //!< Pointer to geode. We need it to be able to update it when callback is invoked.
 
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader

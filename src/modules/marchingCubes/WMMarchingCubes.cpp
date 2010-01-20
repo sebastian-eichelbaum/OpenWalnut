@@ -188,7 +188,6 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     {
         double isoValue = m_properties->getValue< double >( propertyName );
         debugLog() << "Update isosurface for isovalue: " << isoValue << std::endl;
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_geode );
         generateSurfacePre( isoValue );
         renderSurface();
         debugLog() << "Updating done." << std::endl;
@@ -650,8 +649,9 @@ void WMMarchingCubes::renderSurface()
 
 void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
 {
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_geode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
-    m_geode = new osg::Geode;
+    m_geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     osg::Vec3Array* vertices = new osg::Vec3Array;
     for( size_t i = 0; i < mesh->getNumVertices(); ++i )
