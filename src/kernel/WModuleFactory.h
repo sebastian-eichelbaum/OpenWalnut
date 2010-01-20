@@ -73,6 +73,17 @@ public:
     static boost::shared_ptr< WModuleFactory > getModuleFactory();
 
     /**
+     * Searches a prototype by name. It returns the prototype, or a NULL pointer if it is not found. The difference to
+     * getPrototypeByName() is, that an unavailable prototype does not throw an exception. This is nice for checking whether a
+     * prototype exists or not.
+     *
+     * \param name name of the prototype to search
+     *
+     * \return the prototype if it exists, or NULL if not.
+     */
+    const boost::shared_ptr< WModule > isPrototypeAvailable( std::string name );
+
+    /**
      * Finds a prototype using the specified name.
      *
      * \param name the name.

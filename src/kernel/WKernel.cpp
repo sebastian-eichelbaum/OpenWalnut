@@ -46,6 +46,7 @@
 #include "../common/WConditionOneShot.h"
 #include "../common/WFlag.h"
 #include "../common/WPreferences.h"
+#include "../utils/WStringUtils.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
@@ -147,12 +148,24 @@ void WKernel::threadMain()
 
     // default modules
     {
-        bool ignore;
-        m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Navigation Slice Module" ) ) , true );
-        m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "Coordinate System Module" ) ) , true );
-        if( !( WPreferences::getPreference( "modules.standard.ignoreHUD", &ignore ) && ignore ) )
+        std::string stdModules = "Coordinate System Module,HUD,Navigation Slice Module";
+        WPreferences::getPreference( "modules.default", &stdModules );
+        std::vector< std::string > defMods = string_utils::tokenize( stdModules, "," );
+        for ( std::vector< std::string >::iterator iter = defMods.begin(); iter != defMods.end(); ++iter )
         {
-            m_moduleContainer->add( m_moduleFactory->create( m_moduleFactory->getPrototypeByName( "HUD" ) ) , true );
+            std::string moduleName = string_utils::trim( ( *iter ) );
+            boost::shared_ptr< WModule> proto = m_moduleFactory->isPrototypeAvailable( moduleName );
+
+            // try to find a prototype
+            if ( proto.get() )
+            {
+                // the module exists
+                m_moduleContainer->add( m_moduleFactory->create( proto ) , true );
+            }
+            else
+            {
+                WLogger::getLogger()->addLogMessage( "Specified default module \"" + moduleName + "\" does not exist. Ignoring.", "Kernel", LL_WARNING );
+            }
         }
     }
 
