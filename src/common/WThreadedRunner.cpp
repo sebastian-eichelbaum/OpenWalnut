@@ -61,7 +61,8 @@ void WThreadedRunner::run()
         m_Thread = this;
         Init();
         start();
-    } else
+    }
+    else
     {
         threadMain();
     }

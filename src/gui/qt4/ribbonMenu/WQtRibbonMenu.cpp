@@ -95,7 +95,7 @@ void WQtRibbonMenu::clearNonPersistentTabs()
             }
             m_tabWidget->removeTab( idx );
             m_tabList.erase( iter++ );
-        } 
+        }
         else
         {
             ++iter;
