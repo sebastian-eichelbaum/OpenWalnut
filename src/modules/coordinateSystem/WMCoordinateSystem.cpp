@@ -74,7 +74,7 @@ const std::string WMCoordinateSystem::getDescription() const
 void WMCoordinateSystem::properties()
 {
     m_properties->addBool( "dataSetAdded", false, true );
-    ( m_properties->addBool( "active", false, true ) )->connect( boost::bind( &WMCoordinateSystem::slotPropertyChanged, this, _1 ) );
+    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMCoordinateSystem::slotPropertyChanged, this, _1 ) );
 
     m_properties->addInt( "axialPos", 80 );
     m_properties->addInt( "coronalPos", 100 );

@@ -61,8 +61,7 @@ void WMHud::connectors()
 
 void WMHud::properties()
 {
-    ( m_properties->addBool( "active", false, true ) )->connect( boost::bind( &WMHud::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "showHUD1", false );
+    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMHud::slotPropertyChanged, this, _1 ) );
 }
 
 void WMHud::moduleMain()
