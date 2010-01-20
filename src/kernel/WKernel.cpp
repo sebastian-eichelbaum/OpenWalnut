@@ -164,7 +164,9 @@ void WKernel::threadMain()
             }
             else
             {
-                WLogger::getLogger()->addLogMessage( "Specified default module \"" + moduleName + "\" does not exist. Ignoring.", "Kernel", LL_WARNING );
+                WLogger::getLogger()->addLogMessage( "Specified default module \"" + moduleName + "\" does not exist. Ignoring.",
+                                                     "Kernel",
+                                                     LL_WARNING );
             }
         }
     }
