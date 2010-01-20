@@ -39,6 +39,8 @@ WGEScene::WGEScene():
 {
     WLogger::getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_INFO );
 
+    setDataVariance( osg::Object::DYNAMIC );
+
     // setup an update callback
     m_nodeUpdater = osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback() );
     setUpdateCallback( m_nodeUpdater );
