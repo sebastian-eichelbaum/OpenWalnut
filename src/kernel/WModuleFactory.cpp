@@ -139,7 +139,7 @@ boost::shared_ptr< WModuleFactory > WModuleFactory::getModuleFactory()
 }
 
 
-const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::string name )
+const boost::shared_ptr< WModule > WModuleFactory::isPrototypeAvailable( std::string name )
 {
     // for this a read lock is sufficient
     boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
@@ -157,6 +157,13 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::stri
     }
 
     slock.unlock();
+
+    return ret;
+}
+
+const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByName( std::string name )
+{
+    boost::shared_ptr< WModule > ret = isPrototypeAvailable( name );
 
     // if not found -> throw
     if ( ret == boost::shared_ptr< WModule >() )
