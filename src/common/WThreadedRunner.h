@@ -25,7 +25,11 @@
 #ifndef WTHREADEDRUNNER_H
 #define WTHREADEDRUNNER_H
 
-#define USE_BOOST_THREADS 0
+#if defined( WIN32 )
+    #define USE_BOOST_THREADS 0
+#else
+    #define USE_BOOST_THREADS 1
+#endif
 
 #if USE_BOOST_THREADS
 #include <boost/thread.hpp>
