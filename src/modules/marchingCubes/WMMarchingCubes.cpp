@@ -649,7 +649,7 @@ void WMMarchingCubes::renderSurface()
 
 void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_geode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_geode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
@@ -816,7 +816,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         }
     }
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_geode );
 
     boost::shared_ptr< WShader > shader;
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
