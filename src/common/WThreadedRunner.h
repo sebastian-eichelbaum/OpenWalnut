@@ -53,82 +53,82 @@ class WThreadedRunner
 public:
 
     /**
-    * Type used for simple thread functions.
-    */
+     * Type used for simple thread functions.
+     */
     typedef boost::function< void ( void ) > THREADFUNCTION;
 
     /**
-    * Default constructor.
-    */
+     * Default constructor.
+     */
     WThreadedRunner();
 
     /**
-    * Destructor.
-    */
+     * Destructor.
+     */
     virtual ~WThreadedRunner();
 
     /**
-    * Run thread.
-    */
+     * Run thread.
+     */
     virtual void run();
 
     /**
-    * Run thread. This does not start threadMain(() but runs a specified function instead.
-    *
-    * \param f the function to run instead of the threadMain method.
-    */
+     * Run thread. This does not start threadMain(() but runs a specified function instead.
+     *
+     * \param f the function to run instead of the threadMain method.
+     */
     void run( THREADFUNCTION f );
 
     /**
-    * Wait for the thread to be finished.
-    *
-    * \param requestFinish true if the thread should be notified.
-    */
+     * Wait for the thread to be finished.
+     *
+     * \param requestFinish true if the thread should be notified.
+     */
     void wait( bool requestFinish = false );
 
 protected:
 
     /**
-    * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
-    * has been called.
-    */
+     * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
+     * has been called.
+     */
     virtual void threadMain();
 
     /**
-    * Gets called when the thread should be stopped.
-    */
+     * Gets called when the thread should be stopped.
+     */
     virtual void notifyStop();
 
     /**
-    * Thread instance.
-    */
+     * Thread instance.
+     */
     boost::thread* m_Thread;
 
     /**
-    * True if thread should end execution. NOTE: do not use this. Use m_shutdownFlag instead.
-    */
+     * True if thread should end execution. NOTE: do not use this. Use m_shutdownFlag instead.
+     */
     bool m_FinishRequested;
 
     /**
-    * Give remaining execution timeslice to another thread.
-    */
+     * Give remaining execution timeslice to another thread.
+     */
     void yield() const;
 
     /**
-    * Sets thread asleep.
-    *
-    * \param t time to sleep in seconds.
-    */
+     * Sets thread asleep.
+     *
+     * \param t time to sleep in seconds.
+     */
     void sleep( const int t ) const;
 
     /**
-    * Let the thread sleep until a stop request was given.
-    */
+     * Let the thread sleep until a stop request was given.
+     */
     void waitForStop();
 
     /**
-    * Condition getting fired whenever the thread should quit. This is useful for waiting for stop requests.
-    */
+     * Condition getting fired whenever the thread should quit. This is useful for waiting for stop requests.
+     */
     WBoolFlag m_shutdownFlag;
 
 private:
