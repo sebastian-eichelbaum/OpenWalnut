@@ -82,6 +82,7 @@ protected:
          * update visitor.
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+
     };
 
     /**

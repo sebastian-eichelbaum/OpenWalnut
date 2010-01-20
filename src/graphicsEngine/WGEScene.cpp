@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
+
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 #include <osg/Geode>
