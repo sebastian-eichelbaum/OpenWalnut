@@ -123,7 +123,7 @@ endmacro(CXXTEST_ADD_TEST)
 # Usage:
 #   CXXTEST_ADD_TESTS_FROM_LIST( A, B, ... )
 #
-#   1. A is a list of cpp files where the class name is stripped of
+#   1. A is a list of cpp and/or h files where the class name is stripped of
 #   2. then out of the class name the test targets and testsuite names are generated
 #   3. finally they are linked with all libs present in parameter B
 #   4. If there are more arguments (ARGN) then they are exclude from A before 1-3 starts)
@@ -140,7 +140,10 @@ FUNCTION( CXXTEST_ADD_TESTS_FROM_LIST _SourceList _TestLibs )
     FOREACH( _File ${_SourceList} )
       STRING( REGEX REPLACE "^.*/" "" _StrippedPath "${_File}" )
       STRING( REGEX REPLACE "\\..*$" "" _StrippedExtension "${_StrippedPath}" )
-      LIST( APPEND _TestList ${_StrippedExtension} )
+      STRING( REGEX MATCH ".*\\.h" _IsHeader "${_File}" ) #Match Header Files
+      IF( NOT _IsHeader ) # Do not generate test for header files
+        LIST( APPEND _TestList ${_StrippedExtension} ) 
+      ENDIF()
     ENDFOREACH( _File )
 
     # generate for each class a unit test if there is a testsiute for it
