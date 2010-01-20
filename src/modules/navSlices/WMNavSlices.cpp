@@ -135,7 +135,7 @@ void WMNavSlices::moduleMain()
 
     // clean up stuff
     // NOTE: ALLAWAYS remove your osg nodes!
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
 void WMNavSlices::create()
@@ -157,7 +157,7 @@ void WMNavSlices::create()
     m_rootNode->addChild( m_ySliceNode );
     m_rootNode->addChild( m_zSliceNode );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
     initUniforms( rootState );
     rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );

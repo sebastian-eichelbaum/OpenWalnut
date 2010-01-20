@@ -58,7 +58,7 @@ void WMCoordinateSystem::moduleMain()
 
     // clean up stuff
     // NOTE: ALLAWAYS remove your osg nodes!
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
 const std::string WMCoordinateSystem::getName() const
@@ -128,7 +128,7 @@ void WMCoordinateSystem::createGeometry()
     m_rootNode->addChild( ruler1 );
     m_rootNode->addChild( ruler2 );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     // osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
 

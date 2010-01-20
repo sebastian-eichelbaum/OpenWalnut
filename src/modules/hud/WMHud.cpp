@@ -77,7 +77,7 @@ void WMHud::moduleMain()
 
     // clean up stuff
     // NOTE: ALLAWAYS remove your osg nodes!
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
 void WMHud::init()
@@ -105,7 +105,7 @@ void WMHud::init()
     // Anything under this node will be viewed using this projection matrix
     // and positioned with this model view matrix.
     //root->addChild(HUDProjectionMatrix);
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_rootNode->addChild( HUDModelViewMatrix );
     // Add the Geometry node to contain HUD geometry as a child of the
     // HUD model view matrix.
