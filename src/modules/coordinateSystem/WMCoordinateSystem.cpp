@@ -106,30 +106,29 @@ void WMCoordinateSystem::createGeometry()
     m_rootNode->insert( m_boxNode );
 
     // this is done during the first call of updateGeometry()
-    /*
+
     //float zeroZ = m_properties->getValue<float>( "axialPos" );
-    float zeroY = m_properties->getValue<float>( "coronalPos" );
-    float zeroX = m_properties->getValue<float>( "sagittalPos" );
+    //float zeroY = m_properties->getValue<float>( "coronalPos" );
+    //float zeroX = m_properties->getValue<float>( "sagittalPos" );
 
-    float fltX = m_properties->getValue<float>( "fltX" );
-    float fltY = m_properties->getValue<float>( "fltY" );
-    float fltZ = m_properties->getValue<float>( "fltZ" );
+    //float fltX = m_properties->getValue<float>( "fltX" );
+    //float fltY = m_properties->getValue<float>( "fltY" );
+    //float fltZ = m_properties->getValue<float>( "fltZ" );
 
-    float brbX = m_properties->getValue<float>( "brbX" );
-    float brbY = m_properties->getValue<float>( "brbY" );
+    //float brbX = m_properties->getValue<float>( "brbX" );
+    //float brbY = m_properties->getValue<float>( "brbY" );
     //float brbZ = m_properties->getValue<float>( "brbZ" );
 
-    osg::ref_ptr<WRulerOrtho>ruler1 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
-    ruler1->create( osg::Vec3( fltX, zeroY, fltZ ), brbX, RULER_ALONG_X_AXIS_SCALE_Y );
+    //osg::ref_ptr<WRulerOrtho>ruler1 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
+    //ruler1->create( osg::Vec3( fltX, zeroY, fltZ ), brbX, RULER_ALONG_X_AXIS_SCALE_Y );
 
-    osg::ref_ptr<WRulerOrtho>ruler2 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
-    ruler2->create( osg::Vec3( zeroX, fltY, fltZ ), brbY, RULER_ALONG_Y_AXIS_SCALE_X );
+    //osg::ref_ptr<WRulerOrtho>ruler2 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
+    //ruler2->create( osg::Vec3( zeroX, fltY, fltZ ), brbY, RULER_ALONG_Y_AXIS_SCALE_X );
 
-    ruler1->setName( std::string( "ruler1" ) );
-    ruler2->setName( std::string( "ruler2" ) );
-    m_rootNode->insert( ruler1 );
-    m_rootNode->insert( ruler2 );
-    */
+    //ruler1->setName( std::string( "ruler1" ) );
+    //ruler2->setName( std::string( "ruler2" ) );
+    //m_rootNode->insert( ruler1 );
+    //m_rootNode->insert( ruler2 );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 

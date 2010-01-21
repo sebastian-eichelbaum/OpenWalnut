@@ -70,7 +70,7 @@ public:
      * Wait for the condition. Sets the calling thread asleep. If the condition set is resetable, this will return immediately
      * when a condition in the set fired in the past and there has been no reset() call until now.
      */
-    virtual void wait() const;
+    virtual void wait();
 
     /**
      * Resets the internal fire state. This does nothing if !isResetable().
@@ -85,8 +85,10 @@ public:
      * call wait() which causes the other thread to wait until the next condition in the set fires.
      *
      * \param resetable true if the fire state should be delayed and can be reseted.
+     * \param autoReset true if the state should be reset whenever a wait call is called and continues.This is especially useful if a
+     * condition set is used only by one thread, so there is no need to call reset() explicitly.
      */
-    void setResetable( bool resetable = true );
+    void setResetable( bool resetable = true, bool autoReset = true );
 
     /**
      * Returns whether the condition set acts like a one shot condition.
@@ -101,6 +103,11 @@ protected:
      * Flag denoting whether the condition set should act like a one shot condition.
      */
     bool m_resetable;
+
+    /**
+     * Flag which shows whether the wait() call should reset the state m_fired when it returns.
+     */
+    bool m_autoReset;
 
     /**
      * Set of conditions to be waited for.

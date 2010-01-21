@@ -22,13 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include "iostream"
-
 #include "WConditionSet.h"
 
 WConditionSet::WConditionSet():
     WCondition(),
     m_resetable( false ),
+    m_autoReset( false ),
     m_fired( false )
 {
 }
@@ -65,11 +64,16 @@ void WConditionSet::conditionFired()
     notify();
 }
 
-void WConditionSet::wait() const
+void WConditionSet::wait()
 {
     if ( !m_resetable || !m_fired )
     {
         WCondition::wait();
+    }
+
+    if ( m_autoReset )
+    {
+        reset();
     }
 }
 
@@ -78,8 +82,9 @@ void WConditionSet::reset()
     m_fired = false;
 }
 
-void WConditionSet::setResetable( bool resetable )
+void WConditionSet::setResetable( bool resetable, bool autoReset )
 {
+    m_autoReset = autoReset;
     m_resetable = resetable;
 }
 

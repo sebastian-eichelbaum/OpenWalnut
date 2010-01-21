@@ -101,6 +101,7 @@ const std::string WMMarchingCubes::getDescription() const
 void WMMarchingCubes::moduleMain()
 {
     // use the m_input "data changed" flag
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
 
     // signal ready state
@@ -109,12 +110,11 @@ void WMMarchingCubes::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        sleep( 3 ); // TODO(wiebel): remove this.
         // acquire data from the input connector
         m_dataSet = m_input->getData();
         if ( !m_dataSet.get() )
         {
-            // ok, the output has not yet sent data
+            // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
             debugLog() << "Waiting for data ...";
             m_moduleState.wait();
@@ -304,7 +304,7 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
 
     unsigned int nPointsInSlice = nX * nY;
 
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Alex", m_nCellsZ ) );
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", m_nCellsZ ) );
     m_progress->addSubProgress( progress );
     // Generate isosurface.
     for( unsigned int z = 0; z < m_nCellsZ; z++ )
