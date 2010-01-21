@@ -26,6 +26,9 @@
 #define WQTCUSTOMDOCKWIDGET_H
 
 #include <string>
+
+#include "../../graphicsEngine/WGEGroupNode.h"
+
 #include <QtGui/QDockWidget>
 #include "WQtGLWidget.h"
 #include "../WCustomWidget.h"
@@ -51,7 +54,7 @@ public:
      *
      * \return the scene as osg::ref_ptr
      */
-    virtual osg::ref_ptr< osg::Group > getScene() const;
+    virtual osg::ref_ptr< WGEGroupNode > getScene() const;
 
     /**
      * Notify the widget that another module needs it.
@@ -82,7 +85,7 @@ private:
     /**
      * the scene which is displayed by the GL widget
      */
-    osg::ref_ptr< osg::Group > m_scene;
+    osg::ref_ptr< WGEGroupNode > m_scene;
 
     /**
      * How many modules currently need this widget?

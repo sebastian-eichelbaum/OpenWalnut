@@ -25,7 +25,7 @@
 #ifndef WCUSTOMWIDGET_H
 #define WCUSTOMWIDGET_H
 
-#include <osg/Group>
+#include "../graphicsEngine/WGEGroupNode.h"
 
 /**
  * Custom widget which is created by a module to display custom information.
@@ -43,7 +43,7 @@ public:
      *
      * \return the scene as osg::ref_ptr
      */
-    virtual osg::ref_ptr< osg::Group > getScene() const = 0;
+    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
 
 protected:
 private:
