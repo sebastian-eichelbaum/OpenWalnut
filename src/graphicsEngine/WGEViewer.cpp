@@ -165,3 +165,9 @@ osg::ref_ptr< WPickHandler > WGEViewer::getPickHandler()
 {
     return m_pickHandler;
 }
+
+void WGEViewer::reset()
+{
+    m_View->home();
+}
+

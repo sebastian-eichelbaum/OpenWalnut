@@ -98,6 +98,11 @@ public:
     osg::ref_ptr<osgViewer::View> getView();
 
     /**
+     * Resets the view using the installed manipulator.
+     */
+    void reset();
+
+    /**
      * Sets the camera manipulator to use.
      *
      * \param manipulator the manipulator to use.

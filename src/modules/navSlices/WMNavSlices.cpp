@@ -157,13 +157,14 @@ void WMNavSlices::create()
     m_rootNode->insert( m_ySliceNode );
     m_rootNode->insert( m_zSliceNode );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
     initUniforms( rootState );
     rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 
     m_rootNode->setUserData( this );
     m_rootNode->addUpdateCallback( new sliceNodeCallback );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 }
 
 osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion

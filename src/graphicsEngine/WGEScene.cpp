@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <osg/Node>
+
 #include "../common/WLogger.h"
 
 #include "WGEScene.h"
@@ -30,6 +32,9 @@ WGEScene::WGEScene():
     WGEGroupNode()
 {
     WLogger::getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_INFO );
+
+    // TODO(all): we definitely need a reference coordinate system on which everybody can rely
+    setInitialBound( osg::BoundingSphere( osg::Vec3( 128.0, 128.0, 128.0 ), 255.0 ) );
 }
 
 WGEScene::~WGEScene()

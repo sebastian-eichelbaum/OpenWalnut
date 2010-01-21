@@ -82,6 +82,9 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
         {
             rootNode->addChild( ( *iter ) );
         }
+
+        rootNode->dirtyBound();
+
         // all children added -> clear
         rootNode->m_insertionQueueDirty = false;
         rootNode->m_childInsertionQueue.clear();
@@ -102,6 +105,9 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
         {
             rootNode->removeChild( ( *iter ) );
         }
+
+        rootNode->dirtyBound();
+
         // all children added -> clear
         rootNode->m_removalQueueDirty = false;
         rootNode->m_childRemovalQueue.clear();
