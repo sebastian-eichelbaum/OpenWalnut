@@ -105,8 +105,12 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
 
   // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
 #ifndef DEBUG
-    boost::mutex::scoped_lock l( m_QueueMutex );
-    m_LogQueue.push( entry );
+    // NOTE(ebaum): as we have a lot of segfaults we need the log messages to be in sync in release mode too.
+    // This helps us to find the problem. This will be undone as we solved the problems with the SegFaults.
+
+    // boost::mutex::scoped_lock l( m_QueueMutex );
+    // m_LogQueue.push( entry );
+    std::cout << entry.getLogString( m_defaultFormat );
 #else
     // in Debug mode, also add the source
     std::cout << entry.getLogString( m_defaultFormat );
