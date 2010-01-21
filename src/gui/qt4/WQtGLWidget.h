@@ -253,6 +253,11 @@ private:
      * The signal used for picking events inside this widget.
      */
     boost::signals2::signal1<void, std::string > m_pickSignal;
+
+    /**
+     * True when the widget got drawn the very first time.
+     */
+    bool m_firstPaint;
 };
 
 #endif  // WQTGLWIDGET_H

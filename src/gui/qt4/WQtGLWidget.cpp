@@ -33,6 +33,7 @@
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../common/WFlag.h"
+#include "../../common/WLogger.h"
 #include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
 
@@ -41,7 +42,8 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     : QGLWidget( parent ),
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize(),
-      m_isInitialized( new WConditionOneShot(), false )
+      m_isInitialized( new WConditionOneShot(), false ),
+      m_firstPaint( false )
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
@@ -106,33 +108,45 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
     switch ( manipulator )
     {
         case DRIVE:
-            std::cout << "selected drive manipulator" << std::endl;
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"drive\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::DriveManipulator ) );
             break;
         case FLIGHT:
-            std::cout << "selected flight manipulator" << std::endl;
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"flight\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::FlightManipulator ) );
             break;
         case TERRAIN:
-            std::cout << "selected terrain manipulator" << std::endl;
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"terrain\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::TerrainManipulator ) );
             break;
         case UFO:
-            std::cout << "selected ufo manipulator" << std::endl;
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"ufo\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
             break;
         case TWO_D:
-            std::cout << "selected 2d manipulator" << std::endl;
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
             break;
         case TRACKBALL:
         default:
-            std::cout << "selected OpenWalnut's zoom trackball manipulator" << std::endl;
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGETrackball\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
             break;
@@ -157,6 +171,15 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
 
 void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 {
+    // TODO(ebaum): maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
+    if ( !m_firstPaint )
+    {
+        WLogger::getLogger()->addLogMessage( "Painted the first time.",
+                                             "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                             LL_DEBUG );
+        m_firstPaint = true;
+    }
+
     // m_Viewer->paint();
 }
 
