@@ -33,6 +33,7 @@
 #include <osg/Node>
 
 #include "../../kernel/WModule.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 
 /**
  * This module implements several onscreen status displays
@@ -107,7 +108,7 @@ private:
     /**
      * Geometry group for all hud related things
      */
-    osg::ref_ptr<osg::Group>m_HUDs;
+    osg::ref_ptr< WGEGroupNode >m_HUDs;
 
     /**
      * Text instance that will show up in the HUD

@@ -98,13 +98,15 @@ void WMCoordinateSystem::properties()
 
 void WMCoordinateSystem::createGeometry()
 {
-    m_rootNode = osg::ref_ptr<osg::Group>( new osg::Group() );
+    m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
 
     m_boxNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
     m_boxNode->addDrawable( createGeometryNode() );
 
-    m_rootNode->addChild( m_boxNode );
+    m_rootNode->insert( m_boxNode );
 
+    // this is done during the first call of updateGeometry()
+    /*
     //float zeroZ = m_properties->getValue<float>( "axialPos" );
     float zeroY = m_properties->getValue<float>( "coronalPos" );
     float zeroX = m_properties->getValue<float>( "sagittalPos" );
@@ -125,15 +127,16 @@ void WMCoordinateSystem::createGeometry()
 
     ruler1->setName( std::string( "ruler1" ) );
     ruler2->setName( std::string( "ruler2" ) );
-    m_rootNode->addChild( ruler1 );
-    m_rootNode->addChild( ruler2 );
+    m_rootNode->insert( ruler1 );
+    m_rootNode->insert( ruler2 );
+    */
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     // osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
 
     m_rootNode->setUserData( this );
-    m_rootNode->setUpdateCallback( new coordinateNodeCallback );
+    m_rootNode->addUpdateCallback( new coordinateNodeCallback );
 
     if ( m_properties->getValue<bool>( "active" ) )
     {

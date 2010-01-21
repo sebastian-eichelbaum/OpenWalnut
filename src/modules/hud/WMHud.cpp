@@ -109,13 +109,13 @@ void WMHud::init()
     // Add the Geometry node to contain HUD geometry as a child of the
     // HUD model view matrix.
 
-    m_HUDs = osg::ref_ptr<osg::Group>( new osg::Group() );
+    m_HUDs = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
 
     // A geometry node for our HUD
     osg::ref_ptr<osg::Geode> HUDGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
 
     HUDModelViewMatrix->addChild( m_HUDs );
-    m_HUDs->addChild( HUDGeode );
+    m_HUDs->insert( HUDGeode );
 
     // Set up geometry for the HUD and add it to the HUD
     osg::Geometry* HUDBackgroundGeometry = new osg::Geometry();

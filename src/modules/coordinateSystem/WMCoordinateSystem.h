@@ -33,6 +33,7 @@
 #include "WRulerOrtho.h"
 
 #include "../../dataHandler/WDataSet.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.h"
@@ -120,7 +121,7 @@ private:
     /**
      * the root node for this module
      */
-    osg::ref_ptr<osg::Group> m_rootNode;
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
      * node for the bounding box
@@ -130,7 +131,7 @@ private:
     /**
      * node for the bounding box
      */
-    osg::ref_ptr<osg::Group> m_rulerNode;
+    osg::ref_ptr< osg::Group > m_rulerNode;
 
 
     /**

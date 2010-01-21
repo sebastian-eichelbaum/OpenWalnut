@@ -140,7 +140,7 @@ void WMNavSlices::moduleMain()
 
 void WMNavSlices::create()
 {
-    m_rootNode = osg::ref_ptr<osg::Group>( new osg::Group() );
+    m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
 
     m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
     m_xSliceNode->setName( "X-Slice" );
@@ -153,9 +153,9 @@ void WMNavSlices::create()
     m_ySliceNode->addDrawable( createGeometry( 1 ) );
     m_zSliceNode->addDrawable( createGeometry( 2 ) );
 
-    m_rootNode->addChild( m_xSliceNode );
-    m_rootNode->addChild( m_ySliceNode );
-    m_rootNode->addChild( m_zSliceNode );
+    m_rootNode->insert( m_xSliceNode );
+    m_rootNode->insert( m_ySliceNode );
+    m_rootNode->insert( m_zSliceNode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
@@ -163,7 +163,7 @@ void WMNavSlices::create()
     rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
 
     m_rootNode->setUserData( this );
-    m_rootNode->setUpdateCallback( new sliceNodeCallback );
+    m_rootNode->addUpdateCallback( new sliceNodeCallback );
 }
 
 osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion

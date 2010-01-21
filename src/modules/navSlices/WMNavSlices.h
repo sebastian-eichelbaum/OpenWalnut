@@ -33,6 +33,7 @@
 
 #include "../../dataHandler/WDataSet.h"
 #include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.h"
@@ -138,7 +139,7 @@ private:
     /**
      * the root node for this module
      */
-    osg::ref_ptr<osg::Group> m_rootNode;
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
      * nodes for each slice, to be reused in other widgets
