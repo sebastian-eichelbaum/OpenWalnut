@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <sstream>
+#include <iostream>
 #include <string>
 
 #include "../../../common/WProgressCombiner.h"
@@ -49,7 +49,7 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, int type, boost::shared_ptr<
 
     m_updateTimer = boost::shared_ptr< QTimer >( new QTimer() );
     connect( m_updateTimer.get(), SIGNAL( timeout() ), this, SLOT( update() ) );
-    m_updateTimer->start( 250 );
+    m_updateTimer->start( 50 );
 }
 
 WQtTreeItem::~WQtTreeItem()
@@ -86,7 +86,9 @@ void WQtTreeItem::updateState()
 
         if ( p->isDetermined() )
         {
-            title << " - " << std::setprecision( 0 ) << p->getProgress() << "%";
+            title.setf( std::ios::fixed );
+            title.precision( 0 );
+            title << " - " << p->getProgress() << "%";
         }
         else
         {
