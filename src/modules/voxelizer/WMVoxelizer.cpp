@@ -183,7 +183,7 @@ void WMVoxelizer::update()
     }
     else if( m_rasterAlgo == "WBresenhamDBL" )
     {
-        rasterAlgo =  boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid ) );
+        rasterAlgo =  boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, m_antialiased ) );
     }
     else
     {

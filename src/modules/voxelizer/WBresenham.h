@@ -49,7 +49,7 @@ public:
      * \param antialiased If true then all voxels of a line are supported with
      * antialiasing voxels around
      */
-    explicit WBresenham( boost::shared_ptr< WGridRegular3D > grid, bool antialiased = true );
+    WBresenham( boost::shared_ptr< WGridRegular3D > grid, bool antialiased = true );
 
     /**
      * Finishes this raster algo.
@@ -81,7 +81,7 @@ protected:
      * \param start Start point of the line segement
      * \param end End point of the line segement
      */
-    void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& end );
+    virtual void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& end );
 
     /**
      * Marks the given voxel as a hit. If antialiasing is enabled also some
@@ -107,7 +107,7 @@ protected:
      *
      * \return Value which is used for marking a voxel.
      */
-    double filter( const double distance ) const;
+    virtual double filter( const double distance ) const;
 
     /**
      * Computes the distances for a voxel to the real line segement and also

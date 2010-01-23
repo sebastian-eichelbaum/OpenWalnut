@@ -30,33 +30,27 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../math/WLine.h"
 #include "../../math/WPosition.h"
-#include "WRasterAlgorithm.h"
+#include "WBresenham.h"
 
 /**
  * This is a modified version the Bresenham algorithm.
  */
-class WBresenhamDBL : public WRasterAlgorithm
+class WBresenhamDBL : public WBresenham
 {
 public:
     /**
      * Initializes new raster algo.
      *
      * \param grid The grid which defines the voxels which should be marked.
+     * \param antialiased If true then all voxels of a line are supported with
+     * antialiasing voxels around
      */
-    explicit WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid );
+    WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid, bool antialiased = true );
 
     /**
      * Finishes this raster algo.
      */
     virtual ~WBresenhamDBL();
-
-    /**
-     * Rasterize the given line into the grid of dataset.
-     * The value of the voxel which will be hit changes its value.
-     *
-     * \param line Polyline which is about to be rastered.
-     */
-    virtual void raster( const wmath::WLine& line );
 
 protected:
     /**
@@ -72,19 +66,7 @@ protected:
      */
     void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& stop );
 
-   /**
-     * Marks the given voxel as a hit.
-     *
-     * \param voxel The voxel to mark
-     */
-    virtual void markVoxel( const wmath::WPosition& voxel );
-
 private:
 };
-
-inline void WBresenhamDBL::markVoxel( const wmath::WPosition& voxel )
-{
-    m_values[ m_grid->getVoxelNum( voxel ) ] = 1.0;
-}
 
 #endif  // WBRESENHAMDBL_H

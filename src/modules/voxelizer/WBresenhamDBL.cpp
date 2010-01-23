@@ -29,8 +29,8 @@
 #include "../../math/WPosition.h"
 #include "WBresenhamDBL.h"
 
-WBresenhamDBL::WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid )
-    : WRasterAlgorithm( grid )
+WBresenhamDBL::WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid, bool antialiased )
+    : WBresenham( grid, antialiased )
 {
 }
 
@@ -38,51 +38,37 @@ WBresenhamDBL::~WBresenhamDBL()
 {
 }
 
-void WBresenhamDBL::raster( const wmath::WLine& line )
+void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::WPosition& end )
 {
-    assert( line.size() > 1 );
-    for( size_t i = 1; i < line.size(); ++i )
-    {
-        rasterSegment( line[i-1], line[i] );
-    }
-}
-
-void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::WPosition& stop )
-{
-    double x1 = start[0];
-    double y1 = start[1];
-    double z1 = start[2];
-    double x2 = stop[0];
-    double y2 = stop[1];
-    double z2 = stop[2];
     int i;
-    double dx, dy, dz;
-    double l, m, n;
-    int x_inc, y_inc, z_inc;
+    wmath::WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
+    wmath::WValue< int > gridEndPos = m_grid->getVoxelCoord( end );
+    int dx = gridEndPos[0] - gridStartPos[0];
+    int dy = gridEndPos[1] - gridStartPos[1];
+    int dz = gridEndPos[2] - gridStartPos[2];
+    int l = std::abs( dx );
+    int m = std::abs( dy );
+    int n = std::abs( dz );
+    int x_inc = ( dx < 0 ) ? -1 : 1;
+    int y_inc = ( dy < 0 ) ? -1 : 1;
+    int z_inc = ( dz < 0 ) ? -1 : 1;
     double err_1, err_2;
-    double dx2, dy2, dz2;
-    wmath::WPosition voxel = start;
-
-    dx = x2 - x1;
-    dy = y2 - y1;
-    dz = z2 - z1;
-    x_inc = ( dx < 0 ) ? -1 : 1;
-    l = std::abs( dx );
-    y_inc = ( dy < 0 ) ? -1 : 1;
-    m = std::abs( dy );
-    z_inc = ( dz < 0 ) ? -1 : 1;
-    n = std::abs( dz );
-    dx2 = 2 * l;
-    dy2 = 2 * m;
-    dz2 = 2 * n;
+    int dx2 = l << 1;
+    int dy2 = m << 1;
+    int dz2 = n << 1;
+    wmath::WValue< int > voxel = gridStartPos;
+    wmath::WPosition gridOffset( 0, 0, 0 );
+    gridOffset[0] = start[0] - gridStartPos[0];
+    gridOffset[1] = start[1] - gridStartPos[1];
+    gridOffset[2] = start[2] - gridStartPos[2];
 
     if( ( l >= m ) && ( l >= n ) )
     {
-        err_1 = dy2 - l;
-        err_2 = dz2 - l;
+        err_1 = dy2 - l + gridOffset[1];
+        err_2 = dz2 - l + gridOffset[2];
         for( i = 0; i < l; i++ )
         {
-            markVoxel( voxel );
+            markVoxel( voxel, 0, start, end );
             if( err_1 > 0 )
             {
                 voxel[1] += y_inc;
@@ -93,6 +79,7 @@ void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::W
                 voxel[2] += z_inc;
                 err_2 -= dx2;
             }
+            // end of antialiased if-else
             err_1 += dy2;
             err_2 += dz2;
             voxel[0] += x_inc;
@@ -100,11 +87,11 @@ void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::W
     }
     else if( ( m >= l ) && ( m >= n ) )
     {
-        err_1 = dx2 - m;
-        err_2 = dz2 - m;
+        err_1 = dx2 - m + gridOffset[0];
+        err_2 = dz2 - m + gridOffset[2];
         for( i = 0; i < m; i++ )
         {
-            markVoxel( voxel );
+            markVoxel( voxel, 1, start, end );
             if( err_1 > 0 )
             {
                 voxel[0] += x_inc;
@@ -122,11 +109,11 @@ void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::W
     }
     else
     {
-        err_1 = dy2 - n;
-        err_2 = dx2 - n;
+        err_1 = dy2 - n + gridOffset[1];
+        err_2 = dx2 - n + gridOffset[0];
         for( i = 0; i < n; i++ )
         {
-            markVoxel( voxel );
+            markVoxel( voxel, 2, start, end );
             if( err_1 > 0 )
             {
                 voxel[1] += y_inc;
@@ -142,5 +129,5 @@ void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::W
             voxel[2] += z_inc;
         }
     }
-    markVoxel( voxel );
+    markVoxel( voxel, -1, start, end );
 }
