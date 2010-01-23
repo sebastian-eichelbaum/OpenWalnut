@@ -197,15 +197,17 @@ boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
 boost::shared_ptr< WCustomWidget > WQt4Gui::openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
     boost::shared_ptr< WCondition > shutdownCondition )
 {
+    WConditionSet conditionSet;
+    conditionSet.setResetable( true, false );
+    conditionSet.add( shutdownCondition );
+
     boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > widgetFlag(
         new WFlag< boost::shared_ptr< WCustomWidget > >( new WConditionOneShot, boost::shared_ptr< WCustomWidget >() ) );
+    conditionSet.add( widgetFlag->getCondition() );
+
     QCoreApplication::postEvent( m_mainWindow, new WOpenCustomDockWidgetEvent( title, projectionMode, widgetFlag ) );
 
-    WConditionSet conditionSet;
-    conditionSet.add( widgetFlag->getCondition() );
-    conditionSet.add( shutdownCondition );
     conditionSet.wait();
-
     return widgetFlag->get();
 }
 

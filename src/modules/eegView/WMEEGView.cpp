@@ -32,8 +32,8 @@
 
 WMEEGView::WMEEGView()
     : WModule(),
-      m_dataChanged( new WConditionOneShot, true ), // should be false, workaround until ticket #225 is fixed
-      m_isActive( new WConditionOneShot, true ),
+      m_dataChanged( new WCondition, true ),
+      m_isActive( new WCondition, true ),
       m_wasActive( false )
 {
 }
@@ -105,6 +105,7 @@ void WMEEGView::notifyDataChange(
 void WMEEGView::moduleMain()
 {
     // do initialization
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_isActive.getCondition() );
     m_updateChildNodeCallback = new UpdateChildNodeCallback;
@@ -112,17 +113,13 @@ void WMEEGView::moduleMain()
     // signal ready
     ready();
 
-    sleep( 1 ); // should not be there, workaround until ticket #225 is fixed
-
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         // data changed?
         if( m_dataChanged() )
         {
             debugLog() << "Data changed";
-            m_moduleState.remove( m_dataChanged.getCondition() );
-            m_dataChanged = WBoolFlag( new WConditionOneShot, false );
-            m_moduleState.add( m_dataChanged.getCondition() );
+            m_dataChanged.set( false );
             m_eeg = m_input->getData();
             redraw();
         }
@@ -131,9 +128,6 @@ void WMEEGView::moduleMain()
         bool isActive = m_isActive();
         if( isActive != m_wasActive )
         {
-            m_moduleState.remove( m_isActive.getCondition() );
-            m_isActive = WBoolFlag( new WConditionOneShot, isActive );
-            m_moduleState.add( m_isActive.getCondition() );
             if( isActive )
             {
                 if( !openCustomWidget() )
