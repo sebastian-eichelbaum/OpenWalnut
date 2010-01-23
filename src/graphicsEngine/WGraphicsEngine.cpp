@@ -254,3 +254,42 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
     vertices->push_back( getQuadNormal( corners[0], corners[1], corners[5] ) );
     return vertices;
 }
+
+osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color )
+{
+    assert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2] && "pos1 doesn't seem to be the frontLowerLeft corner of the BB!" );
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos2[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos2[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos2[2] ) );
+    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos2[2] ) );
+    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos2[2] ) );
+
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, vertices->size() ) );
+
+    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos2[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos2[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos1[2] ) );
+    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos2[2] ) );
+
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 6, 6 ) );
+
+    geometry->setVertexArray( vertices );
+    colors->push_back( osgColor( color ) );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( geometry );
+    return geode;
+}

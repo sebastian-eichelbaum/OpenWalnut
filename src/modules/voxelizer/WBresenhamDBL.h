@@ -33,7 +33,7 @@
 #include "WRasterAlgorithm.h"
 
 /**
- * Implementes basic bresenham algorithm for rasterization.
+ * This is a modified version the Bresenham algorithm.
  */
 class WBresenhamDBL : public WRasterAlgorithm
 {
@@ -60,14 +60,31 @@ public:
 
 protected:
     /**
+     * Scans a line segement for voxels which are hit.
      *
+     * \warning Not every voxel which is hitten by the segement will be marked
+     * but at least so many voxels so that the segement is represented by those
+     * voxels.
      *
-     * \param start
-     * \param stop
+     * \note This algorithm may be slow since using double operations.
+     * \param start Start point of the line segement
+     * \param stop End point of the line segement
      */
     void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& stop );
 
+   /**
+     * Marks the given voxel as a hit.
+     *
+     * \param voxel The voxel to mark
+     */
+    virtual void markVoxel( const wmath::WPosition& voxel );
+
 private:
 };
+
+inline void WBresenhamDBL::markVoxel( const wmath::WPosition& voxel )
+{
+    m_values[ m_grid->getVoxelNum( voxel ) ] = 1.0;
+}
 
 #endif  // WBRESENHAMDBL_H

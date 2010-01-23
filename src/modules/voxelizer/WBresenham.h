@@ -25,10 +25,15 @@
 #ifndef WBRESENHAM_H
 #define WBRESENHAM_H
 
+#include <cmath>
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../math/WLine.h"
+#include "../../math/WPosition.h"
+#include "../../math/WValue.h"
 #include "WRasterAlgorithm.h"
 
 /**
@@ -41,8 +46,10 @@ public:
      * Initializes new raster algo.
      *
      * \param grid The grid which defines the voxels which should be marked.
+     * \param antialiased If true then all voxels of a line are supported with
+     * antialiasing voxels around
      */
-    explicit WBresenham( boost::shared_ptr< WGridRegular3D > grid );
+    explicit WBresenham( boost::shared_ptr< WGridRegular3D > grid, bool antialiased = true );
 
     /**
      * Finishes this raster algo.
@@ -59,21 +66,64 @@ public:
 
 protected:
     /**
-     * Rasters a line segement of a polyline.
+     * Scans a line segement for voxels which are hit.
      *
-     * \param start Start point of the line segement.
-     * \param stop End point of the line segement.
+     * \warning Not every voxel which is hitten by the segement will be marked
+     * but at least so many voxels so that the segement is represented by those
+     * voxels.
+     * \warning Every line starting in voxel A and ending in voxel B is
+     * rastered the same way as the line from the middlepoint of A to the
+     * middlepoint of B.
+     *
+     * \note This algorithm is fast since using only integer operations. This
+     * is the real Bresenham
+     *
+     * \param start Start point of the line segement
+     * \param end End point of the line segement
      */
-    void rasterSegment( const wmath::WValue< int >& start, const wmath::WValue< int >& stop );
+    void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& end );
 
     /**
-     * Marks a given voxel as hit.
+     * Marks the given voxel as a hit. If antialiasing is enabled also some
+     * supporting voxles nearby are marked. The value for marking the voxel
+     * depends on the distance from its center point to the real line.
      *
-     * \param voxel The voxel coordinates
-     * \param intensity Marks the voxel with this intensity.
+     * \param voxel The voxel to mark
+     * \param axis Along which axis the traversal takes place. Since when
+     * walking in e.g. X-direction there are not supporting voxels in the
+     * same direction.
+     * \param start Start point of the line segement (used to computed the
+     * distance)
+     * \param end End point of the line segement (used to computed the
+     * distance)
      */
-    virtual void markVoxel( const wmath::WValue< int >& voxel, const double intensity = 1.0 );
+    virtual void markVoxel( const wmath::WValue< int >& voxel, const int axis, const wmath::WPosition& start, const wmath::WPosition& end );
 
+    /**
+     * Returns the value to mark the hitten voxels with, denpending on their
+     * distance to the line.
+     *
+     * \param distance Distance of the voxel to the line.
+     *
+     * \return Value which is used for marking a voxel.
+     */
+    double filter( const double distance ) const;
+
+    /**
+     * Computes the distances for a voxel to the real line segement and also
+     * for its supporting voxels.
+     *
+     * \param voxelNum The voxel number
+     * \param start Start point of the line segement
+     * \param end End point of the line segement
+     *
+     * \return A vector of distances where first distance is the distance of
+     * the voxel itself, then x+1, x-1 supporting voxel, then y+1 and y-1
+     * and at last z+1 and z-1.
+     */
+    std::vector< double > computeDistances( const size_t voxelNum, const wmath::WPosition& start, const wmath::WPosition& end ) const;
+
+    bool m_antialiased; //!< If true also some supporting voxels are marked
 private:
 };
 

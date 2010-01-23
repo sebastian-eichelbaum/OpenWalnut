@@ -61,8 +61,7 @@ void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::W
     int x_inc, y_inc, z_inc;
     double err_1, err_2;
     double dx2, dy2, dz2;
-    wmath::WValue< int > voxel( 3 );
-    voxel = m_grid->getVoxelCoord( start );
+    wmath::WPosition voxel = start;
 
     dx = x2 - x1;
     dy = y2 - y1;

@@ -42,12 +42,19 @@
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
 #include "../../utils/WColorUtils.h"
+#include "WBresenhamDBL.h"
 #include "WBresenham.h"
 #include "WMVoxelizer.h"
 #include "WRasterAlgorithm.h"
 
 WMVoxelizer::WMVoxelizer()
-    : WModule()
+    : WModule(),
+      m_antialiased( true ),
+      m_drawfibers( true ),
+      m_drawBoundingBox( true ),
+      m_lighting( true ),
+      m_drawVoxels( true ),
+      m_rasterAlgo( "WBresenham" )
 {
 }
 
@@ -113,11 +120,16 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
     }
     // TODO(math): This is just a line for testing purposes
-    // vertices->push_back( osg::Vec3( 73, 38, 29 ) );
-    // vertices->push_back( osg::Vec3( 120, 150, 130 ) );
-    // colors->push_back( colors->back() );
-    // colors->push_back( colors->back() );
-    // geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
+    vertices->push_back( osg::Vec3( 73, 38, 29 ) );
+    vertices->push_back( osg::Vec3( 120, 150, 130 ) );
+    colors->push_back( colors->back() );
+    colors->push_back( colors->back() );
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
+    vertices->push_back( osg::Vec3( 7.2766304016113281e+01, 3.7974670410156250e+01, 2.9449142456054688e+01 ) );
+    vertices->push_back( osg::Vec3( 1.1976630401611328e+02, 1.4997467041015625e+02, 1.3044914245605469e+02 ) );
+    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
+    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
 
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
@@ -127,36 +139,80 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
     return geode;
 }
 
-void WMVoxelizer::update()
+boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair< wmath::WPosition, wmath::WPosition >& bb ) const
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
-
-    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
-    m_osgNode->addChild( genFiberGeode() );
-    std::pair< wmath::WPosition, wmath::WPosition > bb = createBoundingBox( *m_clusters );
-
     boost::shared_ptr< WGridRegular3D > grid;
 
     // TODO(math): implement the snap-to-grid (of the T1 image) feature for fll and bur.
     // TODO(math): remove hardcoded meta grid here.
+    // the "+1" in the following three statements is because there are may be some more voxels
+    // The first and last voxel are only half sized! hence one more position is needed
     size_t nbPosX = std::ceil( bb.second[0] - bb.first[0] ) + 1;
     size_t nbPosY = std::ceil( bb.second[1] - bb.first[1] ) + 1;
     size_t nbPosZ = std::ceil( bb.second[2] - bb.first[2] ) + 1;
-    debugLog() << "Bounding Box: " << bb.first << " " << bb.second;
 
+    // TODO(math): implement: enlarge grid so antializing is possible. This depends on how
+    // many voxels you use for antialiasing
     grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbPosX, nbPosY, nbPosZ, bb.first, 1, 1, 1 ) );
-    debugLog() << "Created grid of size: " << grid->size();
-    boost::shared_ptr< WBresenham > bresenham = boost::shared_ptr< WBresenham >( new WBresenham( grid ) );
-    raster( bresenham );
-    boost::shared_ptr< WDataSetSingle > outputDataSet = bresenham->generateDataSet();
-    m_output->updateData( outputDataSet );
-    m_osgNode->addChild( genDataSetGeode( outputDataSet ) );
-    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
-    m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode );
+    return grid;
 }
 
-void WMVoxelizer::raster( boost::shared_ptr< WBresenham > algo ) const
+void WMVoxelizer::update()
+{
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
+    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+
+    if( m_drawfibers )
+    {
+        m_osgNode->addChild( genFiberGeode() );
+    }
+    std::pair< wmath::WPosition, wmath::WPosition > bb = createBoundingBox( *m_clusters );
+    if( m_drawBoundingBox )
+    {
+        m_osgNode->addChild( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
+    }
+
+    boost::shared_ptr< WGridRegular3D > grid = constructGrid( bb );
+
+    debugLog() << "Created grid of size: " << grid->size();
+
+    boost::shared_ptr< WRasterAlgorithm > rasterAlgo;
+    if( m_rasterAlgo == "WBresenham" )
+    {
+        rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased ) );
+    }
+    else if( m_rasterAlgo == "WBresenhamDBL" )
+    {
+        rasterAlgo =  boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid ) );
+    }
+    else
+    {
+        errorLog() << "Invalid rasterization algorithm: " << m_rasterAlgo;
+        m_rasterAlgo = "WBresenham";
+        rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased ) );
+    }
+    debugLog() << "Using: " << m_rasterAlgo << " as rasterization Algo.";
+    raster( rasterAlgo );
+
+    boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
+    m_output->updateData( outputDataSet );
+    if( m_drawVoxels )
+    {
+        m_osgNode->addChild( genDataSetGeode( outputDataSet ) );
+    }
+    if( m_lighting )
+    {
+        m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+    }
+    else
+    {
+        m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    }
+    m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
+}
+
+void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 {
     const WDataSetFibers& fibs = *m_clusters->getDataSetReference();
     const std::list< size_t >& fiberIDs = m_clusters->getIndices();
@@ -171,27 +227,23 @@ void WMVoxelizer::raster( boost::shared_ptr< WBresenham > algo ) const
         algo->raster( fibs[*cit] );
     }
     // TODO(math): This is just a line for testing purposes
-    // std::vector< wmath::WPosition > lineData;
-    // lineData.push_back( wmath::WPosition( 73, 38, 29 ) );
-    // lineData.push_back( wmath::WPosition( 120, 150, 130 ) );
-    // wmath::WLine l( lineData );
-    // algo->raster( l );
+    std::vector< wmath::WPosition > lineData;
+    lineData.push_back( wmath::WPosition( 73, 38, 29 ) );
+    lineData.push_back( wmath::WPosition( 120, 150, 130 ) );
+    wmath::WLine l( lineData );
+    algo->raster( l );
 }
 
 void WMVoxelizer::connectors()
 {
     using boost::shared_ptr;
-    typedef WModuleInputData< const WFiberCluster > InputData;  // just an alias
 
-    m_input = shared_ptr< InputData >( new InputData( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
-
+    typedef WModuleInputData< const WFiberCluster > InputConnectorType; // just an alias
+    m_input = shared_ptr< InputConnectorType >( new InputConnectorType( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >( new WModuleOutputData< WDataSetSingle >(
-                shared_from_this(), "out", "The voxelized data set." )
-            );
-
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    typedef WModuleOutputData< WDataSetSingle > OutputConnectorType; // just an alias
+    m_output = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "out", "The voxelized data set." ) );
     addConnector( m_output );
 
     WModule::connectors();  // call WModules initialization
@@ -199,9 +251,13 @@ void WMVoxelizer::connectors()
 
 void WMVoxelizer::properties()
 {
-    m_properties->addString( getName(), getDescription() );
-    // this bool is hidden
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "antialiased", m_antialiased, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "drawfibers", m_drawfibers, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "drawBoundingBox", m_drawBoundingBox, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "lighting", m_lighting, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addString( "rasterAlgo", m_rasterAlgo, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "drawVoxels", m_drawVoxels, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
 }
 
 void WMVoxelizer::slotPropertyChanged( std::string propertyName )
@@ -216,6 +272,43 @@ void WMVoxelizer::slotPropertyChanged( std::string propertyName )
         {
             m_osgNode->setNodeMask( 0x0 );
         }
+    }
+    else if( propertyName == "antialiased" )
+    {
+        m_antialiased = m_properties->getValue< bool >( propertyName );
+        update();
+    }
+    else if( propertyName == "drawfibers" )
+    {
+        m_drawfibers = m_properties->getValue< bool >( propertyName );
+        update();
+    }
+    else if( propertyName == "drawBoundingBox" )
+    {
+        m_drawBoundingBox = m_properties->getValue< bool >( propertyName );
+        update();
+    }
+    else if( propertyName == "lighting" )
+    {
+        m_lighting = m_properties->getValue< bool >( propertyName );
+        if( m_lighting )
+        {
+            m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+        }
+        else
+        {
+            m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+        }
+    }
+    else if( propertyName == "rasterAlgo" )
+    {
+        m_rasterAlgo = m_properties->getValue< std::string >( propertyName );
+        update();
+    }
+    else if( propertyName == "drawVoxels" )
+    {
+        m_drawVoxels = m_properties->getValue< bool >( propertyName );
+        update();
     }
     else
     {
@@ -255,47 +348,7 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
             }
         }
     }
-    m_osgNode->addChild( genBBGeode( fll, bur ) );
     return std::make_pair( fll, bur );
-}
-
-osg::ref_ptr< osg::Geode > WMVoxelizer::genBBGeode( const wmath::WPosition& fll,
-                                                    const wmath::WPosition& bur ) const
-{
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-
-    vertices->push_back( osg::Vec3( fll[0], fll[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], fll[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], bur[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( fll[0], bur[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( fll[0], fll[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( fll[0], fll[1], bur[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], fll[1], bur[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], bur[1], bur[2] ) );
-    vertices->push_back( osg::Vec3( fll[0], bur[1], bur[2] ) );
-    vertices->push_back( osg::Vec3( fll[0], fll[1], bur[2] ) );
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, vertices->size() ) );
-
-    vertices->push_back( osg::Vec3( fll[0], bur[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( fll[0], bur[1], bur[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], bur[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], bur[1], bur[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], fll[1], fll[2] ) );
-    vertices->push_back( osg::Vec3( bur[0], fll[1], bur[2] ) );
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 6, 6 ) );
-
-    geometry->setVertexArray( vertices );
-    colors->push_back( wge::osgColor( WColor( 0.3, 0.3, 0.3, 1 ) ) );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( geometry );
-    return geode;
 }
 
 osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const

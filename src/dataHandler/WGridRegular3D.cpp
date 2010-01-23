@@ -223,8 +223,8 @@ int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const
         return -1;
     }
     return xVoxelCoord
-         + yVoxelCoord * ( m_nbPosX + 1 )
-         + zVoxelCoord * ( m_nbPosX + 1 ) * ( m_nbPosY + 1 );
+         + yVoxelCoord * ( m_nbPosX )
+         + zVoxelCoord * ( m_nbPosX ) * ( m_nbPosY );
 }
 
 int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const
@@ -245,7 +245,7 @@ int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) c
                  break;
         default : assert( 1 == 0 && "invalid axis selected, must be between 0 and 2, including 0 and 2" );
     }
-    if( result < 0 || result >= offsetAxis * nbAxisPos )
+    if( result < 0 || result > offsetAxis * ( nbAxisPos - 1 ) )
     {
         return -1;
     }

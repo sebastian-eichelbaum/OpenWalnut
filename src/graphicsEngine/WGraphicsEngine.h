@@ -286,6 +286,18 @@ namespace wge
      *\return Array of normals in the order as shown above.
      */
     osg::ref_ptr< osg::Vec3Array > generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners );
+
+    /**
+     * Generates an OSG geode for the bounding box.
+     *
+     * \param pos1
+     * \param pos2
+     * \param color
+     *
+     * \return The OSG geode containing the 12 edges of the box.
+     */
+    osg::ref_ptr< osg::Geode > generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color );
+
 } // end of namespace
 
 #endif  // WGRAPHICSENGINE_H

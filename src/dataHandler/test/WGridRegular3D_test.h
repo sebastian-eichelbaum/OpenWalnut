@@ -354,7 +354,7 @@ public:
     void testGetVoxelNumberOfGeneralPosition( void )
     {
         using boost::shared_ptr;
-        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 2, 2, 2, 3.1, 3.2, -6, 1, 1, 1 ) );
+        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, 3.1, 3.2, -6, 1, 1, 1 ) );
         // std::cout << std::fixed << std::setprecision( 16 ) << g->getCellCoord( wmath::WPosition( 4.35, 5.0, -6 ) ) << std::endl;
         TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 4.35, 5.0, -6 ) ), 7 );
     }
@@ -365,7 +365,7 @@ public:
     void testGetVoxelNumberOfPositionOutsideOfGrid( void )
     {
         using boost::shared_ptr;
-        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 2, 2, 2, 0, 0, 0, 1, 1, 1 ) );
+        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
         TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0 - m_delta, 0, 0 ) ), -1 );
         TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0, 2 + m_delta, 0 ) ), -1 );
     }
@@ -413,7 +413,7 @@ public:
         // 0,0,0   1,0,0  2,0,0
 
         using boost::shared_ptr;
-        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 2, 2, 2, 0, 0, 0, 1, 1, 1 ) );
+        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
 
         // center point of the grid
         TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 1, 1, 1 ) ), 13 );

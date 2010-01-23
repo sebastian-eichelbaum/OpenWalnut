@@ -34,7 +34,7 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "WBresenham.h"
+#include "WBresenhamDBL.h"
 #include "WRasterAlgorithm.h"
 
 /**
@@ -131,7 +131,7 @@ protected:
      *
      * \param algo The algorithm which actualy rasters every fiber.
      */
-    void raster( boost::shared_ptr< WBresenham > algo ) const;
+    void raster( boost::shared_ptr< WRasterAlgorithm > algo ) const;
 
     /**
      * Creates two vertices describing the bounding box of a cluster.
@@ -143,38 +143,31 @@ protected:
     std::pair< wmath::WPosition, wmath::WPosition > createBoundingBox( const WFiberCluster& cluster ) const;
 
     /**
-     * Generates an OSG geode for the bounding box.
+     * Constructs a grid out of the given bounding box.
      *
-     * \param fll Front lower left corner of the bounding box.
-     * \param bur Back upper right corner of the bounding box.
+     * \param bb The bounding box
      *
-     * \return The OSG geode containing the 12 edges of the box.
+     * \return A WGridRegular3D reference wherein the voxels may be marked.
      */
-    osg::ref_ptr< osg::Geode > genBBGeode( const wmath::WPosition& fll,
-                                           const wmath::WPosition& bur ) const;
-
+    boost::shared_ptr< WGridRegular3D > constructGrid( const std::pair< wmath::WPosition, wmath::WPosition >& bb ) const;
 
 private:
-    /**
-     * Input connector for a fiber cluster dataset.
-     */
-    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input;
+    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< Output connector for a voxelized cluster
 
-    /**
-     * Output connector for a voxelized fiber cluster dataset.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+    boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
-    /**
-     * Reference to the fiber clusters
-     */
-    boost::shared_ptr< const WFiberCluster > m_clusters;
+    osg::ref_ptr< osg::Group > m_osgNode; //!< OSG root node for this module
+    osg::ref_ptr< osg::Geode > m_fiberGeode; //!< OSG fiber geode
+    osg::ref_ptr< osg::Geode > m_boundingBoxGeode; //!< OSG bounding box geode
+    osg::ref_ptr< osg::Geode > m_voxelGeode; //!< OSG voxel geode
 
-    /**
-     * OSG node for this module. All other OSG nodes of this module should be
-     * placed as child to this node.
-     */
-    osg::ref_ptr< osg::Group > m_osgNode;
+    bool m_antialiased; //!< Enable/Disable antialiased drawing of voxels
+    bool m_drawfibers; //!< Enable/Disable drawing of the fibers of a cluster
+    bool m_drawBoundingBox; //!< Enable/Disable drawing of a clusters BoundingBox
+    bool m_lighting; //!< Enable/Disable lighting
+    bool m_drawVoxels; //!< Enable/Disable drawing of marked voxels
+    std::string m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
 };
 
 inline const std::string WMVoxelizer::getName() const
