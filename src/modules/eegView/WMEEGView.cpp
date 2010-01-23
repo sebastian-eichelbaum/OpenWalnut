@@ -24,8 +24,6 @@
 
 #include <string>
 
-#include "../../common/WConditionOneShot.h"
-#include "../../graphicsEngine/WGEViewer.h"
 #include "../../kernel/WKernel.h"
 #include "WMEEGView.h"
 
@@ -108,7 +106,6 @@ void WMEEGView::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_isActive.getCondition() );
-    m_updateChildNodeCallback = new UpdateChildNodeCallback;
 
     // signal ready
     ready();
@@ -120,7 +117,10 @@ void WMEEGView::moduleMain()
         {
             debugLog() << "Data changed";
             m_dataChanged.set( false );
-            m_eeg = m_input->getData();
+            if( m_input.get() )
+            {
+                m_eeg = m_input->getData();
+            }
             redraw();
         }
 
@@ -162,8 +162,10 @@ bool WMEEGView::openCustomWidget()
     if( success )
     {
         debugLog() << "Succesfully opened EEG View widget.";
-        m_updateChildNodeCallback->setActive( true );
-        m_widget->getScene()->addUpdateCallback( m_updateChildNodeCallback );
+        if( m_rootNode.valid() )
+        {
+            m_widget->getScene()->insert( m_rootNode );
+        }
     }
     else
     {
@@ -174,13 +176,19 @@ bool WMEEGView::openCustomWidget()
 
 void WMEEGView::closeCustomWidget()
 {
-    m_updateChildNodeCallback->setActive( false );
+    if( m_rootNode.valid() )
+    {
+        m_widget->getScene()->remove( m_rootNode );
+    }
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
 
 void WMEEGView::redraw()
 {
-    osg::ref_ptr< osg::Group > rootNode;
+    if( m_wasActive && m_rootNode.valid() )
+    {
+        m_widget->getScene()->remove( m_rootNode );
+    }
 
     if( m_eeg.get() )
     {
@@ -192,8 +200,8 @@ void WMEEGView::redraw()
         const double xOffset = 64.0;
         const unsigned int spacing = 16;
 
-        rootNode = new osg::Group;
-        osg::StateSet* stateset = rootNode->getOrCreateStateSet();
+        m_rootNode = new osg::Group;
+        osg::StateSet* stateset = m_rootNode->getOrCreateStateSet();
         stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
         debugLog() << "Displaying EEG " << m_eeg->getFileName();
@@ -256,51 +264,17 @@ void WMEEGView::redraw()
                 scale->addChild( linesGeode );
                 translate->addChild( textGeode );
                 translate->addChild( scale );
-                rootNode->addChild( translate );
+                m_rootNode->addChild( translate );
             }
         }
-    }
 
-    m_updateChildNodeCallback->setTargetChild( rootNode );
-}
-
-void WMEEGView::UpdateChildNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    osg::ref_ptr <osg::Node> targetChild;
-
-    if( m_active)
-    {
-        targetChild = m_targetChild;
+        if( m_wasActive )
+        {
+            m_widget->getScene()->insert( m_rootNode );
+        }
     }
     else
     {
-        targetChild = NULL;
-        node->removeUpdateCallback( this );
+        m_rootNode = NULL;
     }
-
-    if( targetChild != m_currentChild )
-    {
-        osg::Group* group = static_cast< osg::Group* >( node );
-        if( m_currentChild.valid() )
-        {
-            group->removeChild( m_currentChild );
-        }
-        if( targetChild.valid() )
-        {
-            group->addChild( targetChild );
-        }
-        m_currentChild = targetChild;
-    }
-
-    traverse( node, nv );
-}
-
-void WMEEGView::UpdateChildNodeCallback::setTargetChild( osg::ref_ptr< osg::Node > targetChild )
-{
-    m_targetChild = targetChild;
-}
-
-void WMEEGView::UpdateChildNodeCallback::setActive( bool active )
-{
-    m_active = active;
 }
