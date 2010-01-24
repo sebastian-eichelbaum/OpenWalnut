@@ -87,7 +87,7 @@ void WMVoxelizer::moduleMain()
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
         // May be called twice
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode.get() );
     }
 }
 
@@ -160,16 +160,16 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
 void WMVoxelizer::update()
 {
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
-    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+    m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
 
     if( m_drawfibers )
     {
-        m_osgNode->addChild( genFiberGeode() );
+        m_osgNode->insert( genFiberGeode() );
     }
     std::pair< wmath::WPosition, wmath::WPosition > bb = createBoundingBox( *m_clusters );
     if( m_drawBoundingBox )
     {
-        m_osgNode->addChild( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
+        m_osgNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
     }
 
     boost::shared_ptr< WGridRegular3D > grid = constructGrid( bb );
@@ -198,7 +198,7 @@ void WMVoxelizer::update()
     m_output->updateData( outputDataSet );
     if( m_drawVoxels )
     {
-        m_osgNode->addChild( genDataSetGeode( outputDataSet ) );
+        m_osgNode->insert( genDataSetGeode( outputDataSet ) );
     }
     if( m_lighting )
     {
@@ -227,10 +227,9 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
         algo->raster( fibs[*cit] );
     }
     // TODO(math): This is just a line for testing purposes
-    std::vector< wmath::WPosition > lineData;
-    lineData.push_back( wmath::WPosition( 73, 38, 29 ) );
-    lineData.push_back( wmath::WPosition( 120, 150, 130 ) );
-    wmath::WLine l( lineData );
+    wmath::WLine l;
+    l.push_back( wmath::WPosition( 73, 38, 29 ) );
+    l.push_back( wmath::WPosition( 120, 150, 130 ) );
     algo->raster( l );
 }
 

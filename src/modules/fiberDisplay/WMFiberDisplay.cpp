@@ -115,20 +115,20 @@ void WMFiberDisplay::moduleMain()
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
         // May be called twice
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
     }
 }
 
 void WMFiberDisplay::update()
 {
     // remove nodes if they are any
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 
     // create new node
-    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
-    m_osgNode->addChild( genFiberGeode( m_dataset, m_globalColoring ).get() );
+    m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
+    m_osgNode->insert( genFiberGeode( m_dataset, m_globalColoring ) );
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
 }
 
 void WMFiberDisplay::connectors()

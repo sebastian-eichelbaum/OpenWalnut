@@ -49,13 +49,11 @@ public:
     void setUp( void )
     {
         using wmath::WPosition;
-        std::vector< WPosition > fibData;
-        fibData.push_back( WPosition( 0., 0., 0. ) );
-        fibData.push_back( WPosition( 1., 0., 0. ) );
-        fibData.push_back( WPosition( 1., 1., 0. ) );
-        fibData.push_back( WPosition( 1., 1., 1. ) );
-        using wmath::WFiber;
-        WFiber fiber( fibData );
+        wmath::WFiber fiber;
+        fiber.push_back( WPosition( 0., 0., 0. ) );
+        fiber.push_back( WPosition( 1., 0., 0. ) );
+        fiber.push_back( WPosition( 1., 1., 0. ) );
+        fiber.push_back( WPosition( 1., 1., 1. ) );
         boost::shared_ptr< std::vector< wmath::WFiber > > fiberVector( new std::vector< wmath::WFiber >() );
         fiberVector->push_back( fiber );
         m_fiberDS = boost::shared_ptr< const WDataSetFibers >( new WDataSetFibers( fiberVector ) );

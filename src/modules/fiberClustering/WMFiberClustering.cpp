@@ -91,13 +91,13 @@ void WMFiberClustering::moduleMain()
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode.get() );
     }
 }
 
 void WMFiberClustering::update()
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode.get() );
 
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
@@ -269,21 +269,21 @@ void WMFiberClustering::paint()
     WColor color;
 
     infoLog() << "cluster: " << m_clusters.size();
-    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+    m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
     size_t numFibers = 0;
     std::stringstream clusterLog;
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
         color.setHSV( hue, 1.0, 0.75 );
         m_clusters[i].setColor( color );
-        m_osgNode->addChild( genFiberGeode( m_clusters[i] ).get() );
+        m_osgNode->insert( genFiberGeode( m_clusters[i] ).get() );
         clusterLog << m_clusters[i].size() << " ";
         numFibers += m_clusters[i].size();
     }
     debugLog() << "Clusters of sizes: " << clusterLog.str();
     debugLog() << "Painted: " << numFibers << " fibers out of: " << m_fibs->size();
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode.get() );
 }
 
 void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )

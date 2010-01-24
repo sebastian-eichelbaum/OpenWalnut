@@ -157,7 +157,7 @@ private:
 
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
-    osg::ref_ptr< osg::Group > m_osgNode; //!< OSG root node for this module
+    osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module
     osg::ref_ptr< osg::Geode > m_fiberGeode; //!< OSG fiber geode
     osg::ref_ptr< osg::Geode > m_boundingBoxGeode; //!< OSG bounding box geode
     osg::ref_ptr< osg::Geode > m_voxelGeode; //!< OSG voxel geode

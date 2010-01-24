@@ -35,6 +35,7 @@
 #include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../math/WFiber.h"
@@ -151,7 +152,6 @@ private:
      */
     std::string lookUpTableFileName() const;
 
-
     /**
      * For each cluster a dataset is generated in which its fibers are blurred.
      *
@@ -201,7 +201,7 @@ private:
      * OSG node for this module. All other OSG nodes of this module should be
      * placed as child to this node.
      */
-    osg::ref_ptr< osg::Group > m_osgNode;
+    osg::ref_ptr< WGEGroupNode > m_osgNode;
 };
 
 inline const std::string WMFiberClustering::getName() const

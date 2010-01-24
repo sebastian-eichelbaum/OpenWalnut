@@ -76,13 +76,6 @@ public:
 
 protected:
     /**
-     * Marks a given voxel as hit.
-     *
-     * \param voxel The voxel coordinates
-     */
-    virtual void markVoxel( const wmath::WValue< int >& voxel );
-
-    /**
      * The grid is used for the following purposes:
      *  - First we need it when creating the final dataset
      *  - Second we need it to determine how many voxels are there at
@@ -99,12 +92,4 @@ protected:
 
 private:
 };
-
-inline void WRasterAlgorithm::markVoxel( const wmath::WValue< int >& voxel )
-{
-    assert( voxel.size() == 3 );
-    size_t idx = voxel[0] + voxel[1] * m_grid->getNbCoordsX() + voxel[2] * m_grid->getNbCoordsX() * m_grid->getNbCoordsY();
-    m_values[ idx ] = 1.0;
-}
-
 #endif  // WRASTERALGORITHM_H
