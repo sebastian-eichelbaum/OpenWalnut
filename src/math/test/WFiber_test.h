@@ -46,15 +46,12 @@ public:
     void testEqualityOperator( void )
     {
         using wmath::WPosition;
-        std::vector< WPosition > lineData1;
-        lineData1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData1.push_back( WPosition( 7.8, 9.0, -1.2 ) );
-        std::vector< WPosition > lineData2;
-        lineData2.push_back( WPosition( 1.2, 3.4, 5.6 ) );
-        lineData2.push_back( WPosition( 7.8, 9.0, -1.2 ) );
-        using wmath::WFiber;
-        WFiber fib1( lineData1 );
-        WFiber fib2( lineData2 );
+        wmath::WFiber fib1;
+        wmath::WFiber fib2;
+        fib1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
+        fib1.push_back( WPosition( 7.8, 9.0, -1.2 ) );
+        fib2.push_back( WPosition( 1.2, 3.4, 5.6 ) );
+        fib2.push_back( WPosition( 7.8, 9.0, -1.2 ) );
         TS_ASSERT_EQUALS( fib1, fib2 );
     }
 };

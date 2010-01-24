@@ -41,6 +41,7 @@
  */
 class WBresenham : public WRasterAlgorithm
 {
+friend class WBresenhamTest;
 public:
     /**
      * Initializes new raster algo.

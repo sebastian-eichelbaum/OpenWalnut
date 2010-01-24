@@ -26,17 +26,17 @@
 #define WLOGGER_H
 
 #include <queue>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
-#include "../common/WThreadedRunner.h"
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
 
 #include "WLogEntry.h"
+#include "WThreadedRunner.h"
 
 /**
  * Does actual logging of WLogEntries down to stdout or something similar.

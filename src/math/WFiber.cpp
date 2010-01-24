@@ -32,4 +32,9 @@ namespace wmath
         : WLine( points )
     {
     }
+
+    WFiber::WFiber()
+        : WLine()
+    {
+    }
 }

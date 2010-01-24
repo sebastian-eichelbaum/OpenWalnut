@@ -25,10 +25,11 @@
 #ifndef WLINE_H
 #define WLINE_H
 
+#include <algorithm>
 #include <iostream>
-#include <vector>
 
-#include "../utils/WStringUtils.h"
+#include <osg/MixinVector>
+
 #include "WPosition.h"
 
 // we need this to find the WLineTest class which is not inside wmath namespace
@@ -36,111 +37,26 @@ class WLineTest;
 
 namespace wmath
 {
-// Please notice that many small member functions are inlined for performance issues
-/**
- * A line is an ordered sequence of WPositions.
- */
-class WLine
-{
-/**
- * UnitTest class
- */
-friend class ::WLineTest;
-
-/**
- * Gives a meaningful representation of this object to the given
- * output stream.
- *
- * \param os The outputstream
- * \param rhs Right hand side operand
- * \return The outputstream for further use
- */
-friend std::ostream& operator<<( std::ostream& os, const WLine &rhs );
-
-public:
     /**
-     * Constructs a new line with the given points in the given order
+     * A line is an ordered sequence of WPositions.
+     */
+    typedef osg::MixinVector< WPosition > WLine;
+
+    /**
+     * Writes every mixin vector to an output stream such as cout, if its
+     * elements have an output operator defined.
      *
-     * \param points The points this line consists of
+     * \param os The output stream where the elements are written to
+     * \param v Vector containing the elements
+     * \return The output stream again.
      */
-    explicit WLine( const std::vector< WPosition > &points );
-
-    /**
-     * Delivers a reference to the last point.
-     *
-     * \return Reference of the last point.
-     */
-    const WPosition& back() const;
-
-    /**
-     * \param rhs Right hand side operand
-     * \return true if both lines have a same point vector
-     */
-    bool operator==( const WLine &rhs ) const;
-
-    /**
-     * \param rhs Right hand side operand
-     * \return false if both lines have a same point vector
-     */
-    bool operator!=( const WLine &rhs ) const;
-
-    /**
-     * Get number of points (length) the value consists of.
-     */
-    size_t size() const;
-
-    /**
-     * \param index Index for the i'th point of this line
-     * \return Const reference to the i'th position. This is const since
-     * we want an read only access.
-     */
-    const WPosition& operator[]( size_t index ) const;
-
-
-protected:
-private:
-    std::vector< WPosition > m_points; //!< stores the points of this line
-};
-
-inline size_t WLine::size() const
-{
-    return m_points.size();
-}
-
-inline bool WLine::operator==( const WLine &rhs ) const
-{
-    return m_points == rhs.m_points;
-}
-
-inline bool WLine::operator!=( const WLine &rhs ) const
-{
-    return m_points != rhs.m_points;
-}
-
-inline const WPosition& WLine::operator[]( size_t index ) const
-{
-    assert( index < m_points.size() );
-    return m_points[index];
-}
-
-inline const WPosition& WLine::back() const
-{
-    return m_points.back();
-}
-
-/**
- * Gives a meaningful representation of this object to the given
- * output stream.
- *
- * \param os The outputstream
- * \param rhs Right hand side operand
- * \return The outputstream for further use
- */
-inline std::ostream& operator<<( std::ostream& os, const WLine &rhs )
-{
-    using string_utils::operator<<;
-    return os << rhs.m_points;
-}
-
+    template< class T > std::ostream& operator<<( std::ostream& os, const osg::MixinVector< T >& v )
+    {
+        std::stringstream result;
+        result << "[" << std::scientific << std::setprecision( 16 );
+        std::copy( v.begin(), v.end(), std::ostream_iterator< T >( result, ", " ) );
+        os << string_utils::rTrim( result.str(), ", " ) << "]";
+        return os;
+    }
 } // end of namespace
 #endif  // WLINE_H

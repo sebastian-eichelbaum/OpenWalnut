@@ -26,9 +26,9 @@
 #define WFIBER_H
 
 #include <vector>
-#include <utility>
 
 #include "WLine.h"
+#include "WPosition.h"
 
 // we need this to find the WFiberTest class which is not inside wmath namespace
 // Additionally I found no way to put the WFiberTest class into wmath and CXXTest
@@ -50,6 +50,11 @@ public:
      * \param points Reference to the points which belong to this fiber
      */
     explicit WFiber( const std::vector< WPosition > &points );
+
+    /**
+     * Creates an empty fiber.
+     */
+    WFiber();
 
 protected:
 private:

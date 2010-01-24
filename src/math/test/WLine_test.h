@@ -27,7 +27,6 @@
 
 #include <string>
 #include <sstream>
-#include <vector>
 
 #include <cxxtest/TestSuite.h>
 
@@ -49,15 +48,15 @@ public:
     void testOutputOperator( void )
     {
         using wmath::WPosition;
-        std::vector< WPosition > lineData;
-        lineData.push_back( WPosition( 1., 1., 3.1415 ) );
-        lineData.push_back( WPosition( 0., 0., .44 ) );
-        lineData.push_back( WPosition( 1., 1., 1. ) );
+        wmath::WLine l;
+        l.push_back( WPosition( 1., 1., 3.1415 ) );
+        l.push_back( WPosition( 0., 0., .44 ) );
+        l.push_back( WPosition( 1., 1., 1. ) );
         std::string expected( "[[1.0000000000000000e+00, 1.0000000000000000e+00, 3.1415000000000002e+00], "
                                "[0.0000000000000000e+00, 0.0000000000000000e+00, 4.4000000000000000e-01], "
                                "[1.0000000000000000e+00, 1.0000000000000000e+00, 1.0000000000000000e+00]]" );
         std::stringstream ss;
-        ss << wmath::WLine( lineData );
+        ss << l;
         TS_ASSERT_EQUALS( expected, ss.str() );
     }
 
@@ -67,19 +66,16 @@ public:
     void testEqualityOperator( void )
     {
         using wmath::WPosition;
-        std::vector< WPosition > lineData1;
-        lineData1.push_back( WPosition( 1., 1., 3.1415 ) );
-        lineData1.push_back( WPosition( 0., 0., .44 ) );
-        lineData1.push_back( WPosition( 1., 1., 1. ) );
-        std::vector< WPosition > lineData2;
-        lineData2.push_back( WPosition( 1., 1., 3.1415 ) );
-        lineData2.push_back( WPosition( 0., 0., .44 ) );
-        lineData2.push_back( WPosition( 1., 1., 1. ) );
-        using wmath::WLine;
-        WLine line1( lineData1 );
-        WLine line2( lineData2 );
+        wmath::WLine line1;
+        line1.push_back( WPosition( 1., 1., 3.1415 ) );
+        line1.push_back( WPosition( 0., 0., .44 ) );
+        line1.push_back( WPosition( 1., 1., 1. ) );
+        wmath::WLine line2;
+        line2.push_back( WPosition( 1., 1., 3.1415 ) );
+        line2.push_back( WPosition( 0., 0., .44 ) );
+        line2.push_back( WPosition( 1., 1., 1. ) );
         TS_ASSERT_EQUALS( line1, line2 );
-        line2.m_points.back()[1] += 0.0000000001;
+        line2.back()[1] += 0.0000000001;
         TS_ASSERT_DIFFERS( line1, line2 );
     }
 
@@ -90,11 +86,10 @@ public:
     void testAccessOperatorWithinValidBounds( void )
     {
         using wmath::WPosition;
-        std::vector< WPosition > lineData;
-        lineData.push_back( WPosition( 1., 1., 3.1415 ) );
-        lineData.push_back( WPosition( 0., 0., .44 ) );
-        lineData.push_back( WPosition( 1., 1., 1. ) );
-        wmath::WLine line( lineData );
+        wmath::WLine line;
+        line.push_back( WPosition( 1., 1., 3.1415 ) );
+        line.push_back( WPosition( 0., 0., .44 ) );
+        line.push_back( WPosition( 1., 1., 1. ) );
         WPosition expected( 1., 1., 1. );
         TS_ASSERT_EQUALS( expected, line[2] );
     }
