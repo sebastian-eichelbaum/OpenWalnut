@@ -15,7 +15,7 @@ ELSE()
     FILE( GLOB DATAHANDLER_IO_SRC "io/*.cpp" "io/*.h" ) # former WLoader
 
     ADD_LIBRARY( dataHandler SHARED ${DATAHANDLER_SRC} ${DATAHANDLER_EXCEPTIONS_SRC} ${DATAHANDLER_IO_SRC} )
-    TARGET_LINK_LIBRARIES( dataHandler common math utils ${Boost_LIBRARIES} niftiio biosig ${OPENSCENEGRAPH_LIBRARIES})
+    TARGET_LINK_LIBRARIES( dataHandler common math ${Boost_LIBRARIES} niftiio biosig ${OPENSCENEGRAPH_LIBRARIES})
 ENDIF()
 # Unit tests
 IF( OW_COMPILE_TESTS )

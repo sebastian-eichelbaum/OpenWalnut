@@ -29,7 +29,7 @@
 #include <cmath>
 #include <vector>
 
-#include "../utils/WStringUtils.h"
+#include "../common/WStringUtils.h"
 
 namespace wmath
 {

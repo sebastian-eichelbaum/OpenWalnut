@@ -30,7 +30,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../../common/WException.h"
-#include "../../utils/WStringUtils.h"
+#include "../../common/WStringUtils.h"
 #include "../WEEG.h"
 #include "../WSubject.h"
 #include "WLoaderEEGASCII.h"

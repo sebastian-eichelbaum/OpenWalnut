@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include "../utils/WStringUtils.h"
+#include "../common/WStringUtils.h"
 #include "WColor.h"
 
 WColor::WColor( float red, float green, float blue, float alpha )

@@ -29,17 +29,14 @@
 
 #include <cmath>
 
-#include "WMGaussFiltering.h"
-
-#include "../../utils/WStringUtils.h"
-#include "../../math/WVector3D.h"
-#include "../../math/WPosition.h"
+#include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WShader.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../math/WPosition.h"
+#include "../../math/WVector3D.h"
 #include "../data/WMData.h"
-
+#include "WMGaussFiltering.h"
 
 WMGaussFiltering::WMGaussFiltering():
     WModule()

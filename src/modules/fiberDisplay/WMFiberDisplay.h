@@ -139,6 +139,20 @@ private:
     osg::ref_ptr< WGEGroupNode > m_osgNode;
 };
 
+/**
+ * Some helper functions for displaying fibers
+ */
+namespace display_utils
+{
+    /**
+     * Transforms a direction given via two points into a RGB color.
+     *
+     * \param pos1 First point
+     * \param pos2 Second point
+     */
+     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
+}
+
 inline const std::string WMFiberDisplay::getName() const
 {
     return std::string( "Fiber Display Module" );
@@ -147,6 +161,13 @@ inline const std::string WMFiberDisplay::getName() const
 inline const std::string WMFiberDisplay::getDescription() const
 {
     return std::string( "Draws fibers out of a WDataSetFibers" );
+}
+
+inline WColor display_utils::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
+{
+    wmath::WPosition direction( ( pos2 - pos1 ) );
+    direction.normalize();
+    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ) );
 }
 
 #endif  // WMFIBERDISPLAY_H

@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "../utils/WIOTools.h"
+#include "../common/WIOTools.h"
 #include "WLoader.h"
 #include "exceptions/WDHIOFailure.h"
 

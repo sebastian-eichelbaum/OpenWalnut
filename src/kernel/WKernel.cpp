@@ -38,15 +38,15 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 
-#include "WModule.h"
-#include "WModuleFactory.h"
-#include "WBatchLoader.h"
-#include "../common/WException.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
+#include "../common/WException.h"
 #include "../common/WFlag.h"
 #include "../common/WPreferences.h"
-#include "../utils/WStringUtils.h"
+#include "../common/WStringUtils.h"
+#include "WBatchLoader.h"
+#include "WModule.h"
+#include "WModuleFactory.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 

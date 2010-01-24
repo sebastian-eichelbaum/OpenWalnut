@@ -51,6 +51,9 @@ public:
         m_algo = boost::shared_ptr< WBresenham >( new WBresenham( grid, false ) );
     }
 
+    /**
+     * Clean up after each test
+     */
     void tearDown( void )
     {
         m_algo.reset();
@@ -133,7 +136,7 @@ public:
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
     }
 private:
-    boost::shared_ptr< WBresenham > m_algo;
+    boost::shared_ptr< WBresenham > m_algo; //!< test instace of the WBresenham algo
 };
 
 #endif  // WBRESENHAM_TEST_H

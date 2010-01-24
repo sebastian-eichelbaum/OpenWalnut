@@ -31,7 +31,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "../utils/WIOTools.h"
+#include "../common/WIOTools.h"
 #include "WProperties.h"
 #include "WLogger.h"
 

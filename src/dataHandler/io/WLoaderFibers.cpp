@@ -32,10 +32,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WIOTools.h"
 #include "../../common/WLogger.h"
+#include "../../common/WStringUtils.h"
 #include "../../math/WPosition.h"
-#include "../../utils/WIOTools.h"
-#include "../../utils/WStringUtils.h"
 #include "../WDataSetFibers.h"
 #include "../WSubject.h"
 #include "WLoaderFibers.h"

@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../utils/WIOTools.h"
+#include "../../common/WIOTools.h"
 #include "../exceptions/WDHIOFailure.h"
 #include "WWriterLookUpTableVTK.h"
 

@@ -36,7 +36,6 @@
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
-#include "../../utils/WColorUtils.h"
 #include "WMFiberDisplay.h"
 
 WMFiberDisplay::WMFiberDisplay()
@@ -75,11 +74,11 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( boost::shared_ptr< con
             WColor c;
             if( !globalColoring )
             {
-                c = color_utils::getRGBAColorFromDirection( fib[i], fib[i-1] );
+                c = display_utils::getRGBAColorFromDirection( fib[i], fib[i-1] );
             }
             else
             {
-                c = color_utils::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
+                c = display_utils::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
             }
             colors->push_back( wge::osgColor( c ) );
         }

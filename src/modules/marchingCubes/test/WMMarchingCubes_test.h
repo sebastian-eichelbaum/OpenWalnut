@@ -32,7 +32,7 @@
 
 #include "../../../common/WLogger.h"
 #include "../../../math/WPosition.h"
-#include "../../../utils/WIOTools.h"
+#include "../../../common/WIOTools.h"
 #include "../WMMarchingCubes.h"
 
 static WLogger logger;

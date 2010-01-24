@@ -30,8 +30,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../../utils/WIOTools.h"
-#include "../../utils/WStringUtils.h"
+#include "../../common/WIOTools.h"
+#include "../../common/WStringUtils.h"
 #include "../exceptions/WDHException.h"
 #include "../exceptions/WDHIOFailure.h"
 #include "WReader.h"

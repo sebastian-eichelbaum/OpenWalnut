@@ -22,33 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-
-#include <cmath>
-
-
-#include "WMPrototypeBoxManipulation.h"
 
 #include <boost/lexical_cast.hpp>
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
 #include <osg/LineWidth>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 
-#include "../../utils/WStringUtils.h"
-#include "../../math/WVector3D.h"
-#include "../../math/WPosition.h"
-#include "../../kernel/WKernel.h"
+#include "../../common/WStringUtils.h"
 #include "../../graphicsEngine/WROIBox.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../math/WPosition.h"
+#include "../../math/WVector3D.h"
 #include "../data/WMData.h"
+#include "WMPrototypeBoxManipulation.h"
 
 WMPrototypeBoxManipulation::WMPrototypeBoxManipulation():
     WModule()

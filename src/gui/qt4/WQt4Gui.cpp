@@ -34,15 +34,15 @@
 #include <QtGui/QFileDialog>
 
 #include "WMainWindow.h" // this has to be included before any other includes
-#include "events/WModuleAssocEvent.h"
-#include "events/WModuleReadyEvent.h"
+#include "../../common/WConditionOneShot.h"
+#include "../../common/WIOTools.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../modules/data/WMData.h"
-#include "../../utils/WIOTools.h"
 #include "WOpenCustomDockWidgetEvent.h"
-#include "../../common/WConditionOneShot.h"
 #include "WQt4Gui.h"
+#include "events/WModuleAssocEvent.h"
+#include "events/WModuleReadyEvent.h"
 
 WQt4Gui::WQt4Gui( int argc, char** argv )
     : WGUI( argc, argv )

@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "../../common/WIOTools.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
@@ -35,7 +36,6 @@
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
 #include "../../dataHandler/io/WLoaderFibers.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
-#include "../../utils/WIOTools.h"
 #include "WMData.h"
 
 WMData::WMData():

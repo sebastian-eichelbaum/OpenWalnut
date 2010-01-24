@@ -15,7 +15,7 @@ TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} )
 # Unit tests
 IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
-                               "common;utils"
+                               "common"
                                "WSegmentationFault.cpp"
                                "WTransferable.cpp"
                                "WConditionSet.cpp"
