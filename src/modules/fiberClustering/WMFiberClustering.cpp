@@ -35,7 +35,7 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../common/WStatusReport.h"
+#include "../../common/WProgress.h"
 #include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFibers.h"
@@ -175,7 +175,8 @@ void WMFiberClustering::cluster()
         m_clusterIDs[i] = i;
     }
 
-    WStatusReport st( numFibers );
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber clustering", numFibers ) );
+    m_progress->addSubProgress( progress );
 
     WDLTMetric dLt( m_proximity_t * m_proximity_t );  // metric instance for computation of the dLt measure
     for( size_t q = 0; q < numFibers; ++q )  // loop over all "symmetric" fibers pairs
@@ -195,11 +196,8 @@ void WMFiberClustering::cluster()
             }
         }
 
-        std::stringstream ss;
-        ss << "\r" << std::fixed << std::setprecision( 2 ) << ( ++st ).progress() << " " << st.stringBar();
-        std::cout << ss.str() << std::flush;
+        ++*progress;
     }
-    std::cout << std::endl;
     m_dLtTableExists = true;
 
     // remove empty clusters

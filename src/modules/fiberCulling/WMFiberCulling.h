@@ -29,8 +29,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <osg/Geode>
-
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"

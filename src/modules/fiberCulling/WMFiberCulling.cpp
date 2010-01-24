@@ -29,12 +29,9 @@
 
 #include <boost/filesystem.hpp>
 
-#include <osg/Geode>
-#include <osg/Geometry>
-
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../common/WStatusReport.h"
+#include "../../common/WProgress.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
@@ -155,13 +152,15 @@ void WMFiberCulling::cullOutFibers()
     std::vector< bool > unusedFibers( numFibers, false );
 
     WDSTMetric dSt( m_proximity_t * m_proximity_t );
-    WStatusReport st( numFibers );
+
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber culling", numFibers ) );
+    m_progress->addSubProgress( progress );
 
     for( size_t q = 0; q < numFibers; ++q )  // loop over all streamlines
     {
         if( unusedFibers[q] )
         {
-            ++st;
+            ++*progress;
             continue;
         }
         for( size_t r = q + 1;  r < numFibers; ++r )
@@ -184,11 +183,8 @@ void WMFiberCulling::cullOutFibers()
                 }
             }
         }
-        std::stringstream ss;
-        ss << "\r" << std::fixed << std::setprecision( 2 ) << ( ++st ).progress() << " " << st.stringBar();
-        std::cout << ss.str() << std::flush;
+        ++*progress;
     }
-    std::cout << std::endl;
 
     m_dataset->erase( unusedFibers );
     infoLog() << "Erasing done.";
