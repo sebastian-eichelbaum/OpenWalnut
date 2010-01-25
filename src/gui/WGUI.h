@@ -33,10 +33,10 @@
 
 #include "../common/WThreadedRunner.h"
 #include "../common/WFlag.h"
-#include "../kernel/WModule.h"
 #include "../graphicsEngine/WGECamera.h"
 #include "WCustomWidget.h"
 
+class WDataSet;
 
 /**
  * \defgroup gui GUI

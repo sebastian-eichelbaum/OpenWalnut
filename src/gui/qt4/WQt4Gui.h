@@ -31,6 +31,7 @@
 #include <boost/program_options.hpp>
 
 #include "../WGUI.h"
+#include "../../kernel/WModule.h"
 
 class WMainWindow;
 class WGraphicsEngine;
