@@ -22,23 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLINE_H
-#define WLINE_H
+#include "WMixinVector.h"
 
-#include <algorithm>
-#include <iostream>
-
-#include "../common/WMixinVector.h"
-#include "WPosition.h"
-
-// we need this to find the WLineTest class which is not inside wmath namespace
-class WLineTest;
-
-namespace wmath
-{
-    /**
-     * A line is an ordered sequence of WPositions.
-     */
-    typedef WMixinVector< WPosition > WLine;
-} // end of namespace
-#endif  // WLINE_H
