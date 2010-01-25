@@ -38,6 +38,7 @@
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
+#include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/prototypeBoxManipulation/WMPrototypeBoxManipulation.h"
 #include "../modules/textureList/WMTextureList.h"
@@ -82,6 +83,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMPrototypeBoxManipulation() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
 
     lock.unlock();
 
