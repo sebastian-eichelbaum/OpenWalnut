@@ -47,7 +47,6 @@ public:
 //         WLogger logger;
 //         boost::shared_ptr< WGUI > gui = boost::shared_ptr< WGUI >( new WQt4Gui( 0, 0 ) );
 //         boost::shared_ptr< WGraphicsEngine > ge = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine );
-//         WKernel kernel( ge, gui );
 //         TS_ASSERT_THROWS_NOTHING( WROIBox( minPos, maxPos ) );
     }
 };

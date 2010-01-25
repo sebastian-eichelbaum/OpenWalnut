@@ -40,13 +40,13 @@
 #include <osgViewer/View>
 
 #include "../common/WThreadedRunner.h"
+#include "../common/WColor.h"
 
 #include "WGEGraphicsWindow.h"
 #include "WGECamera.h"
 #include "WPickHandler.h"
 
 
-class WColor;
 
 /**
  * Class for managing one view to the scene. This includes viewport, camera and graphics context.

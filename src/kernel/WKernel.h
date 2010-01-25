@@ -194,7 +194,7 @@ private:
     /**
      * the location of the openwalnut executable
      */
-    static std::string m_AppPath;
+    static std::string m_appPath;
 
     /**
      * the location of the openwalnut executable
