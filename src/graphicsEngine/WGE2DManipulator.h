@@ -147,6 +147,13 @@ protected:
 
 private:
     /**
+     * Handles events related to zooming.
+     *
+     * \param ea event class for storing Keyboard, mouse and window events
+     */
+    bool zoom( const osgGA::GUIEventAdapter& ea );
+
+    /**
      * The x-position of the viewing window's lower left corner.
      */
     double m_positionX;
@@ -155,6 +162,11 @@ private:
      * The y-position of the viewing window's lower left corner.
      */
     double m_positionY;
+
+    /**
+     * zoom factor
+     */
+    double m_zoom;
 };
 
 #endif  // WGE2DMANIPULATOR_H

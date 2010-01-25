@@ -27,7 +27,8 @@
 
 WGE2DManipulator::WGE2DManipulator()
     : m_positionX( 0.0 ),
-      m_positionY( 0.0 )
+      m_positionY( 0.0 ),
+      m_zoom( 1.0 )
 {
 }
 
@@ -40,28 +41,31 @@ void WGE2DManipulator::setByMatrix( const osg::Matrixd& matrix )
 {
     m_positionX = matrix.getTrans().x();
     m_positionY = matrix.getTrans().y();
+    m_zoom = 1.0 / matrix.getScale().x();
 }
 
 void WGE2DManipulator::setByInverseMatrix( const osg::Matrixd& matrix )
 {
     m_positionX = -matrix.getTrans().x();
     m_positionY = -matrix.getTrans().y();
+    m_zoom = matrix.getScale().x();
 }
 
 osg::Matrixd WGE2DManipulator::getMatrix() const
 {
-    return osg::Matrixd::translate( m_positionX, m_positionY, 0.0 );
+    return osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 ) * osg::Matrixd::translate( m_positionX, m_positionY, 0.0 );
 }
 
 osg::Matrixd WGE2DManipulator::getInverseMatrix() const
 {
-    return osg::Matrixd::translate( -m_positionX, -m_positionY, 0.0 );
+    return osg::Matrixd::translate( -m_positionX, -m_positionY, 0.0 ) * osg::Matrixd::scale( m_zoom, m_zoom, 1.0 );
 }
 
 void WGE2DManipulator::home( const osgGA::GUIEventAdapter& /*ea*/, osgGA::GUIActionAdapter& us ) // NOLINT We can not change the interface of OSG
 {
     m_positionX = 0.0;
     m_positionY = 0.0;
+    m_zoom = 1.0;
 
     us.requestRedraw();
     flushMouseEventStack();
@@ -95,6 +99,16 @@ bool WGE2DManipulator::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActio
             handled = true;
             break;
         }
+        case( osgGA::GUIEventAdapter::SCROLL ):
+        {
+            if( zoom( ea ) )
+            {
+                us.requestRedraw();
+            }
+            handled = true;
+            break;
+        }
+        // TODO(cornimueller): Also allow to zoom using +/- keys.
         case( osgGA::GUIEventAdapter::KEYDOWN ):
         {
             if( ea.getKey() == osgGA::GUIEventAdapter::KEY_Space )
@@ -146,10 +160,45 @@ bool WGE2DManipulator::calcMovement()
         if( buttonMask == osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON
             || buttonMask == ( osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON | osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON ) )
         {
-            m_positionX += m_ga_t1->getX() - m_ga_t0->getX();
-            m_positionY += m_ga_t1->getY() - m_ga_t0->getY();
+            m_positionX += ( m_ga_t1->getX() - m_ga_t0->getX() ) / m_zoom;
+            m_positionY += ( m_ga_t1->getY() - m_ga_t0->getY() ) / m_zoom;
             changed = true;
         }
+    }
+
+    return changed;
+}
+
+bool WGE2DManipulator::zoom( const osgGA::GUIEventAdapter& ea )
+{
+    bool changed = false;
+    double zoomDelta;
+
+    switch( ea.getScrollingMotion() )
+    {
+        case osgGA::GUIEventAdapter::SCROLL_UP:
+            zoomDelta = -0.05;
+            break;
+        case osgGA::GUIEventAdapter::SCROLL_DOWN:
+            zoomDelta = 0.05;
+            break;
+        case osgGA::GUIEventAdapter::SCROLL_2D:
+            zoomDelta = -0.05 / 120.0 * ea.getScrollingDeltaY();
+            break;
+        // case osgGA::GUIEventAdapter::SCROLL_LEFT:
+        // case osgGA::GUIEventAdapter::SCROLL_RIGHT:
+        // case osgGA::GUIEventAdapter::SCROLL_NONE:
+        default:
+            // do nothing
+            zoomDelta = 0.0;
+    }
+
+    if( zoomDelta != 0.0 )
+    {
+        m_zoom *= 1.0 + zoomDelta;
+        // TODO(cornimueller): Correct m_positionX and m_positionY to zoom into the current
+        //       mouse position, not into the lower left corner.
+        changed = true;
     }
 
     return changed;
