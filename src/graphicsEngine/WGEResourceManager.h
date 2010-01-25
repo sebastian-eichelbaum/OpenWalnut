@@ -85,6 +85,13 @@ public:
      */
     std::string getBoldFont();
 
+    /**
+     * Updates the internal font paths according to the specified one.
+     *
+     * \param path the new path.
+     */
+    void setFontPath( std::string path );
+
 protected:
 
     /**

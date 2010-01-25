@@ -117,6 +117,9 @@ std::string WGraphicsEngine::getFontPath() const
 void WGraphicsEngine::setFontPath( std::string path )
 {
     m_fontPath = path;
+
+    // we need to propagate the change to the resource manager
+    WGEResourceManager::getResourceManager()->setFontPath( path );
 }
 
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,

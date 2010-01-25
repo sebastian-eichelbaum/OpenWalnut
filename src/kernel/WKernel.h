@@ -148,6 +148,11 @@ public:
      */
     static std::string getShaderPath();
 
+    /**
+     * getter for font path
+     */
+    static std::string getFontPath();
+
 protected:
 
     /**
@@ -192,14 +197,19 @@ private:
     static void findAppPath();
 
     /**
-     * the location of the openwalnut executable
+     * The location of the openwalnut executable.
      */
     static std::string m_appPath;
 
     /**
-     * the location of the openwalnut executable
+     * The location of the shaders.
      */
     static std::string m_shaderPath;
+
+   /**
+     * The location of the font files.
+     */
+    static std::string m_fontPath;
 };
 
 #endif  // WKERNEL_H

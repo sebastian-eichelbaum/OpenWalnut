@@ -34,15 +34,7 @@ boost::shared_ptr< WGEResourceManager > WGEResourceManager::m_instance = boost::
 
 WGEResourceManager::WGEResourceManager()
 {
-    // NOTE: the osgViewer::StatsHandler uses a hard coded font filename. :-(. To keep the look equal we use the same font as
-    // default font. Since Arial is underlying some weird licence we simply link/copy a font from the liberation package
-    // (https://fedorahosted.org/liberation-fonts/) to "arial.ttf"
-
-    namespace fs = boost::filesystem;
-    fs::path fontPath = WGraphicsEngine::getGraphicsEngine()->getFontPath();
-    m_regularFont = fs::path( fontPath / "LiberationMono-Regular.ttf" ).file_string();
-    m_boldFont = fs::path( fontPath / "LiberationMono-Bold.ttf" ).file_string();
-    m_italicFont = fs::path( fontPath / "LiberationMono-Italic.ttf" ).file_string();
+    // initialize
 }
 
 WGEResourceManager::~WGEResourceManager()
@@ -78,5 +70,18 @@ std::string WGEResourceManager::getItalicFont()
 std::string WGEResourceManager::getBoldFont()
 {
     return m_boldFont;
+}
+
+void WGEResourceManager::setFontPath( std::string path )
+{
+    // NOTE: the osgViewer::StatsHandler uses a hard coded font filename. :-(. To keep the look equal we use the same font as
+    // default font. Since Arial is underlying some weird licence we simply link/copy a font from the liberation package
+    // (https://fedorahosted.org/liberation-fonts/) to "arial.ttf"
+
+    namespace fs = boost::filesystem;
+    fs::path fontPath = path;
+    m_regularFont = fs::path( fontPath / "LiberationMono-Regular.ttf" ).file_string();
+    m_boldFont = fs::path( fontPath / "LiberationMono-Bold.ttf" ).file_string();
+    m_italicFont = fs::path( fontPath / "LiberationMono-Italic.ttf" ).file_string();
 }
 

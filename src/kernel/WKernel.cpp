@@ -67,6 +67,11 @@ std::string WKernel::m_shaderPath = std::string();
  */
 std::string WKernel::m_appPath = std::string();
 
+/**
+ * Define font path.
+ */
+std::string WKernel::m_fontPath = std::string();
+
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
 {
@@ -103,7 +108,7 @@ void WKernel::init()
 
     // initialize graphics engine, or, at least set some stuff
     m_graphicsEngine->setShaderPath( m_shaderPath );
-    m_graphicsEngine->setShaderPath( m_appPath + "/fonts/" );
+    m_graphicsEngine->setFontPath( m_fontPath );
 
     // load all modules
     m_moduleFactory->load();
@@ -196,10 +201,13 @@ void WKernel::findAppPath()
     fs::path currentDir( fs::initial_path<fs::path>() );
 
     m_appPath = currentDir.file_string();
-//    std::cout << "Set app path to " << m_appPath << std::endl;
+    WLogger::getLogger()->addLogMessage( "Application path: " + m_appPath, "Kernel", LL_DEBUG );
 
     m_shaderPath = fs::path( currentDir / "shaders" ).file_string();
-//    std::cout << "Set shader path to " << m_shaderPath << std::endl;
+    WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath, "Kernel", LL_DEBUG );
+
+    m_fontPath = fs::path( currentDir / "fonts" ).file_string();
+    WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath, "Kernel", LL_DEBUG );
 }
 
 const WBoolFlag& WKernel::isFinishRequested() const
@@ -233,3 +241,10 @@ std::string WKernel::getShaderPath()
     findAppPath();
     return WKernel::m_shaderPath;
 }
+
+std::string WKernel::getFontPath()
+{
+    findAppPath();
+    return WKernel::m_fontPath;
+}
+
