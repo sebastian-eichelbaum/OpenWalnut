@@ -22,23 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLINE_H
-#define WLINE_H
+#ifndef WMIXINVECTORTRAITS_H
+#define WMIXINVECTORTRAITS_H
 
-#include <algorithm>
-#include <iostream>
+#include <sstream>
 
-#include "../common/WMixinVector.h"
-#include "WPosition.h"
+#include "../WMixinVector.h"
+#include "WTraitsBase.h"
 
-// we need this to find the WLineTest class which is not inside wmath namespace
-class WLineTest;
-
-namespace wmath
+#ifdef CXXTEST_RUNNING
+namespace CxxTest
 {
+CXXTEST_TEMPLATE_INSTANTIATION
+/**
+ * Enables better UnitTest OutPut if something fails with a mixin vector, so
+ * you see immedeatly what is failing.
+ */
+template< class T > class ValueTraits< WMixinVector< T > > : public WTraitsBase
+{
+public:
     /**
-     * A line is an ordered sequence of WPositions.
+     * Constructs a new ValueTrait of a mixin vector for better test output
      */
-    typedef WMixinVector< WPosition > WLine;
-} // end of namespace
-#endif  // WLINE_H
+    explicit ValueTraits( const WMixinVector< T > & v )
+    {
+        std::stringstream ss;
+        ss << v;
+        m_s = ss.str();
+    }
+};
+}
+#endif  // CXXTEST_RUNNING
+#endif  // WMIXINVECTORTRAITS_H
