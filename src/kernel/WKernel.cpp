@@ -65,7 +65,7 @@ std::string WKernel::m_shaderPath = std::string();
 /**
  * Define app path.
  */
-std::string WKernel::m_AppPath = std::string();
+std::string WKernel::m_appPath = std::string();
 
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
@@ -102,7 +102,8 @@ void WKernel::init()
                 "Root module container in Kernel." ) );
 
     // initialize graphics engine, or, at least set some stuff
-    m_graphicsEngine->setShaderPath( WKernel::m_shaderPath );
+    m_graphicsEngine->setShaderPath( m_shaderPath );
+    m_graphicsEngine->setShaderPath( m_appPath + "/fonts/" );
 
     // load all modules
     m_moduleFactory->load();
@@ -180,12 +181,12 @@ void WKernel::threadMain()
 void WKernel::findAppPath()
 {
     // only get the path if not already done
-    if ( m_AppPath != "" )
+    if ( m_appPath != "" )
     {
         return;
     }
 
-    if ( m_AppPath != "" )
+    if ( m_appPath != "" )
     {
         return;
     }
@@ -194,8 +195,8 @@ void WKernel::findAppPath()
     namespace fs = boost::filesystem;
     fs::path currentDir( fs::initial_path<fs::path>() );
 
-    m_AppPath = currentDir.file_string();
-//    std::cout << "Set app path to " << m_AppPath << std::endl;
+    m_appPath = currentDir.file_string();
+//    std::cout << "Set app path to " << m_appPath << std::endl;
 
     m_shaderPath = fs::path( currentDir / "shaders" ).file_string();
 //    std::cout << "Set shader path to " << m_shaderPath << std::endl;
@@ -224,7 +225,7 @@ boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > 
 std::string WKernel::getAppPath()
 {
     findAppPath();
-    return WKernel::m_AppPath;
+    return WKernel::m_appPath;
 }
 
 std::string WKernel::getShaderPath()

@@ -28,7 +28,7 @@
 #include <osg/LightModel>
 
 #include "WROIBox.h"
-#include "../kernel/WKernel.h"
+#include "WGraphicsEngine.h"
 
 size_t WROIBox::maxBoxId = 0;
 
@@ -117,9 +117,9 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_maxPos = maxPos;
 
     // connect updateGFX with picking
-    WKernel* kernel = WKernel::getRunningKernel();
-    assert( kernel );
-    boost::shared_ptr< WGEViewer > viewer = kernel->getGraphicsEngine()->getViewerByName( "main" );
+    boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
+    assert( ge );
+    boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
     assert( viewer );
     m_pickHandler = viewer->getPickHandler();
     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::updateGFX, this, _1 ) );
@@ -166,7 +166,8 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON  );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
+    assert( WGraphicsEngine::getGraphicsEngine() );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( m_geode );
 }
 
 wmath::WPosition WROIBox::getMinPos() const

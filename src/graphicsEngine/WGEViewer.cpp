@@ -44,7 +44,6 @@
 #include "WGE2DManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
-#include "../kernel/WKernel.h"
 
 #include "WGEViewer.h"
 

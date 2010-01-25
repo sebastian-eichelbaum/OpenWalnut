@@ -43,6 +43,7 @@
 #include <osgViewer/Viewer>
 
 #include "../common/WThreadedRunner.h"
+#include "../common/WColor.h"
 #include "../math/WPosition.h"
 #include "WGEGraphicsWindow.h"
 #include "WGEScene.h"
@@ -87,6 +88,20 @@ public:
      * \param path path to shaders.
      */
     void setShaderPath( std::string path );
+
+    /**
+     * Return the path where the fonts are expected to be located.
+     *
+     * \return font path
+     */
+    std::string getFontPath() const;
+
+    /**
+     * Sets the font path.
+     *
+     * \param path path to fonts.
+     */
+    void setFontPath( std::string path );
 
     /**
      * Creates a new viewer. Does basic initialization and sets the default scene.
@@ -168,6 +183,8 @@ protected:
      * Path to the shaders.
      */
     std::string m_shaderPath;
+
+    std::string m_fontPath; //!< Path where the fonts are expected.
 
     /**
      * OpenSceneGraph composite viewer. Contains all created osgViewer::Views.

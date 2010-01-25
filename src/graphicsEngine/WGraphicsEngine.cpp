@@ -39,7 +39,6 @@
 
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
-#include "../kernel/WKernel.h"
 #include "../math/WPosition.h"
 #include "WGEViewer.h"
 #include "WGraphicsEngine.h"
@@ -58,6 +57,7 @@ WGraphicsEngine::WGraphicsEngine():
     m_rootNode = new WGEScene();
 
     m_shaderPath = "";
+    m_fontPath = "";
 
     // initialize OSG render window
     m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
@@ -107,6 +107,16 @@ std::string WGraphicsEngine::getShaderPath() const
 void WGraphicsEngine::setShaderPath( std::string path )
 {
     m_shaderPath = path;
+}
+
+std::string WGraphicsEngine::getFontPath() const
+{
+    return m_fontPath;
+}
+
+void WGraphicsEngine::setFontPath( std::string path )
+{
+    m_fontPath = path;
 }
 
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
