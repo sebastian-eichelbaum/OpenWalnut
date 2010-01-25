@@ -37,6 +37,7 @@
  */
 class WBresenhamDBL : public WBresenham
 {
+friend class WBresenhamDBLTest;
 public:
     /**
      * Initializes new raster algo.

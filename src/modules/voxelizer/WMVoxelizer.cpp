@@ -120,16 +120,16 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
     }
     // TODO(math): This is just a line for testing purposes
-    vertices->push_back( osg::Vec3( 73, 38, 29 ) );
-    vertices->push_back( osg::Vec3( 120, 150, 130 ) );
-    colors->push_back( colors->back() );
-    colors->push_back( colors->back() );
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
-    vertices->push_back( osg::Vec3( 7.2766304016113281e+01, 3.7974670410156250e+01, 2.9449142456054688e+01 ) );
-    vertices->push_back( osg::Vec3( 1.1976630401611328e+02, 1.4997467041015625e+02, 1.3044914245605469e+02 ) );
-    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
-    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
+//    vertices->push_back( osg::Vec3( 73, 38, 29 ) );
+//    vertices->push_back( osg::Vec3( 120, 150, 130 ) );
+//    colors->push_back( colors->back() );
+//    colors->push_back( colors->back() );
+//    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
+//    vertices->push_back( osg::Vec3( 7.2766304016113281e+01, 3.7974670410156250e+01, 2.9449142456054688e+01 ) );
+//    vertices->push_back( osg::Vec3( 1.1976630401611328e+02, 1.4997467041015625e+02, 1.3044914245605469e+02 ) );
+//    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
+//    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
+//    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
 
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
@@ -227,10 +227,10 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
         algo->raster( fibs[*cit] );
     }
     // TODO(math): This is just a line for testing purposes
-    wmath::WLine l;
-    l.push_back( wmath::WPosition( 73, 38, 29 ) );
-    l.push_back( wmath::WPosition( 120, 150, 130 ) );
-    algo->raster( l );
+//    wmath::WLine l;
+//    l.push_back( wmath::WPosition( 73, 38, 29 ) );
+//    l.push_back( wmath::WPosition( 120, 150, 130 ) );
+//    algo->raster( l );
 }
 
 void WMVoxelizer::connectors()

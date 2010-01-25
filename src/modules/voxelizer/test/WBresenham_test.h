@@ -108,6 +108,52 @@ public:
     }
 
     /**
+     * Lines rastered in the 3rd Quadrant should also be traced.
+     */
+    void testRasteringIn3rdQuadrant( void )
+    {
+        boost::shared_ptr< WGridRegular3D > grid;
+        grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, -2, -2, -2, 1, 1, 1 ) );
+        m_algo = boost::shared_ptr< WBresenham >( new WBresenham( grid, false ) );
+
+        wmath::WLine l;
+        l.push_back( wmath::WPosition( -1.7, -1.7, -1.7 ) );
+        l.push_back( wmath::WPosition( -0.6, -0.6, -0.6 ) );
+        l.push_back( wmath::WPosition( -0.4, -0.4, -0.4 ) );
+        m_algo->raster( l );
+        std::vector< double > expected( 27, 0.0 );
+        expected[0] = 1.0;
+        expected[13] = 1.0;
+        expected[26] = 1.0;
+        TS_ASSERT_EQUALS( m_algo->m_values, expected );
+    }
+
+    /**
+     * If you have a line from A to B then rastering it from B to should be
+     * equivalent.
+     */
+    void testSymmetry( void )
+    {
+        wmath::WLine l;
+        l.push_back( wmath::WPosition( 0.4, 0.4, 0.4 ) );
+        l.push_back( wmath::WPosition( 0.6, 0.6, 0.6 ) );
+        l.push_back( wmath::WPosition( 1.7, 1.7, 1.7 ) );
+        m_algo->raster( l );
+        std::vector< double > expected( 27, 0.0 );
+        expected[0] = 1.0;
+        expected[13] = 1.0;
+        expected[26] = 1.0;
+        TS_ASSERT_EQUALS( m_algo->m_values, expected );
+        m_algo->m_values[0] = m_algo->m_values[13] = m_algo->m_values[26] = 0.0; // reset the values array
+        l.clear();
+        l.push_back( wmath::WPosition( 1.7, 1.7, 1.7 ) );
+        l.push_back( wmath::WPosition( 0.6, 0.6, 0.6 ) );
+        l.push_back( wmath::WPosition( 0.4, 0.4, 0.4 ) );
+        m_algo->raster( l );
+        TS_ASSERT_EQUALS( m_algo->m_values, expected );
+    }
+
+    /**
      * Lines starting in a voxel A and ending in voxel B are rastered exactly
      * the same way as all lines starting in A and ending in B as well as
      * the line starting in the center of A and ending in the center of B.

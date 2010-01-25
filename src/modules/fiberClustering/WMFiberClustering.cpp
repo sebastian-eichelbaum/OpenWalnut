@@ -57,6 +57,7 @@ WMFiberClustering::WMFiberClustering()
       m_minClusterSize( 10 ),
       m_separatePrimitives( true ),
       m_proximity_t( 0.0 ),
+      m_clusterOutputID( 0 ),
       m_lastFibsSize( 0 )
 {
 }
@@ -110,9 +111,19 @@ void WMFiberClustering::update()
     cluster();
     paint();
     // TODO(math): For reasons of simplicity just forward one cluster to the voxelizer
-    m_clusters[0].setDataSetReference( m_fibs );
+    for( size_t i = 0; i < m_clusters.size(); ++i )
+    {
+        m_clusters[ i ].setDataSetReference( m_fibs );
+    }
+
     boost::shared_ptr< WFiberCluster > c;
-    c = boost::shared_ptr< WFiberCluster >( &m_clusters[0] );
+    if( m_clusterOutputID > m_clusters.size() )
+    {
+        errorLog() << "Invalid cluster ID for output selected: " << m_clusterOutputID << " using default ID 0";
+        m_clusterOutputID = 0;
+    }
+    debugLog() << "Cluster ID for output: " << m_clusterOutputID;
+    c = boost::shared_ptr< WFiberCluster >( new WFiberCluster( m_clusters[ m_clusterOutputID ] ) );
     m_output->updateData( c );
 }
 
@@ -343,6 +354,11 @@ void WMFiberClustering::properties()
                           false,
                           "All clusters up to this size will be discarded."
                         )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addInt( "output cluster id",
+                          m_clusterOutputID,
+                          false,
+                          "Only the cluster with this ID will be connected to the output."
+                        )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
     m_properties->addBool( "separate primitives",
                            m_separatePrimitives,
                            false,
@@ -377,6 +393,20 @@ void WMFiberClustering::slotPropertyChanged( std::string propertyName )
     {
         m_proximity_t = m_properties->getValue< double >( propertyName );
         update();
+    }
+    else if( propertyName == "output cluster id" )
+    {
+        m_clusterOutputID = m_properties->getValue< size_t >( propertyName );
+        boost::shared_ptr< WFiberCluster > c;
+        if( m_clusterOutputID > m_clusters.size() )
+        {
+            errorLog() << "Invalid cluster ID for output selected: " << m_clusterOutputID << " using default ID 0";
+            m_clusterOutputID = 0;
+        }
+        debugLog() << "Cluster ID for output: " << m_clusterOutputID;
+        // TODO(math): For reasons of simplicity just forward one cluster to the voxelizer
+        c = boost::shared_ptr< WFiberCluster >( new WFiberCluster( m_clusters[ m_clusterOutputID ] ) );
+        m_output->updateData( c );
     }
     else
     {

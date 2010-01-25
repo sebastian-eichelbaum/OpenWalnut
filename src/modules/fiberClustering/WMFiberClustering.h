@@ -185,6 +185,8 @@ private:
      */
     double m_proximity_t;
 
+    size_t m_clusterOutputID; //!< Specifies which cluster should be connected to the Output
+
     size_t m_lastFibsSize; //!< Last known number of fibers
 
     /**
