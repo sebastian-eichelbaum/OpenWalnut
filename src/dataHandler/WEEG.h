@@ -30,11 +30,11 @@
 #include <vector>
 #include "WRecording.h"
 #include "../common/WPrototyped.h"
+#include "../math/WPosition.h"
 
 
 ///======================================
 // TODO(wiebel): use this stuff or remove it
-#include "../math/WPosition.h"
 typedef double WDummyType;
 
 /**
@@ -43,6 +43,16 @@ typedef double WDummyType;
 class WEEGElectrodeObject
 {
 public:
+    /**
+     * Contructor taking the position of the elctrode.
+     * \param position The position of the electrode in world space.
+     */
+    explicit WEEGElectrodeObject( wmath::WPosition position );
+
+    /**
+     * Returns the position of the electrode.
+     */
+    wmath::WPosition getPosition() const;
 protected:
 private:
     wmath::WPosition m_position; //!< Position of the electrode in space
@@ -50,6 +60,7 @@ private:
     // eemagine design document
     // WColor color;
 };
+
 /**
  * An incomplete dummy implementation to store information about segments of EEG data
  */
@@ -123,6 +134,12 @@ public:
      * \param channelId id of channel beeing inspected.
      */
     std::string getChannelLabel( size_t channelId ) const;
+
+    /**
+     * Return the position of the sensor for a certain channel.
+     * \param channelId id of channel beeing inspected.
+     */
+    wmath::WPosition getChannelPosition( size_t channelId ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.
@@ -222,5 +239,9 @@ inline std::string WEEG::getChannelLabel( size_t channelId ) const
     return  m_channelLabels[channelId].first;
 }
 
+inline wmath::WPosition WEEG::getChannelPosition( size_t channelId ) const
+{
+    return  m_electrodeLibrary[channelId].getPosition();
+}
 
 #endif  // WEEG_H
