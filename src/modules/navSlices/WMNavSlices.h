@@ -32,7 +32,7 @@
 #include <osg/Node>
 
 #include "../../dataHandler/WDataSet.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WShader2.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
@@ -159,7 +159,7 @@ private:
     /**
      * the shader object for this module
      */
-    boost::shared_ptr< WShader >m_shader;
+    osg::ref_ptr< WShader2 >m_shader;
 
     /**
      * Input connector required by this module.
