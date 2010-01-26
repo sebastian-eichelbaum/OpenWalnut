@@ -7,6 +7,8 @@ Directory Structure:
      The place where the code from "src" will be built
   -doc
      Documentation for users and devlopers
+  -scripts
+     helper scripts, e.g. startup script for OpenWalnut
   -src
      The sources, i.e. code, icons, ...
   -tools
