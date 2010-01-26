@@ -166,8 +166,14 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON  );
+<<<<<<< /SCR/schurade/workspace/walnut-hg/src/graphicsEngine/WROIBox.cpp
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
+
+    m_isModified = true;
+=======
     assert( WGraphicsEngine::getGraphicsEngine() );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( m_geode );
+>>>>>>> /tmp/WROIBox.cpp~other.0y8ftg
 }
 
 wmath::WPosition WROIBox::getMinPos() const
@@ -178,6 +184,13 @@ wmath::WPosition WROIBox::getMinPos() const
 wmath::WPosition WROIBox::getMaxPos() const
 {
     return m_maxPos;
+}
+
+bool WROIBox::isModified()
+{
+    bool tmp = m_isModified;
+    m_isModified = false;
+    return tmp;
 }
 
 
@@ -208,7 +221,10 @@ void WROIBox::updateGFX( std::string text )
             ((osg::Geometry*)(m_geode->getDrawable( 0 )))->setColorArray( colors );
         }
         m_pickedPosition = newPos;
+        m_isModified = true;
         m_isPicked = true;
+
+        m_signalIsModified();
     }
     if( m_isPicked && text.find( "unpick" ) != std::string::npos )
     {
@@ -218,4 +234,5 @@ void WROIBox::updateGFX( std::string text )
         m_isPicked = false;
     }
     slock.unlock();
+
 }

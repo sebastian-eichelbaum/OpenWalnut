@@ -27,6 +27,9 @@
 
 #include <string>
 
+#include <boost/signals2/signal.hpp>
+#include <boost/signals2/connection.hpp>
+
 #include <osg/Geode>
 
 #include "../common/WColor.h"
@@ -43,13 +46,26 @@ public:
      * Need virtual destructor because of virtual function.
      */
     virtual ~WROI();
+
+    /**
+     * getter for the boost signal object that indicates a modified box
+     *
+     * \return signal object
+     */
+    boost::signals2::signal0< void >* getSignalIsModified();
+
 protected:
     osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
     osg::Geode* m_geode; //!< The graphical representation of the ROI.
+    bool m_isModified; //!< Indicates whether a changed ROI has already taken effect. Means: if true, still some updates needed.
+
+    /**
+     * boost signal object to indicate box manipulation
+     */
+    boost::signals2::signal0< void >m_signalIsModified;
 
 private:
     bool m_isNot; //!< Indivated whether the region of interest is inside the WROI (false) oroutside (true).
-    bool m_isModified; //!< Indicates whether a changed ROI has already taken effect. Means: if true, still some updates needed.
     WColor m_color; //!< The selected onject (Fibers, region on surface, ...) will have this color if m_useColor.
     bool m_useColor; //!< Indicated whether m_color should be used for display.
 
@@ -58,6 +74,7 @@ private:
      * \param text text info from pick
      */
     virtual void updateGFX( std::string text ) = 0;
+
 };
 
 #endif  // WROI_H

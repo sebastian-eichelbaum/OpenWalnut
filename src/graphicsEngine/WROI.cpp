@@ -29,3 +29,8 @@
 WROI::~WROI()
 {
 }
+
+boost::signals2::signal0< void >* WROI::getSignalIsModified()
+{
+    return &m_signalIsModified;
+}

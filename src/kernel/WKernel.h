@@ -40,6 +40,7 @@
 #include "../common/WFlag.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/WGUI.h"
+#include "../modules/fiberDisplay2/WROIManagerFibers.h"
 
 /**
  * \defgroup kernel Kernel
@@ -148,10 +149,18 @@ public:
      */
     static std::string getShaderPath();
 
+
+    /**
+     * get for roi manager
+     */
+    boost::shared_ptr< WROIManagerFibers>getRoiManager();
+
+
     /**
      * getter for font path
      */
     static std::string getFontPath();
+
 
 protected:
 
@@ -170,6 +179,11 @@ protected:
      * Pointer to an initialized graphics engine.
      */
     boost::shared_ptr< WGraphicsEngine > m_graphicsEngine;
+
+    /**
+     * Pointer to a roi manager
+     */
+    boost::shared_ptr< WROIManagerFibers >m_roiManager;
 
     /**
      * The module factory to use.

@@ -34,7 +34,7 @@
 #include "../../dataHandler/io/WLoaderBiosig.h"
 #endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
-#include "../../dataHandler/io/WLoaderFibers.h"
+#include "../../dataHandler/io/WLoaderFibers2.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
 #include "WMData.h"
 
@@ -169,7 +169,7 @@ void WMData::moduleMain()
     }
     else if( suffix == ".fib" )
     {
-        WLoaderFibers fibLoader( fileName );
+        WLoaderFibers2 fibLoader( fileName );
         m_dataSet = fibLoader.load();
     }
     else

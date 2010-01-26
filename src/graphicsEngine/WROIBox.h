@@ -57,6 +57,11 @@ public:
      */
     wmath::WPosition getMaxPos() const;
 
+    /**
+     * Getter for modified flag
+     */
+    bool isModified();
+
 protected:
 private:
     static size_t maxBoxId; //!< Current maximum boxId over all boxes.
