@@ -31,7 +31,7 @@
 #include "../../common/WException.h"
 
 /**
- * General purpose exception and therefore base class for all DataHanlder
+ * General purpose exception and therefore base class for all DataHandler
  * related exceptions.
  * \ingroup dataHandler
  */
