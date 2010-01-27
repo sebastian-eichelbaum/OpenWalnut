@@ -28,6 +28,8 @@
 #include <map>
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include <osg/Shader>
 #include <osg/Program>
 
@@ -82,31 +84,16 @@ public:
 protected:
 
     /**
-     * Helper routine to load a text file into a string
+     * This method searches and processes all includes in the shader source. The filenames in the include statement are assumed to
+     * be relative to this shader's path.
      *
-     * \return String
+     * \param filename the filename of the shader to process.
+     * \param optional denotes whether a "file not found" is critical or not
+     * \param level the inclusion level. This is used to avoid cycles.
      *
-     * \param fileName The file name. This is used to build the final filename using the shader path defined in WGraphicsEngine.
+     * \return the processed source.
      */
-    std::string readTextFile( std::string fileName );
-
-    /**
-     * Helper routine to test if a line contains an include statement
-     *
-     * \return true if line contains an include statement
-     *
-     * \param line a string with the line
-     */
-    bool isIncludeLine( std::string line );
-
-    /**
-     * Parses a line with an include statement and returns the file name
-     *
-     * \return string with the file name
-     *
-     * \param line a string with the line
-     */
-    std::string getIncludeFileName( std::string line );
+    std::string processShader( const std::string filename, bool optional = false, int level = 0 );
 
     /**
      * String that stores the location of all shader files
