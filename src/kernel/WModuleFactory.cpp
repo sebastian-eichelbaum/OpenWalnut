@@ -29,6 +29,7 @@
 
 #include "../common/WLogger.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
+#include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/data/WMData.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/eegView/WMEEGView.h"
@@ -69,6 +70,7 @@ void WModuleFactory::load()
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_prototypesLock );
 
     // currently the prototypes are added by hand. This will be done automatically later.
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
