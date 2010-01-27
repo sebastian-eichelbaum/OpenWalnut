@@ -231,6 +231,9 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 {
     switch( event->key() )
     {
+        case Qt::Key_Period:
+            WGraphicsEngine::getGraphicsEngine()->requestShaderReload();
+            break;
         case Qt::Key_1:
             setCameraManipulator( TRACKBALL );
             break;
