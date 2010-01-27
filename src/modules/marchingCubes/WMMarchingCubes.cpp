@@ -49,7 +49,7 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WShader2.h"
 
 #include "../data/WMData.h"
 
@@ -816,14 +816,12 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         }
     }
 
+    m_shader = osg::ref_ptr< WShader2 > ( new WShader2( "surface" ) );
+    m_shader->apply( m_geode );
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_geode );
 
-    boost::shared_ptr< WShader > shader;
-    std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
-    shader = boost::shared_ptr< WShader > ( new WShader( "surface", shaderPath ) );
-    state->setAttributeAndModes( shader->getProgramObject(), osg::StateAttribute::ON );
-
-    m_geode->setUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
+    m_geode->addUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
 
     //osgDB::writeNodeFile( *m_geode, "/tmp/saved.osg" ); //for debugging
 }
