@@ -43,6 +43,7 @@
 #include "WGEViewer.h"
 #include "WGraphicsEngine.h"
 #include "exceptions/WGEInitFailed.h"
+#include "exceptions/WGESignalSubscriptionFailed.h"
 #include "WGEResourceManager.h"
 
 // graphics engine instance as singleton
@@ -183,6 +184,25 @@ void WGraphicsEngine::notifyStop()
     WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
 
     m_viewer->setDone( true );
+}
+
+void WGraphicsEngine::requestShaderReload()
+{
+    m_reloadShadersSignal();
+}
+
+boost::signals2::connection WGraphicsEngine::subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier )
+{
+    switch ( signal )
+    {
+        case GE_RELOADSHADERS:
+            return m_reloadShadersSignal.connect( notifier );
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WGESignalSubscriptionFailed( s.str() );
+            break;
+    }
 }
 
 osg::Vec4 wge::osgColor( const WColor& color )

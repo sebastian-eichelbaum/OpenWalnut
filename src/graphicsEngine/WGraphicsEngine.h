@@ -30,6 +30,8 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -48,6 +50,7 @@
 #include "WGEGraphicsWindow.h"
 #include "WGEScene.h"
 #include "WGEViewer.h"
+#include "WGESignals.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
@@ -152,6 +155,21 @@ public:
      */
     static boost::shared_ptr< WGraphicsEngine > getGraphicsEngine();
 
+    /**
+     * This requests all shaders to reload during the next update cycle.
+     */
+    void requestShaderReload();
+
+    /**
+     * Subscribe a specified handler to the specified signal emited by the GE.
+     *
+     * \param signal    the signal to connect to
+     * \param notifier the signal handler
+     *
+     * \return  connection object.
+     */
+    boost::signals2::connection subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier );
+
 protected:
 
     /**
@@ -190,6 +208,11 @@ protected:
      * OpenSceneGraph composite viewer. Contains all created osgViewer::Views.
      */
     osg::ref_ptr<osgViewer::CompositeViewer> m_viewer;
+
+    /**
+     * Signal getting emitted whenever a reload shader request is waiting.
+     */
+    t_GEGenericSignalType m_reloadShadersSignal;
 
 private:
     /**

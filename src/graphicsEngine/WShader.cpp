@@ -31,6 +31,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
 
 #include <osg/StateSet>
 #include <osg/Node>
@@ -55,11 +57,14 @@ WShader::WShader( std::string name ):
     addShader( m_vertexShader );
     addShader( m_fragmentShader );
     addShader( m_geometryShader );
+
+    m_reloadSignalConnection = WGraphicsEngine::getGraphicsEngine()->subscribeSignal( GE_RELOADSHADERS, boost::bind( &WShader::reload, this ) );
 }
 
 WShader::~WShader()
 {
     // cleanup
+    m_reloadSignalConnection.disconnect();
 }
 
 void WShader::apply( osg::ref_ptr< osg::Node > node )

@@ -173,7 +173,7 @@ const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutput
 
 boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier )
 {
-    switch (signal)
+    switch ( signal )
     {
         case WM_READY:
             return signal_ready.connect( notifier );

@@ -29,6 +29,7 @@
 #include <string>
 
 #include <boost/filesystem.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include <osg/Shader>
 #include <osg/Program>
@@ -109,6 +110,11 @@ protected:
      * Flag denoting whether a shader should be reloaded.
      */
     bool m_reload;
+
+    /**
+     * Connection object to the reload signal from WGraphbicsEngine.
+     */
+    boost::signals2::connection m_reloadSignalConnection;
 
     /**
      * a map of all set defines
