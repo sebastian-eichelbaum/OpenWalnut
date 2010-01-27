@@ -104,7 +104,6 @@ void WMHud::init()
     // Anything under this node will be viewed using this projection matrix
     // and positioned with this model view matrix.
     //root->addChild(HUDProjectionMatrix);
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_rootNode->addChild( HUDModelViewMatrix );
     // Add the Geometry node to contain HUD geometry as a child of the
     // HUD model view matrix.
@@ -189,22 +188,24 @@ void WMHud::init()
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     assert( viewer );
     viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 }
 
 void WMHud::updatePickText( std::string text )
 {
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
     m_pickText = text;
+    slock.unlock();
 }
 
 void WMHud::update()
 {
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
     m_osgPickText->setText( m_pickText.c_str() );
-}
-
-void WMHud::slotPropertyChanged( std::string propertyName )
-{
-    if ( propertyName == "active" )
-    {
+//     if ( propertyName == "active" )
+//     {
         if ( m_properties->getValue<bool>( "active" ) )
         {
             m_rootNode->setNodeMask( 0xFFFFFFFF );
@@ -213,5 +214,10 @@ void WMHud::slotPropertyChanged( std::string propertyName )
         {
             m_rootNode->setNodeMask( 0x0 );
         }
-    }
+//     }
+    slock.unlock();
+}
+
+void WMHud::slotPropertyChanged( std::string propertyName )
+{
 }

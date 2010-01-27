@@ -101,6 +101,11 @@ protected:
 
 private:
     /**
+     * lock to prevent concurrent threads trying to update the osg node
+     */
+    boost::shared_mutex m_updateLock;
+
+    /**
      * Projection node for defining view frustrum for HUD
      */
     osg::ref_ptr<osg::Projection> m_rootNode;
