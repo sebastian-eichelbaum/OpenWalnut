@@ -170,7 +170,7 @@ std::string WShader2::processShader( const std::string filename, bool optional, 
     }
 
     // this is the proper regular expression for includes. This also excludes commented includes
-    static const boost::regex re("^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*");
+    static const boost::regex re( "^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*" );
 
     // the input stream
     std::string fn = ( boost::filesystem::path( m_shaderPath ) / filename ).file_string();
@@ -205,8 +205,8 @@ std::string WShader2::processShader( const std::string filename, bool optional, 
 
     while ( std::getline( input, line ) )
     {
-       	if (boost::regex_search( line, matches, re ))
-		{
+        if ( boost::regex_search( line, matches, re ) )
+        {
             output << processShader( matches[1], false, level + 1 );
         }
         else

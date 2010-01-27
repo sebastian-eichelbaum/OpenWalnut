@@ -137,6 +137,11 @@ protected:
     class SafeUpdaterCallback : public osg::NodeCallback
     {
     public:
+        /**
+         * Constructor. Creates a new callback.
+         *
+         * \param shader the shader which needs to be updated.
+         */
         explicit SafeUpdaterCallback( WShader2* shader );
 
         /**
