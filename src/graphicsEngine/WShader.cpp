@@ -22,147 +22,204 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-#include <fstream>
 #include <map>
 #include <string>
+#include <sstream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/regex.hpp>
 
-#include "WShader.h"
+#include <osg/StateSet>
+#include <osg/Node>
+
+#include "WGraphicsEngine.h"
 #include "../common/WLogger.h"
 
-WShader::WShader()
+#include "WShader.h"
+
+WShader::WShader( std::string name ):
+    osg::Program(),
+    m_shaderPath( WGraphicsEngine::getGraphicsEngine()->getShaderPath() ),
+    m_name( name ),
+    m_reload( true )
 {
+    // create shader
+    m_vertexShader = osg::ref_ptr< osg::Shader >( new osg::Shader( osg::Shader::VERTEX ) );
+    m_fragmentShader = osg::ref_ptr< osg::Shader >( new osg::Shader( osg::Shader::FRAGMENT ) );
+    m_geometryShader = osg::ref_ptr< osg::Shader >( new osg::Shader( osg::Shader::GEOMETRY ) );
+
+    // add them
+    addShader( m_vertexShader );
+    addShader( m_fragmentShader );
+    addShader( m_geometryShader );
 }
-
-WShader::WShader( std::string fileName, std::string shaderPath ):
-    m_shaderPath( shaderPath )
-{
-    m_VertexObject = readShaderFromFile( fileName + ".vs", osg::Shader::VERTEX );
-    m_FragmentObject = readShaderFromFile( fileName + ".fs", osg::Shader::FRAGMENT );
-
-    m_ProgramObject = new osg::Program;
-
-    if ( m_FragmentObject )
-    {
-        m_ProgramObject->addShader( m_FragmentObject );
-    }
-
-    if ( m_VertexObject )
-    {
-        m_ProgramObject->addShader( m_VertexObject );
-    }
-}
-
 
 WShader::~WShader()
 {
+    // cleanup
 }
 
-
-osg::Shader* WShader::readShaderFromFile( std::string fileName, osg::Shader::Type type )
+void WShader::apply( osg::ref_ptr< osg::Node > node )
 {
-    std::string fileText = readTextFile( fileName );
+    // set the shader attribute
+    osg::StateSet* rootState = node->getOrCreateStateSet();
+    rootState->setAttributeAndModes( this, osg::StateAttribute::ON );
 
-//      std::cout << "\n=====OW==SHADER============\n"
-//                << fileText
-//                << "\n=====OW==SHADER=END========\n"
-//                << std::endl;
-
-    osg::Shader* shader = new osg::Shader( type, fileText );
-
-    return shader;
+    // add a custom callback which actually sets and updated the shader.
+    node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
 
-
-std::string WShader::readTextFile( std::string fileName )
+void WShader::reload()
 {
-    std::string fileText;
+    m_reload = true;
+}
 
-    namespace fs = boost::filesystem;
+WShader::SafeUpdaterCallback::SafeUpdaterCallback( WShader* shader ):
+    m_shader( shader )
+{
+}
 
-    std::ifstream ifs( ( ( fs::path( m_shaderPath ) / fileName ).file_string() ).c_str() );
-//    std::ifstream ifs( (  m_shaderPath + fileName ).c_str() );
-    std::string line;
-
-    std::map< std::string, float >::const_iterator mi = m_defines.begin();
-
-    while ( mi != m_defines.end() )
+void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    // is it needed to do something here?
+    if ( m_shader->m_reload )
     {
-        fileText += "#define ";
-        fileText += mi->first;
-        fileText += " ";
-        fileText += boost::lexical_cast< std::string, float >( mi->second );
-        fileText += '\n';
+        try
+        {
+            // remove the shaders
+            m_shader->removeShader( m_shader->m_vertexShader );
+            m_shader->removeShader( m_shader->m_fragmentShader );
+            m_shader->removeShader( m_shader->m_geometryShader );
+
+            // reload the sources and set the shader
+            // vertex shader
+            WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_shader->m_name + ".vs\"", "WShader", LL_DEBUG );
+            std::string source = m_shader->processShader( m_shader->m_name + ".vs" );
+            if ( source != "" )
+            {
+                m_shader->m_vertexShader->setShaderSource( source );
+                m_shader->addShader( m_shader->m_vertexShader );
+            }
+
+            // fragment shader
+            WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_shader->m_name + ".fs\"", "WShader", LL_DEBUG );
+            source = m_shader->processShader( m_shader->m_name + ".fs" );
+            if ( source != "" )
+            {
+                m_shader->m_fragmentShader->setShaderSource( source );
+                m_shader->addShader( m_shader->m_fragmentShader );
+            }
+
+            // Geometry Shader
+            WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_shader->m_name + ".gs\"", "WShader", LL_DEBUG );
+            source = m_shader->processShader( m_shader->m_name + ".gs", true );
+            if ( source != "" )
+            {
+                m_shader->m_geometryShader->setShaderSource( source );
+                m_shader->addShader( m_shader->m_geometryShader );
+            }
+        }
+        catch( const std::exception& e )
+        {
+            WLogger::getLogger()->addLogMessage( "Problem loading shader.", "WShader", LL_ERROR );
+
+            // clean up the mess
+            m_shader->removeShader( m_shader->m_vertexShader );
+            m_shader->removeShader( m_shader->m_fragmentShader );
+            m_shader->removeShader( m_shader->m_geometryShader );
+        }
+
+        // everything done now.
+        m_shader->m_reload = false;
     }
 
-    while ( getline( ifs, line ) )
+    // forward the call
+    traverse( node, nv );
+}
+
+std::string WShader::processShader( const std::string filename, bool optional, int level )
+{
+    std::stringstream output;    // processed output
+
+    if ( level == 0 )
     {
-        if ( isIncludeLine( line ) )
+        // for the shader (not the included one, for which level != 0)
+
+        // apply defines
+        std::map< std::string, float >::const_iterator mi = m_defines.begin();
+        while ( mi != m_defines.end() )
         {
-            fileText += readTextFile( getIncludeFileName( line ) );
+            output << "#define " << mi->first << " " << boost::lexical_cast< std::string, float >( mi->second ) << std::endl;
+        }
+    }
+
+    // we encountered an endless loop
+    if ( level > 32 )
+    {
+        // reached a certain level. This normally denotes a inclusion cycle.
+        // We do not throw an exception here to avoid OSG to crash.
+        WLogger::getLogger()->addLogMessage( "Inclusion depth is too large. Maybe there is a inclusion cycle in the shader code.",
+                "WShader (" + filename + ")", LL_ERROR
+        );
+
+        // just return unprocessed source
+        return "";
+    }
+
+    // this is the proper regular expression for includes. This also excludes commented includes
+    static const boost::regex re( "^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*" );
+
+    // the input stream
+    std::string fn = ( boost::filesystem::path( m_shaderPath ) / filename ).file_string();
+    std::ifstream input( fn.c_str() );
+    if ( !input.is_open() )
+    {
+        if ( optional )
+        {
+            return "";
+        }
+
+        // file does not exists. Do not throw an exception to avoid OSG crash
+        if ( level == 0 )
+        {
+            WLogger::getLogger()->addLogMessage( "Can't open shader file \"" + fn + "\".",
+                    "WShader (" + filename + ")", LL_ERROR
+            );
         }
         else
         {
-            fileText += line;
-            fileText += '\n';
+            WLogger::getLogger()->addLogMessage( "Can't open shader file for inclusion \"" + fn + "\".",
+                    "WShader (" + filename + ")", LL_ERROR
+            );
         }
+
+        return "";
     }
 
-    return fileText;
-}
+    // go through each line and process includes
+    std::string line;       // the current line
+    boost::smatch matches;  // the list of matches
 
-
-bool WShader::isIncludeLine( std::string line )
-{
-    if( line[0] == '/' && line[1] == '/' )
+    while ( std::getline( input, line ) )
     {
-        return false; // we encountered a comment
-    }
-    if ( boost::find_first( line, "#include" ) )
-    {
-        return true;
-    }
-    return false;
-}
-
-
-std::string WShader::getIncludeFileName( std::string line )
-{
-    std::string fileName;
-
-    int count = 0;
-    for ( size_t i = 0 ; i < line.length() ; ++i )
-    {
-        if ( line[i] == '\"' )
+        if ( boost::regex_search( line, matches, re ) )
         {
-           ++count;
+            output << processShader( matches[1], false, level + 1 );
         }
+        else
+        {
+            output << line;
+        }
+
+        output << std::endl;
     }
-    if ( count < 2 )
-    {
-        WLogger::getLogger()->addLogMessage( "Missing quotes around file name in include statement of shader.", "WShader", LL_ERROR );
-        // TODO(schurade): here we could throw an exception
-        return 0;
-    }
 
-    typedef boost::tokenizer< boost::char_separator< char > > tokenizer;
+    input.close();
 
-    boost::char_separator<char> sep( "\"" );
-    tokenizer tok( line, sep );
-    tokenizer::iterator it = tok.begin();
-    ++it;
-    return *it;
-}
-
-
-osg::Program* WShader::getProgramObject()
-{
-    return m_ProgramObject;
+    return output.str();
 }
 
 void WShader::setDefine( std::string key, float value )
@@ -172,7 +229,6 @@ void WShader::setDefine( std::string key, float value )
         m_defines[key] = value;
     }
 }
-
 
 void WShader::eraseDefine( std::string key )
 {

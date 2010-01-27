@@ -36,7 +36,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WShader2.h"
+#include "../../graphicsEngine/WShader.h"
 #include "WTriangleMesh.h"
 
 /**
@@ -277,7 +277,7 @@ private:
     /**
      * The shader used for the iso surface in m_geode
      */
-    osg::ref_ptr< WShader2 > m_shader;
+    osg::ref_ptr< WShader > m_shader;
 
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader

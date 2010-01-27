@@ -39,7 +39,7 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/WShader2.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
@@ -55,7 +55,7 @@ WMNavSlices::WMNavSlices():
 
     // initialize members
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
-    m_shader = osg::ref_ptr< WShader2 > ( new WShader2( "slice" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "slice" ) );
 }
 
 WMNavSlices::~WMNavSlices()

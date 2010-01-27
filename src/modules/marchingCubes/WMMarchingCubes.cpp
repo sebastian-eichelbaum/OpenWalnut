@@ -49,7 +49,7 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WShader2.h"
+#include "../../graphicsEngine/WShader.h"
 
 #include "../data/WMData.h"
 
@@ -816,7 +816,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         }
     }
 
-    m_shader = osg::ref_ptr< WShader2 > ( new WShader2( "surface" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "surface" ) );
     m_shader->apply( m_geode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_geode );

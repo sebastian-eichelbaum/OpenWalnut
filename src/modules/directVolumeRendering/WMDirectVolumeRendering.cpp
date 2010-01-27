@@ -46,7 +46,7 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WShader2.h"
+#include "../../graphicsEngine/WShader.h"
 
 #include "../data/WMData.h"
 
