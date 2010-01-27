@@ -26,6 +26,9 @@
 #define WGRID_H
 
 #include <cstddef>
+#include <utility>
+
+#include "../math/WPosition.h"
 
 /**
  * Base class to all grid types, e.g. a regular grid.
@@ -52,6 +55,11 @@ public:
      * \return The number of position in this grid.
      */
     size_t size() const;
+
+    /**
+     * Returns the two positions representing the bounding box of the grid.
+     */
+    virtual std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const = 0;
 
 protected:
 

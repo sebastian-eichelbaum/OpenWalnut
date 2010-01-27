@@ -26,6 +26,7 @@
 #define WGRIDREGULAR3D_H
 
 #include <vector>
+#include <utility>
 
 #include <boost/shared_ptr.hpp>
 
@@ -192,6 +193,11 @@ public:
      * Returns the position of the origin of the grid.
      */
     wmath::WPosition getOrigin() const;
+
+    /**
+     * Returns the two positions representing the bounding box of the grid.
+     */
+    std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
 
     /**
      * Returns the i-th position on the grid.
@@ -421,6 +427,12 @@ inline const wmath::WVector3D& WGridRegular3D::getDirectionZ() const
 inline wmath::WPosition WGridRegular3D::getOrigin() const
 {
     return m_origin;
+}
+
+inline std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
+{
+    return std::make_pair( getOrigin(),
+                           getOrigin() + getDirectionX() * getNbCoordsX() + getDirectionY() * getNbCoordsY() + getDirectionZ() * getNbCoordsZ() );
 }
 
 

@@ -25,9 +25,33 @@
 #ifndef WGRID_TEST_H
 #define WGRID_TEST_H
 
+#include <utility>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WGrid.h"
+
+/**
+ * Dummy class for testing the abstract class WGrid
+ */
+class Dummy : public WGrid
+{
+friend class WGridTest;
+
+public:
+    /**
+     * Standard constructor of Dummy class.
+     */
+    explicit Dummy( size_t size )
+        : WGrid( size )
+    {
+    }
+
+    virtual std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const
+    {
+        return std::make_pair( wmath::WPosition( 0, 0, 0 ), wmath::WPosition( 1, 1, 1 ) );
+    }
+};
 
 /**
  * Tests the WGrid class.
@@ -36,19 +60,19 @@ class WGridTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Ensure that nothing is thrown when an instance is created.
+     *  Checks if the Dummy is instanceable.
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WGrid grid( 1 ) );
+        TS_ASSERT_THROWS_NOTHING( Dummy d( 1 ) );
     }
 
     /**
-     * After instantiation there should be no positions.
+     * After instantiation there should be only 1 positions.
      */
     void testSize( void )
     {
-        WGrid grid( 1 );
+        Dummy grid( 1 );
         TS_ASSERT_EQUALS( grid.size(), 1 );
     }
 };
