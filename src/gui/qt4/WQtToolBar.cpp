@@ -29,6 +29,11 @@ WQtToolBar::WQtToolBar( QWidget* parent )
     : QToolBar( parent )
 {
     this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
+
+    // The following makes the bar having button size from the beginning.
+    QPushButton* dummyButton = new QPushButton;
+    dummyButton->setFixedWidth( 0 );
+    addWidget( dummyButton );
 }
 
 WQtToolBar::~WQtToolBar()
@@ -49,4 +54,9 @@ WQtPushButton* WQtToolBar::addPushButton( QString name, QIcon icon, QString labe
 void WQtToolBar::clearButtons()
 {
     clear();
+
+    // The following prevents the bar from changing size when it has no real buttons.
+    QPushButton* dummyButton = new QPushButton;
+    dummyButton->setFixedWidth( 0 );
+    addWidget( dummyButton );
 }
