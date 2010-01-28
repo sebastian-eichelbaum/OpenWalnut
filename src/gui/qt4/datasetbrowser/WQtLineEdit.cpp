@@ -30,7 +30,7 @@ WQtLineEdit::WQtLineEdit()
     : QLineEdit()
 {
     m_name = QString( "" );
-    connect( this, SIGNAL( textEdited( QString ) ), this, SLOT( emitStateChanged() ) );
+    connect( this, SIGNAL( returnPressed() ), this, SLOT( emitStateChanged() ) );
 }
 
 WQtLineEdit::~WQtLineEdit()
