@@ -41,12 +41,16 @@ friend class WGridTest;
 public:
     /**
      * Standard constructor of Dummy class.
+     * \param size number of positions
      */
     explicit Dummy( size_t size )
         : WGrid( size )
     {
     }
 
+    /**
+     * Returns dummy bounding box.
+     */
     virtual std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const
     {
         return std::make_pair( wmath::WPosition( 0, 0, 0 ), wmath::WPosition( 1, 1, 1 ) );
