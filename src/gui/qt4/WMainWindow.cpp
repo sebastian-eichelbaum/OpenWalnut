@@ -190,8 +190,8 @@ void WMainWindow::setupCompatiblesToolBar()
 {
     m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
 
-    m_compatiblesToolBar = new WQtRibbonMenu( this );
-
+    m_compatiblesToolBar = new WQtToolBar( this );
+    addToolBarBreak( Qt::TopToolBarArea );
     addToolBar( Qt::TopToolBarArea, m_compatiblesToolBar );
 }
 
@@ -205,7 +205,7 @@ WQtRibbonMenu* WMainWindow::getRibbonMenu()
     return m_ribbonMenu;
 }
 
-WQtRibbonMenu* WMainWindow::getCompatiblesToolBar()
+WQtToolBar* WMainWindow::getCompatiblesToolBar()
 {
     return m_compatiblesToolBar;
 }
