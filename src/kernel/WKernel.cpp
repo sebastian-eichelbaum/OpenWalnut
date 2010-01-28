@@ -38,19 +38,12 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 
-#include "../common/WCondition.h"
-#include "../common/WConditionOneShot.h"
-#include "../common/WException.h"
-#include "../common/WFlag.h"
 #include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
-#include "WBatchLoader.h"
+#include "../graphicsEngine/WGraphicsEngine.h"
+#include "WKernel.h"
 #include "WModule.h"
 #include "WModuleFactory.h"
-
-#include "../graphicsEngine/WGraphicsEngine.h"
-
-#include "WKernel.h"
 
 /**
  * Used for program wide access to the kernel.

@@ -42,7 +42,6 @@
 #include "../dataHandler/WDataSetSingle.h"
 #include "../dataHandler/WValueSet.h"
 
-#include "../common/WFlag.h"
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
 #include "../common/WProgressCombiner.h"
