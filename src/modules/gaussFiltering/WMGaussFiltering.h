@@ -44,7 +44,7 @@ class WPickHandler;
  * Gauss filtering for WDataSetSingle
  *
  * \problem It works only on double value sets so far.
- * \reminder The boundary values will not be touched an considered to be zero. 
+ * \reminder The boundary values will not be touched an considered to be zero.
  *
  * \ingroup modules
  */
@@ -107,6 +107,7 @@ private:
 
     /**
      * Simple convolution using a small gauss-like mask
+     * \param vals the valueset to work on
      * \param nX number of positions in x direction
      * \param nY number of positions in y direction
      * \param nZ number of positions in z direction
@@ -114,11 +115,17 @@ private:
      * \param y index for x direction
      * \param z index for x direction
      */
-    double filterSimple( size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z );
+    template< typename T > double filterAtPosition(  boost::shared_ptr< WValueSet< T > > vals,
+                                                     size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z );
+
+    /**
+     * Run the filter over the field.
+     * \param vals the valueset to work on
+     */
+    template< typename T > std::vector< double > filterField(  boost::shared_ptr< WValueSet< T > > vals );
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
-    boost::shared_ptr< WValueSet< double > > m_vals; //!< Pointer providing access to the treated value set in the whole module.
 };
 #endif  // WMGAUSSFILTERING_H
