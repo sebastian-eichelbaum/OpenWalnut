@@ -229,115 +229,12 @@ private:
  */
 
 /**
- * Convinient functions for use with the graphics engine of OpenWalnut.
+ * Convinient functions for use with the graphics engine of OpenWalnut. ATM the
+ * namespace is filled by several files: WGEGeodeUtils, WGEGeometryUtils and
+ * WGEUtils.
  */
 namespace wge
 {
-    /**
-     * Converts a WColor to an OSG compatible color
-     *
-     * \param color The color in WColor format
-     * \return A color which may be used inside of OSG
-     */
-    osg::Vec4 osgColor( const WColor& color );
-    /**
-     * Converts a given WPosition into an osg::Vec3.
-     *
-     * \param pos The WPosition which should be converted
-     *
-     * \return The osg::Vec3 vector of pos
-     */
-    osg::Vec3 osgVec3( const wmath::WPosition& pos );
-
-    /**
-     * Converts a whole vector of WPositions into an osg::Vec3Array.
-     *
-     * \param posArray The given positions vector
-     *
-     * \return Refernce to the same vector but as osg::Vec3Array.
-     */
-    osg::ref_ptr< osg::Vec3Array > osgVec3Array( const std::vector< wmath::WPosition >& posArray );
-
-    /**
-     * Creates out of eight corner vertices QUAD vertices.
-     *
-     * \param corners The eight corner vertices which must be in the following order:
-     *
-     * \verbatim
-        z-axis  y-axis
-        |      /
-        | h___/_g
-        |/:    /|
-        d_:___c |
-        | :...|.|
-        |.e   | f
-        |_____|/ ____x-axis
-       a      b
-       \endverbatim
-     *
-     * The QUADS are generated in the following order:
-     * - a,b,c,d
-     * - b,f,g,c
-     * - f,e,h,g
-     * - e,a,d,h
-     * - d,c,g,h
-     * - a,b,f,e
-     *
-     * \return OSG vertex array where every four vertices describing a QUAD.
-     */
-    osg::ref_ptr< osg::Vec3Array > generateCuboidQuads( const std::vector< wmath::WPosition >& corners );
-
-    /**
-     * Generates for a QUAD given via 3 three points ( the fourth is not needed ) the
-     * normal.
-     *
-     *\param a First point of the QUAD
-     *\param b Second point of the QUAD
-     *\param c Third point of the QUAD
-     *
-     *\return OSG Vector of the normal of the QUAD
-     */
-    osg::Vec3 getQuadNormal( const wmath::WPosition& a, const wmath::WPosition& b, const wmath::WPosition& c );
-
-    /**
-     * Generates for all QUADS of the Cuboid the normals in the following order:
-     *
-     * \verbatim
-        z-axis  y-axis
-        |      /
-        | h___/_g
-        |/:    /|
-        d_:___c |
-        | :...|.|
-        |.e   | f
-        |_____|/ ____x-axis
-       a      b
-       \endverbatim
-     *
-     * - a,b,c,d
-     * - b,f,g,c
-     * - f,e,h,g
-     * - e,a,d,h
-     * - d,c,g,h
-     * - a,b,f,e
-     *
-     *\param corners Corner points of the cuboid.
-     *
-     *\return Array of normals in the order as shown above.
-     */
-    osg::ref_ptr< osg::Vec3Array > generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners );
-
-    /**
-     * Generates an OSG geode for the bounding box.
-     *
-     * \param pos1
-     * \param pos2
-     * \param color
-     *
-     * \return The OSG geode containing the 12 edges of the box.
-     */
-    osg::ref_ptr< osg::Geode > generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color );
-
 } // end of namespace
 
 #endif  // WGRAPHICSENGINE_H

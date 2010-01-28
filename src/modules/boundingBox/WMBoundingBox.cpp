@@ -32,6 +32,7 @@
 
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../kernel/WKernel.h"
 #include "../../math/WPosition.h"
 #include "../../math/WVector3D.h"
