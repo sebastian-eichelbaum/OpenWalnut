@@ -44,6 +44,7 @@
 #include "../modules/prototypeBoxManipulation/WMPrototypeBoxManipulation.h"
 #include "../modules/textureList/WMTextureList.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
+#include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -86,6 +87,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMPrototypeBoxManipulation() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
 
     lock.unlock();
 
