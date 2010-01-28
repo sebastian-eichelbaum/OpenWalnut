@@ -44,7 +44,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
 #include "../../math/fiberSimilarity/WDLTMetric.h"
