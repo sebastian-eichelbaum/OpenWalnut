@@ -324,5 +324,10 @@ osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
+
+    // disable light for this geode as lines can't be lit properly
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
     return geode;
 }

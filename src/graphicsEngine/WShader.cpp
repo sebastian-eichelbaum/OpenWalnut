@@ -70,8 +70,9 @@ WShader::~WShader()
 void WShader::apply( osg::ref_ptr< osg::Node > node )
 {
     // set the shader attribute
+    // NOTE: the attribute is protected to avoid father nodes overwriting it
     osg::StateSet* rootState = node->getOrCreateStateSet();
-    rootState->setAttributeAndModes( this, osg::StateAttribute::ON );
+    rootState->setAttributeAndModes( this, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
 
     // add a custom callback which actually sets and updated the shader.
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );

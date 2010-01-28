@@ -254,6 +254,10 @@ osg::ref_ptr<osg::Geometry> WMCoordinateSystem::createGeometryNode()
 
     geometry->addPrimitiveSet( lines );
 
+    // disable light for this geode as lines can't be lit properly
+    osg::StateSet* state = geometry->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
     return geometry;
 }
 
