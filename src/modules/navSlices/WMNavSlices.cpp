@@ -55,7 +55,7 @@ WMNavSlices::WMNavSlices():
 
     // initialize members
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
-    m_shader = boost::shared_ptr< WShader > ( new WShader( "slice", shaderPath ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "slice" ) );
 }
 
 WMNavSlices::~WMNavSlices()
@@ -157,10 +157,10 @@ void WMNavSlices::create()
     m_rootNode->insert( m_ySliceNode );
     m_rootNode->insert( m_zSliceNode );
 
+    m_shader->apply( m_rootNode );
+
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
     initUniforms( rootState );
-    rootState->setAttributeAndModes( m_shader->getProgramObject(), osg::StateAttribute::ON );
-
     m_rootNode->setUserData( this );
     m_rootNode->addUpdateCallback( new sliceNodeCallback );
 

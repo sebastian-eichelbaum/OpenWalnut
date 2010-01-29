@@ -300,7 +300,7 @@ void WQtDatasetBrowser::selectTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    m_mainWindow->getCompatiblesToolBar()->clearNonPersistentTabs();
+    m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule >module;
     std::vector < WProperty* >props;
@@ -389,14 +389,11 @@ void WQtDatasetBrowser::selectTreeItem()
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
-    m_mainWindow->getCompatiblesToolBar()->addTab( QString( "Compatible Modules" ), false );
     std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
     for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
         WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
-                QString( "Compatible Modules" ),
-                m_mainWindow->getIconManager()->getIcon( "o" ),
-                QString( ( *iter )->getName().c_str() ) );
+                m_mainWindow->getIconManager()->getIcon( "o" ), QString( ( *iter )->getName().c_str() ) );
 
         connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
     }

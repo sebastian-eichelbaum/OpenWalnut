@@ -34,7 +34,6 @@
 #include "WModule.h"
 #include "WModuleFactory.h"
 #include "WModuleContainer.h"
-#include "WBatchLoader.h"
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
 #include "../common/WFlag.h"

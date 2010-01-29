@@ -43,6 +43,7 @@
 #include "WGEViewer.h"
 #include "WGraphicsEngine.h"
 #include "exceptions/WGEInitFailed.h"
+#include "exceptions/WGESignalSubscriptionFailed.h"
 #include "WGEResourceManager.h"
 
 // graphics engine instance as singleton
@@ -185,124 +186,21 @@ void WGraphicsEngine::notifyStop()
     m_viewer->setDone( true );
 }
 
-osg::Vec4 wge::osgColor( const WColor& color )
+void WGraphicsEngine::requestShaderReload()
 {
-    return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
+    m_reloadShadersSignal();
 }
 
-osg::Vec3 wge::osgVec3( const wmath::WPosition& pos )
+boost::signals2::connection WGraphicsEngine::subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier )
 {
-    return osg::Vec3( pos[0], pos[1], pos[2] );
-}
-
-osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPosition >& posArray )
-{
-    osg::ref_ptr< osg::Vec3Array > result = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    result->reserve( posArray.size() );
-    std::vector< wmath::WPosition >::const_iterator cit;
-    for( cit = posArray.begin(); cit != posArray.end(); ++cit )
+    switch ( signal )
     {
-        result->push_back( osgVec3( *cit ) );
+        case GE_RELOADSHADERS:
+            return m_reloadShadersSignal.connect( notifier );
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WGESignalSubscriptionFailed( s.str() );
+            break;
     }
-    return result;
-}
-
-osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
-{
-    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-
-    // Surfaces
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
-    vertices->push_back( wge::osgVec3( corners[3] ) );
-
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
-
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[4] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
-
-    vertices->push_back( wge::osgVec3( corners[4] ) );
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[3] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
-
-    vertices->push_back( wge::osgVec3( corners[3] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
-
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[4] ) );
-    return vertices;
-}
-
-osg::Vec3 wge::getQuadNormal( const wmath::WPosition& a,
-                              const wmath::WPosition& b,
-                              const wmath::WPosition& c )
-{
-    wmath::WPosition vec1 = a - b;
-    wmath::WPosition vec2 = c - b;
-    wmath::WPosition normal = vec2.crossProduct( vec1 );
-    normal.normalize();
-    return osgVec3( normal );
-}
-
-osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners )
-{
-    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-
-    vertices->push_back( getQuadNormal( corners[0], corners[1], corners[2] ) );
-    vertices->push_back( getQuadNormal( corners[1], corners[5], corners[6] ) );
-    vertices->push_back( getQuadNormal( corners[5], corners[4], corners[7] ) );
-    vertices->push_back( getQuadNormal( corners[4], corners[0], corners[3] ) );
-    vertices->push_back( getQuadNormal( corners[3], corners[2], corners[6] ) );
-    vertices->push_back( getQuadNormal( corners[0], corners[1], corners[5] ) );
-    return vertices;
-}
-
-osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color )
-{
-    assert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2] && "pos1 doesn't seem to be the frontLowerLeft corner of the BB!" );
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-
-    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos2[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos2[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos2[2] ) );
-    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos2[2] ) );
-    vertices->push_back( osg::Vec3( pos1[0], pos1[1], pos2[2] ) );
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, vertices->size() ) );
-
-    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos1[0], pos2[1], pos2[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos2[1], pos2[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos1[2] ) );
-    vertices->push_back( osg::Vec3( pos2[0], pos1[1], pos2[2] ) );
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 6, 6 ) );
-
-    geometry->setVertexArray( vertices );
-    colors->push_back( osgColor( color ) );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( geometry );
-    return geode;
 }

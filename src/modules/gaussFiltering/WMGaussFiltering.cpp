@@ -30,8 +30,8 @@
 #include <cmath>
 
 #include "../../common/WStringUtils.h"
+#include "../../common/WProgress.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
 #include "../../math/WPosition.h"
 #include "../../math/WVector3D.h"
@@ -71,33 +71,61 @@ size_t getId( size_t xDim, size_t yDim, size_t /*zDim*/, size_t x, size_t y, siz
     return z * xDim * yDim + y * xDim + x;
 }
 
-double WMGaussFiltering::filterSimple( size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z )
+template< typename T > double WMGaussFiltering::filterAtPosition(  boost::shared_ptr< WValueSet< T > > vals,
+                                                                   size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z )
 {
     double filtered = 0;
-    filtered += 2 * m_vals->getScalar( getId( nX, nY, nZ, x    , y    , z - 1 ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x + 1, y    , z - 1 ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x - 1, y    , z - 1 ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x    , y + 1, z - 1 ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x    , y - 1, z - 1 ) );
+    filtered += 2 * vals->getScalar( getId( nX, nY, nZ, x    , y    , z - 1 ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x + 1, y    , z - 1 ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x - 1, y    , z - 1 ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x    , y + 1, z - 1 ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x    , y - 1, z - 1 ) );
 
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x - 1, y - 1, z ) );
-    filtered += 2 * m_vals->getScalar( getId( nX, nY, nZ, x    , y - 1, z ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x + 1, y - 1, z ) );
-    filtered += 2 * m_vals->getScalar( getId( nX, nY, nZ, x - 1, y    , z ) );
-    filtered += 4 * m_vals->getScalar( getId( nX, nY, nZ, x    , y    , z ) );
-    filtered += 2 * m_vals->getScalar( getId( nX, nY, nZ, x + 1, y    , z ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x - 1, y + 1, z ) );
-    filtered += 2 * m_vals->getScalar( getId( nX, nY, nZ, x    , y + 1, z ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x + 1, y + 1, z ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x - 1, y - 1, z ) );
+    filtered += 2 * vals->getScalar( getId( nX, nY, nZ, x    , y - 1, z ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x + 1, y - 1, z ) );
+    filtered += 2 * vals->getScalar( getId( nX, nY, nZ, x - 1, y    , z ) );
+    filtered += 4 * vals->getScalar( getId( nX, nY, nZ, x    , y    , z ) );
+    filtered += 2 * vals->getScalar( getId( nX, nY, nZ, x + 1, y    , z ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x - 1, y + 1, z ) );
+    filtered += 2 * vals->getScalar( getId( nX, nY, nZ, x    , y + 1, z ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x + 1, y + 1, z ) );
 
-    filtered += 2 * m_vals->getScalar( getId( nX, nY, nZ, x    , y    , z     ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x + 1, y    , z     ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x - 1, y    , z     ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x    , y + 1, z     ) );
-    filtered += 1 * m_vals->getScalar( getId( nX, nY, nZ, x    , y - 1, z     ) );
+    filtered += 2 * vals->getScalar( getId( nX, nY, nZ, x    , y    , z     ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x + 1, y    , z     ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x - 1, y    , z     ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x    , y + 1, z     ) );
+    filtered += 1 * vals->getScalar( getId( nX, nY, nZ, x    , y - 1, z     ) );
     filtered /= 28.;
 
     return filtered;
+}
+
+template< typename T > std::vector< double > WMGaussFiltering::filterField( boost::shared_ptr< WValueSet< T > > vals )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    assert( grid );
+    size_t nX = grid->getNbCoordsX();
+    size_t nY = grid->getNbCoordsY();
+    size_t nZ = grid->getNbCoordsZ();
+    std::vector< double > newVals( nX * nY * nZ, 0. );
+
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Gauss Filtering", nZ ) );
+    m_progress->addSubProgress( progress );
+    for( size_t z = 1; z < nZ - 1; z++ )
+    {
+        ++*progress;
+        for( size_t y = 1; y < nY - 1; y++ )
+        {
+            for( size_t x = 1; x < nX - 1; x++ )
+            {
+                newVals[getId( nX, nY, nZ, x, y, z )] = filterAtPosition( vals, nX, nY, nZ, x, y, z );
+            }
+        }
+    }
+    progress->finish();
+
+    return newVals;
 }
 
 void WMGaussFiltering::moduleMain()
@@ -124,29 +152,58 @@ void WMGaussFiltering::moduleMain()
         }
         assert( m_dataSet );
 
-        m_vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
-        assert( m_vals );
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-        assert( grid );
-        size_t nX = grid->getNbCoordsX();
-        size_t nY = grid->getNbCoordsY();
-        size_t nZ = grid->getNbCoordsZ();
-        std::vector< double > newVals( nX * nY * nZ, 0. );
-        for( size_t z = 1; z < nZ - 1; z++ )
+        std::vector< double > newVals;
+
+        switch( (*m_dataSet).getValueSet()->getDataType() )
         {
-            for( size_t y = 1; y < nY - 1; y++ )
+            case W_DT_UNSIGNED_CHAR:
             {
-                for( size_t x = 1; x < nX - 1; x++ )
-                {
-                    newVals[getId( nX, nY, nZ, x, y, z )] = filterSimple( nX, nY, nZ, x, y, z );
-                }
+                boost::shared_ptr< WValueSet< unsigned char > > vals;
+                vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
+                assert( vals );
+                newVals = filterField( vals );
+                break;
             }
+            case W_DT_INT16:
+            {
+                boost::shared_ptr< WValueSet< int16_t > > vals;
+                vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
+                assert( vals );
+                newVals = filterField( vals );
+            }
+            case W_DT_SIGNED_INT:
+            {
+                boost::shared_ptr< WValueSet< int32_t > > vals;
+                vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
+                assert( vals );
+                newVals = filterField( vals );
+                break;
+            }
+            case W_DT_FLOAT:
+            {
+                boost::shared_ptr< WValueSet< float > > vals;
+                vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
+                assert( vals );
+                newVals = filterField( vals );
+                break;
+            }
+            case W_DT_DOUBLE:
+            {
+                boost::shared_ptr< WValueSet< double > > vals;
+                vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
+                assert( vals );
+                newVals = filterField( vals );
+                break;
+            }
+            default:
+                assert( false && "Unknow data type in Gauss Filtering module" );
         }
 
-        boost::shared_ptr< WValueSet< double > > values;
-        values = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, newVals, W_DT_DOUBLE ) );
 
-        m_dataSet = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( values, m_dataSet->getGrid() ) );
+        boost::shared_ptr< WValueSet< double > > valueSet;
+        valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, newVals, W_DT_DOUBLE ) );
+
+        m_dataSet = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_dataSet->getGrid() ) );
         m_output->updateData( m_dataSet );
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
@@ -180,7 +237,7 @@ void WMGaussFiltering::connectors()
 
 void WMGaussFiltering::properties()
 {
-    ( m_properties->addInt( "Filter Size", 1 ) )->connect( boost::bind( &WMGaussFiltering::slotPropertyChanged, this, _1 ) );
+//     ( m_properties->addInt( "Filter Size", 1 ) )->connect( boost::bind( &WMGaussFiltering::slotPropertyChanged, this, _1 ) );
 }
 
 void WMGaussFiltering::slotPropertyChanged( std::string propertyName )

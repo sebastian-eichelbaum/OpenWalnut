@@ -22,36 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#ifndef WGEGEODEUTILS_H
+#define WGEGEODEUTILS_H
 
-#include <stdexcept>
-#include <string>
+#include <osg/Geode>
 
-#include "../../common/WException.h"
+#include "../common/WColor.h"
+#include "../math/WPosition.h"
 
-/**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
- */
-class WDHException: public WException
+namespace wge
 {
-public:
     /**
-     * Default constructor.
-     * \param msg the exception message.
+     * Generates an OSG geode for the bounding box.
+     *
+     * \param pos1 Front lower left corner
+     * \param pos2 Back upper right corner
+     * \param color The color in which the bounding box should be generated
+     *
+     * \return The OSG geode containing the 12 edges of the box.
      */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
+    osg::ref_ptr< osg::Geode > generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color );
 
-    /**
-     * Destructor.
-     */
-    virtual ~WDHException() throw();
+} // end of namespace wge
 
-protected:
-
-private:
-};
-
-#endif  // WDHEXCEPTION_H
+#endif  // WGEGEODEUTILS_H

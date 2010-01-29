@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMGAUSSFILTERING_H
-#define WMGAUSSFILTERING_H
+#ifndef WMWRITENIFTI_H
+#define WMWRITENIFTI_H
 
 #include <map>
 #include <string>
@@ -41,25 +41,24 @@
 class WPickHandler;
 
 /**
- * Gauss filtering for WDataSetSingle
- *
- * \problem It works only on double value sets so far.
- * \reminder The boundary values will not be touched an considered to be zero.
+ * Write the input dataset to a NIfTI file
+ * \problem It works only on uint8_t values sets so far.
+ * \problem Might crash OpenWalnut
  *
  * \ingroup modules
  */
-class WMGaussFiltering : public WModule
+class WMWriteNIfTI : public WModule
 {
 public:
     /**
      * Standard constructor.
      */
-    WMGaussFiltering();
+    WMWriteNIfTI();
 
     /**
      * Destructor.
      */
-    ~WMGaussFiltering();
+    ~WMWriteNIfTI();
 
     /**
      * Gives back the name of this module.
@@ -104,28 +103,13 @@ protected:
     virtual void properties();
 
 private:
-
     /**
-     * Simple convolution using a small gauss-like mask
-     * \param vals the valueset to work on
-     * \param nX number of positions in x direction
-     * \param nY number of positions in y direction
-     * \param nZ number of positions in z direction
-     * \param x index for x direction
-     * \param y index for x direction
-     * \param z index for x direction
+     * This performs all work neccessary to actually write the data to the file
+     * \param fileName The data set will be written to this file.
      */
-    template< typename T > double filterAtPosition(  boost::shared_ptr< WValueSet< T > > vals,
-                                                     size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z );
-
-    /**
-     * Run the filter over the field.
-     * \param vals the valueset to work on
-     */
-    template< typename T > std::vector< double > filterField(  boost::shared_ptr< WValueSet< T > > vals );
+    void writeToFile( std::string fileName );
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
 };
-#endif  // WMGAUSSFILTERING_H
+#endif  // WMWRITENIFTI_H

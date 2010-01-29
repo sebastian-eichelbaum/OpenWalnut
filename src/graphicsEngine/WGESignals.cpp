@@ -22,36 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#include "WGESignals.h"
 
-#include <stdexcept>
-#include <string>
-
-#include "../../common/WException.h"
-
-/**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
- */
-class WDHException: public WException
-{
-public:
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WDHException() throw();
-
-protected:
-
-private:
-};
-
-#endif  // WDHEXCEPTION_H

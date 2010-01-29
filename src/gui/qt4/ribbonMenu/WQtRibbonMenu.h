@@ -40,9 +40,10 @@ class WQtRibbonMenu  : public QToolBar
 public:
     /**
      * default constructor
+     * \param title name of the ribbon menu.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    explicit WQtRibbonMenu( QWidget* parent );
+    explicit WQtRibbonMenu(  const QString & title, QWidget* parent );
 
     /**
      * destructor

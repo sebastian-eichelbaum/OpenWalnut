@@ -38,7 +38,9 @@
 #include "../../common/WLogger.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
 #include "../../modules/fiberDisplay/WMFiberDisplay.h"
@@ -114,7 +116,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
         for( size_t i = 1; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
-            colors->push_back( wge::osgColor( display_utils::getRGBAColorFromDirection( fib[i], fib[i-1] ) ) );
+            colors->push_back( wge::osgColor( wge::getRGBAColorFromDirection( fib[i], fib[i-1] ) ) );
         }
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );

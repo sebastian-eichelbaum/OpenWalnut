@@ -28,6 +28,8 @@
 
 #include "WDataTexture3D.h"
 
+#include "../common/WLogger.h"
+
 WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid ):
     m_alpha( 1.0 ),
     m_threshold( 0.0 ),
@@ -200,25 +202,27 @@ void WDataTexture3D::createTexture()
     {
         osg::ref_ptr< osg::Image > ima;
 
-        if ( m_valueSet->getDataType() == 2 )
+        if ( m_valueSet->getDataType() == W_DT_UINT8 )
         {
             boost::shared_ptr< WValueSet< unsigned char > > vs = boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_valueSet );
             unsigned char* source = const_cast< unsigned char* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
-
-        else if ( m_valueSet->getDataType() == 4 )
+        else if ( m_valueSet->getDataType() == W_DT_INT16 )
         {
             boost::shared_ptr< WValueSet< int16_t > > vs = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_valueSet );
             int16_t* source = const_cast< int16_t* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
-
-        else if ( m_valueSet->getDataType() == 16 )
+        else if ( m_valueSet->getDataType() == W_DT_FLOAT )
         {
             boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( m_valueSet );
             float* source = const_cast< float* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
+        }
+        else
+        {
+            wlog::error( "WDataTexture3D" ) << "COnversion of this data type to texture not supported yet.";
         }
 
         m_texture = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );

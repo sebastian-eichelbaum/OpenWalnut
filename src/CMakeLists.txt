@@ -31,7 +31,7 @@ SET( Boost_USE_MULTITHREAD ON )
 # To see which boost libs we currently use, you may run the following command
 # in the trunk/src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
-FIND_PACKAGE( Boost REQUIRED program_options thread filesystem date_time system signals )
+FIND_PACKAGE( Boost REQUIRED program_options thread filesystem date_time system signals regex )
 ASSERT_GE_VERSION( "Boost" "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" 1.39.0 )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
@@ -236,9 +236,26 @@ ADD_CUSTOM_TARGET( fixtures
                  )
 
 #-------------------------------------------------------------------------------------------------------------
-# Makes many special make targets in comination.
+# Makes many special make targets in comination. Default number of cores is 1.
+SET( NUM_CORES_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+SET( NUM_CORES_BIN ${NUM_CORES_DIR}/numCores )
+EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} . WORKING_DIRECTORY ${NUM_CORES_DIR} OUTPUT_QUIET )
+EXECUTE_PROCESS( COMMAND make WORKING_DIRECTORY ${NUM_CORES_DIR} OUTPUT_QUIET )
+IF( EXISTS ${NUM_CORES_BIN} )
+  EXECUTE_PROCESS( COMMAND ${NUM_CORES_BIN} OUTPUT_VARIABLE CORES OUTPUT_STRIP_TRAILING_WHITESPACE )
+ELSE()
+  MESSAGE( STATUS "WARNING: No binary for #cores found: ${NUM_CORES_BIN}" )
+  SET( CORES 1 )
+ENDIF()
+# remove everything afterwards since, it not needs to be checked in and distrubs when calling "hg st"
+EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E remove -f ${NUM_CORES_DIR}/CMakeCache.txt
+                                                       ${NUM_CORES_DIR}/numCores
+                                                       ${NUM_CORES_DIR}/Makefile
+                                                       ${NUM_CORES_DIR}/cmake_install.cmake )
+EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUM_CORES_DIR}/CMakeFiles )
+MESSAGE( STATUS "Using ${CORES} cores" )
 ADD_CUSTOM_TARGET( many
-                   cmake . && make all -j4 && make fixtures && make stylecheck && make test && make doc
+                   cmake . && make all -j${CORES} && make fixtures && make stylecheck && make test && make doc
                    COMMENT "Make many special make targets in combination."
                  )
 

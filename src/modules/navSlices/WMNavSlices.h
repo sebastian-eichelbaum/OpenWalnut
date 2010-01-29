@@ -159,7 +159,7 @@ private:
     /**
      * the shader object for this module
      */
-    boost::shared_ptr< WShader >m_shader;
+    osg::ref_ptr< WShader >m_shader;
 
     /**
      * Input connector required by this module.

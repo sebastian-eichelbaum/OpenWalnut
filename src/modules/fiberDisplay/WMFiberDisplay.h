@@ -29,6 +29,7 @@
 
 #include <osg/Geode>
 
+#include "../../common/WFlag.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
@@ -36,7 +37,7 @@
 #include "../../math/WFiber.h"
 
 /**
- * Test module for drawing fibers
+ * Module drawing fibers.
  * \ingroup modules
  */
 class WMFiberDisplay : public WModule
@@ -44,23 +45,23 @@ class WMFiberDisplay : public WModule
 friend class WMFiberDisplayTest;
 public:
     /**
-     * Constructs new FiberTestModule
+     * Constructs new FiberDisplay module
      */
     WMFiberDisplay();
 
     /**
-     * Destructs this FiberTestModule
+     * Destructs this FiberDisplay module
      */
     virtual ~WMFiberDisplay();
 
     /**
-     * Gives back the name of this module.
+     * Return the name of this module.
      * \return the module's name.
      */
     virtual const std::string getName() const;
 
     /**
-     * Gives back a description of this module.
+     * Return a description of this module.
      * \return description to module.
      */
     virtual const std::string getDescription() const;
@@ -91,13 +92,11 @@ protected:
      * Generates an OSG geometry for the given fiber dataset.
      *
      * \param fibers pointer to fiber data set.
-     * \param globalColoring determines whether the whole fiber has
-     * the same color (true) or separate segements can have different colors.
+     * \param globalColoring determines whether the whole fiber has the same
+     * color (true) or separate segements can have different colors.
      * \return OSG geometry representing the fiber.
      */
-    osg::ref_ptr< osg::Geode > genFiberGeode(
-            boost::shared_ptr< const WDataSetFibers > fibers,
-            bool globalColoring = true ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode( boost::shared_ptr< const WDataSetFibers > fibers, bool globalColoring = true ) const;
 
     /**
      * Initialize the connectors this module is using.
@@ -116,10 +115,7 @@ protected:
      */
     void update();
 
-    /**
-     * If the fibers have to be drawn in global coloring mode this is true, otherwise false.
-     */
-    bool m_globalColoring;
+    WBoolFlag m_globalColoring; //!< If True the fibers have to be drawn in global coloring mode, otherwise false.
 
 private:
     /**
@@ -139,20 +135,6 @@ private:
     osg::ref_ptr< WGEGroupNode > m_osgNode;
 };
 
-/**
- * Some helper functions for displaying fibers
- */
-namespace display_utils
-{
-    /**
-     * Transforms a direction given via two points into a RGB color.
-     *
-     * \param pos1 First point
-     * \param pos2 Second point
-     */
-     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
-}
-
 inline const std::string WMFiberDisplay::getName() const
 {
     return std::string( "Fiber Display Module" );
@@ -161,13 +143,6 @@ inline const std::string WMFiberDisplay::getName() const
 inline const std::string WMFiberDisplay::getDescription() const
 {
     return std::string( "Draws fibers out of a WDataSetFibers" );
-}
-
-inline WColor display_utils::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
-{
-    wmath::WPosition direction( ( pos2 - pos1 ) );
-    direction.normalize();
-    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ) );
 }
 
 #endif  // WMFIBERDISPLAY_H

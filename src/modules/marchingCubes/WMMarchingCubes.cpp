@@ -200,7 +200,6 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     }
     else if( propertyName == "Opacity %" )
     {
-        debugLog() << "Change opacity." << std::endl;
         updateTextures();
     }
     else if( propertyName == "active" )
@@ -816,14 +815,12 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         }
     }
 
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "surface" ) );
+    m_shader->apply( m_geode );
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_geode );
 
-    boost::shared_ptr< WShader > shader;
-    std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
-    shader = boost::shared_ptr< WShader > ( new WShader( "surface", shaderPath ) );
-    state->setAttributeAndModes( shader->getProgramObject(), osg::StateAttribute::ON );
-
-    m_geode->setUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
+    m_geode->addUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
 
     //osgDB::writeNodeFile( *m_geode, "/tmp/saved.osg" ); //for debugging
 }

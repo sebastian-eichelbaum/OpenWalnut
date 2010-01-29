@@ -31,7 +31,7 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
 

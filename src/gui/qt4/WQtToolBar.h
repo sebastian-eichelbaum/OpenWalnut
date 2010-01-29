@@ -22,36 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#ifndef WQTTOOLBAR_H
+#define WQTTOOLBAR_H
 
-#include <stdexcept>
-#include <string>
+#include <QtGui/QToolBar>
 
-#include "../../common/WException.h"
+#include "guiElements/WQtPushButton.h"
 
 /**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
+ * This is a toolbar. Its main usage for now is the "compatible modules" toolbar
  */
-class WDHException: public WException
+class WQtToolBar : public QToolBar
 {
 public:
     /**
-     * Default constructor.
-     * \param msg the exception message.
+     * Constructs the toolbar.
+     * \param title name of the toolbar.
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
+    explicit WQtToolBar( const QString & title, QWidget* parent );
 
     /**
-     * Destructor.
+     * destructor
      */
-    virtual ~WDHException() throw();
+    virtual ~WQtToolBar();
+
+    /**
+     * Adds a push button to the toolbar. The button is identifiable by its name.
+     * \param name a name for the new button to identifie it
+     * \param icon and icon for the button
+     * \param label The optional text that is displayed besides the icon on the button.
+     */
+    WQtPushButton* addPushButton( QString name, QIcon icon, QString label = 0 );
+
+    /**
+     * Removes all buttons,
+     */
+    void clearButtons();
 
 protected:
-
 private:
 };
 
-#endif  // WDHEXCEPTION_H
+#endif  // WQTTOOLBAR_H

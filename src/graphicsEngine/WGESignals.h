@@ -22,36 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#ifndef WGESIGNALS_H
+#define WGESIGNALS_H
 
-#include <stdexcept>
-#include <string>
-
-#include "../../common/WException.h"
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
 
 /**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
+ * Enum of all possible signals WGraphicsEngine instances can emit.
  */
-class WDHException: public WException
+typedef enum
 {
-public:
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
+    GE_RELOADSHADERS   // when a shader reload is requested
+}
+GE_SIGNAL;
 
-    /**
-     * Destructor.
-     */
-    virtual ~WDHException() throw();
+// **************************************************************************************************************************
+// Types
+// **************************************************************************************************************************
 
-protected:
+/**
+ * Signal for generic events like "GE_RELOADSHADERS".
+ *
+ */
+typedef boost::function< void ( void ) > t_GEGenericSignalHandlerType;
 
-private:
-};
+/**
+ * Generic signal type used in the most signals.
+ */
+typedef boost::signals2::signal< void ( void ) >  t_GEGenericSignalType;
 
-#endif  // WDHEXCEPTION_H
+
+#endif  // WGESIGNALS_H
+
+
+

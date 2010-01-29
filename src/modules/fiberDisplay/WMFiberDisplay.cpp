@@ -30,9 +30,12 @@
 #include <osg/Geometry>
 
 #include "../../common/WColor.h"
+#include "../../common/WCondition.h"
+#include "../../common/WFlag.h"
 #include "../../common/WLogger.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../math/WFiber.h"
@@ -40,7 +43,7 @@
 
 WMFiberDisplay::WMFiberDisplay()
     : WModule(),
-      m_globalColoring( true )
+      m_globalColoring( new WCondition(), true )
 {
 }
 
@@ -74,11 +77,11 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( boost::shared_ptr< con
             WColor c;
             if( !globalColoring )
             {
-                c = display_utils::getRGBAColorFromDirection( fib[i], fib[i-1] );
+                c = wge::getRGBAColorFromDirection( fib[i], fib[i-1] );
             }
             else
             {
-                c = display_utils::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
+                c = wge::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
             }
             colors->push_back( wge::osgColor( c ) );
         }
@@ -97,6 +100,7 @@ void WMFiberDisplay::moduleMain()
 {
     // additional fire-condition: "data changed" flag
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
+    m_moduleState.add( m_globalColoring.getCondition() );
 
     ready();
 
@@ -112,10 +116,10 @@ void WMFiberDisplay::moduleMain()
         update();
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
-
-        // May be called twice
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
     }
+
+    // May be called twice
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMFiberDisplay::update()
@@ -125,7 +129,7 @@ void WMFiberDisplay::update()
 
     // create new node
     m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-    m_osgNode->insert( genFiberGeode( m_dataset, m_globalColoring ) );
+    m_osgNode->insert( genFiberGeode( m_dataset, m_globalColoring.get() ) );
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
 }
@@ -153,7 +157,8 @@ void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
 {
     if( propertyName == "active" )
     {
-        if ( m_properties->getValue< bool >( propertyName ) )
+        // We don't need an OSG Node Callback here, since if the NodeMask is set to 0x0 then the node is not visited anymore either
+        if( m_properties->getValue< bool >( propertyName ) )
         {
             m_osgNode->setNodeMask( 0xFFFFFFFF );
         }
@@ -164,10 +169,9 @@ void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
     }
     else if ( propertyName == "Local Color" )
     {
-        if( m_properties->getValue< bool >( propertyName ) != m_globalColoring )
+        if( m_properties->getValue< bool >( propertyName ) != m_globalColoring.get() )
         {
-            m_globalColoring = m_properties->getValue< bool >( propertyName );
-            update();
+            m_globalColoring.set( m_properties->getValue< bool >( propertyName ) );
         }
     }
     else

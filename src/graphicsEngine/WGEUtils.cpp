@@ -22,36 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#include <vector>
 
-#include <stdexcept>
-#include <string>
+#include <osg/Array>
 
-#include "../../common/WException.h"
+#include "../math/WPosition.h"
+#include "WGEUtils.h"
 
-/**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
- */
-class WDHException: public WException
+osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPosition >& posArray )
 {
-public:
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WDHException() throw();
-
-protected:
-
-private:
-};
-
-#endif  // WDHEXCEPTION_H
+    osg::ref_ptr< osg::Vec3Array > result = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    result->reserve( posArray.size() );
+    std::vector< wmath::WPosition >::const_iterator cit;
+    for( cit = posArray.begin(); cit != posArray.end(); ++cit )
+    {
+        result->push_back( wge::osgVec3( *cit ) );
+    }
+    return result;
+}

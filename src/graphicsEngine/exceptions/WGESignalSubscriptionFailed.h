@@ -22,36 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#ifndef WGESIGNALSUBSCRIPTIONFAILED_H
+#define WGESIGNALSUBSCRIPTIONFAILED_H
 
-#include <stdexcept>
 #include <string>
 
-#include "../../common/WException.h"
+#include "WGEException.h"
 
 /**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
+ * Exception thrown if a notifier could not be subscribed to a signal.
+ * \ingroup ge
  */
-class WDHException: public WException
+class WGESignalSubscriptionFailed: public WGEException
 {
 public:
+
     /**
      * Default constructor.
      * \param msg the exception message.
      */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
+    explicit WGESignalSubscriptionFailed( const std::string& msg = "Could not subscribe to unknown signal." );
 
     /**
      * Destructor.
      */
-    virtual ~WDHException() throw();
+    virtual ~WGESignalSubscriptionFailed() throw();
 
 protected:
 
 private:
 };
 
-#endif  // WDHEXCEPTION_H
+#endif  // WGESIGNALSUBSCRIPTIONFAILED_H
+

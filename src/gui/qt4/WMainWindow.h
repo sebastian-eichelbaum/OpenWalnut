@@ -43,6 +43,7 @@
 #include "WQtNavGLWidget.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 #include "WQtCustomDockWidget.h"
+#include "WQtToolBar.h"
 
 #include "WIconManager.h"
 #include "WPropertyManager.h"
@@ -86,7 +87,7 @@ public:
     /**
      *  returns a pointer to the tool bar showing the compatible modules
      */
-    WQtRibbonMenu* getCompatiblesToolBar();
+    WQtToolBar* getCompatiblesToolBar();
 
 
     /**
@@ -189,7 +190,7 @@ private:
 
     WQtRibbonMenu* m_ribbonMenu; //!< The ribbon menu of the main window.
 
-    WQtRibbonMenu* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selcted in the dataset browser
+    WQtToolBar* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selected in the dataset browser
 
     WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
 

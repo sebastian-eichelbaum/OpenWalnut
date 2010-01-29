@@ -22,36 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#include <iostream>
 
-#include <stdexcept>
-#include <string>
+#include <boost/thread.hpp>
 
-#include "../../common/WException.h"
-
-/**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
- */
-class WDHException: public WException
+int main()
 {
-public:
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WDHException() throw();
-
-protected:
-
-private:
-};
-
-#endif  // WDHEXCEPTION_H
+    std::cout << boost::thread::hardware_concurrency() << std::endl;
+    return 0;
+}

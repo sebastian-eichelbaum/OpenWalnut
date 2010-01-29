@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMGAUSSFILTERING_H
-#define WMGAUSSFILTERING_H
+#ifndef WMBOUNDINGBOX_H
+#define WMBOUNDINGBOX_H
 
 #include <map>
 #include <string>
@@ -41,25 +41,21 @@
 class WPickHandler;
 
 /**
- * Gauss filtering for WDataSetSingle
- *
- * \problem It works only on double value sets so far.
- * \reminder The boundary values will not be touched an considered to be zero.
- *
+ * Show the bounding box of a WDataSetSingle
  * \ingroup modules
  */
-class WMGaussFiltering : public WModule
+class WMBoundingBox : public WModule
 {
 public:
     /**
      * Standard constructor.
      */
-    WMGaussFiltering();
+    WMBoundingBox();
 
     /**
      * Destructor.
      */
-    ~WMGaussFiltering();
+    ~WMBoundingBox();
 
     /**
      * Gives back the name of this module.
@@ -105,27 +101,8 @@ protected:
 
 private:
 
-    /**
-     * Simple convolution using a small gauss-like mask
-     * \param vals the valueset to work on
-     * \param nX number of positions in x direction
-     * \param nY number of positions in y direction
-     * \param nZ number of positions in z direction
-     * \param x index for x direction
-     * \param y index for x direction
-     * \param z index for x direction
-     */
-    template< typename T > double filterAtPosition(  boost::shared_ptr< WValueSet< T > > vals,
-                                                     size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z );
-
-    /**
-     * Run the filter over the field.
-     * \param vals the valueset to work on
-     */
-    template< typename T > std::vector< double > filterField(  boost::shared_ptr< WValueSet< T > > vals );
-
+    osg::ref_ptr< WGEGroupNode > m_bBoxNode; //!< OSG root node for this module
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
 };
-#endif  // WMGAUSSFILTERING_H
+#endif  // WMBOUNDINGBOX_H

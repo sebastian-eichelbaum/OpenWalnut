@@ -22,36 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDHEXCEPTION_H
-#define WDHEXCEPTION_H
+#include "WQtToolBar.h"
 
-#include <stdexcept>
-#include <string>
 
-#include "../../common/WException.h"
-
-/**
- * General purpose exception and therefore base class for all DataHandler
- * related exceptions.
- * \ingroup dataHandler
- */
-class WDHException: public WException
+WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
+    : QToolBar( title, parent )
 {
-public:
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WDHException( const std::string& msg = "DataHandler Exception" );
+    this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
 
-    /**
-     * Destructor.
-     */
-    virtual ~WDHException() throw();
+    // The following makes the bar having button size from the beginning.
+    QPushButton* dummyButton = new QPushButton;
+    dummyButton->setFixedWidth( 0 );
+    addWidget( dummyButton );
+}
 
-protected:
+WQtToolBar::~WQtToolBar()
+{
+}
 
-private:
-};
+WQtPushButton* WQtToolBar::addPushButton( QString name, QIcon icon, QString label )
+{
+    WQtPushButton* button = new WQtPushButton( icon, label );
 
-#endif  // WDHEXCEPTION_H
+    button->setName( name );
+
+    addWidget( button );
+
+    return button;
+}
+
+void WQtToolBar::clearButtons()
+{
+    clear();
+
+    // The following prevents the bar from changing size when it has no real buttons.
+    QPushButton* dummyButton = new QPushButton;
+    dummyButton->setFixedWidth( 0 );
+    addWidget( dummyButton );
+}
