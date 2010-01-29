@@ -165,6 +165,11 @@ public slots:
      */
     void slotActivateModule( QString module );
 
+    /**
+     * gets called when the button new roi is pressed
+     */
+    void newRoi();
+
 private:
     /**
      * Sets up the initial state of the ribbon menu

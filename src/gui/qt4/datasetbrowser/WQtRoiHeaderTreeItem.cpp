@@ -22,25 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WROI.h"
+#include "WQtRoiTreeItem.h"
 
-#include "WPickHandler.h"
+#include "WQtRoiHeaderTreeItem.h"
 
-WROI::~WROI()
+WQtRoiHeaderTreeItem::WQtRoiHeaderTreeItem( QTreeWidget * parent ) :
+    QTreeWidgetItem( parent, 4 )
 {
 }
 
-boost::signals2::signal0< void >* WROI::getSignalIsModified()
+WQtRoiHeaderTreeItem::~WQtRoiHeaderTreeItem()
 {
-    return &m_signalIsModified;
 }
 
-void WROI::setNot( bool isNot )
+WQtRoiTreeItem* WQtRoiHeaderTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi )
 {
-    m_isNot = isNot;
-}
+    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi );
 
-bool WROI::isNot()
-{
-    return m_isNot;
+    std::string name = "ROI";
+    rti->setText( 0, QString( name.c_str() ) );
+    return rti;
 }

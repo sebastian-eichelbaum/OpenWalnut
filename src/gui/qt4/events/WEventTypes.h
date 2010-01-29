@@ -39,5 +39,8 @@
 // when a module signals its ready state
 #define WQT_READY_EVENT QEvent::User + 2
 
+// when a roi got associated
+#define WQT_ROI_ASSOC_EVENT QEvent::User + 3
+
 #endif  // WEVENTTYPES_H
 

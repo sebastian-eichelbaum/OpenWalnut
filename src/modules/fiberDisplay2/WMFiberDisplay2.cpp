@@ -38,8 +38,7 @@
 #include "WMFiberDisplay2.h"
 
 WMFiberDisplay2::WMFiberDisplay2()
-    : WModule(),
-      m_globalColoring( true )
+    : WModule()
 {
 }
 
@@ -60,6 +59,10 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay2::genFiberGeode()
     m_localColors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     m_geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
 
+    vertices->reserve( m_dataset->getVertices()->size() );
+    m_globalColors->reserve( m_dataset->getVertices()->size() );
+    m_localColors->reserve( m_dataset->getVertices()->size() );
+
     boost::shared_ptr< std::vector< unsigned int > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< unsigned int > > pointsPerLine = m_dataset->getLineLengths();
     boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
@@ -67,6 +70,10 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay2::genFiberGeode()
     size_t vertexNum = 0;
     WColor gc;
     WColor lc;
+
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber Display", m_dataset->size() ) );
+    m_progress->addSubProgress( progress );
+
     for( size_t j = 0; j < m_dataset->size(); ++j )
     {
         vertices->push_back( osg::Vec3( verts->at( 3 * vertexNum ), verts->at( 3 * vertexNum + 1 ), verts->at( 3 * vertexNum + 2 ) ) );
@@ -88,7 +95,12 @@ osg::ref_ptr< osg::Geode > WMFiberDisplay2::genFiberGeode()
         m_globalColors->push_back( wge::osgColor( gc ) );
 
         m_geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIndexes->at( j ), pointsPerLine->at( j ) ) );
+
+        ++*progress;
     }
+
+    progress->finish();
+
     m_geometry->setVertexArray( vertices );
     m_geometry->setColorArray( m_globalColors );
     m_geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
@@ -202,7 +214,6 @@ void WMFiberDisplay2::properties()
     // this bool is hidden
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberDisplay2::slotPropertyChanged, this, _1 ) );
     m_properties->addBool( "Local Color", false )->connect( boost::bind( &WMFiberDisplay2::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "New Roi", true )->connect( boost::bind( &WMFiberDisplay2::slotPropertyChanged, this, _1 ) );
 }
 
 void WMFiberDisplay2::slotPropertyChanged( std::string propertyName )
@@ -220,17 +231,8 @@ void WMFiberDisplay2::slotPropertyChanged( std::string propertyName )
     }
     else if ( propertyName == "Local Color" )
     {
-        if( m_properties->getValue< bool >( propertyName ) != m_globalColoring )
-        {
-            m_globalColoring = m_properties->getValue< bool >( propertyName );
-            updateColoring();
-        }
+        updateColoring();
     }
-    else if ( propertyName == "New Roi" )
-    {
-        newRoi();
-    }
-
     else
     {
         // instead of WLogger we must use std::cerr since WLogger needs to much time!
@@ -244,11 +246,4 @@ WColor WMFiberDisplay2::getRGBAColorFromDirection( const wmath::WPosition &pos1,
     wmath::WPosition direction( ( pos2 - pos1 ) );
     direction.normalize();
     return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ) );
-}
-
-
-void WMFiberDisplay2::newRoi()
-{
-    boost::shared_ptr< WROIBox > newRoi = boost::shared_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60.), wmath::WPosition( 80., 80., 80. ) ) );
-    WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
 }

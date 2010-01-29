@@ -36,8 +36,13 @@
 #include "WQtDSBWidget.h"
 #include "WQtSubjectTreeItem.h"
 #include "WQtModuleTreeItem.h"
+#include "WQtModuleHeaderTreeItem.h"
+#include "WQtRoiHeaderTreeItem.h"
+
 #include "WQtTreeWidget.h"
 
+#include "../../../graphicsEngine/WROI.h"
+#include "../../../modules/fiberDisplay2/WRMROIRepresentation.h"
 #include "../../../dataHandler/WDataSet.h"
 
 class WMainWindow;
@@ -98,6 +103,11 @@ public:
      */
     WQtModuleTreeItem* addModule( boost::shared_ptr< WModule > module );
 
+    void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+
+
+    void addModule2( boost::shared_ptr< WModule > module, int subjectId = 0 );
+
     /**
      * Returns a vector of pointers to the loaded datasets for a given subject.
      *
@@ -119,6 +129,11 @@ public:
      * \return the module.
      */
     boost::shared_ptr< WModule > getSelectedModule();
+
+    /**
+     *
+     */
+    boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
 
 public slots:
     /**
@@ -153,7 +168,6 @@ public slots:
      */
     void slotSetStringProperty( QString name, QString value );
 
-
 protected:
 
     /**
@@ -165,6 +179,21 @@ protected:
      * \return true if the event got handled properly.
      */
     virtual bool event( QEvent* event );
+
+    /**
+     * Helper function to return the first subject id in the tree widget
+     */
+    int getFirstSubject();
+
+    /**
+     *
+     */
+    void createCompatibleButtons( boost::shared_ptr< WModule >module );
+
+    /**
+     *
+     */
+    boost::shared_ptr< WProperties > getPropOfSelected();
 
     /**
      * Reference to the main window of the application.
@@ -216,6 +245,10 @@ private:
      * layout
      */
     QVBoxLayout* m_layout;
+
+    WQtModuleHeaderTreeItem* m_tiModules;
+
+    WQtRoiHeaderTreeItem* m_tiRois;
 
 private slots:
     /**

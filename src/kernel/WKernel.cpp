@@ -243,18 +243,14 @@ std::string WKernel::getShaderPath()
     findAppPath();
     return WKernel::m_shaderPath;
 }
-<<<<<<< /SCR/schurade/workspace/walnut-hg/src/kernel/WKernel.cpp
 
 boost::shared_ptr< WROIManagerFibers> WKernel::getRoiManager()
 {
     return m_roiManager;
 }
-=======
 
 std::string WKernel::getFontPath()
 {
     findAppPath();
     return WKernel::m_fontPath;
 }
-
->>>>>>> /tmp/WKernel.cpp~other.StDg3q

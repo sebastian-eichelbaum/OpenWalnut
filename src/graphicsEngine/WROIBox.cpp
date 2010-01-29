@@ -166,14 +166,13 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON  );
-<<<<<<< /SCR/schurade/workspace/walnut-hg/src/graphicsEngine/WROIBox.cpp
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_geode );
 
     m_isModified = true;
-=======
+    m_isNot = false;
+
     assert( WGraphicsEngine::getGraphicsEngine() );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( m_geode );
->>>>>>> /tmp/WROIBox.cpp~other.0y8ftg
+
 }
 
 wmath::WPosition WROIBox::getMinPos() const

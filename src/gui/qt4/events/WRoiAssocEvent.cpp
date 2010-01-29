@@ -22,25 +22,23 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WROI.h"
+#include "WEventTypes.h"
 
-#include "WPickHandler.h"
+#include "WRoiAssocEvent.h"
 
-WROI::~WROI()
+WRoiAssocEvent::WRoiAssocEvent( boost::shared_ptr< WRMROIRepresentation > roi )
+    : QEvent( static_cast< QEvent::Type >( WQT_ROI_ASSOC_EVENT ) ),
+    m_roi( roi )
 {
+    // initialize members
 }
 
-boost::signals2::signal0< void >* WROI::getSignalIsModified()
+WRoiAssocEvent::~WRoiAssocEvent()
 {
-    return &m_signalIsModified;
+    // cleanup
 }
 
-void WROI::setNot( bool isNot )
+boost::shared_ptr< WRMROIRepresentation > WRoiAssocEvent::getRoi()
 {
-    m_isNot = isNot;
-}
-
-bool WROI::isNot()
-{
-    return m_isNot;
+    return m_roi;
 }

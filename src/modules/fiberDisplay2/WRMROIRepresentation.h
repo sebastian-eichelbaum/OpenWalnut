@@ -33,6 +33,7 @@
 #include <boost/thread/thread.hpp>
 
 #include "WKdTree.h"
+#include "./../../common/WProperties.h"
 #include "../../graphicsEngine/WROI.h"
 class WRMBranch;
 /**
@@ -91,7 +92,10 @@ public:
      */
     void setDirty();
 
+    boost::shared_ptr< WProperties > getProperties();
+
 protected:
+    void slotPropertyChanged( std::string propertyName );
 private:
     bool m_dirty;
 
@@ -116,6 +120,11 @@ private:
      * lock to prevent concurrent threads trying to update the osg node
      */
     boost::shared_mutex m_updateLock;
+
+    /**
+     * the property object for the module
+     */
+    boost::shared_ptr< WProperties > m_properties;
 };
 
 #endif  // WRMROIREPRESENTATION_H

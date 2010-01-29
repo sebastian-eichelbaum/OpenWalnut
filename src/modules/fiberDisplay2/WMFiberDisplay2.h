@@ -79,11 +79,6 @@ public:
      */
     void slotPropertyChanged( std::string propertyName );
 
-    /**
-     * createsw a new selection box
-     */
-    void newRoi();
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -128,12 +123,6 @@ protected:
      * Switches the osg to use the appropriate color array
      */
     void updateColoring();
-
-
-    /**
-     * If the fibers have to be drawn in global coloring mode this is true, otherwise false.
-     */
-    bool m_globalColoring;
 
 private:
     /**

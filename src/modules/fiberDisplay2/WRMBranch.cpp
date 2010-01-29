@@ -84,9 +84,20 @@ void WRMBranch::recalculate()
     for( std::list< boost::shared_ptr< WRMROIRepresentation > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         boost::shared_ptr< std::vector<bool> > bf = ( *iter )->getBitField( 0 );
-        for ( int i = 0 ; i < mbf->size() ; ++i )
+        bool isnot = ( *iter )->getROI()->isNot();
+        if ( !isnot )
         {
-            mbf->at( i ) = /*mbf->at( i ) & */bf->at( i );
+            for ( int i = 0 ; i < mbf->size() ; ++i )
+            {
+                mbf->at( i ) = mbf->at( i ) & bf->at( i );
+            }
+        }
+        else
+        {
+            for ( int i = 0 ; i < mbf->size() ; ++i )
+            {
+                mbf->at( i ) = mbf->at( i ) & !bf->at( i );
+            }
         }
     }
 

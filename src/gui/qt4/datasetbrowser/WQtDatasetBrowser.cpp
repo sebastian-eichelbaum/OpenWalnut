@@ -36,12 +36,12 @@
 
 #include "WQtDatasetBrowser.h"
 #include "../events/WModuleAssocEvent.h"
+#include "../events/WRoiAssocEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WEventTypes.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtCheckBox.h"
-#include "WQtModuleHeaderTreeItem.h"
 
 #include "../../../kernel/WModuleFactory.h"
 #include "../WMainWindow.h"
@@ -85,8 +85,10 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     this->setWidget( m_panel );
 
-    WQtModuleHeaderTreeItem* tiModules = new WQtModuleHeaderTreeItem( m_treeWidget );
-    tiModules->setText( 0, QString( "Modules" ) );
+    m_tiModules = new WQtModuleHeaderTreeItem( m_treeWidget );
+    m_tiModules->setText( 0, QString( "Modules" ) );
+    m_tiRois = new WQtRoiHeaderTreeItem( m_treeWidget );
+    m_tiRois->setText( 0, QString( "rois" ) );
 
     connectSlots();
 }
@@ -119,26 +121,32 @@ bool WQtDatasetBrowser::event( QEvent* event )
     if ( event->type() == WQT_ASSOC_EVENT )
     {
         // convert event to assoc event
-        WModuleAssocEvent* e = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
-        if ( !e )
+        WModuleAssocEvent* e1 = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
+        if ( e1 )
         {
-            // this should never happen, since the type is set to WQT_ASSOC_EVENT.
-            WLogger::getLogger()->addLogMessage( "Event is not an WModueAssocEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
-        }
+            WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() + " to dataset browser.",
+                                                 "DatasetBrowser", LL_DEBUG );
 
-        WLogger::getLogger()->addLogMessage( "Inserting module " + e->getModule()->getName() + " to dataset browser.",
-                                             "DatasetBrowser", LL_DEBUG );
-
-        // finally add the module
-        // TODO(schurade): is this differentiation between data and "normal" modules really needed?
-        if ( boost::shared_dynamic_cast< WMData >( e->getModule() ).get() )
-        {
-            addDataset( e->getModule(), 0 );
+            // finally add the module
+            // TODO(schurade): is this differentiation between data and "normal" modules really needed?
+            if ( boost::shared_dynamic_cast< WMData >( e1->getModule() ).get() )
+            {
+                addDataset( e1->getModule(), 0 );
+            }
+            else
+            {
+                addModule( e1->getModule() );
+            }
         }
-        else
+        return true;
+    }
+    if ( event->type() == WQT_ROI_ASSOC_EVENT)
+    {
+        WRoiAssocEvent* e2 = dynamic_cast< WRoiAssocEvent* >( event );     // NOLINT
+        if ( e2 )
         {
-            addModule( e->getModule() );
+            addRoi( e2->getRoi() );
+            WLogger::getLogger()->addLogMessage( "Inserting roi to dataset browser.", "DatasetBrowser", LL_DEBUG );
         }
 
         return true;
@@ -198,9 +206,27 @@ bool WQtDatasetBrowser::event( QEvent* event )
     return QDockWidget::event( event );
 }
 
+void WQtDatasetBrowser::addModule2( boost::shared_ptr< WModule > module, int subjectId )
+{
+    if ( boost::shared_dynamic_cast< WMData >( module ) )
+    {
+        WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + 1 );
+        subject->setExpanded( true );
+        WQtDatasetTreeItem* item = subject->addDatasetItem( module );
+        item->setDisabled( true );
+    }
+    else
+    {
+        m_tiModules->setExpanded( true );
+        WQtModuleTreeItem* item = m_tiModules->addModuleItem( module );
+        item->setDisabled( true );
+    }
+}
+
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
-    WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + 1 );
+    int c = getFirstSubject();
+    WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + c );
     subject->setExpanded( true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
     item->setDisabled( true );
@@ -209,11 +235,51 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
 
 WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > module )
 {
-    WQtModuleHeaderTreeItem* tiModules = ( WQtModuleHeaderTreeItem* )m_treeWidget->topLevelItem( 0 );
-    tiModules->setExpanded( true );
-    WQtModuleTreeItem* item = tiModules->addModuleItem( module );
+    m_tiModules->setExpanded( true );
+    WQtModuleTreeItem* item = m_tiModules->addModuleItem( module );
     item->setDisabled( true );
     return item;
+}
+
+void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+{
+    if ( m_treeWidget->selectedItems().count() != 0 )
+    {
+        switch ( m_treeWidget->selectedItems().at( 0 )->type() )
+        {
+            case 5 :
+            {
+                WQtRoiTreeItem* roiItem =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) );
+                m_tiRois->setExpanded( true );
+                roiItem->setExpanded( true );
+                WQtRoiTreeItem* item = roiItem->addRoiItem( roi );
+                item->setDisabled( false );
+                break;
+            }
+            case 6 :
+            {
+                WQtRoiTreeItem* roiItem =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 )->parent() );
+                m_tiRois->setExpanded( true );
+                roiItem->setExpanded( true );
+                WQtRoiTreeItem* item = roiItem->addRoiItem( roi );
+                item->setDisabled( false );
+                break;
+            }
+            default:
+            {
+                m_tiRois->setExpanded( true );
+                WQtRoiTreeItem* item = m_tiRois->addRoiItem( roi );
+                item->setDisabled( false );
+                break;
+            }
+        }
+    }
+    else
+    {
+        m_tiRois->setExpanded( true );
+        WQtRoiTreeItem* item = m_tiRois->addRoiItem( roi );
+        item->setDisabled( false );
+    }
 }
 
 boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
@@ -234,41 +300,35 @@ void WQtDatasetBrowser::selectTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-
-    if ( m_treeWidget->selectedItems().size() == 0 || m_treeWidget->selectedItems().at( 0 )->type() == 0 ||
-            m_treeWidget->selectedItems().at( 0 )->type() == 2 )
-    {
-        return;
-    }
-    boost::shared_ptr< WModule >module;
-
     m_mainWindow->getCompatiblesToolBar()->clearNonPersistentTabs();
 
-    if ( m_treeWidget->selectedItems().at( 0 )->type() == 1 )
+    boost::shared_ptr< WModule >module;
+    std::vector < WProperty* >props;
+
+    if ( m_treeWidget->selectedItems().size() != 0  )
     {
-        module = ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        switch ( m_treeWidget->selectedItems().at( 0 )->type() )
+        {
+            case 0:
+                break;
+            case 1:
+            case 3:
+                module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+                props = module->getProperties()->getPropertyVector();
+                createCompatibleButtons( module );
+                break;
+            case 2:
+                break;
+            case 4:
+                break;
+            case 5:
+            case 6:
+                props = ( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getRoi()->getProperties()->getPropertyVector();
+                break;
+            default:
+                break;
+        }
     }
-    else
-    {
-        module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    }
-
-    // every module may have compatibles: create ribbon menu entry
-    m_mainWindow->getCompatiblesToolBar()->addTab( QString( "Compatible Modules" ), false );
-    std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
-    for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
-    {
-        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
-                QString( "Compatible Modules" ),
-                m_mainWindow->getIconManager()->getIcon( "o" ),
-                QString( ( *iter )->getName().c_str() ) );
-
-        connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
-    }
-
-    // create properties
-    std::vector < WProperty* >props = module->getProperties()->getPropertyVector();
-
     WQtDSBWidget* tab1 = new WQtDSBWidget( "Settings" );
 
     for ( size_t i = 0; i < props.size(); ++i )
@@ -326,6 +386,22 @@ void WQtDatasetBrowser::selectTreeItem()
 }
 
 
+void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
+{
+    // every module may have compatibles: create ribbon menu entry
+    m_mainWindow->getCompatiblesToolBar()->addTab( QString( "Compatible Modules" ), false );
+    std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
+    {
+        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
+                QString( "Compatible Modules" ),
+                m_mainWindow->getIconManager()->getIcon( "o" ),
+                QString( ( *iter )->getName().c_str() ) );
+
+        connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
+    }
+}
+
 void WQtDatasetBrowser::changeTreeItem()
 {
     if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == 1 )
@@ -362,32 +438,28 @@ void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 
 void WQtDatasetBrowser::slotSetIntProperty( QString name, int value )
 {
-    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    module->getProperties()->setValue<int>( name.toStdString(), value );
+    getPropOfSelected()->setValue<int>( name.toStdString(), value );
 
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
 void WQtDatasetBrowser::slotSetDoubleProperty( QString name, double value )
 {
-    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    module->getProperties()->setValue<double>( name.toStdString(), value );
+    getPropOfSelected()->setValue<double>( name.toStdString(), value );
 
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
 void WQtDatasetBrowser::slotSetBoolProperty( QString name, bool value )
 {
-    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    module->getProperties()->setValue<bool>( name.toStdString(), value );
+    getPropOfSelected()->setValue<bool>( name.toStdString(), value );
 
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
 void WQtDatasetBrowser::slotSetStringProperty( QString name, QString value )
 {
-    boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
-    module->getProperties()->setValue<std::string>( name.toStdString(), value.toStdString() );
+    getPropOfSelected()->setValue<std::string>( name.toStdString(), value.toStdString() );
 
     if ( name == "Name")
     {
@@ -395,20 +467,51 @@ void WQtDatasetBrowser::slotSetStringProperty( QString name, QString value )
     }
 }
 
+boost::shared_ptr< WProperties > WQtDatasetBrowser::getPropOfSelected()
+{
+    boost::shared_ptr< WModule > module;
+    boost::shared_ptr< WProperties > props;
+    if ( m_treeWidget->selectedItems().size() != 0  )
+    {
+        switch ( m_treeWidget->selectedItems().at( 0 )->type() )
+        {
+            case 0:
+                break;
+            case 1:
+            case 3:
+                module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+                props = module->getProperties();
+                break;
+            case 2:
+                break;
+            case 4:
+                break;
+            case 5:
+            case 6:
+                props = ( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getRoi()->getProperties();
+                break;
+            default:
+                break;
+        }
+    }
+    return props;
+}
+
 std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( int subjectId, bool onlyTextures )
 {
+    int c = getFirstSubject();
     std::vector< boost::shared_ptr< WDataSet > >moduleList;
 
-    if ( m_treeWidget->invisibleRootItem()->childCount() < subjectId + 1)
+    if ( m_treeWidget->invisibleRootItem()->childCount() < subjectId + c)
     {
         return moduleList;
     }
-    int count = m_treeWidget->invisibleRootItem()->child( subjectId + 1 )->childCount();
+    int count = m_treeWidget->invisibleRootItem()->child( subjectId + c )->childCount();
 
     for ( int i = 0 ; i < count ; ++i )
     {
         boost::shared_ptr< WMData > dm = boost::shared_dynamic_cast< WMData >( ( ( WQtDatasetTreeItem* )m_treeWidget->invisibleRootItem()->child(
-                        subjectId + 1 )->child( i ) )->getModule() );
+                        subjectId + c )->child( i ) )->getModule() );
 
         if ( dm->isReady()() && ( !onlyTextures || dm->getDataSet()->isTexture() ) )
         {
@@ -433,3 +536,36 @@ void WQtDatasetBrowser::moveTreeItemUp()
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
+int WQtDatasetBrowser::getFirstSubject()
+{
+    int c = 0;
+    for ( int i = 0; i < m_treeWidget->topLevelItemCount() ; ++i )
+    {
+        if ( m_treeWidget->topLevelItem( i )->type() == 0 )
+        {
+            break;
+        }
+        ++c;
+    }
+    return c;
+}
+
+boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getSelectedRoi()
+{
+    boost::shared_ptr< WRMROIRepresentation >roi;
+    if ( m_treeWidget->selectedItems().count() == 0 )
+    {
+        return roi;
+    }
+    if ( m_treeWidget->selectedItems().at( 0 )->type() == 5 )
+    {
+        roi =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getRoi();
+        std::cout << "return this" << std::endl;
+    }
+    if ( m_treeWidget->selectedItems().at( 0 )->type() == 6 )
+    {
+        roi =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 )->parent() )->getRoi();
+        std::cout << "return parent" << std::endl;
+    }
+    return roi;
+}

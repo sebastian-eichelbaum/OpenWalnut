@@ -121,6 +121,15 @@ public:
      */
     bool isDirty();
 
+    /**
+     * Add a specified notifier to the list of default notifiers which get connected to each added module.
+     *
+     * \param signal    the signal the notifier should get connected to
+     * \param notifier  the notifier function
+     */
+    virtual void addDefaultNotifier( boost::function< void ( boost::shared_ptr< WRMROIRepresentation > ) > notifier );
+
+
 protected:
 private:
     /**
@@ -140,6 +149,16 @@ private:
      * Stores a pointer to the kdTree used for fiber selection
      */
     std::list< boost::shared_ptr< WKdTree > >m_kdTreeList;
+
+    /**
+     * Lock for associated notifiers set.
+     */
+    boost::shared_mutex m_associatedNotifiersLock;
+
+    /**
+     * The notifiers connected to added rois by default.
+     */
+    std::list< boost::function< void ( boost::shared_ptr< WRMROIRepresentation > ) > >m_notifiers;
 
 };
 

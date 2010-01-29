@@ -22,25 +22,45 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WROI.h"
+#ifndef WQTROITREEITEM_H
+#define WQTROITREEITEM_H
 
-#include "WPickHandler.h"
+#include <QtGui/QTreeWidgetItem>
+#include <QtGui/QProgressBar>
+#include <QtCore/QTimer>
 
-WROI::~WROI()
+#include "WQtTreeItem.h"
+#include "../../../graphicsEngine/WROI.h"
+#include "../../../modules/fiberDisplay2/WRMROIRepresentation.h"
+
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtRoiTreeItem : public QTreeWidgetItem
 {
-}
+public:
+    /**
+     * TODO(schurade): Document this!
+     */
+    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, int type = 5 );
 
-boost::signals2::signal0< void >* WROI::getSignalIsModified()
-{
-    return &m_signalIsModified;
-}
+    /**
+     * TODO(schurade): Document this!
+     */
+    ~WQtRoiTreeItem();
 
-void WROI::setNot( bool isNot )
-{
-    m_isNot = isNot;
-}
+    boost::shared_ptr< WRMROIRepresentation > getRoi();
 
-bool WROI::isNot()
-{
-    return m_isNot;
-}
+    /**
+     * Add a roi to the tree view.
+     * \param roi The new roi.
+     */
+    WQtRoiTreeItem* addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi );
+
+
+protected:
+private:
+    boost::shared_ptr< WRMROIRepresentation > m_roi;
+};
+
+#endif  // WQTROITREEITEM_H

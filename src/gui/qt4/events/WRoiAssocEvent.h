@@ -22,25 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WROI.h"
+#ifndef WROIASSOCEVENT_H
+#define WROIASSOCEVENT_H
 
-#include "WPickHandler.h"
+#include <boost/shared_ptr.hpp>
 
-WROI::~WROI()
+#include <QtCore/QEvent>
+
+#include "../../../graphicsEngine/WROI.h"
+#include "../../../modules/fiberDisplay2/WRMROIRepresentation.h"
+
+/**
+ * TODO(schurade): Document this!
+ */
+class WRoiAssocEvent: public QEvent
 {
-}
+public:
+    /**
+     * TODO(schurade): Document this!
+     */
+    explicit WRoiAssocEvent( boost::shared_ptr< WRMROIRepresentation > roi );
 
-boost::signals2::signal0< void >* WROI::getSignalIsModified()
-{
-    return &m_signalIsModified;
-}
+    /**
+     * TODO(schurade): Document this!
+     */
+    ~WRoiAssocEvent();
 
-void WROI::setNot( bool isNot )
-{
-    m_isNot = isNot;
-}
+    /**
+     * Getter for the roi that got associated.
+     *
+     * \return the roi.
+     */
+    boost::shared_ptr< WRMROIRepresentation > getRoi();
 
-bool WROI::isNot()
-{
-    return m_isNot;
-}
+
+protected:
+    /**
+     * The roi that got associated.
+     */
+    boost::shared_ptr< WRMROIRepresentation > m_roi;
+private:
+};
+
+#endif  // WROIASSOCEVENT_H

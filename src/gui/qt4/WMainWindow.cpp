@@ -46,6 +46,8 @@
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
 
+#include "../../graphicsEngine/WROIBox.h"
+
 #include "../icons/WIcons.h"
 
 WMainWindow::WMainWindow() :
@@ -141,6 +143,7 @@ void WMainWindow::setupRibbonMenu()
     m_ribbonMenu->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "Load" ) );
     m_ribbonMenu->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "Save" ) );
     m_ribbonMenu->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "Exit" ) );
+    m_ribbonMenu->addPushButton( QString( "buttonRoi" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "ROI" ) );
 
     // the parent (this) will take care for deleting the shortcut
     QShortcut* shortcut = new QShortcut( QKeySequence( tr( "Ctrl+Q", "File|Exit" ) ), this );
@@ -148,6 +151,7 @@ void WMainWindow::setupRibbonMenu()
 
     connect( m_ribbonMenu->getButton( QString( "buttonQuit" ) ), SIGNAL( pressed() ), this, SLOT( close() ) );
     connect( m_ribbonMenu->getButton( QString( "buttonLoad" ) ), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( m_ribbonMenu->getButton( QString( "buttonRoi" ) ), SIGNAL( pressed() ), this, SLOT( newRoi() ) );
 
     m_ribbonMenu->addTab( QString( "Modules" ) );
     m_ribbonMenu->addTab( QString( "Help" ) );
@@ -379,3 +383,16 @@ void WMainWindow::slotActivateModule( QString module )
     m_moduleButtonSignal( getDatasetBrowser()->getSelectedModule(), WModuleFactory::getModuleFactory()->getPrototypeByName( module.toStdString() ) );
 }
 
+void WMainWindow::newRoi()
+{
+    if ( m_datasetBrowser->getSelectedRoi().get() == NULL )
+    {
+        boost::shared_ptr< WROIBox > newRoi = boost::shared_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60.), wmath::WPosition( 80., 80., 80. ) ) );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
+    }
+    else
+    {
+        boost::shared_ptr< WROIBox > newRoi = boost::shared_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60.), wmath::WPosition( 80., 80., 80. ) ) );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getSelectedRoi()->getROI() );
+    }
+}

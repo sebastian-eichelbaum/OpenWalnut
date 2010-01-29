@@ -54,6 +54,10 @@ public:
      */
     boost::signals2::signal0< void >* getSignalIsModified();
 
+    void setNot( bool isNot = true );
+
+    bool isNot();
+
 protected:
     osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
     osg::Geode* m_geode; //!< The graphical representation of the ROI.
@@ -64,11 +68,13 @@ protected:
      */
     boost::signals2::signal0< void >m_signalIsModified;
 
-private:
     bool m_isNot; //!< Indivated whether the region of interest is inside the WROI (false) oroutside (true).
+
     WColor m_color; //!< The selected onject (Fibers, region on surface, ...) will have this color if m_useColor.
+
     bool m_useColor; //!< Indicated whether m_color should be used for display.
 
+private:
     /**
      *  updates the graphics
      * \param text text info from pick

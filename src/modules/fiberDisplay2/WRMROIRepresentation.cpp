@@ -40,6 +40,8 @@ WRMROIRepresentation::WRMROIRepresentation( boost::shared_ptr< WROI > roi, boost
 {
     roi->getSignalIsModified()->connect( boost::bind( &WRMROIRepresentation::setDirty, this ) );
     setDirty();
+    m_properties = boost::shared_ptr< WProperties >( new WProperties() );
+    m_properties->addBool( "NOT", false )->connect( boost::bind( &WRMROIRepresentation::slotPropertyChanged, this, _1 ) );
 }
 
 WRMROIRepresentation::~WRMROIRepresentation()
@@ -162,4 +164,24 @@ void WRMROIRepresentation::setDirty()
 {
     m_dirty = true;
     m_branch->setDirty();
+}
+
+void WRMROIRepresentation::slotPropertyChanged( std::string propertyName )
+{
+    if( propertyName == "NOT" )
+    {
+        m_roi->setNot( m_properties->getValue< bool >( propertyName ) );
+        setDirty();
+    }
+    else
+    {
+        // instead of WLogger we must use std::cerr since WLogger needs to much time!
+        std::cerr << propertyName << std::endl;
+        assert( 0 && "This property name is not supported by this function yet." );
+    }
+}
+
+boost::shared_ptr< WProperties > WRMROIRepresentation::getProperties()
+{
+    return m_properties;
 }

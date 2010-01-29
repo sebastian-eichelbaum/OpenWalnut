@@ -22,25 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WROI.h"
+#ifndef WQTROIHEADERTREEITEM_H
+#define WQTROIHEADERTREEITEM_H
 
-#include "WPickHandler.h"
+#include <string>
 
-WROI::~WROI()
+#include <QtGui/QTreeWidgetItem>
+
+#include "WQtRoiTreeItem.h"
+
+/**
+ * TODO(schurade): Document this!
+ */
+class WQtRoiHeaderTreeItem : public QTreeWidgetItem
 {
-}
+public:
+    /**
+     * TODO(schurade): Document this!
+     */
+    explicit WQtRoiHeaderTreeItem(  QTreeWidget * parent );
 
-boost::signals2::signal0< void >* WROI::getSignalIsModified()
-{
-    return &m_signalIsModified;
-}
+    /**
+     * TODO(schurade): Document this!
+     */
+    virtual ~WQtRoiHeaderTreeItem();
 
-void WROI::setNot( bool isNot )
-{
-    m_isNot = isNot;
-}
+    /**
+     * Add a roi to the tree view.
+     * \param roi The new roi.
+     */
+    WQtRoiTreeItem* addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi );
 
-bool WROI::isNot()
-{
-    return m_isNot;
-}
+protected:
+private:
+};
+
+#endif  // WQTROIHEADERTREEITEM_H

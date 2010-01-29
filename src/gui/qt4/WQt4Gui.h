@@ -32,6 +32,7 @@
 
 #include "../WGUI.h"
 #include "../../kernel/WModule.h"
+#include "../../modules/fiberDisplay2/WRMROIRepresentation.h"
 
 class WMainWindow;
 class WGraphicsEngine;
@@ -90,6 +91,14 @@ public:
      * \note This can be used to add datasets or other modules.
      */
     virtual void slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > module );
+
+    /**
+     * Slot gets called whenever a new roi is added.
+     *
+     * \param roi the roi to be added
+     */
+    virtual void slotAddRoiToBrowser( boost::shared_ptr< WRMROIRepresentation > roi );
+
 
     /**
      * Slot gets called whenever a module switches its state to "ready".

@@ -32,6 +32,9 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
+
 
 #include "WModuleSignals.h"
 
