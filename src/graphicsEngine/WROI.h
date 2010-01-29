@@ -54,10 +54,9 @@ private:
     bool m_useColor; //!< Indicated whether m_color should be used for display.
 
     /**
-     *  updates the graphics
-     * \param text text info from pick
+     * updates the graphics. Remember that this shoudl only be called from a node callback
      */
-    virtual void updateGFX( std::string text ) = 0;
+    virtual void updateGFX() = 0;
 };
 
 #endif  // WROI_H
