@@ -30,8 +30,8 @@
 #include "WQtRibbonMenu.h"
 
 
-WQtRibbonMenu::WQtRibbonMenu( QWidget* parent )
-    : QToolBar( parent )
+WQtRibbonMenu::WQtRibbonMenu( const QString & title, QWidget* parent )
+    : QToolBar( title, parent )
 {
     this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
 

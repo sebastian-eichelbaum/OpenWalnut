@@ -204,27 +204,26 @@ void WDataTexture3D::createTexture()
 
         if ( m_valueSet->getDataType() == W_DT_UINT8 )
         {
-            std::cout << "W_DT_UINT8" << std::endl;
             boost::shared_ptr< WValueSet< unsigned char > > vs = boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_valueSet );
             unsigned char* source = const_cast< unsigned char* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
         else if ( m_valueSet->getDataType() == W_DT_INT16 )
         {
-            std::cout << "W_DT_INT16" << std::endl;
             boost::shared_ptr< WValueSet< int16_t > > vs = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_valueSet );
             int16_t* source = const_cast< int16_t* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
         else if ( m_valueSet->getDataType() == W_DT_FLOAT )
         {
-            std::cout << "W_DT_FLOAT" << std::endl;
             boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( m_valueSet );
             float* source = const_cast< float* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
         else
+        {
             wlog::error( "WDataTexture3D" ) << "COnversion of this data type to texture not supported yet.";
+        }
 
         m_texture = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
         m_texture->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );

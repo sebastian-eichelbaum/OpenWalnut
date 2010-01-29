@@ -242,7 +242,7 @@ void WQtDatasetBrowser::selectTreeItem()
     }
     boost::shared_ptr< WModule >module;
 
-    m_mainWindow->getCompatiblesToolBar()->clearNonPersistentTabs();
+    m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     if ( m_treeWidget->selectedItems().at( 0 )->type() == 1 )
     {
@@ -254,12 +254,10 @@ void WQtDatasetBrowser::selectTreeItem()
     }
 
     // every module may have compatibles: create ribbon menu entry
-    m_mainWindow->getCompatiblesToolBar()->addTab( QString( "Compatible Modules" ), false );
     std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
     for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
         WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
-                QString( "Compatible Modules" ),
                 m_mainWindow->getIconManager()->getIcon( "o" ),
                 QString( ( *iter )->getName().c_str() ) );
 

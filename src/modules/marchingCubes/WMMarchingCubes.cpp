@@ -200,7 +200,6 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     }
     else if( propertyName == "Opacity %" )
     {
-        debugLog() << "Change opacity." << std::endl;
         updateTextures();
     }
     else if( propertyName == "active" )
