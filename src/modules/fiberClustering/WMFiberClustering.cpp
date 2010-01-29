@@ -208,6 +208,7 @@ void WMFiberClustering::cluster()
 
         ++*progress;
     }
+    progress->finish();
     m_dLtTableExists = true;
 
     // remove empty clusters

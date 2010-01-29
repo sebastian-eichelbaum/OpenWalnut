@@ -210,7 +210,7 @@ public:
         {
             m_value = "";
         }
-        m_signalValueChanged( m_name );
+        signalValueChanged();
     }
 
     /**
@@ -284,7 +284,44 @@ public:
      */
     std::string getValueString();
 
+    /**
+     * Determines if this property is considered to be dirty. A Property can be
+     * dirty if its value changes but its change cannot be applied in the
+     * module. This can have several reasons: e.g. module is busy and is
+     * working with current values of the properties. So it recognizes the
+     * change and mark those properties as dirty for later update.
+     *
+     * \return True if this property has unhandled change events and needs a
+     * fresh update handling
+     */
+    bool isDirty() const;
+
+    /**
+     * Marks a property as dirty. For more details on the dirtyness \see isDirty().
+     *
+     * \param isDirty True if it is dirty, false if appropriate actions took
+     * place so it is not dirty anymore.
+     */
+    void dirty( bool isDirty );
+
+    /**
+     * Fires the signal
+     */
+    void signalValueChanged();
+
 private:
+    /**
+     * Use this only in constructors to initialize the members. The only reason
+     * why this member function exists is not to repeat your self. This makes
+     * it easy to add new member variabels.
+     *
+     * \param name
+     * \param shortDesc
+     * \param longDesc
+     * \param hidden
+     */
+    void initMembers( const std::string& name, const std::string& shortDesc, const std::string& longDesc, const bool hidden );
+
     /**
      * type of property
      */
@@ -325,10 +362,12 @@ private:
      */
     bool m_isHidden;
 
+    bool m_isDirty; //!< True if the property has changed but its changed weren't consumed
+
     /**
      * boost signal object to indicate property changes
      */
-    boost::signals2::signal1< void, std::string >m_signalValueChanged;
+    boost::signals2::signal1< void, std::string > m_signalValueChanged;
 };
 
 #endif  // WPROPERTY_H

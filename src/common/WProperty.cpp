@@ -28,83 +28,60 @@
 
 WProperty::WProperty( std::string name, std::string value, bool hidden, std::string shortDesc, std::string longDesc )
     : m_type( P_STRING ),
-    m_name( name ),
-    m_value( value ),
-    m_shortDesc( shortDesc ),
-    m_longDesc( longDesc ),
-    m_isHidden( hidden )
+    m_value( value )
 {
+    initMembers( name, shortDesc, longDesc, hidden );
 }
 
 WProperty::WProperty( std::string name, bool value, bool hidden, std::string shortDesc, std::string longDesc )
-    : m_type( P_BOOL ),
-    m_name( name ),
-    m_shortDesc( shortDesc ),
-    m_longDesc( longDesc ),
-    m_isHidden( hidden )
+    : m_type( P_BOOL )
 {
     setValue( value );
+    initMembers( name, shortDesc, longDesc, hidden );
 }
 
 WProperty::WProperty( std::string name, char value, bool hidden, std::string shortDesc, std::string longDesc )
-    : m_type( P_CHAR ),
-    m_name( name ),
-    m_shortDesc( shortDesc ),
-    m_longDesc( longDesc ),
-    m_isHidden( hidden )
+    : m_type( P_CHAR )
 {
     setMin( -128 );
     setMax( 127 );
     setValue( value );
+    initMembers( name, shortDesc, longDesc, hidden );
 }
 
 WProperty::WProperty( std::string name, int value, bool hidden, std::string shortDesc, std::string longDesc )
-    : m_type( P_INT ),
-    m_name( name ),
-    m_shortDesc( shortDesc ),
-    m_longDesc( longDesc ),
-    m_isHidden( hidden )
+    : m_type( P_INT )
 {
     setMin( 0 );
     setMax( 255 );
     setValue( value );
+    initMembers( name, shortDesc, longDesc, hidden );
 }
 
 WProperty::WProperty( std::string name, float value, bool hidden, std::string shortDesc, std::string longDesc )
-    : m_type( P_FLOAT ),
-    m_name( name ),
-    m_shortDesc( shortDesc ),
-    m_longDesc( longDesc ),
-    m_isHidden( hidden )
+    : m_type( P_FLOAT )
 {
     setMin( 0.0 );
     setMax( 100.0 );
     setValue( value );
+    initMembers( name, shortDesc, longDesc, hidden );
 }
 
 WProperty::WProperty( std::string name, double value, bool hidden, std::string shortDesc, std::string longDesc )
-    : m_type( P_DOUBLE ),
-    m_name( name ),
-    m_shortDesc( shortDesc ),
-    m_longDesc( longDesc ),
-    m_isHidden( hidden )
+    : m_type( P_DOUBLE )
 {
     setMin( 0.0 );
     setMax( 100.0 );
     setValue( value );
+    initMembers( name, shortDesc, longDesc, hidden );
 }
 
 WProperty::WProperty( std::string name, WColor value, bool hidden, std::string shortDesc, std::string longDesc )
-    : m_type( P_DOUBLE ),
-    m_name( name ),
-    m_shortDesc( shortDesc ),
-    m_longDesc( longDesc ),
-    m_isHidden( hidden )
+    : m_type( P_DOUBLE )
 {
     setValue( value );
+    initMembers( name, shortDesc, longDesc, hidden );
 }
-
-
 
 WProperty::~WProperty()
 {
@@ -163,6 +140,30 @@ void WProperty::unhide()
 bool WProperty::isHidden()
 {
     return m_isHidden;
+}
+
+bool WProperty::isDirty() const
+{
+    return m_isDirty;
+}
+
+void WProperty::dirty( bool isDirty )
+{
+    m_isDirty = isDirty;
+}
+
+void WProperty::initMembers( const std::string& name, const std::string& shortDesc, const std::string& longDesc, const bool hidden )
+{
+    m_name = name;
+    m_shortDesc = shortDesc;
+    m_longDesc = longDesc;
+    m_isHidden = hidden;
+    m_isDirty = false;
+}
+
+void WProperty::signalValueChanged()
+{
+    m_signalValueChanged( m_name );
 }
 
 boost::signals2::signal1< void, std::string >* WProperty::getSignalValueChanged()

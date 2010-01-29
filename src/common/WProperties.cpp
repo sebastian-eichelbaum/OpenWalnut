@@ -159,3 +159,30 @@ void WProperties::unhideProperty( std::string name )
     }
 }
 
+void WProperties::reemitChangedValueSignals()
+{
+    std::vector< WProperty* >::iterator iter;
+    for( iter = m_propertyVector.begin(); iter != m_propertyVector.end(); ++iter )
+    {
+        WProperty* property = *iter;
+        if( property->isDirty() )
+        {
+            property->dirty( false );
+            // Refire but don't change the value.
+            property->signalValueChanged();
+        }
+    }
+}
+
+bool WProperties::isDirty() const
+{
+    std::vector< WProperty* >::const_iterator cit;
+    for( cit = m_propertyVector.begin(); cit != m_propertyVector.end(); ++cit )
+    {
+        if( ( *cit )->isDirty() )
+        {
+            return true;
+        }
+    }
+    return false;
+}
