@@ -22,44 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#include "WEvent.h"
 
-#include <boost/shared_ptr.hpp>
-
-#include <osg/ref_ptr>
-
-
-class WGEGroupNode;
-class WGEViewer;
-
-/**
- * Custom widget which is created by a module to display custom information.
- */
-class WCustomWidget
+WEvent::WEvent( double time )
+    : m_time( time )
 {
-public:
-    /**
-     * Destructor
-     */
-    virtual ~WCustomWidget();
+}
 
-    /**
-     * Get the scene which is displayed
-     *
-     * \return the scene as osg::ref_ptr
-     */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
+void WEvent::setTime( double time )
+{
+    m_time = time;
+}
 
-    /**
-     * Get the viewer which is used
-     *
-     * \return the viewer as boost::shard_ptr
-     */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
+double WEvent::getTime() const
+{
+    return m_time;
+}
 
-protected:
-private:
-};
+void WEvent::setNode( osg::ref_ptr< osg::Node > node )
+{
+    m_node = node;
+}
 
-#endif  // WCUSTOMWIDGET_H
+osg::ref_ptr< osg::Node > WEvent::getNode() const
+{
+    return m_node;
+}

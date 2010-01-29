@@ -22,44 +22,64 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#ifndef WEVENT_H
+#define WEVENT_H
 
-#include <boost/shared_ptr.hpp>
+#include <osg/Node>
 
-#include <osg/ref_ptr>
-
-
-class WGEGroupNode;
-class WGEViewer;
 
 /**
- * Custom widget which is created by a module to display custom information.
+ * This class marks a special time position in an EEG or MEG recording.
  */
-class WCustomWidget
+class WEvent
 {
 public:
     /**
-     * Destructor
+     * Constructor
+     *
+     * \param time sets the time position
      */
-    virtual ~WCustomWidget();
+    explicit WEvent( double time );
 
     /**
-     * Get the scene which is displayed
+     * Set the time position
      *
-     * \return the scene as osg::ref_ptr
+     * \param time time position
      */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
+    void setTime( double time );
 
     /**
-     * Get the viewer which is used
+     * Get the time position
      *
-     * \return the viewer as boost::shard_ptr
+     * \return time position
      */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
+    double getTime() const;
+
+    /**
+     * Set the OSG-Node representing the event
+     *
+     * \param node OSG-Node as ref_ptr
+     */
+    void setNode( osg::ref_ptr< osg::Node > node );
+
+    /**
+     * Get the OSG-Node representing the event
+     *
+     * \return OSG-Node as ref_ptr
+     */
+    osg::ref_ptr< osg::Node > getNode() const;
 
 protected:
 private:
+    /**
+     * time position
+     */
+    double m_time;
+
+    /**
+     * OSG-Node representing the event
+     */
+    osg::ref_ptr< osg::Node > m_node;
 };
 
-#endif  // WCUSTOMWIDGET_H
+#endif  // WEVENT_H

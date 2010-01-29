@@ -32,7 +32,9 @@ WMEEGView::WMEEGView()
     : WModule(),
       m_dataChanged( new WCondition, true ),
       m_isActive( new WCondition, true ),
-      m_wasActive( false )
+      m_wasActive( false ),
+      m_event( -1.0 ),
+      m_eventPositionFlag( NULL )
 {
 }
 
@@ -124,6 +126,17 @@ void WMEEGView::moduleMain()
             redraw();
         }
 
+        // new event position marked?
+        if( m_eventPositionFlag )
+        {
+            double eventPosition = m_eventPositionFlag->get();
+            if( eventPosition != m_event.getTime() )
+            {
+                debugLog() << "New event position: " << eventPosition;
+                updateEvent( &m_event, eventPosition );
+            }
+        }
+
         // "active" property changed?
         bool isActive = m_isActive();
         if( isActive != m_wasActive )
@@ -156,14 +169,18 @@ void WMEEGView::moduleMain()
 
 bool WMEEGView::openCustomWidget()
 {
+    debugLog() << "Try to open EEG View widget...";
     m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget(
         getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
     bool success = m_widget.get();
     if( success )
     {
         debugLog() << "Succesfully opened EEG View widget.";
+        m_eventPositionFlag = m_widget->getViewer()->getMarkHandler()->getPositionFlag();
+        m_moduleState.add( m_eventPositionFlag->getCondition() );
         if( m_rootNode.valid() )
         {
+            debugLog() << "Adding rootNode to scene after opened EEG View widget";
             m_widget->getScene()->insert( m_rootNode );
         }
     }
@@ -180,6 +197,8 @@ void WMEEGView::closeCustomWidget()
     {
         m_widget->getScene()->remove( m_rootNode );
     }
+    m_moduleState.remove( m_eventPositionFlag->getCondition() );
+    m_eventPositionFlag = NULL;
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
 
@@ -196,11 +215,11 @@ void WMEEGView::redraw()
         const double textSize = 32.0;
         const osg::Vec4 textColor( 0.0, 0.0, 0.0, 1.0 );
         const osg::Vec4 linesColor( 0.0, 0.0, 0.0, 1.0 );
-        const osg::Matrix scaleMatrix = osg::Matrix::scale( 1.0, 0.01, 1.0 );
-        const double xOffset = 64.0;
+        const osg::Matrix scaleMatrix = osg::Matrix::scale( 1.0, 4.0, 1.0 );
+        const double xOffset = 0.0;
         const unsigned int spacing = 16;
 
-        m_rootNode = new osg::Group;
+        m_rootNode = new WGEGroupNode;
         osg::StateSet* stateset = m_rootNode->getOrCreateStateSet();
         stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
@@ -268,8 +287,14 @@ void WMEEGView::redraw()
             }
         }
 
+        if( m_event.getNode().valid() )
+        {
+            m_rootNode->addChild( m_event.getNode() );
+        }
+
         if( m_wasActive )
         {
+            debugLog() << "Adding rootNode to scene after redraw";
             m_widget->getScene()->insert( m_rootNode );
         }
     }
@@ -277,4 +302,40 @@ void WMEEGView::redraw()
     {
         m_rootNode = NULL;
     }
+}
+
+void WMEEGView::updateEvent( WEvent* event, double time )
+{
+    const osg::Vec4 color( 0.75, 0.0, 0.0, 1.0 );
+    const unsigned int spacing = 16;
+
+    // create geode to draw the event as line
+    osg::Geometry* geometry = new osg::Geometry;
+
+    osg::Vec3Array* vertices = new osg::Vec3Array( 2 );
+    (*vertices)[0] = osg::Vec3( time, 0.0, 0.0 );
+    (*vertices)[1] = osg::Vec3( time, 2 * spacing * m_eeg->getNumberOfChannels(), 0.0 );
+    geometry->setVertexArray( vertices );
+
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back( color );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
+
+    osg::Geode* geode = new osg::Geode;
+    geode->addDrawable( geometry );
+
+    if( m_rootNode.valid() )
+    {
+        if( event->getNode().valid() )
+        {
+            m_rootNode->remove( event->getNode() );
+        }
+        m_rootNode->insert( geode );
+    }
+
+    event->setTime( time );
+    event->setNode( geode );
 }
