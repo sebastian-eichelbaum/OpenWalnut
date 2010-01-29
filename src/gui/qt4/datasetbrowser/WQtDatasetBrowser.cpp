@@ -253,7 +253,7 @@ void WQtDatasetBrowser::selectTreeItem()
         module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
     }
 
-    // every module may have compatibles: create ribbon menu entry
+    // every module may have compatibles: create toolBar entry
     std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
     for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
