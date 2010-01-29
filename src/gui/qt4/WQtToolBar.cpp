@@ -25,8 +25,8 @@
 #include "WQtToolBar.h"
 
 
-WQtToolBar::WQtToolBar( QWidget* parent )
-    : QToolBar( parent )
+WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
+    : QToolBar( title, parent )
 {
     this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
 

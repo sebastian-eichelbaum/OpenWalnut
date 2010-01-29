@@ -30,16 +30,17 @@
 #include "guiElements/WQtPushButton.h"
 
 /**
- * TODO(wiebel): Document this!
+ * This is a toolbar. Its main usage for now is the "compatible modules" toolbar
  */
 class WQtToolBar : public QToolBar
 {
 public:
     /**
      * Constructs the toolbar.
+     * \param title name of the toolbar.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    explicit WQtToolBar( QWidget* parent );
+    explicit WQtToolBar( const QString & title, QWidget* parent );
 
     /**
      * destructor
