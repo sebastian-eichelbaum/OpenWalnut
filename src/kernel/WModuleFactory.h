@@ -120,6 +120,15 @@ public:
      * \return set of compatible prototypes.
      */
     std::set< boost::shared_ptr< WModule > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
+
+    /**
+     * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is
+     * properly initialized and ready to be used.
+     *
+     * \param module the module to initialize.
+     */
+    static void initializeModule( boost::shared_ptr< WModule > module );
+
 protected:
 
     /**

@@ -131,7 +131,8 @@ public:
     const std::string getName() const;
 
     /**
-     * Gives canonical name of connection. The canonical name is a descriptor including module name.
+     * Gives canonical name of connection. The canonical name is a descriptor including module name. The description is
+     * ModuleName:ConnectorName.
      *
      * \return The name of this connection
      */

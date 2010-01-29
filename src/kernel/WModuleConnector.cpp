@@ -33,6 +33,7 @@
 #include <boost/signals2/connection.hpp>
 
 #include "WModule.h"
+#include "WModuleContainer.h"
 #include "exceptions/WModuleConnectionFailed.h"
 #include "exceptions/WModuleConnectionInvalid.h"
 #include "exceptions/WModuleDisconnectFailed.h"
@@ -91,6 +92,10 @@ bool WModuleConnector::isConnectedTo( boost::shared_ptr<WModuleConnector> con )
 
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
+    WLogger::getLogger()->addLogMessage( "Connecting " + con->getCanonicalName() + " with " + getCanonicalName()
+            , "ModuleContainer (" + m_module->getAssociatedContainer()->getName() + ")", LL_INFO );
+
+
     // are both partners compatible to each other?
     if ( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
     {

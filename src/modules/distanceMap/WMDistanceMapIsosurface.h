@@ -22,50 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDISTANCEMAP_H
-#define WMDISTANCEMAP_H
+#ifndef WMDISTANCEMAPISOSURFACE_H
+#define WMDISTANCEMAPISOSURFACE_H
 
 #include <string>
 
 #include "../../kernel/WModule.h"
+#include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSetSingle.h"
-
 /**
- * Computes a distance map from an anatomy dataset.
+ * Computes a distance map from an anatomy dataset and renders it as isosurface. It is a composition of marching cubes and the
+ * distance map module.
  * \ingroup modules
  */
-class WMDistanceMap : public WModule
+class WMDistanceMapIsosurface : public WModuleContainer
 {
 /**
  * Only UnitTests may be friends.
  */
-friend class WMDistanceMapTest;
+friend class WMDistanceMapIsosurfaceTest;
 
 public:
     /**
      * Standard constructor.
      */
-    WMDistanceMap();
+    WMDistanceMapIsosurface();
 
     /**
      * Destructor.
      */
-    ~WMDistanceMap();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description of module.
-     */
-    virtual const std::string getDescription() const;
+    ~WMDistanceMapIsosurface();
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -93,12 +81,17 @@ protected:
 
 private:
 
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    /**
+     * The description of the module. This is used for the container.
+     */
+    std::string m_name;
 
     /**
-     * Source dataset.
+     * The description of the module. This is used for the container.
      */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
+    std::string m_description;
+
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
     /**
      * Connector to provide the distance map to other modules.
@@ -106,24 +99,14 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
 
     /**
-     * Target dataset.
+     * The marching cubes module used in this container.
      */
-    boost::shared_ptr< WDataSetSingle > m_distanceMapDataSet;
+    boost::shared_ptr< WModule > m_marchingCubesModule;
 
     /**
-     * Function to create a distance map from Anatomy data set.
-     * Take from FiberNavigator.
-     * \param dataSet the data set that is used to compute the distance field.
-     * The distance is computed to the boundary between foreground an background
+     * The distance map module used in this container.
      */
-    boost::shared_ptr< WValueSet< float > > createOffset( boost::shared_ptr< const WDataSetSingle > dataSet );
-
-    /**
-     * Gauss function.
-     * \param x position of evaluation
-     * \param sigma standard deviation
-     */
-    double xxgauss( double x, double sigma );
+    boost::shared_ptr< WModule > m_distanceMapModule;
 };
 
-#endif  // WMDISTANCEMAP_H
+#endif  // WMDISTANCEMAPISOSURFACE_H

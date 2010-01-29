@@ -89,11 +89,31 @@ public:
     const std::set< boost::shared_ptr< WModuleInputConnector > >& getInputConnectors() const;
 
     /**
+     * Finds the named connector for the module.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector.
+     * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
+     */
+    boost::shared_ptr< WModuleInputConnector > getInputConnector( std::string name ) const;
+
+    /**
      * Gives back output connectors.
      *
      * \return the output connectors.
      */
     const std::set< boost::shared_ptr< WModuleOutputConnector > >& getOutputConnectors() const;
+
+    /**
+     * Finds the named connector for the module.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector.
+     * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
+     */
+    boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name ) const;
 
     /**
      * Return a pointer to the properties object of the module

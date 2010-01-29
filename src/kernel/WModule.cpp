@@ -40,6 +40,7 @@
 #include "exceptions/WModuleSignalUnknown.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
+#include "exceptions/WModuleConnectorNotFound.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "../common/WException.h"
 #include "../common/WLogger.h"
@@ -169,6 +170,38 @@ const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputCo
 const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutputConnectors() const
 {
     return m_outputConnectors;
+}
+
+boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name ) const
+{
+    // simply search
+    for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
+         listIter != m_inputConnectors.end(); ++listIter )
+    {
+        // try the canonical name
+        if ( ( name == ( *listIter )->getCanonicalName() ) || ( name == ( *listIter )->getName() ) )
+        {
+            return ( *listIter );
+        }
+    }
+
+    throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+}
+
+boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name ) const
+{
+    // simply search
+    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::iterator listIter = m_outputConnectors.begin();
+         listIter != m_outputConnectors.end(); ++listIter )
+    {
+        // try the canonical name
+        if ( ( name == ( *listIter )->getCanonicalName() ) || ( name == ( *listIter )->getName() ) )
+        {
+            return ( *listIter );
+        }
+    }
+
+    throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
 }
 
 boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier )

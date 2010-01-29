@@ -45,7 +45,7 @@ class WModule;
  *
  * \ingroup Kernel
  */
-class WModuleContainer: public boost::enable_shared_from_this< WModuleContainer >
+class WModuleContainer: public WModule
 {
 public:
 
@@ -55,7 +55,8 @@ public:
      * \param name  name of the container
      * \param description short description.
      */
-    WModuleContainer( std::string name, std::string description );
+    WModuleContainer( std::string name = "Unnamed Module Container",
+                      std::string description = "Used as container for several modules." );
 
     /**
      * Destructor.
@@ -167,7 +168,21 @@ public:
      */
     void finishedPendingThread( boost::shared_ptr< WThreadedRunner > thread );
 
+    /**
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
+     *
+     * \return the prototype used to create every module in OpenWalnut.
+     */
+    virtual boost::shared_ptr< WModule > factory() const;
+
 protected:
+
+    /**
+     * Entry point after loading the module. Runs in separate thread. The module container does not use this method. It simply
+     * returns.
+     */
+    virtual void moduleMain();
 
     /**
      * Lock for module set.
