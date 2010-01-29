@@ -110,9 +110,6 @@ ADD_SUBDIRECTORY( modules )
 ADD_EXECUTABLE( walnut-bin OpenWalnut.cpp )
 TARGET_LINK_LIBRARIES( walnut-bin kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
 
-ADD_EXECUTABLE( numCores ../tools/numCores/WNumCores.cpp )
-TARGET_LINK_LIBRARIES( numCores ${Boost_LIBRARIES} )
-
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
 if( OW_COPY_SHADERS )
