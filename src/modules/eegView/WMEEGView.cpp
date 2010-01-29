@@ -287,9 +287,14 @@ void WMEEGView::redraw()
             }
         }
 
-        if( m_event.getNode().valid() )
+        if( m_event.getNode().valid() && 0.0 < m_event.getTime() && m_event.getTime() <= m_eeg->getNumberOfSamples( 0 ) - 1 )
         {
             m_rootNode->addChild( m_event.getNode() );
+        }
+        else
+        {
+            m_event.setTime( -1.0 );
+            m_event.setNode( NULL );
         }
 
         if( m_wasActive )
@@ -301,41 +306,46 @@ void WMEEGView::redraw()
     else
     {
         m_rootNode = NULL;
+        m_event.setTime( -1.0 );
+        m_event.setNode( NULL );
     }
 }
 
 void WMEEGView::updateEvent( WEvent* event, double time )
 {
-    const osg::Vec4 color( 0.75, 0.0, 0.0, 1.0 );
-    const unsigned int spacing = 16;
-
-    // create geode to draw the event as line
-    osg::Geometry* geometry = new osg::Geometry;
-
-    osg::Vec3Array* vertices = new osg::Vec3Array( 2 );
-    (*vertices)[0] = osg::Vec3( time, 0.0, 0.0 );
-    (*vertices)[1] = osg::Vec3( time, 2 * spacing * m_eeg->getNumberOfChannels(), 0.0 );
-    geometry->setVertexArray( vertices );
-
-    osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back( color );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
-
-    osg::Geode* geode = new osg::Geode;
-    geode->addDrawable( geometry );
-
-    if( m_rootNode.valid() )
+    if( m_eeg.get() && 0.0 <= time && time <= m_eeg->getNumberOfSamples( 0 ) - 1 )
     {
-        if( event->getNode().valid() )
-        {
-            m_rootNode->remove( event->getNode() );
-        }
-        m_rootNode->insert( geode );
-    }
+        const osg::Vec4 color( 0.75, 0.0, 0.0, 1.0 );
+        const unsigned int spacing = 16;
 
-    event->setTime( time );
-    event->setNode( geode );
+        // create geode to draw the event as line
+        osg::Geometry* geometry = new osg::Geometry;
+
+        osg::Vec3Array* vertices = new osg::Vec3Array( 2 );
+        (*vertices)[0] = osg::Vec3( time, 0.0, 0.0 );
+        (*vertices)[1] = osg::Vec3( time, 2 * spacing * m_eeg->getNumberOfChannels(), 0.0 );
+        geometry->setVertexArray( vertices );
+
+        osg::Vec4Array* colors = new osg::Vec4Array;
+        colors->push_back( color );
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
+
+        osg::Geode* geode = new osg::Geode;
+        geode->addDrawable( geometry );
+
+        if( m_rootNode.valid() )
+        {
+            if( event->getNode().valid() )
+            {
+                m_rootNode->remove( event->getNode() );
+            }
+            m_rootNode->insert( geode );
+        }
+
+        event->setTime( time );
+        event->setNode( geode );
+    }
 }
