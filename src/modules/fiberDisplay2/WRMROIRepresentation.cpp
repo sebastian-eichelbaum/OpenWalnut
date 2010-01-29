@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <list>
+#include <string>
 #include <vector>
 
 #include "WRMBranch.h"

@@ -80,7 +80,6 @@ private:
      * \param text text info from pick
      */
     virtual void updateGFX( std::string text ) = 0;
-
 };
 
 #endif  // WROI_H

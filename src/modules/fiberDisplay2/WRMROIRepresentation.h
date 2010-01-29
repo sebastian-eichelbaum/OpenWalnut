@@ -26,6 +26,7 @@
 #define WRMROIREPRESENTATION_H
 
 #include <list>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>

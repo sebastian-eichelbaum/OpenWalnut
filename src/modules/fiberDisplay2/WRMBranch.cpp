@@ -68,7 +68,7 @@ void WRMBranch::addBitField( size_t size )
     m_bitFields.push_back( bf );
     for( std::list< boost::shared_ptr< WRMROIRepresentation> >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
-        (*iter)->addBitField( size );
+        ( *iter )->addBitField( size );
     }
     setDirty();
 }

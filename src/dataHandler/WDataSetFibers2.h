@@ -156,7 +156,6 @@ private:
      * Reverse lookup table for which point belongs to which fiber
      */
     boost::shared_ptr< std::vector< unsigned int > > m_verticesReverse;
-
 };
 
 #endif  // WDATASETFIBERS2_H

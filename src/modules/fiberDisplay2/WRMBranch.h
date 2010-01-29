@@ -26,6 +26,7 @@
 #define WRMBRANCH_H
 
 #include <list>
+#include <string>
 #include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
@@ -43,7 +44,7 @@ public:
     /**
      * TODO(schurade): Document this!
      */
-    WRMBranch( boost::shared_ptr< WROIManagerFibers > roiManager );
+    explicit WRMBranch( boost::shared_ptr< WROIManagerFibers > roiManager );
 
     /**
      * TODO(schurade): Document this!

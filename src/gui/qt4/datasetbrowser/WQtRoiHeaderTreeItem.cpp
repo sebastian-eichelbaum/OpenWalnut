@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WQtRoiTreeItem.h"
 
 #include "WQtRoiHeaderTreeItem.h"

@@ -23,19 +23,19 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <vector>
 
 #include "../../common/WLogger.h"
 
 #include "WKdTree.h"
 
 WKdTree::WKdTree( int size, float *pointArray, bool ) :
-    m_size( size ),
-    m_pointArray( pointArray )
+    m_size( size ), m_pointArray( pointArray )
 {
     m_tree.clear();
     m_tree.resize( size );
 
-    wlog::debug( "KdTree" ) << " Start building KdTree" ;
+    wlog::debug( "KdTree" ) << " Start building KdTree";
 
     for ( int i = 0; i < size; ++i )
         m_tree[i] = i;
@@ -54,34 +54,33 @@ WKdTree::WKdTree( int size, float *pointArray, bool ) :
     WKdTreeThread *thread3 = new WKdTreeThread( m_pointArray, &m_tree, root + 1, rootRight - 1, 2 );
     WKdTreeThread *thread4 = new WKdTreeThread( m_pointArray, &m_tree, rootRight + 1, size - 1, 2 );
 
-    wlog::debug( "KdTree" ) << "Start threads" ;
+    wlog::debug( "KdTree" ) << "Start threads";
 
     thread1->run();
     thread2->run();
     thread3->run();
     thread4->run();
 
-    wlog::debug( "KdTree" ) << "All threads started" ;
+    wlog::debug( "KdTree" ) << "All threads started";
 
     thread1->wait();
     thread2->wait();
     thread3->wait();
     thread4->wait();
 
-    wlog::debug( "KdTree" ) << "All threads finished" ;
+    wlog::debug( "KdTree" ) << "All threads finished";
 }
 
 WKdTree::WKdTree( int size, float *pointArray ) :
-    m_size( size ),
-    m_pointArray( pointArray )
+    m_size( size ), m_pointArray( pointArray )
 {
-    wlog::debug( "KdTree" ) << " Start building KdTree" ;
+    wlog::debug( "KdTree" ) << " Start building KdTree";
     m_tree.clear();
     m_tree.resize( size );
     for ( int i = 0; i < size; ++i )
         m_tree[i] = i;
     buildTree( 0, size - 1, 0 );
-    wlog::debug( "KdTree" ) << " Finished building KdTree" ;
+    wlog::debug( "KdTree" ) << " Finished building KdTree";
 }
 
 WKdTree::~WKdTree()
@@ -101,19 +100,14 @@ void WKdTree::buildTree( int left, int right, int axis )
 }
 
 WKdTreeThread::WKdTreeThread( float *pointArray, std::vector< unsigned int >* tree, int left, int right, int axis ) :
-    WThreadedRunner(),
-    m_tree( tree ),
-    m_pointArray( pointArray ),
-    m_left( left ),
-    m_right( right ),
-    m_axis( axis )
+    WThreadedRunner(), m_tree( tree ), m_pointArray( pointArray ), m_left( left ), m_right( right ), m_axis( axis )
 {
 }
 
 void WKdTreeThread::threadMain()
 {
     buildTree( m_left, m_right, m_axis );
-    wlog::debug( "KdTree" ) << "thread finished" ;
+    wlog::debug( "KdTree" ) << "thread finished";
 }
 
 void WKdTreeThread::buildTree( int left, int right, int axis )

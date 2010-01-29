@@ -26,6 +26,7 @@
 #define WKDTREE_H
 
 #include <algorithm>
+#include <vector>
 
 #include "../../common/WThreadedRunner.h"
 
@@ -38,13 +39,13 @@ struct lessy
     {
     }
 
-    bool operator()( const unsigned int& a, const unsigned int& b ) const
+    bool operator()( const unsigned int& a, const unsigned int& b ) const //NOLINT
     {
         return data[3* a + pos] < data[3* b + pos];
     }
 };
 
-class WKdTreeThread : public WThreadedRunner
+class WKdTreeThread: public WThreadedRunner
 {
 public:
     WKdTreeThread( float*, std::vector< unsigned int >*, int, int, int );
@@ -60,24 +61,23 @@ public:
     int m_axis;
 };
 
-
 /**
  * TODO(schurade): Document this!
  */
 class WKdTree
 {
 public:
-        WKdTree(int size, float* pointArray, bool );
-        WKdTree(int size, float* pointArray );
-        ~WKdTree();
+    WKdTree( int size, float* pointArray, bool );
+    WKdTree( int size, float* pointArray );
+    ~WKdTree();
 
-        std::vector<unsigned int>m_tree;
+    std::vector< unsigned int > m_tree;
 
 private:
-        void buildTree(int, int, int);
-        int m_size;
-        unsigned int m_root;
-        float *m_pointArray;
+    void buildTree( int, int, int );
+    int m_size;
+    unsigned int m_root;
+    float *m_pointArray;
 };
 
 #endif  // WKDTREE_H

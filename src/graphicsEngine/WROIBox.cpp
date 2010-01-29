@@ -90,7 +90,6 @@ void buildLinesFromPoints( osg::DrawElementsUInt* surfaceElements )
     surfaceElements->push_back( 7 );
     surfaceElements->push_back( 3 );
 
-
     surfaceElements->push_back( 4 );
     surfaceElements->push_back( 0 );
     surfaceElements->push_back( 1 );
@@ -110,8 +109,7 @@ void setVertices( osg::Vec3Array* vertices, wmath::WPosition minPos, wmath::WPos
 }
 
 WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
-    WROI(),
-    boxId( maxBoxId++ )
+    WROI(), boxId( maxBoxId++ )
 {
     m_minPos = minPos;
     m_maxPos = maxPos;
@@ -128,7 +126,7 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_geode = new osg::Geode;
 
     std::stringstream ss;
-    ss <<  "ROIBox" << boxId;
+    ss << "ROIBox" << boxId;
 
     m_geode->setName( ss.str() );
 
@@ -162,17 +160,16 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+    osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-    state->setMode( GL_BLEND, osg::StateAttribute::ON  );
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     m_isModified = true;
     m_isNot = false;
 
     assert( WGraphicsEngine::getGraphicsEngine() );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( m_geode );
-
 }
 
 wmath::WPosition WROIBox::getMinPos() const
@@ -192,32 +189,30 @@ bool WROIBox::isModified()
     return tmp;
 }
 
-
 void WROIBox::updateGFX( std::string text )
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+    boost::shared_lock< boost::shared_mutex > slock;
+    slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
 
     std::stringstream ss;
-    ss <<  "\"ROIBox" << boxId << "\"";
-    if( text.find( "Object ") != std::string::npos
-        && text.find( ss.str() ) != std::string::npos )
+    ss << "\"ROIBox" << boxId << "\"";
+    if ( text.find( "Object " ) != std::string::npos && text.find( ss.str() ) != std::string::npos )
     {
         wmath::WPosition newPos( m_pickHandler->getHitPosition() );
-        if( m_isPicked )
+        if ( m_isPicked )
         {
             wmath::WVector3D moveVec = m_pickedPosition - newPos;
             osg::Vec3Array* vertices = new osg::Vec3Array;
             m_minPos -= moveVec;
             m_maxPos -= moveVec;
             setVertices( vertices, m_minPos, m_maxPos );
-            ((osg::Geometry*)(m_geode->getDrawable( 0 )))->setVertexArray( vertices );
+            ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setVertexArray( vertices );
         }
         else
         {
             osg::Vec4Array* colors = new osg::Vec4Array;
             colors->push_back( osg::Vec4( 1.f, .0f, .0f, 0.5f ) );
-            ((osg::Geometry*)(m_geode->getDrawable( 0 )))->setColorArray( colors );
+            ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setColorArray( colors );
         }
         m_pickedPosition = newPos;
         m_isModified = true;
@@ -225,13 +220,12 @@ void WROIBox::updateGFX( std::string text )
 
         m_signalIsModified();
     }
-    if( m_isPicked && text.find( "unpick" ) != std::string::npos )
+    if ( m_isPicked && text.find( "unpick" ) != std::string::npos )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
         colors->push_back( osg::Vec4( 0.f, 0.f, 1.f, 0.5f ) );
-        ((osg::Geometry*)(m_geode->getDrawable( 0 )))->setColorArray( colors );
+        ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setColorArray( colors );
         m_isPicked = false;
     }
     slock.unlock();
-
 }

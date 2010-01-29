@@ -74,7 +74,8 @@ boost::shared_ptr< WDataSet > WLoaderFibers2::load()
         // could be thousands of them
         wlog::error( "DataHandler" ) << "Abort loading Fib-VTK file due to: " << e.what();
     }
-    shared_ptr< WDataSetFibers2 > fibers = shared_ptr< WDataSetFibers2 >( new WDataSetFibers2( m_vertices, m_lineStartIndexes, m_lineLengths, m_verticesReverse ) );
+    shared_ptr< WDataSetFibers2 > fibers = shared_ptr< WDataSetFibers2 >(
+            new WDataSetFibers2( m_vertices, m_lineStartIndexes, m_lineLengths, m_verticesReverse ) );
     fibers->setFileName( m_fileName );
 
     assert( !m_ifs->is_open() );
@@ -152,7 +153,7 @@ void WLoaderFibers2::readPoints()
     }
     m_vertices = boost::shared_ptr< std::vector< float > >( new std::vector< float > );
     m_vertices->resize( numPoints * 3 );
-    m_verticesReverse = boost::shared_ptr< std::vector< unsigned int > >( new std::vector< unsigned int > ) ;
+    m_verticesReverse = boost::shared_ptr< std::vector< unsigned int > >( new std::vector< unsigned int > );
     m_verticesReverse->reserve( numPoints );
 
     float *pointData = new float[ 3 * numPoints ];
@@ -208,8 +209,8 @@ void WLoaderFibers2::readLines()
 
     wiotools::switchByteOrderOfArray( lineData, linesSize );
 
-    m_lineStartIndexes = boost::shared_ptr< std::vector< unsigned int > >( new std::vector< unsigned int > ) ;
-    m_lineLengths = boost::shared_ptr< std::vector< unsigned int > >( new std::vector< unsigned int > ) ;
+    m_lineStartIndexes = boost::shared_ptr< std::vector< unsigned int > >( new std::vector< unsigned int > );
+    m_lineLengths = boost::shared_ptr< std::vector< unsigned int > >( new std::vector< unsigned int > );
     m_lineStartIndexes->reserve( numLines );
     m_lineLengths->reserve( numLines );
 

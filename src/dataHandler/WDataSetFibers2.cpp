@@ -57,7 +57,6 @@ WDataSetFibers2::WDataSetFibers2( boost::shared_ptr< std::vector< float > >verti
         ++i;
         //m_pointArray[i] = m_dh->frames - m_pointArray[i];
     }
-
 }
 
 void WDataSetFibers2::sortDescLength()

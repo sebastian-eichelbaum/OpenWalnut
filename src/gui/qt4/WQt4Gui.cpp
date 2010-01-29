@@ -140,7 +140,7 @@ int WQt4Gui::run()
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ASSOCIATED, assocSignal );
     t_ModuleGenericSignalHandlerType readySignal = boost::bind( &WQt4Gui::slotActivateDatasetOrModuleInBrowser, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_READY, readySignal );
-    boost::function< void ( boost::shared_ptr< WRMROIRepresentation > ) > assocRoiSignal = boost::bind( &WQt4Gui::slotAddRoiToBrowser, this, _1 );
+    boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > assocRoiSignal = boost::bind( &WQt4Gui::slotAddRoiToBrowser, this, _1 );
     m_kernel->getRoiManager()->addDefaultNotifier( assocRoiSignal );
 
     // now we are initialized
