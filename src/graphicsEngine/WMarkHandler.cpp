@@ -46,7 +46,7 @@ bool WMarkHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
     {
         case osgGA::GUIEventAdapter::PUSH:
         case osgGA::GUIEventAdapter::DRAG:
-            if( ea.getButtonMask() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
+            if( ea.getButtonMask() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON )
             {
                 handled = calculateNewPosition( ea, aa );
             }
