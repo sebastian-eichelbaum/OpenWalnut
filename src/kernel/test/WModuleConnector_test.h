@@ -41,6 +41,7 @@
 #include "../../common/WSegmentationFault.h"
 #include "../../common/WTransferable.h"
 #include "../../common/WPrototyped.h"
+#include "../../common/WLogger.h"
 #include "../exceptions/WModuleConnectorInitFailed.h"
 #include "../exceptions/WModuleConnectionFailed.h"
 #include "../exceptions/WModuleConnectorsIncompatible.h"
@@ -345,6 +346,15 @@ private:
     boost::shared_ptr< WModuleOutputData< WTestTransferableDerived > > m_outputDerived;
 };
 
+/**
+ * The logger instance used by some tests
+ */
+static WLogger logger;
+
+/**
+ * True if the logger has been initialized in the past.
+ */
+static bool loggerInitialized = false;
 
 /**
  * Tests the WModuleConnector class. We use WModuleConnector's direct derived classes WModuleInputConnector and
@@ -354,6 +364,23 @@ private:
 class WModuleConnectorTest : public CxxTest::TestSuite
 {
 public:
+
+    /**
+     * Setup method called before every test case. This initialized the logger if needed.
+     */
+    void setUp()
+    {
+        if ( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.setColored( false );
+
+            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
+            // debug mode, the messages will be printed directly, without the logger thread.
+            //logger.run();
+            loggerInitialized = true;
+        }
+    }
 
     /**
      * Simple module to test with.

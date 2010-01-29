@@ -92,9 +92,10 @@ bool WModuleConnector::isConnectedTo( boost::shared_ptr<WModuleConnector> con )
 
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
+    boost::shared_ptr< WModuleContainer > container = m_module->getAssociatedContainer();
+    std::string containerName = container.get() ? container->getName() : "Unknown";
     WLogger::getLogger()->addLogMessage( "Connecting " + con->getCanonicalName() + " with " + getCanonicalName()
-            , "ModuleContainer (" + m_module->getAssociatedContainer()->getName() + ")", LL_INFO );
-
+            , "ModuleContainer (" + containerName + ")", LL_INFO );
 
     // are both partners compatible to each other?
     if ( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
