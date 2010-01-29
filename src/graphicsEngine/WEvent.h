@@ -22,41 +22,64 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WROI_H
-#define WROI_H
+#ifndef WEVENT_H
+#define WEVENT_H
 
-#include <string>
+#include <osg/Node>
 
-#include <osg/Geode>
-
-#include "../common/WColor.h"
-
-class WPickHandler;
 
 /**
- * Superclass for different ROI (region of interest) types.
+ * This class marks a special time position in an EEG or MEG recording.
  */
-class WROI
+class WEvent
 {
 public:
     /**
-     * Need virtual destructor because of virtual function.
+     * Constructor
+     *
+     * \param time sets the time position
      */
-    virtual ~WROI();
-protected:
-    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
-    osg::Geode* m_geode; //!< The graphical representation of the ROI.
-
-private:
-    bool m_isNot; //!< Indivated whether the region of interest is inside the WROI (false) oroutside (true).
-    bool m_isModified; //!< Indicates whether a changed ROI has already taken effect. Means: if true, still some updates needed.
-    WColor m_color; //!< The selected onject (Fibers, region on surface, ...) will have this color if m_useColor.
-    bool m_useColor; //!< Indicated whether m_color should be used for display.
+    explicit WEvent( double time );
 
     /**
-     * updates the graphics. Remember that this shoudl only be called from a node callback
+     * Set the time position
+     *
+     * \param time time position
      */
-    virtual void updateGFX() = 0;
+    void setTime( double time );
+
+    /**
+     * Get the time position
+     *
+     * \return time position
+     */
+    double getTime() const;
+
+    /**
+     * Set the OSG-Node representing the event
+     *
+     * \param node OSG-Node as ref_ptr
+     */
+    void setNode( osg::ref_ptr< osg::Node > node );
+
+    /**
+     * Get the OSG-Node representing the event
+     *
+     * \return OSG-Node as ref_ptr
+     */
+    osg::ref_ptr< osg::Node > getNode() const;
+
+protected:
+private:
+    /**
+     * time position
+     */
+    double m_time;
+
+    /**
+     * OSG-Node representing the event
+     */
+    osg::ref_ptr< osg::Node > m_node;
 };
 
-#endif  // WROI_H
+#endif  // WEVENT_H

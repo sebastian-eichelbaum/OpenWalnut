@@ -60,15 +60,18 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, i
         m_View->setCamera( new WGECamera( width, height, projectionMode ) );
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
 
-        // camera manipulator
         switch( projectionMode )
         {
             case( WGECamera::ORTHOGRAPHIC ):
             case( WGECamera::PERSPECTIVE ):
+                // camera manipulator
                 m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
                 break;
             case( WGECamera::TWO_D ):
                 m_View->setCameraManipulator( new WGE2DManipulator() );
+
+                m_markHandler = new WMarkHandler();
+                m_View->addEventHandler( m_markHandler );
                 break;
             default:
                 throw WGEInitFailed( "Unknown projection mode" );
@@ -163,6 +166,11 @@ std::string WGEViewer::getName() const
 osg::ref_ptr< WPickHandler > WGEViewer::getPickHandler()
 {
     return m_pickHandler;
+}
+
+osg::ref_ptr< WMarkHandler > WGEViewer::getMarkHandler() const
+{
+    return m_markHandler;
 }
 
 void WGEViewer::reset()

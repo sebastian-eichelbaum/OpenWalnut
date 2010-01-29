@@ -57,6 +57,13 @@ public:
     virtual osg::ref_ptr< WGEGroupNode > getScene() const;
 
     /**
+     * Get the viewer which is used by the GL widget
+     *
+     * \return the viewer as boost::shard_ptr
+     */
+    virtual boost::shared_ptr< WGEViewer > getViewer() const;
+
+    /**
      * Notify the widget that another module needs it.
      */
     void increaseUseCount();
