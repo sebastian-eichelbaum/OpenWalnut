@@ -29,6 +29,7 @@
 
 #include <osg/Geode>
 
+#include "../../common/WFlag.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
@@ -114,10 +115,7 @@ protected:
      */
     void update();
 
-    /**
-     * If the fibers have to be drawn in global coloring mode this is true, otherwise false.
-     */
-    bool m_globalColoring;
+    WBoolFlag m_globalColoring; //!< If True the fibers have to be drawn in global coloring mode, otherwise false.
 
 private:
     /**
