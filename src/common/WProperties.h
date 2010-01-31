@@ -296,7 +296,19 @@ public:
      */
     bool existsProp( std::string name );
 
-private:
+    /**
+     * If there are WProperty objects which are marked as dirty, then their
+     * signals are reemitted.
+     */
+    void reemitChangedValueSignals();
+
+    /**
+     * Indicates if at least one WProperty is dirty or all are clean.
+     *
+     * \return True if at least one property is dirty, false otherwise
+     */
+    bool isDirty() const;
+
     /**
      * helper function that finds a property by its name
      *
@@ -305,6 +317,7 @@ private:
      */
     WProperty* findProp( std::string name );
 
+private:
     /**
      * map of properties for easy access with name string
      */

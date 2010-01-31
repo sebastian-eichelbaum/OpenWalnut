@@ -44,6 +44,7 @@
 
 #include "WGEGraphicsWindow.h"
 #include "WGECamera.h"
+#include "WMarkHandler.h"
 #include "WPickHandler.h"
 
 
@@ -164,6 +165,13 @@ public:
      */
     osg::ref_ptr< WPickHandler > getPickHandler();
 
+    /**
+     * Getter for the mark handler
+     *
+     * \return the mark handler
+     */
+    osg::ref_ptr< WMarkHandler > getMarkHandler() const;
+
 protected:
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
@@ -179,6 +187,11 @@ protected:
      * Pointer to the pick handler of the viewer.
      */
     osg::ref_ptr<WPickHandler> m_pickHandler;
+
+    /**
+     * Pointer to the mark handler of the viewer.
+     */
+    osg::ref_ptr<WMarkHandler> m_markHandler;
 
 private:
 };

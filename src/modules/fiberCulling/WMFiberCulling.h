@@ -29,6 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WFlag.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -83,13 +84,6 @@ public:
     virtual void properties();
 
     /**
-     * ReCulls the scene.
-     *
-     * \problem This might take a while with e.g. 70,000 fibers approx 2h
-     */
-    void update();
-
-    /**
      * Determine what to do if a property was changed.
      * \param propertyName Name of the property.
      */
@@ -100,6 +94,13 @@ protected:
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
+
+    /**
+     * ReCulls the scene.
+     *
+     * \problem This might take a while with e.g. 70,000 fibers approx 2h
+     */
+    void update();
 
     /**
      * Detect and removes fibers that have a short distance in terms of the
@@ -128,15 +129,13 @@ protected:
 
     std::string m_savePath; //!< Path where remaining fibers should be stored
 
-    /**
-     * Input connector for a fiber dataset.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput; //!< Input connector for a fiber dataset.
 
-    /**
-     * Pointer to the fiber data set
-     */
-    boost::shared_ptr< WDataSetFibers > m_dataset;
+    boost::shared_ptr< WDataSetFibers > m_dataset; //!< Pointer to the fiber data set
+
+    WBoolFlag m_run; //!< If and only if it is true then the Culling Algo is executed.
+
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled fibers
 
 private:
 };

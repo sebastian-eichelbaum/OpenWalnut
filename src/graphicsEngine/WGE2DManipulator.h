@@ -93,7 +93,7 @@ public:
     /**
      * Handle events
      *
-     * \param ea event class for storing Keyboard, mouse and window events
+     * \param ea event class for storing keyboard, mouse and window events
      * \param us the action adapter used to request actions of the GUI
      * \return true if handled, false otherwise
      */
@@ -149,7 +149,7 @@ private:
     /**
      * Handles events related to zooming.
      *
-     * \param ea event class for storing Keyboard, mouse and window events
+     * \param ea event class for storing keyboard, mouse and window events
      */
     bool zoom( const osgGA::GUIEventAdapter& ea );
 
