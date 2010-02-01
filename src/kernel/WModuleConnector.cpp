@@ -60,7 +60,6 @@ WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::stri
 
     signal_ConnectionEstablished.connect( getSignalHandler( CONNECTION_ESTABLISHED ) );
     signal_ConnectionClosed.connect( getSignalHandler( CONNECTION_CLOSED ) );
-
 }
 
 WModuleConnector::~WModuleConnector()
