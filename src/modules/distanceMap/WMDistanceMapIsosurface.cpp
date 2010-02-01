@@ -73,6 +73,8 @@ void WMDistanceMapIsosurface::moduleMain()
     // now wait for it to be ready
     m_marchingCubesModule->isReady().wait();
     m_marchingCubesModule->getProperties()->findProp( "Iso Value" )->setValue< float >( 0.5 );
+    m_properties->addProperty( m_marchingCubesModule->getProperties()->findProp( "active" ) );
+    m_properties->addProperty( m_marchingCubesModule->getProperties()->findProp( "Iso Value" ) );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Distance Map
@@ -152,6 +154,10 @@ void WMDistanceMapIsosurface::connectors()
 
 void WMDistanceMapIsosurface::properties()
 {
-//     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+}
+
+void WMDistanceMapIsosurface::slotPropertyChanged( std::string propertyName )
+{
+
 }
 

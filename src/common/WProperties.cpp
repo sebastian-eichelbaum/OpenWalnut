@@ -107,6 +107,12 @@ boost::signals2::signal1< void, std::string >* WProperties::addColor( std::strin
     return prop->getSignalValueChanged();
 }
 
+void WProperties::addProperty( WProperty* prop )
+{
+    m_propertyList[prop->getName()] = prop;
+    m_propertyVector.push_back( prop );
+}
+
 bool WProperties::existsProp( std::string name )
 {
     return ( findProp( name ) != 0 );

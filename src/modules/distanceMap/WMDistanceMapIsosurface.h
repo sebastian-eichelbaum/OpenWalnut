@@ -63,6 +63,12 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Determine what to do if a property was changed.
+     * \param propertyName Name of the property.
+     */
+    void slotPropertyChanged( std::string propertyName );
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.

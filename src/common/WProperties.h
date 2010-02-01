@@ -184,6 +184,13 @@ public:
     addProperty( std::string name, T value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
     /**
+     * Simply insert the specified property to the list.
+     *
+     * \param prop the property to add
+     */
+    void addProperty( WProperty* prop );
+
+    /**
      * getter for the value of a property as std string
      *
      * \param prop the name of the property
