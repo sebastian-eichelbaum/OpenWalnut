@@ -128,8 +128,8 @@ void WMDistanceMapIsosurface::connectors()
     // initialize connectors
 
     // this is the scalar field input
-    m_input = boost::shared_ptr< WModuleInputForwardConnector< WDataSetSingle > >(
-        new WModuleInputForwardConnector< WDataSetSingle >( shared_from_this(),
+    m_input = boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > >(
+        new WModuleInputForwardData< WDataSetSingle >( shared_from_this(),
                                                                "in", "Dataset to compute distance map for." )
         );
 

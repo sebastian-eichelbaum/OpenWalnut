@@ -25,6 +25,8 @@
 #ifndef WMODULEINPUTFORWARDDATA_H
 #define WMODULEINPUTFORWARDDATA_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WLogger.h"
@@ -38,7 +40,7 @@
  * connector (which is not visible to the outside world).
  */
 template< typename T >
-class WModuleInputForwardConnector: public WModuleInputData< T >
+class WModuleInputForwardData: public WModuleInputData< T >
 {
 public:
 
@@ -49,7 +51,7 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputForwardConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+    WModuleInputForwardData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
         :WModuleInputData< T >( module, name, description )
     {
         // initialize the output data connector
@@ -59,7 +61,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WModuleInputForwardConnector()
+    virtual ~WModuleInputForwardData()
     {
     }
 

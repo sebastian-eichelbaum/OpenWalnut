@@ -121,7 +121,6 @@ private:
      * Connection for Data Changed signal of the connected output connector.
      */
     boost::signals2::connection m_DataChangedConnection;
-
 };
 
 #endif  // WMODULEINPUTCONNECTOR_H

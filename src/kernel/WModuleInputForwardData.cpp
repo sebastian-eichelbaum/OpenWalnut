@@ -22,5 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WModuleInputForwardConnector.h"
+#include "WModuleInputForwardData.h"
 
