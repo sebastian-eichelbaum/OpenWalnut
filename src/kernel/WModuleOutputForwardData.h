@@ -99,9 +99,6 @@ protected:
     /**
      * Gets called whenever a connected output updates its data. In detail: it is a callback for m_in and waits simply forwards
      * new data to this output instance.
-     *
-     * \param input     the input connector receiving the change (m_in).
-     * \param output    the output connector sending the change
      */
     virtual void inputNotifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/, boost::shared_ptr<WModuleConnector> /*output*/ )
     {
