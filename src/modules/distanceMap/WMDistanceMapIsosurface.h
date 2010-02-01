@@ -30,6 +30,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleInputForwardConnector.h"
 #include "../../kernel/WModuleOutputData.h"
 
 /**
@@ -91,7 +92,7 @@ private:
      */
     std::string m_description;
 
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputForwardConnector< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
     /**
      * Connector to provide the distance map to other modules.

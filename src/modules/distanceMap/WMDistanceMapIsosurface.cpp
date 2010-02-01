@@ -107,7 +107,7 @@ void WMDistanceMapIsosurface::moduleMain()
     // connect the distance map output to the container output to ensure other modules can use the distance map if they want to
     //m_distanceMapModule->getOutputConnector( "out" )->forward( m_output );
     // we want the container input connector "in" to be connected to the input of WMDistanceMap
-    //m_input->forward( m_distanceMapModule->getInputConnector( "in" ) );
+    m_input->forward( m_distanceMapModule->getInputConnector( "in" ) );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Done!
@@ -128,8 +128,8 @@ void WMDistanceMapIsosurface::connectors()
     // initialize connectors
 
     // this is the scalar field input
-    m_input = boost::shared_ptr<WModuleInputData< WDataSetSingle > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
+    m_input = boost::shared_ptr< WModuleInputForwardConnector< WDataSetSingle > >(
+        new WModuleInputForwardConnector< WDataSetSingle >( shared_from_this(),
                                                                "in", "Dataset to compute distance map for." )
         );
 
@@ -137,7 +137,7 @@ void WMDistanceMapIsosurface::connectors()
     addConnector( m_input );
 
     // this output is used to provide the distance map to other modules.
-    m_output = boost::shared_ptr<WModuleOutputData< WDataSetSingle > >(
+    m_output = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >(
         new WModuleOutputData< WDataSetSingle >( shared_from_this(),
                                                                "out", "Distance map for the input data set." )
         );

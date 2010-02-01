@@ -22,20 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WModuleForwardConnector.h"
-
-WModuleForwardConnector::WModuleForwardConnector( boost::shared_ptr< WModuleInputConnector > from,  boost::shared_ptr< WModuleInputConnector > to )
-{
-    //m_in = boost::shared_ptr< WModuleInputConnector >( new WModuleInputConnector( from, "forward_in", "forward_out" ) );
-}
-
-WModuleForwardConnector::WModuleForwardConnector( boost::shared_ptr< WModuleOutputConnector > from,  boost::shared_ptr< WModuleOutputConnector > to )
-{
-
-}
-
-WModuleForwardConnector::~WModuleForwardConnector()
-{
-    // cleanup
-}
+#include "WModuleInputForwardConnector.h"
 

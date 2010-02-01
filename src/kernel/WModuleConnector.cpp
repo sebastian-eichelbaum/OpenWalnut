@@ -57,6 +57,9 @@ WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::stri
     // closed" message if the connection is closed.
     signal_ConnectionEstablished.connect( getSignalHandler( CONNECTION_ESTABLISHED ) );
     signal_ConnectionClosed.connect( getSignalHandler( CONNECTION_CLOSED ) );
+
+    subscribeSignal( CONNECTION_ESTABLISHED, boost::bind( &WModuleConnector::notifyConnectionEstablished, this, _1, _2 ) );
+    subscribeSignal( CONNECTION_CLOSED, boost::bind( &WModuleConnector::notifyConnectionClosed, this, _1, _2 ) );
 }
 
 WModuleConnector::~WModuleConnector()
@@ -293,5 +296,15 @@ void WModuleConnector::setDescription( std::string desc )
 void WModuleConnector::setName( std::string name )
 {
     m_name = name;
+}
+
+void WModuleConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // by default: do nothing.
+}
+
+void WModuleConnector::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // do nothing by default
 }
 

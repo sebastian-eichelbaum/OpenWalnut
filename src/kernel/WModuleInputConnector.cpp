@@ -93,3 +93,14 @@ boost::shared_ptr< WCondition > WModuleInputConnector::getDataChangedCondition()
     return m_dataChangedCondition;
 }
 
+void WModuleInputConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there )
+{
+    // since the output connector is not able to fill the parameter "input" we need to forward this message and fill it with the
+    // proper information
+    // NOTE: connection established also emits a data changed signal since the data available at the connector has changed.
+    signal_DataChanged( shared_from_this(), there );
+    m_dataChangedCondition->notify();
+
+    // forward
+    WModuleConnector::notifyConnectionEstablished( here, there );
+}

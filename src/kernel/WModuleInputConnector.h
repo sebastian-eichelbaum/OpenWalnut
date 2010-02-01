@@ -93,8 +93,15 @@ protected:
      * \param input the input connector receiving the change.
      * \param output the output connector sending the change notification.
      */
-    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-                                   boost::shared_ptr<WModuleConnector> output );
+    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input, boost::shared_ptr<WModuleConnector> output );
+
+    /**
+     * Gets called whenever a connector gets connected to the specified input.
+     *
+     * \param here the connector of THIS module that got connected to "there"
+     * \param there the connector that has been connected with the connector "here" of this module.
+     */
+    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there );
 
 private:
 
@@ -114,6 +121,7 @@ private:
      * Connection for Data Changed signal of the connected output connector.
      */
     boost::signals2::connection m_DataChangedConnection;
+
 };
 
 #endif  // WMODULEINPUTCONNECTOR_H
