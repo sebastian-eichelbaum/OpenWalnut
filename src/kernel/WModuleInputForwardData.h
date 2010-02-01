@@ -107,21 +107,6 @@ protected:
         WModuleInputData< T >::notifyDataChange( input, output );
     }
 
-    /**
-     * Gets called whenever a connector gets connected to the specified input.
-     *
-     * \param here the connector of THIS module that got connected to "there"
-     * \param there the connector that has been connected with the connector "here" of this module.
-     */
-    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there )
-    {
-        // a connection -> grab the data and forward it to the output connector
-        m_out->updateData( WModuleInputData< T >::getData() );
-
-        // and forward
-        WModuleInputData< T >::notifyDataChange( here, there );
-    }
-
 private:
 };
 

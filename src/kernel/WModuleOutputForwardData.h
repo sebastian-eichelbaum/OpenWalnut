@@ -25,6 +25,7 @@
 #ifndef WMODULEOUTPUTFORWARDDATA_H
 #define WMODULEOUTPUTFORWARDDATA_H
 
+#include <iostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>

@@ -188,8 +188,8 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
     {
         double isoValue = m_properties->getValue< double >( propertyName );
         debugLog() << "Update isosurface for isovalue: " << isoValue << std::endl;
-        generateSurfacePre( isoValue );
-        renderSurface();
+        //generateSurfacePre( isoValue );
+        //renderSurface();
         debugLog() << "Updating done." << std::endl;
     }
     else if( propertyName == "Use Texture" )

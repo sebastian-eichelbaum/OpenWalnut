@@ -308,11 +308,21 @@ protected:
      *
      * \param output the remote connector propagating the event.
      */
-    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
+    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > input,
                                    boost::shared_ptr< WModuleConnector > output )
     {
         // just copy the data and add one
-        data = boost::shared_dynamic_cast< WModuleOutputData< WTestTransferableBase > >( output )->getData()->get() + 1;
+        boost::shared_ptr< WModuleOutputData< WTestTransferableBase > > o = boost::shared_dynamic_cast< WModuleOutputData< WTestTransferableBase > >( output );
+        if ( !o.get() )
+        {
+            return;
+        }
+
+        boost::shared_ptr< WTestTransferableBase > ds = o->getData();
+        if ( ds.get() )
+        {
+            data = ds->get() + 1;
+        }
 
         // std::cout << "change to " << data << " in " << input->getCanonicalName() << " from " << output->getCanonicalName()
         //          << std::endl;
