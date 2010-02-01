@@ -158,6 +158,5 @@ void WMDistanceMapIsosurface::properties()
 
 void WMDistanceMapIsosurface::slotPropertyChanged( std::string propertyName )
 {
-
 }
 
