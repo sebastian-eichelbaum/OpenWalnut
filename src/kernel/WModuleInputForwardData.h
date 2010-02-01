@@ -45,7 +45,7 @@ class WModuleInputForwardData: public WModuleInputData< T >
 public:
 
     /**
-     * Constructor. This creates a new input data connector which is able to forward data changes to other input data connectors.
+     * Constructor. This creates a new input data connector which is able to forward data changes <b>TO</b>  other input data connectors.
      *
      * \param module the module which is owner of this connector.
      * \param name The name of this connector.
@@ -99,7 +99,7 @@ protected:
      * \param input     the input connector receiving the change
      * \param output    the output connector sending the change
      */
-    void notifyDataChange( boost::shared_ptr<WModuleConnector> input, boost::shared_ptr<WModuleConnector> output )
+    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input, boost::shared_ptr<WModuleConnector> output )
     {
         m_out->updateData( WModuleInputData< T >::getData() );
 

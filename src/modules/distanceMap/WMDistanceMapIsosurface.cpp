@@ -72,6 +72,7 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // now wait for it to be ready
     m_marchingCubesModule->isReady().wait();
+    m_marchingCubesModule->getProperties()->findProp( "Iso Value" )->setValue< float >( 0.5 );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Distance Map
@@ -105,7 +106,7 @@ void WMDistanceMapIsosurface::moduleMain()
     //////////////////////////////////////////////////////////////////////////////////
 
     // connect the distance map output to the container output to ensure other modules can use the distance map if they want to
-    //m_distanceMapModule->getOutputConnector( "out" )->forward( m_output );
+    m_output->forward( m_distanceMapModule->getOutputConnector( "out" ) );
     // we want the container input connector "in" to be connected to the input of WMDistanceMap
     m_input->forward( m_distanceMapModule->getInputConnector( "in" ) );
 
@@ -137,8 +138,8 @@ void WMDistanceMapIsosurface::connectors()
     addConnector( m_input );
 
     // this output is used to provide the distance map to other modules.
-    m_output = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >(
-        new WModuleOutputData< WDataSetSingle >( shared_from_this(),
+    m_output = boost::shared_ptr< WModuleOutputForwardData< WDataSetSingle > >(
+        new WModuleOutputForwardData< WDataSetSingle >( shared_from_this(),
                                                                "out", "Distance map for the input data set." )
         );
 
