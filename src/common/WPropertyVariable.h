@@ -138,7 +138,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
         m_name( name ),
         m_description( description )
 {
-
 }
 
 template < typename T >
@@ -147,7 +146,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
         m_name( name ),
         m_description( description )
 {
-
 }
 
 template < typename T >
