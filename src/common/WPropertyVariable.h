@@ -30,13 +30,14 @@
 #include <string>
 #include <typeinfo>
 
-#include "WProperty2.h"
+#include "WFlag.h"
+#include "WCondition.h"
 
 /**
  * A named property class with a concrete type.
  */
 template< typename T >
-class WPropertyVariable: public WProperty2
+class WPropertyVariable: public WFlag< T >
 {
 public:
 
@@ -47,46 +48,148 @@ public:
      * \param description the property description
      * \param initial the initial value
      */
-    WPropertyVariable( std::string name, std::string description, const T& initial ):
-        WProperty2( name, description )
-    {
-        // initialize everything
-    }
+    WPropertyVariable( std::string name, std::string description, const T& initial );
+
+    /**
+     * Create an empty instance just containing a name. This constructor allows an external condition to be used for notifiaction.
+     * This is practical if one would like to share a condition among several properties.
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     */
+    WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition );
+
+    /**
+     * Create an empty instance just containing a name. This constructor allows an external callback to be used for notification.
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     *
+     * \note: instead of setting another notifier, you should consider using the callbacks the condition offers.
+     * \note: the notifiers gets connected to the notification callback of the internal condition. So be careful when using the
+     *        condition ( getCondition() ) for other properties, since they would also share the callbacks
+     *
+     */
+    WPropertyVariable( std::string name, std::string description, const T& initial, WCondition::t_ConditionNotifierType notifier );
+
+    /**
+     * Create an empty instance just containing a name. This constructor allows an external callback and condition to be used for notification.
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     *
+     * \note: instead of setting another notifier, you should consider using the callbacks the condition offers.
+     * \note: the notifiers gets connected to the notification callback of the internal condition. So be careful when using the
+     *        condition ( getCondition() ) for other properties, since they would also share the callbacks
+     *
+     */
+    WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition,
+                       WCondition::t_ConditionNotifierType notifier );
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyVariable()
-    {
-        // clean up
-    }
+    virtual ~WPropertyVariable();
 
-    T& get() const
-    {
-        return m_value;
-    }
+    /**
+     * Gets the name of the class.
+     *
+     * \return the name.
+     */
+    std::string getName();
 
-    void set( T& val )
-    {
-        m_value = val;
-    }
-
-    virtual PROPERTY_TYPE getType() const
-    {
-        if ( typeid( T ) == typeid( int ) )
-            return INT;
-        else
-            return INT;
-    }
+    /**
+     * Gets the description of the property.
+     *
+     * \return the description
+     */
+    std::string getDescription();
 
 protected:
 
     /**
-     * The actual variable handled by this property.
+     * Name of the property.
      */
-    T m_value;
+    std::string m_name;
+
+    /**
+     * Description of the property.
+     */
+    std::string m_description;
+
+    /**
+     * The connection used for notification.
+     */
+    boost::signals2::connection m_notifierConnection;
 
 private:
 };
 
+template < typename T >
+WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):
+        WFlag< T >( new WCondition(), initial ),
+        m_name( name ),
+        m_description( description )
+{
+
+}
+
+template < typename T >
+WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition ):
+        WFlag< T >( condition, initial ),
+        m_name( name ),
+        m_description( description )
+{
+
+}
+
+template < typename T >
+WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial,
+                                           WCondition::t_ConditionNotifierType notifier ):
+        WFlag< T >( new WCondition(), initial ),
+        m_name( name ),
+        m_description( description )
+{
+    // set custom notifier
+    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
+}
+
+template < typename T >
+WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition,
+                                           WCondition::t_ConditionNotifierType notifier ):
+        WFlag< T >( condition, initial ),
+        m_name( name ),
+        m_description( description )
+{
+    // set custom notifier
+    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
+}
+
+template < typename T >
+WPropertyVariable< T >::~WPropertyVariable()
+{
+    // clean up
+    m_notifierConnection.disconnect();
+}
+
+template < typename T >
+std::string WPropertyVariable< T >::getName()
+{
+    return m_name;
+}
+
+template < typename T >
+std::string WPropertyVariable< T >::getDescription()
+{
+    return m_description;
+}
+
 #endif  // WPROPERTYVARIABLE_H
+
