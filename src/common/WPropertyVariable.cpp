@@ -24,8 +24,3 @@
 
 #include "WPropertyVariable.h"
 
-void hallo()
-{
-    WPropertyVariable< bool > p( "ich", "du", false );
-}
-

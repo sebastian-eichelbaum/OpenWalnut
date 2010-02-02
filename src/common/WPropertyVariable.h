@@ -28,7 +28,9 @@
 #include <stdint.h>
 
 #include <string>
-#include <typeinfo>
+#include <list>
+
+#include <boost/filesystem.hpp>
 
 #include "WFlag.h"
 #include "WCondition.h"
@@ -188,6 +190,39 @@ std::string WPropertyVariable< T >::getDescription()
 {
     return m_description;
 }
+
+/**
+ * Some convenience type alias for a even more easy usage of WPropertyVariable
+ */
+/**
+ * Alias for int32_t property variables.
+ */
+typedef WPropertyVariable< int32_t > propInt;
+
+/**
+ * Alias for int32_t property variables.
+ */
+typedef WPropertyVariable< double > propDouble;
+
+/**
+ * Alias for bool property variables.
+ */
+typedef WPropertyVariable< bool > propBool;
+
+/**
+ * Alias for string property variables.
+ */
+typedef WPropertyVariable< std::string > propString;
+
+/**
+ * Alias for filename property variables.
+ */
+typedef WPropertyVariable< boost::filesystem::path > propFilename;
+
+/**
+ * Alias for string list property variables.
+ */
+typedef WPropertyVariable< std::list< std::string > > propList;
 
 #endif  // WPROPERTYVARIABLE_H
 
