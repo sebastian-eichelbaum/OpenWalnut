@@ -34,7 +34,9 @@ typedef enum
     INT,            // integer value
     DOUBLE,         // floating point value
     BOOL,           // boolean
-    STRING          // a string
+    STRING,         // a string
+    PATH,           // a Boost Path object denoting a filename/path
+    LIST            // a list of strings
 }
 PROPERTY_TYPE;
 

@@ -33,13 +33,15 @@
 #include <boost/filesystem.hpp>
 
 #include "WFlag.h"
+#include "WPropertyBase.h"
 #include "WCondition.h"
 
 /**
  * A named property class with a concrete type.
  */
 template< typename T >
-class WPropertyVariable: public WFlag< T >
+class WPropertyVariable: public WFlag< T >,
+                         public WPropertyBase
 {
 public:
 
@@ -100,36 +102,17 @@ public:
      */
     virtual ~WPropertyVariable();
 
-    /**
-     * Gets the name of the class.
-     *
-     * \return the name.
-     */
-    std::string getName();
-
-    /**
-     * Gets the description of the property.
-     *
-     * \return the description
-     */
-    std::string getDescription();
-
 protected:
-
-    /**
-     * Name of the property.
-     */
-    std::string m_name;
-
-    /**
-     * Description of the property.
-     */
-    std::string m_description;
 
     /**
      * The connection used for notification.
      */
     boost::signals2::connection m_notifierConnection;
+
+    /**
+     * Uses typeid() to set the proper type constant.
+     */
+    virtual void updateType();
 
 private:
 };
@@ -137,16 +120,14 @@ private:
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):
         WFlag< T >( new WCondition(), initial ),
-        m_name( name ),
-        m_description( description )
+        WPropertyBase( name, description )
 {
 }
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition ):
         WFlag< T >( condition, initial ),
-        m_name( name ),
-        m_description( description )
+        WPropertyBase( name, description )
 {
 }
 
@@ -154,8 +135,7 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial,
                                            WCondition::t_ConditionNotifierType notifier ):
         WFlag< T >( new WCondition(), initial ),
-        m_name( name ),
-        m_description( description )
+        WPropertyBase( name, description )
 {
     // set custom notifier
     m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
@@ -165,8 +145,7 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition,
                                            WCondition::t_ConditionNotifierType notifier ):
         WFlag< T >( condition, initial ),
-        m_name( name ),
-        m_description( description )
+        WPropertyBase( name, description )
 {
     // set custom notifier
     m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
@@ -180,15 +159,34 @@ WPropertyVariable< T >::~WPropertyVariable()
 }
 
 template < typename T >
-std::string WPropertyVariable< T >::getName()
+void WPropertyVariable< T >::updateType()
 {
-    return m_name;
-}
+    m_type = UNKNOWN;
 
-template < typename T >
-std::string WPropertyVariable< T >::getDescription()
-{
-    return m_description;
+    if ( typeid( int32_t ) == typeid( T ) )
+    {
+        m_type = INT;
+    }
+    else if ( typeid( double ) == typeid( T ) )
+    {
+        m_type = DOUBLE;
+    }
+    else if ( typeid( bool ) == typeid( T ) )
+    {
+        m_type = BOOL;
+    }
+    else if ( typeid( std::string ) == typeid( T ) )
+    {
+        m_type = STRING;
+    }
+    else if ( typeid( boost::filesystem::path ) == typeid( T ) )
+    {
+        m_type = PATH;
+    }
+    else if ( typeid( boost::filesystem::path ) == typeid( T ) )
+    {
+        m_type = LIST;
+    }
 }
 
 /**
@@ -197,32 +195,32 @@ std::string WPropertyVariable< T >::getDescription()
 /**
  * Alias for int32_t property variables.
  */
-typedef WPropertyVariable< int32_t > propInt;
+typedef WPropertyVariable< int32_t > WPropInt;
 
 /**
  * Alias for int32_t property variables.
  */
-typedef WPropertyVariable< double > propDouble;
+typedef WPropertyVariable< double > WPropDouble;
 
 /**
  * Alias for bool property variables.
  */
-typedef WPropertyVariable< bool > propBool;
+typedef WPropertyVariable< bool > WPropBool;
 
 /**
  * Alias for string property variables.
  */
-typedef WPropertyVariable< std::string > propString;
+typedef WPropertyVariable< std::string > WPropString;
 
 /**
  * Alias for filename property variables.
  */
-typedef WPropertyVariable< boost::filesystem::path > propFilename;
+typedef WPropertyVariable< boost::filesystem::path > WPropFilename;
 
 /**
  * Alias for string list property variables.
  */
-typedef WPropertyVariable< std::list< std::string > > propList;
+typedef WPropertyVariable< std::list< std::string > > WPropList;
 
 #endif  // WPROPERTYVARIABLE_H
 
