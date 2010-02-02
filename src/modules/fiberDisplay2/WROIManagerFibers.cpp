@@ -132,6 +132,7 @@ boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getBitField( boost::
         }
         ++index;
     }
+    return boost::shared_ptr< std::vector< bool > >();
 }
 
 void WROIManagerFibers::addBitField( size_t size )
@@ -157,7 +158,7 @@ void WROIManagerFibers::recalculate()
     {
         boost::shared_ptr< std::vector< bool > > bf = ( *iter )->getBitField( 0 );
 
-        for ( int i = 0; i < mbf->size(); ++i )
+        for ( size_t i = 0; i < mbf->size(); ++i )
         {
             mbf->at( i ) = mbf->at( i ) | bf->at( i );
         }
@@ -190,6 +191,7 @@ boost::shared_ptr< const WDataSetFibers2 > WROIManagerFibers::getDataSet( unsign
         }
         ++c;
     }
+    return boost::shared_ptr< const WDataSetFibers2 >();
 }
 
 boost::shared_ptr< WKdTree > WROIManagerFibers::getKdTree( unsigned int index )
@@ -203,6 +205,7 @@ boost::shared_ptr< WKdTree > WROIManagerFibers::getKdTree( unsigned int index )
         }
         ++c;
     }
+    return boost::shared_ptr< WKdTree >();
 }
 
 bool WROIManagerFibers::isDirty()

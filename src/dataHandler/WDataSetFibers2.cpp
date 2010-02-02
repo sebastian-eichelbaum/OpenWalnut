@@ -49,7 +49,7 @@ WDataSetFibers2::WDataSetFibers2( boost::shared_ptr< std::vector< float > >verti
     m_lineLengths( lineLengths ),
     m_verticesReverse( verticesReverse )
 {
-    for ( int i = 0; i < m_vertices->size(); ++i )
+    for ( size_t i = 0; i < m_vertices->size(); ++i )
     {
         m_vertices->at( i ) = 160 - m_vertices->at( i );
         ++i;

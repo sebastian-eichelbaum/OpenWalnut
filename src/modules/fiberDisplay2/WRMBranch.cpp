@@ -60,6 +60,7 @@ boost::shared_ptr< std::vector< bool > > WRMBranch::getBitField( unsigned int in
         }
         ++c;
     }
+    return boost::shared_ptr< std::vector< bool > >();
 }
 
 void WRMBranch::addBitField( size_t size )
@@ -87,14 +88,14 @@ void WRMBranch::recalculate()
         bool isnot = ( *iter )->getROI()->isNot();
         if ( !isnot )
         {
-            for ( int i = 0 ; i < mbf->size() ; ++i )
+            for ( size_t i = 0 ; i < mbf->size() ; ++i )
             {
                 mbf->at( i ) = mbf->at( i ) & bf->at( i );
             }
         }
         else
         {
-            for ( int i = 0 ; i < mbf->size() ; ++i )
+            for ( size_t i = 0 ; i < mbf->size() ; ++i )
             {
                 mbf->at( i ) = mbf->at( i ) & !bf->at( i );
             }

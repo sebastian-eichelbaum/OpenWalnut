@@ -69,6 +69,7 @@ boost::shared_ptr< std::vector< bool > > WRMROIRepresentation::getBitField( unsi
         }
         ++c;
     }
+    return boost::shared_ptr< std::vector< bool > >();
 }
 
 void WRMROIRepresentation::addBitField( size_t size )
