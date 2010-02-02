@@ -102,6 +102,17 @@ public:
      */
     virtual ~WPropertyVariable();
 
+    /**
+     * Determines whether the specified value is acceptable.
+     *
+     * \param newValue the new value.
+     *
+     * \return true if it is a valid/acceptable value.
+     *
+     * \note this currently is a dummy.
+     */
+    bool accept( T newValue );
+
 protected:
 
     /**
@@ -156,6 +167,13 @@ WPropertyVariable< T >::~WPropertyVariable()
 {
     // clean up
     m_notifierConnection.disconnect();
+}
+
+template < typename T >
+bool WPropertyVariable< T >::accept( T newValue )
+{
+    // this currently is a dummy. Later this can be implemented to determine whether a value is valid.
+    return true;
 }
 
 template < typename T >

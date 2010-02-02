@@ -26,7 +26,8 @@
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_name( name ),
-    m_description( description )
+    m_description( description ),
+    m_hidden( false )
 {
     // initialize members
 }
@@ -49,5 +50,15 @@ std::string WPropertyBase::getDescription() const
 PROPERTY_TYPE WPropertyBase::getType() const
 {
     return m_type;
+}
+
+bool WPropertyBase::isHidden() const
+{
+    return m_hidden;
+}
+
+void WPropertyBase::setHidden( bool hidden )
+{
+    m_hidden = hidden;
 }
 

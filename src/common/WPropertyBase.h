@@ -64,6 +64,20 @@ public:
     std::string getDescription() const;
 
     /**
+     * Determines whether the property is hidden or not.
+     *
+     * \return true if hidden
+     */
+    bool isHidden() const;
+
+    /**
+     * Sets the property hidden. This flag is especially used by the GUI.
+     *
+     * \param hidden true if it should be hidden.
+     */
+    void setHidden( bool hidden );
+
+    /**
      * Gets the real WPropertyVariable type of this instance.
      *
      * \return the real type.
@@ -81,6 +95,11 @@ protected:
      * Description of the property.
      */
     std::string m_description;
+
+    /**
+     * Flag denoting whether the property is hidden or not.
+     */
+    bool m_hidden;
 
     /**
      * Type of the PropertyVariable instance
