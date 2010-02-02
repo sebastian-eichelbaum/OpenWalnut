@@ -1,0 +1,99 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+#ifndef WPROPERTYBASE_H
+#define WPROPERTYBASE_H
+
+#include <string>
+
+#include "WPropertyTypes.h"
+
+/**
+ * Abstract base class for all properties. Simply provides name and type information.
+ */
+class WPropertyBase
+{
+public:
+
+    /**
+     * Create an empty named property.
+     *
+     * \param name  the name of the property
+     * \param description the description of the property
+     */
+    WPropertyBase( std::string name, std::string description );
+
+    /**
+     * Destructor.
+     */
+    virtual ~WPropertyBase();
+
+    /**
+     * Gets the name of the class.
+     *
+     * \return the name.
+     */
+    std::string getName() const;
+
+    /**
+     * Gets the description of the property.
+     *
+     * \return the description
+     */
+    std::string getDescription() const;
+
+    /**
+     * Gets the real WPropertyVariable type of this instance.
+     *
+     * \return the real type.
+     */
+    virtual PROPERTY_TYPE getType() const;
+
+protected:
+
+    /**
+     * Name of the property.
+     */
+    std::string m_name;
+
+    /**
+     * Description of the property.
+     */
+    std::string m_description;
+
+    /**
+     * Type of the PropertyVariable instance
+     */
+    PROPERTY_TYPE m_type;
+
+    /**
+     * Calculates the type of the property. This has to be done by the implementing class.
+     */
+    virtual void updateType() = 0;
+
+private:
+};
+
+#endif  // WPROPERTYBASE_H
+
