@@ -97,34 +97,41 @@ public:
     boost::shared_ptr< std::vector< bool > > getBitField( boost::shared_ptr< const WDataSetFibers2 > fibers );
 
     /**
+     * getter for a registered dataset
      *
+     * \param index of the dataset
+     * \return the dataset
      */
     boost::shared_ptr< const WDataSetFibers2 > getDataSet( unsigned int index );
 
     /**
-     *
+     * getter for a kd tree
+     * \param index
+     * return the kd tree
      */
     boost::shared_ptr< WKdTree > getKdTree( unsigned int index );
 
     /**
+     * adds a bit field list of bit fields
      *
+     * \param size
      */
     void addBitField( size_t size );
 
     /**
-     *
+     * sets the dirty flag which will cause recalculation of the bit field
      */
     void setDirty();
 
     /**
-     *
+     *  getter
+     *  \return the dirty flag
      */
     bool isDirty();
 
     /**
      * Add a specified notifier to the list of default notifiers which get connected to each added module.
      *
-     * \param signal    the signal the notifier should get connected to
      * \param notifier  the notifier function
      */
     virtual void addDefaultNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier );
@@ -132,17 +139,17 @@ public:
 protected:
 private:
     /**
-     *
+     * updates the bit fields
      */
     void recalculate();
 
-    bool m_dirty;
+    bool m_dirty; //!< dirty flag
 
-    std::list< boost::shared_ptr< const WDataSetFibers2 > > m_fiberList;
+    std::list< boost::shared_ptr< const WDataSetFibers2 > > m_fiberList; //!< list of registered fiber datasets
 
-    std::list< boost::shared_ptr< std::vector< bool > > > m_bitFields;
+    std::list< boost::shared_ptr< std::vector< bool > > > m_bitFields; //!< list of bitfields, one for each dataset
 
-    std::list< boost::shared_ptr< WRMBranch > > m_branches;
+    std::list< boost::shared_ptr< WRMBranch > > m_branches; //!< list of branches in the logical tree structure
 
     /**
      * Stores a pointer to the kdTree used for fiber selection

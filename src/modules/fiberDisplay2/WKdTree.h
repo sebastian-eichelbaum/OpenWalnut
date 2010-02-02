@@ -30,54 +30,107 @@
 
 #include "../../common/WThreadedRunner.h"
 
+/**
+ * implements the compare function for std::nth_element on a point array
+ */
 struct lessy
 {
-    float const * const data;
-    const int pos;
+    float const * const data; //!< stores the pointer to the data array
+    const int pos; //!< stores the axis at which the array is sorted
+
+    /**
+     * constructor
+     * \param data pointer to the array
+     * \param pos x,y or z axis
+     */
     lessy( float const * const data, const int pos ) :
         data( data ), pos( pos )
     {
     }
 
-    bool operator()( const unsigned int& a, const unsigned int& b ) const //NOLINT
+    /**
+     * compare operator
+     * \param lhs
+     * \param rhs
+     */
+    bool operator()( const unsigned int& lhs, const unsigned int& rhs ) const //NOLINT
     {
-        return data[3* a + pos] < data[3* b + pos];
+        return data[3 * lhs + pos] < data[3 * rhs + pos];
     }
 };
 
+/**
+ * class to provide threaded computation of parts of the kd tree
+ */
 class WKdTreeThread: public WThreadedRunner
 {
 public:
-    WKdTreeThread( float*, std::vector< unsigned int >*, int, int, int );
+    /**
+     * constructor
+     *
+     * \param pointArray
+     * \param tree pointer to the tree
+     * \param left boundary of the part to compute
+     * \param right boundary of the part to compute
+     * \param axis starting axis
+     */
+    WKdTreeThread( float* pointArray, std::vector< unsigned int >* tree, int left, int right, int axis );
 
-    void buildTree( int, int, int );
+    /**
+     *  recursive function to compute a part of the kd tree
+     *
+     *  \param left
+     *  \param right
+     *  \param axis
+     */
+    void buildTree( int left, int right, int axis );
+
+    /**
+     * entry for the run command
+     */
     virtual void threadMain();
 
-    std::vector< unsigned int >* m_tree;
-    float *m_pointArray;
+    std::vector< unsigned int >* m_tree; //!< stores a pointer to the tree
+    float *m_pointArray; //!< stores a pointer to the vertex array
 
-    int m_left;
-    int m_right;
-    int m_axis;
+    int m_left; //!< stores left boundary, since the threadMain method has no arguments
+    int m_right; //!< stores left boundary, since the threadMain method has no arguments
+    int m_axis; //!< stores axis, since the threadMain method has no arguments
 };
 
 /**
- * TODO(schurade): Document this!
+ * implements the computation of a kd tree on a point array
  */
 class WKdTree
 {
 public:
-    WKdTree( int size, float* pointArray, bool );
+    /**
+     * constructor
+     *
+     * \param size
+     * \param pointArray
+     */
     WKdTree( int size, float* pointArray );
+
+    /**
+     * destructor
+     */
     ~WKdTree();
 
-    std::vector< unsigned int > m_tree;
+    std::vector< unsigned int > m_tree; //!< stores the tree
 
 private:
-    void buildTree( int, int, int );
-    int m_size;
-    unsigned int m_root;
-    float *m_pointArray;
+    /**
+     *  recursive function to compute a part of the kd tree
+     *
+     *  \param left
+     *  \param right
+     *  \param axis
+     */
+    void buildTree( int left, int right, int axis );
+    int m_size; //!< size of the tree
+    unsigned int m_root; //!< index of the root point
+    float *m_pointArray; //!< stores a pointer to the vertex array
 };
 
 #endif  // WKDTREE_H

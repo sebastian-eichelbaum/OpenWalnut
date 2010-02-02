@@ -54,8 +54,18 @@ public:
      */
     boost::signals2::signal0< void >* getSignalIsModified();
 
+    /**
+     * sets the NOT flag
+     *
+     * \param isNot
+     */
     void setNot( bool isNot = true );
 
+    /**
+     * getter for NOT flag
+     *
+     * \return the flag
+     */
     bool isNot();
 
 protected:

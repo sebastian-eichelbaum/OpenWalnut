@@ -36,43 +36,53 @@
 class WROIManagerFibers;
 
 /**
- * TODO(schurade): Document this!
+ * implements a branch in the tree like structure for rois
  */
 class WRMBranch : public boost::enable_shared_from_this< WRMBranch >
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * construtor
+     * \param roiManager
      */
     explicit WRMBranch( boost::shared_ptr< WROIManagerFibers > roiManager );
 
     /**
-     * TODO(schurade): Document this!
+     * destructor
      */
     ~WRMBranch();
 
     /**
+     * adds a roi to the branch
      *
+     * \param roi
      */
     void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
+     * getter for the bitfield
      *
+     * \param index of the associated fiber dataset
+     * \return the bitfield
      */
     boost::shared_ptr< std::vector< bool > > getBitField( unsigned int index );
 
     /**
+     * creates and adds a bitfield to the list
      *
+     * \param size of the bitfield
      */
     void addBitField( size_t size );
 
     /**
-     *
+     * updates the branch bitfield for this branch
      */
     void recalculate();
 
     /**
      * getter for dirty flag
+     *
+     * \return the dirty flag
      */
     bool isDirty();
 
@@ -83,23 +93,28 @@ public:
 
     /**
      * returns a pointer to the first roi in the branch
+     *
+     * \return the roi
      */
     boost::shared_ptr< WRMROIRepresentation >getFirstRoi();
 
     /**
+     * getter for roi manager pointer
      *
+     * \return the roi manager
      */
     boost::shared_ptr< WROIManagerFibers > getRoiManager();
 
 protected:
 private:
-    bool m_dirty;
+    bool m_dirty; //!< dirty flag to indicate the bit field must be recalculated
 
-    boost::shared_ptr< WROIManagerFibers > m_roiManager;
+    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores a pointer to the roi manager
 
-    std::list< boost::shared_ptr< std::vector<bool> > >m_bitFields;
+    std::list< boost::shared_ptr< std::vector<bool> > >m_bitFields; //!< list of bit fields for each fiber dataset
 
-    std::list< boost::shared_ptr< WRMROIRepresentation> > m_rois;
+    std::list< boost::shared_ptr< WRMROIRepresentation> > m_rois; //!< list of rois in this this branch,
+                                                                  // first in the list is the master roi
 };
 
 #endif  // WRMBRANCH_H

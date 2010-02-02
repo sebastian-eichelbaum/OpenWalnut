@@ -147,6 +147,7 @@ void WMFiberDisplay2::updateLinesShown()
 void WMFiberDisplay2::moduleMain()
 {
     // additional fire-condition: "data changed" flag
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
 
     ready();
@@ -195,7 +196,7 @@ void WMFiberDisplay2::create()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 
     m_osgNode->setUserData( this );
-    m_osgNode->setUpdateCallback( new fdNodeCallback );
+    m_osgNode->addUpdateCallback( new fdNodeCallback );
 }
 
 void WMFiberDisplay2::connectors()

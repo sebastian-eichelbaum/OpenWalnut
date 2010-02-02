@@ -38,53 +38,55 @@
 #include "../../graphicsEngine/WROI.h"
 class WRMBranch;
 /**
- * TODO(schurade): Document this!
+ * class encapsulates rois for the roi manager class
  */
 class WRMROIRepresentation
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * constructor
+     *
+     * \param roi
+     * \param branch
      */
     WRMROIRepresentation( boost::shared_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch );
 
     /**
-     * TODO(schurade): Document this!
+     * destructor
      */
     ~WRMROIRepresentation();
 
     /**
      * getter
+     *
+     * \return the roi
      */
     boost::shared_ptr< WROI > getROI();
 
     /**
+     * getter for bit field for a selected fiber dataset
      *
+     *\param index
+     * \return the bit field
      */
     boost::shared_ptr< std::vector< bool > > getBitField( unsigned int index );
 
     /**
+     * adds a bit field of a given size to the list of bit fields
      *
+     * \param size
      */
     void addBitField( size_t size );
 
     /**
-     *
+     * updates the bit fields with the fibers selected by the associated roi
      */
     void recalculate();
 
     /**
-     *
-     */
-    void boxTest( int left, int right, int axis );
-
-    /**
-     *
-     */
-    unsigned int getLineForPoint( unsigned int point );
-
-    /**
      * getter for dirty flag
+     *
+     * \return dirty flag
      */
     bool isDirty();
 
@@ -93,29 +95,67 @@ public:
      */
     void setDirty();
 
+    /**
+     * getter
+     *
+     * \return the properties object
+     */
     boost::shared_ptr< WProperties > getProperties();
 
 protected:
+    /**
+     * slot gets called when a property has changed
+     *
+     * \param propertyName
+     */
     void slotPropertyChanged( std::string propertyName );
 private:
-    bool m_dirty;
+    /**
+     * tests the kd tree for intersections with the roi
+     * \param left
+     * \param right
+     * \param axis
+     */
+    void boxTest( int left, int right, int axis );
 
-    boost::shared_ptr< WROI > m_roi;
+    /**
+     * helper function return the line index of a given vertex
+     *
+     * \param point index of the point in question
+     */
+    unsigned int getLineForPoint( unsigned int point );
 
-    boost::shared_ptr< WRMBranch > m_branch;
+    bool m_dirty; //!< dirty flag, indicates the bit fields need updating
 
-    std::list< boost::shared_ptr< std::vector<bool> > >m_bitFields;
+    boost::shared_ptr< WROI > m_roi; //!< stores a pointer to the associated roi
 
+    boost::shared_ptr< WRMBranch > m_branch; //!< stores a pointer to the branch this roi belongs to
+
+    std::list< boost::shared_ptr< std::vector<bool> > >m_bitFields; //!< list of bit fields, one for each loaded
+                                                                    // fiber dataset
+
+    /**
+     * pointer to the bitfield, that is currently updated
+     * this is used for the recursive update function, to reduce the amount of function parameters
+     */
     boost::shared_ptr< std::vector<bool> >m_currentBitfield;
 
+    /**
+     * pointer to the array that is used for updating
+     * this is used for the recurse update function, to reduce the amount of function parameters
+     */
     boost::shared_ptr< std::vector< float > > m_currentArray;
 
+    /**
+     * pointer to the reverse array that is used for updating
+     * this is used for the recurse update function, to reduce the amount of function parameters
+     */
     boost::shared_ptr< std::vector< unsigned int > > m_currentReverse;
 
-    boost::shared_ptr< WKdTree >m_kdTree;
+    boost::shared_ptr< WKdTree >m_kdTree; //!< stores a pointer to the kd tree
 
-    std::vector<float> m_boxMin;
-    std::vector<float> m_boxMax;
+    std::vector<float> m_boxMin; //!< lower boundary of the box, used for boxtest
+    std::vector<float> m_boxMax; //!< upper boundary of the box, used for boxtest
 
     /**
      * lock to prevent concurrent threads trying to update the osg node

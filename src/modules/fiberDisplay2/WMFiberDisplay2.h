@@ -88,9 +88,6 @@ protected:
     /**
      * Generates an OSG geometry for the given fiber dataset.
      *
-     * \param fibers pointer to fiber data set.
-     * \param globalColoring determines whether the whole fiber has
-     * the same color (true) or separate segements can have different colors.
      * \return OSG geometry representing the fiber.
      */
     osg::ref_ptr< osg::Geode > genFiberGeode();
@@ -108,12 +105,14 @@ protected:
     /**
      * Redraws the scene.
      *
-     * \problem This might take a while with e.g. 70,000 fibers approx 4 sec
      */
     void update();
 
-
+    /**
+     * initial creation of the osg geometry
+     */
     void create();
+
     /**
      * Deletes the primitive list and adds only the avtivated
      */
@@ -162,6 +161,12 @@ private:
      */
     boost::shared_mutex m_updateLock;
 
+    /**
+     * calculates a color from the vector between two points in space
+     *
+     * \param pos1
+     * \param pos2
+     */
     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
 
 

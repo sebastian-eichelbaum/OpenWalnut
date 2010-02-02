@@ -103,9 +103,19 @@ public:
      */
     WQtModuleTreeItem* addModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * Adds a roi entry to the dataset browser
+     *
+     * \param roi pointer to the roi representation object
+     */
     void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
 
-
+    /**
+     * Adds a module to the dataset browser. This function will combine addDataset and addModule
+     *
+     * \param module the module to add.
+     * \param subjectId the subject under which the entry is added
+     */
     void addModule2( boost::shared_ptr< WModule > module, int subjectId = 0 );
 
     /**
@@ -131,7 +141,9 @@ public:
     boost::shared_ptr< WModule > getSelectedModule();
 
     /**
+     * Returns the currently selected roi.
      *
+     * \return pointer to roi representation
      */
     boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
 
@@ -186,12 +198,17 @@ protected:
     int getFirstSubject();
 
     /**
+     * fills the modul toolbar with buttons for modules that are compatible with the currently
+     * selected dataset
      *
+     * \param module pointer to the currently selected module
      */
     void createCompatibleButtons( boost::shared_ptr< WModule >module );
 
     /**
+     * returns a pointer to the properties object of the currently selected tree item
      *
+     * \return the properties
      */
     boost::shared_ptr< WProperties > getPropOfSelected();
 
@@ -201,54 +218,27 @@ protected:
     WMainWindow* m_mainWindow;
 
 private:
-    /**
-     * point to the tree widget
-     */
-    WQtTreeWidget* m_treeWidget;
+    WQtTreeWidget* m_treeWidget; //!< pointer to the tree widget
 
-    /**
-     * pointer to the tab widget
-     */
-    QTabWidget* m_tabWidget;
+    QTabWidget* m_tabWidget; //!< pointer to the tab widget
 
-    /**
-     * button down
-     */
-    QPushButton* m_downButton;
+    QPushButton* m_downButton; //!< button down
 
-    /**
-     * button up
-     */
-    QPushButton* m_upButton;
+    QPushButton* m_upButton; //!< button up
 
-    /**
-     * tab 1
-     */
-    QWidget* m_tab1;
+    QWidget* m_tab1; //!< tab 1
 
-    /**
-     * tab 2
-     */
-    QWidget* m_tab2;
+    QWidget* m_tab2; //!< tab 2
 
-    /**
-     * tab 3
-     */
-    QWidget* m_tab3;
+    QWidget* m_tab3; //!< tab 3
 
-    /**
-     * panel
-     */
-    QWidget* m_panel;
+    QWidget* m_panel; //!< panel
 
-    /**
-     * layout
-     */
-    QVBoxLayout* m_layout;
+    QVBoxLayout* m_layout; //!< layout
 
-    WQtModuleHeaderTreeItem* m_tiModules;
+    WQtModuleHeaderTreeItem* m_tiModules; //!< header for modules
 
-    WQtRoiHeaderTreeItem* m_tiRois;
+    WQtRoiHeaderTreeItem* m_tiRois; //!< header for rois
 
 private slots:
     /**

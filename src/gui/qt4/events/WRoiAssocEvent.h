@@ -33,18 +33,19 @@
 #include "../../../modules/fiberDisplay2/WRMROIRepresentation.h"
 
 /**
- * TODO(schurade): Document this!
+ * Event signalling a new roi has been associated with the roi manager in the kernel.
  */
 class WRoiAssocEvent: public QEvent
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * constructor
+     * \param roi
      */
     explicit WRoiAssocEvent( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
-     * TODO(schurade): Document this!
+     * destructor
      */
     ~WRoiAssocEvent();
 

@@ -32,18 +32,20 @@
 #include "WQtRoiTreeItem.h"
 
 /**
- * TODO(schurade): Document this!
+ * header item for rois
  */
 class WQtRoiHeaderTreeItem : public QTreeWidgetItem
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * constructor
+     *
+     * \param parent
      */
     explicit WQtRoiHeaderTreeItem(  QTreeWidget * parent );
 
     /**
-     * TODO(schurade): Document this!
+     * destructor
      */
     virtual ~WQtRoiHeaderTreeItem();
 

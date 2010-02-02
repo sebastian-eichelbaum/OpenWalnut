@@ -44,7 +44,6 @@ public:
     /**
      * Constructs a new set of fibers, usage of WFiber here is for backward compatibility and should be removed
      *
-     * \param fibs Fiber vector to store in this data set
      * \param vertices
      * \param lineStartIndexes
      * \param lineLengths
@@ -64,12 +63,6 @@ public:
      * Get number of fibers in this data set.
      */
     size_t size() const;
-
-    /**
-     * \param index The index number of the fiber which should be returned
-     * \return The i'th fiber.
-     */
-    //const wmath::WFiber& operator[]( const size_t index ) const;
 
     /**
      * Sort fibers descending on their length.
@@ -125,7 +118,10 @@ public:
     boost::shared_ptr< std::vector< unsigned int > > getVerticesReverse() const;
 
     /**
+     * returns the position in space for a vertex of a given fiber
      *
+     * \param fiber
+     * \param vertex
      */
     wmath::WPosition getPosition( unsigned int fiber, unsigned int vertex ) const;
 

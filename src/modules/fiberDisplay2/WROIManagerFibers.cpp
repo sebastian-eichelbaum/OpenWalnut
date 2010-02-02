@@ -97,8 +97,7 @@ void WROIManagerFibers::addFiberDataset( boost::shared_ptr< const WDataSetFibers
     m_fiberList.push_back( fibers );
 
     boost::shared_ptr< std::vector< float > > verts = fibers->getVertices();
-    m_kdTreeList.push_back( boost::shared_ptr< WKdTree >( new WKdTree( fibers->getVertices()->size() / 3, &( ( *verts )[0] ), true ) ) );
-    //m_kdTreeList.push_back( boost::shared_ptr< WKdTree>( new WKdTree( fibers->getVertices()->size() / 3, &((*verts)[0]) ) ) );
+    m_kdTreeList.push_back( boost::shared_ptr< WKdTree >( new WKdTree( fibers->getVertices()->size() / 3, &( ( *verts )[0] ) ) ) );
 
     addBitField( fibers->size() );
 }

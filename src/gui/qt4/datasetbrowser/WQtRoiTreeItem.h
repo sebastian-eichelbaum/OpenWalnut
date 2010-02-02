@@ -34,21 +34,29 @@
 #include "../../../modules/fiberDisplay2/WRMROIRepresentation.h"
 
 /**
- * TODO(schurade): Document this!
+ * a tree widget item to represent a roi in the dataset browser
  */
 class WQtRoiTreeItem : public QTreeWidgetItem
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * constructor
+     *
+     * \param parent
+     * \param roi
+     * \param type
      */
     WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, int type = 5 );
 
     /**
-     * TODO(schurade): Document this!
+     * destructor
      */
     ~WQtRoiTreeItem();
 
+    /**
+     * getter
+     * \return the roi representation object
+     */
     boost::shared_ptr< WRMROIRepresentation > getRoi();
 
     /**
@@ -60,7 +68,7 @@ public:
 
 protected:
 private:
-    boost::shared_ptr< WRMROIRepresentation > m_roi;
+    boost::shared_ptr< WRMROIRepresentation > m_roi; //!< roi
 };
 
 #endif  // WQTROITREEITEM_H
