@@ -33,6 +33,7 @@
 #include <boost/signals2/connection.hpp>
 
 #include "WModule.h"
+#include "WModuleContainer.h"
 #include "exceptions/WModuleConnectionFailed.h"
 #include "exceptions/WModuleConnectionInvalid.h"
 #include "exceptions/WModuleDisconnectFailed.h"
@@ -54,6 +55,9 @@ WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::stri
     // connect standard signals
     // NOTE: these signals are NOT emitted by the connector this one is connected to, since a module can't send a "connection
     // closed" message if the connection is closed.
+    subscribeSignal( CONNECTION_ESTABLISHED, boost::bind( &WModuleConnector::notifyConnectionEstablished, this, _1, _2 ) );
+    subscribeSignal( CONNECTION_CLOSED, boost::bind( &WModuleConnector::notifyConnectionClosed, this, _1, _2 ) );
+
     signal_ConnectionEstablished.connect( getSignalHandler( CONNECTION_ESTABLISHED ) );
     signal_ConnectionClosed.connect( getSignalHandler( CONNECTION_CLOSED ) );
 }
@@ -91,6 +95,11 @@ bool WModuleConnector::isConnectedTo( boost::shared_ptr<WModuleConnector> con )
 
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
+    boost::shared_ptr< WModuleContainer > container = m_module->getAssociatedContainer();
+    std::string containerName = container.get() ? container->getName() : "Unknown";
+    WLogger::getLogger()->addLogMessage( "Connecting " + con->getCanonicalName() + " with " + getCanonicalName()
+            , "ModuleContainer (" + containerName + ")", LL_INFO );
+
     // are both partners compatible to each other?
     if ( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
     {
@@ -220,7 +229,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
 
         // signal closed connection
         signal_ConnectionClosed( shared_from_this(), con );
-        con->signal_ConnectionClosed( con, shared_from_this() );
+        con->signal_ConnectionClosed( shared_from_this(), con );
     }
     catch( const std::exception& e )
     {
@@ -287,5 +296,15 @@ void WModuleConnector::setDescription( std::string desc )
 void WModuleConnector::setName( std::string name )
 {
     m_name = name;
+}
+
+void WModuleConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // by default: do nothing.
+}
+
+void WModuleConnector::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
+{
+    // do nothing by default
 }
 

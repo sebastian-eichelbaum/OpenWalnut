@@ -172,6 +172,11 @@ protected:
 private:
 
     /**
+     * This condition denotes whether the properties have changed.
+     */
+    boost::shared_ptr< WCondition > m_propertiesChanged;
+
+    /**
      * Prepares and commits everything for rendering with the OSG
      * \param mesh The mesh that will be rendered.
      */

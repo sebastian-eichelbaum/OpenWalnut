@@ -184,6 +184,13 @@ public:
     addProperty( std::string name, T value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
     /**
+     * Simply insert the specified property to the list.
+     *
+     * \param prop the property to add
+     */
+    void addProperty( WProperty* prop );
+
+    /**
      * getter for the value of a property as std string
      *
      * \param prop the name of the property
@@ -296,7 +303,19 @@ public:
      */
     bool existsProp( std::string name );
 
-private:
+    /**
+     * If there are WProperty objects which are marked as dirty, then their
+     * signals are reemitted.
+     */
+    void reemitChangedValueSignals();
+
+    /**
+     * Indicates if at least one WProperty is dirty or all are clean.
+     *
+     * \return True if at least one property is dirty, false otherwise
+     */
+    bool isDirty() const;
+
     /**
      * helper function that finds a property by its name
      *
@@ -305,6 +324,7 @@ private:
      */
     WProperty* findProp( std::string name );
 
+private:
     /**
      * map of properties for easy access with name string
      */

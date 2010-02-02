@@ -28,6 +28,8 @@
 #include <string>
 
 #include "../../dataHandler/WEEG.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WEvent.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
@@ -130,7 +132,7 @@ private:
      * OSG node for this module. All other OSG nodes of this module should be
      * placed as child to this node.
      */
-    osg::ref_ptr< osg::Group > m_rootNode;
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
      * Bool flag which gets set when the data was changed.
@@ -151,6 +153,16 @@ private:
     bool m_wasActive;
 
     /**
+     * Event marking a special time position
+     */
+    WEvent m_event;
+
+    /**
+     * Flag from WMarkHandler which contains a new event position.
+     */
+    WFlag< double >* m_eventPositionFlag;
+
+    /**
      * Opens a custom widget and connects the m_node with it.
      *
      * \returns whether the custom widget could be opened successfully
@@ -167,6 +179,14 @@ private:
      * data stored in m_eeg.
      */
     void redraw();
+
+    /**
+     * Changes an WEvent to the given time position
+     *
+     * \param event the WEvent which should be changed
+     * \param time the new time position
+     */
+    void updateEvent( WEvent* event, double time );
 };
 
 #endif  // WMEEGVIEW_H

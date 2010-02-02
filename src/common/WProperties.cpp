@@ -107,6 +107,12 @@ boost::signals2::signal1< void, std::string >* WProperties::addColor( std::strin
     return prop->getSignalValueChanged();
 }
 
+void WProperties::addProperty( WProperty* prop )
+{
+    m_propertyList[prop->getName()] = prop;
+    m_propertyVector.push_back( prop );
+}
+
 bool WProperties::existsProp( std::string name )
 {
     return ( findProp( name ) != 0 );
@@ -159,3 +165,30 @@ void WProperties::unhideProperty( std::string name )
     }
 }
 
+void WProperties::reemitChangedValueSignals()
+{
+    std::vector< WProperty* >::iterator iter;
+    for( iter = m_propertyVector.begin(); iter != m_propertyVector.end(); ++iter )
+    {
+        WProperty* property = *iter;
+        if( property->isDirty() )
+        {
+            property->dirty( false );
+            // Refire but don't change the value.
+            property->signalValueChanged();
+        }
+    }
+}
+
+bool WProperties::isDirty() const
+{
+    std::vector< WProperty* >::const_iterator cit;
+    for( cit = m_propertyVector.begin(); cit != m_propertyVector.end(); ++cit )
+    {
+        if( ( *cit )->isDirty() )
+        {
+            return true;
+        }
+    }
+    return false;
+}

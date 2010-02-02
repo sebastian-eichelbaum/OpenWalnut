@@ -22,44 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#include <string>
 
-#include <boost/shared_ptr.hpp>
+#include "WModuleConnectorNotFound.h"
 
-#include <osg/ref_ptr>
-
-
-class WGEGroupNode;
-class WGEViewer;
-
-/**
- * Custom widget which is created by a module to display custom information.
- */
-class WCustomWidget
+WModuleConnectorNotFound::WModuleConnectorNotFound( const std::string& msg ): WModuleException( msg )
 {
-public:
-    /**
-     * Destructor
-     */
-    virtual ~WCustomWidget();
+    // initialize members
+}
 
-    /**
-     * Get the scene which is displayed
-     *
-     * \return the scene as osg::ref_ptr
-     */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
+WModuleConnectorNotFound::~WModuleConnectorNotFound() throw()
+{
+    // cleanup
+}
 
-    /**
-     * Get the viewer which is used
-     *
-     * \return the viewer as boost::shard_ptr
-     */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
 
-protected:
-private:
-};
-
-#endif  // WCUSTOMWIDGET_H

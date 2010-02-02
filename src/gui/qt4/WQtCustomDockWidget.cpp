@@ -50,6 +50,11 @@ osg::ref_ptr< WGEGroupNode > WQtCustomDockWidget::getScene() const
     return m_scene;
 }
 
+boost::shared_ptr< WGEViewer > WQtCustomDockWidget::getViewer() const
+{
+    return m_glWidget->getViewer();
+}
+
 void WQtCustomDockWidget::increaseUseCount()
 {
     ++m_useCount;

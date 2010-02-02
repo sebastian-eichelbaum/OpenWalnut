@@ -22,44 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#include <string>
 
-#include <boost/shared_ptr.hpp>
+#include "WProperty2.h"
 
-#include <osg/ref_ptr>
-
-
-class WGEGroupNode;
-class WGEViewer;
-
-/**
- * Custom widget which is created by a module to display custom information.
- */
-class WCustomWidget
+WProperty2::WProperty2( std::string name, std::string description ):
+    m_name( name ),
+    m_description( description )
 {
-public:
-    /**
-     * Destructor
-     */
-    virtual ~WCustomWidget();
+    // initialize members
+}
 
-    /**
-     * Get the scene which is displayed
-     *
-     * \return the scene as osg::ref_ptr
-     */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
+WProperty2::~WProperty2()
+{
+    // clean up
+}
 
-    /**
-     * Get the viewer which is used
-     *
-     * \return the viewer as boost::shard_ptr
-     */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
+std::string WProperty2::getName() const
+{
+    return m_name;
+}
 
-protected:
-private:
-};
+std::string WProperty2::getDescription() const
+{
+    return m_description;
+}
 
-#endif  // WCUSTOMWIDGET_H

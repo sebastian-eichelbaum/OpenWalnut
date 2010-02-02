@@ -22,44 +22,68 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#ifndef WPROPERTY2_H
+#define WPROPERTY2_H
 
-#include <boost/shared_ptr.hpp>
+#include <string>
 
-#include <osg/ref_ptr>
-
-
-class WGEGroupNode;
-class WGEViewer;
+#include "WPropertyTypes.h"
 
 /**
- * Custom widget which is created by a module to display custom information.
+ * Class managing a single named property.
  */
-class WCustomWidget
+class WProperty2
 {
 public:
-    /**
-     * Destructor
-     */
-    virtual ~WCustomWidget();
 
     /**
-     * Get the scene which is displayed
+     * Create an empty instance just containing a name.
      *
-     * \return the scene as osg::ref_ptr
+     * \param name  the property name
+     * \param description the property description
      */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
+    WProperty2( std::string name, std::string description );
 
     /**
-     * Get the viewer which is used
-     *
-     * \return the viewer as boost::shard_ptr
+     * Destructor.
      */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
+    virtual ~WProperty2();
+
+    /**
+     * Get the name of the property.
+     *
+     * \return the name.
+     */
+    std::string getName() const;
+
+    /**
+     * Get the description of the property.
+     *
+     * \return the description.
+     */
+    std::string getDescription() const;
+
+    /**
+     * Returns the actual type of the property. This is needed to identify all subclassed types.
+     *
+     * \return the type.
+     */
+    virtual PROPERTY_TYPE getType() const = 0;
 
 protected:
+
+    /**
+     * Name of the property.
+     */
+    std::string m_name;
+
+    /**
+     * Description of the property.
+     */
+    std::string m_description;
+
 private:
 };
 
-#endif  // WCUSTOMWIDGET_H
+#endif  // WPROPERTY2_H
+

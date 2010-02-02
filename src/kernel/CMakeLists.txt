@@ -20,6 +20,7 @@ IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${KERNEL_SRC}"
                                "kernel"
                                "WKernel.cpp"
+                               "WBatchLoader.cpp"
                                "WModule.cpp"
                                "WModuleInputConnector.cpp"
                                "WModuleOutputConnector.cpp"

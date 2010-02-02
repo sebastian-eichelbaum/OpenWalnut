@@ -79,6 +79,19 @@ void WModuleInputConnector::disconnectSignals( boost::shared_ptr<WModuleConnecto
     WModuleConnector::disconnectSignals( con );
 }
 
+boost::signals2::connection WModuleInputConnector::subscribeSignal( MODULE_CONNECTOR_SIGNAL signal,
+                                                                    t_GenericSignalHandlerType notifier )
+{
+    // connect DataChanged signal
+    switch ( signal )
+    {
+        case DATA_CHANGED:
+            return signal_DataChanged.connect( notifier );
+        default:    // we do not know this signal: maybe the base class knows it
+            return WModuleConnector::subscribeSignal( signal, notifier );
+    }
+}
+
 void WModuleInputConnector::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
                                               boost::shared_ptr<WModuleConnector> output )
 {
@@ -91,5 +104,16 @@ void WModuleInputConnector::notifyDataChange( boost::shared_ptr<WModuleConnector
 boost::shared_ptr< WCondition > WModuleInputConnector::getDataChangedCondition()
 {
     return m_dataChangedCondition;
+}
+
+void WModuleInputConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there )
+{
+    // since the output connector is not able to fill the parameter "input" we need to forward this message and fill it with the
+    // proper information
+    // NOTE: connection established also emits a data changed signal since the data available at the connector has changed.
+    notifyDataChange( here, there );
+
+    // forward
+    WModuleConnector::notifyConnectionEstablished( here, there );
 }
 

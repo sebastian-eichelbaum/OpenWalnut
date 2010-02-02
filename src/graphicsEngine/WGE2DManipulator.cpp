@@ -26,7 +26,7 @@
 
 
 WGE2DManipulator::WGE2DManipulator()
-    : m_positionX( 0.0 ),
+    : m_positionX( -64.0 ),
       m_positionY( 0.0 ),
       m_zoom( 1.0 )
 {
@@ -63,7 +63,7 @@ osg::Matrixd WGE2DManipulator::getInverseMatrix() const
 
 void WGE2DManipulator::home( const osgGA::GUIEventAdapter& /*ea*/, osgGA::GUIActionAdapter& us ) // NOLINT We can not change the interface of OSG
 {
-    m_positionX = 0.0;
+    m_positionX = -64.0;
     m_positionY = 0.0;
     m_zoom = 1.0;
 

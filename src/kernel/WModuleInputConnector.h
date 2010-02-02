@@ -70,6 +70,16 @@ public:
      */
     boost::shared_ptr< WCondition > getDataChangedCondition();
 
+    /**
+     * Connects (subscribes) a specified notify function with a signal this module instance is offering.
+     *
+     * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
+     *
+     * \param signal the signal to connect to.
+     * \param notifier the notifier function to bind.
+     */
+     boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
+
 protected:
 
     /**
@@ -93,8 +103,15 @@ protected:
      * \param input the input connector receiving the change.
      * \param output the output connector sending the change notification.
      */
-    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input,
-                                   boost::shared_ptr<WModuleConnector> output );
+    virtual void notifyDataChange( boost::shared_ptr<WModuleConnector> input, boost::shared_ptr<WModuleConnector> output );
+
+    /**
+     * Gets called whenever a connector gets connected to the specified input.
+     *
+     * \param here the connector of THIS module that got connected to "there"
+     * \param there the connector that has been connected with the connector "here" of this module.
+     */
+    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there );
 
 private:
 

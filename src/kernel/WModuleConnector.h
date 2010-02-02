@@ -131,7 +131,8 @@ public:
     const std::string getName() const;
 
     /**
-     * Gives canonical name of connection. The canonical name is a descriptor including module name.
+     * Gives canonical name of connection. The canonical name is a descriptor including module name. The description is
+     * ModuleName:ConnectorName.
      *
      * \return The name of this connection
      */
@@ -196,6 +197,22 @@ protected:
      * The Module this connector belongs to
      */
     boost::shared_ptr<WModule> m_module;
+
+    /**
+     * Gets called whenever a connector gets connected to the specified input.
+     *
+     * \param here the connector of THIS module that got connected to "there"
+     * \param there the connector that has been connected with the connector "here" of this module.
+     */
+    virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there );
+
+    /**
+     * Gets called whenever a connection between a remote and local connector gets closed.
+     *
+     * \param here the connector of THIS module getting disconnected.
+     * \param there the connector of the other module getting disconnected.
+     */
+    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there );
 
 private:
 

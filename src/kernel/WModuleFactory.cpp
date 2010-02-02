@@ -31,6 +31,7 @@
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/data/WMData.h"
+#include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/eegView/WMEEGView.h"
 #include "../modules/fiberClustering/WMFiberClustering.h"
@@ -79,6 +80,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMCoordinateSystem() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMTextureList() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
@@ -108,7 +110,7 @@ void WModuleFactory::load()
         }
         names.insert( ( *listIter )->getName() );
 
-        ( *listIter )->initialize();
+        initializeModule( ( *listIter ) );
     }
 
     slock.unlock();
@@ -129,9 +131,14 @@ boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule 
 
     // call prototypes factory function
     boost::shared_ptr< WModule > clone = boost::shared_ptr< WModule >( prototype->factory() );
-    clone->initialize();
+    initializeModule( clone );
 
     return clone;
+}
+
+void WModuleFactory::initializeModule( boost::shared_ptr< WModule > module )
+{
+    module->initialize();
 }
 
 boost::shared_ptr< WModuleFactory > WModuleFactory::getModuleFactory()

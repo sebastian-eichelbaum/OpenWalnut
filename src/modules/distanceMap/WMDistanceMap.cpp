@@ -28,18 +28,21 @@
 #include <vector>
 
 #include "WMDistanceMap.h"
-#include "../marchingCubes/WMMarchingCubes.h"
 
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleFactory.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../common/WProgress.h"
 
 WMDistanceMap::WMDistanceMap():
     WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
-    // Implement WModule::initializeConnectors instead.
+    // NOTE: Do not use the module factory inside this constructor. This will cause a dead lock as the module factory is locked
+    // during construction of this instance and can then not be used to create another instance (Isosurface in this case).
 }
+
 WMDistanceMap::~WMDistanceMap()
 {
     // cleanup
@@ -59,15 +62,14 @@ const std::string WMDistanceMap::getName() const
 const std::string WMDistanceMap::getDescription() const
 {
     return "This description has to be improved when the module is completed."
-        " By now lets say the following: Computes a smoothed version of the dataset"
-        " and a distance map on it. Finally it renders this distance map using MarchinCubes";
+           " By now lets say the following: Computes a smoothed version of the dataset"
+           " and a distance map on it. Finally it renders this distance map using MarchinCubes";
 }
-
-
 
 void WMDistanceMap::moduleMain()
 {
     // use the m_input "data changed" flag
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
 
     // signal ready state
@@ -76,21 +78,28 @@ void WMDistanceMap::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        boost::shared_ptr< const WDataSetSingle > dataSet = m_input->getData();
+        // acquire data from the input connector
+        m_dataSet = m_input->getData();
+        if ( !m_dataSet.get() )
+        {
+            // OK, the output has not yet sent data
+            // NOTE: see comment at the end of this while loop for m_moduleState
+            debugLog() << "Waiting for data ...";
+            m_moduleState.wait();
+            continue;
+        }
 
-        boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( dataSet );
-        boost::shared_ptr< WMMarchingCubes > mc = boost::shared_ptr< WMMarchingCubes >( new WMMarchingCubes() );
-
-        mc->generateSurface( dataSet->getGrid(), distanceMapValueSet, .4 );
-
-        WLogger::getLogger()->addLogMessage( "Rendering surface ...", "Distance Map", LL_INFO );
-
-        mc->renderSurface();
+        // found some data
+        debugLog() << "Data changed. Updating ...";
+        boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( m_dataSet );
+        m_distanceMapDataSet = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( distanceMapValueSet, m_dataSet->getGrid() ) );
 
         WLogger::getLogger()->addLogMessage( "Done!", "Distance Map", LL_INFO );
 
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
+        // update the output
+        m_output->updateData( m_distanceMapDataSet );
+
+        // wait for new data change event or quit event
         m_moduleState.wait();
     }
 }
@@ -107,13 +116,21 @@ void WMDistanceMap::connectors()
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
-    // call WModules initialization
+    m_output = boost::shared_ptr<WModuleOutputData< WDataSetSingle > >(
+        new WModuleOutputData< WDataSetSingle >( shared_from_this(),
+                                                               "out", "Distance map for the input data set." )
+        );
+
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_output );
+
+    // call WModule's initialization
     WModule::connectors();
 }
 
 void WMDistanceMap::properties()
 {
-//     ( m_properties->addDouble( "isoValue", 80 ) )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+    // no properties
 }
 
 template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSetHelper( boost::shared_ptr< WValueSet< T > > inSet )
@@ -156,8 +173,6 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
             assert( false && "Unknow data type in makeFloatDataSet" );
     }
 }
-
-
 
 boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shared_ptr< const WDataSetSingle > dataSet )
 {
@@ -213,8 +228,14 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     dmax = 999999999.0;
 
     // first pass
+
+    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >(
+            new WProgress( "Distance Map", nbands + nbands + nrows + nbands + nbands + nbands )
+    );
+    m_progress->addSubProgress( progress1 );
     for( b = 0; b < nbands; ++b)
     {
+        ++*progress1;
         for( r = 0; r < nrows; ++r)
         {
             for( c = 0; c < ncols; ++c)
@@ -256,6 +277,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     // second pass
     for( b = 0; b < nbands; b++ )
     {
+        ++*progress1;
         for( c = 0; c < ncols; c++ )
         {
             for( r = 0; r < nrows; r++ )
@@ -291,9 +313,9 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     }
 
     // third pass
-
     for( r = 0; r < nrows; r++ )
     {
+        ++*progress1;
         for( c = 0; c < ncols; c++ )
         {
             for( b = 0; b < nbands; b++ )
@@ -385,6 +407,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
 
     for( b = 0; b < nbands; ++b )
     {
+        ++*progress1;
         for( r = 0; r < nrows; ++r )
         {
             for( c = d; c < ncols - d; ++c )
@@ -405,6 +428,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     int r1;
     for( b = 0; b < nbands; ++b )
     {
+        ++*progress1;
         for( r = d; r < nrows - d; ++r )
         {
             for( c = 0; c < ncols; ++c )
@@ -425,6 +449,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     int b1;
     for( b = d; b < nbands - d; ++b )
     {
+        ++*progress1;
         for( r = 0; r < nrows; ++r )
         {
             for( c = 0; c < ncols; ++c )
@@ -449,6 +474,8 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     boost::shared_ptr< WValueSet< float > > resultValueSet;
     resultValueSet = boost::shared_ptr< WValueSet< float > >(
         new WValueSet< float >( valueSet->order(), valueSet->dimension(), floatDataset, W_DT_FLOAT ) );
+
+    progress1->finish();
 
     return resultValueSet;
 }

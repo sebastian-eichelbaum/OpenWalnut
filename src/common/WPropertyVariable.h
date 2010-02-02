@@ -22,44 +22,71 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#ifndef WPROPERTYVARIABLE_H
+#define WPROPERTYVARIABLE_H
 
-#include <boost/shared_ptr.hpp>
+#include <stdint.h>
 
-#include <osg/ref_ptr>
+#include <string>
+#include <typeinfo>
 
-
-class WGEGroupNode;
-class WGEViewer;
+#include "WProperty2.h"
 
 /**
- * Custom widget which is created by a module to display custom information.
+ * A named property class with a concrete type.
  */
-class WCustomWidget
+template< typename T >
+class WPropertyVariable: public WProperty2
 {
 public:
-    /**
-     * Destructor
-     */
-    virtual ~WCustomWidget();
 
     /**
-     * Get the scene which is displayed
+     * Create an empty instance just containing a name.
      *
-     * \return the scene as osg::ref_ptr
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
      */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
+    WPropertyVariable( std::string name, std::string description, const T& initial ):
+        WProperty2( name, description )
+    {
+        // initialize everything
+    }
 
     /**
-     * Get the viewer which is used
-     *
-     * \return the viewer as boost::shard_ptr
+     * Destructor.
      */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
+    virtual ~WPropertyVariable()
+    {
+        // clean up
+    }
+
+    T& get() const
+    {
+        return m_value;
+    }
+
+    void set( T& val )
+    {
+        m_value = val;
+    }
+
+    virtual PROPERTY_TYPE getType() const
+    {
+        if ( typeid( T ) == typeid( int ) )
+            return INT;
+        else
+            return INT;
+    }
 
 protected:
+
+    /**
+     * The actual variable handled by this property.
+     */
+    T m_value;
+
 private:
 };
 
-#endif  // WCUSTOMWIDGET_H
+#endif  // WPROPERTYVARIABLE_H

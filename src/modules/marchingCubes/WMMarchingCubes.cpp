@@ -56,6 +56,7 @@
 
 WMMarchingCubes::WMMarchingCubes():
     WModule(),
+    m_propertiesChanged( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_nCellsX( 0 ),
     m_nCellsY( 0 ),
     m_nCellsZ( 0 ),
@@ -103,6 +104,7 @@ void WMMarchingCubes::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_propertiesChanged );
 
     // signal ready state
     ready();
@@ -186,11 +188,7 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
 {
     if( propertyName == "Iso Value" )
     {
-        double isoValue = m_properties->getValue< double >( propertyName );
-        debugLog() << "Update isosurface for isovalue: " << isoValue << std::endl;
-        generateSurfacePre( isoValue );
-        renderSurface();
-        debugLog() << "Updating done." << std::endl;
+        m_propertiesChanged->notify();
     }
     else if( propertyName == "Use Texture" )
     {
@@ -225,7 +223,7 @@ void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
 {
-    debugLog() << "Isovalue: " << isoValue << std::endl;
+    debugLog() << "Isovalue: " << isoValue;
     switch( (*m_dataSet).getValueSet()->getDataType() )
     {
         case W_DT_UNSIGNED_CHAR:

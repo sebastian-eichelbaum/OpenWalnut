@@ -43,11 +43,11 @@
 #include "WModuleContainer.h"
 
 WModuleContainer::WModuleContainer( std::string name, std::string description ):
-    boost::enable_shared_from_this< WModuleContainer >(),
+    WModule(),
     m_name( name ),
     m_description( description )
 {
-    WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + m_name + ")", LL_INFO );
+    WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + getName() + ")", LL_INFO );
     // initialize members
 }
 
@@ -56,14 +56,28 @@ WModuleContainer::~WModuleContainer()
     // cleanup
 }
 
+void WModuleContainer::moduleMain()
+{
+    // do nothing here. The WModule class enforces us to overwrite this method here, but we do not need it.
+    // Only set the ready flag.
+    ready();
+}
+
+boost::shared_ptr< WModule > WModuleContainer::factory() const
+{
+    // this factory is not used actually.
+    return boost::shared_ptr< WModule >( new WModuleContainer( getName(), getDescription() ) );
+}
+
 void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
-    WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." , "ModuleContainer (" + m_name + ")", LL_INFO );
+    WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." ,
+            "ModuleContainer (" + getName() + ")", LL_INFO );
 
     if ( !module->isInitialized()() )
     {
         std::ostringstream s;
-        s << "Could not add module \"" << module->getName() << "\" to container \"" + m_name + "\". Reason: module not initialized.";
+        s << "Could not add module \"" << module->getName() << "\" to container \"" + getName() + "\". Reason: module not initialized.";
 
         throw WModuleUninitialized( s.str() );
     }
@@ -84,8 +98,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
     m_modules.insert( module );
     lock.unlock();
-    module->setAssociatedContainer( shared_from_this() );
-    WLogger::getLogger()->addLogMessage( "Associated module \"" + module->getName() + "\" with container." , "ModuleContainer (" + m_name + ")",
+    module->setAssociatedContainer( boost::shared_static_cast< WModuleContainer >( shared_from_this() ) );
+    WLogger::getLogger()->addLogMessage( "Associated module \"" + module->getName() + "\" with container." , "ModuleContainer (" + getName() + ")",
             LL_INFO );
 
     // now module->isUsable() is true
@@ -110,6 +124,9 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     }
     slock.unlock();
 
+    // add the modules progress to local progress combiner
+    m_progress->addSubProgress( module->getRootProgressCombiner() );
+
     // run it
     if ( run )
     {
@@ -119,7 +136,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 {
-    WLogger::getLogger()->addLogMessage( "Removing module \"" + module->getName() + "\" from container." , "ModuleContainer (" + m_name + ")",
+    WLogger::getLogger()->addLogMessage( "Removing module \"" + module->getName() + "\" from container." , "ModuleContainer (" + getName() + ")",
             LL_DEBUG );
 
     if ( module->getAssociatedContainer() != shared_from_this() )
@@ -128,7 +145,7 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     }
 
     // stop module
-    WLogger::getLogger()->addLogMessage( "Waiting for module \"" + module->getName() + "\" to finish." , "ModuleContainer (" + m_name + ")",
+    WLogger::getLogger()->addLogMessage( "Waiting for module \"" + module->getName() + "\" to finish." , "ModuleContainer (" + getName() + ")",
             LL_DEBUG );
     module->wait( true );
 
@@ -145,7 +162,7 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 
 void WModuleContainer::stop()
 {
-    WLogger::getLogger()->addLogMessage( "Stopping pending threads." , "ModuleContainer (" + m_name + ")", LL_INFO );
+    WLogger::getLogger()->addLogMessage( "Stopping pending threads." , "ModuleContainer (" + getName() + ")", LL_INFO );
 
     // read lock
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_pendingThreadsLock );
@@ -156,14 +173,14 @@ void WModuleContainer::stop()
     }
     slock.unlock();
 
-    WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + m_name + ")", LL_INFO );
+    WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + getName() + ")", LL_INFO );
 
     // read lock
     slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_modules.begin(); listIter != m_modules.end(); ++listIter )
     {
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + ( *listIter )->getName() + "\" to finish." ,
-                "ModuleContainer (" + m_name + ")", LL_INFO );
+                "ModuleContainer (" + getName() + ")", LL_INFO );
         ( *listIter )->wait( true );
     }
     slock.unlock();
@@ -250,8 +267,6 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     std::set<boost::shared_ptr<WModuleOutputConnector> > outs = applyOn->getOutputConnectors();
 
     // TODO(ebaum): search best matching instead of simply connecting both
-    WLogger::getLogger()->addLogMessage( "Connecting " + ( *outs.begin() )->getCanonicalName() + " with " + ( *ins.begin() )->getCanonicalName()
-            , "ModuleContainer", LL_INFO );
     ( *ins.begin() )->connect( ( *outs.begin() ) );
 
     return m;
@@ -260,7 +275,9 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
 boost::shared_ptr< WBatchLoader > WModuleContainer::loadDataSets( std::vector< std::string > fileNames )
 {
     // create thread which actually loads the data
-    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames, shared_from_this() ) );
+    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames,
+                boost::shared_static_cast< WModuleContainer >( shared_from_this() ) )
+    );
     t->run();
     return t;
 }
@@ -268,7 +285,9 @@ boost::shared_ptr< WBatchLoader > WModuleContainer::loadDataSets( std::vector< s
 void WModuleContainer::loadDataSetsSynchronously( std::vector< std::string > fileNames )
 {
     // create thread which actually loads the data
-    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames, shared_from_this() ) );
+    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames,
+                boost::shared_static_cast< WModuleContainer >( shared_from_this() ) )
+    );
     t->run();
     t->wait();
 }

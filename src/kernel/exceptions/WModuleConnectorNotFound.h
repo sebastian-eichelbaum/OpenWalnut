@@ -22,44 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#ifndef WMODULECONNECTORNOTFOUND_H
+#define WMODULECONNECTORNOTFOUND_H
 
-#include <boost/shared_ptr.hpp>
+#include <string>
 
-#include <osg/ref_ptr>
-
-
-class WGEGroupNode;
-class WGEViewer;
+#include "WModuleException.h"
 
 /**
- * Custom widget which is created by a module to display custom information.
+ * General purpose exception and therefore base class for all kernel related exceptions.
+ * \ingroup kernel
  */
-class WCustomWidget
+class WModuleConnectorNotFound: public WModuleException
 {
 public:
-    /**
-     * Destructor
-     */
-    virtual ~WCustomWidget();
 
     /**
-     * Get the scene which is displayed
-     *
-     * \return the scene as osg::ref_ptr
+     * Default constructor.
+     * \param msg the exception message.
      */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const = 0;
+    explicit WModuleConnectorNotFound( const std::string& msg = "Module connector could not be found." );
 
     /**
-     * Get the viewer which is used
-     *
-     * \return the viewer as boost::shard_ptr
+     * Destructor.
      */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
+    virtual ~WModuleConnectorNotFound() throw();
 
 protected:
+
 private:
 };
 
-#endif  // WCUSTOMWIDGET_H
+#endif  // WMODULECONNECTORNOTFOUND_H
+
