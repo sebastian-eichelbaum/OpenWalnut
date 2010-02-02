@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WPropertyBase.h"
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
