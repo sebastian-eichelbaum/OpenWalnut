@@ -24,10 +24,12 @@
 
 #include <string>
 
+#include "WTreeItemTypes.h"
+
 #include "WQtDatasetTreeItem.h"
 
 WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module )
-    : WQtTreeItem( parent, 1, module )
+    : WQtTreeItem( parent, DATASET, module )
 {
     // replace the name by the filename
     m_name = module->getProperties()->getValue< std::string >( "filename" );

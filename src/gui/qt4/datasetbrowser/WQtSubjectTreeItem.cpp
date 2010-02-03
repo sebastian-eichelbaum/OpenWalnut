@@ -24,10 +24,12 @@
 
 #include <string>
 
+#include "WTreeItemTypes.h"
+
 #include "WQtSubjectTreeItem.h"
 
 WQtSubjectTreeItem::WQtSubjectTreeItem( QTreeWidget * parent )
-    : QTreeWidgetItem( parent, 0 ) // type 0
+    : QTreeWidgetItem( parent, SUBJECT ) // type 0
 {
 }
 

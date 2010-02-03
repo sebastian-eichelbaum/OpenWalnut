@@ -30,6 +30,8 @@
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QProgressBar>
 #include <QtCore/QTimer>
+
+#include "WTreeItemTypes.h"
 #include "../../../kernel/WModule.h"
 
 /**
@@ -48,7 +50,7 @@ public:
      * \param module The represented module
      * \param type the type used for the treeitem. Used to identify the items.
      */
-    WQtTreeItem( QTreeWidgetItem * parent, int type, boost::shared_ptr< WModule > module );
+    WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module );
 
     /**
      * Destructor.

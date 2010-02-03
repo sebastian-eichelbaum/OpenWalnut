@@ -28,9 +28,10 @@
 #include "../../../common/WProgressCombiner.h"
 #include "../../../common/WProgress.h"
 
+#include "WTreeItemTypes.h"
 #include "WQtTreeItem.h"
 
-WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, int type, boost::shared_ptr< WModule > module ) :
+WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
     QTreeWidgetItem( parent, type )
 {
     m_module = module;

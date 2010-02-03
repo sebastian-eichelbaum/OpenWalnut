@@ -46,7 +46,7 @@ public:
      * \param roi
      * \param type
      */
-    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, int type = 5 );
+    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type = ROI );
 
     /**
      * destructor

@@ -247,7 +247,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     {
         switch ( m_treeWidget->selectedItems().at( 0 )->type() )
         {
-            case 5 :
+            case ROI :
             {
                 WQtRoiTreeItem* roiItem =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) );
                 m_tiRois->setExpanded( true );
@@ -256,7 +256,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
                 item->setDisabled( false );
                 break;
             }
-            case 6 :
+            case SUBROI :
             {
                 WQtRoiTreeItem* roiItem =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 )->parent() );
                 m_tiRois->setExpanded( true );
@@ -309,21 +309,25 @@ void WQtDatasetBrowser::selectTreeItem()
     {
         switch ( m_treeWidget->selectedItems().at( 0 )->type() )
         {
-            case 0:
+            case SUBJECT:
                 break;
-            case 1:
-            case 3:
-                module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+            case DATASET:
+                module = ( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
                 props = module->getProperties()->getPropertyVector();
                 createCompatibleButtons( module );
                 break;
-            case 2:
+            case MODULEHEADER:
                 break;
-            case 4:
+            case MODULE:
+                module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
+                props = module->getProperties()->getPropertyVector();
+                createCompatibleButtons( module );
                 break;
-            case 5:
-            case 6:
-                props = ( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getRoi()->getProperties()->getPropertyVector();
+            case ROIHEADER:
+                break;
+            case ROI:
+            case SUBROI:
+                props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties()->getPropertyVector();
                 break;
             default:
                 break;
@@ -401,9 +405,9 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
 
 void WQtDatasetBrowser::changeTreeItem()
 {
-    if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == 1 )
+    if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == DATASET )
     {
-        boost::shared_ptr< WModule >module =( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        boost::shared_ptr< WModule >module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
         if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
         {
             module->getProperties()->setValue<bool>( "active", true );
@@ -414,9 +418,9 @@ void WQtDatasetBrowser::changeTreeItem()
         }
         emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     }
-    else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == 3 )
+    else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == MODULE )
     {
-        boost::shared_ptr< WModule >module =( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        boost::shared_ptr< WModule >module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
         if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
         {
             module->getProperties()->setValue<bool>( "active", true );
@@ -472,20 +476,23 @@ boost::shared_ptr< WProperties > WQtDatasetBrowser::getPropOfSelected()
     {
         switch ( m_treeWidget->selectedItems().at( 0 )->type() )
         {
-            case 0:
+            case SUBJECT:
                 break;
-            case 1:
-            case 3:
-                module = ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+            case DATASET:
+                module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
                 props = module->getProperties();
                 break;
-            case 2:
+            case MODULE:
+                module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
+                props = module->getProperties();
                 break;
-            case 4:
+            case MODULEHEADER:
                 break;
-            case 5:
-            case 6:
-                props = ( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getRoi()->getProperties();
+            case ROIHEADER:
+                break;
+            case ROI:
+            case SUBROI:
+                props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
                 break;
             default:
                 break;
@@ -507,8 +514,8 @@ std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( 
 
     for ( int i = 0 ; i < count ; ++i )
     {
-        boost::shared_ptr< WMData > dm = boost::shared_dynamic_cast< WMData >( ( ( WQtDatasetTreeItem* )m_treeWidget->invisibleRootItem()->child(
-                        subjectId + c )->child( i ) )->getModule() );
+        boost::shared_ptr< WMData > dm = boost::shared_dynamic_cast< WMData >( ( static_cast< WQtDatasetTreeItem* >(
+                            m_treeWidget->invisibleRootItem()->child( subjectId + c )->child( i ) ) )->getModule() );
 
         if ( dm->isReady()() && ( !onlyTextures || dm->getDataSet()->isTexture() ) )
         {
@@ -538,7 +545,7 @@ int WQtDatasetBrowser::getFirstSubject()
     int c = 0;
     for ( int i = 0; i < m_treeWidget->topLevelItemCount() ; ++i )
     {
-        if ( m_treeWidget->topLevelItem( i )->type() == 0 )
+        if ( m_treeWidget->topLevelItem( i )->type() == SUBJECT )
         {
             break;
         }
@@ -554,14 +561,14 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getSelectedRoi()
     {
         return roi;
     }
-    if ( m_treeWidget->selectedItems().at( 0 )->type() == 5 )
+    if ( m_treeWidget->selectedItems().at( 0 )->type() == ROI )
     {
-        roi =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getRoi();
+        roi =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi();
         std::cout << "return this" << std::endl;
     }
-    if ( m_treeWidget->selectedItems().at( 0 )->type() == 6 )
+    if ( m_treeWidget->selectedItems().at( 0 )->type() == SUBROI )
     {
-        roi =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 )->parent() )->getRoi();
+        roi =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 )->parent() ) )->getRoi();
         std::cout << "return parent" << std::endl;
     }
     return roi;

@@ -24,10 +24,12 @@
 
 #include <string>
 
+#include "WTreeItemTypes.h"
+
 #include "WQtModuleHeaderTreeItem.h"
 
 WQtModuleHeaderTreeItem::WQtModuleHeaderTreeItem( QTreeWidget * parent ) :
-    QTreeWidgetItem( parent, 2 )
+    QTreeWidgetItem( parent, MODULEHEADER )
 {
 }
 

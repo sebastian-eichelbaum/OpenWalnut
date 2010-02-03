@@ -22,10 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WTreeItemTypes.h"
+
 #include "WQtModuleTreeItem.h"
 
 WQtModuleTreeItem::WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module ) :
-    WQtTreeItem( parent, 3, module )
+    WQtTreeItem( parent, MODULE, module )
 {
 }
 

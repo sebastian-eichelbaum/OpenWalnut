@@ -24,9 +24,10 @@
 
 #include <string>
 
+#include "WTreeItemTypes.h"
 #include "WQtRoiTreeItem.h"
 
-WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, int type ) :
+WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type ) :
     QTreeWidgetItem( parent, type ),
     m_roi( roi )
 {
@@ -43,7 +44,7 @@ boost::shared_ptr< WRMROIRepresentation > WQtRoiTreeItem::getRoi()
 
 WQtRoiTreeItem* WQtRoiTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi )
 {
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, 6 );
+    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, SUBROI );
 
     std::string name = "ROI";
     rti->setText( 0, QString( name.c_str() ) );

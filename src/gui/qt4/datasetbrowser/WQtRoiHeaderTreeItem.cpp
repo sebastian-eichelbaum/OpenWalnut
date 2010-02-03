@@ -24,12 +24,13 @@
 
 #include <string>
 
+#include "WTreeItemTypes.h"
 #include "WQtRoiTreeItem.h"
 
 #include "WQtRoiHeaderTreeItem.h"
 
 WQtRoiHeaderTreeItem::WQtRoiHeaderTreeItem( QTreeWidget * parent ) :
-    QTreeWidgetItem( parent, 4 )
+    QTreeWidgetItem( parent, ROIHEADER )
 {
 }
 
