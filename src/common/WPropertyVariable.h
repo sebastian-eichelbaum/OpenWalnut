@@ -170,41 +170,22 @@ WPropertyVariable< T >::~WPropertyVariable()
 }
 
 template < typename T >
-bool WPropertyVariable< T >::accept( T newValue )
+bool WPropertyVariable< T >::accept( T /* newValue */ )
 {
     // this currently is a dummy. Later this can be implemented to determine whether a value is valid.
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Implement the type function for each known type
+// This is useful since the user does not need to specify some kind of type identifier
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 template < typename T >
 void WPropertyVariable< T >::updateType()
 {
-    m_type = UNKNOWN;
-
-    if ( typeid( int32_t ) == typeid( T ) )
-    {
-        m_type = INT;
-    }
-    else if ( typeid( double ) == typeid( T ) )
-    {
-        m_type = DOUBLE;
-    }
-    else if ( typeid( bool ) == typeid( T ) )
-    {
-        m_type = BOOL;
-    }
-    else if ( typeid( std::string ) == typeid( T ) )
-    {
-        m_type = STRING;
-    }
-    else if ( typeid( boost::filesystem::path ) == typeid( T ) )
-    {
-        m_type = PATH;
-    }
-    else if ( typeid( boost::filesystem::path ) == typeid( T ) )
-    {
-        m_type = LIST;
-    }
+    PROPERTY_TYPE_HELPER::WTypeIdentifier< T > tid;
+    m_type = tid.getType();
 }
 
 /**
@@ -213,32 +194,32 @@ void WPropertyVariable< T >::updateType()
 /**
  * Alias for int32_t property variables.
  */
-typedef WPropertyVariable< int32_t > WPropInt;
+typedef boost::shared_ptr< WPropertyVariable< int32_t > > WPropInt;
 
 /**
  * Alias for int32_t property variables.
  */
-typedef WPropertyVariable< double > WPropDouble;
+typedef boost::shared_ptr< WPropertyVariable< double > > WPropDouble;
 
 /**
  * Alias for bool property variables.
  */
-typedef WPropertyVariable< bool > WPropBool;
+typedef boost::shared_ptr< WPropertyVariable< bool > > WPropBool;
 
 /**
  * Alias for string property variables.
  */
-typedef WPropertyVariable< std::string > WPropString;
+typedef boost::shared_ptr< WPropertyVariable< std::string > > WPropString;
 
 /**
  * Alias for filename property variables.
  */
-typedef WPropertyVariable< boost::filesystem::path > WPropFilename;
+typedef boost::shared_ptr< WPropertyVariable< boost::filesystem::path > > WPropFilename;
 
 /**
  * Alias for string list property variables.
  */
-typedef WPropertyVariable< std::list< std::string > > WPropList;
+typedef boost::shared_ptr< WPropertyVariable< std::list< std::string > > > WPropList;
 
 #endif  // WPROPERTYVARIABLE_H
 

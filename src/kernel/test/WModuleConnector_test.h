@@ -306,10 +306,10 @@ protected:
     /**
      * Notifier called whenever a changed data was propagated to one of this modules connectors.
      *
-     * \param input  the local connector receiving the event.
+     * param input  the local connector receiving the event.
      * \param output the remote connector propagating the event.
      */
-    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > input,
+    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > /*input */,
                                    boost::shared_ptr< WModuleConnector > output )
     {
         // just copy the data and add one
