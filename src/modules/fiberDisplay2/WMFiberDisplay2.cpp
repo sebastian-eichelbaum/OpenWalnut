@@ -39,7 +39,8 @@
 #include "WMFiberDisplay2.h"
 
 WMFiberDisplay2::WMFiberDisplay2()
-    : WModule()
+    : WModule(),
+      m_osgNode( osg::ref_ptr< osg::Group >() )
 {
 }
 
@@ -154,20 +155,34 @@ void WMFiberDisplay2::moduleMain()
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        m_dataset = m_fiberInput->getData();
-        if ( !m_dataset.get() ) // ok, the output has not yet sent data
-        {
-            m_moduleState.wait();
-            continue;
-        }
-        WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
-
-        create();
+        debugLog() << "Waiting for event";
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
-        // May be called twice
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+        /////////////////////////////////////////////////////////////////////////////////////////
+        // what caused wait to return?
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        // data changed?
+        if ( m_dataset != m_fiberInput->getData() )
+        {
+            // data has changed
+            // -> recalculate
+            debugLog() << "Data changed on " << m_fiberInput->getCanonicalName();
+
+            // ensure the data is valid (not NULL)
+            if ( !m_fiberInput->getData().get() ) // ok, the output has been reset, so we can ignore the "data change"
+            {
+                debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
+                continue;
+            }
+
+            m_dataset = m_fiberInput->getData();
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+
+            create();
+            WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
+        }
     }
 }
 
