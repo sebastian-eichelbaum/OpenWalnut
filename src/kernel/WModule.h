@@ -44,6 +44,7 @@
 
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
+#include "../common/WProperties2.h"
 #include "../common/WProgressCombiner.h"
 #include "../common/WProgress.h"
 #include "../common/WThreadedRunner.h"
@@ -116,9 +117,18 @@ public:
     boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name ) const;
 
     /**
-     * Return a pointer to the properties object of the module
+     * Return a pointer to the properties object of the module.
+     *
+     * \return the properties
      */
     boost::shared_ptr< WProperties > getProperties() const;
+
+    /**
+     * Return a pointer to the properties object of the module.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties2 > getProperties2() const;
 
     /**
      * Determines whether the module instance is properly initialized.
@@ -361,6 +371,11 @@ protected:
      * the property object for the module
      */
     boost::shared_ptr< WProperties > m_properties;
+
+    /**
+     * The property object for the module.
+     */
+    boost::shared_ptr< WProperties2 > m_properties2;
 
     /**
      * Progress indicator used as parent for all progress' of this module.

@@ -62,6 +62,7 @@ WModule::WModule():
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
+    m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
     m_container = boost::shared_ptr< WModuleContainer >();
     m_progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
 
@@ -297,6 +298,11 @@ void WModule::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
 boost::shared_ptr< WProperties > WModule::getProperties() const
 {
     return m_properties;
+}
+
+boost::shared_ptr< WProperties2 > WModule::getProperties2() const
+{
+    return m_properties2;
 }
 
 boost::shared_ptr< WProgressCombiner > WModule::getRootProgressCombiner()
