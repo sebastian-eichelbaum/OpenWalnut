@@ -180,8 +180,8 @@ void WMFiberDisplay2::moduleMain()
             m_dataset = m_fiberInput->getData();
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
 
-            create();
             WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
+            create();
         }
     }
 }
