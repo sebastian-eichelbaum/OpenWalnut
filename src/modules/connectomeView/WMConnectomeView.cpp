@@ -56,7 +56,9 @@ WMConnectomeView::WMConnectomeView():
     m_dataSet()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
-    // Implement WModule::initializeConnectors instead.
+    // NOTE: Do not use the module factory inside this constructor. This will cause a dead lock as the module factory is locked
+    // during construction of this instance and can then not be used to create another instance (Isosurface in this case). If you
+    // want to initialize some modules using the module factory BEFORE the moduleMain() call, overwrite WModule::initialize().
 }
 
 WMConnectomeView::~WMConnectomeView()
@@ -90,14 +92,24 @@ void WMConnectomeView::moduleMain()
 
 void WMConnectomeView::connectors()
 {
-    // initialize connectors
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( WModule::shared_from_this(),
-                                                               "in", "Volume Dataset to render directly." )
+    // this is the scalar field input
+    m_mrtInput = boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > >(
+        new WModuleInputForwardData< WDataSetSingle >( shared_from_this(),
+                                                               "context", "The context dataset used to visualize the context in\
+                                                               the brain." )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-    addConnector( m_input );
+    addConnector( m_mrtInput );
+
+    // this is the scalar field input
+    m_fiberInput = boost::shared_ptr< WModuleInputForwardData< WDataSetFibers2 > >(
+        new WModuleInputForwardData< WDataSetFibers2 >( shared_from_this(),
+                                                               "fibers", "The fiber dataset used to find connection path." )
+        );
+
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_fiberInput );
 
     // call WModules initialization
     WModule::connectors();

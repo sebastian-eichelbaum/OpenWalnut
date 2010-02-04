@@ -33,10 +33,12 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
+#include "../../dataHandler/WDataSetFibers2.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "../../kernel/WModuleInputForwardData.h"
+#include "../../kernel/WModuleOutputForwardData.h"
 
 /**
  * This module is able to visualize connectome data in the context of MRI data. It uses the module container class to allow the
@@ -102,9 +104,14 @@ protected:
 private:
 
     /**
-     * Input connector.
+     * The T1 image used as context
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_mrtInput;
+
+    /**
+     * The fiber dataset used.
+     */
+    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers2 > > m_fiberInput;
 
     /**
      * the current dataset

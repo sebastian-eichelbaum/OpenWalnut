@@ -33,6 +33,7 @@
 #include "../modules/data/WMData.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
+#include "../modules/connectomeView/WMConnectomeView.h"
 #include "../modules/eegView/WMEEGView.h"
 #include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../modules/fiberCulling/WMFiberCulling.h"
@@ -90,6 +91,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
 
     lock.unlock();
 
