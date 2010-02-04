@@ -36,8 +36,6 @@ WProperties2::WProperties2():
     m_iterationLock( boost::shared_lock< boost::shared_mutex >( m_updateLock ) )
 {
     m_iterationLock.unlock();
-
-    WPropertyVariable< double > p( "i", "d", 1.0 );
 }
 
 WProperties2::~WProperties2()

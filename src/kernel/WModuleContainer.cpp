@@ -260,6 +260,8 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
 
     // add it
     add( m, true );
+    applyOn->isReady().wait();
+    m->isReady().wait();
 
     // get offered outputs
     std::set<boost::shared_ptr<WModuleInputConnector> > ins = m->getInputConnectors();
