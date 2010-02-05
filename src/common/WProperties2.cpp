@@ -99,3 +99,33 @@ const WProperties2::PropertyIterator WProperties2::getPropertyIteratorEnd() cons
     return m_properties.end();
 }
 
+WPropBool WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, hide );
+}
+
+WPropInt WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_INT >( name, description, initial, hide );
+}
+
+WPropDouble WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, hide );
+}
+
+WPropString WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, hide );
+}
+
+WPropFilename WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
+}
+
+WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, hide );
+}
+
