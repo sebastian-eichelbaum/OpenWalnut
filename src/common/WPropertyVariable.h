@@ -37,6 +37,7 @@
 
 #include "WFlag.h"
 #include "WPropertyBase.h"
+#include "WPropertyConstraintTypes.h"
 #include "WPropertyConstraintMin.h"
 #include "WPropertyConstraintMax.h"
 #include "WCondition.h"
@@ -124,13 +125,6 @@ public:
     class PropertyConstraint
     {
     public:
-        typedef enum
-        {
-            PC_UNKNOWN,         // type ID for arbitrary WPropertyConstraint
-            PC_MIN,             // type ID for WPropertyConstraintMin
-            PC_MAX              // type ID for WPropertyConstraintMax
-        }
-        PROPERTYCONSTRAINT_TYPE;
 
         /**
          * Default constructor.
@@ -153,9 +147,9 @@ public:
         virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value ) = 0;
 
         /**
-         * Allows simple identification
+         * Allows simple identification of the real constraint type.
          *
-         * \return
+         * \return the type
          */
         virtual PROPERTYCONSTRAINT_TYPE getType();
     };
@@ -207,14 +201,14 @@ public:
     /**
      * Gets the current minimum constraint value.
      *
-     * \return the minimum constraint.
+     * \return the minimum constraint, or NULL if none.
      */
     boost::shared_ptr< WPropertyConstraintMin< T > > getMin();
 
     /**
      * Gets the current maximum constraint value.
      *
-     * \return the maximum constraint.
+     * \return the maximum constraint, or NULL if none.
      */
     boost::shared_ptr< WPropertyConstraintMax< T > > getMax();
 
@@ -246,18 +240,21 @@ protected:
     boost::shared_mutex m_constraintsLock;
 
     /**
-     * The currently set min constraint.
+     * Cleans m_constraints from all existing constrains of the specified type.
      *
-     * \todo this is ugly. Use m_constraints to keep the min constraint
+     * \param type the type to remove.
+     *
      */
-    boost::shared_ptr< WPropertyConstraintMin< T > > m_minConstraint;
+    void removeConstraints( PROPERTYCONSTRAINT_TYPE type );
 
     /**
-     * The currently set max constraint.
+     * Method searching the first appearance of a constrained with the specified type.
      *
-     * \todo this is ugly. Use m_constraints to keep the max constraint
+     * \param type the type of the searched constraint
+     *
+     * \return the constraint, or NULL if none.
      */
-    boost::shared_ptr< WPropertyConstraintMax< T > > m_maxConstraint;
+    boost::shared_ptr< PropertyConstraint > getFirstConstraint( PROPERTYCONSTRAINT_TYPE type );
 
 private:
 };
@@ -355,27 +352,87 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::maxCons
 template < typename T >
 boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin( T min )
 {
-    m_minConstraint = minConstraint( min );
-    return m_minConstraint;
+    removeConstraints( PC_MIN );
+    boost::shared_ptr< WPropertyConstraintMin< T > > c = minConstraint( min );
+    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    m_constraints.insert( c );
+    lock.unlock();
+    return c;
 }
 
 template < typename T >
 boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax( T max )
 {
-    m_maxConstraint = maxConstraint( max );
-    return m_maxConstraint;
+    removeConstraints( PC_MAX );
+    boost::shared_ptr< WPropertyConstraintMax< T > > c = maxConstraint( max );
+    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    m_constraints.insert( c );
+    lock.unlock();
+    return c;
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
+WPropertyVariable< T >::getFirstConstraint( PROPERTYCONSTRAINT_TYPE type )
+{
+    // lock
+    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+
+    // search first appearance of a constraint of the specified type
+    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    {
+        if ( ( *it )->getType() == type )
+        {
+            return ( *it );
+        }
+    }
+    lock.unlock();
+
+    return boost::shared_ptr< PropertyConstraint >();
 }
 
 template < typename T >
 boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::getMin()
 {
-    return m_minConstraint;
+    // get min
+    boost::shared_ptr< PropertyConstraint > c = getFirstConstraint( PC_MIN );
+    if ( !c.get() )
+    {
+        // return NULL if not found
+        return boost::shared_ptr< WPropertyConstraintMin< T > >();
+    }
+
+    // cast to proper type
+    return boost::shared_static_cast< WPropertyConstraintMin< T > >( c );
 }
 
 template < typename T >
 boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::getMax()
 {
-    return m_maxConstraint;
+    // get min
+    boost::shared_ptr< PropertyConstraint > c = getFirstConstraint( PC_MAX );
+    if ( !c.get() )
+    {
+        // return NULL if not found
+        return boost::shared_ptr< WPropertyConstraintMax< T > >();
+    }
+
+    // cast to proper type
+    return boost::shared_static_cast< WPropertyConstraintMax< T > >( c );
+}
+
+template < typename T >
+void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type )
+{
+    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    {
+        if ( ( *it )->getType() == type )
+        {
+            m_constraints.erase( it );
+        }
+    }
+    lock.unlock();
 }
 
 template < typename T >
@@ -386,6 +443,12 @@ WPropertyVariable< T >::PropertyConstraint::PropertyConstraint()
 template < typename T >
 WPropertyVariable< T >::PropertyConstraint::~PropertyConstraint()
 {
+}
+
+template < typename T >
+PROPERTYCONSTRAINT_TYPE WPropertyVariable< T >::PropertyConstraint::getType()
+{
+    return PC_UNKNOWN;
 }
 
 #endif  // WPROPERTYVARIABLE_H

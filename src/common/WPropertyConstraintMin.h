@@ -26,6 +26,7 @@
 #define WPROPERTYCONSTRAINTMIN_H
 
 #include "WPropertyTypes.h"
+#include "WPropertyConstraintTypes.h"
 
 template< typename T >
 class WPropertyVariable;
@@ -66,6 +67,13 @@ public:
      */
     T getMin();
 
+    /**
+     * Allows simple identification of the real constraint type.
+     *
+     * \return the type
+     */
+    virtual PROPERTYCONSTRAINT_TYPE getType();
+
 private:
 
     /**
@@ -95,6 +103,12 @@ template < typename T >
 T WPropertyConstraintMin< T >::getMin()
 {
     return m_min;
+}
+
+template < typename T >
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintMin< T >::getType()
+{
+    return PC_MIN;
 }
 
 #endif  // WPROPERTYCONSTRAINTMIN_H

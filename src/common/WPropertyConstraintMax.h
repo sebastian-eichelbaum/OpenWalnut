@@ -26,6 +26,7 @@
 #define WPROPERTYCONSTRAINTMAX_H
 
 #include "WPropertyTypes.h"
+#include "WPropertyConstraintTypes.h"
 
 template< typename T >
 class WPropertyVariable;
@@ -66,6 +67,13 @@ public:
      */
     T getMax();
 
+    /**
+     * Allows simple identification of the real constraint type.
+     *
+     * \return the type
+     */
+    virtual PROPERTYCONSTRAINT_TYPE getType();
+
 private:
 
     /**
@@ -95,6 +103,12 @@ template < typename T >
 T WPropertyConstraintMax< T >::getMax()
 {
     return m_max;
+}
+
+template < typename T >
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintMax< T >::getType()
+{
+    return PC_MAX;
 }
 
 #endif  // WPROPERTYCONSTRAINTMAX_H
