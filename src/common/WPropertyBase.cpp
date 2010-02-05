@@ -75,31 +75,31 @@ void WPropertyBase::setHidden( bool hidden )
 
 WPropInt WPropertyBase::toPropInt()
 {
-    return boost::shared_static_cast< WPropertyVariable< int32_t > >( shared_from_this() );
+    return boost::shared_static_cast< WPVInt >( shared_from_this() );
 }
 
 WPropDouble WPropertyBase::toPropDouble()
 {
-    return boost::shared_static_cast< WPropertyVariable< double > >( shared_from_this() );
+    return boost::shared_static_cast< WPVDouble >( shared_from_this() );
 }
 
 WPropBool WPropertyBase::toPropBool()
 {
-    return boost::shared_static_cast< WPropertyVariable< bool > >( shared_from_this() );
+    return boost::shared_static_cast< WPVBool >( shared_from_this() );
 }
 
 WPropString WPropertyBase::toPropString()
 {
-    return boost::shared_static_cast< WPropertyVariable< std::string > >( shared_from_this() );
+    return boost::shared_static_cast< WPVString >( shared_from_this() );
 }
 
 WPropFilename WPropertyBase::toPropPath()
 {
-    return boost::shared_static_cast< WPropertyVariable< boost::filesystem::path > >( shared_from_this() );
+    return boost::shared_static_cast< WPVFilename >( shared_from_this() );
 }
 
 WPropList WPropertyBase::toPropList()
 {
-    return boost::shared_static_cast< WPropertyVariable< std::list< std::string > > >( shared_from_this() );
+    return boost::shared_static_cast< WPVList >( shared_from_this() );
 }
 

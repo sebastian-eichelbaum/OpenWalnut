@@ -51,37 +51,89 @@ typedef enum
 PROPERTY_TYPE;
 
 /**
- * Some convenience type alias for a even more easy usage of WPropertyVariable
+ * Namespace containing all base types of the WPropertyVariables. Use these types instead of issuing int32_t, double, bool, ...
+ * directly.
  */
+namespace WPVBaseTypes
+{
+    typedef int32_t                     PV_INT;     //!< base type used for every WPVInt
+    typedef double                      PV_DOUBLE;  //!< base type used for every WPVDouble
+    typedef bool                        PV_BOOL;    //!< base type used for every WPVBool
+    typedef std::string                 PV_STRING;  //!< base type used for every WPVString
+    typedef boost::filesystem::path     PV_PATH;    //!< base type used for every WPVFilename
+    typedef std::list< std::string >    PV_LIST;    //!< base type used for every WPVList
+}
+
 /**
- * Alias for int32_t property variables.
+ * Some convenience type alias for a even more easy usage of WPropertyVariable.
+ * These typedefs are useful for casts, as they alias the PropertyVariable types. Please use these types instead of directly
+ * int32_t, double, bool, ... so we are able to change the type later on without modifications of thousands of modules.
  */
-typedef boost::shared_ptr< WPropertyVariable< int32_t > > WPropInt;
+
+/**
+ * Int properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_INT > WPVInt;
+
+/**
+ * Floating point properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_DOUBLE > WPVDouble;
+
+/**
+ * Boolean properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_BOOL > WPVBool;
+
+/**
+ * String properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_STRING > WPVString;
+
+/**
+ * Filename properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_PATH > WPVFilename;
+
+/**
+ * List properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_LIST > WPVList;
+
+/**
+ * Some convenience type alias for a even more easy usage of WPropertyVariable.
+ * These typdefs define some pointer alias.
+ */
 
 /**
  * Alias for int32_t property variables.
  */
-typedef boost::shared_ptr< WPropertyVariable< double > > WPropDouble;
+typedef boost::shared_ptr< WPVInt > WPropInt;
+
+/**
+ * Alias for int32_t property variables.
+ */
+typedef boost::shared_ptr< WPVDouble > WPropDouble;
 
 /**
  * Alias for bool property variables.
  */
-typedef boost::shared_ptr< WPropertyVariable< bool > > WPropBool;
+typedef boost::shared_ptr< WPVBool > WPropBool;
 
 /**
  * Alias for string property variables.
  */
-typedef boost::shared_ptr< WPropertyVariable< std::string > > WPropString;
+typedef boost::shared_ptr< WPVString > WPropString;
 
 /**
  * Alias for filename property variables.
  */
-typedef boost::shared_ptr< WPropertyVariable< boost::filesystem::path > > WPropFilename;
+typedef boost::shared_ptr< WPVFilename > WPropFilename;
 
 /**
  * Alias for string list property variables.
  */
-typedef boost::shared_ptr< WPropertyVariable< std::list< std::string > > > WPropList;
+typedef boost::shared_ptr< WPVList > WPropList;
 
 /**
  * This namespace contains several helper classes which translate their template type to an enum.
@@ -110,7 +162,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< bool >
+    class WTypeIdentifier< WPVBaseTypes::PV_BOOL >
     {
     public:
         /**
@@ -128,7 +180,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< int32_t >
+    class WTypeIdentifier< WPVBaseTypes::PV_INT >
     {
     public:
         /**
@@ -146,7 +198,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< double >
+    class WTypeIdentifier< WPVBaseTypes::PV_DOUBLE >
     {
     public:
         /**
@@ -164,7 +216,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< std::string >
+    class WTypeIdentifier< WPVBaseTypes::PV_STRING >
     {
     public:
         /**
@@ -182,7 +234,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< boost::filesystem::path >
+    class WTypeIdentifier< WPVBaseTypes::PV_PATH >
     {
     public:
         /**
@@ -200,7 +252,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< std::list< std::string > >
+    class WTypeIdentifier< WPVBaseTypes::PV_LIST >
     {
     public:
         /**
