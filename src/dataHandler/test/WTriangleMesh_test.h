@@ -30,7 +30,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WTriangleMesh.h"
-#include "../../../math/WVector3D.h"
+#include "../../math/WVector3D.h"
 
 /**
  * Testing the WTriangleMesh class.

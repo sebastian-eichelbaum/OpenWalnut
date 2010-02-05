@@ -37,7 +37,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WShader.h"
-#include "WTriangleMesh.h"
+#include "../../dataHandler/WTriangleMesh.h"
 
 /**
  * A point consisting of its coordinates and ID

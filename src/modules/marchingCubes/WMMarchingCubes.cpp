@@ -32,7 +32,7 @@
 
 #include "WMMarchingCubes.h"
 #include "marchingCubesCaseTables.h"
-#include "WTriangleMesh.h"
+#include "../../dataHandler/WTriangleMesh.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
