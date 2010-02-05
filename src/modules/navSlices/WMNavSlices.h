@@ -120,19 +120,59 @@ protected:
 
 private:
 
+    /**
+     * True when textures haven changed.
+     */
     WPropBool m_textureChanged;
 
+    /**
+     * True whenever the module should be active
+     */
     WPropBool m_active;
 
+    /**
+     * Axial slice position.
+     */
     WPropInt m_axialPos;
+
+    /**
+     * Coronal slice position.
+     */
     WPropInt m_coronalPos;
+
+    /**
+     * Sagittal slice position.
+     */
     WPropInt m_sagittalPos;
+
+    /**
+     * Maximum position of axial slice.
+     */
     WPropInt m_maxAxial;
+
+    /**
+     * Maximum position of coronal slice.
+     */
     WPropInt m_maxCoronal;
+
+    /**
+     * Maximum position of sagittal slice.
+     */
     WPropInt m_maxSagittal;
 
+    /**
+     * True if axial slice should be visible.
+     */
     WPropBool m_showAxial;
+
+    /**
+     * True if coronal slice should be visible.
+     */
     WPropBool m_showCoronal;
+
+    /**
+     * True if sagittal slice should be visible.
+     */
     WPropBool m_showSagittal;
 
     /**

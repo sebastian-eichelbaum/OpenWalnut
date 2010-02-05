@@ -72,7 +72,6 @@ public:
 
     /**
      * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
      */
     //void slotPropertyChanged( std::string propertyName );
     void slotPropertyChanged();

@@ -59,21 +59,6 @@ WPropertyIntWidget* WQtDSBWidget::addPropString( WPropString property )
     return NULL;
 }
 
-/*
-QPushButton* WQtDSBWidget::addPushButton( QString label )
-{
-    int row = m_controlLayout.rowCount();
-
-    QPushButton* button = new QPushButton();
-    button->setText( label );
-
-    m_controlLayout.addWidget( button, row, 0 );
-
-    setLayout( &m_pageLayout );
-    return button;
-}
-*/
-
 void WQtDSBWidget::addSpacer()
 {
     m_pageLayout.addStretch();

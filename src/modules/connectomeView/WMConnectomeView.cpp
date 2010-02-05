@@ -95,8 +95,7 @@ void WMConnectomeView::connectors()
     // this is the scalar field input
     m_mrtInput = boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > >(
         new WModuleInputForwardData< WDataSetSingle >( shared_from_this(),
-                                                               "context", "The context dataset used to visualize the context in\
-                                                               the brain." )
+                              "context", "The context dataset used to visualize the context in the brain." )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -105,7 +104,7 @@ void WMConnectomeView::connectors()
     // this is the scalar field input
     m_fiberInput = boost::shared_ptr< WModuleInputForwardData< WDataSetFibers2 > >(
         new WModuleInputForwardData< WDataSetFibers2 >( shared_from_this(),
-                                                               "fibers", "The fiber dataset used to find connection path." )
+                              "fibers", "The fiber dataset used to find connection path." )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -122,8 +121,6 @@ void WMConnectomeView::properties()
 }
 
 void WMConnectomeView::slotPropertyChanged()
-//void WMConnectomeView::slotPropertyChanged( std::string /*propertyName*/ )
 {
-    debugLog() << "hallo du ralph du arsch ey :-P";
 }
 

@@ -60,7 +60,7 @@ void WPropertyIntWidget::sliderChanged( int value )
     // set the value in the line edit
     std::ostringstream s;
     s << value;
-    m_edit.setText( QString ( s.str().c_str() ) );
+    m_edit.setText( QString( s.str().c_str() ) );
 
     // set to the property
     if ( !m_intProperty->accept( value ) )
