@@ -27,12 +27,15 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
 #include "WPropertyTypes.h"
 
 /**
  * Abstract base class for all properties. Simply provides name and type information.
  */
-class WPropertyBase
+class WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
 {
 public:
 
@@ -84,6 +87,52 @@ public:
      */
     virtual PROPERTY_TYPE getType() const;
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    // Helpers for easy conversion to the possible types
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as integer property
+     */
+    WPropInt toPropInt();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as double property
+     */
+    WPropDouble toPropDouble();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as bool property
+     */
+    WPropBool toPropBool();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as string property
+     */
+    WPropString toPropString();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as path property
+     */
+    WPropFilename toPropPath();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as list property
+     */
+    WPropList toPropList();
+
 protected:
 
     /**
@@ -109,7 +158,7 @@ protected:
     /**
      * Calculates the type of the property. This has to be done by the implementing class.
      */
-    virtual void updateType() = 0;
+    virtual void updateType();
 
 private:
 };

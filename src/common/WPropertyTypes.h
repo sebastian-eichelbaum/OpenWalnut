@@ -32,20 +32,56 @@
 
 #include <boost/filesystem.hpp>
 
+template < typename T >
+class WPropertyVariable;
+
 /**
  * Enum of all possible types, that can be used with WProperty.
  */
 typedef enum
 {
-    UNKNOWN,        // type not know
-    INT,            // integer value
-    DOUBLE,         // floating point value
-    BOOL,           // boolean
-    STRING,         // a string
-    PATH,           // a Boost Path object denoting a filename/path
-    LIST            // a list of strings
+    PV_UNKNOWN,        // type not know
+    PV_INT,            // integer value
+    PV_DOUBLE,         // floating point value
+    PV_BOOL,           // boolean
+    PV_STRING,         // a string
+    PV_PATH,           // a Boost Path object denoting a filename/path
+    PV_LIST            // a list of strings
 }
 PROPERTY_TYPE;
+
+/**
+ * Some convenience type alias for a even more easy usage of WPropertyVariable
+ */
+/**
+ * Alias for int32_t property variables.
+ */
+typedef boost::shared_ptr< WPropertyVariable< int32_t > > WPropInt;
+
+/**
+ * Alias for int32_t property variables.
+ */
+typedef boost::shared_ptr< WPropertyVariable< double > > WPropDouble;
+
+/**
+ * Alias for bool property variables.
+ */
+typedef boost::shared_ptr< WPropertyVariable< bool > > WPropBool;
+
+/**
+ * Alias for string property variables.
+ */
+typedef boost::shared_ptr< WPropertyVariable< std::string > > WPropString;
+
+/**
+ * Alias for filename property variables.
+ */
+typedef boost::shared_ptr< WPropertyVariable< boost::filesystem::path > > WPropFilename;
+
+/**
+ * Alias for string list property variables.
+ */
+typedef boost::shared_ptr< WPropertyVariable< std::list< std::string > > > WPropList;
 
 /**
  * This namespace contains several helper classes which translate their template type to an enum.
@@ -66,7 +102,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return UNKNOWN;
+            return PV_UNKNOWN;
         }
     };
 
@@ -84,7 +120,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return BOOL;
+            return PV_BOOL;
         }
     };
 
@@ -102,7 +138,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return INT;
+            return PV_INT;
         }
     };
 
@@ -120,7 +156,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return DOUBLE;
+            return PV_DOUBLE;
         }
     };
 
@@ -138,7 +174,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return STRING;
+            return PV_STRING;
         }
     };
 
@@ -156,7 +192,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return PATH;
+            return PV_PATH;
         }
     };
 
@@ -174,10 +210,9 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return LIST;
+            return PV_LIST;
         }
     };
 }
-
 
 #endif  // WPROPERTYTYPES_H

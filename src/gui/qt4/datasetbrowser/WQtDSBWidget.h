@@ -34,11 +34,10 @@
 #include <QtGui/QWidget>
 #include <QtGui/QLCDNumber>
 
-#include "WQtCheckBox.h"
-#include "WQtLineEdit.h"
-#include "WQtNumberEditDouble.h"
-#include "WQtSliderWithEdit.h"
+#include "WPropertyBoolWidget.h"
+#include "WPropertyIntWidget.h"
 
+#include "../../../common/WPropertyVariable.h"
 
 /**
  * Container widget to contain the context widget for the dataset browser.
@@ -67,34 +66,40 @@ public:
     QPushButton* addPushButton( QString label );
 
     /**
-     * helper function to add a generic checkbox
-     * \param label The text next to the check box
-     * \param isChecked the initial state of the check box
+     * Adds a new bool property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtCheckBox* addCheckBox( QString label, bool isChecked = false );
+    WPropertyBoolWidget* addPropBool( WPropBool property );
 
     /**
-     * helper function to add a generic line edit
-     * \param label The text next to the line edit
-     * \param text The text intially in the line edit
+     * Adds a new int property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtLineEdit* addLineEdit( QString label, QString text = QString( "" ) );
+    WPropertyIntWidget* addPropInt( WPropInt property );
 
     /**
-     * helper function to add a double number edit control
-     * \param label name of the control
-     * \param value value of the control
+     * Adds a new int property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtNumberEditDouble* addNumberEditDouble( QString label, double value );
+    WPropertyIntWidget* addPropDouble( WPropDouble property );
 
     /**
-     * helper function to add a slider with a connect line edit
-     * \param label The text next to the slider and the edit field
-     * \param value Initial value of slider and field
-     * \param min Minimum value for slider
-     * \param max Maximum value for slider
+     * Adds a new int property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtSliderWithEdit* addSliderInt( QString label, int value = 0, int min = 0, int max = 100 );
+    WPropertyIntWidget* addPropString( WPropString property );
 
     /**
      * helper function to add a spacer at the end

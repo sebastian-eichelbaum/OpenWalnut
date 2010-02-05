@@ -41,7 +41,6 @@
 #include "../events/WEventTypes.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
-#include "WQtCheckBox.h"
 
 #include "../../../kernel/WModuleFactory.h"
 #include "../WMainWindow.h"
@@ -303,7 +302,7 @@ void WQtDatasetBrowser::selectTreeItem()
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule >module;
-    std::vector < WProperty* >props;
+    boost::shared_ptr< WProperties2 > props;
 
     if ( m_treeWidget->selectedItems().size() != 0  )
     {
@@ -313,80 +312,70 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties()->getPropertyVector();
+                props = module->getProperties2();
                 createCompatibleButtons( module );
                 break;
             case MODULEHEADER:
                 break;
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties()->getPropertyVector();
+                props = module->getProperties2();
                 createCompatibleButtons( module );
                 break;
             case ROIHEADER:
                 break;
             case ROI:
             case SUBROI:
-                props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties()->getPropertyVector();
+                // TODO(ebaum): update rois to use new properties
+                //props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties()->getPropertyVector();
+                //props = module->getProperties2();
                 break;
             default:
                 break;
         }
     }
-    WQtDSBWidget* tab1 = new WQtDSBWidget( "Settings" );
 
-    for ( size_t i = 0; i < props.size(); ++i )
+    // TODO(seralph): remove the above stuff if all modules use wpropertyvariable instead of wproperty
+    WQtDSBWidget* tab = new WQtDSBWidget( "Settings" );
+
+    if ( props.get() )
     {
-        if ( !props.at(i)->isHidden() )
+        // iterate all properties. This Locks the properties set -> use endIteration to unlock
+        for ( WProperties2::PropertyIterator iter = props->beginIteration(); iter != props->getPropertyIteratorEnd(); ++iter )
         {
-            switch ( props.at(i)->getType() )
+            if ( !( *iter )->isHidden() )
             {
-                case P_BOOL:
+                switch ( ( *iter )->getType() )
                 {
-                    QString name = QString( props.at( i )->getName().c_str() );
-                    WQtCheckBox* box = tab1->addCheckBox( name, props.at( i )->getValue<bool>() );
-                    connect( box, SIGNAL( checkBoxStateChanged( QString, bool ) ), this, SLOT( slotSetBoolProperty( QString, bool ) ) );
-                    break;
+                    case PV_BOOL:
+                        tab->addPropBool( ( *iter )->toPropBool() );
+                        break;
+                    case PV_INT:
+                        tab->addPropInt( ( *iter )->toPropInt() );
+                        break;
+                    case PV_DOUBLE:
+                        tab->addPropDouble( ( *iter )->toPropDouble() );
+                        break;
+                    case PV_STRING:
+                        tab->addPropString( ( *iter )->toPropString() );
+                        break;
+                    case PV_PATH:
+                        WLogger::getLogger()->addLogMessage( "This property type \"PV_PATH\" is not yet supported.", "DatasetBrowser", LL_WARNING );
+                        break;
+                    case PV_LIST:
+                        WLogger::getLogger()->addLogMessage( "This property type \"PV_LIST\" is not yet supported.", "DatasetBrowser", LL_WARNING );
+                        break;
+                    default:
+                        WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "DatasetBrowser", LL_WARNING );
+                        break;
                 }
-                case P_CHAR:
-                    break;
-                case P_UNSIGNED_CHAR:
-                    break;
-                case P_INT:
-                {
-                    QString name = QString( props.at( i )->getName().c_str() );
-                    WQtSliderWithEdit* slider = tab1->addSliderInt( name, props.at( i )->getValue<int>(),
-                            props.at( i )->getMin<int>(), props.at( i )->getMax<int>() );
-                    connect( slider, SIGNAL( signalNumberWithName( QString, int ) ), this, SLOT( slotSetIntProperty( QString, int ) ) );
-                    break;
-                }
-                case P_UNSIGNED_INT:
-                    break;
-                case P_FLOAT:
-                    break;
-                case P_DOUBLE:
-                {
-                    QString name = QString( props.at( i )->getName().c_str() );
-                    WQtNumberEditDouble* numberEdit = tab1->addNumberEditDouble( name, props.at( i )->getValue<double>() );
-                    connect( numberEdit, SIGNAL( signalNumberWithName( QString, double ) ), this, SLOT( slotSetDoubleProperty( QString, double ) ) );
-                    break;
-                }
-                case P_STRING:
-                {
-                    QString name = QString( props.at( i )->getName().c_str() );
-                    QString text = QString( props.at( i )->getValue<std::string>().c_str() );
-                    WQtLineEdit* edit = tab1->addLineEdit( name, text );
-                    connect( edit, SIGNAL( lineEditStateChanged( QString, QString ) ), this, SLOT( slotSetStringProperty( QString, QString ) ) );
-                    break;
-                }
-                default:
-                    break;
             }
         }
+        props->endIteration();
     }
+    tab->addSpacer();
+    addTabWidgetContent( tab );
 
-    tab1->addSpacer();
-    addTabWidgetContent( tab1 );
 }
 
 
@@ -454,6 +443,7 @@ void WQtDatasetBrowser::slotSetDoubleProperty( QString name, double value )
 void WQtDatasetBrowser::slotSetBoolProperty( QString name, bool value )
 {
     getPropOfSelected()->setValue<bool>( name.toStdString(), value );
+
 
     emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }

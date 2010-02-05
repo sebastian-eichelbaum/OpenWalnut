@@ -119,6 +119,22 @@ protected:
 
 
 private:
+
+    WPropBool m_textureChanged;
+
+    WPropBool m_active;
+
+    WPropInt m_axialPos;
+    WPropInt m_coronalPos;
+    WPropInt m_sagittalPos;
+    WPropInt m_maxAxial;
+    WPropInt m_maxCoronal;
+    WPropInt m_maxSagittal;
+
+    WPropBool m_showAxial;
+    WPropBool m_showCoronal;
+    WPropBool m_showSagittal;
+
     /**
      * initial create method
      */

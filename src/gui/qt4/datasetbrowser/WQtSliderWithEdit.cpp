@@ -24,15 +24,17 @@
 
 #include <string>
 
+#include "../../../common/WPropertyVariable.h"
+
 #include "WQtSliderWithEdit.h"
 
-WQtSliderWithEdit::WQtSliderWithEdit( QString name, QWidget* parent )
+WQtSliderWithEdit::WQtSliderWithEdit( boost::shared_ptr< WPropertyBase > property, QWidget* parent )
     : QWidget( parent ),
     m_slider( Qt::Horizontal ),
     m_edit(),
     m_layout()
 {
-    m_name = name;
+    m_name = QString( property->getName().c_str() );
 
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );

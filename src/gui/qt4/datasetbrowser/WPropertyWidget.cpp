@@ -22,27 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WPropertyWidget.h"
 
-#include "WQtCheckBox.h"
-
-WQtCheckBox::WQtCheckBox()
-    : QCheckBox()
+WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, QGridLayout* propertyGrid, QWidget* parent ):
+    QWidget( parent ),
+    m_property( property ),
+    m_propertyGrid( propertyGrid ),
+    m_label( this )
 {
-    m_name = "";
-    connect( this, SIGNAL( toggled( bool ) ), this, SLOT( emitStateChanged() ) );
+    // initialize members
+    m_label.setText( property->getName().c_str() );
+
+    // setup grid layout
+    int row = m_propertyGrid->rowCount();
+    m_propertyGrid->addWidget( &m_label, row, 0 );
+    m_propertyGrid->addWidget( this, row, 1 );
 }
 
-WQtCheckBox::~WQtCheckBox()
+WPropertyWidget::~WPropertyWidget()
 {
+    // cleanup
 }
 
-void WQtCheckBox::setName( QString name )
+boost::shared_ptr< WPropertyBase > WPropertyWidget::getProperty()
 {
-    m_name = name;
+    return m_property;
 }
 
-void WQtCheckBox::emitStateChanged()
+void WPropertyWidget::invalidate( bool invalid )
 {
-    emit checkBoxStateChanged( m_name, this->isChecked() );
+    if ( invalid )
+    {
+        m_label.setText( ( m_property->getName() + "!" ).c_str() );
+    }
+    else
+    {
+        m_label.setText( m_property->getName().c_str() );
+    }
 }
+

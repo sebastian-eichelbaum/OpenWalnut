@@ -74,7 +74,8 @@ public:
      * Determine what to do if a property was changed.
      * \param propertyName Name of the property.
      */
-    void slotPropertyChanged( std::string propertyName );
+    //void slotPropertyChanged( std::string propertyName );
+    void slotPropertyChanged();
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -102,6 +103,11 @@ protected:
     virtual void properties();
 
 private:
+
+    /**
+     * Test property
+     */
+    WPropInt m_test;
 
     /**
      * The T1 image used as context

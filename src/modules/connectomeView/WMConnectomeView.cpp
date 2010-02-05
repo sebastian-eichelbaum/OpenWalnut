@@ -117,9 +117,13 @@ void WMConnectomeView::connectors()
 
 void WMConnectomeView::properties()
 {
+    m_test = m_properties2->addProperty( "Test", "A test value for testing test stuff", 1, boost::bind(
+                &WMConnectomeView::slotPropertyChanged, this ) );
 }
 
-void WMConnectomeView::slotPropertyChanged( std::string /*propertyName*/ )
+void WMConnectomeView::slotPropertyChanged()
+//void WMConnectomeView::slotPropertyChanged( std::string /*propertyName*/ )
 {
+    debugLog() << "hallo du ralph du arsch ey :-P";
 }
 

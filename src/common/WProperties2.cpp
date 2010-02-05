@@ -45,7 +45,7 @@ WProperties2::~WProperties2()
 void WProperties2::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
-    m_properties.insert( prop );
+    m_properties.push_back( prop );
     lock.unlock();
 }
 

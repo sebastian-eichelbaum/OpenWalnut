@@ -133,6 +133,7 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description )
 {
+    updateType();
 }
 
 template < typename T >
@@ -140,6 +141,7 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description )
 {
+    updateType();
 }
 
 template < typename T >
@@ -148,6 +150,8 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description )
 {
+    updateType();
+
     // set custom notifier
     m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
 }
@@ -158,6 +162,7 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description )
 {
+    updateType();
     // set custom notifier
     m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
 }
@@ -187,39 +192,6 @@ void WPropertyVariable< T >::updateType()
     PROPERTY_TYPE_HELPER::WTypeIdentifier< T > tid;
     m_type = tid.getType();
 }
-
-/**
- * Some convenience type alias for a even more easy usage of WPropertyVariable
- */
-/**
- * Alias for int32_t property variables.
- */
-typedef boost::shared_ptr< WPropertyVariable< int32_t > > WPropInt;
-
-/**
- * Alias for int32_t property variables.
- */
-typedef boost::shared_ptr< WPropertyVariable< double > > WPropDouble;
-
-/**
- * Alias for bool property variables.
- */
-typedef boost::shared_ptr< WPropertyVariable< bool > > WPropBool;
-
-/**
- * Alias for string property variables.
- */
-typedef boost::shared_ptr< WPropertyVariable< std::string > > WPropString;
-
-/**
- * Alias for filename property variables.
- */
-typedef boost::shared_ptr< WPropertyVariable< boost::filesystem::path > > WPropFilename;
-
-/**
- * Alias for string list property variables.
- */
-typedef boost::shared_ptr< WPropertyVariable< std::list< std::string > > > WPropList;
 
 #endif  // WPROPERTYVARIABLE_H
 

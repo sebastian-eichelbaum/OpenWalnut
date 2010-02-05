@@ -24,7 +24,10 @@
 
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include "WPropertyBase.h"
+#include "WPropertyVariable.h"
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_name( name ),
@@ -54,6 +57,11 @@ PROPERTY_TYPE WPropertyBase::getType() const
     return m_type;
 }
 
+void WPropertyBase::updateType()
+{
+    m_type = PV_UNKNOWN;
+}
+
 bool WPropertyBase::isHidden() const
 {
     return m_hidden;
@@ -62,5 +70,35 @@ bool WPropertyBase::isHidden() const
 void WPropertyBase::setHidden( bool hidden )
 {
     m_hidden = hidden;
+}
+
+WPropInt WPropertyBase::toPropInt()
+{
+    return boost::shared_static_cast< WPropertyVariable< int32_t > >( shared_from_this() );
+}
+
+WPropDouble WPropertyBase::toPropDouble()
+{
+    return boost::shared_static_cast< WPropertyVariable< double > >( shared_from_this() );
+}
+
+WPropBool WPropertyBase::toPropBool()
+{
+    return boost::shared_static_cast< WPropertyVariable< bool > >( shared_from_this() );
+}
+
+WPropString WPropertyBase::toPropString()
+{
+    return boost::shared_static_cast< WPropertyVariable< std::string > >( shared_from_this() );
+}
+
+WPropFilename WPropertyBase::toPropPath()
+{
+    return boost::shared_static_cast< WPropertyVariable< boost::filesystem::path > >( shared_from_this() );
+}
+
+WPropList WPropertyBase::toPropList()
+{
+    return boost::shared_static_cast< WPropertyVariable< std::list< std::string > > >( shared_from_this() );
 }
 

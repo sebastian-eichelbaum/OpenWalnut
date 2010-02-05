@@ -27,7 +27,7 @@
 
 #include <map>
 #include <string>
-#include <set>
+#include <vector>
 
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -48,7 +48,7 @@ public:
     /**
      * The iterator used to iterate over the property set
      */
-    typedef std::set< boost::shared_ptr< WPropertyBase > >::iterator PropertyIterator;
+    typedef std::vector< boost::shared_ptr< WPropertyBase > >::const_iterator PropertyIterator;
 
     /**
      * standard constructor
@@ -173,7 +173,7 @@ private:
     /**
      * The set of proerties. This uses the operators ==,<,> WProperty to determine equalnes.
      */
-    std::set< boost::shared_ptr< WPropertyBase > > m_properties;
+    std::vector< boost::shared_ptr< WPropertyBase > > m_properties;
 
     /**
      * boost mutex object for thread safety of updating of properties
@@ -189,21 +189,32 @@ private:
 template< typename T>
 boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial )
 {
-    return boost::shared_ptr< WPropertyVariable< T > >( new WPropertyVariable< T >( name, description, initial ) );
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial )
+    );
+    addProperty( p );
+    return p;
 }
 
 template< typename T>
 boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial,
                                                                        boost::shared_ptr< WCondition > condition )
 {
-    return boost::shared_ptr< WPropertyVariable< T > >( new WPropertyVariable< T >( name, description, initial, condition ) );
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial, condition )
+    );
+    addProperty( p );
 }
 
 template< typename T>
 boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial,
                                                                        WCondition::t_ConditionNotifierType notifier )
 {
-    return boost::shared_ptr< WPropertyVariable< T > >( new WPropertyVariable< T >( name, description, initial, notifier ) );
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial, notifier )
+    );
+    addProperty( p );
+    return p;
 }
 
 template< typename T>
@@ -211,8 +222,11 @@ boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::stri
                                                                        boost::shared_ptr< WCondition > condition,
                                                                        WCondition::t_ConditionNotifierType notifier )
 {
-    return boost::shared_ptr< WPropertyVariable< T > >( new WPropertyVariable< T >( name, description, initial, condition,
-                notifier ) );
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial, condition, notifier )
+    );
+    addProperty( p );
+    return p;
 }
 
 #endif  // WPROPERTIES2_H

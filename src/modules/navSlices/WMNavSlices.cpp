@@ -113,6 +113,22 @@ void WMNavSlices::properties()
     m_properties->addBool( "showAxial", true );
     m_properties->addBool( "showCoronal", true );
     m_properties->addBool( "showSagittal", true );
+
+
+    // TODO(ebaum): add hidden flags here
+    m_textureChanged = m_properties2->addProperty< bool >( "textureChanged", "Denotes changing textures.", false );
+    m_active         = m_properties2->addProperty< bool >( "active",         "Determines whether the module should be activated.", true );
+    m_showAxial      = m_properties2->addProperty< bool >( "showAxial",      "Determines whether the axial slice should be visible.", true );
+    m_showCoronal    = m_properties2->addProperty< bool >( "showCoronal",    "Determines whether the coronal slice should be visible.", true );
+    m_showSagittal   = m_properties2->addProperty< bool >( "showSagittal",   "Determines whether the sagittal slice should be visible.", true );
+
+    m_axialPos    = m_properties2->addProperty< int32_t >( "axialPos",   "Position of axial slice.",    80 );
+    m_coronalPos  = m_properties2->addProperty< int32_t >( "coronalPos", "Position of coronal slice.", 100 );
+    m_sagittalPos = m_properties2->addProperty< int32_t >( "sagittalPos","Position of sagittal slice.", 80 );
+
+    m_maxAxial =    m_properties2->addProperty< int32_t >( "maxAxial",   "Max position of axial slice.",    160 );
+    m_maxCoronal =  m_properties2->addProperty< int32_t >( "maxCoronal", "Max position of coronal slice.",  200 );
+    m_maxSagittal = m_properties2->addProperty< int32_t >( "maxSagittal","Max position of sagittal slice.", 160 );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,

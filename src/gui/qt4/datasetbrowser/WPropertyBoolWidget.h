@@ -22,53 +22,62 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTCHECKBOX_H
-#define WQTCHECKBOX_H
-
-#include <string>
+#ifndef WPROPERTYBOOLWIDGET_H
+#define WPROPERTYBOOLWIDGET_H
 
 #include <QtGui/QCheckBox>
+#include <QtGui/QHBoxLayout>
+
+#include "WPropertyWidget.h"
 
 /**
- * implements a QCheckBox with a boost signal
+ * Implements a property widget for WPropBool.
  */
-class WQtCheckBox : public QCheckBox
+class WPropertyBoolWidget: public WPropertyWidget
 {
     Q_OBJECT
-
 public:
-     /**
-     * standard constructor
-     */
-    explicit WQtCheckBox();
 
     /**
-     * destructor
+     * Constructor. Creates a new widget appropriate for the specified property.
+     *
+     * \param property the property to handle
+     * \param parent the parent widget.
+     * \param propertyGrid the grid used to layout the labels and property widgets
      */
-    virtual ~WQtCheckBox();
+    WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent = 0 );
 
     /**
-     * setter for name
-     * \param name The new name of the check box
+     * Destructor.
      */
-    void setName( QString name );
+    virtual ~WPropertyBoolWidget();
+
+protected:
+
+    /**
+     * The boolean property represented by this widget.
+     */
+    WPropBool m_boolProperty;
+
+    /**
+     * The checkbox - represents the boolean value.
+     */
+    QCheckBox m_checkbox;
+
+    /**
+     * Layout used to position the label and the checkbox
+     */
+    QHBoxLayout m_layout;
 
 private:
-    QString m_name; //!< Name of the check box.
 
 public slots:
-    /**
-     * This function emits checkBoxStateChanged signal.
-     */
-    void emitStateChanged();
 
-signals:
     /**
-     * Signal indicating that the state of the check box has changed.
-     * \param name name of the check box
-     * \param value Indicated whether the box is checked or not.
+     * called whenever the user modifies the widget
      */
-    void checkBoxStateChanged( QString name, bool value );
+    void changed();
 };
 
-#endif  // WQTCHECKBOX_H
+#endif  // WPROPERTYBOOLWIDGET_H
+
