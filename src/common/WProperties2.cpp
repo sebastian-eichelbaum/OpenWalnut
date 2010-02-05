@@ -99,6 +99,13 @@ const WProperties2::PropertyIterator WProperties2::getPropertyIteratorEnd() cons
     return m_properties.end();
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 WPropBool WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, hide );
@@ -127,5 +134,141 @@ WPropFilename WProperties2::addProperty( std::string name, std::string descripti
 WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, hide );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+//                                                          boost::shared_ptr< WCondition > condition, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+WPropBool WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                     boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, hide );
+}
+
+WPropInt WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                    boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, hide );
+}
+
+WPropDouble WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, hide );
+}
+
+WPropString WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, hide );
+}
+
+WPropFilename WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                         boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
+}
+
+WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
+                                     boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, condition, hide );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+//                                                          WCondition::t_ConditionNotifierType notifier, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+WPropBool WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, notifier, hide );
+}
+
+WPropInt WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                    WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_INT >( name, description, initial, notifier, hide );
+}
+
+WPropDouble WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                       WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, notifier, hide );
+}
+
+WPropString WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                       WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, notifier, hide );
+}
+
+WPropFilename WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                         WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
+}
+
+WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, notifier, hide );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+//                                                          boost::shared_ptr< WCondition > condition,
+//                                                          WCondition::t_ConditionNotifierType notifier, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+WPropBool WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, notifier, hide );
+}
+
+WPropInt WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, notifier, hide );
+}
+
+WPropDouble WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, notifier, hide );
+}
+
+WPropString WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, notifier, hide );
+}
+
+WPropFilename WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
+}
+
+WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, condition, notifier, hide );
 }
 
