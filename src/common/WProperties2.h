@@ -287,6 +287,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param condition use this external condition for notification.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -302,6 +303,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param condition use this external condition for notification.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -317,6 +319,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param condition use this external condition for notification.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -332,6 +335,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param condition use this external condition for notification.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -347,6 +351,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param condition use this external condition for notification.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -362,6 +367,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param condition use this external condition for notification.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -384,6 +390,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -399,6 +406,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -414,6 +422,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -429,6 +438,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -444,6 +454,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -459,6 +470,7 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -482,6 +494,8 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -498,6 +512,8 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -514,6 +530,8 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -531,6 +549,8 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -547,6 +567,8 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
@@ -563,6 +585,8 @@ public:
      * \param name  the property name
      * \param description the property description
      * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
      * \param hide set to true to set the hide flag directly.
      *
      * \return the newly created property variable instance.
