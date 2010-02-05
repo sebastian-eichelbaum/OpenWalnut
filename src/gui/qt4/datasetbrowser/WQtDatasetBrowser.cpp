@@ -88,7 +88,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_tiModules = new WQtModuleHeaderTreeItem( m_treeWidget );
     m_tiModules->setText( 0, QString( "Modules" ) );
     m_tiRois = new WQtRoiHeaderTreeItem( m_treeWidget );
-    m_tiRois->setText( 0, QString( "rois" ) );
+    m_tiRois->setText( 0, QString( "ROIs" ) );
 
     connectSlots();
 }
