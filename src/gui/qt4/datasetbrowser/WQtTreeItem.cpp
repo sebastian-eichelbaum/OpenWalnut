@@ -28,6 +28,9 @@
 #include "../../../common/WProgressCombiner.h"
 #include "../../../common/WProgress.h"
 
+#include "../../../kernel/WModuleInputConnector.h"
+#include "../../../kernel/WModuleOutputConnector.h"
+
 #include "WTreeItemTypes.h"
 #include "WQtTreeItem.h"
 
@@ -67,6 +70,31 @@ std::string WQtTreeItem::getName()
     return m_name;
 }
 
+void WQtTreeItem::updateTooltip( std::string progress )
+{
+    std::string tooltip = "<b>Module: </b>" + m_module->getName() + "<br/>";
+    tooltip += "<b>Progress: </b>" + progress + "<br/>";
+    tooltip += "<b>Connectors: </b>";
+
+    // also list the connectors
+    std::string conList = "";
+    std::set< boost::shared_ptr< WModuleInputConnector > > cons = m_module->getInputConnectors();
+    conList += "<table><tr><th>Name</th><th>Description</th><th>Connected</th></tr>";
+    int conCount = 0;
+    for ( std::set< boost::shared_ptr< WModuleInputConnector > >::const_iterator it = cons.begin(); it != cons.end(); ++it )
+    {
+        ++conCount;
+        conList += "<tr><td><b>" + ( *it )->getName() + "</b></td><td>" + ( *it )->getDescription() + "</td>";
+        conList += ( *it )->isConnected() ? "<td>yes</td>" : "<td>no</td>";
+        conList += "</tr>";
+    }
+    conList += "</table>";
+
+    tooltip += conCount ? "yes" + conList + "<br/><br/>" : "none<br/>";
+    tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
+    setToolTip( 0, tooltip.c_str() );
+}
+
 void WQtTreeItem::update()
 {
     updateState();
@@ -80,27 +108,29 @@ void WQtTreeItem::updateState()
     p->update();
 
     // is it pending?
+    std::string progress = "waiting";
     if ( p->isPending() )
     {
         std::ostringstream title;
-        title << m_name;
-
         if ( p->isDetermined() )
         {
             title.setf( std::ios::fixed );
             title.precision( 0 );
-            title << " - " << p->getProgress() << "%";
+            title << p->getProgress() << "%";
         }
         else
         {
-            title << " - Pending";
+            title << "Pending";
         }
 
-        setText( 0, title.str().c_str() );
+        setText( 0, ( m_name + " - " + title.str() ).c_str() );
     }
     else
     {
         setText( 0, m_name.c_str() );
     }
+
+    // update tooltip
+    updateTooltip( progress );
 }
 
