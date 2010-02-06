@@ -65,7 +65,7 @@ void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
-    m_iconManager.addIcon( std::string( "help" ), lightbulb_xpm );
+    m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
 
     if( objectName().isEmpty() )
