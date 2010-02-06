@@ -52,6 +52,7 @@
 #include "../../kernel/WModule.h"
 
 // forward declarations
+class QMenuBar;
 class WQtGLWidget;
 
 /**
@@ -161,6 +162,11 @@ public slots:
     void openLoadDialog();
 
     /**
+     * gets called when menu entry "About OpenWalnut" is activated
+     */
+    void openAboutDialog();
+
+    /**
      * get called when a module button
      * \param module name of teh module
      */
@@ -173,9 +179,9 @@ public slots:
 
 private:
     /**
-     * Sets up the initial state of the ribbon menu
+     * Sets up the permanent tool bar.
      */
-    void setupRibbonMenu();
+    void setupPermanentToolBar();
 
     /**
      * Sets up the initial state of the tool bar showing the compatible modules
@@ -186,9 +192,11 @@ private:
 
     WPropertyManager m_propertyManager; //!< transmit gui interactions to connected modules
 
-    QWidget* m_centralwidget; //!< the central widget of the docking facility. Thsi can not be moved.
+    QMenuBar* m_menuBar; //!< The main menu bar of the GUI.
 
-    WQtRibbonMenu* m_ribbonMenu; //!< The ribbon menu of the main window.
+    QWidget* m_centralwidget; //!< the central widget of the docking facility. This can not be moved.
+
+    WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
     WQtToolBar* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selected in the dataset browser
 

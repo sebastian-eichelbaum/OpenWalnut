@@ -37,6 +37,8 @@
 #include "cor.xpm"
 #include "sag.xpm"
 
+#include "box.xpm"
+#include "lightbulb.xpm"
 #include "o.xpm"
 
 #endif  // WICONS_H
