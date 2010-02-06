@@ -31,6 +31,7 @@
 
 
 #include "WMMarchingCubes.h"
+#include "iso_surface.xpm"
 #include "marchingCubesCaseTables.h"
 #include "../../dataHandler/WTriangleMesh.h"
 
@@ -83,6 +84,11 @@ WMMarchingCubes::~WMMarchingCubes()
 boost::shared_ptr< WModule > WMMarchingCubes::factory() const
 {
     return boost::shared_ptr< WModule >( new WMMarchingCubes() );
+}
+
+const char** WMMarchingCubes::getXPMIcon() const
+{
+    return iso_surface_xpm;
 }
 
 const std::string WMMarchingCubes::getName() const

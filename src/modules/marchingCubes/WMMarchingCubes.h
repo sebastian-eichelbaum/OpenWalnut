@@ -135,6 +135,11 @@ public:
     virtual boost::shared_ptr< WModule > factory() const;
 
     /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
+    /**
      * Generate the triangles for the surface on the given dataSet (inGrid, vals).
      * \param inGrid The grid of the data set
      * \param vals the value set of the data set

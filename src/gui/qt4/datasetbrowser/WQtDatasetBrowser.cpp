@@ -397,7 +397,7 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
     for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
         WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
-                m_mainWindow->getIconManager()->getIcon( "o" ), QString( ( *iter )->getName().c_str() ) );
+                m_mainWindow->getIconManager()->getIcon( ( *iter )->getName().c_str() ), QString( ( *iter )->getName().c_str() ) );
 
         connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
     }

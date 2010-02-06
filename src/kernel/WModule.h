@@ -201,6 +201,11 @@ public:
      */
     virtual boost::shared_ptr< WProgressCombiner > getRootProgressCombiner();
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**
