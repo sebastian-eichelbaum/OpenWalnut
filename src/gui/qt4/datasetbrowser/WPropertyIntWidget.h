@@ -25,6 +25,8 @@
 #ifndef WPROPERTYINTWIDGET_H
 #define WPROPERTYINTWIDGET_H
 
+#include <string>
+
 #include <QtGui/QLineEdit>
 #include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>

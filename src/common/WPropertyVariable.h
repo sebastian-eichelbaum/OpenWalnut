@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 
+#include <iostream>
 #include <string>
 #include <list>
 #include <vector>
@@ -155,6 +156,16 @@ public:
     };
 
     /**
+     * Alias for min constraints. It is an alias for convenience.
+     */
+    typedef boost::shared_ptr< WPropertyConstraintMin< T > > PropertyConstraintMin;
+
+    /**
+     * Alias for max constraints. It is an alias for convenience.
+     */
+    typedef boost::shared_ptr< WPropertyConstraintMax< T > > PropertyConstraintMax;
+
+    /**
      * Add a new constraint. This is useful to disallow several (custom) values for this property.
      *
      * \param constraint the new constraint.
@@ -169,7 +180,7 @@ public:
      *
      * \return the new constraint.
      */
-    static boost::shared_ptr< WPropertyConstraintMin< T > > minConstraint( T min );
+    static PropertyConstraintMin minConstraint( T min );
 
     /**
      * Creates a new WPropertyConstraintMax for this WPropertyVariable.
@@ -178,7 +189,7 @@ public:
      *
      * \return the new constraint.
      */
-    static boost::shared_ptr< WPropertyConstraintMax< T > > maxConstraint( T max );
+    static PropertyConstraintMax maxConstraint( T max );
 
     /**
      * Set a minimum constraint.
@@ -187,7 +198,7 @@ public:
      *
      * \return the newly created constraint.
      */
-    boost::shared_ptr< WPropertyConstraintMin< T > > setMin( T min );
+    PropertyConstraintMin setMin( T min );
 
     /**
      * Set a maximum constraint.
@@ -196,21 +207,21 @@ public:
      *
      * \return the newly created constraint.
      */
-    boost::shared_ptr< WPropertyConstraintMax< T > > setMax( T max );
+    PropertyConstraintMax setMax( T max );
 
     /**
      * Gets the current minimum constraint value.
      *
      * \return the minimum constraint, or NULL if none.
      */
-    boost::shared_ptr< WPropertyConstraintMin< T > > getMin();
+    PropertyConstraintMin getMin();
 
     /**
      * Gets the current maximum constraint value.
      *
      * \return the maximum constraint, or NULL if none.
      */
-    boost::shared_ptr< WPropertyConstraintMax< T > > getMax();
+    PropertyConstraintMax getMax();
 
 protected:
 

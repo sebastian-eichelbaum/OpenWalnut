@@ -28,10 +28,14 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     QWidget( parent ),
     m_property( property ),
     m_propertyGrid( propertyGrid ),
-    m_label( this )
+    m_label( this ),
+    m_invalid( true )
 {
     // initialize members
     m_label.setText( property->getName().c_str() );
+    // set tooltips
+    m_label.setToolTip( getTooltip().c_str() );
+    setToolTip( m_label.toolTip() );
 
     // setup grid layout
     int row = m_propertyGrid->rowCount();
@@ -44,6 +48,15 @@ WPropertyWidget::~WPropertyWidget()
     // cleanup
 }
 
+std::string WPropertyWidget::getTooltip() const
+{
+    std::string tip = "<b>Property: </b>" + m_property->getName() + "<br/>";
+    tip += "<b>Status: </b>";
+    tip += m_invalid ? "<font color=#FF0000><b>invalid</b></font>" : "valid";
+    tip += "<br/><br/>";
+    return tip + m_property->getDescription();
+}
+
 boost::shared_ptr< WPropertyBase > WPropertyWidget::getProperty()
 {
     return m_property;
@@ -51,9 +64,15 @@ boost::shared_ptr< WPropertyBase > WPropertyWidget::getProperty()
 
 void WPropertyWidget::invalidate( bool invalid )
 {
+    m_invalid = invalid;
+
+    // update tooltip
+    m_label.setToolTip( getTooltip().c_str() );
+    setToolTip( m_label.toolTip() );
+
     if ( invalid )
     {
-        m_label.setText( ( m_property->getName() + "!" ).c_str() );
+        m_label.setText( ( "<font color=#FF0000><b>" + m_property->getName() + "</b></font>" ).c_str() );
     }
     else
     {

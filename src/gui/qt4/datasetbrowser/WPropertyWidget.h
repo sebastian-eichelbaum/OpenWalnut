@@ -25,6 +25,8 @@
 #ifndef WPROPERTYWIDGET_H
 #define WPROPERTYWIDGET_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <QtGui/QWidget>
@@ -71,6 +73,13 @@ public:
      */
     virtual void invalidate( bool invalid = true );
 
+    /**
+     * Gets the tooltip that should be used for this widget.
+     *
+     * \return the tooltip.
+     */
+    virtual std::string getTooltip() const;
+
 protected:
 
     /**
@@ -87,6 +96,11 @@ protected:
      * The label used to name the property
      */
     QLabel m_label;
+
+    /**
+     * Flag denoting whether the widget is set to an invalid value.
+     */
+    bool m_invalid;
 
 private:
 };

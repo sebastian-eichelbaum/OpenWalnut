@@ -25,6 +25,8 @@
 #ifndef WPROPERTYBOOLWIDGET_H
 #define WPROPERTYBOOLWIDGET_H
 
+#include <string>
+
 #include <QtGui/QCheckBox>
 #include <QtGui/QHBoxLayout>
 

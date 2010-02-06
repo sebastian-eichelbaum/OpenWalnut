@@ -25,6 +25,8 @@
 #ifndef WPROPERTYCONSTRAINTMAX_H
 #define WPROPERTYCONSTRAINTMAX_H
 
+#include <iostream>
+
 #include "WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
@@ -96,7 +98,7 @@ WPropertyConstraintMax< T >::~WPropertyConstraintMax()
 template < typename T >
 bool WPropertyConstraintMax< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
 {
-    return value >= m_max;
+    return value <= m_max;
 }
 
 template < typename T >
