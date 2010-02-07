@@ -29,7 +29,7 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     m_property( property ),
     m_propertyGrid( propertyGrid ),
     m_label( this ),
-    m_invalid( true )
+    m_invalid( false )
 {
     // initialize members
     m_label.setText( property->getName().c_str() );

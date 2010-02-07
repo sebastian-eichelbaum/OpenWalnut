@@ -26,6 +26,8 @@
 #include <sstream>
 #include <cmath>
 
+#include <boost/lexical_cast.hpp>
+
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
 
@@ -56,8 +58,10 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "The property has no minimum constraint. You should define it to avoid unexpected behaviour.",
-                                             "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
+        WLogger::getLogger()->addLogMessage(
+                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour. ") +
+                std::string( "Using default (" + boost::lexical_cast< std::string >( min ) + ")." ),
+                "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
     }
 
     // get the max constraint
@@ -69,8 +73,10 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "The property has no maximum constraint. You should define it to avoid unexpected behaviour.",
-                                             "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
+        WLogger::getLogger()->addLogMessage(
+                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour. ") +
+                std::string( "Using default (" + boost::lexical_cast< std::string >( min ) + ")." ),
+                "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
     }
 
     // setup the slider
