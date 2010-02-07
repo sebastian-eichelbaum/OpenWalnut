@@ -38,6 +38,7 @@
 #include "../../math/WVector3D.h"
 #include "../data/WMData.h"
 #include "WMBoundingBox.h"
+#include "boundingbox.xpm"
 
 WMBoundingBox::WMBoundingBox():
     WModule()
@@ -55,6 +56,11 @@ WMBoundingBox::~WMBoundingBox()
 boost::shared_ptr< WModule > WMBoundingBox::factory() const
 {
     return boost::shared_ptr< WModule >( new WMBoundingBox() );
+}
+
+const char** WMBoundingBox::getXPMIcon() const
+{
+    return boundingbox_xpm;
 }
 
 const std::string WMBoundingBox::getName() const

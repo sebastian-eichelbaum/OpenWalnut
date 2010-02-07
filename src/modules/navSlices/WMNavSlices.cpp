@@ -46,6 +46,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../data/WMData.h"
 #include "WMNavSlices.h"
+#include "navslices.xpm"
 
 WMNavSlices::WMNavSlices():
     WModule()
@@ -67,6 +68,11 @@ WMNavSlices::~WMNavSlices()
 boost::shared_ptr< WModule > WMNavSlices::factory() const
 {
     return boost::shared_ptr< WModule >( new WMNavSlices() );
+}
+
+const char** WMNavSlices::getXPMIcon() const
+{
+    return navslices_xpm;
 }
 
 const std::string WMNavSlices::getName() const
