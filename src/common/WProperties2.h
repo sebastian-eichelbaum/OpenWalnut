@@ -154,7 +154,7 @@ public:
      */
     template< typename T>
     boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
-                                                             WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                                             WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -173,7 +173,7 @@ public:
     template< typename T>
     boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
                                                              boost::shared_ptr< WCondition > condition,
-                                                             WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                                             WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
@@ -440,7 +440,7 @@ public:
     // convenience methods for
     // template< typename T>
     // boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
-    //                                                          WCondition::t_ConditionNotifierType notifier, bool hide = false );
+    //                                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -457,7 +457,7 @@ public:
      * \return the newly created property variable instance.
      */
     WPropBool      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -473,7 +473,7 @@ public:
      * \return the newly created property variable instance.
      */
     WPropInt       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -489,7 +489,7 @@ public:
      * \return the newly created property variable instance.
      */
     WPropDouble    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -505,7 +505,7 @@ public:
      * \return the newly created property variable instance.
      */
     WPropString    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -521,7 +521,7 @@ public:
      * \return the newly created property variable instance.
      */
     WPropFilename  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -537,7 +537,7 @@ public:
      * \return the newly created property variable instance.
      */
     WPropList      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -553,7 +553,7 @@ public:
      * \return the newly created property variable instance.
      */
     WPropPosition  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION& initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -569,13 +569,13 @@ public:
      * \return the newly created property variable instance.
      */
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&  initial,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // convenience methods for
     // template< typename T>
     // boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
     //                                                          boost::shared_ptr< WCondition > condition,
-    //                                                          WCondition::t_ConditionNotifierType notifier, bool hide = false );
+    //                                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -594,7 +594,7 @@ public:
      */
     WPropBool      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -612,7 +612,7 @@ public:
      */
     WPropInt       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -630,7 +630,7 @@ public:
      */
     WPropDouble    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
 
     /**
@@ -649,7 +649,7 @@ public:
      */
     WPropString    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -667,7 +667,7 @@ public:
      */
     WPropFilename  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -685,7 +685,7 @@ public:
      */
     WPropList      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -703,7 +703,7 @@ public:
      */
     WPropPosition  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -721,7 +721,7 @@ public:
      */
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                 boost::shared_ptr< WCondition > condition,
-                                WCondition::t_ConditionNotifierType notifier, bool hide = false );
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
 private:
 
@@ -775,7 +775,7 @@ boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::stri
 
 template< typename T>
 boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial,
-                                                                       WCondition::t_ConditionNotifierType notifier, bool hide )
+                                                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
             new WPropertyVariable< T >( name, description, initial, notifier )
@@ -788,7 +788,7 @@ boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::stri
 template< typename T>
 boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial,
                                                                        boost::shared_ptr< WCondition > condition,
-                                                                       WCondition::t_ConditionNotifierType notifier, bool hide )
+                                                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
             new WPropertyVariable< T >( name, description, initial, condition, notifier )

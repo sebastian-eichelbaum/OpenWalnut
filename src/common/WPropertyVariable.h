@@ -92,7 +92,7 @@ public:
      *        condition ( getCondition() ) for other properties, since they would also share the callbacks
      *
      */
-    WPropertyVariable( std::string name, std::string description, const T& initial, WCondition::t_ConditionNotifierType notifier );
+    WPropertyVariable( std::string name, std::string description, const T& initial, PropertyChangeNotifierType notifier );
 
     /**
      * Create an empty instance just containing a name. This constructor allows an external callback and condition to be used for notification.
@@ -109,7 +109,7 @@ public:
      *
      */
     WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition,
-                       WCondition::t_ConditionNotifierType notifier );
+                       PropertyChangeNotifierType notifier );
 
     /**
      * Destructor.
@@ -291,6 +291,11 @@ protected:
      */
     void removeConstraints( PROPERTYCONSTRAINT_TYPE type );
 
+    /**
+     * This method gets called by WFlag whenever the value of the property changes. It re-emits the signal with a this pointer
+     */
+    void propertyChangeNotifier();
+
 private:
 };
 
@@ -312,25 +317,28 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial,
-                                           WCondition::t_ConditionNotifierType notifier ):
+                                           PropertyChangeNotifierType notifier ):
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description )
 {
     updateType();
 
     // set custom notifier
-    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
+    WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    signal_PropertyChange.connect( notifier );
 }
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition,
-                                           WCondition::t_ConditionNotifierType notifier ):
+                                           PropertyChangeNotifierType notifier ):
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description )
 {
     updateType();
+
     // set custom notifier
-    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( notifier );
+    WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    signal_PropertyChange.connect( notifier );
 }
 
 template < typename T >
@@ -339,6 +347,13 @@ WPropertyVariable< T >::~WPropertyVariable()
     // clean up
     m_notifierConnection.disconnect();
     m_constraints.clear();
+}
+
+template < typename T >
+void WPropertyVariable< T >::propertyChangeNotifier()
+{
+    // propagate change, include pointer to property
+    signal_PropertyChange( shared_from_this() );
 }
 
 template < typename T >

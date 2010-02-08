@@ -84,12 +84,13 @@ public:
      * Sets the new value for this flag. Also notifies waiting threads.
      *
      * \param value the new value
+     * \param suppressNotification true to avoid a firing condition. This is useful for resetting values.
      *
      * \return true if the value has been set successfully.
      *
      * \note set( get() ) == true
      */
-    virtual bool set( T value );
+    virtual bool set( T value, bool suppressNotification = false );
 
     /**
      * Sets the new value for this flag. Also notifies waiting threads.
@@ -179,7 +180,7 @@ void WFlag< T >::operator()( T value )
 }
 
 template < typename T >
-bool WFlag< T >::set( T value )
+bool WFlag< T >::set( T value, bool suppressNotification )
 {
     // if the value is the same as the current one -> do not notify but let the caller know "all ok"
     if ( m_flag == value )
@@ -194,7 +195,12 @@ bool WFlag< T >::set( T value )
     }
 
     m_flag = value;
-    m_condition->notify();
+
+    // is the notification suppressed ?
+    if ( !suppressNotification )
+    {
+        m_condition->notify();
+    }
 
     return true;
 }

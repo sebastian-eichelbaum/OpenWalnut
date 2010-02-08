@@ -27,6 +27,9 @@
 
 #include <string>
 
+#include <boost/function.hpp>
+#include <boost/signals2/signal.hpp>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
@@ -147,6 +150,11 @@ public:
      */
     WPropPosition toPropPosition();
 
+    /**
+     * Signal signature emitted during set operations
+     */
+    typedef boost::function<void ( boost::shared_ptr< WPropertyBase > )> PropertyChangeNotifierType;
+
 protected:
 
     /**
@@ -173,6 +181,16 @@ protected:
      * Calculates the type of the property. This has to be done by the implementing class.
      */
     virtual void updateType();
+
+    /**
+     * Signal used for firing change signals
+     */
+    typedef boost::signals2::signal<void ( boost::shared_ptr< WPropertyBase >  )>  PropertyChangeSignalType;
+
+    /**
+     * Signal getting fired whenever the property changes.
+     */
+    PropertyChangeSignalType signal_PropertyChange;
 
 private:
 };
