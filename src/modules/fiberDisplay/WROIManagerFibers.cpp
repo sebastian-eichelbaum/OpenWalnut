@@ -152,7 +152,18 @@ void WROIManagerFibers::recalculate()
     boost::shared_ptr< std::vector< bool > > mbf = m_bitFields.front();
     int size = mbf->size();
     mbf->clear();
-    mbf->resize( size, false );
+
+    if ( m_branches.empty() )
+    {
+        mbf->resize( size, true );
+        m_dirty = false;
+        return;
+    }
+    else
+    {
+        mbf->resize( size, false );
+    }
+
 
     for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
