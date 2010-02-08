@@ -65,7 +65,7 @@ void WMDistanceMapIsosurface::moduleMain()
     //////////////////////////////////////////////////////////////////////////////////
 
     // create an instance using the prototypes
-    m_marchingCubesModule = WModuleFactory::getModuleFactory()->create(  WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
+    m_marchingCubesModule = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
 
     // add the marching cubes to the container
     add( m_marchingCubesModule );
