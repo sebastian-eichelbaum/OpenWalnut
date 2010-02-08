@@ -128,7 +128,7 @@ void WReaderFiberVTK::readPoints()
 
     wiotools::switchByteOrderOfArray( pointData, 3 * numPoints ); // all 4 bytes of each float are in wrong order we need to reorder them
 
-    m_points = boost::shared_ptr< std::vector< float > >( new std::vector< float >( pointData, pointData + sizeof( pointData ) / sizeof( float ) ) );
+    m_points = boost::shared_ptr< std::vector< float > >( new std::vector< float >( pointData, pointData + 3 * numPoints ) );
 
     delete[] pointData;
 
@@ -156,6 +156,11 @@ void WReaderFiberVTK::readLines()
     m_ifs->read( reinterpret_cast<char*>( lineData ), linesSize * sizeof( uint32_t ) );
 
     wiotools::switchByteOrderOfArray( lineData, linesSize );
+
+    m_fiberStartIndices = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
+    m_fiberLengths = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
+    m_fiberStartIndices->reserve( numLines );
+    m_fiberLengths->reserve( numLines );
 
     // now convert lines with point numbers to real fibers
     size_t linesSoFar = 0;
