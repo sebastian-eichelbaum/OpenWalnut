@@ -340,7 +340,6 @@ void WQtDatasetBrowser::selectTreeItem()
         }
     }
 
-    // TODO(seralph): remove the above stuff if all modules use wpropertyvariable instead of wproperty
     WQtDSBWidget* tab = new WQtDSBWidget( "Settings" );
 
     if ( props.get() )
@@ -365,7 +364,7 @@ void WQtDatasetBrowser::selectTreeItem()
                         tab->addProp( ( *iter )->toPropString() );
                         break;
                     case PV_PATH:
-                        tab->addProp( ( *iter )->toPropPath() );
+                        tab->addProp( ( *iter )->toPropFilename() );
                         break;
                     case PV_LIST:
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_LIST\" is not yet supported by the GUI.", "DatasetBrowser",
@@ -415,98 +414,20 @@ void WQtDatasetBrowser::changeTreeItem()
     if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == DATASET )
     {
         boost::shared_ptr< WModule >module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-        if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
-        {
-            module->getProperties()->setValue<bool>( "active", true );
-        }
-        else
-        {
-            module->getProperties()->setValue<bool>( "active", false );
-        }
+        module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
         emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     }
     else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == MODULE )
     {
         boost::shared_ptr< WModule >module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-        if ( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) )
-        {
-            module->getProperties()->setValue<bool>( "active", true );
-        }
-        else
-        {
-            module->getProperties()->setValue<bool>( "active", false );
-        }
+
+        module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 }
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
     m_tabWidget->addTab( content, content->getName() );
-}
-
-void WQtDatasetBrowser::slotSetIntProperty( QString name, int value )
-{
-    getPropOfSelected()->setValue<int>( name.toStdString(), value );
-
-    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
-}
-
-void WQtDatasetBrowser::slotSetDoubleProperty( QString name, double value )
-{
-    getPropOfSelected()->setValue<double>( name.toStdString(), value );
-
-    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
-}
-
-void WQtDatasetBrowser::slotSetBoolProperty( QString name, bool value )
-{
-    getPropOfSelected()->setValue<bool>( name.toStdString(), value );
-
-
-    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
-}
-
-void WQtDatasetBrowser::slotSetStringProperty( QString name, QString value )
-{
-    getPropOfSelected()->setValue<std::string>( name.toStdString(), value.toStdString() );
-
-    if ( name == "Name")
-    {
-        m_treeWidget->selectedItems().at( 0 )->setText( 0, value );
-    }
-}
-
-boost::shared_ptr< WProperties > WQtDatasetBrowser::getPropOfSelected()
-{
-    boost::shared_ptr< WModule > module;
-    boost::shared_ptr< WProperties > props;
-    if ( m_treeWidget->selectedItems().size() != 0  )
-    {
-        switch ( m_treeWidget->selectedItems().at( 0 )->type() )
-        {
-            case SUBJECT:
-                break;
-            case DATASET:
-                module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties();
-                break;
-            case MODULE:
-                module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties();
-                break;
-            case MODULEHEADER:
-                break;
-            case ROIHEADER:
-                break;
-            case ROI:
-            case SUBROI:
-                props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
-                break;
-            default:
-                break;
-        }
-    }
-    return props;
 }
 
 std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( int subjectId, bool onlyTextures )
@@ -527,7 +448,7 @@ std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( 
 
         if ( dm->isReady()() && ( !onlyTextures || dm->getDataSet()->isTexture() ) )
         {
-            if ( dm->getProperties()->getValue<bool>( "active" ) )
+            if ( dm->getProperties2()->getProperty( "active" )->toPropBool()->get() )
             {
                 moduleList.push_back( dm->getDataSet() );
             }

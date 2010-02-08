@@ -40,7 +40,7 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::s
     m_module = module;
     m_name = module->getName();
 
-    if ( module->getProperties()->getValue< bool > ( "active" ) )
+    if ( module->getProperties2()->getProperty( "active" )->toPropBool()->get() )
     {
         this->setCheckState( 0, Qt::Checked );
     }

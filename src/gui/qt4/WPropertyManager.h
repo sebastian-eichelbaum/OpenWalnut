@@ -32,7 +32,7 @@
 
 #include <QtCore/QObject>
 
-#include "../../common/WProperties.h"
+#include "../../common/WProperties2.h"
 /**
  * Class that implements a list for pointers to properties objects from modules
  * Gui elemements will connect to its slots and write values to coresponding properties
@@ -57,7 +57,7 @@ public:
      *
      * \param properties the property to add.
      */
-    void connectProperties( boost::shared_ptr< WProperties > properties );
+    void connectProperties( boost::shared_ptr< WProperties2 > properties );
 
 public slots:
 
@@ -107,7 +107,7 @@ private:
     /**
      * List of all properties actually connected with this manager instance.
      */
-    std::vector< boost::shared_ptr< WProperties > > m_connectedProperties;
+    std::vector< boost::shared_ptr< WProperties2 > > m_connectedProperties;
 };
 
 #endif  // WPROPERTYMANAGER_H

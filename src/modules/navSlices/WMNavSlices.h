@@ -132,11 +132,6 @@ private:
     WPropBool m_textureChanged;
 
     /**
-     * True whenever the module should be active
-     */
-    WPropBool m_active;
-
-    /**
      * Axial slice position.
      */
     WPropInt m_axialPos;

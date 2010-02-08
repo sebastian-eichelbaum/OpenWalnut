@@ -62,7 +62,13 @@ void WBatchLoader::threadMain()
         boost::shared_ptr< WModule > mod = WModuleFactory::getModuleFactory()->create(
                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" )
         );
-        mod->getProperties()->setValue( "filename" , ( *iter ) );
+
+        boost::shared_ptr< WPropertyBase > p = mod->getProperties2()->findProperty( "filename" );
+        if ( p.get() )
+        {
+            p->toPropFilename()->set( *iter );
+        }
+
         m_targetContainer->add( mod );
         // serialize loading of a couple of data sets
         mod->isReady().wait();

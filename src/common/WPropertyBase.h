@@ -81,7 +81,7 @@ public:
      *
      * \param hidden true if it should be hidden.
      */
-    void setHidden( bool hidden );
+    void setHidden( bool hidden = true );
 
     /**
      * Gets the real WPropertyVariable type of this instance.
@@ -127,7 +127,7 @@ public:
      *
      * \return the property as path property
      */
-    WPropFilename toPropPath();
+    WPropFilename toPropFilename();
 
     /**
      * Helper converts this instance to its native type.

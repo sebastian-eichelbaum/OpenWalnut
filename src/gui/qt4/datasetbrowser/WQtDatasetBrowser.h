@@ -145,39 +145,6 @@ public:
      */
     boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
 
-public slots:
-    /**
-     * slot to connect dynamically created controls
-     *
-     * \param name The name of the control
-     * \param value
-     */
-    void slotSetIntProperty( QString name, int value );
-
-    /**
-     * slot to connect dynamically created controls
-     *
-     * \param name The name of the control
-     * \param value The value of the property
-     */
-    void slotSetDoubleProperty( QString name, double value );
-
-    /**
-     * slot to connect dynamically created controls
-     *
-     * \param name The name of the control
-     * \param value
-     */
-    void slotSetBoolProperty( QString name, bool value );
-
-    /**
-     * slot to connect dynamically created controls
-     *
-     * \param name The name of the control
-     * \param value
-     */
-    void slotSetStringProperty( QString name, QString value );
-
 protected:
 
     /**
@@ -202,13 +169,6 @@ protected:
      * \param module pointer to the currently selected module
      */
     void createCompatibleButtons( boost::shared_ptr< WModule >module );
-
-    /**
-     * returns a pointer to the properties object of the currently selected tree item
-     *
-     * \return the properties
-     */
-    boost::shared_ptr< WProperties > getPropOfSelected();
 
     /**
      * Reference to the main window of the application.

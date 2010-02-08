@@ -88,16 +88,26 @@ void WMData::properties()
     // properties
 
     // filename of file to load and handle
-    m_properties->addString( "filename", "", true );
-    m_properties->addString( "Name" );
-    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    ( m_properties->addBool( "Interpolation", true ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    ( m_properties->addInt( "Threshold", 0 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    ( m_properties->addInt( "Opacity %", 100 ) )->connect( boost::bind( &WMData::slotPropertyChanged, this, _1 ) );
-    m_properties->setMax( "Opacity %", 100 );
+    m_filename = m_properties2->addProperty( "filename", "The file to load.", WKernel::getAppPathObject(), true );
+    m_dataName = m_properties2->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
+
+    // use this callback for the other properties
+    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
+
+    // several other properties
+    m_interpolation = m_properties2->addProperty( "Interpolation", "Is interpolation active?", true, propertyCallback );
+    m_threshold = m_properties2->addProperty( "Threshold", "The value threshold.", 0, propertyCallback );
+    m_opacity =m_properties2->addProperty( "Opacity %", "The opacity of this data on other surfaces.", 100, propertyCallback );
+    m_opacity->setMax( 100 );
+    m_opacity->setMin( 0 );
 }
 
-void WMData::slotPropertyChanged( std::string propertyName )
+void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
+{
+
+}
+
+/*void WMData::slotPropertyChanged( std::string propertyName )
 {
     if ( propertyName == "Threshold" )
     {
@@ -107,7 +117,7 @@ void WMData::slotPropertyChanged( std::string propertyName )
     {
         m_dataSet->getTexture()->setAlpha( m_properties->getValue<float>( "Opacity %" ) / 100.0 );
     }
-}
+}*/
 
 void WMData::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
                                            boost::shared_ptr<WModuleConnector> there )
@@ -122,11 +132,6 @@ void WMData::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here, b
             getName(), LL_DEBUG );
 }
 
-void WMData::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/, boost::shared_ptr<WModuleConnector> /*output*/ )
-{
-    // not used here, since data modules can not receive an input.
-}
-
 void WMData::notifyStop()
 {
     // not used here. It gets called whenever the module should stop running.
@@ -135,10 +140,10 @@ void WMData::notifyStop()
 void WMData::moduleMain()
 {
     using wiotools::getSuffix;
-    std::string fileName = m_properties->getValue< std::string >( "filename" );
+    std::string fileName = m_filename->get().string();
 
     debugLog() << "Loading data from \"" << fileName << "\".";
-    m_properties->setValue( "Name", fileName );
+    m_dataName->set( fileName );
 
     // load it now
     std::string suffix = getSuffix( fileName );
@@ -182,11 +187,10 @@ void WMData::moduleMain()
         || suffix == ".edf" )
     {
         // hide other properties since they make no sense fo these data set types.
-        m_properties->hideProperty( "filename" ); // File name is got via m_dataSet->getFileName()
-        m_properties->hideProperty( "active" );
-        m_properties->hideProperty( "Interpolation" );
-        m_properties->hideProperty( "Threshold" );
-        m_properties->hideProperty( "Opacity %" );
+        m_filename->setHidden();
+        m_interpolation->setHidden();
+        m_threshold->setHidden();
+        m_opacity->setHidden();
     }
 
     debugLog() << "Loading data done.";
@@ -197,3 +201,4 @@ void WMData::moduleMain()
     // go to idle mode
     waitForStop();  // WThreadedRunner offers this for us. It uses boost::condition to avoid wasting CPU cycles with while loops.
 }
+

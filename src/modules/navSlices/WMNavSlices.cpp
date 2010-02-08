@@ -104,26 +104,9 @@ void WMNavSlices::connectors()
 
 void WMNavSlices::properties()
 {
-    m_properties->addBool( "textureChanged", false, true );
-    //( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMNavSlices::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "active", true, true );
-    m_properties->addInt( "axialPos", 80 );
-    m_properties->addInt( "coronalPos", 100 );
-    m_properties->addInt( "sagittalPos", 80 );
-
-    m_properties->addInt( "maxAxial", 160, true );
-    m_properties->addInt( "maxCoronal", 200, true );
-    m_properties->addInt( "maxSagittal", 160, true );
-
-
-    m_properties->addBool( "showAxial", true );
-    m_properties->addBool( "showCoronal", true );
-    m_properties->addBool( "showSagittal", true );
-
     // NOTE: the appropriate type of addProperty is chosen by the type of the specified initial value.
     // So if you specify a bool as initial value, addProperty will create a WPropBool.
     m_textureChanged = m_properties2->addProperty( "textureChanged", "Denotes changing textures.", false, true );
-    m_active         = m_properties2->addProperty( "active",         "Determines whether the module should be activated.", true, true );
     m_showAxial      = m_properties2->addProperty( "showAxial",      "Determines whether the axial slice should be visible.", true, true );
     m_showCoronal    = m_properties2->addProperty( "showCoronal",    "Determines whether the coronal slice should be visible.", true, true );
     m_showSagittal   = m_properties2->addProperty( "showSagittal",   "Determines whether the sagittal slice should be visible.", true, true );
@@ -204,9 +187,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 {
     float maxDim = 255.0;
 
-    float xSlice = ( float )( m_properties->getValue< int >( "sagittalPos" ) );
-    float ySlice = ( float )( m_properties->getValue< int >( "coronalPos" ) );
-    float zSlice = ( float )( m_properties->getValue< int >( "axialPos" ) );
+    float xSlice = ( float )( m_sagittalPos->get() );
+    float ySlice = ( float )( m_coronalPos->get() );
+    float zSlice = ( float )( m_axialPos->get() );
 
     float xPos = xSlice + 0.5f;
     float yPos = ySlice + 0.5f;
@@ -334,13 +317,13 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     }
     else
     {
-        float maxX = ( float )( m_properties->getValue<int>( "maxSagittal") );
-        float maxY = ( float )( m_properties->getValue<int>( "maxCoronal") );
-        float maxZ = ( float )( m_properties->getValue<int>( "maxAxial") );
+        float maxX = ( float )( m_maxSagittal->get() );
+        float maxY = ( float )( m_maxCoronal->get() );
+        float maxZ = ( float )( m_maxAxial->get() );
 
-        m_properties->setMax( "sagittalPos", maxX );
-        m_properties->setMax( "coronalPos", maxY );
-        m_properties->setMax( "axialPos", maxZ );
+        m_sagittalPos->setMax( maxX );
+        m_coronalPos->setMax( maxY );
+        m_axialPos->setMax( maxZ );
 
         float texX = xSlice / maxX;
         float texY = ySlice / maxY;
@@ -417,7 +400,7 @@ void WMNavSlices::updateGeometry()
     std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
     bool noTexture = ( dsl.size() == 0 );
 
-    if ( m_properties->getValue<bool>( "showAxial" ) && !noTexture )
+    if ( m_showAxial->get() && !noTexture )
     {
         m_zSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -426,7 +409,7 @@ void WMNavSlices::updateGeometry()
         m_zSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_properties->getValue<bool>( "showCoronal" ) && !noTexture )
+    if ( m_showCoronal->get() && !noTexture )
     {
         m_xSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -435,7 +418,7 @@ void WMNavSlices::updateGeometry()
         m_xSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_properties->getValue<bool>( "showSagittal" ) && !noTexture )
+    if ( m_showSagittal->get() && !noTexture )
     {
         m_ySliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -453,9 +436,9 @@ void WMNavSlices::updateTextures()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    if ( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( m_textureChanged->get() && WKernel::getRunningKernel()->getGui()->isInitialized()() )
     {
-        m_properties->setValue( "textureChanged", false );
+        m_textureChanged->set( false );
         std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
         if ( dsl.size() > 0 )

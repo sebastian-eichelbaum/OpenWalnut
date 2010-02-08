@@ -85,6 +85,15 @@ public:
     boost::shared_ptr< WPropertyBase > getProperty( std::string name );
 
     /**
+     * Searches the property with a given name. It does not throw any exception. It simply returns NULL if it can't be found.
+     *
+     * \param name the name of the property to search
+     *
+     * \return the property or NULL if not found.
+     */
+    boost::shared_ptr< WPropertyBase > findProperty( std::string name );
+
+    /**
      * Iterator over all property elements. This locks the property set for writing. endIteration() frees the lock.
      *
      * \return the list of properties.
@@ -724,15 +733,6 @@ public:
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
 private:
-
-    /**
-     * Searches the property with a given name. It does not throw any exception. It simply returns NULL if it can't be found.
-     *
-     * \param name the name of the property to search
-     *
-     * \return the property or NULL if not found.
-     */
-    boost::shared_ptr< WPropertyBase > findProperty( std::string name );
 
     /**
      * The set of proerties. This uses the operators ==,<,> WProperty to determine equalnes.

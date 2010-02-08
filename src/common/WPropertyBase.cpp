@@ -93,7 +93,7 @@ WPropString WPropertyBase::toPropString()
     return boost::shared_static_cast< WPVString >( shared_from_this() );
 }
 
-WPropFilename WPropertyBase::toPropPath()
+WPropFilename WPropertyBase::toPropFilename()
 {
     return boost::shared_static_cast< WPVFilename >( shared_from_this() );
 }

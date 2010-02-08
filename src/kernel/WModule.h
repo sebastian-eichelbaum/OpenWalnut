@@ -433,6 +433,11 @@ protected:
      */
     std::set<boost::shared_ptr< WModuleOutputConnector > > m_outputConnectors;
 
+    /**
+     * True whenever the module should be active
+     */
+    WPropBool m_active;
+
 private:
 
      /**

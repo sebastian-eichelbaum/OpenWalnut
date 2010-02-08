@@ -121,25 +121,41 @@ protected:
     virtual void notifyConnectionClosed( boost::shared_ptr< WModuleConnector > here, boost::shared_ptr< WModuleConnector > there );
 
     /**
-     * Gets called when the data on one input connector changed.
-     *
-     * \param input the input connector receiving the change.
-     * \param output the output connector sending the change notification.
-     */
-    virtual void notifyDataChange( boost::shared_ptr< WModuleConnector > input,
-                                   boost::shared_ptr< WModuleConnector > output );
-
-    /**
      * Gets called when the module should quit. This is from WThreadedRunner.
      */
     virtual void notifyStop();
 
     /**
-     * Gets signaled from the properties object when something was changed
-     *
-     * \param propertyName the name of the property that actually changed.
+     * The filename to load.
      */
-    void slotPropertyChanged( std::string propertyName );
+    WPropFilename m_filename;
+
+    /**
+     * The name of the dataset. Usually the filename.
+     */
+    WPropString m_dataName;
+
+    /**
+     * Interpolation?
+     */
+    WPropBool m_interpolation;
+
+    /**
+     * Threshold value for this data.
+     */
+    WPropInt m_threshold;
+
+    /**
+     * Opacity value for this data.
+     */
+    WPropInt m_opacity;
+
+    /**
+     * Called whenever a property changes.
+     *
+     * \param property the property that has been changed
+     */
+    void propertyChanged( boost::shared_ptr< WPropertyBase > property );
 
 private:
 

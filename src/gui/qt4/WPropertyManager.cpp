@@ -37,7 +37,7 @@ WPropertyManager::~WPropertyManager()
 {
 }
 
-void WPropertyManager::connectProperties( boost::shared_ptr< WProperties > properties )
+void WPropertyManager::connectProperties( boost::shared_ptr< WProperties2 > properties )
 {
     // make sure only one property gets connected at a time
     boost::mutex::scoped_lock lock( m_PropertiesLock );
@@ -51,17 +51,22 @@ void WPropertyManager::slotBoolChanged( QString name, bool value )
 
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name.toStdString(), value );
+        if ( m_connectedProperties[i]->existsProperty( name.toStdString() ) )
+        {
+            m_connectedProperties[i]->getProperty( name.toStdString() )->toPropBool()->set( value );
+        }
     }
 }
 
 void WPropertyManager::slotIntChanged( QString name, int value )
 {
     boost::mutex::scoped_lock lock( m_PropertiesLock );
-
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name.toStdString(), value );
+        if ( m_connectedProperties[i]->existsProperty( name.toStdString() ) )
+        {
+            m_connectedProperties[i]->getProperty( name.toStdString() )->toPropInt()->set( value );
+        }
     }
 }
 
@@ -71,7 +76,10 @@ void WPropertyManager::slotFloatChanged( QString name, float value )
 
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name.toStdString(), value );
+        if ( m_connectedProperties[i]->existsProperty( name.toStdString() ) )
+        {
+            m_connectedProperties[i]->getProperty( name.toStdString() )->toPropDouble()->set( value );
+        }
     }
 }
 
@@ -81,6 +89,9 @@ void WPropertyManager::slotStringChanged( QString name, QString value )
 
     for ( size_t i = 0; i < m_connectedProperties.size(); ++i )
     {
-        m_connectedProperties[i]->setValue( name.toStdString(), value.toStdString() );
+        if ( m_connectedProperties[i]->existsProperty( name.toStdString() ) )
+        {
+            m_connectedProperties[i]->getProperty( name.toStdString() )->toPropString()->set( value.toStdString() );
+        }
     }
 }
