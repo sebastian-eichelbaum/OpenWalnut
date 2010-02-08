@@ -35,8 +35,8 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
-
 #include "WMFiberDisplay.h"
+#include "fiberdisplay.xpm"
 
 WMFiberDisplay::WMFiberDisplay()
     : WModule(),
@@ -51,6 +51,11 @@ WMFiberDisplay::~WMFiberDisplay()
 boost::shared_ptr< WModule > WMFiberDisplay::factory() const
 {
     return boost::shared_ptr< WModule >( new WMFiberDisplay() );
+}
+
+const char** WMFiberDisplay::getXPMIcon() const
+{
+    return fiberdisplay_xpm;
 }
 
 osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode()
