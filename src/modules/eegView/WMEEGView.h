@@ -129,10 +129,16 @@ private:
     boost::shared_ptr< WCustomWidget > m_widget;
 
     /**
-     * OSG node for this module. All other OSG nodes of this module should be
+     * OSG node for all 2D stuff of this module. All other OSG nodes should be
      * placed as child to this node.
      */
-    osg::ref_ptr< WGEGroupNode > m_rootNode;
+    osg::ref_ptr< WGEGroupNode > m_rootNode2d;
+
+    /**
+     * OSG node for all 3D stuff of this module. All other OSG nodes should be
+     * placed as child to this node.
+     */
+    osg::ref_ptr< WGEGroupNode > m_rootNode3d;
 
     /**
      * Bool flag which gets set when the data was changed.

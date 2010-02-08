@@ -54,7 +54,7 @@ const std::string WMEEGView::getName() const
 
 const std::string WMEEGView::getDescription() const
 {
-    return "Test module to open an EEG View.";
+    return "Displays EEG data.";
 }
 
 void WMEEGView::connectors()
@@ -143,6 +143,11 @@ void WMEEGView::moduleMain()
         {
             if( isActive )
             {
+                if( m_rootNode3d.valid() )
+                {
+                    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode3d );
+                }
+
                 if( !openCustomWidget() )
                 {
                     // Shut down module if widget could not be opened.
@@ -153,6 +158,10 @@ void WMEEGView::moduleMain()
             else
             {
                 closeCustomWidget();
+                if( m_rootNode3d.valid() )
+                {
+                    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode3d );
+                }
             }
             m_wasActive = isActive;
         }
@@ -164,6 +173,10 @@ void WMEEGView::moduleMain()
     if( m_wasActive )
     {
         closeCustomWidget();
+        if( m_rootNode3d.valid() )
+        {
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode3d );
+        }
     }
 }
 
@@ -178,10 +191,10 @@ bool WMEEGView::openCustomWidget()
         debugLog() << "Succesfully opened EEG View widget.";
         m_eventPositionFlag = m_widget->getViewer()->getMarkHandler()->getPositionFlag();
         m_moduleState.add( m_eventPositionFlag->getCondition() );
-        if( m_rootNode.valid() )
+        if( m_rootNode2d.valid() )
         {
             debugLog() << "Adding rootNode to scene after opened EEG View widget";
-            m_widget->getScene()->insert( m_rootNode );
+            m_widget->getScene()->insert( m_rootNode2d );
         }
     }
     else
@@ -193,9 +206,9 @@ bool WMEEGView::openCustomWidget()
 
 void WMEEGView::closeCustomWidget()
 {
-    if( m_rootNode.valid() )
+    if( m_rootNode2d.valid() )
     {
-        m_widget->getScene()->remove( m_rootNode );
+        m_widget->getScene()->remove( m_rootNode2d );
     }
     m_moduleState.remove( m_eventPositionFlag->getCondition() );
     m_eventPositionFlag = NULL;
@@ -204,9 +217,16 @@ void WMEEGView::closeCustomWidget()
 
 void WMEEGView::redraw()
 {
-    if( m_wasActive && m_rootNode.valid() )
+    if( m_wasActive )
     {
-        m_widget->getScene()->remove( m_rootNode );
+        if( m_rootNode2d.valid() )
+        {
+            m_widget->getScene()->remove( m_rootNode2d );
+        }
+        if( m_rootNode3d.valid() )
+        {
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode3d );
+        }
     }
 
     if( m_eeg.get() )
@@ -219,15 +239,20 @@ void WMEEGView::redraw()
         const double xOffset = 0.0;
         const unsigned int spacing = 16;
 
-        m_rootNode = new WGEGroupNode;
-        osg::StateSet* stateset = m_rootNode->getOrCreateStateSet();
+        const float sphereSize = 4.0f;
+
+        m_rootNode2d = new WGEGroupNode;
+        osg::StateSet* stateset = m_rootNode2d->getOrCreateStateSet();
         stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+        m_rootNode3d = new WGEGroupNode;
 
         debugLog() << "Displaying EEG " << m_eeg->getFileName();
         debugLog() << "  Number of segments: " << m_eeg->getNumberOfSegments();
         size_t nbChannels = m_eeg->getNumberOfChannels();
         debugLog() << "  Number of channels: " << nbChannels;
 
+        // draw 2D plot
         for( size_t segment = 0; segment < m_eeg->getNumberOfSegments(); ++segment )
         {
             debugLog() << "  Segment " << segment;
@@ -283,13 +308,14 @@ void WMEEGView::redraw()
                 scale->addChild( linesGeode );
                 translate->addChild( textGeode );
                 translate->addChild( scale );
-                m_rootNode->addChild( translate );
+                m_rootNode2d->addChild( translate );
             }
         }
 
+        // draw event marker
         if( m_event.getNode().valid() && 0.0 < m_event.getTime() && m_event.getTime() <= m_eeg->getNumberOfSamples( 0 ) - 1 )
         {
-            m_rootNode->addChild( m_event.getNode() );
+            m_rootNode2d->addChild( m_event.getNode() );
         }
         else
         {
@@ -297,15 +323,28 @@ void WMEEGView::redraw()
             m_event.setNode( NULL );
         }
 
+        // draw 3d positions
+        for( size_t channel = 0; channel < nbChannels; ++channel )
+        {
+            wmath::WPosition position = m_eeg->getChannelPosition( channel );
+            osg::Geode* sphereGeode = new osg::Geode;
+            sphereGeode->addDrawable( new osg::ShapeDrawable( new osg::Sphere(
+                osg::Vec3( position[0], position[1], position[2] ), sphereSize ) ) );
+            m_rootNode3d->addChild( sphereGeode );
+        }
+
         if( m_wasActive )
         {
             debugLog() << "Adding rootNode to scene after redraw";
-            m_widget->getScene()->insert( m_rootNode );
+            m_widget->getScene()->insert( m_rootNode2d );
+
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode3d );
         }
     }
     else
     {
-        m_rootNode = NULL;
+        m_rootNode2d = NULL;
+        m_rootNode3d = NULL;
         m_event.setTime( -1.0 );
         m_event.setNode( NULL );
     }
@@ -336,13 +375,13 @@ void WMEEGView::updateEvent( WEvent* event, double time )
         osg::Geode* geode = new osg::Geode;
         geode->addDrawable( geometry );
 
-        if( m_rootNode.valid() )
+        if( m_rootNode2d.valid() )
         {
             if( event->getNode().valid() )
             {
-                m_rootNode->remove( event->getNode() );
+                m_rootNode2d->remove( event->getNode() );
             }
-            m_rootNode->insert( geode );
+            m_rootNode2d->insert( geode );
         }
 
         event->setTime( time );
