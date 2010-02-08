@@ -238,6 +238,8 @@ private:
 
     WQtRoiHeaderTreeItem* m_tiRois; //!< header for rois
 
+    bool m_showToolBarText; //!< Show tool bar icons with text
+
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget

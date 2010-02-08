@@ -114,13 +114,12 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_minPos = minPos;
     m_maxPos = maxPos;
 
-    // connect updateGFX with picking
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
     boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
     assert( viewer );
     m_pickHandler = viewer->getPickHandler();
-    m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::updateGFX, this, _1 ) );
+    m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::registerRedrawRequest, this, _1 ) );
 
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_geode = new osg::Geode;
@@ -170,6 +169,9 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
 
     assert( WGraphicsEngine::getGraphicsEngine() );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( m_geode );
+
+    m_geode->setUserData( this );
+    m_geode->setUpdateCallback( new ROIBoxNodeCallback );
 }
 
 wmath::WPosition WROIBox::getMinPos() const
@@ -189,22 +191,48 @@ bool WROIBox::isModified()
     return tmp;
 }
 
-void WROIBox::updateGFX( std::string text )
+void WROIBox::registerRedrawRequest( std::string text )
 {
-    boost::shared_lock< boost::shared_mutex > slock;
-    slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
+    m_pickText = text;
+
+    lock.unlock();
+}
+
+void WROIBox::updateGFX()
+{
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
     std::stringstream ss;
     ss << "\"ROIBox" << boxId << "\"";
-    if ( text.find( "Object " ) != std::string::npos && text.find( ss.str() ) != std::string::npos )
+    if ( m_pickText.find( "Object " ) != std::string::npos && m_pickText.find( ss.str() ) != std::string::npos )
     {
+        // connect updateGFX with picking
+        boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
+        assert( ge );
+        boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
+        assert( viewer );
+
+
         wmath::WPosition newPos( m_pickHandler->getHitPosition() );
         if ( m_isPicked )
         {
-            wmath::WVector3D moveVec = m_pickedPosition - newPos;
+            osg::Vec3d eyeDirOSG = osg::Matrix::transform3x3( osg::Vec3d( 0, 0, -1 ),
+                                                           osg::Matrix::inverse( viewer->getCamera()->getViewMatrix() ) );
+
+            wmath::WVector3D eyeDir( eyeDirOSG[0], eyeDirOSG[1], eyeDirOSG[2] );
+            eyeDir.normalize();
+
+            wmath::WVector3D moveVec = newPos - m_pickedPosition;
+
+            moveVec = moveVec - eyeDir * ( moveVec * eyeDir );
+
             osg::Vec3Array* vertices = new osg::Vec3Array;
-            m_minPos -= moveVec;
-            m_maxPos -= moveVec;
+            m_minPos += moveVec;
+            m_maxPos += moveVec;
             setVertices( vertices, m_minPos, m_maxPos );
             ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setVertexArray( vertices );
         }
@@ -220,12 +248,12 @@ void WROIBox::updateGFX( std::string text )
 
         m_signalIsModified();
     }
-    if ( m_isPicked && text.find( "unpick" ) != std::string::npos )
+    if ( m_isPicked && m_pickText.find( "unpick" ) != std::string::npos )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
         colors->push_back( osg::Vec4( 0.f, 0.f, 1.f, 0.5f ) );
         ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setColorArray( colors );
         m_isPicked = false;
     }
-    slock.unlock();
+    lock.unlock();
 }

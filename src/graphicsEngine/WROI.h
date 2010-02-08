@@ -87,9 +87,14 @@ protected:
 private:
     /**
      *  updates the graphics
-     * \param text text info from pick
      */
-    virtual void updateGFX( std::string text ) = 0;
+    virtual void updateGFX() = 0;
+
+    /**
+     * Registers whether udate is needed.
+     * \param text The info text that indicates the type of request.
+     */
+    virtual void registerRedrawRequest( std::string text ) = 0;
 };
 
 #endif  // WROI_H
