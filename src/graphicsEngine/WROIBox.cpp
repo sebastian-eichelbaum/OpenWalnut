@@ -114,8 +114,6 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_minPos = minPos;
     m_maxPos = maxPos;
 
-
-    // connect updateGFX with picking
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
     boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
