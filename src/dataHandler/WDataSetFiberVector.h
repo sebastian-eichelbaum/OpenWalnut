@@ -30,15 +30,21 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WDataSet.h"
 #include "../math/WFiber.h"
+#include "WDataSet.h"
+#include "WDataSetFibers.h"
 
 /**
  * Represents a simple set of WFibers.
  */
-class WDataSetFiberVector : public WDataSet
+class WDataSetFiberVector : public WMixinVector< wmath::WFiber >, public WDataSet
 {
 public:
+    /**
+     * Default constructor for creating an empty fiber vector.
+     */
+    WDataSetFiberVector();
+
     /**
      * Constructs a new set of WFibers
      *
@@ -47,20 +53,32 @@ public:
     explicit WDataSetFiberVector( boost::shared_ptr< std::vector< wmath::WFiber > > fibs );
 
     /**
-     * Constructs a new set of WFibers. The constructed instance is not usable.
+     * Convert a WDataSetFibers into a fiber vector dataset.
+     *
+     * \param fiberDS Dataset which has to be converted
      */
-    WDataSetFiberVector();
+    explicit WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fiberDS );
 
     /**
-     * Get number of fibers in this data set.
+     * Copy constructor for fibers
+     *
+     * \param other Instance to copy from
      */
-    size_t size() const;
+    explicit WDataSetFiberVector( const WDataSetFiberVector& other ); // defined since rule of three
 
     /**
-     * \param index The index number of the fiber which should be returned
-     * \return The i'th fiber.
+     * Destructs WDataSetFiberVector instances
      */
-    const wmath::WFiber& operator[]( const size_t index ) const;
+    virtual ~WDataSetFiberVector(); // defined since rule of three
+
+    /**
+     * Operator for assigning instances of WDataSetFiberVector
+     *
+     * \param other Instance which should replace this
+     *
+     * \return Reference for further usage of the outcome of the assigment
+     */
+    WDataSetFiberVector& operator=( const WDataSetFiberVector& other ); // defined since rule of three
 
     /**
      * Sort fibers descending on their length.
@@ -105,14 +123,10 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:
-
     /**
      * The prototype as singleton.
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
-
-private:
-    boost::shared_ptr< std::vector< wmath::WFiber > > m_fibers; //!< stores all the fibers
 };
 
 #endif  // WDATASETFIBERVECTOR_H
