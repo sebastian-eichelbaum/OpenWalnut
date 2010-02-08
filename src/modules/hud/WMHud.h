@@ -100,6 +100,10 @@ protected:
     virtual boost::shared_ptr< WModule > factory() const;
 
 private:
+
+
+    boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
+
     /**
      * Projection node for defining view frustrum for HUD
      */
@@ -108,12 +112,12 @@ private:
     /**
      * Geometry group for all hud related things
      */
-    osg::ref_ptr< WGEGroupNode >m_HUDs;
+    osg::ref_ptr< WGEGroupNode > m_HUDs;
 
     /**
      * Text instance that will show up in the HUD
      */
-    osg::ref_ptr<osgText::Text> m_osgPickText;
+    osg::ref_ptr< osgText::Text > m_osgPickText;
 
     /**
      * string to store the pick result from the picking method

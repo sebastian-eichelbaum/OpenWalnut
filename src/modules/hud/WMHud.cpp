@@ -92,7 +92,7 @@ void WMHud::init()
     m_rootNode->setMatrix( osg::Matrix::ortho2D( 0, 1024, 0, 768 ) );
 
     // For the HUD model view matrix use an identity matrix
-    osg::MatrixTransform* HUDModelViewMatrix = new osg::MatrixTransform;
+    osg::ref_ptr< osg::MatrixTransform > HUDModelViewMatrix = new osg::MatrixTransform;
     HUDModelViewMatrix->setMatrix( osg::Matrix::identity() );
 
     // Make sure the model view matrix is not affected by any transforms
@@ -118,24 +118,24 @@ void WMHud::init()
     m_HUDs->insert( HUDGeode );
 
     // Set up geometry for the HUD and add it to the HUD
-    osg::Geometry* HUDBackgroundGeometry = new osg::Geometry();
+    osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();
 
-    osg::Vec3Array* HUDBackgroundVertices = new osg::Vec3Array;
+    osg::ref_ptr< osg::Vec3Array > HUDBackgroundVertices = new osg::Vec3Array;
     HUDBackgroundVertices->push_back( osg::Vec3( 580, 0, -1 ) );
     HUDBackgroundVertices->push_back( osg::Vec3( 1024, 0, -1 ) );
     HUDBackgroundVertices->push_back( osg::Vec3( 1024, 100, -1 ) );
     HUDBackgroundVertices->push_back( osg::Vec3( 580, 100, -1 ) );
 
-    osg::DrawElementsUInt* HUDBackgroundIndices = new osg::DrawElementsUInt( osg::PrimitiveSet::POLYGON, 0 );
+    osg::ref_ptr< osg::DrawElementsUInt > HUDBackgroundIndices = new osg::DrawElementsUInt( osg::PrimitiveSet::POLYGON, 0 );
     HUDBackgroundIndices->push_back( 0 );
     HUDBackgroundIndices->push_back( 1 );
     HUDBackgroundIndices->push_back( 2 );
     HUDBackgroundIndices->push_back( 3 );
 
-    osg::Vec4Array* HUDcolors = new osg::Vec4Array;
+    osg::ref_ptr< osg::Vec4Array > HUDcolors = new osg::Vec4Array;
     HUDcolors->push_back( osg::Vec4( 0.8f, 0.8f, 0.8f, 0.8f ) );
 
-    osg::Vec3Array* HUDnormals = new osg::Vec3Array;
+    osg::ref_ptr< osg::Vec3Array > HUDnormals = new osg::Vec3Array;
     HUDnormals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
     HUDBackgroundGeometry->setNormalArray( HUDnormals );
     HUDBackgroundGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
@@ -147,7 +147,7 @@ void WMHud::init()
     HUDGeode->addDrawable( HUDBackgroundGeometry );
 
     // Create and set up a state set using the texture from above
-    osg::StateSet* HUDStateSet = new osg::StateSet();
+    osg::ref_ptr< osg::StateSet > HUDStateSet = new osg::StateSet();
     HUDGeode->setStateSet( HUDStateSet );
 
     // For this state set, turn blending on (so alpha texture looks right)
@@ -162,7 +162,7 @@ void WMHud::init()
     // in numerical order so set bin number to 11
     HUDStateSet->setRenderBinDetails( 11, "RenderBin" );
 
-    m_osgPickText = osg::ref_ptr< osgText::Text>( new osgText::Text() );
+    m_osgPickText = osg::ref_ptr< osgText::Text >( new osgText::Text() );
 
     HUDGeode->addDrawable( m_osgPickText );
 
@@ -172,6 +172,7 @@ void WMHud::init()
     m_osgPickText->setAxisAlignment( osgText::Text::SCREEN );
     m_osgPickText->setPosition( osg::Vec3( 600, 80, -1.5 ) );
     m_osgPickText->setColor( osg::Vec4( 0, 0, 0, 1 ) );
+    m_osgPickText->setDataVariance( osg::Object::DYNAMIC );
 
     m_rootNode->setUserData( this );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
@@ -193,12 +194,22 @@ void WMHud::init()
 
 void WMHud::updatePickText( std::string text )
 {
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
     m_pickText = text;
+
+    lock.unlock();
 }
 
 void WMHud::update()
 {
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
     m_osgPickText->setText( m_pickText.c_str() );
+
+    lock.unlock();
 }
 
 void WMHud::slotPropertyChanged( std::string propertyName )
