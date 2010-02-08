@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include <set>
 #include <string>
 
 #include "../../../common/WProgressCombiner.h"

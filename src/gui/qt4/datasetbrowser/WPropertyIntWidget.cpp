@@ -24,6 +24,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <algorithm>
 
 #include <boost/lexical_cast.hpp>
 
@@ -58,7 +60,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     else
     {
         WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour. ") +
+                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour." ) +
                 std::string( "Using default (" + boost::lexical_cast< std::string >( min ) + ")." ),
                 "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
     }
@@ -73,7 +75,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     else
     {
         WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour. ") +
+                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour." ) +
                 std::string( "Using default (" + boost::lexical_cast< std::string >( max ) + ")." ),
                 "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
     }

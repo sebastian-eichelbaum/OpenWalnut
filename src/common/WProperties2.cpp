@@ -136,6 +136,16 @@ WPropList WProperties2::addProperty( std::string name, std::string description, 
     return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, hide );
 }
 
+WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, hide );
+}
+
+WPropColor WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, hide );
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
 // template< typename T>
@@ -177,6 +187,18 @@ WPropList WProperties2::addProperty( std::string name, std::string description, 
                                      boost::shared_ptr< WCondition > condition, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, condition, hide );
+}
+
+WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                         boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, hide );
+}
+
+WPropColor WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                     boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, hide );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,6 +243,19 @@ WPropList WProperties2::addProperty( std::string name, std::string description, 
 {
     return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, notifier, hide );
 }
+
+WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                         WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, notifier, hide );
+}
+
+WPropColor WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, notifier, hide );
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
@@ -270,5 +305,19 @@ WPropList WProperties2::addProperty( std::string name, std::string description, 
                                      WCondition::t_ConditionNotifierType notifier, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, condition, notifier, hide );
+}
+
+WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                         boost::shared_ptr< WCondition > condition,
+                                         WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, notifier, hide );
+}
+
+WPropColor WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WCondition::t_ConditionNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, notifier, hide );
 }
 

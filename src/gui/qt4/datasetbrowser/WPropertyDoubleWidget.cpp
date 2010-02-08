@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
+#include <string>
 
 #include <boost/lexical_cast.hpp>
 
@@ -53,7 +54,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     else
     {
         WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour. ") +
+                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour." ) +
                 std::string( "Using default (" + boost::lexical_cast< std::string >( min ) + ")." ),
                 "PropertyWidget( " + m_doubleProperty->getName() + " )", LL_WARNING );
     }
@@ -68,7 +69,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     else
     {
         WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour. ") +
+                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour." ) +
                 std::string( "Using default (" + boost::lexical_cast< std::string >( max ) + ")." ),
                 "PropertyWidget( " + m_doubleProperty->getName() + " )", LL_WARNING );
     }

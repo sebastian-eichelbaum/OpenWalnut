@@ -100,7 +100,7 @@ protected:
      *
      * \param progress the current progress as string.
      */
-    void updateTooltip( std::string propgress );
+    void updateTooltip( std::string progress );
 
 private:
 
