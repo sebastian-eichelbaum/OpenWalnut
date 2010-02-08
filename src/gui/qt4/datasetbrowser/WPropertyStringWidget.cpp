@@ -49,6 +49,7 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
 
 WPropertyStringWidget::~WPropertyStringWidget()
@@ -60,14 +61,13 @@ void WPropertyStringWidget::editChanged()
 {
     std::string value = m_edit.text().toStdString();
     // now: is the value acceptable by the property?
-    if ( !m_stringProperty->accept( value ) )
-    {
-        invalidate();
-    }
-    else
-    {
-        invalidate( false );
-        m_stringProperty->set( value );
-    }
+    invalidate( !m_stringProperty->set( value ) );     // NOTE: set automatically checks the validity of the value
+}
+
+void WPropertyStringWidget::textEdited( const QString& text )
+{
+    // this method does NOT set the property actually, but tries to validate it
+    std::string value = m_edit.text().toStdString();
+    invalidate( !m_stringProperty->accept( value ) );
 }
 

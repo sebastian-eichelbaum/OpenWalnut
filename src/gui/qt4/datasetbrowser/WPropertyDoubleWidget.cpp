@@ -93,15 +93,6 @@ WPropertyDoubleWidget::~WPropertyDoubleWidget()
 void WPropertyDoubleWidget::spinChanged( double value )
 {
     // set to the property
-    if ( !m_doubleProperty->accept( value ) )
-    {
-        // this is not a valid value!
-        invalidate();
-    }
-    else
-    {
-        invalidate( false );
-        m_doubleProperty->set( value );
-    }
+    invalidate( !m_doubleProperty->set( value ) );
 }
 

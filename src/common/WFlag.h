@@ -84,8 +84,12 @@ public:
      * Sets the new value for this flag. Also notifies waiting threads.
      *
      * \param value the new value
+     *
+     * \return true if the value has been set successfully.
+     *
+     * \note set( get() ) == true
      */
-    virtual void set( T value );
+    virtual bool set( T value );
 
     /**
      * Sets the new value for this flag. Also notifies waiting threads.
@@ -100,6 +104,16 @@ public:
      * \return the condition
      */
     boost::shared_ptr< WCondition > getCondition();
+
+    /**
+     * Determines whether the specified value is acceptable. In WFlags, this always returns true. To modify the behaviour,
+     * implement this function in an appropriate way.
+     *
+     * \param newValue the new value.
+     *
+     * \return true if it is a valid/acceptable value.
+     */
+    virtual bool accept( T newValue );
 
 protected:
 
@@ -165,19 +179,37 @@ void WFlag< T >::operator()( T value )
 }
 
 template < typename T >
-void WFlag< T >::set( T value )
+bool WFlag< T >::set( T value )
 {
+    // if the value is the same as the current one -> do not notify but let the caller know "all ok"
     if ( m_flag == value )
-        return;
+    {
+        return true;
+    }
+
+    // let the caller know whether the value was acceptable.
+    if ( !accept( value ) )
+    {
+        return false;
+    }
 
     m_flag = value;
     m_condition->notify();
+
+    return true;
 }
 
 template < typename T >
 boost::shared_ptr< WCondition > WFlag< T >::getCondition()
 {
     return m_condition;
+}
+
+template < typename T >
+bool WFlag< T >::accept( T /* newValue */ )
+{
+    // please implement this method in your class to modify the behaviour.
+    return true;
 }
 
 #endif  // WFLAG_H

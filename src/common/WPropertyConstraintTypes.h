@@ -32,7 +32,8 @@ typedef enum
 {
     PC_UNKNOWN,         // type ID for arbitrary WPropertyConstraint
     PC_MIN,             // type ID for WPropertyConstraintMin
-    PC_MAX              // type ID for WPropertyConstraintMax
+    PC_MAX,             // type ID for WPropertyConstraintMax
+    PC_NOTEMPTY         // type ID for WPropertyConstraintNotEmpty
 } PROPERTYCONSTRAINT_TYPE;
 
 #endif  // WPROPERTYCONSTRAINTTYPES_H

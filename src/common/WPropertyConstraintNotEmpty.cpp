@@ -22,35 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyBoolWidget.h"
-
-#include "../../../common/WPropertyVariable.h"
-
-WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent ):
-    WPropertyWidget( property, propertyGrid, parent ),
-    m_boolProperty( property ),
-    m_checkbox( this ),
-    m_layout()
-{
-    // initialize members
-    m_checkbox.setChecked( m_boolProperty->get() );
-
-    // layout both against each other
-    m_layout.addWidget( &m_checkbox );
-    setLayout( &m_layout );
-
-    // connect the modification signal of m_checkbox with our callback
-    connect( &m_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( changed() ) );
-}
-
-WPropertyBoolWidget::~WPropertyBoolWidget()
-{
-    // cleanup
-}
-
-void WPropertyBoolWidget::changed()
-{
-    // set the value
-    invalidate( !m_boolProperty->set( m_checkbox.isChecked() ) );
-}
+#include "WPropertyConstraintNotEmpty.h"
+#include "WPropertyVariable.h"
 

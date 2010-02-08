@@ -47,6 +47,7 @@
 #include "../data/WMData.h"
 #include "WMNavSlices.h"
 #include "navslices.xpm"
+#include "../../common/WPropertyConstraintNotEmpty.h"
 
 WMNavSlices::WMNavSlices():
     WModule()
@@ -147,6 +148,7 @@ void WMNavSlices::properties()
     d->setMax( 10.2 );
 
     WPropString s = m_properties2->addProperty( "hallo2", "Position of axial slice.",   std::string( "hallo du" ) );
+    s->addConstraint( boost::shared_ptr< WPropertyConstraintNotEmpty< std::string > >(new WPropertyConstraintNotEmpty< std::string >() ) );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,

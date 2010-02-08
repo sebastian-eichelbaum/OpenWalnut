@@ -115,10 +115,8 @@ public:
      * \param newValue the new value.
      *
      * \return true if it is a valid/acceptable value.
-     *
-     * \note this currently is a dummy.
      */
-    bool accept( T newValue );
+    virtual bool accept( T newValue );
 
     /**
      * Class building the base for user defined constraints on a property instance.
@@ -323,7 +321,7 @@ bool WPropertyVariable< T >::accept( T newValue )
     boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
 
     // iterate through the set
-    bool acceptable = true;
+    bool acceptable = WFlag< T >::accept( newValue );
     for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
     {
         acceptable &= ( *it )->accept( boost::shared_static_cast< WPropertyVariable< T > >( shared_from_this() ), newValue );

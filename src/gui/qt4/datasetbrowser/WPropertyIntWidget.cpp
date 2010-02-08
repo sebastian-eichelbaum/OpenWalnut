@@ -103,6 +103,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     // connect the modification signal of the edit and slider with our callback
     connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
     connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
 
 WPropertyIntWidget::~WPropertyIntWidget()
@@ -113,21 +114,10 @@ WPropertyIntWidget::~WPropertyIntWidget()
 void WPropertyIntWidget::sliderChanged( int value )
 {
     // set the value in the line edit
-    std::ostringstream s;
-    s << value;
-    m_edit.setText( QString( s.str().c_str() ) );
+    m_edit.setText( QString( boost::lexical_cast< std::string >( value ).c_str() ) );
 
     // set to the property
-    if ( !m_intProperty->accept( value ) )
-    {
-        // this is not a valid value!
-        invalidate();
-    }
-    else
-    {
-        invalidate( false );
-        m_intProperty->set( value );
-    }
+    invalidate( !m_intProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
 }
 
 void WPropertyIntWidget::editChanged()
@@ -144,15 +134,22 @@ void WPropertyIntWidget::editChanged()
     // update slider
     m_slider.setValue( value );
 
-    // now: is the value acceptable by the property?
-    if ( !m_intProperty->accept( value ) )
+    // set to the property
+    invalidate( !m_intProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
+}
+
+void WPropertyIntWidget::textEdited( const QString& text )
+{
+    // this method does NOT set the property actually, but tries to validate it
+    bool valid;
+    int value = m_edit.text().toInt( &valid );
+    if ( !valid )
     {
         invalidate();
+        return;
     }
-    else
-    {
-        invalidate( false );
-        m_intProperty->set( value );
-    }
+
+    // simply check validity
+    invalidate( !m_intProperty->accept( value ) );
 }
 

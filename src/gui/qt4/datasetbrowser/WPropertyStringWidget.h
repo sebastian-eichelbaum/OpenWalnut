@@ -80,6 +80,13 @@ public slots:
      * Called whenever the edit field changes
      */
     void editChanged();
+
+    /**
+     * Called when the text in m_edit changes.
+     *
+     * \param text
+     */
+    void textEdited( const QString& text );
 };
 
 #endif  // WPROPERTYSTRINGWIDGET_H
