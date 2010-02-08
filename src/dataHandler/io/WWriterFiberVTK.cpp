@@ -29,7 +29,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WIOTools.h"
-#include "../WDataSetFibers.h"
+#include "../WDataSetFiberVector.h"
 #include "../exceptions/WDHIOFailure.h"
 #include "WWriterFiberVTK.h"
 
@@ -38,7 +38,7 @@ WWriterFiberVTK::WWriterFiberVTK( std::string fname, bool overwrite )
 {
 }
 
-void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const
+void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > fiberDS ) const
 {
     using std::fstream;
     fstream out( m_fname.c_str(), fstream::out | fstream::in | fstream::trunc );

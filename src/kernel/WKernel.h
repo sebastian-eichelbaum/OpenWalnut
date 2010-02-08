@@ -31,15 +31,15 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WModule.h"
-#include "WModuleFactory.h"
-#include "WModuleContainer.h"
+#include "../common/WFlag.h"
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
-#include "../common/WFlag.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/WGUI.h"
-#include "../modules/fiberDisplay2/WROIManagerFibers.h"
+#include "../modules/fiberDisplay/WROIManagerFibers.h"
+#include "WModule.h"
+#include "WModuleContainer.h"
+#include "WModuleFactory.h"
 
 /**
  * \defgroup kernel Kernel

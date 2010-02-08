@@ -30,9 +30,9 @@
 
 #include <boost/program_options.hpp>
 
-#include "../WGUI.h"
 #include "../../kernel/WModule.h"
-#include "../../modules/fiberDisplay2/WRMROIRepresentation.h"
+#include "../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../WGUI.h"
 
 class WMainWindow;
 class WGraphicsEngine;

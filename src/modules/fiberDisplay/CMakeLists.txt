@@ -1,8 +1,8 @@
-FILE( GLOB_RECURSE MODULES_SRC "*.cpp" "*.h" )
+FILE( GLOB_RECURSE MODULES_SRC "*.cpp" )
 
 # Unit tests
-IF( OW_COMPILE_TESTS )
+IF( CXXTEST_FOUND )
   CXXTEST_ADD_TESTS_FROM_LIST( "${MODULES_SRC}"
                                "kernel"
                              )
-ENDIF( OW_COMPILE_TESTS )
+ENDIF( CXXTEST_FOUND )

@@ -29,39 +29,36 @@
 
 #include <osg/Geode>
 
-#include "../../common/WFlag.h"
 #include "../../dataHandler/WDataSetFibers.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../math/WFiber.h"
+
+#include "../../math/WPosition.h"
 
 /**
- * Module drawing fibers.
- * \ingroup modules
+ * Test module for drawing fibers
  */
-class WMFiberDisplay : public WModule
+class WMFiberDisplay : public WModule, public osg::Referenced
 {
-friend class WMFiberDisplayTest;
 public:
     /**
-     * Constructs new FiberDisplay module
+     * Constructs new FiberTestModule
      */
     WMFiberDisplay();
 
     /**
-     * Destructs this FiberDisplay module
+     * Destructs this FiberTestModule
      */
     virtual ~WMFiberDisplay();
 
     /**
-     * Return the name of this module.
+     * Gives back the name of this module.
      * \return the module's name.
      */
     virtual const std::string getName() const;
 
     /**
-     * Return a description of this module.
+     * Gives back a description of this module.
      * \return description to module.
      */
     virtual const std::string getDescription() const;
@@ -91,12 +88,9 @@ protected:
     /**
      * Generates an OSG geometry for the given fiber dataset.
      *
-     * \param fibers pointer to fiber data set.
-     * \param globalColoring determines whether the whole fiber has the same
-     * color (true) or separate segements can have different colors.
      * \return OSG geometry representing the fiber.
      */
-    osg::ref_ptr< osg::Geode > genFiberGeode( boost::shared_ptr< const WDataSetFibers > fibers, bool globalColoring = true ) const;
+    osg::ref_ptr< osg::Geode > genFiberGeode();
 
     /**
      * Initialize the connectors this module is using.
@@ -111,11 +105,23 @@ protected:
     /**
      * Redraws the scene.
      *
-     * \problem This might take a while with e.g. 70,000 fibers approx 4 sec
      */
     void update();
 
-    WBoolFlag m_globalColoring; //!< If True the fibers have to be drawn in global coloring mode, otherwise false.
+    /**
+     * initial creation of the osg geometry
+     */
+    void create();
+
+    /**
+     * Deletes the primitive list and adds only the avtivated
+     */
+    void updateLinesShown();
+
+    /**
+     * Switches the osg to use the appropriate color array
+     */
+    void updateColoring();
 
 private:
     /**
@@ -132,12 +138,66 @@ private:
      * OSG node for this module. All other OSG nodes of this module should be
      * placed as child to this node.
      */
-    osg::ref_ptr< WGEGroupNode > m_osgNode;
+    osg::ref_ptr< osg::Group > m_osgNode;
+
+    /**
+     * OSG geometry
+     * this pointer is stored for reuse when updating fibers to display
+     */
+    osg::ref_ptr< osg::Geometry > m_geometry;
+
+    /**
+     * Array that stores the global (direction) color for each fiber
+     */
+    osg::ref_ptr< osg::Vec4Array > m_globalColors;
+
+    /**
+     * Array that stores the local (direction) color for each fiber
+     */
+    osg::ref_ptr< osg::Vec4Array > m_localColors;
+
+    /**
+     * lock to prevent concurrent threads trying to update the osg node
+     */
+    boost::shared_mutex m_updateLock;
+
+    /**
+     * calculates a color from the vector between two points in space
+     *
+     * \param pos1
+     * \param pos2
+     */
+    WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
+
+
+    /**
+     * Node callback to handle updates properly
+     */
+    class fdNodeCallback : public osg::NodeCallback
+    {
+    public: // NOLINT
+        /**
+         * operator ()
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
+        {
+            osg::ref_ptr< WMFiberDisplay > module = static_cast< WMFiberDisplay* > ( node->getUserData() );
+
+            if ( module )
+            {
+                module->update();
+            }
+            traverse( node, nv );
+        }
+    };
 };
 
 inline const std::string WMFiberDisplay::getName() const
 {
-    return std::string( "Fiber Display Module" );
+    return std::string( "Fiber Display" );
 }
 
 inline const std::string WMFiberDisplay::getDescription() const

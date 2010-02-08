@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WFlag.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../math/WFiber.h"
@@ -129,13 +129,13 @@ protected:
 
     std::string m_savePath; //!< Path where remaining fibers should be stored
 
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput; //!< Input connector for a fiber dataset.
+    boost::shared_ptr< WModuleInputData< WDataSetFiberVector > > m_fiberInput; //!< Input connector for a fiber dataset.
 
-    boost::shared_ptr< WDataSetFibers > m_dataset; //!< Pointer to the fiber data set
+    boost::shared_ptr< WDataSetFiberVector > m_dataset; //!< Pointer to the fiber data set
 
     WBoolFlag m_run; //!< If and only if it is true then the Culling Algo is executed.
 
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled fibers
+    boost::shared_ptr< WModuleOutputData< WDataSetFiberVector > > m_output; //!< Output connector for the culled fibers
 
 private:
 };
@@ -147,7 +147,7 @@ inline const std::string WMFiberCulling::getName() const
 
 inline const std::string WMFiberCulling::getDescription() const
 {
-    return std::string( "Removes or culls out fibers from a WDataSetFibers" );
+    return std::string( "Removes or culls out fibers from a WDataSetFiberVector" );
 }
 
 #endif  // WMFIBERCULLING_H

@@ -28,7 +28,7 @@
 #include "../exceptions/WDHNoSuchFile.h"
 #include "WReader.h"
 
-WReader::WReader( std::string fname )
+WReader::WReader( std::string fname ) throw( WDHNoSuchFile )
 {
     setFileName( fname ); // not in constructor list since fileExcsits check
 }

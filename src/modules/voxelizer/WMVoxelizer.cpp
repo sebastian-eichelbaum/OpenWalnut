@@ -36,7 +36,7 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
@@ -100,7 +100,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
 
-    const WDataSetFibers& fibs = *m_clusters->getDataSetReference();
+    const WDataSetFiberVector& fibs = *m_clusters->getDataSetReference();
 
     const std::list< size_t >& fiberIDs = m_clusters->getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();
@@ -216,7 +216,7 @@ void WMVoxelizer::update()
 
 void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 {
-    const WDataSetFibers& fibs = *m_clusters->getDataSetReference();
+    const WDataSetFiberVector& fibs = *m_clusters->getDataSetReference();
     const std::list< size_t >& fiberIDs = m_clusters->getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();
 
@@ -321,7 +321,7 @@ void WMVoxelizer::slotPropertyChanged( std::string propertyName )
 
 std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
 {
-    const WDataSetFibers& fibs = *cluster.getDataSetReference();
+    const WDataSetFiberVector& fibs = *cluster.getDataSetReference();
 
     const std::list< size_t >& fiberIDs = cluster.getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();

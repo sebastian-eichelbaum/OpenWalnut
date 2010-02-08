@@ -34,8 +34,8 @@
 #include "../../dataHandler/io/WLoaderBiosig.h"
 #endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
-#include "../../dataHandler/io/WLoaderFibers2.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
+#include "../../dataHandler/io/WReaderFiberVTK.h"
 #include "WMData.h"
 
 WMData::WMData():
@@ -169,8 +169,8 @@ void WMData::moduleMain()
     }
     else if( suffix == ".fib" )
     {
-        WLoaderFibers2 fibLoader( fileName );
-        m_dataSet = fibLoader.load();
+        WReaderFiberVTK fibReader( fileName );
+        m_dataSet = fibReader.read();
     }
     else
     {

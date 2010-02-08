@@ -31,7 +31,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include "WKdTree.h"
-#include "WMFiberDisplay2.h"
+#include "WMFiberDisplay.h"
 
 #include "WRMBranch.h"
 
@@ -78,14 +78,14 @@ public:
      *
      * \param fibers
      */
-    void addFiberDataset( boost::shared_ptr< const WDataSetFibers2 > fibers );
+    void addFiberDataset( boost::shared_ptr< const WDataSetFibers > fibers );
 
     /**
      * removes a fiber dataset from the roi manager
      *
      * \param fibers
      */
-    void removeFiberDataset( boost::shared_ptr< const WDataSetFibers2 > fibers );
+    void removeFiberDataset( boost::shared_ptr< const WDataSetFibers > fibers );
 
     /**
      * returns a bit vector for the selected fiber dataset that is the result of all active ROI's
@@ -94,7 +94,7 @@ public:
      * \param fibers
      * \return std::vector<bool>*
      */
-    boost::shared_ptr< std::vector< bool > > getBitField( boost::shared_ptr< const WDataSetFibers2 > fibers );
+    boost::shared_ptr< std::vector< bool > > getBitField( boost::shared_ptr< const WDataSetFibers > fibers );
 
     /**
      * getter for a registered dataset
@@ -102,7 +102,7 @@ public:
      * \param index of the dataset
      * \return the dataset
      */
-    boost::shared_ptr< const WDataSetFibers2 > getDataSet( unsigned int index );
+    boost::shared_ptr< const WDataSetFibers > getDataSet( unsigned int index );
 
     /**
      * getter for a kd tree
@@ -145,7 +145,7 @@ private:
 
     bool m_dirty; //!< dirty flag
 
-    std::list< boost::shared_ptr< const WDataSetFibers2 > > m_fiberList; //!< list of registered fiber datasets
+    std::list< boost::shared_ptr< const WDataSetFibers > > m_fiberList; //!< list of registered fiber datasets
 
     std::list< boost::shared_ptr< std::vector< bool > > > m_bitFields; //!< list of bitfields, one for each dataset
 

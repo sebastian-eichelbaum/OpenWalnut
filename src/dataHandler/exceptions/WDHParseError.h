@@ -22,39 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WWRITERFIBERVTK_H
-#define WWRITERFIBERVTK_H
+#ifndef WDHPARSEERROR_H
+#define WDHPARSEERROR_H
 
+#include <stdexcept>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include "../WDataSetFiberVector.h"
-#include "WWriter.h"
+#include "WDHException.h"
 
 /**
- * Writes a FiberVTK file.
+ * Use this for IO error handling.
  */
-class WWriterFiberVTK : public WWriter
+class WDHParseError : public WDHException
 {
 public:
     /**
-     * Creates a writer object for FiberVTK file writing.
-     *
-     * \param fname path to the target file where stuff will be written to
-     * \param overwrite If true existing files will be overwritten
+     * Default constructor.
+     * \param msg the exception message.
      */
-    WWriterFiberVTK( std::string fname, bool overwrite = false );
+    explicit WDHParseError( const std::string& msg = "DataHandler Exception: Parsing error occured." );
 
     /**
-     * Writes a WDataSetFiberVector down to the previousely given file
-     *
-     * \param fiberDS The WDataSetFiberVector where the data is taken from
+     * Destructor
      */
-    void writeFibs( boost::shared_ptr< const WDataSetFiberVector > fiberDS ) const;
+    virtual ~WDHParseError() throw();
 
 protected:
 private:
 };
 
-#endif  // WWRITERFIBERVTK_H
+#endif  // WDHPARSEERROR_H

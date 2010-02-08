@@ -152,7 +152,7 @@ void WRMROIRepresentation::boxTest( int left, int right, int axis )
     }
 }
 
-unsigned int WRMROIRepresentation::getLineForPoint( unsigned int point )
+size_t WRMROIRepresentation::getLineForPoint( size_t point )
 {
     return m_currentReverse->at( point );
 }
