@@ -37,7 +37,7 @@
 /**
  * A box representing a region of interest.
  */
-class WROIBox : public WROI
+class WROIBox : public WROI, public osg::Referenced
 {
 public:
     /**
@@ -73,11 +73,41 @@ private:
     wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
 
+    std::string m_pickText; //!< Stores the pick text that contains information for potential redraw
+
+    /**
+     * note that there was a pick
+     * \param text info from pick
+     */
+    void registerRedrawRequest( std::string text );
+
     /**
      *  updates the graphics
-     * \param text text info from pick
      */
-    virtual void updateGFX( std::string text );
+    virtual void updateGFX();
+
+    /**
+     * Node callback to handle updates properly
+     */
+    class ROIBoxNodeCallback : public osg::NodeCallback
+    {
+    public: // NOLINT
+        /**
+         * operator ()
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
+        {
+            osg::ref_ptr< WROIBox > module = static_cast< WROIBox* > ( node->getUserData() );
+            if ( module )
+            {
+                module->updateGFX();
+            }
+            traverse( node, nv );
+        }
+    };
 };
 
 #endif  // WROIBOX_H
