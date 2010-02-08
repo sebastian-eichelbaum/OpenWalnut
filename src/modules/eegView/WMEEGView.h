@@ -193,6 +193,57 @@ private:
      * \param time the new time position
      */
     void updateEvent( WEvent* event, double time );
+
+    /**
+     * OSG Update Callback to change the color of a ShapeDrawable when an event
+     * position changed.
+     * \note Only add it to a ShapeDrawable!
+     */
+    class UpdateColorCallback : public osg::Drawable::UpdateCallback
+    {
+    public:
+        /**
+         * Constructor
+         *
+         * \param channel the number of the channel
+         * \param event the event on which the ShapeDrawable updates
+         * \param eeg the WEEG dataset
+         */
+        UpdateColorCallback( size_t channel, const WEvent* event, boost::shared_ptr< const WEEG > eeg );
+
+        /**
+         * Callback method called by the NodeVisitor.
+         * Changes the color of the drawable according to the event.
+         *
+         * \param drawable The drawable this callback is connected to. Should be
+         *                 a ShapeDrawable.
+         */
+        virtual void update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable );
+
+    protected:
+    private:
+        /**
+         * The number of the channel
+         */
+        const size_t m_channel;
+
+        /**
+         * The time position which is currently used.
+         * The color is updated if the new time from the m_event is different to
+         * this.
+         */
+        double m_currentTime;
+
+        /**
+         * The event on which the ShapeDrawable updates
+         */
+        const WEvent* const m_event;
+
+        /**
+         * The WEEG dataset
+         */
+        const boost::shared_ptr< const WEEG > m_eeg;
+    };
 };
 
 #endif  // WMEEGVIEW_H

@@ -333,8 +333,11 @@ void WMEEGView::redraw()
             osg::Vec3 posAsVec3( posAsWPosition[0], posAsWPosition[1], posAsWPosition[2] );
 
             // create sphere geode on electrode position
+            osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( posAsVec3, sphereSize ) );
+            shape->setUpdateCallback( new UpdateColorCallback( channel, &m_event, m_eeg ) );
+
             osg::Geode* sphereGeode = new osg::Geode;
-            sphereGeode->addDrawable( new osg::ShapeDrawable( new osg::Sphere( posAsVec3, sphereSize ) ) );
+            sphereGeode->addDrawable( shape );
             m_rootNode3d->addChild( sphereGeode );
 
             // create text geode for the channel label
@@ -405,5 +408,57 @@ void WMEEGView::updateEvent( WEvent* event, double time )
 
         event->setTime( time );
         event->setNode( geode );
+    }
+}
+
+WMEEGView::UpdateColorCallback::UpdateColorCallback( size_t channel, const WEvent* event, boost::shared_ptr< const WEEG > eeg )
+    : m_channel( channel ),
+      m_event( event ),
+      m_eeg( eeg )
+{
+    assert( channel < eeg->getNumberOfChannels() );
+    m_currentTime = -2.0;
+}
+
+void WMEEGView::UpdateColorCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
+{
+    const double newTime = m_event->getTime();
+    if( newTime != m_currentTime )
+    {
+        osg::ShapeDrawable* const shape = static_cast< osg::ShapeDrawable* const >( drawable );
+        if( shape )
+        {
+            // calculate color value between 0 and 1
+            double color;
+            if( 0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
+            {
+                const double scale = 0.25;
+                color = (*m_eeg)( 0, m_channel, newTime + 0.5 ) * scale + 0.5;
+                if( color < 0.0 )
+                {
+                    color = 0.0;
+                }
+                else if( color > 1.0 )
+                {
+                    color = 1.0;
+                }
+            }
+            else
+            {
+                color = 0.5;
+            }
+
+            // calculate resulting color using a color map from blue over white to red
+            if( color <= 0.5 )
+            {
+                shape->setColor( osg::Vec4( 2.0 * color, 2.0 * color, 1.0, 1.0 ) );
+            }
+            else
+            {
+                shape->setColor( osg::Vec4( 1.0, 2.0 - 2.0 * color, 2.0 - 2.0 * color, 1.0 ) );
+            }
+        }
+
+        m_currentTime = newTime;
     }
 }
