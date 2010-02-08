@@ -86,13 +86,13 @@ public:
     void sortDescLength();
 
     /**
-     * Deletes all those fibers which are marked true in the given
-     * unused vector.
+     * Generates new WDataSetFiberVector out of the used fibers from this dataset.
      *
-     * \param unused Vector having the those inidices set to true which should
-     * be deleted.
+     * \param unused If the i'th postion of this vector is true, then this fiber is considered as used.
+     *
+     * \return A reference to the new generate WDataSetFiberVector
      */
-    void erase( const std::vector< bool > &unused );
+    boost::shared_ptr< WDataSetFiberVector > generateDataSetOutOfUsedFibers( const std::vector< bool > &unused ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.
@@ -121,6 +121,13 @@ public:
      * \return the prototype.
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
+
+    /**
+     * Convert this dataset into WDataSetFibers format for other purposes if needed. (e.g. display)
+     *
+     * \return Reference to the dataset in WDataSetFibers format
+     */
+    boost::shared_ptr< WDataSetFibers > toWDataSetFibers() const;
 
 protected:
     /**

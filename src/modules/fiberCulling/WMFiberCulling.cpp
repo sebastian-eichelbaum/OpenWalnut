@@ -121,10 +121,13 @@ void WMFiberCulling::connectors()
 {
     using boost::shared_ptr;
     typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
-
     m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
 
+    typedef WModuleOutputData< WDataSetFibers > FiberOutputData;  // just an alias
+    m_output = shared_ptr< FiberOutputData >( new FiberOutputData( shared_from_this(), "fiberOutput", "The fibers that survied culling." ) );
+
     addConnector( m_fiberInput );
+    addConnector( m_output );
     WModule::connectors();  // call WModules initialization
 }
 
@@ -228,15 +231,17 @@ void WMFiberCulling::cullOutFibers()
     }
     progress->finish();
 
-    m_dataset->erase( unusedFibers );
+    boost::shared_ptr< const WDataSetFiberVector > result =  m_dataset->generateDataSetOutOfUsedFibers( unusedFibers );
+    m_output->updateData( result->toWDataSetFibers() );
+
     infoLog() << "Erasing done.";
-    infoLog() << "Culled out " << numFibers - m_dataset->size() << " fibers";
-    infoLog() << "There are " << m_dataset->size() << " fibers left.";
+    infoLog() << "Culled out " << numFibers - m_output->getData()->size() << " fibers";
+    infoLog() << "There are " << m_output->getData()->size() << " fibers left.";
 
     if( m_saveCulledCurves )
     {
         WWriterFiberVTK w( m_savePath, true );
-        w.writeFibs( m_dataset );
+        w.writeFibs( result );
     }
 }
 
