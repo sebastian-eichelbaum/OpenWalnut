@@ -102,8 +102,8 @@ void WMConnectomeView::connectors()
     addConnector( m_mrtInput );
 
     // this is the scalar field input
-    m_fiberInput = boost::shared_ptr< WModuleInputForwardData< WDataSetFibers2 > >(
-        new WModuleInputForwardData< WDataSetFibers2 >( shared_from_this(),
+    m_fiberInput = boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > >(
+        new WModuleInputForwardData< WDataSetFibers >( shared_from_this(),
                               "fibers", "The fiber dataset used to find connection path." )
         );
 

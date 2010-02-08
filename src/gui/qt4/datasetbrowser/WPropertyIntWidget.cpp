@@ -23,7 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
-#include <sstream>
 #include <cmath>
 
 #include <boost/lexical_cast.hpp>
@@ -98,9 +97,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
 
     // set the initial values
-    std::ostringstream s;
-    s << m_intProperty->get();
-    m_edit.setText( QString( s.str().c_str() ) );
+    m_edit.setText( QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() ) );
     m_slider.setValue( m_intProperty->get() );
 
     // connect the modification signal of the edit and slider with our callback

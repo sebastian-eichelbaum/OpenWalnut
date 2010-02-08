@@ -36,6 +36,8 @@
 
 #include "WPropertyBoolWidget.h"
 #include "WPropertyIntWidget.h"
+#include "WPropertyStringWidget.h"
+#include "WPropertyDoubleWidget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -90,7 +92,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    WPropertyIntWidget* addPropDouble( WPropDouble property );
+    WPropertyDoubleWidget* addPropDouble( WPropDouble property );
 
     /**
      * Adds a new int property to the DSB.
@@ -99,7 +101,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    WPropertyIntWidget* addPropString( WPropString property );
+    WPropertyStringWidget* addPropString( WPropString property );
 
     /**
      * helper function to add a spacer at the end

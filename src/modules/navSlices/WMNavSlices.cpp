@@ -141,6 +141,12 @@ void WMNavSlices::properties()
     m_maxAxial       = m_properties2->addProperty( "maxAxial",       "Max position of axial slice.",    160, true );
     m_maxCoronal     = m_properties2->addProperty( "maxCoronal",     "Max position of coronal slice.",  200, true );
     m_maxSagittal    = m_properties2->addProperty( "maxSagittal",    "Max position of sagittal slice.", 160, true );
+
+    WPropDouble d = m_properties2->addProperty( "hallo", "Position of axial slice.",    5.0 );
+    d->setMin( 0.5 );
+    d->setMax( 10.2 );
+
+    WPropString s = m_properties2->addProperty( "hallo2", "Position of axial slice.",   std::string( "hallo du" ) );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,

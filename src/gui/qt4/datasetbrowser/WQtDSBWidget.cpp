@@ -49,14 +49,14 @@ WPropertyIntWidget* WQtDSBWidget::addPropInt( WPropInt property )
     return new WPropertyIntWidget( property, &m_controlLayout, this );
 }
 
-WPropertyIntWidget* WQtDSBWidget::addPropDouble( WPropDouble property )
+WPropertyDoubleWidget* WQtDSBWidget::addPropDouble( WPropDouble property )
 {
-    return NULL;
+    return new WPropertyDoubleWidget( property, &m_controlLayout, this );
 }
 
-WPropertyIntWidget* WQtDSBWidget::addPropString( WPropString property )
+WPropertyStringWidget* WQtDSBWidget::addPropString( WPropString property )
 {
-    return NULL;
+    return new WPropertyStringWidget( property, &m_controlLayout, this );
 }
 
 void WQtDSBWidget::addSpacer()

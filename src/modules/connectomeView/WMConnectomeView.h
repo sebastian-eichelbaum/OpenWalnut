@@ -33,7 +33,7 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../dataHandler/WDataSetFibers2.h"
+#include "../../dataHandler/WDataSetFibers.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
@@ -116,7 +116,7 @@ private:
     /**
      * The fiber dataset used.
      */
-    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers2 > > m_fiberInput;
+    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_fiberInput;
 
     /**
      * the current dataset
