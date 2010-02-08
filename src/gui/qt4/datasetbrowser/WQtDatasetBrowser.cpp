@@ -31,6 +31,7 @@
 #include <QtCore/QList>
 
 #include "../../../common/WLogger.h"
+#include "../../../common/WPreferences.h"
 
 #include "../../../dataHandler/WDataSet.h"
 
@@ -90,6 +91,10 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_tiRois->setText( 0, QString( "ROIs" ) );
 
     connectSlots();
+
+    // preset for toolbar text.
+    m_showToolBarText = true;
+    WPreferences::getPreference( "qt4gui.toolBarIconText", &m_showToolBarText );
 }
 
 WQtDatasetBrowser::~WQtDatasetBrowser()
@@ -392,9 +397,15 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
     std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
     for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
-        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
-                m_mainWindow->getIconManager()->getIcon( ( *iter )->getName().c_str() ), QString( ( *iter )->getName().c_str() ) );
+        QString buttonText = "";
+        if( m_showToolBarText )
+        {
+            buttonText = ( *iter )->getName().c_str();
+        }
 
+        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
+                m_mainWindow->getIconManager()->getIcon( ( *iter )->getName().c_str() ), buttonText );
+        button->setToolTip( ( *iter )->getName().c_str() );
         connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
     }
 }

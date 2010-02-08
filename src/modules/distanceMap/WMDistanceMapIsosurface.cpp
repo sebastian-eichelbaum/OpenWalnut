@@ -29,6 +29,7 @@
 
 #include "WMDistanceMap.h"
 #include "WMDistanceMapIsosurface.h"
+#include "distancemap.xpm"
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"
@@ -58,6 +59,11 @@ boost::shared_ptr< WModule > WMDistanceMapIsosurface::factory() const
     return boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() );
 }
 
+const char** WMDistanceMapIsosurface::getXPMIcon() const
+{
+    return distancemap_xpm;
+}
+
 void WMDistanceMapIsosurface::moduleMain()
 {
     //////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +71,7 @@ void WMDistanceMapIsosurface::moduleMain()
     //////////////////////////////////////////////////////////////////////////////////
 
     // create an instance using the prototypes
-    m_marchingCubesModule = WModuleFactory::getModuleFactory()->create(  WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
+    m_marchingCubesModule = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
 
     // add the marching cubes to the container
     add( m_marchingCubesModule );

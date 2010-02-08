@@ -26,60 +26,88 @@
 #include <algorithm>
 #include <vector>
 
+#include "../common/WLogger.h"
+#include "../math/WFiber.h"
 #include "WDataSet.h"
-
 #include "WDataSetFiberVector.h"
 
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSetFiberVector::m_prototype = boost::shared_ptr< WPrototyped >();
 
+WDataSetFiberVector::WDataSetFiberVector()
+    : WMixinVector< wmath::WFiber >(),
+      WDataSet()
+{
+}
+
+WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< std::vector< wmath::WFiber > > fibs )
+    : WMixinVector< wmath::WFiber >( *fibs ), // COPYING this into this since, WMixinVector has no possibility for references or boost::shared_ptr
+      WDataSet()
+{
+}
+
+WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fiberDS )
+    : WMixinVector< wmath::WFiber >(),
+      WDataSet()
+{
+    if( !fiberDS.get() )
+    {
+        wlog::error( "WDataSetFiberVector" ) << "During constructing a WDataSetFiberVector out of an empty WDataSetFibers";
+        return;
+    }
+    size_t numLines = fiberDS->size();
+    const std::vector< size_t >& lineLengths = *fiberDS->getLineLengths();
+    reserve( numLines );
+
+    while( size() < numLines )
+    {
+        wmath::WFiber fib;
+        for( size_t i = 0; i < lineLengths[ size() ]; ++i )
+        {
+            fib.push_back( fiberDS->getPosition( size(), i ) );
+        }
+        push_back( fib );
+    }
+}
+
+WDataSetFiberVector& WDataSetFiberVector::operator=( const WDataSetFiberVector& other )
+{
+    if( this == &other )
+    {
+        return *this;
+    }
+    assign( other.begin(), other.end() );
+    return *this;
+}
+
+WDataSetFiberVector::~WDataSetFiberVector()
+{
+    // since no pointer deallocation is needed, nothing to do here
+}
+
 void WDataSetFiberVector::sortDescLength()
 {
-    std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
+    std::sort( begin(), end(), wmath::hasGreaterLengthThen );
 }
 
 void WDataSetFiberVector::erase( const std::vector< bool > &unused )
 {
-    assert( unused.size() == m_fibers->size() );
-    std::vector< wmath::WFiber >::iterator useable = m_fibers->begin();
+    assert( unused.size() == size() );
+    std::vector< wmath::WFiber >::iterator useable = begin();
     for( size_t i = 0 ; i < unused.size(); ++i )
     {
         if( !unused[i] )
         {
-            *useable = ( *m_fibers )[i];
+            *useable = at( i );
             useable++;
         }
     }
-    m_fibers->erase( useable, m_fibers->end() );
+    WMixinVector< wmath::WFiber >::erase( useable, end() );
 }
 
 bool WDataSetFiberVector::isTexture() const
 {
     return false;
-}
-
-WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< std::vector< wmath::WFiber > > fibs )
-    : WDataSet(),
-      m_fibers( fibs )
-{
-}
-
-WDataSetFiberVector::WDataSetFiberVector()
-    : WDataSet(),
-      m_fibers()
-{
-    // default constructor used by the prototype mechanism
-}
-
-size_t WDataSetFiberVector::size() const
-{
-    return m_fibers->size();
-}
-
-const wmath::WFiber& WDataSetFiberVector::operator[]( const size_t index ) const
-{
-    assert( index < m_fibers->size() );
-    return (*m_fibers)[index];
 }
 
 const std::string WDataSetFiberVector::getName() const
@@ -101,4 +129,3 @@ boost::shared_ptr< WPrototyped > WDataSetFiberVector::getPrototype()
 
     return m_prototype;
 }
-

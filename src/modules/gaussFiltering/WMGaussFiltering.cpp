@@ -37,6 +37,7 @@
 #include "../../math/WVector3D.h"
 #include "../data/WMData.h"
 #include "WMGaussFiltering.h"
+#include "gaussfiltering.xpm"
 
 WMGaussFiltering::WMGaussFiltering():
     WModule()
@@ -54,6 +55,11 @@ WMGaussFiltering::~WMGaussFiltering()
 boost::shared_ptr< WModule > WMGaussFiltering::factory() const
 {
     return boost::shared_ptr< WModule >( new WMGaussFiltering() );
+}
+
+const char** WMGaussFiltering::getXPMIcon() const
+{
+    return gaussfiltering_xpm;
 }
 
 const std::string WMGaussFiltering::getName() const
