@@ -22,52 +22,77 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETFIBERS_H
-#define WDATASETFIBERS_H
+#ifndef WDATASETFIBERVECTOR_H
+#define WDATASETFIBERVECTOR_H
 
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../math/WPosition.h"
-
+#include "../math/WFiber.h"
 #include "WDataSet.h"
-
+#include "WDataSetFibers.h"
 
 /**
  * Represents a simple set of WFibers.
  */
-class WDataSetFibers : public WDataSet
+class WDataSetFiberVector : public WMixinVector< wmath::WFiber >, public WDataSet
 {
 public:
     /**
-     * Constructs a new set of fibers, usage of WFiber here is for backward compatibility and should be removed
+     * Default constructor for creating an empty fiber vector.
+     */
+    WDataSetFiberVector();
+
+    /**
+     * Constructs a new set of WFibers
      *
-     * \param vertices
-     * \param lineStartIndexes
-     * \param lineLengths
-     * \param verticesReverse
+     * \param fibs Fiber vector to store in this data set
      */
-    WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
-                    boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
-                    boost::shared_ptr< std::vector< size_t > > lineLengths,
-                    boost::shared_ptr< std::vector< size_t > > verticesReverse );
+    explicit WDataSetFiberVector( boost::shared_ptr< std::vector< wmath::WFiber > > fibs );
 
     /**
-     * Constructs a new set of WFibers. The constructed instance is not usable.
+     * Convert a WDataSetFibers into a fiber vector dataset.
+     *
+     * \param fiberDS Dataset which has to be converted
      */
-    WDataSetFibers();
+    explicit WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fiberDS );
 
     /**
-     * Get number of fibers in this data set.
+     * Copy constructor for fibers
+     *
+     * \param other Instance to copy from
      */
-    size_t size() const;
+    explicit WDataSetFiberVector( const WDataSetFiberVector& other ); // defined since rule of three
+
+    /**
+     * Destructs WDataSetFiberVector instances
+     */
+    virtual ~WDataSetFiberVector(); // defined since rule of three
+
+    /**
+     * Operator for assigning instances of WDataSetFiberVector
+     *
+     * \param other Instance which should replace this
+     *
+     * \return Reference for further usage of the outcome of the assigment
+     */
+    WDataSetFiberVector& operator=( const WDataSetFiberVector& other ); // defined since rule of three
 
     /**
      * Sort fibers descending on their length.
      */
     void sortDescLength();
+
+    /**
+     * Deletes all those fibers which are marked true in the given
+     * unused vector.
+     *
+     * \param unused Vector having the those inidices set to true which should
+     * be deleted.
+     */
+    void erase( const std::vector< bool > &unused );
 
     /**
      * Determines whether this dataset can be used as a texture.
@@ -97,61 +122,11 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
-    /**
-     * Getter for m_vertices
-     */
-    boost::shared_ptr< std::vector< float > > getVertices() const;
-
-    /**
-     * Getter
-     */
-    boost::shared_ptr< std::vector< size_t > > getLineStartIndexes() const;
-
-    /**
-     * Getter
-     */
-    boost::shared_ptr< std::vector< size_t > > getLineLengths() const;
-
-    /**
-     * Getter
-     */
-    boost::shared_ptr< std::vector< size_t > > getVerticesReverse() const;
-
-    /**
-     * returns the position in space for a vertex of a given fiber
-     *
-     * \param fiber
-     * \param vertex
-     */
-    wmath::WPosition getPosition( size_t fiber, size_t vertex ) const;
-
 protected:
-
     /**
      * The prototype as singleton.
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
-
-private:
-    /**
-     * Point vector for all fibers that is actually usable for what we want to do
-     */
-    boost::shared_ptr< std::vector< float > > m_vertices;
-
-    /**
-     * Line vector that contains the start index for each line
-     */
-    boost::shared_ptr< std::vector< size_t > > m_lineStartIndexes;
-
-    /**
-     * Line vector that contains the number of vertices for each line
-     */
-    boost::shared_ptr< std::vector< size_t > > m_lineLengths;
-
-    /**
-     * Reverse lookup table for which point belongs to which fiber
-     */
-    boost::shared_ptr< std::vector< size_t > > m_verticesReverse;
 };
 
-#endif  // WDATASETFIBERS_H
+#endif  // WDATASETFIBERVECTOR_H

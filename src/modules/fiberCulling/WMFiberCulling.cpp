@@ -32,7 +32,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
@@ -114,7 +114,7 @@ void WMFiberCulling::update()
 void WMFiberCulling::connectors()
 {
     using boost::shared_ptr;
-    typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
+    typedef WModuleInputData< WDataSetFiberVector > FiberInputData;  // just an alias
 
     m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
 

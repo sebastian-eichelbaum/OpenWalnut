@@ -123,7 +123,7 @@ private:
      *
      * \param point index of the point in question
      */
-    unsigned int getLineForPoint( unsigned int point );
+    size_t getLineForPoint( size_t point );
 
     bool m_dirty; //!< dirty flag, indicates the bit fields need updating
 
@@ -150,7 +150,7 @@ private:
      * pointer to the reverse array that is used for updating
      * this is used for the recurse update function, to reduce the amount of function parameters
      */
-    boost::shared_ptr< std::vector< unsigned int > > m_currentReverse;
+    boost::shared_ptr< std::vector< size_t > > m_currentReverse;
 
     boost::shared_ptr< WKdTree >m_kdTree; //!< stores a pointer to the kd tree
 

@@ -33,24 +33,35 @@
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSetFibers::m_prototype = boost::shared_ptr< WPrototyped >();
 
-void WDataSetFibers::sortDescLength()
+WDataSetFibers::WDataSetFibers()
+    : WDataSet()
 {
-    std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
+    // default constructor used by the prototype mechanism
 }
 
-void WDataSetFibers::erase( const std::vector< bool > &unused )
+WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
+                boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
+                boost::shared_ptr< std::vector< size_t > > lineLengths,
+                boost::shared_ptr< std::vector< size_t > > verticesReverse )
+    : WDataSet(),
+    m_vertices( vertices ),
+    m_lineStartIndexes( lineStartIndexes ),
+    m_lineLengths( lineLengths ),
+    m_verticesReverse( verticesReverse )
 {
-    assert( unused.size() == m_fibers->size() );
-    std::vector< wmath::WFiber >::iterator useable = m_fibers->begin();
-    for( size_t i = 0 ; i < unused.size(); ++i )
+    for ( size_t i = 0; i < m_vertices->size(); ++i )
     {
-        if( !unused[i] )
-        {
-            *useable = ( *m_fibers )[i];
-            useable++;
-        }
+        m_vertices->at( i ) = 160 - m_vertices->at( i );
+        ++i;
+        m_vertices->at( i ) = 200 - m_vertices->at( i );
+        ++i;
+        //m_pointArray[i] = m_dh->frames - m_pointArray[i];
     }
-    m_fibers->erase( useable, m_fibers->end() );
+}
+
+void WDataSetFibers::sortDescLength()
+{
+    //std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
 }
 
 bool WDataSetFibers::isTexture() const
@@ -58,28 +69,9 @@ bool WDataSetFibers::isTexture() const
     return false;
 }
 
-WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< wmath::WFiber > > fibs )
-    : WDataSet(),
-      m_fibers( fibs )
-{
-}
-
-WDataSetFibers::WDataSetFibers()
-    : WDataSet(),
-      m_fibers()
-{
-    // default constructor used by the prototype mechanism
-}
-
 size_t WDataSetFibers::size() const
 {
-    return m_fibers->size();
-}
-
-const wmath::WFiber& WDataSetFibers::operator[]( const size_t index ) const
-{
-    assert( index < m_fibers->size() );
-    return (*m_fibers)[index];
+    return m_lineStartIndexes->size();
 }
 
 const std::string WDataSetFibers::getName() const
@@ -102,3 +94,29 @@ boost::shared_ptr< WPrototyped > WDataSetFibers::getPrototype()
     return m_prototype;
 }
 
+boost::shared_ptr< std::vector< float > > WDataSetFibers::getVertices() const
+{
+    return m_vertices;
+}
+
+boost::shared_ptr< std::vector< size_t > > WDataSetFibers::getLineStartIndexes() const
+{
+    return m_lineStartIndexes;
+}
+
+boost::shared_ptr< std::vector< size_t > > WDataSetFibers::getLineLengths() const
+{
+    return m_lineLengths;
+}
+
+boost::shared_ptr< std::vector< size_t > > WDataSetFibers::getVerticesReverse() const
+{
+    return m_verticesReverse;
+}
+
+wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
+{
+    size_t index = m_lineStartIndexes->at( fiber ) * 3;
+    index += vertex * 3;
+    return wmath::WPosition( m_vertices->at( index ), m_vertices->at( index + 1 ), m_vertices->at( index + 2 ) );
+}

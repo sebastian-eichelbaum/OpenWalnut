@@ -33,17 +33,15 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
-#include "WQtDSBWidget.h"
-#include "WQtSubjectTreeItem.h"
-#include "WQtModuleTreeItem.h"
-#include "WQtModuleHeaderTreeItem.h"
-#include "WQtRoiHeaderTreeItem.h"
-
-#include "WQtTreeWidget.h"
-
-#include "../../../graphicsEngine/WROI.h"
-#include "../../../modules/fiberDisplay2/WRMROIRepresentation.h"
 #include "../../../dataHandler/WDataSet.h"
+#include "../../../graphicsEngine/WROI.h"
+#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "WQtDSBWidget.h"
+#include "WQtModuleHeaderTreeItem.h"
+#include "WQtModuleTreeItem.h"
+#include "WQtRoiHeaderTreeItem.h"
+#include "WQtSubjectTreeItem.h"
+#include "WQtTreeWidget.h"
 
 class WMainWindow;
 

@@ -25,13 +25,13 @@
 #ifndef WQTROITREEITEM_H
 #define WQTROITREEITEM_H
 
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QProgressBar>
 #include <QtCore/QTimer>
+#include <QtGui/QProgressBar>
+#include <QtGui/QTreeWidgetItem>
 
-#include "WQtTreeItem.h"
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../modules/fiberDisplay2/WRMROIRepresentation.h"
+#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "WQtTreeItem.h"
 
 /**
  * a tree widget item to represent a roi in the dataset browser

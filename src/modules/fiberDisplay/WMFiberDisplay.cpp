@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -30,20 +31,16 @@
 #include <osg/Geometry>
 
 #include "../../common/WColor.h"
-#include "../../common/WCondition.h"
-#include "../../common/WFlag.h"
 #include "../../common/WLogger.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
-#include "../../math/WFiber.h"
 #include "WMFiberDisplay.h"
+#include "fiberdisplay.xpm"
 
 WMFiberDisplay::WMFiberDisplay()
     : WModule(),
-      m_globalColoring( new WCondition(), true )
+      m_osgNode( osg::ref_ptr< osg::Group >() )
 {
 }
 
@@ -56,82 +53,170 @@ boost::shared_ptr< WModule > WMFiberDisplay::factory() const
     return boost::shared_ptr< WModule >( new WMFiberDisplay() );
 }
 
-osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode( boost::shared_ptr< const WDataSetFibers > fibers,
-        bool globalColoring ) const
+const char** WMFiberDisplay::getXPMIcon() const
+{
+    return fiberdisplay_xpm;
+}
+
+osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode()
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    m_globalColors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    m_localColors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    m_geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    vertices->reserve( m_dataset->getVertices()->size() );
+    m_globalColors->reserve( m_dataset->getVertices()->size() );
+    m_localColors->reserve( m_dataset->getVertices()->size() );
+
+    boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
+    boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
+    boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
 
     size_t vertexNum = 0;
-    for( size_t j = 0; j < fibers->size(); ++j )
+    WColor gc;
+    WColor lc;
+
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber Display", m_dataset->size() ) );
+    m_progress->addSubProgress( progress );
+
+    for( size_t j = 0; j < m_dataset->size(); ++j )
     {
-        const wmath::WFiber &fib = ( *fibers )[j];
-        vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
+        vertices->push_back( osg::Vec3( verts->at( 3 * vertexNum ), verts->at( 3 * vertexNum + 1 ), verts->at( 3 * vertexNum + 2 ) ) );
         ++vertexNum;
-        for( size_t i = 1; i < fib.size(); ++i )
+
+        gc = getRGBAColorFromDirection( m_dataset->getPosition( j, 0 ), m_dataset->getPosition( j,  pointsPerLine->at( j ) - 1 ) );
+
+        for( size_t i = 1; i < pointsPerLine->at( j ); ++i )
         {
-            vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
+            vertices->push_back( osg::Vec3( verts->at( 3 * vertexNum ), verts->at( 3 * vertexNum + 1 ), verts->at( 3 * vertexNum + 2 ) ) );
             ++vertexNum;
-            WColor c;
-            if( !globalColoring )
-            {
-                c = wge::getRGBAColorFromDirection( fib[i], fib[i-1] );
-            }
-            else
-            {
-                c = wge::getRGBAColorFromDirection( fib[0], fib[ fib.size() -1 ] );
-            }
-            colors->push_back( wge::osgColor( c ) );
+
+            lc = getRGBAColorFromDirection( m_dataset->getPosition( j, i ), m_dataset->getPosition( j, i - 1 ) );
+
+            m_localColors->push_back( wge::osgColor( lc ) );
+            m_globalColors->push_back( wge::osgColor( gc ) );
         }
-        colors->push_back( colors->back() );
-        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertexNum - fib.size(), fib.size() ) );
+        m_localColors->push_back( wge::osgColor( lc ) );
+        m_globalColors->push_back( wge::osgColor( gc ) );
+
+        m_geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIndexes->at( j ), pointsPerLine->at( j ) ) );
+
+        ++*progress;
     }
-    geometry->setVertexArray( vertices );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+    progress->finish();
+
+    m_geometry->setVertexArray( vertices );
+    m_geometry->setColorArray( m_globalColors );
+    m_geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+    m_geometry->setUseDisplayList( false );
+    m_geometry->setUseVertexBufferObjects( true );
+
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( geometry.get() );
+    geode->addDrawable( m_geometry.get() );
+
     return geode;
+}
+
+void WMFiberDisplay::updateColoring()
+{
+    if ( m_properties->getValue< bool >( "Local Color" ) )
+    {
+        m_geometry->setColorArray( m_localColors );
+    }
+    else
+    {
+        m_geometry->setColorArray( m_globalColors );
+    }
+}
+
+void WMFiberDisplay::updateLinesShown()
+{
+    boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
+    boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
+
+    boost::shared_ptr< std::vector< bool > >active = WKernel::getRunningKernel()->getRoiManager()->getBitField( m_dataset );
+
+    m_geometry->removePrimitiveSet( 0, m_geometry->getNumPrimitiveSets() );
+    for( size_t i = 0; i < active->size(); ++i )
+    {
+        if ( active->at( i ) )
+        {
+            m_geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIndexes->at( i ), pointsPerLine->at( i ) ) );
+        }
+    }
 }
 
 void WMFiberDisplay::moduleMain()
 {
     // additional fire-condition: "data changed" flag
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
-    m_moduleState.add( m_globalColoring.getCondition() );
 
     ready();
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        m_dataset = m_fiberInput->getData();
-        if ( !m_dataset.get() ) // ok, the output has not yet sent data
-        {
-            m_moduleState.wait();
-            continue;
-        }
-
-        update();
+        debugLog() << "Waiting for event";
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
-    }
 
-    // May be called twice
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
+        /////////////////////////////////////////////////////////////////////////////////////////
+        // what caused wait to return?
+        /////////////////////////////////////////////////////////////////////////////////////////
+
+        // data changed?
+        if ( m_dataset != m_fiberInput->getData() )
+        {
+            // data has changed
+            // -> recalculate
+            debugLog() << "Data changed on " << m_fiberInput->getCanonicalName();
+
+            // ensure the data is valid (not NULL)
+            if ( !m_fiberInput->getData().get() ) // ok, the output has been reset, so we can ignore the "data change"
+            {
+                debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
+                continue;
+            }
+
+            m_dataset = m_fiberInput->getData();
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+
+            WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
+            create();
+        }
+    }
 }
 
 void WMFiberDisplay::update()
 {
+    boost::shared_lock<boost::shared_mutex> slock;
+    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+
+    if ( WKernel::getRunningKernel()->getRoiManager()->isDirty() )
+    {
+        //std::cout << "fd update" << std::endl;
+        updateLinesShown();
+    }
+    slock.unlock();
+}
+
+void WMFiberDisplay::create()
+{
     // remove nodes if they are any
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
 
     // create new node
-    m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-    m_osgNode->insert( genFiberGeode( m_dataset, m_globalColoring.get() ) );
+    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+    m_osgNode->addChild( genFiberGeode().get() );
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
+
+    m_osgNode->setUserData( this );
+    m_osgNode->addUpdateCallback( new fdNodeCallback );
 }
 
 void WMFiberDisplay::connectors()
@@ -150,15 +235,14 @@ void WMFiberDisplay::properties()
     m_properties->addString( "Fibers Display Module", "Display fibers" );
     // this bool is hidden
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "Local Color", true )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "Local Color", false )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
 }
 
 void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
 {
     if( propertyName == "active" )
     {
-        // We don't need an OSG Node Callback here, since if the NodeMask is set to 0x0 then the node is not visited anymore either
-        if( m_properties->getValue< bool >( propertyName ) )
+        if ( m_properties->getValue< bool >( propertyName ) )
         {
             m_osgNode->setNodeMask( 0xFFFFFFFF );
         }
@@ -169,10 +253,7 @@ void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
     }
     else if ( propertyName == "Local Color" )
     {
-        if( m_properties->getValue< bool >( propertyName ) != m_globalColoring.get() )
-        {
-            m_globalColoring.set( m_properties->getValue< bool >( propertyName ) );
-        }
+        updateColoring();
     }
     else
     {
@@ -180,4 +261,11 @@ void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
         std::cerr << propertyName << std::endl;
         assert( 0 && "This property name is not supported by this function yet." );
     }
+}
+
+WColor WMFiberDisplay::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
+{
+    wmath::WPosition direction( ( pos2 - pos1 ) );
+    direction.normalize();
+    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ) );
 }

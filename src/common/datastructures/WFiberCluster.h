@@ -31,12 +31,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../WColor.h"
 #include "../WTransferable.h"
 
 /**
- * Represents a cluster of indices of a WDataSetFibers.
+ * Represents a cluster of indices of a WDataSetFiberVector.
  */
 class WFiberCluster : public WTransferable
 {
@@ -140,8 +140,8 @@ public:
     // InputConnectors we must agglomerate those into one object. Please remove this.
     // DISABLE DOXYGEN HERE
     // \cond
-    void setDataSetReference( boost::shared_ptr< const WDataSetFibers > fibs );
-    boost::shared_ptr< const WDataSetFibers > getDataSetReference() const;
+    void setDataSetReference( boost::shared_ptr< const WDataSetFiberVector > fibs );
+    boost::shared_ptr< const WDataSetFiberVector > getDataSetReference() const;
     static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:
@@ -163,7 +163,7 @@ private:
     /**
      * Reference to the real fibers of the brain this cluster belongs to.
      */
-    boost::shared_ptr< const WDataSetFibers > m_fibs;
+    boost::shared_ptr< const WDataSetFiberVector > m_fibs;
 
     /**
      * Color which is used to paint the members of this cluster.

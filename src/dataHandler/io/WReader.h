@@ -41,8 +41,9 @@ public:
      * Creates a read object for file reading.
      *
      * \param fname path to file which should be loaded
+     * \throws WDHNoSuchFile
      */
-    explicit WReader( std::string fname );
+    explicit WReader( std::string fname ) throw( WDHNoSuchFile );
 
     /**
      * Reset the file name and checks if it exists.
