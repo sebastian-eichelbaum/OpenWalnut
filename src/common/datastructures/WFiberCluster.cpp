@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../math/fiberSimilarity/WDLTMetric.h"
 #include "../WLimits.h"
 #include "../WTransferable.h"
@@ -66,12 +66,12 @@ void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
 
 // NODOXYGEN
 // \cond
-void WFiberCluster::setDataSetReference( boost::shared_ptr< const WDataSetFibers > fibs )
+void WFiberCluster::setDataSetReference( boost::shared_ptr< const WDataSetFiberVector > fibs )
 {
     m_fibs = fibs;
 }
 
-boost::shared_ptr< const WDataSetFibers > WFiberCluster::getDataSetReference() const
+boost::shared_ptr< const WDataSetFiberVector > WFiberCluster::getDataSetReference() const
 {
     return m_fibs;
 }

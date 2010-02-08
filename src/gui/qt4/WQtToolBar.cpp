@@ -42,7 +42,7 @@ WQtToolBar::~WQtToolBar()
 
 WQtPushButton* WQtToolBar::addPushButton( QString name, QIcon icon, QString label )
 {
-    WQtPushButton* button = new WQtPushButton( icon, label );
+    WQtPushButton* button = new WQtPushButton( icon, label, this, label );
 
     button->setName( name );
 

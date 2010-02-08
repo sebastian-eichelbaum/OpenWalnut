@@ -26,10 +26,10 @@
 
 #include "WQtPushButton.h"
 
-WQtPushButton::WQtPushButton( QIcon icon, QString label )
-    : QPushButton( icon, label )
+WQtPushButton::WQtPushButton( QIcon icon, QString name, QWidget* parent, QString label )
+    : QPushButton( icon, label, parent )
 {
-    m_name = label;
+    m_name = name;
     connect( this, SIGNAL( pressed() ), this, SLOT( emitPressed() ) );
 }
 

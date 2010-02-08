@@ -37,7 +37,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WShader.h"
-#include "WTriangleMesh.h"
+#include "../../dataHandler/WTriangleMesh.h"
 
 /**
  * A point consisting of its coordinates and ID
@@ -133,6 +133,11 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
 
     /**
      * Generate the triangles for the surface on the given dataSet (inGrid, vals).

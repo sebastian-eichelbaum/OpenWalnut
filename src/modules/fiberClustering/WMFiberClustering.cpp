@@ -40,7 +40,7 @@
 #include "../../common/WStringUtils.h"
 #include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
@@ -325,7 +325,7 @@ void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )
 void WMFiberClustering::connectors()
 {
     using boost::shared_ptr;
-    typedef WModuleInputData< WDataSetFibers > InputData;  // just an alias
+    typedef WModuleInputData< WDataSetFiberVector > InputData;  // just an alias
     typedef WModuleOutputData< WFiberCluster > OutputData; // -"-
 
     m_fiberInput = shared_ptr< InputData >( new InputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );

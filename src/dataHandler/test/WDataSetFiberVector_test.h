@@ -22,21 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETFIBERS_TEST_H
-#define WDATASETFIBERS_TEST_H
+#ifndef WDATASETFIBERVECTOR_TEST_H
+#define WDATASETFIBERVECTOR_TEST_H
 
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <cxxtest/TestSuite.h>
 
-#include "../WDataSetFibers.h"
+#include "../WDataSetFiberVector.h"
 #include "../../math/WPosition.h"
 
 /**
  * Unit tests our fiber dataset class
  */
-class WDataSetFibersTest : public CxxTest::TestSuite
+class WDataSetFiberVectorTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -69,11 +69,11 @@ public:
         points.push_back( WPosition( 0., 0., 2. ) );
         points.push_back( WPosition( 0., 0., 3. ) );
         WFiber expected( points );
-        WDataSetFibers d( m_somefibs );
+        WDataSetFiberVector d( m_somefibs );
         TS_ASSERT_EQUALS( d[2], expected );
     }
 private:
     boost::shared_ptr< std::vector< wmath::WFiber > > m_somefibs; //!< Default fiber dataset
 };
 
-#endif  // WDATASETFIBERS_TEST_H
+#endif  // WDATASETFIBERVECTOR_TEST_H

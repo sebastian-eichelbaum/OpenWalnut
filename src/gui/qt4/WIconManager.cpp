@@ -26,6 +26,7 @@
 #include <string>
 
 #include "WIconManager.h"
+#include "../../kernel/WModuleFactory.h"
 
 void WIconManager::addIcon( std::string name, const char* const xpm[] )
 {
@@ -37,6 +38,17 @@ void WIconManager::addIcon( std::string name, const char* const xpm[] )
 
 QIcon WIconManager::getIcon( const std::string name )
 {
-    assert( ( m_iconList.count( name ) == 1 ) );
-    return *m_iconList[name];
+    QIcon icon;
+    if( m_iconList.count( name ) != 0 )
+    {
+        icon = *m_iconList[name];
+    }
+    else if( WModuleFactory::getModuleFactory()->getPrototypeByName( name ) )
+    {
+        icon =  QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+    }
+    else
+        assert( 0 && "No icon with the given name found." );
+
+    return icon;
 }

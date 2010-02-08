@@ -40,9 +40,11 @@ public:
     /**
      * standard constructor
      * \param icon The icon being displayed on the button.
+     * \param name a name for the button. This name is sometimes used to identify signals.
+     * \param parent the widget that takes care of the current widget.
      * \param label The optional label that will be displayed besides the icon.
      */
-    explicit WQtPushButton( QIcon icon, QString label );
+    explicit WQtPushButton( QIcon icon, QString name, QWidget* parent = 0, QString label = "" );
 
     /**
      * destructor

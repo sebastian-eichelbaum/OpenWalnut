@@ -34,7 +34,7 @@
 
 #include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -143,7 +143,7 @@ private:
     void meld( size_t qClusterID, size_t rClusterID );
 
     /**
-     * Computes from the file name inside the given WDataSetFibers the
+     * Computes from the file name inside the given WDataSetFiberVector the
      * corresponding file name for the lookup table. This has the same
      * basename but the extension is now '.dlt' not '.fib' and resides
      * in the same directory as the fib file.
@@ -167,7 +167,7 @@ private:
      */
     std::vector< size_t > m_clusterIDs;
 
-    boost::shared_ptr< WDataSetFibers > m_fibs; //!< Reference to the WDataSetFibers object
+    boost::shared_ptr< WDataSetFiberVector > m_fibs; //!< Reference to the WDataSetFiberVector object
 
     double m_maxDistance_t; //!< Maximum distance of two fibers in one cluster.
 
@@ -192,7 +192,7 @@ private:
     /**
      * Input connector for a fiber dataset.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+    boost::shared_ptr< WModuleInputData< WDataSetFiberVector > > m_fiberInput;
 
     /**
      * Output connector for the first cluster.
@@ -213,7 +213,7 @@ inline const std::string WMFiberClustering::getName() const
 
 inline const std::string WMFiberClustering::getDescription() const
 {
-    return std::string( "Clusters fibers from a WDataSetFibers" );
+    return std::string( "Clusters fibers from a WDataSetFiberVector" );
 }
 
 #endif  // WMFIBERCLUSTERING_H

@@ -33,9 +33,12 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 #include <QtGui/QSlider>
 #include <QtGui/QShortcut>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QMenuBar>
+#include <QtGui/QMenu>
 
 #include "WMainWindow.h"
 #include "WOpenCustomDockWidgetEvent.h"
@@ -60,7 +63,10 @@ WMainWindow::WMainWindow() :
 
 void WMainWindow::setupGUI()
 {
+    m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
+    m_iconManager.addIcon( std::string( "help" ), question_xpm );
+    m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -69,6 +75,15 @@ void WMainWindow::setupGUI()
     resize( 946, 632 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
+
+    m_menuBar = new QMenuBar( 0 );
+    QMenu* fileMenu = m_menuBar->addMenu( "File" );
+    fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load", this, SLOT( openLoadDialog() ), QKeySequence( "Ctrl+L" ) );
+    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( "Ctrl+Q" ) );
+
+    QMenu* helpMenu = m_menuBar->addMenu( "Help" );
+    helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ), QKeySequence( "F1" ) );
+    setMenuBar( m_menuBar );
 
     m_centralwidget = new QWidget( this );
     m_centralwidget->setObjectName( QString::fromUtf8( "centralwidget" ) );
@@ -119,8 +134,7 @@ void WMainWindow::setupGUI()
         }
     }
 
-    setupRibbonMenu();
-    m_ribbonMenu->clearNonPersistentTabs();
+    setupPermanentToolBar();
 
     setupCompatiblesToolBar();
 
@@ -131,63 +145,62 @@ void WMainWindow::setupGUI()
     connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
 
-void WMainWindow::setupRibbonMenu()
+void WMainWindow::setupPermanentToolBar()
 {
-    m_ribbonMenu = new WQtRibbonMenu( "Main Menu", this );
+    m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
 
-    m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
-    m_iconManager.addIcon( std::string( "save" ), disc_xpm );
-    m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
-
-    m_ribbonMenu->addTab( QString( "File" ) );
-    m_ribbonMenu->addPushButton( QString( "buttonLoad" ), QString( "File" ), m_iconManager.getIcon( "load" ), QString( "Load" ) );
-    m_ribbonMenu->addPushButton( QString( "buttonSave" ), QString( "File" ), m_iconManager.getIcon( "save" ), QString( "Save" ) );
-    m_ribbonMenu->addPushButton( QString( "buttonQuit" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "Exit" ) );
-    m_ribbonMenu->addPushButton( QString( "buttonRoi" ), QString( "File" ), m_iconManager.getIcon( "quit" ), QString( "ROI" ) );
-
-    // the parent (this) will take care for deleting the shortcut
-    QShortcut* shortcut = new QShortcut( QKeySequence( tr( "Ctrl+Q", "File|Exit" ) ), this );
-    connect( shortcut, SIGNAL( activated() ), this, SLOT( close() ) );
-
-    connect( m_ribbonMenu->getButton( QString( "buttonQuit" ) ), SIGNAL( pressed() ), this, SLOT( close() ) );
-    connect( m_ribbonMenu->getButton( QString( "buttonLoad" ) ), SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
-    connect( m_ribbonMenu->getButton( QString( "buttonRoi" ) ), SIGNAL( pressed() ), this, SLOT( newRoi() ) );
-
-    m_ribbonMenu->addTab( QString( "Modules" ) );
-    m_ribbonMenu->addTab( QString( "Help" ) );
-
+    m_iconManager.addIcon( std::string( "ROI" ), box_xpm );
     m_iconManager.addIcon( std::string( "axial" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
 
-    m_ribbonMenu->addPushButton( QString( "showAxial" ), QString( "Modules" ), m_iconManager.getIcon( "axial" ) );
-    m_ribbonMenu->addPushButton( QString( "showCoronal" ), QString( "Modules" ), m_iconManager.getIcon( "coronal" ) );
-    m_ribbonMenu->addPushButton( QString( "showSagittal" ), QString( "Modules" ), m_iconManager.getIcon( "sagittal" ) );
 
-    m_ribbonMenu->getButton( QString( "showAxial" ) )->setMaximumSize( 24, 24 );
-    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setMaximumSize( 24, 24 );
-    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setMaximumSize( 24, 24 );
+    WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
 
-    m_ribbonMenu->getButton( QString( "showAxial" ) )->setCheckable( true );
-    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setCheckable( true );
-    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setCheckable( true );
+    connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
 
-    m_ribbonMenu->getButton( QString( "showAxial" ) )->setChecked( true );
-    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setChecked( true );
-    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setChecked( true );
+    loadButton->setToolTip( "Load Data" );
+    roiButton->setToolTip( "Create New ROI" );
 
-    m_ribbonMenu->getButton( QString( "showAxial" ) )->setToolTip( "Axial" );
-    m_ribbonMenu->getButton( QString( "showCoronal" ) )->setToolTip( "Coronal" );
-    m_ribbonMenu->getButton( QString( "showSagittal" ) )->setToolTip( "Sagittal" );
+    m_permanentToolBar->addWidget( loadButton );
+    m_permanentToolBar->addWidget( roiButton );
 
-    connect( m_ribbonMenu->getButton( QString( "showAxial" ) ),
-            SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( m_ribbonMenu->getButton( QString( "showCoronal" ) ),
-            SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( m_ribbonMenu->getButton( QString( "showSagittal" ) ),
-            SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
-    addToolBar( Qt::TopToolBarArea, m_ribbonMenu );
+    m_permanentToolBar->addSeparator();
+
+
+    WQtPushButton* axialButton = new WQtPushButton( m_iconManager.getIcon( "axial" ), "showAxial", m_permanentToolBar );
+    WQtPushButton* coronalButton = new WQtPushButton( m_iconManager.getIcon( "coronal" ), "showCoronal", m_permanentToolBar );
+    WQtPushButton* sagittalButton = new WQtPushButton( m_iconManager.getIcon( "sagittal" ), "showSagittal", m_permanentToolBar );
+
+    axialButton->setMaximumSize( 24, 24 );
+    coronalButton->setMaximumSize( 24, 24 );
+    sagittalButton->setMaximumSize( 24, 24 );
+
+    axialButton->setCheckable( true );
+    coronalButton->setCheckable( true );
+    sagittalButton->setCheckable( true );
+
+    axialButton->setChecked( true );
+    coronalButton->setChecked( true );
+    sagittalButton->setChecked( true );
+
+    axialButton->setToolTip( "Axial" );
+    coronalButton->setToolTip( "Coronal" );
+    sagittalButton->setToolTip( "Sagittal" );
+
+    m_permanentToolBar->addWidget( axialButton );
+    m_permanentToolBar->addWidget( coronalButton );
+    m_permanentToolBar->addWidget( sagittalButton );
+
+    connect( axialButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    connect( coronalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    connect( sagittalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+
+
+    addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 }
 
 void WMainWindow::setupCompatiblesToolBar()
@@ -202,11 +215,6 @@ void WMainWindow::setupCompatiblesToolBar()
 WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 {
     return m_datasetBrowser;
-}
-
-WQtRibbonMenu* WMainWindow::getRibbonMenu()
-{
-    return m_ribbonMenu;
 }
 
 WQtToolBar* WMainWindow::getCompatiblesToolBar()
@@ -241,6 +249,21 @@ void WMainWindow::openLoadDialog()
         stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
     }
     m_loaderSignal( stdFileNames );
+}
+
+void WMainWindow::openAboutDialog()
+{
+    QMessageBox::about( this, "About OpenWalnut",
+                        "OpenWalnut ( http://www.openwalnut.org )\n\n"
+                        "Copyright (C) 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS. "
+                        "For more information see http://www.openwalnut.org/copying.\n\n"
+                        "This program comes with ABSOLUTELY NO WARRANTY. "
+                        "This is free software, and you are welcome to redistribute it "
+                        "under the terms of the GNU Lesser General Public License. "
+                        "You should have received a copy of the GNU Lesser General Public License "
+                        "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
+                        "\n"
+                        "Thank you for using OpenWalnut." );
 }
 
 boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
