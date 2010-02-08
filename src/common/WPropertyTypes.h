@@ -29,6 +29,7 @@
 
 #include <string>
 #include <list>
+#include <utility>
 
 #include <boost/filesystem.hpp>
 

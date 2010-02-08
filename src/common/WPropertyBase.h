@@ -133,6 +133,20 @@ public:
      */
     WPropList toPropList();
 
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as color property
+     */
+    WPropColor toPropColor();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as position property
+     */
+    WPropPosition toPropPosition();
+
 protected:
 
     /**

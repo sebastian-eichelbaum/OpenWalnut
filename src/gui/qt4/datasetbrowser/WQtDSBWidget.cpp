@@ -39,24 +39,29 @@ WQtDSBWidget::~WQtDSBWidget()
 {
 }
 
-WPropertyBoolWidget* WQtDSBWidget::addPropBool( WPropBool property )
+WPropertyBoolWidget* WQtDSBWidget::addProp( WPropBool property )
 {
     return new WPropertyBoolWidget( property, &m_controlLayout, this );
 }
 
-WPropertyIntWidget* WQtDSBWidget::addPropInt( WPropInt property )
+WPropertyIntWidget* WQtDSBWidget::addProp( WPropInt property )
 {
     return new WPropertyIntWidget( property, &m_controlLayout, this );
 }
 
-WPropertyDoubleWidget* WQtDSBWidget::addPropDouble( WPropDouble property )
+WPropertyDoubleWidget* WQtDSBWidget::addProp( WPropDouble property )
 {
     return new WPropertyDoubleWidget( property, &m_controlLayout, this );
 }
 
-WPropertyStringWidget* WQtDSBWidget::addPropString( WPropString property )
+WPropertyStringWidget* WQtDSBWidget::addProp( WPropString property )
 {
     return new WPropertyStringWidget( property, &m_controlLayout, this );
+}
+
+WPropertyColorWidget* WQtDSBWidget::addProp( WPropColor property )
+{
+    return new WPropertyColorWidget( property, &m_controlLayout, this );
 }
 
 void WQtDSBWidget::addSpacer()

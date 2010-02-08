@@ -348,16 +348,16 @@ void WQtDatasetBrowser::selectTreeItem()
                 switch ( ( *iter )->getType() )
                 {
                     case PV_BOOL:
-                        tab->addPropBool( ( *iter )->toPropBool() );
+                        tab->addProp( ( *iter )->toPropBool() );
                         break;
                     case PV_INT:
-                        tab->addPropInt( ( *iter )->toPropInt() );
+                        tab->addProp( ( *iter )->toPropInt() );
                         break;
                     case PV_DOUBLE:
-                        tab->addPropDouble( ( *iter )->toPropDouble() );
+                        tab->addProp( ( *iter )->toPropDouble() );
                         break;
                     case PV_STRING:
-                        tab->addPropString( ( *iter )->toPropString() );
+                        tab->addProp( ( *iter )->toPropString() );
                         break;
                     case PV_PATH:
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_PATH\" is not yet supported by the GUI.", "DatasetBrowser",
@@ -368,8 +368,7 @@ void WQtDatasetBrowser::selectTreeItem()
                                 LL_WARNING );
                         break;
                     case PV_COLOR:
-                        WLogger::getLogger()->addLogMessage( "This property type \"PV_COLOR\" is not yet supported by the GUI.", "DatasetBrowser",
-                                LL_WARNING );
+                        tab->addProp( ( *iter )->toPropColor() );
                         break;
                     case PV_POSITION:
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "DatasetBrowser",

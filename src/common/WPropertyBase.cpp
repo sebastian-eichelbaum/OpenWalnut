@@ -103,3 +103,13 @@ WPropList WPropertyBase::toPropList()
     return boost::shared_static_cast< WPVList >( shared_from_this() );
 }
 
+WPropColor WPropertyBase::toPropColor()
+{
+    return boost::shared_static_cast< WPVColor >( shared_from_this() );
+}
+
+WPropPosition WPropertyBase::toPropPosition()
+{
+    return boost::shared_static_cast< WPVPosition >( shared_from_this() );
+}
+

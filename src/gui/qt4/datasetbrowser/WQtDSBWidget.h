@@ -38,6 +38,7 @@
 #include "WPropertyIntWidget.h"
 #include "WPropertyStringWidget.h"
 #include "WPropertyDoubleWidget.h"
+#include "WPropertyColorWidget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -74,7 +75,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    WPropertyBoolWidget* addPropBool( WPropBool property );
+    WPropertyBoolWidget* addProp( WPropBool property );
 
     /**
      * Adds a new int property to the DSB.
@@ -83,25 +84,61 @@ public:
      *
      * \return the widget that has been added.
      */
-    WPropertyIntWidget* addPropInt( WPropInt property );
+    WPropertyIntWidget* addProp( WPropInt property );
 
     /**
-     * Adds a new int property to the DSB.
+     * Adds a new double property to the DSB.
      *
      * \param property the property to add.
      *
      * \return the widget that has been added.
      */
-    WPropertyDoubleWidget* addPropDouble( WPropDouble property );
+    WPropertyDoubleWidget* addProp( WPropDouble property );
 
     /**
-     * Adds a new int property to the DSB.
+     * Adds a new string property to the DSB.
      *
      * \param property the property to add.
      *
      * \return the widget that has been added.
      */
-    WPropertyStringWidget* addPropString( WPropString property );
+    WPropertyStringWidget* addProp( WPropString property );
+
+    /**
+     * Adds a new path property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    //WPropertyFilenameWidget* addProp( WPropFilename property );
+
+    /**
+     * Adds a new list property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    //WPropertyListWidget* addProp( WPropList property );
+
+    /**
+     * Adds a new position property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    //WPropertyPositionWidget* addProp( WPropPosition property );
+
+    /**
+     * Adds a new color property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    WPropertyColorWidget* addProp( WPropColor property );
 
     /**
      * helper function to add a spacer at the end
