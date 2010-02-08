@@ -39,6 +39,7 @@
 #include "WPropertyStringWidget.h"
 #include "WPropertyDoubleWidget.h"
 #include "WPropertyColorWidget.h"
+#include "WPropertyFilenameWidget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -111,7 +112,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    //WPropertyFilenameWidget* addProp( WPropFilename property );
+    WPropertyFilenameWidget* addProp( WPropFilename property );
 
     /**
      * Adds a new list property to the DSB.

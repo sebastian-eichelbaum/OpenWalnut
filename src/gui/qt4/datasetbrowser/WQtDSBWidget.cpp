@@ -64,6 +64,11 @@ WPropertyColorWidget* WQtDSBWidget::addProp( WPropColor property )
     return new WPropertyColorWidget( property, &m_controlLayout, this );
 }
 
+WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
+{
+    return new WPropertyFilenameWidget( property, &m_controlLayout, this );
+}
+
 void WQtDSBWidget::addSpacer()
 {
     m_pageLayout.addStretch();

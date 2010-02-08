@@ -36,11 +36,18 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
+#include "WLogger.h"
+
 #include "WFlag.h"
 #include "WPropertyBase.h"
+
 #include "WPropertyConstraintTypes.h"
 #include "WPropertyConstraintMin.h"
 #include "WPropertyConstraintMax.h"
+#include "WPropertyConstraintNotEmpty.h"
+#include "WPropertyConstraintPathExists.h"
+#include "WPropertyConstraintIsDirectory.h"
+
 #include "WCondition.h"
 
 /**
@@ -151,6 +158,16 @@ public:
          * \return the type
          */
         virtual PROPERTYCONSTRAINT_TYPE getType();
+
+        /**
+         * This method creates a constraint using the specified type. This is a useful convenience class for easily adding
+         * constraints.
+         *
+         * \param type the type of the constraint to create
+         *
+         * \return NULL if the type is unknown or an constraint instance
+         */
+        static boost::shared_ptr< PropertyConstraint > create( PROPERTYCONSTRAINT_TYPE type );
     };
 
     /**
@@ -221,6 +238,24 @@ public:
      */
     PropertyConstraintMax getMax();
 
+    /**
+     * Method searching the first appearance of a constrained with the specified type.
+     *
+     * \param type the type of the searched constraint
+     *
+     * \return the constraint, or NULL if none.
+     */
+    boost::shared_ptr< PropertyConstraint > getFirstConstraint( PROPERTYCONSTRAINT_TYPE type );
+
+    /**
+     * Method searching the first appearance of a constrained with the specified type.
+     *
+     * \param type the type of the searched constraint
+     *
+     * \return the constraint, or NULL if none.
+     */
+    int countConstraint( PROPERTYCONSTRAINT_TYPE type );
+
 protected:
 
     /**
@@ -239,7 +274,7 @@ protected:
     std::set< boost::shared_ptr< PropertyConstraint > > m_constraints;
 
     /**
-     * The iterator used togo through the set
+     * The iterator used to go through the set
      */
     typedef typename std::set< boost::shared_ptr< PropertyConstraint > >::const_iterator constraintIterator;
 
@@ -255,15 +290,6 @@ protected:
      *
      */
     void removeConstraints( PROPERTYCONSTRAINT_TYPE type );
-
-    /**
-     * Method searching the first appearance of a constrained with the specified type.
-     *
-     * \param type the type of the searched constraint
-     *
-     * \return the constraint, or NULL if none.
-     */
-    boost::shared_ptr< PropertyConstraint > getFirstConstraint( PROPERTYCONSTRAINT_TYPE type );
 
 private:
 };
@@ -401,6 +427,26 @@ WPropertyVariable< T >::getFirstConstraint( PROPERTYCONSTRAINT_TYPE type )
 }
 
 template < typename T >
+int WPropertyVariable< T >::countConstraint( PROPERTYCONSTRAINT_TYPE type )
+{
+    // lock
+    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+
+    int i = 0;
+    // search first appearance of a constraint of the specified type
+    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    {
+        if ( ( *it )->getType() == type )
+        {
+            i++;
+        }
+    }
+    lock.unlock();
+
+    return i;
+}
+
+template < typename T >
 boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::getMin()
 {
     // get min
@@ -458,6 +504,39 @@ template < typename T >
 PROPERTYCONSTRAINT_TYPE WPropertyVariable< T >::PropertyConstraint::getType()
 {
     return PC_UNKNOWN;
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
+WPropertyVariable< T >::PropertyConstraint::create( PROPERTYCONSTRAINT_TYPE type )
+{
+    WPropertyVariable< T >::PropertyConstraint* c = NULL;
+
+    // simply create a new instance for all those constraints.
+    switch( type )
+    {
+        case PC_MIN:        // min and max constraints can't be created this way since they need a construction parameter
+            WLogger::getLogger()->addLogMessage( "Minimum property constraints can't be created this way. Use setMin() instead.",
+                    "PropertyConstraint::create", LL_WARNING );
+            break;
+        case PC_MAX:
+            WLogger::getLogger()->addLogMessage( "Maximum property constraints can't be created this way. Use setMax() instead.",
+                    "PropertyConstraint::create", LL_WARNING );
+            break;
+        case PC_NOTEMPTY:
+            c = new WPropertyConstraintNotEmpty< T >();
+            break;
+        case PC_PATHEXISTS:
+            c = new WPropertyConstraintPathExists< T >();
+            break;
+        case PC_ISDIRECTORY:
+            c = new WPropertyConstraintIsDirectory< T >();
+            break;
+        default:
+            WLogger::getLogger()->addLogMessage( "The property constraint is unknown.", "PropertyConstraint::create", LL_WARNING );
+            break;
+    }
+    return boost::shared_ptr< WPropertyVariable< T >::PropertyConstraint >( c );
 }
 
 #endif  // WPROPERTYVARIABLE_H

@@ -56,17 +56,17 @@ WKernel* kernel = NULL;
 /**
  * Define shader path.
  */
-std::string WKernel::m_shaderPath = std::string();
+boost::filesystem::path WKernel::m_shaderPath = boost::filesystem::path();
 
 /**
  * Define app path.
  */
-std::string WKernel::m_appPath = std::string();
+boost::filesystem::path WKernel::m_appPath = boost::filesystem::path();
 
 /**
  * Define font path.
  */
-std::string WKernel::m_fontPath = std::string();
+boost::filesystem::path WKernel::m_fontPath = boost::filesystem::path();
 
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
@@ -105,8 +105,8 @@ void WKernel::init()
                 "Root module container in Kernel." ) );
 
     // initialize graphics engine, or, at least set some stuff
-    m_graphicsEngine->setShaderPath( m_shaderPath );
-    m_graphicsEngine->setFontPath( m_fontPath );
+    m_graphicsEngine->setShaderPath( m_shaderPath.file_string() );
+    m_graphicsEngine->setFontPath( m_fontPath.file_string() );
 
     // load all modules
     m_moduleFactory->load();
@@ -184,12 +184,7 @@ void WKernel::threadMain()
 void WKernel::findAppPath()
 {
     // only get the path if not already done
-    if ( m_appPath != "" )
-    {
-        return;
-    }
-
-    if ( m_appPath != "" )
+    if ( !m_appPath.empty() )
     {
         return;
     }
@@ -198,14 +193,14 @@ void WKernel::findAppPath()
     namespace fs = boost::filesystem;
     fs::path currentDir( fs::initial_path<fs::path>() );
 
-    m_appPath = currentDir.file_string();
-    WLogger::getLogger()->addLogMessage( "Application path: " + m_appPath, "Kernel", LL_DEBUG );
+    m_appPath = currentDir;
+    WLogger::getLogger()->addLogMessage( "Application path: " + m_appPath.file_string(), "Kernel", LL_DEBUG );
 
-    m_shaderPath = fs::path( currentDir / "shaders" ).file_string();
-    WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath, "Kernel", LL_DEBUG );
+    m_shaderPath = fs::path( currentDir / "shaders" );
+    WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath.file_string(), "Kernel", LL_DEBUG );
 
-    m_fontPath = fs::path( currentDir / "fonts" ).file_string();
-    WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath, "Kernel", LL_DEBUG );
+    m_fontPath = fs::path( currentDir / "fonts" );
+    WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath.file_string(), "Kernel", LL_DEBUG );
 }
 
 const WBoolFlag& WKernel::isFinishRequested() const
@@ -228,16 +223,22 @@ boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > 
     return getRootContainer()->applyModule( applyOn, prototype );
 }
 
-std::string WKernel::getAppPath()
+boost::filesystem::path WKernel::getAppPathObject()
 {
     findAppPath();
     return WKernel::m_appPath;
 }
 
+std::string WKernel::getAppPath()
+{
+    findAppPath();
+    return WKernel::m_appPath.file_string();
+}
+
 std::string WKernel::getShaderPath()
 {
     findAppPath();
-    return WKernel::m_shaderPath;
+    return WKernel::m_shaderPath.file_string();
 }
 
 boost::shared_ptr< WROIManagerFibers> WKernel::getRoiManager()
@@ -248,5 +249,5 @@ boost::shared_ptr< WROIManagerFibers> WKernel::getRoiManager()
 std::string WKernel::getFontPath()
 {
     findAppPath();
-    return WKernel::m_fontPath;
+    return WKernel::m_fontPath.file_string();
 }

@@ -67,7 +67,7 @@ void WPropertyStringWidget::editChanged()
 void WPropertyStringWidget::textEdited( const QString& text )
 {
     // this method does NOT set the property actually, but tries to validate it
-    std::string value = m_edit.text().toStdString();
+    std::string value = text.toStdString();
     invalidate( !m_stringProperty->accept( value ) );
 }
 

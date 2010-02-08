@@ -144,7 +144,7 @@ void WPropertyIntWidget::textEdited( const QString& text )
 {
     // this method does NOT set the property actually, but tries to validate it
     bool valid;
-    int value = m_edit.text().toInt( &valid );
+    int value = text.toInt( &valid );
     if ( !valid )
     {
         invalidate();

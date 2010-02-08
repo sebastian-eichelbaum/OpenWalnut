@@ -360,8 +360,7 @@ void WQtDatasetBrowser::selectTreeItem()
                         tab->addProp( ( *iter )->toPropString() );
                         break;
                     case PV_PATH:
-                        WLogger::getLogger()->addLogMessage( "This property type \"PV_PATH\" is not yet supported by the GUI.", "DatasetBrowser",
-                                LL_WARNING );
+                        tab->addProp( ( *iter )->toPropPath() );
                         break;
                     case PV_LIST:
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_LIST\" is not yet supported by the GUI.", "DatasetBrowser",
