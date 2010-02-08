@@ -129,9 +129,11 @@ protected:
 
     std::string m_savePath; //!< Path where remaining fibers should be stored
 
-    boost::shared_ptr< WModuleInputData< WDataSetFiberVector > > m_fiberInput; //!< Input connector for a fiber dataset.
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput; //!< Input connector for a fiber dataset.
 
-    boost::shared_ptr< WDataSetFiberVector > m_dataset; //!< Pointer to the fiber data set
+    boost::shared_ptr< WDataSetFiberVector > m_dataset; //!< Pointer to the fiber data set in WDataSetFiberVector format
+
+    boost::shared_ptr< WDataSetFibers > m_rawDataset; //!< Pointer to the fiber data set in WDataSetFibers format
 
     WBoolFlag m_run; //!< If and only if it is true then the Culling Algo is executed.
 

@@ -71,16 +71,22 @@ void WMFiberCulling::moduleMain()
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        m_dataset = m_fiberInput->getData();
-        if ( !m_dataset.get() ) // ok, the output has not yet sent data
+        if ( !m_fiberInput->getData().get() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;
         }
-        // TODO(math): This sucks, since when creating properties the dataset
-        // must not be finished with loading, but we need it for saveFileName()
-        // to execute properly
-        else if( m_savePath.empty() )
+
+        if( m_rawDataset != m_fiberInput->getData() ) // in case data has changed
+        {
+            m_rawDataset = m_fiberInput->getData();
+            assert( m_rawDataset.get() );
+            infoLog() << "Starting creation of new WDataSetFiberVector out of WDataSetFibers";
+            m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
+            infoLog() << "Starting creation of new WDataSetFiberVector out of WDataSetFibers";
+        }
+
+        if( m_savePath.empty() )
         {
             if( m_properties->findProp( "save path" ) )
             {
@@ -114,7 +120,7 @@ void WMFiberCulling::update()
 void WMFiberCulling::connectors()
 {
     using boost::shared_ptr;
-    typedef WModuleInputData< WDataSetFiberVector > FiberInputData;  // just an alias
+    typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
 
     m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
 

@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "../common/WLogger.h"
 #include "../math/WFiber.h"
 #include "WDataSet.h"
 #include "WDataSetFiberVector.h"
@@ -49,6 +50,11 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fi
     : WMixinVector< wmath::WFiber >(),
       WDataSet()
 {
+    if( !fiberDS.get() )
+    {
+        wlog::error( "WDataSetFiberVector" ) << "During constructing a WDataSetFiberVector out of an empty WDataSetFibers";
+        return;
+    }
     size_t numLines = fiberDS->size();
     const std::vector< size_t >& lineLengths = *fiberDS->getLineLengths();
     reserve( numLines );
