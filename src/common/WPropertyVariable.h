@@ -41,12 +41,12 @@
 #include "WFlag.h"
 #include "WPropertyBase.h"
 
-#include "WPropertyConstraintTypes.h"
-#include "WPropertyConstraintMin.h"
-#include "WPropertyConstraintMax.h"
-#include "WPropertyConstraintNotEmpty.h"
-#include "WPropertyConstraintPathExists.h"
-#include "WPropertyConstraintIsDirectory.h"
+#include "constraints/WPropertyConstraintTypes.h"
+#include "constraints/WPropertyConstraintMin.h"
+#include "constraints/WPropertyConstraintMax.h"
+#include "constraints/WPropertyConstraintNotEmpty.h"
+#include "constraints/WPropertyConstraintPathExists.h"
+#include "constraints/WPropertyConstraintIsDirectory.h"
 
 #include "WCondition.h"
 

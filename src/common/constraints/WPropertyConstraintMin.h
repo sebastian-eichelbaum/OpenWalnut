@@ -22,52 +22,50 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCONSTRAINTMAX_H
-#define WPROPERTYCONSTRAINTMAX_H
+#ifndef WPROPERTYCONSTRAINTMIN_H
+#define WPROPERTYCONSTRAINTMIN_H
 
-#include <iostream>
-
-#include "WPropertyTypes.h"
+#include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
 template< typename T >
 class WPropertyVariable;
 
 /**
- * This class allows constraining properties using a maximum value and the corresponding <= operator.
+ * This class allows constraining properties using a minimum value and the corresponding >= operator.
  */
 template< typename T >
-class WPropertyConstraintMax: public WPropertyVariable< T >::PropertyConstraint
+class WPropertyConstraintMin: public WPropertyVariable< T >::PropertyConstraint
 {
 public:
     /**
      * Constructor.
      *
-     * \param max the maximum value which the new property value should have.
+     * \param min the minimum value which the new property value should have.
      */
-    explicit WPropertyConstraintMax( T max );
+    explicit WPropertyConstraintMin( T min );
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyConstraintMax();
+    virtual ~WPropertyConstraintMin();
 
     /**
-     * Checks whether the specified new value is smaller or equal to the specified max value.
+     * Checks whether the specified new value is larger or equal to the specified min value.
      *
      * \param property the property whose new value should be set.
      * \param value the new value to check
      *
-     * \return true if value <= m_max
+     * \return true if value >= m_min
      */
     virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
 
     /**
-     * Returns the current max value.
+     * Returns the current min value.
      *
-     * \return the max value.
+     * \return the min value.
      */
-    T getMax();
+    T getMin();
 
     /**
      * Allows simple identification of the real constraint type.
@@ -79,38 +77,39 @@ public:
 private:
 
     /**
-     * The maximal value the property should have
+     * The minimal value the property should have
      */
-    T m_max;
+    T m_min;
 };
 
 template < typename T >
-WPropertyConstraintMax< T >::WPropertyConstraintMax( T max ):
-    m_max( max )
+WPropertyConstraintMin< T >::WPropertyConstraintMin( T min ):
+    m_min( min )
 {
 }
 
 template < typename T >
-WPropertyConstraintMax< T >::~WPropertyConstraintMax()
+WPropertyConstraintMin< T >::~WPropertyConstraintMin()
 {
 }
 
 template < typename T >
-bool WPropertyConstraintMax< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintMin< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
 {
-    return value <= m_max;
+    return value >= m_min;
 }
 
 template < typename T >
-T WPropertyConstraintMax< T >::getMax()
+T WPropertyConstraintMin< T >::getMin()
 {
-    return m_max;
+    return m_min;
 }
 
 template < typename T >
-PROPERTYCONSTRAINT_TYPE WPropertyConstraintMax< T >::getType()
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintMin< T >::getType()
 {
-    return PC_MAX;
+    return PC_MIN;
 }
 
-#endif  // WPROPERTYCONSTRAINTMAX_H
+#endif  // WPROPERTYCONSTRAINTMIN_H
+

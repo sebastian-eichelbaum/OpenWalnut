@@ -31,7 +31,7 @@
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
-#include "../../../common/WPropertyConstraintTypes.h"
+#include "../../../common/constraints/WPropertyConstraintTypes.h"
 
 #include "WPropertyFilenameWidget.h"
 

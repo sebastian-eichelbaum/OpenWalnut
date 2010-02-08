@@ -47,9 +47,6 @@
 #include "../data/WMData.h"
 #include "WMNavSlices.h"
 #include "navslices.xpm"
-#include "../../common/WPropertyConstraintNotEmpty.h"
-#include "../../common/WPropertyConstraintIsDirectory.h"
-#include "../../common/WPropertyConstraintPathExists.h"
 
 WMNavSlices::WMNavSlices():
     WModule()

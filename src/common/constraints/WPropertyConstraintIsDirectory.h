@@ -22,40 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCONSTRAINTNOTEMPTY_H
-#define WPROPERTYCONSTRAINTNOTEMPTY_H
+#ifndef WPROPERTYCONSTRAINTISDIRECTORY_H
+#define WPROPERTYCONSTRAINTISDIRECTORY_H
 
-#include "WPropertyTypes.h"
+#include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
 template< typename T >
 class WPropertyVariable;
 
 /**
- * This class allows constraining properties to be not empty. This is especially useful for strings. This works on all types
- * providing an empty() member function (as std::string and boost::filesystem::path do).
+ * This class allows constraining properties to be existing filenames. This is especially useful for WPropFilename.
  */
-template< typename T >
-class WPropertyConstraintNotEmpty: public WPropertyVariable< T >::PropertyConstraint
+template < typename T >
+class WPropertyConstraintIsDirectory: public WPropertyVariable< T >::PropertyConstraint
 {
 public:
     /**
      * Constructor.
      */
-    explicit WPropertyConstraintNotEmpty();
+    explicit WPropertyConstraintIsDirectory();
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyConstraintNotEmpty();
+    virtual ~WPropertyConstraintIsDirectory();
 
     /**
-     * Checks whether the specified new value is larger or equal to the specified min value.
+     * Checks whether the specified value is a directory or not.
      *
      * \param property the property whose new value should be set.
      * \param value the new value to check
      *
-     * \return true if value >= m_min
+     * \return true if the file/path is a directory
      */
     virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
 
@@ -70,26 +69,26 @@ private:
 };
 
 template < typename T >
-WPropertyConstraintNotEmpty< T >::WPropertyConstraintNotEmpty()
+WPropertyConstraintIsDirectory< T >::WPropertyConstraintIsDirectory()
 {
 }
 
 template < typename T >
-WPropertyConstraintNotEmpty< T >::~WPropertyConstraintNotEmpty()
+WPropertyConstraintIsDirectory< T >::~WPropertyConstraintIsDirectory()
 {
 }
 
 template < typename T >
-bool WPropertyConstraintNotEmpty< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintIsDirectory< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
 {
-    return !value.empty();
+    return boost::filesystem::is_directory( value );
 }
 
 template < typename T >
-PROPERTYCONSTRAINT_TYPE WPropertyConstraintNotEmpty< T >::getType()
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintIsDirectory< T >::getType()
 {
-    return PC_NOTEMPTY;
+    return PC_ISDIRECTORY;
 }
 
-#endif  // WPROPERTYCONSTRAINTNOTEMPTY_H
+#endif  // WPROPERTYCONSTRAINTISDIRECTORY_H
 

@@ -22,6 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyConstraintMax.h"
-#include "WPropertyVariable.h"
+#include "WPropertyConstraintMin.h"
+#include "../WPropertyVariable.h"
 

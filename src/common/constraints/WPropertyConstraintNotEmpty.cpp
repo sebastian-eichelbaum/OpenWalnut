@@ -22,6 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyConstraintMin.h"
-#include "WPropertyVariable.h"
+#include "WPropertyConstraintNotEmpty.h"
+#include "../WPropertyVariable.h"
 

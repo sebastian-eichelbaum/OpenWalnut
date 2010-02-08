@@ -25,7 +25,7 @@
 #ifndef WPROPERTYCONSTRAINTPATHEXISTS_H
 #define WPROPERTYCONSTRAINTPATHEXISTS_H
 
-#include "WPropertyTypes.h"
+#include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
 template< typename T >

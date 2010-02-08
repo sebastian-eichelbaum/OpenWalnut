@@ -22,41 +22,52 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCONSTRAINTISDIRECTORY_H
-#define WPROPERTYCONSTRAINTISDIRECTORY_H
+#ifndef WPROPERTYCONSTRAINTMAX_H
+#define WPROPERTYCONSTRAINTMAX_H
 
-#include "WPropertyTypes.h"
+#include <iostream>
+
+#include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
 template< typename T >
 class WPropertyVariable;
 
 /**
- * This class allows constraining properties to be existing filenames. This is especially useful for WPropFilename.
+ * This class allows constraining properties using a maximum value and the corresponding <= operator.
  */
-template < typename T >
-class WPropertyConstraintIsDirectory: public WPropertyVariable< T >::PropertyConstraint
+template< typename T >
+class WPropertyConstraintMax: public WPropertyVariable< T >::PropertyConstraint
 {
 public:
     /**
      * Constructor.
+     *
+     * \param max the maximum value which the new property value should have.
      */
-    explicit WPropertyConstraintIsDirectory();
+    explicit WPropertyConstraintMax( T max );
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyConstraintIsDirectory();
+    virtual ~WPropertyConstraintMax();
 
     /**
-     * Checks whether the specified value is a directory or not.
+     * Checks whether the specified new value is smaller or equal to the specified max value.
      *
      * \param property the property whose new value should be set.
      * \param value the new value to check
      *
-     * \return true if the file/path is a directory
+     * \return true if value <= m_max
      */
     virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+
+    /**
+     * Returns the current max value.
+     *
+     * \return the max value.
+     */
+    T getMax();
 
     /**
      * Allows simple identification of the real constraint type.
@@ -66,29 +77,40 @@ public:
     virtual PROPERTYCONSTRAINT_TYPE getType();
 
 private:
+
+    /**
+     * The maximal value the property should have
+     */
+    T m_max;
 };
 
 template < typename T >
-WPropertyConstraintIsDirectory< T >::WPropertyConstraintIsDirectory()
+WPropertyConstraintMax< T >::WPropertyConstraintMax( T max ):
+    m_max( max )
 {
 }
 
 template < typename T >
-WPropertyConstraintIsDirectory< T >::~WPropertyConstraintIsDirectory()
+WPropertyConstraintMax< T >::~WPropertyConstraintMax()
 {
 }
 
 template < typename T >
-bool WPropertyConstraintIsDirectory< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintMax< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
 {
-    return boost::filesystem::is_directory( value );
+    return value <= m_max;
 }
 
 template < typename T >
-PROPERTYCONSTRAINT_TYPE WPropertyConstraintIsDirectory< T >::getType()
+T WPropertyConstraintMax< T >::getMax()
 {
-    return PC_ISDIRECTORY;
+    return m_max;
 }
 
-#endif  // WPROPERTYCONSTRAINTISDIRECTORY_H
+template < typename T >
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintMax< T >::getType()
+{
+    return PC_MAX;
+}
 
+#endif  // WPROPERTYCONSTRAINTMAX_H

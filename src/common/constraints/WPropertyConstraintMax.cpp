@@ -22,6 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyConstraintPathExists.h"
-#include "WPropertyVariable.h"
+#include "WPropertyConstraintMax.h"
+#include "../WPropertyVariable.h"
 

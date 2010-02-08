@@ -22,6 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyConstraintIsDirectory.h"
-#include "WPropertyVariable.h"
+#include "WPropertyConstraintPathExists.h"
+#include "../WPropertyVariable.h"
 

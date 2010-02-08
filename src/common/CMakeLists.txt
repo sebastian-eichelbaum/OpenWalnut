@@ -3,6 +3,7 @@ FILE( GLOB COMMON_DATASTRUCTURES_SRC "datastructures/*.cpp" "datastructures/*.h"
 FILE( GLOB COMMON_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
 
 ADD_SUBDIRECTORY( datastructures )
+ADD_SUBDIRECTORY( constraints )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     ADD_LIBRARY( common ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} )

@@ -22,33 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCONSTRAINTMIN_H
-#define WPROPERTYCONSTRAINTMIN_H
+#ifndef WPROPERTYCONSTRAINTNOTEMPTY_H
+#define WPROPERTYCONSTRAINTNOTEMPTY_H
 
-#include "WPropertyTypes.h"
+#include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
 template< typename T >
 class WPropertyVariable;
 
 /**
- * This class allows constraining properties using a minimum value and the corresponding >= operator.
+ * This class allows constraining properties to be not empty. This is especially useful for strings. This works on all types
+ * providing an empty() member function (as std::string and boost::filesystem::path do).
  */
 template< typename T >
-class WPropertyConstraintMin: public WPropertyVariable< T >::PropertyConstraint
+class WPropertyConstraintNotEmpty: public WPropertyVariable< T >::PropertyConstraint
 {
 public:
     /**
      * Constructor.
-     *
-     * \param min the minimum value which the new property value should have.
      */
-    explicit WPropertyConstraintMin( T min );
+    explicit WPropertyConstraintNotEmpty();
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyConstraintMin();
+    virtual ~WPropertyConstraintNotEmpty();
 
     /**
      * Checks whether the specified new value is larger or equal to the specified min value.
@@ -61,13 +60,6 @@ public:
     virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
 
     /**
-     * Returns the current min value.
-     *
-     * \return the min value.
-     */
-    T getMin();
-
-    /**
      * Allows simple identification of the real constraint type.
      *
      * \return the type
@@ -75,41 +67,29 @@ public:
     virtual PROPERTYCONSTRAINT_TYPE getType();
 
 private:
-
-    /**
-     * The minimal value the property should have
-     */
-    T m_min;
 };
 
 template < typename T >
-WPropertyConstraintMin< T >::WPropertyConstraintMin( T min ):
-    m_min( min )
+WPropertyConstraintNotEmpty< T >::WPropertyConstraintNotEmpty()
 {
 }
 
 template < typename T >
-WPropertyConstraintMin< T >::~WPropertyConstraintMin()
+WPropertyConstraintNotEmpty< T >::~WPropertyConstraintNotEmpty()
 {
 }
 
 template < typename T >
-bool WPropertyConstraintMin< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintNotEmpty< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
 {
-    return value >= m_min;
+    return !value.empty();
 }
 
 template < typename T >
-T WPropertyConstraintMin< T >::getMin()
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintNotEmpty< T >::getType()
 {
-    return m_min;
+    return PC_NOTEMPTY;
 }
 
-template < typename T >
-PROPERTYCONSTRAINT_TYPE WPropertyConstraintMin< T >::getType()
-{
-    return PC_MIN;
-}
-
-#endif  // WPROPERTYCONSTRAINTMIN_H
+#endif  // WPROPERTYCONSTRAINTNOTEMPTY_H
 
