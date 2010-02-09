@@ -37,6 +37,7 @@
 
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
+#include "WModuleTypes.h"
 
 #include "../dataHandler/WDataSet.h"
 #include "../dataHandler/WDataSetSingle.h"
@@ -215,6 +216,14 @@ public:
      * Get the icon for this module in XPM format.
      */
     virtual const char** getXPMIcon() const;
+
+    /**
+     * Gets the type of the module. This is useful for FAST differentiation between several modules like standard modules and data
+     * modules which play a special role in OpenWalnut/Kernel.
+     *
+     * \return the Type. If you do not overwrite this method, it will return MODULE_ARBITRARY.
+     */
+    virtual MODULE_TYPE getType() const;
 
 protected:
 

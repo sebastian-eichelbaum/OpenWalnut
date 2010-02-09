@@ -164,6 +164,11 @@ void WModule::setAssociatedContainer( boost::shared_ptr< WModuleContainer > cont
     m_isUsable( m_initialized() && m_isAssociated() );
 }
 
+MODULE_TYPE WModule::getType() const
+{
+    return MODULE_ARBITRARY;
+}
+
 const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputConnectors() const
 {
     return m_inputConnectors;

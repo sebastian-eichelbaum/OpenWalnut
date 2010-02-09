@@ -46,7 +46,6 @@
 #include "WQtToolBar.h"
 
 #include "WIconManager.h"
-#include "WPropertyManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
 
 #include "../../kernel/WModule.h"
@@ -89,12 +88,6 @@ public:
      *  returns a pointer to the tool bar showing the compatible modules
      */
     WQtToolBar* getCompatiblesToolBar();
-
-
-    /**
-     * Return property manager
-     */
-    WPropertyManager* getPropertyManager();
 
     /**
      * Return icon manager
@@ -189,8 +182,6 @@ private:
     void setupCompatiblesToolBar();
 
     WIconManager m_iconManager; //!< manager to provide icons in the gui thread
-
-    WPropertyManager m_propertyManager; //!< transmit gui interactions to connected modules
 
     QMenuBar* m_menuBar; //!< The main menu bar of the GUI.
 

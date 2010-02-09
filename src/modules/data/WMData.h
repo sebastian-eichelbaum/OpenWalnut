@@ -84,6 +84,14 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Gets the type of the module. This is useful for FAST differentiation between several modules like standard modules and data
+     * modules which play a special role in OpenWalnut/Kernel.
+     *
+     * \return the Type. This will return MODULE_DATA.
+     */
+    virtual MODULE_TYPE getType() const;
+
 protected:
     /**
      * \par Description

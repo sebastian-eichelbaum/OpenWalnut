@@ -55,8 +55,7 @@
 
 WMainWindow::WMainWindow() :
     QMainWindow(),
-    m_iconManager(),
-    m_propertyManager()
+    m_iconManager()
 {
     setupGUI();
 }
@@ -101,24 +100,27 @@ void WMainWindow::setupGUI()
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
-            connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    // TODO(ebaum): adopt!
+            /*connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );*/
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
-            connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    // TODO(ebaum): adopt!
+            /*connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );*/
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
             m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
-            connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+    // TODO(ebaum): adopt!
+            /*connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );*/
         }
     }
 
@@ -146,7 +148,8 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "Default Subject" );
 
-    connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    // TODO(ebaum): adopt!
+    //connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -199,9 +202,10 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( coronalButton );
     m_permanentToolBar->addWidget( sagittalButton );
 
-    connect( axialButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( coronalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( sagittalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    // TODO(ebaum): adopt!
+//    connect( axialButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+//    connect( coronalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+//    connect( sagittalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 
 
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
@@ -284,11 +288,6 @@ boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr<
 boost::signals2::signal1< void, std::string >* WMainWindow::getPickSignal()
 {
     return m_mainGLWidget->getPickSignal();
-}
-
-WPropertyManager*  WMainWindow::getPropertyManager()
-{
-    return &m_propertyManager;
 }
 
 WIconManager*  WMainWindow::getIconManager()

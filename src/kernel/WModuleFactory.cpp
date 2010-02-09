@@ -28,9 +28,9 @@
 #include <typeinfo>
 
 #include "../common/WLogger.h"
+#include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
-#include "../modules/data/WMData.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/connectomeView/WMConnectomeView.h"

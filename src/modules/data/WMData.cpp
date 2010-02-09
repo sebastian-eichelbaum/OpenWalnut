@@ -69,6 +69,11 @@ boost::shared_ptr< WDataSet > WMData::getDataSet()
     return m_dataSet;
 }
 
+MODULE_TYPE WMData::getType() const
+{
+    return MODULE_DATA;
+}
+
 void WMData::connectors()
 {
     // initialize connectors

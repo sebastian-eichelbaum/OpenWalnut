@@ -35,12 +35,12 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
 
-
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
 class WBatchLoader;
 class WModule;
+class WMData;
 
 /**
  * Class able to contain other modules. It manages several tasks like finding appropriate modules, managing data modules and
@@ -154,11 +154,11 @@ public:
     void loadDataSetsSynchronously( std::vector< std::string > fileNames );
 
     /**
-     * Add the specified thread to the list of pending jobs. Only this ensures, that ALL pending threads got stopped before the
+     * Add the specified thread to the list of pending jobs. Only this ensures, that ALL pending threads get stopped before the
      * container gets stopped.
      *
      * \note use this to register threads whenever you start threads belonging to this container. This avoids shutting down the
-     * container while other threads depend upon them.
+     * container while other threads depend upon it.
      *
      * \param thread the thread to add
      */
@@ -178,6 +178,27 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Simple type for WMData pointer lists.
+     */
+    typedef std::set< boost::shared_ptr< WMData > > DataModuleListType;
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // These methods are used to propagate the global data textures to all modules.
+    // This should be done in a better way in the future but works for now and decouples it from
+    // the GUI.
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns a vector of pointers to the loaded data modules for a given subject.
+     *
+     * \param subjectId The ID of the subject to get the list for.
+     * \param onlyTextures True if only textures should be returned.
+     *
+     * \return the list of data modules.
+     */
+    DataModuleListType getDataModules( int subjectId, bool onlyTextures = false );
 
 protected:
 

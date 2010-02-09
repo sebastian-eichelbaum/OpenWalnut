@@ -164,9 +164,6 @@ int WQt4Gui::run()
 
 void WQt4Gui::slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > module )
 {
-    // get properties from the module and register them
-    m_mainWindow->getPropertyManager()->connectProperties( module->getProperties2() );
-
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleAssocEvent( module ) );
 }
