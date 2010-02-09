@@ -90,19 +90,18 @@ void WDataSetFiberVector::sortDescLength()
     std::sort( begin(), end(), wmath::hasGreaterLengthThen );
 }
 
-void WDataSetFiberVector::erase( const std::vector< bool > &unused )
+boost::shared_ptr< WDataSetFiberVector > WDataSetFiberVector::generateDataSetOutOfUsedFibers( const std::vector< bool > &unused ) const
 {
+    boost::shared_ptr< WDataSetFiberVector > result = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector() );
     assert( unused.size() == size() );
-    std::vector< wmath::WFiber >::iterator useable = begin();
     for( size_t i = 0 ; i < unused.size(); ++i )
     {
         if( !unused[i] )
         {
-            *useable = at( i );
-            useable++;
+            result->push_back( at( i ) );
         }
     }
-    WMixinVector< wmath::WFiber >::erase( useable, end() );
+    return result;
 }
 
 bool WDataSetFiberVector::isTexture() const
@@ -128,4 +127,34 @@ boost::shared_ptr< WPrototyped > WDataSetFiberVector::getPrototype()
     }
 
     return m_prototype;
+}
+
+boost::shared_ptr< WDataSetFibers > WDataSetFiberVector::toWDataSetFibers() const
+{
+    boost::shared_ptr< std::vector< float > > points = boost::shared_ptr< std::vector< float > >( new std::vector< float > );
+    boost::shared_ptr< std::vector< size_t > > fiberStartIndices = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
+    boost::shared_ptr< std::vector< size_t > > fiberLengths = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
+    boost::shared_ptr< std::vector< size_t > > pointFiberMapping = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
+
+    fiberStartIndices->reserve( size() );
+    fiberLengths->reserve( size() );
+    // other reserving for points and pointFiberMapping is not possible here without cycling through the whole data
+
+    size_t fiberID = 0;
+    for( const_iterator cit = begin(); cit != end(); ++cit, ++fiberID )
+    {
+        const wmath::WFiber& fib = *cit;
+        // the division by 3 is necessary since it carries the point numbers not the number of the i'th component
+        fiberStartIndices->push_back( points->size() / 3 );
+        fiberLengths->push_back( fib.size() );
+        for( wmath::WFiber::const_iterator fit = fib.begin(); fit != fib.end(); ++fit )
+        {
+            points->push_back( ( *fit )[0] );
+            points->push_back( ( *fit )[1] );
+            points->push_back( ( *fit )[2] );
+            pointFiberMapping->push_back( fiberID );
+        }
+    }
+
+    return boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( points, fiberStartIndices, fiberLengths, pointFiberMapping ) );
 }

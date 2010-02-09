@@ -137,7 +137,7 @@ protected:
 
     WBoolFlag m_run; //!< If and only if it is true then the Culling Algo is executed.
 
-    boost::shared_ptr< WModuleOutputData< WDataSetFiberVector > > m_output; //!< Output connector for the culled fibers
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled fibers
 
 private:
 };
