@@ -51,7 +51,7 @@
 
 
 WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
-    : QDockWidget( parent )
+    : QDockWidget( "Dataset Browser", parent )
 {
     m_mainWindow = parent;
 
