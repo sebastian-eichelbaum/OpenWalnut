@@ -213,6 +213,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *
@@ -227,6 +228,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *
@@ -335,6 +337,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *
@@ -351,6 +354,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *
@@ -470,6 +474,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *
@@ -486,6 +491,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *
@@ -607,6 +613,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *
@@ -625,6 +632,7 @@ public:
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
      *
      * \see WPropertyVariable
      *

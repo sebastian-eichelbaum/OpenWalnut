@@ -104,20 +104,15 @@ void WMData::properties()
 
 void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
-
+    if ( property == m_threshold )
+    {
+        m_dataSet->getTexture()->setThreshold( m_threshold->get() );
+    }
+    else if ( property == m_opacity )
+    {
+        m_dataSet->getTexture()->setThreshold( m_opacity->get() );
+    }
 }
-
-/*void WMData::slotPropertyChanged( std::string propertyName )
-{
-    if ( propertyName == "Threshold" )
-    {
-        m_dataSet->getTexture()->setThreshold( m_properties->getValue<float>( "Threshold" ) );
-    }
-    if ( propertyName == "Opacity %" )
-    {
-        m_dataSet->getTexture()->setAlpha( m_properties->getValue<float>( "Opacity %" ) / 100.0 );
-    }
-}*/
 
 void WMData::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
                                            boost::shared_ptr<WModuleConnector> there )
