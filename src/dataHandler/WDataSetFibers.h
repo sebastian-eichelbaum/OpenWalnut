@@ -139,7 +139,9 @@ private:
     boost::shared_ptr< std::vector< float > > m_vertices;
 
     /**
-     * Line vector that contains the start index for each line
+     * Line vector that contains the start index of its first point for each line.
+     * \warning The index returned cannot be used in the vertices array until
+     * the number of components for each point is multiplied.
      */
     boost::shared_ptr< std::vector< size_t > > m_lineStartIndexes;
 

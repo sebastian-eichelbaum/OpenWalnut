@@ -144,7 +144,8 @@ boost::shared_ptr< WDataSetFibers > WDataSetFiberVector::toWDataSetFibers() cons
     for( const_iterator cit = begin(); cit != end(); ++cit, ++fiberID )
     {
         const wmath::WFiber& fib = *cit;
-        fiberStartIndices->push_back( points->size() );
+        // the division by 3 is necessary since it carries the point numbers not the number of the i'th component
+        fiberStartIndices->push_back( points->size() / 3 );
         fiberLengths->push_back( fib.size() );
         for( wmath::WFiber::const_iterator fit = fib.begin(); fit != fib.end(); ++fit )
         {
@@ -157,4 +158,3 @@ boost::shared_ptr< WDataSetFibers > WDataSetFiberVector::toWDataSetFibers() cons
 
     return boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( points, fiberStartIndices, fiberLengths, pointFiberMapping ) );
 }
-
