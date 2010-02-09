@@ -28,11 +28,7 @@
 #include <string>
 
 #include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QSlider>
 #include <QtGui/QWidget>
-#include <QtGui/QLCDNumber>
 
 #include "WPropertyBoolWidget.h"
 #include "WPropertyIntWidget.h"

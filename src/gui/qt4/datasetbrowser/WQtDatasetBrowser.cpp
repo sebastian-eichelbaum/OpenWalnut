@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <QtCore/QList>
+#include <QtGui/QScrollArea>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
@@ -427,7 +428,11 @@ void WQtDatasetBrowser::changeTreeItem()
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
-    m_tabWidget->addTab( content, content->getName() );
+    QScrollArea* sa = new QScrollArea();
+    sa->setWidget( content );
+    sa->setWidgetResizable( true );
+
+    m_tabWidget->addTab( sa, content->getName() );
 }
 
 std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( int subjectId, bool onlyTextures )
