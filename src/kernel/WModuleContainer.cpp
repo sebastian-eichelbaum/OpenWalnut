@@ -164,7 +164,7 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     // TODO(ebaum): flat or deep removal? What to do with associated modules?
 }
 
-WModuleContainer::DataModuleListType WModuleContainer::getDataModules( int subjectId, bool onlyTextures )
+WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
 {
     DataModuleListType l;
 
@@ -179,10 +179,8 @@ WModuleContainer::DataModuleListType WModuleContainer::getDataModules( int subje
             boost::shared_ptr< WMData > dm = boost::shared_static_cast< WMData >( *iter );
 
             // now check the contained dataset ( isTexture and whether it is ready )
-            if ( dm->isReady()() && ( !onlyTextures || dm->getDataSet()->isTexture() ) )
+            if ( dm->isReady()() )
             {
-                // assume we have one subject only. Nobody took care to store the subject ID somewhere!
-                // TODO(ebaum): add subject id check if available
                 l.insert( dm );
             }
         }

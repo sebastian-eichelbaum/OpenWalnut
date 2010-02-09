@@ -184,21 +184,12 @@ public:
      */
     typedef std::set< boost::shared_ptr< WMData > > DataModuleListType;
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // These methods are used to propagate the global data textures to all modules.
-    // This should be done in a better way in the future but works for now and decouples it from
-    // the GUI.
-    //////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
-     * Returns a vector of pointers to the loaded data modules for a given subject.
-     *
-     * \param subjectId The ID of the subject to get the list for.
-     * \param onlyTextures True if only textures should be returned.
+     * Returns a vector of pointers to the loaded data modules in the container.
      *
      * \return the list of data modules.
      */
-    DataModuleListType getDataModules( int subjectId, bool onlyTextures = false );
+    DataModuleListType getDataModules();
 
 protected:
 
