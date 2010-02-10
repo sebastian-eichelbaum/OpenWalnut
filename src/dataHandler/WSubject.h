@@ -68,10 +68,9 @@ public:
     /**
      * Gives the personal information of a subject.
      *
-     * \return
+     * \return the personal information of the subject.
      */
     WPersonalInformation getPersonalInformation() const;
-
 
     /**
      * Get the pointer to the i'th WDataSet. The return type is const since we

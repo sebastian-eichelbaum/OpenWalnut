@@ -100,6 +100,13 @@ public:
      */
     bool operator!=( WPersonalInformation info ) const;
 
+    /**
+     * Returns the name of the subject. This is a concatenation of first, middle and last name.
+     *
+     * \return the name of the subject.
+     */
+    std::string getCompleteName() const;
+
 protected:
 private:
 

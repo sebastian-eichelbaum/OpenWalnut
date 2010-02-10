@@ -72,6 +72,11 @@ std::string WPersonalInformation::getLastName() const
     return m_lastName;
 }
 
+std::string WPersonalInformation::getCompleteName() const
+{
+    return getLastName() + ", " + getFirstName() + " " + getMiddleName();
+}
+
 void WPersonalInformation::setLastName( std::string lastName )
 {
     assert( m_subjectID != 0 && "SubjectID is still zero. This is reserved for empty dummies. Set it first." );

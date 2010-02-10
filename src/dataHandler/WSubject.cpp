@@ -42,7 +42,7 @@ WSubject::WSubject( WPersonalInformation personInfo )
 
 std::string WSubject::getName() const
 {
-    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
+    return m_personalInfo.getCompleteName();
 }
 
 WPersonalInformation WSubject::getPersonalInformation() const
@@ -62,10 +62,10 @@ boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dat
     return getDataSet( dataSetId );
 }
 
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
+/*void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
 {
     m_dataSets.push_back( newDataSet );
-}
+}*/
 
 unsigned int WSubject::getNumberOfDataSets() const
 {
