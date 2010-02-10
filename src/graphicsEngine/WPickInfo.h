@@ -40,6 +40,7 @@ public:
      */
     enum modifierKey
     {
+        NONE,
         SHIFT,
         STRG,
         ALT,
@@ -52,7 +53,12 @@ public:
      * \param pickPosition position where object was hit
      * \param modKey relevant modifier key pressed during the pick
      */
-    WPickInfo( std::string name, wmath::WPosition pickPosition, WPickInfo::modifierKey modKey );
+    inline WPickInfo( std::string name, wmath::WPosition pickPosition, modifierKey modKey );
+
+    /**
+     * Creates an object with the empty name, zero position and no modkey.
+     */
+    inline WPickInfo();
 
     /**
      * Get the modifier key associated with the pick
@@ -69,6 +75,18 @@ public:
      */
     inline wmath::WPosition getPickPosition();
 
+    /**
+     * Tests two pick infos for equality
+     * \param rhs right hand side of comparison
+     */
+    inline bool operator==( WPickInfo rhs );
+
+    /**
+     * Tests two pick infos for inequality
+     * \param rhs right hand side of comparison
+     */
+    inline bool operator!=( WPickInfo rhs );
+
 protected:
 private:
 
@@ -77,10 +95,17 @@ private:
     modifierKey m_modKey; //!< modifier key associated with the pick
 };
 
-WPickInfo::WPickInfo( std::string name, wmath::WPosition pickPosition, WPickInfo::modifierKey modKey ) :
+WPickInfo::WPickInfo( std::string name, wmath::WPosition pickPosition, modifierKey modKey ) :
     m_name( name ),
     m_pickPosition( pickPosition ),
     m_modKey( modKey )
+{
+}
+
+WPickInfo::WPickInfo() :
+    m_name( "" ),
+    m_pickPosition( wmath::WPosition() ),
+    m_modKey( WPickInfo::NONE )
 {
 }
 
@@ -97,6 +122,18 @@ std::string WPickInfo::getName()
 wmath::WPosition WPickInfo::getPickPosition()
 {
     return m_pickPosition;
+}
+
+inline bool WPickInfo::operator==( WPickInfo rhs )
+{
+    return ( this->m_name == rhs.m_name
+             && this->m_pickPosition == rhs.m_pickPosition
+             && this->m_modKey == rhs.m_modKey );
+}
+
+inline bool WPickInfo::operator!=( WPickInfo rhs )
+{
+    return !( *this == rhs );
 }
 
 #endif  // WPICKINFO_H

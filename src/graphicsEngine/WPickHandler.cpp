@@ -28,12 +28,13 @@
 #include <osg/Vec3>
 
 #include "WPickHandler.h"
+#include "WPickInfo.h"
 
 WPickHandler::~WPickHandler()
 {
 }
 
-std::string WPickHandler::getHitResult()
+WPickInfo WPickHandler::getHitResult()
 {
     return m_hitResult;
 }
@@ -43,7 +44,7 @@ wmath::WPosition WPickHandler::getHitPosition()
     return m_hitPosGlobal;
 }
 
-boost::signals2::signal1< void, std::string >* WPickHandler::getPickSignal()
+boost::signals2::signal1< void, WPickInfo >* WPickHandler::getPickSignal()
 {
     return &m_pickSignal;
 }
@@ -97,10 +98,10 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
 
 void WPickHandler::unpick( )
 {
-    if( m_hitResult != "" )
+    if( m_hitResult != WPickInfo( "", wmath::WPosition(), WPickInfo::NONE ) )
     {
-        m_hitResult = "unpick";
-        m_lastPick = "";
+        m_hitResult = WPickInfo( "unpick", wmath::WPosition(), WPickInfo::NONE );
+        m_lastPick = WPickInfo( "", wmath::WPosition(), WPickInfo::NONE );
     }
     m_pickSignal( getHitResult() );
 }
@@ -122,7 +123,7 @@ std::string extractSuitableName( osgUtil::LineSegmentIntersector::Intersections:
 void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea )
 {
     osgUtil::LineSegmentIntersector::Intersections intersections;
-    m_hitResult = "";
+    m_hitResult = WPickInfo();
     float x = ea.getX();
     float y = ea.getY();
 
@@ -132,9 +133,11 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         bool lastPickIsStillInList = false;
         osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin();
 
+
         while( ( hitr != intersections.end() ) && !lastPickIsStillInList ) // got to lastPicked if it can be found in intersections list
         {
-            lastPickIsStillInList |= ( extractSuitableName( hitr ) == m_lastPick );
+            WPickInfo pickInfoTmp( extractSuitableName( hitr ), wmath::WPosition(), WPickInfo::NONE );
+            lastPickIsStillInList |= ( pickInfoTmp.getName() == m_lastPick.getName() );
 
             if( !lastPickIsStillInList ) // if iteration not finished yet go on in list
             {
@@ -147,15 +150,23 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
             hitr = intersections.begin();
         }
 
-        std::ostringstream os;
-        os << "Object \"" <<  extractSuitableName( hitr ) << "\"" << std::endl;
-        m_lastPick = extractSuitableName( hitr );
+        wmath::WPosition pickPos;
+        pickPos[0] = hitr->getLocalIntersectPoint()[0];
+        pickPos[1] = hitr->getLocalIntersectPoint()[1];
+        pickPos[2] = hitr->getLocalIntersectPoint()[2];
 
-        os << "        local coords vertex(" << hitr->getLocalIntersectPoint() << ")" << "  normal(" << hitr->getLocalIntersectNormal() << ")"
-                << std::endl;
-        os << "        world coords vertex(" << hitr->getWorldIntersectPoint() << ")" << "  normal(" << hitr->getWorldIntersectNormal() << ")"
-                << std::endl;
-        m_hitResult += os.str();
+        WPickInfo pickInfo( extractSuitableName( hitr ), pickPos, WPickInfo::NONE );
+//         std::ostringstream os;
+//         os << "Object \"" <<  extractSuitableName( hitr ) << "\"" << std::endl;
+//         m_lastPick = extractSuitableName( hitr );
+
+//         os << "        local coords vertex(" << hitr->getLocalIntersectPoint() << ")" << "  normal(" << hitr->getLocalIntersectNormal() << ")"
+//                 << std::endl;
+//         os << "        world coords vertex(" << hitr->getWorldIntersectPoint() << ")" << "  normal(" << hitr->getWorldIntersectNormal() << ")"
+//                 << std::endl;
+//         m_hitResult += os.str();
+
+        m_hitResult = pickInfo;
 
         osg::Vec3 globalHit = hitr->getWorldIntersectPoint();
         m_hitPosGlobal = wmath::WPosition( globalHit[0], globalHit[1], globalHit[2] );

@@ -117,13 +117,6 @@ public:
      */
     const WBoolFlag& isInitialized() const;
 
-    /**
-     * Returns the signal used for pick events.
-     *
-     * \return the signal fired on pick events.
-     */
-    boost::signals2::signal1< void, std::string >* getPickSignal();
-
 protected:
     /**
      * The viewer to the scene.
@@ -248,11 +241,6 @@ private:
      * True when initialized.
      */
     WBoolFlag m_isInitialized;
-
-    /**
-     * The signal used for picking events inside this widget.
-     */
-    boost::signals2::signal1<void, std::string > m_pickSignal;
 
     /**
      * True when the widget got drawn the very first time.

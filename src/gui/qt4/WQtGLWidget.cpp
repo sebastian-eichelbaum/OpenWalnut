@@ -261,7 +261,6 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 void WQtGLWidget::mousePressEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
-    m_pickSignal( m_Viewer->getPickHandler()->getHitResult() );
 }
 
 void WQtGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
@@ -295,8 +294,3 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
 #endif
-
-boost::signals2::signal1< void, std::string >* WQtGLWidget::getPickSignal()
-{
-    return &m_pickSignal;
-}

@@ -116,13 +116,6 @@ public:
     boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* getModuleButtonSignal();
 
     /**
-     * Returns a point to a boost signal object which emits the coordinates of a mouseclick
-     *
-     * \return the signal
-     */
-    boost::signals2::signal1< void, std::string >* getPickSignal();
-
-    /**
      * Searches for a custom dock widget with a given name and returns it, if
      * found.
      *

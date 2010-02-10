@@ -112,8 +112,6 @@ public:
      */
     boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
 
-    boost::signals2::signal1< void, std::string >* getPickSignal();
-
     /**
      * Instruct the WMainWindow to open a new custom widget.
      *

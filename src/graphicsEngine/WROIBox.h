@@ -73,13 +73,13 @@ private:
     wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
 
-    std::string m_pickText; //!< Stores the pick text that contains information for potential redraw
+    WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
 
     /**
      * note that there was a pick
-     * \param text info from pick
+     * \param pickInfo info from pick
      */
-    void registerRedrawRequest( std::string text );
+    void registerRedrawRequest( WPickInfo pickInfo );
 
     /**
      *  updates the graphics
