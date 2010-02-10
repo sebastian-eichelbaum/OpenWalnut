@@ -212,7 +212,17 @@ void WMainWindow::setupCompatiblesToolBar()
     m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
 
     m_compatiblesToolBar = new WQtToolBar( "Compatible Modules Toolbar", this );
-    addToolBarBreak( Qt::TopToolBarArea );
+
+    // optional toolbar break
+    {
+        bool useToolBarBreak = true;
+        WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
+        if( useToolBarBreak )
+        {
+            addToolBarBreak( Qt::TopToolBarArea );
+        }
+    }
+
     addToolBar( Qt::TopToolBarArea, m_compatiblesToolBar );
 }
 
