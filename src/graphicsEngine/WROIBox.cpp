@@ -217,7 +217,7 @@ void WROIBox::updateGFX()
         assert( viewer );
 
 
-        wmath::WPosition newPos( m_pickHandler->getHitPosition() );
+        wmath::WPosition newPos( m_pickInfo.getPickPosition() );
         if ( m_isPicked )
         {
             osg::Vec3d eyeDirOSG = osg::Matrix::transform3x3( osg::Vec3d( 0, 0, -1 ),
@@ -228,7 +228,7 @@ void WROIBox::updateGFX()
 
             wmath::WVector3D moveVec = newPos - m_pickedPosition;
 
-            moveVec = moveVec - eyeDir * ( moveVec * eyeDir );
+//             moveVec = moveVec - eyeDir * ( moveVec * eyeDir );
 
             osg::Vec3Array* vertices = new osg::Vec3Array;
             m_minPos += moveVec;

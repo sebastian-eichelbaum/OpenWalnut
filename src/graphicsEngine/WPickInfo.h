@@ -26,6 +26,7 @@
 #define WPICKINFO_H
 
 #include <string>
+#include <utility>
 
 #include "../math/WPosition.h"
 
@@ -51,9 +52,10 @@ public:
      * Creates an object with the needed information.
      * \param name name of picked object
      * \param pickPosition position where object was hit
+     * \param pixelCoords pixel coordinates fo the mouse
      * \param modKey relevant modifier key pressed during the pick
      */
-    inline WPickInfo( std::string name, wmath::WPosition pickPosition, modifierKey modKey );
+    inline WPickInfo( std::string name, wmath::WPosition pickPosition, std::pair< int, int > pixelCoords, modifierKey modKey );
 
     /**
      * Creates an object with the empty name, zero position and no modkey.
@@ -76,6 +78,11 @@ public:
     inline wmath::WPosition getPickPosition();
 
     /**
+     * Get pixel coordinates where object was hit.
+     */
+    inline std::pair< int, int > getPickPixelPosition();
+
+    /**
      * Tests two pick infos for equality
      * \param rhs right hand side of comparison
      */
@@ -92,12 +99,14 @@ private:
 
     std::string m_name; //!< name of picked object.
     wmath::WPosition m_pickPosition; //!< position where object was hit.
+    std::pair< int, int > m_pixelCoords; //!< Pixel coordinates of the mouse.
     modifierKey m_modKey; //!< modifier key associated with the pick
 };
 
-WPickInfo::WPickInfo( std::string name, wmath::WPosition pickPosition, modifierKey modKey ) :
+WPickInfo::WPickInfo( std::string name, wmath::WPosition pickPosition, std::pair< int, int > pixelCoords, modifierKey modKey ) :
     m_name( name ),
     m_pickPosition( pickPosition ),
+    m_pixelCoords( pixelCoords ),
     m_modKey( modKey )
 {
 }
@@ -105,6 +114,7 @@ WPickInfo::WPickInfo( std::string name, wmath::WPosition pickPosition, modifierK
 WPickInfo::WPickInfo() :
     m_name( "" ),
     m_pickPosition( wmath::WPosition() ),
+    m_pixelCoords( std::make_pair( 0, 0 ) ),
     m_modKey( WPickInfo::NONE )
 {
 }
@@ -122,6 +132,11 @@ std::string WPickInfo::getName()
 wmath::WPosition WPickInfo::getPickPosition()
 {
     return m_pickPosition;
+}
+
+std::pair< int, int > WPickInfo::getPickPixelPosition()
+{
+    return m_pixelCoords;
 }
 
 inline bool WPickInfo::operator==( WPickInfo rhs )

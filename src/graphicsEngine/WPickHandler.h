@@ -80,11 +80,6 @@ public:
     WPickInfo getHitResult();
 
     /**
-     * Returns the position where the first object was picked.
-     */
-    wmath::WPosition getHitPosition();
-
-    /**
      * returns the m_pickSignal to for registering to it.
      */
     boost::signals2::signal1< void, WPickInfo >* getPickSignal();
@@ -102,8 +97,7 @@ protected:
     virtual ~WPickHandler();
 
     WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
-    wmath::WPosition m_hitPosGlobal; //!< Global coordinates of the first hit of the pick.
-    WPickInfo m_lastPick; //!< indicates what was last picked. Should be "" after unpick.
+    WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
 
 private:
     boost::signals2::signal1<void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.
