@@ -26,13 +26,13 @@
 #define WDATAHANDLER_H
 
 #include <string>
-#include <vector>
+#include <set>
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include "../common/WSTLContainer.h"
+#include "../common/WSharedObject.h"
 
 #include "WDataSet.h"
 
@@ -45,7 +45,7 @@ class WSubject;
  *
  * \ingroup dataHandler
  */
-class WDataHandler : public boost::enable_shared_from_this< WDataHandler >
+class WDataHandler
 {
 /**
  * Only UnitTests may be friends.
@@ -55,6 +55,11 @@ friend class WDataHandlerTest;
 public:
 
     /**
+     * For shortening: a type defining a shared vector of WSubject pointers.
+     */
+    typedef std::set< boost::shared_ptr< WSubject > > SubjectContainerType;
+
+    /**
      * Empty standard constructor.
      */
     WDataHandler();
@@ -62,16 +67,28 @@ public:
     /**
      * Insert a new subject referenced by a pointer.
      *
-     * \param newSubject a pointer to the subject that will be added
+     * \param subject a pointer to the subject that will be added
      */
-    void addSubject( boost::shared_ptr< WSubject > newSubject );
+    void addSubject( boost::shared_ptr< WSubject > subject );
+
+    /**
+     * Removes the specified subject if it is in the set.
+     *
+     * \param subject the subject to remove.
+     */
+    void removeSubject( boost::shared_ptr< WSubject > subject );
 
 protected:
 
     /**
      * A container for all WSubjects.
      */
-    WSTLContainer< std::vector< boost::shared_ptr< WSubject > > > m_subjects;
+    WSharedObject< SubjectContainerType > m_subjects;
+
+    /**
+     * The access object used for thread safe access.
+     */
+    WSharedObject< SubjectContainerType >::WSharedAccess m_subjectAccess;
 
     /**
      * The lock used for avoiding mutual write to the subjects list

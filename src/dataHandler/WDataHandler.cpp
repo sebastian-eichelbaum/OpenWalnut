@@ -29,15 +29,25 @@
 #include "WSubject.h"
 #include "exceptions/WDHNoSuchDataSet.h"
 
-WDataHandler::WDataHandler()
+WDataHandler::WDataHandler():
+    m_subjects(),
+    m_subjectAccess( m_subjects.getAccessObject() )
 {
 }
 
-void WDataHandler::addSubject( boost::shared_ptr< WSubject > newSubject )
+void WDataHandler::addSubject( boost::shared_ptr< WSubject > subject )
 {
-    // add the subject to the list ( ensure mutual exclusive write )
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_subjectsLock );
-    //m_subjects.push_back( newSubject );
-    lock.unlock();
+    // simply add the new subject
+    m_subjectAccess->beginWrite();
+    m_subjectAccess->get().insert( subject );
+    m_subjectAccess->endWrite();
+}
+
+void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
+{
+    // simply add the new subject
+    m_subjectAccess->beginWrite();
+    m_subjectAccess->get().erase( subject );
+    m_subjectAccess->endWrite();
 }
 
