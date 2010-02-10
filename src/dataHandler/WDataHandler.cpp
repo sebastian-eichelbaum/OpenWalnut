@@ -22,32 +22,91 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
-#include "WDataHandler.h"
+#include <boost/lexical_cast.hpp>
+
 #include "WSubject.h"
-#include "exceptions/WDHNoSuchDataSet.h"
+#include "exceptions/WDHNoSuchSubject.h"
+
+#include "../common/WLogger.h"
+
+#include "WDataHandler.h"
+
+// instance as singleton
+boost::shared_ptr< WDataHandler > WDataHandler::m_instance = boost::shared_ptr< WDataHandler >();
 
 WDataHandler::WDataHandler():
     m_subjects(),
     m_subjectAccess( m_subjects.getAccessObject() )
 {
+    WLogger::getLogger()->addLogMessage( "Initializing Data Handler", "Data Handler", LL_INFO );
+}
+
+WDataHandler::~WDataHandler()
+{
 }
 
 void WDataHandler::addSubject( boost::shared_ptr< WSubject > subject )
 {
+    WLogger::getLogger()->addLogMessage( "Adding subject with ID \"" +
+                                         boost::lexical_cast< std::string >( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
+                                         + subject->getName() + "\".",
+                                         "Data Handler", LL_INFO );
+
     // simply add the new subject
-    m_subjectAccess->beginWrite();
-    m_subjectAccess->get().insert( subject );
-    m_subjectAccess->endWrite();
+    m_subjects.push_back( subject );
 }
 
 void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
 {
-    // simply add the new subject
     m_subjectAccess->beginWrite();
-    m_subjectAccess->get().erase( subject );
+
+    WLogger::getLogger()->addLogMessage( "Removing subject with ID \"" +
+                                         boost::lexical_cast< std::string >( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
+                                         + subject->getName() + "\".",
+                                         "Data Handler", LL_INFO );
+
+    // iterate and find, remove
+    remove( m_subjectAccess->get().begin(), m_subjectAccess->get().end(), subject );
+
     m_subjectAccess->endWrite();
+}
+
+WDataHandler::SubjectSharedContainerType::WSharedAccess WDataHandler::getAccessObject()
+{
+    return m_subjects.getAccessObject();
+}
+
+boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
+{
+    m_subjectAccess->beginRead();
+
+    // search it
+    boost::shared_ptr< WSubject > result;
+    try
+    {
+        result = m_subjectAccess->get().at( subjectID );
+    }
+    catch( std::out_of_range& e )
+    {
+        throw WDHNoSuchSubject();
+    }
+
+    m_subjectAccess->endWrite();
+
+    return result;
+}
+
+boost::shared_ptr< WDataHandler > WDataHandler::getDataHandler()
+{
+    if ( !m_instance )
+    {
+        m_instance = boost::shared_ptr< WDataHandler >( new WDataHandler() );
+    }
+
+    return m_instance;
 }
 

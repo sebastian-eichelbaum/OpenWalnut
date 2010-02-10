@@ -45,6 +45,11 @@ std::string WSubject::getName() const
     return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
 }
 
+WPersonalInformation WSubject::getPersonalInformation() const
+{
+    return m_personalInfo;
+}
+
 boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
 {
     if( dataSetId >= m_dataSets.size() )

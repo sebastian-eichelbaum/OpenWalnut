@@ -38,6 +38,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 
+#include "../dataHandler/WDataHandler.h"
 #include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
 #include "WBatchLoader.h"
@@ -96,9 +97,11 @@ void WKernel::init()
     findAppPath();
     m_roiManager = boost::shared_ptr< WROIManagerFibers >( new WROIManagerFibers() );
 
-
     // get module factory
     m_moduleFactory = WModuleFactory::getModuleFactory();
+
+    // init data handler
+    WDataHandler::getDataHandler();
 
     // initialize module container
     m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer",

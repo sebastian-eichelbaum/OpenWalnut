@@ -45,21 +45,33 @@ class WSubject
     friend class WSubjectTest;
 
 public:
+
     /**
      * Constructs a dummy subject.
      */
     WSubject();
 
     /**
-     * Allows to give the subject information the person during construction
+     * Allows to give the subject information the person during construction.
+     *
      * \param personInfo personal information object
      */
     explicit WSubject( WPersonalInformation personInfo );
 
     /**
-     * Returns the name of the subject. See WSubject::m_name for details on the name.
+     * Returns the name of the subject. See WPersonalInformation for details on the name.
+     *
+     * \return the name of the subject extracted from this subject's WPersonalInformation.
      */
     std::string getName() const;
+
+    /**
+     * Gives the personal information of a subject.
+     *
+     * \return
+     */
+    WPersonalInformation getPersonalInformation() const;
+
 
     /**
      * Get the pointer to the i'th WDataSet. The return type is const since we
@@ -76,18 +88,14 @@ public:
     boost::shared_ptr< const WDataSet > operator[]( const unsigned int dataSetId ) const;
 
     /**
-     * Insert a new DataSet referenced by a pointer.
-     *
-     * \param newDataSet This WDataSet will be added
-     */
-    void addDataSet( boost::shared_ptr< WDataSet > newDataSet );
-
-    /**
      * Get the number of DataSets which are actually handled by our subject.
      */
     unsigned int getNumberOfDataSets() const;
+
 protected:
+
 private:
+
     WPersonalInformation m_personalInfo; //!< Information on the person represented by this WSubject.
 
     /**

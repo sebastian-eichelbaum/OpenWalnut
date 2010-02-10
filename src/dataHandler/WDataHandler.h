@@ -26,13 +26,14 @@
 #define WDATAHANDLER_H
 
 #include <string>
-#include <set>
+#include <vector>
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 #include "../common/WSharedObject.h"
+#include "../common/WSharedSequenceContainer.h"
 
 #include "WDataSet.h"
 
@@ -53,16 +54,32 @@ class WDataHandler
 friend class WDataHandlerTest;
 
 public:
-
     /**
      * For shortening: a type defining a shared vector of WSubject pointers.
      */
-    typedef std::set< boost::shared_ptr< WSubject > > SubjectContainerType;
+    typedef std::vector< boost::shared_ptr< WSubject > > SubjectContainerType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedSequenceContainer< boost::shared_ptr< WSubject >, SubjectContainerType > SubjectSharedContainerType;
 
     /**
      * Empty standard constructor.
      */
     WDataHandler();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WDataHandler();
+
+    /**
+     * As WDataHandler is a singleton -> return instance.
+     *
+     * \return the instance.
+     */
+    static boost::shared_ptr< WDataHandler > getDataHandler();
 
     /**
      * Insert a new subject referenced by a pointer.
@@ -78,24 +95,43 @@ public:
      */
     void removeSubject( boost::shared_ptr< WSubject > subject );
 
+    /**
+     * Returns the subject which corresponds to the specified ID. It throws an exception, if the subject does not exists anymore.
+     *
+     * \param subjectID the ID to search the subject for
+     *
+     * \return the subject.
+     *
+     * \throw WNoSuchSubject in case the subject can't be found.
+     */
+    boost::shared_ptr< WSubject > getSubjectByID( size_t subjectID );
+
+    /**
+     * Gets an access object which allows thread save iteration over the subjects.
+     *
+     * \return the access object.
+     */
+    SubjectSharedContainerType::WSharedAccess getAccessObject();
+
 protected:
 
     /**
      * A container for all WSubjects.
      */
-    WSharedObject< SubjectContainerType > m_subjects;
+    SubjectSharedContainerType m_subjects;
 
     /**
      * The access object used for thread safe access.
      */
-    WSharedObject< SubjectContainerType >::WSharedAccess m_subjectAccess;
-
-    /**
-     * The lock used for avoiding mutual write to the subjects list
-     */
-    boost::shared_mutex m_subjectsLock;
+    SubjectSharedContainerType::WSharedAccess m_subjectAccess;
 
 private:
+
+    /**
+     * Singleton instance of WDataHandler.
+     */
+    static boost::shared_ptr< WDataHandler > m_instance;
+
 };
 
 /**
