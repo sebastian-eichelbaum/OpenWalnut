@@ -54,6 +54,7 @@ class WDataHandler
 friend class WDataHandlerTest;
 
 public:
+
     /**
      * For shortening: a type defining a shared vector of WSubject pointers.
      */
@@ -94,6 +95,11 @@ public:
      * \param subject the subject to remove.
      */
     void removeSubject( boost::shared_ptr< WSubject > subject );
+
+    /**
+     * Remove all subjects.
+     */
+    void clear();
 
     /**
      * Returns the subject which corresponds to the specified ID. It throws an exception, if the subject does not exists anymore.

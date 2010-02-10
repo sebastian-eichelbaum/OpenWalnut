@@ -141,6 +141,9 @@ void WKernel::finalize()
 
     // NOTE: stopping a container erases all modules inside.
     getRootContainer()->stop();
+
+    WLogger::getLogger()->addLogMessage( "Stopping Data Handler", "Kernel", LL_INFO );
+    WDataHandler::getDataHandler()->clear();
 }
 
 void WKernel::threadMain()

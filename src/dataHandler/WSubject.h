@@ -29,6 +29,9 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WSharedObject.h"
+#include "../common/WSharedSequenceContainer.h"
+
 #include "WPersonalInformation.h"
 
 class WDataSet;
@@ -45,6 +48,16 @@ class WSubject
     friend class WSubjectTest;
 
 public:
+
+    /**
+     * For shortening: a type defining a shared vector of WSubject pointers.
+     */
+    typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType;
 
     /**
      * Constructs a dummy subject.
@@ -73,34 +86,59 @@ public:
     WPersonalInformation getPersonalInformation() const;
 
     /**
-     * Get the pointer to the i'th WDataSet. The return type is const since we
-     * want to ensure that each DataSet cannot modified after retrival.
-     * \param dataSetId the number of the data set to retrieve
+     * Insert a new dataset referenced by a pointer.
+     *
+     * \param dataset a pointer to the dataset that will be added
      */
-    boost::shared_ptr< WDataSet > getDataSet( const unsigned int dataSetId ) const;
+    void addDataSet( boost::shared_ptr< WDataSet > dataset );
 
     /**
-     * Returns a shared_ptr to the i'th WSubject. The return type is const since we
-     * want to ensure that a subject cannot be modified after retrieval.
-     * \param dataSetId the number of the data set to retrieve
+     * Removes the specified dataset if it is in the set.
+     *
+     * \param dataset the dataset to remove.
      */
-    boost::shared_ptr< const WDataSet > operator[]( const unsigned int dataSetId ) const;
+    void removeDataSet( boost::shared_ptr< WDataSet > dataset );
 
     /**
-     * Get the number of DataSets which are actually handled by our subject.
+     * Remove all datasets from the subjects.
      */
-    unsigned int getNumberOfDataSets() const;
+    void clear();
+
+    /**
+     * Returns the dataset which corresponds to the specified ID. It throws an exception, if the dataset does not exists anymore.
+     *
+     * \param datasetID the ID to search the dataset for
+     *
+     * \return the dataset.
+     *
+     * \throw WNoSuchDataSet in case the dataset can't be found.
+     *
+     * \note you should avoid this function. Do NOT store ID's. They may change.
+     */
+    boost::shared_ptr< WDataSet > getDataSetByID( size_t datasetID );
+
+    /**
+     * Gets an access object which allows thread save iteration over the datasets.
+     *
+     * \return the access object.
+     */
+    DatasetSharedContainerType::WSharedAccess getAccessObject();
 
 protected:
+
+    /**
+     * A container for all WDataSet.
+     */
+    DatasetSharedContainerType m_datasets;
+
+    /**
+     * The access object used for thread safe access.
+     */
+    DatasetSharedContainerType::WSharedAccess m_datasetAccess;
 
 private:
 
     WPersonalInformation m_personalInfo; //!< Information on the person represented by this WSubject.
-
-    /**
-     * A container for all WDataSets belonging to the subject.
-     */
-    std::vector< boost::shared_ptr< WDataSet > > m_dataSets;
 };
 
 #endif  // WSUBJECT_H

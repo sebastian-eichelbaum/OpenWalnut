@@ -54,7 +54,7 @@ void WDataHandler::addSubject( boost::shared_ptr< WSubject > subject )
     WLogger::getLogger()->addLogMessage( "Adding subject with ID \"" +
                                          boost::lexical_cast< std::string >( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
                                          + subject->getName() + "\".",
-                                         "Data Handler", LL_INFO );
+                                         "Data Handler", LL_DEBUG );
 
     // simply add the new subject
     m_subjects.push_back( subject );
@@ -67,11 +67,32 @@ void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
     WLogger::getLogger()->addLogMessage( "Removing subject with ID \"" +
                                          boost::lexical_cast< std::string >( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
                                          + subject->getName() + "\".",
-                                         "Data Handler", LL_INFO );
+                                         "Data Handler", LL_DEBUG );
 
     // iterate and find, remove
     remove( m_subjectAccess->get().begin(), m_subjectAccess->get().end(), subject );
 
+    m_subjectAccess->endWrite();
+}
+
+void WDataHandler::clear()
+{
+    m_subjectAccess->beginWrite();
+
+    WLogger::getLogger()->addLogMessage( "Removing all subjects.", "Data Handler", LL_INFO );
+
+    for ( SubjectContainerType::const_iterator iter = m_subjectAccess->get().begin(); iter != m_subjectAccess->get().end();
+            ++iter )
+    {
+
+        WLogger::getLogger()->addLogMessage( "Removing subject \"" +
+                boost::lexical_cast< std::string >( ( *iter )->getPersonalInformation().getSubjectID() ) + "\".",
+                "Data Handler", LL_DEBUG );
+
+        ( *iter )->clear();
+    }
+
+    m_subjectAccess->get().clear();
     m_subjectAccess->endWrite();
 }
 

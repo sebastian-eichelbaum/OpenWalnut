@@ -24,19 +24,25 @@
 
 #include <string>
 
+#include <boost/lexical_cast.hpp>
+
+#include "../common/WLogger.h"
+
 #include "WSubject.h"
 #include "exceptions/WDHNoSuchDataSet.h"
 
 
-WSubject::WSubject()
-    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
-      m_dataSets( 0 )
+WSubject::WSubject():
+    m_datasets(),
+    m_datasetAccess( m_datasets.getAccessObject() ),
+    m_personalInfo( WPersonalInformation::createDummyInformation() )
 {
 }
 
-WSubject::WSubject( WPersonalInformation personInfo )
-    : m_personalInfo( personInfo ),
-      m_dataSets( 0 )
+WSubject::WSubject( WPersonalInformation personInfo ):
+    m_datasets(),
+    m_datasetAccess( m_datasets.getAccessObject() ),
+    m_personalInfo( personInfo )
 {
 }
 
@@ -50,24 +56,54 @@ WPersonalInformation WSubject::getPersonalInformation() const
     return m_personalInfo;
 }
 
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
+void WSubject::addDataSet( boost::shared_ptr< WDataSet > dataset )
 {
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
+    // simply add the new dataset
+    m_datasets.push_back( dataset );
 }
 
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
+void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
 {
-    return getDataSet( dataSetId );
+    m_datasetAccess->beginWrite();
+
+    // iterate and find, remove
+    remove( m_datasetAccess->get().begin(), m_datasetAccess->get().end(), dataset );
+
+    m_datasetAccess->endWrite();
 }
 
-/*void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
+void WSubject::clear()
 {
-    m_dataSets.push_back( newDataSet );
-}*/
+    m_datasetAccess->beginWrite();
 
-unsigned int WSubject::getNumberOfDataSets() const
-{
-    return m_dataSets.size();
+    // iterate and find, remove
+    m_datasetAccess->get().clear();
+
+    m_datasetAccess->endWrite();
 }
+
+boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
+{
+    m_datasetAccess->beginRead();
+
+    // search it
+    boost::shared_ptr< WDataSet > result;
+    try
+    {
+        result = m_datasetAccess->get().at( datasetID );
+    }
+    catch( std::out_of_range& e )
+    {
+        throw WDHNoSuchDataSet();
+    }
+
+    m_datasetAccess->endWrite();
+
+    return result;
+}
+
+WSubject::DatasetSharedContainerType::WSharedAccess WSubject::getAccessObject()
+{
+    return m_datasets.getAccessObject();
+}
+
