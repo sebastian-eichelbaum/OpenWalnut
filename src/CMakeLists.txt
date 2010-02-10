@@ -219,7 +219,7 @@ ADD_CUSTOM_TARGET( vtest
 #-------------------------------------------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET( cicheck
-                   COMMAND make stylecheck && make test
+                   COMMAND make stylecheck && make test && make doc
                    COMMENT "Checks if all is well to commit"
                  )
 

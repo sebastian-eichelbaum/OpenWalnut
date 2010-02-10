@@ -64,9 +64,9 @@ void WMFiberCulling::moduleMain()
     // and behaves as if the appropriate conditions have had fired. But it is
     // not detectable how many times a condition has fired.
     m_moduleState.setResetable();
-
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
     m_moduleState.add( m_run.getCondition() );
+
     ready();
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
@@ -81,9 +81,9 @@ void WMFiberCulling::moduleMain()
         {
             m_rawDataset = m_fiberInput->getData();
             assert( m_rawDataset.get() );
-            infoLog() << "Starting creation of new WDataSetFiberVector out of WDataSetFibers";
+            infoLog() << "Start: WDataSetFibers => WDataSetFiberVector";
             m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
-            infoLog() << "Starting creation of new WDataSetFiberVector out of WDataSetFibers";
+            infoLog() << "Stop:  WDataSetFibers => WDataSetFiberVector";
         }
 
         if( m_savePath.empty() )
@@ -178,8 +178,7 @@ void WMFiberCulling::slotPropertyChanged( std::string propertyName )
         }
         else
         {
-            // instead of WLogger we must use std::cerr since WLogger needs to much time!
-            std::cerr << propertyName << std::endl;
+            std::cerr << propertyName << std::endl; // we must use std::cerr since WLogger needs to much time!
             assert( 0 && "This property name is not supported by this function yet." );
         }
     }
@@ -232,7 +231,9 @@ void WMFiberCulling::cullOutFibers()
     progress->finish();
 
     boost::shared_ptr< const WDataSetFiberVector > result =  m_dataset->generateDataSetOutOfUsedFibers( unusedFibers );
+    infoLog() << "Start: WDataSetFibers <= WDataSetFiberVector";
     m_output->updateData( result->toWDataSetFibers() );
+    infoLog() << "Stop:  WDataSetFibers <= WDataSetFiberVector";
 
     infoLog() << "Erasing done.";
     infoLog() << "Culled out " << numFibers - m_output->getData()->size() << " fibers";

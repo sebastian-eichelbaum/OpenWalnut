@@ -159,6 +159,11 @@ private:
      */
     boost::shared_ptr< WDataSetSingle > blurClusters() const;
 
+    /**
+     * Updates the output with new cluster.
+     */
+    void updateOutput();
+
     bool m_dLtTableExists; //!< Flag whether there is already a dLt look up table or not.
 
     /**
@@ -169,6 +174,8 @@ private:
 
     boost::shared_ptr< WDataSetFiberVector > m_fibs; //!< Reference to the WDataSetFiberVector object
 
+    boost::shared_ptr< WDataSetFibers > m_rawFibs; //!< Reference to the WDataSetFibers object
+
     double m_maxDistance_t; //!< Maximum distance of two fibers in one cluster.
 
     std::vector< WFiberCluster > m_clusters; //!< Stores all WFiberClusters
@@ -177,7 +184,7 @@ private:
 
     unsigned int m_minClusterSize; //!< All clusters up to this size will be discarded
 
-    bool m_separatePrimitives; //!< If true each cluster has its own OSG node
+//    bool m_separatePrimitives; //!< If true each cluster has its own OSG node
 
     /**
      * Proximity threshold, which defines the minimum distance which should be
@@ -192,12 +199,18 @@ private:
     /**
      * Input connector for a fiber dataset.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetFiberVector > > m_fiberInput;
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
 
     /**
      * Output connector for the first cluster.
      */
     boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_output;
+
+    WBoolFlag m_run; //!< If and only if it is true then this Algo is executed.
+
+    WBoolFlag m_updateOutput; //!< If and only if it is true then the module updates its output connectors
+
+    WBoolFlag m_active; //!< When the module is inactive all changed properties should be dirty (except the active prop itself)
 
     /**
      * OSG node for this module. All other OSG nodes of this module should be
