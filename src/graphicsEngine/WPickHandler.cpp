@@ -156,20 +156,13 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         pickPos[2] = hitr->getLocalIntersectPoint()[2];
 
         WPickInfo pickInfo( extractSuitableName( hitr ), pickPos, WPickInfo::NONE );
-//         std::ostringstream os;
-//         os << "Object \"" <<  extractSuitableName( hitr ) << "\"" << std::endl;
-//         m_lastPick = extractSuitableName( hitr );
-
-//         os << "        local coords vertex(" << hitr->getLocalIntersectPoint() << ")" << "  normal(" << hitr->getLocalIntersectNormal() << ")"
-//                 << std::endl;
-//         os << "        world coords vertex(" << hitr->getWorldIntersectPoint() << ")" << "  normal(" << hitr->getWorldIntersectNormal() << ")"
-//                 << std::endl;
-//         m_hitResult += os.str();
 
         m_hitResult = pickInfo;
 
         osg::Vec3 globalHit = hitr->getWorldIntersectPoint();
         m_hitPosGlobal = wmath::WPosition( globalHit[0], globalHit[1], globalHit[2] );
+
+        m_lastPick = pickInfo;
     }
     m_pickSignal( getHitResult() );
 }
