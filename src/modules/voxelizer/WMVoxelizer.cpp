@@ -56,7 +56,9 @@ WMVoxelizer::WMVoxelizer()
       m_drawBoundingBox( true ),
       m_lighting( true ),
       m_drawVoxels( true ),
-      m_rasterAlgo( "WBresenham" )
+      m_rasterAlgo( "WBresenham" ),
+      m_update( new WCondition(), false ),
+      m_active( new WCondition(), false )
 {
 }
 
@@ -71,28 +73,112 @@ boost::shared_ptr< WModule > WMVoxelizer::factory() const
 
 void WMVoxelizer::moduleMain()
 {
+    m_moduleState.setResetable();
     m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
+    m_moduleState.add( m_update.getCondition() );
 
     ready();
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        m_clusters = m_input->getData();
-        if ( !( m_clusters.get() ) ) // ok, the output has not yet sent data
+        if ( !m_input->getData() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;
         }
 
-        if( m_properties->findProp( "active" ) && m_properties->getValue< bool >( "active" ) )
+        if( m_update.get() || m_clusters != m_input->getData() )
         {
+            if(  m_clusters != m_input->getData() )
+            {
+                debugLog() << "Input data has changed";
+            }
+            m_update.set( true ); // in case input data has changed
+            m_clusters = m_input->getData();
             update();
+            m_update.set( false );
+            m_properties->reemitChangedValueSignals();
         }
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
+    }
+}
+void WMVoxelizer::properties()
+{
+    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "antialiased", m_antialiased, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "drawfibers", m_drawfibers, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "drawBoundingBox", m_drawBoundingBox, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "lighting", m_lighting, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addString( "rasterAlgo", m_rasterAlgo, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "drawVoxels", m_drawVoxels, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+}
 
-        // May be called twice
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode.get() );
+void WMVoxelizer::slotPropertyChanged( std::string propertyName )
+{
+    assert( m_properties->findProp( propertyName ) );
+    if( m_update.get() || !m_active.get() )
+    {
+        if( propertyName == "active" &&  m_properties->getValue< bool >( propertyName ) )
+        {
+            m_active.set( m_properties->getValue< bool >( propertyName ) );
+            m_properties->reemitChangedValueSignals();
+        }
+        else
+        {
+            m_properties->findProp( propertyName )->dirty( true );
+            debugLog() << "Property: " << propertyName << " marked as dirty";
+        }
+    }
+    else
+    {
+        if( propertyName == "active" )
+        {
+            if ( m_properties->getValue< bool >( propertyName ) )
+            {
+                m_osgNode->setNodeMask( 0xFFFFFFFF );
+            }
+            else
+            {
+                m_osgNode->setNodeMask( 0x0 );
+            }
+        }
+        else if( propertyName == "lighting" ) // TODO(math): This is a classical example for node callbacks
+        {
+            m_lighting = m_properties->getValue< bool >( propertyName );
+            if( m_lighting )
+            {
+                m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+            }
+            else
+            {
+                m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+            }
+        }
+        else // perform update
+        {
+            if( propertyName == "antialiased" )
+            {
+                m_antialiased = m_properties->getValue< bool >( propertyName );
+            }
+            else if( propertyName == "drawfibers" )
+            {
+                m_drawfibers = m_properties->getValue< bool >( propertyName );
+            }
+            else if( propertyName == "drawBoundingBox" )
+            {
+                m_drawBoundingBox = m_properties->getValue< bool >( propertyName );
+            }
+            else if( propertyName == "rasterAlgo" )
+            {
+                m_rasterAlgo = m_properties->getValue< std::string >( propertyName );
+            }
+            else if( propertyName == "drawVoxels" )
+            {
+                m_drawVoxels = m_properties->getValue< bool >( propertyName );
+            }
+            m_update.set( true );
+        }
     }
 }
 
@@ -223,13 +309,16 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
     const std::list< size_t >& fiberIDs = m_clusters->getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();
 
+    debugLog() << "Cluster indices to voxelize: " << fiberIDs;
+    debugLog() << "Using: " << m_clusters->getDataSetReference() << " as fiber dataset";
+
     assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
     assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
     assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
-        algo->raster( fibs[*cit] );
+        algo->raster( fibs.at( *cit ) );
     }
     // TODO(math): This is just a line for testing purposes
 //    wmath::WLine l;
@@ -253,74 +342,6 @@ void WMVoxelizer::connectors()
     WModule::connectors();  // call WModules initialization
 }
 
-void WMVoxelizer::properties()
-{
-    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "antialiased", m_antialiased, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "drawfibers", m_drawfibers, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "drawBoundingBox", m_drawBoundingBox, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "lighting", m_lighting, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addString( "rasterAlgo", m_rasterAlgo, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "drawVoxels", m_drawVoxels, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-}
-
-void WMVoxelizer::slotPropertyChanged( std::string propertyName )
-{
-    if( propertyName == "active" )
-    {
-        if ( m_properties->getValue< bool >( propertyName ) )
-        {
-            m_osgNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_osgNode->setNodeMask( 0x0 );
-        }
-    }
-    else if( propertyName == "antialiased" )
-    {
-        m_antialiased = m_properties->getValue< bool >( propertyName );
-        update();
-    }
-    else if( propertyName == "drawfibers" )
-    {
-        m_drawfibers = m_properties->getValue< bool >( propertyName );
-        update();
-    }
-    else if( propertyName == "drawBoundingBox" )
-    {
-        m_drawBoundingBox = m_properties->getValue< bool >( propertyName );
-        update();
-    }
-    else if( propertyName == "lighting" )
-    {
-        m_lighting = m_properties->getValue< bool >( propertyName );
-        if( m_lighting )
-        {
-            m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
-        }
-        else
-        {
-            m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-        }
-    }
-    else if( propertyName == "rasterAlgo" )
-    {
-        m_rasterAlgo = m_properties->getValue< std::string >( propertyName );
-        update();
-    }
-    else if( propertyName == "drawVoxels" )
-    {
-        m_drawVoxels = m_properties->getValue< bool >( propertyName );
-        update();
-    }
-    else
-    {
-        // instead of WLogger we must use std::cerr since WLogger needs to much time!
-        std::cerr << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
-}
 
 std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
 {

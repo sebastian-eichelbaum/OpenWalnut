@@ -36,6 +36,7 @@
 #include <boost/thread/thread.hpp>
 
 #include "WLogEntry.h"
+#include "WStringUtils.h"
 #include "WThreadedRunner.h"
 
 /**
@@ -311,6 +312,7 @@ namespace wlog
 
     template< typename T > inline WStreamedLogger WStreamedLogger::operator<<( const T& loggable )
     {
+        using string_utils::operator<<; // incase we want to log arrays or vectors
         m_buffer->m_logString << loggable;
         return *this;
     }
