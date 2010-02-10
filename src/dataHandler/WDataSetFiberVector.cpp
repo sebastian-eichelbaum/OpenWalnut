@@ -55,6 +55,7 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fi
         wlog::error( "WDataSetFiberVector" ) << "During constructing a WDataSetFiberVector out of an empty WDataSetFibers";
         return;
     }
+    setFileName( fiberDS->getFileName() );
     size_t numLines = fiberDS->size();
     const std::vector< size_t >& lineLengths = *fiberDS->getLineLengths();
     reserve( numLines );

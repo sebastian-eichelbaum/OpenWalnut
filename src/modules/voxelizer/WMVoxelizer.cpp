@@ -84,7 +84,10 @@ void WMVoxelizer::moduleMain()
             continue;
         }
 
-        update();
+        if( m_properties->findProp( "active" ) && m_properties->getValue< bool >( "active" ) )
+        {
+            update();
+        }
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
