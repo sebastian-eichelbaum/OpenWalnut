@@ -44,8 +44,12 @@ class WColor;
  * engine.
  * \ingroup gui
  */
-class WQtGLWidget: public QWidget
-//class WQtGLWidget: public QGLWidget
+class WQtGLWidget
+#ifdef _WIN32
+    : public QWidget
+#else
+    : public QGLWidget
+#endif
 {
 public:
     /**
