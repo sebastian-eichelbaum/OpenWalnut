@@ -62,10 +62,9 @@ public:
     /**
      * getter for the bitfield
      *
-     * \param index of the associated fiber dataset
      * \return the bitfield
      */
-    boost::shared_ptr< std::vector< bool > > getBitField( unsigned int index );
+    boost::shared_ptr< std::vector< bool > > getBitField();
 
     /**
      * creates and adds a bitfield to the list
@@ -111,10 +110,14 @@ private:
 
     boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores a pointer to the roi manager
 
-    std::list< boost::shared_ptr< std::vector<bool> > >m_bitFields; //!< list of bit fields for each fiber dataset
+    boost::shared_ptr< std::vector<bool> >m_bitField; //!< list of bit fields for each fiber dataset
 
     std::list< boost::shared_ptr< WRMROIRepresentation> > m_rois; //!< list of rois in this this branch,
                                                                   // first in the list is the master roi
+    /**
+     * lock to prevent concurrent threads trying to update the branch
+     */
+    boost::shared_mutex m_updateLock;
 };
 
 #endif  // WRMBRANCH_H

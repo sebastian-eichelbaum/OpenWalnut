@@ -118,12 +118,32 @@ public:
     boost::shared_ptr< std::vector< size_t > > getVerticesReverse() const;
 
     /**
+     * Getter
+     */
+    boost::shared_ptr< std::vector< float > > getTangents() const;
+
+    /**
+     * Getter
+     */
+    boost::shared_ptr< std::vector< float > > getColors() const;
+
+
+
+    /**
      * returns the position in space for a vertex of a given fiber
      *
      * \param fiber
      * \param vertex
      */
     wmath::WPosition getPosition( size_t fiber, size_t vertex ) const;
+
+    /**
+     * calculates the tangent for a point on the fiber
+     *
+     * \param fiber
+     * \param vertex
+     */
+    wmath::WPosition getTangent( size_t fiber, size_t vertex ) const;
 
 protected:
 
@@ -134,9 +154,19 @@ protected:
 
 private:
     /**
-     * Point vector for all fibers that is actually usable for what we want to do
+     * Point vector for all fibers
      */
     boost::shared_ptr< std::vector< float > > m_vertices;
+
+    /**
+     * Point vector for tangents at each vertex, used for fake tubes
+     */
+    boost::shared_ptr< std::vector< float > > m_tangents;
+
+    /**
+     * color vector for tangents at each vertex, used for fake tubes
+     */
+    boost::shared_ptr< std::vector< float > > m_colors;
 
     /**
      * Line vector that contains the start index of its first point for each line.

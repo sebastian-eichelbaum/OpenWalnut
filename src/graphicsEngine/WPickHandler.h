@@ -47,6 +47,7 @@
 #include <osgText/Text>
 
 #include "../math/WPosition.h"
+#include "WPickInfo.h"
 
 /**
  * class to handle events with a pick
@@ -76,17 +77,12 @@ public:
     /**
      * Gives information about the picked object.
      */
-    std::string getHitResult();
-
-    /**
-     * Returns the position where the first object was picked.
-     */
-    wmath::WPosition getHitPosition();
+    WPickInfo getHitResult();
 
     /**
      * returns the m_pickSignal to for registering to it.
      */
-    boost::signals2::signal1< void, std::string >* getPickSignal();
+    boost::signals2::signal1< void, WPickInfo >* getPickSignal();
 
 protected:
     /**
@@ -100,12 +96,11 @@ protected:
      */
     virtual ~WPickHandler();
 
-    std::string m_hitResult; //!< Textual representation of the result of a pick.
-    wmath::WPosition m_hitPosGlobal; //!< Global coordinates of the first hit of the pick.
-    std::string m_lastPick; //!< indicates what was last picked. Should be "" after unpick.
+    WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
+    WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
 
 private:
-    boost::signals2::signal1<void, std::string > m_pickSignal; //!< One can register to this signal to receive pick events.
+    boost::signals2::signal1<void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.
 };
 
 #endif  // WPICKHANDLER_H

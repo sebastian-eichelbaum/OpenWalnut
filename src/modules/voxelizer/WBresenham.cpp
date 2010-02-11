@@ -190,6 +190,23 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
         m_values[ idx ] = 1.0;
         return;
     }
+
+    // if the voxel is on a "border" of the dataset antialiasing would write over the bounds
+    // hence if the voxel is at least "margin" positions away from the border antialiasing
+    // takes place, but not at the borders
+    // ATM we have just a fixed margin of size 1
+    int margin = 1;
+    int nbXInt = m_grid->getNbCoordsX();
+    int nbYInt = m_grid->getNbCoordsY();
+    int nbZInt = m_grid->getNbCoordsZ();
+    if( voxel[0] < margin || voxel[0] >= nbXInt - 1 ||
+        voxel[1] < margin || voxel[1] >= nbYInt - 1 ||
+        voxel[2] < margin || voxel[2] >= nbZInt - 1
+      )
+    {
+        return; // otherwise we would write over the bounds
+    }
+
     if( axis == -1 ) // just mark ONE voxel even in antialising mode!
     {
         return;

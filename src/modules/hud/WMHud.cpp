@@ -196,12 +196,16 @@ void WMHud::init()
     viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 
-void WMHud::updatePickText( std::string text )
+void WMHud::updatePickText( WPickInfo pickInfo )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-    m_pickText = text;
+    std::ostringstream os;
+    os << pickInfo.getName() << "\n"
+       << pickInfo.getPickPosition() << "\n"
+       << pickInfo.getPickPixelPosition().first << " " << pickInfo.getPickPixelPosition().second;
+    m_pickText = os.str();
 
     lock.unlock();
 }

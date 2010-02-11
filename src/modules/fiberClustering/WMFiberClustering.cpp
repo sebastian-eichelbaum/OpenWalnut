@@ -83,7 +83,6 @@ void WMFiberClustering::moduleMain()
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
     m_moduleState.add( m_run.getCondition() );
     m_moduleState.add( m_updateOutput.getCondition() );
-    m_moduleState.add( m_active.getCondition() );
 
     ready();
 
@@ -151,8 +150,8 @@ void WMFiberClustering::properties()
 //                           false,
 //                           "If true each cluster has its own OSG node"
 //                         )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "GO", false, false, "initiate run"
-                         )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "GO", false, false, "initiate run" )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "invisible fibers", false, false )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
 }
 
 void WMFiberClustering::updateOutput()
@@ -175,9 +174,9 @@ void WMFiberClustering::updateOutput()
 
 void WMFiberClustering::slotPropertyChanged( std::string propertyName )
 {
+    assert( m_properties->findProp( propertyName ) );
     if( m_run.get() || m_updateOutput.get() || !m_active.get() )
     {
-        assert( m_properties->findProp( propertyName ) );
         if( propertyName == "active" &&  m_properties->getValue< bool >( propertyName ) )
         {
             m_active.set( m_properties->getValue< bool >( propertyName ) );
@@ -192,15 +191,19 @@ void WMFiberClustering::slotPropertyChanged( std::string propertyName )
     else
     {
         debugLog() << "Property: " << propertyName << " has changed";
-        if( propertyName == "active" )
+        if( propertyName == "active" || propertyName == "invisible fibers" )
         {
             if( m_osgNode )
             {
-                if ( m_properties->getValue< bool >( propertyName ) )
+                if ( m_properties->getValue< bool >( "active" ) )
                 {
                     m_osgNode->setNodeMask( 0xFFFFFFFF );
+                    if( m_properties->getValue< bool >( "invisible fibers" ) )
+                    {
+                        m_osgNode->setNodeMask( 0x0 );
+                    }
                 }
-                else
+                else if( !m_properties->getValue< bool >( "active" ) )
                 {
                     m_osgNode->setNodeMask( 0x0 );
                     m_active.set( false );
@@ -227,11 +230,6 @@ void WMFiberClustering::slotPropertyChanged( std::string propertyName )
         {
             m_clusterOutputID = m_properties->getValue< size_t >( propertyName );
             m_updateOutput.set( true );
-        }
-        else
-        {
-            std::cerr << propertyName << std::endl; // we must use std::cerr since WLogger needs to much time!
-            assert( 0 && "This property name is not supported by this function yet." );
         }
     }
 }

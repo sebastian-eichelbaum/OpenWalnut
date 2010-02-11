@@ -154,7 +154,6 @@ protected:
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< Output connector for a voxelized cluster
-
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
     osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module
@@ -168,6 +167,9 @@ private:
     bool m_lighting; //!< Enable/Disable lighting
     bool m_drawVoxels; //!< Enable/Disable drawing of marked voxels
     std::string m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
+
+    WBoolFlag m_update; //!< True if and only if the module is performing an update, since then no property/input changes should take place.
+    WBoolFlag m_active; //!< True if and only if the module is running, since then no property/input changes should take place.
 };
 
 inline const std::string WMVoxelizer::getName() const

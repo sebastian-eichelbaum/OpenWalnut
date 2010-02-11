@@ -341,6 +341,17 @@ public:
     boost::shared_ptr< std::vector< wmath::WPosition > > getVoxelVertices( const wmath::WPosition& point,
                                                                            const double margin = 0.0 ) const;
 
+    /**
+     * Return the list of neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured
+     */
+    std::vector< size_t > getNeighbours( size_t id ) const;
+
 protected:
 private:
     /**

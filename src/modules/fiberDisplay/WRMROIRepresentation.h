@@ -66,10 +66,9 @@ public:
     /**
      * getter for bit field for a selected fiber dataset
      *
-     *\param index
      * \return the bit field
      */
-    boost::shared_ptr< std::vector< bool > > getBitField( unsigned int index );
+    boost::shared_ptr< std::vector< bool > > getBitField();
 
     /**
      * adds a bit field of a given size to the list of bit fields
@@ -131,7 +130,7 @@ private:
 
     boost::shared_ptr< WRMBranch > m_branch; //!< stores a pointer to the branch this roi belongs to
 
-    std::list< boost::shared_ptr< std::vector<bool> > >m_bitFields; //!< list of bit fields, one for each loaded
+    boost::shared_ptr< std::vector<bool> >m_bitField; //!< list of bit fields, one for each loaded
                                                                     // fiber dataset
 
     /**
@@ -158,7 +157,7 @@ private:
     std::vector<float> m_boxMax; //!< upper boundary of the box, used for boxtest
 
     /**
-     * lock to prevent concurrent threads trying to update the osg node
+     * lock to prevent concurrent threads trying to update the roi
      */
     boost::shared_mutex m_updateLock;
 

@@ -54,45 +54,36 @@ boost::shared_ptr< WROI > WRMROIRepresentation::getROI()
     return m_roi;
 }
 
-boost::shared_ptr< std::vector< bool > > WRMROIRepresentation::getBitField( unsigned int index )
+boost::shared_ptr< std::vector< bool > > WRMROIRepresentation::getBitField()
 {
     if ( m_dirty )
     {
         recalculate();
     }
-    unsigned int c = 0;
-    for( std::list< boost::shared_ptr< std::vector<bool> > >::iterator iter = m_bitFields.begin(); iter != m_bitFields.end(); ++iter )
-    {
-        if ( c == index)
-        {
-            return *iter;
-        }
-        ++c;
-    }
-    return boost::shared_ptr< std::vector< bool > >();
+    return m_bitField;
 }
 
 void WRMROIRepresentation::addBitField( size_t size )
 {
     boost::shared_ptr< std::vector< bool > >bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
-    m_bitFields.push_back( bf );
+    m_bitField = bf;
     setDirty();
 }
 
 void WRMROIRepresentation::recalculate()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+//    boost::shared_lock<boost::shared_mutex> slock;
+//    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
     //std::cout << "roi recalc" << std::endl;
-    m_currentBitfield = m_bitFields.front();
+    m_currentBitfield = m_bitField;
     size_t size = m_currentBitfield->size();
     m_currentBitfield->clear();
     m_currentBitfield->resize( size, false );
 
-    m_currentArray = m_branch->getRoiManager()->getDataSet( 0 )->getVertices();
-    m_currentReverse = m_branch->getRoiManager()->getDataSet( 0 )->getVerticesReverse();
-    m_kdTree = m_branch->getRoiManager()->getKdTree( 0 );
+    m_currentArray = m_branch->getRoiManager()->getDataSet()->getVertices();
+    m_currentReverse = m_branch->getRoiManager()->getDataSet()->getVerticesReverse();
+    m_kdTree = m_branch->getRoiManager()->getKdTree();
 
     m_boxMin.resize( 3 );
     m_boxMax.resize( 3 );
@@ -117,7 +108,7 @@ void WRMROIRepresentation::recalculate()
 //    std::cout << "active fibers:" << counter << std::endl;
     m_dirty = false;
 
-    slock.unlock();
+    //slock.unlock();
 }
 
 void WRMROIRepresentation::boxTest( int left, int right, int axis )

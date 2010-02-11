@@ -294,12 +294,6 @@ boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr<
     return &m_moduleButtonSignal;
 }
 
-
-boost::signals2::signal1< void, std::string >* WMainWindow::getPickSignal()
-{
-    return m_mainGLWidget->getPickSignal();
-}
-
 WIconManager*  WMainWindow::getIconManager()
 {
     return &m_iconManager;

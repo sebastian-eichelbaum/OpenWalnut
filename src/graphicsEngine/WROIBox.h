@@ -26,11 +26,13 @@
 #define WROIBOX_H
 
 #include <string>
+#include <utility>
 
 #include <boost/thread.hpp>
 
 #include "../math/WPosition.h"
 #include "WPickHandler.h"
+#include "WGEViewer.h"
 
 #include "WROI.h"
 
@@ -71,20 +73,30 @@ private:
     wmath::WPosition m_maxPos; //!< The maximum position of the box
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
     wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
+    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
 
-    std::string m_pickText; //!< Stores the pick text that contains information for potential redraw
+    WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
+
+    boost::shared_ptr< WGEViewer > m_viewer; //!< makes viewer available all over this class.
 
     /**
      * note that there was a pick
-     * \param text info from pick
+     * \param pickInfo info from pick
      */
-    void registerRedrawRequest( std::string text );
+    void registerRedrawRequest( WPickInfo pickInfo );
 
     /**
      *  updates the graphics
      */
     virtual void updateGFX();
+
+    /**
+     * Get wordl coordinates from screen coordinates.
+     * \return the world coordinates.
+     * \param screen the screen coordinates in pixels and z depth. 
+     */
+    osg::Vec3 unprojectFromScreen( const osg::Vec3 screen );
 
     /**
      * Node callback to handle updates properly

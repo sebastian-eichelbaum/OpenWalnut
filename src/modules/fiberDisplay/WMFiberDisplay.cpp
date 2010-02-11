@@ -42,6 +42,7 @@ WMFiberDisplay::WMFiberDisplay()
     : WModule(),
       m_osgNode( osg::ref_ptr< osg::Group >() )
 {
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "fake-tubes" ) );
 }
 
 WMFiberDisplay::~WMFiberDisplay()
@@ -58,96 +59,8 @@ const char** WMFiberDisplay::getXPMIcon() const
     return fiberdisplay_xpm;
 }
 
-osg::ref_ptr< osg::Geode > WMFiberDisplay::genFiberGeode()
-{
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    m_globalColors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    m_localColors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    m_geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-
-    vertices->reserve( m_dataset->getVertices()->size() );
-    m_globalColors->reserve( m_dataset->getVertices()->size() );
-    m_localColors->reserve( m_dataset->getVertices()->size() );
-
-    boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
-    boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
-    boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
-
-    size_t vertexNum = 0;
-    WColor gc;
-    WColor lc;
-
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber Display", m_dataset->size() ) );
-    m_progress->addSubProgress( progress );
-
-    for( size_t j = 0; j < m_dataset->size(); ++j )
-    {
-        vertices->push_back( osg::Vec3( verts->at( 3 * vertexNum ), verts->at( 3 * vertexNum + 1 ), verts->at( 3 * vertexNum + 2 ) ) );
-        ++vertexNum;
-
-        gc = getRGBAColorFromDirection( m_dataset->getPosition( j, 0 ), m_dataset->getPosition( j,  pointsPerLine->at( j ) - 1 ) );
-
-        for( size_t i = 1; i < pointsPerLine->at( j ); ++i )
-        {
-            vertices->push_back( osg::Vec3( verts->at( 3 * vertexNum ), verts->at( 3 * vertexNum + 1 ), verts->at( 3 * vertexNum + 2 ) ) );
-            ++vertexNum;
-
-            lc = getRGBAColorFromDirection( m_dataset->getPosition( j, i ), m_dataset->getPosition( j, i - 1 ) );
-
-            m_localColors->push_back( wge::osgColor( lc ) );
-            m_globalColors->push_back( wge::osgColor( gc ) );
-        }
-        m_localColors->push_back( wge::osgColor( lc ) );
-        m_globalColors->push_back( wge::osgColor( gc ) );
-
-        m_geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIndexes->at( j ), pointsPerLine->at( j ) ) );
-
-        ++*progress;
-    }
-
-    progress->finish();
-
-    m_geometry->setVertexArray( vertices );
-    m_geometry->setColorArray( m_globalColors );
-    m_geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-
-    m_geometry->setUseDisplayList( false );
-    m_geometry->setUseVertexBufferObjects( true );
-
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( m_geometry.get() );
-
-    return geode;
-}
-
 void WMFiberDisplay::updateColoring()
 {
-    if ( m_properties->getValue< bool >( "Local Color" ) )
-    {
-        m_geometry->setColorArray( m_localColors );
-    }
-    else
-    {
-        m_geometry->setColorArray( m_globalColors );
-    }
-}
-
-void WMFiberDisplay::updateLinesShown()
-{
-    boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
-    boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
-
-    boost::shared_ptr< std::vector< bool > >active = WKernel::getRunningKernel()->getRoiManager()->getBitField( m_dataset );
-
-    m_geometry->removePrimitiveSet( 0, m_geometry->getNumPrimitiveSets() );
-    for( size_t i = 0; i < active->size(); ++i )
-    {
-        if ( active->at( i ) )
-        {
-            m_geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIndexes->at( i ), pointsPerLine->at( i ) ) );
-        }
-    }
 }
 
 void WMFiberDisplay::moduleMain()
@@ -198,9 +111,9 @@ void WMFiberDisplay::update()
 
     if ( WKernel::getRunningKernel()->getRoiManager()->isDirty() )
     {
-        //std::cout << "fd update" << std::endl;
-        updateLinesShown();
+        m_tubeDrawable->dirtyDisplayList();
     }
+
     slock.unlock();
 }
 
@@ -211,7 +124,15 @@ void WMFiberDisplay::create()
 
     // create new node
     m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
-    m_osgNode->addChild( genFiberGeode().get() );
+
+    m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
+    m_tubeDrawable->setDataset( m_dataset );
+
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( m_tubeDrawable );
+
+    m_osgNode->addChild( geode );
+
     m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 
@@ -236,6 +157,26 @@ void WMFiberDisplay::properties()
     // this bool is hidden
     m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
     m_properties->addBool( "Local Color", false )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
+    m_properties->addBool( "Use Tubes", false )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
+}
+
+void WMFiberDisplay::toggleTubes()
+{
+    if ( m_properties->getValue< bool >( "Use Tubes" ) )
+    {
+        m_tubeDrawable->setUseTubes( true );
+        m_tubeDrawable->dirtyDisplayList();
+
+        m_shader->apply( m_osgNode );
+        osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) );
+        osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
+        rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) ) );
+    }
+    else
+    {
+        m_tubeDrawable->setUseTubes( false );
+        m_tubeDrawable->dirtyDisplayList();
+    }
 }
 
 void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
@@ -255,6 +196,11 @@ void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
     {
         updateColoring();
     }
+    else if ( propertyName == "Use Tubes" )
+    {
+        toggleTubes();
+    }
+
     else
     {
         // instead of WLogger we must use std::cerr since WLogger needs to much time!

@@ -25,10 +25,13 @@
 #include <list>
 #include <vector>
 
+#include "WUpdateThread.h"
 #include "WROIManagerFibers.h"
 
 WROIManagerFibers::WROIManagerFibers()
 {
+    m_activeBitField = 0;
+    m_recalcLock = false;
 }
 
 WROIManagerFibers::~WROIManagerFibers()
@@ -46,10 +49,7 @@ void WROIManagerFibers::addRoi( boost::shared_ptr< WROI > newRoi )
     // add branch to list
     m_branches.push_back( newBranch );
     // add bit fields
-    for ( std::list< boost::shared_ptr< const WDataSetFibers > >::iterator iter = m_fiberList.begin(); iter != m_fiberList.end(); ++iter )
-    {
-        newBranch->addBitField( ( *iter ).get()->size() );
-    }
+    newBranch->addBitField( m_fibers.get()->size() );
 
     for ( std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > >::iterator iter = m_notifiers.begin(); iter
             != m_notifiers.end(); ++iter )
@@ -74,10 +74,7 @@ void WROIManagerFibers::addRoi( boost::shared_ptr< WROI > newRoi, boost::shared_
     // create roi
     boost::shared_ptr< WRMROIRepresentation > rroi = boost::shared_ptr< WRMROIRepresentation >( new WRMROIRepresentation( newRoi, branch ) );
     // add bit fields
-    for ( std::list< boost::shared_ptr< const WDataSetFibers > >::iterator iter = m_fiberList.begin(); iter != m_fiberList.end(); ++iter )
-    {
-        rroi->addBitField( ( *iter ).get()->size() );
-    }
+    rroi->addBitField( m_fibers.get()->size() );
     // add roi to branch
     branch->addRoi( rroi );
 
@@ -94,51 +91,40 @@ void WROIManagerFibers::removeRoi( boost::shared_ptr< WROI > /*roi */ )
 
 void WROIManagerFibers::addFiberDataset( boost::shared_ptr< const WDataSetFibers > fibers )
 {
-    m_fiberList.push_back( fibers );
+    m_fibers = fibers;
 
     boost::shared_ptr< std::vector< float > > verts = fibers->getVertices();
-    m_kdTreeList.push_back( boost::shared_ptr< WKdTree >( new WKdTree( fibers->getVertices()->size() / 3, &( ( *verts )[0] ) ) ) );
+    m_kdTree = boost::shared_ptr< WKdTree >( new WKdTree( verts->size() / 3, &( ( *verts )[0] ) ) );
 
     addBitField( fibers->size() );
+
+    setDirty();
 }
 
 void WROIManagerFibers::removeFiberDataset( boost::shared_ptr< const WDataSetFibers > /*fibers*/ )
 {
 }
 
-boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getBitField( boost::shared_ptr< const WDataSetFibers > fibers )
+boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getBitField()
 {
-    if ( m_dirty )
+    m_dirty = false;
+    if ( m_activeBitField == 0 )
     {
-        recalculate();
+        return m_bitField;
     }
-
-    unsigned int c = 0;
-    for ( std::list< boost::shared_ptr< const WDataSetFibers > >::iterator iter = m_fiberList.begin(); iter != m_fiberList.end(); ++iter )
+    else
     {
-        if ( *iter == fibers )
-        {
-            break;
-        }
-        ++c;
+        return m_bitField2;
     }
-
-    unsigned int index = 0;
-    for ( std::list< boost::shared_ptr< std::vector< bool > > >::iterator iter = m_bitFields.begin(); iter != m_bitFields.end(); ++iter )
-    {
-        if ( c == index )
-        {
-            return ( *iter );
-        }
-        ++index;
-    }
-    return boost::shared_ptr< std::vector< bool > >();
 }
 
 void WROIManagerFibers::addBitField( size_t size )
 {
     boost::shared_ptr< std::vector< bool > > bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
-    m_bitFields.push_back( bf );
+    m_bitField = bf;
+    boost::shared_ptr< std::vector< bool > > bf2 = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
+    m_bitField2 = bf2;
+
     for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
         ( *iter ).get()->addBitField( size );
@@ -148,15 +134,37 @@ void WROIManagerFibers::addBitField( size_t size )
 
 void WROIManagerFibers::recalculate()
 {
-    //    std::cout << "roi manager recalc" << std::endl;
-    boost::shared_ptr< std::vector< bool > > mbf = m_bitFields.front();
+//    boost::unique_lock<boost::shared_mutex> slock;
+//    slock = boost::unique_lock<boost::shared_mutex>( m_updateLock );
+    if ( m_recalcLock )
+        return;
+    m_recalcLock = true;
+
+    boost::shared_ptr< std::vector< bool > > mbf;
+    if ( m_activeBitField == 0 )
+    {
+        mbf = m_bitField2;
+    }
+    else
+    {
+        mbf = m_bitField;
+    }
     int size = mbf->size();
     mbf->clear();
 
     if ( m_branches.empty() )
     {
         mbf->resize( size, true );
-        m_dirty = false;
+        if ( m_activeBitField == 0 )
+        {
+            m_activeBitField = 1;
+        }
+        else
+        {
+            m_activeBitField = 0;
+        }
+        m_recalcLock = false;
+        //slock.unlock();
         return;
     }
     else
@@ -164,59 +172,43 @@ void WROIManagerFibers::recalculate()
         mbf->resize( size, false );
     }
 
-
     for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
-        boost::shared_ptr< std::vector< bool > > bf = ( *iter )->getBitField( 0 );
+        boost::shared_ptr< std::vector< bool > > bf = ( *iter )->getBitField();
 
         for ( size_t i = 0; i < mbf->size(); ++i )
         {
             mbf->at( i ) = mbf->at( i ) | bf->at( i );
         }
     }
+    if ( m_activeBitField == 0 )
+    {
+        m_activeBitField = 1;
+    }
+    else
+    {
+        m_activeBitField = 0;
+    }
+    m_dirty = true;
 
-    //    int counter = 0;
-    //    for (int i = 0 ; i < mbf->size() ; ++i)
-    //    {
-    //        if ( mbf->at(i) )
-    //            ++counter;
-    //    }
-    //    std::cout << "active fibers total :" << counter << std::endl;
-
-    m_dirty = false;
+    //slock.unlock();
+    m_recalcLock = false;
 }
 
 void WROIManagerFibers::setDirty()
 {
-    m_dirty = true;
+    WUpdateThread* t = new WUpdateThread( shared_from_this() );
+    t->run();
 }
 
-boost::shared_ptr< const WDataSetFibers > WROIManagerFibers::getDataSet( unsigned int index )
+boost::shared_ptr< const WDataSetFibers > WROIManagerFibers::getDataSet()
 {
-    unsigned int c = 0;
-    for ( std::list< boost::shared_ptr< const WDataSetFibers > >::iterator iter = m_fiberList.begin(); iter != m_fiberList.end(); ++iter )
-    {
-        if ( index == c )
-        {
-            return *iter;
-        }
-        ++c;
-    }
-    return boost::shared_ptr< const WDataSetFibers >();
+    return m_fibers;
 }
 
-boost::shared_ptr< WKdTree > WROIManagerFibers::getKdTree( unsigned int index )
+boost::shared_ptr< WKdTree > WROIManagerFibers::getKdTree()
 {
-    unsigned int c = 0;
-    for ( std::list< boost::shared_ptr< WKdTree > >::iterator iter = m_kdTreeList.begin(); iter != m_kdTreeList.end(); ++iter )
-    {
-        if ( index == c )
-        {
-            return *iter;
-        }
-        ++c;
-    }
-    return boost::shared_ptr< WKdTree >();
+    return m_kdTree;
 }
 
 bool WROIManagerFibers::isDirty()

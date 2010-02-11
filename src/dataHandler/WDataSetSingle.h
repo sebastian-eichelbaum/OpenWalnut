@@ -80,7 +80,16 @@ public:
      * \param y index in y direction
      * \param z index in z direction
      */
-    template < typename T > T getValueAt( int x, int y, int z );
+    template< typename T > T getValueAt( int x, int y, int z );
+
+    /**
+     * Get the value stored at a certain grid position of the data set
+     *
+     * \param id The id'th value in the data set
+     *
+     * \return Scalar value for that given position
+     */
+    template< typename T > T getValueAt( size_t id );
 
     /**
      * Determines whether this dataset can be used as a texture.
@@ -141,7 +150,7 @@ private:
     boost::shared_ptr< WDataTexture3D > m_texture3D;
 };
 
-template < typename T > T WDataSetSingle::getValueAt( int x, int y, int z )
+template< typename T > T WDataSetSingle::getValueAt( int x, int y, int z )
 {
     boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
@@ -152,4 +161,9 @@ template < typename T > T WDataSetSingle::getValueAt( int x, int y, int z )
     return v;
 }
 
+template< typename T > T WDataSetSingle::getValueAt( size_t id )
+{
+    boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
+    return vs->getScalar( id );
+}
 #endif  // WDATASETSINGLE_H

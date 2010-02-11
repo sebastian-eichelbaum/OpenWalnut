@@ -69,9 +69,9 @@ public:
     /**
      * Sets pick text member vairable
      *
-     * \param text the pick text
+     * \param pickInfo information about the pick
      */
-    void updatePickText( std::string text );
+    void updatePickText( WPickInfo pickInfo );
 
 protected:
 

@@ -194,11 +194,6 @@ boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadBu
     return m_mainWindow->getLoaderSignal();
 }
 
-boost::signals2::signal1< void, std::string >* WQt4Gui::getPickSignal()
-{
-    return m_mainWindow->getPickSignal();
-}
-
 boost::shared_ptr< WCustomWidget > WQt4Gui::openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
     boost::shared_ptr< WCondition > shutdownCondition )
 {
