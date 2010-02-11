@@ -98,6 +98,7 @@ protected:
 
     WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
     WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
+    bool m_shift; //!< is shift pressed?
 
 private:
     boost::signals2::signal1<void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.

@@ -239,10 +239,32 @@ void WROIBox::updateGFX()
             wmath::WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
 
             osg::Vec3Array* vertices = new osg::Vec3Array;
-            m_minPos += moveVec;
-            m_maxPos += moveVec;
-            setVertices( vertices, m_minPos, m_maxPos );
-            ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setVertexArray( vertices );
+
+            // resize Box
+            if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT && m_pickInfo.getPickNormal() != wmath::WVector3D() )
+            {
+                wmath::WVector3D normal = m_pickInfo.getPickNormal();
+                if( normal[0] <= 0 && normal[1] <= 0 && normal[2] <= 0 )
+                {
+                    m_maxPos += normal * ( moveVec * normal );
+                }
+                if( normal[0] >= 0 && normal[1] >= 0 && normal[2] >= 0 )
+                {
+                    m_minPos += normal * ( moveVec * normal );
+                }
+
+                setVertices( vertices, m_minPos, m_maxPos );
+                ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setVertexArray( vertices );
+            }
+
+            // move Box
+            if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
+            {
+                m_minPos += moveVec;
+                m_maxPos += moveVec;
+                setVertices( vertices, m_minPos, m_maxPos );
+                ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setVertexArray( vertices );
+            }
         }
         else
         {

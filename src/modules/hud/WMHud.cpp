@@ -198,9 +198,11 @@ void WMHud::updatePickText( WPickInfo pickInfo )
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
     std::ostringstream os;
-    os << pickInfo.getName() << "\n"
-       << pickInfo.getPickPosition() << "\n"
-       << pickInfo.getPickPixelPosition().first << " " << pickInfo.getPickPixelPosition().second;
+    os << "Name: " << pickInfo.getName() << "\n"
+       << "Position: " << pickInfo.getPickPosition() << "\n"
+       << "Pixel coordinates: " << pickInfo.getPickPixelPosition().first << " " << pickInfo.getPickPixelPosition().second << "\n"
+       << "Object normal: " << pickInfo.getPickNormal();
+
     m_pickText = os.str();
 
     lock.unlock();
