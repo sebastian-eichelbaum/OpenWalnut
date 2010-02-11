@@ -124,7 +124,7 @@ boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
     return result;
 }
 
-std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures()
+std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bool onlyActive )
 {
     std::vector< boost::shared_ptr< WDataTexture3D > > tex;
 
@@ -134,7 +134,7 @@ std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures()
     for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
     {
         // is it a texture?
-        if ( ( *iter )->isTexture() )
+        if ( ( *iter )->isTexture() && ( !onlyActive || ( *iter )->getTexture()->isGloballyActive() ) )
         {
             tex.push_back( ( *iter )->getTexture() );
         }

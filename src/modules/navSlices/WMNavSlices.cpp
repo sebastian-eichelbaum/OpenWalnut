@@ -412,10 +412,10 @@ void WMNavSlices::updateGeometry()
     osg::ref_ptr<osg::Drawable> oldz = osg::ref_ptr<osg::Drawable>( m_zSliceNode->getDrawable( 0 ) );
     m_zSliceNode->replaceDrawable( oldz, zSliceGeometry );
 
-    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
-    bool noTexture = ( dsl.size() == 0 );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    bool noSlices = ( tex.size() == 0 ) || !m_active->get() ;
 
-    if ( m_showAxial->get() && !noTexture )
+    if ( m_showAxial->get() && !noSlices )
     {
         m_zSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -424,7 +424,7 @@ void WMNavSlices::updateGeometry()
         m_zSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_showCoronal->get() && !noTexture )
+    if ( m_showCoronal->get() && !noSlices )
     {
         m_xSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -433,7 +433,7 @@ void WMNavSlices::updateGeometry()
         m_xSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_showSagittal->get() && !noTexture )
+    if ( m_showSagittal->get() && !noSlices )
     {
         m_ySliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -456,7 +456,7 @@ void WMNavSlices::updateTextures()
         m_textureChanged = false;
 
         // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures();
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
         if ( tex.size() > 0 )
         {
@@ -471,21 +471,18 @@ void WMNavSlices::updateTextures()
             int c = 0;
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
-                if ( ( *iter )->isGloballyActive() )
-                {
-                    osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
-                    rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                    // set threshold/opacity as uniforms
-                    float t = ( *iter )->getThreshold() / 255.0;
-                    float a = ( *iter )->getAlpha();
+                // set threshold/opacity as uniforms
+                float t = ( *iter )->getThreshold() / 255.0;
+                float a = ( *iter )->getAlpha();
 
-                    m_typeUniforms[c]->set( ( *iter )->getDataType() );
-                    m_thresholdUniforms[c]->set( t );
-                    m_alphaUniforms[c]->set( a );
+                m_typeUniforms[c]->set( ( *iter )->getDataType() );
+                m_thresholdUniforms[c]->set( t );
+                m_alphaUniforms[c]->set( a );
 
-                    ++c;
-                }
+                ++c;
             }
         }
     }

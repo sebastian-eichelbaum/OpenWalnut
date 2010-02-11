@@ -135,9 +135,10 @@ public:
     /**
      * This gives a list of data textures from all supporting datasets in this subject.
      *
+     * \param onlyActive true whenever only textures should be returned where isGloballyActive() == true.
      * \return the list of textures.
      */
-    std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures();
+    std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures( bool onlyActive = false );
 
     /**
      * Gets an access object which allows thread save iteration over the datasets.
