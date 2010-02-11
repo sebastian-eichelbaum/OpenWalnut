@@ -49,6 +49,7 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     m_lineLengths( lineLengths ),
     m_verticesReverse( verticesReverse )
 {
+    // TODO(schurade): replace this with a permanent solution
     for ( size_t i = 0; i < m_vertices->size(); ++i )
     {
         m_vertices->at( i ) = 160 - m_vertices->at( i );
@@ -56,6 +57,74 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
         m_vertices->at( i ) = 200 - m_vertices->at( i );
         ++i;
         //m_pointArray[i] = m_dh->frames - m_pointArray[i];
+    }
+
+    m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
+    m_tangents->resize( m_vertices->size() );
+    m_colors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
+    m_colors->resize( m_vertices->size() );
+
+    int pc = 0;
+    float r, g, b, rr, gg, bb;
+    float x1, x2, y1, y2, z1, z2;
+    float lastx, lasty, lastz;
+    for ( size_t i = 0; i < m_lineLengths->size(); ++i )
+    {
+        x1 = m_vertices->at( pc );
+        y1 = m_vertices->at( pc + 1 );
+        z1 = m_vertices->at( pc + 2 );
+        x2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 3 );
+        y2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 2 );
+        z2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 1 );
+
+        r = ( x1 ) - ( x2 );
+        g = ( y1 ) - ( y2 );
+        b = ( z1 ) - ( z2 );
+        if ( r < 0.0 )
+            r *= -1.0;
+        if ( g < 0.0 )
+            g *= -1.0;
+        if ( b < 0.0 )
+            b *= -1.0;
+
+        float norm = sqrt( r * r + g * g + b * b );
+        r *= 1.0 / norm;
+        g *= 1.0 / norm;
+        b *= 1.0 / norm;
+
+        lastx = m_vertices->at( pc ) + ( m_vertices->at( pc ) - m_vertices->at( pc + 3 ) );
+        lasty = m_vertices->at( pc + 1 ) + ( m_vertices->at( pc + 1 ) - m_vertices->at( pc + 4 ) );
+        lastz = m_vertices->at( pc + 2 ) + ( m_vertices->at( pc + 2 ) - m_vertices->at( pc + 5 ) );
+
+        for ( size_t j = 0; j < m_lineLengths->at( i ); ++j )
+        {
+            rr = lastx - m_vertices->at( pc );
+            gg = lasty - m_vertices->at( pc + 1 );
+            bb = lastz - m_vertices->at( pc + 2 );
+            lastx = m_vertices->at( pc );
+            lasty = m_vertices->at( pc + 1 );
+            lastz = m_vertices->at( pc + 2 );
+
+//            if ( rr < 0.0 )
+//                rr *= -1.0;
+//            if ( gg < 0.0 )
+//                gg *= -1.0;
+//            if ( bb < 0.0 )
+//                bb *= -1.0;
+            float norm = sqrt( rr * rr + gg * gg + bb * bb );
+            rr *= 1.0 / norm;
+            gg *= 1.0 / norm;
+            bb *= 1.0 / norm;
+
+            m_tangents->at( pc ) = rr;
+            m_tangents->at( pc + 1 ) = gg;
+            m_tangents->at( pc + 2 ) = bb;
+
+            m_colors->at( pc ) = r;
+            m_colors->at( pc + 1 ) = g;
+            m_colors->at( pc + 2 ) = b;
+            pc += 3;
+        }
     }
 }
 
@@ -114,9 +183,46 @@ boost::shared_ptr< std::vector< size_t > > WDataSetFibers::getVerticesReverse() 
     return m_verticesReverse;
 }
 
+boost::shared_ptr< std::vector< float > > WDataSetFibers::getTangents() const
+{
+    return m_tangents;
+}
+
+boost::shared_ptr< std::vector< float > > WDataSetFibers::getColors() const
+{
+    return m_colors;
+}
+
+
 wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
 {
     size_t index = m_lineStartIndexes->at( fiber ) * 3;
     index += vertex * 3;
     return wmath::WPosition( m_vertices->at( index ), m_vertices->at( index + 1 ), m_vertices->at( index + 2 ) );
+}
+
+wmath::WPosition WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
+{
+    wmath::WPosition point = getPosition( fiber, vertex );
+    wmath::WPosition tangent;
+
+    if ( vertex == 0 ) // first point
+    {
+        wmath::WPosition pointNext = getPosition( fiber, vertex + 1 );
+        tangent = point - pointNext;
+    }
+    else if ( vertex == m_lineLengths->at( fiber ) - 1 ) // last point
+    {
+        wmath::WPosition pointBefore = getPosition( fiber, vertex - 1 );
+        tangent = pointBefore - point;
+    }
+    else // somewhere in between
+    {
+        wmath::WPosition pointBefore = getPosition( fiber, vertex - 1 );
+        wmath::WPosition pointNext = getPosition( fiber, vertex + 1 );
+        tangent = pointBefore - pointNext;
+    }
+
+    tangent.normalize();
+    return tangent;
 }

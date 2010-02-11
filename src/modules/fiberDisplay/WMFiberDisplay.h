@@ -33,7 +33,10 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
+#include "../../graphicsEngine/WShader.h"
 #include "../../math/WPosition.h"
+
+#include "WTubeDrawable.h"
 
 /**
  * Test module for drawing fibers
@@ -91,13 +94,6 @@ protected:
     virtual void moduleMain();
 
     /**
-     * Generates an OSG geometry for the given fiber dataset.
-     *
-     * \return OSG geometry representing the fiber.
-     */
-    osg::ref_ptr< osg::Geode > genFiberGeode();
-
-    /**
      * Initialize the connectors this module is using.
      */
     virtual void connectors();
@@ -117,11 +113,6 @@ protected:
      * initial creation of the osg geometry
      */
     void create();
-
-    /**
-     * Deletes the primitive list and adds only the avtivated
-     */
-    void updateLinesShown();
 
     /**
      * Switches the osg to use the appropriate color array
@@ -146,25 +137,20 @@ private:
     osg::ref_ptr< osg::Group > m_osgNode;
 
     /**
-     * OSG geometry
-     * this pointer is stored for reuse when updating fibers to display
+     * stores pointer to the fiber drawer
      */
-    osg::ref_ptr< osg::Geometry > m_geometry;
-
-    /**
-     * Array that stores the global (direction) color for each fiber
-     */
-    osg::ref_ptr< osg::Vec4Array > m_globalColors;
-
-    /**
-     * Array that stores the local (direction) color for each fiber
-     */
-    osg::ref_ptr< osg::Vec4Array > m_localColors;
+    osg::ref_ptr< WTubeDrawable > m_tubeDrawable;
 
     /**
      * lock to prevent concurrent threads trying to update the osg node
      */
     boost::shared_mutex m_updateLock;
+
+    /**
+     * the shader object for this module
+     */
+    osg::ref_ptr< WShader >m_shader;
+
 
     /**
      * calculates a color from the vector between two points in space
@@ -174,6 +160,10 @@ private:
      */
     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
 
+    /**
+     * switches between fiber display and tube representation
+     */
+    void toggleTubes();
 
     /**
      * Node callback to handle updates properly
