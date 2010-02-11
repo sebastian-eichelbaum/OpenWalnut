@@ -123,7 +123,9 @@ WPropString WProperties2::addProperty( std::string name, std::string description
 
 WPropFilename WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
 }
 
 WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial, bool hide )
@@ -181,7 +183,9 @@ WPropString WProperties2::addProperty( std::string name, std::string description
 WPropFilename WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
                                          boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
 }
 
 WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
@@ -242,7 +246,9 @@ WPropString WProperties2::addProperty( std::string name, std::string description
 WPropFilename WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
 }
 
 WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
@@ -310,7 +316,9 @@ WPropFilename WProperties2::addProperty( std::string name, std::string descripti
                                      boost::shared_ptr< WCondition > condition,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
 }
 
 WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,

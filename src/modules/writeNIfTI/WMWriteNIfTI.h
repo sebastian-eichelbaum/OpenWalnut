@@ -73,12 +73,6 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
-    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
      *
@@ -111,9 +105,13 @@ protected:
 private:
     /**
      * This performs all work neccessary to actually write the data to the file
-     * \param fileName The data set will be written to this file.
      */
-    void writeToFile( std::string fileName );
+    void writeToFile();
+
+    /**
+     * The filename property -> where to write the nifty file
+     */
+    WPropFilename m_filename;
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.

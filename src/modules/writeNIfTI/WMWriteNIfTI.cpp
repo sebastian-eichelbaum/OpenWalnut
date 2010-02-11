@@ -102,6 +102,7 @@ const std::string WMWriteNIfTI::getDescription() const
 void WMWriteNIfTI::moduleMain()
 {
     // use the m_input "data changed" flag
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
 
     // signal ready state
@@ -110,7 +111,6 @@ void WMWriteNIfTI::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        sleep( 3 ); // TODO(wiebel): remove this
         // acquire data from the input connector
         m_dataSet = m_input->getData();
         if ( !m_dataSet )
@@ -121,7 +121,6 @@ void WMWriteNIfTI::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        assert( m_dataSet );
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
@@ -140,31 +139,21 @@ void WMWriteNIfTI::connectors()
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
-
     // call WModules initialization
     WModule::connectors();
 }
 
 void WMWriteNIfTI::properties()
 {
-    ( m_properties->addString( "File Name" ) )->connect( boost::bind( &WMWriteNIfTI::slotPropertyChanged, this, _1 ) );
+    m_filename = m_properties2->addProperty( "Filename", "Filename where to write the nifty file to.", WKernel::getAppPathObject() );
+
+    // bind a custom callback, triggered whenever the filename changes
+    m_filename->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
 }
 
-void WMWriteNIfTI::slotPropertyChanged( std::string propertyName )
+void WMWriteNIfTI::writeToFile()
 {
-    if( propertyName == "File Name" )
-    {
-        writeToFile( m_properties->getValue< std::string >( propertyName ) );
-    }
-    else
-    {
-        std::cout << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
-}
-
-void WMWriteNIfTI::writeToFile( std::string fileName )
-{
+    infoLog() << "Writing Data to " << m_filename->get().file_string();
     nifti_image *outField = nifti_simple_init_nim();
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
@@ -207,12 +196,12 @@ void WMWriteNIfTI::writeToFile( std::string fileName )
 
     outField->data = static_cast<void*>( data );
 
-    if( nifti_set_filenames( outField, fileName.c_str(), 0, 1 ) )
+    if( nifti_set_filenames( outField, m_filename->get().file_string().c_str(), 0, 1 ) )
     {
         throw WException( "NIfTI filename Problem" );
     }
 
     nifti_image_write( outField );
     nifti_image_free( outField );
-    infoLog() << "Writing data completed." << std::endl;
+    infoLog() << "Writing data completed.";
 }
