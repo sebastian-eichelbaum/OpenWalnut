@@ -341,6 +341,8 @@ public:
     boost::shared_ptr< std::vector< wmath::WPosition > > getVoxelVertices( const wmath::WPosition& point,
                                                                            const double margin = 0.0 ) const;
 
+    std::vector< size_t > getNeighbours( size_t id ) const;
+
 protected:
 private:
     /**

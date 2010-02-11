@@ -33,6 +33,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../common/exceptions/WOutOfBounds.h"
 #include "../../math/test/WVector3DTraits.h"
 #include "../WGridRegular3D.h"
 
@@ -412,21 +413,76 @@ public:
         //    |      |      |
         // 0,0,0   1,0,0  2,0,0
 
-        using boost::shared_ptr;
-        shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
+        WGridRegular3D  g( 3, 3, 3, 0, 0, 0, 1, 1, 1 );
 
         // center point of the grid
-        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 1, 1, 1 ) ), 13 );
+        TS_ASSERT_EQUALS( g.getVoxelNum( wmath::WPosition( 1, 1, 1 ) ), 13 );
 
         // front lower left corner of the last cell
-        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 1.5, 1.5, 1.5 ) ), 26 );
+        TS_ASSERT_EQUALS( g.getVoxelNum( wmath::WPosition( 1.5, 1.5, 1.5 ) ), 26 );
 
-        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 1, 1, 0.5 ) ), 13 );
-        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0 , 1.5 , 1 ) ), 15 );
-        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0.5, 1, 0 ) ), 4 );
+        TS_ASSERT_EQUALS( g.getVoxelNum( wmath::WPosition( 1, 1, 0.5 ) ), 13 );
+        TS_ASSERT_EQUALS( g.getVoxelNum( wmath::WPosition( 0 , 1.5 , 1 ) ), 15 );
+        TS_ASSERT_EQUALS( g.getVoxelNum( wmath::WPosition( 0.5, 1, 0 ) ), 4 );
 
         // origin
-        TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 0, 0, 0 ) ), 0 );
+        TS_ASSERT_EQUALS( g.getVoxelNum( wmath::WPosition( 0, 0, 0 ) ), 0 );
+    }
+
+    /**
+     * A voxel inside a grid (not located on a border) has 6 neighbours.
+     */
+    void testNeighboursInsideAGrid( void )
+    {
+        WGridRegular3D g( 3, 3, 3, 0, 0, 0, 1, 1, 1 );
+        size_t data[] = { 12, 14, 10, 16, 4, 22 };
+        std::vector< size_t > expected( data, data + 6 );
+        TS_ASSERT_EQUALS( expected, g.getNeighbours( 13 ) );
+    }
+
+    /**
+     * A voxel with voxel-coordinates 0,0,0 has only three neighbours: 1,0,0; 0,1,0 and 0,0,1.
+     */
+    void testNeighboursOnFrontLowerLeft( void )
+    {
+        WGridRegular3D g( 3, 3, 3, 0, 0, 0, 1, 1, 1 );
+        size_t data[] = { 1, 3, 9 };
+        std::vector< size_t > expected( data, data + 3 );
+        TS_ASSERT_EQUALS( expected, g.getNeighbours( 0 ) );
+    }
+
+    /**
+     * A voxel in the back upper right corner should also have only 3 neighbours.
+     */
+    void testNeighbourOnBackUpperRight( void )
+    {
+        WGridRegular3D g( 3, 3, 3, 0, 0, 0, 1, 1, 1 );
+        size_t data[] = { 25, 23, 17 };
+        std::vector< size_t > expected( data, data + 3 );
+        TS_ASSERT_EQUALS( expected, g.getNeighbours( 26 ) );
+    }
+
+    /**
+     * A Voxel on a border plane should have neighbours on the plane but not
+     * out side the grid.
+     */
+    void testNeighbourOnLeftBorderPlane( void )
+    {
+        WGridRegular3D g( 3, 3, 3, 0, 0, 0, 1, 1, 1 );
+        size_t data[] = { 13, 9, 15, 3, 21 };
+        std::vector< size_t > expected( data, data + 5 );
+        TS_ASSERT_EQUALS( expected, g.getNeighbours( 12 ) );
+    }
+
+    /**
+     * If the neighbours of a voxel not inside this grid are requested an Exception
+     * WOutOfBounds should be thrown.
+     */
+    void testNeighbourOfVoxelNotInsideThisGrid( void )
+    {
+        WGridRegular3D g( 3, 3, 3, 0, 0, 0, 1, 1, 1 );
+        TS_ASSERT_THROWS_EQUALS( g.getNeighbours( 27 ), const WOutOfBounds &e, std::string( e.what() ),
+                "This point: 27 is not part of this grid:  nbPosX: 3 nbPosY: 3 nbPosZ: 3" );
     }
 
 private:
