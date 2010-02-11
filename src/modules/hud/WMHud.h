@@ -135,11 +135,10 @@ private:
     void update();
 
     /**
-     * Gets signaled from the properties object when something was changed
-     *
-     * \param propertyName the name of the property that has changed
+     * Gets signaled from the properties object when something was changed. Now, only m_active is used. This method therefore simply
+     * activates/deactivates the HUD.
      */
-    void slotPropertyChanged( std::string propertyName );
+    void activate();
 
     /**
      * Node callback to handle updates properly
