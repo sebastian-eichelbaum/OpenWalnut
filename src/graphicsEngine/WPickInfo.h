@@ -55,7 +55,7 @@ public:
      * \param pixelCoords pixel coordinates fo the mouse
      * \param modKey relevant modifier key pressed during the pick
      */
-    inline WPickInfo( std::string name, wmath::WPosition pickPosition, std::pair< int, int > pixelCoords, modifierKey modKey );
+    inline WPickInfo( std::string name, wmath::WPosition pickPosition, std::pair< float, float > pixelCoords, modifierKey modKey );
 
     /**
      * Creates an object with the empty name, zero position and no modkey.
@@ -80,7 +80,7 @@ public:
     /**
      * Get pixel coordinates where object was hit.
      */
-    inline std::pair< int, int > getPickPixelPosition();
+    inline std::pair< float, float > getPickPixelPosition();
 
     /**
      * Tests two pick infos for equality
@@ -99,11 +99,11 @@ private:
 
     std::string m_name; //!< name of picked object.
     wmath::WPosition m_pickPosition; //!< position where object was hit.
-    std::pair< int, int > m_pixelCoords; //!< Pixel coordinates of the mouse.
+    std::pair< float, float > m_pixelCoords; //!< Pixel coordinates of the mouse.
     modifierKey m_modKey; //!< modifier key associated with the pick
 };
 
-WPickInfo::WPickInfo( std::string name, wmath::WPosition pickPosition, std::pair< int, int > pixelCoords, modifierKey modKey ) :
+WPickInfo::WPickInfo( std::string name, wmath::WPosition pickPosition, std::pair< float, float > pixelCoords, modifierKey modKey ) :
     m_name( name ),
     m_pickPosition( pickPosition ),
     m_pixelCoords( pixelCoords ),
@@ -134,7 +134,7 @@ wmath::WPosition WPickInfo::getPickPosition()
     return m_pickPosition;
 }
 
-std::pair< int, int > WPickInfo::getPickPixelPosition()
+std::pair< float, float > WPickInfo::getPickPixelPosition()
 {
     return m_pixelCoords;
 }
