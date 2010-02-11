@@ -101,7 +101,7 @@ public:
      *
      * \return the list of properties.
      */
-    const PropertyIterator getPropertyIteratorEnd() const;
+    const PropertyIterator getPropertyIteratorEnd();
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.

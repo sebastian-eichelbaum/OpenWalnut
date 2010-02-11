@@ -172,7 +172,7 @@ const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutput
     return m_outputConnectors;
 }
 
-boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name ) const
+boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name )
 {
     // simply search
     for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
@@ -188,7 +188,7 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
     throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
 }
 
-boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name ) const
+boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name )
 {
     // simply search
     for( std::set<boost::shared_ptr< WModuleOutputConnector > >::iterator listIter = m_outputConnectors.begin();

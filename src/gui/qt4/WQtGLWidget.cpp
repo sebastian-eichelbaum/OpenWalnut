@@ -39,7 +39,8 @@
 
 
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
-    : QGLWidget( parent ),
+    : QWidget( parent ),
+//  : QGLWidget( parent ),
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize(),
       m_isInitialized( new WConditionOneShot(), false ),

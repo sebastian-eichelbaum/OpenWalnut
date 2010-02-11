@@ -40,8 +40,8 @@
 
 #include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
-#include "WBatchLoader.h"
 #include "WModule.h"
+#include "WBatchLoader.h"
 #include "WModuleFactory.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"

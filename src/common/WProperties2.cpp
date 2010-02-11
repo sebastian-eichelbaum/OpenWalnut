@@ -94,7 +94,7 @@ void WProperties2::endIteration()
     m_iterationLock.unlock();
 }
 
-const WProperties2::PropertyIterator WProperties2::getPropertyIteratorEnd() const
+const WProperties2::PropertyIterator WProperties2::getPropertyIteratorEnd()
 {
     return m_properties.end();
 }

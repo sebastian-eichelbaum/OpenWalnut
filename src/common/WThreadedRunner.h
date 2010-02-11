@@ -108,6 +108,8 @@ protected:
     boost::thread* m_Thread;
 #else
     OpenThreads::Thread *m_Thread;
+
+    bool m_firstRun;
 #endif
 
     /**
