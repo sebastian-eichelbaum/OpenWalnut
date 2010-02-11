@@ -86,7 +86,7 @@ public:
     *
     * \param renderInfo
     */
-    virtual void drawImplementation( osg::RenderInfo& renderInfo ) const;
+    virtual void drawImplementation( osg::RenderInfo& renderInfo ) const; //NOLINT
 
     /**
      * sets the dataset pointer which provides access to the necessary array
