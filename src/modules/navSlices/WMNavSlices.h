@@ -127,9 +127,14 @@ protected:
 private:
 
     /**
+     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
+     */
+    void notifyTextureChange();
+
+    /**
      * True when textures haven changed.
      */
-    WPropBool m_textureChanged;
+    bool m_textureChanged;
 
     /**
      * Axial slice position.

@@ -43,6 +43,7 @@ WDataHandler::WDataHandler():
     m_subjectAccess( m_subjects.getAccessObject() )
 {
     WLogger::getLogger()->addLogMessage( "Initializing Data Handler", "Data Handler", LL_INFO );
+    addSubject( boost::shared_ptr< WSubject >( new WSubject( WPersonalInformation::createDummyInformation() ) ) );
 }
 
 WDataHandler::~WDataHandler()
@@ -116,7 +117,7 @@ boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
         throw WDHNoSuchSubject();
     }
 
-    m_subjectAccess->endWrite();
+    m_subjectAccess->endRead();
 
     return result;
 }
@@ -129,5 +130,20 @@ boost::shared_ptr< WDataHandler > WDataHandler::getDataHandler()
     }
 
     return m_instance;
+}
+
+boost::shared_ptr< WSubject > WDataHandler::getDefaultSubject()
+{
+    return getDataHandler()->getSubjectByID( WSubject::SUBJECT_UNKNOWN );
+}
+
+void WDataHandler::registerDataSet( boost::shared_ptr< WDataSet > dataset )
+{
+    getDefaultSubject()->addDataSet( dataset );
+}
+
+void WDataHandler::deregisterDataSet( boost::shared_ptr< WDataSet > dataset )
+{
+    getDefaultSubject()->removeDataSet( dataset );
 }
 

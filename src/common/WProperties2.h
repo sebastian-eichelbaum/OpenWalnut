@@ -34,6 +34,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread.hpp>
 
+#include "WSharedObject.h"
 #include "WPropertyBase.h"
 #include "WPropertyVariable.h"
 
@@ -45,10 +46,32 @@ class WProperties2
 {
 public:
 
+    // the following typedefs are for convenience.
+
     /**
-     * The iterator used to iterate over the property set
+     * For shortening: a type defining a shared vector of WSubject pointers.
      */
-    typedef std::vector< boost::shared_ptr< WPropertyBase > >::const_iterator PropertyIterator;
+    typedef std::vector< boost::shared_ptr< WPropertyBase > > PropertyContainerType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedObject< PropertyContainerType > PropertySharedContainerType;
+
+    /**
+     * The access type
+     */
+    typedef PropertySharedContainerType::WSharedAccess PropertyAccessType;
+
+    /**
+     * The const iterator type of the container.
+     */
+    typedef PropertyContainerType::const_iterator PropertyConstIterator;
+
+    /**
+     * The iterator type of the container.
+     */
+    typedef PropertyContainerType::iterator PropertyIterator;
 
     /**
      * standard constructor
@@ -94,23 +117,11 @@ public:
     boost::shared_ptr< WPropertyBase > findProperty( std::string name );
 
     /**
-     * Iterator over all property elements. This locks the property set for writing. endIteration() frees the lock.
+     * Returns the access object usable to iterate/modify the property list in a thread safe manner.
      *
-     * \return the list of properties.
+     * \return the access control object.
      */
-    const PropertyIterator beginIteration();
-
-    /**
-     * To iterate over all set elements. Use this method to denote the end of iteration. This allows others to write to the set again.
-     */
-    void endIteration();
-
-    /**
-     * Iterator denoting the end of the property set.
-     *
-     * \return the list of properties.
-     */
-    const PropertyIterator getPropertyIteratorEnd() const;
+    PropertySharedContainerType::WSharedAccess getAccessObject();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
@@ -743,19 +754,14 @@ public:
 private:
 
     /**
-     * The set of proerties. This uses the operators ==,<,> WProperty to determine equalnes.
+     * The set of proerties. This uses the operators ==,<,> WProperty to determine equalness.
      */
-    std::vector< boost::shared_ptr< WPropertyBase > > m_properties;
+    PropertySharedContainerType m_properties;
 
     /**
-     * boost mutex object for thread safety of updating of properties
+     * Access to the above property list.
      */
-    boost::shared_mutex m_updateLock;
-
-    /**
-     * The lock for a thread safe iteration.
-     */
-    boost::shared_lock< boost::shared_mutex > m_iterationLock;
+    PropertySharedContainerType::WSharedAccess m_propAccess;
 };
 
 template< typename T>

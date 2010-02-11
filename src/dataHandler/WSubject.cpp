@@ -28,13 +28,15 @@
 
 #include "../common/WLogger.h"
 
-#include "WSubject.h"
+#include "WDataSet.h"
 #include "exceptions/WDHNoSuchDataSet.h"
 
+#include "WSubject.h"
 
 WSubject::WSubject():
     m_datasets(),
     m_datasetAccess( m_datasets.getAccessObject() ),
+    m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_personalInfo( WPersonalInformation::createDummyInformation() )
 {
 }
@@ -42,8 +44,14 @@ WSubject::WSubject():
 WSubject::WSubject( WPersonalInformation personInfo ):
     m_datasets(),
     m_datasetAccess( m_datasets.getAccessObject() ),
+    m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_personalInfo( personInfo )
 {
+}
+
+WSubject::~WSubject()
+{
+    clear();
 }
 
 std::string WSubject::getName() const
@@ -60,6 +68,9 @@ void WSubject::addDataSet( boost::shared_ptr< WDataSet > dataset )
 {
     // simply add the new dataset
     m_datasets.push_back( dataset );
+
+    // also register condition
+    m_changeCondition->add( dataset->getChangeCondition() );
 }
 
 void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
@@ -69,6 +80,9 @@ void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
     // iterate and find, remove
     remove( m_datasetAccess->get().begin(), m_datasetAccess->get().end(), dataset );
 
+    // also deregister condition
+    m_changeCondition->remove( dataset->getChangeCondition() );
+
     m_datasetAccess->endWrite();
 }
 
@@ -77,6 +91,11 @@ void WSubject::clear()
     m_datasetAccess->beginWrite();
 
     // iterate and find, remove
+    for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
+    {
+        // also deregister condition
+        m_changeCondition->remove( ( *iter )->getChangeCondition() );
+    }
     m_datasetAccess->get().clear();
 
     m_datasetAccess->endWrite();
@@ -97,7 +116,7 @@ boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
         throw WDHNoSuchDataSet();
     }
 
-    m_datasetAccess->endWrite();
+    m_datasetAccess->endRead();
 
     return result;
 }
@@ -105,5 +124,10 @@ boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
 WSubject::DatasetSharedContainerType::WSharedAccess WSubject::getAccessObject()
 {
     return m_datasets.getAccessObject();
+}
+
+boost::shared_ptr< WCondition > WSubject::getChangeCondition()
+{
+    return m_changeCondition;
 }
 

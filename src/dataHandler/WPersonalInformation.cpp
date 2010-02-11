@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include "WSubject.h"
+
 #include "WPersonalInformation.h"
 
 WPersonalInformation WPersonalInformation::createDummyInformation()
@@ -32,9 +34,9 @@ WPersonalInformation WPersonalInformation::createDummyInformation()
 }
 
 WPersonalInformation::WPersonalInformation()
-    : m_subjectID( 0 ),
+    : m_subjectID( WSubject::SUBJECT_UNKNOWN ),
       m_subjectCode( "" ),
-      m_lastName( "" ),
+      m_lastName( "UNKNOWN" ),
       m_middleName( "" ),
       m_firstName( "" ),
       m_dateOfBirth( boost::date_time::not_a_date_time ),
@@ -63,7 +65,7 @@ uint64_t WPersonalInformation::getSubjectID() const
 
 void WPersonalInformation::setSubjectID( uint64_t subjectID )
 {
-    assert( subjectID != 0 && "zero is reserved for dummies" );
+    assert( subjectID != WSubject::SUBJECT_UNKNOWN && "zero is reserved for dummies" );
     m_subjectID = subjectID;
 }
 
@@ -79,7 +81,7 @@ std::string WPersonalInformation::getCompleteName() const
 
 void WPersonalInformation::setLastName( std::string lastName )
 {
-    assert( m_subjectID != 0 && "SubjectID is still zero. This is reserved for empty dummies. Set it first." );
+    assert( m_subjectID != WSubject::SUBJECT_UNKNOWN && "SubjectID is still zero. This is reserved for empty dummies. Set it first." );
     m_lastName = lastName;
 }
 

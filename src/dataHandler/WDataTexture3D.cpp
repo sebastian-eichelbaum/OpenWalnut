@@ -25,17 +25,18 @@
 #include <vector>
 
 #include "WDataSetSingle.h"
+#include "../common/WLogger.h"
+#include "../common/WCondition.h"
 
 #include "WDataTexture3D.h"
-
-#include "../common/WLogger.h"
 
 WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid ):
     m_alpha( 1.0 ),
     m_threshold( 0.0 ),
     m_texture( osg::ref_ptr< osg::Texture3D >() ),
     m_valueSet( valueSet ),
-    m_grid( boost::shared_dynamic_cast< WGridRegular3D >( grid ) )
+    m_grid( boost::shared_dynamic_cast< WGridRegular3D >( grid ) ),
+    m_changeCondition( new WCondition() )
 {
     // initialize members
 }
@@ -51,6 +52,11 @@ float WDataTexture3D::getAlpha() const
     return m_alpha;
 }
 
+void WDataTexture3D::setOpacity( float opacity )
+{
+    setAlpha( opacity / 100.0 );
+}
+
 void WDataTexture3D::setAlpha( float alpha )
 {
     if ( ( alpha > 1.0 ) || ( alpha < 0.0 ) )
@@ -59,6 +65,7 @@ void WDataTexture3D::setAlpha( float alpha )
     }
 
     m_alpha = alpha;
+    notifyChange();
 }
 
 float WDataTexture3D::getThreshold() const
@@ -69,6 +76,7 @@ float WDataTexture3D::getThreshold() const
 void WDataTexture3D::setThreshold( float threshold )
 {
     m_threshold = threshold;
+    notifyChange();
 }
 
 osg::ref_ptr< osg::Texture3D > WDataTexture3D::getTexture()
@@ -231,5 +239,15 @@ void WDataTexture3D::createTexture()
         m_texture->setImage( ima );
         m_texture->setResizeNonPowerOfTwoHint( false );
     }
+}
+
+boost::shared_ptr< WCondition > WDataTexture3D::getChangeCondition()
+{
+    return m_changeCondition;
+}
+
+void WDataTexture3D::notifyChange()
+{
+    m_changeCondition->notify();
 }
 

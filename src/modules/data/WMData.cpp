@@ -28,6 +28,8 @@
 #include "../../common/WIOTools.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/exceptions/WDHException.h"
 #ifndef _WIN32
@@ -102,7 +104,7 @@ void WMData::properties()
     // several other properties
     m_interpolation = m_properties2->addProperty( "Interpolation", "Is interpolation active?", true, propertyCallback );
     m_threshold = m_properties2->addProperty( "Threshold", "The value threshold.", 0, propertyCallback );
-    m_opacity =m_properties2->addProperty( "Opacity %", "The opacity of this data on other surfaces.", 100, propertyCallback );
+    m_opacity = m_properties2->addProperty( "Opacity %", "The opacity of this data on other surfaces.", 100, propertyCallback );
     m_opacity->setMax( 100 );
     m_opacity->setMin( 0 );
 }
@@ -115,7 +117,7 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
     }
     else if ( property == m_opacity )
     {
-        m_dataSet->getTexture()->setThreshold( m_opacity->get() );
+        m_dataSet->getTexture()->setOpacity( m_opacity->get() );
     }
 }
 
@@ -194,11 +196,18 @@ void WMData::moduleMain()
     }
 
     debugLog() << "Loading data done.";
+
+    // register at datahandler
+    WDataHandler::registerDataSet( m_dataSet );
+
     // notify
     m_output->updateData( m_dataSet );
     ready();
 
     // go to idle mode
     waitForStop();  // WThreadedRunner offers this for us. It uses boost::condition to avoid wasting CPU cycles with while loops.
+
+    // remove dataset from datahandler
+    WDataHandler::deregisterDataSet( m_dataSet );
 }
 

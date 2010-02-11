@@ -345,8 +345,11 @@ void WQtDatasetBrowser::selectTreeItem()
 
     if ( props.get() )
     {
+        WProperties2::PropertyAccessType propAccess = props->getAccessObject();
+        propAccess->beginRead();
+
         // iterate all properties. This Locks the properties set -> use endIteration to unlock
-        for ( WProperties2::PropertyIterator iter = props->beginIteration(); iter != props->getPropertyIteratorEnd(); ++iter )
+        for ( WProperties2::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
             if ( !( *iter )->isHidden() )
             {
@@ -384,7 +387,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 }
             }
         }
-        props->endIteration();
+        propAccess->endRead();
     }
     tab->addSpacer();
     addTabWidgetContent( tab );

@@ -28,12 +28,14 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Group>
 
 #include "../../dataHandler/WDataSet.h"
+#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -49,7 +51,8 @@
 #include "navslices.xpm"
 
 WMNavSlices::WMNavSlices():
-    WModule()
+    WModule(),
+    m_textureChanged( true )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -106,7 +109,6 @@ void WMNavSlices::properties()
 {
     // NOTE: the appropriate type of addProperty is chosen by the type of the specified initial value.
     // So if you specify a bool as initial value, addProperty will create a WPropBool.
-    m_textureChanged = m_properties2->addProperty( "textureChanged", "Denotes changing textures.", false, true );
     m_showAxial      = m_properties2->addProperty( "showAxial",      "Determines whether the axial slice should be visible.", true, true );
     m_showCoronal    = m_properties2->addProperty( "showCoronal",    "Determines whether the coronal slice should be visible.", true, true );
     m_showSagittal   = m_properties2->addProperty( "showSagittal",   "Determines whether the sagittal slice should be visible.", true, true );
@@ -134,10 +136,20 @@ void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
     // in this case input==m_input
 }
 
+void WMNavSlices::notifyTextureChange()
+{
+    m_textureChanged = true;
+}
+
 void WMNavSlices::moduleMain()
 {
     // signal ready state
     ready();
+
+    // now, to watch changing/new textures use WSubject's change condition
+    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
+            boost::bind( &WMNavSlices::notifyTextureChange, this )
+    );
 
     create();
 
@@ -147,6 +159,9 @@ void WMNavSlices::moduleMain()
     // clean up stuff
     // NOTE: ALLAWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+
+    // deregister from WSubject's change condition
+    con.disconnect();
 }
 
 void WMNavSlices::create()
@@ -436,9 +451,9 @@ void WMNavSlices::updateTextures()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    if ( m_textureChanged->get() && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    /*if ( m_textureChanged && WKernel::getRunningKernel()->getGui()->isInitialized()() )
     {
-        m_textureChanged->set( false );
+        m_textureChanged = false;
         std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
         if ( dsl.size() > 0 )
@@ -466,7 +481,7 @@ void WMNavSlices::updateTextures()
                 ++c;
             }
         }
-    }
+    }*/
     slock.unlock();
 }
 

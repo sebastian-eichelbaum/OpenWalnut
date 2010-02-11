@@ -33,9 +33,8 @@
 #include "WProperties2.h"
 
 WProperties2::WProperties2():
-    m_iterationLock( boost::shared_lock< boost::shared_mutex >( m_updateLock ) )
+    m_propAccess( m_properties.getAccessObject() )
 {
-    m_iterationLock.unlock();
 }
 
 WProperties2::~WProperties2()
@@ -44,9 +43,29 @@ WProperties2::~WProperties2()
 
 void WProperties2::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
-    m_properties.push_back( prop );
-    lock.unlock();
+    m_propAccess->beginWrite();
+    m_propAccess->get().push_back( prop );
+    m_propAccess->endWrite();
+}
+
+boost::shared_ptr< WPropertyBase > WProperties2::findProperty( std::string name )
+{
+    boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
+
+    m_propAccess->beginRead();
+
+    // iterate over the items
+    for ( PropertyContainerType::const_iterator it = m_propAccess->get().begin(); it != m_propAccess->get().end(); ++it )
+    {
+        if ( ( *it )->getName() == name )
+        {
+            result = ( *it );
+            break;
+        }
+    }
+    m_propAccess->endRead();
+
+    return result;
 }
 
 bool WProperties2::existsProperty( std::string name )
@@ -57,7 +76,7 @@ bool WProperties2::existsProperty( std::string name )
 boost::shared_ptr< WPropertyBase > WProperties2::getProperty( std::string name )
 {
     boost::shared_ptr< WPropertyBase > p = findProperty( name );
-    if ( findProperty( name ) == boost::shared_ptr< WPropertyBase >() )
+    if ( p == boost::shared_ptr< WPropertyBase >() )
     {
         throw WPropertyUnknown( "Property \"" + name + "\" can't be found." );
     }
@@ -65,40 +84,10 @@ boost::shared_ptr< WPropertyBase > WProperties2::getProperty( std::string name )
     return p;
 }
 
-boost::shared_ptr< WPropertyBase > WProperties2::findProperty( std::string name )
+WProperties2::PropertySharedContainerType::WSharedAccess WProperties2::getAccessObject()
 {
-    boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
-
-    // iterate over the items
-    for ( PropertyIterator it = beginIteration(); it != getPropertyIteratorEnd(); ++it )
-    {
-        if ( ( *it )->getName() == name )
-        {
-            result = ( *it );
-            break;
-        }
-    }
-    endIteration();
-
-    return result;
+    return m_properties.getAccessObject();
 }
-
-const WProperties2::PropertyIterator WProperties2::beginIteration()
-{
-    m_iterationLock.lock();
-    return m_properties.begin();
-}
-
-void WProperties2::endIteration()
-{
-    m_iterationLock.unlock();
-}
-
-const WProperties2::PropertyIterator WProperties2::getPropertyIteratorEnd() const
-{
-    return m_properties.end();
-}
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for

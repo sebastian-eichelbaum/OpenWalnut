@@ -27,8 +27,12 @@
 
 #include <boost/thread.hpp>
 
+#include "WCondition.h"
+
 /**
- * Wrapper around an object/type for thread safe sharing of objects among multiple threads.
+ * Wrapper around an object/type for thread safe sharing of objects among multiple threads. The advantage of this class over WFlag
+ * is, that WFlag just protects simple get/set operations, while this class can protect a whole bunch of operations on the
+ * encapsulated object.
  */
 template < typename T >
 class WSharedObject
@@ -56,8 +60,18 @@ public:
          * Constructor. It uses the specified mutex which is shared among all access objects of the same WSharedObject.
          *
          * \param mutex the mutex used to lock the access.
+         * \param object the object to be shared.
+         * \param condition the condition that should be used for notifying changes.
          */
-        explicit WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex );
+        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex,  boost::shared_ptr< WCondition > condition );
+
+        /**
+         * Constructor. It uses the specified mutex which is shared among all access objects of the same WSharedObject.
+         *
+         * \param mutex the mutex used to lock the access.
+         * \param object the object to be shared.
+         */
+        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex );
 
         /**
          * Desctructor.
@@ -91,8 +105,10 @@ public:
         /**
          * Frees the lock to the object. If you do not free the lock, no read or write access will be granted in the future. To nobody!
          * So always free the lock.
+         *
+         * \param suppressNotify if true, the change condition won't fire.
          */
-        void endWrite();
+        void endWrite( bool suppressNotify = false );
 
     protected:
 
@@ -115,6 +131,11 @@ public:
          * the object protected.
          */
         T& m_object;
+
+        /**
+         * The pointer to the global change condition. Fired whenever endWrite() got called.
+         */
+        boost::shared_ptr< WCondition > m_objectChangeCondition;
     };
 
     /**
@@ -130,6 +151,13 @@ public:
      */
     WSharedAccess getAccessObject();
 
+    /**
+     * This condition fires whenever the encapsulated object changed. This is fired automatically by endWrite().
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getChangeCondition();
+
 protected:
 
     /**
@@ -142,12 +170,18 @@ protected:
      */
     boost::shared_ptr< boost::shared_mutex > m_lock;
 
+    /**
+     * This condition set fires whenever the contained object changes. This corresponds to the Observable pattern.
+     */
+    boost::shared_ptr< WCondition > m_changeCondition;
+
 private:
 };
 
 template < typename T >
 WSharedObject< T >::WSharedObject():
-    m_lock( new boost::shared_mutex )
+    m_lock( new boost::shared_mutex ),
+    m_changeCondition( new WCondition() )
 {
     // init members
 }
@@ -161,14 +195,24 @@ WSharedObject< T >::~WSharedObject()
 template < typename T >
 typename WSharedObject< T >::WSharedAccess WSharedObject< T >::getAccessObject()
 {
-    return WSharedObject< T >::WSharedAccess( new WSharedObject< T>::WSharedObjectAccess( m_object, m_lock ) );
+    return WSharedObject< T >::WSharedAccess( new WSharedObject< T>::WSharedObjectAccess( m_object, m_lock, m_changeCondition ) );
 }
 
 
 template < typename T >
 WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex ):
     m_lock( mutex ),
-    m_object( object )
+    m_object( object ),
+    m_objectChangeCondition()
+{
+}
+
+template < typename T >
+WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex,
+                                                              boost::shared_ptr< WCondition > condition ):
+    m_lock( mutex ),
+    m_object( object ),
+    m_objectChangeCondition( condition )
 {
 }
 
@@ -199,15 +243,26 @@ void WSharedObject< T >::WSharedObjectAccess::beginWrite()
 }
 
 template < typename T >
-void WSharedObject< T >::WSharedObjectAccess::endWrite()
+void WSharedObject< T >::WSharedObjectAccess::endWrite( bool suppressNotify )
 {
     m_writeLock.unlock();
+
+    if ( !suppressNotify && m_objectChangeCondition.get() )
+    {
+        m_objectChangeCondition->notify();
+    }
 }
 
 template < typename T >
 T& WSharedObject< T >::WSharedObjectAccess::get()
 {
     return m_object;
+}
+
+template < typename T >
+boost::shared_ptr< WCondition > WSharedObject< T >::getChangeCondition()
+{
+    return m_changeCondition;
 }
 
 #endif  // WSHAREDOBJECT_H

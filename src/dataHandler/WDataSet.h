@@ -31,6 +31,7 @@
 #include "../common/WTransferable.h"
 
 class WDataTexture3D;
+class WCondition;
 
 /**
  * Base class for all data set types. This class has a number of subclasses
@@ -102,6 +103,13 @@ public:
      * \return the prototype.
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
+
+    /**
+     * Gets the condition which is fired whenever the dataset gets some kind of dirty (threshold, opacity, ...)
+     *
+     * \return the condition, or NULL if the dataset has no texture.
+     */
+    boost::shared_ptr< WCondition > getChangeCondition();
 
 protected:
 

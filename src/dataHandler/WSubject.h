@@ -29,6 +29,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WConditionSet.h"
 #include "../common/WSharedObject.h"
 #include "../common/WSharedSequenceContainer.h"
 
@@ -48,6 +49,13 @@ class WSubject
     friend class WSubjectTest;
 
 public:
+    /**
+     * List of some standard subjects. This is currently used for the default subject as we do not have any others.
+     */
+    enum
+    {
+        SUBJECT_UNKNOWN = 0
+    };
 
     /**
      * For shortening: a type defining a shared vector of WSubject pointers.
@@ -70,6 +78,11 @@ public:
      * \param personInfo personal information object
      */
     explicit WSubject( WPersonalInformation personInfo );
+
+    /**
+     * Destructs the subject. Removes all datasets from the list.
+     */
+    virtual ~WSubject();
 
     /**
      * Returns the name of the subject. See WPersonalInformation for details on the name.
@@ -124,6 +137,13 @@ public:
      */
     DatasetSharedContainerType::WSharedAccess getAccessObject();
 
+    /**
+     * This condition fires whenever the list of datasets changes, or one dataset got marked as "dirty" (threshold, opacity, ...).
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getChangeCondition();
+
 protected:
 
     /**
@@ -136,9 +156,15 @@ protected:
      */
     DatasetSharedContainerType::WSharedAccess m_datasetAccess;
 
+    /**
+     * This condition set fires whenever one dataset gets dirty or the list of datasets changes.
+     */
+    boost::shared_ptr< WConditionSet > m_changeCondition;
+
 private:
 
     WPersonalInformation m_personalInfo; //!< Information on the person represented by this WSubject.
 };
 
 #endif  // WSUBJECT_H
+
