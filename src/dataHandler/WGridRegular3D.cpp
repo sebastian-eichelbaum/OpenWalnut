@@ -25,8 +25,9 @@
 #include <cmath>
 #include <vector>
 
-#include "WGridRegular3D.h"
+#include "../common/exceptions/WOutOfBounds.h"
 #include "../math/WLinearAlgebraFunctions.h"
+#include "WGridRegular3D.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
@@ -298,5 +299,49 @@ boost::shared_ptr< std::vector< wmath::WPosition > > WGridRegular3D::getVoxelVer
     result->push_back( wmath::WPosition( point[0] + halfMarginX, point[1] + halfMarginY, point[2] + halfMarginZ ) ); // g
     result->push_back( wmath::WPosition( point[0] - halfMarginX, point[1] + halfMarginY, point[2] + halfMarginZ ) ); // h
     return result;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    if( x > 0 )
+    {
+        neighbours.push_back( id - 1 );
+    }
+    if( x < m_nbPosX - 1 )
+    {
+        neighbours.push_back( id + 1 );
+    }
+    if( y > 0 )
+    {
+        neighbours.push_back( id - m_nbPosX );
+    }
+    if( y < m_nbPosY - 1 )
+    {
+        neighbours.push_back( id + m_nbPosX );
+    }
+    if( z > 0 )
+    {
+        neighbours.push_back( id - ( m_nbPosX * m_nbPosY ) );
+    }
+    if( z < m_nbPosZ - 1 )
+    {
+         neighbours.push_back( id + ( m_nbPosX * m_nbPosY ) );
+    }
+    return neighbours;
 }
 

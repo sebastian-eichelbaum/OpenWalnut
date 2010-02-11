@@ -34,8 +34,8 @@
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSetSingle::m_prototype = boost::shared_ptr< WPrototyped >();
 
-WDataSetSingle::WDataSetSingle( boost::shared_ptr<WValueSetBase> newValueSet,
-                                boost::shared_ptr<WGrid> newGrid )
+WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
+                                boost::shared_ptr< WGrid > newGrid )
     : WDataSet()
 {
     assert( newValueSet );
@@ -60,12 +60,12 @@ WDataSetSingle::~WDataSetSingle()
 {
 }
 
-boost::shared_ptr<WValueSetBase> WDataSetSingle::getValueSet() const
+boost::shared_ptr< WValueSetBase > WDataSetSingle::getValueSet() const
 {
     return m_valueSet;
 }
 
-boost::shared_ptr<WGrid> WDataSetSingle::getGrid() const
+boost::shared_ptr< WGrid > WDataSetSingle::getGrid() const
 {
     return m_grid;
 }

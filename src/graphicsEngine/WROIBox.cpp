@@ -23,9 +23,12 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <utility>
 
 #include <osg/LineWidth>
 #include <osg/LightModel>
+
+#include <GL/glu.h>
 
 #include "WROIBox.h"
 #include "WGraphicsEngine.h"
@@ -109,7 +112,9 @@ void setVertices( osg::Vec3Array* vertices, wmath::WPosition minPos, wmath::WPos
 }
 
 WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
-    WROI(), boxId( maxBoxId++ )
+    WROI(),
+    boxId( maxBoxId++ ),
+    m_oldPixelPosition( std::make_pair( 0, 0 ) )
 {
     m_minPos = minPos;
     m_maxPos = maxPos;
@@ -118,7 +123,8 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     assert( ge );
     boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
     assert( viewer );
-    m_pickHandler = viewer->getPickHandler();
+    m_viewer = viewer;
+    m_pickHandler = m_viewer->getPickHandler();
     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::registerRedrawRequest, this, _1 ) );
 
     osg::Geometry* surfaceGeometry = new osg::Geometry();
@@ -210,25 +216,27 @@ void WROIBox::updateGFX()
     ss << "ROIBox" << boxId << "";
     if ( m_pickInfo.getName() == ss.str() )
     {
-        // connect updateGFX with picking
-        boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
-        assert( ge );
-        boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
-        assert( viewer );
-
-
-        wmath::WPosition newPos( m_pickHandler->getHitPosition() );
+        wmath::WPosition newPos( m_pickInfo.getPickPosition() );
+        std::pair< float, float > newPixelPos( m_pickInfo.getPickPixelPosition() );
         if ( m_isPicked )
         {
-            osg::Vec3d eyeDirOSG = osg::Matrix::transform3x3( osg::Vec3d( 0, 0, -1 ),
-                                                           osg::Matrix::inverse( viewer->getCamera()->getViewMatrix() ) );
+            osg::Vec3 in( newPixelPos.first, newPixelPos.second, 0.0 );
+            osg::Vec3 world = unprojectFromScreen( in );
 
-            wmath::WVector3D eyeDir( eyeDirOSG[0], eyeDirOSG[1], eyeDirOSG[2] );
-            eyeDir.normalize();
+            wmath::WPosition newPixelWorldPos( world[0], world[1], world[2] );
+            wmath::WPosition oldPixelWorldPos;
+            if(  m_oldPixelPosition.first == 0 && m_oldPixelPosition.second == 0 )
+            {
+                oldPixelWorldPos = newPixelWorldPos;
+            }
+            else
+            {
+                osg::Vec3 in( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
+                osg::Vec3 world= unprojectFromScreen( in );
+                oldPixelWorldPos = wmath::WPosition( world[0], world[1], world[2] );
+            }
 
-            wmath::WVector3D moveVec = newPos - m_pickedPosition;
-
-            moveVec = moveVec - eyeDir * ( moveVec * eyeDir );
+            wmath::WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
 
             osg::Vec3Array* vertices = new osg::Vec3Array;
             m_minPos += moveVec;
@@ -243,6 +251,7 @@ void WROIBox::updateGFX()
             ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setColorArray( colors );
         }
         m_pickedPosition = newPos;
+        m_oldPixelPosition = newPixelPos;
         m_isModified = true;
         m_isPicked = true;
 
@@ -257,4 +266,34 @@ void WROIBox::updateGFX()
     }
 
     lock.unlock();
+}
+
+osg::Vec3 WROIBox::unprojectFromScreen( const osg::Vec3 screen )
+{
+    double* modelView;
+    double* projection;
+    double dviewport[4];
+
+    modelView = m_viewer->getCamera()->getViewMatrix().ptr();
+    projection = m_viewer->getCamera()->getProjectionMatrix().ptr();
+    dviewport[0] = m_viewer->getCamera()->getViewport()->x();
+    dviewport[1] = m_viewer->getCamera()->getViewport()->y();
+    dviewport[2] = m_viewer->getCamera()->getViewport()->width();
+    dviewport[3] = m_viewer->getCamera()->getViewport()->height();
+
+    double x, y, z;
+    GLint viewport[4];
+    viewport[0] = static_cast< GLint >( dviewport[0] );
+    viewport[1] = static_cast< GLint >( dviewport[1] );
+    viewport[2] = static_cast< GLint >( dviewport[2] );
+    viewport[3] = static_cast< GLint >( dviewport[3] );
+
+    gluUnProject( screen[0], screen[1], screen[2], modelView, projection, viewport, &x, &y, &z );
+
+    osg::Vec3 world;
+    world[0] = x;
+    world[1] = y;
+    world[2] = z;
+
+    return world;
 }

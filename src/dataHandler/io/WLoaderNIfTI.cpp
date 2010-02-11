@@ -91,7 +91,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
     unsigned int countVoxels = columns * rows * frames;
 
 #ifdef DEBUG
-    nifti_image_infodump( header );
+    //nifti_image_infodump( header );
 #endif
 
     switch( header->datatype )

@@ -91,25 +91,22 @@ public:
      * returns a bit vector for the selected fiber dataset that is the result of all active ROI's
      * on that fiber dataset
      *
-     * \param fibers
      * \return std::vector<bool>*
      */
-    boost::shared_ptr< std::vector< bool > > getBitField( boost::shared_ptr< const WDataSetFibers > fibers );
+    boost::shared_ptr< std::vector< bool > > getBitField();
 
     /**
      * getter for a registered dataset
      *
-     * \param index of the dataset
      * \return the dataset
      */
-    boost::shared_ptr< const WDataSetFibers > getDataSet( unsigned int index );
+    boost::shared_ptr< const WDataSetFibers > getDataSet();
 
     /**
      * getter for a kd tree
-     * \param index
      * return the kd tree
      */
-    boost::shared_ptr< WKdTree > getKdTree( unsigned int index );
+    boost::shared_ptr< WKdTree > getKdTree();
 
     /**
      * adds a bit field list of bit fields
@@ -136,25 +133,29 @@ public:
      */
     virtual void addDefaultNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier );
 
-protected:
-private:
     /**
      * updates the bit fields
      */
     void recalculate();
 
+protected:
+private:
     bool m_dirty; //!< dirty flag
 
-    std::list< boost::shared_ptr< const WDataSetFibers > > m_fiberList; //!< list of registered fiber datasets
+    int m_activeBitField; //!< indicates which bitfield is currently used for fiber selection
 
-    std::list< boost::shared_ptr< std::vector< bool > > > m_bitFields; //!< list of bitfields, one for each dataset
+    boost::shared_ptr< const WDataSetFibers >m_fibers; //!< registered fiber dataset
+
+    boost::shared_ptr< std::vector< bool > >m_bitField; //!< bit field of acteivated fibers
+
+    boost::shared_ptr< std::vector< bool > >m_bitField2; //!< bit field of acteivated fibers
 
     std::list< boost::shared_ptr< WRMBranch > > m_branches; //!< list of branches in the logical tree structure
 
     /**
      * Stores a pointer to the kdTree used for fiber selection
      */
-    std::list< boost::shared_ptr< WKdTree > > m_kdTreeList;
+    boost::shared_ptr< WKdTree >m_kdTree;
 
     /**
      * Lock for associated notifiers set.
@@ -165,6 +166,16 @@ private:
      * The notifiers connected to added rois by default.
      */
     std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > > m_notifiers;
+
+    /**
+     * lock to prevent concurrent threads trying to update the branch
+     */
+    boost::shared_mutex m_updateLock;
+
+    /**
+     * bool to lock the update function, will be removed again once we found out why the boost lock isnt working
+     */
+    bool m_recalcLock;
 };
 
 #endif  // WROIMANAGERFIBERS_H

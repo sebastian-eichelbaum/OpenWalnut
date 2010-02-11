@@ -39,11 +39,6 @@ WPickInfo WPickHandler::getHitResult()
     return m_hitResult;
 }
 
-wmath::WPosition WPickHandler::getHitPosition()
-{
-    return m_hitPosGlobal;
-}
-
 boost::signals2::signal1< void, WPickInfo >* WPickHandler::getPickSignal()
 {
     return &m_pickSignal;
@@ -98,17 +93,17 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
 
 void WPickHandler::unpick( )
 {
-    if( m_hitResult != WPickInfo( "", wmath::WPosition(), WPickInfo::NONE ) )
+    if( m_hitResult != WPickInfo() )
     {
-        m_hitResult = WPickInfo( "unpick", wmath::WPosition(), WPickInfo::NONE );
-        m_lastPick = WPickInfo( "", wmath::WPosition(), WPickInfo::NONE );
+        m_hitResult = WPickInfo( "unpick", wmath::WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
+        m_startPick = WPickInfo();
     }
     m_pickSignal( getHitResult() );
 }
 
 std::string extractSuitableName( osgUtil::LineSegmentIntersector::Intersections::iterator hitr )
 {
-    if( !hitr->nodePath.empty()  && !( hitr->nodePath.back()->getName().empty() ) )
+    if( !hitr->nodePath.empty() && !( hitr->nodePath.back()->getName().empty() ) )
     {
         return hitr->nodePath.back()->getName();
     }
@@ -127,42 +122,46 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     float x = ea.getX();
     float y = ea.getY();
 
-
     if ( view->computeIntersections( x, y, intersections ) )
     {
-        bool lastPickIsStillInList = false;
+        bool startPickIsStillInList = false;
         osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin();
 
-
-        while( ( hitr != intersections.end() ) && !lastPickIsStillInList ) // got to lastPicked if it can be found in intersections list
+        // if something is picked, get the right thing from the list, because it might be hidden.
+        if( m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
         {
-            WPickInfo pickInfoTmp( extractSuitableName( hitr ), wmath::WPosition(), WPickInfo::NONE );
-            lastPickIsStillInList |= ( pickInfoTmp.getName() == m_lastPick.getName() );
-
-            if( !lastPickIsStillInList ) // if iteration not finished yet go on in list
+            while( ( hitr != intersections.end() ) && !startPickIsStillInList )
             {
-                ++hitr;
+                WPickInfo pickInfoTmp( extractSuitableName( hitr ), wmath::WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
+                startPickIsStillInList |= ( pickInfoTmp.getName() == m_startPick.getName() );
+
+                if( !startPickIsStillInList ) // if iteration not finished yet go on in list
+                {
+                    ++hitr;
+                }
             }
         }
 
-        if( !lastPickIsStillInList ) // if lastPicked is not found use the first in intersections list
+        WPickInfo pickInfo;
+        if( !startPickIsStillInList && m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
         {
-            hitr = intersections.begin();
+            // if startPicked is not found use old
+            pickInfo = m_startPick;
         }
-
-        wmath::WPosition pickPos;
-        pickPos[0] = hitr->getLocalIntersectPoint()[0];
-        pickPos[1] = hitr->getLocalIntersectPoint()[1];
-        pickPos[2] = hitr->getLocalIntersectPoint()[2];
-
-        WPickInfo pickInfo( extractSuitableName( hitr ), pickPos, WPickInfo::NONE );
+        else
+        {
+            // if nothing was picked before, or the previously picked was found: set new pickInfo
+            wmath::WPosition pickPos;
+            pickPos[0] = hitr->getWorldIntersectPoint()[0];
+            pickPos[1] = hitr->getWorldIntersectPoint()[1];
+            pickPos[2] = hitr->getWorldIntersectPoint()[2];
+            pickInfo = WPickInfo( extractSuitableName( hitr ), pickPos, std::make_pair( x, y ), WPickInfo::NONE );
+        }
 
         m_hitResult = pickInfo;
 
-        osg::Vec3 globalHit = hitr->getWorldIntersectPoint();
-        m_hitPosGlobal = wmath::WPosition( globalHit[0], globalHit[1], globalHit[2] );
-
-        m_lastPick = pickInfo;
+        // if nothing was picked before remember the currently picked.
+        m_startPick = pickInfo;
     }
     m_pickSignal( getHitResult() );
 }

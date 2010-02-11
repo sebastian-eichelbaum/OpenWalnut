@@ -45,28 +45,19 @@ void WRMBranch::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     m_rois.push_back( roi );
 }
 
-boost::shared_ptr< std::vector< bool > > WRMBranch::getBitField( unsigned int index )
+boost::shared_ptr< std::vector< bool > > WRMBranch::getBitField()
 {
     if ( m_dirty )
     {
         recalculate();
     }
-    unsigned int c = 0;
-    for( std::list< boost::shared_ptr< std::vector<bool> > >::iterator iter = m_bitFields.begin(); iter != m_bitFields.end(); ++iter )
-    {
-        if ( c == index)
-        {
-            return *iter;
-        }
-        ++c;
-    }
-    return boost::shared_ptr< std::vector< bool > >();
+    return m_bitField;
 }
 
 void WRMBranch::addBitField( size_t size )
 {
     boost::shared_ptr< std::vector< bool > >bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
-    m_bitFields.push_back( bf );
+    m_bitField = bf;
     for( std::list< boost::shared_ptr< WRMROIRepresentation> >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         ( *iter )->addBitField( size );
@@ -76,15 +67,16 @@ void WRMBranch::addBitField( size_t size )
 
 void WRMBranch::recalculate()
 {
-//    std::cout << "branch recalc" << std::endl;
-    boost::shared_ptr< std::vector<bool> > mbf = m_bitFields.front();
+//    boost::shared_lock<boost::shared_mutex> slock;
+//    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+    boost::shared_ptr< std::vector<bool> > mbf = m_bitField;
     int size = mbf->size();
     mbf->clear();
     mbf->resize( size, true );
 
     for( std::list< boost::shared_ptr< WRMROIRepresentation > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
-        boost::shared_ptr< std::vector<bool> > bf = ( *iter )->getBitField( 0 );
+        boost::shared_ptr< std::vector<bool> > bf = ( *iter )->getBitField();
         bool isnot = ( *iter )->getROI()->isNot();
         if ( !isnot )
         {
@@ -111,6 +103,8 @@ void WRMBranch::recalculate()
 //    std::cout << "active fibers in branch :" << counter << std::endl;
 
     m_dirty = false;
+
+//    slock.unlock();
 }
 
 bool WRMBranch::isDirty()
