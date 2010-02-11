@@ -413,7 +413,7 @@ void WMNavSlices::updateGeometry()
     m_zSliceNode->replaceDrawable( oldz, zSliceGeometry );
 
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
-    bool noSlices = ( tex.size() == 0 ) || !m_active->get() ;
+    bool noSlices = ( tex.size() == 0 ) || !m_active->get();
 
     if ( m_showAxial->get() && !noSlices )
     {

@@ -100,27 +100,27 @@ void WMainWindow::setupGUI()
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
-    // TODO(ebaum): adopt!
-            /*connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );*/
+            // TODO(ebaum): adopt!
+            // connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+            //          &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
-    // TODO(ebaum): adopt!
-            /*connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );*/
+            // TODO(ebaum): adopt!
+            // connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+            //          &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
             m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
-    // TODO(ebaum): adopt!
-            /*connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );*/
+            // TODO(ebaum): adopt!
+            // connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+            //          &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
         }
     }
 

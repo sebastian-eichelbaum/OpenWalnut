@@ -85,7 +85,6 @@ void WDataHandler::clear()
     for ( SubjectContainerType::const_iterator iter = m_subjectAccess->get().begin(); iter != m_subjectAccess->get().end();
             ++iter )
     {
-
         WLogger::getLogger()->addLogMessage( "Removing subject \"" +
                 boost::lexical_cast< std::string >( ( *iter )->getPersonalInformation().getSubjectID() ) + "\".",
                 "Data Handler", LL_DEBUG );
@@ -112,7 +111,7 @@ boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
     {
         result = m_subjectAccess->get().at( subjectID );
     }
-    catch( std::out_of_range& e )
+    catch( const std::out_of_range& e )
     {
         throw WDHNoSuchSubject();
     }

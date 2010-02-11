@@ -63,7 +63,7 @@ public:
          * \param object the object to be shared.
          * \param condition the condition that should be used for notifying changes.
          */
-        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex,  boost::shared_ptr< WCondition > condition );
+        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex,  boost::shared_ptr< WCondition > condition ); // NOLINT
 
         /**
          * Constructor. It uses the specified mutex which is shared among all access objects of the same WSharedObject.
@@ -71,7 +71,7 @@ public:
          * \param mutex the mutex used to lock the access.
          * \param object the object to be shared.
          */
-        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex );
+        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex ); // NOLINT - we need non const refs here
 
         /**
          * Desctructor.
@@ -200,7 +200,7 @@ typename WSharedObject< T >::WSharedAccess WSharedObject< T >::getAccessObject()
 
 
 template < typename T >
-WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex ):
+WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex ): // NOLINT
     m_lock( mutex ),
     m_object( object ),
     m_objectChangeCondition()
@@ -208,7 +208,7 @@ WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::
 }
 
 template < typename T >
-WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex,
+WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex, // NOLINT
                                                               boost::shared_ptr< WCondition > condition ):
     m_lock( mutex ),
     m_object( object ),

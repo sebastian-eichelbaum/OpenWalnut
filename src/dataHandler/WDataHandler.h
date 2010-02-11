@@ -166,7 +166,6 @@ private:
      * Singleton instance of WDataHandler.
      */
     static boost::shared_ptr< WDataHandler > m_instance;
-
 };
 
 /**

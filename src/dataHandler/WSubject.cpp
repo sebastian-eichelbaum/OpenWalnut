@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include <boost/lexical_cast.hpp>
 
@@ -114,7 +115,7 @@ boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
     {
         result = m_datasetAccess->get().at( datasetID );
     }
-    catch( std::out_of_range& e )
+    catch( const std::out_of_range& e )
     {
         throw WDHNoSuchDataSet();
     }

@@ -138,7 +138,6 @@ void WMBoundingBox::properties()
     // simply register our activate function
     // It should get triggered whever m_active changes
     m_active->getCondition()->subscribeSignal( boost::bind( &WMBoundingBox::activate, this ) );
-
 }
 
 void WMBoundingBox::slotPropertyChanged( std::string propertyName )
