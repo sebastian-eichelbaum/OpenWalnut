@@ -199,7 +199,6 @@ bool WQtDatasetBrowser::event( QEvent* event )
                 // if the type number is 1 (dataset item) emit change event
                 if ( item->type() == 1 )
                 {
-                    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
                     emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
                 }
             }
@@ -419,7 +418,6 @@ void WQtDatasetBrowser::changeTreeItem()
     {
         boost::shared_ptr< WModule >module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
         module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
-        emit dataSetBrowserEvent( QString( "textureChanged" ), true );
     }
     else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == MODULE )
     {
@@ -468,13 +466,11 @@ std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( 
 void WQtDatasetBrowser::moveTreeItemDown()
 {
     m_treeWidget->moveTreeItemDown();
-    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
 void WQtDatasetBrowser::moveTreeItemUp()
 {
     m_treeWidget->moveTreeItemUp();
-    emit dataSetBrowserEvent( QString( "textureChanged" ), true );
 }
 
 int WQtDatasetBrowser::getFirstSubject()

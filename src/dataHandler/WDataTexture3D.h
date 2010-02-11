@@ -31,7 +31,7 @@
 
 #include <osg/Texture3D>
 
-
+#include "WDataHandlerEnums.h"
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
 
@@ -91,6 +91,27 @@ public:
      * \param threshold the threshold.
      */
     void setThreshold( float threshold );
+
+    /**
+     * Is this texture globally active and used for colormapping?
+     *
+     * \return true if active.
+     */
+    bool isGloballyActive();
+
+    /**
+     * Sets whether the texture is active globally.
+     *
+     * \param active true if active
+     */
+    void setGloballyActive( bool active = true );
+
+    /**
+     * Returns the data type of the texture.
+     *
+     * \return the type.
+     */
+    dataType getDataType();
 
     /**
      * getter for the texture object
@@ -180,6 +201,11 @@ protected:
      * The condition which is fired whenever the dataset gets some kind of dirty (threshold, opacity, ...)
      */
     boost::shared_ptr< WCondition > m_changeCondition;
+
+    /**
+     * Flag denotes whether this texture should be used by surfaces/slides for surface colormapping.
+     */
+    bool m_globalActive;
 
 private:
 };

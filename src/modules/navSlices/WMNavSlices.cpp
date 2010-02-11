@@ -451,37 +451,44 @@ void WMNavSlices::updateTextures()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    /*if ( m_textureChanged && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( m_textureChanged )
     {
         m_textureChanged = false;
-        std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
-        if ( dsl.size() > 0 )
+        // grab a list of data textures
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures();
+
+        if ( tex.size() > 0 )
         {
+            // reset all uniforms
             for ( int i = 0; i < 10; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
+            // for each texture -> apply
             osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
             int c = 0;
-            for ( size_t i = 0; i < dsl.size(); ++i )
+            for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
-                osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
+                if ( ( *iter )->isGloballyActive() )
+                {
+                    osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
+                    rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                    // set threshold/opacity as uniforms
+                    float t = ( *iter )->getThreshold() / 255.0;
+                    float a = ( *iter )->getAlpha();
 
-                float t = dsl[i]->getTexture()->getThreshold() / 255.0;
-                float a = dsl[i]->getTexture()->getAlpha();
+                    m_typeUniforms[c]->set( ( *iter )->getDataType() );
+                    m_thresholdUniforms[c]->set( t );
+                    m_alphaUniforms[c]->set( a );
 
-                m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
-                m_thresholdUniforms[c]->set( t );
-                m_alphaUniforms[c]->set( a );
-
-                ++c;
+                    ++c;
+                }
             }
         }
-    }*/
+    }
     slock.unlock();
 }
 

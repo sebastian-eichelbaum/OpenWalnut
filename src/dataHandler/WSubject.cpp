@@ -29,6 +29,7 @@
 #include "../common/WLogger.h"
 
 #include "WDataSet.h"
+#include "WDataTexture3D.h"
 #include "exceptions/WDHNoSuchDataSet.h"
 
 #include "WSubject.h"
@@ -71,6 +72,7 @@ void WSubject::addDataSet( boost::shared_ptr< WDataSet > dataset )
 
     // also register condition
     m_changeCondition->add( dataset->getChangeCondition() );
+    m_changeCondition->notify();
 }
 
 void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
@@ -82,8 +84,9 @@ void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
 
     // also deregister condition
     m_changeCondition->remove( dataset->getChangeCondition() );
-
     m_datasetAccess->endWrite();
+
+    m_changeCondition->notify();
 }
 
 void WSubject::clear()
@@ -119,6 +122,26 @@ boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
     m_datasetAccess->endRead();
 
     return result;
+}
+
+std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures()
+{
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex;
+
+    // iterate the list and find all textures
+    m_datasetAccess->beginRead();
+
+    for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
+    {
+        // is it a texture?
+        if ( ( *iter )->isTexture() )
+        {
+            tex.push_back( ( *iter )->getTexture() );
+        }
+    }
+
+    m_datasetAccess->endRead();
+    return tex;
 }
 
 WSubject::DatasetSharedContainerType::WSharedAccess WSubject::getAccessObject()

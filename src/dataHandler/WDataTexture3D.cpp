@@ -36,7 +36,8 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     m_texture( osg::ref_ptr< osg::Texture3D >() ),
     m_valueSet( valueSet ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( grid ) ),
-    m_changeCondition( new WCondition() )
+    m_changeCondition( new WCondition() ),
+    m_globalActive( true )
 {
     // initialize members
 }
@@ -77,6 +78,20 @@ void WDataTexture3D::setThreshold( float threshold )
 {
     m_threshold = threshold;
     notifyChange();
+}
+
+bool WDataTexture3D::isGloballyActive()
+{
+    return m_globalActive;
+}
+
+void WDataTexture3D::setGloballyActive( bool active )
+{
+    if ( active != m_globalActive )
+    {
+        m_globalActive = active;
+        notifyChange();
+    }
 }
 
 osg::ref_ptr< osg::Texture3D > WDataTexture3D::getTexture()
@@ -239,6 +254,11 @@ void WDataTexture3D::createTexture()
         m_texture->setImage( ima );
         m_texture->setResizeNonPowerOfTwoHint( false );
     }
+}
+
+dataType WDataTexture3D::getDataType()
+{
+    return m_valueSet->getDataType();
 }
 
 boost::shared_ptr< WCondition > WDataTexture3D::getChangeCondition()

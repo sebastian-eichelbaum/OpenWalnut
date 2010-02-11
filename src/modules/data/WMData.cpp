@@ -119,6 +119,10 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
     {
         m_dataSet->getTexture()->setOpacity( m_opacity->get() );
     }
+    else if ( property == m_active )
+    {
+        m_dataSet->getTexture()->setGloballyActive( m_active->get() );
+    }
 }
 
 void WMData::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here,
@@ -196,6 +200,9 @@ void WMData::moduleMain()
     }
 
     debugLog() << "Loading data done.";
+
+    // i am interested in the active property ( manually subscribe signal )
+    m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
     // register at datahandler
     WDataHandler::registerDataSet( m_dataSet );

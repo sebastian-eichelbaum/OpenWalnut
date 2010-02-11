@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WConditionSet.h"
@@ -36,6 +37,7 @@
 #include "WPersonalInformation.h"
 
 class WDataSet;
+class WDataTexture3D;
 
 /**
  * Container for all WDataSets belonging to one subject or patient.
@@ -129,6 +131,13 @@ public:
      * \note you should avoid this function. Do NOT store ID's. They may change.
      */
     boost::shared_ptr< WDataSet > getDataSetByID( size_t datasetID );
+
+    /**
+     * This gives a list of data textures from all supporting datasets in this subject.
+     *
+     * \return the list of textures.
+     */
+    std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures();
 
     /**
      * Gets an access object which allows thread save iteration over the datasets.

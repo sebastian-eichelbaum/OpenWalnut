@@ -44,7 +44,6 @@
 #include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/prototypeBoxManipulation/WMPrototypeBoxManipulation.h"
-#include "../modules/textureList/WMTextureList.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "WModuleFactory.h"
@@ -83,7 +82,6 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
-    m_prototypes.insert( boost::shared_ptr< WModule >( new WMTextureList() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMHud() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
