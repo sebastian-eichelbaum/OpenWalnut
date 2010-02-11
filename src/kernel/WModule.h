@@ -96,7 +96,7 @@ public:
      * \return the connector.
      * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
      */
-    boost::shared_ptr< WModuleInputConnector > getInputConnector( std::string name ) const;
+    boost::shared_ptr< WModuleInputConnector > getInputConnector( std::string name );
 
     /**
      * Gives back output connectors.
@@ -113,7 +113,7 @@ public:
      * \return the connector.
      * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
      */
-    boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name ) const;
+    boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name );
 
     /**
      * Return a pointer to the properties object of the module

@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <stdint.h>
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -209,7 +211,7 @@ void WMWriteNIfTI::writeToFile( std::string fileName )
 
     if( nifti_set_filenames( outField, fileName.c_str(), 0, 1 ) )
     {
-        throw WException( "NIfTI filename Problem" );
+        throw WException( std::string( "NIfTI filename Problem" ) );
     }
 
     nifti_image_write( outField );

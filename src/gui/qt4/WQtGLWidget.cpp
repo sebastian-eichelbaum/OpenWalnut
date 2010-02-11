@@ -39,7 +39,11 @@
 
 
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
+#ifdef _WIN32
+    : QWidget( parent ),
+#else
     : QGLWidget( parent ),
+#endif
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize(),
       m_isInitialized( new WConditionOneShot(), false ),
