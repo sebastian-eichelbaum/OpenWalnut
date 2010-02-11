@@ -191,12 +191,12 @@ bool WROIBox::isModified()
     return tmp;
 }
 
-void WROIBox::registerRedrawRequest( std::string text )
+void WROIBox::registerRedrawRequest( WPickInfo pickInfo )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-    m_pickText = text;
+    m_pickInfo = pickInfo;
 
     lock.unlock();
 }
@@ -207,8 +207,8 @@ void WROIBox::updateGFX()
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
     std::stringstream ss;
-    ss << "\"ROIBox" << boxId << "\"";
-    if ( m_pickText.find( "Object " ) != std::string::npos && m_pickText.find( ss.str() ) != std::string::npos )
+    ss << "ROIBox" << boxId << "";
+    if ( m_pickInfo.getName() == ss.str() )
     {
         // connect updateGFX with picking
         boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
@@ -248,12 +248,13 @@ void WROIBox::updateGFX()
 
         m_signalIsModified();
     }
-    if ( m_isPicked && m_pickText.find( "unpick" ) != std::string::npos )
+    if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
         colors->push_back( osg::Vec4( 0.f, 0.f, 1.f, 0.5f ) );
         ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setColorArray( colors );
         m_isPicked = false;
     }
+
     lock.unlock();
 }

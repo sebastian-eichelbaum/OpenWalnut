@@ -38,8 +38,6 @@
 
 #include "../../math/WVector3D.h"
 
-class WPickHandler;
-
 /**
  * Gauss filtering for WDataSetSingle
  *
