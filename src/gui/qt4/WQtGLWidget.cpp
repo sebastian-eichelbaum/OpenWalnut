@@ -224,7 +224,24 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
 
 void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 {
-    m_Viewer->keyEvent( WGEViewer::KEYPRESS, *event->text().toAscii().data() );
+    if(  event->text() != "" )
+    {
+        m_Viewer->keyEvent( WGEViewer::KEYPRESS, *event->text().toAscii().data() );
+    }
+    else
+    {
+        switch( event->modifiers() )
+        {
+            case Qt::ShiftModifier :
+                m_Viewer->keyEvent( WGEViewer::KEYPRESS, osgGA::GUIEventAdapter::KEY_Shift_L );
+                break;
+            case Qt::ControlModifier :
+                m_Viewer->keyEvent( WGEViewer::KEYPRESS, osgGA::GUIEventAdapter::KEY_Control_L );
+                break;
+            default :
+                std::cout << "Modifier key has no meaning yet." << std::endl;
+        }
+    }
 }
 
 void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
@@ -251,6 +268,16 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
             break;
         case Qt::Key_6:
             setCameraManipulator( TWO_D );
+            break;
+    }
+
+    switch( event->modifiers() )
+    {
+        case Qt::ShiftModifier :
+            m_Viewer->keyEvent( WGEViewer::KEYRELEASE, osgGA::GUIEventAdapter::KEY_Shift_L );
+            break;
+        case Qt::ControlModifier :
+            m_Viewer->keyEvent( WGEViewer::KEYRELEASE, osgGA::GUIEventAdapter::KEY_Control_L );
             break;
     }
 
