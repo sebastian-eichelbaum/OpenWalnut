@@ -27,7 +27,11 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../WLogger.h"
 #include "../WProperties.h"
+
+//TODO(math): When logger is singelton remove this!
+static WLogger logger;
 
 /**
  * unit tests the properties class

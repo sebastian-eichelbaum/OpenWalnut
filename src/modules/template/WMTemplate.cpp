@@ -147,12 +147,12 @@ void WMTemplate::properties()
     // To create and add a new property, every module has a member m_properties. It is a set of properties this module provides to the outer
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
-    propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_enableFeature  = m_properties2->addProperty( "Enable Feature",           "Description.", true );
-    m_anInteger      = m_properties2->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, propCondition );
-    m_aDouble        = m_properties2->addProperty( "Shape Radii",              "Shape radii.", 20.0, propCondition );
-    m_aString        = m_properties2->addProperty( "A String",                 "Something.", std::string( "hello" ), propCondition );
-    m_aFile          = m_properties2->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), propCondition );
+    m_anInteger      = m_properties2->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
+    m_aDouble        = m_properties2->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
+    m_aString        = m_properties2->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
+    m_aFile          = m_properties2->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
     m_aColor         = m_properties2->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
@@ -191,7 +191,7 @@ void WMTemplate::moduleMain()
     // properties(). You always can assume the kernel, the GUI, the graphics engine and the data handler to be initialized and ready. Please keep
     // in mind, that this method is running in its own thread.
 
-    // You can output log messages everywhere and everytime in your module. The WModule base class therefore provides debugLog, inforLog, warnLog
+    // You can output log messages everywhere and everytime in your module. The WModule base class therefore provides debugLog, infoLog, warnLog
     // and errorLog. You can use them very similar to the common std::cout streams.
     debugLog() << "Entering moduleMain()";
 
@@ -207,7 +207,7 @@ void WMTemplate::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
-    m_moduleState.add( propCondition );
+    m_moduleState.add( m_propCondition );
     // One note about "setResetable": It might happen, that a condition fires and your thread does not currently waits on it. This would mean,
     // that your thread misses the event. The resetable flag for those condition sets can help here. Whenever a condition, managed by the
     // condition set, fires, the moduleState variable remembers it. So, the next call to m_moduleState.wait() will immediately return and reset

@@ -114,7 +114,7 @@ private:
     /**
      * A condition used to notify about changes in several properties.
      */
-    boost::shared_ptr< WCondition > propCondition;
+    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
      * En/Disables an feature.
