@@ -235,7 +235,6 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             m_permanentToolBar->addWidget( button );
         }
     }
-
 }
 
 void WMainWindow::setupCompatiblesToolBar()
