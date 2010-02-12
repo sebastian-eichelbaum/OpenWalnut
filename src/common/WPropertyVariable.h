@@ -189,6 +189,15 @@ public:
     void addConstraint( boost::shared_ptr< PropertyConstraint > constraint );
 
     /**
+     * Add a new constraint. It creates one for your with the specified type.
+     *
+     * \param constraint the type of constraint.
+     *
+     * \return the constraint created and added.
+     */
+     boost::shared_ptr< PropertyConstraint > addConstraint( PROPERTYCONSTRAINT_TYPE constraint );
+
+    /**
      * Creates a new WPropertyConstraintMin for this WPropertyVariable.
      *
      * \param min the minimum value.
@@ -378,6 +387,15 @@ void WPropertyVariable< T >::addConstraint( boost::shared_ptr< PropertyConstrain
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
     m_constraints.insert( constraint );
     lock.unlock();
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
+WPropertyVariable< T >::addConstraint( PROPERTYCONSTRAINT_TYPE constraint )
+{
+    boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > c = PropertyConstraint::create( constraint );
+    addConstraint( c );
+    return c;
 }
 
 template < typename T >

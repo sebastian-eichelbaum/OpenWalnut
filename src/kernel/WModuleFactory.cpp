@@ -28,6 +28,7 @@
 #include <typeinfo>
 
 #include "../common/WLogger.h"
+#include "../modules/template/WMTemplate.h"
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
@@ -72,6 +73,7 @@ void WModuleFactory::load()
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_prototypesLock );
 
     // currently the prototypes are added by hand. This will be done automatically later.
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMTemplate() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
