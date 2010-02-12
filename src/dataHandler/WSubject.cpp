@@ -72,7 +72,11 @@ void WSubject::addDataSet( boost::shared_ptr< WDataSet > dataset )
     m_datasets.push_back( dataset );
 
     // also register condition
-    m_changeCondition->add( dataset->getChangeCondition() );
+    boost::shared_ptr< WCondition > c = dataset->getChangeCondition();
+    if ( c.get() )
+    {
+        m_changeCondition->add( c );
+    }
     m_changeCondition->notify();
 }
 
@@ -84,7 +88,11 @@ void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
     remove( m_datasetAccess->get().begin(), m_datasetAccess->get().end(), dataset );
 
     // also deregister condition
-    m_changeCondition->remove( dataset->getChangeCondition() );
+    boost::shared_ptr< WCondition > c = dataset->getChangeCondition();
+    if ( c.get() )
+    {
+        m_changeCondition->remove( c );
+    }
     m_datasetAccess->endWrite();
 
     m_changeCondition->notify();
@@ -98,7 +106,11 @@ void WSubject::clear()
     for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
     {
         // also deregister condition
-        m_changeCondition->remove( ( *iter )->getChangeCondition() );
+        boost::shared_ptr< WCondition > c = ( *iter )->getChangeCondition();
+        if ( c.get() )
+        {
+            m_changeCondition->remove( c );
+        }
     }
     m_datasetAccess->get().clear();
 
@@ -145,7 +157,7 @@ std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bo
     return tex;
 }
 
-WSubject::DatasetSharedContainerType::WSharedAccess WSubject::getAccessObject()
+WSubject::DatasetAccess WSubject::getAccessObject()
 {
     return m_datasets.getAccessObject();
 }

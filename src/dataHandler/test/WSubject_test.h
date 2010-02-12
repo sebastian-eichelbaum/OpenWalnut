@@ -55,16 +55,6 @@ public:
     }
 
     /**
-     * Test whether we have intialized the object correctly.
-     */
-    void TestStandardConstructor()
-    {
-        WSubject dummySubject;
-        TS_ASSERT_EQUALS( 0, dummySubject.m_dataSets.size() );
-        TS_ASSERT_EQUALS( 0, dummySubject.m_personalInfo.getSubjectID() );
-    }
-
-    /**
      * Test whether we have put the info where it belongs and intialized the rest.
      */
     void TestConstructorWithInfo()
@@ -88,9 +78,9 @@ public:
     }
 
     /**
-     * Test adding of data sets.
+     * Test adding and iterating of data sets.
      */
-    void testAddDataSet()
+    void testAddGetDataSet()
     {
         boost::shared_ptr< WDataSet > dummyDataSet;
         dummyDataSet = boost::shared_ptr< WDataSet >( new WDataSet );
@@ -98,40 +88,22 @@ public:
         dummyDataSet->setFileName( fileName );
 
         WSubject dummySubject;
+        WSubject::DatasetAccess a = dummySubject.getAccessObject();
         dummySubject.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( 1, dummySubject.m_dataSets.size() );
-        TS_ASSERT_EQUALS( fileName, dummySubject.m_dataSets[0]->getFileName() );
-        TS_ASSERT_EQUALS( dummyDataSet, dummySubject.m_dataSets[0] );
-    }
+        TS_ASSERT_EQUALS( 1, dummySubject.m_datasets.size() );
 
-    /**
-     * Test retrieving data sets.
-     */
-    void testGetDataSet()
-    {
-        boost::shared_ptr< WDataSet > dummyDataSet;
-        dummyDataSet = boost::shared_ptr< WDataSet >( new WDataSet );
-        std::string fileName = "Hallo";
-        dummyDataSet->setFileName( fileName );
+        // iterate the list and find all textures
+        a->beginRead();
+        int count = 0;
+        for ( WSubject::DatasetContainerType::iterator iter = a->get().begin(); iter != a->get().end(); ++iter )
+        {
+            count++;
+            TS_ASSERT_EQUALS( fileName, ( *iter )->getFileName() );
+            TS_ASSERT_EQUALS( dummyDataSet, ( *iter ) );
+        }
+        a->endRead();
 
-        WSubject dummySubject;
-        dummySubject.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( dummyDataSet, dummySubject.getDataSet( 0 ) );
-    }
-
-    /**
-     * Test retrieving data sets with [].
-     */
-    void testAcessOperator()
-    {
-        boost::shared_ptr< WDataSet > dummyDataSet;
-        dummyDataSet = boost::shared_ptr< WDataSet >( new WDataSet );
-        std::string fileName = "Hallo";
-        dummyDataSet->setFileName( fileName );
-
-        WSubject dummySubject;
-        dummySubject.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( dummyDataSet, dummySubject[0] );
+        TS_ASSERT( count == 1 );
     }
 
     /**
@@ -145,13 +117,13 @@ public:
         dummyDataSet->setFileName( fileName );
 
         WSubject dummySubject;
-        TS_ASSERT_EQUALS( 0, dummySubject.getNumberOfDataSets() );
+        TS_ASSERT_EQUALS( 0, dummySubject.m_datasets.size() );
         dummySubject.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( 1, dummySubject.getNumberOfDataSets() );
+        TS_ASSERT_EQUALS( 1, dummySubject.m_datasets.size() );
         dummySubject.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( 2, dummySubject.getNumberOfDataSets() );
+        TS_ASSERT_EQUALS( 2, dummySubject.m_datasets.size() );
         dummySubject.addDataSet( dummyDataSet );
-        TS_ASSERT_EQUALS( 3, dummySubject.getNumberOfDataSets() );
+        TS_ASSERT_EQUALS( 3, dummySubject.m_datasets.size() );
     }
 };
 

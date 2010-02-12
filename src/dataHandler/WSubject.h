@@ -70,6 +70,11 @@ public:
     typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType;
 
     /**
+     * Alias for the proper access object
+     */
+    typedef DatasetSharedContainerType::WSharedAccess DatasetAccess;
+
+    /**
      * Constructs a dummy subject.
      */
     WSubject();
@@ -145,7 +150,7 @@ public:
      *
      * \return the access object.
      */
-    DatasetSharedContainerType::WSharedAccess getAccessObject();
+    DatasetAccess getAccessObject();
 
     /**
      * This condition fires whenever the list of datasets changes, or one dataset got marked as "dirty" (threshold, opacity, ...).

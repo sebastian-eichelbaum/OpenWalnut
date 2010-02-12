@@ -132,9 +132,8 @@ size_t WSharedSequenceContainer< T, S >::size()
     typename WSharedObject< S >::WSharedAccess a = WSharedObject< S >::getAccessObject();
     a->beginRead();
     size_t size = a->get().size();
-    return size;
     a->endRead();
-
+    return size;
     // NOTE: the lock in access object a is freed automatically
 }
 
