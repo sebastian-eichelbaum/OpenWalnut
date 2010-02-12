@@ -138,7 +138,6 @@ public:
         dh->clear();
         TS_ASSERT_EQUALS( 0, dh->m_subjects.size() );   // note: this is 2 since the datahandler always provides a default subject
     }
-
 };
 
 #endif  // WDATAHANDLER_TEST_H

@@ -102,6 +102,11 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
 
     /**
+     * The output connector used to provide the calculated data to other modules.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+
+    /**
      * This is a pointer to the dataset the module is currently working on.
      */
     boost::shared_ptr< WDataSetSingle > m_dataSet;
@@ -148,7 +153,15 @@ private:
     class SafeUpdateCallback : public osg::NodeCallback
     {
     public: // NOLINT
-        SafeUpdateCallback( WMTemplate* module ): m_module( module ) {};
+
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit SafeUpdateCallback( WMTemplate* module ): m_module( module )
+        {
+        };
 
         /**
          * operator () - called during the update traversal.

@@ -38,41 +38,99 @@
 WMTemplate::WMTemplate():
     WModule()
 {
-    // initialize members
+    // In the constructor, you can initialize your members and all this stuff. You must not initialize connectors or properties here! You also
+    // should avoid doing computationally expensive stuff, since every module has its own thread which is intended to be used for such calculations.
+    // Please keep in mind, that every member initialized here is also initialized in the prototype, which may be a problem if the member is large,
+    // and therefore, wasting a lot of memory in your module's prototype instance.
 }
 
 WMTemplate::~WMTemplate()
 {
-    // cleanup
+    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMTemplate::factory() const
 {
+    // To properly understand what this is, we need to have a look at how module instances get created. At first, if you are not familiar with the
+    // design patterns "Prototype", "Abstract Factory" and "Factory Method" you should probably read about them first. For short: while the kernel
+    // is starting up, it also creates an instance of WModuleFactory, which creates a prototype instance of every module that can be loaded.
+    // These prototypes are then used to create new instances of modules, check compatibility of modules and identify the type of modules.
+    // If someone, in most cases the module container, wants a new instance of a module with a given prototype, it asks the factory class for it,
+    // which uses the prototype's factory() method. Since the method is virtual, it returns a module instance, created with the correct type.
+    // A prototype itself is an instance of your module, with the constructor run, as well as connectors() and properties(). What does this mean
+    // to your module? Unlike the real "Prototype"- Design pattern, the module prototypes do not get cloned to retrieve a new instance,
+    // they get constructed using "new" and this factory method.
+    //
+    // Here is a short overview of the lifetime of a module instance:
+    //
+    //    * constructor
+    //    * connectors()
+    //    * properties()
+    //    * now isInitialized() will return true
+    //    * the module will be associated with a container
+    //    * now isAssociated() will return true
+    //          o isUsable() will return true
+    //    * after it got added, moduleMain() will be called
+    //    * run, run, run, run
+    //    * notifyStop gets called
+    //    * moduleMain() should end
+    //    * destructor
+    //
+    // So you always have to write this method and always return a valid pointer to an object of your module class.
+    // Never initialize something else in here!
     return boost::shared_ptr< WModule >( new WMTemplate() );
 }
 
 const std::string WMTemplate::getName() const
 {
-    // specify your module name here
+    // Specify your module name here. This name must be UNIQUE!
     return "Template";
 }
 
 const std::string WMTemplate::getDescription() const
 {
-    // specify your module description here. Be detailed. This text is read by the user.
+    // Specify your module description here. Be detailed. This text is read by the user.
     return "This module is intended to be a module template and an example for writing modules.";
 }
 
 void WMTemplate::connectors()
 {
-    // initialize connectors
+    // How will your module know on which data it should work? Through its input connector(s). How will other modules get to know about your
+    // calculated output data? Through your output connector(s). Simple isn't it? You may assume your module as some kind of function, as in
+    // common programming languages, where your connectors denote its function signature. The method "connectors()" is for initializing your
+    // connectors, your function signature. Now, a short excursion on how the module container and kernel knows which connector can be connected
+    // to which. Generally, there are only two types of connectors available for your usage: WModuleInputData and WModuleOutputData and they can
+    // only be connected to each other. So, it is not possible to connect an input with an input, nor an output with an output. Both of them are
+    // template classes and therefore are associated with a type. This type determines if an input connector is compatible with an output connector.
+    // A simple example: assume you have a class hierarchy:
+    // Initialize your connectors here. Give them proper names and use the type your module will create or rely on. Do not use types unnecessarily
+    // high in class hierarchy. The list of your connectors is fixed after connectors() got called. As in common imperative programming languages
+    // the function signature can not be changed during runtime (which, in our case, means after connectors() got called).
+
+    // Here is an example of how to create connectors. This module wants to have an input connector. This connector is defined by the type of
+    // data that should be transferred, an module-wide unique name and a proper description:
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
         new WModuleInputData< WDataSetSingle >( shared_from_this(),
                                                                "in", "The dataset to display" )
         );
 
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    // This creates an input connector which can receive WDataSetSingle. It will never be able to connect to output connectors providing just a
+    // WDataSet (which is the father class of WDataSetSingle), but it will be able to be connected to an output connector with a type derived
+    // from WDataSetSingle.
+
+    // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
+
+    // Now, lets add an output connector. We want to provide data calculated here to other modules. The output connector is initialized the same
+    // way as input connectors. You need the type, the module-wide unique name and the description. The type you specify here also determines
+    // which input connectors can be connected to this output connector: only connectors with a type equal or lower in class hierarchy.
+    m_output = boost::shared_ptr< WModuleOutputData < WDataSetSingle  > >(
+        new WModuleOutputData< WDataSetSingle >( shared_from_this(),
+                                                               "out", "The calculated dataset" )
+        );
+
+    // As above: make it known.
+    addConnector( m_output );
 
     // call WModules initialization
     WModule::connectors();
@@ -201,12 +259,11 @@ void WMTemplate::moduleMain()
                 // This way you can ensure you always have valid data available.
                 continue;
             }
-
         }
 
         // Here we collect our properties. You, as with input connectors, always check if a property really has changed. You most probably do not
-        // want to check properties which are used exclusively inside the update callback of your OSG node. As the properties are thread-safe, the update
-        // callback can check them and apply it correctly to your visualization.
+        // want to check properties which are used exclusively inside the update callback of your OSG node. As the properties are thread-safe, the
+        // update callback can check them and apply it correctly to your visualization.
         //
         // To check whether a property changed, WPropertyVariable provides a changed() method which is true whenever the property has changed.
         // Please note: creating the property with addProperty( ... ) will set changed to true.
@@ -223,9 +280,8 @@ void WMTemplate::moduleMain()
         if ( m_aString->changed() )
         {
             // This is a simple example for doing an operation which is depends on all, but m_anFile,  properties.
-            debugLog() << "Doing an operation not modifying the OSG node ... ";
-            debugLog() << "m_anString: " << m_aString->get( true );
-            debugLog() << "Current dataset: " << m_dataSet->getFileName() << " with name: " << m_dataSet->getName();
+            debugLog() << "Doing an operation basing on m_aString ... ";
+            debugLog() << "m_aString: " << m_aString->get( true );
         }
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
@@ -273,6 +329,45 @@ void WMTemplate::moduleMain()
 
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
         }
+
+        // Now we updated the visualization after the dataset has changed. Your module might also calculate some other datasets basing on the
+        // input data.
+        if ( dataChanged )
+        {
+            debugLog() << "Data changed. Recalculating output.";
+
+            // Calculate your new data here. This example just forwards the input to the output ;-).
+            boost::shared_ptr< WDataSetSingle > newData = m_dataSet;
+
+            // Doing a lot of work without notifying the user visually is not a good idea. So how is it possible to report progress? Therefore,
+            // the WModule class provides a member m_progress which is of type WPropgressCombiner. You can create own progress objects and count
+            // them individually. The m_progress combiner provides this information to the GUI and the user.
+            // Here is a simple example:
+            int steps = 10;
+            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing work 1", steps ) );
+            m_progress->addSubProgress( progress1 );
+            for ( int i = 0; i < steps; ++i )
+            {
+                ++*progress1;
+                sleep( 1 );
+            }
+            progress1->finish();
+            // This creates a progress object with a name and a given number of steps. Your work loop can now increment the progress object. The
+            // progress combiner m_progress collects the progress and provides it to the GUI. When finished, the progress MUST be marked as
+            // finished using finish(). It is no problem to have several progress objects at the same time!
+
+            // Sometimes, the number of steps is not known. WProgress can also handle this. Simply leave away the last parameter (the number of
+            // steps. As with the other progress, you need to add it to the modules progress combiner and you need to mark it as finished with
+            // finish() if you are done with your work.
+            boost::shared_ptr< WProgress > progress2 = boost::shared_ptr< WProgress >( new WProgress( "Doing work 2" ) );
+            m_progress->addSubProgress( progress2 );
+            sleep( 2 );
+            progress2->finish();
+
+            // How to set the data to the output and how to notify other modules about it?
+            m_output->updateData( newData );
+            // This sets the new data to the output connector and automatically notifies all modules connected to your output.
+        }
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
@@ -295,8 +390,14 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
     traverse( node, nv );
 }
 
-bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > > /* property */, WPVBaseTypes::PV_STRING value )
+bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > > /* property */,
+                                       WPVBaseTypes::PV_STRING value )
 {
+    // This method gets called everytime the m_aString property is going to be changed. It can decide whether the new value is valid or not. If
+    // the method returns true, the new value is set. If it returns false, the value is rejected.
+    //
+    // Note: always use WPVBaseTypes when specializing the WPropertyVariable template.
+
     // simple example: just accept string which are at least 5 chars long and at most 10.
     return ( value.length() <= 10 ) && ( value.length() >= 5 );
 }
