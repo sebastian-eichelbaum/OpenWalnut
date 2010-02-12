@@ -147,13 +147,6 @@ private:
     WBoolFlag m_dataChanged;
 
     /**
-     * Bool flag to represent the state which is selected in the GUI.
-     * The module thread waits for changes of this flag and hiddes/displays its
-     * data according to it.
-     */
-    WBoolFlag m_isActive;
-
-    /**
      * The current active-state. Whether the widget is open and usable.
      */
     bool m_wasActive;

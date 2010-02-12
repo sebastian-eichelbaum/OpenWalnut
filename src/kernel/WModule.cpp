@@ -64,6 +64,8 @@ WModule::WModule():
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
     m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
     m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
+    m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
+
     m_container = boost::shared_ptr< WModuleContainer >();
     m_progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
 
@@ -126,6 +128,10 @@ void WModule::connectors()
 }
 
 void WModule::properties()
+{
+}
+
+void WModule::activate()
 {
 }
 

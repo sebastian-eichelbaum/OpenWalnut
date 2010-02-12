@@ -31,7 +31,6 @@
 WMEEGView::WMEEGView()
     : WModule(),
       m_dataChanged( new WCondition, true ),
-      m_isActive( new WCondition, true ),
       m_wasActive( false ),
       m_event( -1.0 ),
       m_eventPositionFlag( NULL )
@@ -72,22 +71,8 @@ void WMEEGView::connectors()
 
 void WMEEGView::properties()
 {
-    // properties
-    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMEEGView::slotPropertyChanged, this, _1 ) );
-}
-
-void WMEEGView::slotPropertyChanged( std::string propertyName )
-{
-    if( propertyName == "active" )
-    {
-        m_isActive.set( m_properties->getValue< bool >( propertyName ) );
-    }
-    else
-    {
-        // instead of WLogger we must use std::cerr since WLogger needs to much time!
-        std::cerr << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
+    // m_active gets initialized in WModule and is available for all modules. Overwrite activate() to have a special callback for m_active
+    // changes or add a callback manually.
 }
 
 void WMEEGView::notifyConnectionEstablished(
@@ -107,7 +92,7 @@ void WMEEGView::moduleMain()
     // do initialization
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_dataChanged.getCondition() );
-    m_moduleState.add( m_isActive.getCondition() );
+    m_moduleState.add( m_active->getCondition() );
 
     // signal ready
     ready();
@@ -138,7 +123,7 @@ void WMEEGView::moduleMain()
         }
 
         // "active" property changed?
-        bool isActive = m_isActive();
+        bool isActive = m_active->get();
         if( isActive != m_wasActive )
         {
             if( isActive )

@@ -133,24 +133,8 @@ void WMBoundingBox::properties()
 {
 //    ( m_properties->addInt( "Thickness", 1 ) )->connect( boost::bind( &WMBoundingBox::slotPropertyChanged, this, _1 ) );
 
-    // m_active get initialized in WModule and is available for all modules.
-
-    // simply register our activate function
-    // It should get triggered whever m_active changes
-    m_active->getCondition()->subscribeSignal( boost::bind( &WMBoundingBox::activate, this ) );
-}
-
-void WMBoundingBox::slotPropertyChanged( std::string propertyName )
-{
-    //  if( propertyName == "Filter Size" )
-//     {
-//         // TODO(wiebel): need code here
-//     }
-//     else
-    {
-        std::cout << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
+    // m_active gets initialized in WModule and is available for all modules. Overwrite activate() to have a special callback for m_active
+    // changes.
 }
 
 void WMBoundingBox::activate()

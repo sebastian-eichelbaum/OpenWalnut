@@ -299,6 +299,11 @@ protected:
      */
     void disconnectAll();
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
+
     // **************************************************************************************************************************
     //
     // Signal handlers that HAVE to be in every module. By default they do nothing. You should overwrite them to get notified
