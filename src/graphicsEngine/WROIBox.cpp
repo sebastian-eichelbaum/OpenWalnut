@@ -127,17 +127,18 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_pickHandler = m_viewer->getPickHandler();
     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::registerRedrawRequest, this, _1 ) );
 
-    osg::Geometry* surfaceGeometry = new osg::Geometry();
-    m_geode = new osg::Geode;
+    m_surfaceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
+    m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
 
+    m_geode = osg::ref_ptr<osg::Geode>( new osg::Geode );
     std::stringstream ss;
     ss << "ROIBox" << boxId;
 
     m_geode->setName( ss.str() );
 
-    osg::Vec3Array* vertices = new osg::Vec3Array;
+    osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
     setVertices( vertices, minPos, maxPos );
-    surfaceGeometry->setVertexArray( vertices );
+    m_surfaceGeometry->setVertexArray( vertices );
 
     osg::DrawElementsUInt* surfaceElements;
     surfaceElements = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
@@ -147,9 +148,9 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     lineElements = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
     buildLinesFromPoints( lineElements );
 
-    surfaceGeometry->addPrimitiveSet( surfaceElements );
-    surfaceGeometry->addPrimitiveSet( lineElements );
-    m_geode->addDrawable( surfaceGeometry );
+    m_surfaceGeometry->addPrimitiveSet( surfaceElements );
+    m_surfaceGeometry->addPrimitiveSet( lineElements );
+    m_geode->addDrawable( m_surfaceGeometry );
     osg::StateSet* state = m_geode->getOrCreateStateSet();
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
@@ -159,11 +160,11 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
 
     // ------------------------------------------------
     // colors
-    osg::Vec4Array* colors = new osg::Vec4Array;
+    osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
 
     colors->push_back( osg::Vec4( .0f, .0f, 1.f, 0.5f ) );
-    surfaceGeometry->setColorArray( colors );
-    surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    m_surfaceGeometry->setColorArray( colors );
+    m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
@@ -238,7 +239,7 @@ void WROIBox::updateGFX()
 
             wmath::WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
 
-            osg::Vec3Array* vertices = new osg::Vec3Array;
+            osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
 
             // resize Box
             if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT && m_pickInfo.getPickNormal() != wmath::WVector3D() )
@@ -254,7 +255,7 @@ void WROIBox::updateGFX()
                 }
 
                 setVertices( vertices, m_minPos, m_maxPos );
-                ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setVertexArray( vertices );
+                m_surfaceGeometry->setVertexArray( vertices );
             }
 
             // move Box
@@ -263,14 +264,14 @@ void WROIBox::updateGFX()
                 m_minPos += moveVec;
                 m_maxPos += moveVec;
                 setVertices( vertices, m_minPos, m_maxPos );
-                ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setVertexArray( vertices );
+                m_surfaceGeometry->setVertexArray( vertices );
             }
         }
         else
         {
-            osg::Vec4Array* colors = new osg::Vec4Array;
+            osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
             colors->push_back( osg::Vec4( 1.f, .0f, .0f, 0.5f ) );
-            ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setColorArray( colors );
+            m_surfaceGeometry->setColorArray( colors );
         }
         m_pickedPosition = newPos;
         m_oldPixelPosition = newPixelPos;
@@ -281,9 +282,9 @@ void WROIBox::updateGFX()
     }
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
-        osg::Vec4Array* colors = new osg::Vec4Array;
+        osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
         colors->push_back( osg::Vec4( 0.f, 0.f, 1.f, 0.5f ) );
-        ( ( osg::Geometry* ) ( m_geode->getDrawable( 0 ) ) )->setColorArray( colors );
+        m_surfaceGeometry->setColorArray( colors );
         m_isPicked = false;
     }
 
