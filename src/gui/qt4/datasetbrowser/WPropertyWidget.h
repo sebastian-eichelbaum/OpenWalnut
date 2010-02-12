@@ -98,6 +98,11 @@ protected:
     QLabel m_label;
 
     /**
+     * If set to true, the widgets uses the control layout to combine the widget with a label
+     */
+    bool m_useLabel;
+
+    /**
      * Flag denoting whether the widget is set to an invalid value.
      */
     bool m_invalid;

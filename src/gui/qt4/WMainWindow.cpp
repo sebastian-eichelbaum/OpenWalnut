@@ -45,6 +45,9 @@
 #include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtCustomDockWidget.h"
+#include "events/WModuleReadyEvent.h"
+#include "events/WEventTypes.h"
+#include "datasetbrowser/WPropertyBoolWidget.h"
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
@@ -174,41 +177,65 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( loadButton );
     m_permanentToolBar->addWidget( roiButton );
 
-
     m_permanentToolBar->addSeparator();
 
-
-    WQtPushButton* axialButton = new WQtPushButton( m_iconManager.getIcon( "axial" ), "showAxial", m_permanentToolBar );
-    WQtPushButton* coronalButton = new WQtPushButton( m_iconManager.getIcon( "coronal" ), "showCoronal", m_permanentToolBar );
-    WQtPushButton* sagittalButton = new WQtPushButton( m_iconManager.getIcon( "sagittal" ), "showSagittal", m_permanentToolBar );
-
-    axialButton->setMaximumSize( 24, 24 );
-    coronalButton->setMaximumSize( 24, 24 );
-    sagittalButton->setMaximumSize( 24, 24 );
-
-    axialButton->setCheckable( true );
-    coronalButton->setCheckable( true );
-    sagittalButton->setCheckable( true );
-
-    axialButton->setChecked( true );
-    coronalButton->setChecked( true );
-    sagittalButton->setChecked( true );
-
-    axialButton->setToolTip( "Axial" );
-    coronalButton->setToolTip( "Coronal" );
-    sagittalButton->setToolTip( "Sagittal" );
-
-    m_permanentToolBar->addWidget( axialButton );
-    m_permanentToolBar->addWidget( coronalButton );
-    m_permanentToolBar->addWidget( sagittalButton );
-
-    // TODO(ebaum): adopt!
-//    connect( axialButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-//    connect( coronalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-//    connect( sagittalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-
-
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+}
+
+void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
+{
+    // nav slices use separate buttons for slice on/off switching
+    if ( module->getName() == "Navigation Slice Module" )
+    {
+        boost::shared_ptr< WPropertyBase > prop = module->getProperties2()->findProperty( "showAxial" );
+        if ( !prop )
+        {
+               WLogger::getLogger()->
+                   addLogMessage( "Navigation Slice Module does not provide the property \"showAxial\", which is required by the GUI.", "GUI",
+                                  LL_ERROR );
+        }
+        else
+        {
+            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
+            button->setToolTip( "Toggle Axial Slice" );
+            button->getButton()->setMaximumSize( 24, 24 );
+            button->getButton()->setIcon( m_iconManager.getIcon( "axial" ) );
+            m_permanentToolBar->addWidget( button );
+        }
+
+        prop = module->getProperties2()->findProperty( "showCoronal" );
+        if ( !prop )
+        {
+               WLogger::getLogger()->
+                   addLogMessage( "Navigation Slice Module does not provide the property \"showCoronal\", which is required by the GUI.", "GUI",
+                                  LL_ERROR );
+        }
+        else
+        {
+            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
+            button->setToolTip( "Toggle Coronal Slice" );
+            button->getButton()->setMaximumSize( 24, 24 );
+            button->getButton()->setIcon( m_iconManager.getIcon( "coronal" ) );
+            m_permanentToolBar->addWidget( button );
+        }
+
+        prop = module->getProperties2()->findProperty( "showSagittal" );
+        if ( !prop )
+        {
+               WLogger::getLogger()->
+                   addLogMessage( "Navigation Slice Module does not provide the property \"showSagittal\", which is required by the GUI.", "GUI",
+                                  LL_ERROR );
+        }
+        else
+        {
+            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
+            button->setToolTip( "Toggle Sagittal Slice" );
+            button->getButton()->setMaximumSize( 24, 24 );
+            button->getButton()->setIcon( m_iconManager.getIcon( "sagittal" ) );
+            m_permanentToolBar->addWidget( button );
+        }
+    }
+
 }
 
 void WMainWindow::setupCompatiblesToolBar()
@@ -380,6 +407,22 @@ void WMainWindow::customEvent( QEvent* event )
         // other event
         QMainWindow::customEvent( event );
     }
+}
+
+bool WMainWindow::event( QEvent* event )
+{
+    // a module got associated with the root container -> add it to the list
+    if ( event->type() == WQT_READY_EVENT )
+    {
+        // convert event to ready event
+        WModuleReadyEvent* e1 = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
+        if ( e1 )
+        {
+            moduleSpecificSetup( e1->getModule() );
+        }
+    }
+
+    return QMainWindow::event( event );
 }
 
 boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::string title )

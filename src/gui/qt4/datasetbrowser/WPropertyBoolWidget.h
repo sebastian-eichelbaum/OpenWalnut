@@ -28,6 +28,7 @@
 #include <string>
 
 #include <QtGui/QCheckBox>
+#include <QtGui/QPushButton>
 #include <QtGui/QHBoxLayout>
 
 #include "WPropertyWidget.h"
@@ -46,13 +47,22 @@ public:
      * \param property the property to handle
      * \param parent the parent widget.
      * \param propertyGrid the grid used to layout the labels and property widgets
+     * \param asButton display the property as toggle button.
      */
-    WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent = 0 );
+    WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent = 0, bool asButton = false );
 
     /**
      * Destructor.
      */
     virtual ~WPropertyBoolWidget();
+
+    /**
+     * Returns the QT PushButton widget used if asButton has been true. It always returns a valid pointer. If asButtons has been false, the
+     * button is simply not visible.
+     *
+     * \return the button
+     */
+    virtual QPushButton* getButton();
 
 protected:
 
@@ -67,9 +77,19 @@ protected:
     QCheckBox m_checkbox;
 
     /**
+     * If asButton is set to true: use this button instead of the m_checkbox
+     */
+    QPushButton m_button;
+
+    /**
      * Layout used to position the label and the checkbox
      */
     QHBoxLayout m_layout;
+
+    /**
+     * Use the button instead of the checkbox to toggle the value.
+     */
+    bool m_asButton;
 
 private:
 

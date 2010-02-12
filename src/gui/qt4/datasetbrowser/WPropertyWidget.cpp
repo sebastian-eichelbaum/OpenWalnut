@@ -31,18 +31,22 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     m_property( property ),
     m_propertyGrid( propertyGrid ),
     m_label( this ),
+    m_useLabel( m_propertyGrid ),
     m_invalid( false )
 {
-    // initialize members
-    m_label.setText( property->getName().c_str() );
-    // set tooltips
-    m_label.setToolTip( getTooltip().c_str() );
-    setToolTip( m_label.toolTip() );
+    if ( m_useLabel )
+    {
+        // initialize members
+        m_label.setText( property->getName().c_str() );
+        // set tooltips
+        m_label.setToolTip( getTooltip().c_str() );
+        setToolTip( m_label.toolTip() );
 
-    // setup grid layout
-    int row = m_propertyGrid->rowCount();
-    m_propertyGrid->addWidget( &m_label, row, 0 );
-    m_propertyGrid->addWidget( this, row, 1 );
+        // setup grid layout
+        int row = m_propertyGrid->rowCount();
+        m_propertyGrid->addWidget( &m_label, row, 0 );
+        m_propertyGrid->addWidget( this, row, 1 );
+    }
 }
 
 WPropertyWidget::~WPropertyWidget()
@@ -68,17 +72,20 @@ void WPropertyWidget::invalidate( bool invalid )
 {
     m_invalid = invalid;
 
-    // update tooltip
-    m_label.setToolTip( getTooltip().c_str() );
-    setToolTip( m_label.toolTip() );
+    if ( m_useLabel )
+    {
+        // update tooltip
+        m_label.setToolTip( getTooltip().c_str() );
+        setToolTip( m_label.toolTip() );
 
-    if ( invalid )
-    {
-        m_label.setText( ( "<font color=#FF0000><b>" + m_property->getName() + "</b></font>" ).c_str() );
-    }
-    else
-    {
-        m_label.setText( m_property->getName().c_str() );
+        if ( invalid )
+        {
+            m_label.setText( ( "<font color=#FF0000><b>" + m_property->getName() + "</b></font>" ).c_str() );
+        }
+        else
+        {
+            m_label.setText( m_property->getName().c_str() );
+        }
     }
 }
 

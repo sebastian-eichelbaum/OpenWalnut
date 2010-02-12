@@ -182,7 +182,7 @@ const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutput
 boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name )
 {
     // simply search
-    for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
+    for( std::set<boost::shared_ptr< WModuleInputConnector > >::const_iterator listIter = m_inputConnectors.begin();
          listIter != m_inputConnectors.end(); ++listIter )
     {
         // try the canonical name
@@ -198,7 +198,7 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
 boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name )
 {
     // simply search
-    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::iterator listIter = m_outputConnectors.begin();
+    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::const_iterator listIter = m_outputConnectors.begin();
          listIter != m_outputConnectors.end(); ++listIter )
     {
         // try the canonical name
