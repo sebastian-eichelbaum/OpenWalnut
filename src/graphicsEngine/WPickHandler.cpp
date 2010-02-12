@@ -71,6 +71,11 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
             }
             return false;
         }
+        case osgGA::GUIEventAdapter::KEYUP : // Key on keyboard released.
+        {
+            m_shift = false;
+            return false;
+        }
         case osgGA::GUIEventAdapter::KEYDOWN : // Key on keyboard pushed.
         {
             if ( ea.getKey() == 'c' )
@@ -83,6 +88,10 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
                 {
                     pick( view, *event );
                 }
+            }
+            if ( ea.getKey() == osgGA::GUIEventAdapter::KEY_Shift_L )
+            {
+                m_shift = true;
             }
             return false;
         }
@@ -155,7 +164,17 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
             pickPos[0] = hitr->getWorldIntersectPoint()[0];
             pickPos[1] = hitr->getWorldIntersectPoint()[1];
             pickPos[2] = hitr->getWorldIntersectPoint()[2];
-            pickInfo = WPickInfo( extractSuitableName( hitr ), pickPos, std::make_pair( x, y ), WPickInfo::NONE );
+
+            wmath::WVector3D pickNormal;
+            pickNormal[0] = hitr->getWorldIntersectNormal()[0];
+            pickNormal[1] = hitr->getWorldIntersectNormal()[1];
+            pickNormal[2] = hitr->getWorldIntersectNormal()[2];
+            pickInfo = WPickInfo( extractSuitableName( hitr ), pickPos, std::make_pair( x, y ), WPickInfo::NONE, pickNormal );
+        }
+
+        if( m_shift )
+        {
+            pickInfo.setModifierKey( WPickInfo::SHIFT );
         }
 
         m_hitResult = pickInfo;

@@ -75,6 +75,7 @@ private:
     wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
     std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
+    osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates
 
     WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
 
@@ -94,7 +95,7 @@ private:
     /**
      * Get wordl coordinates from screen coordinates.
      * \return the world coordinates.
-     * \param screen the screen coordinates in pixels and z depth. 
+     * \param screen the screen coordinates in pixels and z depth.
      */
     osg::Vec3 unprojectFromScreen( const osg::Vec3 screen );
 

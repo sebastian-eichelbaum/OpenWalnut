@@ -497,12 +497,10 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getSelectedRoi()
     if ( m_treeWidget->selectedItems().at( 0 )->type() == ROI )
     {
         roi =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi();
-        std::cout << "return this" << std::endl;
     }
     if ( m_treeWidget->selectedItems().at( 0 )->type() == SUBROI )
     {
         roi =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 )->parent() ) )->getRoi();
-        std::cout << "return parent" << std::endl;
     }
     return roi;
 }
