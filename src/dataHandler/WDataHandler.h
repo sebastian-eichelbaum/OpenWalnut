@@ -66,6 +66,11 @@ public:
     typedef WSharedSequenceContainer< boost::shared_ptr< WSubject >, SubjectContainerType > SubjectSharedContainerType;
 
     /**
+     * Alias for access objects
+     */
+    typedef SubjectSharedContainerType::WSharedAccess SubjectAccess;
+
+    /**
      * Empty standard constructor.
      */
     WDataHandler();
@@ -146,7 +151,7 @@ public:
      *
      * \return the access object.
      */
-    SubjectSharedContainerType::WSharedAccess getAccessObject();
+    SubjectAccess getAccessObject();
 
 protected:
 

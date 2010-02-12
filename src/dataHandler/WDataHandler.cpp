@@ -71,7 +71,15 @@ void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
                                          "Data Handler", LL_DEBUG );
 
     // iterate and find, remove
-    remove( m_subjectAccess->get().begin(), m_subjectAccess->get().end(), subject );
+    for ( SubjectContainerType::iterator iter = m_subjectAccess->get().begin(); iter != m_subjectAccess->get().end();
+            ++iter )
+    {
+        if ( ( *iter ) ==  subject )
+        {
+            m_subjectAccess->get().erase( iter );
+            break;
+        }
+    }
 
     m_subjectAccess->endWrite();
 }
@@ -96,7 +104,7 @@ void WDataHandler::clear()
     m_subjectAccess->endWrite();
 }
 
-WDataHandler::SubjectSharedContainerType::WSharedAccess WDataHandler::getAccessObject()
+WDataHandler::SubjectAccess WDataHandler::getAccessObject()
 {
     return m_subjects.getAccessObject();
 }
