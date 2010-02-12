@@ -74,7 +74,6 @@ const std::string WMPrototypeBoxManipulation::getDescription() const
     return "Just a prtotype for box manipulation";
 }
 
-
 void WMPrototypeBoxManipulation::moduleMain()
 {
     // use the m_input "data changed" flag
@@ -111,17 +110,7 @@ void WMPrototypeBoxManipulation::connectors()
 
 void WMPrototypeBoxManipulation::properties()
 {
-    m_properties->addBool( "textureChanged", false, true );
+    // m_active gets initialized in WModule and is available for all modules. Overwrite activate() to have a special callback for m_active
+    // changes or add a callback manually.
 }
 
-void WMPrototypeBoxManipulation::slotPropertyChanged( std::string propertyName )
-{
-    if( propertyName == "active" )
-    {
-    }
-    else
-    {
-        std::cout << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
-}

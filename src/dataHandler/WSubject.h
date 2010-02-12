@@ -27,11 +27,17 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <boost/shared_ptr.hpp>
+
+#include "../common/WConditionSet.h"
+#include "../common/WSharedObject.h"
+#include "../common/WSharedSequenceContainer.h"
 
 #include "WPersonalInformation.h"
 
 class WDataSet;
+class WDataTexture3D;
 
 /**
  * Container for all WDataSets belonging to one subject or patient.
@@ -46,54 +52,134 @@ class WSubject
 
 public:
     /**
+     * List of some standard subjects. This is currently used for the default subject as we do not have any others.
+     */
+    enum
+    {
+        SUBJECT_UNKNOWN = 0
+    };
+
+    /**
+     * For shortening: a type defining a shared vector of WSubject pointers.
+     */
+    typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType;
+
+    /**
+     * Alias for the proper access object
+     */
+    typedef DatasetSharedContainerType::WSharedAccess DatasetAccess;
+
+    /**
      * Constructs a dummy subject.
      */
     WSubject();
 
     /**
-     * Allows to give the subject information the person during construction
+     * Allows to give the subject information the person during construction.
+     *
      * \param personInfo personal information object
      */
     explicit WSubject( WPersonalInformation personInfo );
 
     /**
-     * Returns the name of the subject. See WSubject::m_name for details on the name.
+     * Destructs the subject. Removes all datasets from the list.
+     */
+    virtual ~WSubject();
+
+    /**
+     * Returns the name of the subject. See WPersonalInformation for details on the name.
+     *
+     * \return the name of the subject extracted from this subject's WPersonalInformation.
      */
     std::string getName() const;
 
     /**
-     * Get the pointer to the i'th WDataSet. The return type is const since we
-     * want to ensure that each DataSet cannot modified after retrival.
-     * \param dataSetId the number of the data set to retrieve
-     */
-    boost::shared_ptr< WDataSet > getDataSet( const unsigned int dataSetId ) const;
-
-    /**
-     * Returns a shared_ptr to the i'th WSubject. The return type is const since we
-     * want to ensure that a subject cannot be modified after retrieval.
-     * \param dataSetId the number of the data set to retrieve
-     */
-    boost::shared_ptr< const WDataSet > operator[]( const unsigned int dataSetId ) const;
-
-    /**
-     * Insert a new DataSet referenced by a pointer.
+     * Gives the personal information of a subject.
      *
-     * \param newDataSet This WDataSet will be added
+     * \return the personal information of the subject.
      */
-    void addDataSet( boost::shared_ptr< WDataSet > newDataSet );
+    WPersonalInformation getPersonalInformation() const;
 
     /**
-     * Get the number of DataSets which are actually handled by our subject.
+     * Insert a new dataset referenced by a pointer.
+     *
+     * \param dataset a pointer to the dataset that will be added
      */
-    unsigned int getNumberOfDataSets() const;
+    void addDataSet( boost::shared_ptr< WDataSet > dataset );
+
+    /**
+     * Removes the specified dataset if it is in the set.
+     *
+     * \param dataset the dataset to remove.
+     */
+    void removeDataSet( boost::shared_ptr< WDataSet > dataset );
+
+    /**
+     * Remove all datasets from the subjects.
+     */
+    void clear();
+
+    /**
+     * Returns the dataset which corresponds to the specified ID. It throws an exception, if the dataset does not exists anymore.
+     *
+     * \param datasetID the ID to search the dataset for
+     *
+     * \return the dataset.
+     *
+     * \throw WNoSuchDataSet in case the dataset can't be found.
+     *
+     * \note you should avoid this function. Do NOT store ID's. They may change.
+     */
+    boost::shared_ptr< WDataSet > getDataSetByID( size_t datasetID );
+
+    /**
+     * This gives a list of data textures from all supporting datasets in this subject.
+     *
+     * \param onlyActive true whenever only textures should be returned where isGloballyActive() == true.
+     * \return the list of textures.
+     */
+    std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures( bool onlyActive = false );
+
+    /**
+     * Gets an access object which allows thread save iteration over the datasets.
+     *
+     * \return the access object.
+     */
+    DatasetAccess getAccessObject();
+
+    /**
+     * This condition fires whenever the list of datasets changes, or one dataset got marked as "dirty" (threshold, opacity, ...).
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getChangeCondition();
+
 protected:
-private:
-    WPersonalInformation m_personalInfo; //!< Information on the person represented by this WSubject.
 
     /**
-     * A container for all WDataSets belonging to the subject.
+     * A container for all WDataSet.
      */
-    std::vector< boost::shared_ptr< WDataSet > > m_dataSets;
+    DatasetSharedContainerType m_datasets;
+
+    /**
+     * The access object used for thread safe access.
+     */
+    DatasetSharedContainerType::WSharedAccess m_datasetAccess;
+
+    /**
+     * This condition set fires whenever one dataset gets dirty or the list of datasets changes.
+     */
+    boost::shared_ptr< WConditionSet > m_changeCondition;
+
+private:
+
+    WPersonalInformation m_personalInfo; //!< Information on the person represented by this WSubject.
 };
 
 #endif  // WSUBJECT_H
+

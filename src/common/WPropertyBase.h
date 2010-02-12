@@ -27,12 +27,18 @@
 
 #include <string>
 
+#include <boost/function.hpp>
+#include <boost/signals2/signal.hpp>
+
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
 #include "WPropertyTypes.h"
 
 /**
  * Abstract base class for all properties. Simply provides name and type information.
  */
-class WPropertyBase
+class WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
 {
 public:
 
@@ -75,7 +81,7 @@ public:
      *
      * \param hidden true if it should be hidden.
      */
-    void setHidden( bool hidden );
+    void setHidden( bool hidden = true );
 
     /**
      * Gets the real WPropertyVariable type of this instance.
@@ -83,6 +89,71 @@ public:
      * \return the real type.
      */
     virtual PROPERTY_TYPE getType() const;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    // Helpers for easy conversion to the possible types
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as integer property
+     */
+    WPropInt toPropInt();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as double property
+     */
+    WPropDouble toPropDouble();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as bool property
+     */
+    WPropBool toPropBool();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as string property
+     */
+    WPropString toPropString();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as path property
+     */
+    WPropFilename toPropFilename();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as list property
+     */
+    WPropList toPropList();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as color property
+     */
+    WPropColor toPropColor();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as position property
+     */
+    WPropPosition toPropPosition();
+
+    /**
+     * Signal signature emitted during set operations
+     */
+    typedef boost::function<void ( boost::shared_ptr< WPropertyBase > )> PropertyChangeNotifierType;
 
 protected:
 
@@ -109,7 +180,17 @@ protected:
     /**
      * Calculates the type of the property. This has to be done by the implementing class.
      */
-    virtual void updateType() = 0;
+    virtual void updateType();
+
+    /**
+     * Signal used for firing change signals
+     */
+    typedef boost::signals2::signal<void ( boost::shared_ptr< WPropertyBase >  )>  PropertyChangeSignalType;
+
+    /**
+     * Signal getting fired whenever the property changes.
+     */
+    PropertyChangeSignalType signal_PropertyChange;
 
 private:
 };

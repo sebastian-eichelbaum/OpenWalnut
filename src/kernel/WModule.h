@@ -37,6 +37,7 @@
 
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
+#include "WModuleTypes.h"
 
 #include "../dataHandler/WDataSet.h"
 #include "../dataHandler/WDataSetSingle.h"
@@ -44,6 +45,7 @@
 
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
+#include "../common/WProperties2.h"
 #include "../common/WProgressCombiner.h"
 #include "../common/WProgress.h"
 #include "../common/WThreadedRunner.h"
@@ -116,9 +118,18 @@ public:
     boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name );
 
     /**
-     * Return a pointer to the properties object of the module
+     * Return a pointer to the properties object of the module.
+     *
+     * \return the properties
      */
     boost::shared_ptr< WProperties > getProperties() const;
+
+    /**
+     * Return a pointer to the properties object of the module.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties2 > getProperties2() const;
 
     /**
      * Determines whether the module instance is properly initialized.
@@ -206,6 +217,14 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
+    /**
+     * Gets the type of the module. This is useful for FAST differentiation between several modules like standard modules and data
+     * modules which play a special role in OpenWalnut/Kernel.
+     *
+     * \return the Type. If you do not overwrite this method, it will return MODULE_ARBITRARY.
+     */
+    virtual MODULE_TYPE getType() const;
+
 protected:
 
     /**
@@ -279,6 +298,11 @@ protected:
      * Completely disconnects all connected connectors of this module.
      */
     void disconnectAll();
+
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
 
     // **************************************************************************************************************************
     //
@@ -368,6 +392,11 @@ protected:
     boost::shared_ptr< WProperties > m_properties;
 
     /**
+     * The property object for the module.
+     */
+    boost::shared_ptr< WProperties2 > m_properties2;
+
+    /**
      * Progress indicator used as parent for all progress' of this module.
      */
     boost::shared_ptr< WProgressCombiner > m_progress;
@@ -417,6 +446,11 @@ protected:
      * Set of output connectors associated with this module.
      */
     std::set<boost::shared_ptr< WModuleOutputConnector > > m_outputConnectors;
+
+    /**
+     * True whenever the module should be active
+     */
+    WPropBool m_active;
 
 private:
 

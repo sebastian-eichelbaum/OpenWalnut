@@ -28,12 +28,14 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Group>
 
 #include "../../dataHandler/WDataSet.h"
+#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -49,7 +51,8 @@
 #include "navslices.xpm"
 
 WMNavSlices::WMNavSlices():
-    WModule()
+    WModule(),
+    m_textureChanged( true )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -104,21 +107,25 @@ void WMNavSlices::connectors()
 
 void WMNavSlices::properties()
 {
-    m_properties->addBool( "textureChanged", false, true );
-    //( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMNavSlices::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "active", true, true );
-    m_properties->addInt( "axialPos", 80 );
-    m_properties->addInt( "coronalPos", 100 );
-    m_properties->addInt( "sagittalPos", 80 );
+    // NOTE: the appropriate type of addProperty is chosen by the type of the specified initial value.
+    // So if you specify a bool as initial value, addProperty will create a WPropBool.
+    m_showAxial      = m_properties2->addProperty( "showAxial",      "Determines whether the axial slice should be visible.", true, true );
+    m_showCoronal    = m_properties2->addProperty( "showCoronal",    "Determines whether the coronal slice should be visible.", true, true );
+    m_showSagittal   = m_properties2->addProperty( "showSagittal",   "Determines whether the sagittal slice should be visible.", true, true );
 
-    m_properties->addInt( "maxAxial", 160, true );
-    m_properties->addInt( "maxCoronal", 200, true );
-    m_properties->addInt( "maxSagittal", 160, true );
+    m_axialPos       = m_properties2->addProperty( "axialPos",       "Position of axial slice.",    80 );
+    m_axialPos->setMin( 0 );
+    m_axialPos->setMax( 160 );
+    m_coronalPos     = m_properties2->addProperty( "coronalPos",     "Position of coronal slice.", 100 );
+    m_coronalPos->setMin( 0 );
+    m_coronalPos->setMax( 160 );
+    m_sagittalPos    = m_properties2->addProperty( "sagittalPos",    "Position of sagittal slice.", 80 );
+    m_sagittalPos->setMin( 0 );
+    m_sagittalPos->setMax( 160 );
 
-
-    m_properties->addBool( "showAxial", true );
-    m_properties->addBool( "showCoronal", true );
-    m_properties->addBool( "showSagittal", true );
+    m_maxAxial       = m_properties2->addProperty( "maxAxial",       "Max position of axial slice.",    160, true );
+    m_maxCoronal     = m_properties2->addProperty( "maxCoronal",     "Max position of coronal slice.",  200, true );
+    m_maxSagittal    = m_properties2->addProperty( "maxSagittal",    "Max position of sagittal slice.", 160, true );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -129,10 +136,20 @@ void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
     // in this case input==m_input
 }
 
+void WMNavSlices::notifyTextureChange()
+{
+    m_textureChanged = true;
+}
+
 void WMNavSlices::moduleMain()
 {
     // signal ready state
     ready();
+
+    // now, to watch changing/new textures use WSubject's change condition
+    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
+            boost::bind( &WMNavSlices::notifyTextureChange, this )
+    );
 
     create();
 
@@ -142,6 +159,9 @@ void WMNavSlices::moduleMain()
     // clean up stuff
     // NOTE: ALLAWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+
+    // deregister from WSubject's change condition
+    con.disconnect();
 }
 
 void WMNavSlices::create()
@@ -182,9 +202,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 {
     float maxDim = 255.0;
 
-    float xSlice = ( float )( m_properties->getValue< int >( "sagittalPos" ) );
-    float ySlice = ( float )( m_properties->getValue< int >( "coronalPos" ) );
-    float zSlice = ( float )( m_properties->getValue< int >( "axialPos" ) );
+    float xSlice = ( float )( m_sagittalPos->get() );
+    float ySlice = ( float )( m_coronalPos->get() );
+    float zSlice = ( float )( m_axialPos->get() );
 
     float xPos = xSlice + 0.5f;
     float yPos = ySlice + 0.5f;
@@ -312,13 +332,13 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     }
     else
     {
-        float maxX = ( float )( m_properties->getValue<int>( "maxSagittal") );
-        float maxY = ( float )( m_properties->getValue<int>( "maxCoronal") );
-        float maxZ = ( float )( m_properties->getValue<int>( "maxAxial") );
+        float maxX = ( float )( m_maxSagittal->get() );
+        float maxY = ( float )( m_maxCoronal->get() );
+        float maxZ = ( float )( m_maxAxial->get() );
 
-        m_properties->setMax( "sagittalPos", maxX );
-        m_properties->setMax( "coronalPos", maxY );
-        m_properties->setMax( "axialPos", maxZ );
+        m_sagittalPos->setMax( maxX );
+        m_coronalPos->setMax( maxY );
+        m_axialPos->setMax( maxZ );
 
         float texX = xSlice / maxX;
         float texY = ySlice / maxY;
@@ -392,10 +412,10 @@ void WMNavSlices::updateGeometry()
     osg::ref_ptr<osg::Drawable> oldz = osg::ref_ptr<osg::Drawable>( m_zSliceNode->getDrawable( 0 ) );
     m_zSliceNode->replaceDrawable( oldz, zSliceGeometry );
 
-    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
-    bool noTexture = ( dsl.size() == 0 );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    bool noSlices = ( tex.size() == 0 ) || !m_active->get();
 
-    if ( m_properties->getValue<bool>( "showAxial" ) && !noTexture )
+    if ( m_showAxial->get() && !noSlices )
     {
         m_zSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -404,7 +424,7 @@ void WMNavSlices::updateGeometry()
         m_zSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_properties->getValue<bool>( "showCoronal" ) && !noTexture )
+    if ( m_showCoronal->get() && !noSlices )
     {
         m_xSliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -413,7 +433,7 @@ void WMNavSlices::updateGeometry()
         m_xSliceNode->setNodeMask( 0x0 );
     }
 
-    if ( m_properties->getValue<bool>( "showSagittal" ) && !noTexture )
+    if ( m_showSagittal->get() && !noSlices )
     {
         m_ySliceNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -431,30 +451,34 @@ void WMNavSlices::updateTextures()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    if ( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( m_textureChanged )
     {
-        m_properties->setValue( "textureChanged", false );
-        std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+        m_textureChanged = false;
 
-        if ( dsl.size() > 0 )
+        // grab a list of data textures
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+
+        if ( tex.size() > 0 )
         {
+            // reset all uniforms
             for ( int i = 0; i < 10; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
+            // for each texture -> apply
             osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
             int c = 0;
-            for ( size_t i = 0; i < dsl.size(); ++i )
+            for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
-                osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
-
+                osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                float t = dsl[i]->getTexture()->getThreshold() / 255.0;
-                float a = dsl[i]->getTexture()->getAlpha();
+                // set threshold/opacity as uniforms
+                float t = ( *iter )->getThreshold() / 255.0;
+                float a = ( *iter )->getAlpha();
 
-                m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
+                m_typeUniforms[c]->set( ( *iter )->getDataType() );
                 m_thresholdUniforms[c]->set( t );
                 m_alphaUniforms[c]->set( a );
 

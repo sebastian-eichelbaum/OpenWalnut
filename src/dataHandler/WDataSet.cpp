@@ -28,6 +28,7 @@
 
 #include "WDataTexture3D.h"
 #include "../common/WTransferable.h"
+#include "../common/WCondition.h"
 #include "WDataSet.h"
 
 // prototype instance as singleton
@@ -78,5 +79,17 @@ boost::shared_ptr< WPrototyped > WDataSet::getPrototype()
     }
 
     return m_prototype;
+}
+
+boost::shared_ptr< WCondition > WDataSet::getChangeCondition()
+{
+    // this just forwards to the texture condition. In the future maybe datasets may also change so we need an separate condition in every
+    // dataset.
+    if ( isTexture() )
+    {
+        return getTexture()->getChangeCondition();
+    }
+
+    return boost::shared_ptr< WCondition >();
 }
 

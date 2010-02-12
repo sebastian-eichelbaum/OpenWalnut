@@ -22,53 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTCHECKBOX_H
-#define WQTCHECKBOX_H
+#include "WPropertyConstraintNotEmpty.h"
+#include "../WPropertyVariable.h"
 
-#include <string>
-
-#include <QtGui/QCheckBox>
-
-/**
- * implements a QCheckBox with a boost signal
- */
-class WQtCheckBox : public QCheckBox
-{
-    Q_OBJECT
-
-public:
-     /**
-     * standard constructor
-     */
-    explicit WQtCheckBox();
-
-    /**
-     * destructor
-     */
-    virtual ~WQtCheckBox();
-
-    /**
-     * setter for name
-     * \param name The new name of the check box
-     */
-    void setName( QString name );
-
-private:
-    QString m_name; //!< Name of the check box.
-
-public slots:
-    /**
-     * This function emits checkBoxStateChanged signal.
-     */
-    void emitStateChanged();
-
-signals:
-    /**
-     * Signal indicating that the state of the check box has changed.
-     * \param name name of the check box
-     * \param value Indicated whether the box is checked or not.
-     */
-    void checkBoxStateChanged( QString name, bool value );
-};
-
-#endif  // WQTCHECKBOX_H

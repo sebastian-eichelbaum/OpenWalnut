@@ -45,6 +45,9 @@
 #include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtCustomDockWidget.h"
+#include "events/WModuleReadyEvent.h"
+#include "events/WEventTypes.h"
+#include "datasetbrowser/WPropertyBoolWidget.h"
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
@@ -55,8 +58,7 @@
 
 WMainWindow::WMainWindow() :
     QMainWindow(),
-    m_iconManager(),
-    m_propertyManager()
+    m_iconManager()
 {
     setupGUI();
 }
@@ -101,24 +103,27 @@ void WMainWindow::setupGUI()
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
-            connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+            // TODO(ebaum): adopt!
+            // connect( m_navAxial.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+            //          &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
-            connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+            // TODO(ebaum): adopt!
+            // connect( m_navCoronal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+            //          &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
             m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
-            connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
-                     &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
+            // TODO(ebaum): adopt!
+            // connect( m_navSagittal.get(), SIGNAL( navSliderValueChanged( QString, int ) ),
+            //          &m_propertyManager, SLOT( slotIntChanged( QString, int ) ) );
         }
     }
 
@@ -146,7 +151,8 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "Default Subject" );
 
-    connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
+    // TODO(ebaum): adopt!
+    //connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -171,40 +177,64 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( loadButton );
     m_permanentToolBar->addWidget( roiButton );
 
-
     m_permanentToolBar->addSeparator();
 
-
-    WQtPushButton* axialButton = new WQtPushButton( m_iconManager.getIcon( "axial" ), "showAxial", m_permanentToolBar );
-    WQtPushButton* coronalButton = new WQtPushButton( m_iconManager.getIcon( "coronal" ), "showCoronal", m_permanentToolBar );
-    WQtPushButton* sagittalButton = new WQtPushButton( m_iconManager.getIcon( "sagittal" ), "showSagittal", m_permanentToolBar );
-
-    axialButton->setMaximumSize( 24, 24 );
-    coronalButton->setMaximumSize( 24, 24 );
-    sagittalButton->setMaximumSize( 24, 24 );
-
-    axialButton->setCheckable( true );
-    coronalButton->setCheckable( true );
-    sagittalButton->setCheckable( true );
-
-    axialButton->setChecked( true );
-    coronalButton->setChecked( true );
-    sagittalButton->setChecked( true );
-
-    axialButton->setToolTip( "Axial" );
-    coronalButton->setToolTip( "Coronal" );
-    sagittalButton->setToolTip( "Sagittal" );
-
-    m_permanentToolBar->addWidget( axialButton );
-    m_permanentToolBar->addWidget( coronalButton );
-    m_permanentToolBar->addWidget( sagittalButton );
-
-    connect( axialButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( coronalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-    connect( sagittalButton, SIGNAL( pushButtonToggled( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
-
-
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+}
+
+void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
+{
+    // nav slices use separate buttons for slice on/off switching
+    if ( module->getName() == "Navigation Slice Module" )
+    {
+        boost::shared_ptr< WPropertyBase > prop = module->getProperties2()->findProperty( "showAxial" );
+        if ( !prop )
+        {
+               WLogger::getLogger()->
+                   addLogMessage( "Navigation Slice Module does not provide the property \"showAxial\", which is required by the GUI.", "GUI",
+                                  LL_ERROR );
+        }
+        else
+        {
+            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
+            button->setToolTip( "Toggle Axial Slice" );
+            button->getButton()->setMaximumSize( 24, 24 );
+            button->getButton()->setIcon( m_iconManager.getIcon( "axial" ) );
+            m_permanentToolBar->addWidget( button );
+        }
+
+        prop = module->getProperties2()->findProperty( "showCoronal" );
+        if ( !prop )
+        {
+               WLogger::getLogger()->
+                   addLogMessage( "Navigation Slice Module does not provide the property \"showCoronal\", which is required by the GUI.", "GUI",
+                                  LL_ERROR );
+        }
+        else
+        {
+            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
+            button->setToolTip( "Toggle Coronal Slice" );
+            button->getButton()->setMaximumSize( 24, 24 );
+            button->getButton()->setIcon( m_iconManager.getIcon( "coronal" ) );
+            m_permanentToolBar->addWidget( button );
+        }
+
+        prop = module->getProperties2()->findProperty( "showSagittal" );
+        if ( !prop )
+        {
+               WLogger::getLogger()->
+                   addLogMessage( "Navigation Slice Module does not provide the property \"showSagittal\", which is required by the GUI.", "GUI",
+                                  LL_ERROR );
+        }
+        else
+        {
+            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
+            button->setToolTip( "Toggle Sagittal Slice" );
+            button->getButton()->setMaximumSize( 24, 24 );
+            button->getButton()->setIcon( m_iconManager.getIcon( "sagittal" ) );
+            m_permanentToolBar->addWidget( button );
+        }
+    }
 }
 
 void WMainWindow::setupCompatiblesToolBar()
@@ -288,11 +318,6 @@ boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLo
 boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* WMainWindow::getModuleButtonSignal()
 {
     return &m_moduleButtonSignal;
-}
-
-WPropertyManager*  WMainWindow::getPropertyManager()
-{
-    return &m_propertyManager;
 }
 
 WIconManager*  WMainWindow::getIconManager()
@@ -381,6 +406,22 @@ void WMainWindow::customEvent( QEvent* event )
         // other event
         QMainWindow::customEvent( event );
     }
+}
+
+bool WMainWindow::event( QEvent* event )
+{
+    // a module got associated with the root container -> add it to the list
+    if ( event->type() == WQT_READY_EVENT )
+    {
+        // convert event to ready event
+        WModuleReadyEvent* e1 = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
+        if ( e1 )
+        {
+            moduleSpecificSetup( e1->getModule() );
+        }
+    }
+
+    return QMainWindow::event( event );
 }
 
 boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::string title )

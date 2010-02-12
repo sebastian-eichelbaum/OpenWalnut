@@ -13,9 +13,14 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtNavGLWidget.h
-    WPropertyManager.h
     guiElements/WQtPushButton.h
-    datasetbrowser/WQtCheckBox.h
+    datasetbrowser/WPropertyWidget.h
+    datasetbrowser/WPropertyBoolWidget.h 
+    datasetbrowser/WPropertyIntWidget.h
+    datasetbrowser/WPropertyDoubleWidget.h
+    datasetbrowser/WPropertyStringWidget.h
+    datasetbrowser/WPropertyColorWidget.h
+    datasetbrowser/WPropertyFilenameWidget.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h
     datasetbrowser/WQtLineEdit.h

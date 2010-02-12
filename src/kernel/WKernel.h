@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/filesystem.hpp>
 
 #include "../common/WFlag.h"
 #include "../common/WLogger.h"
@@ -139,12 +140,23 @@ public:
     boost::shared_ptr< WGUI > getGui() const;
 
     /**
+     * Gets the current application path.
+     *
+     * \return the path
+     */
+    static boost::filesystem::path getAppPathObject();
+
+    /**
      * get for application path
+     *
+     * \return the application path
      */
     static std::string getAppPath();
 
     /**
      * getter for shader path
+     *
+     * \return the shader path
      */
     static std::string getShaderPath();
 
@@ -212,17 +224,17 @@ private:
     /**
      * The location of the openwalnut executable.
      */
-    static std::string m_appPath;
+    static boost::filesystem::path m_appPath;
 
     /**
      * The location of the shaders.
      */
-    static std::string m_shaderPath;
+    static boost::filesystem::path m_shaderPath;
 
    /**
      * The location of the font files.
      */
-    static std::string m_fontPath;
+    static boost::filesystem::path m_fontPath;
 };
 
 #endif  // WKERNEL_H

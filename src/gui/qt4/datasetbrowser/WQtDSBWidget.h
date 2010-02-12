@@ -28,17 +28,16 @@
 #include <string>
 
 #include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QSlider>
 #include <QtGui/QWidget>
-#include <QtGui/QLCDNumber>
 
-#include "WQtCheckBox.h"
-#include "WQtLineEdit.h"
-#include "WQtNumberEditDouble.h"
-#include "WQtSliderWithEdit.h"
+#include "WPropertyBoolWidget.h"
+#include "WPropertyIntWidget.h"
+#include "WPropertyStringWidget.h"
+#include "WPropertyDoubleWidget.h"
+#include "WPropertyColorWidget.h"
+#include "WPropertyFilenameWidget.h"
 
+#include "../../../common/WPropertyVariable.h"
 
 /**
  * Container widget to contain the context widget for the dataset browser.
@@ -67,34 +66,76 @@ public:
     QPushButton* addPushButton( QString label );
 
     /**
-     * helper function to add a generic checkbox
-     * \param label The text next to the check box
-     * \param isChecked the initial state of the check box
+     * Adds a new bool property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtCheckBox* addCheckBox( QString label, bool isChecked = false );
+    WPropertyBoolWidget* addProp( WPropBool property );
 
     /**
-     * helper function to add a generic line edit
-     * \param label The text next to the line edit
-     * \param text The text intially in the line edit
+     * Adds a new int property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtLineEdit* addLineEdit( QString label, QString text = QString( "" ) );
+    WPropertyIntWidget* addProp( WPropInt property );
 
     /**
-     * helper function to add a double number edit control
-     * \param label name of the control
-     * \param value value of the control
+     * Adds a new double property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtNumberEditDouble* addNumberEditDouble( QString label, double value );
+    WPropertyDoubleWidget* addProp( WPropDouble property );
 
     /**
-     * helper function to add a slider with a connect line edit
-     * \param label The text next to the slider and the edit field
-     * \param value Initial value of slider and field
-     * \param min Minimum value for slider
-     * \param max Maximum value for slider
+     * Adds a new string property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
      */
-    WQtSliderWithEdit* addSliderInt( QString label, int value = 0, int min = 0, int max = 100 );
+    WPropertyStringWidget* addProp( WPropString property );
+
+    /**
+     * Adds a new path property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    WPropertyFilenameWidget* addProp( WPropFilename property );
+
+    /**
+     * Adds a new list property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    //WPropertyListWidget* addProp( WPropList property );
+
+    /**
+     * Adds a new position property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    //WPropertyPositionWidget* addProp( WPropPosition property );
+
+    /**
+     * Adds a new color property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    WPropertyColorWidget* addProp( WPropColor property );
 
     /**
      * helper function to add a spacer at the end

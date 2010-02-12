@@ -22,60 +22,64 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEXTURELIST_H
-#define WMTEXTURELIST_H
+#ifndef WPROPERTYFILENAMEWIDGET_H
+#define WPROPERTYFILENAMEWIDGET_H
 
 #include <string>
 
-#include "../../kernel/WModule.h"
+#include <QtGui/QPushButton>
+#include <QtGui/QHBoxLayout>
+
+#include "WPropertyWidget.h"
 
 /**
- * Module representing the available textures. It is currently just a skeleton.
- * \ingroup modules
+ * Implements a property widget for WPropColor.
  */
-class WMTextureList: public WModule
+class WPropertyFilenameWidget: public WPropertyWidget
 {
+    Q_OBJECT
 public:
 
     /**
-     * Default constructor.
+     * Constructor. Creates a new widget appropriate for the specified property.
+     *
+     * \param property the property to handle
+     * \param parent the parent widget.
+     * \param propertyGrid the grid used to layout the labels and property widgets
      */
-    WMTextureList();
+    WPropertyFilenameWidget( WPropFilename property, QGridLayout* propertyGrid, QWidget* parent = 0 );
 
     /**
      * Destructor.
      */
-    virtual ~WMTextureList();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
-
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual boost::shared_ptr< WModule > factory() const;
+    virtual ~WPropertyFilenameWidget();
 
 protected:
 
     /**
-     * Entry point after loading the module. Runs in separate thread.
+     * The filename property represented by this widget.
      */
-    virtual void moduleMain();
+    WPropFilename m_fnProperty;
+
+    /**
+     * The button field showing the value
+     */
+    QPushButton m_button;
+
+    /**
+     * Layout used to position the label and the checkbox
+     */
+    QHBoxLayout m_layout;
 
 private:
+
+public slots:
+
+    /**
+     * Called when the m_button was pressed.
+     */
+    void buttonReleased();
 };
 
-#endif  // WMTEXTURELIST_H
+#endif  // WPROPERTYFILENAMEWIDGET_H
 

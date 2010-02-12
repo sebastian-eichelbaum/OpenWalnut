@@ -31,6 +31,8 @@
 #include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
 
+#include "WPropertyWidget.h"
+
 /**
  * container widget for a slider with a connected number edit
  */
@@ -41,10 +43,10 @@ class WQtSliderWithEdit : public QWidget
 public:
     /**
      * default constructor
-     * \param name Name of this GUI element.
+     * \param property the property to handle
      * \param parent the widget that is the parent of this widget and thus manages it.
      */
-    explicit WQtSliderWithEdit( QString name, QWidget* parent = 0 );
+    explicit WQtSliderWithEdit( boost::shared_ptr< WPropertyBase > property, QWidget* parent = 0 );
 
     /**
      * destructor

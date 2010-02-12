@@ -35,12 +35,12 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
 
-
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
 class WBatchLoader;
 class WModule;
+class WMData;
 
 /**
  * Class able to contain other modules. It manages several tasks like finding appropriate modules, managing data modules and
@@ -154,11 +154,11 @@ public:
     void loadDataSetsSynchronously( std::vector< std::string > fileNames );
 
     /**
-     * Add the specified thread to the list of pending jobs. Only this ensures, that ALL pending threads got stopped before the
+     * Add the specified thread to the list of pending jobs. Only this ensures, that ALL pending threads get stopped before the
      * container gets stopped.
      *
      * \note use this to register threads whenever you start threads belonging to this container. This avoids shutting down the
-     * container while other threads depend upon them.
+     * container while other threads depend upon it.
      *
      * \param thread the thread to add
      */
@@ -178,6 +178,18 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Simple type for WMData pointer lists.
+     */
+    typedef std::set< boost::shared_ptr< WMData > > DataModuleListType;
+
+    /**
+     * Returns a vector of pointers to the loaded data modules in the container.
+     *
+     * \return the list of data modules.
+     */
+    DataModuleListType getDataModules();
 
 protected:
 

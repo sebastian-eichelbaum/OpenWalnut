@@ -125,6 +125,62 @@ protected:
 
 
 private:
+
+    /**
+     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
+     */
+    void notifyTextureChange();
+
+    /**
+     * True when textures haven changed.
+     */
+    bool m_textureChanged;
+
+    /**
+     * Axial slice position.
+     */
+    WPropInt m_axialPos;
+
+    /**
+     * Coronal slice position.
+     */
+    WPropInt m_coronalPos;
+
+    /**
+     * Sagittal slice position.
+     */
+    WPropInt m_sagittalPos;
+
+    /**
+     * Maximum position of axial slice.
+     */
+    WPropInt m_maxAxial;
+
+    /**
+     * Maximum position of coronal slice.
+     */
+    WPropInt m_maxCoronal;
+
+    /**
+     * Maximum position of sagittal slice.
+     */
+    WPropInt m_maxSagittal;
+
+    /**
+     * True if axial slice should be visible.
+     */
+    WPropBool m_showAxial;
+
+    /**
+     * True if coronal slice should be visible.
+     */
+    WPropBool m_showCoronal;
+
+    /**
+     * True if sagittal slice should be visible.
+     */
+    WPropBool m_showSagittal;
+
     /**
      * initial create method
      */

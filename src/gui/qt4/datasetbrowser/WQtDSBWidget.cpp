@@ -24,8 +24,6 @@
 
 #include <string>
 
-#include "WQtNumberEdit.h"
-
 #include "WQtDSBWidget.h"
 
 WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
@@ -37,96 +35,38 @@ WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
     m_pageLayout.addLayout( &m_controlLayout );
 }
 
-
 WQtDSBWidget::~WQtDSBWidget()
 {
 }
 
-
-QPushButton* WQtDSBWidget::addPushButton( QString label )
+WPropertyBoolWidget* WQtDSBWidget::addProp( WPropBool property )
 {
-    int row = m_controlLayout.rowCount();
-
-    QPushButton* button = new QPushButton();
-    button->setText( label );
-
-    m_controlLayout.addWidget( button, row, 0 );
-
-    setLayout( &m_pageLayout );
-    return button;
+    return new WPropertyBoolWidget( property, &m_controlLayout, this );
 }
 
-
-WQtCheckBox* WQtDSBWidget::addCheckBox( QString label, bool isChecked )
+WPropertyIntWidget* WQtDSBWidget::addProp( WPropInt property )
 {
-    int row = m_controlLayout.rowCount();
-    QLabel* qlabel = new QLabel( label );
-
-    WQtCheckBox* checkBox = new WQtCheckBox();
-    checkBox->setName( label );
-    checkBox->setChecked( isChecked );
-
-    m_controlLayout.addWidget( qlabel, row, 0 );
-    m_controlLayout.addWidget( checkBox, row, 1 );
-
-    setLayout( &m_pageLayout );
-
-    return checkBox;
+    return new WPropertyIntWidget( property, &m_controlLayout, this );
 }
 
-
-WQtLineEdit* WQtDSBWidget::addLineEdit( QString label, QString text )
+WPropertyDoubleWidget* WQtDSBWidget::addProp( WPropDouble property )
 {
-    int row = m_controlLayout.rowCount();
-    QLabel* qlabel = new QLabel( label );
-
-    WQtLineEdit* lineEdit = new WQtLineEdit();
-    lineEdit->setName( label );
-    lineEdit->setText( text );
-
-    m_controlLayout.addWidget( qlabel, row, 0 );
-    m_controlLayout.addWidget( lineEdit, row, 1 );
-
-    setLayout( &m_pageLayout );
-
-    return lineEdit;
+    return new WPropertyDoubleWidget( property, &m_controlLayout, this );
 }
 
-
-WQtSliderWithEdit* WQtDSBWidget::addSliderInt( QString label, int value, int min, int max )
+WPropertyStringWidget* WQtDSBWidget::addProp( WPropString property )
 {
-    int row = m_controlLayout.rowCount();
-    QLabel* qlabel = new QLabel( label );
-
-    WQtSliderWithEdit* slider = new WQtSliderWithEdit( label );
-
-    slider->setMin( min );
-    slider->setMax( max );
-    slider->setValue( value );
-
-    m_controlLayout.addWidget( qlabel, row, 0 );
-    m_controlLayout.addWidget( slider, row, 1 );
-
-    setLayout( &m_pageLayout );
-
-    return slider;
+    return new WPropertyStringWidget( property, &m_controlLayout, this );
 }
 
-WQtNumberEditDouble* WQtDSBWidget::addNumberEditDouble( QString label, double value )
+WPropertyColorWidget* WQtDSBWidget::addProp( WPropColor property )
 {
-    int row = m_controlLayout.rowCount();
-    QLabel* qlabel = new QLabel( label );
+    return new WPropertyColorWidget( property, &m_controlLayout, this );
+}
 
-    WQtNumberEditDouble* numberEdit = new WQtNumberEditDouble( label );
-
-    numberEdit->setDouble( value );
-
-    m_controlLayout.addWidget( qlabel, row, 0 );
-    m_controlLayout.addWidget( numberEdit, row, 1 );
-
-    setLayout( &m_pageLayout );
-
-    return numberEdit;
+WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
+{
+    return new WPropertyFilenameWidget( property, &m_controlLayout, this );
 }
 
 void WQtDSBWidget::addSpacer()

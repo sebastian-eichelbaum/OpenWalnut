@@ -106,6 +106,12 @@ protected:
 
 private:
 
+    /**
+     * Gets signaled from the properties object when something was changed. Now, only m_active is used. This method therefore simply
+     * activates/deactivates the BBox.
+     */
+    void activate();
+
     osg::ref_ptr< WGEGroupNode > m_bBoxNode; //!< OSG root node for this module
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.

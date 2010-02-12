@@ -62,6 +62,10 @@ WModule::WModule():
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
+    m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
+    m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
+    m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
+
     m_container = boost::shared_ptr< WModuleContainer >();
     m_progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
 
@@ -127,6 +131,10 @@ void WModule::properties()
 {
 }
 
+void WModule::activate()
+{
+}
+
 void WModule::initialize()
 {
     // doing it twice is not allowed
@@ -162,6 +170,11 @@ void WModule::setAssociatedContainer( boost::shared_ptr< WModuleContainer > cont
     m_isUsable( m_initialized() && m_isAssociated() );
 }
 
+MODULE_TYPE WModule::getType() const
+{
+    return MODULE_ARBITRARY;
+}
+
 const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputConnectors() const
 {
     return m_inputConnectors;
@@ -175,7 +188,7 @@ const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutput
 boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name )
 {
     // simply search
-    for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
+    for( std::set<boost::shared_ptr< WModuleInputConnector > >::const_iterator listIter = m_inputConnectors.begin();
          listIter != m_inputConnectors.end(); ++listIter )
     {
         // try the canonical name
@@ -191,7 +204,7 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
 boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name )
 {
     // simply search
-    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::iterator listIter = m_outputConnectors.begin();
+    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::const_iterator listIter = m_outputConnectors.begin();
          listIter != m_outputConnectors.end(); ++listIter )
     {
         // try the canonical name
@@ -297,6 +310,11 @@ void WModule::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
 boost::shared_ptr< WProperties > WModule::getProperties() const
 {
     return m_properties;
+}
+
+boost::shared_ptr< WProperties2 > WModule::getProperties2() const
+{
+    return m_properties2;
 }
 
 boost::shared_ptr< WProgressCombiner > WModule::getRootProgressCombiner()

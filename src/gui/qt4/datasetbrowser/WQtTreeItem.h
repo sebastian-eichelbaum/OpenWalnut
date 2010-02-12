@@ -95,6 +95,13 @@ protected:
      */
     std::string m_name;
 
+    /**
+     * Method updates the tooltip of the tree item.
+     *
+     * \param progress the current progress as string.
+     */
+    void updateTooltip( std::string progress );
+
 private:
 
     /**

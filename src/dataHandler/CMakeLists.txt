@@ -19,5 +19,5 @@ ELSE()
 ENDIF()
 # Unit tests
 IF( OW_COMPILE_TESTS )
-  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_SRC}" "dataHandler" "WDataTexture3D.cpp" )
+  CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_SRC}" "dataHandler" "WDataTexture3D.cpp" "WDataHandlerEnums.cpp" )
 ENDIF( OW_COMPILE_TESTS )

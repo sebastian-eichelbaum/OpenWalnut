@@ -28,11 +28,13 @@
 #include <typeinfo>
 
 #include "../common/WLogger.h"
+#include "../modules/template/WMTemplate.h"
+#include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
-#include "../modules/data/WMData.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
+#include "../modules/connectomeView/WMConnectomeView.h"
 #include "../modules/eegView/WMEEGView.h"
 #include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../modules/fiberCulling/WMFiberCulling.h"
@@ -43,7 +45,6 @@
 #include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/prototypeBoxManipulation/WMPrototypeBoxManipulation.h"
-#include "../modules/textureList/WMTextureList.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "WModuleFactory.h"
@@ -72,6 +73,7 @@ void WModuleFactory::load()
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_prototypesLock );
 
     // currently the prototypes are added by hand. This will be done automatically later.
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMTemplate() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
@@ -82,7 +84,6 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
-    m_prototypes.insert( boost::shared_ptr< WModule >( new WMTextureList() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMHud() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
@@ -90,6 +91,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
 
     lock.unlock();
 

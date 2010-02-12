@@ -93,6 +93,14 @@ bool WModuleConnector::isConnectedTo( boost::shared_ptr<WModuleConnector> con )
     return ( c1 == 1 );
 }
 
+unsigned int WModuleConnector::isConnected()
+{
+    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_connectionListLock );
+    int count = m_connected.size();
+    slock.unlock();
+    return count;
+}
+
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
     boost::shared_ptr< WModuleContainer > container = m_module->getAssociatedContainer();

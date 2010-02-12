@@ -22,27 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WSharedObject.h"
 
-#include "WQtCheckBox.h"
-
-WQtCheckBox::WQtCheckBox()
-    : QCheckBox()
-{
-    m_name = "";
-    connect( this, SIGNAL( toggled( bool ) ), this, SLOT( emitStateChanged() ) );
-}
-
-WQtCheckBox::~WQtCheckBox()
-{
-}
-
-void WQtCheckBox::setName( QString name )
-{
-    m_name = name;
-}
-
-void WQtCheckBox::emitStateChanged()
-{
-    emit checkBoxStateChanged( m_name, this->isChecked() );
-}

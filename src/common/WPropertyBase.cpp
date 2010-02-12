@@ -22,9 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include "WPropertyBase.h"
+#include "WPropertyVariable.h"
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_name( name ),
@@ -54,6 +58,11 @@ PROPERTY_TYPE WPropertyBase::getType() const
     return m_type;
 }
 
+void WPropertyBase::updateType()
+{
+    m_type = PV_UNKNOWN;
+}
+
 bool WPropertyBase::isHidden() const
 {
     return m_hidden;
@@ -62,5 +71,45 @@ bool WPropertyBase::isHidden() const
 void WPropertyBase::setHidden( bool hidden )
 {
     m_hidden = hidden;
+}
+
+WPropInt WPropertyBase::toPropInt()
+{
+    return boost::shared_static_cast< WPVInt >( shared_from_this() );
+}
+
+WPropDouble WPropertyBase::toPropDouble()
+{
+    return boost::shared_static_cast< WPVDouble >( shared_from_this() );
+}
+
+WPropBool WPropertyBase::toPropBool()
+{
+    return boost::shared_static_cast< WPVBool >( shared_from_this() );
+}
+
+WPropString WPropertyBase::toPropString()
+{
+    return boost::shared_static_cast< WPVString >( shared_from_this() );
+}
+
+WPropFilename WPropertyBase::toPropFilename()
+{
+    return boost::shared_static_cast< WPVFilename >( shared_from_this() );
+}
+
+WPropList WPropertyBase::toPropList()
+{
+    return boost::shared_static_cast< WPVList >( shared_from_this() );
+}
+
+WPropColor WPropertyBase::toPropColor()
+{
+    return boost::shared_static_cast< WPVColor >( shared_from_this() );
+}
+
+WPropPosition WPropertyBase::toPropPosition()
+{
+    return boost::shared_static_cast< WPVPosition >( shared_from_this() );
 }
 

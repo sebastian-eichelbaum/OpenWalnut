@@ -46,7 +46,6 @@
 #include "WQtToolBar.h"
 
 #include "WIconManager.h"
-#include "WPropertyManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
 
 #include "../../kernel/WModule.h"
@@ -90,12 +89,6 @@ public:
      */
     WQtToolBar* getCompatiblesToolBar();
 
-
-    /**
-     * Return property manager
-     */
-    WPropertyManager* getPropertyManager();
-
     /**
      * Return icon manager
      */
@@ -134,6 +127,13 @@ public:
 protected:
 
     /**
+     * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
+     *
+     * \param module the module to setup the GUI for.
+     */
+    void moduleSpecificSetup( boost::shared_ptr< WModule > module );
+
+    /**
      * We want to react on close events.
      *
      * \param e the close event.
@@ -147,6 +147,17 @@ protected:
      * \param event the custom event
      */
     virtual void customEvent( QEvent* event );
+
+    /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes several custom events, like WModuleAssocEvent.
+     *
+     * \note QT Doc says: use event() for custom events.
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
 
 public slots:
     /**
@@ -182,8 +193,6 @@ private:
     void setupCompatiblesToolBar();
 
     WIconManager m_iconManager; //!< manager to provide icons in the gui thread
-
-    WPropertyManager m_propertyManager; //!< transmit gui interactions to connected modules
 
     QMenuBar* m_menuBar; //!< The main menu bar of the GUI.
 

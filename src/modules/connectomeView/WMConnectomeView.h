@@ -22,30 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEST_H
-#define WMTEST_H
+#ifndef WMCONNECTOMEVIEW_H
+#define WMCONNECTOMEVIEW_H
 
+#include <map>
 #include <string>
+#include <vector>
+
+#include <osg/Node>
+#include <osg/Geode>
+#include <osg/Uniform>
+
+#include "../../dataHandler/WDataSetFibers.h"
 
 #include "../../kernel/WModule.h"
+#include "../../kernel/WModuleContainer.h"
+#include "../../kernel/WModuleInputForwardData.h"
+#include "../../kernel/WModuleOutputForwardData.h"
 
 /**
- * Simple module for testing some WKernel functionality.
+ * This module is able to visualize connectome data in the context of MRI data. It uses the module container class to allow the
+ * module to be composed from other modules.
  * \ingroup modules
  */
-class WMTest: public WModule
+class WMConnectomeView : public WModuleContainer
 {
 public:
-
     /**
-     * Default constructor.
+     * Standard constructor.
      */
-    WMTest();
+    WMConnectomeView();
 
     /**
      * Destructor.
      */
-    virtual ~WMTest();
+    ~WMConnectomeView();
 
     /**
      * Gives back the name of this module.
@@ -55,14 +66,20 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description to module.
+     * \return description of module.
      */
     virtual const std::string getDescription() const;
 
     /**
+     * Determine what to do if a property was changed.
+     */
+    //void slotPropertyChanged( std::string propertyName );
+    void slotPropertyChanged();
+
+    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
-     * 
+     *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
@@ -74,8 +91,37 @@ protected:
      */
     virtual void moduleMain();
 
+    /**
+     * Initialize the connectors this module is using.
+     */
+    virtual void connectors();
+
+    /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
 private:
+
+    /**
+     * Test property
+     */
+    WPropInt m_test;
+
+    /**
+     * The T1 image used as context
+     */
+    boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_mrtInput;
+
+    /**
+     * The fiber dataset used.
+     */
+    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_fiberInput;
+
+    /**
+     * the current dataset
+     */
+    boost::shared_ptr< const WDataSetSingle > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
 };
 
-#endif  // WMTEST_H
-
+#endif  // WMCONNECTOMEVIEW_H

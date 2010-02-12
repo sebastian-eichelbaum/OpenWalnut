@@ -98,6 +98,13 @@ public:
     bool isConnectedTo( boost::shared_ptr<WModuleConnector> con );
 
     /**
+     * Gets the count of connections currently established.
+     *
+     * \return the number of connections.
+     */
+    unsigned int isConnected();
+
+    /**
      * Connects a specified notify function with a signal this module instance is offering.
      *
      * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.

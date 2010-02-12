@@ -61,7 +61,8 @@ void WMHud::connectors()
 
 void WMHud::properties()
 {
-    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMHud::slotPropertyChanged, this, _1 ) );
+    // m_active gets initialized in WModule and is available for all modules. Overwrite activate() to have a special callback for m_active
+    // changes or add a callback manually.
 }
 
 void WMHud::moduleMain()
@@ -177,7 +178,7 @@ void WMHud::init()
     m_rootNode->setUserData( this );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
 
-    if ( m_properties->getValue<bool>( "active" ) )
+    if ( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -218,17 +219,15 @@ void WMHud::update()
     lock.unlock();
 }
 
-void WMHud::slotPropertyChanged( std::string propertyName )
+void WMHud::activate()
 {
-    if ( propertyName == "active" )
+    if ( m_active->get() )
     {
-        if ( m_properties->getValue<bool>( "active" ) )
-        {
-            m_rootNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_rootNode->setNodeMask( 0x0 );
-        }
+        m_rootNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_rootNode->setNodeMask( 0x0 );
     }
 }
+

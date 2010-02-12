@@ -31,9 +31,11 @@
 
 #include <osg/Texture3D>
 
-
+#include "WDataHandlerEnums.h"
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
+
+class WCondition;
 
 /**
  * Class encapsulating a 3D texture. It is able to use a value set and grid to create an OpenSceneGraph texture, that can be used
@@ -70,6 +72,13 @@ public:
     void setAlpha( float alpha );
 
     /**
+     * Sets the opacity value. The value must be in [0,100]. Otherwise nothing will happen.
+     *
+     * \param opacity the opacity value.
+     */
+    void setOpacity( float opacity );
+
+    /**
      * Returns the currently set threshold.
      *
      * \return the threshold.
@@ -84,11 +93,40 @@ public:
     void setThreshold( float threshold );
 
     /**
+     * Is this texture globally active and used for colormapping?
+     *
+     * \return true if active.
+     */
+    bool isGloballyActive();
+
+    /**
+     * Sets whether the texture is active globally.
+     *
+     * \param active true if active
+     */
+    void setGloballyActive( bool active = true );
+
+    /**
+     * Returns the data type of the texture.
+     *
+     * \return the type.
+     */
+    dataType getDataType();
+
+    /**
      * getter for the texture object
      *
      * \return the texture
      */
     osg::ref_ptr< osg::Texture3D > getTexture();
+
+    /**
+     * Gets the condition which is fired whenever the texture gets some kind of dirty (threshold, opacity, ...)
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getChangeCondition();
+
 protected:
 
     /**
@@ -125,6 +163,11 @@ protected:
     osg::ref_ptr< osg::Image > createTexture3D( float* source, int components = 1 );
 
     /**
+     * Notifies about changes. Mainly this will be used by the textures whenever the threshold/opacity change.
+     */
+    void notifyChange();
+
+    /**
      * Creates a 3D texture for the data set.
      */
     void createTexture();
@@ -153,6 +196,17 @@ protected:
      * The grid used to set up the texture.
      */
     boost::shared_ptr< WGridRegular3D > m_grid;
+
+    /**
+     * The condition which is fired whenever the dataset gets some kind of dirty (threshold, opacity, ...)
+     */
+    boost::shared_ptr< WCondition > m_changeCondition;
+
+    /**
+     * Flag denotes whether this texture should be used by surfaces/slides for surface colormapping.
+     */
+    bool m_globalActive;
+
 private:
 };
 

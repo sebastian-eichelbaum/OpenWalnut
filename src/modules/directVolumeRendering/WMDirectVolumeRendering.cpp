@@ -131,10 +131,5 @@ void WMDirectVolumeRendering::connectors()
 
 void WMDirectVolumeRendering::properties()
 {
-    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMDirectVolumeRendering::slotPropertyChanged, this, _1 ) );
-}
-
-void WMDirectVolumeRendering::slotPropertyChanged( std::string propertyName )
-{
 }
 

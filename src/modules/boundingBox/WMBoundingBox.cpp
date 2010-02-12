@@ -76,6 +76,7 @@ const std::string WMBoundingBox::getDescription() const
 void WMBoundingBox::moduleMain()
 {
     // use the m_input "data changed" flag
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
 
     // signal ready state
@@ -84,18 +85,16 @@ void WMBoundingBox::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        sleep( 3 ); // TODO(wiebel): remove this
         // acquire data from the input connector
         m_dataSet = m_input->getData();
-        if ( !m_dataSet )
+        if ( !m_dataSet.get() )
         {
-            // ok, the output has not yet sent data
+            // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
             debugLog() << "Waiting for data ...";
             m_moduleState.wait();
             continue;
         }
-        assert( m_dataSet );
 
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
@@ -133,17 +132,20 @@ void WMBoundingBox::connectors()
 void WMBoundingBox::properties()
 {
 //    ( m_properties->addInt( "Thickness", 1 ) )->connect( boost::bind( &WMBoundingBox::slotPropertyChanged, this, _1 ) );
+
+    // m_active gets initialized in WModule and is available for all modules. Overwrite activate() to have a special callback for m_active
+    // changes.
 }
 
-void WMBoundingBox::slotPropertyChanged( std::string propertyName )
+void WMBoundingBox::activate()
 {
-    //  if( propertyName == "Filter Size" )
-//     {
-//         // TODO(wiebel): need code here
-//     }
-//     else
+    if ( m_active->get() )
     {
-        std::cout << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
+        m_bBoxNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_bBoxNode->setNodeMask( 0x0 );
     }
 }
+

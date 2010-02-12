@@ -29,23 +29,147 @@
 
 #include <string>
 #include <list>
+#include <utility>
 
 #include <boost/filesystem.hpp>
+
+#include "../math/WPosition.h"
+#include "WColor.h"
+
+template < typename T >
+class WPropertyVariable;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NOTE: If you add new types here, please also add corresponding addProperty methods to WProperties
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NOTE: Always use the WPVBaseTypes in all your declarations to allow easy type modifications later on
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Enum of all possible types, that can be used with WProperty.
  */
 typedef enum
 {
-    UNKNOWN,        // type not know
-    INT,            // integer value
-    DOUBLE,         // floating point value
-    BOOL,           // boolean
-    STRING,         // a string
-    PATH,           // a Boost Path object denoting a filename/path
-    LIST            // a list of strings
+    PV_UNKNOWN,        // type not know
+    PV_INT,            // integer value
+    PV_DOUBLE,         // floating point value
+    PV_BOOL,           // boolean
+    PV_STRING,         // a string
+    PV_PATH,           // a Boost Path object denoting a filename/path
+    PV_LIST,           // a list of strings
+    PV_POSITION,       // a position property
+    PV_COLOR           // a color property
 }
 PROPERTY_TYPE;
+
+/**
+ * Namespace containing all base types of the WPropertyVariables. Use these types instead of issuing int32_t, double, bool, ...
+ * directly.
+ */
+namespace WPVBaseTypes
+{
+    typedef int32_t                                         PV_INT;         //!< base type used for every WPVInt
+    typedef double                                          PV_DOUBLE;      //!< base type used for every WPVDouble
+    typedef bool                                            PV_BOOL;        //!< base type used for every WPVBool
+    typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
+    typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
+    typedef std::list< std::pair< std::string, bool > >     PV_LIST;        //!< base type used for every WPVList
+    typedef wmath::WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
+    typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
+}
+
+/**
+ * Some convenience type alias for a even more easy usage of WPropertyVariable.
+ * These typedefs are useful for casts, as they alias the PropertyVariable types. Please use these types instead of directly
+ * int32_t, double, bool, ... so we are able to change the type later on without modifications of thousands of modules.
+ */
+
+/**
+ * Int properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_INT > WPVInt;
+
+/**
+ * Floating point properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_DOUBLE > WPVDouble;
+
+/**
+ * Boolean properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_BOOL > WPVBool;
+
+/**
+ * String properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_STRING > WPVString;
+
+/**
+ * Filename properties.
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_PATH > WPVFilename;
+
+/**
+ * List properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_LIST > WPVList;
+
+/**
+ * position (vec3d) properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_POSITION > WPVPosition;
+
+/**
+ * Color properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_COLOR > WPVColor;
+
+/**
+ * Some convenience type alias for a even more easy usage of WPropertyVariable.
+ * These typdefs define some pointer alias.
+ */
+
+/**
+ * Alias for int32_t property variables.
+ */
+typedef boost::shared_ptr< WPVInt > WPropInt;
+
+/**
+ * Alias for int32_t property variables.
+ */
+typedef boost::shared_ptr< WPVDouble > WPropDouble;
+
+/**
+ * Alias for bool property variables.
+ */
+typedef boost::shared_ptr< WPVBool > WPropBool;
+
+/**
+ * Alias for string property variables.
+ */
+typedef boost::shared_ptr< WPVString > WPropString;
+
+/**
+ * Alias for filename property variables.
+ */
+typedef boost::shared_ptr< WPVFilename > WPropFilename;
+
+/**
+ * Alias for string list property variables.
+ */
+typedef boost::shared_ptr< WPVList > WPropList;
+
+/**
+ * Alias for position property variables.
+ */
+typedef boost::shared_ptr< WPVPosition > WPropPosition;
+
+/**
+ * Alias for color property variables.
+ */
+typedef boost::shared_ptr< WPVColor > WPropColor;
 
 /**
  * This namespace contains several helper classes which translate their template type to an enum.
@@ -66,7 +190,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return UNKNOWN;
+            return PV_UNKNOWN;
         }
     };
 
@@ -74,7 +198,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< bool >
+    class WTypeIdentifier< WPVBaseTypes::PV_BOOL >
     {
     public:
         /**
@@ -84,7 +208,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return BOOL;
+            return PV_BOOL;
         }
     };
 
@@ -92,7 +216,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< int32_t >
+    class WTypeIdentifier< WPVBaseTypes::PV_INT >
     {
     public:
         /**
@@ -102,7 +226,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return INT;
+            return PV_INT;
         }
     };
 
@@ -110,7 +234,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< double >
+    class WTypeIdentifier< WPVBaseTypes::PV_DOUBLE >
     {
     public:
         /**
@@ -120,7 +244,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return DOUBLE;
+            return PV_DOUBLE;
         }
     };
 
@@ -128,7 +252,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< std::string >
+    class WTypeIdentifier< WPVBaseTypes::PV_STRING >
     {
     public:
         /**
@@ -138,7 +262,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return STRING;
+            return PV_STRING;
         }
     };
 
@@ -146,7 +270,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< boost::filesystem::path >
+    class WTypeIdentifier< WPVBaseTypes::PV_PATH >
     {
     public:
         /**
@@ -156,7 +280,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return PATH;
+            return PV_PATH;
         }
     };
 
@@ -164,7 +288,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< std::list< std::string > >
+    class WTypeIdentifier< WPVBaseTypes::PV_LIST >
     {
     public:
         /**
@@ -174,10 +298,45 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return LIST;
+            return PV_LIST;
+        }
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_POSITION >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_POSITION;
+        }
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_COLOR >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_COLOR;
         }
     };
 }
-
 
 #endif  // WPROPERTYTYPES_H

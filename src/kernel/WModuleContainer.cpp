@@ -27,6 +27,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include "WModule.h"
 #include "exceptions/WModuleUninitialized.h"
@@ -36,9 +37,12 @@
 #include "../common/WThreadedRunner.h"
 #include "WKernel.h"
 #include "WModuleFactory.h"
+#include "WModuleTypes.h"
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
 #include "WBatchLoader.h"
+
+#include "../modules/data/WMData.h"
 
 #include "WModuleContainer.h"
 
@@ -156,8 +160,36 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
 
     // TODO(ebaum): remove signal subscriptions
-
+    // TODO(ebaum): remove progress from combiner
     // TODO(ebaum): flat or deep removal? What to do with associated modules?
+}
+
+WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
+{
+    DataModuleListType l;
+
+    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
+
+    // iterate module list
+    for( std::set< boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
+    {
+        // is this module a data module?
+        if ( ( *iter )->getType() == MODULE_DATA )
+        {
+            boost::shared_ptr< WMData > dm = boost::shared_static_cast< WMData >( *iter );
+
+            // now check the contained dataset ( isTexture and whether it is ready )
+            if ( dm->isReady()() )
+            {
+                l.insert( dm );
+            }
+        }
+    }
+    slock.unlock();
+
+    // now sort the list using the sorter
+
+    return l;
 }
 
 void WModuleContainer::stop()

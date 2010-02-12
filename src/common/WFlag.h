@@ -64,6 +64,15 @@ public:
     /**
      * Operator returns value of the flag.
      *
+     * \param resetChangeState when true, the changed() flag gets reset to false.
+     *
+     * \return the value.
+     */
+    virtual const T get( bool resetChangeState = false );
+
+    /**
+     * Operator returns value of the flag.
+     *
      * \return the value.
      */
     virtual const T get() const;
@@ -81,11 +90,16 @@ public:
     virtual void wait() const;
 
     /**
-     * Sets the new value for this flag. Also notifies waiting threads.
+     * Sets the new value for this flag. Also notifies waiting threads. After setting a value, changed() will be true.
      *
      * \param value the new value
+     * \param suppressNotification true to avoid a firing condition. This is useful for resetting values.
+     *
+     * \return true if the value has been set successfully.
+     *
+     * \note set( get() ) == true
      */
-    virtual void set( T value );
+    virtual bool set( T value, bool suppressNotification = false );
 
     /**
      * Sets the new value for this flag. Also notifies waiting threads.
@@ -101,6 +115,23 @@ public:
      */
     boost::shared_ptr< WCondition > getCondition();
 
+    /**
+     * Determines whether the specified value is acceptable. In WFlags, this always returns true. To modify the behaviour,
+     * implement this function in an appropriate way.
+     *
+     * \param newValue the new value.
+     *
+     * \return true if it is a valid/acceptable value.
+     */
+    virtual bool accept( T newValue );
+
+    /**
+     * True whenever the value inside this flag has changed since the last reset. It stays true until get( true ) is called.
+     *
+     * \return true when the value has changed and not yet been reseted.
+     */
+    virtual bool changed();
+
 protected:
 
     /**
@@ -113,6 +144,11 @@ protected:
      */
     T m_flag;
 
+    /**
+     * Denotes whether the value has changed since the last reset.
+     */
+    bool m_changed;
+
 private:
 };
 
@@ -122,17 +158,19 @@ private:
 typedef WFlag< bool > WBoolFlag;
 
 template < typename T >
-WFlag< T >::WFlag( WCondition* condition, T initial )
+WFlag< T >::WFlag( WCondition* condition, T initial ):
+    m_condition( boost::shared_ptr< WCondition >( condition ) ),
+    m_flag( initial ),
+    m_changed( true )
 {
-    m_condition = boost::shared_ptr< WCondition >( condition );
-    m_flag = initial;
 }
 
 template < typename T >
-WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, T initial )
+WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, T initial ):
+    m_condition( condition ),
+    m_flag( initial ),
+    m_changed( true )
 {
-    m_condition = condition;
-    m_flag = initial;
 }
 
 template < typename T >
@@ -144,6 +182,16 @@ template < typename T >
 const T WFlag< T >::operator()() const
 {
     return get();
+}
+
+template < typename T >
+const T WFlag< T >::get( bool resetChangeState )
+{
+    if ( resetChangeState )
+    {
+        m_changed = false;
+    }
+    return m_flag;
 }
 
 template < typename T >
@@ -165,19 +213,49 @@ void WFlag< T >::operator()( T value )
 }
 
 template < typename T >
-void WFlag< T >::set( T value )
+bool WFlag< T >::set( T value, bool suppressNotification )
 {
+    // if the value is the same as the current one -> do not notify but let the caller know "all ok"
     if ( m_flag == value )
-        return;
+    {
+        return true;
+    }
+
+    // let the caller know whether the value was acceptable.
+    if ( !accept( value ) )
+    {
+        return false;
+    }
 
     m_flag = value;
-    m_condition->notify();
+    m_changed = true;
+
+    // is the notification suppressed ?
+    if ( !suppressNotification )
+    {
+        m_condition->notify();
+    }
+
+    return true;
 }
 
 template < typename T >
 boost::shared_ptr< WCondition > WFlag< T >::getCondition()
 {
     return m_condition;
+}
+
+template < typename T >
+bool WFlag< T >::accept( T /* newValue */ )
+{
+    // please implement this method in your class to modify the behaviour.
+    return true;
+}
+
+template < typename T >
+bool WFlag< T >::changed()
+{
+    return m_changed;
 }
 
 #endif  // WFLAG_H

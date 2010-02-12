@@ -23,46 +23,147 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
-#include "WSubject.h"
+#include <boost/lexical_cast.hpp>
+
+#include "../common/WLogger.h"
+
+#include "WDataSet.h"
+#include "WDataTexture3D.h"
 #include "exceptions/WDHNoSuchDataSet.h"
 
+#include "WSubject.h"
 
-WSubject::WSubject()
-    : m_personalInfo( WPersonalInformation::createDummyInformation() ),
-      m_dataSets( 0 )
+WSubject::WSubject():
+    m_datasets(),
+    m_datasetAccess( m_datasets.getAccessObject() ),
+    m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
+    m_personalInfo( WPersonalInformation::createDummyInformation() )
 {
 }
 
-WSubject::WSubject( WPersonalInformation personInfo )
-    : m_personalInfo( personInfo ),
-      m_dataSets( 0 )
+WSubject::WSubject( WPersonalInformation personInfo ):
+    m_datasets(),
+    m_datasetAccess( m_datasets.getAccessObject() ),
+    m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
+    m_personalInfo( personInfo )
 {
+}
+
+WSubject::~WSubject()
+{
+    clear();
 }
 
 std::string WSubject::getName() const
 {
-    return m_personalInfo.getLastName() + ", " + m_personalInfo.getFirstName() + " " + m_personalInfo.getMiddleName();
+    return m_personalInfo.getCompleteName();
 }
 
-boost::shared_ptr< WDataSet > WSubject::getDataSet( const unsigned int dataSetId ) const
+WPersonalInformation WSubject::getPersonalInformation() const
 {
-    if( dataSetId >= m_dataSets.size() )
-        throw WDHNoSuchDataSet( "Index too large." );
-    return m_dataSets.at( dataSetId );
+    return m_personalInfo;
 }
 
-boost::shared_ptr< const WDataSet > WSubject::operator[]( const unsigned int dataSetId ) const
+void WSubject::addDataSet( boost::shared_ptr< WDataSet > dataset )
 {
-    return getDataSet( dataSetId );
+    // simply add the new dataset
+    m_datasets.push_back( dataset );
+
+    // also register condition
+    boost::shared_ptr< WCondition > c = dataset->getChangeCondition();
+    if ( c.get() )
+    {
+        m_changeCondition->add( c );
+    }
+    m_changeCondition->notify();
 }
 
-void WSubject::addDataSet( boost::shared_ptr< WDataSet > newDataSet )
+void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
 {
-    m_dataSets.push_back( newDataSet );
+    m_datasetAccess->beginWrite();
+
+    // iterate and find, remove
+    remove( m_datasetAccess->get().begin(), m_datasetAccess->get().end(), dataset );
+
+    // also deregister condition
+    boost::shared_ptr< WCondition > c = dataset->getChangeCondition();
+    if ( c.get() )
+    {
+        m_changeCondition->remove( c );
+    }
+    m_datasetAccess->endWrite();
+
+    m_changeCondition->notify();
 }
 
-unsigned int WSubject::getNumberOfDataSets() const
+void WSubject::clear()
 {
-    return m_dataSets.size();
+    m_datasetAccess->beginWrite();
+
+    // iterate and find, remove
+    for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
+    {
+        // also deregister condition
+        boost::shared_ptr< WCondition > c = ( *iter )->getChangeCondition();
+        if ( c.get() )
+        {
+            m_changeCondition->remove( c );
+        }
+    }
+    m_datasetAccess->get().clear();
+
+    m_datasetAccess->endWrite();
 }
+
+boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
+{
+    m_datasetAccess->beginRead();
+
+    // search it
+    boost::shared_ptr< WDataSet > result;
+    try
+    {
+        result = m_datasetAccess->get().at( datasetID );
+    }
+    catch( const std::out_of_range& e )
+    {
+        throw WDHNoSuchDataSet();
+    }
+
+    m_datasetAccess->endRead();
+
+    return result;
+}
+
+std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bool onlyActive )
+{
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex;
+
+    // iterate the list and find all textures
+    m_datasetAccess->beginRead();
+
+    for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
+    {
+        // is it a texture?
+        if ( ( *iter )->isTexture() && ( !onlyActive || ( *iter )->getTexture()->isGloballyActive() ) )
+        {
+            tex.push_back( ( *iter )->getTexture() );
+        }
+    }
+
+    m_datasetAccess->endRead();
+    return tex;
+}
+
+WSubject::DatasetAccess WSubject::getAccessObject()
+{
+    return m_datasets.getAccessObject();
+}
+
+boost::shared_ptr< WCondition > WSubject::getChangeCondition()
+{
+    return m_changeCondition;
+}
+
