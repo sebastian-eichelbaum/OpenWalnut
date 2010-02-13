@@ -78,8 +78,7 @@ WColor WPropertyColorWidget::toWColor( QColor color )
 void WPropertyColorWidget::buttonReleased()
 {
     QColor current = toQColor( m_colorProperty->get() );
-    current = QColorDialog::getColor( current, this, QString::fromStdString( "Select color for \"" + m_colorProperty->getName() + "\"" ),
-                                      QColorDialog::ShowAlphaChannel );
+    current = QColorDialog::getColor( current, this );
 
     // convert it back to a WColor
     invalidate( !m_colorProperty->set( toWColor( current ) ) ); // NOTE: set automatically checks the validity of the value
