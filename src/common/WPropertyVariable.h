@@ -513,11 +513,15 @@ template < typename T >
 void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type )
 {
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); )
     {
         if ( ( *it )->getType() == type )
         {
-            m_constraints.erase( it );
+            m_constraints.erase( it++ );
+        }
+        else
+        {
+            ++it;
         }
     }
     lock.unlock();
