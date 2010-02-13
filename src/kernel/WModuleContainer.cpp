@@ -279,7 +279,8 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     return applyModule( applyOn, WModuleFactory::getModuleFactory()->getPrototypeByName( what ) );
 }
 
-boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype )
+boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn,
+                                                                         boost::shared_ptr< WModule > prototype )
 {
     // is this module already associated with another container?
     if ( applyOn->isAssociated()() && ( applyOn->getAssociatedContainer() != shared_from_this() ) )

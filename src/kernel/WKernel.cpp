@@ -41,6 +41,7 @@
 #include "../dataHandler/WDataHandler.h"
 #include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
+#include "../common/WThreadedRunner.h"
 #include "WModule.h"
 #include "WBatchLoader.h"
 #include "WModuleFactory.h"

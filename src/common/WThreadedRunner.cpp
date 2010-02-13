@@ -119,10 +119,19 @@ void WThreadedRunner::yield() const
 #endif
 }
 
-void WThreadedRunner::sleep( const int t ) const
+void WThreadedRunner::sleep( const int32_t t ) const
 {
 #if USE_BOOST_THREADS
     boost::this_thread::sleep( boost::posix_time::seconds( t ) );
+#else
+    m_Thread->microSleep( 1000000 * t );
+#endif
+}
+
+void WThreadedRunner::msleep( const int32_t t ) const
+{
+#if USE_BOOST_THREADS
+    boost::this_thread::sleep( boost::posix_time::microseconds( t ) );
 #else
     m_Thread->microSleep( t );
 #endif

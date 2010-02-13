@@ -25,6 +25,8 @@
 #ifndef WTHREADEDRUNNER_H
 #define WTHREADEDRUNNER_H
 
+#include <stdint.h>
+
 #ifdef _WIN32
     #define USE_BOOST_THREADS 0
 #else
@@ -127,7 +129,14 @@ protected:
      *
      * \param t time to sleep in seconds.
      */
-    void sleep( const int t ) const;
+    void sleep( const int32_t t ) const;
+
+    /**
+     * Sets thread asleep.
+     *
+     * \param t time to sleep in microseconds.
+     */
+    void msleep( const int32_t t ) const;
 
     /**
      * Let the thread sleep until a stop request was given.
