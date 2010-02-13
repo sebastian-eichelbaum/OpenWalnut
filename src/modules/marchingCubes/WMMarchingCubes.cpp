@@ -57,7 +57,7 @@
 
 WMMarchingCubes::WMMarchingCubes():
     WModule(),
-    m_propertiesChanged( boost::shared_ptr< WCondition >( new WCondition() ) ),
+    m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_nCellsX( 0 ),
     m_nCellsY( 0 ),
     m_nCellsZ( 0 ),
@@ -66,7 +66,6 @@ WMMarchingCubes::WMMarchingCubes():
     m_fCellLengthZ( 1 ),
     m_tIsoLevel( 100 ),
     m_dataSet(),
-    m_shaderUseTexture( true ),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
     m_geode( 0 )
@@ -110,7 +109,7 @@ void WMMarchingCubes::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
-    m_moduleState.add( m_propertiesChanged );
+    m_moduleState.add( m_recompute );
 
     // signal ready state
     ready();
@@ -132,7 +131,7 @@ void WMMarchingCubes::moduleMain()
         // update ISO surface
         debugLog() << "Computing surface ...";
 
-        generateSurfacePre( m_properties->getValue< double >( "Iso Value" ) );
+        generateSurfacePre( m_isoValueProp->get() );
 
         // TODO(wiebel): MC remove this from here
         //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
@@ -169,56 +168,30 @@ void WMMarchingCubes::connectors()
 
 void WMMarchingCubes::properties()
 {
-    m_properties->addBool( "textureChanged", false, true );
-    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+//     {
+//         // If set in config file use standard isovalue from config file
+//         double tmpIsoValue;
+//         if( WPreferences::getPreference( "modules.MC.isoValue", &tmpIsoValue ) )
+//         {
+//             m_properties->addDouble( "Iso Value", tmpIsoValue )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+//         }
+//         else
+//         {
+//             m_properties->addDouble( "Iso Value", m_tIsoLevel )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+//         }
+//     }
 
-    {
-        // If set in config file use standard isovalue from config file
-        double tmpIsoValue;
-        if( WPreferences::getPreference( "modules.MC.isoValue", &tmpIsoValue ) )
-        {
-            m_properties->addDouble( "Iso Value", tmpIsoValue )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
-        }
-        else
-        {
-            m_properties->addDouble( "Iso Value", m_tIsoLevel )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
-        }
-    }
-
-    m_properties->addInt( "Opacity %", 100 )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
-    m_properties->setMax( "Opacity %", 100 );
-    m_properties->addBool( "Use Texture", true )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
+    m_isoValueProp = m_properties2->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
+    m_opacityProp->setMin( 0 );
+    m_opacityProp->setMax( 100 );
+    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", true );
 }
 
 void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
 {
-    if( propertyName == "Iso Value" )
+    if( propertyName == "active" )
     {
-        m_propertiesChanged->notify();
-    }
-    else if( propertyName == "Use Texture" )
-    {
-        debugLog() << "Change Texture property." << std::endl;
-        m_shaderUseTexture = m_properties->getValue< bool >( propertyName );
-        updateTextures();
-    }
-    else if( propertyName == "Opacity %" )
-    {
-        updateTextures();
-    }
-    else if( propertyName == "active" )
-    {
-        if( m_geode && m_properties )
-        {
-            if ( m_properties->getValue<bool>( propertyName ) )
-            {
-                m_geode->setNodeMask( 0xFFFFFFFF );
-            }
-            else
-            {
-                m_geode->setNodeMask( 0x0 );
-            }
-        }
     }
     else
     {
@@ -775,18 +748,11 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         state->addUniform( m_samplerUniforms[i] );
     }
 
-    if( !m_shaderUseTexture )
-    {
-        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
-    }
-    else
-    {
-        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", true ) ) );
-    }
+    state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
     if( m_shaderUseTransparency )
     {
-        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_properties->getValue< int >( "Opacity %" ) ) ) );
+        state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
     }
     else
     {
@@ -1032,9 +998,17 @@ void WMMarchingCubes::updateTextures()
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    if ( m_properties->getValue< bool >( "textureChanged" ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( m_active->get() )
     {
-        m_properties->setValue( "textureChanged", false );
+        m_geode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_geode->setNodeMask( 0x0 );
+    }
+
+    if ( ( m_opacityProp->changed() || m_useTextureProp->changed() ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    {
         std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
         if ( dsl.size() > 0 )
@@ -1045,19 +1019,11 @@ void WMMarchingCubes::updateTextures()
             }
 
             osg::StateSet* state = m_geode->getOrCreateStateSet();
-
-            if( !m_shaderUseTexture )
-            {
-                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
-            }
-            else
-            {
-                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", true ) ) );
-            }
+            state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_useTextureProp->get( true ) ) ) );
             state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
             if( m_shaderUseTransparency )
             {
-                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_properties->getValue< int >( "Opacity %" ) ) ) );
+                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
             }
             else
             {

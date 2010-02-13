@@ -176,10 +176,14 @@ protected:
 
 private:
 
+    WPropDouble m_isoValueProp; //!< Property holding the iso value
+    WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
+    WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
+
     /**
-     * This condition denotes whether the properties have changed.
+     * This condition denotes whether we need to recompute the surface
      */
-    boost::shared_ptr< WCondition > m_propertiesChanged;
+    boost::shared_ptr< WCondition > m_recompute;
 
     /**
      * Prepares and commits everything for rendering with the OSG
@@ -273,7 +277,6 @@ private:
     boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for the dimensions of the texture.
 
 
-    bool m_shaderUseTexture; //!< shall the shader use texturing?
     bool m_shaderUseLighting; //!< shall the shader use lighting?
     bool m_shaderUseTransparency; //!< shall the shader use transparency?
 
