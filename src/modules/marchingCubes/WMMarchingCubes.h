@@ -177,6 +177,16 @@ protected:
 private:
 
     /**
+     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
+     */
+    void notifyTextureChange();
+
+    /**
+     * True when textures haven changed.
+     */
+    bool m_textureChanged;
+
+    /**
      * This condition denotes whether the properties have changed.
      */
     boost::shared_ptr< WCondition > m_propertiesChanged;
