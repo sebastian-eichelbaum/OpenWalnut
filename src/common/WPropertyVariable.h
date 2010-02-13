@@ -543,7 +543,7 @@ template < typename T >
 boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
 WPropertyVariable< T >::PropertyConstraint::create( PROPERTYCONSTRAINT_TYPE type )
 {
-    WPropertyVariable< T >::PropertyConstraint* c = NULL;
+    typename WPropertyVariable< T >::PropertyConstraint* c = NULL;
 
     // simply create a new instance for all those constraints.
     switch( type )
@@ -569,7 +569,7 @@ WPropertyVariable< T >::PropertyConstraint::create( PROPERTYCONSTRAINT_TYPE type
             WLogger::getLogger()->addLogMessage( "The property constraint is unknown.", "PropertyConstraint::create", LL_WARNING );
             break;
     }
-    return boost::shared_ptr< WPropertyVariable< T >::PropertyConstraint >( c );
+    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( c );
 }
 
 #endif  // WPROPERTYVARIABLE_H

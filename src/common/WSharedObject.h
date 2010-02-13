@@ -195,7 +195,7 @@ WSharedObject< T >::~WSharedObject()
 template < typename T >
 typename WSharedObject< T >::WSharedAccess WSharedObject< T >::getAccessObject()
 {
-    return WSharedObject< T >::WSharedAccess( new WSharedObject< T>::WSharedObjectAccess( m_object, m_lock, m_changeCondition ) );
+    return typename WSharedObject< T >::WSharedAccess( new typename WSharedObject< T>::WSharedObjectAccess( m_object, m_lock, m_changeCondition ) );
 }
 
 
