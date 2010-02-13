@@ -800,7 +800,7 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     }
 
     // NOTE: the following code should not be necessary. The update callback does this job just before the mesh is rendered
-    // initially. Just set the texture changed flag to true
+    // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
     m_textureChanged = true;
     //std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );*/
     //if ( dsl.size() > 0 )

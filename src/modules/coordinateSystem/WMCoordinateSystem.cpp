@@ -263,7 +263,17 @@ osg::ref_ptr<osg::Geometry> WMCoordinateSystem::createGeometryNode()
 
 void WMCoordinateSystem::findBoundingBox()
 {
-    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+    // TODO(schurade): getDataSetList is obsolete.
+    // Use
+    //
+    // std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true )
+    // for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
+    // {
+        // std::pair< wmath::WPosition, wmath::WPosition > bb = ( *iter )->getGrid()->getBoundingBox();
+        // ...
+    // }
+
+    std::vector< boost::shared_ptr< WDataSet > > dsl; // = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
 
     if ( dsl.size() > 0 )
     {

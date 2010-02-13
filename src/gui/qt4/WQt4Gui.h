@@ -67,16 +67,6 @@ public:
     virtual int run();
 
     /**
-     * returns a vector of pointers to the loaded datasets for a given subject.
-     *
-     * \param subjectId the ID of the subject to get the list for.
-     * \param onlyTextures true if only textures should be returned.
-     *
-     * \return list of datasets.
-     */
-    virtual std::vector< boost::shared_ptr< WDataSet > > getDataSetList( int subjectId, bool onlyTextures = false );
-
-    /**
      * returns a pointer to the selected module in the dataset browser
      *
      * \return the module
