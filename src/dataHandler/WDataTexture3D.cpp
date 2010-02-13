@@ -94,6 +94,11 @@ void WDataTexture3D::setGloballyActive( bool active )
     }
 }
 
+boost::shared_ptr< WGridRegular3D > WDataTexture3D::getGrid() const
+{
+    return m_grid;
+}
+
 osg::ref_ptr< osg::Texture3D > WDataTexture3D::getTexture()
 {
     if ( !m_texture )
