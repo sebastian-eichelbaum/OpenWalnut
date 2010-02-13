@@ -132,7 +132,7 @@ private:
     void notifyTextureChange();
 
     /**
-     * True when textures haven changed.
+     * True when textures have changed.
      */
     bool m_textureChanged;
 
