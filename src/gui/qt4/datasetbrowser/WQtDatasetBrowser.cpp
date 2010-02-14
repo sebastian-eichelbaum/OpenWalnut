@@ -436,33 +436,6 @@ void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     m_tabWidget->addTab( sa, content->getName() );
 }
 
-std::vector< boost::shared_ptr< WDataSet > > WQtDatasetBrowser::getDataSetList( int subjectId, bool onlyTextures )
-{
-    int c = getFirstSubject();
-    std::vector< boost::shared_ptr< WDataSet > >moduleList;
-
-    if ( m_treeWidget->invisibleRootItem()->childCount() < subjectId + c)
-    {
-        return moduleList;
-    }
-    int count = m_treeWidget->invisibleRootItem()->child( subjectId + c )->childCount();
-
-    for ( int i = 0 ; i < count ; ++i )
-    {
-        boost::shared_ptr< WMData > dm = boost::shared_dynamic_cast< WMData >( ( static_cast< WQtDatasetTreeItem* >(
-                            m_treeWidget->invisibleRootItem()->child( subjectId + c )->child( i ) ) )->getModule() );
-
-        if ( dm->isReady()() && ( !onlyTextures || dm->getDataSet()->isTexture() ) )
-        {
-            if ( dm->getProperties2()->getProperty( "active" )->toPropBool()->get() )
-            {
-                moduleList.push_back( dm->getDataSet() );
-            }
-        }
-    }
-    return moduleList;
-}
-
 void WQtDatasetBrowser::moveTreeItemDown()
 {
     m_treeWidget->moveTreeItemDown();

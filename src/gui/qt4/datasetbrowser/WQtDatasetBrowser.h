@@ -117,16 +117,6 @@ public:
     void addModule2( boost::shared_ptr< WModule > module, int subjectId = 0 );
 
     /**
-     * Returns a vector of pointers to the loaded datasets for a given subject.
-     *
-     * \param subjectId The ID of the subject to get the list for.
-     * \param onlyTextures True if only textures should be returned.
-     *
-     * \return the list of datasets.
-     */
-    std::vector< boost::shared_ptr< WDataSet > > getDataSetList( int subjectId, bool onlyTextures = false );
-
-    /**
      * helper funtion to connect all qt widgets with their functions
      */
     void connectSlots();

@@ -34,13 +34,14 @@
 
 #include "../common/WFlag.h"
 #include "../common/WLogger.h"
-#include "../common/WThreadedRunner.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/WGUI.h"
 #include "../modules/fiberDisplay/WROIManagerFibers.h"
 #include "WModule.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
+
+class WThreadedRunner;
 
 /**
  * \defgroup kernel Kernel
@@ -116,7 +117,8 @@ public:
     void loadDataSetsSynchronously( std::vector< std::string > fileNames );
 
     /**
-     * Function combines to modules. This is a simple alias for "getRootContainer()->applyModule".
+     * Function combines to modules. This is a simple alias for "getRootContainer()->applyModule". It runs synchronously, which
+     * could freeze the calling thread for a couple of time.
      *
      * \param applyOn the module which already has to be in the container and to apply the other one on.
      * \param prototype the prototype of the module to apply on the other one specified.

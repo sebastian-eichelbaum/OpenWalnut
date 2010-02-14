@@ -46,6 +46,7 @@
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
 #include "../../math/WVector3D.h"
+#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
@@ -113,6 +114,11 @@ void WMMarchingCubes::moduleMain()
 
     // signal ready state
     ready();
+
+    // now, to watch changing/new textures use WSubject's change condition
+    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
+            boost::bind( &WMMarchingCubes::notifyTextureChange, this )
+    );
 
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
@@ -759,31 +765,34 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
         state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
     }
 
-    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
-    if ( dsl.size() > 0 )
-    {
-        for ( int i = 0; i < 10; ++i )
-        {
-            m_typeUniforms[i]->set( 0 );
-        }
+    // NOTE: the following code should not be necessary. The update callback does this job just before the mesh is rendered
+    // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
+    m_textureChanged = true;
+    //std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );*/
+    //if ( dsl.size() > 0 )
+    //{
+        //for ( int i = 0; i < 10; ++i )
+        //{
+            //m_typeUniforms[i]->set( 0 );
+        //}
 
-        int c = 0;
-        for ( size_t i = 0; i < dsl.size(); ++i )
-        {
-            osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
+        //int c = 0;
+        //for ( size_t i = 0; i < dsl.size(); ++i )
+        //{
+            //osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
 
-            state->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+            //state->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-            float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
-            float a = dsl[i]->getTexture()->getAlpha();
+            //float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
+            //float a = dsl[i]->getTexture()->getAlpha();
 
-            m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
-            m_thresholdUniforms[c]->set( t );
-            m_alphaUniforms[c]->set( a );
+            //m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
+            //m_thresholdUniforms[c]->set( t );
+            //m_alphaUniforms[c]->set( a );
 
-            ++c;
-        }
-    }
+            //++c;
+        //}
+    //}
 
     m_shader = osg::ref_ptr< WShader > ( new WShader( "surface" ) );
     m_shader->apply( m_geode );
@@ -809,6 +818,10 @@ int myIsfinite( double number )
 #endif
 }
 
+void WMMarchingCubes::notifyTextureChange()
+{
+    m_textureChanged = true;
+}
 
 // TODO(wiebel): MC move this to a separate module in the future
 bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh& triMesh ) const
@@ -992,12 +1005,8 @@ WTriangleMesh WMMarchingCubes::load( std::string fileName )
     return triMesh;
 }
 
-
 void WMMarchingCubes::updateTextures()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
     if ( m_active->get() )
     {
         m_geode->setNodeMask( 0xFFFFFFFF );
@@ -1007,40 +1016,47 @@ void WMMarchingCubes::updateTextures()
         m_geode->setNodeMask( 0x0 );
     }
 
-    if ( ( m_opacityProp->changed() || m_useTextureProp->changed() ) && WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
     {
-        std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+        m_textureChanged = false;
 
-        if ( dsl.size() > 0 )
+        // grab a list of data textures
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+
+        if ( tex.size() > 0 )
         {
+            osg::StateSet* rootState = m_geode ->getOrCreateStateSet();
+
+            // reset all uniforms
             for ( int i = 0; i < 10; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
-            osg::StateSet* state = m_geode->getOrCreateStateSet();
-            state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_useTextureProp->get( true ) ) ) );
-            state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
+            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_useTextureProp->get( true ) ) ) );
+            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
+
             if( m_shaderUseTransparency )
             {
-                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
+                rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
             }
             else
             {
-                state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
+                rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
             }
 
+            // for each texture -> apply
             int c = 0;
-            for ( size_t i = 0; i < dsl.size(); ++i )
+            for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
-                osg::ref_ptr<osg::Texture3D> texture3D = dsl[i]->getTexture()->getTexture();
+                osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
-                state->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                // set threshold/opacity as uniforms
+                float t = ( *iter )->getThreshold() / 255.0;
+                float a = ( *iter )->getAlpha();
 
-                float t = dsl[i]->getTexture()->getThreshold()/ 100.0;
-                float a = dsl[i]->getTexture()->getAlpha();
-
-                m_typeUniforms[c]->set( boost::shared_dynamic_cast<WDataSetSingle>( dsl[i] )->getValueSet()->getDataType() );
+                m_typeUniforms[c]->set( ( *iter )->getDataType() );
                 m_thresholdUniforms[c]->set( t );
                 m_alphaUniforms[c]->set( a );
 
@@ -1048,6 +1064,5 @@ void WMMarchingCubes::updateTextures()
             }
         }
     }
-    slock.unlock();
 }
 

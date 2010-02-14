@@ -214,9 +214,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
-    std::vector< boost::shared_ptr< WDataSet > > dsl = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
+    // grab a list of data textures
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
-    if ( dsl.size() > 0 )
+    if ( tex.size() > 0 )
     {
         switch ( slice )
         {
@@ -229,10 +230,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
-                for ( size_t i = 0; i < dsl.size(); ++i )
+                for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
-                    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
-                            boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+                    boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
 
                     float maxX = ( float )( grid->getNbCoordsX() );
                     float maxY = ( float )( grid->getNbCoordsY() );
@@ -265,10 +265,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
-                for ( size_t i = 0; i < dsl.size(); ++i )
+                for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
-                    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
-                            boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+                    boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
 
                     float maxX = ( float )( grid->getNbCoordsX() );
                     float maxY = ( float )( grid->getNbCoordsY() );
@@ -299,11 +298,12 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceVertices->push_back( osg::Vec3( maxDim, maxDim, zPos ) );
                 sliceVertices->push_back( osg::Vec3( maxDim, 0,      zPos ) );
                 sliceGeometry->setVertexArray( sliceVertices );
+
                 int c = 0;
-                for ( size_t i = 0; i < dsl.size(); ++i )
+                for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
-                    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >(
-                            boost::shared_dynamic_cast< WDataSetSingle >( dsl[i] )->getGrid() );
+                    boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
+
 
                     float maxX = ( float )( grid->getNbCoordsX() );
                     float maxY = ( float )( grid->getNbCoordsY() );
@@ -448,9 +448,6 @@ void WMNavSlices::updateGeometry()
 
 void WMNavSlices::updateTextures()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
     if ( m_textureChanged )
     {
         m_textureChanged = false;
@@ -486,7 +483,6 @@ void WMNavSlices::updateTextures()
             }
         }
     }
-    slock.unlock();
 }
 
 void WMNavSlices::initUniforms( osg::StateSet* rootState )

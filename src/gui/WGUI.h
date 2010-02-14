@@ -86,16 +86,6 @@ public:
     virtual int run() = 0;
 
     /**
-     * returns a vector of pointers to the loaded datasets for a given subject.
-     *
-     * \param subjectId the ID of the subject to get the list for.
-     * \param onlyTextures true if only textures should be returned.
-     *
-     * \return list of datasets.
-     */
-    virtual std::vector< boost::shared_ptr< WDataSet > > getDataSetList( int subjectId, bool onlyTextures = false ) = 0;
-
-    /**
      * Instruct the MainWindow to open a new custom widget.
      *
      * \param title the title of the widget

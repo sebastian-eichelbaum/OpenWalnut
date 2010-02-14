@@ -127,6 +127,14 @@ public:
      */
     boost::shared_ptr< WCondition > getChangeCondition();
 
+    /**
+     * The texture got created using this grid. It can help to translate coordinates into the texture coordinate space relating to
+     * the grid.
+     *
+     * \return the grid.
+     */
+    boost::shared_ptr< WGridRegular3D > getGrid() const;
+
 protected:
 
     /**
