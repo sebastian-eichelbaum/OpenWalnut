@@ -83,12 +83,6 @@ public:
      */
     virtual void properties();
 
-    /**
-     * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -113,31 +107,24 @@ protected:
      * Generates the file name for saving the culled fibers out of some
      * culling parameters: the proximity threshold and the dSt distance.
      *
-     * \return file name in which to store the culled fibers.
+     * \param dataFileName The file name from which the data is loaded so only the extension will change
+     *
+     * \return Path in which to store the culled fibers.
      */
-    std::string saveFileName() const;
+    boost::filesystem::path saveFileName( std::string dataFileName ) const;
 
-    /**
-     * Proximity threshold, which defines the minimum distance which should be
-     * considered in the calculation of the mean-minimum-distance of two fibers.
-     */
-    double m_proximity_t;
-
-    double m_dSt_culling_t; //!< Threshold to cull out short fibers along long fibers.
-
-    bool m_saveCulledCurves; //!< If true, remaining fibers are saved to a file.
-
-    std::string m_savePath; //!< Path where remaining fibers should be stored
-
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput; //!< Input connector for a fiber dataset.
-
-    boost::shared_ptr< WDataSetFiberVector > m_dataset; //!< Pointer to the fiber data set in WDataSetFiberVector format
-
-    boost::shared_ptr< WDataSetFibers > m_rawDataset; //!< Pointer to the fiber data set in WDataSetFibers format
-
-    WBoolFlag m_run; //!< If and only if it is true then the Culling Algo is executed.
-
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_fiberInput; //!< Input connector for a fiber dataset.
+    boost::shared_ptr< WDataSetFiberVector >                 m_dataset; //!< Pointer to the fiber data set in WDataSetFiberVector format
+    boost::shared_ptr< WDataSetFibers >                      m_rawDataset; //!< Pointer to the fiber data set in WDataSetFibers format
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled fibers
+
+    boost::shared_ptr< WCondition > m_recompute; //!< A condition which indicates complete recomputation
+
+    WPropDouble   m_dSt_culling_t; //!< Minimum distance of two different fibers. If below, the shorter fiber is culled out
+    WPropDouble   m_proximity_t; //!< Minimum distance of points of two fibers which should be considered
+    WPropBool     m_saveCulledCurves; //!<  If true, remaining fibers are saved to a file
+    WPropFilename m_savePath; //!< Path where remaining fibers should be stored
+    WPropBool     m_run; //!< Indicates if the algorithm should start
 
 private:
 };
