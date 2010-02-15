@@ -37,6 +37,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../dataHandler/WTriangleMesh.h"
 
 /**
@@ -295,7 +296,9 @@ private:
      */
     boost::shared_mutex m_updateLock;
 
-    osg::ref_ptr< osg::Geode > m_geode; //!< Pointer to geode. We need it to be able to update it when callback is invoked.
+    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
+
+    osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
 
     /**
      * The shader used for the iso surface in m_geode
