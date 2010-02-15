@@ -52,16 +52,10 @@
 
 WMFiberClustering::WMFiberClustering()
     : WModule(),
-      m_dLtTableExists( false ),
-      m_maxDistance_t( 6.5 ),
-      m_minClusterSize( 10 ),
-//      m_separatePrimitives( true ),
-      m_proximity_t( 0.0 ),
-      m_clusterOutputID( 0 ),
       m_lastFibsSize( 0 ),
-      m_run( new WCondition(), false ),
-      m_updateOutput( new WCondition(), false ),
-      m_active( new WCondition(), false )
+      m_dLtTableExists( false ),
+      m_update( new WCondition() ),
+      m_updateOutput( new WCondition() )
 {
 }
 
@@ -81,8 +75,8 @@ void WMFiberClustering::moduleMain()
     // not detectable how many times a condition has fired.
     m_moduleState.setResetable();
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
-    m_moduleState.add( m_run.getCondition() );
-    m_moduleState.add( m_updateOutput.getCondition() );
+    m_moduleState.add( m_updateOutput );
+    m_moduleState.add( m_update );
 
     ready();
 
@@ -93,7 +87,6 @@ void WMFiberClustering::moduleMain()
             m_moduleState.wait();
             continue;
         }
-
         if( m_rawFibs != m_fiberInput->getData() ) // in case data has changed
         {
             m_rawFibs = m_fiberInput->getData();
@@ -103,55 +96,50 @@ void WMFiberClustering::moduleMain()
             infoLog() << "Stop:  WDataSetFibers => WDataSetFiberVector";
         }
 
-        if( m_run.get() || m_updateOutput.get() )
+        if( m_run->changed() )
         {
-            if( m_run.get() )
-            {
-                update();
-                m_run.set( false );
-            }
-            if( m_updateOutput.get() )
-            {
-                updateOutput();
-                m_updateOutput.set( false );
-            }
-            m_properties->reemitChangedValueSignals();
+            m_run->get( true ); // eat change
+            update();
+        }
+        if( m_clusterOutputID->changed() )
+        {
+            m_clusterOutputID->get( true ); // eat change
+            updateOutput();
         }
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 }
 
+void WMFiberClustering::activate()
+{
+    if( m_osgNode )
+    {
+        if ( m_active->get() )
+        {
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
+            if( m_invisibleFibers->get() )
+            {
+                m_osgNode->setNodeMask( 0x0 );
+            }
+        }
+        else
+        {
+            m_osgNode->setNodeMask( 0x0 );
+        }
+    }
+}
+
 void WMFiberClustering::properties()
 {
-    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addDouble( "max distance threshold",
-                             m_maxDistance_t,
-                             false,
-                             "Maximum distance of two fibers in one cluster."
-                           )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addDouble( "proximity threshold",
-                             m_proximity_t,
-                             false,
-                             "defines the minimum distance between two fibers which should be considered in distance measure."
-                           )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addInt( "min cluster size",
-                          m_minClusterSize,
-                          false,
-                          "All clusters up to this size will be discarded."
-                        )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addInt( "output cluster id",
-                          m_clusterOutputID,
-                          false,
-                          "Only the cluster with this ID will be connected to the output."
-                        )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-//    m_properties->addBool( "separate primitives",
-//                           m_separatePrimitives,
-//                           false,
-//                           "If true each cluster has its own OSG node"
-//                         )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "GO", false, false, "initiate run" )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "invisible fibers", false, false )->connect( boost::bind( &WMFiberClustering::slotPropertyChanged, this, _1 ) );
+    m_maxDistance_t   = m_properties2->addProperty( "Max cluster distance", "Maximum distance of two fibers in one cluster.", 6.5 );
+    m_proximity_t     = m_properties2->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 0.0 );
+    m_minClusterSize  = m_properties2->addProperty( "Min cluster size", "Minium of fibers per cluster", 10 );
+    m_clusterOutputID = m_properties2->addProperty( "Ouput cluster ID", "This cluster ID will be connected to the output.", 0, m_updateOutput );
+    m_invisibleFibers = m_properties2->addProperty( "Invisible fibers", "Trigger fiber display", false,
+                                                    boost::bind( &WMFiberClustering::activate, this ) );
+    m_run             = m_properties2->addProperty( "Go", "Initiate run", false, m_update );
+    m_run->get( true ); // disable initial run
 }
 
 void WMFiberClustering::updateOutput()
@@ -160,83 +148,23 @@ void WMFiberClustering::updateOutput()
     {
         return;
     }
-    boost::shared_ptr< WFiberCluster > c;
-    if( m_clusterOutputID > m_clusters.size() )
-    {
-        errorLog() << "Invalid cluster ID for output selected: " << m_clusterOutputID << " using default ID 0";
-        m_clusterOutputID = 0;
-    }
-    debugLog() << "Cluster ID for output: " << m_clusterOutputID;
-    // TODO(math): For reasons of simplicity just forward one cluster to the voxelizer
-    c = boost::shared_ptr< WFiberCluster >( new WFiberCluster( m_clusters[ m_clusterOutputID ] ) );
-    m_output->updateData( c );
-}
 
-void WMFiberClustering::slotPropertyChanged( std::string propertyName )
-{
-    assert( m_properties->findProp( propertyName ) );
-    if( m_run.get() || m_updateOutput.get() || !m_active.get() )
+    m_clusterOutputID->setMin( 0 );
+    m_clusterOutputID->setMax( m_clusters.size() - 1 );
+
+    if( m_clusterOutputID->get() >= static_cast< int >( m_clusters.size() ) || m_clusterOutputID->get() < 0 )
     {
-        if( propertyName == "active" &&  m_properties->getValue< bool >( propertyName ) )
-        {
-            m_active.set( m_properties->getValue< bool >( propertyName ) );
-            m_properties->reemitChangedValueSignals();
-        }
-        else
-        {
-            m_properties->findProp( propertyName )->dirty( true );
-            debugLog() << "Property: " << propertyName << " marked as dirty";
-        }
+        warnLog() << "Invalid cluster ID for output selected: " << m_clusterOutputID->get() << " using default ID 0";
+        m_clusterOutputID->set( 0, true );
     }
-    else
-    {
-        debugLog() << "Property: " << propertyName << " has changed";
-        if( propertyName == "active" || propertyName == "invisible fibers" )
-        {
-            if( m_osgNode )
-            {
-                if ( m_properties->getValue< bool >( "active" ) )
-                {
-                    m_osgNode->setNodeMask( 0xFFFFFFFF );
-                    if( m_properties->getValue< bool >( "invisible fibers" ) )
-                    {
-                        m_osgNode->setNodeMask( 0x0 );
-                    }
-                }
-                else if( !m_properties->getValue< bool >( "active" ) )
-                {
-                    m_osgNode->setNodeMask( 0x0 );
-                    m_active.set( false );
-                }
-            }
-        }
-        else if( propertyName == "GO" )
-        {
-            m_run.set( true );
-        }
-        else if( propertyName == "max distance threshold" )
-        {
-            m_maxDistance_t = m_properties->getValue< double >( propertyName );
-        }
-        else if( propertyName == "min cluster size" )
-        {
-            m_minClusterSize = m_properties->getValue< double >( propertyName );
-        }
-        else if( propertyName == "proximity threshold" )
-        {
-            m_proximity_t = m_properties->getValue< double >( propertyName );
-        }
-        else if( propertyName == "output cluster id" )
-        {
-            m_clusterOutputID = m_properties->getValue< size_t >( propertyName );
-            m_updateOutput.set( true );
-        }
-    }
+    debugLog() << "Cluster ID for output: " << m_clusterOutputID->get();
+
+    m_output->updateData( boost::shared_ptr< WFiberCluster >( new WFiberCluster( m_clusters[ m_clusterOutputID->get() ] ) ) );
 }
 
 void WMFiberClustering::update()
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode.get() );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
@@ -244,11 +172,16 @@ void WMFiberClustering::update()
         m_dLtTable.reset( new WDXtLookUpTable( m_fibs->size() ) );
     }
 
-    infoLog() << "Proximity threshold: " << m_proximity_t;
-    infoLog() << "Maximum inter cluster distance threshold: " << m_maxDistance_t;
+    infoLog() << "Proximity threshold: " << m_proximity_t->get();
+    infoLog() << "Maximum inter cluster distance threshold: " << m_maxDistance_t->get();
 
     cluster();
-    paint();
+    m_osgNode = paint();
+    if( m_invisibleFibers->get() ) // check if the node mask should be set to 0x0
+    {
+        activate();
+    }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
 
     // TODO(math): For reasons of simplicity (no multiple input connectors possible) just forward one cluster to the voxelizer
     for( size_t i = 0; i < m_clusters.size(); ++i )
@@ -256,15 +189,8 @@ void WMFiberClustering::update()
         m_clusters[ i ].setDataSetReference( m_fibs );
     }
 
-    boost::shared_ptr< WFiberCluster > c;
-    if( m_clusterOutputID > m_clusters.size() )
-    {
-        errorLog() << "Invalid cluster ID for output selected: " << m_clusterOutputID << " using default ID 0";
-        m_clusterOutputID = 0;
-    }
-    debugLog() << "Cluster ID for output: " << m_clusterOutputID;
-    c = boost::shared_ptr< WFiberCluster >( new WFiberCluster( m_clusters[ m_clusterOutputID ] ) );
-    m_output->updateData( c );
+    // reset min max of the slider for the cluster ID
+    updateOutput();
 }
 
 boost::shared_ptr< WDataSetSingle > WMFiberClustering::blurClusters() const
@@ -313,6 +239,10 @@ bool WMFiberClustering::dLtTableExists()
 
 void WMFiberClustering::cluster()
 {
+    double proximity_t = m_proximity_t->get();
+    double maxDistance_t = m_maxDistance_t->get();
+    size_t minClusterSize = m_minClusterSize->get();
+
     infoLog() << "Start clustering with " << m_fibs->size() << " fibers.";
     m_clusters.clear();  // remove evtl. old clustering
     size_t numFibers = m_fibs->size();
@@ -328,7 +258,7 @@ void WMFiberClustering::cluster()
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber clustering", numFibers ) );
     m_progress->addSubProgress( progress );
 
-    WDLTMetric dLt( m_proximity_t * m_proximity_t );  // metric instance for computation of the dLt measure
+    WDLTMetric dLt( proximity_t * proximity_t );  // metric instance for computation of the dLt measure
     for( size_t q = 0; q < numFibers; ++q )  // loop over all "symmetric" fibers pairs
     {
         for( size_t r = q + 1;  r < numFibers; ++r )
@@ -339,7 +269,7 @@ void WMFiberClustering::cluster()
                 {
                     (*m_dLtTable)( q, r ) = dLt.dist( (*m_fibs)[q], (*m_fibs)[r] );
                 }
-                if( (*m_dLtTable)( q, r ) < m_maxDistance_t )  // q and r provide an inter-cluster-link
+                if( (*m_dLtTable)( q, r ) < maxDistance_t )  // q and r provide an inter-cluster-link
                 {
                     meld( m_clusterIDs[q], m_clusterIDs[r] );
                 }
@@ -360,21 +290,15 @@ void WMFiberClustering::cluster()
     for( size_t i = 0; i < m_clusters.size(); ++i )
     {
         m_clusters[i].sort();  // Refactor: why do we need sorting here?
-        if( m_clusters[i].size() < m_minClusterSize )
+        if( m_clusters[i].size() < minClusterSize )
         {
             m_clusters[i].clear();  // make small clusters empty to remove them easier
             ++numSmallClusters;
         }
     }
-    infoLog() << "Found " << m_clusters.size() << " clusters where "
-              << numSmallClusters << " clusters are only of size "
-              << m_minClusterSize << " or less.";
+    infoLog() << "Found " << m_clusters.size() << " clusters where " << numSmallClusters << " clusters are smaller than: " << minClusterSize;
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
     infoLog() << "Using " << m_clusters.size() << " clusters.";
-
-    // reset min max of the slider for the cluster ID
-    m_properties->setMin( "output cluster id", 0 );
-    m_properties->setMax( "output cluster id", m_clusters.size()-1 );
 
     m_lastFibsSize = m_fibs->size();
 
@@ -382,7 +306,7 @@ void WMFiberClustering::cluster()
     w.writeTable( m_dLtTable->getData(), m_lastFibsSize );
 }
 
-osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster ) const
+osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster, const WColor& color ) const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -402,7 +326,7 @@ osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( wge::osgColor( cluster.getColor() ) );
+    colors->push_back( wge::osgColor( color ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -412,7 +336,7 @@ osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster
 }
 
 
-void WMFiberClustering::paint()
+osg::ref_ptr< WGEGroupNode > WMFiberClustering::paint() const
 {
     // get different colors via HSV color model for each cluster
     double hue = 0.0;
@@ -420,21 +344,20 @@ void WMFiberClustering::paint()
     WColor color;
 
     infoLog() << "cluster: " << m_clusters.size();
-    m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
+    osg::ref_ptr< WGEGroupNode > result = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
     size_t numFibers = 0;
     std::stringstream clusterLog;
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
         color.setHSV( hue, 1.0, 0.75 );
-        m_clusters[i].setColor( color );
-        m_osgNode->insert( genFiberGeode( m_clusters[i] ).get() );
+        result->insert( genFiberGeode( m_clusters[i], color ).get() );
         clusterLog << m_clusters[i].size() << " ";
         numFibers += m_clusters[i].size();
     }
     debugLog() << "Clusters of sizes: " << clusterLog.str();
     debugLog() << "Painted: " << numFibers << " fibers out of: " << m_fibs->size();
-    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode.get() );
+    result->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    return result;
 }
 
 void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )
@@ -482,7 +405,19 @@ std::string WMFiberClustering::lookUpTableFileName() const
 {
     std::stringstream newExtension;
     newExtension << std::fixed << std::setprecision( 2 );
-    newExtension << ".pt-" << m_proximity_t << ".dlt";
+    newExtension << ".pt-" << m_proximity_t->get() << ".dlt";
     boost::filesystem::path fibFileName( m_fibs->getFileName() );
     return fibFileName.replace_extension( newExtension.str() ).string();
+}
+
+
+WMFiberClustering::OutputIDBound::OutputIDBound( const std::vector< WFiberCluster >& clusters )
+    : m_clusters( clusters )
+{
+}
+
+bool WMFiberClustering::OutputIDBound::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > > /* property */,
+                                               WPVBaseTypes::PV_INT value )
+{
+    return ( value >= 0 ) && ( value < static_cast< int >( m_clusters.size() ) );
 }

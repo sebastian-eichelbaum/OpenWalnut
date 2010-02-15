@@ -90,6 +90,7 @@ void WMFiberCulling::moduleMain()
 
         if( m_run->changed() )
         {
+            m_run->get( true ); // eat change
             update();
         }
 
