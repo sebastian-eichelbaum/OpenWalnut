@@ -26,6 +26,7 @@
 #include <fstream>
 #include <string>
 
+#include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WIOTools.h"
@@ -33,8 +34,8 @@
 #include "../exceptions/WDHIOFailure.h"
 #include "WWriterFiberVTK.h"
 
-WWriterFiberVTK::WWriterFiberVTK( std::string fname, bool overwrite )
-    : WWriter( fname, overwrite )
+WWriterFiberVTK::WWriterFiberVTK( const boost::filesystem::path& path, bool overwrite )
+    : WWriter( path.file_string(), overwrite )
 {
 }
 

@@ -27,6 +27,7 @@
 
 #include <string>
 
+#include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../WDataSetFiberVector.h"
@@ -41,10 +42,10 @@ public:
     /**
      * Creates a writer object for FiberVTK file writing.
      *
-     * \param fname path to the target file where stuff will be written to
+     * \param path to the target file where stuff will be written to
      * \param overwrite If true existing files will be overwritten
      */
-    WWriterFiberVTK( std::string fname, bool overwrite = false );
+    WWriterFiberVTK( const boost::filesystem::path& path, bool overwrite = false );
 
     /**
      * Writes a WDataSetFiberVector down to the previousely given file
