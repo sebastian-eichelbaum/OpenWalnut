@@ -94,6 +94,11 @@ protected:
      */
     osg::ref_ptr<osg::Geode> m_rootNode;
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
+
 private:
 
     /**
@@ -159,7 +164,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUpdateCallback( WMTemplate* module ): m_module( module )
+        explicit SafeUpdateCallback( WMTemplate* module ): m_module( module ), m_initialUpdate( true )
         {
         };
 
@@ -175,6 +180,11 @@ private:
          * Pointer used to access members of the module to modify the node.
          */
         WMTemplate* m_module;
+
+        /**
+         * Denotes whether the update callback is called the first time.
+         */
+        bool m_initialUpdate;
     };
 
     /**

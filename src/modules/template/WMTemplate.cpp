@@ -179,9 +179,19 @@ void WMTemplate::properties()
     m_aDouble->setMin( 5.0 );
     m_aDouble->setMax( 50.0 );
 
-    // the most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
+    // The most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
     // to define the allowed values for your constraint. Take a look at the StringLength class on how to do it.
     m_aString->addConstraint( boost::shared_ptr< StringLength >( new StringLength ) );
+
+    // One last thing to mention is the active property. This property is available in all modules and represents the activation state of the
+    // module. Int the GUI this is simply a checkbox beneath the module. The active property should be taken into account in ALL modules.
+    // Visualization modules should turn off their graphics. There are basically three ways to react on changes in m_active, which is the member
+    // variable for this property.
+    // 1: overwrite WModule::activate() in your module
+    // 2: register your own handler: m_active->getCondition()->subscribeSignal( boost::bind( &WMTemplate::myCustomActiveHandler, this ) );
+    // 3: react during your module main loop using the moduleState: m_moduleState.add( m_active->getCondition );
+    // Additionally, your can also use the m_active variable directly in your update callbacks to en-/disable some OSG nodes.
+    // This template module uses method number 1. This might be the easiest and most commonly used way.
 }
 
 void WMTemplate::moduleMain()
@@ -377,7 +387,10 @@ void WMTemplate::moduleMain()
 
 void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    if ( m_module->m_aColor->changed() )
+    // One note about m_aColor: As you might have notices, changing one of the properties, which recreate the OSG node, causes the material to be
+    // gray again. This is simply caused by m_aColor->changed() is still false! To resolve this problem, use some m_osgNeedsUpdate boolean which
+    // gets set in your thread main and checked here or, as done in this module, by checking whether the callback is called the first time.
+    if ( m_module->m_aColor->changed() || m_initialUpdate )
     {
         // Grab the color
         WColor c = m_module->m_aColor->get( true );
@@ -400,5 +413,26 @@ bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPV
 
     // simple example: just accept string which are at least 5 chars long and at most 10.
     return ( value.length() <= 10 ) && ( value.length() >= 5 );
+}
+
+void WMTemplate::activate()
+{
+    // This method gets called, whenever the m_active property changes. Your module should always handle this. For more details, see the
+    // documentation in properties(). The most simple way is to activate or deactivate your OSG root node in this function according to
+    // m_active's value. At the moment, we are not 100% sure whether deactivating a node, which is currently used, is thread-safe and complies to
+    // OSG's requirements. Activating an inactive node is not the problem, as OSG does not traverse these nodes (and therefore could possibly
+    // produce issues), but deactivating an active node, which might be traversed at the same time, COULD cause problems. We'll see in the future
+    // whether this is problematic or not.
+    if ( m_active->get() )
+    {
+        m_rootNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_rootNode->setNodeMask( 0x0 );
+    }
+
+    // Always call WModule's activate!
+    WModule::activate();
 }
 
