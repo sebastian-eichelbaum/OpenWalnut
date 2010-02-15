@@ -63,6 +63,11 @@ namespace wlimits
      * Maximum double value
      */
     const double MAX_DOUBLE = std::numeric_limits< double >::max();
+
+    /**
+     * Minimum double value
+     */
+    const double MIN_DOUBLE = std::numeric_limits< double >::min();
 }
 
 #endif  // WLIMITS_H

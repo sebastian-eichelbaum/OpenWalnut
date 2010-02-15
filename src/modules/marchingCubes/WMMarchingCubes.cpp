@@ -34,6 +34,7 @@
 #include "iso_surface.xpm"
 #include "marchingCubesCaseTables.h"
 #include "../../dataHandler/WTriangleMesh.h"
+#include "../../common/WLimits.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -99,10 +100,9 @@ const std::string WMMarchingCubes::getName() const
 
 const std::string WMMarchingCubes::getDescription() const
 {
-    return "This description has to be improved when the module is completed."
-" By now lets say the following: This module implement the marching cubes"
+    return "This module implement the marching cubes"
 " algorithm with a consistent triangulation. It allows to compute isosurfaces"
-" for a given isovalue on data given on grid only consisting of cubes. It yields"
+" for a given isovalue on data given on a grid only consisting of cubes. It yields"
 " the surface as triangle soup.";
 }
 
@@ -189,10 +189,12 @@ void WMMarchingCubes::properties()
 //     }
 
     m_isoValueProp = m_properties2->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
+    m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
-    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", true );
+    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", false );
 }
 
 void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
