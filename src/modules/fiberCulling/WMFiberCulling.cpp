@@ -42,10 +42,7 @@
 
 WMFiberCulling::WMFiberCulling()
     : WModule(),
-      m_proximity_t( 1.0 ),
-      m_dSt_culling_t( 6.5 ),
-      m_saveCulledCurves( false ),
-      m_run( new WCondition(), false )
+      m_recompute( new WCondition() )
 {
 }
 
@@ -65,7 +62,7 @@ void WMFiberCulling::moduleMain()
     // not detectable how many times a condition has fired.
     m_moduleState.setResetable();
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
-    m_moduleState.add( m_run.getCondition() );
+    m_moduleState.add( m_recompute );
 
     ready();
 
@@ -76,33 +73,24 @@ void WMFiberCulling::moduleMain()
             m_moduleState.wait();
             continue;
         }
-
         if( m_rawDataset != m_fiberInput->getData() ) // in case data has changed
         {
             m_rawDataset = m_fiberInput->getData();
-            assert( m_rawDataset.get() );
+            assert( m_rawDataset );
             infoLog() << "Start: WDataSetFibers => WDataSetFiberVector";
             m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
             infoLog() << "Stop:  WDataSetFibers => WDataSetFiberVector";
         }
 
-        if( m_savePath.empty() )
+        assert( m_savePath );
+        if( m_savePath->get().string() == "/no/such/file" )
         {
-            if( m_properties->findProp( "save path" ) )
-            {
-                m_properties->findProp( "save path" )->setValue( saveFileName() );
-            }
-            else
-            {
-                m_savePath = saveFileName();
-            }
+            m_savePath->set( saveFileName( m_dataset->getFileName() ) );
         }
 
-        if( m_run.get() )
+        if( m_run->changed() )
         {
             update();
-            m_run.set( false );
-            m_properties->reemitChangedValueSignals();
         }
 
         m_moduleState.wait();
@@ -111,8 +99,8 @@ void WMFiberCulling::moduleMain()
 
 void WMFiberCulling::update()
 {
-    infoLog() << "Proximity threshold: " << m_proximity_t;
-    infoLog() << "Culling threshold: " << m_dSt_culling_t;
+    infoLog() << "Proximity threshold: " << m_proximity_t->get();
+    infoLog() << "Culling threshold: " << m_dSt_culling_t->get();
     cullOutFibers();
     infoLog() << "Clulling done.";
 }
@@ -133,59 +121,23 @@ void WMFiberCulling::connectors()
 
 void WMFiberCulling::properties()
 {
-    m_properties->addDouble( "min distance threshold", m_dSt_culling_t, false, "Min distance of two \"different\" fibers"
-                           )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
-    m_properties->addDouble( "proximity threshold", m_proximity_t, false, "Min distance of points of two fibers which should be considered"
-                           )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "save culled curves", m_saveCulledCurves, false
-                         )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
-    m_properties->addString( "save path", m_savePath, false, "path where to save culled curves"
-                           )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "GO", false, false, "initiate run"
-                         )->connect( boost::bind( &WMFiberCulling::slotPropertyChanged, this, _1 ) );
-}
-
-void WMFiberCulling::slotPropertyChanged( std::string propertyName )
-{
-    if( m_run.get() )
-    {
-        assert( m_properties->findProp( propertyName ) );
-        m_properties->findProp( propertyName )->dirty( true );
-        debugLog() << "Property: " << propertyName << " marked as dirty";
-    }
-    else
-    {
-        debugLog() << "Property: " << propertyName << " has changed";
-        if( propertyName == "GO" )
-        {
-            m_run.set( true );
-        }
-        else if( propertyName == "min distance threshold" )
-        {
-            m_dSt_culling_t = m_properties->getValue< double >( propertyName );
-        }
-        else if( propertyName == "proximity threshold" )
-        {
-            m_proximity_t = m_properties->getValue< double >( propertyName );
-        }
-        else if( propertyName == "save culled curves" )
-        {
-            m_saveCulledCurves = m_properties->getValue< bool >( propertyName );
-        }
-        else if( propertyName == "save path" )
-        {
-            m_savePath = m_properties->getValue< std::string >( propertyName );
-        }
-        else
-        {
-            std::cerr << propertyName << std::endl; // we must use std::cerr since WLogger needs to much time!
-            assert( 0 && "This property name is not supported by this function yet." );
-        }
-    }
+    m_dSt_culling_t    = m_properties2->addProperty( "Min fiber distance", "If below, the shorter fiber is culled out", 6.5 );
+    m_proximity_t      = m_properties2->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 1.0 );
+    m_saveCulledCurves = m_properties2->addProperty( "Save result", "If true the remaining fibers are save to a file", false );
+    m_savePath         = m_properties2->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
+    m_run              = m_properties2->addProperty( "Run", "Go go go with those parameters", false, m_recompute );
+    m_run->get( true ); // reset so no initial run occurs
+    m_savePath->addConstraint( PC_NOTEMPTY );
 }
 
 void WMFiberCulling::cullOutFibers()
 {
+    // get parameter from GUI (properties)
+    double proximity_t      = m_proximity_t->get();
+    double dSt_culling_t    = m_dSt_culling_t->get();
+    bool   saveCulledCurves = m_saveCulledCurves->get();
+    boost::filesystem::path savePath = m_savePath->get();
+
     size_t numFibers = m_dataset->size();
     infoLog() << "Recoginzed " << numFibers << " fibers";
 
@@ -194,7 +146,7 @@ void WMFiberCulling::cullOutFibers()
 
     std::vector< bool > unusedFibers( numFibers, false );
 
-    WDSTMetric dSt( m_proximity_t * m_proximity_t );
+    WDSTMetric dSt( proximity_t * proximity_t );
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber culling", numFibers ) );
     m_progress->addSubProgress( progress );
@@ -213,7 +165,7 @@ void WMFiberCulling::cullOutFibers()
                 continue;
             }
             double dst = dSt.dist( (*m_dataset)[q], (*m_dataset)[r] );
-            if( dst < m_dSt_culling_t )  // cullout small fibs nearby long fibs
+            if( dst < dSt_culling_t )  // cullout small fibs nearby long fibs
             {
                 if( (*m_dataset)[q].size() < (*m_dataset)[r].size() )
                 {
@@ -239,18 +191,18 @@ void WMFiberCulling::cullOutFibers()
     infoLog() << "Culled out " << numFibers - m_output->getData()->size() << " fibers";
     infoLog() << "There are " << m_output->getData()->size() << " fibers left.";
 
-    if( m_saveCulledCurves )
+    if( saveCulledCurves )
     {
-        WWriterFiberVTK w( m_savePath, true );
+        WWriterFiberVTK w( savePath, true );
         w.writeFibs( result );
     }
 }
 
-std::string WMFiberCulling::saveFileName() const
+boost::filesystem::path WMFiberCulling::saveFileName( std::string dataFileName ) const
 {
     std::stringstream newExtension;
     newExtension << std::fixed << std::setprecision( 2 );
-    newExtension << ".pt-" << m_proximity_t << ".dst-" << m_dSt_culling_t << ".fib";
-    boost::filesystem::path fibFileName( m_dataset->getFileName() );
-    return fibFileName.replace_extension( newExtension.str() ).string();
+    newExtension << ".pt-" << m_proximity_t->get() << ".dst-" << m_dSt_culling_t->get() << ".fib";
+    boost::filesystem::path fibFileName( dataFileName );
+    return fibFileName.replace_extension( newExtension.str() );
 }

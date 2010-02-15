@@ -33,7 +33,7 @@
 #include <osg/NodeCallback>
 
 /**
- * Class to wrap around the osg Group node and providing a thread safe add/removal mechanism. Please be use to use
+ * Class to wrap around the osg Group node and providing a thread safe add/removal mechanism. Please be sure to use
  * addUpdateCallback() to set your own update callbacks instead of setUpdateCallback, as this class already has set a callback,
  * which would be overwritten by a subsequent call to setUpdateCallback().
  *

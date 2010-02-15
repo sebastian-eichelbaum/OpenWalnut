@@ -34,6 +34,7 @@
 #include "iso_surface.xpm"
 #include "marchingCubesCaseTables.h"
 #include "../../dataHandler/WTriangleMesh.h"
+#include "../../common/WLimits.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -69,7 +70,8 @@ WMMarchingCubes::WMMarchingCubes():
     m_dataSet(),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
-    m_geode( 0 )
+    m_moduleNode( new WGEGroupNode() ),
+    m_surfaceGeode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -98,10 +100,9 @@ const std::string WMMarchingCubes::getName() const
 
 const std::string WMMarchingCubes::getDescription() const
 {
-    return "This description has to be improved when the module is completed."
-" By now lets say the following: This module implement the marching cubes"
+    return "This module implement the marching cubes"
 " algorithm with a consistent triangulation. It allows to compute isosurfaces"
-" for a given isovalue on data given on grid only consisting of cubes. It yields"
+" for a given isovalue on data given on a grid only consisting of cubes. It yields"
 " the surface as triangle soup.";
 }
 
@@ -188,10 +189,12 @@ void WMMarchingCubes::properties()
 //     }
 
     m_isoValueProp = m_properties2->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
+    m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
-    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", true );
+    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", false );
 }
 
 void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
@@ -631,9 +634,10 @@ void WMMarchingCubes::renderSurface()
 
 void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_geode );
+//    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
+    m_moduleNode->remove( m_surfaceGeode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
-    m_geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     osg::Vec3Array* vertices = new osg::Vec3Array;
     for( size_t i = 0; i < mesh->getNumVertices(); ++i )
@@ -669,8 +673,8 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     surfaceGeometry->setNormalArray( normals.get() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
-    m_geode->addDrawable( surfaceGeometry );
-    osg::StateSet* state = m_geode->getOrCreateStateSet();
+    m_surfaceGeode->addDrawable( surfaceGeometry );
+    osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();
 
     // ------------------------------------------------
     // colors
@@ -795,13 +799,14 @@ void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
     //}
 
     m_shader = osg::ref_ptr< WShader > ( new WShader( "surface" ) );
-    m_shader->apply( m_geode );
+    m_shader->apply( m_surfaceGeode );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_geode );
+    m_moduleNode->insert( m_surfaceGeode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
-    m_geode->addUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
+    m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
 
-    //osgDB::writeNodeFile( *m_geode, "/tmp/saved.osg" ); //for debugging
+    //osgDB::writeNodeFile( *m_surfaceGeode, "/tmp/saved.osg" ); //for debugging
 }
 
 // TODO(wiebel): move this somewhere, where more classes can use it
@@ -1009,11 +1014,11 @@ void WMMarchingCubes::updateTextures()
 {
     if ( m_active->get() )
     {
-        m_geode->setNodeMask( 0xFFFFFFFF );
+        m_surfaceGeode->setNodeMask( 0xFFFFFFFF );
     }
     else
     {
-        m_geode->setNodeMask( 0x0 );
+        m_surfaceGeode->setNodeMask( 0x0 );
     }
 
     if ( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
@@ -1025,7 +1030,7 @@ void WMMarchingCubes::updateTextures()
 
         if ( tex.size() > 0 )
         {
-            osg::StateSet* rootState = m_geode ->getOrCreateStateSet();
+            osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
 
             // reset all uniforms
             for ( int i = 0; i < 10; ++i )
