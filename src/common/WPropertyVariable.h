@@ -126,6 +126,19 @@ public:
     virtual bool accept( T newValue );
 
     /**
+     * This method is useful to ensure, that there is a valid value in the property. Assume the following situation. The property p got a min
+     * value of 10. p->setMin( 10 ). Now, p gets set by the GUI to 11. Now your module sets another min value: p->setMin( 15 ). As the property
+     * already has been set, the property can't decide what to do; it simply stays invalid. To ensure a valid value, you can use this method. It
+     * only sets the new value if the old value is invalid.
+     *
+     * \param newValidValue the new value to set.
+     * \param suppressNotification true to avoid a firing condition.
+     *
+     * \return true if the new value has been accepted ( if it was valid ) - for short true if the property NOW is valid
+     */
+    virtual bool ensureValidity( T newValidValue, bool suppressNotification = false );
+
+    /**
      * Class building the base for user defined constraints on a property instance.
      */
     class PropertyConstraint
@@ -379,6 +392,19 @@ bool WPropertyVariable< T >::accept( T newValue )
     lock.unlock();
 
     return acceptable;
+}
+
+template < typename T >
+bool WPropertyVariable< T >::ensureValidity( T newValidValue, bool suppressNotification )
+{
+    if ( !accept( WFlag< T >::get() ) )
+    {
+        // the currently set constraints forbid the current value.
+        // reset it to the new value
+        return WFlag< T >::set( newValidValue, suppressNotification );
+    }
+
+    return true;
 }
 
 template < typename T >
