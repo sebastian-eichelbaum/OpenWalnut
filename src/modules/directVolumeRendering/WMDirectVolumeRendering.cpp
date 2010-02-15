@@ -22,47 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <vector>
+#include <utility>
 
-#include <cmath>
+#include <osg/ShapeDrawable>
+#include <osg/Group>
+#include <osg/Geode>
+#include <osg/Material>
+#include <osg/StateAttribute>
+
+#include "../../kernel/WKernel.h"
+#include "../../common/WColor.h"
 
 #include "WMDirectVolumeRendering.h"
 
-#include <osg/Geode>
-#include <osg/Geometry>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
-#include <osg/LightModel>
-#include <osgDB/WriteFile>
-
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../math/WVector3D.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataTexture3D.h"
-#include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WShader.h"
-
-#include "../data/WMData.h"
-
-
 WMDirectVolumeRendering::WMDirectVolumeRendering():
-    WModule(),
-    m_dataSet()
+    WModule()
 {
-    // WARNING: initializing connectors inside the constructor will lead to an exception.
-    // Implement WModule::initializeConnectors instead.
+    // Initialize members
 }
 
 WMDirectVolumeRendering::~WMDirectVolumeRendering()
 {
-    // cleanup
-    removeConnectors();
+    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
@@ -72,57 +54,24 @@ boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
 
 const std::string WMDirectVolumeRendering::getName() const
 {
+    // Specify your module name here. This name must be UNIQUE!
     return "Direct Volume Rendering";
 }
 
 const std::string WMDirectVolumeRendering::getDescription() const
 {
-    return "This module provides a direct volume renderer for scalar data sets.";
-}
-
-void WMDirectVolumeRendering::moduleMain()
-{
-    // use the m_input "data changed" flag
-    m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_input->getDataChangedCondition() );
-
-    // signal ready state
-    ready();
-
-    // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
-    {
-        // acquire data from the input connector
-        m_dataSet = m_input->getData();
-        if ( !m_dataSet.get() )
-        {
-            // OK, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
-            debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
-            continue;
-        }
-
-        // data changed
-        debugLog() << "Data changed. Updating volume rendering.";
-
-
-
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
-        m_moduleState.wait();
-    }
+    // Specify your module description here. Be detailed. This text is read by the user.
+    return "This module shows a direct volume rendering of the specified scalar dataset.";
 }
 
 void WMDirectVolumeRendering::connectors()
 {
-    // initialize connectors
+    // DVR needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
-                                                               "in", "Volume Dataset to render directly." )
-        );
+        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The scalar dataset shown using DVR." )
+    );
 
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
 
     // call WModules initialization
@@ -131,5 +80,92 @@ void WMDirectVolumeRendering::connectors()
 
 void WMDirectVolumeRendering::properties()
 {
+    // Initialize the properties
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+}
+
+void WMDirectVolumeRendering::moduleMain()
+{
+    // let the main loop awake if the data changes or the properties changed.
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_propCondition );
+
+    // Signal ready state.
+    ready();
+    debugLog() << "Module is now ready.";
+
+    // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
+    // connectors or on changed in your properties.
+    debugLog() << "Entering main loop";
+    while ( !m_shutdownFlag() )
+    {
+        // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
+        // or an property changes. The main loop now waits until something happens.
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        // has the data changed?
+        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        bool dataChanged = ( m_dataSet != newDataSet );
+        if ( dataChanged || !m_dataSet )
+        // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
+        // cases.
+        {
+            // The data is different. Copy it to our internal data variable:
+            debugLog() << "Received Data.";
+            m_dataSet = newDataSet;
+
+            // invalid data
+            if ( !m_dataSet )
+            {
+                debugLog() << "Invalid Data. Disabling.";
+                continue;
+            }
+        }
+
+        // As the data has changed, we need to recreate the texture.
+        if ( dataChanged )
+        {
+            debugLog() << "Data changed. Uploading new data as texture.";
+
+            // First, grab the grid
+            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+            if ( !grid )
+            {
+                errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
+                continue;
+            }
+
+            // get the BBox
+            std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
+            //m_rootNode
+        }
+    }
+
+    // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
+    // allocated memory and remove all OSG nodes.
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+}
+
+void WMDirectVolumeRendering::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    traverse( node, nv );
+}
+
+void WMDirectVolumeRendering::activate()
+{
+    // Activate/Deactivate the DVR
+    if ( m_active->get() )
+    {
+        m_rootNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_rootNode->setNodeMask( 0x0 );
+    }
+
+    // Always call WModule's activate!
+    WModule::activate();
 }
 

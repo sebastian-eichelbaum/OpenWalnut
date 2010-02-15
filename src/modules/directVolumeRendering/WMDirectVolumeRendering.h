@@ -25,34 +25,32 @@
 #ifndef WMDIRECTVOLUMERENDERING_H
 #define WMDIRECTVOLUMERENDERING_H
 
-#include <map>
 #include <string>
-#include <vector>
 
-#include <osg/Node>
 #include <osg/Geode>
-#include <osg/Uniform>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "../../kernel/WModuleOutputData.h"
 
 /**
- * This module implements a direct volume renderer for scalar datasets.
+ * This module build the base for DirectVolumeRendering in OpenWalnut. It uses shader based raytracing and will be able to have multi dimensional
+ * transfer functions.
  * \ingroup modules
  */
-class WMDirectVolumeRendering : public WModule
+class WMDirectVolumeRendering: public WModule
 {
 public:
+
     /**
-     * Standard constructor.
+     * Default constructor.
      */
     WMDirectVolumeRendering();
 
     /**
      * Destructor.
      */
-    ~WMDirectVolumeRendering();
+    virtual ~WMDirectVolumeRendering();
 
     /**
      * Gives back the name of this module.
@@ -62,7 +60,7 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description of module.
+     * \return description to module.
      */
     virtual const std::string getDescription() const;
 
@@ -91,17 +89,69 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     */
+    osg::ref_ptr<osg::Geode> m_rootNode;
+
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
+
 private:
 
     /**
-     * Input connector.
+     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
 
     /**
-     * the current dataset
+     * This is a pointer to the dataset the module is currently working on.
      */
-    boost::shared_ptr< const WDataSetSingle > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
+    boost::shared_ptr< WDataSetSingle > m_dataSet;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
+     * moduleMain().
+     */
+    class SafeUpdateCallback : public osg::NodeCallback
+    {
+    public: // NOLINT
+
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit SafeUpdateCallback( WMDirectVolumeRendering* module ): m_module( module ), m_initialUpdate( true )
+        {
+        };
+
+        /**
+         * operator () - called during the update traversal.
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+
+        /**
+         * Pointer used to access members of the module to modify the node.
+         */
+        WMDirectVolumeRendering* m_module;
+
+        /**
+         * Denotes whether the update callback is called the first time.
+         */
+        bool m_initialUpdate;
+    };
 };
 
 #endif  // WMDIRECTVOLUMERENDERING_H
+
