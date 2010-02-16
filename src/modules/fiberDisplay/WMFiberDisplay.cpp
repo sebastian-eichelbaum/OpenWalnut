@@ -96,10 +96,20 @@ void WMFiberDisplay::moduleMain()
             }
 
             m_dataset = m_fiberInput->getData();
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
 
-            WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
-            create();
+            infoLog() << "Fiber dataset for display with: " << m_dataset->size() << " fibers loaded.";
+
+            if( m_dataset->size() != 0 ) // incase of an empty fiber dataset nothing is to display
+            {
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+
+                WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
+                create();
+            }
+            else
+            {
+                warnLog() << "Nothing to display for an empty fiber dataset";
+            }
         }
     }
 }
