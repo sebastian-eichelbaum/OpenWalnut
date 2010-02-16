@@ -61,9 +61,7 @@ const std::string WMDistanceMap::getName() const
 
 const std::string WMDistanceMap::getDescription() const
 {
-    return "This description has to be improved when the module is completed."
-           " By now lets say the following: Computes a smoothed version of the dataset"
-           " and a distance map on it. Finally it renders this distance map using MarchinCubes";
+    return "Computes a smoothed version of the dataset and a distance map on it.";
 }
 
 void WMDistanceMap::moduleMain()
