@@ -75,9 +75,16 @@ void WPropertyFilenameWidget::buttonReleased()
                 QString::fromStdString( m_fnProperty->get().file_string() ),
                 QFileDialog::DontConfirmOverwrite );
     }
-    else
+    else if ( m_fnProperty->countConstraint( PC_PATHEXISTS ) != 0 )
     {
         path = QFileDialog::getOpenFileName( this,
+                QString::fromStdString( "Select existing file for " + m_fnProperty->getName() ),
+                QString::fromStdString( m_fnProperty->get().file_string() ), QString(), 0,
+                QFileDialog::DontConfirmOverwrite );
+    }
+    else
+    {
+        path = QFileDialog::getSaveFileName( this,
                 QString::fromStdString( "Select file for " + m_fnProperty->getName() ),
                 QString::fromStdString( m_fnProperty->get().file_string() ), QString(), 0,
                 QFileDialog::DontConfirmOverwrite );
