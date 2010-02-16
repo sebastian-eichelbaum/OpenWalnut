@@ -80,6 +80,10 @@ void main()
         discard;
     }
 
-    gl_FragColor = vec4( vec3( 1.0 - i/750.0 ), 1.0 );//texture3D( tex0, curPoint );
+    gl_FragColor = vec4( vec3( 1.0 - i/1000.0 ), 1.0 );//texture3D( tex0, curPoint );
+
+    //gl_FragColor = vec4( v_rayStart, 1.0 );
+//    gl_FragColor = vec4( abs(v_normal), 1.0 );
+//    gl_FragColor = vec4( v_ray, 1.0 );
 }
 

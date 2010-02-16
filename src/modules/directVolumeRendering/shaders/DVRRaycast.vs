@@ -56,12 +56,13 @@ void main()
 {
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_MultiTexCoord0;
+    v_normal = gl_Normal;
 
     // in texture space, the starting point simply is the current surface point in texture space
     v_rayStart = gl_TexCoord[0].xyz;
 
     // transform the ray direction to texture space
-    v_ray = normalize( gl_ModelViewMatrixInverse * -gl_TexCoord[0] ).xyz;
+    v_ray = -normalize( gl_ModelViewMatrixInverse * vec4( 0.0, 1.0, 0.0, 1.0 ) ).xyz;
 
     // Simply project the vertex
     gl_Position = ftransform();
