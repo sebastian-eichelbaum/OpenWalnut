@@ -33,6 +33,9 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WShader.h"
 
 #include "WMDirectVolumeRendering.h"
 
@@ -86,6 +89,8 @@ void WMDirectVolumeRendering::properties()
 
 void WMDirectVolumeRendering::moduleMain()
 {
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "DVRRaycast" ) );
+
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
@@ -139,7 +144,15 @@ void WMDirectVolumeRendering::moduleMain()
 
             // get the BBox
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
-            //m_rootNode
+
+            // use the OSG Shapes, create unit cube
+            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
+            m_shader->apply( cube );
+
+            // update node
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+            m_rootNode = cube;
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
         }
     }
 

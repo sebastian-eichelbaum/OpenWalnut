@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <osg/Geode>
+#include <osg/Node>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -92,7 +92,7 @@ protected:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-    osg::ref_ptr<osg::Geode> m_rootNode;
+    osg::ref_ptr< osg::Node > m_rootNode;
 
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -115,6 +115,11 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * the DVR shader.
+     */
+    osg::ref_ptr< WShader > m_shader;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
