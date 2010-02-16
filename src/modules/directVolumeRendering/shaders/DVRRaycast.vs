@@ -22,13 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
+#version 120
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
+#include "DVRRaycast.varyings"
+
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
 /////////////////////////////////////////////////////////////////////////////
+
+// texture containing the data
+uniform sampler3D tex0;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -47,6 +54,15 @@
  */
 void main()
 {
+    // for easy access to texture coordinates
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+
+    // in texture space, the starting point simply is the current surface point in texture space
+    v_rayStart = gl_TexCoord[0].xyz;
+
+    // transform the ray direction to texture space
+    v_ray = normalize( gl_ModelViewMatrixInverse * -gl_TexCoord[0] ).xyz;
+
     // Simply project the vertex
     gl_Position = ftransform();
 }

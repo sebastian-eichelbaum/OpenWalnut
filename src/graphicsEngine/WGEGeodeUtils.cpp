@@ -82,6 +82,7 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     // create the unit cube manually as the ShapeDrawable and osg::Box does not provide 3D texture coordinates
     osg::ref_ptr< osg::Geometry > cube = new osg::Geometry();
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
 
     // front face
@@ -89,36 +90,42 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, -1.0 ) );
 
     // back face
     vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
 
     // left
     vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    normals->push_back( osg::Vec3( -1.0, 0.0, 0.0 ) );
 
     // right
     vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
 
     // bottom
     vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, -1.0, 0.0 ) );
 
     // top
     vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
 
     // set it up and set arrays
     cube->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
@@ -126,6 +133,10 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
 
     // set 3D texture coordinates here.
     cube->setTexCoordArray( 0, vertices );
+
+    // set normals
+    cube->setNormalArray( normals );
+    cube->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
     // finally, the colors
     colors->push_back( wge::osgColor( color ) );

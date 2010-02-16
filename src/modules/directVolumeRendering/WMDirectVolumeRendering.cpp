@@ -32,6 +32,7 @@
 #include <osg/StateAttribute>
 
 #include "../../kernel/WKernel.h"
+#include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WColor.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
@@ -148,6 +149,14 @@ void WMDirectVolumeRendering::moduleMain()
             // use the OSG Shapes, create unit cube
             osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
             m_shader->apply( cube );
+
+            // bind the texture to the node
+            osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
+            osg::StateSet* rootState = cube->getOrCreateStateSet();
+            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+
+            // for the texture, also bind the appropriate uniforms
+            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
 
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
