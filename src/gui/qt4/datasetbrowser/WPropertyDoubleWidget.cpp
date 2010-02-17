@@ -86,7 +86,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     m_spin.setSingleStep( ( max - min ) / 100.0 );
 
     // connect the modification signal of the edit and slider with our callback
-    connect( &m_spin, SIGNAL( valueChanged( double ) ), this, SLOT( spinChanged( double ) ) );
+    connect( &m_spin, SIGNAL( editingFinished() ), this, SLOT( spinChanged() ) );
 }
 
 WPropertyDoubleWidget::~WPropertyDoubleWidget()
@@ -94,9 +94,9 @@ WPropertyDoubleWidget::~WPropertyDoubleWidget()
     // cleanup
 }
 
-void WPropertyDoubleWidget::spinChanged( double value )
+void WPropertyDoubleWidget::spinChanged()
 {
     // set to the property
-    invalidate( !m_doubleProperty->set( value ) );
+    invalidate( !m_doubleProperty->set( m_spin.value() ) );
 }
 
