@@ -184,7 +184,12 @@ private:
         {
         };
 
-        // This function will be called during the render traversal
+        /**
+         * The callback. Called every render traversal for the uniform.
+         *
+         * \param uniform the uniform for which this callback is.
+         * \param nv the visitor.
+         */
         virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
 
         /**
@@ -192,7 +197,6 @@ private:
          */
         WMDirectVolumeRendering* m_module;
     };
-
 };
 
 #endif  // WMDIRECTVOLUMERENDERING_H

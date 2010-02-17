@@ -165,9 +165,9 @@ void WMDirectVolumeRendering::moduleMain()
 
             // setup all those uniforms
             osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
-            isovalue->setUpdateCallback( new SafeUniformCallback( this )  );
-            osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() ) ;
-            isosurface->setUpdateCallback( new SafeUniformCallback( this )  );
+            isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() );
+            isosurface->setUpdateCallback( new SafeUniformCallback( this ) );
             rootState->addUniform( isovalue );
             rootState->addUniform( isosurface );
 
@@ -195,7 +195,6 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
     if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
     {
         uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) / 100.0 ) );
-
     }
     if ( m_module->m_isoSurface->changed() && ( uniform->getName() == "u_isosurface" ) )
     {
