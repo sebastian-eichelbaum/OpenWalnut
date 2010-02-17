@@ -41,7 +41,7 @@
 #include "../../dataHandler/io/nifti/nifti1_io.h"
 #include "WMWriteNIfTI.h"
 
-WMWriteNIfTI::WMWriteNIfTI():
+WMWriteNIfTI::WMWriteNIfTI() :
     WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -62,32 +62,13 @@ boost::shared_ptr< WModule > WMWriteNIfTI::factory() const
 const char** WMWriteNIfTI::getXPMIcon() const
 {
     static const char * disc_xpm[] =
-        {
-            "16 16 7 1",
-            "   c None",
-            ".  c #000080",
-            "+  c #000000",
-            "@  c #FFFF00",
-            "#  c #E0E0E0",
-            "$  c #FFFFFF",
-            "%  c #C0C0C0",
-            "..+++++++++++..+",
-            "..@@@@@@@@@@@..+",
-            "..###########..+",
-            "..$$$$$$$$$$$..+",
-            "..###########..+",
-            "..$$$$$$$$$$$..+",
-            "..###########..+",
-            "..$$$$$$$$$$$..+",
-            "...............+",
-            "....%%%%%%%....+",
-            "....%..%%%%....+",
-            "....%..%%%%....+",
-            "....%..%%%%....+",
-            "....%..%%%%....+",
-            "+...%%%%%%%....+",
-            "++++++++++++++++"
-        };
+    {
+                    "16 16 7 1", "   c None", ".  c #000080", "+  c #000000", "@  c #FFFF00", "#  c #E0E0E0",
+                    "$  c #FFFFFF", "%  c #C0C0C0", "..+++++++++++..+", "..@@@@@@@@@@@..+", "..###########..+",
+                    "..$$$$$$$$$$$..+", "..###########..+", "..$$$$$$$$$$$..+", "..###########..+", "..$$$$$$$$$$$..+",
+                    "...............+", "....%%%%%%%....+", "....%..%%%%....+", "....%..%%%%....+", "....%..%%%%....+",
+                    "....%..%%%%....+", "+...%%%%%%%....+", "++++++++++++++++"
+    };
     return disc_xpm;
 }
 
@@ -111,11 +92,11 @@ void WMWriteNIfTI::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // acquire data from the input connector
         m_dataSet = m_input->getData();
-        if ( !m_dataSet )
+        if( !m_dataSet )
         {
             // ok, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
@@ -133,10 +114,8 @@ void WMWriteNIfTI::moduleMain()
 void WMWriteNIfTI::connectors()
 {
     // initialize connectors
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
-                                                               "in", "The dataset to filter" )
-        );
+    m_input = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle > (
+                    shared_from_this(), "in", "The dataset to filter" ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
@@ -147,10 +126,25 @@ void WMWriteNIfTI::connectors()
 
 void WMWriteNIfTI::properties()
 {
-    m_filename = m_properties2->addProperty( "Filename", "Filename where to write the nifty file to.", WKernel::getAppPathObject() );
+    m_filename = m_properties2->addProperty( "Filename", "Filename where to write the nifty file to.",
+                    WKernel::getAppPathObject() );
 
     // bind a custom callback, triggered whenever the filename changes
     m_filename->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
+}
+
+template< typename T > void WMWriteNIfTI::castData( void*& returnData )
+{
+    boost::shared_ptr< WValueSetBase > valsB = ( *m_dataSet ).getValueSet();
+    boost::shared_ptr< WValueSet< T > > vals = boost::shared_dynamic_cast< WValueSet< T > >( ( *m_dataSet ).getValueSet() );
+    assert( vals && "Seems that value set type is not yet supported." );
+
+    T* data = new T[vals->size()];
+    for( unsigned int i = 0; i < vals->size(); ++i )
+    {
+        data[i] = static_cast< T > ( vals->getScalar( i ) );
+    }
+    returnData = static_cast< void* > ( data );
 }
 
 void WMWriteNIfTI::writeToFile()
@@ -161,10 +155,7 @@ void WMWriteNIfTI::writeToFile()
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
     assert( grid && "Seems that grid is of wrong type." );
 
-    boost::shared_ptr< WValueSet< uint8_t > > vals = boost::shared_dynamic_cast< WValueSet< uint8_t > >( ( *m_dataSet ).getValueSet() );
-    assert( vals && "Seems that value set is of wrong type." );
-
-    size_t nbValues = vals->size();
+    size_t nbValues = ( *m_dataSet ).getValueSet()->size();
 
     outField->nx = grid->getNbCoordsX();
     outField->ny = grid->getNbCoordsY();
@@ -179,7 +170,7 @@ void WMWriteNIfTI::writeToFile()
     outField->dy = grid->getOffsetY();
     outField->dz = grid->getOffsetZ();
 
-    outField->nifti_type = 1;  // 1==NIFTI-1 (1 file)
+    outField->nifti_type = 1; // 1==NIFTI-1 (1 file)
 
     outField->freq_dim = 1;
     outField->phase_dim = 2;
@@ -187,16 +178,31 @@ void WMWriteNIfTI::writeToFile()
 
     outField->qform_code = 1;
 
-
-    outField->datatype = DT_UNSIGNED_CHAR;
-    outField->nbyper = 1;
-    uint8_t* data = new uint8_t[nbValues];
-    for( unsigned int i = 0; i < nbValues; ++i )
+    void* data = 0;
+    switch( ( *m_dataSet ).getValueSet()->getDataType() )
     {
-        data[i] = static_cast<uint8_t>( vals->getScalar( i ) );
+        case W_DT_DOUBLE:
+            outField->datatype = DT_DOUBLE;
+            castData< double > ( data );
+            break;
+        case W_DT_FLOAT:
+            outField->datatype = DT_FLOAT;
+            castData< float > ( data );
+            break;
+        case W_DT_UNSIGNED_CHAR:
+            outField->datatype = DT_UNSIGNED_CHAR;
+            castData< unsigned char > ( data );
+            break;
+        case W_DT_UINT16:
+            outField->datatype = DT_UINT16;
+            castData< uint16_t > ( data );
+            break;
+        default:
+            assert( 0 && "Data set type not yet supported." );
     }
+    outField->data = data;
 
-    outField->data = static_cast<void*>( data );
+    outField->nbyper = 1;
 
     if( nifti_set_filenames( outField, m_filename->get().file_string().c_str(), 0, 1 ) )
     {

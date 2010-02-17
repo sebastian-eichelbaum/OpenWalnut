@@ -104,7 +104,13 @@ protected:
 
 private:
     /**
-     * This performs all work neccessary to actually write the data to the file
+     * Allows to get a void* out of WValueSet.
+     * \param returnData the casted data will be returned through this pointer.
+     */
+    template< typename T > void castData( void*& returnData );
+
+    /**
+     * This performs all work necessary to actually write the data to the file
      */
     void writeToFile();
 

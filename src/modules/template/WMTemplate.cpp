@@ -34,6 +34,7 @@
 #include "../../common/WColor.h"
 
 #include "WMTemplate.h"
+#include "template.xpm"
 
 WMTemplate::WMTemplate():
     WModule()
@@ -79,6 +80,17 @@ boost::shared_ptr< WModule > WMTemplate::factory() const
     // So you always have to write this method and always return a valid pointer to an object of your module class.
     // Never initialize something else in here!
     return boost::shared_ptr< WModule >( new WMTemplate() );
+}
+
+const char** WMTemplate::getXPMIcon() const
+{
+    // The template_xpm char array comes from the template.xpm file as included above.
+    // Such char arrays, i.e. files, can be easily created using an image manipulation program
+    // like GIMP. Be aware that the xpm file is a simple header file. Thus it contains real
+    // code. This code can be manipulated by hand. Unfortunately, you really have to fix the
+    // xpm files produced by gimp. You need to make the char array const in order to prevent
+    // compiler warnings or even errors.
+    return template_xpm;
 }
 
 const std::string WMTemplate::getName() const

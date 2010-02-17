@@ -38,9 +38,11 @@
 
 WMDistanceMapIsosurface::WMDistanceMapIsosurface():
     WModuleContainer( "Distance Map Isosurface",
-                      "This description has to be improved when the module is completed."
-                      " By now lets say the following: Computes a smoothed version of the dataset"
-                      " and a distance map on it. Finally it renders this distance map using MarchinCubes" )
+                      "Computes a smoothed version of the dataset"
+                      " and a distance map on it. Finally it renders"
+                      "this distance map using an isosurface. This isosurface"
+                      " can be textured with values from scalar data sets in order to display"
+                      "the structures at the given distance." )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // NOTE: Do not use the module factory inside this constructor. This will cause a dead lock as the module factory is locked
