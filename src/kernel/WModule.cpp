@@ -344,6 +344,7 @@ void WModule::ready()
 void WModule::threadMain()
 {
 #ifdef __linux__
+    // set the name of the thread. This name is shown by the "top", for example.
     prctl( PR_SET_NAME, ( "walnut (" + getName() + ")" ).c_str() );
 #endif
 
