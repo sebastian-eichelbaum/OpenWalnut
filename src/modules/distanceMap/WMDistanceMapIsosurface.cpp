@@ -29,7 +29,7 @@
 
 #include "WMDistanceMap.h"
 #include "WMDistanceMapIsosurface.h"
-#include "distancemap.xpm"
+#include "distancemapIsosurface.xpm"
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"
@@ -63,7 +63,7 @@ boost::shared_ptr< WModule > WMDistanceMapIsosurface::factory() const
 
 const char** WMDistanceMapIsosurface::getXPMIcon() const
 {
-    return distancemap_xpm;
+    return distancemapIsosurface_xpm;
 }
 
 void WMDistanceMapIsosurface::moduleMain()

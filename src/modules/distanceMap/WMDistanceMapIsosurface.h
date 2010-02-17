@@ -68,7 +68,6 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
-
     /**
      * Determine what to do if a property was changed.
      * \param propertyName Name of the property.
