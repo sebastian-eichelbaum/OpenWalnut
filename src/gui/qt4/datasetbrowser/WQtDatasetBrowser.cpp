@@ -73,6 +73,11 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_downButton->setText( QString( "down" ) );
     m_upButton = new QPushButton();
     m_upButton->setText( QString( "up" ) );
+
+    // TODO(all): reenable these buttons if sorting works again
+    m_downButton->setDisabled( true );
+    m_upButton->setDisabled( true );
+
     buttonLayout->addWidget( m_downButton );
     buttonLayout->addWidget( m_upButton );
 
