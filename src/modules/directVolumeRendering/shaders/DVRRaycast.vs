@@ -61,10 +61,12 @@ void main()
     // in texture space, the starting point simply is the current surface point in texture space
     v_rayStart = gl_TexCoord[0].xyz;
 
-    // transform the ray direction to texture space
-    v_ray = v_rayStart - ( gl_ModelViewMatrixInverse * vec4( 0.0, 1.0, 0.0, 1.0 ) ).xyz;
-    //v_ray = vec4( 0.0, 1.0, 0.0, 1.0 ).xyz;
-    //v_ray = v_rayStart - normalize( gl_ModelViewMatrixInverse * vec4( gl_Normal, 1.0 ) ).xyz;
+    // transform the ray direction to texture space, which equals object space
+    // Therefore use two points, as we transform a vector
+    vec3 camLook = ( gl_ModelViewMatrixInverse * vec4( 0.0, 0.0, -2.0, 1.0 ) ).xyz;
+    vec3 camRoot = ( gl_ModelViewMatrixInverse * vec4( 0.0, 0.0, -1.0, 1.0 ) ).xyz;
+   
+    v_ray = normalize( camLook - camRoot );
 
     // Simply project the vertex
     gl_Position = ftransform();

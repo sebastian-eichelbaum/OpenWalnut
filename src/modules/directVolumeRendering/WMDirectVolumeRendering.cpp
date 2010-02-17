@@ -86,6 +86,11 @@ void WMDirectVolumeRendering::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_isoSurface    = m_properties2->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the"
+                                                                      "transfer function.", true );
+    m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
+                                                                      50 );
 }
 
 void WMDirectVolumeRendering::moduleMain()
@@ -158,6 +163,14 @@ void WMDirectVolumeRendering::moduleMain()
             // for the texture, also bind the appropriate uniforms
             rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
 
+            // setup all those uniforms
+            osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
+            isovalue->setUpdateCallback( new SafeUniformCallback( this )  );
+            osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() ) ;
+            isosurface->setUpdateCallback( new SafeUniformCallback( this )  );
+            rootState->addUniform( isovalue );
+            rootState->addUniform( isosurface );
+
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
             m_rootNode = cube;
@@ -172,7 +185,22 @@ void WMDirectVolumeRendering::moduleMain()
 
 void WMDirectVolumeRendering::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
+    // currently, there is nothing to update
     traverse( node, nv );
+}
+
+void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* nv )
+{
+    // update some uniforms:
+    if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) / 100.0 ) );
+
+    }
+    if ( m_module->m_isoSurface->changed() && ( uniform->getName() == "u_isosurface" ) )
+    {
+        uniform->set( m_module->m_isoSurface->get( true ) );
+    }
 }
 
 void WMDirectVolumeRendering::activate()

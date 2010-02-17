@@ -37,6 +37,12 @@
 // texture containing the data
 uniform sampler3D tex0;
 
+// The isovalue to use.
+uniform float u_isovalue;
+
+// Should the shader create some kind of isosurface instead of a volume rendering?
+uniform bool u_isosurface;
+
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
@@ -55,34 +61,36 @@ uniform sampler3D tex0;
 void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
-    vec3 curPoint = v_rayStart;
-    float value;
-    int i = 0;
-    while ( i < 300 )
-    {
-        i++;
-        value = texture3D( tex0, curPoint ).r;
+    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
 
-        if ( value >= 0.320 )
+    if ( u_isosurface )
+    {
+        vec3 curPoint = v_rayStart;
+        float value;
+        int i = 0;
+        while ( i < 250 )
         {
-            break;
+            i++;
+            value = texture3D( tex0, curPoint ).r;
+
+            if ( value >= u_isovalue )
+            {
+                break;
+            }
+            else
+            {
+                curPoint += 0.005 * v_ray;
+            }
         }
-        else
+
+        if ( i >= 250 )
         {
-            curPoint += 0.001 * v_ray;
+            discard;
         }
+
+        gl_FragColor = vec4( vec3( 1.0 - i / 150.0 ), 1.0 );
     }
 
-    if ( i >= 300 )
-    {
-        //discard;
-    }
-
-    gl_FragColor = 0.975* ( vec4( vec3( 1.0 - i/300.0 ), 1.0 ) + 0.2*vec4( abs( v_normal ), 1.0 ) );
-    //gl_FragColor = vec4( v_rayStart, 1.0 );
-    //vec3 v_ray2 = v_rayStart - ( gl_ModelViewMatrixInverse * vec4( 0.0, 1.0, 0.0, 1.0 ) ).xyz; 
     
-    //gl_FragColor = vec4( abs(v_normal), 1.0 );
-//    gl_FragColor = vec4( v_ray, 1.0 );
 }
 

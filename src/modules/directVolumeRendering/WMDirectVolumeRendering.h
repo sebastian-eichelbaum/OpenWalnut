@@ -28,6 +28,7 @@
 #include <string>
 
 #include <osg/Node>
+#include <osg/Uniform>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -112,6 +113,16 @@ private:
     boost::shared_ptr< WDataSetSingle > m_dataSet;
 
     /**
+     * If this property is true, as special shader is used which emulates isosurfaces using the m_isoValue property.
+     */
+    WPropBool m_isoSurface;
+
+    /**
+     * The Isovalue used in the case m_isoSurface is true.
+     */
+    WPropInt m_isoValue;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -156,6 +167,32 @@ private:
          */
         bool m_initialUpdate;
     };
+
+    /**
+     * Class handling uniform update during render traversal
+     */
+    class SafeUniformCallback: public osg::Uniform::Callback
+    {
+    public:
+
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit SafeUniformCallback( WMDirectVolumeRendering* module ): m_module( module )
+        {
+        };
+
+        // This function will be called during the render traversal
+        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
+
+        /**
+         * Pointer used to access members of the module to modify the node.
+         */
+        WMDirectVolumeRendering* m_module;
+    };
+
 };
 
 #endif  // WMDIRECTVOLUMERENDERING_H
