@@ -175,38 +175,23 @@ void WMMarchingCubes::connectors()
 
 void WMMarchingCubes::properties()
 {
-//     {
-//         // If set in config file use standard isovalue from config file
-//         double tmpIsoValue;
-//         if( WPreferences::getPreference( "modules.MC.isoValue", &tmpIsoValue ) )
-//         {
-//             m_properties->addDouble( "Iso Value", tmpIsoValue )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
-//         }
-//         else
-//         {
-//             m_properties->addDouble( "Iso Value", m_tIsoLevel )->connect( boost::bind( &WMMarchingCubes::slotPropertyChanged, this, _1 ) );
-//         }
-//     }
-
     m_isoValueProp = m_properties2->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
+    {
+        // If set in config file use standard isovalue from config file
+        double tmpIsoValue;
+        if( WPreferences::getPreference( "modules.MC.isoValue", &tmpIsoValue ) )
+        {
+            m_isoValueProp->set( tmpIsoValue );
+        }
+    }
+
     m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
-    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", false );
-}
 
-void WMMarchingCubes::slotPropertyChanged( std::string propertyName )
-{
-    if( propertyName == "active" )
-    {
-    }
-    else
-    {
-        std::cout << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
+    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", false );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )

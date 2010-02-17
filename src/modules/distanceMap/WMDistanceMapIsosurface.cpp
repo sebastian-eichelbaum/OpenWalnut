@@ -29,7 +29,7 @@
 
 #include "WMDistanceMap.h"
 #include "WMDistanceMapIsosurface.h"
-#include "distancemap.xpm"
+#include "distancemapIsosurface.xpm"
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"
@@ -63,7 +63,7 @@ boost::shared_ptr< WModule > WMDistanceMapIsosurface::factory() const
 
 const char** WMDistanceMapIsosurface::getXPMIcon() const
 {
-    return distancemap_xpm;
+    return distancemapIsosurface_xpm;
 }
 
 void WMDistanceMapIsosurface::moduleMain()
@@ -80,9 +80,17 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // now wait for it to be ready
     m_marchingCubesModule->isReady().wait();
-    m_marchingCubesModule->getProperties()->findProp( "Iso Value" )->setValue< float >( 0.5 );
-    m_properties->addProperty( m_marchingCubesModule->getProperties()->findProp( "active" ) );
-    m_properties->addProperty( m_marchingCubesModule->getProperties()->findProp( "Iso Value" ) );
+    boost::shared_ptr< WProperties2 >  mcProps = m_marchingCubesModule->getProperties2();
+    m_isoValueProp = mcProps->getProperty( "Iso Value" )->toPropDouble();
+    m_isoValueProp->set( 0.5 );
+    m_isoValueProp->setMin( 0.0 );
+    m_isoValueProp->setMax( 1.0 );
+    m_properties2->addProperty( m_isoValueProp );
+
+
+    m_useTextureProp = mcProps->getProperty( "Use Texture" )->toPropBool();
+    m_useTextureProp->set( true );
+    m_properties2->addProperty( m_useTextureProp );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Distance Map
@@ -164,7 +172,8 @@ void WMDistanceMapIsosurface::properties()
 {
 }
 
-void WMDistanceMapIsosurface::slotPropertyChanged( std::string /*propertyName*/ )
+void WMDistanceMapIsosurface::activate()
 {
+    m_marchingCubesModule->getProperties2()->getProperty( "active" )->toPropBool()->set( m_active->get() );
 }
 
