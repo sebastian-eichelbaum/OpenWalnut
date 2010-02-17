@@ -45,8 +45,6 @@ uniform sampler3D tex0;
 // Variables
 /////////////////////////////////////////////////////////////////////////////
 
-vec3 rayStart;
-
 /////////////////////////////////////////////////////////////////////////////
 // Functions
 /////////////////////////////////////////////////////////////////////////////
@@ -60,12 +58,12 @@ void main()
     vec3 curPoint = v_rayStart;
     float value;
     int i = 0;
-    while ( i < 750 )
+    while ( i < 300 )
     {
         i++;
         value = texture3D( tex0, curPoint ).r;
 
-        if ( value >= 0.275 )
+        if ( value >= 0.320 )
         {
             break;
         }
@@ -75,15 +73,16 @@ void main()
         }
     }
 
-    if ( i >= 750 )
+    if ( i >= 300 )
     {
-        discard;
+        //discard;
     }
 
-    gl_FragColor = vec4( vec3( 1.0 - i/1000.0 ), 1.0 );//texture3D( tex0, curPoint );
-
+    gl_FragColor = 0.975* ( vec4( vec3( 1.0 - i/300.0 ), 1.0 ) + 0.2*vec4( abs( v_normal ), 1.0 ) );
     //gl_FragColor = vec4( v_rayStart, 1.0 );
-//    gl_FragColor = vec4( abs(v_normal), 1.0 );
+    //vec3 v_ray2 = v_rayStart - ( gl_ModelViewMatrixInverse * vec4( 0.0, 1.0, 0.0, 1.0 ) ).xyz; 
+    
+    //gl_FragColor = vec4( abs(v_normal), 1.0 );
 //    gl_FragColor = vec4( v_ray, 1.0 );
 }
 

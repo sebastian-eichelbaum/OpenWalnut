@@ -62,7 +62,9 @@ void main()
     v_rayStart = gl_TexCoord[0].xyz;
 
     // transform the ray direction to texture space
-    v_ray = -normalize( gl_ModelViewMatrixInverse * vec4( 0.0, 1.0, 0.0, 1.0 ) ).xyz;
+    v_ray = v_rayStart - ( gl_ModelViewMatrixInverse * vec4( 0.0, 1.0, 0.0, 1.0 ) ).xyz;
+    //v_ray = vec4( 0.0, 1.0, 0.0, 1.0 ).xyz;
+    //v_ray = v_rayStart - normalize( gl_ModelViewMatrixInverse * vec4( gl_Normal, 1.0 ) ).xyz;
 
     // Simply project the vertex
     gl_Position = ftransform();
