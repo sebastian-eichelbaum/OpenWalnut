@@ -68,12 +68,6 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
-    /**
-     * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -90,7 +84,15 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
+
 private:
+
+    WPropDouble m_isoValueProp; //!< Property holding the value for the distance.
+    WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
 
     /**
      * The description of the module. This is used for the container.
