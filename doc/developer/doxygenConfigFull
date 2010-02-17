@@ -614,6 +614,7 @@ RECURSIVE              = YES
 
 EXCLUDE                = src/dataHandler/io/nifti \
                          src/dataHandler/io/biosig \
+                         src/dataHandler/io/libeep \
                          src/common/platformDependent/visualStudio/inttypes.h
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
