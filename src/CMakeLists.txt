@@ -210,6 +210,14 @@ ELSE()
 ENDIF()
 
 #-------------------------------------------------------------------------------------------------------------
+# Writes information about the revision of the current code to a file
+ADD_CUSTOM_TARGET( identify
+                   ALL
+                   COMMAND hg identify -n -i -b -t > ${PROJECT_BINARY_DIR}/bin/revision
+                   COMMENT "Write information about the revision of the current code to a file"
+                 )
+
+#-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET( vtest
                    COMMAND make test ARGS="-V"
