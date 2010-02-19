@@ -25,16 +25,18 @@
 #ifndef WLOADEREEGASCII_H
 #define WLOADEREEGASCII_H
 
-
 #include <string>
+
 #include <boost/shared_ptr.hpp>
-#include "../WLoader.h"
+
+#include "WLoaderEEG.h"
+
 
 /**
  * Loader for EEG data in ASCII fromat.
  * \ingroup dataHandler
  */
-class WLoaderEEGASCII : public WLoader
+class WLoaderEEGASCII : public WLoaderEEG
 {
 public:
     /**

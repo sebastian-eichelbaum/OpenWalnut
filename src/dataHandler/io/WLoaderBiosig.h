@@ -27,17 +27,19 @@
 
 #include <string>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
 
-#include "../WLoader.h"
+#include "WLoaderEEG.h"
 #include "biosig/biosig.h"
+
 
 /**
  * Loader for several formats for biological signal.
  * Uses BiosigC++ 4.
  * \ingroup dataHandler
  */
-class WLoaderBiosig : public WLoader
+class WLoaderBiosig : public WLoaderEEG
 {
 public:
     /**

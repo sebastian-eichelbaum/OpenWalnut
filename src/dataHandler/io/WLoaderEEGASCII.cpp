@@ -35,8 +35,9 @@
 #include "../WSubject.h"
 #include "WLoaderEEGASCII.h"
 
+
 WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName )
-    : WLoader( fileName )
+    : WLoaderEEG( fileName )
 {
 }
 
@@ -86,4 +87,3 @@ boost::shared_ptr< WDataSet > WLoaderEEGASCII::load()
     eeg->setFileName( m_fileName );
     return eeg;
 }
-

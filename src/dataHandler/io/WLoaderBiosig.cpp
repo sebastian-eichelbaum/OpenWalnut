@@ -23,12 +23,10 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
 
+#include <boost/shared_ptr.hpp>
 
 #include "WLoaderBiosig.h"
 #include "../WEEG.h"
@@ -37,8 +35,9 @@
 #include "../../common/WLogger.h"
 #include "../../common/WStringUtils.h"
 
+
 WLoaderBiosig::WLoaderBiosig( std::string fileName )
-    : WLoader( fileName ),
+    : WLoaderEEG( fileName ),
       m_columns( 0 ),
       m_rows( 0 )
 {
@@ -70,80 +69,9 @@ void WLoaderBiosig::fillSegmentRowBased( std::vector<std::vector<double> >* segm
     }
 }
 
-WEEGElectrodeLibrary extractElectrodePositions( std::string elcFileName )
-{
-    namespace su = string_utils;
-
-    std::ifstream ifs;
-    ifs.open( elcFileName.c_str(), std::ifstream::in );
-    if( !ifs || ifs.bad() )
-    {
-        WLogger::getLogger()->addLogMessage( "Try load broken file '" + elcFileName + "'", "BiosigLoader", LL_ERROR );
-        throw std::runtime_error( "Problem during reading file. Probably file not found." );
-    }
-
-    std::string line = "";
-
-    while(  ifs.good() && line.substr( 0, 16 ) != "NumberPositions=" )  // go to number of positions
-    {
-        std::getline( ifs, line );
-        if( !ifs.good() )
-        {
-            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "BiosigLoader", LL_ERROR );
-        }
-    }
-    std::vector< std::string > tokens = su::tokenize( line );
-    size_t numPositions = boost::lexical_cast< size_t >( tokens.at( 1 ) );
-
-    while( ifs.good() && line.substr( 0, 9 ) != "Positions" )  // go to line before start of positions
-    {
-        std::getline( ifs, line );
-        if( !ifs.good() )
-        {
-            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "BiosigLoader", LL_ERROR );
-        }
-    }
-
-    size_t posCounter = 0;
-    WEEGElectrodeLibrary elecPos;
-    while( posCounter != numPositions && ifs.good() && line.substr( 0, 9 ) != "Labels" )  // run through all positions
-    {
-        std::getline( ifs, line );
-        if( !ifs.good() )
-        {
-            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "BiosigLoader", LL_ERROR );
-        }
-        else
-        {
-            ++posCounter;
-            std::vector< std::string > lineTokens = su::tokenize( line, ":" );
-            std::string label = lineTokens.at( 0 );
-            label = su::rTrim( label );
-//                 std::cout << "Loading positions: " << label << std::endl;
-            std::vector< std::string > posTokens = su::tokenize( lineTokens.at( 1 ) );
-            double posX = boost::lexical_cast< double >( posTokens.at( 1 ) );
-            double posY = boost::lexical_cast< double >( posTokens.at( 2 ) );
-            double posZ = boost::lexical_cast< double >( posTokens.at( 3 ) );
-            wmath::WPosition pos( posX, posY, posZ );
-            elecPos.push_back( WEEGElectrodeObject( pos ) );
-//                 std::cout << "Loading positions: " << pos << std::endl;
-        }
-    }
-
-    std::getline( ifs, line );
-    assert( elecPos.size() == numPositions );
-    assert( line.substr( 0, 6 )  == "Labels" );
-
-    return elecPos;
-}
-
-
 boost::shared_ptr< WDataSet > WLoaderBiosig::load()
 {
     assert( m_fileName.substr( m_fileName.size() - 4 ) == ".edf" && "We expect only EDF so far." );
-    std::string elcFileName = m_fileName;
-    elcFileName.resize( elcFileName.size() - 3 ); // drop suffix
-    elcFileName += "elc"; // add new suffix
 
     hd =  sopen( m_fileName.c_str(), "r", 0 );
 
@@ -205,7 +133,7 @@ boost::shared_ptr< WDataSet > WLoaderBiosig::load()
     segments.push_back( segment );
 
 
-    WEEGElectrodeLibrary lib = extractElectrodePositions( elcFileName );
+    WEEGElectrodeLibrary lib = extractElectrodePositions();
 
     if( hd->NS != lib.size() )
         throw WDHException( "Contents of edf and elc files are not compatible: Different number of channels." );
