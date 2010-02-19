@@ -38,6 +38,7 @@
 #include "../WValueSetBase.h"
 #include "../WValueSet.h"
 #include "../WDataHandlerEnums.h"
+#include "../../common/WLogger.h"
 
 
 WLoaderNIfTI::WLoaderNIfTI( std::string fileName )
@@ -125,8 +126,15 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
             break;
         }
 
+        case DT_DOUBLE:
+        {
+            std::vector< double > data = copyArray( reinterpret_cast< double* >( filedata->data ), countVoxels, vDim );
+            newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( order, vDim, data, W_DT_DOUBLE ) );
+            break;
+        }
+
         default:
-            std::cout << "unknown data type " << header->datatype << std::endl;
+            wlog::error( "WLoaderNIfTI" ) << "unknown data type " << header->datatype << std::endl;
             newValueSet = boost::shared_ptr< WValueSetBase >();
     }
 
