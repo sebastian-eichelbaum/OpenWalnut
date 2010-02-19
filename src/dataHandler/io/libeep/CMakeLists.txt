@@ -10,7 +10,10 @@ ELSE()
 	SET( CMAKE_C_FLAGS "-w")
 ENDIF()
 
-INCLUDE_DIRECTORIES( . )
+FILE( GLOB LIBEEP_SRC "libavr/*.c" "libcnt/*.c" "libeep/*.c" )
 
-FILE( GLOB LIBEEP_SRC "avr/*.h" "cnt/*.h" "eep/*.h" "libavr/*.c" "libcnt/*.c" "libeep/*.c" )
-ADD_LIBRARY( libeep SHARED ${LIBEEP_SRC} )
+IF( CMAKE_HOST_SYSTEM MATCHES Windows )
+    ADD_LIBRARY( libeep ${LIBEEP_SRC} )
+ELSE()
+    ADD_LIBRARY( libeep SHARED ${LIBEEP_SRC} )
+ENDIF()

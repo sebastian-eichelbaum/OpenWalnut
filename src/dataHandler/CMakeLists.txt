@@ -1,3 +1,6 @@
+# Needed because libeep has includes of form #include <cnt/cnt.h>
+INCLUDE_DIRECTORIES( io/libeep )
+
 ADD_SUBDIRECTORY( io )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )

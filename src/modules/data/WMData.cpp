@@ -36,6 +36,7 @@
 #include "../../dataHandler/io/WLoaderBiosig.h"
 #endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
+#include "../../dataHandler/io/WLoaderLibeep.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
 #include "../../dataHandler/io/WReaderFiberVTK.h"
 #include "WMData.h"
@@ -178,6 +179,11 @@ void WMData::moduleMain()
         WLoaderEEGASCII eegAsciiLoader( fileName );
         m_dataSet = eegAsciiLoader.load();
     }
+    else if( suffix == ".cnt" )
+    {
+        WLoaderLibeep libeepLoader( fileName );
+        m_dataSet = libeepLoader.load();
+    }
     else if( suffix == ".fib" )
     {
         WReaderFiberVTK fibReader( fileName );
@@ -189,6 +195,7 @@ void WMData::moduleMain()
     }
 
     if( suffix == ".fib"
+        || suffix == ".cnt"
         || suffix == ".asc"
         || suffix == ".edf" )
     {
