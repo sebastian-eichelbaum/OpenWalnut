@@ -39,6 +39,7 @@
 #include "../../graphicsEngine/WShader.h"
 
 #include "WMDirectVolumeRendering.h"
+#include "directvolumerendering.xpm"
 
 WMDirectVolumeRendering::WMDirectVolumeRendering():
     WModule()
@@ -54,6 +55,11 @@ WMDirectVolumeRendering::~WMDirectVolumeRendering()
 boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
 {
     return boost::shared_ptr< WModule >( new WMDirectVolumeRendering() );
+}
+
+const char** WMDirectVolumeRendering::getXPMIcon() const
+{
+    return directvolumerendering_xpm;
 }
 
 const std::string WMDirectVolumeRendering::getName() const
@@ -189,7 +195,7 @@ void WMDirectVolumeRendering::SafeUpdateCallback::operator()( osg::Node* node, o
     traverse( node, nv );
 }
 
-void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* nv )
+void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
     if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
