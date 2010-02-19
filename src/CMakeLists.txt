@@ -94,7 +94,7 @@ IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     SET( CMAKE_EXE_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
 ELSE()
     SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra" CACHE STRING "" FORCE )
-    SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )	
+    SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
 ENDIF()
 
@@ -213,7 +213,7 @@ ENDIF()
 # Writes information about the revision of the current code to a file
 ADD_CUSTOM_TARGET( identify
                    ALL
-                   COMMAND hg identify -n -i -b -t > ${PROJECT_BINARY_DIR}/bin/revision
+                   COMMAND hg identify --cwd ${PROJECT_SOURCE_DIR} -n -i -b -t > ${PROJECT_BINARY_DIR}/bin/revision
                    COMMENT "Write information about the revision of the current code to a file"
                  )
 
