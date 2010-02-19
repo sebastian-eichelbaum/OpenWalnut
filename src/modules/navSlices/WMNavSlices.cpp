@@ -158,6 +158,9 @@ void WMNavSlices::moduleMain()
 
     // clean up stuff
     // NOTE: ALLAWAYS remove your osg nodes!
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getScene()->remove( m_xSliceNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getScene()->remove( m_ySliceNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getScene()->remove( m_zSliceNode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 
     // deregister from WSubject's change condition
@@ -184,13 +187,24 @@ void WMNavSlices::create()
     m_rootNode->insert( m_zSliceNode );
 
     m_shader->apply( m_rootNode );
+    m_shader->apply( m_xSliceNode );
+    m_shader->apply( m_ySliceNode );
+    m_shader->apply( m_zSliceNode );
 
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
     initUniforms( rootState );
     m_rootNode->setUserData( this );
+    m_xSliceNode->setUserData( this );
+    m_ySliceNode->setUserData( this );
+    m_zSliceNode->setUserData( this );
     m_rootNode->addUpdateCallback( new sliceNodeCallback );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getScene()->insert( m_xSliceNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getScene()->insert( m_ySliceNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getScene()->insert( m_zSliceNode );
 }
 
 osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
@@ -481,6 +495,9 @@ void WMNavSlices::updateTextures()
 
                 ++c;
             }
+            m_xSliceNode->setStateSet( rootState );
+            m_ySliceNode->setStateSet( rootState );
+            m_zSliceNode->setStateSet( rootState );
         }
     }
 }
