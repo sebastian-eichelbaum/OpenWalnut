@@ -161,11 +161,22 @@ void WMFiberDisplay::connectors()
     WModule::connectors();  // call WModules initialization
 }
 
+void WMFiberDisplay::activate()
+{
+    if( m_active->get() )
+    {
+        m_osgNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_osgNode->setNodeMask( 0x0 );
+    }
+}
+
 void WMFiberDisplay::properties()
 {
     m_properties->addString( "Fibers Display Module", "Display fibers" );
     // this bool is hidden
-    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
     m_properties->addBool( "Local Color", false )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
     m_properties->addBool( "Use Tubes", false )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
 }
@@ -191,18 +202,7 @@ void WMFiberDisplay::toggleTubes()
 
 void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
 {
-    if( propertyName == "active" )
-    {
-        if ( m_properties->getValue< bool >( propertyName ) )
-        {
-            m_osgNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_osgNode->setNodeMask( 0x0 );
-        }
-    }
-    else if ( propertyName == "Local Color" )
+    if ( propertyName == "Local Color" )
     {
         updateColoring();
     }

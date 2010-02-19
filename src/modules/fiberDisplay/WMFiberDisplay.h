@@ -89,6 +89,11 @@ public:
 
 protected:
     /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
+
+   /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
@@ -118,6 +123,8 @@ protected:
      * Switches the osg to use the appropriate color array
      */
     void updateColoring();
+
+    WPropBool m_localColor;
 
 private:
     /**
