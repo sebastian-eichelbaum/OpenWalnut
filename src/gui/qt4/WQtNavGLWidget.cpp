@@ -31,6 +31,7 @@
 #include <QtGui/QKeyEvent>
 
 #include "WQtNavGLWidget.h"
+#include "../../graphicsEngine/WGEViewer.h"
 
 WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, std::string sliderTitle )
     : QDockWidget( title, parent )
@@ -47,8 +48,35 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
 
     QVBoxLayout* layout = new QVBoxLayout();
 
+
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
     m_glWidget->initialize();
+
+    m_scene = new WGEGroupNode();
+    m_scene->setDataVariance( osg::Object::DYNAMIC );
+    m_glWidget->getViewer()->setScene( m_scene );
+//
+// TODO(wiebel): set the view direction of the camera correctly
+//
+//     m_glWidget->getViewer()->getCamera()->setProjectionMatrix( osg::Matrix::ortho( -200.0, 200.0, -200.0, 200.0, 0.0, 1000.0) );
+//     std::cout << title.toStdString() << " ..................." << std::endl;
+
+//     osg::Vec3d center( 80., 100., 80. );
+//     if( title ==  QString( "axial" ) )
+//     {
+//         std::cout << "ax..." << std::endl;
+// m_glWidget->getViewer()->getCamera()->setViewMatrix( osg::Matrix::lookAt( osg::Vec3d( -100., 0., 0. ), center, osg::Vec3d( 0., 0., 1. ) ) );
+//     }
+//     if( title == QString( "sagittal" ) )
+//     {
+//         std::cout << "sa..." << std::endl;
+// m_glWidget->getViewer()->getCamera()->setViewMatrix( osg::Matrix::lookAt( osg::Vec3d( 0., -100., 0. ), center, osg::Vec3d( 0., 0., 1. ) ) );
+//     }
+//     if( title == QString(  "coronal" ) )
+//     {
+//         std::cout << "cor..." << std::endl;
+// m_glWidget->getViewer()->getCamera()->setViewMatrix( osg::Matrix::lookAt( osg::Vec3d( 0., 0., -100. ), center, osg::Vec3d( 1., 0., 0. ) ) );
+//     }
 
     layout->addWidget( m_glWidget.get() );
     layout->addWidget( slider );

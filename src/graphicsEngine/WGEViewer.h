@@ -46,6 +46,7 @@
 #include "WGECamera.h"
 #include "WMarkHandler.h"
 #include "WPickHandler.h"
+#include "WGEGroupNode.h"
 
 
 
@@ -136,14 +137,14 @@ public:
      *
      * \param node part of the scene graph
      */
-    void setScene( osg::ref_ptr<osg::Node> node );
+    void setScene( osg::ref_ptr< WGEGroupNode > node );
 
     /**
      * Returns the currently set OSG node.
      *
      * \return the node.
      */
-    osg::ref_ptr<osg::Node> getNode();
+    osg::ref_ptr< WGEGroupNode > getScene();
 
     /**
      * Returns the name of the viewer.
@@ -192,6 +193,11 @@ protected:
      * Pointer to the mark handler of the viewer.
      */
     osg::ref_ptr<WMarkHandler> m_markHandler;
+
+    /**
+     * reference to the scene which is displayed by viewer
+     */
+    osg::ref_ptr< WGEGroupNode > m_scene;
 
 private:
 };

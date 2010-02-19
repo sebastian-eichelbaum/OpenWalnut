@@ -124,14 +124,15 @@ osg::ref_ptr<osg::Camera> WGEViewer::getCamera()
     return m_View->getCamera();
 }
 
-void WGEViewer::setScene( osg::ref_ptr<osg::Node> node )
+void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
 {
     m_View->setSceneData( node );
+    m_scene = node;
 }
 
-osg::ref_ptr<osg::Node> WGEViewer::getNode()
+osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
 {
-    return m_View->getSceneData();
+    return m_scene;
 }
 
 void WGEViewer::setBgColor( WColor bgColor )

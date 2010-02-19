@@ -27,9 +27,10 @@
 
 #include <string>
 
-#include "WQtGLWidget.h"
-
 #include <QtGui/QDockWidget>
+
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "WQtGLWidget.h"
 /**
  * container widget to hold as GL widget and a slider
  */
@@ -87,6 +88,11 @@ private:
      * My GL widget.
      */
     boost::shared_ptr<WQtGLWidget> m_glWidget;
+
+    /**
+     * the scene which is displayed by the GL widget
+     */
+    osg::ref_ptr< WGEGroupNode > m_scene;
 
 private slots:
 
