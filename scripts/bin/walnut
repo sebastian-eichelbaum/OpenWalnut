@@ -8,4 +8,5 @@ WALNUTPATH="$PWD/$BINDIR"
 
 # go there and run walnut to ensure walnuts working directory is set correctly
 cd $WALNUTPATH
+echo "OpenWalnut built from: $(cat ./revision)"
 ./walnut-bin $@

@@ -32,7 +32,11 @@
 #include <osg/StateAttribute>
 
 #include "../../kernel/WKernel.h"
+#include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WColor.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WShader.h"
 
 #include "WMDirectVolumeRendering.h"
 
@@ -82,10 +86,17 @@ void WMDirectVolumeRendering::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_isoSurface    = m_properties2->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the"
+                                                                      "transfer function.", true );
+    m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
+                                                                      50 );
 }
 
 void WMDirectVolumeRendering::moduleMain()
 {
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "DVRRaycast" ) );
+
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
@@ -139,7 +150,31 @@ void WMDirectVolumeRendering::moduleMain()
 
             // get the BBox
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
-            //m_rootNode
+
+            // use the OSG Shapes, create unit cube
+            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
+            m_shader->apply( cube );
+
+            // bind the texture to the node
+            osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
+            osg::StateSet* rootState = cube->getOrCreateStateSet();
+            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+
+            // for the texture, also bind the appropriate uniforms
+            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
+
+            // setup all those uniforms
+            osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
+            isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() );
+            isosurface->setUpdateCallback( new SafeUniformCallback( this ) );
+            rootState->addUniform( isovalue );
+            rootState->addUniform( isosurface );
+
+            // update node
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+            m_rootNode = cube;
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
         }
     }
 
@@ -150,7 +185,21 @@ void WMDirectVolumeRendering::moduleMain()
 
 void WMDirectVolumeRendering::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
+    // currently, there is nothing to update
     traverse( node, nv );
+}
+
+void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* nv )
+{
+    // update some uniforms:
+    if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) / 100.0 ) );
+    }
+    if ( m_module->m_isoSurface->changed() && ( uniform->getName() == "u_isosurface" ) )
+    {
+        uniform->set( m_module->m_isoSurface->get( true ) );
+    }
 }
 
 void WMDirectVolumeRendering::activate()

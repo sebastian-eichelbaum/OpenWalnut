@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "WMDistanceMap.h"
+#include "distancemap.xpm"
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"
@@ -53,6 +54,12 @@ boost::shared_ptr< WModule > WMDistanceMap::factory() const
 {
     return boost::shared_ptr< WModule >( new WMDistanceMap() );
 }
+
+const char** WMDistanceMap::getXPMIcon() const
+{
+    return distancemap_xpm;
+}
+
 
 const std::string WMDistanceMap::getName() const
 {

@@ -117,6 +117,12 @@ bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgG
     {
         return zoom( ea, us );
     }
+    // NOTE: we need to ignore the right mouse-button drag! This manipulates the underlying Trackball Manipulator while, at the same time, is
+    // used for moving ROIS! Zooming is done using Scroll Wheel or +/- keys.
+    else if ( ( ea.getEventType() == osgGA::GUIEventAdapter::DRAG ) && ( ea.getButtonMask() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON ) )
+    {
+        return true;
+    }
     else
     {
         return TrackballManipulator::handle( ea, us );

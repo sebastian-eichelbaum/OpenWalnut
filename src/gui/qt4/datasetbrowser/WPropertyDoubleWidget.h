@@ -76,11 +76,9 @@ private:
 public slots:
 
     /**
-     * Called whenever the spin box changes
-     *
-     * \param value the new value
+     * Called whenever return is pressed or the spin box has a chaged value and looses focus
      */
-    void spinChanged( double value );
+    void spinChanged();
 };
 
 #endif  // WPROPERTYDOUBLEWIDGET_H

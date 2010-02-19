@@ -43,6 +43,29 @@ namespace wge
      */
     osg::ref_ptr< osg::Geode > generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color );
 
+    /**
+     * Generates an OSG node for the specified bounding box. It uses solid faces. This actually returns a MatrixTransform node and is especially
+     * useful for shader based raytracing.
+     *
+     * \param pos1 Front lower left corner
+     * \param pos2 Back upper right corner
+     * \param color The color in which the bounding box should be generated
+     * \param threeDTexCoords True if 3D texture coordinates should be created.
+     *
+     * \return The OSG node containing the 12 edges of the box.
+     */
+    osg::ref_ptr< osg::Node > generateSolidBoundingBoxNode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color,
+                                                            bool threeDTexCoords = true );
+
+    /**
+     * Creates a osg::Geometry containing an unit cube, having 3D texture coordinates.
+     *
+     * \param color the color to set for all vertices
+     *
+     * \return the geometry
+     */
+    osg::ref_ptr< osg::Geometry > createUnitCube( const WColor& color );
+
 } // end of namespace wge
 
 #endif  // WGEGEODEUTILS_H

@@ -243,7 +243,7 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
                 m_Viewer->keyEvent( WGEViewer::KEYPRESS, osgGA::GUIEventAdapter::KEY_Control_L );
                 break;
             default :
-                std::cout << "Modifier key has no meaning yet." << std::endl;
+                break;
         }
     }
 }

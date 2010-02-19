@@ -27,7 +27,8 @@
 
 #include <string>
 
-#include <osg/Geode>
+#include <osg/Node>
+#include <osg/Uniform>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -92,7 +93,7 @@ protected:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-    osg::ref_ptr<osg::Geode> m_rootNode;
+    osg::ref_ptr< osg::Node > m_rootNode;
 
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -112,9 +113,24 @@ private:
     boost::shared_ptr< WDataSetSingle > m_dataSet;
 
     /**
+     * If this property is true, as special shader is used which emulates isosurfaces using the m_isoValue property.
+     */
+    WPropBool m_isoSurface;
+
+    /**
+     * The Isovalue used in the case m_isoSurface is true.
+     */
+    WPropInt m_isoValue;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * the DVR shader.
+     */
+    osg::ref_ptr< WShader > m_shader;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
@@ -150,6 +166,36 @@ private:
          * Denotes whether the update callback is called the first time.
          */
         bool m_initialUpdate;
+    };
+
+    /**
+     * Class handling uniform update during render traversal
+     */
+    class SafeUniformCallback: public osg::Uniform::Callback
+    {
+    public:
+
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit SafeUniformCallback( WMDirectVolumeRendering* module ): m_module( module )
+        {
+        };
+
+        /**
+         * The callback. Called every render traversal for the uniform.
+         *
+         * \param uniform the uniform for which this callback is.
+         * \param nv the visitor.
+         */
+        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
+
+        /**
+         * Pointer used to access members of the module to modify the node.
+         */
+        WMDirectVolumeRendering* m_module;
     };
 };
 
