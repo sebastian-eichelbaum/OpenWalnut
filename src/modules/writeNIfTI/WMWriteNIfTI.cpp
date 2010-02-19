@@ -184,25 +184,28 @@ void WMWriteNIfTI::writeToFile()
         case W_DT_DOUBLE:
             outField->datatype = DT_DOUBLE;
             castData< double > ( data );
+            outField->nbyper = 8;
             break;
         case W_DT_FLOAT:
             outField->datatype = DT_FLOAT;
             castData< float > ( data );
+            outField->nbyper = 4;
             break;
         case W_DT_UNSIGNED_CHAR:
             outField->datatype = DT_UNSIGNED_CHAR;
             castData< unsigned char > ( data );
+            outField->nbyper = 1;
             break;
         case W_DT_UINT16:
             outField->datatype = DT_UINT16;
             castData< uint16_t > ( data );
+            outField->nbyper = 2;
             break;
         default:
             assert( 0 && "Data set type not yet supported." );
     }
     outField->data = data;
 
-    outField->nbyper = 1;
 
     if( nifti_set_filenames( outField, m_filename->get().file_string().c_str(), 0, 1 ) )
     {
