@@ -250,7 +250,7 @@ void WDataTexture3D::createTexture()
         }
         else
         {
-            wlog::error( "WDataTexture3D" ) << "COnversion of this data type to texture not supported yet.";
+            wlog::error( "WDataTexture3D" ) << "Conversion of this data type to texture not supported yet.";
         }
 
         m_texture = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
