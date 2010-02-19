@@ -175,47 +175,34 @@ void WMFiberDisplay::activate()
 
 void WMFiberDisplay::properties()
 {
-    m_properties->addString( "Fibers Display Module", "Display fibers" );
-    // this bool is hidden
-    m_properties->addBool( "Local Color", false )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "Use Tubes", false )->connect( boost::bind( &WMFiberDisplay::slotPropertyChanged, this, _1 ) );
+    m_useTubesProp = m_properties2->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
+
+    // TODO( all ): remove the "true" that hides this property when local coloring is available again.
+    m_localColorProp = m_properties2->addProperty( "Local Color",
+                                                   "Use local direction of fiber tract for coloring the line instead of global direction.",
+                                                   false,
+                                                   true );
 }
 
 void WMFiberDisplay::toggleTubes()
 {
-    if ( m_properties->getValue< bool >( "Use Tubes" ) )
+    if( m_useTubesProp->changed() )
     {
-        m_tubeDrawable->setUseTubes( true );
-        m_tubeDrawable->dirtyDisplayList();
+        if ( m_useTubesProp->get( true ) )
+        {
+            m_tubeDrawable->setUseTubes( true );
+            m_tubeDrawable->dirtyDisplayList();
 
-        m_shader->apply( m_osgNode );
-        osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) );
-        osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
-        rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) ) );
-    }
-    else
-    {
-        m_tubeDrawable->setUseTubes( false );
-        m_tubeDrawable->dirtyDisplayList();
-    }
-}
-
-void WMFiberDisplay::slotPropertyChanged( std::string propertyName )
-{
-    if ( propertyName == "Local Color" )
-    {
-        updateColoring();
-    }
-    else if ( propertyName == "Use Tubes" )
-    {
-        toggleTubes();
-    }
-
-    else
-    {
-        // instead of WLogger we must use std::cerr since WLogger needs to much time!
-        std::cerr << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
+            m_shader->apply( m_osgNode );
+            osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) );
+            osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
+            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) ) );
+        }
+        else
+        {
+            m_tubeDrawable->setUseTubes( false );
+            m_tubeDrawable->dirtyDisplayList();
+        }
     }
 }
 

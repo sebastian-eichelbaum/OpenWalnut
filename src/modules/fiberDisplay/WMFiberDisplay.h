@@ -81,12 +81,6 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
-    /**
-     * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
 protected:
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -124,9 +118,10 @@ protected:
      */
     void updateColoring();
 
-    WPropBool m_localColor;
-
 private:
+    WPropBool m_localColorProp; //!< Property  indicating whether to use ocal or global coloring of fiber tracts
+    WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
+
     /**
      * Input connector for a fiber dataset.
      */
@@ -191,6 +186,7 @@ private:
             if ( module )
             {
                 module->update();
+                module->toggleTubes();
             }
             traverse( node, nv );
         }
