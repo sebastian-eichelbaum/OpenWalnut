@@ -52,6 +52,7 @@
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
 #include "../../modules/data/WMData.h"
+#include "../../modules/navSlices/WMNavSlices.h"
 
 #include "../../dataHandler/WEEG.h"
 #include "../../dataHandler/WDataSetSingle.h"
@@ -219,10 +220,12 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
-            WLogger::getLogger()->addLogMessage( "Data module added. Implement this method to have Navigation slices added automatically.",
-                                                 "GUI", LL_INFO );
 
-            //autoAdd( module, "Direct Volume endering" );
+            // if it already is running: add it
+            if ( !WMNavSlices::isRunning() )
+            {
+                autoAdd( module, "Navigation Slice Module" );
+            }
         }
         else if ( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {

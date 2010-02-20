@@ -50,6 +50,8 @@
 #include "WMNavSlices.h"
 #include "navslices.xpm"
 
+bool WMNavSlices::m_navsliceRunning = false;
+
 WMNavSlices::WMNavSlices():
     WModule(),
     m_textureChanged( true )
@@ -70,7 +72,13 @@ WMNavSlices::~WMNavSlices()
 
 boost::shared_ptr< WModule > WMNavSlices::factory() const
 {
+    m_navsliceRunning = true;
     return boost::shared_ptr< WModule >( new WMNavSlices() );
+}
+
+bool WMNavSlices::isRunning()
+{
+    return m_navsliceRunning;
 }
 
 const char** WMNavSlices::getXPMIcon() const

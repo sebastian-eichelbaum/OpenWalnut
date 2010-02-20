@@ -95,6 +95,12 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
+    /**
+     * Checks whether the nav slices are already running.
+     *
+     * \return true if running.
+     */
+    static bool isRunning();
 
 protected:
 
@@ -252,6 +258,11 @@ private:
      * vector of samplers
      */
     std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
+
+    /**
+     * To avoid multiple instances of the nav slices.
+     */
+    static bool m_navsliceRunning;
 
     /**
      * Node callback to handle updates properly
