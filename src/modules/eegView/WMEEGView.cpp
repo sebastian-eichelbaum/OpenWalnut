@@ -24,6 +24,7 @@
 
 #include <string>
 
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMEEGView.h"
 
@@ -314,11 +315,10 @@ void WMEEGView::redraw()
         // draw 3d positions
         for( size_t channel = 0; channel < nbChannels; ++channel )
         {
-            wmath::WPosition posAsWPosition = m_eeg->getChannelPosition( channel );
-            osg::Vec3 posAsVec3( posAsWPosition[0], posAsWPosition[1], posAsWPosition[2] );
+            osg::Vec3 pos = wge::osgVec3( m_eeg->getChannelPosition( channel ) );
 
             // create sphere geode on electrode position
-            osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( posAsVec3, sphereSize ) );
+            osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
             shape->setUpdateCallback( new UpdateColorCallback( channel, &m_event, m_eeg ) );
 
             osg::Geode* sphereGeode = new osg::Geode;
@@ -328,7 +328,7 @@ void WMEEGView::redraw()
             // create text geode for the channel label
             osgText::Text* text = new osgText::Text;
             text->setText( m_eeg->getChannelLabel( channel ) );
-            text->setPosition( posAsVec3 + text3dOffset );
+            text->setPosition( pos + text3dOffset );
             text->setAlignment( osgText::Text::CENTER_BOTTOM );
             text->setAxisAlignment( osgText::Text::SCREEN );
             text->setCharacterSize( text3dSize );
