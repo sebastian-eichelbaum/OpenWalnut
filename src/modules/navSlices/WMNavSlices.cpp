@@ -161,7 +161,7 @@ void WMNavSlices::moduleMain()
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
     if ( viewer )
     {
-        viewer->getScene()->remove( m_xSliceNode );
+        viewer->getScene()->remove( m_zSliceNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
@@ -173,7 +173,7 @@ void WMNavSlices::moduleMain()
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
     if ( viewer )
     {
-        viewer->getScene()->remove( m_zSliceNode );
+        viewer->getScene()->remove( m_xSliceNode );
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
@@ -220,7 +220,7 @@ void WMNavSlices::create()
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
     if ( viewer )
     {
-        viewer->getScene()->insert( m_xSliceNode );
+        viewer->getScene()->insert( m_zSliceNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
@@ -232,7 +232,7 @@ void WMNavSlices::create()
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
     if ( viewer )
     {
-        viewer->getScene()->insert( m_zSliceNode );
+        viewer->getScene()->insert( m_xSliceNode );
     }
 }
 

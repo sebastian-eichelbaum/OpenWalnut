@@ -29,17 +29,18 @@
 
 #include <boost/thread.hpp>
 
-#include <osg/Group>
+#include <osg/MatrixTransform>
 #include <osg/NodeCallback>
 
 /**
  * Class to wrap around the osg Group node and providing a thread safe add/removal mechanism. Please be sure to use
  * addUpdateCallback() to set your own update callbacks instead of setUpdateCallback, as this class already has set a callback,
- * which would be overwritten by a subsequent call to setUpdateCallback().
+ * which would be overwritten by a subsequent call to setUpdateCallback(). It is derived from osg::MatrixTransform to allow easy transformations
+ * of a whole bunch of nodes.
  *
  * \ingroup GE
  */
-class WGEGroupNode: public osg::Group
+class WGEGroupNode: public osg::MatrixTransform
 {
 public:
 

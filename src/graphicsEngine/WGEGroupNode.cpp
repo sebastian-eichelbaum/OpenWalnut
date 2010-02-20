@@ -25,13 +25,13 @@
 #include <set>
 
 #include <osg/ShapeDrawable>
-#include <osg/Group>
+#include <osg/MatrixTransform>
 #include <osg/Geode>
 
 #include "WGEGroupNode.h"
 
 WGEGroupNode::WGEGroupNode():
-    osg::Group(),
+    osg::MatrixTransform(),
     m_insertionQueueDirty( false ),
     m_removalQueueDirty( false )
 {
@@ -40,6 +40,10 @@ WGEGroupNode::WGEGroupNode():
     // setup an update callback
     m_nodeUpdater = osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback() );
     setUpdateCallback( m_nodeUpdater );
+
+    osg::Matrix m;
+    m.makeIdentity();
+    setMatrix( m );
 }
 
 WGEGroupNode::~WGEGroupNode()
