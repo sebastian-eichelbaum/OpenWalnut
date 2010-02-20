@@ -27,6 +27,7 @@
 
 #include <vector>
 
+#include <osg/Array>
 #include <osg/Vec3>
 #include <osg/Vec4>
 
