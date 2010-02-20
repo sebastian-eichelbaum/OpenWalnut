@@ -112,6 +112,15 @@ boost::shared_ptr<WQtGLWidget>WQtNavGLWidget::getGLWidget()
 
 void WQtNavGLWidget::sliderValueChanged( int value )
 {
+    if ( m_sliderProp )
+    {
+        m_sliderProp->set( value );
+    }
     emit navSliderValueChanged( m_sliderTitle, value );
+}
+
+void WQtNavGLWidget::setSliderProperty( WPropInt prop )
+{
+    m_sliderProp = prop;
 }
 

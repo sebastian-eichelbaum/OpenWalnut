@@ -29,8 +29,11 @@
 
 #include <QtGui/QDockWidget>
 
+#include "../../common/WPropertyVariable.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+
 #include "WQtGLWidget.h"
+
 /**
  * container widget to hold as GL widget and a slider
  */
@@ -68,6 +71,13 @@ public:
      */
     void setSliderTitle( std::string title );
 
+    /**
+     * Sets the property to control by the slider.
+     *
+     * \param prop the property
+     */
+    void setSliderProperty( WPropInt prop );
+
 protected:
 
     /**
@@ -78,6 +88,11 @@ protected:
     virtual void closeEvent( QCloseEvent* event );
 
 private:
+
+    /**
+     * The property which is controlled by the slider
+     */
+    WPropInt m_sliderProp;
 
     /**
      * The slider's title.

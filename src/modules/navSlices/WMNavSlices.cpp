@@ -99,15 +99,6 @@ const std::string WMNavSlices::getDescription() const
 void WMNavSlices::connectors()
 {
     // initialize connectors
-    // XXX to add a new connector and to offer it, these simple steps need to be done
-    // initialize it first
-    m_input= boost::shared_ptr<WModuleInputData< WDataSetSingle > >(
-            new WModuleInputData< WDataSetSingle >( shared_from_this(),
-                "in1", "List of datasets to show on the slices." )
-    );
-
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-    addConnector( m_input );
 
     // call WModules initialization
     WModule::connectors();
