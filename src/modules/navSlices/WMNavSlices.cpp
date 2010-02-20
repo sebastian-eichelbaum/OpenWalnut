@@ -156,10 +156,26 @@ void WMNavSlices::moduleMain()
     waitForStop();
 
     // clean up stuff
-    // NOTE: ALLAWAYS remove your osg nodes!
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getScene()->remove( m_xSliceNode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getScene()->remove( m_ySliceNode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getScene()->remove( m_zSliceNode );
+    // NOTE: ALAWAYS remove your osg nodes!
+    // Please, please always check for NULL
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    if ( viewer )
+    {
+        viewer->getScene()->remove( m_xSliceNode );
+    }
+
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    if ( viewer )
+    {
+        viewer->getScene()->remove( m_ySliceNode );
+    }
+
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    if ( viewer )
+    {
+        viewer->getScene()->remove( m_zSliceNode );
+    }
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 
     // deregister from WSubject's change condition
@@ -200,10 +216,24 @@ void WMNavSlices::create()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
+    // Please, please always check for NULL
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    if ( viewer )
+    {
+        viewer->getScene()->insert( m_xSliceNode );
+    }
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getScene()->insert( m_xSliceNode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getScene()->insert( m_ySliceNode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getScene()->insert( m_zSliceNode );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    if ( viewer )
+    {
+        viewer->getScene()->insert( m_ySliceNode );
+    }
+
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    if ( viewer )
+    {
+        viewer->getScene()->insert( m_zSliceNode );
+    }
 }
 
 osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion

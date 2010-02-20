@@ -32,6 +32,7 @@
 
 #include "WQtNavGLWidget.h"
 #include "../../graphicsEngine/WGEViewer.h"
+#include "../../graphicsEngine/WGEScene.h"
 
 WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, std::string sliderTitle )
     : QDockWidget( title, parent )
@@ -52,7 +53,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
     m_glWidget->initialize();
 
-    m_scene = new WGEGroupNode();
+    m_scene = new WGEScene();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
     m_glWidget->getViewer()->setScene( m_scene );
 //

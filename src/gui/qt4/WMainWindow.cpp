@@ -291,7 +291,10 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            m_navAxial->setSliderProperty( prop->toPropInt() );
+            if( m_navAxial )
+            {
+                m_navAxial->setSliderProperty( prop->toPropInt() );
+            }
         }
 
         prop = module->getProperties2()->findProperty( "coronalPos" );
@@ -303,7 +306,10 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            m_navCoronal->setSliderProperty( prop->toPropInt() );
+            if( m_navCoronal )
+            {
+                m_navCoronal->setSliderProperty( prop->toPropInt() );
+            }
         }
 
         prop = module->getProperties2()->findProperty( "sagittalPos" );
@@ -315,7 +321,10 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            m_navSagittal->setSliderProperty( prop->toPropInt() );
+            if( m_navSagittal )
+            {
+               m_navSagittal->setSliderProperty( prop->toPropInt() );
+            }
         }
     }
 }
