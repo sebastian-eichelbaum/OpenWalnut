@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <osgUtil/DelaunayTriangulator>
+
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMEEGView.h"
@@ -338,6 +340,38 @@ void WMEEGView::redraw()
             osg::Geode* textGeode = new osg::Geode;
             textGeode->addDrawable( text );
             m_rootNode3d->addChild( textGeode );
+        }
+
+        // draw head surface
+        osg::ref_ptr< osg::Vec3Array > positions( new osg::Vec3Array );
+        for( size_t channel = 0; channel < nbChannels; ++channel )
+        {
+            positions->push_back( wge::osgVec3( m_eeg->getChannelPosition( channel ) ) );
+        }
+        osg::ref_ptr< osg::Vec3Array > normals( new osg::Vec3Array );
+        osg::ref_ptr< osgUtil::DelaunayTriangulator> triangulator( new osgUtil::DelaunayTriangulator( positions, normals ) );
+        if( triangulator->triangulate() )
+        {
+                osg::Geometry* geometry = new osg::Geometry;
+                geometry->setVertexArray( positions );
+
+                geometry->setNormalArray( normals );
+                geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+                osg::Vec4Array* colors = new osg::Vec4Array;
+                colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+                geometry->setColorArray( colors );
+                geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+                geometry->addPrimitiveSet( triangulator->getTriangles() );
+
+                osg::Geode* geode = new osg::Geode;
+                geode->addDrawable( geometry );
+                m_rootNode3d->addChild( geode );
+        }
+        else
+        {
+            errorLog() << "Couldn't triangulate head surface";
         }
 
         if( m_wasActive )
