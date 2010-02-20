@@ -51,6 +51,11 @@
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
+#include "../../modules/data/WMData.h"
+
+#include "../../dataHandler/WEEG.h"
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetFibers.h"
 
 #include "../../graphicsEngine/WROIBox.h"
 
@@ -182,8 +187,55 @@ void WMainWindow::setupPermanentToolBar()
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 }
 
+void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
+{
+    // get the prototype.
+    if ( !WKernel::getRunningKernel()->getRootContainer()->applyModule( module, proto, true ) )
+    {
+        WLogger::getLogger()->addLogMessage( "Auto Display active but module " + proto + " could not be added.",
+                                             "GUI", LL_ERROR );
+    }
+}
+
 void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
 {
+    // Add all special handlings here. This method is called whenever a module is marked "ready". You can set up the gui for special modules,
+    // load certain modules for datasets and so on.
+
+    // The Data Modules also play an special role. To have modules being activated when certain data got loaded, we need to hook it up here.
+    bool useAutoDisplay = true;
+    WPreferences::getPreference( "qt4gui.useAutoDisplay", &useAutoDisplay );
+    if ( useAutoDisplay && module->getType() == MODULE_DATA )
+    {
+        WLogger::getLogger()->addLogMessage( "Auto Display active and Data module added. The proper module will be added.",
+                                             "GUI", LL_DEBUG );
+
+        // data modules contain an member denoting the real data type. Currently we only have one data module and a not very modulated data
+        // structures.
+        boost::shared_ptr< WMData > dataModule = boost::shared_static_cast< WMData >( module );
+
+        // grab data and identify type
+        if ( dataModule->getDataSet()->isA< WDataSetSingle >() )
+        {
+            // it is a dataset single
+            // load a nav slice module if a WDataSetSingle is available!?
+            WLogger::getLogger()->addLogMessage( "Data module added. Implement this method to have Navigation slices added automatically.",
+                                                 "GUI", LL_INFO );
+
+            //autoAdd( module, "Direct Volume endering" );
+        }
+        else if ( dataModule->getDataSet()->isA< WDataSetFibers >() )
+        {
+            // it is a fiber dataset -> add the FiberDisplay module
+            autoAdd( module, "Fiber Display" );
+        }
+        else if ( dataModule->getDataSet()->isA< WEEG >() )
+        {
+            // it is a eeg dataset -> add the eegView module?
+            autoAdd( module, "EEG View" );
+        }
+    }
+
     // nav slices use separate buttons for slice on/off switching
     if ( module->getName() == "Navigation Slice Module" )
     {

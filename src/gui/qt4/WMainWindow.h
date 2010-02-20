@@ -225,6 +225,14 @@ private:
      * boost signal object
      */
     boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > > m_moduleButtonSignal;
+
+    /**
+     * Combine a module with a prototype only if the module is available. Else, nothing happens.
+     *
+     * \param module the module to be combined.
+     * \param proto the prototype to combine with the module.
+     */
+    void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
 };
 
 #endif  // WMAINWINDOW_H

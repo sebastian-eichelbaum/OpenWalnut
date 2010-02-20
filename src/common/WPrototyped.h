@@ -61,9 +61,22 @@ public:
      */
     virtual const std::string getDescription() const = 0;
 
+    /**
+     * Checks whether the actual prototype has the specified runtime type.
+     *
+     * \return true if you can safely cast this instance to the specified type.
+     */
+    template < typename T > bool isA();
+
 protected:
 private:
 };
+
+template < typename T >
+bool WPrototyped::isA()
+{
+    return dynamic_cast< T* >( this );
+}
 
 #endif  // WPROTOTYPED_H
 

@@ -274,9 +274,24 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSi
     }
 }
 
-boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn, std::string what )
+boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn, std::string what, bool tryOnly )
 {
-    return applyModule( applyOn, WModuleFactory::getModuleFactory()->getPrototypeByName( what ) );
+    boost::shared_ptr< WModule >prototype = boost::shared_ptr< WModule >();
+    if ( tryOnly )
+    {
+        // isPrototypeAvailable returns the prototype or NULL if not found, but does not throw an exception
+        prototype = WModuleFactory::getModuleFactory()->isPrototypeAvailable( what );
+        if( !prototype )
+        {
+            return prototype;
+        }
+    }
+    else
+    {
+        prototype = WModuleFactory::getModuleFactory()->getPrototypeByName( what );
+    }
+
+    return applyModule( applyOn, prototype );
 }
 
 boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn,

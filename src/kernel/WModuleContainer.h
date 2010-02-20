@@ -123,10 +123,13 @@ public:
      *
      * \param applyOn the module which already has to be in the container and to apply the other one on.
      * \param what the prototype name of the module to apply on the other one specified.
+     * \param tryOnly If set to false and the prototype "what" does not exist this will throw an exception. If set to true and the prototype does
+     *                not exist, the nothing will happen.
      *
-     * \return the newly created module connected with the one specified in applyOn.
+     * \return the newly created module connected with the one specified in applyOn. If the prototype could not be found and tryOnly was set to
+     *         true it will return NULL.
      */
-    virtual boost::shared_ptr< WModule > applyModule( boost::shared_ptr< WModule > applyOn, std::string what );
+    virtual boost::shared_ptr< WModule > applyModule( boost::shared_ptr< WModule > applyOn, std::string what, bool tryOnly = false );
 
     /**
      * Function combines two modules. This runs synchronously. It might take some time to finish since combination of modules is
