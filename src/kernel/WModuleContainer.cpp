@@ -317,7 +317,10 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     std::set<boost::shared_ptr<WModuleOutputConnector> > outs = applyOn->getOutputConnectors();
 
     // TODO(ebaum): search best matching instead of simply connecting both
-    ( *ins.begin() )->connect( ( *outs.begin() ) );
+    if ( !ins.empty() && !outs.empty() )
+    {
+        ( *ins.begin() )->connect( ( *outs.begin() ) );
+    }
 
     return m;
 }
