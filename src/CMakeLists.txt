@@ -42,18 +42,20 @@ FIND_PACKAGE( OpenGL REQUIRED )
 FIND_PACKAGE( CxxTest QUIET )
 MARK_AS_ADVANCED( CXXTEST_PERL_TESTGEN_EXECUTABLE )
 OPTION( OW_USE_TESTS "This enables compilation of tests" ON )
-IF( CXXTEST_FOUND AND OW_USE_TESTS ) #We need this variable because this is tested more often.
-  SET( OW_COMPILE_TESTS ON )
+IF( CXXTEST_FOUND )
+  INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIR} )
+  IF( OW_USE_TESTS )
+    SET( OW_COMPILE_TESTS ON ) #We need this variable because this is tested more often.
+    # Package settings:
+    SET( CXXTEST_USE_PYTHON 1 )
+    # Activate CTest and "test" target
+    ENABLE_TESTING()
+  ELSE()
+    SET( OW_COMPILE_TESTS OFF )
+  ENDIF()
 ELSE()
   SET( OW_COMPILE_TESTS OFF )
 ENDIF()
-IF( OW_COMPILE_TESTS )
-  INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIR} )
-  # Package settings:
-  SET( CXXTEST_USE_PYTHON 1 )
-  # Activate CTest and "test" target
-  ENABLE_TESTING()
-ENDIF( OW_COMPILE_TESTS )
 
 ### OpenSceneGraph ###
 SET( MIN_OSG_VERSION 2.8.0 )
