@@ -26,8 +26,9 @@
 
 #include <boost/thread.hpp>
 
+
 int main()
 {
-    std::cout << boost::thread::hardware_concurrency() << std::endl;
+    std::cout << boost::thread::hardware_concurrency();
     return 0;
 }
