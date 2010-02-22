@@ -131,7 +131,7 @@ public:
      *
      * \return the concatenated string.
      */
-    std::string operator+( const std::string& in ) const;
+    std::string operator+( const std::string& istr ) const;
 
     /**
      * Resets the color and returns control string.

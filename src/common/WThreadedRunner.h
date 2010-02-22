@@ -51,7 +51,7 @@
  */
 class WThreadedRunner
 #if !USE_BOOST_THREADS
-    : OpenThreads::Thread
+    : public OpenThreads::Thread
 #endif
 {
 public:

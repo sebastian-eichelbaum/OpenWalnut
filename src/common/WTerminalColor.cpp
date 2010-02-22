@@ -104,9 +104,9 @@ std::string WTerminalColor::operator()() const
     return m_colorString;
 }
 
-std::string WTerminalColor::operator+( const std::string& in ) const
+std::string WTerminalColor::operator+( const std::string& istr ) const
 {
-    return m_colorString + in;
+    return m_colorString + istr;
 }
 
 void WTerminalColor::setEnabled( bool enabled )
