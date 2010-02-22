@@ -77,12 +77,6 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -109,6 +103,7 @@ protected:
 
     /**
      * Every parameter change this function is doing:
+     *  - redraw fibers
      *  - bounding box and grid generation
      *  - executing a rasterization algo for the fibers
      *  - generate dataset out of the grid and a value set
@@ -117,6 +112,11 @@ protected:
     void update();
 
     /**
+     * Removes or inserts new fiber Geode into this modules group node.
+     */
+    void updateFibers();
+
+   /**
      * Builds an OSG geode where all voxels inside the dataSet which are not
      * zero are drawn as cuboids.
      *
@@ -151,6 +151,11 @@ protected:
      */
     boost::shared_ptr< WGridRegular3D > constructGrid( const std::pair< wmath::WPosition, wmath::WPosition >& bb ) const;
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
+
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< Output connector for a voxelized cluster
@@ -161,15 +166,77 @@ private:
     osg::ref_ptr< osg::Geode > m_boundingBoxGeode; //!< OSG bounding box geode
     osg::ref_ptr< osg::Geode > m_voxelGeode; //!< OSG voxel geode
 
-    bool m_antialiased; //!< Enable/Disable antialiased drawing of voxels
-    bool m_drawfibers; //!< Enable/Disable drawing of the fibers of a cluster
-    bool m_drawBoundingBox; //!< Enable/Disable drawing of a clusters BoundingBox
-    bool m_lighting; //!< Enable/Disable lighting
-    bool m_drawVoxels; //!< Enable/Disable drawing of marked voxels
-    std::string m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
+    boost::shared_ptr< WCondition > m_fullUpdate; //!< module is performing an expensive update
 
-    WBoolFlag m_update; //!< True if and only if the module is performing an update, since then no property/input changes should take place.
-    WBoolFlag m_active; //!< True if and only if the module is running, since then no property/input changes should take place.
+    WPropBool m_antialiased; //!< Enable/Disable antialiased drawing of voxels
+    WPropBool m_drawfibers; //!< Enable/Disable drawing of the fibers of a cluster
+    WPropBool m_drawBoundingBox; //!< Enable/Disable drawing of a clusters BoundingBox
+    WPropBool m_lighting; //!< Enable/Disable lighting
+    WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
+    WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
+
+    /**
+     * Node callback to hide unhide bounding box
+     */
+    class OSGCB_HideUnhideBB : public osg::NodeCallback
+    {
+    public: // NOLINT
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit OSGCB_HideUnhideBB( WMVoxelizer* module )
+            : m_module( module )
+        {
+        }
+
+        /**
+         * operator () - called during the update traversal.
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+    private: // NOLINT
+
+        /**
+         * Pointer used to access members of the module to modify the node.
+         */
+        WMVoxelizer* m_module;
+    };
+
+    /**
+     * Node callback to change lighting of the voxels
+     */
+    class OSGCB_ChangeLighting : public osg::NodeCallback
+    {
+    public: // NOLINT
+
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit OSGCB_ChangeLighting( WMVoxelizer* module )
+            : m_module( module )
+        {
+        }
+
+        /**
+         * operator () - called during the update traversal.
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+    private: // NOLINT
+
+        /**
+         * Pointer used to access members of the module to modify the node.
+         */
+        WMVoxelizer* m_module;
+    };
 };
 
 inline const std::string WMVoxelizer::getName() const

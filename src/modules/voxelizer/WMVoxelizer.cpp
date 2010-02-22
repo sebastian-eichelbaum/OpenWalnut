@@ -51,14 +51,7 @@
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
-      m_antialiased( true ),
-      m_drawfibers( true ),
-      m_drawBoundingBox( true ),
-      m_lighting( true ),
-      m_drawVoxels( true ),
-      m_rasterAlgo( "WBresenham" ),
-      m_update( new WCondition(), false ),
-      m_active( new WCondition(), false )
+      m_fullUpdate( new WCondition() )
 {
 }
 
@@ -75,7 +68,7 @@ void WMVoxelizer::moduleMain()
 {
     m_moduleState.setResetable();
     m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
-    m_moduleState.add( m_update.getCondition() );
+    m_moduleState.add( m_fullUpdate );
 
     ready();
 
@@ -87,97 +80,50 @@ void WMVoxelizer::moduleMain()
             continue;
         }
 
-        if( m_update.get() || m_clusters != m_input->getData() )
+        // full update
+        if( m_antialiased->changed() ||
+            m_drawVoxels->changed() ||
+            m_rasterAlgo->changed() ||
+            m_clusters != m_input->getData() )
         {
-            if(  m_clusters != m_input->getData() )
-            {
-                debugLog() << "Input data has changed";
-            }
-            m_update.set( true ); // in case input data has changed
+            m_drawVoxels->get( true );
+            m_rasterAlgo->get( true );
+            m_antialiased->get( true );
             m_clusters = m_input->getData();
             update();
-            m_update.set( false );
-            m_properties->reemitChangedValueSignals();
+        }
+
+        if( m_drawfibers->changed() )
+        {
+            updateFibers();
         }
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 }
+
 void WMVoxelizer::properties()
 {
-    m_properties->addBool( "active", true, true )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "antialiased", m_antialiased, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "drawfibers", m_drawfibers, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "drawBoundingBox", m_drawBoundingBox, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "lighting", m_lighting, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addString( "rasterAlgo", m_rasterAlgo, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
-    m_properties->addBool( "drawVoxels", m_drawVoxels, false )->connect( boost::bind( &WMVoxelizer::slotPropertyChanged, this, _1 ) );
+    m_antialiased     = m_properties2->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
+    m_drawfibers      = m_properties2->addProperty( "Fibers Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
+    m_drawBoundingBox = m_properties2->addProperty( "Bounding BoxEnable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
+    m_lighting        = m_properties2->addProperty( "Lighting", "Enable/Disable lighting.", true );
+    m_drawVoxels      = m_properties2->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
+    m_rasterAlgo      = m_properties2->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
+                                                    std::string( "WBresenham" ), m_fullUpdate );
 }
 
-void WMVoxelizer::slotPropertyChanged( std::string propertyName )
+void WMVoxelizer::activate()
 {
-    assert( m_properties->findProp( propertyName ) );
-    if( m_update.get() || !m_active.get() )
+    if( m_osgNode )
     {
-        if( propertyName == "active" &&  m_properties->getValue< bool >( propertyName ) )
+        if( m_active->get() )
         {
-            m_active.set( m_properties->getValue< bool >( propertyName ) );
-            m_properties->reemitChangedValueSignals();
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
         }
         else
         {
-            m_properties->findProp( propertyName )->dirty( true );
-            debugLog() << "Property: " << propertyName << " marked as dirty";
-        }
-    }
-    else
-    {
-        if( propertyName == "active" )
-        {
-            if ( m_properties->getValue< bool >( propertyName ) )
-            {
-                m_osgNode->setNodeMask( 0xFFFFFFFF );
-            }
-            else
-            {
-                m_osgNode->setNodeMask( 0x0 );
-            }
-        }
-        else if( propertyName == "lighting" ) // TODO(math): This is a classical example for node callbacks
-        {
-            m_lighting = m_properties->getValue< bool >( propertyName );
-            if( m_lighting )
-            {
-                m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
-            }
-            else
-            {
-                m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-            }
-        }
-        else // perform update
-        {
-            if( propertyName == "antialiased" )
-            {
-                m_antialiased = m_properties->getValue< bool >( propertyName );
-            }
-            else if( propertyName == "drawfibers" )
-            {
-                m_drawfibers = m_properties->getValue< bool >( propertyName );
-            }
-            else if( propertyName == "drawBoundingBox" )
-            {
-                m_drawBoundingBox = m_properties->getValue< bool >( propertyName );
-            }
-            else if( propertyName == "rasterAlgo" )
-            {
-                m_rasterAlgo = m_properties->getValue< std::string >( propertyName );
-            }
-            else if( propertyName == "drawVoxels" )
-            {
-                m_drawVoxels = m_properties->getValue< bool >( propertyName );
-            }
-            m_update.set( true );
+            m_osgNode->setNodeMask( 0x0 );
         }
     }
 }
@@ -248,56 +194,63 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     return grid;
 }
 
+void WMVoxelizer::updateFibers()
+{
+    assert( m_osgNode );
+    // TODO(math): instead of recompute the fiber geode, hide/unhide would be cool, but when data has changed recomputation is necessary
+    if( m_drawfibers->get( true ) )
+    {
+        m_fiberGeode = genFiberGeode();
+        m_osgNode->insert( m_fiberGeode );
+    }
+    else
+    {
+        m_osgNode->remove( m_fiberGeode );
+    }
+}
+
 void WMVoxelizer::update()
 {
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
     m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
+    m_osgNode->addUpdateCallback( new OSGCB_HideUnhideBB( this ) );
+    m_osgNode->addUpdateCallback( new OSGCB_ChangeLighting( this ) );
 
-    if( m_drawfibers )
-    {
-        m_osgNode->insert( genFiberGeode() );
-    }
+    updateFibers();
+
     std::pair< wmath::WPosition, wmath::WPosition > bb = createBoundingBox( *m_clusters );
-    if( m_drawBoundingBox )
-    {
-        m_osgNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
-    }
+
+    m_boundingBoxGeode = wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) );
+    m_osgNode->insert( m_boundingBoxGeode );
 
     boost::shared_ptr< WGridRegular3D > grid = constructGrid( bb );
 
     debugLog() << "Created grid of size: " << grid->size();
 
     boost::shared_ptr< WRasterAlgorithm > rasterAlgo;
-    if( m_rasterAlgo == "WBresenham" )
+    if( m_rasterAlgo->get() == std::string( "WBresenham" ) )
     {
         rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased ) );
     }
-    else if( m_rasterAlgo == "WBresenhamDBL" )
+    else if( m_rasterAlgo->get() == std::string( "WBresenhamDBL" ) )
     {
         rasterAlgo =  boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, m_antialiased ) );
     }
     else
     {
-        errorLog() << "Invalid rasterization algorithm: " << m_rasterAlgo;
-        m_rasterAlgo = "WBresenham";
+        errorLog() << "Invalid rasterization algorithm: " << m_rasterAlgo->get();
+        m_rasterAlgo->set( std::string( "WBresenham" ) );
         rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased ) );
     }
-    debugLog() << "Using: " << m_rasterAlgo << " as rasterization Algo.";
+    debugLog() << "Using: " << m_rasterAlgo->get() << " as rasterization Algo.";
     raster( rasterAlgo );
 
     boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
-    if( m_drawVoxels )
+    if( m_drawVoxels->get() )
     {
-        m_osgNode->insert( genDataSetGeode( outputDataSet ) );
-    }
-    if( m_lighting )
-    {
-        m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
-    }
-    else
-    {
-        m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+        m_voxelGeode = genDataSetGeode( outputDataSet );
+        m_osgNode->insert( m_voxelGeode );
     }
     m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
@@ -417,4 +370,33 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
     return geode;
+}
+
+void WMVoxelizer::OSGCB_HideUnhideBB::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    if( m_module->m_boundingBoxGeode )
+    {
+        if ( m_module->m_drawBoundingBox->get() )
+        {
+            m_module->m_boundingBoxGeode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_module->m_boundingBoxGeode->setNodeMask( 0x0 );
+        }
+    }
+    traverse( node, nv );
+}
+
+void WMVoxelizer::OSGCB_ChangeLighting::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    if ( m_module->m_lighting->get() )
+    {
+        m_module->m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+    }
+    else
+    {
+        m_module->m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    }
+    traverse( node, nv );
 }
