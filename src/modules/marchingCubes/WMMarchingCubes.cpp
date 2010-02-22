@@ -33,7 +33,7 @@
 #include "WMMarchingCubes.h"
 #include "iso_surface.xpm"
 #include "marchingCubesCaseTables.h"
-#include "../../dataHandler/WTriangleMesh.h"
+#include "../../common/datastructures/WTriangleMesh.h"
 #include "../../common/WLimits.h"
 
 #include <osg/Geode>

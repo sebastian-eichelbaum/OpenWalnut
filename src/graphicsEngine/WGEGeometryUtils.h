@@ -29,7 +29,9 @@
 
 #include <osg/Array>
 
+#include "../common/datastructures/WTriangleMesh.h"
 #include "../math/WPosition.h"
+
 
 namespace wge
 {
@@ -101,6 +103,14 @@ namespace wge
      *\return Array of normals in the order as shown above.
      */
     osg::ref_ptr< osg::Vec3Array > generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners );
+
+    /**
+     * Calculate the Delaunay Triangulatation of the given points.
+     *
+     * \param points vector of the points to triangulate
+     * \return triangulation as WTriangleMesh
+     */
+    WTriangleMesh triangulate( const std::vector< wmath::WPosition >& points );
 }
 
 #endif  // WGEGEOMETRYUTILS_H

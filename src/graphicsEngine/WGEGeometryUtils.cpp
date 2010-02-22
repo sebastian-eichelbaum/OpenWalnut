@@ -25,10 +25,13 @@
 #include <vector>
 
 #include <osg/Array>
+#include <osgUtil/DelaunayTriangulator>
 
-#include "../math/WPosition.h"
+#include "exceptions/WGEException.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
+#include "../math/WPosition.h"
+
 
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
 {
@@ -89,4 +92,30 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
     vertices->push_back( getQuadNormal( corners[3], corners[2], corners[6] ) );
     vertices->push_back( getQuadNormal( corners[0], corners[1], corners[5] ) );
     return vertices;
+}
+
+WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points )
+{
+    osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator( new osgUtil::DelaunayTriangulator( wge::osgVec3Array( points ) ) );
+    if( triangulator->triangulate() )
+    {
+        osg::ref_ptr< const osg::DrawElementsUInt > osgTriangles( triangulator->getTriangles() );
+        size_t nbTriangles = osgTriangles->size() / 3;
+        std::vector< Triangle > triangles( nbTriangles );
+        for( size_t triangleID = 0; triangleID < nbTriangles; ++triangleID )
+        {
+            triangles[triangleID].pointID[0] = (*osgTriangles)[3 * triangleID];
+            triangles[triangleID].pointID[1] = (*osgTriangles)[3 * triangleID + 1];
+            triangles[triangleID].pointID[2] = (*osgTriangles)[3 * triangleID + 2];
+        }
+
+        WTriangleMesh mesh;
+        mesh.setVertices( points );
+        mesh.setTriangles( triangles );
+        return mesh;
+    }
+    else
+    {
+        throw WGEException( "Error in triangulation" );
+    }
 }

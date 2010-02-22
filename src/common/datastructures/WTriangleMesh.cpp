@@ -26,6 +26,7 @@
 
 #include "WTriangleMesh.h"
 
+
 WTriangleMesh::WTriangleMesh()
     : m_fastAddVertId( 0 ),
       m_fastAddTriangleId( 0 ),

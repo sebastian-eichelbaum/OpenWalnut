@@ -33,12 +33,12 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
+#include "../../common/datastructures/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../dataHandler/WTriangleMesh.h"
 
 /**
  * A point consisting of its coordinates and ID

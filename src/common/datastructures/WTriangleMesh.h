@@ -27,8 +27,9 @@
 
 #include <vector>
 
-#include "../math/WPosition.h"
-#include "../math/WVector3D.h"
+#include "../../math/WPosition.h"
+#include "../../math/WVector3D.h"
+
 
 /**
  * A triangle consisting of 3 id of vertices that represent its corners
