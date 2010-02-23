@@ -256,6 +256,9 @@ void WDataTexture3D::createTexture()
         m_texture = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
         m_texture->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
         m_texture->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+        m_texture->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
+        m_texture->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
+        m_texture->setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
         m_texture->setImage( ima );
         m_texture->setResizeNonPowerOfTwoHint( false );
     }
