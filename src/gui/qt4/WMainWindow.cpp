@@ -108,30 +108,18 @@ void WMainWindow::setupGUI()
         {
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
-            //TODO(anyone): Need to adjust this automatically if we hav data sets of different size.
-            //              It seems good for the test data sets, however.
-            m_navAxial->getGLWidget()->getViewer()->getCamera()->setProjectionMatrix(
-                osg::Matrix::ortho( -170.0, 80.0, -180.0, 50.0, 0.0, 1000.0 ) );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
-            //TODO(anyone): Need to adjust this automatically if we hav data sets of different size.
-            //              It seems good for the test data sets, however.
-            m_navCoronal->getGLWidget()->getViewer()->getCamera()->setProjectionMatrix(
-                osg::Matrix::ortho( -140.0, 40.0, -130.0, 50.0, 0.0, 1000.0 ) );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
             m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
-            //TODO(anyone): Need to adjust this automatically if we hav data sets of different size.
-            //              It seems good for the test data sets, however.
-            m_navSagittal->getGLWidget()->getViewer()->getCamera()->setProjectionMatrix(
-                osg::Matrix::ortho( -160.0, 20.0, -130.0, 50.0, 0.0, 1000.0 ) );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
     }

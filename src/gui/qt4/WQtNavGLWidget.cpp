@@ -65,18 +65,36 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
     {
         osg::Matrix m;
         m.makeRotate( 90.0, 1.0, 0.0, 0.0 );
+        osg::Matrix tm;
+        tm.makeTranslate( osg::Vec3( 20.0, 0.0, 60.0 ) );
+        m *= tm;
+        osg::Matrix sm;
+        sm.makeScale( 1.2, 1.2, 1.2 );
+        m *= sm;
         m_scene->setMatrix( m );
     }
     if( title == QString(  "coronal" ) )
     {
         osg::Matrix m;
         m.makeIdentity();
+        osg::Matrix tm;
+        tm.makeTranslate( osg::Vec3( 20.0, 0.0, 30.0 ) );
+        m *= tm;
+        osg::Matrix sm;
+        sm.makeScale( 1.2, 1.2, 1.2 );
+        m *= sm;
         m_scene->setMatrix( m );
     }
     if( title == QString( "sagittal" ) )
     {
         osg::Matrix m;
-        m.makeRotate( -90.0, 0.0, 0.0, 1.0 );
+        m.makeRotate( 90.0, 0.0, 0.0, 1.0 );
+        osg::Matrix tm;
+        tm.makeTranslate( osg::Vec3( 230.0, 0.0, 30.0 ) );
+        m *= tm;
+        osg::Matrix sm;
+        sm.makeScale( 1.2, 1.2, 1.2 );
+        m *= sm;
         m_scene->setMatrix( m );
     }
 
