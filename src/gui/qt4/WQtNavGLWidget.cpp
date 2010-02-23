@@ -45,6 +45,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
     QSlider *slider = new QSlider( Qt::Horizontal );
     slider->setMaximum( maxValue );
     slider->setValue( maxValue / 2 );
+    slider->resize( 150, 20 );
     QWidget* panel = new QWidget( this );
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -54,7 +55,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
     m_glWidget->setFixedSize( 150, 150 );
     m_glWidget->initialize();
 
-    setFixedSize( 170, 170 );
+    setFixedSize( 160, 200 );
 
     m_scene = new WGEScene();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
