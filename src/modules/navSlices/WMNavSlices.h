@@ -28,6 +28,7 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include <osg/Node>
 
@@ -193,6 +194,12 @@ private:
     void create();
 
     /**
+     * Sets slice positions from interaction in the main GL widget
+     * \param pickInfo The information provided by the pick handler
+     */
+    void setSlicePosFromPick( WPickInfo pickInfo );
+
+    /**
      * Initial creation function for the slice geometry
      * \param slice ID of the slice to be drawn. 0=y, 1=x, 2=z
      */
@@ -203,6 +210,9 @@ private:
      * \param rootState The uniforms will be applied to this state.
      */
     void initUniforms( osg::StateSet* rootState );
+
+    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    bool m_isPicked; //!< Indicates whether a slice is currently picked or not.
 
     /**
      * the root node for this module

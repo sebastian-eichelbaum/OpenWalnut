@@ -26,6 +26,7 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
@@ -42,6 +43,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
@@ -54,7 +56,8 @@ bool WMNavSlices::m_navsliceRunning = false;
 
 WMNavSlices::WMNavSlices():
     WModule(),
-    m_textureChanged( true )
+    m_textureChanged( true ),
+    m_isPicked( false )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -142,6 +145,15 @@ void WMNavSlices::notifyTextureChange()
 
 void WMNavSlices::moduleMain()
 {
+     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
+     assert( ge );
+     boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
+     assert( viewer );
+//     m_viewer = viewer;
+//     m_pickHandler = m_viewer->getPickHandler();
+//     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::registerRedrawRequest, this, _1 ) );
+     viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+
     // signal ready state
     ready();
 
@@ -158,7 +170,6 @@ void WMNavSlices::moduleMain()
     // clean up stuff
     // NOTE: ALAWAYS remove your osg nodes!
     // Please, please always check for NULL
-    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
     if ( viewer )
     {
         viewer->getScene()->remove( m_zSliceNode );
@@ -187,11 +198,11 @@ void WMNavSlices::create()
     m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
 
     m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_xSliceNode->setName( "X-Slice" );
+    m_xSliceNode->setName( "Sagittal Slice" );
     m_ySliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_ySliceNode->setName( "Y-Slice" );
+    m_ySliceNode->setName( "Coronal Slice" );
     m_zSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_zSliceNode->setName( "Z-Slice" );
+    m_zSliceNode->setName( "Axial Slice" );
 
     m_xSliceNode->addDrawable( createGeometry( 0 ) );
     m_ySliceNode->addDrawable( createGeometry( 1 ) );
@@ -226,13 +237,53 @@ void WMNavSlices::create()
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
     if ( viewer )
     {
-        viewer->getScene()->insert( m_ySliceNode );
+        viewer->getScene()->insert( m_xSliceNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
     if ( viewer )
     {
-        viewer->getScene()->insert( m_xSliceNode );
+        viewer->getScene()->insert( m_ySliceNode );
+    }
+}
+
+void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
+{
+    if ( pickInfo.getName() == "Axial Slice"
+         ||  pickInfo.getName() == "Coronal Slice"
+         ||  pickInfo.getName() == "Sagittal Slice" )
+    {
+        boost::unique_lock< boost::shared_mutex > lock;
+        lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
+        std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
+        if ( m_isPicked )
+        {
+            float diffX = newPixelPos.first - m_oldPixelPosition.first;
+            float diffY = newPixelPos.second - m_oldPixelPosition.second;
+            float diff = ( fabs( diffX ) > fabs( diffY ) ) ? diffX : diffY;
+
+            if ( pickInfo.getName() == "Axial Slice" )
+            {
+                m_axialPos->set( m_axialPos->get() + diff );
+            }
+            if ( pickInfo.getName() == "Coronal Slice" )
+            {
+                m_coronalPos->set( m_coronalPos->get() + diff );
+            }
+            if ( pickInfo.getName() == "Sagittal Slice" )
+            {
+                m_sagittalPos->set( m_sagittalPos->get() + diff );
+            }
+
+            lock.unlock();
+        }
+        m_oldPixelPosition = newPixelPos;
+        m_isPicked |= true;
+    }
+    else
+    {
+        m_isPicked &= false;
     }
 }
 
@@ -266,41 +317,6 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         {
             case 0:
             {
-                sliceVertices->push_back( osg::Vec3( 0,      yPos, 0      ) );
-                sliceVertices->push_back( osg::Vec3( 0,      yPos, maxDim ) );
-                sliceVertices->push_back( osg::Vec3( maxDim, yPos, maxDim ) );
-                sliceVertices->push_back( osg::Vec3( maxDim, yPos, 0      ) );
-                sliceGeometry->setVertexArray( sliceVertices );
-
-                int c = 0;
-                for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
-                {
-                    boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
-
-                    float maxX = ( float )( grid->getNbCoordsX() );
-                    float maxY = ( float )( grid->getNbCoordsY() );
-                    float maxZ = ( float )( grid->getNbCoordsZ() );
-
-                    //float texX = xSlice / maxX;
-                    float texY = ySlice / maxY;
-                    //float texZ = zSlice / maxZ;
-
-                    float texXOff = 255.0 / maxX;
-                    //float texYOff = 255.0 / maxY;
-                    float texZOff = 255.0 / maxZ;
-
-                    osg::Vec3Array* texCoords = new osg::Vec3Array;
-                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, 0.0     ) ) ) );
-                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, texZOff ) ) ) );
-                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, texZOff ) ) ) );
-                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, 0.0     ) ) ) );
-                    sliceGeometry->setTexCoordArray( c, texCoords );
-                    ++c;
-                }
-                break;
-            }
-            case 1:
-            {
                 sliceVertices->push_back( osg::Vec3( xPos, 0,      0      ) );
                 sliceVertices->push_back( osg::Vec3( xPos, 0,      maxDim ) );
                 sliceVertices->push_back( osg::Vec3( xPos, maxDim, maxDim ) );
@@ -329,6 +345,41 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texX, 0.0,     texZOff ) ) ) );
                     texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texX, texYOff, texZOff ) ) ) );
                     texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texX, texYOff, 0.0     ) ) ) );
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
+                }
+                break;
+            }
+            case 1:
+            {
+                sliceVertices->push_back( osg::Vec3( 0,      yPos, 0      ) );
+                sliceVertices->push_back( osg::Vec3( 0,      yPos, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, yPos, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, yPos, 0      ) );
+                sliceGeometry->setVertexArray( sliceVertices );
+
+                int c = 0;
+                for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
+                {
+                    boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
+
+                    float maxX = ( float )( grid->getNbCoordsX() );
+                    float maxY = ( float )( grid->getNbCoordsY() );
+                    float maxZ = ( float )( grid->getNbCoordsZ() );
+
+                    //float texX = xSlice / maxX;
+                    float texY = ySlice / maxY;
+                    //float texZ = zSlice / maxZ;
+
+                    float texXOff = 255.0 / maxX;
+                    //float texYOff = 255.0 / maxY;
+                    float texZOff = 255.0 / maxZ;
+
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, 0.0     ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, texZOff ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, texZOff ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, 0.0     ) ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
