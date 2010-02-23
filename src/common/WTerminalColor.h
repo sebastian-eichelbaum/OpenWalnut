@@ -127,7 +127,7 @@ public:
     /**
      * Combines strings.
      *
-     * \param in the string to combine
+     * \param istr the string to combine
      *
      * \return the concatenated string.
      */
