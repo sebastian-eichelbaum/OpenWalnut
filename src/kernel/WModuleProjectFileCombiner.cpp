@@ -32,6 +32,12 @@
 #include "WKernel.h"
 #include "WModuleCombiner.h"
 #include "WModuleFactory.h"
+#include "WModuleConnector.h"
+#include "WModule.h"
+#include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
+#include "exceptions/WModuleConnectorNotFound.h"
+
 #include "../common/exceptions/WFileNotFound.h"
 #include "../common/WLogger.h"
 
@@ -172,7 +178,7 @@ void WModuleProjectFileCombiner::apply()
         else
         {
             // set the property here
-            // TODO(ebaum): write
+            prop->setAsString( ( *iter ).second );
         }
     }
 
@@ -182,5 +188,70 @@ void WModuleProjectFileCombiner::apply()
         m_container->add( ( *iter ).second );
     }
 
+    // and finally, connect them all together
+    for ( std::list< Connection >::const_iterator iter = connections.begin(); iter != connections.end(); ++iter )
+    {
+        // each connection contains two connectors
+        Connector c1 = ( *iter ).first;
+        Connector c2 = ( *iter ).second;
+
+        // each of these connectors contains the module ID and the connector name
+        // grab corresponding module 1
+        boost::shared_ptr< WModule > m1;
+        if ( !modules.count( c1.first ) )
+        {
+            wlog::error( "Project Loader" ) << "There is no module with ID \"" << c1.first <<  "\" for the connection "
+                                            << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
+
+            continue;
+        }
+        m1 = modules[ c1.first ];
+
+        boost::shared_ptr< WModule > m2;
+        if ( !modules.count( c2.first ) )
+        {
+            wlog::error( "Project Loader" ) << "There is no module with ID \"" << c2.first <<  "\" for the connection "
+                                            << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
+
+            continue;
+        }
+        m2 = modules[ c2.first ];
+
+        // now we have the modules referenced by the ID
+        // -> query the connectors
+        // NOTE: we assume the first connector to be an output connector!
+        boost::shared_ptr< WModuleOutputConnector > con1;
+        try
+        {
+            con1 = m1->getOutputConnector( c1.second );
+        }
+        catch ( WModuleConnectorNotFound& e )
+        {
+            wlog::error( "Project Loader" ) << "There is no output connector \"" << c1.second << "\" in module \"" << m1->getName() << "\"";
+            continue;
+        }
+        boost::shared_ptr< WModuleInputConnector > con2;
+        try
+        {
+            con2 = m2->getInputConnector( c2.second );
+        }
+        catch ( WModuleConnectorNotFound& e )
+        {
+            wlog::error( "Project Loader" ) << "There is no input connector \"" << c2.second << "\" in module \"" << m2->getName() << "\"";
+            continue;
+        }
+
+        // finally, connect them
+        try
+        {
+            con1->connect( con2 );
+        }
+        catch ( WException& e )
+        {
+            wlog::error( "Project Loader" ) << "Connection " << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second <<
+                                                ") could not be created. Incompatible connectors?. Skipping.";
+            continue;
+        }
+    }
 }
 

@@ -67,6 +67,8 @@ PROPERTY_TYPE;
 /**
  * Namespace containing all base types of the WPropertyVariables. Use these types instead of issuing int32_t, double, bool, ...
  * directly.
+ *
+ * \note You can use only types which overwrite the << and >> operators!
  */
 namespace WPVBaseTypes
 {

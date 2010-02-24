@@ -11,7 +11,7 @@ ELSE()
     ADD_LIBRARY( kernel SHARED ${KERNEL_SRC} ${MODULES_SRC} ${KERNEL_EXCEPTIONS_SRC} )
 ENDIF()
 
-TARGET_LINK_LIBRARIES( kernel common dataHandler ge math ${OPENSCENEGRAPH_LIBRARIES} )
+TARGET_LINK_LIBRARIES( kernel common math dataHandler ge math ${OPENSCENEGRAPH_LIBRARIES} )
 
 
 # Unit tests
