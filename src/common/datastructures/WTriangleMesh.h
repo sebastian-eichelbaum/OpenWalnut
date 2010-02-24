@@ -104,6 +104,13 @@ public:
     void setVertices( const std::vector< wmath::WPosition >& vertices );
 
     /**
+     * Get vector of the vertex positions.
+     *
+     * \return const reference to the vertices
+     */
+    const std::vector< wmath::WPosition >& getVertices() const;
+
+    /**
      * \return the state of the variable telling fastAddVert where to insert the vertex.
      */
     size_t getFastAddVertId() const;
