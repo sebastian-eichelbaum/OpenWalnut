@@ -113,13 +113,8 @@ protected:
      */
     void create();
 
-    /**
-     * Switches the osg to use the appropriate color array
-     */
-    void updateColoring();
-
 private:
-    WPropBool m_localColorProp; //!< Property  indicating whether to use ocal or global coloring of fiber tracts
+    WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
 
     /**
@@ -168,6 +163,11 @@ private:
     void toggleTubes();
 
     /**
+     * Enable disable global or local coloring
+     */
+    void toggleColoring();
+
+    /**
      * Node callback to handle updates properly
      */
     class fdNodeCallback : public osg::NodeCallback
@@ -187,6 +187,7 @@ private:
             {
                 module->update();
                 module->toggleTubes();
+                module->toggleColoring();
             }
             traverse( node, nv );
         }

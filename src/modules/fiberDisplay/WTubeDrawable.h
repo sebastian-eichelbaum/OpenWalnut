@@ -102,15 +102,29 @@ public:
      */
     void setUseTubes( bool flag );
 
+    /**
+     * Set the coloring modes of the fibers.
+     *
+     * \param globalColoring If true is given global coloring is applied ( default ), else local coloring
+     */
+    void setColoringMode( bool globalColoring );
+
+    /**
+     * In which mode coloring for the fibers is applied.
+     *
+     * \return True for global, false for local coloring
+     */
+    bool getColoringMode() const;
+
 protected:
 private:
     /**
-     * draw function for fibers
+     * Draw fibers as ordinary lines.
      */
     void drawFibers() const;
 
     /**
-     * draw function for fake tubes
+     * Draw fibers as fake tubes.
      */
     void drawTubes() const;
 
@@ -119,6 +133,8 @@ private:
     boost::shared_mutex m_recalcLock; //!< lock
 
     bool m_useTubes; //!< flag
+
+    bool m_globalColoring; //!< True indicates global, false local coloring
 };
 
 #endif  // WTUBEDRAWABLE_H

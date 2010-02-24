@@ -123,11 +123,18 @@ public:
     boost::shared_ptr< std::vector< float > > getTangents() const;
 
     /**
-     * Getter
+     * Reference to the vector storing the global colors.
+     *
+     * \return Pointer to the float array.
      */
-    boost::shared_ptr< std::vector< float > > getColors() const;
+    boost::shared_ptr< std::vector< float > > getGlobalColors() const;
 
-
+    /**
+     * Reference to the vector storing the local colors.
+     *
+     * \return Pointer to the float array.
+     */
+    boost::shared_ptr< std::vector< float > > getLocalColors() const;
 
     /**
      * returns the position in space for a vertex of a given fiber
@@ -164,9 +171,14 @@ private:
     boost::shared_ptr< std::vector< float > > m_tangents;
 
     /**
-     * color vector for tangents at each vertex, used for fake tubes
+     * Storing the global color value of the fibers for each point.
      */
-    boost::shared_ptr< std::vector< float > > m_colors;
+    boost::shared_ptr< std::vector< float > > m_globalColors;
+
+    /**
+     * Storing the local color value of the fibers for each point.
+     */
+    boost::shared_ptr< std::vector< float > > m_localColors;
 
     /**
      * Line vector that contains the start index of its first point for each line.

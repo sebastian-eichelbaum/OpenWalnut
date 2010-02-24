@@ -26,8 +26,9 @@
 #include <algorithm>
 #include <vector>
 
+#include "../common/WColor.h"
+#include "../graphicsEngine/WGEUtils.h"
 #include "WDataSet.h"
-
 #include "WDataSetFibers.h"
 
 // prototype instance as singleton
@@ -61,8 +62,10 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
 
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_tangents->resize( m_vertices->size() );
-    m_colors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
-    m_colors->resize( m_vertices->size() );
+    m_globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
+    m_globalColors->resize( m_vertices->size() );
+    m_localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
+    m_localColors->resize( m_vertices->size() );
 
     int pc = 0;
     float r, g, b, rr, gg, bb;
@@ -120,9 +123,34 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
             m_tangents->at( pc + 1 ) = gg;
             m_tangents->at( pc + 2 ) = bb;
 
-            m_colors->at( pc ) = r;
-            m_colors->at( pc + 1 ) = g;
-            m_colors->at( pc + 2 ) = b;
+            m_globalColors->at( pc ) = r;
+            m_globalColors->at( pc + 1 ) = g;
+            m_globalColors->at( pc + 2 ) = b;
+
+            // local color fun:
+            WColor localColor;
+            wmath::WPosition currentPos( m_vertices->at( pc ), m_vertices->at( pc + 1 ), m_vertices->at( pc + 2 ) );
+            wmath::WPosition nextPos;
+            if( j < m_lineLengths->at( i ) - 1 )
+            {
+                nextPos[0] = m_vertices->at( pc + 3 );
+                nextPos[1] = m_vertices->at( pc + 4 );
+                nextPos[2] = m_vertices->at( pc + 5 );
+                localColor = wge::getRGBAColorFromDirection( currentPos, nextPos );
+            }
+            else if( m_lineLengths->size() > 1 ) // there was a color in this line before!
+            {
+                localColor = WColor( m_localColors->at( pc - 3 ),
+                                     m_localColors->at( pc - 2 ),
+                                     m_localColors->at( pc - 1 ) );
+            }
+            else // there was only one point
+            {
+                localColor = WColor( r, g, b ); // same as global color
+            }
+            m_localColors->at( pc ) = localColor.getRed();
+            m_localColors->at( pc + 1 ) = localColor.getGreen();
+            m_localColors->at( pc + 2 ) = localColor.getBlue();
             pc += 3;
         }
     }
@@ -188,11 +216,15 @@ boost::shared_ptr< std::vector< float > > WDataSetFibers::getTangents() const
     return m_tangents;
 }
 
-boost::shared_ptr< std::vector< float > > WDataSetFibers::getColors() const
+boost::shared_ptr< std::vector< float > > WDataSetFibers::getGlobalColors() const
 {
-    return m_colors;
+    return m_globalColors;
 }
 
+boost::shared_ptr< std::vector< float > > WDataSetFibers::getLocalColors() const
+{
+    return m_localColors;
+}
 
 wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
 {

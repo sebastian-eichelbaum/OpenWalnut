@@ -35,7 +35,8 @@
 // time (that is, the vertices drawn change from time to time).
 WTubeDrawable::WTubeDrawable():
     osg::Drawable(),
-    m_useTubes( false )
+    m_useTubes( false ),
+    m_globalColoring( true )
 {
     //setSupportsDisplayList (false);
     // This contructor intentionally left blank. Duh.
@@ -91,13 +92,22 @@ void WTubeDrawable::setUseTubes( bool flag )
     m_useTubes = flag;
 }
 
+void WTubeDrawable::setColoringMode( bool globalColoring )
+{
+    m_globalColoring = globalColoring;
+}
+
+bool WTubeDrawable::getColoringMode() const
+{
+    return m_globalColoring;
+}
+
 void WTubeDrawable::drawFibers() const
 {
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
     boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
-    boost::shared_ptr< std::vector< float > > colors = m_dataset->getColors();
-
+    boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
 
     for( size_t i = 0; i < active->size(); ++i )
@@ -123,8 +133,7 @@ void WTubeDrawable::drawTubes() const
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
     boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
     boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
-    boost::shared_ptr< std::vector< float > > colors = m_dataset->getColors();
-
+    boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
 
     for( size_t i = 0; i < active->size(); ++i )

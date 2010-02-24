@@ -59,10 +59,6 @@ const char** WMFiberDisplay::getXPMIcon() const
     return fiberdisplay_xpm;
 }
 
-void WMFiberDisplay::updateColoring()
-{
-}
-
 void WMFiberDisplay::moduleMain()
 {
     // additional fire-condition: "data changed" flag
@@ -176,12 +172,7 @@ void WMFiberDisplay::activate()
 void WMFiberDisplay::properties()
 {
     m_useTubesProp = m_properties2->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
-
-    // TODO( all ): remove the "true" that hides this property when local coloring is available again.
-    m_localColorProp = m_properties2->addProperty( "Local Color",
-                                                   "Use local direction of fiber tract for coloring the line instead of global direction.",
-                                                   false,
-                                                   true );
+    m_coloring = m_properties2->addProperty( "Global/Local coloring", "Switches the coloring between global and local.", true );
 }
 
 void WMFiberDisplay::toggleTubes()
@@ -203,6 +194,15 @@ void WMFiberDisplay::toggleTubes()
             m_tubeDrawable->setUseTubes( false );
             m_tubeDrawable->dirtyDisplayList();
         }
+    }
+}
+
+void WMFiberDisplay::toggleColoring()
+{
+    if( m_coloring->changed() )
+    {
+        m_tubeDrawable->setColoringMode( m_coloring->get( true ) );
+        m_tubeDrawable->dirtyDisplayList();
     }
 }
 
