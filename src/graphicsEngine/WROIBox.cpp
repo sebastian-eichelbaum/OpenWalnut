@@ -28,10 +28,9 @@
 #include <osg/LineWidth>
 #include <osg/LightModel>
 
-#include <GL/glu.h>
-
 #include "WROIBox.h"
 #include "WGraphicsEngine.h"
+#include "WGEUtils.h"
 
 size_t WROIBox::maxBoxId = 0;
 
@@ -222,7 +221,7 @@ void WROIBox::updateGFX()
         if ( m_isPicked )
         {
             osg::Vec3 in( newPixelPos.first, newPixelPos.second, 0.0 );
-            osg::Vec3 world = unprojectFromScreen( in );
+            osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
 
             wmath::WPosition newPixelWorldPos( world[0], world[1], world[2] );
             wmath::WPosition oldPixelWorldPos;
@@ -233,7 +232,7 @@ void WROIBox::updateGFX()
             else
             {
                 osg::Vec3 in( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
-                osg::Vec3 world= unprojectFromScreen( in );
+                osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
                 oldPixelWorldPos = wmath::WPosition( world[0], world[1], world[2] );
             }
 
@@ -289,34 +288,4 @@ void WROIBox::updateGFX()
     }
 
     lock.unlock();
-}
-
-osg::Vec3 WROIBox::unprojectFromScreen( const osg::Vec3 screen )
-{
-    double* modelView;
-    double* projection;
-    double dviewport[4];
-
-    modelView = m_viewer->getCamera()->getViewMatrix().ptr();
-    projection = m_viewer->getCamera()->getProjectionMatrix().ptr();
-    dviewport[0] = m_viewer->getCamera()->getViewport()->x();
-    dviewport[1] = m_viewer->getCamera()->getViewport()->y();
-    dviewport[2] = m_viewer->getCamera()->getViewport()->width();
-    dviewport[3] = m_viewer->getCamera()->getViewport()->height();
-
-    double x, y, z;
-    GLint viewport[4];
-    viewport[0] = static_cast< GLint >( dviewport[0] );
-    viewport[1] = static_cast< GLint >( dviewport[1] );
-    viewport[2] = static_cast< GLint >( dviewport[2] );
-    viewport[3] = static_cast< GLint >( dviewport[3] );
-
-    gluUnProject( screen[0], screen[1], screen[2], modelView, projection, viewport, &x, &y, &z );
-
-    osg::Vec3 world;
-    world[0] = x;
-    world[1] = y;
-    world[2] = z;
-
-    return world;
 }
