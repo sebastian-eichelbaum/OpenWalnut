@@ -45,6 +45,7 @@
 #include "WModule.h"
 #include "WBatchLoader.h"
 #include "WModuleFactory.h"
+#include "WModuleProjectFileCombiner.h"
 
 #include "../graphicsEngine/WGraphicsEngine.h"
 
@@ -181,6 +182,10 @@ void WKernel::threadMain()
             }
         }
     }
+
+    // TODO(ebaum): remove!
+    WModuleProjectFileCombiner mc = WModuleProjectFileCombiner( "/home/ebaum/test.prj" );
+    mc.apply();
 
     // actually there is nothing more to do here
     waitForStop();

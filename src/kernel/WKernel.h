@@ -162,7 +162,6 @@ public:
      */
     static std::string getShaderPath();
 
-
     /**
      * get for roi manager
      */
