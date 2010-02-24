@@ -30,6 +30,7 @@
 #include <iomanip>
 #include <iterator>
 #include <list>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -48,7 +49,7 @@
  * The reason for not using the Boost case switching functions is that we want
  * those functions to return a <tt>std::string</tt> copy which is modified to
  * make some call chains ala: <tt>foo( rTrim( toLower( str ), "bar" ) );</tt>.
- * 
+ *
  * The reason for not using Boosts Tokenizer is, that this tokenizer, is much
  * most simplest to use :).
  */
@@ -157,6 +158,23 @@ namespace string_utils
         result << "<" << std::scientific;
         std::copy( l.begin(), l.end(), std::ostream_iterator< T >( result, ", " ) );
         os << rTrim( result.str(), ", " ) << ">";
+        return os;
+    }
+
+    /**
+     * Writes every set to an output stream such as cout, if its elements have
+     * an output operator defined.
+     *
+     * \param os The output stream where the elements are written to
+     * \param s set containing the elements
+     * \return The output stream again.
+     */
+    template< class T > std::ostream& operator<<( std::ostream& os, const std::set< T >& s )
+    {
+        std::stringstream result;
+        result << "{" << std::scientific;
+        std::copy( s.begin(), s.end(), std::ostream_iterator< T >( result, ", " ) );
+        os << rTrim( result.str(), ", " ) << "}";
         return os;
     }
 }  // end of namespace
