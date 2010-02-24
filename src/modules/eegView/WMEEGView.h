@@ -25,6 +25,8 @@
 #ifndef WMEEGVIEW_H
 #define WMEEGVIEW_H
 
+#include <osgSim/ScalarsToColors>
+
 #include <string>
 
 #include "../../dataHandler/WEEG.h"
@@ -162,6 +164,12 @@ private:
     WFlag< double >* m_eventPositionFlag;
 
     /**
+     * A ScalarsToColors object mapping the potentials at the elektrodes to
+     * colors. Used for the display of elektrode positions and the head surface.
+     */
+    osg::ref_ptr< osgSim::ScalarsToColors > m_colorMap;
+
+    /**
      * Opens a custom widget and connects the m_node with it.
      *
      * \returns whether the custom widget could be opened successfully
@@ -201,8 +209,12 @@ private:
          * \param channel the number of the channel
          * \param event the event on which the ShapeDrawable updates
          * \param eeg the WEEG dataset
+         * \param colorMap the object mapping the elektrode potentials to colors
          */
-        UpdateColorCallback( size_t channel, const WEvent* event, boost::shared_ptr< const WEEG > eeg );
+        UpdateColorCallback( size_t channel,
+                             const WEvent* event,
+                             boost::shared_ptr< const WEEG > eeg,
+                             osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
 
         /**
          * Callback method called by the NodeVisitor.
@@ -236,6 +248,12 @@ private:
          * The WEEG dataset
          */
         const boost::shared_ptr< const WEEG > m_eeg;
+
+        /**
+         * The ScalarsToColors object mapping the potentials at the elektrodes
+         * to colors.
+         */
+        const osg::ref_ptr< const osgSim::ScalarsToColors > m_colorMap;
     };
 };
 

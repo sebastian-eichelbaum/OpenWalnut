@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <osgSim/ColorRange>
+
 #include <string>
 #include <vector>
 
@@ -97,6 +99,13 @@ void WMEEGView::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_active->getCondition() );
+
+    std::vector< osg::Vec4 > colors;
+    colors.reserve( 3 );
+    colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
+    colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
+    colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
+    m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
 
     // signal ready
     ready();
@@ -322,7 +331,7 @@ void WMEEGView::redraw()
 
             // create sphere geode on electrode position
             osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
-            shape->setUpdateCallback( new UpdateColorCallback( channel, &m_event, m_eeg ) );
+            shape->setUpdateCallback( new UpdateColorCallback( channel, &m_event, m_eeg, m_colorMap ) );
 
             osg::Geode* sphereGeode = new osg::Geode;
             sphereGeode->addDrawable( shape );
@@ -420,10 +429,14 @@ void WMEEGView::updateEvent( WEvent* event, double time )
     }
 }
 
-WMEEGView::UpdateColorCallback::UpdateColorCallback( size_t channel, const WEvent* event, boost::shared_ptr< const WEEG > eeg )
+WMEEGView::UpdateColorCallback::UpdateColorCallback( size_t channel,
+                                                     const WEvent* event,
+                                                     boost::shared_ptr< const WEEG > eeg,
+                                                     osg::ref_ptr< const osgSim::ScalarsToColors > colorMap )
     : m_channel( channel ),
       m_event( event ),
-      m_eeg( eeg )
+      m_eeg( eeg ),
+      m_colorMap( colorMap )
 {
     assert( channel < eeg->getNumberOfChannels() );
     m_currentTime = -2.0;
@@ -437,35 +450,19 @@ void WMEEGView::UpdateColorCallback::update( osg::NodeVisitor* /*nv*/, osg::Draw
         osg::ShapeDrawable* const shape = static_cast< osg::ShapeDrawable* const >( drawable );
         if( shape )
         {
-            // calculate color value between 0 and 1
-            double color;
-            if( 0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
+            // calculate color value between -1 and 1
+            float color;
+            if( 0.0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
             {
-                const double scale = 0.25;
-                color = (*m_eeg)( 0, m_channel, newTime + 0.5 ) * scale + 0.5;
-                if( color < 0.0 )
-                {
-                    color = 0.0;
-                }
-                else if( color > 1.0 )
-                {
-                    color = 1.0;
-                }
+                const float scale = 0.5;
+                color = (*m_eeg)( 0, m_channel, newTime + 0.5 ) * scale;
             }
             else
             {
-                color = 0.5;
+                color = 0.0f;
             }
 
-            // calculate resulting color using a color map from blue over white to red
-            if( color <= 0.5 )
-            {
-                shape->setColor( osg::Vec4( 2.0 * color, 2.0 * color, 1.0, 1.0 ) );
-            }
-            else
-            {
-                shape->setColor( osg::Vec4( 1.0, 2.0 - 2.0 * color, 2.0 - 2.0 * color, 1.0 ) );
-            }
+            shape->setColor( m_colorMap->getColor( color ) );
         }
 
         m_currentTime = newTime;
