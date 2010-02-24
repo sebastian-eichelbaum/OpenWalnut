@@ -25,7 +25,10 @@
 #ifndef WUNIONFIND_H
 #define WUNIONFIND_H
 
+#include <set>
 #include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 /**
  * Implements a very simple union-find datastructure aka disjoint_sets.
@@ -92,6 +95,14 @@ public:
      * \return The canonical element of that component which x is also member of
      */
     size_t find( size_t x );
+
+    /**
+     * Computes the set with maximum number of elements. If there are more than one candidate one is
+     * picked arbitrarily.
+     *
+     * \return Reference to the set of indices all beloning to a set of maximal size.
+     */
+    boost::shared_ptr< std::set< size_t > > getMaxSet();
 
     /**
      * Merges two components (iow: makes a union) where the given elements are
