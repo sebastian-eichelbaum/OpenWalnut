@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#include <osgSim/ColorRange>
+
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -94,9 +96,37 @@ void WMEEGView::notifyDataChange(
 void WMEEGView::moduleMain()
 {
     // do initialization
+    // add conditions to m_moduleState
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_active->getCondition() );
+
+    {
+        // create color map
+        std::vector< osg::Vec4 > colors;
+        colors.reserve( 3 );
+        colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
+        colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
+        colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
+        m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
+
+        // create texture containing color map
+        const int size = 256;
+        osg::Image* image = new osg::Image;
+        // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
+        image->allocateImage( size, 1, 1, GL_RGBA, GL_FLOAT );
+        image->setInternalTextureFormat( GL_RGBA );
+
+        osg::Vec4* data = reinterpret_cast< osg::Vec4* >( image->data() );
+        for( int i = 0; i < size; ++i)
+        {
+            data[i] = m_colorMap->getColor( ( 2 * i + 1 - size ) / static_cast< float >( size - 1 ) );
+        }
+
+        m_colorMapTexture = new osg::Texture1D( image );
+        m_colorMapTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::CLAMP_TO_EDGE );
+        m_colorMapTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::LINEAR );
+    }
 
     // signal ready
     ready();
@@ -322,7 +352,7 @@ void WMEEGView::redraw()
 
             // create sphere geode on electrode position
             osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
-            shape->setUpdateCallback( new UpdateColorCallback( channel, &m_event, m_eeg ) );
+            shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channel, &m_event, m_eeg, m_colorMap ) );
 
             osg::Geode* sphereGeode = new osg::Geode;
             sphereGeode->addDrawable( shape );
@@ -358,6 +388,17 @@ void WMEEGView::redraw()
         colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
         geometry->setColorArray( colors );
         geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        osg::FloatArray* texCoords = new osg::FloatArray;
+        texCoords->reserve( nbChannels );
+        for( size_t channelID = 0; channelID < nbChannels; ++channelID )
+        {
+            texCoords->push_back( 0.5f );
+        }
+        geometry->setTexCoordArray( 0, texCoords );
+        osg::StateSet* state = geometry->getOrCreateStateSet();
+        state->setTextureAttributeAndModes( 0, m_colorMapTexture );
+        geometry->setUpdateCallback( new UpdateColorOfGeometryCallback( &m_event, m_eeg ) );
 
         osg::Geode* geode = new osg::Geode;
         geode->addDrawable( geometry );
@@ -420,52 +461,82 @@ void WMEEGView::updateEvent( WEvent* event, double time )
     }
 }
 
-WMEEGView::UpdateColorCallback::UpdateColorCallback( size_t channel, const WEvent* event, boost::shared_ptr< const WEEG > eeg )
+WMEEGView::UpdateColorOfShapeDrawableCallback::UpdateColorOfShapeDrawableCallback(
+        size_t channel,
+        const WEvent* event,
+        boost::shared_ptr< const WEEG > eeg,
+        osg::ref_ptr< const osgSim::ScalarsToColors > colorMap )
     : m_channel( channel ),
       m_event( event ),
-      m_eeg( eeg )
+      m_eeg( eeg ),
+      m_colorMap( colorMap )
 {
     assert( channel < eeg->getNumberOfChannels() );
     m_currentTime = -2.0;
 }
 
-void WMEEGView::UpdateColorCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
+void WMEEGView::UpdateColorOfShapeDrawableCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
 {
     const double newTime = m_event->getTime();
     if( newTime != m_currentTime )
     {
-        osg::ShapeDrawable* const shape = static_cast< osg::ShapeDrawable* const >( drawable );
+        osg::ShapeDrawable* shape = static_cast< osg::ShapeDrawable* >( drawable );
         if( shape )
         {
-            // calculate color value between 0 and 1
-            double color;
-            if( 0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
+            // calculate color value between -1 and 1
+            float color;
+            if( 0.0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
             {
-                const double scale = 0.25;
-                color = (*m_eeg)( 0, m_channel, newTime + 0.5 ) * scale + 0.5;
-                if( color < 0.0 )
-                {
-                    color = 0.0;
-                }
-                else if( color > 1.0 )
-                {
-                    color = 1.0;
-                }
+                const float scale = 0.5;
+                color = (*m_eeg)( 0, m_channel, newTime + 0.5 ) * scale;
             }
             else
             {
-                color = 0.5;
+                color = 0.0f;
             }
 
-            // calculate resulting color using a color map from blue over white to red
-            if( color <= 0.5 )
+            shape->setColor( m_colorMap->getColor( color ) );
+        }
+
+        m_currentTime = newTime;
+    }
+}
+
+WMEEGView::UpdateColorOfGeometryCallback::UpdateColorOfGeometryCallback( const WEvent* event,
+                                                                         boost::shared_ptr< const WEEG > eeg )
+    : m_event( event ),
+      m_eeg( eeg )
+{
+    m_currentTime = -1.0;
+}
+
+void WMEEGView::UpdateColorOfGeometryCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
+{
+    const double newTime = m_event->getTime();
+    if( newTime != m_currentTime )
+    {
+        osg::Geometry* geometry = static_cast< osg::Geometry* >( drawable );
+        if( geometry )
+        {
+            osg::FloatArray* texCoords = static_cast< osg::FloatArray* >( geometry->getTexCoordArray( 0 ) );
+            if( 0.0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
             {
-                shape->setColor( osg::Vec4( 2.0 * color, 2.0 * color, 1.0, 1.0 ) );
+                for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
+                {
+                    const int size = 256;
+                    const float scale = 0.25f;
+                    const float factor = scale * ( 1.0f - 1.0f / size );
+                    (*texCoords)[channelID] = (*m_eeg)( 0, channelID, newTime + 0.5 ) * factor + 0.5f;
+                }
             }
             else
             {
-                shape->setColor( osg::Vec4( 1.0, 2.0 - 2.0 * color, 2.0 - 2.0 * color, 1.0 ) );
+                for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
+                {
+                    (*texCoords)[channelID] = 0.5f;
+                }
             }
+            geometry->setTexCoordArray( 0, texCoords );
         }
 
         m_currentTime = newTime;
