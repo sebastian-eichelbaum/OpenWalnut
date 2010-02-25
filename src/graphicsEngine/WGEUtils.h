@@ -30,6 +30,7 @@
 #include <osg/Array>
 #include <osg/Vec3>
 #include <osg/Vec4>
+#include <osg/Camera>
 
 #include "../common/WColor.h"
 #include "../math/WPosition.h"
@@ -69,6 +70,14 @@ namespace wge
      * \return Refernce to the same vector but as osg::Vec3Array.
      */
     osg::ref_ptr< osg::Vec3Array > osgVec3Array( const std::vector< wmath::WPosition >& posArray );
+
+    /**
+     * Converts screen coordinates into Camera coordinates.
+     *
+     * \param screen the screen coordinates
+     * \param camera The matrices of this camera will used for unprojecting.
+     */
+    osg::Vec3 unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )

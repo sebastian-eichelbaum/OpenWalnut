@@ -93,13 +93,6 @@ private:
     virtual void updateGFX();
 
     /**
-     * Get wordl coordinates from screen coordinates.
-     * \return the world coordinates.
-     * \param screen the screen coordinates in pixels and z depth.
-     */
-    osg::Vec3 unprojectFromScreen( const osg::Vec3 screen );
-
-    /**
      * Node callback to handle updates properly
      */
     class ROIBoxNodeCallback : public osg::NodeCallback

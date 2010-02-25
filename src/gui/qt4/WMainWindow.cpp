@@ -377,7 +377,7 @@ void WMainWindow::openLoadDialog()
         fileNames = fd.selectedFiles();
     }
 
-    std::vector< std::string >stdFileNames;
+    std::vector< std::string > stdFileNames;
 
     QStringList::const_iterator constIterator;
     for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
