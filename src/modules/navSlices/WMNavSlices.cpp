@@ -35,6 +35,7 @@
 #include <osg/Geometry>
 #include <osg/Group>
 
+#include "../../math/WVector3D.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetSingle.h"
@@ -44,6 +45,7 @@
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
@@ -145,14 +147,12 @@ void WMNavSlices::notifyTextureChange()
 
 void WMNavSlices::moduleMain()
 {
-     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
-     assert( ge );
-     boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
-     assert( viewer );
-//     m_viewer = viewer;
-//     m_pickHandler = m_viewer->getPickHandler();
-//     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::registerRedrawRequest, this, _1 ) );
-     viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
+    assert( ge );
+
+    m_viewer = ge->getViewerByName( "main" );
+    assert( m_viewer );
+    m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
 
     // signal ready state
     ready();
@@ -170,19 +170,21 @@ void WMNavSlices::moduleMain()
     // clean up stuff
     // NOTE: ALAWAYS remove your osg nodes!
     // Please, please always check for NULL
-    if ( viewer )
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    if( viewer )
     {
         viewer->getScene()->remove( m_zSliceNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
-    if ( viewer )
+    if( viewer )
     {
         viewer->getScene()->remove( m_ySliceNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
-    if ( viewer )
+    if( viewer )
     {
         viewer->getScene()->remove( m_xSliceNode );
     }
@@ -229,22 +231,27 @@ void WMNavSlices::create()
 
     // Please, please always check for NULL
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
-    if ( viewer )
+    if( viewer )
     {
         viewer->getScene()->insert( m_zSliceNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
-    if ( viewer )
+    if( viewer )
     {
         viewer->getScene()->insert( m_xSliceNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
-    if ( viewer )
+    if( viewer )
     {
         viewer->getScene()->insert( m_ySliceNode );
     }
+}
+
+osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
+{
+    return osg::Vec3( v[0], v[1], v[2] );
 }
 
 void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
@@ -256,12 +263,28 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
+        wmath::WVector3D normal = pickInfo.getPickNormal();
+
         std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
         if ( m_isPicked )
         {
             float diffX = newPixelPos.first - m_oldPixelPosition.first;
-            float diffY = newPixelPos.second - m_oldPixelPosition.second;
-            float diff = ( fabs( diffX ) > fabs( diffY ) ) ? diffX : diffY;
+//             float diffY = newPixelPos.second - m_oldPixelPosition.second;
+            float diff = fabs( diffX );
+
+            osg::Vec3 startPosScreen( m_oldPixelPosition.first, 0.0, 0.0 );
+            osg::Vec3 endPosScreen( newPixelPos.first, 0.0, 0.0 );
+
+            osg::Vec3 startPosWorld = wge::unprojectFromScreen( startPosScreen, m_viewer->getCamera() );
+            osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
+
+            osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
+
+            if( wv3D2ov3( normal ) * moveDirWorld < 0 )
+            {
+                diff *= -1;
+            }
+
 
             if ( pickInfo.getName() == "Axial Slice" )
             {
@@ -285,11 +308,6 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
     {
         m_isPicked &= false;
     }
-}
-
-osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
-{
-    return osg::Vec3( v[0], v[1], v[2] );
 }
 
 osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
@@ -353,9 +371,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             case 1:
             {
                 sliceVertices->push_back( osg::Vec3( 0,      yPos, 0      ) );
-                sliceVertices->push_back( osg::Vec3( 0,      yPos, maxDim ) );
-                sliceVertices->push_back( osg::Vec3( maxDim, yPos, maxDim ) );
                 sliceVertices->push_back( osg::Vec3( maxDim, yPos, 0      ) );
+                sliceVertices->push_back( osg::Vec3( maxDim, yPos, maxDim ) );
+                sliceVertices->push_back( osg::Vec3( 0,      yPos, maxDim ) );
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
@@ -377,9 +395,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, 0.0     ) ) ) );
-                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, texZOff ) ) ) );
-                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, texZOff ) ) ) );
                     texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, 0.0     ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( texXOff, texY, texZOff ) ) ) );
+                    texCoords->push_back( wv3D2ov3( grid->transformTexCoord( wmath::WPosition( 0.0,     texY, texZOff ) ) ) );
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
