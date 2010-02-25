@@ -26,11 +26,11 @@
 #include <set>
 #include <vector>
 
-#include "../common/datastructures/WUnionFind.h"
-#include "../common/exceptions/WNotImplemented.h"
-#include "../common/WStringUtils.h"
+#include "../../common/WStringUtils.h"
+#include "../../common/datastructures/WUnionFind.h"
+#include "../../common/exceptions/WNotImplemented.h"
+#include "../WValueSet.h"
 #include "WJoinContourTree.h"
-#include "WValueSet.h"
 
 WJoinContourTree::WJoinContourTree( boost::shared_ptr< WDataSetSingle > dataset )
     : m_elementIndices( dataset->getValueSet()->size() ),

@@ -39,7 +39,7 @@
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"
 #include "../../common/datastructures/WDXtLookUpTable.h"
-#include "../../common/datastructures/WFiberCluster.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"
