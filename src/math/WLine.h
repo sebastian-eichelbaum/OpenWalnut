@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include "../common/WMixinVector.h"
 #include "WPosition.h"
@@ -39,6 +40,21 @@ namespace wmath
     /**
      * A line is an ordered sequence of WPositions.
      */
-    typedef WMixinVector< WPosition > WLine;
+//    typedef WMixinVector< WPosition > WLine;
+    class WLine : public WMixinVector< WPosition >
+    {
+    public:
+        /**
+         * Generates a new line out of a sequence of points.
+         *
+         * \param points Point sequence
+         */
+        explicit WLine( const std::vector< WPosition > &points );
+
+        /**
+         * Creates an empty line.
+         */
+        WLine();
+    };
 } // end of namespace
 #endif  // WLINE_H

@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WDataSetSingle.h"
+#include "../WDataSetSingle.h"
 
 /**
  * Processes a dataset for join tree computation. This is a part of those famous contur trees.

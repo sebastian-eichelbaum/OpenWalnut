@@ -30,7 +30,7 @@
 
 #include <osg/Geode>
 
-#include "../../common/datastructures/WFiberCluster.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
