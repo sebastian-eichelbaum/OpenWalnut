@@ -38,17 +38,14 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 
-#include "../dataHandler/WDataHandler.h"
 #include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
 #include "../common/WThreadedRunner.h"
-#include "WModule.h"
-#include "WBatchLoader.h"
-#include "WModuleFactory.h"
-
+#include "../dataHandler/WDataHandler.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
-
 #include "WKernel.h"
+#include "WModule.h"
+#include "WModuleFactory.h"
 
 /**
  * Used for program wide access to the kernel.
