@@ -256,8 +256,8 @@ ADD_CUSTOM_TARGET( many
                    COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
                    COMMAND make -C ${NUM_CORES_BINARY_DIR} > /dev/null
                    COMMAND if [ -e ${NUM_CORES_BINARY} ]\; then echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; make all -j\$\$\(${NUM_CORES_BINARY}\)\; else echo WARNING: No binary for numCores found: ${NUM_CORES_BINARY}. Using 1 core.\; make all -j1\; fi
-                   COMMAND make stylecheck
                    COMMAND make test
+                   COMMAND make stylecheck
                    COMMAND make doc
                    COMMENT "Make many special make targets in combination."
                  )
