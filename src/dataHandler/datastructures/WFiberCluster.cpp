@@ -27,10 +27,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../math/fiberSimilarity/WDLTMetric.h"
-#include "../WLimits.h"
-#include "../WTransferable.h"
+#include "../../common/WLimits.h"
+#include "../../common/WTransferable.h"
+#include "../WDataSetFiberVector.h"
 #include "WFiberCluster.h"
 
 // TODO(math): The only reason why we store here a Reference to the fiber
@@ -89,3 +88,19 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
     return m_prototype;
 }
 // \endcond
+
+void WFiberCluster::generateCenterLine()
+{
+    // make copies of the fibers
+    WDataSetFiberVector fibs;
+    std::list< size_t >::const_iterator cit = m_memberIndices.begin();
+    for( ; cit != m_memberIndices.end(); ++cit )
+    {
+        fibs.push_back( m_fibs->at( *cit ) );
+    }
+}
+
+boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine() const
+{
+    return m_centerLine;
+}
