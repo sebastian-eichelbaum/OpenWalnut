@@ -25,13 +25,14 @@
 #ifndef WMEEGVIEW_H
 #define WMEEGVIEW_H
 
-#include <osgSim/ScalarsToColors>
-
 #include <string>
 
+#include <osg/Texture1D>
+#include <osgSim/ScalarsToColors>
+
 #include "../../dataHandler/WEEG.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/WEvent.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
@@ -170,6 +171,12 @@ private:
     osg::ref_ptr< osgSim::ScalarsToColors > m_colorMap;
 
     /**
+     * A 1D texture containing the color map as image. Used for the
+     * interpolation on the head surface.
+     */
+    osg::ref_ptr< osg::Texture1D > m_colorMapTexture;
+
+    /**
      * Opens a custom widget and connects the m_node with it.
      *
      * \returns whether the custom widget could be opened successfully
@@ -200,7 +207,7 @@ private:
      * position changed.
      * \note Only add it to a ShapeDrawable!
      */
-    class UpdateColorCallback : public osg::Drawable::UpdateCallback
+    class UpdateColorOfShapeDrawableCallback : public osg::Drawable::UpdateCallback
     {
     public:
         /**
@@ -211,10 +218,10 @@ private:
          * \param eeg the WEEG dataset
          * \param colorMap the object mapping the elektrode potentials to colors
          */
-        UpdateColorCallback( size_t channel,
-                             const WEvent* event,
-                             boost::shared_ptr< const WEEG > eeg,
-                             osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
+        UpdateColorOfShapeDrawableCallback( size_t channel,
+                                            const WEvent* event,
+                                            boost::shared_ptr< const WEEG > eeg,
+                                            osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
 
         /**
          * Callback method called by the NodeVisitor.
@@ -254,6 +261,51 @@ private:
          * to colors.
          */
         const osg::ref_ptr< const osgSim::ScalarsToColors > m_colorMap;
+    };
+
+    /**
+     * OSG Update Callback to change the color of a Geometry by changing its 1D
+     * texture coordinates when an event position changed.
+     * \note Only add it to a Geometry with a 1D texture!
+     */
+    class UpdateColorOfGeometryCallback : public osg::Drawable::UpdateCallback
+    {
+    public:
+        /**
+         * Constructor
+         *
+         * \param event the event on which the Geometry updates
+         * \param eeg the WEEG dataset
+         */
+        UpdateColorOfGeometryCallback( const WEvent* event, boost::shared_ptr< const WEEG > eeg );
+
+        /**
+         * Callback method called by the NodeVisitor.
+         * Changes the color of the drawable according to the event.
+         *
+         * \param drawable The drawable this callback is connected to. Should be
+         *                 a Geometry with a 1D texture.
+         */
+        virtual void update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable );
+
+    protected:
+    private:
+        /**
+         * The time position which is currently used.
+         * The color is updated if the new time from the m_event is different to
+         * this.
+         */
+        double m_currentTime;
+
+        /**
+         * The event on which the Geometry updates
+         */
+        const WEvent* const m_event;
+
+        /**
+         * The WEEG dataset
+         */
+        const boost::shared_ptr< const WEEG > m_eeg;
     };
 };
 
