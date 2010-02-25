@@ -93,14 +93,21 @@ void WFiberCluster::generateCenterLine()
 {
     // make copies of the fibers
     WDataSetFiberVector fibs;
-    std::list< size_t >::const_iterator cit = m_memberIndices.begin();
-    for( ; cit != m_memberIndices.end(); ++cit )
+    size_t avgNumPoints = 0;
+    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
     {
         fibs.push_back( m_fibs->at( *cit ) );
+        avgNumPoints += fibs.back().size();
+    }
+    avgNumPoints /= fibs.size();
+    // resample
+    for( WDataSetFiberVector::iterator cit = fibs.begin(); cit != fibs.end(); ++cit )
+    {
+        cit->resample( avgNumPoints );
     }
 }
 
-boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine() const
+boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine()
 {
     return m_centerLine;
 }

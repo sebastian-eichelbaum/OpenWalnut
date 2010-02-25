@@ -93,5 +93,70 @@ public:
         WPosition expected( 1., 1., 1. );
         TS_ASSERT_EQUALS( expected, line[2] );
     }
+
+    /**
+     * If for example the start and end points of two fibers are in opposite
+     * direction we cant use them for center line generation. One of the
+     * fiber tracts must reverse its ordering.
+     */
+    void testReverseOrdering( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 1, 2, 3 ) );
+        line.push_back( WPosition( 4, 5, 6 ) );
+        line.push_back( WPosition( 7, 8, 9 ) );
+        wmath::WLine expected;
+        expected.push_back( WPosition( 7, 8, 9 ) );
+        expected.push_back( WPosition( 4, 5, 6 ) );
+        expected.push_back( WPosition( 1, 2, 3 ) );
+        line.reverseOrder();
+        TS_ASSERT_EQUALS( line, expected );
+    }
+
+    /**
+     * The path length of the fiber is the accumulated path lengths of all
+     * segements (point to point) in that fiber.
+     */
+    void testPathLength( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 1, 2, 3 ) );
+        line.push_back( WPosition( 4, 5, 6 ) );
+        line.push_back( WPosition( 7, 8, 9 ) );
+        double expected = ( WPosition( 1, 2, 3 ) - WPosition( 4, 5, 6 ) ).norm() +
+                          ( WPosition( 4, 5, 6 ) - WPosition( 7, 8, 9 ) ).norm();
+        TS_ASSERT_EQUALS( expected, line.pathLength() );
+    }
+
+    /**
+     * When resampling a line a new line is generated having the given number
+     * of sampling points. Its start and end points remain the same, but its
+     * curvature may change a bit and also its length!
+     * Down sampling means you will have
+     */
+    void testDownSampleLine( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        line.push_back( WPosition( 3, 1, 0 ) );
+        line.resample( 3 );
+        wmath::WLine expected;
+        expected.push_back( WPosition( 0, 0, 0 ) );
+        expected.push_back( WPosition( 1.5, 0.5, 0 ) );
+        expected.push_back( WPosition( 3, 1, 0 ) );
+        TS_ASSERT_EQUALS( line.size(), expected.size() );
+        for( size_t i = 0; i < line.size(); ++i )
+        {
+            for( int j = 0; j < 3; ++j )
+            {
+                TS_ASSERT_DELTA( expected[i][j], line[i][j], 0.0000001 );
+            }
+        }
+    }
 };
 #endif  // WLINE_TEST_H

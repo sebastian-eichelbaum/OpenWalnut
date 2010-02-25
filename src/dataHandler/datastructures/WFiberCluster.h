@@ -149,7 +149,7 @@ public:
      *
      * \return Reference to the center line
      */
-    boost::shared_ptr< wmath::WFiber > getCenterLine() const;
+    boost::shared_ptr< wmath::WFiber > getCenterLine();
 
 protected:
     // TODO(math): The only reason why we store here a Reference to the fiber

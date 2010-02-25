@@ -55,6 +55,27 @@ namespace wmath
          * Creates an empty line.
          */
         WLine();
+
+        /**
+         * Resample this line so it has a number of given points afterwards.
+         * \warning This changes your line!
+         *
+         * \param numPoints Number of sampling points.
+         */
+        void resample( size_t numPoints );
+
+        /**
+         * Reverses the order of the points. (mirroring)
+         */
+        void reverseOrder();
+
+        /**
+         * Computes the length of the fiber not in terms of points but in terms
+         * of accumulated segment lengths.
+         *
+         * \return Sum of all line segment lengths
+         */
+        double pathLength() const;
     };
 } // end of namespace
 #endif  // WLINE_H

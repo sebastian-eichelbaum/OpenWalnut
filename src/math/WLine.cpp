@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <vector>
 
 #include "WLine.h"
@@ -38,4 +39,46 @@ WLine::WLine()
     : WMixinVector< wmath::WPosition >()
 {
 }
+
+void WLine::reverseOrder()
+{
+    std::reverse( begin(), end() );
+}
+
+double WLine::pathLength() const
+{
+    double length = 0;
+    // incase of size() <= 1 the for loop will not run!
+    for( size_t i = 1; i < size(); ++i )
+    {
+        length += ( at( i - 1 ) - at( i ) ).norm();
+    }
+    return length;
+}
+
+void WLine::resample( size_t numPoints )
+{
+    if( size() != numPoints && size() > 0 && numPoints > 0 )
+    {
+        const double newSegmentLength = pathLength() / ( numPoints - 1 );
+        WLine newLine;
+        newLine.reserve( numPoints );
+
+        double remainingLength = 0.0;
+        newLine.push_back( front() );
+        for( size_t i = 1; i < size(); ++i )
+        {
+            remainingLength += ( at( i - 1 ) - at( i ) ).norm();
+            while( remainingLength >= newSegmentLength )
+            {
+                remainingLength -= newSegmentLength;
+                WPosition newPoint = at( i ) + remainingLength * ( at( i - 1 ) - at( i ) ).normalized();
+                newLine.push_back( newPoint );
+            }
+        }
+        *this = newLine;
+    }
+    assert( size() == numPoints && "Resampling of a line has failed! Is your fiber of length 0 or even the new sample rate??" );
+}
+
 } // end of namespace
