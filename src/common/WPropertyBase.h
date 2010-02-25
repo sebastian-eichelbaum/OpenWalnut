@@ -142,9 +142,9 @@ public:
     /**
      * Helper converts this instance to its native type.
      *
-     * \return the property as list property
+     * \return the property as selection property
      */
-    WPropList toPropList();
+    WPropSelection toPropSelection();
 
     /**
      * Helper converts this instance to its native type.

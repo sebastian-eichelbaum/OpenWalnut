@@ -117,7 +117,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    //WPropertyListWidget* addProp( WPropList property );
+    //WPropertySelectionWidget* addProp( WPropSelection property );
 
     /**
      * Adds a new position property to the DSB.

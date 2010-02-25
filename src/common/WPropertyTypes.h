@@ -77,7 +77,8 @@ namespace WPVBaseTypes
     typedef bool                                            PV_BOOL;        //!< base type used for every WPVBool
     typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
     typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
-    typedef std::list< std::pair< std::string, bool > >     PV_SELECTION;   //!< base type used for every WPVSelection
+    typedef void*                                           PV_SELECTION;   //!< base type used for every WPVSelection
+    // typedef std::list< std::pair< std::string, bool > >     PV_SELECTION;   //!< base type used for every WPVSelection
     typedef wmath::WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
 }

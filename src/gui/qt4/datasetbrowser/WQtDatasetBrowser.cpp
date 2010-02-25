@@ -374,8 +374,8 @@ void WQtDatasetBrowser::selectTreeItem()
                     case PV_PATH:
                         tab->addProp( ( *iter )->toPropFilename() );
                         break;
-                    case PV_LIST:
-                        WLogger::getLogger()->addLogMessage( "This property type \"PV_LIST\" is not yet supported by the GUI.", "DatasetBrowser",
+                    case PV_SELECTION:
+                        WLogger::getLogger()->addLogMessage( "This property type \"PV_SELECTION\" is not yet supported by the GUI.", "DatasetBrowser",
                                 LL_WARNING );
                         break;
                     case PV_COLOR:
