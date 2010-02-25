@@ -357,10 +357,14 @@ void WModule::threadMain()
     }
     catch( const WException& e )
     {
-        WLogger::getLogger()->addLogMessage( "WException. Notifying.", "Module (" + getName() + ")", LL_ERROR );
+        wlog::error( "Module (" + getName() +")" ) << "WException. Notifying. Message: " << e.what();
 
         // ensure proper exception propagation
         signal_error( shared_from_this(), e );
+
+        // module needs to be marked as ready or waiting threads (container, kernel) might wait for ever if the exception was thrown before
+        // ready().
+        ready();
     }
     catch( const std::exception& e )
     {
@@ -369,6 +373,10 @@ void WModule::threadMain()
         // convert these exceptions to WException
         WException ce = WException( e );
         signal_error( shared_from_this(), ce );
+
+        // module needs to be marked as ready or waiting threads (container, kernel) might wait for ever if the exception was thrown before
+        // ready().
+        ready();
     }
 }
 

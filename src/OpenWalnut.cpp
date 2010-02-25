@@ -24,9 +24,6 @@
 
 #include <iostream>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
-
 #include "common/WSegmentationFault.h"
 #include "common/WLogger.h"
 

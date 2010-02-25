@@ -188,6 +188,13 @@ void WModuleProjectFileCombiner::apply()
         m_container->add( ( *iter ).second );
     }
 
+    // now wait for the modules to get ready. We could have waited for this in the previous loop, but a long loading module would block others.
+    // -> so we wait after adding and starting them
+    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = modules.begin(); iter != modules.end(); ++iter )
+    {
+        ( *iter ).second->isReady().wait();
+    }
+
     // and finally, connect them all together
     for ( std::list< Connection >::const_iterator iter = connections.begin(); iter != connections.end(); ++iter )
     {
@@ -253,5 +260,10 @@ void WModuleProjectFileCombiner::apply()
             continue;
         }
     }
+
+    // clear all our lists (deref all contained pointers)
+    modules.clear();
+    connections.clear();
+    properties.clear();
 }
 
