@@ -26,7 +26,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/lexical_cast.hpp>
 #include "../common/WStringUtils.h"
+
 #include "WColor.h"
 
 WColor::WColor( float red, float green, float blue, float alpha )

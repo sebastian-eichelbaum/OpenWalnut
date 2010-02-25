@@ -410,8 +410,8 @@ bool WPropertyVariable< T >::setAsString( std::string value )
 {
     try
     {
-    //    T val = boost::lexical_cast< T, std::string >( value );
-    //    set( val );
+        T val = boost::lexical_cast< T >( value );
+        //set( val );
     }
     catch( boost::bad_lexical_cast &e )
     {

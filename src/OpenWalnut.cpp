@@ -56,10 +56,6 @@ int main( int argc, char** argv )
     "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>." << std::endl;
     std::cout << std::endl;  // Create new line after message for clarity.
 
-    boost::filesystem::path p;
-    p = boost::lexical_cast< boost::filesystem::path >( std::string( "/home" ) );
-    std::cout << p << std::endl;
-
     // install signal handler as early as possible
     WSegmentationFault::installSignalHandler();
 

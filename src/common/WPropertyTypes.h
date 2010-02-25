@@ -58,7 +58,7 @@ typedef enum
     PV_BOOL,           // boolean
     PV_STRING,         // a string
     PV_PATH,           // a Boost Path object denoting a filename/path
-    PV_LIST,           // a list of strings
+    PV_SELECTION,      // a list of strings, selectable
     PV_POSITION,       // a position property
     PV_COLOR           // a color property
 }
@@ -77,7 +77,7 @@ namespace WPVBaseTypes
     typedef bool                                            PV_BOOL;        //!< base type used for every WPVBool
     typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
     typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
-    typedef std::list< std::pair< std::string, bool > >     PV_LIST;        //!< base type used for every WPVList
+    typedef std::list< std::pair< std::string, bool > >     PV_SELECTION;   //!< base type used for every WPVSelection
     typedef wmath::WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
 }
@@ -114,9 +114,9 @@ typedef WPropertyVariable< WPVBaseTypes::PV_STRING > WPVString;
 typedef WPropertyVariable< WPVBaseTypes::PV_PATH > WPVFilename;
 
 /**
- * List properties
+ * Selection properties
  */
-typedef WPropertyVariable< WPVBaseTypes::PV_LIST > WPVList;
+typedef WPropertyVariable< WPVBaseTypes::PV_SELECTION > WPVSelection;
 
 /**
  * position (vec3d) properties
@@ -161,7 +161,7 @@ typedef boost::shared_ptr< WPVFilename > WPropFilename;
 /**
  * Alias for string list property variables.
  */
-typedef boost::shared_ptr< WPVList > WPropList;
+typedef boost::shared_ptr< WPVSelection > WPropSelection;
 
 /**
  * Alias for position property variables.
@@ -290,7 +290,7 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-    class WTypeIdentifier< WPVBaseTypes::PV_LIST >
+    class WTypeIdentifier< WPVBaseTypes::PV_SELECTION >
     {
     public:
         /**
@@ -300,7 +300,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         PROPERTY_TYPE getType()
         {
-            return PV_LIST;
+            return PV_SELECTION;
         }
     };
 
