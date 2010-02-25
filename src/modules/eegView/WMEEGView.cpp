@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include <osg/LightModel>
 #include <osgSim/ColorRange>
 
 #include "../../graphicsEngine/WGEGeodeUtils.h"
@@ -389,6 +390,12 @@ void WMEEGView::redraw()
         geometry->setColorArray( colors );
         geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
+        osg::LightModel* lightModel = new osg::LightModel;
+        lightModel->setTwoSided( true );
+        osg::StateSet* state = geometry->getOrCreateStateSet();
+        state->setAttributeAndModes( lightModel );
+
+        state->setTextureAttributeAndModes( 0, m_colorMapTexture );
         osg::FloatArray* texCoords = new osg::FloatArray;
         texCoords->reserve( nbChannels );
         for( size_t channelID = 0; channelID < nbChannels; ++channelID )
@@ -396,8 +403,6 @@ void WMEEGView::redraw()
             texCoords->push_back( 0.5f );
         }
         geometry->setTexCoordArray( 0, texCoords );
-        osg::StateSet* state = geometry->getOrCreateStateSet();
-        state->setTextureAttributeAndModes( 0, m_colorMapTexture );
         geometry->setUpdateCallback( new UpdateColorOfGeometryCallback( &m_event, m_eeg ) );
 
         osg::Geode* geode = new osg::Geode;
