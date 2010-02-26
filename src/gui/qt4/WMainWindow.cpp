@@ -123,10 +123,15 @@ void WMainWindow::setupGUI()
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
     }
-    m_dummyWidget = new QDockWidget( this );
-    m_dummyWidget->setFeatures( QDockWidget::NoDockWidgetFeatures );
-    m_dummyWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Ignored );
-    addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
+
+    // we do not need the dummy widget if there are no other widgets.
+    if( m_navAxial || m_navCoronal || m_navSagittal )
+    {
+        m_dummyWidget = new QDockWidget( this );
+        m_dummyWidget->setFeatures( QDockWidget::NoDockWidgetFeatures );
+        m_dummyWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Ignored );
+        addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
+    }
 
     // Default background color from config file
     {
