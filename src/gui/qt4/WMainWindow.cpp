@@ -558,6 +558,13 @@ void WMainWindow::slotActivateModule( QString module )
 
 void WMainWindow::newRoi()
 {
+    // do nothing if we can not get
+    if( !WKernel::getRunningKernel()->getRoiManager()->getDataSet() )
+    {
+        wlog::warn( "WMainWindow" ) << "Refused to add ROI, as ROIManager does not have data set associated.";
+        return;
+    }
+
     if ( m_datasetBrowser->getSelectedRoi().get() == NULL )
     {
         boost::shared_ptr< WROIBox > newRoi = boost::shared_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
