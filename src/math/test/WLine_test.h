@@ -30,8 +30,9 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "WLineTraits.h"
+#include "../../common/WLimits.h"
 #include "../WLine.h"
+#include "WLineTraits.h"
 
 /**
  * Unit tests the WLine class
@@ -154,7 +155,7 @@ public:
         {
             for( int j = 0; j < 3; ++j )
             {
-                TS_ASSERT_DELTA( expected[i][j], line[i][j], 0.0000001 );
+                TS_ASSERT_DELTA( expected[i][j], line[i][j], wlimits::DBL_EPS );
             }
         }
     }

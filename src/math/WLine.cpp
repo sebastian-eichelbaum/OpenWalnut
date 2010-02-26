@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "../common/WLimits.h"
 #include "WLine.h"
 #include "WPosition.h"
 
@@ -69,13 +70,18 @@ void WLine::resample( size_t numPoints )
         for( size_t i = 1; i < size(); ++i )
         {
             remainingLength += ( at( i - 1 ) - at( i ) ).norm();
-            while( remainingLength >= newSegmentLength )
+            while( ( remainingLength > newSegmentLength ) || std::abs( remainingLength - newSegmentLength ) < wlimits::DBL_EPS )
             {
                 remainingLength -= newSegmentLength;
                 WPosition newPoint = at( i ) + remainingLength * ( at( i - 1 ) - at( i ) ).normalized();
                 newLine.push_back( newPoint );
             }
         }
+        // using string_utils::operator<<;
+        // std::cout << "|remL - newSegL|: " << std::abs( remainingLength - newSegmentLength ) << std::endl;
+        // std::cout << std::endl << "this: " << *this << std::endl << "new:  " << newLine << std::endl;
+        // std::cout << std::setprecision( 35 ) << "remainingLength: " << remainingLength << " newSegmentLength: " << newSegmentLength << std::endl;
+        // std::cout << "this size: " << size() << " new size: " << newLine.size() << std::endl;
         *this = newLine;
     }
     assert( size() == numPoints && "Resampling of a line has failed! Is your fiber of length 0 or even the new sample rate??" );
