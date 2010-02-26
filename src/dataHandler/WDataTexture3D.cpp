@@ -194,7 +194,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
         unsigned char* data = ima->data();
 
-        unsigned char* charSource = ( unsigned char* )&tempSource[0];
+        unsigned char* charSource = reinterpret_cast< unsigned char* >( &tempSource[0] );
 
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() * 2 ; ++i )
         {
@@ -214,7 +214,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
 
         unsigned char* data = ima->data();
 
-        unsigned char* charSource = ( unsigned char* )source;
+        unsigned char* charSource = reinterpret_cast< unsigned char* >( source );
 
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() * 4 ; ++i )
         {
