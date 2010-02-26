@@ -135,16 +135,19 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( unsigned char* sourc
             data[i] = source[i];
         }
     }
+    else
+    {
+        // TODO(schurade): throw exception if components!=1 or 3
+        wlog::error( "WDataTexture3D" ) << "Did not handle ( components != 1 ||  components != 3 ).";
+    }
 
     return ima;
-    // TODO(seralph): throw exception if components!=1 or 3
 }
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int components )
 {
     osg::ref_ptr< osg::Image > ima = new osg::Image;
-    // TODO(seralph): throw exception if components!=1 or 3
-    if ( components == 1)
+    if( components == 1 )
     {
         int nSize = m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ();
 
@@ -201,13 +204,18 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
             data[i] = charSource[i];
         }
     }
+    else
+    {
+        // TODO(schurade): throw exception if components!=1
+        wlog::error( "WDataTexture3D" ) << "Did not handle ( components != 1 ).";
+    }
     return ima;
 }
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int components )
 {
-     osg::ref_ptr< osg::Image > ima = new osg::Image;
-    // TODO(seralph): throw exception if texture generation failed
+    osg::ref_ptr< osg::Image > ima = new osg::Image;
+    // TODO(schurade): throw exception if texture generation failed
     if ( components == 1)
     {
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
@@ -221,6 +229,11 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
             data[i] = charSource[i];
         }
     }
+    else
+    {
+        // TODO(schurade): throw exception if components!=1
+        wlog::error( "WDataTexture3D" ) << "Did not handle ( components != 1 ).";
+    }
     return ima;
 }
 
@@ -232,18 +245,21 @@ void WDataTexture3D::createTexture()
 
         if ( m_valueSet->getDataType() == W_DT_UINT8 )
         {
+            wlog::debug( "WDataTexture3D" ) << "Handling W_DT_UINT8";
             boost::shared_ptr< WValueSet< unsigned char > > vs = boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_valueSet );
             unsigned char* source = const_cast< unsigned char* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
         else if ( m_valueSet->getDataType() == W_DT_INT16 )
         {
+            wlog::debug( "WDataTexture3D" ) << "Handling W_DT_INT16";
             boost::shared_ptr< WValueSet< int16_t > > vs = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_valueSet );
             int16_t* source = const_cast< int16_t* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
         else if ( m_valueSet->getDataType() == W_DT_FLOAT )
         {
+            wlog::debug( "WDataTexture3D" ) << "Handling W_DT_FLOAT";
             boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( m_valueSet );
             float* source = const_cast< float* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
