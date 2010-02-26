@@ -314,9 +314,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 {
     float maxDim = 255.0;
 
-    float xSlice = ( float )( m_sagittalPos->get() );
-    float ySlice = ( float )( m_coronalPos->get() );
-    float zSlice = ( float )( m_axialPos->get() );
+    float xSlice = static_cast< float >( m_sagittalPos->get() );
+    float ySlice = static_cast< float >( m_coronalPos->get() );
+    float zSlice = static_cast< float >( m_axialPos->get() );
 
     float xPos = xSlice + 0.5f;
     float yPos = ySlice + 0.5f;
@@ -346,9 +346,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
 
-                    float maxX = ( float )( grid->getNbCoordsX() );
-                    float maxY = ( float )( grid->getNbCoordsY() );
-                    float maxZ = ( float )( grid->getNbCoordsZ() );
+                    float maxX = static_cast< float >( grid->getNbCoordsX() );
+                    float maxY = static_cast< float >( grid->getNbCoordsY() );
+                    float maxZ = static_cast< float >( grid->getNbCoordsZ() );
 
                     float texX = xSlice / maxX;
                     //float texY = ySlice / maxY;
@@ -381,9 +381,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
 
-                    float maxX = ( float )( grid->getNbCoordsX() );
-                    float maxY = ( float )( grid->getNbCoordsY() );
-                    float maxZ = ( float )( grid->getNbCoordsZ() );
+                    float maxX = static_cast< float >( grid->getNbCoordsX() );
+                    float maxY = static_cast< float >( grid->getNbCoordsY() );
+                    float maxZ = static_cast< float >( grid->getNbCoordsZ() );
 
                     //float texX = xSlice / maxX;
                     float texY = ySlice / maxY;
@@ -417,9 +417,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
 
 
-                    float maxX = ( float )( grid->getNbCoordsX() );
-                    float maxY = ( float )( grid->getNbCoordsY() );
-                    float maxZ = ( float )( grid->getNbCoordsZ() );
+                    float maxX = static_cast< float >( grid->getNbCoordsX() );
+                    float maxY = static_cast< float >( grid->getNbCoordsY() );
+                    float maxZ = static_cast< float >( grid->getNbCoordsZ() );
 
                     //float texX = xSlice / maxX;
                     //float texY = ySlice / maxY;
@@ -444,9 +444,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     }
     else
     {
-        float maxX = ( float )( m_maxSagittal->get() );
-        float maxY = ( float )( m_maxCoronal->get() );
-        float maxZ = ( float )( m_maxAxial->get() );
+        float maxX = static_cast< float >( m_maxSagittal->get() );
+        float maxY = static_cast< float >( m_maxCoronal->get() );
+        float maxZ = static_cast< float >( m_maxAxial->get() );
 
         m_sagittalPos->setMax( maxX );
         m_coronalPos->setMax( maxY );
