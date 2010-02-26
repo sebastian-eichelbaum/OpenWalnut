@@ -123,6 +123,10 @@ void WMainWindow::setupGUI()
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
     }
+    m_dummyWidget = new QDockWidget( this );
+    m_dummyWidget->setFeatures( QDockWidget::NoDockWidgetFeatures );
+    m_dummyWidget->setSizePolicy ( QSizePolicy::Preferred, QSizePolicy::Ignored );
+    addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
 
     // Default background color from config file
     {
