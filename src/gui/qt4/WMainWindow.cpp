@@ -125,7 +125,7 @@ void WMainWindow::setupGUI()
     }
     m_dummyWidget = new QDockWidget( this );
     m_dummyWidget->setFeatures( QDockWidget::NoDockWidgetFeatures );
-    m_dummyWidget->setSizePolicy ( QSizePolicy::Preferred, QSizePolicy::Ignored );
+    m_dummyWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Ignored );
     addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
 
     // Default background color from config file
