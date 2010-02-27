@@ -132,7 +132,7 @@ void WGraphicsEngine::setFontPath( std::string path )
     WGEResourceManager::getResourceManager()->setFontPath( path );
 }
 
-boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
+boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
                                                             int width, int height, WGECamera::ProjectionMode projectionMode,
                                                             WColor bgColor )
 {
