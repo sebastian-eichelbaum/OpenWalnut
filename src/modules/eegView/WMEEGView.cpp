@@ -33,6 +33,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMEEGView.h"
+#include "eeg.xpm"
 
 
 WMEEGView::WMEEGView()
@@ -61,6 +62,11 @@ const std::string WMEEGView::getName() const
 const std::string WMEEGView::getDescription() const
 {
     return "Displays EEG data.";
+}
+
+const char** WMEEGView::getXPMIcon() const
+{
+    return eeg_xpm;
 }
 
 void WMEEGView::connectors()

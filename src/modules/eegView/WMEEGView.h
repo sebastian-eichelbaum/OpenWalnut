@@ -85,6 +85,8 @@ public:
      */
     void slotPropertyChanged( std::string propertyName );
 
+    virtual const char** getXPMIcon() const;
+
 protected:
     /**
      * Initialize connectors in this function.
