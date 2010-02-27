@@ -32,7 +32,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/exceptions/WDHException.h"
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include "../../dataHandler/io/WLoaderBiosig.h"
 #endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
@@ -167,7 +167,7 @@ void WMData::moduleMain()
         WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
     }
-#ifndef _WIN32
+#ifndef _MSC_VER
     else if( suffix == ".edf" )
     {
         WLoaderBiosig biosigLoader( fileName );

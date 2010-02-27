@@ -5,8 +5,8 @@ MESSAGE( STATUS "Inlcuded NIfTI lib building information." )
 
 OPTION ( NIFTI_BUILD_SHARED_LIBS "Toggle building shared libraries for NIfTI" OFF )
 
-# Zlib support currently not on Windows
-IF( NOT CMAKE_HOST_SYSTEM MATCHES Windows )
+# Zlib support currently not on Visual Studio
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
 	ADD_DEFINITIONS( -DHAVE_ZLIB )
 ENDIF()
 
@@ -15,17 +15,10 @@ SET(NIFTI_ZNZLIB_NAME ${PACKAGE_PREFIX}znz)
 ADD_LIBRARY(${NIFTI_ZNZLIB_NAME} ${ZNZLIB_SRC} )
 TARGET_LINK_LIBRARIES( ${NIFTI_ZNZLIB_NAME} ${NIFTI_ZLIB_LIBRARIES} )
 
-# Zlib support currently not on Windows
-IF( NOT CMAKE_HOST_SYSTEM MATCHES Windows )
+# Zlib support currently not on Visual Studio
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
     TARGET_LINK_LIBRARIES(  ${NIFTI_ZNZLIB_NAME} z )
 ENDIF()
-
-# Zlib support currently only on Linux 
-IF( CMAKE_HOST_SYSTEM MATCHES Linux )
-	TARGET_LINK_LIBRARIES( ${NIFTI_ZNZLIB_NAME} z) 
-ENDIF()
-
-SET( CMAKE_C_FLAGS "-fPIC" )
 
 # Set library version when building shared libs.
 IF( NIFTI_BUILD_SHARED_LIBS)
