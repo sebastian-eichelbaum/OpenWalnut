@@ -78,13 +78,6 @@ public:
      */
     virtual const std::string getDescription() const;
 
-    /**
-     * Determine what to do if a property was changed.
-     *
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
     virtual const char** getXPMIcon() const;
 
 protected:
@@ -124,6 +117,26 @@ private:
     boost::shared_ptr< WModuleInputData< WEEG > > m_input;
 
     /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * Property determining whether elekrode positions should be drawn.
+     */
+    WPropBool m_drawElektrodes;
+
+    /**
+     * Property determining whether the head surface should be drawn.
+     */
+    WPropBool m_drawHeadSurface;
+
+    /**
+     * Property determining whether elekrode labels should be drawn.
+     */
+    WPropBool m_drawLabels;
+
+    /**
      * Pointer to the loaded EEG dataset
      */
     boost::shared_ptr< WEEG > m_eeg;
@@ -144,6 +157,21 @@ private:
      * placed as child to this node.
      */
     osg::ref_ptr< WGEGroupNode > m_rootNode3d;
+
+    /**
+     * OSG node for the 3D display of the elektrode positions
+     */
+    osg::ref_ptr< osg::Node > m_elektrodesNode;
+
+    /**
+     * OSG node for the 3D display of the head surface
+     */
+    osg::ref_ptr< osg::Node > m_headSurfaceNode;
+
+    /**
+     * OSG node for the 3D display of the elektrode labels
+     */
+    osg::ref_ptr< osg::Node > m_labelsNode;
 
     /**
      * Bool flag which gets set when the data was changed.
@@ -191,10 +219,31 @@ private:
     void closeCustomWidget();
 
     /**
-     * Removes all Nodes from m_rootNode and adds new ones based on the current
-     * data stored in m_eeg.
+     * Removes all Nodes from m_rootNode2d and m_rootNode3d and adds new ones
+     * based on the current data stored in m_eeg.
      */
     void redraw();
+
+    /**
+     * Draw the elektrode positions in 3D.
+     *
+     * \return an OSG Node containing the elektrode positions
+     */
+    osg::ref_ptr< osg::Node > drawElektrodes();
+
+    /**
+     * Draw the head surface in 3D.
+     *
+     * \return an OSG Node containing the head surface
+     */
+    osg::ref_ptr< osg::Node > drawHeadSurface();
+
+    /**
+     * Draw the elektrode labels in 3D.
+     *
+     * \return an OSG Node containing the elektrode labels
+     */
+    osg::ref_ptr< osg::Node > drawLabels();
 
     /**
      * Changes an WEvent to the given time position
