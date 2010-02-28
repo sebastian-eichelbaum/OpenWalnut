@@ -78,13 +78,6 @@ public:
      */
     virtual const std::string getDescription() const;
 
-    /**
-     * Determine what to do if a property was changed.
-     *
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
     virtual const char** getXPMIcon() const;
 
 protected:
@@ -122,6 +115,26 @@ private:
      * Input connector for a EEG dataset
      */
     boost::shared_ptr< WModuleInputData< WEEG > > m_input;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * Property determining whether elekrode positions should be drawn.
+     */
+    WPropBool m_drawElektrodes;
+
+    /**
+     * Property determining whether the head surface should be drawn.
+     */
+    WPropBool m_drawHeadSurface;
+
+    /**
+     * Property determining whether elekrode labels should be drawn.
+     */
+    WPropBool m_drawLabels;
 
     /**
      * Pointer to the loaded EEG dataset

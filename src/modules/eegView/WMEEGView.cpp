@@ -84,8 +84,19 @@ void WMEEGView::connectors()
 
 void WMEEGView::properties()
 {
-    // m_active gets initialized in WModule and is available for all modules. Overwrite activate() to have a special callback for m_active
-    // changes or add a callback manually.
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_drawElektrodes  = m_properties2->addProperty( "Draw Elektrodes",
+                                                    "Draw the 3D positions of the elektrodes.",
+                                                    true,
+                                                    m_propCondition );
+    m_drawHeadSurface = m_properties2->addProperty( "Draw Head Surface",
+                                                    "Draw the head surface between the elektrodes.",
+                                                    true,
+                                                    m_propCondition );
+    m_drawLabels      = m_properties2->addProperty( "Draw Labels",
+                                                    "Draw the labels of the elektrodes at their 3D positions.",
+                                                    true,
+                                                    m_propCondition );
 }
 
 void WMEEGView::notifyConnectionEstablished(
@@ -107,6 +118,7 @@ void WMEEGView::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_active->getCondition() );
+    m_moduleState.add( m_propCondition );
 
     {
         // create color map
@@ -160,6 +172,63 @@ void WMEEGView::moduleMain()
             {
                 debugLog() << "New event position: " << eventPosition;
                 updateEvent( &m_event, eventPosition );
+            }
+        }
+
+        // draw elektrodes property changed?
+        if( m_drawElektrodes->changed() )
+        {
+            if( m_elektrodesNode.valid() )
+            {
+                m_rootNode3d->remove( m_elektrodesNode );
+            }
+
+            if( m_drawElektrodes->get( true ) && m_eeg.get() )
+            {
+                m_elektrodesNode = drawElektrodes();
+                m_rootNode3d->insert( m_elektrodesNode );
+            }
+            else
+            {
+                m_elektrodesNode = NULL;
+            }
+        }
+
+        // draw head surface property changed?
+        if( m_drawHeadSurface->changed() )
+        {
+            if( m_headSurfaceNode.valid() )
+            {
+                m_rootNode3d->remove( m_headSurfaceNode );
+            }
+
+            if( m_drawHeadSurface->get( true ) && m_eeg.get() )
+            {
+                m_headSurfaceNode = drawHeadSurface();
+                m_rootNode3d->insert( m_headSurfaceNode );
+            }
+            else
+            {
+                m_headSurfaceNode = NULL;
+            }
+        }
+
+        // draw labels property changed?
+        if( m_drawLabels->changed() )
+        {
+            if( m_labelsNode.valid() )
+            {
+                m_rootNode3d->remove( m_labelsNode );
+            }
+
+            if( m_drawLabels->get( true ) && m_eeg.get() )
+            {
+                m_labelsNode = drawLabels();
+                m_rootNode3d->insert( m_labelsNode );
+            }
+            else
+            {
+                m_labelsNode = NULL;
             }
         }
 
@@ -347,14 +416,35 @@ void WMEEGView::redraw()
             m_event.setNode( NULL );
         }
 
-        m_elektrodesNode = drawElektrodes();
-        m_rootNode3d->addChild( m_elektrodesNode );
+        if( m_drawElektrodes->get( true ) )
+        {
+            m_elektrodesNode = drawElektrodes();
+            m_rootNode3d->addChild( m_elektrodesNode );
+        }
+        else
+        {
+            m_elektrodesNode = NULL;
+        }
 
-        m_headSurfaceNode = drawHeadSurface();
-        m_rootNode3d->addChild( m_headSurfaceNode );
+        if( m_drawHeadSurface->get( true ) )
+        {
+            m_headSurfaceNode = drawHeadSurface();
+            m_rootNode3d->addChild( m_headSurfaceNode );
+        }
+        else
+        {
+            m_headSurfaceNode = NULL;
+        }
 
-        m_labelsNode = drawLabels();
-        m_rootNode3d->addChild( m_labelsNode );
+        if( m_drawLabels->get( true ) )
+        {
+            m_labelsNode = drawLabels();
+            m_rootNode3d->addChild( m_labelsNode );
+        }
+        else
+        {
+            m_labelsNode = NULL;
+        }
 
         // add rootNode to scene
         if( m_wasActive )
@@ -369,8 +459,13 @@ void WMEEGView::redraw()
     {
         m_rootNode2d = NULL;
         m_rootNode3d = NULL;
+
         m_event.setTime( -1.0 );
         m_event.setNode( NULL );
+
+        m_elektrodesNode = NULL;
+        m_headSurfaceNode = NULL;
+        m_labelsNode = NULL;
     }
 }
 
