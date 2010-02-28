@@ -265,11 +265,6 @@ void WMEEGView::redraw()
         const double xOffset = 0.0;
         const unsigned int spacing = 16;
 
-        const float sphereSize = 4.0f;
-        const osg::Vec3 text3dOffset( 0.0, 0.0, sphereSize );
-        const double text3dSize = 32.0;
-        const osg::Vec4 text3dColor( 0.0, 0.0, 0.0, 1.0 );
-
         m_rootNode2d = new WGEGroupNode;
         osg::StateSet* stateset = m_rootNode2d->getOrCreateStateSet();
         stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
@@ -352,68 +347,14 @@ void WMEEGView::redraw()
             m_event.setNode( NULL );
         }
 
-        // draw 3d positions
-        for( size_t channel = 0; channel < nbChannels; ++channel )
-        {
-            osg::Vec3 pos = wge::osgVec3( m_eeg->getChannelPosition( channel ) );
+        m_elektrodesNode = drawElektrodes();
+        m_rootNode3d->addChild( m_elektrodesNode );
 
-            // create sphere geode on electrode position
-            osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
-            shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channel, &m_event, m_eeg, m_colorMap ) );
+        m_headSurfaceNode = drawHeadSurface();
+        m_rootNode3d->addChild( m_headSurfaceNode );
 
-            osg::Geode* sphereGeode = new osg::Geode;
-            sphereGeode->addDrawable( shape );
-            m_rootNode3d->addChild( sphereGeode );
-
-            // create text geode for the channel label
-            osgText::Text* text = new osgText::Text;
-            text->setText( m_eeg->getChannelLabel( channel ) );
-            text->setPosition( pos + text3dOffset );
-            text->setAlignment( osgText::Text::CENTER_BOTTOM );
-            text->setAxisAlignment( osgText::Text::SCREEN );
-            text->setCharacterSize( text3dSize );
-            text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
-            text->setColor( text3dColor );
-
-            osg::Geode* textGeode = new osg::Geode;
-            textGeode->addDrawable( text );
-            m_rootNode3d->addChild( textGeode );
-        }
-
-        // draw head surface
-        std::vector< wmath::WPosition > positions;
-        positions.reserve( nbChannels );
-        for( size_t channel = 0; channel < nbChannels; ++channel )
-        {
-            positions.push_back( m_eeg->getChannelPosition( channel ) );
-        }
-
-        WTriangleMesh mesh = wge::triangulate( positions );
-        osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( &mesh, true );
-
-        osg::Vec4Array* colors = new osg::Vec4Array;
-        colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-        osg::LightModel* lightModel = new osg::LightModel;
-        lightModel->setTwoSided( true );
-        osg::StateSet* state = geometry->getOrCreateStateSet();
-        state->setAttributeAndModes( lightModel );
-
-        state->setTextureAttributeAndModes( 0, m_colorMapTexture );
-        osg::FloatArray* texCoords = new osg::FloatArray;
-        texCoords->reserve( nbChannels );
-        for( size_t channelID = 0; channelID < nbChannels; ++channelID )
-        {
-            texCoords->push_back( 0.5f );
-        }
-        geometry->setTexCoordArray( 0, texCoords );
-        geometry->setUpdateCallback( new UpdateColorOfGeometryCallback( &m_event, m_eeg ) );
-
-        osg::Geode* geode = new osg::Geode;
-        geode->addDrawable( geometry );
-        m_rootNode3d->addChild( geode );
+        m_labelsNode = drawLabels();
+        m_rootNode3d->addChild( m_labelsNode );
 
         // add rootNode to scene
         if( m_wasActive )
@@ -431,6 +372,101 @@ void WMEEGView::redraw()
         m_event.setTime( -1.0 );
         m_event.setNode( NULL );
     }
+}
+
+osg::ref_ptr< osg::Node > WMEEGView::drawElektrodes()
+{
+    // draw 3d positions of elektrodes
+    const float sphereSize = 4.0f;
+
+    osg::ref_ptr< osg::Group > elektrodes( new osg::Group );
+
+    for( size_t channel = 0; channel < m_eeg->getNumberOfChannels(); ++channel )
+    {
+        osg::Vec3 pos = wge::osgVec3( m_eeg->getChannelPosition( channel ) );
+
+        // create sphere geode on electrode position
+        osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
+        shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channel, &m_event, m_eeg, m_colorMap ) );
+
+        osg::Geode* sphereGeode = new osg::Geode;
+        sphereGeode->addDrawable( shape );
+        elektrodes->addChild( sphereGeode );
+    }
+
+    return elektrodes;
+}
+
+osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
+{
+    // draw head surface
+    size_t nbChannels = m_eeg->getNumberOfChannels();
+
+    std::vector< wmath::WPosition > positions;
+    positions.reserve( nbChannels );
+    for( size_t channel = 0; channel < nbChannels; ++channel )
+    {
+        positions.push_back( m_eeg->getChannelPosition( channel ) );
+    }
+
+    WTriangleMesh mesh = wge::triangulate( positions );
+    osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( &mesh, true );
+
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    osg::LightModel* lightModel = new osg::LightModel;
+    lightModel->setTwoSided( true );
+    osg::StateSet* state = geometry->getOrCreateStateSet();
+    state->setAttributeAndModes( lightModel );
+
+    state->setTextureAttributeAndModes( 0, m_colorMapTexture );
+    osg::FloatArray* texCoords = new osg::FloatArray;
+    texCoords->reserve( nbChannels );
+    for( size_t channelID = 0; channelID < nbChannels; ++channelID )
+    {
+        texCoords->push_back( 0.5f );
+    }
+    geometry->setTexCoordArray( 0, texCoords );
+    geometry->setUpdateCallback( new UpdateColorOfGeometryCallback( &m_event, m_eeg ) );
+
+    osg::ref_ptr< osg::Geode > surface( new osg::Geode );
+    surface->addDrawable( geometry );
+    return surface;
+}
+
+osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
+{
+    // draw elektrode labels in 3d
+    const float sphereSize = 4.0f;
+    const osg::Vec3 text3dOffset( 0.0, 0.0, sphereSize );
+    const double text3dSize = 32.0;
+    const osg::Vec4 text3dColor( 0.0, 0.0, 0.0, 1.0 );
+
+    osg::ref_ptr< osg::Group > labels( new osg::Group );
+
+    for( size_t channel = 0; channel < m_eeg->getNumberOfChannels(); ++channel )
+    {
+        osg::Vec3 pos = wge::osgVec3( m_eeg->getChannelPosition( channel ) );
+
+        // create text geode for the channel label
+        osgText::Text* text = new osgText::Text;
+        text->setText( m_eeg->getChannelLabel( channel ) );
+        text->setPosition( pos + text3dOffset );
+        text->setAlignment( osgText::Text::CENTER_BOTTOM );
+        text->setAxisAlignment( osgText::Text::SCREEN );
+        text->setCharacterSize( text3dSize );
+        text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+        text->setColor( text3dColor );
+
+        osg::Geode* textGeode = new osg::Geode;
+        textGeode->addDrawable( text );
+        labels->addChild( textGeode );
+    }
+
+    return labels;
 }
 
 void WMEEGView::updateEvent( WEvent* event, double time )
