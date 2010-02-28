@@ -63,32 +63,36 @@ void WLine::resample( size_t numPoints )
 {
     if( size() != numPoints && size() > 0 && numPoints > 0 )
     {
-        const double newSegmentLength = pathLength() / ( numPoints - 1 );
+        const double pathL = pathLength();
+        double newSegmentLength = pathL / ( numPoints - 1 );
         WLine newLine;
         newLine.reserve( numPoints );
 
         double remainingLength = 0.0;
         newLine.push_back( front() );
+        double lengthSoFar = 0.0;
         for( size_t i = 0; i < ( size() - 1 ); ++i )
         {
             remainingLength += ( at( i ) - at( i + 1 ) ).norm();
-            while( ( remainingLength > newSegmentLength ) || std::abs( remainingLength - newSegmentLength ) <= wlimits::DBL_EPS )
+            // FLT_EPS since I don't know how to fix this any further
+            while( ( remainingLength > newSegmentLength ) || std::abs( remainingLength - newSegmentLength ) < wlimits::FLT_EPS )
             {
                 remainingLength -= newSegmentLength;
+                lengthSoFar += newSegmentLength;
                 // TODO(math): fix numerical issuses: newSegmentLength may be wrong => great offset by many intraSegment sample points
                 //                                    remainingLength may be wrong => ...
                 //                                    Take a look at the unit test testNumericalStabilityOfResampling
-                // if( remainingLength < 0.0 )
-                // {
-                //     remainingLength = 0.0;
-                // }
                 WPosition newPoint = at( i + 1 ) + remainingLength * ( at( i ) - at( i + 1 ) ).normalized();
                 newLine.push_back( newPoint );
+                // since numerical instability (newSegmentLength may have inproper value)
+                // newSegmentLength = ( pathL - lengthSoFar ) / ( numPoints - newLine.size() );
+                // std::cout << "line size so far" << newLine.size() << " lenght so far: " << newLine.pathLength() << std::endl;
+                // std::cout << numPoints - newLine.size() << std::endl;
              }
         }
         // using string_utils::operator<<;
-        // std::cout << "|remL - newSegL|: " << std::abs( remainingLength - newSegmentLength ) << std::endl;
         // std::cout << "this: " << *this << std::endl << "new:  " << newLine << std::endl;
+        // std::cout << "|remL - newSegL|: " << std::abs( remainingLength - newSegmentLength ) << std::endl;
         // std::cout << std::setprecision( 35 ) << "remainingLength: " << remainingLength << " newSegmentLength: " << newSegmentLength << std::endl;
         // std::cout << "this size: " << size() << " new size: " << newLine.size() << std::endl;
         this->WMixinVector< wmath::WPosition >::operator=( newLine );

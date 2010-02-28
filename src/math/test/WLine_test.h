@@ -209,6 +209,22 @@ public:
     //     line.resample( 3 * 99 );
     //     assert_SAMELINES( expected, line );
     // }
+    //
+    // void testManySampelsInBetweenOfTwoOldPoints( void )
+    // {
+    //     using wmath::WPosition;
+    //     wmath::WLine line;
+    //     line.push_back( WPosition( 0, 0, 0 ) );
+    //     line.push_back( WPosition( 1, 1, 0 ) );
+    //     line.resample( 1001 );
+    //     wmath::WLine expected;
+    //     expected.push_back( WPosition( 0, 0, 0 ) );
+    //     for( size_t i = 1; i < 1001; ++i )
+    //     {
+    //         expected.push_back( WPosition( i / 1000.0, i / 1000.0, 0 ) );
+    //     }
+    //     assert_SAMELINES( expected, line );
+    //  }
 
 private:
     /**
@@ -248,8 +264,8 @@ private:
             using string_utils::operator<<;
             std::stringstream msg;
             msg << "Lines are different in at least point: " << i;
-            std::cout << "first  line: " << std::endl << first << std::endl;
-            std::cout << "second line: " << std::endl << second << std::endl;
+            std::cout << "first  line: " << std::endl << first[i] << std::endl;
+            std::cout << "second line: " << std::endl << second[i] << std::endl;
             TS_FAIL( msg.str() );
         }
     }
