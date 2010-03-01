@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WEventTypes.h"
 
 #include "WModuleCrashEvent.h"

@@ -174,7 +174,7 @@ int WQt4Gui::run()
             WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( m_optionsMap["project"].as< std::string >() );
             proj.apply();
         }
-        catch ( const WException& e )
+        catch( const WException& e )
         {
             wlog::error( "GUI" ) << "Project file \"" << m_optionsMap["project"].as< std::string >() << "\" could not be loaded. Message: " <<
                 e.what();

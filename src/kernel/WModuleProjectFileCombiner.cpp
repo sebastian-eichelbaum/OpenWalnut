@@ -24,6 +24,8 @@
 
 #include <iostream>
 #include <map>
+#include <list>
+#include <string>
 #include <utility>
 
 #include <boost/regex.hpp>
@@ -74,8 +76,8 @@ void WModuleProjectFileCombiner::apply()
     }
 
     // this is the proper regular expression for modules
-    static const boost::regex modRe ( "^MODULE:([0-9]*):(.*)$" );
-    static const boost::regex conRe ( "^CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
+    static const boost::regex modRe( "^MODULE:([0-9]*):(.*)$" );
+    static const boost::regex conRe( "^CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
     static const boost::regex commentRe( "^//.*$" );
 
@@ -142,8 +144,8 @@ void WModuleProjectFileCombiner::apply()
             // matches[2] is the property name
             // matches[3] is the property value
 
-            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Property \"" << matches[2] << "\" of module " << matches[1] << " set to " <<
-                                                                matches[3];
+            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Property \"" << matches[2] << "\" of module " << matches[1] << " set to "
+                                                     << matches[3];
 
             properties.push_back( PropertyValue( Property( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
         }
@@ -240,7 +242,7 @@ void WModuleProjectFileCombiner::apply()
         {
             con1 = m1->getOutputConnector( c1.second );
         }
-        catch ( WModuleConnectorNotFound& e )
+        catch( const WModuleConnectorNotFound& e )
         {
             wlog::error( "Project Loader" ) << "There is no output connector \"" << c1.second << "\" in module \"" << m1->getName() << "\"";
             continue;
@@ -250,7 +252,7 @@ void WModuleProjectFileCombiner::apply()
         {
             con2 = m2->getInputConnector( c2.second );
         }
-        catch ( WModuleConnectorNotFound& e )
+        catch( const WModuleConnectorNotFound& e )
         {
             wlog::error( "Project Loader" ) << "There is no input connector \"" << c2.second << "\" in module \"" << m2->getName() << "\"";
             continue;
@@ -261,7 +263,7 @@ void WModuleProjectFileCombiner::apply()
         {
             con1->connect( con2 );
         }
-        catch ( WException& e )
+        catch( const WException& e )
         {
             wlog::error( "Project Loader" ) << "Connection " << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second <<
                                                 ") could not be created. Incompatible connectors?. Skipping.";

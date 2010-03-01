@@ -43,7 +43,7 @@ public:
      *
      * \param target the target container where to add the modules to.
      */
-    WModuleCombiner( boost::shared_ptr< WModuleContainer > target );
+    explicit WModuleCombiner( boost::shared_ptr< WModuleContainer > target );
 
     /**
      * Creates an empty combiner. This constructor automatically uses the kernel's root container as target container.

@@ -54,7 +54,7 @@ public:
      *
      * \param project the project file to load.
      */
-    WModuleProjectFileCombiner( boost::filesystem::path project );
+    explicit WModuleProjectFileCombiner( boost::filesystem::path project );
 
     /**
      * Destructor.
