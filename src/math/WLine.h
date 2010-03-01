@@ -76,6 +76,17 @@ namespace wmath
          * \return Sum of all line segment lengths
          */
         double pathLength() const;
+
+        /**
+         * Returns the point in the middle of the line. In case of an even sized
+         * line the mid point is the same as if there were only size()-1 many
+         * elements present.
+         *
+         * \throws WOutOfBounds In case its called on an empty line
+         *
+         * \return Const reference to the midpoint element.
+         */
+        const wmath::WPosition& midPoint() const;
     };
 } // end of namespace
 #endif  // WLINE_H

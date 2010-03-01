@@ -28,6 +28,7 @@
 
 #include "../common/WLimits.h"
 #include "../common/WStringUtils.h"
+#include "../common/exceptions/WOutOfBounds.h"
 #include "WLine.h"
 #include "WPosition.h"
 
@@ -98,6 +99,15 @@ void WLine::resample( size_t numPoints )
         this->WMixinVector< wmath::WPosition >::operator=( newLine );
     }
     assert( size() == numPoints && "Resampling of a line has failed! Is your fiber of length 0 or even the new sample rate??" );
+}
+
+const wmath::WPosition& WLine::midPoint() const
+{
+    if( empty() )
+    {
+        throw WOutOfBounds( "There is no midpoint for an empty line." );
+    }
+    return at( ( size() - 1 ) / 2 );
 }
 
 } // end of namespace
