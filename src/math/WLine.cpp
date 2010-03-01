@@ -28,6 +28,7 @@
 
 #include "../common/WLimits.h"
 #include "../common/WStringUtils.h"
+#include "../common/exceptions/WOutOfBounds.h"
 #include "WLine.h"
 #include "WPosition.h"
 
@@ -41,6 +42,15 @@ WLine::WLine( const std::vector< WPosition > &points )
 WLine::WLine()
     : WMixinVector< wmath::WPosition >()
 {
+}
+
+const wmath::WPosition& WLine::midPoint() const
+{
+    if( empty() )
+    {
+        throw WOutOfBounds( "There is no midpoint for an empty line." );
+    }
+    return at( ( size() - 1 ) / 2 );
 }
 
 void WLine::reverseOrder()
