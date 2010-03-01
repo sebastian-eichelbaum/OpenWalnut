@@ -92,6 +92,7 @@ void WQtTreeItem::updateTooltip( std::string progress )
 
     tooltip += conCount ? "yes" + conList + "<br/><br/>" : "none<br/>";
     tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
+
     setToolTip( 0, tooltip.c_str() );
 }
 
@@ -109,7 +110,11 @@ void WQtTreeItem::updateState()
 
     // is it pending?
     std::string progress = "waiting";
-    if ( p->isPending() )
+    if ( m_module->isCrashed()() )
+    {
+        setText( 0, ( m_name + " - crashed" ).c_str() );
+    }
+    else if ( p->isPending() )
     {
         std::ostringstream title;
         if ( p->isDetermined() )

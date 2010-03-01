@@ -34,7 +34,7 @@ WCondition::~WCondition()
     // cleanup
 }
 
-void WCondition::wait() const
+void WCondition::wait()
 {
     m_condition.wait( m_mutex );
 }

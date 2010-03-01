@@ -190,9 +190,17 @@ void WModuleProjectFileCombiner::apply()
 
     // now wait for the modules to get ready. We could have waited for this in the previous loop, but a long loading module would block others.
     // -> so we wait after adding and starting them
-    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = modules.begin(); iter != modules.end(); ++iter )
+    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = modules.begin(); iter != modules.end(); ++iter )
     {
-        ( *iter ).second->isReady().wait();
+        ( *iter ).second->isReadyOrCrashed().wait();
+
+        // if isReady now is false, the module has crashed before it got ready -> remove the module from the list
+        if ( ( *iter ).second->isCrashed()() )
+        {
+            wlog::warn( "Project Loader" ) << "The module with ID " << ( *iter ).first << " crashed. Connections and properties relating to this"
+                                           << " module will fail.";
+            modules.erase( iter );
+        }
     }
 
     // and finally, connect them all together

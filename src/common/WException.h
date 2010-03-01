@@ -52,7 +52,7 @@ public:
 
     /**
      * Copy a std::exception and encapsulate it.
-     * 
+     *
      * \param e the exception.
      */
     explicit WException( const std::exception& e );
@@ -62,7 +62,7 @@ public:
      */
     virtual ~WException() throw();
 
-    /** 
+    /**
      * Returns the message string set on throw
      * \return Message text
      */
@@ -81,7 +81,7 @@ public:
      */
     std::string getBacktrace() const;
 
-    /** 
+    /**
      * Function disables backtraces. Please note that the backtrace can not be reactivated to avoid people from dis/enabling them
      * at will.
      */
@@ -99,7 +99,7 @@ protected:
      */
     std::list< std::string > m_trace;
 
-    /** 
+    /**
      * True if the backtrace should NOT be printed.
      */
     static bool noBacktrace;

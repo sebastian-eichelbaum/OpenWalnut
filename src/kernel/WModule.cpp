@@ -46,6 +46,7 @@
 #include "../common/WLogger.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
+#include "../common/WConditionSet.h"
 #include "../common/WProgressCombiner.h"
 
 #include "WModule.h"
@@ -57,6 +58,8 @@ WModule::WModule():
     m_isAssociated( new WCondition(), false ),
     m_isUsable( new WCondition(), false ),
     m_isReady( new WConditionOneShot(), false ),
+    m_isCrashed( new WConditionOneShot(), false ),
+    m_isReadyOrCrashed( new WConditionSet(), false ),
     m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
     m_moduleState()
 {
@@ -65,6 +68,12 @@ WModule::WModule():
     m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
     m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
+
+    // the isReadyOrCrashed condition set needs to be set up here
+    WConditionSet* cs = static_cast< WConditionSet* >( m_isReadyOrCrashed.getCondition().get() ); // NOLINT
+    cs->setResetable( true, false );
+    cs->add( m_isReady.getCondition() );
+    cs->add( m_isCrashed.getCondition() );
 
     m_container = boost::shared_ptr< WModuleContainer >();
     m_progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
@@ -289,6 +298,16 @@ const WBoolFlag& WModule::isReady() const
     return m_isReady;
 }
 
+const WBoolFlag& WModule::isCrashed() const
+{
+    return m_isCrashed;
+}
+
+const WBoolFlag& WModule::isReadyOrCrashed() const
+{
+    return m_isReadyOrCrashed;
+}
+
 void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
                                            boost::shared_ptr< WModuleConnector > /*there*/ )
 {
@@ -362,9 +381,8 @@ void WModule::threadMain()
         // ensure proper exception propagation
         signal_error( shared_from_this(), e );
 
-        // module needs to be marked as ready or waiting threads (container, kernel) might wait for ever if the exception was thrown before
-        // ready().
-        ready();
+        // hopefully, all waiting threads use isReadyOrCrashed to wait.
+        m_isCrashed( true );
     }
     catch( const std::exception& e )
     {
@@ -374,9 +392,8 @@ void WModule::threadMain()
         WException ce = WException( e );
         signal_error( shared_from_this(), ce );
 
-        // module needs to be marked as ready or waiting threads (container, kernel) might wait for ever if the exception was thrown before
-        // ready().
-        ready();
+        // hopefully, all waiting threads use isReadyOrCrashed to wait.
+        m_isCrashed( true );
     }
 }
 

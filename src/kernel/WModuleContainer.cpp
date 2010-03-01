@@ -308,8 +308,11 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
 
     // add it
     add( m, true );
-    applyOn->isReady().wait();
-    m->isReady().wait();
+    applyOn->isReadyOrCrashed().wait();
+    m->isReadyOrCrashed().wait();
+
+    // should we ignore the crash case? In general, a crashed module can be connected. The sense or non-sense of it is questionable but assume a
+    // crashed module has set some data on its output and some other module needs it. -> so we ignore the case of crashed modules here.
 
     // get offered outputs
     std::set<boost::shared_ptr<WModuleInputConnector> > ins = m->getInputConnectors();
