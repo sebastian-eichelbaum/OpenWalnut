@@ -30,8 +30,11 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "WLineTraits.h"
+#include "../../common/WLimits.h"
+#include "../../common/exceptions/WOutOfBounds.h"
 #include "../WLine.h"
+#include "WLineTraits.h"
+#include "WPositionTraits.h"
 
 /**
  * Unit tests the WLine class
@@ -92,6 +95,224 @@ public:
         line.push_back( WPosition( 1., 1., 1. ) );
         WPosition expected( 1., 1., 1. );
         TS_ASSERT_EQUALS( expected, line[2] );
+    }
+
+    /**
+     * If for example the start and end points of two fibers are in opposite
+     * direction we cant use them for center line generation. One of the
+     * fiber tracts must reverse its ordering.
+     */
+    void testReverseOrdering( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 1, 2, 3 ) );
+        line.push_back( WPosition( 4, 5, 6 ) );
+        line.push_back( WPosition( 7, 8, 9 ) );
+        wmath::WLine expected;
+        expected.push_back( WPosition( 7, 8, 9 ) );
+        expected.push_back( WPosition( 4, 5, 6 ) );
+        expected.push_back( WPosition( 1, 2, 3 ) );
+        line.reverseOrder();
+        TS_ASSERT_EQUALS( line, expected );
+    }
+
+    /**
+     * The path length of the fiber is the accumulated path lengths of all
+     * segements (point to point) in that fiber.
+     */
+    void testPathLength( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 1, 2, 3 ) );
+        line.push_back( WPosition( 4, 5, 6 ) );
+        line.push_back( WPosition( 7, 8, 9 ) );
+        double expected = ( WPosition( 1, 2, 3 ) - WPosition( 4, 5, 6 ) ).norm() +
+                          ( WPosition( 4, 5, 6 ) - WPosition( 7, 8, 9 ) ).norm();
+        TS_ASSERT_EQUALS( expected, line.pathLength() );
+    }
+
+    /**
+     * When resampling a line a new line is generated having the given number
+     * of sampling points. Its start and end points remain the same, but its
+     * curvature may change a bit and also its length!
+     * Down sampling means you will have
+     */
+    void testDownSampleLine( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        line.push_back( WPosition( 3, 1, 0 ) );
+        line.resample( 3 );
+        wmath::WLine expected;
+        expected.push_back( WPosition( 0, 0, 0 ) );
+        expected.push_back( WPosition( 1.5, 0.5, 0 ) );
+        expected.push_back( WPosition( 3, 1, 0 ) );
+        assert_SAMELINES( expected, line );
+    }
+
+    /**
+     * If the resampling rate of a line has as many points as the original line,
+     * no sampling should be applied.
+     */
+    void testSamplingWithSameNumberOfPoints( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        for( size_t i = 0; i < 10; ++i )
+        {
+            line.push_back( WPosition( i, 3 * i, 10 - i ) );
+        }
+        TS_ASSERT( line.size() == 10 );
+        wmath::WLine expected( line ); // make a copy of the original
+        line.resample( 10 );
+        assert_SAMELINES( line, expected );
+    }
+
+    /**
+     * If the points are exactly in between of a segement nothing should fail.
+     */
+    void testSamplingPointsAreExactlyInTheOldSegmentCenterAndCorners( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        wmath::WLine expected;
+        for( size_t i = 0; i < 3; ++i )
+        {
+            line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i + 0.5, 0, 0 ) );
+        }
+        expected.pop_back();
+        line.resample( 5 );
+        assert_SAMELINES( expected, line );
+    }
+
+    // void testNumericalStabilityOfResampling( void )
+    // {
+    //     using wmath::WPosition;
+    //     wmath::WLine line;
+    //     wmath::WLine expected;
+    //     for( size_t i = 0; i < 100; ++i )
+    //     {
+    //         line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+    //         expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+    //         expected.push_back( WPosition( i + 0.25, std::pow( -1, i % 2 ) * 0.5, 0 ) );
+    //         expected.push_back( WPosition( i + 0.5,  0, 0 ) );
+    //         expected.push_back( WPosition( i + 0.75, std::pow( -1, ( i + 1 ) % 2 ) * 0.5, 0 ) );
+    //     }
+    //     expected.pop_back();
+    //     expected.pop_back();
+    //     expected.pop_back();
+    //     line.resample( 3 * 99 );
+    //     assert_SAMELINES( expected, line );
+    // }
+    //
+    // void testManySampelsInBetweenOfTwoOldPoints( void )
+    // {
+    //     using wmath::WPosition;
+    //     wmath::WLine line;
+    //     line.push_back( WPosition( 0, 0, 0 ) );
+    //     line.push_back( WPosition( 1, 1, 0 ) );
+    //     line.resample( 1001 );
+    //     wmath::WLine expected;
+    //     expected.push_back( WPosition( 0, 0, 0 ) );
+    //     for( size_t i = 1; i < 1001; ++i )
+    //     {
+    //         expected.push_back( WPosition( i / 1000.0, i / 1000.0, 0 ) );
+    //     }
+    //     assert_SAMELINES( expected, line );
+    //  }
+
+   /**
+     * The mid point of a WLine is just the point in the middle of the line.
+     * For lines with even numbered size the element before that non existing
+     * midPoint is selected.
+     */
+    void testMidPointOnEvenSize( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        line.push_back( WPosition( 3, 1, 0 ) );
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_EQUALS( expected, WPosition( line.midPoint() ) );
+    }
+
+    /**
+     * When a line has uneven numbered size, the mid point is unique.
+     */
+    void testMidPointOnUnevenSize( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_EQUALS( expected, WPosition( line.midPoint() ) );
+    }
+
+    /**
+     * When calling midPoint on empty lines => there is no point to return
+     * hence an exception is generated.
+     */
+    void testMidPointOnEmptyLine( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_THROWS_EQUALS( line.midPoint(), WOutOfBounds &e, std::string( e.what() ), "There is no midpoint for an empty line." );
+    }
+
+private:
+    /**
+     * TS_ASSERT_DELTA needs the operator+, operator- and operator< to be implemented especially for WPositions the operator< and operator +
+     * makes not really sense. Hence I implemented an assert by my one, giving reasonable out put.
+     *
+     * \param first First line to compare with
+     * \param second Second line to compare with
+     */
+    void assert_SAMELINES( const wmath::WLine& first, const wmath::WLine& second ) const
+    {
+        if( first.size() != second.size() )
+        {
+            std::stringstream msg;
+            msg << "Line size mismatch: " << first.size() << " != " << second.size();
+            TS_FAIL( msg.str() );
+        }
+        bool sameLines = true;
+        size_t i = 0;
+        for( i = 0; i < first.size(); ++i )
+        {
+            for( int j = 0; j < 3; ++j )
+            {
+                sameLines = sameLines && std::abs( first[i][j] - second[i][j] ) <= wlimits::DBL_EPS;
+                if( !sameLines )
+                {
+                    break;
+                }
+            }
+            if( !sameLines )
+            {
+                break;
+            }
+        }
+        if( !sameLines )
+        {
+            using string_utils::operator<<;
+            std::stringstream msg;
+            msg << "Lines are different in at least point: " << i;
+            std::cout << "first  line: " << std::endl << first[i] << std::endl;
+            std::cout << "second line: " << std::endl << second[i] << std::endl;
+            TS_FAIL( msg.str() );
+        }
     }
 };
 #endif  // WLINE_TEST_H

@@ -31,9 +31,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../WColor.h"
-#include "../WTransferable.h"
+#include "../../common/WColor.h"
+#include "../../common/WTransferable.h"
+#include "../WDataSetFiberVector.h"
 
 /**
  * Represents a cluster of indices of a WDataSetFiberVector.
@@ -138,23 +138,34 @@ public:
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
     // information. Since we don't have the possibility of multiple
     // InputConnectors we must agglomerate those into one object. Please remove this.
-    // DISABLE DOXYGEN HERE
     // \cond
     void setDataSetReference( boost::shared_ptr< const WDataSetFiberVector > fibs );
     boost::shared_ptr< const WDataSetFiberVector > getDataSetReference() const;
     static boost::shared_ptr< WPrototyped > getPrototype();
+    // \endcond
+
+    /**
+     * Returns the center line of this cluster
+     *
+     * \return Reference to the center line
+     */
+    boost::shared_ptr< wmath::WFiber > getCenterLine();
 
 protected:
     // TODO(math): The only reason why we store here a Reference to the fiber
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
     // information. Since we don't have the possibility of multiple
     // InputConnectors we must agglomerate those into one object. Please remove this.
+    // \cond
     static boost::shared_ptr< WPrototyped > m_prototype;
     // \endcond
-    // ENDABLE DOXYGEN HERE
+
+    /**
+     * Makes the hard work to compute the center line.
+     */
+    void generateCenterLine();
 
 private:
-
     /**
      * All indices in this set are members of this cluster
      */
@@ -169,6 +180,8 @@ private:
      * Color which is used to paint the members of this cluster.
      */
     WColor m_color;
+
+    boost::shared_ptr< wmath::WFiber > m_centerLine; //!< Average fiber for this cluster representing the main direction and curvatur of this cluster
 };
 
 inline bool WFiberCluster::empty() const

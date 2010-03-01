@@ -27,8 +27,10 @@
 
 #include <osg/Geode>
 
+#include "../common/datastructures/WTriangleMesh.h"
 #include "../common/WColor.h"
 #include "../math/WPosition.h"
+
 
 namespace wge
 {
@@ -66,6 +68,16 @@ namespace wge
      */
     osg::ref_ptr< osg::Geometry > createUnitCube( const WColor& color );
 
+    /**
+     * Extract the vertices and triangles from a WTriangleMesh and save them
+     * into an osg::Geometry.
+     *
+     * \param mesh the WTriangleMesh used as input
+     * \param includeNormals When true, calculate the vertex normals and include
+     *                       them into the geometry.
+     * \return an osg::Geometry containing the mesh
+     */
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
 } // end of namespace wge
 
 #endif  // WGEGEODEUTILS_H

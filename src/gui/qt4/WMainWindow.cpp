@@ -124,6 +124,15 @@ void WMainWindow::setupGUI()
         }
     }
 
+    // we do not need the dummy widget if there are no other widgets.
+    if( m_navAxial || m_navCoronal || m_navSagittal )
+    {
+        m_dummyWidget = new QDockWidget( this );
+        m_dummyWidget->setFeatures( QDockWidget::NoDockWidgetFeatures );
+        m_dummyWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Ignored );
+        addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
+    }
+
     // Default background color from config file
     {
         WColor bgColor;
@@ -377,7 +386,7 @@ void WMainWindow::openLoadDialog()
         fileNames = fd.selectedFiles();
     }
 
-    std::vector< std::string >stdFileNames;
+    std::vector< std::string > stdFileNames;
 
     QStringList::const_iterator constIterator;
     for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
@@ -549,6 +558,13 @@ void WMainWindow::slotActivateModule( QString module )
 
 void WMainWindow::newRoi()
 {
+    // do nothing if we can not get
+    if( !WKernel::getRunningKernel()->getRoiManager()->getDataSet() )
+    {
+        wlog::warn( "WMainWindow" ) << "Refused to add ROI, as ROIManager does not have data set associated.";
+        return;
+    }
+
     if ( m_datasetBrowser->getSelectedRoi().get() == NULL )
     {
         boost::shared_ptr< WROIBox > newRoi = boost::shared_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),

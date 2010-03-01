@@ -219,7 +219,7 @@ void WQtDatasetBrowser::addModule2( boost::shared_ptr< WModule > module, int sub
 {
     if ( boost::shared_dynamic_cast< WMData >( module ) )
     {
-        WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + 1 );
+        WQtSubjectTreeItem* subject = static_cast< WQtSubjectTreeItem* >( m_treeWidget->topLevelItem( subjectId + 1 ) );
         subject->setExpanded( true );
         WQtDatasetTreeItem* item = subject->addDatasetItem( module );
         item->setDisabled( true );
@@ -235,7 +235,7 @@ void WQtDatasetBrowser::addModule2( boost::shared_ptr< WModule > module, int sub
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
     int c = getFirstSubject();
-    WQtSubjectTreeItem* subject = ( WQtSubjectTreeItem* )m_treeWidget->topLevelItem( subjectId + c );
+    WQtSubjectTreeItem* subject = static_cast< WQtSubjectTreeItem* >( m_treeWidget->topLevelItem( subjectId + c ) );
     subject->setExpanded( true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
     item->setDisabled( true );
@@ -258,7 +258,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
         {
             case ROI :
             {
-                WQtRoiTreeItem* roiItem =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 ) );
+                WQtRoiTreeItem* roiItem =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) );
                 m_tiRois->setExpanded( true );
                 roiItem->setExpanded( true );
                 WQtRoiTreeItem* item = roiItem->addRoiItem( roi );
@@ -267,7 +267,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
             }
             case SUBROI :
             {
-                WQtRoiTreeItem* roiItem =( ( WQtRoiTreeItem* ) m_treeWidget->selectedItems().at( 0 )->parent() );
+                WQtRoiTreeItem* roiItem =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 )->parent() ) );
                 m_tiRois->setExpanded( true );
                 roiItem->setExpanded( true );
                 WQtRoiTreeItem* item = roiItem->addRoiItem( roi );
@@ -295,11 +295,11 @@ boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
 {
     if ( m_treeWidget->selectedItems().at( 0 )->type() == 1 )
     {
-        return ( ( WQtDatasetTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        return ( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) )->getModule() );
     }
     else if ( m_treeWidget->selectedItems().at( 0 )->type() == 3 )
     {
-        return ( ( WQtModuleTreeItem* ) m_treeWidget->selectedItems().at( 0 ) )->getModule();
+        return ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) )->getModule() );
     }
 
     return boost::shared_ptr< WModule >();

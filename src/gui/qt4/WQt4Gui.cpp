@@ -38,7 +38,6 @@
 #include "../../common/WIOTools.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
-#include "../../modules/data/WMData.h"
 #include "WOpenCustomDockWidgetEvent.h"
 #include "WQt4Gui.h"
 #include "events/WModuleAssocEvent.h"

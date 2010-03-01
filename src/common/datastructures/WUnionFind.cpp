@@ -23,6 +23,11 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <map>
+#include <set>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include "../exceptions/WOutOfBounds.h"
 #include "WUnionFind.h"
@@ -71,4 +76,22 @@ void WUnionFind::merge( size_t i, size_t j )
     }
 
     m_component[ ci ] = cj;
+}
+
+boost::shared_ptr< std::set< size_t > > WUnionFind::getMaxSet()
+{
+    std::map< size_t, std::set< size_t > > sets;
+    size_t maxSetSizeSoFar = 0;
+    size_t maxSetElement = 0;
+    for( size_t i = 0; i < m_component.size(); ++i )
+    {
+        size_t cE = find( i ); // canonical Element
+        sets[ cE ].insert( i );
+        if( sets[ cE ].size() > maxSetSizeSoFar )
+        {
+            maxSetSizeSoFar = sets[ cE ].size();
+            maxSetElement = cE;
+        }
+    }
+    return boost::shared_ptr< std::set< size_t > >( new std::set< size_t >( sets[ maxSetElement ] ) );
 }

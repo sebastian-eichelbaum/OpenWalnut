@@ -68,6 +68,16 @@ namespace wlimits
      * Minimum double value
      */
     const double MIN_DOUBLE = std::numeric_limits< double >::min();
+
+    /**
+     * Smallest double such: 1.0 + DBL_EPS == 1.0 is still true.
+     */
+    const double DBL_EPS = std::numeric_limits< double >::epsilon();
+
+    /**
+     * Smallest float such: 1.0 + FLT_EPS == 1.0 is still true.
+     */
+    const float FLT_EPS = std::numeric_limits< float >::epsilon();
 }
 
 #endif  // WLIMITS_H

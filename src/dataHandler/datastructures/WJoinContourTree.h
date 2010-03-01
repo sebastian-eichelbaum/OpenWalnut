@@ -25,17 +25,28 @@
 #ifndef WJOINCONTOURTREE_H
 #define WJOINCONTOURTREE_H
 
+#include <set>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "WDataSetSingle.h"
+#include "../WDataSetSingle.h"
 
 /**
- * Processes a dataset for join tree computation. This is a part of those famous
- * contur trees.
+ * Processes a dataset for join tree computation. This is a part of those famous contur trees.
  *
- * TODO(math): Explain what exactly is a Join tree!
+ * Every leaf in that tree represents a local maximum. A branch is a collection of vertices belonging to the
+ * same component and nodes joining branches represent a data point which melds multiple (at least two)
+ * branches.
+ *
+ * With the Split tree then you may compute the contour tree, but for that you may need to fullfil at least two
+ * conditions:
+ *  - You operate on a simplicial mesh (WGridRegular3D is not simplicial!!!)
+ *  - All data points are pairwise disjoint
+ *
+ * \note You may use this join tree also for finding the vertices belonging to the volume enclosed by the
+ * biggest ISO surface for a given ISO value. Then you don't need "simulation of simplicity" to make the
+ * data points disjoint also you don't need simplicial meshes.
  */
 class WJoinContourTree
 {
@@ -54,6 +65,15 @@ public:
      * Build the join tree.
      */
     void buildJoinTree();
+
+    /**
+     * For a given ISO value all the voxel which are enclosed by the biggest ISO surface are computed.
+     *
+     * \param isoValue The ISO value
+     *
+     * \return Set of voxel indices
+     */
+    boost::shared_ptr< std::set< size_t > > getVolumeVoxelsEnclosedByISOSurface( const double isoValue ) const;
 
 protected:
     /**

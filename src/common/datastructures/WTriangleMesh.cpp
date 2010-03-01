@@ -72,6 +72,11 @@ void WTriangleMesh::setVertices( const std::vector< wmath::WPosition >& vertices
     m_vertices = vertices;
 }
 
+const std::vector< wmath::WPosition >& WTriangleMesh::getVertices() const
+{
+    return m_vertices;
+}
+
 size_t WTriangleMesh::getFastAddVertId() const
 {
     return m_fastAddVertId;

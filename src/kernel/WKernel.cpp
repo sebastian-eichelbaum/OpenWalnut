@@ -38,18 +38,15 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 
-#include "../dataHandler/WDataHandler.h"
 #include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
 #include "../common/WThreadedRunner.h"
+#include "../dataHandler/WDataHandler.h"
+#include "../graphicsEngine/WGraphicsEngine.h"
+#include "WKernel.h"
 #include "WModule.h"
-#include "WBatchLoader.h"
 #include "WModuleFactory.h"
 #include "WModuleProjectFileCombiner.h"
-
-#include "../graphicsEngine/WGraphicsEngine.h"
-
-#include "WKernel.h"
 
 /**
  * Used for program wide access to the kernel.
@@ -160,7 +157,7 @@ void WKernel::threadMain()
 
     // default modules
     {
-        std::string stdModules = "Coordinate System Module,HUD,Navigation Slice Module";
+        std::string stdModules = "Coordinate System Module,HUD";
         WPreferences::getPreference( "modules.default", &stdModules );
         std::vector< std::string > defMods = string_utils::tokenize( stdModules, "," );
         for ( std::vector< std::string >::iterator iter = defMods.begin(); iter != defMods.end(); ++iter )

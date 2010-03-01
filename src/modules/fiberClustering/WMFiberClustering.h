@@ -33,7 +33,7 @@
 #include <osg/Geode>
 
 #include "../../common/datastructures/WDXtLookUpTable.h"
-#include "../../common/datastructures/WFiberCluster.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"

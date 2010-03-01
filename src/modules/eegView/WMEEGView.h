@@ -27,9 +27,12 @@
 
 #include <string>
 
+#include <osg/Texture1D>
+#include <osgSim/ScalarsToColors>
+
 #include "../../dataHandler/WEEG.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/WEvent.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
@@ -75,12 +78,7 @@ public:
      */
     virtual const std::string getDescription() const;
 
-    /**
-     * Determine what to do if a property was changed.
-     *
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
+    virtual const char** getXPMIcon() const;
 
 protected:
     /**
@@ -119,6 +117,26 @@ private:
     boost::shared_ptr< WModuleInputData< WEEG > > m_input;
 
     /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * Property determining whether elekrode positions should be drawn.
+     */
+    WPropBool m_drawElektrodes;
+
+    /**
+     * Property determining whether the head surface should be drawn.
+     */
+    WPropBool m_drawHeadSurface;
+
+    /**
+     * Property determining whether elekrode labels should be drawn.
+     */
+    WPropBool m_drawLabels;
+
+    /**
      * Pointer to the loaded EEG dataset
      */
     boost::shared_ptr< WEEG > m_eeg;
@@ -139,6 +157,21 @@ private:
      * placed as child to this node.
      */
     osg::ref_ptr< WGEGroupNode > m_rootNode3d;
+
+    /**
+     * OSG node for the 3D display of the elektrode positions
+     */
+    osg::ref_ptr< osg::Node > m_elektrodesNode;
+
+    /**
+     * OSG node for the 3D display of the head surface
+     */
+    osg::ref_ptr< osg::Node > m_headSurfaceNode;
+
+    /**
+     * OSG node for the 3D display of the elektrode labels
+     */
+    osg::ref_ptr< osg::Node > m_labelsNode;
 
     /**
      * Bool flag which gets set when the data was changed.
@@ -162,6 +195,18 @@ private:
     WFlag< double >* m_eventPositionFlag;
 
     /**
+     * A ScalarsToColors object mapping the potentials at the elektrodes to
+     * colors. Used for the display of elektrode positions and the head surface.
+     */
+    osg::ref_ptr< osgSim::ScalarsToColors > m_colorMap;
+
+    /**
+     * A 1D texture containing the color map as image. Used for the
+     * interpolation on the head surface.
+     */
+    osg::ref_ptr< osg::Texture1D > m_colorMapTexture;
+
+    /**
      * Opens a custom widget and connects the m_node with it.
      *
      * \returns whether the custom widget could be opened successfully
@@ -174,10 +219,31 @@ private:
     void closeCustomWidget();
 
     /**
-     * Removes all Nodes from m_rootNode and adds new ones based on the current
-     * data stored in m_eeg.
+     * Removes all Nodes from m_rootNode2d and m_rootNode3d and adds new ones
+     * based on the current data stored in m_eeg.
      */
     void redraw();
+
+    /**
+     * Draw the elektrode positions in 3D.
+     *
+     * \return an OSG Node containing the elektrode positions
+     */
+    osg::ref_ptr< osg::Node > drawElektrodes();
+
+    /**
+     * Draw the head surface in 3D.
+     *
+     * \return an OSG Node containing the head surface
+     */
+    osg::ref_ptr< osg::Node > drawHeadSurface();
+
+    /**
+     * Draw the elektrode labels in 3D.
+     *
+     * \return an OSG Node containing the elektrode labels
+     */
+    osg::ref_ptr< osg::Node > drawLabels();
 
     /**
      * Changes an WEvent to the given time position
@@ -192,7 +258,7 @@ private:
      * position changed.
      * \note Only add it to a ShapeDrawable!
      */
-    class UpdateColorCallback : public osg::Drawable::UpdateCallback
+    class UpdateColorOfShapeDrawableCallback : public osg::Drawable::UpdateCallback
     {
     public:
         /**
@@ -201,8 +267,12 @@ private:
          * \param channel the number of the channel
          * \param event the event on which the ShapeDrawable updates
          * \param eeg the WEEG dataset
+         * \param colorMap the object mapping the elektrode potentials to colors
          */
-        UpdateColorCallback( size_t channel, const WEvent* event, boost::shared_ptr< const WEEG > eeg );
+        UpdateColorOfShapeDrawableCallback( size_t channel,
+                                            const WEvent* event,
+                                            boost::shared_ptr< const WEEG > eeg,
+                                            osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
 
         /**
          * Callback method called by the NodeVisitor.
@@ -229,6 +299,57 @@ private:
 
         /**
          * The event on which the ShapeDrawable updates
+         */
+        const WEvent* const m_event;
+
+        /**
+         * The WEEG dataset
+         */
+        const boost::shared_ptr< const WEEG > m_eeg;
+
+        /**
+         * The ScalarsToColors object mapping the potentials at the elektrodes
+         * to colors.
+         */
+        const osg::ref_ptr< const osgSim::ScalarsToColors > m_colorMap;
+    };
+
+    /**
+     * OSG Update Callback to change the color of a Geometry by changing its 1D
+     * texture coordinates when an event position changed.
+     * \note Only add it to a Geometry with a 1D texture!
+     */
+    class UpdateColorOfGeometryCallback : public osg::Drawable::UpdateCallback
+    {
+    public:
+        /**
+         * Constructor
+         *
+         * \param event the event on which the Geometry updates
+         * \param eeg the WEEG dataset
+         */
+        UpdateColorOfGeometryCallback( const WEvent* event, boost::shared_ptr< const WEEG > eeg );
+
+        /**
+         * Callback method called by the NodeVisitor.
+         * Changes the color of the drawable according to the event.
+         *
+         * \param drawable The drawable this callback is connected to. Should be
+         *                 a Geometry with a 1D texture.
+         */
+        virtual void update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable );
+
+    protected:
+    private:
+        /**
+         * The time position which is currently used.
+         * The color is updated if the new time from the m_event is different to
+         * this.
+         */
+        double m_currentTime;
+
+        /**
+         * The event on which the Geometry updates
          */
         const WEvent* const m_event;
 

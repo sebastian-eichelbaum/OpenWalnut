@@ -73,7 +73,7 @@ public:
      *
      * \return true if usable as texture.
      */
-    // TODO(seralph): pure virtual? Are WDataSet instances useful?
+    // TODO(schurade): pure virtual? Are WDataSet instances useful?
     virtual bool isTexture() const;
 
     /**

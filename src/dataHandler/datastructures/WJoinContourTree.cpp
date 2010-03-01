@@ -23,12 +23,14 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <set>
 #include <vector>
 
-#include "../common/datastructures/WUnionFind.h"
-#include "../common/exceptions/WNotImplemented.h"
+#include "../../common/WStringUtils.h"
+#include "../../common/datastructures/WUnionFind.h"
+#include "../../common/exceptions/WNotImplemented.h"
+#include "../WValueSet.h"
 #include "WJoinContourTree.h"
-#include "WValueSet.h"
 
 WJoinContourTree::WJoinContourTree( boost::shared_ptr< WDataSetSingle > dataset )
     : m_elementIndices( dataset->getValueSet()->size() ),
@@ -86,6 +88,28 @@ void WJoinContourTree::buildJoinTree()
             }
         }
     }
+}
+
+boost::shared_ptr< std::set< size_t > > WJoinContourTree::getVolumeVoxelsEnclosedByISOSurface( const double isoValue ) const
+{
+    using boost::shared_ptr;
+    shared_ptr< std::vector< size_t > > result = shared_ptr< std::vector< size_t > >( new std::vector< size_t >( m_elementIndices ) );
+    WUnionFind uf( m_elementIndices.size() );
+
+    // assume the m_elementIndices array is still sorted descending on its iso values in the valueset
+    for( size_t i = 0; i < m_elementIndices.size() && m_valueSet->getScalar( m_elementIndices[i] ) >= isoValue; ++i )
+    {
+        // std::cout << "processing element: " << i << std::endl;
+        // std::cout << "having index: " << m_elementIndices[i] << std::endl;
+        // std::cout << "having isovalue: " << m_valueSet->getScalar( m_elementIndices[i] ) << std::endl;
+        size_t target = m_joinTree[ m_elementIndices[i] ];
+        // std::cout << "having edge to: " << target << std::endl;
+        if( m_valueSet->getScalar( target ) >= isoValue )
+        {
+            uf.merge( target, m_elementIndices[i] );
+        }
+    }
+    return uf.getMaxSet();
 }
 
 WJoinContourTree::IndirectCompare::IndirectCompare( boost::shared_ptr< WValueSet< double > > valueSet )

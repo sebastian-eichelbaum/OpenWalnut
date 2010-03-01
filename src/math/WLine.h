@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include "../common/WMixinVector.h"
 #include "WPosition.h"
@@ -39,6 +40,53 @@ namespace wmath
     /**
      * A line is an ordered sequence of WPositions.
      */
-    typedef WMixinVector< WPosition > WLine;
+//    typedef WMixinVector< WPosition > WLine;
+    class WLine : public WMixinVector< WPosition >
+    {
+    public:
+        /**
+         * Generates a new line out of a sequence of points.
+         *
+         * \param points Point sequence
+         */
+        explicit WLine( const std::vector< WPosition > &points );
+
+        /**
+         * Creates an empty line.
+         */
+        WLine();
+
+        /**
+         * Resample this line so it has a number of given points afterwards.
+         * \warning This changes your line!
+         *
+         * \param numPoints Number of sampling points.
+         */
+        void resample( size_t numPoints );
+
+        /**
+         * Reverses the order of the points. (mirroring)
+         */
+        void reverseOrder();
+
+        /**
+         * Computes the length of the fiber not in terms of points but in terms
+         * of accumulated segment lengths.
+         *
+         * \return Sum of all line segment lengths
+         */
+        double pathLength() const;
+
+        /**
+         * Returns the point in the middle of the line. In case of an even sized
+         * line the mid point is the same as if there were only size()-1 many
+         * elements present.
+         *
+         * \throws WOutOfBounds In case its called on an empty line
+         *
+         * \return Const reference to the midpoint element.
+         */
+        const wmath::WPosition& midPoint() const;
+    };
 } // end of namespace
 #endif  // WLINE_H

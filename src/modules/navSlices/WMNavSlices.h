@@ -213,6 +213,7 @@ private:
 
     std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     bool m_isPicked; //!< Indicates whether a slice is currently picked or not.
+    boost::shared_ptr< WGEViewer > m_viewer; //!< Stores reference to the main viewer
 
     /**
      * the root node for this module
@@ -237,7 +238,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader >m_shader;
+    osg::ref_ptr< WShader > m_shader;
 
     /**
      * lock to prevent concurrent threads trying to update the osg node

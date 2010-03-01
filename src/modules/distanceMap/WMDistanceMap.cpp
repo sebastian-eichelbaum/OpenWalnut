@@ -489,6 +489,6 @@ double WMDistanceMap::xxgauss( double x, double sigma )
 {
     double y, z, a = 2.506628273;
     z = x / sigma;
-    y = exp( ( double ) -z * z * 0.5 ) / ( sigma * a );
+    y = exp( -z * z * 0.5 ) / ( sigma * a );
     return y;
 }
