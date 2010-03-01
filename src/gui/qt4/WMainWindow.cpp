@@ -379,7 +379,7 @@ void WMainWindow::projectLoad()
     fd.setFileMode( QFileDialog::ExistingFiles );
 
     QStringList filters;
-    filters << "Simple Project File (*.prj)"
+    filters << "Simple Project File (*.owproj)"
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );

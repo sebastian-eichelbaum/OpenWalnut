@@ -32,17 +32,20 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "../../common/WConditionOneShot.h"
 #include "../../common/WIOTools.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleProjectFileCombiner.h"
 #include "WOpenCustomDockWidgetEvent.h"
 #include "WQt4Gui.h"
 #include "events/WModuleAssocEvent.h"
 #include "events/WRoiAssocEvent.h"
 #include "events/WModuleReadyEvent.h"
+#include "events/WModuleCrashEvent.h"
 
 WQt4Gui::WQt4Gui( int argc, char** argv )
     : WGUI( argc, argv )
@@ -67,6 +70,7 @@ bool WQt4Gui::parseOptions()
 // TODO(wiebel): this does not link on windows at the moment. But it should!
     desc.add_options()
         ( "help,h", "Prints this help message" )
+        ( "project,p", po::value< std::string >(), "Project file to be loaded on startup." )
         ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" )
         ( "timed-output,t", "Flag indicating if all log strings should have a time string preceding" );
 //#endif
@@ -99,6 +103,11 @@ bool WQt4Gui::parseOptions()
     return true;
 }
 
+void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
+{
+    QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent( module, exception.what() ) );
+}
+
 int WQt4Gui::run()
 {
     bool parsingSuccessful = parseOptions();
@@ -125,6 +134,9 @@ int WQt4Gui::run()
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
     m_kernel->run();
+    t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
+    m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );
+
     // create the window
     m_mainWindow = new WMainWindow();
     m_mainWindow->show();
@@ -153,6 +165,21 @@ int WQt4Gui::run()
     if( m_optionsMap.count("input") )
     {
         m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+    }
+
+    // Load project file
+    if( m_optionsMap.count("project") )
+    {
+        try
+        {
+            WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( m_optionsMap["project"].as< std::string >() );
+            proj.apply();
+        }
+        catch ( const WException& e )
+        {
+            wlog::error( "GUI" ) << "Project file \"" << m_optionsMap["project"].as< std::string >() << "\" could not be loaded. Message: " <<
+                e.what();
+        }
     }
 
     // run

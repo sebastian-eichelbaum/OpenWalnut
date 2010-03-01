@@ -245,7 +245,7 @@ boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_Mo
     switch (signal)
     {
         case WM_ERROR:
-            signal_error.connect( notifier );
+            return signal_error.connect( notifier );
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
