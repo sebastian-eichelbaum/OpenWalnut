@@ -51,7 +51,7 @@ public:
     /**
      * Wait for the condition. Sets the calling thread asleep.
      */
-    virtual void wait();
+    virtual void wait() const;
 
     /**
      * Notifies all waiting threads.
