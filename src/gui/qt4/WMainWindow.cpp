@@ -109,19 +109,19 @@ void WMainWindow::setupGUI()
         bool hideWidget;
         if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
         {
-            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "Axial Slice" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
-            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "Coronal Slice" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
-            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
+            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "Sagittal Slice" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
@@ -299,11 +299,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
 
         // now setup the nav widget sliders
-        prop = module->getProperties2()->findProperty( "axialPos" );
+        prop = module->getProperties2()->findProperty( "Axial Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"axialPos\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slice Module does not provide the property \"Axial Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -314,11 +314,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties2()->findProperty( "coronalPos" );
+        prop = module->getProperties2()->findProperty( "Coronal Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"coronalPos\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slice Module does not provide the property \"Coronal Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -329,11 +329,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties2()->findProperty( "sagittalPos" );
+        prop = module->getProperties2()->findProperty( "Sagittal Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"sagittalPos\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slice Module does not provide the property \"Sagittal Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
