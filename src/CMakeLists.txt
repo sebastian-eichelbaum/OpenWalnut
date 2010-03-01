@@ -8,18 +8,23 @@ LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
 # include custom CMake commands like assert
 INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 
+# mimic layout of install dir for build:
+#----------------------------------------
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
+SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
+SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
+
+# CMAKE automatism to select static vs. shared building:
+#-------------------------------------------------------
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
+  OPTION( BUILD_SHARED_LIBS "Build shared libs" ON )
+  MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
+ENDIF()
 
 # platform dependend stuff:
 #--------------------------
-IF( CMAKE_HOST_SYSTEM MATCHES Linux )
-  SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
-ELSEIF( CMAKE_HOST_SYSTEM MATCHES Windows )
-  SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The libraries will be put into this directory." )
+IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/common/platformDependent/visualStudio/" )
-ELSEIF( CMAKE_HOST_SYSTEM MATCHES Darwin )
-  SET( LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib CACHE PATH "The libraries will be put into this directory." )
-ELSE()
-  MESSAGE( FATAL_ERROR "Could not determine platform type! (expected Linux or Windows)!" )
 ENDIF()
 
 
@@ -91,7 +96,7 @@ MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
 # -Wno-long-long    since on Ubuntu 8.10 it won't compile without it
 # -ansi             force ISO-C++98 compliance (not GNU++98)
 
-IF( CMAKE_HOST_SYSTEM MATCHES Windows )
+IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     FILE( GLOB EXCLUDE_LIBRARIES RELATIVE ${Boost_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS}/libboost* )
     SET( CMAKE_SHARED_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_EXE_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )

@@ -47,7 +47,7 @@
 
 #include "WGEViewer.h"
 
-WGEViewer::WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
+WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
     int width, int height, WGECamera::ProjectionMode projectionMode )
     : WGEGraphicsWindow( wdata, x, y, width, height ),
       boost::enable_shared_from_this< WGEViewer >(),

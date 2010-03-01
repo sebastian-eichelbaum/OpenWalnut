@@ -71,7 +71,7 @@ public:
      * \param projectionMode Projection mode of the viewer.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height,
+    WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y, int width, int height,
         WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**

@@ -55,7 +55,7 @@
 #include "biosig-network.h"
 
 #ifdef _WIN32
-  extern int getlogin_r(char* name, size_t namesize);
+extern int getlogin_r(char* name, size_t namesize) { return 1; }
   #include <winsock2.h>
   #define FILESEP '\\'
 #else

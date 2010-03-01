@@ -28,7 +28,7 @@
 
 #include "exceptions/WGEInitFailed.h"
 
-WGEGraphicsWindow::WGEGraphicsWindow(  osg::ref_ptr<WindowData> wdata,
+WGEGraphicsWindow::WGEGraphicsWindow( osg::ref_ptr<osg::Referenced> wdata,
                                       int x,
                                       int y,
                                       int width,
@@ -85,7 +85,7 @@ void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
     traits->sharedContext = 0;
     traits->sampleBuffers = ds->getMultiSamples();
     traits->samples = ds->getNumMultiSamples();
-    traits->inheritedWindowData = m_WindowData.get();
+    traits->inheritedWindowData = m_WindowData;
 
     // Stereo
     // TODO(ebaum): test whether it works
