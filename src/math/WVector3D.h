@@ -96,6 +96,11 @@ private:
 
 /**
  * Write a vector in string represensation to the given output stream.
+ *
+ * \param out the outstream
+ * \param c the vector to print
+ *
+ * \return the extended out stream.
  */
 inline std::ostream& operator<<( std::ostream& out, const WVector3D& c )
 {
@@ -105,6 +110,11 @@ inline std::ostream& operator<<( std::ostream& out, const WVector3D& c )
 
 /**
  * Write a vector in string represensation to the given input stream.
+ *
+ * \param in the input stream
+ * \param c the vector to write to the stream
+ *
+ * \return the inputstream
  */
 inline std::istream& operator>>( std::istream& in, WVector3D& c )
 {
