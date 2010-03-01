@@ -153,9 +153,10 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
         std::vector<int16_t> tempSource( nSize );
 
+        //compute maximum of tempSource and build its histogram.
         for ( int i = 0; i < nSize; ++i )
         {
-            tempSource[i] = static_cast<int16_t>( source[i] );
+            tempSource[i] = source[i];
         }
 
         int max = 0;
@@ -168,17 +169,21 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
             }
             ++histo[tempSource[i]];
         }
-        int fivepercent = static_cast<int>( nSize * 0.001 );
+        int percentage = static_cast< int >( nSize * 0.001 );
 
-        int newMax = 65535;
+        int newMax = 65535; // lower bound of the highest "percentage" values
         int adder = 0;
+
+        // Find lower bound of the highest "percentage" values
         for ( int i = 65535; i > 0; --i )
         {
             adder += histo[i];
             newMax = i;
-            if ( adder > fivepercent )
+            if ( adder > percentage )
                 break;
         }
+
+        // Set all values that are above the newMax bound to newMax
         for ( int i = 0; i < nSize; ++i )
         {
             if ( tempSource[i] > newMax )
@@ -199,7 +204,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
         unsigned char* charSource = reinterpret_cast< unsigned char* >( &tempSource[0] );
 
-        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() * 2 ; ++i )
+        for ( unsigned int i = 0; i < nSize * 2 ; ++i )
         {
             data[i] = charSource[i];
         }
