@@ -226,6 +226,49 @@ public:
     //     assert_SAMELINES( expected, line );
     //  }
 
+   /**
+     * The mid point of a WLine is just the point in the middle of the line.
+     * For lines with even numbered size the element before that non existing
+     * midPoint is selected.
+     */
+    void testMidPointOnEvenSize( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        line.push_back( WPosition( 3, 1, 0 ) );
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_EQUALS( expected, WPosition( line.midPoint() ) );
+    }
+
+    /**
+     * When a line has uneven numbered size, the mid point is unique.
+     */
+    void testMidPointOnUnevenSize( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_EQUALS( expected, WPosition( line.midPoint() ) );
+    }
+
+    /**
+     * When calling midPoint on empty lines => there is no point to return
+     * hence an exception is generated.
+     */
+    void testMidPointOnEmptyLine( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_THROWS_EQUALS( line.midPoint(), WOutOfBounds &e, std::string( e.what() ), "There is no midpoint for an empty line." );
+    }
+
 private:
     /**
      * TS_ASSERT_DELTA needs the operator+, operator- and operator< to be implemented especially for WPositions the operator< and operator +
