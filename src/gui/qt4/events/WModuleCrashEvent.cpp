@@ -27,7 +27,7 @@
 #include "WModuleCrashEvent.h"
 
 WModuleCrashEvent::WModuleCrashEvent( boost::shared_ptr< WModule > module, std::string message )
-    : QEvent( static_cast< QEvent::Type >( WQT_READY_EVENT ) ),
+    : QEvent( static_cast< QEvent::Type >( WQT_CRASH_EVENT ) ),
     m_module( module ),
     m_message( message )
 {
@@ -42,5 +42,10 @@ WModuleCrashEvent::~WModuleCrashEvent()
 boost::shared_ptr< WModule > WModuleCrashEvent::getModule()
 {
     return m_module;
+}
+
+std::string WModuleCrashEvent::getMessage()
+{
+    return m_message;
 }
 

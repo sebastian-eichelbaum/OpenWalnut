@@ -42,5 +42,8 @@
 // when a roi got associated
 #define WQT_ROI_ASSOC_EVENT QEvent::User + 3
 
+// when a module crashes
+#define WQT_CRASH_EVENT QEvent::User + 4
+
 #endif  // WEVENTTYPES_H
 

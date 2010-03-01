@@ -61,6 +61,13 @@ public:
      */
     boost::shared_ptr< WModule > getModule();
 
+    /**
+     * The crash message.
+     *
+     * \return the crash message.
+     */
+    std::string getMessage();
+
 protected:
 
     /**

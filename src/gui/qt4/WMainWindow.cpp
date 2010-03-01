@@ -46,6 +46,7 @@
 #include "WQtNavGLWidget.h"
 #include "WQtCustomDockWidget.h"
 #include "events/WModuleReadyEvent.h"
+#include "events/WModuleCrashEvent.h"
 #include "events/WEventTypes.h"
 #include "datasetbrowser/WPropertyBoolWidget.h"
 #include "../../common/WColor.h"
@@ -549,6 +550,19 @@ bool WMainWindow::event( QEvent* event )
         if ( e1 )
         {
             moduleSpecificSetup( e1->getModule() );
+        }
+    }
+
+    if ( event->type() == WQT_CRASH_EVENT )
+    {
+        // convert event to ready event
+        WModuleCrashEvent* e1 = dynamic_cast< WModuleCrashEvent* >( event );     // NOLINT
+        if ( e1 )
+        {
+            QString title = "Module crashed: " + QString::fromStdString( e1->getModule()->getName() );
+            QString message = "<b>Module Crashed</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
+                              "<br/><b>Message:  </b>" + QString::fromStdString( e1->getMessage() );
+            QMessageBox::critical( this, title, message );
         }
     }
 

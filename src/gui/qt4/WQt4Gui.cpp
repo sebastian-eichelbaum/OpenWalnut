@@ -32,7 +32,6 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
 
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "../../common/WConditionOneShot.h"
