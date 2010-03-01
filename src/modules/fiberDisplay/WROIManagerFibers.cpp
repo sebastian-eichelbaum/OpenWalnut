@@ -101,6 +101,7 @@ void WROIManagerFibers::addFiberDataset( boost::shared_ptr< const WDataSetFibers
 
 void WROIManagerFibers::removeFiberDataset( boost::shared_ptr< const WDataSetFibers > /*fibers*/ )
 {
+    assert( 0 && "removeFiberDataset( --- ) not implemented yet." );
 }
 
 boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getBitField()
@@ -147,6 +148,7 @@ void WROIManagerFibers::recalculate()
     {
         mbf = m_bitField;
     }
+
     int size = mbf->size();
     mbf->clear();
 

@@ -90,18 +90,34 @@ protected:
     virtual void moduleMain();
 
 private:
+
+    WPropBool m_dataSetAddedProp; //!< TODO(schurade): document this.
+
+    WPropInt m_axialPosProp; //!< Axial slice position.
+    WPropInt m_coronalPosProp; //!< Coronal slice position.
+    WPropInt m_sagittalPosProp; //!< Sagittal slice position.
+
+    WPropDouble m_fltXProp; //!< Front left top corner X comp.
+    WPropDouble m_fltYProp; //!< Front left top corner Y comp.
+    WPropDouble m_fltZProp; //!< Front left top corner Z comp.
+
+    WPropDouble m_brbXProp; //!< Back right bottom corner X comp.
+    WPropDouble m_brbYProp; //!< Back right bottom corner Y comp.
+    WPropDouble m_brbZProp; //!< Back right bottom corner Z comp.
+
+    WPropDouble m_zeroXProp; //!< Zero point X comp.
+    WPropDouble m_zeroYProp; //!< Zero point Y comp.
+    WPropDouble m_zeroZProp; //!< Zero point Z comp.
+
     /**
      * initialize the properties for this module
      */
     void properties();
 
     /**
-     * Gets signaled from the properties object when something was changed
-     *
-     * \param propertyName the name of the property that has changed.
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
-    void slotPropertyChanged( std::string propertyName );
-
+    virtual void activate();
 
     /**
      * initial creation function for the slice geometry

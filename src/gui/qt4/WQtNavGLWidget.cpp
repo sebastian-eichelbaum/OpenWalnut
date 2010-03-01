@@ -45,17 +45,17 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
     QSlider *slider = new QSlider( Qt::Horizontal );
     slider->setMaximum( maxValue );
     slider->setValue( maxValue / 2 );
-    slider->resize( 150, 20 );
+    slider->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     QWidget* panel = new QWidget( this );
 
     QVBoxLayout* layout = new QVBoxLayout();
-
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
     m_glWidget->setFixedSize( 150, 150 );
     m_glWidget->initialize();
 
-    setFixedSize( 160, 200 );
+    setMinimumSize( 160, 200 );
+    setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
 
     m_scene = new WGEScene();
     m_scene->setDataVariance( osg::Object::DYNAMIC );

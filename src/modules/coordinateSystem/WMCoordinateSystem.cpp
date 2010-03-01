@@ -57,7 +57,7 @@ void WMCoordinateSystem::moduleMain()
     waitForStop();
 
     // clean up stuff
-    // NOTE: ALLAWAYS remove your osg nodes!
+    // NOTE: ALWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
@@ -73,27 +73,25 @@ const std::string WMCoordinateSystem::getDescription() const
 
 void WMCoordinateSystem::properties()
 {
-    m_properties->addBool( "dataSetAdded", false, true );
-    ( m_properties->addBool( "active", true, true ) )->connect( boost::bind( &WMCoordinateSystem::slotPropertyChanged, this, _1 ) );
+    m_dataSetAddedProp = m_properties2->addProperty( "dataSetAdded", "", false, true );
 
-    m_properties->addInt( "axialPos", 80 );
-    m_properties->addInt( "coronalPos", 100 );
-    m_properties->addInt( "sagittalPos", 80 );
+    m_axialPosProp = m_properties2->addProperty( "axialPos", "", 80 );
+    m_coronalPosProp = m_properties2->addProperty( "coronalPos", "", 100 );
+    m_sagittalPosProp = m_properties2->addProperty( "sagittalPos", "", 80 );
 
-    m_properties->addInt( "type", 1 );
     // initialize the properties with a certain standard set
     // those properties will be updatet as soon as the first dataset is looaded
-    m_properties->addFloat( "zeroX", 80.0 );
-    m_properties->addFloat( "zeroY", 100.0 );
-    m_properties->addFloat( "zeroZ", 80.0 );
+    m_zeroXProp = m_properties2->addProperty( "zeroX", "", 80.0 );
+    m_zeroYProp = m_properties2->addProperty( "zeroY", "", 100.0 );
+    m_zeroZProp = m_properties2->addProperty( "zeroZ", "", 80.0 );
 
-    m_properties->addFloat( "fltX", 0.0 );
-    m_properties->addFloat( "fltY", 0.0 );
-    m_properties->addFloat( "fltZ", 0.0 );
+    m_fltXProp = m_properties2->addProperty( "fltX", "", 0.0 );
+    m_fltYProp = m_properties2->addProperty( "fltY", "", 0.0 );
+    m_fltZProp = m_properties2->addProperty( "fltZ", "", 0.0 );
 
-    m_properties->addFloat( "brbX", 160.0 );
-    m_properties->addFloat( "brbY", 200.0 );
-    m_properties->addFloat( "brbZ", 160.0 );
+    m_brbXProp = m_properties2->addProperty( "brbX", "", 160.0 );
+    m_brbYProp = m_properties2->addProperty( "brbY", "", 200.0 );
+    m_brbZProp = m_properties2->addProperty( "brbZ", "", 160.0 );
 }
 
 void WMCoordinateSystem::createGeometry()
@@ -137,7 +135,7 @@ void WMCoordinateSystem::createGeometry()
     m_rootNode->setUserData( this );
     m_rootNode->addUpdateCallback( new coordinateNodeCallback );
 
-    if ( m_properties->getValue<bool>( "active" ) )
+    if ( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -149,7 +147,7 @@ void WMCoordinateSystem::createGeometry()
 
 void WMCoordinateSystem::updateGeometry()
 {
-    if ( !m_properties->getValue< bool > ( "dataSetAdded" ) || !WKernel::getRunningKernel()->getGui()->isInitialized()() )
+    if ( !m_dataSetAddedProp->get() || !WKernel::getRunningKernel()->getGui()->isInitialized()() )
     {
         return;
     }
@@ -157,21 +155,21 @@ void WMCoordinateSystem::updateGeometry()
     boost::shared_lock< boost::shared_mutex > slock;
     slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
     // *******************************************************************************************************
-    m_properties->setValue( "dataSetAdded", false );
+    m_dataSetAddedProp->set( false );
 
     findBoundingBox();
 
-    //float zeroZ = m_properties->getValue<float>( "axialPos" );
-    float zeroY = m_properties->getValue<float>( "coronalPos" );
-    float zeroX = m_properties->getValue<float>( "sagittalPos" );
+    //float zeroZ = m_axialPosProp->get();
+    float zeroY = m_coronalPosProp->get();
+    float zeroX = m_sagittalPosProp->get();
 
-    float fltX = m_properties->getValue<float>( "fltX" );
-    float fltY = m_properties->getValue<float>( "fltY" );
-    float fltZ = m_properties->getValue<float>( "fltZ" );
+    float fltX = m_fltXProp->get();
+    float fltY = m_fltYProp->get();
+    float fltZ = m_fltZProp->get();
 
-    float brbX = m_properties->getValue<float>( "brbX" );
-    float brbY = m_properties->getValue<float>( "brbY" );
-    //float brbZ = m_properties->getValue<float>( "brbZ" );
+    float brbX = m_brbXProp->get();
+    float brbY = m_brbYProp->get();
+    //float brbZ = m_brbZProp->get();
 
 
     osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_boxNode->getDrawable( 0 ) );
@@ -204,17 +202,17 @@ void WMCoordinateSystem::updateGeometry()
 
 osg::ref_ptr<osg::Geometry> WMCoordinateSystem::createGeometryNode()
 {
-    float zeroZ = m_properties->getValue<float>( "axialPos" );
-    float zeroY = m_properties->getValue<float>( "coronalPos" );
-    float zeroX = m_properties->getValue<float>( "sagittalPos" );
+    float zeroZ = m_axialPosProp->get();
+    float zeroY = m_coronalPosProp->get();
+    float zeroX = m_sagittalPosProp->get();
 
-    float fltX = m_properties->getValue<float>( "fltX" );
-    float fltY = m_properties->getValue<float>( "fltY" );
-    float fltZ = m_properties->getValue<float>( "fltZ" );
+    float fltX = m_fltXProp->get();
+    float fltY = m_fltYProp->get();
+    float fltZ = m_fltZProp->get();
 
-    float brbX = m_properties->getValue<float>( "brbX" );
-    float brbY = m_properties->getValue<float>( "brbY" );
-    float brbZ = m_properties->getValue<float>( "brbZ" );
+    float brbX = m_brbXProp->get();
+    float brbY = m_brbYProp->get();
+    float brbZ = m_brbZProp->get();
 
 
     osg::ref_ptr<osg::Geometry> geometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
@@ -302,7 +300,7 @@ void WMCoordinateSystem::findBoundingBox()
             }
             if ( count > 5 )
             {
-                m_properties->setValue( "fltX", static_cast<float>( x ) );
+                m_fltXProp->set( static_cast<float>( x ) );
                 break;
             }
         }
@@ -322,7 +320,7 @@ void WMCoordinateSystem::findBoundingBox()
             }
             if ( count > 5 )
             {
-                m_properties->setValue( "brbX", static_cast<float>( x ) );
+                m_brbXProp->set( static_cast<float>( x ) );
                 break;
             }
         }
@@ -343,7 +341,7 @@ void WMCoordinateSystem::findBoundingBox()
             }
             if ( count > 5 )
             {
-                m_properties->setValue( "fltY", static_cast<float>( y ) );
+                m_fltYProp->set( static_cast<float>( y ) );
                 break;
             }
         }
@@ -363,7 +361,7 @@ void WMCoordinateSystem::findBoundingBox()
             }
             if ( count > 5 )
             {
-                m_properties->setValue( "brbY", static_cast<float>( y ) );
+                m_brbYProp->set( static_cast<float>( y ) );
                 break;
             }
         }
@@ -386,7 +384,7 @@ void WMCoordinateSystem::findBoundingBox()
             }
             if ( count > 5 )
             {
-                m_properties->setValue( "fltZ", static_cast<float>( z ) );
+                m_fltZProp->set( static_cast<float>( z ) );
                 break;
             }
         }
@@ -406,24 +404,25 @@ void WMCoordinateSystem::findBoundingBox()
             }
             if ( count > 5 )
             {
-                m_properties->setValue( "brbZ", static_cast<float>( z ) );
+                m_brbZProp->set( static_cast<float>( z ) );
                 break;
             }
         }
     }
 }
 
-void WMCoordinateSystem::slotPropertyChanged( std::string propertyName )
+void WMCoordinateSystem::activate()
 {
-    if ( propertyName == "active" )
+    // Activate/Deactivate the coordinate system
+    if ( m_active->get() )
     {
-        if ( m_properties->getValue<bool>( "active" ) )
-        {
-            m_rootNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_rootNode->setNodeMask( 0x0 );
-        }
+        m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
+    else
+    {
+        m_rootNode->setNodeMask( 0x0 );
+    }
+
+    // Always call WModule's activate!
+    WModule::activate();
 }

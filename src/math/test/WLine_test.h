@@ -30,8 +30,9 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "WLineTraits.h"
+#include "../../common/WLimits.h"
 #include "../WLine.h"
+#include "WLineTraits.h"
 
 /**
  * Unit tests the WLine class
@@ -149,13 +150,123 @@ public:
         expected.push_back( WPosition( 0, 0, 0 ) );
         expected.push_back( WPosition( 1.5, 0.5, 0 ) );
         expected.push_back( WPosition( 3, 1, 0 ) );
-        TS_ASSERT_EQUALS( line.size(), expected.size() );
-        for( size_t i = 0; i < line.size(); ++i )
+        assert_SAMELINES( expected, line );
+    }
+
+    /**
+     * If the resampling rate of a line has as many points as the original line,
+     * no sampling should be applied.
+     */
+    void testSamplingWithSameNumberOfPoints( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        for( size_t i = 0; i < 10; ++i )
+        {
+            line.push_back( WPosition( i, 3 * i, 10 - i ) );
+        }
+        TS_ASSERT( line.size() == 10 );
+        wmath::WLine expected( line ); // make a copy of the original
+        line.resample( 10 );
+        assert_SAMELINES( line, expected );
+    }
+
+    /**
+     * If the points are exactly in between of a segement nothing should fail.
+     */
+    void testSamplingPointsAreExactlyInTheOldSegmentCenterAndCorners( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        wmath::WLine expected;
+        for( size_t i = 0; i < 3; ++i )
+        {
+            line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i + 0.5, 0, 0 ) );
+        }
+        expected.pop_back();
+        line.resample( 5 );
+        assert_SAMELINES( expected, line );
+    }
+
+    // void testNumericalStabilityOfResampling( void )
+    // {
+    //     using wmath::WPosition;
+    //     wmath::WLine line;
+    //     wmath::WLine expected;
+    //     for( size_t i = 0; i < 100; ++i )
+    //     {
+    //         line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+    //         expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+    //         expected.push_back( WPosition( i + 0.25, std::pow( -1, i % 2 ) * 0.5, 0 ) );
+    //         expected.push_back( WPosition( i + 0.5,  0, 0 ) );
+    //         expected.push_back( WPosition( i + 0.75, std::pow( -1, ( i + 1 ) % 2 ) * 0.5, 0 ) );
+    //     }
+    //     expected.pop_back();
+    //     expected.pop_back();
+    //     expected.pop_back();
+    //     line.resample( 3 * 99 );
+    //     assert_SAMELINES( expected, line );
+    // }
+    //
+    // void testManySampelsInBetweenOfTwoOldPoints( void )
+    // {
+    //     using wmath::WPosition;
+    //     wmath::WLine line;
+    //     line.push_back( WPosition( 0, 0, 0 ) );
+    //     line.push_back( WPosition( 1, 1, 0 ) );
+    //     line.resample( 1001 );
+    //     wmath::WLine expected;
+    //     expected.push_back( WPosition( 0, 0, 0 ) );
+    //     for( size_t i = 1; i < 1001; ++i )
+    //     {
+    //         expected.push_back( WPosition( i / 1000.0, i / 1000.0, 0 ) );
+    //     }
+    //     assert_SAMELINES( expected, line );
+    //  }
+
+private:
+    /**
+     * TS_ASSERT_DELTA needs the operator+, operator- and operator< to be implemented especially for WPositions the operator< and operator +
+     * makes not really sense. Hence I implemented an assert by my one, giving reasonable out put.
+     *
+     * \param first First line to compare with
+     * \param second Second line to compare with
+     */
+    void assert_SAMELINES( const wmath::WLine& first, const wmath::WLine& second ) const
+    {
+        if( first.size() != second.size() )
+        {
+            std::stringstream msg;
+            msg << "Line size mismatch: " << first.size() << " != " << second.size();
+            TS_FAIL( msg.str() );
+        }
+        bool sameLines = true;
+        size_t i = 0;
+        for( i = 0; i < first.size(); ++i )
         {
             for( int j = 0; j < 3; ++j )
             {
-                TS_ASSERT_DELTA( expected[i][j], line[i][j], 0.0000001 );
+                sameLines = sameLines && std::abs( first[i][j] - second[i][j] ) <= wlimits::DBL_EPS;
+                if( !sameLines )
+                {
+                    break;
+                }
             }
+            if( !sameLines )
+            {
+                break;
+            }
+        }
+        if( !sameLines )
+        {
+            using string_utils::operator<<;
+            std::stringstream msg;
+            msg << "Lines are different in at least point: " << i;
+            std::cout << "first  line: " << std::endl << first[i] << std::endl;
+            std::cout << "second line: " << std::endl << second[i] << std::endl;
+            TS_FAIL( msg.str() );
         }
     }
 };
