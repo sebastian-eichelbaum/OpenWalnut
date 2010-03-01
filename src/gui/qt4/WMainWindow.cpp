@@ -392,8 +392,7 @@ void WMainWindow::projectLoad()
     QStringList::const_iterator constIterator;
     for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
-        WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( ( *constIterator ).toStdString(),
-                                                                      WKernel::getRunningKernel()->getRootContainer() );
+        WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( ( *constIterator ).toStdString() );
         proj.apply();
     }
 }
