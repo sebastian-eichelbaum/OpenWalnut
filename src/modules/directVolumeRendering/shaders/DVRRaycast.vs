@@ -63,10 +63,9 @@ void main()
 
     // transform the ray direction to texture space, which equals object space
     // Therefore use two points, as we transform a vector
-    vec3 camLook = ( gl_ModelViewMatrixInverse * vec4( 0.0, 0.0, -2.0, 1.0 ) ).xyz;
-    vec3 camRoot = ( gl_ModelViewMatrixInverse * vec4( 0.0, 0.0, -1.0, 1.0 ) ).xyz;
-   
-    v_ray = normalize( camLook - camRoot );
+    vec4 camLookAt = vec4( 0.0, 0.0, -2.0, 1.0 );
+    vec4 camPos = vec4( 0.0, 0.0, -1.0, 1.0 );
+    v_ray = normalize( ( gl_ModelViewMatrixInverse * ( camLookAt - camPos ) ) ).xyz;
 
     // Simply project the vertex
     gl_Position = ftransform();
