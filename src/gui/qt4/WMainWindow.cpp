@@ -74,6 +74,7 @@ WMainWindow::WMainWindow() :
 void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
+    m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
@@ -175,7 +176,7 @@ void WMainWindow::setupPermanentToolBar()
 
     WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
-    WQtPushButton* projectButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "loadProject", m_permanentToolBar );
+    WQtPushButton* projectButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
 
     connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );

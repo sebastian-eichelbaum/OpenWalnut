@@ -123,6 +123,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = originZ;
 
     m_matrix( 3, 3 ) = 1.;
+
+    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -150,6 +152,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = origin[2];
 
     m_matrix( 3, 3 ) = 1.;
+
+    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -173,6 +177,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 2 ) = offsetZ;
 
     m_matrix( 3, 3 ) = 1.;
+
+    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int i ) const
