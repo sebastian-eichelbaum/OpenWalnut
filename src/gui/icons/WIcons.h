@@ -31,6 +31,7 @@
 #include "logoIcon.xpm"
 #include "disc.xpm"
 #include "fileopen.xpm"
+#include "projOpen.xpm"
 #include "quit.xpm"
 
 #include "axial.xpm"
