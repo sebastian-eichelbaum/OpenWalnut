@@ -107,7 +107,7 @@ void WLine::resample( size_t numPoints )
         // std::cout << "this size: " << size() << " new size: " << newLine.size() << std::endl;
         this->WMixinVector< wmath::WPosition >::operator=( newLine );
     }
-    assert( size() == numPoints && "Resampling of a line has failed! Is your fiber of length 0 or even the new sample rate??" );
+    assert( size() == numPoints && "Resampling of a line has failed! Is your line of length 0 or even the new sample rate??" );
 }
 
 } // end of namespace

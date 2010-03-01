@@ -98,9 +98,8 @@ public:
     }
 
     /**
-     * If for example the start and end points of two fibers are in opposite
-     * direction we cant use them for center line generation. One of the
-     * fiber tracts must reverse its ordering.
+     * If for example the start and end points of two lines are in opposite
+     * direction we may want to change its direction.
      */
     void testReverseOrdering( void )
     {
@@ -118,8 +117,8 @@ public:
     }
 
     /**
-     * The path length of the fiber is the accumulated path lengths of all
-     * segements (point to point) in that fiber.
+     * The path length of the line is the accumulated path lengths of all
+     * segements (point to point) in that line.
      */
     void testPathLength( void )
     {

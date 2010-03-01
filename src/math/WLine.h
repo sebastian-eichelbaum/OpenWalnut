@@ -70,7 +70,7 @@ namespace wmath
         void reverseOrder();
 
         /**
-         * Computes the length of the fiber not in terms of points but in terms
+         * Computes the length of the line not in terms of points but in terms
          * of accumulated segment lengths.
          *
          * \return Sum of all line segment lengths
