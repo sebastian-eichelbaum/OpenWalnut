@@ -173,7 +173,6 @@ public:
      */
     static std::string getFontPath();
 
-
 protected:
 
     /**
@@ -206,6 +205,7 @@ protected:
      * The container containing the modules.
      */
     boost::shared_ptr< WModuleContainer > m_moduleContainer;
+
 private:
     /**
      * Loads all the modules it can find.

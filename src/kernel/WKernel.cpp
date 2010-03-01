@@ -180,10 +180,6 @@ void WKernel::threadMain()
         }
     }
 
-    // TODO(ebaum): remove!
-    WModuleProjectFileCombiner mc = WModuleProjectFileCombiner( "/home/ebaum/test.prj" );
-    mc.apply();
-
     // actually there is nothing more to do here
     waitForStop();
 

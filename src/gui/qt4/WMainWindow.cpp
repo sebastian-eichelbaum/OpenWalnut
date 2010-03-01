@@ -51,6 +51,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleProjectFileCombiner.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
 
@@ -173,13 +174,18 @@ void WMainWindow::setupPermanentToolBar()
 
     WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
+    WQtPushButton* projectButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "loadProject", m_permanentToolBar );
 
     connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
+    connect( projectButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
 
     loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
+    projectButton->setToolTip( "Load a project from file" );
 
+    m_permanentToolBar->addWidget( projectButton );
+    m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( loadButton );
     m_permanentToolBar->addWidget( roiButton );
 
@@ -365,6 +371,31 @@ WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 WQtToolBar* WMainWindow::getCompatiblesToolBar()
 {
     return m_compatiblesToolBar;
+}
+
+void WMainWindow::projectLoad()
+{
+    QFileDialog fd;
+    fd.setFileMode( QFileDialog::ExistingFiles );
+
+    QStringList filters;
+    filters << "Simple Project File (*.prj)"
+            << "Any files (*)";
+    fd.setNameFilters( filters );
+    fd.setViewMode( QFileDialog::Detail );
+    QStringList fileNames;
+    if ( fd.exec() )
+    {
+        fileNames = fd.selectedFiles();
+    }
+
+    QStringList::const_iterator constIterator;
+    for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    {
+        WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( ( *constIterator ).toStdString(),
+                                                                      WKernel::getRunningKernel()->getRootContainer() );
+        proj.apply();
+    }
 }
 
 void WMainWindow::openLoadDialog()
