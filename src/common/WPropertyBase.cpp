@@ -98,9 +98,9 @@ WPropFilename WPropertyBase::toPropFilename()
     return boost::shared_static_cast< WPVFilename >( shared_from_this() );
 }
 
-WPropList WPropertyBase::toPropList()
+WPropSelection WPropertyBase::toPropSelection()
 {
-    return boost::shared_static_cast< WPVList >( shared_from_this() );
+    return boost::shared_static_cast< WPVSelection >( shared_from_this() );
 }
 
 WPropColor WPropertyBase::toPropColor()

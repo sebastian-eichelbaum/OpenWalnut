@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     #define USE_BOOST_THREADS 0
 #else
     #define USE_BOOST_THREADS 1

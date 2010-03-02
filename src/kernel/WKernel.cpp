@@ -46,6 +46,7 @@
 #include "WKernel.h"
 #include "WModule.h"
 #include "WModuleFactory.h"
+#include "WModuleProjectFileCombiner.h"
 
 /**
  * Used for program wide access to the kernel.

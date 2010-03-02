@@ -71,7 +71,8 @@ void WBatchLoader::threadMain()
 
         m_targetContainer->add( mod );
         // serialize loading of a couple of data sets
-        mod->isReady().wait();
+        // ignore the case where isCrashed is true
+        mod->isReadyOrCrashed().wait();
     }
 
     m_targetContainer->finishedPendingThread( shared_from_this() );

@@ -46,11 +46,13 @@
 #include "WQtNavGLWidget.h"
 #include "WQtCustomDockWidget.h"
 #include "events/WModuleReadyEvent.h"
+#include "events/WModuleCrashEvent.h"
 #include "events/WEventTypes.h"
 #include "datasetbrowser/WPropertyBoolWidget.h"
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleProjectFileCombiner.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
 
@@ -72,6 +74,7 @@ WMainWindow::WMainWindow() :
 void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
+    m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
@@ -106,19 +109,19 @@ void WMainWindow::setupGUI()
         bool hideWidget;
         if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
         {
-            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "axialPos" ) );
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "Axial Slice" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
-            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "coronalPos" ) );
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "Coronal Slice" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
-            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "sagittalPos" ) );
+            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "Sagittal Slice" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
@@ -173,13 +176,18 @@ void WMainWindow::setupPermanentToolBar()
 
     WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
+    WQtPushButton* projectButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
 
     connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
+    connect( projectButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
 
     loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
+    projectButton->setToolTip( "Load a project from file" );
 
+    m_permanentToolBar->addWidget( projectButton );
+    m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( loadButton );
     m_permanentToolBar->addWidget( roiButton );
 
@@ -291,11 +299,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
 
         // now setup the nav widget sliders
-        prop = module->getProperties2()->findProperty( "axialPos" );
+        prop = module->getProperties2()->findProperty( "Axial Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"axialPos\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slice Module does not provide the property \"Axial Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -306,11 +314,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties2()->findProperty( "coronalPos" );
+        prop = module->getProperties2()->findProperty( "Coronal Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"coronalPos\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slice Module does not provide the property \"Coronal Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -321,11 +329,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties2()->findProperty( "sagittalPos" );
+        prop = module->getProperties2()->findProperty( "Sagittal Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"sagittalPos\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slice Module does not provide the property \"Sagittal Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -365,6 +373,30 @@ WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 WQtToolBar* WMainWindow::getCompatiblesToolBar()
 {
     return m_compatiblesToolBar;
+}
+
+void WMainWindow::projectLoad()
+{
+    QFileDialog fd;
+    fd.setFileMode( QFileDialog::ExistingFiles );
+
+    QStringList filters;
+    filters << "Simple Project File (*.owproj)"
+            << "Any files (*)";
+    fd.setNameFilters( filters );
+    fd.setViewMode( QFileDialog::Detail );
+    QStringList fileNames;
+    if ( fd.exec() )
+    {
+        fileNames = fd.selectedFiles();
+    }
+
+    QStringList::const_iterator constIterator;
+    for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    {
+        WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( ( *constIterator ).toStdString() );
+        proj.apply();
+    }
 }
 
 void WMainWindow::openLoadDialog()
@@ -519,6 +551,19 @@ bool WMainWindow::event( QEvent* event )
         if ( e1 )
         {
             moduleSpecificSetup( e1->getModule() );
+        }
+    }
+
+    if ( event->type() == WQT_CRASH_EVENT )
+    {
+        // convert event to ready event
+        WModuleCrashEvent* e1 = dynamic_cast< WModuleCrashEvent* >( event );     // NOLINT
+        if ( e1 )
+        {
+            QString title = "Module crashed: " + QString::fromStdString( e1->getModule()->getName() );
+            QString message = "<b>Module Crashed</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
+                              "<br/><b>Message:  </b>" + QString::fromStdString( e1->getMessage() );
+            QMessageBox::critical( this, title, message );
         }
     }
 

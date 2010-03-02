@@ -35,6 +35,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "WLogger.h"
 
@@ -278,6 +279,16 @@ public:
      */
     int countConstraint( PROPERTYCONSTRAINT_TYPE type );
 
+    /**
+     * This methods allows properties to be set by a string value. This is especially useful when a property is only available as string and the
+     * real type of the property is unknown. This is a shortcut for casting the property and then setting the lexically casted value.
+     *
+     * \param value the new value to set.
+     *
+     * \return true if value could be set.
+     */
+    virtual bool setAsString( std::string value );
+
 protected:
 
     /**
@@ -392,6 +403,21 @@ bool WPropertyVariable< T >::accept( T newValue )
     lock.unlock();
 
     return acceptable;
+}
+
+template < typename T >
+bool WPropertyVariable< T >::setAsString( std::string value )
+{
+    try
+    {
+        set( boost::lexical_cast< T >( value ) );
+    }
+    catch( const boost::bad_lexical_cast &e )
+    {
+        return false;
+    }
+
+    return true;
 }
 
 template < typename T >

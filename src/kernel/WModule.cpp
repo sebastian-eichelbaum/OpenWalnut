@@ -46,6 +46,7 @@
 #include "../common/WLogger.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
+#include "../common/WConditionSet.h"
 #include "../common/WProgressCombiner.h"
 
 #include "WModule.h"
@@ -57,6 +58,8 @@ WModule::WModule():
     m_isAssociated( new WCondition(), false ),
     m_isUsable( new WCondition(), false ),
     m_isReady( new WConditionOneShot(), false ),
+    m_isCrashed( new WConditionOneShot(), false ),
+    m_isReadyOrCrashed( new WConditionSet(), false ),
     m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
     m_moduleState()
 {
@@ -65,6 +68,12 @@ WModule::WModule():
     m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
     m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
+
+    // the isReadyOrCrashed condition set needs to be set up here
+    WConditionSet* cs = static_cast< WConditionSet* >( m_isReadyOrCrashed.getCondition().get() ); // NOLINT
+    cs->setResetable( true, false );
+    cs->add( m_isReady.getCondition() );
+    cs->add( m_isCrashed.getCondition() );
 
     m_container = boost::shared_ptr< WModuleContainer >();
     m_progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
@@ -236,7 +245,7 @@ boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_Mo
     switch (signal)
     {
         case WM_ERROR:
-            signal_error.connect( notifier );
+            return signal_error.connect( notifier );
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
@@ -287,6 +296,16 @@ const WBoolFlag& WModule::isUseable() const
 const WBoolFlag& WModule::isReady() const
 {
     return m_isReady;
+}
+
+const WBoolFlag& WModule::isCrashed() const
+{
+    return m_isCrashed;
+}
+
+const WBoolFlag& WModule::isReadyOrCrashed() const
+{
+    return m_isReadyOrCrashed;
 }
 
 void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
@@ -357,10 +376,13 @@ void WModule::threadMain()
     }
     catch( const WException& e )
     {
-        WLogger::getLogger()->addLogMessage( "WException. Notifying.", "Module (" + getName() + ")", LL_ERROR );
+        wlog::error( "Module (" + getName() +")" ) << "WException. Notifying. Message: " << e.what();
 
         // ensure proper exception propagation
         signal_error( shared_from_this(), e );
+
+        // hopefully, all waiting threads use isReadyOrCrashed to wait.
+        m_isCrashed( true );
     }
     catch( const std::exception& e )
     {
@@ -369,6 +391,9 @@ void WModule::threadMain()
         // convert these exceptions to WException
         WException ce = WException( e );
         signal_error( shared_from_this(), ce );
+
+        // hopefully, all waiting threads use isReadyOrCrashed to wait.
+        m_isCrashed( true );
     }
 }
 

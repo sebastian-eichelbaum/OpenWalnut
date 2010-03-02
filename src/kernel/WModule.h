@@ -159,6 +159,21 @@ public:
       */
     const WBoolFlag&  isReady() const;
 
+    /**
+     * Checks whether this module has been crashed. This will be true whenever the module throws an unhandled exception.
+     *
+     * \return true if there has been an exception during moduleMain().
+     */
+    const WBoolFlag& isCrashed() const;
+
+    /**
+     * This is the logical or of isReady and isCrashed. You should use this condition if you need to wait for a module to get ready. If it
+     * crashed before ready() got called, you most probably would wait endlessly.
+     *
+     * \return isReady || isCrashed.
+     */
+    const WBoolFlag& isReadyOrCrashed() const;
+
      /**
       * The container this module is associated with.
       *
@@ -420,6 +435,16 @@ protected:
      * True if ready() was called.
      */
     WBoolFlag m_isReady;
+
+    /**
+     * True whenever an exception is thrown during moduleMain.
+     */
+    WBoolFlag m_isCrashed;
+
+    /**
+     * It is true whenever m_isReady or m_isCrashed is true. This is mostly useful for functions which need to wait for a module to get ready.
+     */
+    WBoolFlag m_isReadyOrCrashed;
 
     /**
      * Progress indicator for the "ready" state.

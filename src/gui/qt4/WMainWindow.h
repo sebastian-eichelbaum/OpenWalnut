@@ -181,6 +181,11 @@ public slots:
      */
     void newRoi();
 
+    /**
+     * Gets called whenever the user presses the project button.
+     */
+    void projectLoad();
+
 private:
     /**
      * Sets up the permanent tool bar.

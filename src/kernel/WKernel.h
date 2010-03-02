@@ -162,7 +162,6 @@ public:
      */
     static std::string getShaderPath();
 
-
     /**
      * get for roi manager
      */
@@ -173,7 +172,6 @@ public:
      * getter for font path
      */
     static std::string getFontPath();
-
 
 protected:
 
@@ -207,6 +205,7 @@ protected:
      * The container containing the modules.
      */
     boost::shared_ptr< WModuleContainer > m_moduleContainer;
+
 private:
     /**
      * Loads all the modules it can find.

@@ -120,7 +120,7 @@ public:
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    boost::shared_ptr< WGEViewer > createViewer( std::string name, osg::ref_ptr<WindowData> wdata, int x, int y,
+    boost::shared_ptr< WGEViewer > createViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
                                                int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
                                                WColor bgColor = WColor( .9, .9, .9 ) );
 

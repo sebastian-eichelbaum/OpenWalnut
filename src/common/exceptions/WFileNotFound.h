@@ -22,24 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#ifndef WFILENOTFOUND_H
+#define WFILENOTFOUND_H
+
+#include <string>
+
+#include "../WException.h"
 
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * Thrown whenever a file was not found.
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "quit.xpm"
+class WFileNotFound : public WException
+{
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WFileNotFound( const std::string& msg = "The file could not be found." );
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+    /**
+     * Destructor.
+     */
+    virtual ~WFileNotFound() throw();
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+protected:
+private:
+};
 
-#endif  // WICONS_H
+#endif  // WFILENOTFOUND_H

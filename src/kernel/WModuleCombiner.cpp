@@ -22,24 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include "WKernel.h"
+#include "WModuleContainer.h"
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "quit.xpm"
+#include "WModuleCombiner.h"
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+WModuleCombiner::WModuleCombiner( boost::shared_ptr< WModuleContainer > target ):
+    m_container( target )
+{
+    // initialize members
+}
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+WModuleCombiner::WModuleCombiner():
+    m_container( WKernel::getRunningKernel()->getRootContainer() )
+{
+    // initialize members
+}
 
-#endif  // WICONS_H
+WModuleCombiner::~WModuleCombiner()
+{
+    // cleanup
+}
+

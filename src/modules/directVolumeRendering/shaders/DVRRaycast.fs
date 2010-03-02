@@ -88,7 +88,7 @@ void main()
             discard;
         }
 
-        gl_FragColor = vec4( vec3( 1.0 - i / 150.0 ), 1.0 );
+        gl_FragColor = 0.5 * ( gl_Color  + vec4( vec3( 1.0 - i / 250.0 ), 1.0 ) );
     }
 
     

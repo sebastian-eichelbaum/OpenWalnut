@@ -97,6 +97,8 @@ void WMDirectVolumeRendering::properties()
                                                                       "transfer function.", true );
     m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
                                                                       50 );
+    m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+                      m_propCondition );
 }
 
 void WMDirectVolumeRendering::moduleMain()
@@ -141,6 +143,13 @@ void WMDirectVolumeRendering::moduleMain()
             }
         }
 
+        // m_isoColor changed
+        if ( m_isoColor->changed() )
+        {
+            // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
+            dataChanged = true;
+        }
+
         // As the data has changed, we need to recreate the texture.
         if ( dataChanged )
         {
@@ -158,7 +167,7 @@ void WMDirectVolumeRendering::moduleMain()
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 
             // use the OSG Shapes, create unit cube
-            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
+            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, m_isoColor->get( true ) );
             m_shader->apply( cube );
 
             // bind the texture to the node
@@ -172,8 +181,10 @@ void WMDirectVolumeRendering::moduleMain()
             // setup all those uniforms
             osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
             isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
+
             osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() );
             isosurface->setUpdateCallback( new SafeUniformCallback( this ) );
+
             rootState->addUniform( isovalue );
             rootState->addUniform( isosurface );
 

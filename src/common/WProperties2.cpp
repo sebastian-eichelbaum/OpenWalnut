@@ -128,9 +128,9 @@ WPropFilename WProperties2::addProperty( std::string name, std::string descripti
     return p;
 }
 
-WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial, bool hide )
+WPropSelection WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, hide );
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, hide );
 }
 
 WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial, bool hide )
@@ -188,10 +188,10 @@ WPropFilename WProperties2::addProperty( std::string name, std::string descripti
     return p;
 }
 
-WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
-                                     boost::shared_ptr< WCondition > condition, bool hide )
+WPropSelection WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                          boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, condition, hide );
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, hide );
 }
 
 WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
@@ -251,10 +251,10 @@ WPropFilename WProperties2::addProperty( std::string name, std::string descripti
     return p;
 }
 
-WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
-                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+WPropSelection WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, notifier, hide );
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, notifier, hide );
 }
 
 WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
@@ -321,11 +321,11 @@ WPropFilename WProperties2::addProperty( std::string name, std::string descripti
     return p;
 }
 
-WPropList WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
-                                     boost::shared_ptr< WCondition > condition,
-                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+WPropSelection WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                          boost::shared_ptr< WCondition > condition,
+                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_LIST >( name, description, initial, condition, notifier, hide );
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, notifier, hide );
 }
 
 WPropPosition WProperties2::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,

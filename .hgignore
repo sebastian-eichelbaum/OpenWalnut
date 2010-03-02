@@ -31,6 +31,13 @@ syntax: regexp
 ^tags$
 ^cscope.out$
 
+# numCores files
+^tools/numCores/CMakeCache.txt$
+^tools/numCores/CMakeFiles
+^tools/numCores/Makefile$
+^tools/numCores/cmake_install.cmake$
+
+
 syntax: glob
 .project
 .cproject

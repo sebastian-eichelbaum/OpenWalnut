@@ -292,7 +292,7 @@ public:
      *
      * \return the newly created property variable instance.
      */
-    WPropList      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial, bool hide = false );
+    WPropSelection      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -425,7 +425,7 @@ public:
      *
      * \return the newly created property variable instance.
      */
-    WPropList      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
+    WPropSelection addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                 boost::shared_ptr< WCondition > condition, bool hide = false );
 
     /**
@@ -562,7 +562,7 @@ public:
      *
      * \return the newly created property variable instance.
      */
-    WPropList      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
+    WPropSelection addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
     /**
@@ -711,7 +711,7 @@ public:
      *
      * \return the newly created property variable instance.
      */
-    WPropList      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_LIST&   initial,
+    WPropSelection addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                 boost::shared_ptr< WCondition > condition,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 

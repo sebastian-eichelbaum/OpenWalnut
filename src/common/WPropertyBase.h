@@ -90,6 +90,16 @@ public:
      */
     virtual PROPERTY_TYPE getType() const;
 
+    /**
+     * This methods allows properties to be set by a string value. This is especially useful when a property is only available as string and the
+     * real type of the property is unknown. This is a shortcut for casting the property and then setting the lexically casted value.
+     *
+     * \param value the new value to set.
+     *
+     * \return true if value could be set.
+     */
+    virtual bool setAsString( std::string value ) = 0;
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // Helpers for easy conversion to the possible types
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,9 +142,9 @@ public:
     /**
      * Helper converts this instance to its native type.
      *
-     * \return the property as list property
+     * \return the property as selection property
      */
-    WPropList toPropList();
+    WPropSelection toPropSelection();
 
     /**
      * Helper converts this instance to its native type.

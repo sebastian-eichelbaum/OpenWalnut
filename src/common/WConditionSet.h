@@ -70,12 +70,12 @@ public:
      * Wait for the condition. Sets the calling thread asleep. If the condition set is resetable, this will return immediately
      * when a condition in the set fired in the past and there has been no reset() call until now.
      */
-    virtual void wait();
+    virtual void wait() const;
 
     /**
      * Resets the internal fire state. This does nothing if !isResetable().
      */
-    virtual void reset();
+    virtual void reset() const;
 
     /**
      * Sets the resetable flag. This causes the condition set to act like a WConditionOneShot. There are several implications to
@@ -127,7 +127,7 @@ protected:
     /**
      * Flag denoting whether one condition fired in the past. Just useful when m_resetable is true.
      */
-    bool m_fired;
+    mutable bool m_fired;
 
 private:
 };

@@ -25,6 +25,11 @@
 #ifndef WVECTOR3D_H
 #define WVECTOR3D_H
 
+#include <string>
+#include <vector>
+
+#include <boost/lexical_cast.hpp>
+
 #include "WValue.h"
 
 namespace wmath

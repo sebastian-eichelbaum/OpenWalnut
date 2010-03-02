@@ -31,8 +31,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
 /**
  * Represents a RGBA Color
  */

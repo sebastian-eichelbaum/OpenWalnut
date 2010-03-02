@@ -22,24 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include <string>
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "quit.xpm"
+#include "WEventTypes.h"
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+#include "WModuleCrashEvent.h"
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+WModuleCrashEvent::WModuleCrashEvent( boost::shared_ptr< WModule > module, std::string message )
+    : QEvent( static_cast< QEvent::Type >( WQT_CRASH_EVENT ) ),
+    m_module( module ),
+    m_message( message )
+{
+    // initialize members
+}
 
-#endif  // WICONS_H
+WModuleCrashEvent::~WModuleCrashEvent()
+{
+    // cleanup
+}
+
+boost::shared_ptr< WModule > WModuleCrashEvent::getModule()
+{
+    return m_module;
+}
+
+std::string WModuleCrashEvent::getMessage()
+{
+    return m_message;
+}
+

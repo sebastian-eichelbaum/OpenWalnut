@@ -64,7 +64,7 @@ void WConditionSet::conditionFired()
     notify();
 }
 
-void WConditionSet::wait()
+void WConditionSet::wait() const
 {
     if ( !m_resetable || !m_fired )
     {
@@ -77,7 +77,7 @@ void WConditionSet::wait()
     }
 }
 
-void WConditionSet::reset()
+void WConditionSet::reset() const
 {
     m_fired = false;
 }

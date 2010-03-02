@@ -25,21 +25,8 @@
 #ifndef WGEGRAPHICSWINDOW_H
 #define WGEGRAPHICSWINDOW_H
 
-#if defined( WIN32 ) && !defined( __CYGWIN__ )
-#include <osgViewer/api/Win32/GraphicsWindowWin32>
-typedef HWND WindowHandle;
-typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
-//#elif defined( __APPLE__ )  // Assume using Carbon on Mac.
-//#include <osgViewer/api/Carbon/GraphicsWindowCarbon>
-//typedef WindowRef WindowHandle;
-//typedef osgViewer::GraphicsWindowCarbon::WindowData WindowData;
-#else  // all other unix
-#include <osgViewer/api/X11/GraphicsWindowX11>
-typedef Window WindowHandle;
-typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
-#endif
-
 #include <boost/shared_ptr.hpp>
+#include <osgViewer/GraphicsWindow>
 
 /**
  * Class managing a single graphics context and OSG GraphicsWindow.
@@ -59,7 +46,7 @@ public:
      * \param height Height of the Widget.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEGraphicsWindow( osg::ref_ptr<WindowData> wdata, int x, int y, int width, int height );
+    WGEGraphicsWindow( osg::ref_ptr<osg::Referenced> wdata, int x, int y, int width, int height );
 
     /**
      * Destructor.
@@ -146,7 +133,7 @@ protected:
     /**
      * Widget window data.
      */
-    osg::ref_ptr<WindowData> m_WindowData;
+    osg::ref_ptr<osg::Referenced> m_WindowData;
 private:
 };
 

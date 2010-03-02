@@ -22,24 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include <string>
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "quit.xpm"
+#include "WFileNotFound.h"
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+WFileNotFound::WFileNotFound( const std::string& msg )
+    : WException( msg )
+{
+    // init members
+}
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
-
-#endif  // WICONS_H
+WFileNotFound::~WFileNotFound() throw()
+{
+    // clean up
+}

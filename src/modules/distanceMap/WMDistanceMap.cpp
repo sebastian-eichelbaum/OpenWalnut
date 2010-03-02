@@ -206,7 +206,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     nbands = grid->getNbCoordsZ();
     nrows = grid->getNbCoordsY();
     ncols = grid->getNbCoordsX();
-#ifdef _WIN32
+#ifdef _MSC_VER
     npixels = max( nbands, nrows );
 #else
     npixels = std::max( nbands, nrows );

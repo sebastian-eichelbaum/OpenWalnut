@@ -120,6 +120,8 @@ void WModuleFactory::load()
 
 boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule > prototype )
 {
+    wlog::debug( "ModuleFactory" ) << "Creating new instance of prototype \"" << prototype->getName() << "\".";
+
     // for this a read lock is sufficient
     boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
 

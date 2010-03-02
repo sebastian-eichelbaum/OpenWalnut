@@ -38,6 +38,38 @@
 #include "../../kernel/WKernel.h"
 
 
+#if defined( WIN32 ) && !defined( __CYGWIN__ )
+#include <osgViewer/api/Win32/GraphicsWindowWin32>
+typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
+#elif defined( __APPLE__ )
+#   if defined( __LP64__ )  // assume Cocoa on 64bit
+#   include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
+    struct WindowData
+        : public osgViewer::GraphicsWindowCocoa::WindowData
+    {
+        explicit WindowData( ::WId view )
+            : osgViewer::GraphicsWindowCocoa::WindowData( 0 )
+        {
+        }
+    };
+#   else // assume Carbon on 32bit
+#   include <osgViewer/api/Carbon/GraphicsWindowCarbon>
+    struct WindowData
+        : public osgViewer::GraphicsWindowCarbon::WindowData
+    {
+        explicit WindowData( ::WId view )
+            : osgViewer::GraphicsWindowCarbon::WindowData(
+                HIViewGetWindow( static_cast<HIViewRef>( view ) ) )
+        {
+        }
+    };
+#   endif
+#else  // all other unix
+#include <osgViewer/api/X11/GraphicsWindowX11>
+typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
+#endif
+
+
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
 #ifdef _WIN32
     : QWidget( parent ),
@@ -75,19 +107,7 @@ void WQtGLWidget::initialize()
         return;
 
     // initialize OpenGL context and OpenSceneGraph
-
-#if defined(__APPLE__)
-    // Extract a WindowPtr from the HIViewRef that QWidget::winId() returns.
-    // Without this change, the peer tries to call GetWindowPort on the HIViewRef
-    // which returns 0 and we only render white.
-    osg::ref_ptr<WindowData> wdata;
-#warning This must be commented back in soon
-    //  wdata = osg::ref_ptr<WindowData>(
-    //        new WindowData( HIViewGetWindow( static_cast<HIViewRef>winId() ) )
-    //  );
-#else  // all others
-    osg::ref_ptr<WindowData> wdata = osg::ref_ptr<WindowData>( new WindowData( winId() ) );
-#endif
+    osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
 
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(

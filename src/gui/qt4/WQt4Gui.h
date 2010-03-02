@@ -122,6 +122,14 @@ public:
 
 protected:
 
+    /**
+     * Called whenever a module crashes.
+     *
+     * \param module the module which has thrown the exception
+     * \param exception the exception the module has thrown
+     */
+    void moduleError( boost::shared_ptr< WModule > module, const WException& exception );
+
 private:
 
     /**
