@@ -152,6 +152,8 @@ namespace string_utils
      * output operator above.
      * \warning The inputstream is first written into a string then the convertion into T
      * via boost::lexical_cast takes place.
+     * \warning The delimiter should not be in an elements string representation since then
+     * the tokenizer may gets confused
      *
      * \param in Input stream
      * \param v Vector where to store the elements.
