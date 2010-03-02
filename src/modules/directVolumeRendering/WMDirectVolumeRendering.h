@@ -133,6 +133,11 @@ private:
     WPropColor m_isoColor;
 
     /**
+     * The number of steps to walk along the ray.
+     */
+    WPropInt m_stepCount;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

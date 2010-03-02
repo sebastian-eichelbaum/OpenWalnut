@@ -99,6 +99,11 @@ void WMDirectVolumeRendering::properties()
                                                                       50 );
     m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
+
+    m_stepCount     = m_properties2->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
+                                                                      "may cause artifacts whilst a high value slows down rendering.", 250 );
+    m_stepCount->setMin( 1 );
+    m_stepCount->setMax( 1000 );
 }
 
 void WMDirectVolumeRendering::moduleMain()
@@ -185,8 +190,12 @@ void WMDirectVolumeRendering::moduleMain()
             osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() );
             isosurface->setUpdateCallback( new SafeUniformCallback( this ) );
 
+            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
+            steps->setUpdateCallback( new SafeUniformCallback( this ) );
+
             rootState->addUniform( isovalue );
             rootState->addUniform( isosurface );
+            rootState->addUniform( steps );
 
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
@@ -217,6 +226,11 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
     {
         uniform->set( m_module->m_isoSurface->get( true ) );
     }
+    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
+    {
+        uniform->set( m_module->m_stepCount->get( true ) );
+    }
+
 }
 
 void WMDirectVolumeRendering::activate()
