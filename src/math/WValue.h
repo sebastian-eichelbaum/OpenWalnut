@@ -38,6 +38,9 @@ namespace wmath
  */
 template< typename T > class WValue
 {
+template< typename U > friend std::ostream& operator<<( std::ostream& os, const WValue< U > &rhs );
+template< typename U > friend std::istream& operator>>( std::istream& in, WValue< U >& rhs );
+
 public:
     /**
      * Create a WValue with the given number of components.
@@ -267,17 +270,6 @@ public:
         return result;
     }
 
-    /**
-     * Writes a meaningful representation of that object to the given stream.
-     * \param os The operator will write to this stream.
-     * \param rhs This will be written to the stream.
-     */
-    friend std::ostream& operator<<( std::ostream& os, const WValue< T > &rhs )
-    {
-        // Caution: only directly referencing the operator<< template function will work here
-        return string_utils::operator<<( os, rhs.m_components );
-    }
-
 protected:
 private:
     /**
@@ -291,7 +283,7 @@ private:
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-template< typename T > const WValue< T > operator*( const WValue< T >& lhs, double rhs )
+template< typename T > inline const WValue< T > operator*( const WValue< T >& lhs, double rhs )
 {
     WValue< T > result( lhs );
     result *= rhs;
@@ -303,7 +295,7 @@ template< typename T > const WValue< T > operator*( const WValue< T >& lhs, doub
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-template< typename T > const WValue< T > operator*( double lhs, const WValue< T >& rhs )
+template< typename T > inline const WValue< T > operator*( double lhs, const WValue< T >& rhs )
 {
     WValue< T > result( rhs );
     result *= lhs;
@@ -315,11 +307,37 @@ template< typename T > const WValue< T > operator*( double lhs, const WValue< T 
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-template< typename T > const WValue< T > operator/( const WValue< T >& lhs, double rhs )
+template< typename T > inline const WValue< T > operator/( const WValue< T >& lhs, double rhs )
 {
     WValue< T > result( lhs );
     result /= rhs;
     return result;
+}
+
+/**
+ * Writes a meaningful representation of that object to the given stream.
+ *
+ * \param os The operator will write to this stream.
+ * \param rhs This will be written to the stream.
+ *
+ * \return the outputstream
+ */
+template< typename U > inline std::ostream& operator<<( std::ostream& os, const WValue< U > &rhs )
+{
+    return string_utils::operator<<( os, rhs.m_components );
+}
+
+/**
+ * Write an input stream into a WValue.
+ *
+ * \param in the input stream
+ * \param rhs the value to where to write the stream
+ *
+ * \return the inputstream
+ */
+template< typename U > inline std::istream& operator>>( std::istream& in, WValue< U >& rhs )
+{
+    return string_utils::operator>>( in, rhs.m_components );
 }
 
 }  // End of namespace

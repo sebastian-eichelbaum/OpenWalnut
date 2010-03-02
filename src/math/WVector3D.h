@@ -95,43 +95,6 @@ private:
 };
 
 /**
- * Write a vector in string represensation to the given output stream.
- *
- * \param out the outstream
- * \param c the vector to print
- *
- * \return the extended out stream.
- */
-inline std::ostream& operator<<( std::ostream& out, const WVector3D& c )
-{
-    out << c[0] << ";" << c[1] << ";" << c[2];
-    return out;
-}
-
-/**
- * Write a vector in string represensation to the given input stream.
- *
- * \param in the input stream
- * \param c the vector to write to the stream
- *
- * \return the inputstream
- */
-inline std::istream& operator>>( std::istream& in, WVector3D& c )
-{
-    std::string str;
-    in >> str;
-    std::vector<std::string> tokens;
-    tokens = string_utils::tokenize( str, ";" );
-    assert( tokens.size() == 3 && "There weren't 3 vector component values for a WVector3D." );
-
-    c[0] = boost::lexical_cast< float >( tokens[0] );
-    c[1] = boost::lexical_cast< float >( tokens[1] );
-    c[2] = boost::lexical_cast< float >( tokens[2] );
-
-    return in;
-}
-
-/**
  * Define WPosition as an alias for WVector3D
  */
 typedef WVector3D WPosition;
