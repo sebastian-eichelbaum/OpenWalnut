@@ -70,7 +70,7 @@ namespace wmath
         void reverseOrder();
 
         /**
-         * Computes the length of the fiber not in terms of points but in terms
+         * Computes the length of the line not in terms of points but in terms
          * of accumulated segment lengths.
          *
          * \return Sum of all line segment lengths
@@ -87,6 +87,16 @@ namespace wmath
          * \return Const reference to the midpoint element.
          */
         const wmath::WPosition& midPoint() const;
+
+        /**
+         * Compares this line with another line point wise upto a given delta.
+         *
+         * \param other The other line
+         * \param delta Specifying the environment upto this two points are considered to be the same
+         *
+         * \return -1 in case of the two fibers are considered equal, otherwise the first position on which they differ is returned.
+         */
+        int equalsDelta( const wmath::WLine& other, double delta ) const;
     };
 } // end of namespace
 #endif  // WLINE_H

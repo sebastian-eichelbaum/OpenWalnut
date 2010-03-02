@@ -117,13 +117,13 @@ void WMNavSlices::properties()
     m_showCoronal    = m_properties2->addProperty( "showCoronal",    "Determines whether the coronal slice should be visible.", true, true );
     m_showSagittal   = m_properties2->addProperty( "showSagittal",   "Determines whether the sagittal slice should be visible.", true, true );
 
-    m_axialPos       = m_properties2->addProperty( "axialPos",       "Position of axial slice.",    80 );
+    m_axialPos       = m_properties2->addProperty( "Axial Slice",       "Position of axial slice.",    80 );
     m_axialPos->setMin( 0 );
     m_axialPos->setMax( 160 );
-    m_coronalPos     = m_properties2->addProperty( "coronalPos",     "Position of coronal slice.", 100 );
+    m_coronalPos     = m_properties2->addProperty( "Coronal Slice",     "Position of coronal slice.", 100 );
     m_coronalPos->setMin( 0 );
     m_coronalPos->setMax( 160 );
-    m_sagittalPos    = m_properties2->addProperty( "sagittalPos",    "Position of sagittal slice.", 80 );
+    m_sagittalPos    = m_properties2->addProperty( "Sagittal Slice",    "Position of sagittal slice.", 80 );
     m_sagittalPos->setMin( 0 );
     m_sagittalPos->setMax( 160 );
 

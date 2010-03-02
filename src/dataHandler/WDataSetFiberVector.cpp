@@ -71,6 +71,12 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fi
     }
 }
 
+WDataSetFiberVector::WDataSetFiberVector( const WDataSetFiberVector& other )
+    : WMixinVector< wmath::WFiber >( other ),
+      WDataSet()
+{
+}
+
 WDataSetFiberVector& WDataSetFiberVector::operator=( const WDataSetFiberVector& other )
 {
     if( this == &other )

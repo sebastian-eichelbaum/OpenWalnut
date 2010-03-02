@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/lexical_cast.hpp>
+
 /**
  * Some utilities for string manipulation and output operations. Please note
  * that the overloaded ostream output operators aren't in a separate namespace
@@ -142,6 +144,35 @@ namespace string_utils
         std::copy( v.begin(), v.end(), std::ostream_iterator< T >( result, ", " ) );
         os << rTrim( result.str(), ", " ) << "]";
         return os;
+    }
+
+    /**
+     * Write an input stream into the given vector. The delimiter is implicitly set to ", ".
+     * Also wrapping brackets '[' ']' are expected. In general this is the opposite of the
+     * output operator above.
+     * \warning The inputstream is first written into a string then the convertion into T
+     * via boost::lexical_cast takes place.
+     * \warning The delimiter should not be in an elements string representation since then
+     * the tokenizer may gets confused
+     *
+     * \param in Input stream
+     * \param v Vector where to store the elements.
+     *
+     * \return The input stream again
+     */
+    template< class T > std::istream& operator>>( std::istream& in, std::vector< T >& v )
+    {
+        std::string str;
+        in >> str;
+        trim( str, "[]" ); // remove preceeding and trailing brackets '[', ']' if any
+        std::vector< std::string > tokens = tokenize( str, ", " );
+        v.resize( 0 ); // clear would deallocate
+        v.reserve( tokens.size() );
+        for( size_t i = 0; i < tokens.size(); ++i )
+        {
+            v.push_back( boost::lexical_cast< T >( tokens[i] ) );
+        }
+        return in;
     }
 
     /**

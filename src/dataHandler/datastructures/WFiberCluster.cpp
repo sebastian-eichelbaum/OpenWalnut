@@ -92,19 +92,38 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
 void WFiberCluster::generateCenterLine()
 {
     // make copies of the fibers
-    WDataSetFiberVector fibs;
-    size_t avgNumPoints = 0;
+    boost::shared_ptr< WDataSetFiberVector > fibs = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector() );
+    size_t avgFiberSize = 0;
     for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
     {
-        fibs.push_back( m_fibs->at( *cit ) );
-        avgNumPoints += fibs.back().size();
+        fibs->push_back( m_fibs->at( *cit ) );
+        avgFiberSize += fibs->back().size();
     }
-    avgNumPoints /= fibs.size();
-    // resample
-    for( WDataSetFiberVector::iterator cit = fibs.begin(); cit != fibs.end(); ++cit )
+    avgFiberSize /= fibs->size();
+
+    unifyDirection( fibs );
+
+    for( WDataSetFiberVector::iterator cit = fibs->begin(); cit != fibs->end(); ++cit )
     {
-        cit->resample( avgNumPoints );
+        cit->resample( avgFiberSize );
     }
+
+    m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber() );
+    m_centerLine->reserve( avgFiberSize );
+    for( size_t i = 0; i < avgFiberSize; ++i )
+    {
+        wmath::WPosition avgPosition( 0, 0, 0 );
+        for( WDataSetFiberVector::const_iterator cit = fibs->begin(); cit != fibs->end(); ++cit )
+        {
+            avgPosition += cit->at( i );
+        }
+        avgPosition /= fibs->size();
+        m_centerLine->push_back( avgPosition );
+    }
+}
+
+void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const
+{
 }
 
 boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine()

@@ -75,27 +75,24 @@ void WLine::resample( size_t numPoints )
     {
         const double pathL = pathLength();
         double newSegmentLength = pathL / ( numPoints - 1 );
+        const double delta = newSegmentLength * 1.0e-10; // 1.0e-10 which represents the precision is choosen by intuition
+
         WLine newLine;
         newLine.reserve( numPoints );
 
         double remainingLength = 0.0;
         newLine.push_back( front() );
-        double lengthSoFar = 0.0;
         for( size_t i = 0; i < ( size() - 1 ); ++i )
         {
             remainingLength += ( at( i ) - at( i + 1 ) ).norm();
-            // FLT_EPS since I don't know how to fix this any further
-            while( ( remainingLength > newSegmentLength ) || std::abs( remainingLength - newSegmentLength ) < wlimits::FLT_EPS )
+            while( ( remainingLength > newSegmentLength ) || std::abs( remainingLength - newSegmentLength ) < delta )
             {
                 remainingLength -= newSegmentLength;
-                lengthSoFar += newSegmentLength;
                 // TODO(math): fix numerical issuses: newSegmentLength may be wrong => great offset by many intraSegment sample points
                 //                                    remainingLength may be wrong => ...
                 //                                    Take a look at the unit test testNumericalStabilityOfResampling
                 WPosition newPoint = at( i + 1 ) + remainingLength * ( at( i ) - at( i + 1 ) ).normalized();
                 newLine.push_back( newPoint );
-                // since numerical instability (newSegmentLength may have inproper value)
-                // newSegmentLength = ( pathL - lengthSoFar ) / ( numPoints - newLine.size() );
                 // std::cout << "line size so far" << newLine.size() << " lenght so far: " << newLine.pathLength() << std::endl;
                 // std::cout << numPoints - newLine.size() << std::endl;
              }
@@ -107,7 +104,38 @@ void WLine::resample( size_t numPoints )
         // std::cout << "this size: " << size() << " new size: " << newLine.size() << std::endl;
         this->WMixinVector< wmath::WPosition >::operator=( newLine );
     }
-    assert( size() == numPoints && "Resampling of a line has failed! Is your fiber of length 0 or even the new sample rate??" );
+    assert( size() == numPoints && "Resampling of a line has failed! Is your line of length 0 or even the new sample rate??" );
+}
+
+int WLine::equalsDelta( const wmath::WLine& other, double delta ) const
+{
+    size_t pts = ( std::min )( other.size(), size() ); // This ( std::min ) thing compiles also under Win32/Win64
+    size_t diffPos = 0;
+    bool sameLines = true;
+    for( diffPos = 0; diffPos < pts; ++diffPos )
+    {
+        for( int x = 0; x < 3; ++x )
+        {
+            assert( at( diffPos ).size() == 3 && other.at( diffPos ).size() == 3 );
+            sameLines = sameLines && ( std::abs( at( diffPos )[x] - other.at( diffPos )[x] ) <= delta );
+            if( !sameLines )
+            {
+                break;
+            }
+        }
+        if( !sameLines )
+        {
+            break;
+        }
+    }
+    if( sameLines )
+    {
+        if( size() == other.size() )
+        {
+            return -1;
+        }
+    }
+    return diffPos;
 }
 
 } // end of namespace

@@ -74,6 +74,13 @@ public:
     const std::list< size_t >& getIndices() const;
 
     /**
+     * Reset the indices belonging to that cluster
+     *
+     * \param indices list of indices
+     */
+    void setIndices( const std::list< size_t >& indices );
+
+    /**
      * Sort the indices of fibers associated with this cluster in ascending
      * order.
      */
@@ -165,12 +172,24 @@ protected:
      */
     void generateCenterLine();
 
+    /**
+     * Alings all fibers within the given dataset to be in one main direction. But Alignment only may swap the ordering of the fibers
+     * but not the positions or something similar. We need this only for the centerline generation.
+     *
+     * \param fibs The dataset
+     */
+    void unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const;
+
 private:
     /**
      * All indices in this set are members of this cluster
      */
     std::list< size_t > m_memberIndices;
 
+    // TODO(math): The only reason why we store here a Reference to the fiber
+    // dataset is, we need it in the WMVoxelizer module as well as the clustering
+    // information. Since we don't have the possibility of multiple
+    // InputConnectors we must agglomerate those into one object. Please remove this.
     /**
      * Reference to the real fibers of the brain this cluster belongs to.
      */
@@ -237,6 +256,11 @@ inline bool WFiberCluster::operator!=( const WFiberCluster& other ) const
 inline const std::list< size_t >& WFiberCluster::getIndices() const
 {
     return m_memberIndices;
+}
+
+inline void WFiberCluster::setIndices( const std::list< size_t >& indices )
+{
+    m_memberIndices = indices;
 }
 
 inline std::ostream& operator<<( std::ostream& os, const WFiberCluster& c )
