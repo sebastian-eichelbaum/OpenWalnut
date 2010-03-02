@@ -155,7 +155,11 @@ void WMData::moduleMain()
     // load it now
     std::string suffix = getSuffix( fileName );
 
-    if( suffix == ".nii" || suffix == ".gz" )
+    if( suffix == ".nii" 
+#ifndef _MSC_VER
+        || suffix == ".gz" 
+#endif
+        )
     {
         if( suffix == ".gz" )  // it may be a NIfTI file too
         {
