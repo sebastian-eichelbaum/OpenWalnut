@@ -64,7 +64,8 @@ public:
      *
      * \param other Instance to copy from
      */
-    explicit WDataSetFiberVector( const WDataSetFiberVector& other ); // defined since rule of three
+    // defined since rule of three
+    WDataSetFiberVector( const WDataSetFiberVector& other ); // NOLINT since cxxtest need it as unexcplicit!
 
     /**
      * Destructs WDataSetFiberVector instances

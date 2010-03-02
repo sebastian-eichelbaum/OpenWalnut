@@ -43,6 +43,52 @@ class WLineTest : public CxxTest::TestSuite
 {
 public:
     /**
+     * If two lines have different lengths they are considered diffrent
+     * regardless on the given delta and the first point on which they
+     * differ should be returned.
+     */
+    void testEqualsDeltaDifferentLength( void )
+    {
+        wmath::WLine line;
+        line.push_back( wmath::WPosition( 0, 0, 0 ) );
+        line.push_back( wmath::WPosition( 1, 0, 0 ) );
+        wmath::WLine other;
+        other.push_back( wmath::WPosition( 0, 0, 0 ) );
+        TS_ASSERT_EQUALS( line.equalsDelta( other, 0.0 ), 1 );
+    }
+
+    /**
+     * If both lines are of same size, but there is a point differing on
+     * more than the given delta the first point which differs should be
+     * returned.
+     */
+    void testEqualsDeltaOnRealDifferentLines( void )
+    {
+        wmath::WLine line;
+        line.push_back( wmath::WPosition( 0, 0, 0 ) );
+        line.push_back( wmath::WPosition( 1, 0, 0 ) );
+        wmath::WLine other;
+        other.push_back( wmath::WPosition( 0, 0, 0 ) );
+        other.push_back( wmath::WPosition( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
+        TS_ASSERT_EQUALS( line.equalsDelta( other, wlimits::DBL_EPS ), 1 );
+    }
+
+    /**
+     * If both lines are of same size and every point pair don't differ in
+     * terms of the given delta, -1 should be returned.
+     */
+    void testEqualsDeltaOnDifferentLinesButWithinDelta( void )
+    {
+        wmath::WLine line;
+        line.push_back( wmath::WPosition( 0, 0, 0 ) );
+        line.push_back( wmath::WPosition( 1, 0, 0 ) );
+        wmath::WLine other;
+        other.push_back( wmath::WPosition( 0, 0, 0 ) );
+        other.push_back( wmath::WPosition( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
+        TS_ASSERT_EQUALS( line.equalsDelta( other, 2 * wlimits::DBL_EPS ), -1 );
+    }
+
+    /**
      * When printing a line to stdout it the output should be as follows:
      * [first_pos, ..., last_pos] where the positions also should be in
      * the same format, so in the end we would have:
@@ -151,7 +197,7 @@ public:
         expected.push_back( WPosition( 0, 0, 0 ) );
         expected.push_back( WPosition( 1.5, 0.5, 0 ) );
         expected.push_back( WPosition( 3, 1, 0 ) );
-        assert_SAMELINES( expected, line );
+        assert_equals_delta( line, expected );
     }
 
     /**
@@ -169,7 +215,7 @@ public:
         TS_ASSERT( line.size() == 10 );
         wmath::WLine expected( line ); // make a copy of the original
         line.resample( 10 );
-        assert_SAMELINES( line, expected );
+        assert_equals_delta( line, expected );
     }
 
     /**
@@ -188,44 +234,51 @@ public:
         }
         expected.pop_back();
         line.resample( 5 );
-        assert_SAMELINES( expected, line );
+        assert_equals_delta( expected, line );
     }
 
-    // void testNumericalStabilityOfResampling( void )
-    // {
-    //     using wmath::WPosition;
-    //     wmath::WLine line;
-    //     wmath::WLine expected;
-    //     for( size_t i = 0; i < 100; ++i )
-    //     {
-    //         line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
-    //         expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
-    //         expected.push_back( WPosition( i + 0.25, std::pow( -1, i % 2 ) * 0.5, 0 ) );
-    //         expected.push_back( WPosition( i + 0.5,  0, 0 ) );
-    //         expected.push_back( WPosition( i + 0.75, std::pow( -1, ( i + 1 ) % 2 ) * 0.5, 0 ) );
-    //     }
-    //     expected.pop_back();
-    //     expected.pop_back();
-    //     expected.pop_back();
-    //     line.resample( 3 * 99 );
-    //     assert_SAMELINES( expected, line );
-    // }
-    //
-    // void testManySampelsInBetweenOfTwoOldPoints( void )
-    // {
-    //     using wmath::WPosition;
-    //     wmath::WLine line;
-    //     line.push_back( WPosition( 0, 0, 0 ) );
-    //     line.push_back( WPosition( 1, 1, 0 ) );
-    //     line.resample( 1001 );
-    //     wmath::WLine expected;
-    //     expected.push_back( WPosition( 0, 0, 0 ) );
-    //     for( size_t i = 1; i < 1001; ++i )
-    //     {
-    //         expected.push_back( WPosition( i / 1000.0, i / 1000.0, 0 ) );
-    //     }
-    //     assert_SAMELINES( expected, line );
-    //  }
+    /**
+     * When resampling with many sample points the numerical errors may sum
+     * up. Hence I watch if it not breaks a certain threshold: 1.0e-10*newSegmentLength.
+     */
+    void testNumericalStabilityOfResampling( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        wmath::WLine expected;
+        for( size_t i = 0; i < 100; ++i )
+        {
+            line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i + 0.25, std::pow( -1, i % 2 ) * 0.5, 0 ) );
+            expected.push_back( WPosition( i + 0.5,  0, 0 ) );
+            expected.push_back( WPosition( i + 0.75, std::pow( -1, ( i + 1 ) % 2 ) * 0.5, 0 ) );
+        }
+        expected.pop_back();
+        expected.pop_back();
+        expected.pop_back();
+        line.resample( 4 * 99 + 1 );
+        assert_equals_delta( expected, line, 1.0e-10 * std::sqrt( 5 ) / 4 );
+    }
+
+    /**
+     * If there are many new sample points between two old sample points nothing should fail either.
+     */
+    void testManySampelsInBetweenOfTwoOldPoints( void )
+    {
+        using wmath::WPosition;
+        wmath::WLine line;
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.resample( 1001 );
+        wmath::WLine expected;
+        expected.push_back( WPosition( 0, 0, 0 ) );
+        for( size_t i = 1; i < 1001; ++i )
+        {
+            expected.push_back( WPosition( i / 1000.0, i / 1000.0, 0 ) );
+        }
+        assert_equals_delta( expected, line, 1.0 / 1001.0 * 1.0e-10 );
+    }
 
    /**
      * The mid point of a WLine is just the point in the middle of the line.
@@ -277,40 +330,21 @@ private:
      *
      * \param first First line to compare with
      * \param second Second line to compare with
+     * \param delta The delta within two points are considered as equally
      */
-    void assert_SAMELINES( const wmath::WLine& first, const wmath::WLine& second ) const
+    void assert_equals_delta( const wmath::WLine& first, const wmath::WLine& second, double delta = wlimits::DBL_EPS ) const
     {
-        if( first.size() != second.size() )
-        {
-            std::stringstream msg;
-            msg << "Line size mismatch: " << first.size() << " != " << second.size();
-            TS_FAIL( msg.str() );
-        }
-        bool sameLines = true;
-        size_t i = 0;
-        for( i = 0; i < first.size(); ++i )
-        {
-            for( int j = 0; j < 3; ++j )
-            {
-                sameLines = sameLines && std::abs( first[i][j] - second[i][j] ) <= wlimits::DBL_EPS;
-                if( !sameLines )
-                {
-                    break;
-                }
-            }
-            if( !sameLines )
-            {
-                break;
-            }
-        }
-        if( !sameLines )
+        int diffPos = 0;
+        if( ( diffPos = first.equalsDelta( second, delta ) ) != -1 )
         {
             using string_utils::operator<<;
             std::stringstream msg;
-            msg << "Lines are different in at least point: " << i;
-            std::cout << "first  line: " << std::endl << first[i] << std::endl;
-            std::cout << "second line: " << std::endl << second[i] << std::endl;
+            msg << "Lines are different in at least point: " << diffPos;
             TS_FAIL( msg.str() );
+            std::cout << "first  line at: " << diffPos << std::endl << first[diffPos] << std::endl;
+            std::cout << "second line at: " << diffPos << std::endl << second[diffPos] << std::endl;
+            std::cout << "first  line: " << std::endl << first << std::endl;
+            std::cout << "second line: " << std::endl << second << std::endl;
         }
     }
 };
