@@ -230,7 +230,6 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
     {
         uniform->set( m_module->m_stepCount->get( true ) );
     }
-
 }
 
 void WMDirectVolumeRendering::activate()
