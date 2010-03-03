@@ -98,6 +98,11 @@ void WMVoxelizer::moduleMain()
             updateFibers();
         }
 
+        if( m_drawCenterLine->changed() )
+        {
+            updateCenterLine();
+        }
+
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 }
@@ -107,6 +112,7 @@ void WMVoxelizer::properties()
     m_antialiased     = m_properties2->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
     m_drawfibers      = m_properties2->addProperty( "Fibers Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
     m_drawBoundingBox = m_properties2->addProperty( "Bounding BoxEnable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
+    m_drawCenterLine  = m_properties2->addProperty( "CenterLine", "Enable/Disable display of the CenterLine", true );
     m_lighting        = m_properties2->addProperty( "Lighting", "Enable/Disable lighting.", true );
     m_drawVoxels      = m_properties2->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
     m_rasterAlgo      = m_properties2->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
@@ -209,6 +215,20 @@ void WMVoxelizer::updateFibers()
     }
 }
 
+void WMVoxelizer::updateCenterLine()
+{
+    assert( m_osgNode );
+    if( m_drawCenterLine->get( true ) )
+    {
+        m_centerLineGeode = wge::generateLineStripGeode( *m_clusters->getCenterLine(), 2.f );
+        m_osgNode->insert( m_centerLineGeode );
+    }
+    else
+    {
+        m_osgNode->remove( m_centerLineGeode );
+    }
+}
+
 void WMVoxelizer::update()
 {
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
@@ -217,6 +237,8 @@ void WMVoxelizer::update()
     m_osgNode->addUpdateCallback( new OSGCB_ChangeLighting( this ) );
 
     updateFibers();
+
+    updateCenterLine();
 
     std::pair< wmath::WPosition, wmath::WPosition > bb = createBoundingBox( *m_clusters );
 

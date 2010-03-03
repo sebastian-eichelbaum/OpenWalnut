@@ -156,7 +156,12 @@ public:
      *
      * \return Reference to the center line
      */
-    boost::shared_ptr< wmath::WFiber > getCenterLine();
+    boost::shared_ptr< wmath::WFiber > getCenterLine() const;
+
+    /**
+     * Makes the hard work to compute the center line.
+     */
+    void generateCenterLine();
 
 protected:
     // TODO(math): The only reason why we store here a Reference to the fiber
@@ -166,11 +171,6 @@ protected:
     // \cond
     static boost::shared_ptr< WPrototyped > m_prototype;
     // \endcond
-
-    /**
-     * Makes the hard work to compute the center line.
-     */
-    void generateCenterLine();
 
     /**
      * Alings all fibers within the given dataset to be in one main direction. But Alignment only may swap the ordering of the fibers

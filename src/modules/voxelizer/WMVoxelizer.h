@@ -116,6 +116,11 @@ protected:
      */
     void updateFibers();
 
+    /**
+     * Removes or inserts geode for the center line of the current cluster into this modules group node.
+     */
+    void updateCenterLine();
+
    /**
      * Builds an OSG geode where all voxels inside the dataSet which are not
      * zero are drawn as cuboids.
@@ -163,6 +168,7 @@ private:
 
     osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module
     osg::ref_ptr< osg::Geode > m_fiberGeode; //!< OSG fiber geode
+    osg::ref_ptr< osg::Geode > m_centerLineGeode; //!< OSG center line of the current cluster geode
     osg::ref_ptr< osg::Geode > m_boundingBoxGeode; //!< OSG bounding box geode
     osg::ref_ptr< osg::Geode > m_voxelGeode; //!< OSG voxel geode
 
@@ -171,6 +177,7 @@ private:
     WPropBool m_antialiased; //!< Enable/Disable antialiased drawing of voxels
     WPropBool m_drawfibers; //!< Enable/Disable drawing of the fibers of a cluster
     WPropBool m_drawBoundingBox; //!< Enable/Disable drawing of a clusters BoundingBox
+    WPropBool m_drawCenterLine; //!< Enable/Disable drawing of the current clusters CenterLine
     WPropBool m_lighting; //!< Enable/Disable lighting
     WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
     WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization

@@ -30,6 +30,7 @@
 #include "../common/datastructures/WTriangleMesh.h"
 #include "../common/WColor.h"
 #include "../math/WPosition.h"
+#include "../math/WLine.h"
 
 
 namespace wge
@@ -78,6 +79,19 @@ namespace wge
      * \return an osg::Geometry containing the mesh
      */
     osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
+
+    /**
+     * Generates a line geode with thickness and color as parameters.
+     *
+     * \param line sequence of points
+     * \param thickness How thick the line strip should be
+     * \param color If present this color is used for the whole line, otherwise local coloring is used
+     *
+     * \return The new assembled geode for this line
+     */
+    osg::ref_ptr< osg::Geode > generateLineStripGeode( const wmath::WLine& line,
+                                                       const float thickness = 3.0f,
+                                                       const WColor& color = WColor( 0, 0, 0, 0 ) );
 } // end of namespace wge
 
 #endif  // WGEGEODEUTILS_H

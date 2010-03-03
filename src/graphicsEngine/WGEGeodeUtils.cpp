@@ -25,6 +25,7 @@
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/LineWidth>
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
@@ -215,4 +216,48 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
     }
 
     return geometry;
+}
+
+osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const wmath::WLine& line, const float thickness, const WColor& color )
+{
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    for( size_t i = 1; i < line.size(); ++i )
+    {
+        vertices->push_back( osg::Vec3( line[i-1][0], line[i-1][1], line[i-1][2] ) );
+        colors->push_back( wge::osgColor( wge::getRGBAColorFromDirection( line[i-1], line[i] ) ) );
+    }
+    vertices->push_back( osg::Vec3( line.back()[0], line.back()[1], line.back()[2] ) );
+    colors->push_back( colors->back() );
+
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, line.size() ) );
+    geometry->setVertexArray( vertices );
+
+    if( color != WColor( 0, 0, 0, 0 ) )
+    {
+        colors->clear();
+        colors->push_back( wge::osgColor( color ) );
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+    else
+    {
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    }
+
+    // line width
+    osg::StateSet* stateset = new osg::StateSet;
+    osg::LineWidth* linewidth = new osg::LineWidth();
+    linewidth->setWidth( thickness );
+    stateset->setAttributeAndModes( linewidth, osg::StateAttribute::ON );
+    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    geometry->setStateSet( stateset );
+
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( geometry );
+    return geode;
 }

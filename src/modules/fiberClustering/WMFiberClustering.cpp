@@ -187,6 +187,7 @@ void WMFiberClustering::update()
     for( size_t i = 0; i < m_clusters.size(); ++i )
     {
         m_clusters[ i ].setDataSetReference( m_fibs );
+        m_clusters[ i ].generateCenterLine();
     }
 
     // reset min max of the slider for the cluster ID

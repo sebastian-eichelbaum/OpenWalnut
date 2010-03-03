@@ -158,7 +158,7 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
     }
 }
 
-boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine()
+boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine() const
 {
     return m_centerLine;
 }
