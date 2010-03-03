@@ -138,6 +138,16 @@ private:
     WPropInt m_stepCount;
 
     /**
+     * The alpha transparency used for the rendering
+     */
+    WPropInt m_alpha;
+
+    /**
+     * If true, the shader will only color using the depth of the point on the surface.
+     */
+    WPropBool m_useSimpleDepthColoring;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

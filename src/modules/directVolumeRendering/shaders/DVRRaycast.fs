@@ -43,8 +43,14 @@ uniform float u_isovalue;
 // Should the shader create some kind of isosurface instead of a volume rendering?
 uniform bool u_isosurface;
 
+// True if only the simple depth value should be used for coloring
+uniform bool u_depthCueingOnly;
+
 // The number of steps to use.
 uniform int u_steps;
+
+// The alpha value to set
+uniform float u_alpha;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -139,31 +145,28 @@ void main()
                 gl_FragDepth = curPointProjected.z;
 
                 // 4: set color
-                
-                // NOTE: these are a lot of weird experiments ;-)
-                float d = 1.0 - curPointProjected.z;
-                d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
-                
-                 gl_FragColor =( gl_Color * vec4( vec3( 7.0*d*d*d*d*d ), 1.0 ) );
-                
-                float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
-                w = ( w + 0.25 );
-                if ( w > 0.8 ) w = 0.8;
-
-                float d2 = w*d*d*d*d*d;
-                gl_FragColor = gl_Color * 11.0 * d2;
-               
-                
-                //gl_FragColor = vec4( vec3( w ), 1.0 );
-                /*
-                for ( float i = 0.0; i < 1.0; i+=0.05 )
+                vec4 color;
+                if ( u_depthCueingOnly )
                 {
-                    if ( i <= d && i+0.05 > d )
-                    {
-                        d = i;
-                        break;
-                    }
-                }*/
+                    float d = 1.0 - curPointProjected.z;
+                    color = gl_Color * 1.5 * d * d;
+                }
+                else
+                {
+                    // NOTE: these are a lot of weird experiments ;-)
+                    float d = 1.0 - curPointProjected.z;
+                    d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
+ 
+                    float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
+                    w = ( w + 0.5 );
+                    if ( w > 0.8 ) w = 0.8;
+
+                    float d2 = w*d*d*d*d*d;
+                    color = gl_Color * 11.0 * d2;
+                }
+
+                color.a = u_alpha;
+                gl_FragColor = color;
 
                 break;
             }
