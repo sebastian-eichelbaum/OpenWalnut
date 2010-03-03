@@ -25,6 +25,7 @@
 #ifndef WDATASETFIBERVECTORTRAITS_H
 #define WDATASETFIBERVECTORTRAITS_H
 
+#include <string>
 #include <sstream>
 
 #include "../WDataSetFiberVector.h"
@@ -49,7 +50,26 @@ public:
     {
         std::stringstream ss;
         using string_utils::operator<<;
-        ss << v;
+        size_t count = 0;
+        ss << std::endl;
+        for( WDataSetFiberVector::const_iterator cit = v.begin(); cit != v.end(); ++cit, ++count )
+        {
+            std::stringstream prefix;
+            prefix << "fib: " << count << "[ ";
+            std::string indent( prefix.str().size(), ' ' );
+            for( wmath::WFiber::const_iterator dit = cit->begin(); dit != cit->end(); ++dit )
+            {
+                if( *dit == *cit->begin() )
+                {
+                    ss << prefix.str() << *dit << std::endl;
+                }
+                else
+                {
+                    ss << indent << *dit << std::endl;
+                }
+            }
+            ss << std::string( indent.size() - 2, ' ' ) << "]" << std::endl;
+        }
         m_s = ss.str();
     }
 };

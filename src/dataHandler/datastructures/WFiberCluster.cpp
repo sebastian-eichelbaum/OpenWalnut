@@ -124,6 +124,38 @@ void WFiberCluster::generateCenterLine()
 
 void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const
 {
+    if( fibs->size() < 2 )
+    {
+        return;
+    }
+
+    assert( !( fibs->at( 0 ).empty() ) && "WFiberCluster.unifyDirection: Empty fiber processed.. aborting" );
+
+    // first fiber defines direction
+    const wmath::WFiber& firstFib = fibs->front();
+    const wmath::WPosition start = firstFib.front();
+    const wmath::WPosition m1    = firstFib.at( firstFib.size() * 1.0 / 3.0 );
+    const wmath::WPosition m2    = firstFib.at( firstFib.size() * 2.0 / 3.0 );
+    const wmath::WPosition end   = firstFib.back();
+
+    for( WDataSetFiberVector::iterator cit = fibs->begin() + 1; cit != fibs->end(); ++cit )
+    {
+        const wmath::WFiber& other = *cit;
+        double        distance = ( start - other.front() ).normSquare() +
+                                 ( m1 - other.at( other.size() * 1.0 / 3.0 ) ).normSquare() +
+                                 ( m2 - other.at( other.size() * 2.0 / 3.0 ) ).normSquare() +
+                                 ( end - other.back() ).normSquare();
+        double inverseDistance = ( start - other.back() ).normSquare() +
+                                 ( m1 - other.at( other.size() * 2.0 / 3.0 ) ).normSquare() +
+                                 ( m2 - other.at( other.size() * 1.0 / 3.0 ) ).normSquare() +
+                                 ( end - other.front() ).normSquare();
+        distance        /= 4.0;
+        inverseDistance /= 4.0;
+        if( inverseDistance < distance )
+        {
+            cit->reverseOrder();
+        }
+    }
 }
 
 boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine()
