@@ -139,7 +139,7 @@ void WMApplyMask::moduleMain()
                 break;
             }
             default:
-                throw WException( "Data type of value set not supported by this module." );
+                throw WException( std::string( "Data type of value set not supported by this module." ) );
         }
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
@@ -190,7 +190,7 @@ template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet
 
     if( !mask )
     {
-        throw WException( "Incorrect mask." );
+        throw WException( std::string( "Incorrect mask." ) );
     }
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Apply Mask", valSet->size() ) );
