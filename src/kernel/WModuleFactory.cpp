@@ -30,6 +30,7 @@
 #include "../common/WLogger.h"
 #include "../modules/template/WMTemplate.h"
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
+#include "../modules/applyMask/WMApplyMask.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
@@ -84,6 +85,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMApplyMask() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMHud() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );

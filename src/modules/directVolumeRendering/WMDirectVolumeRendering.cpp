@@ -104,6 +104,10 @@ void WMDirectVolumeRendering::properties()
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
+
+    m_alpha         = m_properties2->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
+
+    m_useSimpleDepthColoring = m_properties2->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
 }
 
 void WMDirectVolumeRendering::moduleMain()
@@ -180,10 +184,16 @@ void WMDirectVolumeRendering::moduleMain()
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
 
+            // enable transparency
+            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // setup all those uniforms
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             // for the texture, also bind the appropriate uniforms
             rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
 
-            // setup all those uniforms
             osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
             isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
 
@@ -193,9 +203,17 @@ void WMDirectVolumeRendering::moduleMain()
             osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
             steps->setUpdateCallback( new SafeUniformCallback( this ) );
 
+            osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
+            alpha->setUpdateCallback( new SafeUniformCallback( this ) );
+
+            osg::ref_ptr< osg::Uniform > depthCueingOnly = new osg::Uniform( "u_depthCueingOnly", m_useSimpleDepthColoring->get() );
+            depthCueingOnly->setUpdateCallback( new SafeUniformCallback( this ) );
+
             rootState->addUniform( isovalue );
             rootState->addUniform( isosurface );
             rootState->addUniform( steps );
+            rootState->addUniform( alpha );
+            rootState->addUniform( depthCueingOnly );
 
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
@@ -229,6 +247,14 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
     if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
     {
         uniform->set( m_module->m_stepCount->get( true ) );
+    }
+    if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
+    }
+    if ( m_module->m_useSimpleDepthColoring->changed() && ( uniform->getName() == "u_depthCueingOnly" ) )
+    {
+        uniform->set( m_module->m_useSimpleDepthColoring->get( true ) );
     }
 }
 
