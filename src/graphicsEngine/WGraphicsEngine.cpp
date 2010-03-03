@@ -151,7 +151,8 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
 
     // store it in viewer list
     boost::mutex::scoped_lock lock( m_viewersLock );
-    assert( m_viewers.insert( make_pair( name, viewer ) ).second == true );
+    bool insertSucceeded = m_viewers.insert( make_pair( name, viewer ) ).second;
+    assert( insertSucceeded == true );
 
     return viewer;
 }
