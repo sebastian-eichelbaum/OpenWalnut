@@ -56,6 +56,28 @@ public:
      */
     WFiber();
 
+    /**
+     * This is the Smaller thresholded distance as described by Zhang: http://dx.doi.org/10.1109/TVCG.2008.52 .
+     *
+     * \param thresholdSquare Threshold upto which the distances should be ignored given as square for reasons of performance.
+     * \param q First fiber
+     * \param r Second fiber
+     *
+     * \return The minimum of dt(Q,R) and dt(R,Q)
+     */
+    static double distDST( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r );
+
+    /**
+     * This is the Larger thresholded distance as described by Zhang: http://dx.doi.org/10.1109/TVCG.2008.52 .
+     *
+     * \param thresholdSquare Threshold upto which the distances should be ignored given as square for reasons of performance.
+     * \param q First fiber
+     * \param r Second fiber
+     *
+     * \return The maximum of dt(Q,R) and dt(R,Q)
+     */
+    static double distDLT( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r );
+
 protected:
 private:
 };

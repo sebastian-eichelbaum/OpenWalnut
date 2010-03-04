@@ -39,15 +39,14 @@
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"
 #include "../../common/datastructures/WDXtLookUpTable.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/math/fiberSimilarity/WDLTMetric.h"
 #include "WMFiberClustering.h"
 
 WMFiberClustering::WMFiberClustering()
@@ -259,7 +258,10 @@ void WMFiberClustering::cluster()
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber clustering", numFibers ) );
     m_progress->addSubProgress( progress );
 
-    WDLTMetric dLt( proximity_t * proximity_t );  // metric instance for computation of the dLt measure
+    boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dLt; // NOLINT
+    const double proxSquare = proximity_t * proximity_t;
+    dLt = boost::bind( wmath::WFiber::distDLT, proxSquare, _1, _2 );
+
     for( size_t q = 0; q < numFibers; ++q )  // loop over all "symmetric" fibers pairs
     {
         for( size_t r = q + 1;  r < numFibers; ++r )
@@ -268,7 +270,7 @@ void WMFiberClustering::cluster()
             {
                 if( !m_dLtTableExists )
                 {
-                    (*m_dLtTable)( q, r ) = dLt.dist( (*m_fibs)[q], (*m_fibs)[r] );
+                    (*m_dLtTable)( q, r ) = dLt( (*m_fibs)[q], (*m_fibs)[r] );
                 }
                 if( (*m_dLtTable)( q, r ) < maxDistance_t )  // q and r provide an inter-cluster-link
                 {
@@ -276,7 +278,6 @@ void WMFiberClustering::cluster()
                 }
             }
         }
-
         ++*progress;
     }
     progress->finish();

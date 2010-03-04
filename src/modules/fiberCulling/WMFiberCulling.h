@@ -30,10 +30,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WFlag.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../common/datastructures/WFiber.h"
 
 /**
  * Test module for culling fibers

@@ -32,12 +32,11 @@
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/math/fiberSimilarity/WDSTMetric.h"
 #include "WMFiberCulling.h"
 
 WMFiberCulling::WMFiberCulling()
@@ -147,7 +146,9 @@ void WMFiberCulling::cullOutFibers()
 
     std::vector< bool > unusedFibers( numFibers, false );
 
-    WDSTMetric dSt( proximity_t * proximity_t );
+    boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dSt; // NOLINT
+    const double proxSquare = proximity_t * proximity_t;
+    dSt = boost::bind( wmath::WFiber::distDST, proxSquare, _1, _2 );
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber culling", numFibers ) );
     m_progress->addSubProgress( progress );
@@ -165,7 +166,7 @@ void WMFiberCulling::cullOutFibers()
             {
                 continue;
             }
-            double dst = dSt.dist( (*m_dataset)[q], (*m_dataset)[r] );
+            double dst = dSt( (*m_dataset)[q], (*m_dataset)[r] );
             if( dst < dSt_culling_t )  // cullout small fibs nearby long fibs
             {
                 if( (*m_dataset)[q].size() < (*m_dataset)[r].size() )

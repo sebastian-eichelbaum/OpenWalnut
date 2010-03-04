@@ -1,7 +1,4 @@
-ADD_SUBDIRECTORY( fiberSimilarity )
-
 FILE( GLOB MATH_SRC "*.cpp" "*.h" )
-FILE( GLOB FIBERSIMILARITY_SRC "fiberSimilarity/*.cpp" "fiberSimilarity/*.h" )
 
 # Unit tests
 IF( OW_COMPILE_TESTS )

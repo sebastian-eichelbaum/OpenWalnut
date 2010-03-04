@@ -22,9 +22,62 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <utility>
 #include <vector>
 
+#include "../WLimits.h"
 #include "WFiber.h"
+
+namespace
+{
+    std::pair< double, double > dXt_optimized( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r )
+    {
+        const size_t qsize = q.size();
+        const size_t rsize = r.size();
+        double qr = 0.0;
+        double rq = 0.0;
+
+        // will contain every point-to-point square-distances
+        std::vector< std::vector< double > > m( qsize, std::vector< double >( rsize, 0.0 ) );
+        for( size_t i = 0; i < qsize; ++i )
+        {
+            for( size_t j = 0; j < rsize; ++j )
+            {
+                m[i][j] = q[i].distanceSquare( r[j] );
+            }
+        }
+        // compute dt(q,r)
+        double minSoFar;
+        for( size_t i = 0; i < qsize; ++i )
+        {
+            minSoFar = *( std::min_element( m[i].begin(), m[i].end() ) );
+            if( minSoFar > thresholdSquare )
+            {
+                qr += sqrt( minSoFar );
+            }
+        }
+        qr = qr / qsize;
+        // compute dt(r,q)
+        for( size_t j = 0; j < rsize; ++j )
+        {
+            minSoFar = wlimits::MAX_DOUBLE;
+            for( size_t i = 0; i < qsize; ++i )
+            {
+                if( m[i][j] < minSoFar )
+                {
+                    minSoFar = m[i][j];
+                }
+            }
+            if( minSoFar > thresholdSquare )
+            {
+                rq += sqrt( minSoFar );
+            }
+        }
+        rq = rq / rsize;
+        return std::make_pair( qr, rq );
+    }
+}
 
 namespace wmath
 {
@@ -36,5 +89,17 @@ namespace wmath
     WFiber::WFiber()
         : WLine()
     {
+    }
+
+    double WFiber::distDST( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r )
+    {
+        std::pair< double, double > result = ::dXt_optimized( thresholdSquare, q, r );
+        return std::min( result.first, result.second );
+    }
+
+    double WFiber::distDLT( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r )
+    {
+        std::pair< double, double > result = ::dXt_optimized( thresholdSquare, q, r );
+        return std::max( result.first, result.second );
     }
 }
