@@ -167,6 +167,8 @@ void WMFiberDisplay::activate()
     {
         m_osgNode->setNodeMask( 0x0 );
     }
+
+    WModule::activate();
 }
 
 void WMFiberDisplay::properties()

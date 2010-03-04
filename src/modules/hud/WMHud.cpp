@@ -230,5 +230,7 @@ void WMHud::activate()
     {
         m_rootNode->setNodeMask( 0x0 );
     }
+
+    WModule::activate();
 }
 
