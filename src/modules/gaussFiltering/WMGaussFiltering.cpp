@@ -149,8 +149,10 @@ template<typename T> std::vector<double> WMGaussFiltering::filterField(
 
 void WMGaussFiltering::moduleMain()
 {
-    // use the m_input "data changed" flag
+    // let the main loop awake if the data changes or the properties changed.
+    m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    // m_moduleState.add( m_propCondition );
 
     // signal ready state
     ready();
@@ -158,77 +160,87 @@ void WMGaussFiltering::moduleMain()
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
-        sleep( 3 ); // TODO(wiebel): remove this
-        // acquire data from the input connector
-        m_dataSet = m_input->getData();
-        if( !m_dataSet )
-        {
-            // ok, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
-            debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
-            continue;
-        }
-        assert( m_dataSet );
-
-        std::vector<double> newVals;
-
-        switch( (*m_dataSet).getValueSet()->getDataType() )
-        {
-            case W_DT_UNSIGNED_CHAR:
-            {
-                boost::shared_ptr<WValueSet<unsigned char> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
-                newVals = filterField( vals );
-                break;
-            }
-            case W_DT_INT16:
-            {
-                boost::shared_ptr<WValueSet<int16_t> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
-                newVals = filterField( vals );
-            }
-            case W_DT_SIGNED_INT:
-            {
-                boost::shared_ptr<WValueSet<int32_t> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
-                newVals = filterField( vals );
-                break;
-            }
-            case W_DT_FLOAT:
-            {
-                boost::shared_ptr<WValueSet<float> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<float> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
-                newVals = filterField( vals );
-                break;
-            }
-            case W_DT_DOUBLE:
-            {
-                boost::shared_ptr<WValueSet<double> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<double> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
-                newVals = filterField( vals );
-                break;
-            }
-            default:
-                assert( false && "Unknow data type in Gauss Filtering module" );
-        }
-
-        boost::shared_ptr<WValueSet<double> > valueSet;
-        valueSet = boost::shared_ptr<WValueSet<double> >(
-                new WValueSet<double> ( 0, 1, newVals, W_DT_DOUBLE ) );
-
-        m_dataSet = boost::shared_ptr<WDataSetSingle>( new WDataSetSingle(
-                valueSet, m_dataSet->getGrid() ) );
-        m_output->updateData( m_dataSet );
-
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
+        // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
+        // or an property changes. The main loop now waits until something happens.
+        debugLog() << "Waiting ...";
         m_moduleState.wait();
+
+        // has the data changed?
+        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        bool dataChanged = ( m_dataSet != newDataSet );
+        if ( dataChanged || !m_dataSet )
+        // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
+        // cases.
+        {
+            // The data is different. Copy it to our internal data variable:
+            debugLog() << "Received Data.";
+            m_dataSet = newDataSet;
+
+            // invalid data
+            if ( !m_dataSet )
+            {
+                debugLog() << "Invalid Data. Disabling.";
+                continue;
+            }
+        }
+
+        if ( dataChanged )
+        {
+            std::vector<double> newVals;
+
+            switch( (*m_dataSet).getValueSet()->getDataType() )
+            {
+                case W_DT_UNSIGNED_CHAR:
+                {
+                    boost::shared_ptr<WValueSet<unsigned char> > vals;
+                    vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
+                    assert( vals );
+                    newVals = filterField( vals );
+                    break;
+                }
+                case W_DT_INT16:
+                {
+                    boost::shared_ptr<WValueSet<int16_t> > vals;
+                    vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
+                    assert( vals );
+                    newVals = filterField( vals );
+                }
+                case W_DT_SIGNED_INT:
+                {
+                    boost::shared_ptr<WValueSet<int32_t> > vals;
+                    vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
+                    assert( vals );
+                    newVals = filterField( vals );
+                    break;
+                }
+                case W_DT_FLOAT:
+                {
+                    boost::shared_ptr<WValueSet<float> > vals;
+                    vals = boost::shared_dynamic_cast<WValueSet<float> >( ( *m_dataSet ).getValueSet() );
+                    assert( vals );
+                    newVals = filterField( vals );
+                    break;
+                }
+                case W_DT_DOUBLE:
+                {
+                    boost::shared_ptr<WValueSet<double> > vals;
+                    vals = boost::shared_dynamic_cast<WValueSet<double> >( ( *m_dataSet ).getValueSet() );
+                    assert( vals );
+                    newVals = filterField( vals );
+                    break;
+                }
+                default:
+                    assert( false && "Unknow data type in Gauss Filtering module" );
+            }
+
+            boost::shared_ptr<WValueSet<double> > valueSet;
+            valueSet = boost::shared_ptr<WValueSet<double> >(
+                    new WValueSet<double> ( 0, 1, newVals, W_DT_DOUBLE ) );
+
+            m_dataSet = boost::shared_ptr<WDataSetSingle>( new WDataSetSingle(
+                    valueSet, m_dataSet->getGrid() ) );
+            m_output->updateData( m_dataSet );
+        }
     }
 }
 
