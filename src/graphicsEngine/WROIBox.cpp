@@ -268,9 +268,19 @@ void WROIBox::updateGFX()
         }
         else
         {
-            osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-            colors->push_back( osg::Vec4( 1.f, .0f, .0f, 0.5f ) );
-            m_surfaceGeometry->setColorArray( colors );
+            // color for moving box
+            if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
+            {
+                osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
+                colors->push_back( osg::Vec4( 1.f, .0f, .0f, 0.5f ) );
+                m_surfaceGeometry->setColorArray( colors );
+            }
+            if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT && m_pickInfo.getPickNormal() != wmath::WVector3D() )
+            {
+                osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
+                colors->push_back( osg::Vec4( .0f, 1.0f, .0f, 0.5f ) );
+                m_surfaceGeometry->setColorArray( colors );
+            }
         }
         m_pickedPosition = newPos;
         m_oldPixelPosition = newPixelPos;
