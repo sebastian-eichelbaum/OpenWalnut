@@ -48,6 +48,7 @@
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
+#include "../modules/fiberSelection/WMFiberSelection.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -94,6 +95,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
 
     lock.unlock();
 
