@@ -27,8 +27,8 @@
 
 #include <vector>
 
-#include "WLine.h"
-#include "WPosition.h"
+#include "../math/WLine.h"
+#include "../math/WPosition.h"
 
 // we need this to find the WFiberTest class which is not inside wmath namespace
 // Additionally I found no way to put the WFiberTest class into wmath and CXXTest

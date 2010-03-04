@@ -26,7 +26,7 @@
 #define WDLTMETRIC_H
 
 #include "WZhangMetric.h"
-#include "../WFiber.h"
+#include "../../datastructures/WFiber.h"
 
 /**
  * This is the Larger thresholded distance as described by Zhang.

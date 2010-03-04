@@ -26,7 +26,7 @@
 #define WDSTMETRIC_H
 
 #include "WZhangMetric.h"
-#include "../WFiber.h"
+#include "../../datastructures/WFiber.h"
 
 /**
  * This is the Smaller thresholded distance as described by Zhang.

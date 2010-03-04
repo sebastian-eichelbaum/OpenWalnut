@@ -36,7 +36,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/math/WFiber.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/math/fiberSimilarity/WDSTMetric.h"
 #include "WMFiberCulling.h"
 

@@ -28,7 +28,7 @@
 #include <utility>
 
 #include "WFiberSimilarity.h"
-#include "../WFiber.h"
+#include "../../datastructures/WFiber.h"
 
 /**
  * Abstract class which prepares the implementation of the thresholded mean min

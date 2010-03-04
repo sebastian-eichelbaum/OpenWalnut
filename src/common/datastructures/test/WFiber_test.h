@@ -30,8 +30,8 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../math/WPosition.h"
 #include "../WFiber.h"
-#include "../WPosition.h"
 #include "WFiberTraits.h"
 
 /**

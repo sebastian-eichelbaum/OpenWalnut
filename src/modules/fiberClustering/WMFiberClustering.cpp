@@ -46,7 +46,7 @@
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/math/WFiber.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/math/fiberSimilarity/WDLTMetric.h"
 #include "WMFiberClustering.h"
 

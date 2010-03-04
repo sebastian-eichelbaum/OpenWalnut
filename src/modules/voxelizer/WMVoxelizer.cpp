@@ -42,7 +42,7 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/math/WFiber.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../modules/fiberDisplay/WMFiberDisplay.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
