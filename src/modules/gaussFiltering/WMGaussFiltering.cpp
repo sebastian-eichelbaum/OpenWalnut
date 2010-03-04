@@ -265,7 +265,7 @@ void WMGaussFiltering::moduleMain()
                     break;
                 }
                 default:
-                    assert( false && "Unknow data type in Gauss Filtering module" );
+                    assert( false && "Unknown data type in Gauss Filtering module" );
             }
 
             m_dataSet = boost::shared_ptr<WDataSetSingle>( new WDataSetSingle( newValueSet, m_dataSet->getGrid() ) );
