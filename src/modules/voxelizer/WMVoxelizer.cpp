@@ -132,6 +132,8 @@ void WMVoxelizer::activate()
             m_osgNode->setNodeMask( 0x0 );
         }
     }
+
+    WModule::activate();
 }
 
 osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const

@@ -147,5 +147,7 @@ void WMBoundingBox::activate()
     {
         m_bBoxNode->setNodeMask( 0x0 );
     }
+
+    WModule::activate();
 }
 
