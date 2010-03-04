@@ -171,6 +171,17 @@ protected:
     osg::ref_ptr< osg::Image > createTexture3D( float* source, int components = 1 );
 
     /**
+     * Creates a 3d texture from a dataset. This function will be overloaded for the
+     * various data types. A template function is not recommended due to the different commands
+     * in the image creation.
+     *
+     *
+     * \param source Pointer to the raw data of a dataset
+     * \param components Number of values used in a Voxel, usually 1, 3 or 4
+     */
+    osg::ref_ptr< osg::Image > createTexture3D( double* source, int components = 1 );
+
+    /**
      * Notifies about changes. Mainly this will be used by the textures whenever the threshold/opacity change.
      */
     void notifyChange();

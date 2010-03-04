@@ -204,7 +204,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
         unsigned char* charSource = reinterpret_cast< unsigned char* >( &tempSource[0] );
 
-        for ( unsigned int i = 0; i < nSize * 2 ; ++i )
+        for ( int i = 0; i < nSize * 2 ; ++i )
         {
             data[i] = charSource[i];
         }
@@ -242,6 +242,30 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
     return ima;
 }
 
+osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int components )
+{
+    osg::ref_ptr< osg::Image > ima = new osg::Image;
+    if ( components == 1)
+    {
+        // OpenGL just supports float textures
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
+        float* data = reinterpret_cast< float* >( ima->data() );
+
+        // Copy the data pixel wise and convert to float
+        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        {
+            data[i] = static_cast< float >( source[i] );
+        }
+    }
+    else
+    {
+        // TODO(schurade): throw exception if components!=1
+        wlog::error( "WDataTexture3D" ) << "Did not handle ( components != 1 ).";
+    }
+
+    return ima;
+}
+
 void WDataTexture3D::createTexture()
 {
     if ( !m_texture )
@@ -267,6 +291,13 @@ void WDataTexture3D::createTexture()
             wlog::debug( "WDataTexture3D" ) << "Handling W_DT_FLOAT";
             boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( m_valueSet );
             float* source = const_cast< float* > ( vs->rawData() );
+            ima = createTexture3D( source, m_valueSet->dimension() );
+        }
+        else if ( m_valueSet->getDataType() == W_DT_DOUBLE )
+        {
+            wlog::debug( "WDataTexture3D" ) << "Handling W_DT_DOUBLE";
+            boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( m_valueSet );
+            double* source = const_cast< double* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
         else
