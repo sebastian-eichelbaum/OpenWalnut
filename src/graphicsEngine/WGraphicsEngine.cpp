@@ -40,7 +40,7 @@
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
 #include "../common/WPreferences.h"
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 #include "WGEViewer.h"
 #include "WGraphicsEngine.h"
 #include "exceptions/WGEInitFailed.h"

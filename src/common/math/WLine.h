@@ -29,7 +29,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../common/WMixinVector.h"
+#include "../WMixinVector.h"
 #include "WPosition.h"
 
 // we need this to find the WLineTest class which is not inside wmath namespace

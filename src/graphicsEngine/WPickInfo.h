@@ -28,8 +28,8 @@
 #include <string>
 #include <utility>
 
-#include "../math/WPosition.h"
-#include "../math/WVector3D.h"
+#include "../common/math/WPosition.h"
+#include "../common/math/WVector3D.h"
 
 /**
  * Encapsulates info for pick action.

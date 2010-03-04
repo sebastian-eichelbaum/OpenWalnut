@@ -30,7 +30,7 @@
 
 #include <boost/thread.hpp>
 
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 

@@ -46,7 +46,7 @@
 #include <osg/ShapeDrawable>
 #include <osgText/Text>
 
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 #include "WPickInfo.h"
 
 /**

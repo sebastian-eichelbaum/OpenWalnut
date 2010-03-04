@@ -6,7 +6,7 @@ ADD_SUBDIRECTORY( exceptions )
 FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
 
 ADD_LIBRARY( kernel ${KERNEL_SRC} ${MODULES_SRC} ${KERNEL_EXCEPTIONS_SRC} )
-TARGET_LINK_LIBRARIES( kernel common dataHandler ge math ${OPENSCENEGRAPH_LIBRARIES} )
+TARGET_LINK_LIBRARIES( kernel common dataHandler ge ${OPENSCENEGRAPH_LIBRARIES} )
 
 
 # Unit tests

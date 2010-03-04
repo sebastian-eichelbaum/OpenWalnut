@@ -33,7 +33,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "../math/WPosition.h"
+#include "math/WPosition.h"
 #include "WColor.h"
 
 template < typename T >

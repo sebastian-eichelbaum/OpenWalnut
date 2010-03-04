@@ -35,7 +35,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../../../common/test/WStreamPosTraits.h"
-#include "../../../math/test/WFiberTraits.h"
+#include "../../../common/math/test/WFiberTraits.h"
 #include "../WLoaderFibers.h"
 
 /**

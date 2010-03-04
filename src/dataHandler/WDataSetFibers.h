@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 
 #include "WDataSet.h"
 

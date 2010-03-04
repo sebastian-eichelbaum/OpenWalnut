@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../math/WFiber.h"
+#include "../common/math/WFiber.h"
 #include "WDataSet.h"
 #include "WDataSetFibers.h"
 

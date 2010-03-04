@@ -9,7 +9,7 @@ TARGET_LINK_LIBRARIES( ge common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${OP
 
 # Unit tests
 IF( OW_COMPILE_TESTS )
-  CXXTEST_ADD_TESTS_FROM_LIST( "${GE_SRC}" "ge;math"
+  CXXTEST_ADD_TESTS_FROM_LIST( "${GE_SRC}" "ge"
           "WGESignals.cpp"
           "WGraphicsEngine.cpp"
           "WGEScene.cpp"

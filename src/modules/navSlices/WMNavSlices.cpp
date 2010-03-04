@@ -35,7 +35,7 @@
 #include <osg/Geometry>
 #include <osg/Group>
 
-#include "../../math/WVector3D.h"
+#include "../../common/math/WVector3D.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetSingle.h"

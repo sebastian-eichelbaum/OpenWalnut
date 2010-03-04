@@ -30,7 +30,7 @@
 #include <vector>
 #include "WRecording.h"
 #include "../common/WPrototyped.h"
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 
 
 ///======================================

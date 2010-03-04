@@ -33,7 +33,7 @@
 #include <osg/Camera>
 
 #include "../common/WColor.h"
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 
 namespace wge
 {

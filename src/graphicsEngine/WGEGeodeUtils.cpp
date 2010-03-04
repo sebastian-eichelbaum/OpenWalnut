@@ -32,7 +32,7 @@
 
 #include "WGEGeodeUtils.h"
 #include "WGEUtils.h"
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 
 
 osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color )

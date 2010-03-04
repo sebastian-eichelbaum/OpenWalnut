@@ -38,7 +38,7 @@
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../math/WFiber.h"
+#include "../../common/math/WFiber.h"
 
 /**
  * Test module for Clustering fibers

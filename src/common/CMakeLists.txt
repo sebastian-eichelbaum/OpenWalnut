@@ -1,12 +1,15 @@
 FILE( GLOB COMMON_SRC "*.cpp" "*.h" )
 FILE( GLOB COMMON_DATASTRUCTURES_SRC "datastructures/*.cpp" "datastructures/*.h" )
 FILE( GLOB COMMON_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
+FILE( GLOB MATH_SRC "math/*.cpp" "math/*.h" )
+FILE( GLOB FIBERSIMILARITY_SRC "math/fiberSimilarity/*.cpp" "math/fiberSimilarity/*.h" )
 
 ADD_SUBDIRECTORY( datastructures )
 ADD_SUBDIRECTORY( constraints )
+ADD_SUBDIRECTORY( math )
 
-ADD_LIBRARY( common ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} )
-TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} math )
+ADD_LIBRARY( common ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} ${MATH_SRC} ${FIBERSIMILARITY_SRC} )
+TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} )
 
 # Unit tests
 IF( OW_COMPILE_TESTS )

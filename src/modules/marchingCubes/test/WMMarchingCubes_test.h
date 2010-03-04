@@ -31,7 +31,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../../../common/WLogger.h"
-#include "../../../math/WPosition.h"
+#include "../../../common/math/WPosition.h"
 #include "../../../common/WIOTools.h"
 #include "../WMMarchingCubes.h"
 

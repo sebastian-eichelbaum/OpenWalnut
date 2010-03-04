@@ -25,8 +25,8 @@
 #ifndef WTALAIRACHCONVERTER_H
 #define WTALAIRACHCONVERTER_H
 
-#include "../../math/WVector3D.h"
-#include "../../math/WMatrix.h"
+#include "../../common/math/WVector3D.h"
+#include "../../common/math/WMatrix.h"
 
 /**
  * class to provide conversions between world or voxel space coordinates und talairach coordinates

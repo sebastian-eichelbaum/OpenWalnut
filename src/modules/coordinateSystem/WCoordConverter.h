@@ -25,8 +25,8 @@
 #ifndef WCOORDCONVERTER_H
 #define WCOORDCONVERTER_H
 
-#include "../../math/WVector3D.h"
-#include "../../math/WMatrix.h"
+#include "../../common/math/WVector3D.h"
+#include "../../common/math/WMatrix.h"
 
 using wmath::WMatrix;
 using wmath::WVector3D;

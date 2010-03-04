@@ -22,41 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLINETRAITS_H
-#define WLINETRAITS_H
+#ifndef WPOSITIONTRAITS_H
+#define WPOSITIONTRAITS_H
 
 #include <sstream>
 
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
-#include "../../common/test/WTraitsBase.h"
-#include "../WLine.h"
+#include "../../test/WTraitsBase.h"
+#include "../WPosition.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
 {
 CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Enables better UnitTest OutPut if something fails with WLine, so you see
+ * Enables better UnitTest OutPut if something fails with WPositions, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WLine > : public WTraitsBase
+class ValueTraits< wmath::WPosition > : public WTraitsBase
 {
 public:
     /**
-     * Constructor for class allowing usable output of WLine in tests
+     * Constructor for class allowing usable output of WPosition in tests
      *
-     * \param m the WLine to print
+     * \param m the WVector to print
      */
-    explicit ValueTraits( const wmath::WLine &line )
+    explicit ValueTraits( const wmath::WPosition &m )
     {
         std::stringstream tmp;
         tmp.precision( 16 );
-        tmp << "WLine( " << line << " )";
+        tmp << "WPosition( " << m[0] << " " << m[1] << " " << m[2] << " )";
         m_s = tmp.str();
     }
 };
 }
 #endif  // CXXTEST_RUNNING
-#endif  // WLINETRAITS_H
+#endif  // WPOSITIONTRAITS_H

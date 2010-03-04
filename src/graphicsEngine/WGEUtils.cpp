@@ -28,7 +28,7 @@
 
 #include <GL/glu.h>
 
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 #include "WGEUtils.h"
 
 osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPosition >& posArray )

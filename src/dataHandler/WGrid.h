@@ -28,7 +28,7 @@
 #include <cstddef>
 #include <utility>
 
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 
 /**
  * Base class to all grid types, e.g. a regular grid.

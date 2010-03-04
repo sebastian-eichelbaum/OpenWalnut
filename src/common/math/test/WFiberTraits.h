@@ -22,41 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPOSITIONTRAITS_H
-#define WPOSITIONTRAITS_H
+#ifndef WFIBERTRAITS_H
+#define WFIBERTRAITS_H
 
 #include <sstream>
 
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
-#include "../../common/test/WTraitsBase.h"
-#include "../WPosition.h"
+#include "../../test/WTraitsBase.h"
+#include "../WFiber.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
 {
 CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Enables better UnitTest OutPut if something fails with WPositions, so you see
+ * Enables better UnitTest OutPut if something fails with WFibers, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WPosition > : public WTraitsBase
+class ValueTraits< wmath::WFiber > : public WTraitsBase
 {
 public:
     /**
-     * Constructor for class allowing usable output of WPosition in tests
-     *
-     * \param m the WVector to print
+     * Constructs a new ValueTrait of a WFiber for better test output
      */
-    explicit ValueTraits( const wmath::WPosition &m )
+    explicit ValueTraits( const wmath::WFiber &fib )
     {
-        std::stringstream tmp;
-        tmp.precision( 16 );
-        tmp << "WPosition( " << m[0] << " " << m[1] << " " << m[2] << " )";
-        m_s = tmp.str();
+        std::stringstream ss;
+        ss << "WFiber(" << fib << ")";
+        m_s = ss.str();
     }
 };
 }
 #endif  // CXXTEST_RUNNING
-#endif  // WPOSITIONTRAITS_H
+#endif  // WFIBERTRAITS_H

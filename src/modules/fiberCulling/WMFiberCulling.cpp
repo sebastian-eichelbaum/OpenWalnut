@@ -36,8 +36,8 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
-#include "../../math/WFiber.h"
-#include "../../math/fiberSimilarity/WDSTMetric.h"
+#include "../../common/math/WFiber.h"
+#include "../../common/math/fiberSimilarity/WDSTMetric.h"
 #include "WMFiberCulling.h"
 
 WMFiberCulling::WMFiberCulling()

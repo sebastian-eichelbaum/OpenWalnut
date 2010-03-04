@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "WZhangMetric.h"
-#include "../../common/WLimits.h"
+#include "../../WLimits.h"
 
 WZhangMetric::WZhangMetric( double thresholdSquare )
     : m_thresholdSquare( thresholdSquare )

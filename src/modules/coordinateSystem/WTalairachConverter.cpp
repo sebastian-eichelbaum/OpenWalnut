@@ -25,7 +25,7 @@
 #include <cassert>
 
 #include "WTalairachConverter.h"
-#include "../../math/WLinearAlgebraFunctions.h"
+#include "../../common/math/WLinearAlgebraFunctions.h"
 
 WTalairachConverter::WTalairachConverter( wmath::WVector3D ac, wmath::WVector3D pc, wmath::WVector3D ihp ) :
     m_rotMat( 3, 3 ),

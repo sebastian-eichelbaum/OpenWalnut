@@ -26,9 +26,9 @@
 #include <iostream>
 #include <vector>
 
-#include "../common/WLimits.h"
-#include "../common/WStringUtils.h"
-#include "../common/exceptions/WOutOfBounds.h"
+#include "../WLimits.h"
+#include "../WStringUtils.h"
+#include "../exceptions/WOutOfBounds.h"
 #include "WLine.h"
 #include "WPosition.h"
 

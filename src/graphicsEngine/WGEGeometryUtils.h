@@ -30,7 +30,7 @@
 #include <osg/Array>
 
 #include "../common/datastructures/WTriangleMesh.h"
-#include "../math/WPosition.h"
+#include "../common/math/WPosition.h"
 
 
 namespace wge

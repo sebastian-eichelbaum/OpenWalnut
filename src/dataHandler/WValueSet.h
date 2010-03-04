@@ -31,7 +31,7 @@
 
 #include "WValueSetBase.h"
 #include "WDataHandlerEnums.h"
-#include "../math/WValue.h"
+#include "../common/math/WValue.h"
 
 /**
  * Base Class for all value set types.

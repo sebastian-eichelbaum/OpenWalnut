@@ -36,7 +36,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
-#include "../../math/WVector3D.h"
+#include "../../common/math/WVector3D.h"
 
 /**
  * Gauss filtering for WDataSetSingle

@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "../common/exceptions/WOutOfBounds.h"
-#include "../math/WLinearAlgebraFunctions.h"
+#include "../common/math/WLinearAlgebraFunctions.h"
 #include "WGridRegular3D.h"
 
 using wmath::WVector3D;

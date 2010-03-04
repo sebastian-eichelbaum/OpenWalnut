@@ -31,7 +31,7 @@
 
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../math/WLine.h"
+#include "../../common/math/WLine.h"
 #include "WRasterAlgorithm.h"
 
 /**

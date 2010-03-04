@@ -29,8 +29,8 @@
 
 #include "../common/datastructures/WTriangleMesh.h"
 #include "../common/WColor.h"
-#include "../math/WPosition.h"
-#include "../math/WLine.h"
+#include "../common/math/WPosition.h"
+#include "../common/math/WLine.h"
 
 
 namespace wge

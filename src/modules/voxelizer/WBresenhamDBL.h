@@ -28,8 +28,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../math/WLine.h"
-#include "../../math/WPosition.h"
+#include "../../common/math/WLine.h"
+#include "../../common/math/WPosition.h"
 #include "WBresenham.h"
 
 /**

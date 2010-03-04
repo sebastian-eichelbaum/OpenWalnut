@@ -32,9 +32,9 @@
 
 #include <osg/Vec3>
 
-#include "../math/WMatrix.h"
-#include "../math/WPosition.h"
-#include "../math/WVector3D.h"
+#include "../common/math/WMatrix.h"
+#include "../common/math/WPosition.h"
+#include "../common/math/WVector3D.h"
 #include "WGrid.h"
 
 /**

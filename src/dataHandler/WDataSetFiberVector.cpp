@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "../common/WLogger.h"
-#include "../math/WFiber.h"
+#include "../common/math/WFiber.h"
 #include "WDataSet.h"
 #include "WDataSetFiberVector.h"
 

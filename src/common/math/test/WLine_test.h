@@ -30,8 +30,8 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../common/WLimits.h"
-#include "../../common/exceptions/WOutOfBounds.h"
+#include "../../WLimits.h"
+#include "../../exceptions/WOutOfBounds.h"
 #include "../WLine.h"
 #include "WLineTraits.h"
 #include "WPositionTraits.h"
