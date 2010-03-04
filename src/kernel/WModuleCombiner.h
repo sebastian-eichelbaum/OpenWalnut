@@ -25,6 +25,10 @@
 #ifndef WMODULECOMBINER_H
 #define WMODULECOMBINER_H
 
+#include <boost/shared_ptr.hpp>
+
+#include "../common/WThreadedRunner.h"
+
 #include "WModuleContainer.h"
 
 /**
@@ -34,7 +38,8 @@
  * loads projects files and creates a module graph out of it. The only think which all the combiners need to know: the target container. Derive
  * all specific combiner classes from this one.
  */
-class WModuleCombiner
+class WModuleCombiner: public WThreadedRunner,
+                       public boost::enable_shared_from_this< WModuleCombiner >
 {
 public:
 
@@ -59,10 +64,22 @@ public:
      * Apply the internal module structure to the target container. Be aware, that this operation might take some time, as modules can be
      * connected only if they are "ready", which, at least with WMData modules, might take some time.
      *
+     * \note: to have asynchronous loading, use run().
      */
     virtual void apply() = 0;
 
+    /**
+     * Run thread and call apply(). This is useful to apply a combiner asynchronously.
+     */
+    virtual void run();
+
 protected:
+
+    /**
+     * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
+     * has been called. It actually calls apply() in another thread.
+     */
+    virtual void threadMain();
 
     /**
      * The module container to use for the modules.

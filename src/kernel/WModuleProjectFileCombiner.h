@@ -25,6 +25,11 @@
 #ifndef WMODULEPROJECTFILECOMBINER_H
 #define WMODULEPROJECTFILECOMBINER_H
 
+#include <list>
+#include <map>
+#include <string>
+#include <utility>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
@@ -78,6 +83,51 @@ protected:
      * The project file path. This file gets loaded during apply().
      */
     boost::filesystem::path m_project;
+
+    /**
+     * The module ID type. A pair of ID and pointer to module.
+     */
+    typedef std::pair< unsigned int, boost::shared_ptr< WModule > > ModuleID;
+
+    /**
+     * All Modules.
+     */
+    std::map< unsigned int, boost::shared_ptr< WModule > > m_modules;
+
+    /**
+     * A connector is described by ID and name.
+     */
+    typedef std::pair< unsigned int, std::string > Connector;
+
+    /**
+     * A connection is a pair of connectors.
+     */
+    typedef std::pair< Connector, Connector > Connection;
+
+    /**
+     * All connections.
+     */
+    std::list< Connection > m_connections;
+
+    /**
+     * A property is a pair of ID and name.
+     */
+    typedef std::pair< unsigned int, std::string > Property;
+
+    /**
+     * A property value is a property and the new value as string.
+     */
+    typedef std::pair< Property, std::string > PropertyValue;
+
+    /**
+     * All properties.
+     */
+    std::list< PropertyValue > m_properties;
+
+    /**
+     * Parses the input file and fills m_modules, m_connections and m_properites.
+     */
+    void parse();
 
 private:
 };

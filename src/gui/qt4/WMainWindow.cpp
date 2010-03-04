@@ -395,7 +395,7 @@ void WMainWindow::projectLoad()
     for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
         WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( ( *constIterator ).toStdString() );
-        proj.apply();
+        proj.run();
     }
 }
 

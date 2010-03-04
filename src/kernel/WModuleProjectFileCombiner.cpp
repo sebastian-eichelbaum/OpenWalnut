@@ -49,14 +49,14 @@ WModuleProjectFileCombiner::WModuleProjectFileCombiner( boost::filesystem::path 
     WModuleCombiner( target ),
     m_project( project )
 {
-    // initialize members
+    parse();
 }
 
 WModuleProjectFileCombiner::WModuleProjectFileCombiner( boost::filesystem::path project ):
     WModuleCombiner( WKernel::getRunningKernel()->getRootContainer() ),
     m_project( project )
 {
-    // initialize members
+    parse();
 }
 
 WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
@@ -64,8 +64,9 @@ WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
     // cleanup
 }
 
-void WModuleProjectFileCombiner::apply()
+void WModuleProjectFileCombiner::parse()
 {
+    // Parse the file
     wlog::info( "Kernel" ) << "Loading project file \"" << m_project.file_string() << "\".";
 
     // read the file
@@ -80,21 +81,6 @@ void WModuleProjectFileCombiner::apply()
     static const boost::regex conRe( "^CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
     static const boost::regex commentRe( "^//.*$" );
-
-    // some maps which describe the module graph
-    // These maps are used to read in the file and to later on build the actual graph
-    typedef std::pair< unsigned int, boost::shared_ptr< WModule > > ModuleID;
-    std::map< unsigned int, boost::shared_ptr< WModule > > modules;
-
-    // list of connections
-    typedef std::pair< unsigned int, std::string > Connector;
-    typedef std::pair< Connector, Connector > Connection;
-    std::list< Connection > connections;
-
-    // list of properties
-    typedef std::pair< unsigned int, std::string > Property;
-    typedef std::pair< Property, std::string > PropertyValue;
-    std::list< PropertyValue > properties;
 
     // read it line by line
     std::string line;       // the current line
@@ -121,7 +107,7 @@ void WModuleProjectFileCombiner::apply()
             else
             {
                 boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
-                modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
+                m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
             }
         }
         else if ( boost::regex_match( line, matches, conRe ) )
@@ -134,7 +120,7 @@ void WModuleProjectFileCombiner::apply()
                                                                " and \"" << matches[4] << "\" of module " << matches[3] << ".";
 
             // now we search in modules[ matches[1] ] for an output connector named matches[2]
-            connections.push_back( Connection( Connector( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ),
+            m_connections.push_back( Connection( Connector( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ),
                                                Connector( boost::lexical_cast< unsigned int >( matches[3] ), matches[4] ) ) );
         }
         else if ( boost::regex_match( line, matches, propRe ) )
@@ -147,7 +133,7 @@ void WModuleProjectFileCombiner::apply()
             wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Property \"" << matches[2] << "\" of module " << matches[1] << " set to "
                                                      << matches[3];
 
-            properties.push_back( PropertyValue( Property( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
+            m_properties.push_back( PropertyValue( Property( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
         }
         else if ( !line.empty() && !boost::regex_match( line, matches, commentRe ) )
         {
@@ -156,18 +142,21 @@ void WModuleProjectFileCombiner::apply()
     }
     // close it
     input.close();
+}
 
+void WModuleProjectFileCombiner::apply()
+{
     // now, as we have created the modules, we need to set the properties for each of it.
-    for ( std::list< PropertyValue >::const_iterator iter = properties.begin(); iter != properties.end(); ++iter )
+    for ( std::list< PropertyValue >::const_iterator iter = m_properties.begin(); iter != m_properties.end(); ++iter )
     {
         // grab corresponding module
-        if ( !modules.count( ( *iter ).first.first ) )
+        if ( !m_modules.count( ( *iter ).first.first ) )
         {
             wlog::error( "Project Loader" ) << "There is no module with ID \"" << ( *iter ).first.first <<  "\" to set the property \"" <<
                                                ( *iter ).first.second << "\" for. Skipping.";
             continue;
         }
-        boost::shared_ptr< WModule > m = modules[ ( *iter ).first.first ];
+        boost::shared_ptr< WModule > m = m_modules[ ( *iter ).first.first ];
 
         // has this module the specified property?
         boost::shared_ptr< WPropertyBase > prop = m->getProperties2()->findProperty( ( *iter ).first.second );
@@ -185,14 +174,14 @@ void WModuleProjectFileCombiner::apply()
     }
 
     // now add each module to the target container
-    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = modules.begin(); iter != modules.end(); ++iter )
+    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
     {
         m_container->add( ( *iter ).second );
     }
 
     // now wait for the modules to get ready. We could have waited for this in the previous loop, but a long loading module would block others.
     // -> so we wait after adding and starting them
-    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = modules.begin(); iter != modules.end(); ++iter )
+    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
     {
         ( *iter ).second->isReadyOrCrashed().wait();
 
@@ -201,12 +190,12 @@ void WModuleProjectFileCombiner::apply()
         {
             wlog::warn( "Project Loader" ) << "The module with ID " << ( *iter ).first << " crashed. Connections and properties relating to this"
                                            << " module will fail.";
-            modules.erase( iter );
+            m_modules.erase( iter );
         }
     }
 
     // and finally, connect them all together
-    for ( std::list< Connection >::const_iterator iter = connections.begin(); iter != connections.end(); ++iter )
+    for ( std::list< Connection >::const_iterator iter = m_connections.begin(); iter != m_connections.end(); ++iter )
     {
         // each connection contains two connectors
         Connector c1 = ( *iter ).first;
@@ -215,24 +204,24 @@ void WModuleProjectFileCombiner::apply()
         // each of these connectors contains the module ID and the connector name
         // grab corresponding module 1
         boost::shared_ptr< WModule > m1;
-        if ( !modules.count( c1.first ) )
+        if ( !m_modules.count( c1.first ) )
         {
             wlog::error( "Project Loader" ) << "There is no module with ID \"" << c1.first <<  "\" for the connection "
                                             << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
 
             continue;
         }
-        m1 = modules[ c1.first ];
+        m1 = m_modules[ c1.first ];
 
         boost::shared_ptr< WModule > m2;
-        if ( !modules.count( c2.first ) )
+        if ( !m_modules.count( c2.first ) )
         {
             wlog::error( "Project Loader" ) << "There is no module with ID \"" << c2.first <<  "\" for the connection "
                                             << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
 
             continue;
         }
-        m2 = modules[ c2.first ];
+        m2 = m_modules[ c2.first ];
 
         // now we have the modules referenced by the ID
         // -> query the connectors
@@ -272,8 +261,8 @@ void WModuleProjectFileCombiner::apply()
     }
 
     // clear all our lists (deref all contained pointers)
-    modules.clear();
-    connections.clear();
-    properties.clear();
+    m_modules.clear();
+    m_connections.clear();
+    m_properties.clear();
 }
 
