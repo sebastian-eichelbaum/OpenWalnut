@@ -128,7 +128,8 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
             m_globalColors->at( pc + 2 ) = b;
 
             // local color fun:
-            WColor localColor;
+            // TODO(ebaum): UNDO!
+            /*WColor localColor;
             wmath::WPosition currentPos( m_vertices->at( pc ), m_vertices->at( pc + 1 ), m_vertices->at( pc + 2 ) );
             wmath::WPosition nextPos;
             if( j < m_lineLengths->at( i ) - 1 )
@@ -150,7 +151,7 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
             }
             m_localColors->at( pc ) = localColor.getRed();
             m_localColors->at( pc + 1 ) = localColor.getGreen();
-            m_localColors->at( pc + 2 ) = localColor.getBlue();
+            m_localColors->at( pc + 2 ) = localColor.getBlue();*/
             pc += 3;
         }
     }
@@ -223,7 +224,9 @@ boost::shared_ptr< std::vector< float > > WDataSetFibers::getGlobalColors() cons
 
 boost::shared_ptr< std::vector< float > > WDataSetFibers::getLocalColors() const
 {
-    return m_localColors;
+    // TODO(ebaum): UNDO!
+    return m_globalColors;  // the local colors are not calculated
+    //return m_localColors;
 }
 
 wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
