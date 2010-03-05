@@ -24,19 +24,12 @@
 
 #include <string>
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
-#include <osg/Geode>
-#include <osg/Material>
-#include <osg/StateAttribute>
-
-#include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
-
+#include "../../kernel/WKernel.h"
 #include "WMClusterParamDisplay.h"
 
 WMClusterParamDisplay::WMClusterParamDisplay():
-    WModule()
+    WModuleContainer( "Cluster Param Display", "Displays various parameters on a cluster surface." )
 {
 }
 
@@ -49,18 +42,12 @@ boost::shared_ptr< WModule > WMClusterParamDisplay::factory() const
     return boost::shared_ptr< WModule >( new WMClusterParamDisplay() );
 }
 
-const std::string WMClusterParamDisplay::getName() const
-{
-    return "ClusterParamDisplay";
-}
-
-const std::string WMClusterParamDisplay::getDescription() const
-{
-    return "This module displays a clusters parameters.";
-}
-
 void WMClusterParamDisplay::connectors()
 {
+    typedef WModuleInputForwardData< WDataSetFibers > InputType;
+    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
+    addConnector( m_input );
+
     WModule::connectors();
 }
 
@@ -71,6 +58,9 @@ void WMClusterParamDisplay::properties()
 void WMClusterParamDisplay::moduleMain()
 {
     m_moduleState.setResetable( true, true );
+
+    initSubModules();
+
     ready();
 
     while ( !m_shutdownFlag() )
@@ -93,4 +83,45 @@ void WMClusterParamDisplay::activate()
     }
 
     WModule::activate();
+}
+
+void WMClusterParamDisplay::initSubModules()
+{
+    // instantiation
+    m_fiberClustering = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Fiber Clustering" ) );
+    add( m_fiberClustering );
+    m_fiberClustering->isReady().wait();
+
+    boost::shared_ptr< WProperties2 > fcProps = m_fiberClustering->getProperties2();
+    fcProps->getProperty( "Invisible fibers" )->toPropBool()->set( true );
+    m_properties2->addProperty( fcProps->getProperty( "Output cluster ID" ) );
+    m_properties2->addProperty( fcProps->getProperty( "Go" ) );
+
+    m_voxelizer = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Voxelizer" ) );
+    add( m_voxelizer );
+    m_voxelizer->isReady().wait();
+    boost::shared_ptr< WProperties2 > voxProps = m_voxelizer->getProperties2();
+    voxProps->getProperty( "Fibers Tracts" )->toPropBool()->set( false );
+    voxProps->getProperty( "Display Voxels" )->toPropBool()->set( false );
+
+    m_gaussFiltering = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Gauss Filtering" ) );
+    add( m_gaussFiltering );
+    m_gaussFiltering->isReady().wait();
+    m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
+
+    m_isoSurface = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
+    add( m_isoSurface );
+    m_isoSurface->isReady().wait();
+    m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Iso Value" ) );
+
+    // wiring
+    m_input->forward( m_fiberClustering->getInputConnector( "fiberInput" ) );
+
+    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
+    m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
+    m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+
+    ready();
+    waitForStop(); // wait for stop request
+    stop(); // stop container and the contained modules.
 }

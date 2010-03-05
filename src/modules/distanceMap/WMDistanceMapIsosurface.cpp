@@ -52,8 +52,6 @@ WMDistanceMapIsosurface::WMDistanceMapIsosurface():
 
 WMDistanceMapIsosurface::~WMDistanceMapIsosurface()
 {
-    // cleanup
-    removeConnectors();
 }
 
 boost::shared_ptr< WModule > WMDistanceMapIsosurface::factory() const
@@ -166,10 +164,6 @@ void WMDistanceMapIsosurface::connectors()
 
     // call WModules initialization
     WModule::connectors();
-}
-
-void WMDistanceMapIsosurface::properties()
-{
 }
 
 void WMDistanceMapIsosurface::activate()

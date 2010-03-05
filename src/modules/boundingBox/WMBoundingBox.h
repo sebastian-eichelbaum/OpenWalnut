@@ -33,10 +33,10 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
+#include "../../common/math/WVector3D.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-
-#include "../../common/math/WVector3D.h"
 
 class WPickHandler;
 

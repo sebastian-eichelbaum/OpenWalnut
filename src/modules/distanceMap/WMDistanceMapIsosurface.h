@@ -25,8 +25,9 @@
 #ifndef WMDISTANCEMAPISOSURFACE_H
 #define WMDISTANCEMAPISOSURFACE_H
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WModuleInputForwardData.h"
@@ -80,11 +81,6 @@ protected:
     virtual void connectors();
 
     /**
-     * Initialize the properties for this module.
-     */
-    virtual void properties();
-
-    /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
     virtual void activate();
@@ -94,32 +90,11 @@ private:
     WPropDouble m_isoValueProp; //!< Property holding the value for the distance.
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
 
-    /**
-     * The description of the module. This is used for the container.
-     */
-    std::string m_name;
-
-    /**
-     * The description of the module. This is used for the container.
-     */
-    std::string m_description;
-
     boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputForwardData< WDataSetSingle > > m_output; //!< Connector to provide the distance map to other modules.
 
-    /**
-     * Connector to provide the distance map to other modules.
-     */
-    boost::shared_ptr< WModuleOutputForwardData< WDataSetSingle > > m_output;
-
-    /**
-     * The marching cubes module used in this container.
-     */
-    boost::shared_ptr< WModule > m_marchingCubesModule;
-
-    /**
-     * The distance map module used in this container.
-     */
-    boost::shared_ptr< WModule > m_distanceMapModule;
+    boost::shared_ptr< WModule > m_marchingCubesModule; //!< The marching cubes module used in this container.
+    boost::shared_ptr< WModule > m_distanceMapModule; //!< The distance map module used in this container.
 };
 
 #endif  // WMDISTANCEMAPISOSURFACE_H

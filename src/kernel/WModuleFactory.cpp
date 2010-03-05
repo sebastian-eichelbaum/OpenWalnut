@@ -95,6 +95,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
 
     lock.unlock();

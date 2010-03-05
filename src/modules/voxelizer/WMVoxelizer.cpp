@@ -313,7 +313,7 @@ void WMVoxelizer::connectors()
     addConnector( m_input );
 
     typedef WModuleOutputData< WDataSetSingle > OutputConnectorType; // just an alias
-    m_output = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "out", "The voxelized data set." ) );
+    m_output = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
 
     WModule::connectors();  // call WModules initialization

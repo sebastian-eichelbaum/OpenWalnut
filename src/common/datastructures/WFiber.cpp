@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
 #include <algorithm>
 #include <utility>
 #include <vector>
@@ -54,7 +55,7 @@ namespace
             minSoFar = *( std::min_element( m[i].begin(), m[i].end() ) );
             if( minSoFar > thresholdSquare )
             {
-                qr += sqrt( minSoFar );
+                qr += std::sqrt( minSoFar );
             }
         }
         qr = qr / qsize;
@@ -71,7 +72,7 @@ namespace
             }
             if( minSoFar > thresholdSquare )
             {
-                rq += sqrt( minSoFar );
+                rq += std::sqrt( minSoFar );
             }
         }
         rq = rq / rsize;
