@@ -177,6 +177,9 @@ void WMFiberSelection::moduleMain()
             boost::shared_ptr< WGridRegular3D > grid1 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi1->getGrid() );
             boost::shared_ptr< WGridRegular3D > grid2 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi2->getGrid() );
 
+            // the list of fibers
+            std::vector< size_t > matches;
+
             // progress indication
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Checking fibers against ",
                                                                                                       fibStart->size() ) );
@@ -218,23 +221,15 @@ void WMFiberSelection::moduleMain()
                     double value1 = m_voi1->getValueAt( voxel1 );
                     double value2 = m_voi2->getValueAt( voxel2 );
 
-                    // does the current value match the criterion?
-                    if ( value1 >= voi1Threshold )
-                    {
-                        // found
-                        inVoi1 = true;
-                    }
-
-                    if ( value2 >= voi2Threshold )
-                    {
-                        // found
-                        inVoi2 = true;
-                    }
+                    // found?
+                    inVoi1 = inVoi1 || ( value1 >= voi1Threshold );
+                    inVoi2 = inVoi2 || ( value2 >= voi2Threshold );
 
                     // if the fiber was found in both VOI the loop can be stopped
                     if ( inVoi1 && inVoi2 )
                     {
                         debugLog() << "Fiber " << fidx << " inside VOI1 and VOI2.";
+                        matches.push_back( fidx );
                         break;
                     }
 
@@ -242,6 +237,54 @@ void WMFiberSelection::moduleMain()
             }
             debugLog() << "Iterating over all fibers: done!";
             progress1->finish();
+
+            // give some feedback
+            infoLog() << "Found " << matches.size() << " fibers going through VOI1 and VOI2.";
+
+            // combine it to a new fiber dataset
+            // the required arrays:
+            boost::shared_ptr< std::vector< float > >  newFibVerts = boost::shared_ptr< std::vector< float > >( new std::vector< float >() );
+            boost::shared_ptr< std::vector< size_t > > newFibStart = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
+            boost::shared_ptr< std::vector< size_t > > newFibLen = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
+            boost::shared_ptr< std::vector< size_t > > newFibVertsRev = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
+
+            progress1 = boost::shared_ptr< WProgress >( new WProgress( "Creating Output dataset.", matches.size() ) );
+            m_progress->addSubProgress( progress1 );
+
+            // add each match to the above arrays
+            size_t curVertIdx = 0;  // the current index in the vertex array
+            for ( size_t i = 0; i < matches.size(); ++i )
+            {
+                ++*progress1;
+
+                // start index and length of original fiber
+                size_t sidx = fibStart->at( matches[ i ] );
+                size_t len = fibLen->at( matches[ i ] );
+
+                // set the new length
+                newFibLen->push_back( len );
+
+                // set new start index
+                newFibStart->push_back( curVertIdx * 3 );
+
+                // copy the fiber vertices
+                for ( size_t vi = 0; vi < len; ++vi )
+                {
+                    curVertIdx++;
+
+                    newFibVerts->push_back( fibVerts->at( sidx + vi ) );
+                    newFibVerts->push_back( fibVerts->at( sidx + vi + 1 ) );
+                    newFibVerts->push_back( fibVerts->at( sidx + vi + 2 ) );
+                    newFibVertsRev->push_back( i );
+                    newFibVertsRev->push_back( i );
+                    newFibVertsRev->push_back( i );
+                }
+            }
+
+            progress1->finish();
+
+            // finally -> update the output
+            m_output->updateData( boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( newFibVerts, newFibStart, newFibLen, newFibVertsRev ) ) );
         }
     }
 
