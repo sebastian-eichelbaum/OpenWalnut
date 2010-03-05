@@ -48,6 +48,7 @@
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
+#include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
