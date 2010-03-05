@@ -63,7 +63,7 @@ void WProgressCombiner::update()
         // update own state basing on child states.
         if ( ( *i )->isPending() )
         {
-            // TODO(ebaum): this actually builds the mean value. This might cause backstepping in progress, which is not wanted.
+            // This actually builds the mean value. This might cause backstepping in progress, which is not wanted.
             m_pending = true;
             m_determined &= ( *i )->isDetermined();
             m_progress += ( *i )->getProgress();

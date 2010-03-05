@@ -159,9 +159,6 @@ void WMainWindow::setupGUI()
     m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "Default Subject" );
-
-    // TODO(ebaum): adopt!
-    //connect( m_datasetBrowser, SIGNAL( dataSetBrowserEvent( QString, bool ) ), &m_propertyManager, SLOT( slotBoolChanged( QString, bool ) ) );
 }
 
 void WMainWindow::setupPermanentToolBar()
