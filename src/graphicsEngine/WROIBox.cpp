@@ -216,7 +216,6 @@ void WROIBox::updateGFX()
     ss << "ROIBox" << boxId << "";
     if ( m_pickInfo.getName() == ss.str() )
     {
-        wmath::WPosition newPos( m_pickInfo.getPickPosition() );
         std::pair< float, float > newPixelPos( m_pickInfo.getPickPixelPosition() );
         if ( m_isPicked )
         {
@@ -282,7 +281,6 @@ void WROIBox::updateGFX()
                 m_surfaceGeometry->setColorArray( colors );
             }
         }
-        m_pickedPosition = newPos;
         m_oldPixelPosition = newPixelPos;
         m_isModified = true;
         m_isPicked = true;
