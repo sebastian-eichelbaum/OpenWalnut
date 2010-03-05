@@ -250,6 +250,7 @@ void WMFiberSelection::moduleMain()
 
             progress1 = boost::shared_ptr< WProgress >( new WProgress( "Creating Output dataset.", matches.size() ) );
             m_progress->addSubProgress( progress1 );
+            debugLog() << "Creating new Fiber Dataset.";
 
             // add each match to the above arrays
             size_t curVertIdx = 0;  // the current index in the vertex array
@@ -258,7 +259,7 @@ void WMFiberSelection::moduleMain()
                 ++*progress1;
 
                 // start index and length of original fiber
-                size_t sidx = fibStart->at( matches[ i ] );
+                size_t sidx = fibStart->at( matches[ i ] ) * 3;
                 size_t len = fibLen->at( matches[ i ] );
 
                 // set the new length
@@ -272,6 +273,8 @@ void WMFiberSelection::moduleMain()
                 {
                     curVertIdx++;
 
+                    // TODO(ebaum): fix this crappy stuff translating the vertices just because the WDataSetFibers has another even
+                    // more crappy hack :-(
                     newFibVerts->push_back( fibVerts->at( sidx + vi ) );
                     newFibVerts->push_back( fibVerts->at( sidx + vi + 1 ) );
                     newFibVerts->push_back( fibVerts->at( sidx + vi + 2 ) );
