@@ -28,14 +28,16 @@
 #include <typeinfo>
 
 #include "../common/WLogger.h"
-#include "../modules/template/WMTemplate.h"
-#include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/applyMask/WMApplyMask.h"
-#include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
-#include "../modules/distanceMap/WMDistanceMapIsosurface.h"
-#include "../modules/distanceMap/WMDistanceMap.h"
+#include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/connectomeView/WMConnectomeView.h"
+#include "../modules/coordinateSystem/WMCoordinateSystem.h"
+#include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
+#include "../modules/dataTypeConversion/WMDataTypeConversion.h"
+#include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
+#include "../modules/distanceMap/WMDistanceMap.h"
+#include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/eegView/WMEEGView.h"
 #include "../modules/fiberClustering/WMFiberClustering.h"
 #include "../modules/fiberCulling/WMFiberCulling.h"
@@ -43,11 +45,10 @@
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
-#include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
 #include "../modules/navSlices/WMNavSlices.h"
+#include "../modules/template/WMTemplate.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
-#include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -94,6 +95,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
 
     lock.unlock();
 

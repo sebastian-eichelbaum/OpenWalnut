@@ -25,6 +25,9 @@
 #ifndef WMDISTANCEMAPISOSURFACE_H
 #define WMDISTANCEMAPISOSURFACE_H
 
+#include <boost/shared_ptr.hpp>
+
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WModuleInputForwardData.h"

@@ -27,19 +27,20 @@
 
 #include <string>
 
-#include <osg/Geode>
+#include <boost/shared_ptr.hpp>
 
+#include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "../../kernel/WModuleContainer.h"
+#include "../../kernel/WModuleInputForwardData.h"
+#include "../../kernel/WModuleOutputForwardData.h"
 
 /**
  * Displays certains parameters of a cluster or bundle.
  */
-class WMClusterParamDisplay: public WModule
+class WMClusterParamDisplay: public WModuleContainer
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -49,18 +50,6 @@ public:
      * Destructor.
      */
     virtual ~WMClusterParamDisplay();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -87,16 +76,26 @@ protected:
     virtual void properties();
 
     /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     * The root node used for this modules graphics.
      */
     osg::ref_ptr<osg::Geode> m_rootNode;
 
     /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     * En/Disables display of the root node.
      */
     virtual void activate();
 
+    void initSubModules(); //!< Create and initialize submodule instances
+
 private:
+    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_input;  //!< Input connector required by this module.
+
+    boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
+    boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster
+    boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
+    boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
+
+//    WPropInt    m_clusterOutputID; //!< Specifies which cluster should be connected to the Output
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H
