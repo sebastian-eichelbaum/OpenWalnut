@@ -134,6 +134,7 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     ss << "ROIBox" << boxId;
 
     m_geode->setName( ss.str() );
+    m_surfaceGeometry->setName( ss.str() );
 
     osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
     setVertices( vertices, minPos, maxPos );
