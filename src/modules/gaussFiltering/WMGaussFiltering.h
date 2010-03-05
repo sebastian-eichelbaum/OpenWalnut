@@ -109,6 +109,16 @@ protected:
 private:
 
     /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * The number of iterations to use for filtering
+     */
+    WPropInt m_iterations;
+
+    /**
      * Simple convolution using a small gauss-like mask
      * \param vals the valueset to work on
      * \param nX number of positions in x direction
@@ -124,8 +134,23 @@ private:
     /**
      * Run the filter over the field.
      * \param vals the valueset to work on
+     * \param grid the grid for the valueset
+     * \param prog the progress used for this filter iteration
+     *
+     * \return the filtered array of values.
      */
-    template< typename T > std::vector< double > filterField(  boost::shared_ptr< WValueSet< T > > vals );
+    template< typename T > std::vector< double > filterField( boost::shared_ptr< WValueSet< T > > vals,
+                                                              boost::shared_ptr<WGridRegular3D> grid,
+                                                              boost::shared_ptr< WProgress > prog );
+
+    /**
+     * Run the filter iteratively over the field. The number of iterations is determined by m_iterations.
+     *
+     * \param vals the valueset to work on
+     *
+     * \return the filtered valueset.
+     */
+    template< typename T > boost::shared_ptr< WValueSet< double > > iterativeFilterField( boost::shared_ptr< WValueSet< T > > vals );
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.

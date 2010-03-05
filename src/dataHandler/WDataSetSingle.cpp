@@ -102,3 +102,42 @@ boost::shared_ptr< WPrototyped > WDataSetSingle::getPrototype()
     return m_prototype;
 }
 
+double WDataSetSingle::getValueAt( size_t id )
+{
+    switch( getValueSet()->getDataType() )
+    {
+        case W_DT_UNSIGNED_CHAR:
+        {
+            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< unsigned char > >( getValueSet() )->getScalar( id ) );
+        }
+        case W_DT_INT16:
+        {
+            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< int16_t > >( getValueSet() )->getScalar( id ) );
+        }
+        case W_DT_SIGNED_INT:
+        {
+            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< int32_t > >( getValueSet() )->getScalar( id ) );
+        }
+        case W_DT_FLOAT:
+        {
+            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< float > >( getValueSet() )->getScalar( id ) );
+        }
+        case W_DT_DOUBLE:
+        {
+            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< double > >( getValueSet() )->getScalar( id ) );
+        }
+        default:
+            assert( false && "Unknow data type in dataset." );
+    }
+
+    return 0.0;
+}
+
+double WDataSetSingle::getValueAt( int x, int y, int z )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+    return getValueAt( id );
+}
+

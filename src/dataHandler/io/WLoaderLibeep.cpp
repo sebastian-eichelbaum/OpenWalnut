@@ -54,7 +54,9 @@ boost::shared_ptr< WDataSet > WLoaderLibeep::load()
     eeg_t* eeg = eep_init_from_file( m_fileName.c_str(), file, &status );
     if( status != CNTERR_NONE || !eeg )
     {
-        throw WDHIOFailure( m_fileName + " could not be initialized" );
+        std::ostringstream stream;
+        stream << m_fileName << " could not be initialized. Libeep status code: " << status;
+        throw WDHIOFailure( stream.str() );
     }
 
     // read data
@@ -95,7 +97,10 @@ boost::shared_ptr< WDataSet > WLoaderLibeep::load()
 
     if( electrodeLibrary.size() != numberOfChannels )
     {
-        throw WDHException( "Contents of cnt and elc files are not compatible: Different number of channels." );
+        std::ostringstream stream;
+        stream << "Contents of cnt and elc files are not compatible: The cnt has " << numberOfChannels
+               << " channels, but the elc has " << electrodeLibrary.size() << " channels.";
+        throw WDHException( stream.str() );
     }
 
     // construct WEEG object and return it

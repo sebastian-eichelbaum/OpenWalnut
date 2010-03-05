@@ -171,8 +171,11 @@ int WQt4Gui::run()
     {
         try
         {
-            WModuleProjectFileCombiner proj = WModuleProjectFileCombiner( m_optionsMap["project"].as< std::string >() );
-            proj.apply();
+            boost::shared_ptr< WModuleProjectFileCombiner > proj = boost::shared_ptr< WModuleProjectFileCombiner >(
+                    new WModuleProjectFileCombiner( m_optionsMap["project"].as< std::string >() )
+            );
+            // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+            proj->run();
         }
         catch( const WException& e )
         {

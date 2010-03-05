@@ -250,6 +250,15 @@ void WMTemplate::moduleMain()
         m_moduleState.wait();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.
+
+        // woke up since the module is requested to finish
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // The next part is the collection part. We collect the information we need and check whether they changed.
         // Do not recalculate everything in every loop. Always check whether the data changed or some property and handle those cases properly.
         // After collection, the calculation work can be done.
