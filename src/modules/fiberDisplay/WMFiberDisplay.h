@@ -117,6 +117,8 @@ private:
     WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
 
+    WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
+
     /**
      * Input connector for a fiber dataset.
      */

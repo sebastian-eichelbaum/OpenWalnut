@@ -40,6 +40,7 @@
 
 WMFiberDisplay::WMFiberDisplay()
     : WModule(),
+      m_noData( new WCondition, true ),
       m_osgNode( osg::ref_ptr< osg::Group >() )
 {
     m_shader = osg::ref_ptr< WShader > ( new WShader( "fake-tubes" ) );
@@ -84,14 +85,17 @@ void WMFiberDisplay::moduleMain()
             // -> recalculate
             debugLog() << "Data changed on " << m_fiberInput->getCanonicalName();
 
+            m_dataset = m_fiberInput->getData();
+
             // ensure the data is valid (not NULL)
             if ( !m_fiberInput->getData().get() ) // ok, the output has been reset, so we can ignore the "data change"
             {
+                m_noData.set( true );
                 debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
                 continue;
             }
 
-            m_dataset = m_fiberInput->getData();
+            m_noData.set( false );
 
             infoLog() << "Fiber dataset for display with: " << m_dataset->size() << " fibers loaded.";
 
@@ -114,6 +118,17 @@ void WMFiberDisplay::update()
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+    if( m_noData.changed() )
+    {
+        if( m_noData.get( true ) )
+        {
+            m_osgNode->setNodeMask( 0x0 );
+        }
+        else
+        {
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
+        }
+    }
 
     if ( WKernel::getRunningKernel()->getRoiManager()->isDirty() )
     {
