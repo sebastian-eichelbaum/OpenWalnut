@@ -107,17 +107,19 @@ void WMClusterParamDisplay::initSubModules()
     m_gaussFiltering = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Gauss Filtering" ) );
     add( m_gaussFiltering );
     m_gaussFiltering->isReady().wait();
+    m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
 
     m_isoSurface = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
     add( m_isoSurface );
     m_isoSurface->isReady().wait();
+    m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Iso Value" ) );
 
     // wiring
     m_input->forward( m_fiberClustering->getInputConnector( "fiberInput" ) );
 
     m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
-    m_gaussFiltering->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
-
+    m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
+    m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
 
     ready();
     waitForStop(); // wait for stop request
