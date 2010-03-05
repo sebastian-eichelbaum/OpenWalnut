@@ -84,12 +84,31 @@ public:
 
     /**
      * Get the value stored at a certain grid position of the data set
+     * \param x index in x direction
+     * \param y index in y direction
+     * \param z index in z direction
+     *
+     * \return the double value at the given cell.
+     */
+    double getValueAt( int x, int y, int z );
+
+    /**
+     * Get the value stored at a certain grid position of the data set
      *
      * \param id The id'th value in the data set
      *
      * \return Scalar value for that given position
      */
     template< typename T > T getValueAt( size_t id );
+
+    /**
+     * Get the value stored at a certain grid position of the data set in type double.
+     *
+     * \param id The id'th value in the data set
+     *
+     * \return Scalar value for that given position
+     */
+    double getValueAt( size_t id );
 
     /**
      * Determines whether this dataset can be used as a texture.
