@@ -103,17 +103,17 @@ private:
     /**
      * The first VOI
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_voi1;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_voi1Input;
 
     /**
      * The second VOI.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_voi2;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_voi2Input;
 
     /**
      * The fiber dataset which is going to be filtered.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fibers;
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
 
     /**
      * The output connector used to provide the calculated data to other modules.
@@ -124,6 +124,21 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * The fiber dataset (from m_fiberInput).
+     */
+    boost::shared_ptr< WDataSetFibers > m_fibers;
+
+    /**
+     * The VOI1 dataset (from m_voi1Input).
+     */
+    boost::shared_ptr< WDataSetSingle > m_voi1;
+
+    /**
+     * The VOI2 dataset (from m_voi2Input).
+     */
+    boost::shared_ptr< WDataSetSingle > m_voi2;
 
 };
 
