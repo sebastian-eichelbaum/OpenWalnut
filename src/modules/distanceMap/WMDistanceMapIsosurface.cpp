@@ -168,10 +168,6 @@ void WMDistanceMapIsosurface::connectors()
     WModule::connectors();
 }
 
-void WMDistanceMapIsosurface::properties()
-{
-}
-
 void WMDistanceMapIsosurface::activate()
 {
     m_marchingCubesModule->getProperties2()->getProperty( "active" )->toPropBool()->set( m_active->get() );
