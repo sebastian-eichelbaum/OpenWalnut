@@ -112,6 +112,12 @@ void WMFiberSelection::properties()
 {
     // used to notify about changed properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    // the threshold for testing whether a fiber vertex is inside a volume of interest.
+    m_voi1Threshold = m_properties2->addProperty( "VOI1 Threshold", "The threshold uses for determining whether a fiber is inside the first VOI"
+                                                                    "dataset or not.", 5.0, m_propCondition );
+    m_voi2Threshold = m_properties2->addProperty( "VOI2 Threshold", "The threshold uses for determining whether a fiber is inside the second VOI"
+                                                                    "dataset or not.", 5.0, m_propCondition );
 }
 
 void WMFiberSelection::moduleMain()
@@ -153,6 +159,10 @@ void WMFiberSelection::moduleMain()
             m_voi1 = newVoi1;
             m_voi2 = newVoi2;
 
+            // get the needed properties
+            double voi1Threshold = m_voi1Threshold->get( true );
+            double voi2Threshold = m_voi2Threshold->get( true );
+
             // now the fibers get iterated. While doing this, the fibers get checked whether they belong to the VOI1 and VOI2 or not.
             // a bitlist is used to actually store this information
             std::vector< bool > bitlist( m_fibers->size(), false );
@@ -164,7 +174,8 @@ void WMFiberSelection::moduleMain()
 
             // TODO(ebaum): currently, both grids need to be the same
             // the grid of voi1 and voi2 is needed here
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_voi1->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid1 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi1->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid2 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi2->getGrid() );
 
             // progress indication
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Checking fibers against ",
@@ -172,15 +183,20 @@ void WMFiberSelection::moduleMain()
             m_progress->addSubProgress( progress1 );
 
             // for each fiber:
+            debugLog() << "Iterating over all fibers.";
             for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
             {
                 ++*progress1;
+
+                // true if the current fiber is inside voi1/voi2
+                bool inVoi1 = false;
+                bool inVoi2 = false;
 
                 // the start vertex index
                 size_t sidx = fibStart->at( fidx ) * 3;
 
                 // the length of the fiber
-                size_t len = fibLen->at( fidx ) * 3;
+                size_t len = fibLen->at( fidx );
 
                 // iterate along the fiber
                 for ( size_t k = 0; k < len; ++k )
@@ -190,13 +206,41 @@ void WMFiberSelection::moduleMain()
                     float z = fibVerts->at( ( 3 * k ) + sidx + 2 );
 
                     // get the voxel id
-                    size_t voxel = grid->getVoxelNum( wmath::WPosition( x, y, z ) );
+                    int voxel1 = grid1->getVoxelNum( wmath::WPosition( x, y, z ) );
+                    int voxel2 = grid2->getVoxelNum( wmath::WPosition( x, y, z ) );
+                    if ( ( voxel1 < 0 ) || ( voxel2 < 0 ) )
+                    {
+                        warnLog() << "Fiber vertex (" << x << "," << y << "," << z << ") not in VOI1 or VOI2 grid. Ignoring vertex.";
+                        continue;
+                    }
 
                     // get the value
-                    double value = m_voi1->getValueAt( voxel );
+                    double value1 = m_voi1->getValueAt( voxel1 );
+                    double value2 = m_voi2->getValueAt( voxel2 );
+
+                    // does the current value match the criterion?
+                    if ( value1 >= voi1Threshold )
+                    {
+                        // found
+                        inVoi1 = true;
+                    }
+
+                    if ( value2 >= voi2Threshold )
+                    {
+                        // found
+                        inVoi2 = true;
+                    }
+
+                    // if the fiber was found in both VOI the loop can be stopped
+                    if ( inVoi1 && inVoi2 )
+                    {
+                        debugLog() << "Fiber " << fidx << " inside VOI1 and VOI2.";
+                        break;
+                    }
+
                 }
             }
-
+            debugLog() << "Iterating over all fibers: done!";
             progress1->finish();
         }
     }
