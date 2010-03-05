@@ -38,9 +38,11 @@ namespace wmath
  */
 template< typename T > class WValue
 {
+// We exclude this from doxygen since they are documented already as functions and I don't want to duplicate that documentation
+// \cond
 template< typename U > friend std::ostream& operator<<( std::ostream& os, const WValue< U > &rhs );
 template< typename U > friend std::istream& operator>>( std::istream& in, WValue< U >& rhs );
-
+// \endcond
 public:
     /**
      * Create a WValue with the given number of components.

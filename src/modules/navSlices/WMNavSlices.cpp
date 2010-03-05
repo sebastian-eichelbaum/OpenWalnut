@@ -538,20 +538,20 @@ void WMNavSlices::updateGeometry()
 
     if ( m_showCoronal->get() && !noSlices )
     {
-        m_xSliceNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_xSliceNode->setNodeMask( 0x0 );
-    }
-
-    if ( m_showSagittal->get() && !noSlices )
-    {
         m_ySliceNode->setNodeMask( 0xFFFFFFFF );
     }
     else
     {
         m_ySliceNode->setNodeMask( 0x0 );
+    }
+
+    if ( m_showSagittal->get() && !noSlices )
+    {
+        m_xSliceNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_xSliceNode->setNodeMask( 0x0 );
     }
 
     slock.unlock();

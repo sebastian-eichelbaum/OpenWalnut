@@ -128,15 +128,20 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
 {
     osgUtil::LineSegmentIntersector::Intersections intersections;
     m_hitResult = WPickInfo();
-    float x = ea.getX();
-    float y = ea.getY();
+    float x = ea.getX(); // pixel position in x direction
+    float y = ea.getY(); // pixel position in x direction
 
-    if ( view->computeIntersections( x, y, intersections ) )
+    bool intersetionsExist = view->computeIntersections( x, y, intersections );
+
+    // if something is picked, get the right thing from the list, because it might be hidden.
+    bool startPickIsStillInList = false;
+    osgUtil::LineSegmentIntersector::Intersections::iterator hitr;
+    if( intersetionsExist )
     {
-        bool startPickIsStillInList = false;
-        osgUtil::LineSegmentIntersector::Intersections::iterator hitr = intersections.begin();
+        assert( intersections.size() );
+        hitr = intersections.begin();
 
-        // if something is picked, get the right thing from the list, because it might be hidden.
+        // if we have a previous pick we search for it in the list
         if( m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
         {
             while( ( hitr != intersections.end() ) && !startPickIsStillInList )
@@ -150,37 +155,41 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
                 }
             }
         }
-
-        WPickInfo pickInfo;
-        if( !startPickIsStillInList && m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
-        {
-            // if startPicked is not found use old
-            pickInfo = m_startPick;
-        }
-        else
-        {
-            // if nothing was picked before, or the previously picked was found: set new pickInfo
-            wmath::WPosition pickPos;
-            pickPos[0] = hitr->getWorldIntersectPoint()[0];
-            pickPos[1] = hitr->getWorldIntersectPoint()[1];
-            pickPos[2] = hitr->getWorldIntersectPoint()[2];
-
-            wmath::WVector3D pickNormal;
-            pickNormal[0] = hitr->getWorldIntersectNormal()[0];
-            pickNormal[1] = hitr->getWorldIntersectNormal()[1];
-            pickNormal[2] = hitr->getWorldIntersectNormal()[2];
-            pickInfo = WPickInfo( extractSuitableName( hitr ), pickPos, std::make_pair( x, y ), WPickInfo::NONE, pickNormal );
-        }
-
-        if( m_shift )
-        {
-            pickInfo.setModifierKey( WPickInfo::SHIFT );
-        }
-
-        m_hitResult = pickInfo;
-
-        // if nothing was picked before remember the currently picked.
-        m_startPick = pickInfo;
     }
+
+    // Set the new pickInfo if the previously picked is still in list or we have a pick in conjunction with previously no pick
+    WPickInfo pickInfo;
+    if( startPickIsStillInList || ( intersetionsExist && ( m_startPick.getName() == "unpick" || m_startPick.getName() == "" ) ) )
+    {
+        // if nothing was picked before, or the previously picked was found: set new pickInfo
+        wmath::WPosition pickPos;
+        pickPos[0] = hitr->getWorldIntersectPoint()[0];
+        pickPos[1] = hitr->getWorldIntersectPoint()[1];
+        pickPos[2] = hitr->getWorldIntersectPoint()[2];
+
+        wmath::WVector3D pickNormal;
+        pickNormal[0] = hitr->getWorldIntersectNormal()[0];
+        pickNormal[1] = hitr->getWorldIntersectNormal()[1];
+        pickNormal[2] = hitr->getWorldIntersectNormal()[2];
+        pickInfo = WPickInfo( extractSuitableName( hitr ), pickPos, std::make_pair( x, y ), WPickInfo::NONE, pickNormal );
+    }
+
+    // Use the old PickInfo with updated pixel info if we have previously picked something but the old is not in list anymore
+    if( !startPickIsStillInList && m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
+    {
+        pickInfo = WPickInfo( m_startPick.getName(), m_startPick.getPickPosition(), std::make_pair( x, y ),
+                              m_startPick.getModifierKey(),  m_startPick.getPickNormal() );
+    }
+
+    if( m_shift )
+    {
+        pickInfo.setModifierKey( WPickInfo::SHIFT );
+    }
+
+    m_hitResult = pickInfo;
+
+    // if nothing was picked before remember the currently picked.
+    m_startPick = pickInfo;
+
     m_pickSignal( getHitResult() );
 }
