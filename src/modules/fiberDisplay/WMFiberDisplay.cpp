@@ -140,11 +140,8 @@ void WMFiberDisplay::update()
 
 void WMFiberDisplay::create()
 {
-    // remove nodes if they are any
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
-
     // create new node
-    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+    osg::ref_ptr< osg::Group > osgNodeNew = osg::ref_ptr< osg::Group >( new osg::Group );
 
     m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
     m_tubeDrawable->setDataset( m_dataset );
@@ -152,13 +149,20 @@ void WMFiberDisplay::create()
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( m_tubeDrawable );
 
-    m_osgNode->addChild( geode );
+    osgNodeNew->addChild( geode );
 
-    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
+    osgNodeNew->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( osgNodeNew.get() );
 
-    m_osgNode->setUserData( this );
-    m_osgNode->addUpdateCallback( new fdNodeCallback );
+    osgNodeNew->setUserData( this );
+    osgNodeNew->addUpdateCallback( new fdNodeCallback );
+
+    // remove previous nodes if there are any
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+
+    m_osgNode = osgNodeNew;
+
+    activate();
 }
 
 void WMFiberDisplay::connectors()
