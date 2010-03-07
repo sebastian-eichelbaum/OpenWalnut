@@ -266,7 +266,7 @@ void WMFiberSelection::moduleMain()
                 newFibLen->push_back( len );
 
                 // set new start index
-                newFibStart->push_back( curVertIdx * 3 );
+                newFibStart->push_back( curVertIdx );
 
                 // copy the fiber vertices
                 for ( size_t vi = 0; vi < len; ++vi )
@@ -275,9 +275,9 @@ void WMFiberSelection::moduleMain()
 
                     // TODO(ebaum): fix this crappy stuff translating the vertices just because the WDataSetFibers has another even
                     // more crappy hack :-(
-                    newFibVerts->push_back( fibVerts->at( sidx + vi ) );
-                    newFibVerts->push_back( fibVerts->at( sidx + vi + 1 ) );
-                    newFibVerts->push_back( fibVerts->at( sidx + vi + 2 ) );
+                    newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) ) );
+                    newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) + 1 ) );
+                    newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) + 2 ) );
                     newFibVertsRev->push_back( i );
                     newFibVertsRev->push_back( i );
                     newFibVertsRev->push_back( i );
