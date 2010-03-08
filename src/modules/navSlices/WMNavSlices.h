@@ -213,6 +213,9 @@ private:
 
     std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     bool m_isPicked; //!< Indicates whether a slice is currently picked or not.
+    bool m_isPickedSagittal; //!< Indicates whether a sagittal slice is currently picked or not.
+    bool m_isPickedCoronal; //!< Indicates whether coronal slice is currently picked or not.
+    bool m_isPickedAxial; //!< Indicates whether axial slice is currently picked or not.
     boost::shared_ptr< WGEViewer > m_viewer; //!< Stores reference to the main viewer
 
     /**
@@ -264,6 +267,10 @@ private:
      * vector of samplers
      */
     std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
+
+    osg::ref_ptr<osg::Uniform> m_highlightUniformSagittal; //!< Determines whether the slice is highlighted
+    osg::ref_ptr<osg::Uniform> m_highlightUniformCoronal; //!< Determines whether the slice is highlighted
+    osg::ref_ptr<osg::Uniform> m_highlightUniformAxial; //!< Determines whether the slice is highlighted
 
     /**
      * To avoid multiple instances of the nav slices.

@@ -51,6 +51,8 @@ uniform float alpha7;
 uniform float alpha8;
 uniform float alpha9;
 
+uniform bool highlighted;
+
 
 #include "colorMaps.fs"
 
@@ -76,7 +78,7 @@ void lookupTex(inout vec4 col, in int type, in sampler3D tex, in float threshold
 
 void main()
 {
-    vec4 col = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
 
     if ( type9 > 0 ) lookupTex(col, type9, tex9, threshold9, VaryingTexCoord7.xyz, alpha9);
     if ( type8 > 0 ) lookupTex(col, type8, tex8, threshold8, VaryingTexCoord7.xyz, alpha8);
@@ -91,10 +93,36 @@ void main()
 
     col = clamp(col, 0.0, 1.0);
 
-    col.a = sqrt( col.r * col.r + col.g * col.g + col.b * col.b);
+//     col.a = sqrt( col.r * col.r + col.g * col.g + col.b * col.b);
 
     if ( ( col.r + col.g + col.b ) < 0.01 )
-        discard;
+    {
+        float upperOuter = 10;
+        float upperInner = 1;
+        float lowerInner = .0;
+        if( highlighted )
+        {
+            //colorize the slice and mark the border of the first texture
+            if ( ( VaryingTexCoord0.x > upperInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
+                              || (VaryingTexCoord0.y > upperInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
+                              || (VaryingTexCoord0.z > upperInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
+                              || (VaryingTexCoord0.x < lowerInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
+                              || (VaryingTexCoord0.y < lowerInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
+                              || (VaryingTexCoord0.z < lowerInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
+                                  )
+                {
+                    col = vec4(.75, .75, 1, 1);
+                }
+                else
+                {
+                    col = vec4(.7, .7, 1, 1);
+                }
+                }
+        else
+        {
+             discard;
+        }
+    }
 
     gl_FragColor = col;
 }

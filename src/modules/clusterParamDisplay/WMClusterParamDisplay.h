@@ -76,26 +76,24 @@ protected:
     virtual void properties();
 
     /**
-     * The root node used for this modules graphics.
-     */
-    osg::ref_ptr<osg::Geode> m_rootNode;
-
-    /**
      * En/Disables display of the root node.
      */
     virtual void activate();
 
-    void initSubModules(); //!< Create and initialize submodule instances
+    /**
+     * Create and initialize submodule instances, wires them and forward connectors as well as some properties.
+     */
+    virtual void initSubModules();
 
 private:
+    osg::ref_ptr<osg::Geode> m_rootNode; //!< The root node used for this modules graphics.
+
     boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_input;  //!< Input connector required by this module.
 
     boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
     boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster
     boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
     boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
-
-//    WPropInt    m_clusterOutputID; //!< Specifies which cluster should be connected to the Output
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H

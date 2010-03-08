@@ -53,13 +53,12 @@ void WMClusterParamDisplay::connectors()
 
 void WMClusterParamDisplay::properties()
 {
+    // look into initSubModules for forwarded submodule properties
 }
 
 void WMClusterParamDisplay::moduleMain()
 {
     m_moduleState.setResetable( true, true );
-
-    initSubModules();
 
     ready();
 
@@ -73,13 +72,16 @@ void WMClusterParamDisplay::moduleMain()
 
 void WMClusterParamDisplay::activate()
 {
-    if ( m_active->get() )
+    if( m_rootNode ) // prevent segfault when there is no root node yet
     {
-        m_rootNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_rootNode->setNodeMask( 0x0 );
+        if ( m_active->get() )
+        {
+            m_rootNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_rootNode->setNodeMask( 0x0 );
+        }
     }
 
     WModule::activate();
@@ -92,27 +94,17 @@ void WMClusterParamDisplay::initSubModules()
     add( m_fiberClustering );
     m_fiberClustering->isReady().wait();
 
-    boost::shared_ptr< WProperties2 > fcProps = m_fiberClustering->getProperties2();
-    fcProps->getProperty( "Invisible fibers" )->toPropBool()->set( true );
-    m_properties2->addProperty( fcProps->getProperty( "Output cluster ID" ) );
-    m_properties2->addProperty( fcProps->getProperty( "Go" ) );
-
     m_voxelizer = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Voxelizer" ) );
     add( m_voxelizer );
     m_voxelizer->isReady().wait();
-    boost::shared_ptr< WProperties2 > voxProps = m_voxelizer->getProperties2();
-    voxProps->getProperty( "Fibers Tracts" )->toPropBool()->set( false );
-    voxProps->getProperty( "Display Voxels" )->toPropBool()->set( false );
 
     m_gaussFiltering = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Gauss Filtering" ) );
     add( m_gaussFiltering );
     m_gaussFiltering->isReady().wait();
-    m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
 
     m_isoSurface = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
     add( m_isoSurface );
     m_isoSurface->isReady().wait();
-    m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Iso Value" ) );
 
     // wiring
     m_input->forward( m_fiberClustering->getInputConnector( "fiberInput" ) );
@@ -121,7 +113,15 @@ void WMClusterParamDisplay::initSubModules()
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
     m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
 
-    ready();
-    waitForStop(); // wait for stop request
-    stop(); // stop container and the contained modules.
+    // preset properties
+    m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
+    m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
+    m_voxelizer->getProperties2()->getProperty( "Display Voxels" )->toPropBool()->set( false );
+
+    // forward properties
+    m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Output cluster ID" ) );
+    m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );
+    m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
+    m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
+    m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Iso Value" ) );
 }

@@ -42,7 +42,8 @@
 #include "WMData.h"
 
 WMData::WMData():
-    WModule()
+    WModule(),
+    m_isTexture()
 {
     // initialize members
 }
@@ -112,17 +113,34 @@ void WMData::properties()
 
 void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
-    if ( property == m_threshold )
+    if( m_isTexture )
     {
-        m_dataSet->getTexture()->setThreshold( m_threshold->get() );
+        if ( property == m_threshold )
+        {
+            m_dataSet->getTexture()->setThreshold( m_threshold->get() );
+        }
+        else if ( property == m_opacity )
+        {
+            m_dataSet->getTexture()->setOpacity( m_opacity->get() );
+        }
+        else if ( property == m_active )
+        {
+            m_dataSet->getTexture()->setGloballyActive( m_active->get() );
+        }
     }
-    else if ( property == m_opacity )
+    else
     {
-        m_dataSet->getTexture()->setOpacity( m_opacity->get() );
-    }
-    else if ( property == m_active )
-    {
-        m_dataSet->getTexture()->setGloballyActive( m_active->get() );
+        if ( property == m_active )
+        {
+            if( m_active->get() )
+            {
+                m_output->updateData( m_dataSet );
+            }
+            else
+            {
+                m_output->updateData( boost::shared_ptr< WDataSet >() );
+            }
+        }
     }
 }
 
@@ -155,6 +173,19 @@ void WMData::moduleMain()
     // load it now
     std::string suffix = getSuffix( fileName );
 
+    if( suffix == ".fib"
+        || suffix == ".cnt"
+        || suffix == ".asc"
+        || suffix == ".edf" )
+    {
+        // hide other properties since they make no sense fo these data set types.
+        m_filename->setHidden();
+        m_interpolation->setHidden();
+        m_threshold->setHidden();
+        m_opacity->setHidden();
+        m_active->setHidden();
+    }
+
     if( suffix == ".nii"
 //#ifndef _MSC_VER
         || suffix == ".gz"
@@ -168,6 +199,9 @@ void WMData::moduleMain()
             suffix = getSuffix( p.string() );
             assert( suffix == ".nii" && "currently only nii files may be gzipped" );
         }
+
+        m_isTexture = true;
+
         WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
     }
@@ -196,18 +230,6 @@ void WMData::moduleMain()
     else
     {
         throw WDHException( "Unknown file type: '" + suffix + "'" );
-    }
-
-    if( suffix == ".fib"
-        || suffix == ".cnt"
-        || suffix == ".asc"
-        || suffix == ".edf" )
-    {
-        // hide other properties since they make no sense fo these data set types.
-        m_filename->setHidden();
-        m_interpolation->setHidden();
-        m_threshold->setHidden();
-        m_opacity->setHidden();
     }
 
     debugLog() << "Loading data done.";
