@@ -285,11 +285,6 @@ private:
     bool m_shaderUseLighting; //!< shall the shader use lighting?
     bool m_shaderUseTransparency; //!< shall the shader use transparency?
 
-    /**
-     * Lock to prevent concurrent threads trying to update the osg node
-     */
-    boost::shared_mutex m_updateLock;
-
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
