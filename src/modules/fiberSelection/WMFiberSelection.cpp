@@ -98,14 +98,24 @@ void WMFiberSelection::connectors()
     addConnector( m_voi2Input );
 
     // the selected fibers go to this output
-    m_output = boost::shared_ptr< WModuleOutputData < WDataSetFibers > >(
+    m_fiberOutput = boost::shared_ptr< WModuleOutputData < WDataSetFibers > >(
         new WModuleOutputData< WDataSetFibers >( shared_from_this(),
                                                                "out", "The fiber dataset only containing fibers which got through both volume of"
                                                                "interest." )
     );
 
     // As above: make it known.
-    addConnector( m_output );
+    addConnector( m_fiberOutput );
+
+    // the selected fibers (as clusters) go to this output
+    m_clusterOutput = boost::shared_ptr< WModuleOutputData < WFiberCluster > >(
+        new WModuleOutputData< WFiberCluster >( shared_from_this(),
+                                                               "cluster", "The cluster dataset only containing fibers which got through both volume of"
+                                                               "interest." )
+    );
+
+    // As above: make it known.
+    addConnector( m_clusterOutput );
 
     // call WModules initialization
     WModule::connectors();
@@ -121,7 +131,10 @@ void WMFiberSelection::properties()
                                                                     "dataset or not.", 5.0, m_propCondition );
     m_voi2Threshold = m_properties2->addProperty( "VOI2 Threshold", "The threshold uses for determining whether a fiber is inside the second VOI"
                                                                     "dataset or not.", 5.0, m_propCondition );
+    m_cutFibers     = m_properties2->addProperty( "Cut Fibers",     "Cut the fibers after they gone through both VOI.", true, m_propCondition );
+
 }
+
 
 void WMFiberSelection::moduleMain()
 {
@@ -152,7 +165,7 @@ void WMFiberSelection::moduleMain()
 
         bool dataChanged = ( m_fibers != newFibers ) || ( m_voi1 != newVoi1 ) ||( m_voi2 != newVoi2 );
         bool dataValid =   ( newFibers && newVoi1 && newVoi2 );
-        bool propChanged = ( m_voi1Threshold->changed() || m_voi2Threshold->changed() );
+        bool propChanged = ( m_cutFibers->changed() || m_voi1Threshold->changed() || m_voi2Threshold->changed() );
 
         if ( ( propChanged || dataChanged ) && dataValid )
         {
@@ -166,6 +179,7 @@ void WMFiberSelection::moduleMain()
             // get the needed properties
             double voi1Threshold = m_voi1Threshold->get( true );
             double voi2Threshold = m_voi2Threshold->get( true );
+            bool   cutFibers     = m_cutFibers->get( true );
 
             // now the fibers get iterated. While doing this, the fibers get checked whether they belong to the VOI1 and VOI2 or not.
             // a bitlist is used to actually store this information
@@ -252,15 +266,22 @@ void WMFiberSelection::moduleMain()
             boost::shared_ptr< std::vector< size_t > > newFibLen = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
             boost::shared_ptr< std::vector< size_t > > newFibVertsRev = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
 
-            progress1 = boost::shared_ptr< WProgress >( new WProgress( "Creating Output dataset.", matches.size() ) );
+            progress1 = boost::shared_ptr< WProgress >( new WProgress( "Creating Output Dataset.", matches.size() ) );
             m_progress->addSubProgress( progress1 );
-            debugLog() << "Creating new Fiber Dataset.";
+            debugLog() << "Creating new Fiber Dataset and Cluster.";
+
+            // the cluster which gets iteratively build
+            boost::shared_ptr< WFiberCluster > newFiberCluster = boost::shared_ptr< WFiberCluster >( new WFiberCluster() );
 
             // add each match to the above arrays
             size_t curVertIdx = 0;  // the current index in the vertex array
             for ( size_t i = 0; i < matches.size(); ++i )
             {
                 ++*progress1;
+
+                // copy the index to the cluster
+                WFiberCluster a( i );
+                newFiberCluster->merge( a );
 
                 // start index and length of original fiber
                 size_t sidx = fibStart->at( matches[ i ] ) * 3;
@@ -287,11 +308,28 @@ void WMFiberSelection::moduleMain()
                     newFibVertsRev->push_back( i );
                 }
             }
+            progress1->finish();
+
+            // create the new dataset
+            boost::shared_ptr< WDataSetFibers > newFibers = boost::shared_ptr< WDataSetFibers >(
+                    new WDataSetFibers( newFibVerts, newFibStart, newFibLen, newFibVertsRev )
+            );
+
+            // create a WDataSetFiberVector which is needed for the WFiberCluster
+            progress1 = boost::shared_ptr< WProgress >( new WProgress( "Creating Output Vector Dataset." ) );
+            m_progress->addSubProgress( progress1 );
+            debugLog() << "Creating Fiber Vector Dataset.";
+
+            boost::shared_ptr< WDataSetFiberVector > newFiberVector = boost::shared_ptr< WDataSetFiberVector >(
+                    new WDataSetFiberVector( newFibers )
+            );
+            newFiberCluster->setDataSetReference( newFiberVector );
 
             progress1->finish();
 
             // finally -> update the output
-            m_output->updateData( boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( newFibVerts, newFibStart, newFibLen, newFibVertsRev ) ) );
+            m_fiberOutput->updateData( newFibers );
+            m_clusterOutput->updateData( newFiberCluster );
         }
     }
 

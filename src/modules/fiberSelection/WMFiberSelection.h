@@ -33,6 +33,9 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
+
 /**
  * This module handles selection of fibers based on two volumes of interest. It can filter out ALL fibers which do not go through both VOI.
  * \ingroup modules
@@ -122,7 +125,12 @@ private:
     /**
      * The output connector used to provide the calculated data to other modules.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output;
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
+
+    /**
+     * The cluster dataset created from m_fiberOutput.
+     */
+    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_clusterOutput;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -157,6 +165,11 @@ private:
      * VOI2 threshold.
      */
     WPropDouble   m_voi2Threshold;
+
+    /**
+     * Cut the fibers when they are outside the VOI?
+     */
+    WPropBool     m_cutFibers;
 };
 
 #endif  // WMFIBERSELECTION_H
