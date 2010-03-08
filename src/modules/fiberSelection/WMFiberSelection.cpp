@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <vector>
 #include <string>
 
 #include <boost/tuple/tuple.hpp>
@@ -102,8 +104,7 @@ void WMFiberSelection::connectors()
     // the selected fibers go to this output
     m_fiberOutput = boost::shared_ptr< WModuleOutputData < WDataSetFibers > >(
         new WModuleOutputData< WDataSetFibers >( shared_from_this(),
-                                                               "out", "The fiber dataset only containing fibers which got through both volume of"
-                                                               "interest." )
+                                        "out", "The fiber dataset only containing fibers which got through both volume of interest." )
     );
 
     // As above: make it known.
@@ -112,8 +113,7 @@ void WMFiberSelection::connectors()
     // the selected fibers (as clusters) go to this output
     m_clusterOutput = boost::shared_ptr< WModuleOutputData < WFiberCluster > >(
         new WModuleOutputData< WFiberCluster >( shared_from_this(),
-                                                               "cluster", "The cluster dataset only containing fibers which got through both volume of"
-                                                               "interest." )
+                                        "cluster", "The cluster dataset only containing fibers which got through both volume of interest." )
     );
 
     // As above: make it known.
@@ -134,9 +134,7 @@ void WMFiberSelection::properties()
     m_voi2Threshold = m_properties2->addProperty( "VOI2 Threshold", "The threshold uses for determining whether a fiber is inside the second VOI"
                                                                     "dataset or not.", 5.0, m_propCondition );
     m_cutFibers     = m_properties2->addProperty( "Cut Fibers",     "Cut the fibers after they gone through both VOI.", true, m_propCondition );
-
 }
-
 
 void WMFiberSelection::moduleMain()
 {
@@ -270,7 +268,6 @@ void WMFiberSelection::moduleMain()
                                                                     std::max( fibVoi1Vertex, fibVoi2Vertex ) ) );
                         break;
                     }
-
                 }
             }
             debugLog() << "Iterating over all fibers: done!";
@@ -368,7 +365,6 @@ void WMFiberSelection::moduleMain()
             m_clusterOutput->updateData( newFiberCluster );
         }
     }
-
 }
 
 void WMFiberSelection::activate()

@@ -278,7 +278,6 @@ void WMGaussFiltering::moduleMain()
         {
             m_output->updateData( m_dataSet );
         }
-
     }
 }
 
