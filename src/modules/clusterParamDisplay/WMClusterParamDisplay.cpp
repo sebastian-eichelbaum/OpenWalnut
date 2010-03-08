@@ -60,6 +60,8 @@ void WMClusterParamDisplay::moduleMain()
 {
     m_moduleState.setResetable( true, true );
 
+    initSubModules();
+
     ready();
 
     while ( !m_shutdownFlag() )
