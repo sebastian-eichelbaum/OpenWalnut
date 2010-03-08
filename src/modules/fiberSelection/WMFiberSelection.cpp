@@ -65,7 +65,10 @@ const std::string WMFiberSelection::getName() const
 const std::string WMFiberSelection::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "Select fibers in a given dataset using two additional datasets as volume of interest.";
+    return "Select fibers in a given dataset using two additional datasets as volume of interest. The purpose of this module is to allow the user"
+        "to select a bunch of fibers which go through two regions defined by two scalar datasets. A fiber goes through both volumes of interest"
+        "if and only if at least one of the vertices of a fiber is inside a voxel of the scalar datasets with a value greater than a specified"
+        "threshold. Currently, this only works good for large regions and/or densely sampled fibers.";
 }
 
 void WMFiberSelection::connectors()
@@ -149,8 +152,9 @@ void WMFiberSelection::moduleMain()
 
         bool dataChanged = ( m_fibers != newFibers ) || ( m_voi1 != newVoi1 ) ||( m_voi2 != newVoi2 );
         bool dataValid =   ( newFibers && newVoi1 && newVoi2 );
+        bool propChanged = ( m_voi1Threshold->changed() || m_voi2Threshold->changed() );
 
-        if ( dataChanged && dataValid )
+        if ( ( propChanged || dataChanged ) && dataValid )
         {
             debugLog() << "Data received. Recalculating.";
 
@@ -275,8 +279,8 @@ void WMFiberSelection::moduleMain()
 
                     // TODO(ebaum): fix this crappy stuff translating the vertices just because the WDataSetFibers has another even
                     // more crappy hack :-(
-                    newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) ) );
-                    newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) + 1 ) );
+                    newFibVerts->push_back( 160 - fibVerts->at( sidx + ( 3 * vi ) ) );
+                    newFibVerts->push_back( 200 - fibVerts->at( sidx + ( 3 * vi ) + 1 ) );
                     newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) + 2 ) );
                     newFibVertsRev->push_back( i );
                     newFibVertsRev->push_back( i );
