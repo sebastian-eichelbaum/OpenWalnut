@@ -147,10 +147,12 @@ private:
      * Run the filter iteratively over the field. The number of iterations is determined by m_iterations.
      *
      * \param vals the valueset to work on
+     * \param iterations the number of iterations. If this value is <=1 then the filter gets applied exactly once.
      *
      * \return the filtered valueset.
      */
-    template< typename T > boost::shared_ptr< WValueSet< double > > iterativeFilterField( boost::shared_ptr< WValueSet< T > > vals );
+    template< typename T > boost::shared_ptr< WValueSet< double > > iterativeFilterField( boost::shared_ptr< WValueSet< T > > vals,
+                                                                                          unsigned int iterations);
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
