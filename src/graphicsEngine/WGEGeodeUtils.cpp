@@ -174,7 +174,7 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
 
     // apply transformation to bbox
     osg::ref_ptr< osg::MatrixTransform > transform = new osg::MatrixTransform();
-    transform->setMatrix( transformM * scaleM );
+    transform->setMatrix( scaleM * transformM );
     transform->addChild( cube );
 
     // we do not need light
