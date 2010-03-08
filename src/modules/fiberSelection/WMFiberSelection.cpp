@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <boost/tuple/tuple.hpp>
+
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 #include <osg/Geode>
@@ -196,7 +198,8 @@ void WMFiberSelection::moduleMain()
             boost::shared_ptr< WGridRegular3D > grid2 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi2->getGrid() );
 
             // the list of fibers
-            std::vector< size_t > matches;
+            std::vector< boost::tuple< size_t, size_t, size_t > > matches;  // a match contains the fiber ID, the start vertex ID and the stop ID
+            // this is especially useful since fibers do not always end in the VOI
 
             // progress indication
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Checking fibers against ",
@@ -220,6 +223,10 @@ void WMFiberSelection::moduleMain()
                 size_t len = fibLen->at( fidx );
 
                 // iterate along the fiber
+                size_t fibVoi1Vertex = 0;
+                bool firstVertexInVoi1 = true;
+                size_t fibVoi2Vertex = 0;
+                bool firstVertexInVoi2 = true;
                 for ( size_t k = 0; k < len; ++k )
                 {
                     float x = fibVerts->at( ( 3 * k ) + sidx );
@@ -243,11 +250,24 @@ void WMFiberSelection::moduleMain()
                     inVoi1 = inVoi1 || ( value1 >= voi1Threshold );
                     inVoi2 = inVoi2 || ( value2 >= voi2Threshold );
 
+                    // is this the first vertex entering voi1/2?
+                    if ( inVoi1 && firstVertexInVoi1 )
+                    {
+                        firstVertexInVoi1 = false;
+                        fibVoi1Vertex = k;
+                    }
+                    if ( inVoi2 && firstVertexInVoi2 )
+                    {
+                        firstVertexInVoi2 = false;
+                        fibVoi2Vertex = k;
+                    }
+
                     // if the fiber was found in both VOI the loop can be stopped
                     if ( inVoi1 && inVoi2 )
                     {
                         debugLog() << "Fiber " << fidx << " inside VOI1 and VOI2.";
-                        matches.push_back( fidx );
+                        matches.push_back( boost::make_tuple( fidx, std::min( fibVoi1Vertex, fibVoi2Vertex ),
+                                                                    std::max( fibVoi1Vertex, fibVoi2Vertex ) ) );
                         break;
                     }
 
@@ -275,23 +295,37 @@ void WMFiberSelection::moduleMain()
 
             // add each match to the above arrays
             size_t curVertIdx = 0;  // the current index in the vertex array
+            size_t curRealFibIdx = 0; // since some fibers get discarded, the for loop counter "i" is not the correct fiber index
             for ( size_t i = 0; i < matches.size(); ++i )
             {
                 ++*progress1;
 
-                // copy the index to the cluster
-                WFiberCluster a( i );
-                newFiberCluster->merge( a );
-
                 // start index and length of original fiber
-                size_t sidx = fibStart->at( matches[ i ] ) * 3;
-                size_t len = fibLen->at( matches[ i ] );
+                size_t sidx = fibStart->at( matches[ i ].get< 0 >() ) * 3;
+                size_t len = fibLen->at( matches[ i ].get< 0 >() );
+
+                if ( cutFibers )
+                {
+                    // if the fibers should be cut: add an offset to the start index and recalculate the length
+                    sidx = sidx + ( matches[ i ].get< 1 >() * 3 );
+                    len =  matches[ i ].get< 2 >() - matches[ i ].get< 1 >();
+                }
+
+                // discard fibers with less than one line segement
+                if ( len < 2 )
+                {
+                    continue;
+                }
 
                 // set the new length
                 newFibLen->push_back( len );
 
                 // set new start index
                 newFibStart->push_back( curVertIdx );
+
+                // copy the index to the cluster
+                WFiberCluster a( curRealFibIdx );
+                newFiberCluster->merge( a );
 
                 // copy the fiber vertices
                 for ( size_t vi = 0; vi < len; ++vi )
@@ -303,10 +337,12 @@ void WMFiberSelection::moduleMain()
                     newFibVerts->push_back( 160 - fibVerts->at( sidx + ( 3 * vi ) ) );
                     newFibVerts->push_back( 200 - fibVerts->at( sidx + ( 3 * vi ) + 1 ) );
                     newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) + 2 ) );
-                    newFibVertsRev->push_back( i );
-                    newFibVertsRev->push_back( i );
-                    newFibVertsRev->push_back( i );
+                    newFibVertsRev->push_back( curRealFibIdx );
+                    newFibVertsRev->push_back( curRealFibIdx );
+                    newFibVertsRev->push_back( curRealFibIdx );
                 }
+
+                curRealFibIdx++;
             }
             progress1->finish();
 

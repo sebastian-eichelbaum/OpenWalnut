@@ -42,7 +42,8 @@
 #include "directvolumerendering.xpm"
 
 WMDirectVolumeRendering::WMDirectVolumeRendering():
-    WModule()
+    WModule(),
+    m_rootNode( new osg::Node() )
 {
     // Initialize members
 }
