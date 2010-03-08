@@ -44,16 +44,27 @@ public:
     /**
      * destructor
      */
-    ~WUpdateThread();
+    virtual ~WUpdateThread();
 
     /**
      * entry for the run command
      */
     virtual void threadMain();
 
+    /**
+     * Return the value of the finished flag.
+     */
+    inline bool isFinished();
+
 protected:
 private:
-    boost::shared_ptr< WROIManagerFibers >m_roiManager; //!< stores pointer to the roi manager
+    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores pointer to the roi manager
+    bool m_myThreadFinished; //!< Has the thread finished?
 };
+
+bool WUpdateThread::isFinished()
+{
+    return m_myThreadFinished;
+}
 
 #endif  // WUPDATETHREAD_H
