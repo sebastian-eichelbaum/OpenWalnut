@@ -158,6 +158,8 @@ protected:
      */
     WPropInt m_opacity;
 
+    bool m_isTexture; //!< Indicates whether the loaded dataSet will be available as texture.
+
     /**
      * Called whenever a property changes.
      *

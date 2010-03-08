@@ -40,6 +40,7 @@
 
 WMFiberDisplay::WMFiberDisplay()
     : WModule(),
+      m_noData( new WCondition, true ),
       m_osgNode( osg::ref_ptr< osg::Group >() )
 {
     m_shader = osg::ref_ptr< WShader > ( new WShader( "fake-tubes" ) );
@@ -84,14 +85,17 @@ void WMFiberDisplay::moduleMain()
             // -> recalculate
             debugLog() << "Data changed on " << m_fiberInput->getCanonicalName();
 
+            m_dataset = m_fiberInput->getData();
+
             // ensure the data is valid (not NULL)
             if ( !m_fiberInput->getData().get() ) // ok, the output has been reset, so we can ignore the "data change"
             {
+                m_noData.set( true );
                 debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
                 continue;
             }
 
-            m_dataset = m_fiberInput->getData();
+            m_noData.set( false );
 
             infoLog() << "Fiber dataset for display with: " << m_dataset->size() << " fibers loaded.";
 
@@ -114,6 +118,17 @@ void WMFiberDisplay::update()
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
+    if( m_noData.changed() )
+    {
+        if( m_noData.get( true ) )
+        {
+            m_osgNode->setNodeMask( 0x0 );
+        }
+        else
+        {
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
+        }
+    }
 
     if ( WKernel::getRunningKernel()->getRoiManager()->isDirty() )
     {
@@ -125,11 +140,8 @@ void WMFiberDisplay::update()
 
 void WMFiberDisplay::create()
 {
-    // remove nodes if they are any
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
-
     // create new node
-    m_osgNode = osg::ref_ptr< osg::Group >( new osg::Group );
+    osg::ref_ptr< osg::Group > osgNodeNew = osg::ref_ptr< osg::Group >( new osg::Group );
 
     m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
     m_tubeDrawable->setDataset( m_dataset );
@@ -137,13 +149,20 @@ void WMFiberDisplay::create()
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( m_tubeDrawable );
 
-    m_osgNode->addChild( geode );
+    osgNodeNew->addChild( geode );
 
-    m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
+    osgNodeNew->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( osgNodeNew.get() );
 
-    m_osgNode->setUserData( this );
-    m_osgNode->addUpdateCallback( new fdNodeCallback );
+    osgNodeNew->setUserData( this );
+    osgNodeNew->addUpdateCallback( new fdNodeCallback );
+
+    // remove previous nodes if there are any
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+
+    m_osgNode = osgNodeNew;
+
+    activate();
 }
 
 void WMFiberDisplay::connectors()

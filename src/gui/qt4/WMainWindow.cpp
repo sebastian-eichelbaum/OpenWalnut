@@ -601,9 +601,9 @@ void WMainWindow::slotActivateModule( QString module )
 void WMainWindow::newRoi()
 {
     // do nothing if we can not get
-    if( !WKernel::getRunningKernel()->getRoiManager()->getDataSet() )
+    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
     {
-        wlog::warn( "WMainWindow" ) << "Refused to add ROI, as ROIManager does not have data set associated.";
+        wlog::warn( "WMainWindow" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
         return;
     }
 

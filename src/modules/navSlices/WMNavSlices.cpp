@@ -59,7 +59,10 @@ bool WMNavSlices::m_navsliceRunning = false;
 WMNavSlices::WMNavSlices():
     WModule(),
     m_textureChanged( true ),
-    m_isPicked( false )
+    m_isPicked( false ),
+    m_isPickedSagittal( false ),
+    m_isPickedCoronal( false ),
+    m_isPickedAxial( false )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -221,6 +224,9 @@ void WMNavSlices::create()
 
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
     initUniforms( rootState );
+
+    rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+
     m_rootNode->setUserData( this );
     m_xSliceNode->setUserData( this );
     m_ySliceNode->setUserData( this );
@@ -285,7 +291,6 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
                 diff *= -1;
             }
 
-
             if ( pickInfo.getName() == "Axial Slice" )
             {
                 m_axialPos->set( m_axialPos->get() + diff );
@@ -303,10 +308,26 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         }
         m_oldPixelPosition = newPixelPos;
         m_isPicked |= true;
+
+        if ( pickInfo.getName() == "Axial Slice" )
+        {
+            m_isPickedAxial |= true;
+        }
+        if ( pickInfo.getName() == "Coronal Slice" )
+        {
+            m_isPickedCoronal |= true;
+        }
+        if ( pickInfo.getName() == "Sagittal Slice" )
+        {
+            m_isPickedSagittal |= true;
+        }
     }
     else
     {
         m_isPicked &= false;
+        m_isPickedCoronal &= false;
+        m_isPickedAxial &= false;
+        m_isPickedSagittal &= false;
     }
 }
 
@@ -560,6 +581,7 @@ void WMNavSlices::updateGeometry()
 
 void WMNavSlices::updateTextures()
 {
+    osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
     if ( m_textureChanged )
     {
         m_textureChanged = false;
@@ -576,7 +598,6 @@ void WMNavSlices::updateTextures()
             }
 
             // for each texture -> apply
-            osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
             int c = 0;
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
@@ -593,11 +614,18 @@ void WMNavSlices::updateTextures()
 
                 ++c;
             }
-            m_xSliceNode->setStateSet( rootState );
-            m_ySliceNode->setStateSet( rootState );
-            m_zSliceNode->setStateSet( rootState );
+
+            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
         }
     }
+
+    m_highlightUniformSagittal->set( m_isPickedSagittal );
+    m_highlightUniformCoronal->set( m_isPickedCoronal );
+    m_highlightUniformAxial->set( m_isPickedAxial );
+
+    m_xSliceNode->getOrCreateStateSet()->merge( *rootState );
+    m_ySliceNode->getOrCreateStateSet()->merge( *rootState );
+    m_zSliceNode->getOrCreateStateSet()->merge( *rootState );
 }
 
 void WMNavSlices::initUniforms( osg::StateSet* rootState )
@@ -656,5 +684,14 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
         rootState->addUniform( m_alphaUniforms[i] );
         rootState->addUniform( m_samplerUniforms[i] );
     }
+
+    m_highlightUniformSagittal = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "highlighted", 0 ) );
+    m_highlightUniformCoronal = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "highlighted", 0 ) );
+    m_highlightUniformAxial = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "highlighted", 0 ) );
+
+    m_xSliceNode->getOrCreateStateSet()->addUniform( m_highlightUniformSagittal );
+    m_ySliceNode->getOrCreateStateSet()->addUniform( m_highlightUniformCoronal );
+    m_zSliceNode->getOrCreateStateSet()->addUniform( m_highlightUniformAxial );
+
     slock.unlock();
 }

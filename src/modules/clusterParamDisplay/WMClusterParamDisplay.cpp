@@ -73,13 +73,16 @@ void WMClusterParamDisplay::moduleMain()
 
 void WMClusterParamDisplay::activate()
 {
-    if ( m_active->get() )
+    if( m_rootNode ) // prevent segfault when there is no root node yet
     {
-        m_rootNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_rootNode->setNodeMask( 0x0 );
+        if ( m_active->get() )
+        {
+            m_rootNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_rootNode->setNodeMask( 0x0 );
+        }
     }
 
     WModule::activate();
@@ -101,8 +104,9 @@ void WMClusterParamDisplay::initSubModules()
     add( m_voxelizer );
     m_voxelizer->isReady().wait();
     boost::shared_ptr< WProperties2 > voxProps = m_voxelizer->getProperties2();
-    voxProps->getProperty( "Fibers Tracts" )->toPropBool()->set( false );
+    voxProps->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
     voxProps->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    m_properties2->addProperty( voxProps->getProperty( "Fiber Tracts" ) );
 
     m_gaussFiltering = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Gauss Filtering" ) );
     add( m_gaussFiltering );
@@ -120,8 +124,4 @@ void WMClusterParamDisplay::initSubModules()
     m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
     m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
-
-    ready();
-    waitForStop(); // wait for stop request
-    stop(); // stop container and the contained modules.
 }
