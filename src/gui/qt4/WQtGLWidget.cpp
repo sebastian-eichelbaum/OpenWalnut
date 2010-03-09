@@ -195,7 +195,7 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
 
 void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 {
-    // TODO(ebaum): maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
+    // maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
     if ( !m_firstPaint )
     {
         WLogger::getLogger()->addLogMessage( "Painted the first time.",

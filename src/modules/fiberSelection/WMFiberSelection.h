@@ -22,40 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMCLUSTERSLICER_H
-#define WMCLUSTERSLICER_H
+#ifndef WMFIBERSELECTION_H
+#define WMFIBERSELECTION_H
 
-#include <set>
 #include <string>
 
-#include "../../dataHandler/datastructures/WJoinContourTree.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include <osg/Geode>
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
+
 /**
- * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
- * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
- *
- * \warning ATM there are race conditions possible, e.g. a new FiberCluster arrives while the corresponding dataset is still in processing some
- * where. Hence we need an ensurance that the given dataset belongs to the given cluster!
+ * This module handles selection of fibers based on two volumes of interest. It can filter out ALL fibers which do not go through both VOI.
  * \ingroup modules
  */
-class WMClusterSlicer: public WModule
+class WMFiberSelection: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMClusterSlicer();
+    WMFiberSelection();
 
     /**
      * Destructor.
      */
-    virtual ~WMClusterSlicer();
+    virtual ~WMFiberSelection();
 
     /**
      * Gives back the name of this module.
@@ -76,6 +73,11 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
 
 protected:
 
@@ -99,29 +101,76 @@ protected:
      */
     virtual void activate();
 
-    void updateDisplay();
-
-    osg::ref_ptr< osg::Geode > generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const;
-
-    osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
-
-    osg::ref_ptr< osg::Geode > m_isoVoxelGeode;
-
-    typedef WModuleInputData< WFiberCluster > InputClusterType; //!< Internal alias for m_inputCluster's type
-    boost::shared_ptr< InputClusterType >  m_inputCluster; //!< InputConnector for a fiber cluster with its CenterLine
-    typedef WModuleInputData< WDataSetSingle > InputDataSetType; //!< Internal alias for m_inputDataSet's type
-    boost::shared_ptr< InputDataSetType > m_inputDataSet; //!< InputConnector for the dataset derived from a voxelized cluster
-
-    boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
-    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Dataset derived from a voxelized cluster
-
-    boost::shared_ptr< WJoinContourTree > m_joinTree;
-    boost::shared_ptr< std::set< size_t > > m_isoVoxels;
-
-    WPropBool   m_drawISOVoxels; //!< En/Disable the display of cluster volume voxels
-    WPropDouble m_isoValue; //!< The ISO value selecting the size of the cluster volume
 private:
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Input Data
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * The first VOI
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_voi1Input;
+
+    /**
+     * The second VOI.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_voi2Input;
+
+    /**
+     * The fiber dataset which is going to be filtered.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+
+    /**
+     * The output connector used to provide the calculated data to other modules.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
+
+    /**
+     * The cluster dataset created from m_fiberOutput.
+     */
+    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_clusterOutput;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * The fiber dataset (from m_fiberInput).
+     */
+    boost::shared_ptr< WDataSetFibers > m_fibers;
+
+    /**
+     * The VOI1 dataset (from m_voi1Input).
+     */
+    boost::shared_ptr< WDataSetSingle > m_voi1;
+
+    /**
+     * The VOI2 dataset (from m_voi2Input).
+     */
+    boost::shared_ptr< WDataSetSingle > m_voi2;
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Properties
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * VOI1 threshold.
+     */
+    WPropDouble   m_voi1Threshold;
+
+    /**
+     * VOI2 threshold.
+     */
+    WPropDouble   m_voi2Threshold;
+
+    /**
+     * Cut the fibers when they are outside the VOI?
+     */
+    WPropBool     m_cutFibers;
 };
 
-#endif  // WMCLUSTERSLICER_H
+#endif  // WMFIBERSELECTION_H
 

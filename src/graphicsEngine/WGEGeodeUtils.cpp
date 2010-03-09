@@ -155,6 +155,7 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
 
     // create a uni cube
     osg::ref_ptr< osg::Geode > cube = new osg::Geode();
+    cube->setName( "Solid Bounding Box" );
     if ( threeDTexCoords )
     {
         cube->addDrawable( createUnitCube( color ) );
@@ -174,7 +175,7 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
 
     // apply transformation to bbox
     osg::ref_ptr< osg::MatrixTransform > transform = new osg::MatrixTransform();
-    transform->setMatrix( transformM * scaleM );
+    transform->setMatrix( scaleM * transformM );
     transform->addChild( cube );
 
     // we do not need light

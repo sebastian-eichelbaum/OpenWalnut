@@ -171,6 +171,13 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
     return result;
 }
 
+void WBresenham::setFiberVector( size_t idx, const wmath::WPosition& vec )
+{
+    m_dirValues[ ( 3 * idx )     ] = vec[0];
+    m_dirValues[ ( 3 * idx ) + 1 ] = vec[1];
+    m_dirValues[ ( 3 * idx ) + 2 ] = vec[2];
+}
+
 void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, const wmath::WPosition& start, const wmath::WPosition& end )
 {
     size_t nbX  = m_grid->getNbCoordsX();
@@ -180,6 +187,11 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     int z = voxel[2];
     size_t idx = x + y * nbX + z * nbXY;
     std::vector< double > distances;
+
+    // set the current direction to the voxel
+    wmath::WPosition fibTangente = end - start;
+    setFiberVector( idx, fibTangente );
+
     if( m_antialiased )
     {
         distances = computeDistances( idx, start, end );
@@ -214,21 +226,48 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     assert( distances.size() == 7 );
     switch( axis )
     {
-        case 0 : m_values[ idx + nbX ] = filter( distances[3] );
-                 m_values[ idx - nbX ] = filter( distances[4] );
-                 m_values[ idx + nbXY ] = filter( distances[5] );
-                 m_values[ idx - nbXY ] = filter( distances[6] );
-                 break;
-        case 1 : m_values[ idx + 1 ] = filter( distances[1] );
-                 m_values[ idx - 1 ] = filter( distances[2] );
-                 m_values[ idx + nbXY ] = filter( distances[5] );
-                 m_values[ idx - nbXY ] = filter( distances[6] );
-                 break;
-        case 2 : m_values[ idx + 1 ] = filter( distances[1] );
-                 m_values[ idx - 1 ] = filter( distances[2] );
-                 m_values[ idx + nbX ] = filter( distances[3] );
-                 m_values[ idx - nbX ] = filter( distances[4] );
-                 break;
+        case 0 :
+                m_values[ idx + nbX ] = filter( distances[3] );
+                setFiberVector( idx + nbX, fibTangente );
+
+                m_values[ idx - nbX ] = filter( distances[4] );
+                setFiberVector( idx - nbX, fibTangente );
+
+                m_values[ idx + nbXY ] = filter( distances[5] );
+                setFiberVector( idx + nbXY, fibTangente );
+
+                m_values[ idx - nbXY ] = filter( distances[6] );
+                setFiberVector( idx - nbXY, fibTangente );
+
+                break;
+        case 1 :
+                m_values[ idx + 1 ] = filter( distances[1] );
+                setFiberVector( idx + 1, fibTangente );
+
+                m_values[ idx - 1 ] = filter( distances[2] );
+                setFiberVector( idx - 1, fibTangente );
+
+                m_values[ idx + nbXY ] = filter( distances[5] );
+                setFiberVector( idx + nbXY, fibTangente );
+
+                m_values[ idx - nbXY ] = filter( distances[6] );
+                setFiberVector( idx - nbXY, fibTangente );
+
+                break;
+        case 2 :
+                m_values[ idx + 1 ] = filter( distances[1] );
+                setFiberVector( idx + 1, fibTangente );
+
+                m_values[ idx - 1 ] = filter( distances[2] );
+                setFiberVector( idx - 1, fibTangente );
+
+                m_values[ idx + nbX ] = filter( distances[3] );
+                setFiberVector( idx + nbX, fibTangente );
+
+                m_values[ idx - nbX ] = filter( distances[4] );
+                setFiberVector( idx - nbX, fibTangente );
+
+                break;
         default : assert( 0 && "Invalid axis selected for marking a voxel" );
     }
 }

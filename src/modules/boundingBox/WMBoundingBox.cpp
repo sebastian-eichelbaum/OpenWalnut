@@ -103,6 +103,8 @@ void WMBoundingBox::moduleMain()
         std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 
         m_bBoxNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
+        m_bBoxNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
+
         m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
 
         WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_bBoxNode );
@@ -139,15 +141,17 @@ void WMBoundingBox::properties()
 
 void WMBoundingBox::activate()
 {
-    if ( m_active->get() )
+    if ( m_bBoxNode )
     {
-        m_bBoxNode->setNodeMask( 0xFFFFFFFF );
+        if ( m_active->get() )
+        {
+            m_bBoxNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_bBoxNode->setNodeMask( 0x0 );
+        }
     }
-    else
-    {
-        m_bBoxNode->setNodeMask( 0x0 );
-    }
-
     WModule::activate();
 }
 

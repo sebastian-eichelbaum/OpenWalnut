@@ -197,8 +197,35 @@ void WROIManagerFibers::recalculate()
 
 void WROIManagerFibers::setDirty()
 {
-    WUpdateThread* t = new WUpdateThread( shared_from_this() );
-    t->run();
+    boost::unique_lock< boost::shared_mutex > lock;
+    {
+        boost::shared_ptr< WUpdateThread > t = boost::shared_ptr< WUpdateThread >( new WUpdateThread( shared_from_this() ) );
+        t->run();
+        lock = boost::unique_lock< boost::shared_mutex >( m_updateListLock );
+        m_updateThreads.push_back( t );
+        lock.unlock();
+    }
+
+    {
+        lock = boost::unique_lock< boost::shared_mutex >( m_updateListLock );
+
+        std::list< boost::shared_ptr< WUpdateThread > >::iterator itr;
+
+        // remove finished threads
+        for( itr = m_updateThreads.begin(); itr != m_updateThreads.end(); )
+        {
+            if( ( *itr )->isFinished() )
+            {
+                itr = m_updateThreads.erase( itr );
+            }
+            else
+            {
+                ++itr;
+            }
+        }
+
+        lock.unlock();
+    }
 }
 
 boost::shared_ptr< const WDataSetFibers > WROIManagerFibers::getDataSet()

@@ -26,9 +26,10 @@
 
 #include "WUpdateThread.h"
 
-WUpdateThread::WUpdateThread( boost::shared_ptr< WROIManagerFibers >roiManager ):
+WUpdateThread::WUpdateThread( boost::shared_ptr< WROIManagerFibers > roiManager ):
     WThreadedRunner(),
-    m_roiManager( roiManager )
+    m_roiManager( roiManager ),
+    m_myThreadFinished( false )
 {
 }
 
@@ -39,4 +40,5 @@ WUpdateThread::~WUpdateThread()
 void WUpdateThread::threadMain()
 {
     m_roiManager->recalculate();
+    m_myThreadFinished = true;
 }

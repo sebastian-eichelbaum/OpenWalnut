@@ -22,49 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WUPDATETHREAD_H
-#define WUPDATETHREAD_H
+/////////////////////////////////////////////////////////////////////////////
+// Varyings
+// Used in vertex and fragment shader
+/////////////////////////////////////////////////////////////////////////////
 
-#include "../../common/WThreadedRunner.h"
+// The ray's starting point in texture space
+varying vec3 v_rayStart;
 
-class WROIManagerFibers;
-/**
- * implements a thread that updates the fiber selection bit field
- */
-class WUpdateThread: public WThreadedRunner
-{
-public:
-    /**
-     * default constructor
-     *
-     * \param roiManager
-     */
-    explicit WUpdateThread( boost::shared_ptr< WROIManagerFibers >roiManager );
+// The ray direction in texture space
+varying vec3 v_ray;
 
-    /**
-     * destructor
-     */
-    virtual ~WUpdateThread();
-
-    /**
-     * entry for the run command
-     */
-    virtual void threadMain();
-
-    /**
-     * Return the value of the finished flag.
-     */
-    inline bool isFinished();
-
-protected:
-private:
-    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores pointer to the roi manager
-    bool m_myThreadFinished; //!< Has the thread finished?
-};
-
-bool WUpdateThread::isFinished()
-{
-    return m_myThreadFinished;
-}
-
-#endif  // WUPDATETHREAD_H
+// the Surface normal at this point
+varying vec3 v_normal;

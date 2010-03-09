@@ -74,7 +74,16 @@ public:
      */
     boost::shared_ptr< WDataSetSingle > generateDataSet() const;
 
+    /**
+     * Computes a dataset out of our voxel values and the previously given grid. It contains a vector at each position representing the direction
+     * of the fiber at this point.
+     *
+     * \return Dataset where all voxels which are hit by the rastered lines contain non-zero vectors.
+     */
+    boost::shared_ptr< WDataSetSingle > generateVectorDataSet() const;
+
 protected:
+
     /**
      * The grid is used for the following purposes:
      *  - First we need it when creating the final dataset
@@ -89,6 +98,11 @@ protected:
      * a line segment its value is 0.0.
      */
     std::vector< double > m_values;
+
+    /**
+     * Stores the direction of the fiber at each voxel.
+     */
+    std::vector< double > m_dirValues;
 
 private:
 };

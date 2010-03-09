@@ -38,48 +38,48 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
 
-#include "WMDirectVolumeRendering.h"
-#include "directvolumerendering.xpm"
+#include "WMSurfaceParticles.h"
+#include "surfaceParticles.xpm"
 
-WMDirectVolumeRendering::WMDirectVolumeRendering():
+WMSurfaceParticles::WMSurfaceParticles():
     WModule(),
     m_rootNode( new osg::Node() )
 {
     // Initialize members
 }
 
-WMDirectVolumeRendering::~WMDirectVolumeRendering()
+WMSurfaceParticles::~WMSurfaceParticles()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
+boost::shared_ptr< WModule > WMSurfaceParticles::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMDirectVolumeRendering() );
+    return boost::shared_ptr< WModule >( new WMSurfaceParticles() );
 }
 
-const char** WMDirectVolumeRendering::getXPMIcon() const
+const char** WMSurfaceParticles::getXPMIcon() const
 {
-    return directvolumerendering_xpm;
+    return surfaceParticles_xpm;
 }
 
-const std::string WMDirectVolumeRendering::getName() const
+const std::string WMSurfaceParticles::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "Direct Volume Rendering";
+    return "Surface Particles";
 }
 
-const std::string WMDirectVolumeRendering::getDescription() const
+const std::string WMSurfaceParticles::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "This module shows a direct volume rendering of the specified scalar dataset.";
+    return "This module can show particles on a GPU based Isosurface.";
 }
 
-void WMDirectVolumeRendering::connectors()
+void WMSurfaceParticles::connectors()
 {
     // DVR needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The scalar dataset shown using DVR." )
+        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The scalar dataset shown whose surface gets used for animation." )
     );
 
     // As properties, every connector needs to be added to the list of connectors.
@@ -89,7 +89,7 @@ void WMDirectVolumeRendering::connectors()
     WModule::connectors();
 }
 
-void WMDirectVolumeRendering::properties()
+void WMSurfaceParticles::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -111,9 +111,9 @@ void WMDirectVolumeRendering::properties()
     m_useSimpleDepthColoring = m_properties2->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
 }
 
-void WMDirectVolumeRendering::moduleMain()
+void WMSurfaceParticles::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "DVRRaycast" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "GPUSurfaceParticles" ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -231,13 +231,13 @@ void WMDirectVolumeRendering::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-void WMDirectVolumeRendering::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMSurfaceParticles::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // currently, there is nothing to update
     traverse( node, nv );
 }
 
-void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
+void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
     if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
@@ -262,9 +262,9 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
     }
 }
 
-void WMDirectVolumeRendering::activate()
+void WMSurfaceParticles::activate()
 {
-    // Activate/Deactivate the DVR
+    // Activate/Deactivate the rendering
     if ( m_rootNode )
     {
         if ( m_active->get() )

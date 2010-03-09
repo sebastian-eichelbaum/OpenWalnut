@@ -150,15 +150,6 @@ private:
      */
     osg::ref_ptr< WShader >m_shader;
 
-
-    /**
-     * calculates a color from the vector between two points in space
-     *
-     * \param pos1
-     * \param pos2
-     */
-    WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
-
     /**
      * switches between fiber display and tube representation
      */

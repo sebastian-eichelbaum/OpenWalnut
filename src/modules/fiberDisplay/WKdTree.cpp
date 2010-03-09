@@ -69,6 +69,11 @@ WKdTree::WKdTree( int size, float *pointArray ) :
     thread4->wait();
 
     wlog::debug( "KdTree" ) << "All threads finished";
+
+    delete thread1;
+    delete thread2;
+    delete thread3;
+    delete thread4;
 }
 
 WKdTree::~WKdTree()

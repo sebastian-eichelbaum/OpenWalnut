@@ -34,6 +34,7 @@
 #include "WMFiberDisplay.h"
 
 #include "WRMBranch.h"
+#include "WUpdateThread.h"
 
 /**
  * Class to store and manage different ROI's for fiber selection
@@ -152,10 +153,14 @@ private:
 
     std::list< boost::shared_ptr< WRMBranch > > m_branches; //!< list of branches in the logical tree structure
 
+    std::list< boost::shared_ptr< WUpdateThread > > m_updateThreads; //!< list ofcurrent update threads.
+
+    boost::shared_mutex m_updateListLock; //!< Lock to prevent concurrent threads trying to update the list
+
     /**
      * Stores a pointer to the kdTree used for fiber selection
      */
-    boost::shared_ptr< WKdTree >m_kdTree;
+    boost::shared_ptr< WKdTree > m_kdTree;
 
     /**
      * Lock for associated notifiers set.

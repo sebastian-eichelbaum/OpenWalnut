@@ -269,13 +269,19 @@ void WMVoxelizer::update()
     debugLog() << "Using: " << m_rasterAlgo->get() << " as rasterization Algo.";
     raster( rasterAlgo );
 
+    // update both outputs
     boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
+    boost::shared_ptr< WDataSetSingle > outputDataSetDir = rasterAlgo->generateVectorDataSet();
+    m_dirOutput->updateData( outputDataSetDir );
+
     if( m_drawVoxels->get() )
     {
         m_voxelGeode = genDataSetGeode( outputDataSet );
         m_osgNode->insert( m_voxelGeode );
     }
+
+    m_osgNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
     m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
 }
@@ -315,6 +321,11 @@ void WMVoxelizer::connectors()
     typedef WModuleOutputData< WDataSetSingle > OutputConnectorType; // just an alias
     m_output = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
+
+    m_dirOutput = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelDirectionOutput",
+        "The voxelized direction data set." )
+    );
+    addConnector( m_dirOutput );
 
     WModule::connectors();  // call WModules initialization
 }

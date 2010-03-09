@@ -88,7 +88,7 @@ void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
     traits->inheritedWindowData = m_WindowData;
 
     // Stereo
-    // TODO(ebaum): test whether it works
+    // TODO(ebaum): Stereo Mode: test whether it works
     if ( ds->getStereo() )
     {
         switch( ds->getStereoMode() )

@@ -117,24 +117,22 @@ template<typename T> double WMGaussFiltering::filterAtPosition(
 }
 
 template< typename T >
-boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField( boost::shared_ptr< WValueSet< T > > vals )
+boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField( boost::shared_ptr< WValueSet< T > > vals, unsigned int iterations )
 {
     // the grid used
     boost::shared_ptr<WGridRegular3D> grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
     assert( grid );
 
-    // grab the number of iterations
-    unsigned int iter = m_iterations->get( true );
-
     // use a custom progress combiner
-    boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >( new WProgress( "Gauss Filter Iteration", iter * grid->getNbCoordsZ() ) );
+    boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >(
+            new WProgress( "Gauss Filter Iteration", iterations * grid->getNbCoordsZ() ) );
     m_progress->addSubProgress( prog );
 
     // iterate filter, apply at least once
     boost::shared_ptr< WValueSet< double > > valueSet = boost::shared_ptr< WValueSet< double > >(
                                                             new WValueSet<double> ( 0, 1, filterField( vals, grid, prog ), W_DT_DOUBLE )
                                                         );
-    for ( unsigned int i = 1; i < iter; ++i )    // this only runs if iter > 1
+    for ( unsigned int i = 1; i < iterations; ++i )    // this only runs if iter > 1
     {
        valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet<double> ( 0, 1, filterField( valueSet, grid, prog ), W_DT_DOUBLE ) );
     }
@@ -178,6 +176,9 @@ void WMGaussFiltering::moduleMain()
     // signal ready state
     ready();
 
+    // the number of iterations
+    unsigned int iterations = 1;
+
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
@@ -215,7 +216,8 @@ void WMGaussFiltering::moduleMain()
         if ( m_iterations->changed() )
         {
             // a changed number of iteration also requires recalculation
-            dataChanged = true;
+            iterations = m_iterations->get( true );
+            dataChanged = ( iterations >= 1 );
         }
 
         if ( dataChanged )
@@ -229,7 +231,7 @@ void WMGaussFiltering::moduleMain()
                     boost::shared_ptr<WValueSet<unsigned char> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
                     assert( vals );
-                    newValueSet = iterativeFilterField( vals );
+                    newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
                 case W_DT_INT16:
@@ -237,7 +239,7 @@ void WMGaussFiltering::moduleMain()
                     boost::shared_ptr<WValueSet<int16_t> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
                     assert( vals );
-                    newValueSet = iterativeFilterField( vals );
+                    newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
                 case W_DT_SIGNED_INT:
@@ -245,7 +247,7 @@ void WMGaussFiltering::moduleMain()
                     boost::shared_ptr<WValueSet<int32_t> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
                     assert( vals );
-                    newValueSet = iterativeFilterField( vals );
+                    newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
                 case W_DT_FLOAT:
@@ -253,7 +255,7 @@ void WMGaussFiltering::moduleMain()
                     boost::shared_ptr<WValueSet<float> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<float> >( ( *m_dataSet ).getValueSet() );
                     assert( vals );
-                    newValueSet = iterativeFilterField( vals );
+                    newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
                 case W_DT_DOUBLE:
@@ -261,14 +263,19 @@ void WMGaussFiltering::moduleMain()
                     boost::shared_ptr<WValueSet<double> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<double> >( ( *m_dataSet ).getValueSet() );
                     assert( vals );
-                    newValueSet = iterativeFilterField( vals );
+                    newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
                 default:
                     assert( false && "Unknown data type in Gauss Filtering module" );
             }
 
-            m_dataSet = boost::shared_ptr<WDataSetSingle>( new WDataSetSingle( newValueSet, m_dataSet->getGrid() ) );
+            m_output->updateData( boost::shared_ptr<WDataSetSingle>( new WDataSetSingle( newValueSet, m_dataSet->getGrid() ) ) );
+        }
+
+        // if the number of iterations is 0 -> simply set the input as output
+        if ( iterations == 0 )
+        {
             m_output->updateData( m_dataSet );
         }
     }
@@ -301,6 +308,8 @@ void WMGaussFiltering::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_iterations      = m_properties2->addProperty( "Iterations",         "How often should the filter be applied.", 1, m_propCondition );
+    m_iterations->setMin( 0 );
+    m_iterations->setMax( 100 );
 
     //     ( m_properties->addInt( "Filter Size", 1 ) )->connect( boost::bind( &WMGaussFiltering::slotPropertyChanged, this, _1 ) );
 }
