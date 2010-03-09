@@ -308,7 +308,7 @@ void WMFiberSelection::moduleMain()
                     len =  matches[ i ].get< 2 >() - matches[ i ].get< 1 >();
                 }
 
-                // discard fibers with less than one line segement
+                // discard fibers with less than one line segment
                 if ( len < 2 )
                 {
                     continue;
