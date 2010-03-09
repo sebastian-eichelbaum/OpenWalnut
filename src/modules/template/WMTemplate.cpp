@@ -444,13 +444,17 @@ void WMTemplate::activate()
     // OSG's requirements. Activating an inactive node is not the problem, as OSG does not traverse these nodes (and therefore could possibly
     // produce issues), but deactivating an active node, which might be traversed at the same time, COULD cause problems. We'll see in the future
     // whether this is problematic or not.
-    if ( m_active->get() )
+
+    if ( m_rootNode )   // always ensure the root node exists
     {
-        m_rootNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_rootNode->setNodeMask( 0x0 );
+        if ( m_active->get() )
+        {
+            m_rootNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_rootNode->setNodeMask( 0x0 );
+        }
     }
 
     // Always call WModule's activate!
