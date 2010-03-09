@@ -269,8 +269,12 @@ void WMVoxelizer::update()
     debugLog() << "Using: " << m_rasterAlgo->get() << " as rasterization Algo.";
     raster( rasterAlgo );
 
+    // update both outputs
     boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
+    outputDataSet = rasterAlgo->generateVectorDataSet();
+    m_dirOutput->updateData( outputDataSet );
+
     if( m_drawVoxels->get() )
     {
         m_voxelGeode = genDataSetGeode( outputDataSet );
@@ -315,6 +319,9 @@ void WMVoxelizer::connectors()
     typedef WModuleOutputData< WDataSetSingle > OutputConnectorType; // just an alias
     m_output = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
+
+    m_dirOutput = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelDirectionOutput", "The voxelized direction data set." ) );
+    addConnector( m_dirOutput );
 
     WModule::connectors();  // call WModules initialization
 }

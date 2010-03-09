@@ -33,7 +33,8 @@
 
 WRasterAlgorithm::WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid )
     : m_grid( grid ),
-      m_values( grid->size(), 0.0 )
+      m_values( grid->size(), 0.0 ),
+      m_dirValues( 3 * grid->size(), 0.0 )
 {
     // NOTE: I assume the Voxelizer class is only used by the WMVoxelizer module, hence the
     // source is "Voxelizer".
@@ -52,3 +53,13 @@ boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateDataSet() const
     result = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
     return result;
 }
+
+boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateVectorDataSet() const
+{
+    boost::shared_ptr< WDataSetSingle > result;
+    boost::shared_ptr< WValueSet< double > > valueSet;
+    valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 1, 3, m_dirValues, W_DT_DOUBLE ) );
+    result = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
+    return result;
+}
+

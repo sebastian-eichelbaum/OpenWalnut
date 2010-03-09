@@ -125,6 +125,14 @@ protected:
     std::vector< double > computeDistances( const size_t voxelNum, const wmath::WPosition& start, const wmath::WPosition& end ) const;
 
     bool m_antialiased; //!< If true also some supporting voxels are marked
+
+    /**
+     * Set the fiber vector denoting the direction of the fiber to the m_dirValues array.
+     *
+     * \param idx the index to set
+     * \param vec the vector to set
+     */
+    void setFiberVector( size_t idx, const wmath::WPosition& vec );
 private:
 };
 
