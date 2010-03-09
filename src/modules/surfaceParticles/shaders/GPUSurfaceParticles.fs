@@ -37,6 +37,18 @@
 // texture containing the data
 uniform sampler3D tex0;
 
+// texture containing the directional data
+uniform sampler3D tex1;
+
+// texture containing the directional data -> the scaling factor of the values in the texture
+uniform float u_tex1Scale;
+
+// texture containing the directional data -> the min value of the values in the texture
+uniform float u_tex1Min;
+
+// texture containing the directional data -> the max value of the values in the texture
+uniform float u_tex1Max;
+
 // The isovalue to use.
 uniform float u_isovalue;
 
@@ -87,9 +99,29 @@ vec3 findRayEnd( out float d )
     return p + ( r * d );
 }
 
+/**
+ * Distance between two points.
+ * 
+ * \param p1 point 1
+ * \param p2 point 2
+ * 
+ * \return || p1-p2 ||
+ */
 float pointDistance( vec3 p1, vec3 p2 )
 {
     return length( p1 - p2 );
+}
+
+/**
+ * Gets the direction stored in tex1 at the given point.
+ * 
+ * \param point the point
+ * 
+ * \return the direction at point
+ */
+vec3 getDirection( vec3 point )
+{
+    return abs( ( u_tex1Scale * texture3D( tex1, point ).rgb ) + vec3( u_tex1Min ) );
 }
 
 /**
@@ -150,6 +182,7 @@ void main()
                 {
                     float d = 1.0 - curPointProjected.z;
                     color = gl_Color * 1.5 * d * d;
+                    color = vec4( getDirection( curPoint ), 1.0 );
                 }
                 else
                 {
