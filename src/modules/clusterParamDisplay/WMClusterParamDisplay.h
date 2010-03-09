@@ -100,7 +100,7 @@ private:
     boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
 
     // TODO(math): forward this to all submodules which needs this: isoSurface, clusterSlicer
-    WPropDouble m_isoValue;
+     WPropDouble m_isoValue; //!< ISO Value for selecting the volume
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H

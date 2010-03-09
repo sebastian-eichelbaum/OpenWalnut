@@ -99,13 +99,23 @@ protected:
      */
     virtual void activate();
 
+    /**
+     * Complete redraw of the scene.
+     */
     void updateDisplay();
 
+    /**
+     * Generates new geode for marking the volume voxels
+     *
+     * \param voxelIDs Set of voxel IDs
+     *
+     * \return Newly constructed geode
+     */
     osg::ref_ptr< osg::Geode > generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const;
 
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
 
-    osg::ref_ptr< osg::Geode > m_isoVoxelGeode;
+    osg::ref_ptr< osg::Geode > m_isoVoxelGeode; //!< Separate geode for voxels of the cluster volume
 
     typedef WModuleInputData< WFiberCluster > InputClusterType; //!< Internal alias for m_inputCluster's type
     boost::shared_ptr< InputClusterType >  m_inputCluster; //!< InputConnector for a fiber cluster with its CenterLine
@@ -115,8 +125,8 @@ protected:
     boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Dataset derived from a voxelized cluster
 
-    boost::shared_ptr< WJoinContourTree > m_joinTree;
-    boost::shared_ptr< std::set< size_t > > m_isoVoxels;
+    boost::shared_ptr< WJoinContourTree > m_joinTree; //!< Stores the JoinTree
+    boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
 
     WPropBool   m_drawISOVoxels; //!< En/Disable the display of cluster volume voxels
     WPropDouble m_isoValue; //!< The ISO value selecting the size of the cluster volume
