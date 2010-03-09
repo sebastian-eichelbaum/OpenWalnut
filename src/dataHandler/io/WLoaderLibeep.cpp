@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <locale.h>
 
 extern "C"
 {
@@ -45,7 +46,7 @@ boost::shared_ptr< WDataSet > WLoaderLibeep::load()
     wlog::debug( "Libeep Loader" ) << "Opening " << m_fileName;
 
     // libeep needs the standard C locale to load float values from ASCII
-    std::setlocale( LC_NUMERIC, "C" );
+    setlocale( LC_NUMERIC, "C" );
 
     // initialize
     FILE* file = fopen( m_fileName.c_str(), "rb" );
