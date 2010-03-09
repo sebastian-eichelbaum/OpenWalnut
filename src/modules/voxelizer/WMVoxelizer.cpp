@@ -272,8 +272,8 @@ void WMVoxelizer::update()
     // update both outputs
     boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
-    outputDataSet = rasterAlgo->generateVectorDataSet();
-    m_dirOutput->updateData( outputDataSet );
+    boost::shared_ptr< WDataSetSingle > outputDataSetDir = rasterAlgo->generateVectorDataSet();
+    m_dirOutput->updateData( outputDataSetDir );
 
     if( m_drawVoxels->get() )
     {
