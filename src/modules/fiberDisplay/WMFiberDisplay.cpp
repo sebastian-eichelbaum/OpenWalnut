@@ -120,7 +120,7 @@ void WMFiberDisplay::update()
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
     if( m_noData.changed() )
     {
-        if( m_noData.get( true ) )
+        if( m_osgNode && m_noData.get( true ) )
         {
             m_osgNode->setNodeMask( 0x0 );
         }
@@ -178,13 +178,16 @@ void WMFiberDisplay::connectors()
 
 void WMFiberDisplay::activate()
 {
-    if( m_active->get() )
+    if( m_osgNode )
     {
-        m_osgNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_osgNode->setNodeMask( 0x0 );
+        if( m_active->get() )
+        {
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_osgNode->setNodeMask( 0x0 );
+        }
     }
 
     WModule::activate();
@@ -225,11 +228,4 @@ void WMFiberDisplay::toggleColoring()
         m_tubeDrawable->setColoringMode( m_coloring->get( true ) );
         m_tubeDrawable->dirtyDisplayList();
     }
-}
-
-WColor WMFiberDisplay::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
-{
-    wmath::WPosition direction( ( pos2 - pos1 ) );
-    direction.normalize();
-    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ) );
 }

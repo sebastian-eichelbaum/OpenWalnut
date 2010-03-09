@@ -65,11 +65,6 @@ public:
     size_t size() const;
 
     /**
-     * Sort fibers descending on their length.
-     */
-    void sortDescLength();
-
-    /**
      * Determines whether this dataset can be used as a texture.
      *
      * \return true if usable as texture.
