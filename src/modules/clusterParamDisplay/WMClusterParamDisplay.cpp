@@ -22,14 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
 #include <string>
 
 #include "../../common/WColor.h"
 #include "../../kernel/WKernel.h"
 #include "WMClusterParamDisplay.h"
 
-WMClusterParamDisplay::WMClusterParamDisplay():
-    WModuleContainer( "Cluster Param Display", "Displays various parameters on a cluster surface." )
+WMClusterParamDisplay::WMClusterParamDisplay()
+    : WModuleContainer( "Cluster Param Display", "Displays various parameters on a cluster surface." )
 {
 }
 
@@ -44,9 +45,9 @@ boost::shared_ptr< WModule > WMClusterParamDisplay::factory() const
 
 void WMClusterParamDisplay::connectors()
 {
-    typedef WModuleInputForwardData< WDataSetFibers > InputType;
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
-    addConnector( m_input );
+//    typedef WModuleInputForwardData< WDataSetFibers > InputType;
+//    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
+//    addConnector( m_input );
 
     WModule::connectors();
 }
@@ -54,6 +55,8 @@ void WMClusterParamDisplay::connectors()
 void WMClusterParamDisplay::properties()
 {
     // look into initSubModules for forwarded submodule properties
+    m_drawISOVoxels = m_properties2->addProperty( "Show/Hide ISO Voxels", "En/Disables to draw the voxels withing a given ISOSurface.", true );
+    m_isoValue      = m_properties2->addProperty( "Iso Value", "", 0.01 );
 }
 
 void WMClusterParamDisplay::moduleMain()
@@ -62,14 +65,93 @@ void WMClusterParamDisplay::moduleMain()
 
     initSubModules();
 
+    // on those changes the loop should repeat
+    // TODO(math): implement the ContourTree module since output connectors doesn't have change conditions
+    // m_moduleState.add( m_gaussFiltering->getOutputConnector( "out" )->getDataChangedCondition() );
+    m_moduleState.add( m_isoValue->getCondition() );
+    m_moduleState.add( m_drawISOVoxels->getCondition() );
+
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
+
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // TODO(math): implement new module which doing new visualization work
+        boost::shared_ptr< WDataSetSingle > newDataSet; // = m_gaussFiltering->getOutputConnector()->getData();
+        bool dataChanged = ( m_dataSet != newDataSet );
+        if( dataChanged )
+        {
+            m_dataSet = newDataSet;
+        }
+        if( !m_dataSet ) // incase of invalid data (yet) skip and continue
+        {
+            continue;
+        }
+
+        if( dataChanged ) // valid data diffrent from current has arrived beeing not null
+        {
+            if( !m_dataSet )
+            {
+                // if there is no valid data anymore discard old join tree
+                m_joinTree.reset();
+                m_isoVoxels.reset();
+            }
+            else
+            {
+                m_joinTree = boost::shared_ptr< WJoinContourTree >( new WJoinContourTree( m_dataSet ) );
+                m_joinTree->buildJoinTree();
+            }
+        }
+
+        if( m_isoValue->changed() || dataChanged )
+        {
+            m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
+
+            if( m_joinTree ) // incase there is a valid join tree already computed, get the enclosed voxels
+            {
+                assert( m_dataSet && "JoinTree cannot be valid since there is no valid m_dataSet." );
+                m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
+            }
+        }
+
+        if( m_drawISOVoxels->changed() || m_isoValue->changed() || dataChanged )
+        {
+            updateDisplay();
+        }
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+}
+
+void WMClusterParamDisplay::updateDisplay()
+{
+    if( !m_dataSet || !m_drawISOVoxels->get() )
+    {
+        m_rootNode->remove( m_isoVoxelGeode );
+        m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
+        return;
+    }
+
+    assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_dataSet." );
+
+    if( m_drawISOVoxels->get( true ) )
+    {
+        m_isoVoxelGeode = generateISOVoxelGeode( *m_isoVoxels );
+        m_rootNode->insert( m_isoVoxelGeode );
+    }
+}
+
+osg::ref_ptr< osg::Geode > WMClusterParamDisplay::generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const
+{
+    osg::ref_ptr< osg::Geode > result;
+    // TODO(math): fill the geode
+    return result;
 }
 
 void WMClusterParamDisplay::activate()
@@ -126,4 +208,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
     m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
     m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Iso Value" ) );
+
+    // property alias
+    m_isoValue = m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble();
 }

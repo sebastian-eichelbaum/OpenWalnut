@@ -22,39 +22,48 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMCLUSTERPARAMDISPLAY_H
-#define WMCLUSTERPARAMDISPLAY_H
+#ifndef WMCLUSTERSLICER_H
+#define WMCLUSTERSLICER_H
 
-#include <set>
 #include <string>
-
-#include <boost/shared_ptr.hpp>
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/datastructures/WJoinContourTree.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleContainer.h"
-#include "../../kernel/WModuleInputForwardData.h"
-#include "../../kernel/WModuleOutputForwardData.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
 
 /**
- * Displays certains parameters of a cluster or bundle.
+ * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
+ * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
+ * \ingroup modules
  */
-class WMClusterParamDisplay: public WModuleContainer
+class WMClusterSlicer: public WModule
 {
 public:
+
     /**
      * Default constructor.
      */
-    WMClusterParamDisplay();
+    WMClusterSlicer();
 
     /**
      * Destructor.
      */
-    virtual ~WMClusterParamDisplay();
+    virtual ~WMClusterSlicer();
+
+    /**
+     * Gives back the name of this module.
+     * \return the module's name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gives back a description of this module.
+     * \return description to module.
+     */
+    virtual const std::string getDescription() const;
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -65,6 +74,7 @@ public:
     virtual boost::shared_ptr< WModule > factory() const;
 
 protected:
+
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -81,38 +91,23 @@ protected:
     virtual void properties();
 
     /**
-     * En/Disables display of the root node.
+     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     */
+    osg::ref_ptr<osg::Geode> m_rootNode;
+
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
     virtual void activate();
 
-    /**
-     * Create and initialize submodule instances, wires them and forward connectors as well as some properties.
-     */
-    virtual void initSubModules();
+    boost::shared_ptr< WModuleInputData< WFiberCluster > >  m_inputCluster;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_inputDataSet;
 
-    void updateDisplay();
+    boost::shared_ptr< WFiberCluster > m_dataSet;
 
-    osg::ref_ptr< osg::Geode > generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const;
-
-private:
-    osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
-    osg::ref_ptr< osg::Geode > m_isoVoxelGeode;
-
-    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_input;  //!< Input connector required by this module.
-
-    boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
-    boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster
-    boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
-    boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
-
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
-
-    boost::shared_ptr< WJoinContourTree >   m_joinTree;
-    boost::shared_ptr< std::set< size_t > > m_isoVoxels;
-
-    WPropBool   m_drawISOVoxels;
     WPropDouble m_isoValue;
+private:
 };
 
-#endif  // WMCLUSTERPARAMDISPLAY_H
+#endif  // WMCLUSTERSLICER_H
 
