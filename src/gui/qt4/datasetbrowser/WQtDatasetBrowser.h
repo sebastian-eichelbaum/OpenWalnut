@@ -109,14 +109,6 @@ public:
     void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
-     * Adds a module to the dataset browser. This function will combine addDataset and addModule
-     *
-     * \param module the module to add.
-     * \param subjectId the subject under which the entry is added
-     */
-    void addModule2( boost::shared_ptr< WModule > module, int subjectId = 0 );
-
-    /**
      * helper funtion to connect all qt widgets with their functions
      */
     void connectSlots();
