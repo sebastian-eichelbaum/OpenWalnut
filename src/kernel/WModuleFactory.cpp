@@ -50,6 +50,7 @@
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
+#include "../modules/surfaceParticles/WMSurfaceParticles.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -98,6 +99,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
 
     lock.unlock();
 
