@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <limits>
 #include <vector>
 
 #include "WDataSetSingle.h"
@@ -101,11 +102,7 @@ boost::shared_ptr< WGridRegular3D > WDataTexture3D::getGrid() const
 
 osg::ref_ptr< osg::Texture3D > WDataTexture3D::getTexture()
 {
-    if ( !m_texture )
-    {
-        createTexture();
-    }
-
+    createTexture();
     return m_texture;
 }
 
@@ -219,31 +216,8 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int components )
 {
-    osg::ref_ptr< osg::Image > ima = new osg::Image;
-    // TODO(schurade): throw exception if texture generation failed
-    if ( components == 1)
-    {
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
+    findMinMax( source, components );
 
-        unsigned char* data = ima->data();
-
-        unsigned char* charSource = reinterpret_cast< unsigned char* >( source );
-
-        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() * 4 ; ++i )
-        {
-            data[i] = charSource[i];
-        }
-    }
-    else
-    {
-        // TODO(schurade): throw exception if components!=1
-        wlog::error( "WDataTexture3D" ) << "Did not handle ( components != 1 ).";
-    }
-    return ima;
-}
-
-osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int components )
-{
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if ( components == 1)
     {
@@ -257,13 +231,139 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
             data[i] = static_cast< float >( source[i] );
         }
     }
+    else if ( components == 3)
+    {
+        // OpenGL just supports float textures
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, GL_FLOAT );
+        ima->setInternalTextureFormat( GL_RGBA );
+        float* data = reinterpret_cast< float* >( ima->data() );
+
+        // Copy the data pixel wise and convert to float
+        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        {
+            data[ ( 4 * i ) ]     = static_cast< float >( source[ ( 3 * i ) ] );
+            data[ ( 4 * i ) + 1 ] = static_cast< float >( source[ ( 3 * i ) + 1 ] );
+            data[ ( 4 * i ) + 2 ] = static_cast< float >( source[ ( 3 * i ) + 2 ] );
+            data[ ( 4 * i ) + 3 ] = 1.0;
+        }
+    }
+    else if ( components == 4)
+    {
+        // OpenGL just supports float textures
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, GL_FLOAT );
+        ima->setInternalTextureFormat( GL_RGBA );
+        float* data = reinterpret_cast< float* >( ima->data() );
+
+        // Copy the data pixel wise and convert to float
+        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        {
+            data[ ( 4 * i ) ]     = static_cast< float >( source[ ( 4 * i ) ] );
+            data[ ( 4 * i ) + 1 ] = static_cast< float >( source[ ( 4 * i ) + 1 ] );
+            data[ ( 4 * i ) + 2 ] = static_cast< float >( source[ ( 4 * i ) + 2 ] );
+            data[ ( 4 * i ) + 3 ] = static_cast< float >( source[ ( 4 * i ) + 3 ] );
+        }
+    }
     else
     {
         // TODO(schurade): throw exception if components!=1
-        wlog::error( "WDataTexture3D" ) << "Did not handle ( components != 1 ).";
+        wlog::error( "WDataTexture3D" ) << "Did not handle dataset ( components != 1,3 or 4 ).";
     }
 
     return ima;
+}
+
+osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int components )
+{
+    findMinMax( source, components );
+
+    osg::ref_ptr< osg::Image > ima = new osg::Image;
+    if ( components == 1)
+    {
+        // OpenGL just supports float textures
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
+        float* data = reinterpret_cast< float* >( ima->data() );
+
+        // Copy the data pixel wise and convert to float
+        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        {
+            data[i] = static_cast< float >( source[i] );
+        }
+    }
+    else if ( components == 3)
+    {
+        // OpenGL just supports float textures
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, GL_FLOAT );
+        ima->setInternalTextureFormat( GL_RGBA );
+        float* data = reinterpret_cast< float* >( ima->data() );
+
+        // Copy the data pixel wise and convert to float
+        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        {
+            data[ ( 4 * i ) ]     = static_cast< float >( source[ ( 3 * i ) ] );
+            data[ ( 4 * i ) + 1 ] = static_cast< float >( source[ ( 3 * i ) + 1 ] );
+            data[ ( 4 * i ) + 2 ] = static_cast< float >( source[ ( 3 * i ) + 2 ] );
+            data[ ( 4 * i ) + 3 ] = 1.0;
+        }
+    }
+    else if ( components == 4)
+    {
+        // OpenGL just supports float textures
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, GL_FLOAT );
+        ima->setInternalTextureFormat( GL_RGBA );
+        float* data = reinterpret_cast< float* >( ima->data() );
+
+        // Copy the data pixel wise and convert to float
+        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        {
+            data[ ( 4 * i ) ]     = static_cast< float >( source[ ( 4 * i ) ] );
+            data[ ( 4 * i ) + 1 ] = static_cast< float >( source[ ( 4 * i ) + 1 ] );
+            data[ ( 4 * i ) + 2 ] = static_cast< float >( source[ ( 4 * i ) + 2 ] );
+            data[ ( 4 * i ) + 3 ] = static_cast< float >( source[ ( 4 * i ) + 3 ] );
+        }
+    }
+    else
+    {
+        // TODO(schurade): throw exception if components!=1
+        wlog::error( "WDataTexture3D" ) << "Did not handle dataset ( components != 1,3 or 4 ).";
+    }
+
+    return ima;
+}
+
+void WDataTexture3D::findMinMax( double* source, int components )
+{
+    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset.";
+
+    m_minValue = source[ 0 ];
+    m_maxValue = source[ 0 ];
+
+    // Go through each value and find min/max
+    for ( unsigned int i = 0; i < components * m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
+    {
+        double val = source[ i ];
+        m_minValue = val < m_minValue ? val : m_minValue;
+        m_maxValue = val > m_maxValue ? val : m_maxValue;
+    }
+
+    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset: done! Values are in [" << m_minValue << "," << m_maxValue << "].";
+}
+
+void WDataTexture3D::findMinMax( float* source, int components )
+{
+    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset.";
+
+    m_minValue = static_cast< double >( source[ 0 ] );
+    m_maxValue = static_cast< double >( source[ 0 ] );
+
+    // Go through each value and find min/max
+    for ( unsigned int i = 0; i < components * m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
+    {
+        double val = static_cast< double >( source[ i ] );
+        m_minValue = val < m_minValue ? val : m_minValue;
+        m_maxValue = val > m_maxValue ? val : m_maxValue;
+    }
+
+    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset: done! Values are in [" << m_minValue << "," << m_maxValue << "].";
 }
 
 void WDataTexture3D::createTexture()
@@ -329,5 +429,17 @@ boost::shared_ptr< WCondition > WDataTexture3D::getChangeCondition()
 void WDataTexture3D::notifyChange()
 {
     m_changeCondition->notify();
+}
+
+double WDataTexture3D::getMinValue()
+{
+    createTexture();
+    return m_minValue;
+}
+
+double WDataTexture3D::getMaxValue()
+{
+    createTexture();
+    return m_maxValue;
 }
 
