@@ -25,11 +25,12 @@
 #ifndef WMCLUSTERSLICER_H
 #define WMCLUSTERSLICER_H
 
+#include <set>
 #include <string>
 
-#include <osg/Geode>
-
+#include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -37,6 +38,9 @@
 /**
  * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
  * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
+ *
+ * \warning ATM there are race conditions possible, e.g. a new FiberCluster arrives while the corresponding dataset is still in processing some
+ * where. Hence we need an ensurance that the given dataset belongs to the given cluster!
  * \ingroup modules
  */
 class WMClusterSlicer: public WModule
@@ -91,21 +95,31 @@ protected:
     virtual void properties();
 
     /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr<osg::Geode> m_rootNode;
-
-    /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
     virtual void activate();
 
-    boost::shared_ptr< WModuleInputData< WFiberCluster > >  m_inputCluster;
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_inputDataSet;
+    void updateDisplay();
 
-    boost::shared_ptr< WFiberCluster > m_dataSet;
+    osg::ref_ptr< osg::Geode > generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const;
 
-    WPropDouble m_isoValue;
+    osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
+
+    osg::ref_ptr< osg::Geode > m_isoVoxelGeode;
+
+    typedef WModuleInputData< WFiberCluster > InputClusterType; //!< Internal alias for m_inputCluster's type
+    boost::shared_ptr< InputClusterType >  m_inputCluster; //!< InputConnector for a fiber cluster with its CenterLine
+    typedef WModuleInputData< WDataSetSingle > InputDataSetType; //!< Internal alias for m_inputDataSet's type
+    boost::shared_ptr< InputDataSetType > m_inputDataSet; //!< InputConnector for the dataset derived from a voxelized cluster
+
+    boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
+    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Dataset derived from a voxelized cluster
+
+    boost::shared_ptr< WJoinContourTree > m_joinTree;
+    boost::shared_ptr< std::set< size_t > > m_isoVoxels;
+
+    WPropBool   m_drawISOVoxels;
+    WPropDouble m_isoValue; //!< The ISO value selecting the size of the cluster volume
 private:
 };
 

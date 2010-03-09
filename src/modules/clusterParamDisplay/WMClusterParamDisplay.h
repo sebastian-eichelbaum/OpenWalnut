@@ -80,24 +80,18 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * En/Disables display of the root node.
-     */
-    virtual void activate();
+    // TODO(math): when deactivating a compound module ensure that all submodules are deactivated
+    // /**
+    //  * En/Disables display of the root node.
+    //  */
+    // virtual void activate();
 
     /**
      * Create and initialize submodule instances, wires them and forward connectors as well as some properties.
      */
     virtual void initSubModules();
 
-    void updateDisplay();
-
-    osg::ref_ptr< osg::Geode > generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const;
-
 private:
-    osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
-    osg::ref_ptr< osg::Geode > m_isoVoxelGeode;
-
     boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_input;  //!< Input connector required by this module.
 
     boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
@@ -105,12 +99,7 @@ private:
     boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
     boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
 
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
-
-    boost::shared_ptr< WJoinContourTree >   m_joinTree;
-    boost::shared_ptr< std::set< size_t > > m_isoVoxels;
-
-    WPropBool   m_drawISOVoxels;
+    // TODO(math): forward this to all submodules which needs this: isoSurface, clusterSlicer
     WPropDouble m_isoValue;
 };
 
