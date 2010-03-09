@@ -320,7 +320,9 @@ void WMVoxelizer::connectors()
     m_output = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
 
-    m_dirOutput = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelDirectionOutput", "The voxelized direction data set." ) );
+    m_dirOutput = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelDirectionOutput",
+        "The voxelized direction data set." )
+    );
     addConnector( m_dirOutput );
 
     WModule::connectors();  // call WModules initialization
