@@ -200,11 +200,6 @@ void WDataSetFibers::calculateLocalColors() const
     wlog::debug( "WDataSetFibers" ) << "Calculating local colors: done!";
 }
 
-void WDataSetFibers::sortDescLength()
-{
-    //std::sort( m_fibers->begin(), m_fibers->end(), wmath::hasGreaterLengthThen );
-}
-
 bool WDataSetFibers::isTexture() const
 {
     return false;
