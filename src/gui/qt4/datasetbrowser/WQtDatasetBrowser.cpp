@@ -200,6 +200,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
             {
                 // activate it
                 item->setDisabled( false );
+                selectTreeItem();
 
                 // if the type number is 1 (dataset item) emit change event
                 if ( item->type() == 1 )
@@ -221,6 +222,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     WQtSubjectTreeItem* subject = static_cast< WQtSubjectTreeItem* >( m_treeWidget->topLevelItem( subjectId + c ) );
     subject->setExpanded( true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
+    m_treeWidget->setCurrentItem( item );
     item->setDisabled( true );
     return item;
 }
@@ -229,6 +231,7 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item = m_tiModules->addModuleItem( module );
+    m_treeWidget->setCurrentItem( item );
     item->setDisabled( true );
     return item;
 }
@@ -294,7 +297,7 @@ void WQtDatasetBrowser::selectTreeItem()
     m_tabWidget->clear();
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
-    boost::shared_ptr< WModule >module;
+    boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties2 > props;
 
     if ( m_treeWidget->selectedItems().size() != 0  )
@@ -404,12 +407,12 @@ void WQtDatasetBrowser::changeTreeItem()
 {
     if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == DATASET )
     {
-        boost::shared_ptr< WModule >module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
+        boost::shared_ptr< WModule > module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
         module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
     else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == MODULE )
     {
-        boost::shared_ptr< WModule >module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
+        boost::shared_ptr< WModule > module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
 
         module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
