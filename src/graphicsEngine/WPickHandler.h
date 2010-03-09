@@ -55,6 +55,12 @@
 class WPickHandler: public osgGA::GUIEventHandler
 {
 public:
+
+    /**
+     * Constructor that initalizes members with sensible defaults.
+     */
+    WPickHandler();
+ 
     /**
      * Deals with the events found by the osg.
      * \param ea Event class for storing Keyboard, mouse and window events.
@@ -92,7 +98,7 @@ protected:
      * a instance of WPickHandler.
      * This follows the philosophy of OSG to avoid problems in multithreaded
      * environments, since these pointers are used deep in the OSG where
-     * an deletion could cause a segfault.
+     * a deletion could cause a segfault.
      */
     virtual ~WPickHandler();
 
