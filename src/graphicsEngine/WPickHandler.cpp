@@ -141,6 +141,12 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         assert( intersections.size() );
         hitr = intersections.begin();
 
+        // Skip proxy geometry of Direct Volume Rendering
+        if(  extractSuitableName( intersections.begin() ) == "DVR Proxy Cube" )
+        {
+            ++hitr;
+        }
+
         // if we have a previous pick we search for it in the list
         if( m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
         {

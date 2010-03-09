@@ -178,6 +178,7 @@ void WMDirectVolumeRendering::moduleMain()
 
             // use the OSG Shapes, create unit cube
             osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, m_isoColor->get( true ) );
+            cube->asTransform()->getChild( 0 )->setName( "DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
             m_shader->apply( cube );
 
             // bind the texture to the node

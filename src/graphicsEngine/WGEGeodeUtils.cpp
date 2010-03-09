@@ -155,6 +155,7 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
 
     // create a uni cube
     osg::ref_ptr< osg::Geode > cube = new osg::Geode();
+    cube->setName( "Solid Bounding Box" );
     if ( threeDTexCoords )
     {
         cube->addDrawable( createUnitCube( color ) );

@@ -48,6 +48,12 @@ WThreadedRunner::~WThreadedRunner()
     // cleanup
     // XXX is this working if thread already has finished?
     // wait( true ); <-- no
+#if USE_BOOST_THREADS
+    if( m_Thread )
+    {
+        delete m_Thread;
+    }
+#endif
 }
 
 void WThreadedRunner::run()
