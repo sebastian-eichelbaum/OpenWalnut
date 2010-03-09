@@ -215,23 +215,6 @@ bool WQtDatasetBrowser::event( QEvent* event )
     return QDockWidget::event( event );
 }
 
-void WQtDatasetBrowser::addModule2( boost::shared_ptr< WModule > module, int subjectId )
-{
-    if ( boost::shared_dynamic_cast< WMData >( module ) )
-    {
-        WQtSubjectTreeItem* subject = static_cast< WQtSubjectTreeItem* >( m_treeWidget->topLevelItem( subjectId + 1 ) );
-        subject->setExpanded( true );
-        WQtDatasetTreeItem* item = subject->addDatasetItem( module );
-        item->setDisabled( true );
-    }
-    else
-    {
-        m_tiModules->setExpanded( true );
-        WQtModuleTreeItem* item = m_tiModules->addModuleItem( module );
-        item->setDisabled( true );
-    }
-}
-
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
     int c = getFirstSubject();
