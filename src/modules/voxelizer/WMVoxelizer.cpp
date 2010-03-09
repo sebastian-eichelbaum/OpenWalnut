@@ -280,6 +280,8 @@ void WMVoxelizer::update()
         m_voxelGeode = genDataSetGeode( outputDataSet );
         m_osgNode->insert( m_voxelGeode );
     }
+
+    m_osgNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
     m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
 }

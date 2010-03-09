@@ -220,6 +220,7 @@ void WMSurfaceParticles::moduleMain()
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
             m_rootNode = cube;
+            m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             debugLog() << "Adding new rendering.";
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
         }

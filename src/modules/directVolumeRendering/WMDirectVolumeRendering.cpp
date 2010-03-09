@@ -220,6 +220,7 @@ void WMDirectVolumeRendering::moduleMain()
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
             m_rootNode = cube;
+            m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             debugLog() << "Adding new rendering.";
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
         }
@@ -264,13 +265,16 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
 void WMDirectVolumeRendering::activate()
 {
     // Activate/Deactivate the DVR
-    if ( m_active->get() )
+    if ( m_rootNode )
     {
-        m_rootNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_rootNode->setNodeMask( 0x0 );
+        if ( m_active->get() )
+        {
+            m_rootNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_rootNode->setNodeMask( 0x0 );
+        }
     }
 
     // Always call WModule's activate!

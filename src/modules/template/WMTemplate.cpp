@@ -353,6 +353,10 @@ void WMTemplate::moduleMain()
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
             m_rootNode = newRootNode;
 
+            // please also ensure that, according to m_active, the node is active or not. Setting it here allows the user to deactivate modules
+            // in project files for example.
+            m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
+
             // OSG allows you to add custom callbacks. These callbacks get executed on each update traversal. They can be used to modify several
             // attributes and modes of existing nodes. You do not want to remove the node and recreate another one to simply change some color,
             // right? Setting the color can be done in such an update callback. See in the header file, how this class is defined.
