@@ -24,9 +24,13 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEGeometryUtils.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WMClusterSlicer.h"
 
 WMClusterSlicer::WMClusterSlicer():
@@ -131,16 +135,46 @@ void WMClusterSlicer::updateDisplay()
     else
     {
         assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_dataSet." );
-        m_isoVoxelGeode = generateISOVoxelGeode( *m_isoVoxels );
+        m_isoVoxelGeode = generateISOVoxelGeode();
         m_rootNode->insert( m_isoVoxelGeode );
     }
 }
 
-osg::ref_ptr< osg::Geode > WMClusterSlicer::generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const
+osg::ref_ptr< osg::Geode > WMClusterSlicer::generateISOVoxelGeode() const
 {
-    osg::ref_ptr< osg::Geode > result;
-    // TODO(math): fill the geode
-    return result;
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    assert( grid != 0 );
+    std::set< size_t >::const_iterator cit;
+    for( cit = m_isoVoxels->begin(); cit != m_isoVoxels->end(); ++cit )
+    {
+        boost::shared_ptr< std::vector< wmath::WPosition > > voxelCornerVertices = grid->getVoxelVertices( grid->getPosition( *cit ), 0.01 );
+        osg::ref_ptr< osg::Vec3Array > ver = wge::generateCuboidQuads( *voxelCornerVertices );
+        vertices->insert( vertices->end(), ver->begin(), ver->end() );
+        osg::ref_ptr< osg::Vec3Array > nor = wge::generateCuboidQuadNormals( *voxelCornerVertices );
+        normals->insert( normals->end(), nor->begin(), nor->end() );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, vertices->size() - ver->size(), ver->size() ) );
+        for( size_t j = 0; j < ver->size(); ++j )
+        {
+            colors->push_back( wge::osgColor( WColor( 1, 0, 0 ) ) );
+        }
+    }
+
+    geometry->setVertexArray( vertices );
+    colors->push_back( wge::osgColor( WColor( 1, 0, 0 ) ) );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    geometry->setNormalArray( normals );
+    geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( geometry );
+
+    return geode;
 }
 
 void WMClusterSlicer::activate()

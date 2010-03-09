@@ -107,11 +107,9 @@ protected:
     /**
      * Generates new geode for marking the volume voxels
      *
-     * \param voxelIDs Set of voxel IDs
-     *
      * \return Newly constructed geode
      */
-    osg::ref_ptr< osg::Geode > generateISOVoxelGeode( const std::set< size_t >& voxelIDs ) const;
+    osg::ref_ptr< osg::Geode > generateISOVoxelGeode() const;
 
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
 
