@@ -130,6 +130,10 @@ void WMNavSlices::properties()
     m_sagittalPos->setMin( 0 );
     m_sagittalPos->setMax( 160 );
 
+    m_axialPos->setHidden();
+    m_coronalPos->setHidden();
+    m_sagittalPos->setHidden();
+
     m_maxAxial       = m_properties2->addProperty( "maxAxial",       "Max position of axial slice.",    160, true );
     m_maxCoronal     = m_properties2->addProperty( "maxCoronal",     "Max position of coronal slice.",  200, true );
     m_maxSagittal    = m_properties2->addProperty( "maxSagittal",    "Max position of sagittal slice.", 160, true );
