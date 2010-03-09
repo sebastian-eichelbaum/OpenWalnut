@@ -93,8 +93,8 @@ void WMContourTree::moduleMain()
             continue;
         }
 
-        boost::shared_ptr< WJoinContourTree > m_joinTree = boost::shared_ptr< WJoinContourTree >( new WJoinContourTree( m_input->getData() ) );
-        m_joinTree->buildJoinTree();
-        m_output->updateData( m_joinTree );
+        boost::shared_ptr< WJoinContourTree > joinTree = boost::shared_ptr< WJoinContourTree >( new WJoinContourTree( m_input->getData() ) );
+        joinTree->buildJoinTree();
+        m_output->updateData( joinTree );
     }
 }

@@ -91,8 +91,6 @@ protected:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > >    m_input;  //!< Dataset to computate contour tree of
     boost::shared_ptr< WModuleOutputData< WJoinContourTree > > m_output; //!< The JoinTree for that dataset
 
-    boost::shared_ptr< WJoinContourTree > m_joinTree;
-
 private:
 };
 
