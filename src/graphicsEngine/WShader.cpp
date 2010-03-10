@@ -46,7 +46,8 @@ WShader::WShader( std::string name ):
     osg::Program(),
     m_shaderPath( WGraphicsEngine::getGraphicsEngine()->getShaderPath() ),
     m_name( name ),
-    m_reload( true )
+    m_reload( true ),
+    m_deactivated( false )
 {
     // create shader
     m_vertexShader = osg::ref_ptr< osg::Shader >( new osg::Shader( osg::Shader::VERTEX ) );
@@ -73,10 +74,24 @@ void WShader::apply( osg::ref_ptr< osg::Node > node )
     // NOTE: the attribute is protected to avoid father nodes overwriting it
     osg::StateSet* rootState = node->getOrCreateStateSet();
     rootState->setAttributeAndModes( this, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
-
+    m_deactivated = false;
+    m_reload = true;
     // add a custom callback which actually sets and updated the shader.
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
+
+void WShader::deactivate( osg::ref_ptr< osg::Node > node )
+{
+    // set the shader attribute
+    // NOTE: the attribute is protected to avoid father nodes overwriting it
+    osg::StateSet* rootState = node->getOrCreateStateSet();
+    rootState->setAttributeAndModes( this, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
+
+    m_deactivated = true;
+    // add a custom callback which actually sets and updated the shader.
+    node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
+}
+
 
 void WShader::reload()
 {
@@ -91,7 +106,15 @@ WShader::SafeUpdaterCallback::SafeUpdaterCallback( WShader* shader ):
 void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // is it needed to do something here?
-    if ( m_shader->m_reload )
+    if ( m_shader->m_deactivated )
+    {
+        // remove the shaders
+        m_shader->removeShader( m_shader->m_vertexShader );
+        m_shader->removeShader( m_shader->m_fragmentShader );
+        m_shader->removeShader( m_shader->m_geometryShader );
+    }
+
+    else if ( m_shader->m_reload )
     {
         try
         {

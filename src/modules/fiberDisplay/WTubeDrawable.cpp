@@ -38,7 +38,7 @@ WTubeDrawable::WTubeDrawable():
     m_useTubes( false ),
     m_globalColoring( true )
 {
-    //setSupportsDisplayList (false);
+    setSupportsDisplayList( false );
     // This contructor intentionally left blank. Duh.
 }
 
@@ -70,7 +70,7 @@ osg::Object* WTubeDrawable::clone( const osg::CopyOp& copyop ) const
 // That said, the example below shows how to change the OpenGL state in
 // these rare cases in which it is necessary. But always keep in mind:
 // *Change the OpenGL state only if strictly necessary*.
-void WTubeDrawable::drawImplementation( osg::RenderInfo& /*renderInfo*/ ) const
+void WTubeDrawable::drawImplementation( osg::RenderInfo& renderInfo ) const //NOLINT
 {
     if ( m_useTubes )
     {
@@ -78,7 +78,7 @@ void WTubeDrawable::drawImplementation( osg::RenderInfo& /*renderInfo*/ ) const
     }
     else
     {
-        drawFibers();
+        drawFibers( renderInfo );
     }
 }
 
@@ -102,7 +102,7 @@ bool WTubeDrawable::getColoringMode() const
     return m_globalColoring;
 }
 
-void WTubeDrawable::drawFibers() const
+void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 {
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
@@ -110,21 +110,33 @@ void WTubeDrawable::drawFibers() const
     boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
 
-    for( size_t i = 0; i < active->size(); ++i )
+//    glEnableClientState( GL_VERTEX_ARRAY );
+//    glEnableClientState( GL_COLOR_ARRAY );
+//
+//    glVertexPointer( 3, GL_FLOAT, 0, &(*verts)[0] );
+//    glColorPointer( 3, GL_FLOAT, 0, &(*colors)[0] );
+
+    for ( size_t i = 0; i < active->size(); ++i )
     {
-        if ( active->at( i ) )
+        if ( (*active)[i] )
         {
+            //glDrawArrays( GL_LINE_STRIP, (*startIndexes)[i] * 3, (*pointsPerLine)[i] );
+
             glBegin( GL_LINE_STRIP );
-            int idx = startIndexes->at( i ) * 3;
+            int idx = (*startIndexes)[i] * 3;
             for ( size_t k = 0; k < pointsPerLine->at( i ); ++k )
             {
-                glColor3f( colors->at( idx ), colors->at( idx + 1 ), colors->at( idx + 2 ) );
-                glVertex3f( verts->at( idx ), verts->at( idx + 1 ), verts->at( idx + 2 ) );
+                glColor3f( (*colors)[idx], (*colors)[idx + 1], (*colors)[idx + 2] );
+                glVertex3f( (*verts)[idx], (*verts)[idx + 1], (*verts)[idx + 2] );
                 idx += 3;
             }
             glEnd();
         }
     }
+    //std::cout << "huhu4" << std::endl;
+
+//    glDisableClientState( GL_VERTEX_ARRAY );
+//    glDisableClientState( GL_COLOR_ARRAY );
 }
 
 void WTubeDrawable::drawTubes() const

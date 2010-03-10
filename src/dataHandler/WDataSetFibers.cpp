@@ -74,12 +74,12 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     float lastx, lasty, lastz;
     for ( size_t i = 0; i < m_lineLengths->size(); ++i )
     {
-        x1 = m_vertices->at( pc );
-        y1 = m_vertices->at( pc + 1 );
-        z1 = m_vertices->at( pc + 2 );
-        x2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 3 );
-        y2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 2 );
-        z2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 1 );
+        x1 = (*m_vertices)[pc];
+        y1 = (*m_vertices)[pc + 1];
+        z1 = (*m_vertices)[pc + 2];
+        x2 = (*m_vertices)[pc + (*m_lineLengths)[i] * 3 - 3 ];
+        y2 = (*m_vertices)[pc + (*m_lineLengths)[i] * 3 - 2 ];
+        z2 = (*m_vertices)[pc + (*m_lineLengths)[i] * 3 - 1 ];
 
         r = ( x1 ) - ( x2 );
         g = ( y1 ) - ( y2 );
@@ -96,18 +96,18 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
         g *= 1.0 / norm;
         b *= 1.0 / norm;
 
-        lastx = m_vertices->at( pc ) + ( m_vertices->at( pc ) - m_vertices->at( pc + 3 ) );
-        lasty = m_vertices->at( pc + 1 ) + ( m_vertices->at( pc + 1 ) - m_vertices->at( pc + 4 ) );
-        lastz = m_vertices->at( pc + 2 ) + ( m_vertices->at( pc + 2 ) - m_vertices->at( pc + 5 ) );
+        lastx = (*m_vertices)[pc] + ( (*m_vertices)[pc] - (*m_vertices)[pc + 3] );
+        lasty = (*m_vertices)[pc+ 1] + ( (*m_vertices)[pc + 1] - (*m_vertices)[pc + 4] );
+        lastz = (*m_vertices)[pc + 2] + ( (*m_vertices)[pc + 2] - (*m_vertices)[pc + 5] );
 
         for ( size_t j = 0; j < m_lineLengths->at( i ); ++j )
         {
-            rr = lastx - m_vertices->at( pc );
-            gg = lasty - m_vertices->at( pc + 1 );
-            bb = lastz - m_vertices->at( pc + 2 );
-            lastx = m_vertices->at( pc );
-            lasty = m_vertices->at( pc + 1 );
-            lastz = m_vertices->at( pc + 2 );
+            rr = lastx - (*m_vertices)[pc];
+            gg = lasty - (*m_vertices)[pc + 1];
+            bb = lastz - (*m_vertices)[pc + 2];
+            lastx = (*m_vertices)[pc];
+            lasty = (*m_vertices)[pc + 1];
+            lastz = (*m_vertices)[pc + 2];
 
 //            if ( rr < 0.0 )
 //                rr *= -1.0;

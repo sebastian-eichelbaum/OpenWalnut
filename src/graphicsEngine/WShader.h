@@ -62,6 +62,15 @@ public:
     virtual void apply( osg::ref_ptr< osg::Node > node );
 
     /**
+     * Apply this shader to the specified node. Use this method to ensure, that reload events can be handled properly during the
+     * update cycle.
+     *
+     * \param node the node where the program is registered to.
+     */
+    virtual void deactivate( osg::ref_ptr< osg::Node > node );
+
+
+    /**
      * Initiate a reload of the shader during the next update cycle.
      */
     virtual void reload();
@@ -110,6 +119,11 @@ protected:
      * Flag denoting whether a shader should be reloaded.
      */
     bool m_reload;
+
+    /**
+     * Flag denoting whether a shader should be deactivated.
+     */
+    bool m_deactivated;
 
     /**
      * Connection object to the reload signal from WGraphbicsEngine.
