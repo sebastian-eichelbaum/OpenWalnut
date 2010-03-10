@@ -43,6 +43,7 @@
 #include "../events/WEventTypes.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
+#include "WQtTextureSorter.h"
 
 #include "../../../kernel/WModuleFactory.h"
 #include "../WMainWindow.h"
@@ -64,25 +65,15 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_treeWidget->setDropIndicatorShown( true );
     m_treeWidget->setDragDropMode( QAbstractItemView::InternalMove );
 
+    m_textureSorter = new WQtTextureSorter( m_panel );
+    m_textureSorter->setToolTip( "Reorder the textures." );
+
     m_tabWidget = new QTabWidget( m_panel );
 
     m_layout = new QVBoxLayout();
 
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
-    m_downButton = new QPushButton();
-    m_downButton->setText( QString( "down" ) );
-    m_upButton = new QPushButton();
-    m_upButton->setText( QString( "up" ) );
-
-    // TODO(all): reenable these buttons if sorting works again
-    m_downButton->setDisabled( true );
-    m_upButton->setDisabled( true );
-
-    buttonLayout->addWidget( m_downButton );
-    buttonLayout->addWidget( m_upButton );
-
     m_layout->addWidget( m_treeWidget );
-    m_layout->addLayout( buttonLayout );
+    m_layout->addWidget( m_textureSorter );
     m_layout->addWidget( m_tabWidget );
 
     m_panel->setLayout( m_layout );
@@ -112,8 +103,6 @@ void WQtDatasetBrowser::connectSlots()
 {
     connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
-    connect( m_upButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemUp() ) );
-    connect( m_downButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemDown() ) );
 }
 
 
