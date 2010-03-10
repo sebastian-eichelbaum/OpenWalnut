@@ -35,6 +35,8 @@
 #include "../WEEGValueMatrix.h"
 #include "WPagerEEG.h"
 
+typedef struct eeg_dummy_t eeg_t;
+
 
 /**
  * Class to load an EEG file and keep it open to support paging.
