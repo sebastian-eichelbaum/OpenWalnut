@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
 #include <locale.h>
+#include <string>
 
 extern "C"
 {

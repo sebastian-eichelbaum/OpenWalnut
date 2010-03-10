@@ -60,7 +60,7 @@ public:
      * Constructor that initalizes members with sensible defaults.
      */
     WPickHandler();
- 
+
     /**
      * Deals with the events found by the osg.
      * \param ea Event class for storing Keyboard, mouse and window events.
