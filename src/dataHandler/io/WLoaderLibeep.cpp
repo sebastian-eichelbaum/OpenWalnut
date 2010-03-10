@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <locale.h>
+
 #include <string>
 
 extern "C"
@@ -30,9 +32,9 @@ extern "C"
 }
 
 #include "../../common/WLogger.h"
+#include "../WEEG.h"
 #include "../exceptions/WDHNoSuchFile.h"
 #include "WLoaderLibeep.h"
-#include "../WEEG.h"
 
 
 WLoaderLibeep::WLoaderLibeep( std::string fileName )
@@ -45,7 +47,7 @@ boost::shared_ptr< WDataSet > WLoaderLibeep::load()
     wlog::debug( "Libeep Loader" ) << "Opening " << m_fileName;
 
     // libeep needs the standard C locale to load float values from ASCII
-    std::setlocale( LC_NUMERIC, "C" );
+    setlocale( LC_NUMERIC, "C" );
 
     // initialize
     FILE* file = fopen( m_fileName.c_str(), "rb" );
