@@ -36,13 +36,13 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/datastructures/WFiber.h"
 #include "../../modules/fiberDisplay/WMFiberDisplay.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
@@ -167,17 +167,6 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
     }
-    // TODO(math): This is just a line for testing purposes
-//    vertices->push_back( osg::Vec3( 73, 38, 29 ) );
-//    vertices->push_back( osg::Vec3( 120, 150, 130 ) );
-//    colors->push_back( colors->back() );
-//    colors->push_back( colors->back() );
-//    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
-//    vertices->push_back( osg::Vec3( 7.2766304016113281e+01, 3.7974670410156250e+01, 2.9449142456054688e+01 ) );
-//    vertices->push_back( osg::Vec3( 1.1976630401611328e+02, 1.4997467041015625e+02, 1.3044914245605469e+02 ) );
-//    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
-//    colors->push_back( osg::Vec4( 1, 1, 1, 1 ) );
-//    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - 2, 2 ) );
 
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
@@ -226,7 +215,16 @@ void WMVoxelizer::updateCenterLine()
     assert( m_osgNode );
     if( m_drawCenterLine->get( true ) )
     {
-        m_centerLineGeode = wge::generateLineStripGeode( *m_clusters->getCenterLine(), 2.f );
+        boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
+        if( centerLine )
+        {
+            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 2.f );
+        }
+        else
+        {
+            warnLog() << "CenterLine update on non existing CenterLine (null)";
+            m_centerLineGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
+        }
         m_osgNode->insert( m_centerLineGeode );
     }
     else
