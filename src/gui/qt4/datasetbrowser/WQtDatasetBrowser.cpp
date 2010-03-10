@@ -311,9 +311,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case ROI:
             case SUBROI:
-                // TODO(schurade): update rois to use new properties
-                //props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties()->getPropertyVector();
-                //props = module->getProperties2();
+                props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
                 break;
             default:
                 break;

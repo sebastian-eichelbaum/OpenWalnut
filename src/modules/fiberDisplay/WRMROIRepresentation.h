@@ -34,7 +34,7 @@
 #include <boost/thread/thread.hpp>
 
 #include "WKdTree.h"
-#include "./../../common/WProperties.h"
+#include "./../../common/WProperties2.h"
 #include "../../graphicsEngine/WROI.h"
 class WRMBranch;
 /**
@@ -95,19 +95,16 @@ public:
     void setDirty();
 
     /**
-     * getter
-     *
-     * \return the properties object
+     * returns the properties object
      */
-    boost::shared_ptr< WProperties > getProperties();
+    boost::shared_ptr< WProperties2 > getProperties();
 
 protected:
     /**
      * slot gets called when a property has changed
      *
-     * \param propertyName
      */
-    void slotPropertyChanged( std::string propertyName );
+    void slotToggleNot();
 private:
     /**
      * tests the kd tree for intersections with the roi
@@ -164,7 +161,12 @@ private:
     /**
      * the property object for the module
      */
-    boost::shared_ptr< WProperties > m_properties;
+    boost::shared_ptr< WProperties2 > m_properties;
+
+    /**
+     * indicates if the roi is negated
+     */
+    WPropBool m_isNot;
 };
 
 #endif  // WRMROIREPRESENTATION_H
