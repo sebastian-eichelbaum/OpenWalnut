@@ -30,10 +30,10 @@
 #include "WPickHandler.h"
 #include "WPickInfo.h"
 
-WPickHandler::WPickHandler() :
-    m_hitResult( WPickInfo() ),
-    m_startPick( WPickInfo() ),
-    m_shift( false )
+WPickHandler::WPickHandler()
+    : m_hitResult( WPickInfo() ),
+      m_startPick( WPickInfo() ),
+      m_shift( false )
 {
 }
 WPickHandler::~WPickHandler()

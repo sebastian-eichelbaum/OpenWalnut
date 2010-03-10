@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <locale.h>
+
 #include <string>
 
 extern "C"
@@ -31,9 +32,9 @@ extern "C"
 }
 
 #include "../../common/WLogger.h"
+#include "../WEEG.h"
 #include "../exceptions/WDHNoSuchFile.h"
 #include "WLoaderLibeep.h"
-#include "../WEEG.h"
 
 
 WLoaderLibeep::WLoaderLibeep( std::string fileName )
