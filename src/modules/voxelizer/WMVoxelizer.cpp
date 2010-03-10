@@ -201,8 +201,6 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     size_t nbPosY = std::ceil( bb.second[1] - bb.first[1] ) + 1;
     size_t nbPosZ = std::ceil( bb.second[2] - bb.first[2] ) + 1;
 
-    // TODO(math): implement: enlarge grid so antializing is possible. This depends on how
-    // many voxels you use for antialiasing
     grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbVoxelsPerUnit * nbPosX, nbVoxelsPerUnit * nbPosY, nbVoxelsPerUnit * nbPosZ,
                                                                     bb.first, 1, 1, 1 ) );
     return grid;
