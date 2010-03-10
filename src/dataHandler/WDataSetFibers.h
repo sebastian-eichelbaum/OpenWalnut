@@ -154,12 +154,6 @@ protected:
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
 
-    /**
-     * Calculates local colors for this dataset.
-     * \note it is const as it gets used in getLocalColors for creating the local colors only on demand.
-     */
-    virtual void calculateLocalColors() const;
-
 private:
     /**
      * Point vector for all fibers
