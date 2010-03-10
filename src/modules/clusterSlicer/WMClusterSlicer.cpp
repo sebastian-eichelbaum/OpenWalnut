@@ -33,8 +33,9 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WMClusterSlicer.h"
 
-WMClusterSlicer::WMClusterSlicer():
-    WModule()
+WMClusterSlicer::WMClusterSlicer()
+    : WModule(),
+      m_rootNode( osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() ) )
 {
 }
 
@@ -76,6 +77,8 @@ void WMClusterSlicer::properties()
 
 void WMClusterSlicer::moduleMain()
 {
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_inputDataSet->getDataChangedCondition() );
     m_moduleState.add( m_isoValue->getCondition() );
@@ -95,10 +98,12 @@ void WMClusterSlicer::moduleMain()
         boost::shared_ptr< WDataSetSingle > newDataSet = m_inputDataSet->getData();
         boost::shared_ptr< WFiberCluster > newCluster = m_inputCluster->getData();
         bool dataChanged = ( m_dataSet != newDataSet ) || ( m_cluster != newCluster );
+        bool dataValid = m_dataSet && m_cluster;
         if( dataChanged )
         {
             m_dataSet = newDataSet;
             m_cluster = newCluster;
+            dataValid = m_dataSet && m_cluster;
             if( !m_dataSet || !m_cluster )
             {
                 continue;
@@ -117,7 +122,10 @@ void WMClusterSlicer::moduleMain()
 
         if( m_drawISOVoxels->changed() || m_isoValue->changed() || dataChanged )
         {
-            updateDisplay();
+            if( dataValid )
+            {
+                updateDisplay();
+            }
         }
     }
 
@@ -126,13 +134,10 @@ void WMClusterSlicer::moduleMain()
 
 void WMClusterSlicer::updateDisplay()
 {
-    if( !m_drawISOVoxels->get( true ) )
-    {
-        m_rootNode->remove( m_isoVoxelGeode );
-        m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
-        return;
-    }
-    else
+    m_rootNode->remove( m_isoVoxelGeode );
+    m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
+
+    if( m_drawISOVoxels->get( true ) )
     {
         assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_dataSet." );
         m_isoVoxelGeode = generateISOVoxelGeode();

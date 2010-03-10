@@ -54,12 +54,13 @@ void WMClusterParamDisplay::connectors()
 
 void WMClusterParamDisplay::properties()
 {
+    m_isoValue = m_properties2->addProperty( "Iso Value", "", 0.01 );
 }
 
 void WMClusterParamDisplay::moduleMain()
 {
     m_moduleState.setResetable( true, true );
-
+    m_moduleState.add( m_isoValue->getCondition() );
     initSubModules();
 
     ready();
@@ -71,6 +72,12 @@ void WMClusterParamDisplay::moduleMain()
         if( m_shutdownFlag() )
         {
             break;
+        }
+
+        if( m_isoValue->changed() )
+        {
+            m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
+            m_clusterSlicer->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
         }
     }
 }
@@ -94,12 +101,18 @@ void WMClusterParamDisplay::initSubModules()
     add( m_isoSurface );
     m_isoSurface->isReady().wait();
 
+    m_clusterSlicer = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Cluster Slicer" ) );
+    add( m_clusterSlicer );
+    m_clusterSlicer->isReady().wait();
+
     // wiring
     m_input->forward( m_fiberClustering->getInputConnector( "fiberInput" ) );
 
     m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
     m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+    m_clusterSlicer->getInputConnector( "cluster" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
+    m_clusterSlicer->getInputConnector( "dataset" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
 
     // preset properties
     m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
@@ -111,8 +124,5 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );
     m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
     m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
-    m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Iso Value" ) );
-
-    // property alias
-    m_isoValue = m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble();
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
 }
