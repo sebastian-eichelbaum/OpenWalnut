@@ -84,6 +84,7 @@ void WMVoxelizer::moduleMain()
         if( m_antialiased->changed() ||
             m_drawVoxels->changed() ||
             m_rasterAlgo->changed() ||
+            m_voxelsPerUnit->changed() ||
             m_clusters != m_input->getData() )
         {
             m_drawVoxels->get( true );
@@ -117,6 +118,8 @@ void WMVoxelizer::properties()
     m_drawVoxels      = m_properties2->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
     m_rasterAlgo      = m_properties2->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
                                                     std::string( "WBresenham" ), m_fullUpdate );
+    m_voxelsPerUnit   = m_properties2->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
+                                                                       "is useful to increase the resolution of the grid", 1, m_fullUpdate );
 }
 
 void WMVoxelizer::activate()
@@ -188,6 +191,8 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
 {
     boost::shared_ptr< WGridRegular3D > grid;
 
+    int32_t nbVoxelsPerUnit = m_voxelsPerUnit->get( true );
+
     // TODO(math): implement the snap-to-grid (of the T1 image) feature for fll and bur.
     // TODO(math): remove hardcoded meta grid here.
     // the "+1" in the following three statements is because there are may be some more voxels
@@ -198,7 +203,8 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
 
     // TODO(math): implement: enlarge grid so antializing is possible. This depends on how
     // many voxels you use for antialiasing
-    grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbPosX, nbPosY, nbPosZ, bb.first, 1, 1, 1 ) );
+    grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbVoxelsPerUnit * nbPosX, nbVoxelsPerUnit * nbPosY, nbVoxelsPerUnit * nbPosZ,
+                                                                    bb.first, 1, 1, 1 ) );
     return grid;
 }
 

@@ -182,6 +182,7 @@ private:
     WPropBool m_lighting; //!< Enable/Disable lighting
     WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
     WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
+    WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
 
     /**
      * Node callback to hide unhide bounding box
