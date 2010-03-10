@@ -31,6 +31,7 @@
 #include "../graphicsEngine/WGEUtils.h"
 #include "WDataSet.h"
 #include "WDataSetFibers.h"
+#include "WCreateColorArraysThread.h"
 
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSetFibers::m_prototype = boost::shared_ptr< WPrototyped >();
@@ -67,137 +68,32 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     m_tangents->resize( m_vertices->size() );
     m_globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_globalColors->resize( m_vertices->size() );
-
-    int pc = 0;
-    float r, g, b, rr, gg, bb;
-    float x1, x2, y1, y2, z1, z2;
-    float lastx, lasty, lastz;
-    for ( size_t i = 0; i < m_lineLengths->size(); ++i )
-    {
-        x1 = (*m_vertices)[pc];
-        y1 = (*m_vertices)[pc + 1];
-        z1 = (*m_vertices)[pc + 2];
-        x2 = (*m_vertices)[pc + (*m_lineLengths)[i] * 3 - 3 ];
-        y2 = (*m_vertices)[pc + (*m_lineLengths)[i] * 3 - 2 ];
-        z2 = (*m_vertices)[pc + (*m_lineLengths)[i] * 3 - 1 ];
-
-        r = ( x1 ) - ( x2 );
-        g = ( y1 ) - ( y2 );
-        b = ( z1 ) - ( z2 );
-        if ( r < 0.0 )
-            r *= -1.0;
-        if ( g < 0.0 )
-            g *= -1.0;
-        if ( b < 0.0 )
-            b *= -1.0;
-
-        float norm = sqrt( r * r + g * g + b * b );
-        r *= 1.0 / norm;
-        g *= 1.0 / norm;
-        b *= 1.0 / norm;
-
-        lastx = (*m_vertices)[pc] + ( (*m_vertices)[pc] - (*m_vertices)[pc + 3] );
-        lasty = (*m_vertices)[pc+ 1] + ( (*m_vertices)[pc + 1] - (*m_vertices)[pc + 4] );
-        lastz = (*m_vertices)[pc + 2] + ( (*m_vertices)[pc + 2] - (*m_vertices)[pc + 5] );
-
-        for ( size_t j = 0; j < m_lineLengths->at( i ); ++j )
-        {
-            rr = lastx - (*m_vertices)[pc];
-            gg = lasty - (*m_vertices)[pc + 1];
-            bb = lastz - (*m_vertices)[pc + 2];
-            lastx = (*m_vertices)[pc];
-            lasty = (*m_vertices)[pc + 1];
-            lastz = (*m_vertices)[pc + 2];
-
-//            if ( rr < 0.0 )
-//                rr *= -1.0;
-//            if ( gg < 0.0 )
-//                gg *= -1.0;
-//            if ( bb < 0.0 )
-//                bb *= -1.0;
-            float norm = sqrt( rr * rr + gg * gg + bb * bb );
-            rr *= 1.0 / norm;
-            gg *= 1.0 / norm;
-            bb *= 1.0 / norm;
-
-            m_tangents->at( pc ) = rr;
-            m_tangents->at( pc + 1 ) = gg;
-            m_tangents->at( pc + 2 ) = bb;
-
-            m_globalColors->at( pc ) = r;
-            m_globalColors->at( pc + 1 ) = g;
-            m_globalColors->at( pc + 2 ) = b;
-
-            pc += 3;
-        }
-    }
-}
-
-void WDataSetFibers::calculateLocalColors() const
-{
-    wlog::debug( "WDataSetFibers" ) << "Calculating local colors.";
-
     m_localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_localColors->resize( m_vertices->size() );
 
-    int pc = 0;
-    float r, g, b;
-    float x1, x2, y1, y2, z1, z2;
 
-    for ( size_t i = 0; i < m_lineLengths->size(); ++i )
-    {
-        x1 = m_vertices->at( pc );
-        y1 = m_vertices->at( pc + 1 );
-        z1 = m_vertices->at( pc + 2 );
-        x2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 3 );
-        y2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 2 );
-        z2 = m_vertices->at( pc + m_lineLengths->at( i ) * 3 - 1 );
+    WCreateColorArraysThread* t1 = new WCreateColorArraysThread( 0, m_lineLengths->size()/4, m_vertices,
+            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+    WCreateColorArraysThread* t2 = new WCreateColorArraysThread( m_lineLengths->size()/4+1, m_lineLengths->size()/2, m_vertices,
+            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+    WCreateColorArraysThread* t3 = new WCreateColorArraysThread( m_lineLengths->size()/2+1, m_lineLengths->size()/4*3, m_vertices,
+            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+    WCreateColorArraysThread* t4 = new WCreateColorArraysThread( m_lineLengths->size()/4*3+1, m_lineLengths->size(), m_vertices,
+            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+    t1->run();
+    t2->run();
+    t3->run();
+    t4->run();
 
-        r = ( x1 ) - ( x2 );
-        g = ( y1 ) - ( y2 );
-        b = ( z1 ) - ( z2 );
-        if ( r < 0.0 )
-            r *= -1.0;
-        if ( g < 0.0 )
-            g *= -1.0;
-        if ( b < 0.0 )
-            b *= -1.0;
+    t1->wait();
+    t2->wait();
+    t3->wait();
+    t4->wait();
 
-        float norm = sqrt( r * r + g * g + b * b );
-        r *= 1.0 / norm;
-        g *= 1.0 / norm;
-        b *= 1.0 / norm;
-
-        for ( size_t j = 0; j < m_lineLengths->at( i ); ++j )
-        {
-            // local color fun:
-            WColor localColor;
-            wmath::WPosition currentPos( m_vertices->at( pc ), m_vertices->at( pc + 1 ), m_vertices->at( pc + 2 ) );
-            wmath::WPosition nextPos;
-            if( j < m_lineLengths->at( i ) - 1 )
-            {
-                nextPos[0] = m_vertices->at( pc + 3 );
-                nextPos[1] = m_vertices->at( pc + 4 );
-                nextPos[2] = m_vertices->at( pc + 5 );
-                localColor = wge::getRGBAColorFromDirection( currentPos, nextPos );
-            }
-            else if( m_lineLengths->size() > 1 ) // there was a color in this line before!
-            {
-                localColor = WColor( m_localColors->at( pc - 3 ),
-                                     m_localColors->at( pc - 2 ),
-                                     m_localColors->at( pc - 1 ) );
-            }
-            else // there was only one point
-            {
-                localColor = WColor( r, g, b ); // same as global color
-            }
-            m_localColors->at( pc ) = localColor.getRed();
-            m_localColors->at( pc + 1 ) = localColor.getGreen();
-            m_localColors->at( pc + 2 ) = localColor.getBlue();
-            pc += 3;
-        }
-    }
-    wlog::debug( "WDataSetFibers" ) << "Calculating local colors: done!";
+    delete t1;
+    delete t2;
+    delete t3;
+    delete t4;
 }
 
 bool WDataSetFibers::isTexture() const
@@ -262,12 +158,6 @@ boost::shared_ptr< std::vector< float > > WDataSetFibers::getGlobalColors() cons
 
 boost::shared_ptr< std::vector< float > > WDataSetFibers::getLocalColors() const
 {
-    if ( !m_localColors )
-    {
-        // only calculate local colors if really needed
-        calculateLocalColors();
-    }
-
     return m_localColors;
 }
 
