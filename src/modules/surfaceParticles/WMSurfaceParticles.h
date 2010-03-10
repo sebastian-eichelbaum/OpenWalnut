@@ -112,9 +112,19 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
 
     /**
+     * The input for the volumized fiber directions.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_directionInput;
+
+    /**
      * This is a pointer to the dataset the module is currently working on.
      */
     boost::shared_ptr< WDataSetSingle > m_dataSet;
+
+    /**
+     * The dataset containing the fiber directions for each voxel in m_dataSet
+     */
+    boost::shared_ptr< WDataSetSingle > m_directionDataSet;
 
     /**
      * If this property is true, as special shader is used which emulates isosurfaces using the m_isoValue property.

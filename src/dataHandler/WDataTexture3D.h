@@ -39,7 +39,9 @@ class WCondition;
 
 /**
  * Class encapsulating a 3D texture. It is able to use a value set and grid to create an OpenSceneGraph texture, that can be used
- * directly by modules.
+ * directly by modules. The texture values get scaled to a range of [0,1] to ensure the texture used its maximum precision. The values each get
+ * scaled from [min,max] to [0,1]. The values min and max can be retrieved by getMinValue and getMaxValue. Your shader should get them as
+ * uniforms to unscale the texture to have the real value.
  */
 class WDataTexture3D
 {
@@ -135,6 +137,27 @@ public:
      */
     boost::shared_ptr< WGridRegular3D > getGrid() const;
 
+    /**
+     * Gets the minimum value in the texture.
+     *
+     * \return the min.
+     */
+    float getMinValue();
+
+    /**
+     * Gets the maximum value in the texture.
+     *
+     * \return the maximum
+     */
+    float getMaxValue();
+
+    /**
+     * Gets the scaling factor to unscale [0,1] to [0, max-min]
+     *
+     * \return the scaling factor.
+     */
+    float getMinMaxScale();
+
 protected:
 
     /**
@@ -225,6 +248,46 @@ protected:
      * Flag denotes whether this texture should be used by surfaces/slides for surface colormapping.
      */
     bool m_globalActive;
+
+    /**
+     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
+     *
+     * \param source the data
+     * \param components the number of components
+     */
+    virtual void findMinMax( float* source, int components );
+
+    /**
+     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
+     *
+     * \param source the data
+     * \param components the number of components
+     */
+    virtual void findMinMax( double* source, int components );
+
+    /**
+     * The smallest value inside the dataset
+     */
+    float m_minValue;
+
+    /**
+     * The largest value inside the dataset
+     */
+    float m_maxValue;
+
+    /**
+     * The scaling factor to apply to unscale a [0,1] to [0,max-min]
+     */
+    float m_scale;
+
+    /**
+     * Scales the specified value to the interval [0,1] using m_maxValue and m_minValue.
+     *
+     * \param value the value to scale
+     *
+     * \return the value scaled to [0,1]
+     */
+    float scaleInterval( float value ) const;
 
 private:
 };

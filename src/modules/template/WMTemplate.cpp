@@ -272,7 +272,15 @@ void WMTemplate::moduleMain()
         // getData might be different among both calls.
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
-        if ( dataChanged || !m_dataSet )
+        bool dataValid   = ( newDataSet );
+
+        // To check validity of multiple inputs at once, you can also use dataChanged and dataValid:
+        // bool dataChanged = ( m_dataSet != newDataSet ) || ( m_dataSet2 != newDataSet2 ) || ( m_dataSet3 != newDataSet3 );
+        // bool dataValid   = newDataSet && newDataSet2 && newDataSet3;
+        // This way, you can easily ensure that ALL your inputs are set and the module can do its job
+
+        // now, copy the new data to out local member variables
+        if ( dataChanged && dataValid )
         // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
         // cases.
         {
@@ -280,16 +288,9 @@ void WMTemplate::moduleMain()
             debugLog() << "Received Data.";
             m_dataSet = newDataSet;
 
-            // An output sent us an invalid dataset. You should always check this. You module most probably does not work on invalid pointers
-            // ;-).
-            if ( !m_dataSet )
-            {
-                debugLog() << "Invalid Data. Disabling.";
-
-                // In this situation it is the best to turn of the visualization from the last dataset and begin the loop from the beginning.
-                // This way you can ensure you always have valid data available.
-                continue;
-            }
+            // For multiple inputs:
+            // m_dataSet2 = newDataSet2;
+            // m_dataSet3 = newDataSet3;
         }
 
         // Here we collect our properties. You, as with input connectors, always check if a property really has changed. You most probably do not
@@ -305,6 +306,8 @@ void WMTemplate::moduleMain()
 
             // This is a simple example for doing an operation which is not depending on any other property.
             debugLog() << "Doing an operation on the file \"" << m_aFile->get( true ).file_string() << "\".";
+
+            // NOTE: be careful if you want to use m_dataSet here, as it might be unset. Verify data validity using dataChanged && dataValid.
         }
 
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
@@ -313,10 +316,13 @@ void WMTemplate::moduleMain()
             // This is a simple example for doing an operation which is depends on all, but m_anFile,  properties.
             debugLog() << "Doing an operation basing on m_aString ... ";
             debugLog() << "m_aString: " << m_aString->get( true );
+
+            // NOTE: be careful if you want to use m_dataSet here, as it might be unset. Verify data validity using dataChanged && dataValid.
         }
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
-        if ( m_anInteger->changed() || m_aDouble->changed() || dataChanged )
+        // The if statement also checks for data validity as it uses the data! You should also always do that.
+        if ( m_anInteger->changed() || m_aDouble->changed() || ( dataChanged && dataValid ) )
         {
             debugLog() << "Creating new OSG node";
 
@@ -367,7 +373,8 @@ void WMTemplate::moduleMain()
 
         // Now we updated the visualization after the dataset has changed. Your module might also calculate some other datasets basing on the
         // input data.
-        if ( dataChanged )
+        // To ensure that all datasets are valid, check dataChanged and dataValid. If both are true, you can safely use the data.
+        if ( dataChanged && dataValid )
         {
             debugLog() << "Data changed. Recalculating output.";
 

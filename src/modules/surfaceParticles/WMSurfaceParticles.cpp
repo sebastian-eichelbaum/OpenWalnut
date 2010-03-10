@@ -77,13 +77,23 @@ const std::string WMSurfaceParticles::getDescription() const
 
 void WMSurfaceParticles::connectors()
 {
-    // DVR needs one input: the scalar dataset
+    // needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
         new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The scalar dataset shown whose surface gets used for animation." )
     );
 
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
+
+    // and the fiber directions inside the volume
+    m_directionInput = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
+        new WModuleInputData< WDataSetSingle >( shared_from_this(), "directions", "The voxelized fiber directions for each voxel in the input"
+                                                                                  "\"in\"." )
+    );
+
+
+    // As properties, every connector needs to be added to the list of connectors.
+    addConnector( m_directionInput );
 
     // call WModules initialization
     WModule::connectors();
@@ -118,40 +128,29 @@ void WMSurfaceParticles::moduleMain()
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_directionInput->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     // Signal ready state.
     ready();
-    debugLog() << "Module is now ready.";
 
-    // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
-    // connectors or on changed in your properties.
-    debugLog() << "Entering main loop";
+    // Now wait for data
     while ( !m_shutdownFlag() )
     {
-        // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
-        // or an property changes. The main loop now waits until something happens.
-        debugLog() << "Waiting ...";
         m_moduleState.wait();
+
+        // woke up since the module is requested to finish
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
 
         // has the data changed?
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
-        bool dataChanged = ( m_dataSet != newDataSet );
-        if ( dataChanged || !m_dataSet )
-        // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
-        // cases.
-        {
-            // The data is different. Copy it to our internal data variable:
-            debugLog() << "Received Data.";
-            m_dataSet = newDataSet;
+        boost::shared_ptr< WDataSetSingle > newDirectionDataSet = m_directionInput->getData();
 
-            // invalid data
-            if ( !m_dataSet )
-            {
-                debugLog() << "Invalid Data. Disabling.";
-                continue;
-            }
-        }
+        bool dataChanged = ( m_dataSet != newDataSet ) || ( m_directionDataSet != newDirectionDataSet );
+        bool dataValid =   ( newDataSet && newDirectionDataSet );
 
         // m_isoColor changed
         if ( m_isoColor->changed() )
@@ -161,8 +160,11 @@ void WMSurfaceParticles::moduleMain()
         }
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataChanged )
+        if ( dataChanged && dataValid )
         {
+            m_dataSet = newDataSet;
+            m_directionDataSet = newDirectionDataSet;
+
             debugLog() << "Data changed. Uploading new data as texture.";
 
             // First, grab the grid
@@ -183,8 +185,10 @@ void WMSurfaceParticles::moduleMain()
 
             // bind the texture to the node
             osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
+            osg::ref_ptr< osg::Texture3D > directionTexture3D = m_directionDataSet->getTexture()->getTexture();
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+            rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
 
             // enable transparency
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -195,6 +199,12 @@ void WMSurfaceParticles::moduleMain()
 
             // for the texture, also bind the appropriate uniforms
             rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
+            rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
+
+            // we need to specify the texture scaling parameters to the shader
+            rootState->addUniform( new osg::Uniform( "u_tex1Scale", m_directionDataSet->getTexture()->getMinMaxScale() ) );
+            rootState->addUniform( new osg::Uniform( "u_tex1Min", m_directionDataSet->getTexture()->getMinValue() ) );
+            rootState->addUniform( new osg::Uniform( "u_tex1Max", m_directionDataSet->getTexture()->getMaxValue() ) );
 
             osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
             isovalue->setUpdateCallback( new SafeUniformCallback( this ) );

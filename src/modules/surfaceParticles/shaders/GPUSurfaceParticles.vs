@@ -37,6 +37,9 @@
 // texture containing the data
 uniform sampler3D tex0;
 
+// texture containing the directional data
+uniform sampler3D tex1;
+
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
@@ -56,6 +59,8 @@ void main()
 {
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_MultiTexCoord0;
+    gl_TexCoord[1] = gl_MultiTexCoord1;
+
     v_normal = gl_Normal;
 
     // in texture space, the starting point simply is the current surface point in texture space
