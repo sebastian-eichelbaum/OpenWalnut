@@ -95,7 +95,6 @@ public:
      */
     virtual T getScalar( size_t i ) const
     {
-        assert( m_order == 0 && m_dimension == 1 );
         return m_data[i];
     }
 

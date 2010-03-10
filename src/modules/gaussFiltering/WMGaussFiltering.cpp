@@ -74,10 +74,9 @@ const std::string WMGaussFiltering::getDescription() const
     return "Runs a discretized Gauss filter as mask over a simple scalar field.";
 }
 
-size_t getId( size_t xDim, size_t yDim, size_t /*zDim*/, size_t x, size_t y,
-        size_t z )
+size_t getId( size_t xDim, size_t yDim, size_t /*zDim*/, size_t x, size_t y, size_t z, size_t offset = 0, size_t elements = 1 )
 {
-    return z * xDim * yDim + y * xDim + x;
+    return offset + ( elements * ( z * xDim * yDim + y * xDim + x ) );
 }
 
 double mask( size_t i, size_t j, size_t k )
@@ -94,7 +93,7 @@ double mask( size_t i, size_t j, size_t k )
 
 template<typename T> double WMGaussFiltering::filterAtPosition(
         boost::shared_ptr<WValueSet<T> > vals, size_t nX, size_t nY, size_t nZ,
-        size_t x, size_t y, size_t z )
+        size_t x, size_t y, size_t z, size_t offset )
 {
     double filtered = 0;
     double maskSum = 0;
@@ -105,8 +104,8 @@ template<typename T> double WMGaussFiltering::filterAtPosition(
         {
             for( size_t i = 0; i < filterSize; ++i )
             {
-                filtered += mask( i, j, k ) * vals->getScalar( getId( nX, nY,
-                        nZ, x - 1 + i, y - 1 + j, z - 1 + k ) );
+                filtered += mask( i, j, k ) * vals->getScalar(
+                        getId( nX, nY, nZ, x - 1 + i, y - 1 + j, z - 1 + k, offset, vals->elementsPerValue() ) );
                 maskSum += mask( i, j, k );
             }
         }
@@ -114,6 +113,34 @@ template<typename T> double WMGaussFiltering::filterAtPosition(
     filtered /= maskSum;
 
     return filtered;
+}
+
+template< typename T >
+std::vector<double> WMGaussFiltering::filterField( boost::shared_ptr< WValueSet< T > > vals, boost::shared_ptr<WGridRegular3D> grid,
+                                                   boost::shared_ptr< WProgress > prog )
+{
+    size_t nX = grid->getNbCoordsX();
+    size_t nY = grid->getNbCoordsY();
+    size_t nZ = grid->getNbCoordsZ();
+
+    std::vector<double> newVals( vals->elementsPerValue() * nX * nY * nZ, 0. );
+
+    for( size_t z = 1; z < nZ - 1; z++ )
+    {
+        ++*prog;
+        for( size_t y = 1; y < nY - 1; y++ )
+        {
+            for( size_t x = 1; x < nX - 1; x++ )
+            {
+                for ( size_t offset = 0; offset < vals->elementsPerValue(); ++offset )
+                {
+                    newVals[getId( nX, nY, nZ, x, y, z, offset, vals->elementsPerValue() )] = filterAtPosition( vals, nX, nY, nZ, x, y, z, offset );
+                }
+            }
+        }
+    }
+
+    return newVals;
 }
 
 template< typename T >
@@ -125,45 +152,23 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
 
     // use a custom progress combiner
     boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >(
-            new WProgress( "Gauss Filter Iteration", iterations * grid->getNbCoordsZ() ) );
+        new WProgress( "Gauss Filter Iteration", iterations * grid->getNbCoordsZ() ) );
     m_progress->addSubProgress( prog );
 
     // iterate filter, apply at least once
     boost::shared_ptr< WValueSet< double > > valueSet = boost::shared_ptr< WValueSet< double > >(
-                                                            new WValueSet<double> ( 0, 1, filterField( vals, grid, prog ), W_DT_DOUBLE )
-                                                        );
+        new WValueSet<double> ( vals->order(), vals->dimension(), filterField( vals, grid, prog ), W_DT_DOUBLE )
+    );
     for ( unsigned int i = 1; i < iterations; ++i )    // this only runs if iter > 1
     {
-       valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet<double> ( 0, 1, filterField( valueSet, grid, prog ), W_DT_DOUBLE ) );
+        valueSet = boost::shared_ptr< WValueSet< double > >(
+            new WValueSet<double> ( valueSet->order(), valueSet->dimension(), filterField( valueSet, grid, prog ), W_DT_DOUBLE )
+        );
     }
 
     prog->finish();
 
     return valueSet;
-}
-
-template< typename T >
-std::vector<double> WMGaussFiltering::filterField( boost::shared_ptr< WValueSet< T > > vals, boost::shared_ptr<WGridRegular3D> grid,
-                                                   boost::shared_ptr< WProgress > prog )
-{
-    size_t nX = grid->getNbCoordsX();
-    size_t nY = grid->getNbCoordsY();
-    size_t nZ = grid->getNbCoordsZ();
-    std::vector<double> newVals( nX * nY * nZ, 0. );
-
-    for( size_t z = 1; z < nZ - 1; z++ )
-    {
-        ++*prog;
-        for( size_t y = 1; y < nY - 1; y++ )
-        {
-            for( size_t x = 1; x < nX - 1; x++ )
-            {
-                newVals[getId( nX, nY, nZ, x, y, z )] = filterAtPosition( vals, nX, nY, nZ, x, y, z );
-            }
-        }
-    }
-
-    return newVals;
 }
 
 void WMGaussFiltering::moduleMain()
