@@ -25,11 +25,16 @@
 #ifndef WMCLUSTERPARAMDISPLAY_H
 #define WMCLUSTERPARAMDISPLAY_H
 
+#include <set>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Geode>
+
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/datastructures/WJoinContourTree.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WModuleInputForwardData.h"
@@ -75,10 +80,11 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * En/Disables display of the root node.
-     */
-    virtual void activate();
+    // TODO(math): when deactivating a compound module ensure that all submodules are deactivated
+    // /**
+    //  * En/Disables display of the root node.
+    //  */
+    // virtual void activate();
 
     /**
      * Create and initialize submodule instances, wires them and forward connectors as well as some properties.
@@ -86,14 +92,16 @@ protected:
     virtual void initSubModules();
 
 private:
-    osg::ref_ptr<osg::Geode> m_rootNode; //!< The root node used for this modules graphics.
-
     boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_input;  //!< Input connector required by this module.
 
     boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
     boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster
     boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
     boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
+    boost::shared_ptr< WModule > m_clusterSlicer; //!< Module slicing the cluster volume
+
+    // TODO(math): forward this to all submodules which needs this: isoSurface, clusterSlicer
+     WPropDouble m_isoValue; //!< ISO Value for selecting the volume
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H

@@ -32,6 +32,7 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
+#include <QtGui/QListWidget>
 
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
@@ -42,6 +43,7 @@
 #include "WQtRoiHeaderTreeItem.h"
 #include "WQtSubjectTreeItem.h"
 #include "WQtTreeWidget.h"
+#include "WQtTextureSorter.h"
 
 class WMainWindow;
 
@@ -159,18 +161,9 @@ protected:
 
 private:
     WQtTreeWidget* m_treeWidget; //!< pointer to the tree widget
+    WQtTextureSorter* m_textureSorter; //!< pointer to the tree widget
 
     QTabWidget* m_tabWidget; //!< pointer to the tab widget
-
-    QPushButton* m_downButton; //!< button down
-
-    QPushButton* m_upButton; //!< button up
-
-    QWidget* m_tab1; //!< tab 1
-
-    QWidget* m_tab2; //!< tab 2
-
-    QWidget* m_tab3; //!< tab 3
 
     QWidget* m_panel; //!< panel
 

@@ -132,7 +132,7 @@ void WMFiberDisplay::update()
 
     if ( WKernel::getRunningKernel()->getRoiManager()->isDirty() )
     {
-        m_tubeDrawable->dirtyDisplayList();
+        //m_tubeDrawable->dirtyDisplayList();
     }
 
     slock.unlock();
@@ -145,6 +145,7 @@ void WMFiberDisplay::create()
 
     m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
     m_tubeDrawable->setDataset( m_dataset );
+    m_tubeDrawable->setUseDisplayList( false );
 
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( m_tubeDrawable );
@@ -207,7 +208,6 @@ void WMFiberDisplay::toggleTubes()
         {
             m_tubeDrawable->setUseTubes( true );
             m_tubeDrawable->dirtyDisplayList();
-
             m_shader->apply( m_osgNode );
             osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) );
             osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
@@ -217,6 +217,7 @@ void WMFiberDisplay::toggleTubes()
         {
             m_tubeDrawable->setUseTubes( false );
             m_tubeDrawable->dirtyDisplayList();
+            m_shader->deactivate( m_osgNode );
         }
     }
 }

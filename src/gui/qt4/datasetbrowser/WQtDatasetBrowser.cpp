@@ -43,6 +43,7 @@
 #include "../events/WEventTypes.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
+#include "WQtTextureSorter.h"
 
 #include "../../../kernel/WModuleFactory.h"
 #include "../WMainWindow.h"
@@ -64,25 +65,15 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_treeWidget->setDropIndicatorShown( true );
     m_treeWidget->setDragDropMode( QAbstractItemView::InternalMove );
 
+    m_textureSorter = new WQtTextureSorter( m_panel );
+    m_textureSorter->setToolTip( "Reorder the textures." );
+
     m_tabWidget = new QTabWidget( m_panel );
 
     m_layout = new QVBoxLayout();
 
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
-    m_downButton = new QPushButton();
-    m_downButton->setText( QString( "down" ) );
-    m_upButton = new QPushButton();
-    m_upButton->setText( QString( "up" ) );
-
-    // TODO(all): reenable these buttons if sorting works again
-    m_downButton->setDisabled( true );
-    m_upButton->setDisabled( true );
-
-    buttonLayout->addWidget( m_downButton );
-    buttonLayout->addWidget( m_upButton );
-
     m_layout->addWidget( m_treeWidget );
-    m_layout->addLayout( buttonLayout );
+    m_layout->addWidget( m_textureSorter );
     m_layout->addWidget( m_tabWidget );
 
     m_panel->setLayout( m_layout );
@@ -112,8 +103,6 @@ void WQtDatasetBrowser::connectSlots()
 {
     connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
-    connect( m_upButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemUp() ) );
-    connect( m_downButton, SIGNAL( pressed() ), this, SLOT( moveTreeItemDown() ) );
 }
 
 
@@ -200,6 +189,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
             {
                 // activate it
                 item->setDisabled( false );
+                selectTreeItem();
 
                 // if the type number is 1 (dataset item) emit change event
                 if ( item->type() == 1 )
@@ -221,6 +211,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     WQtSubjectTreeItem* subject = static_cast< WQtSubjectTreeItem* >( m_treeWidget->topLevelItem( subjectId + c ) );
     subject->setExpanded( true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
+    m_treeWidget->setCurrentItem( item );
     item->setDisabled( true );
     return item;
 }
@@ -229,6 +220,7 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item = m_tiModules->addModuleItem( module );
+    m_treeWidget->setCurrentItem( item );
     item->setDisabled( true );
     return item;
 }
@@ -294,7 +286,7 @@ void WQtDatasetBrowser::selectTreeItem()
     m_tabWidget->clear();
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
-    boost::shared_ptr< WModule >module;
+    boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties2 > props;
 
     if ( m_treeWidget->selectedItems().size() != 0  )
@@ -404,12 +396,12 @@ void WQtDatasetBrowser::changeTreeItem()
 {
     if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == DATASET )
     {
-        boost::shared_ptr< WModule >module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
+        boost::shared_ptr< WModule > module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
         module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
     else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == MODULE )
     {
-        boost::shared_ptr< WModule >module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
+        boost::shared_ptr< WModule > module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
 
         module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }

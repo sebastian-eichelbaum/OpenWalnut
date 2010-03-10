@@ -120,8 +120,10 @@ protected:
 private:
     /**
      * Draw fibers as ordinary lines.
+     *
+     * \param renderInfo
      */
-    void drawFibers() const;
+    void drawFibers( osg::RenderInfo& renderInfo ) const; //NOLINT
 
     /**
      * Draw fibers as fake tubes.

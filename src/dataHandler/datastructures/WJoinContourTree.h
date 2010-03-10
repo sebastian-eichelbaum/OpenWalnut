@@ -26,10 +26,12 @@
 #define WJOINCONTOURTREE_H
 
 #include <set>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WTransferable.h"
 #include "../WDataSetSingle.h"
 
 /**
@@ -48,7 +50,7 @@
  * biggest ISO surface for a given ISO value. Then you don't need "simulation of simplicity" to make the
  * data points disjoint also you don't need simplicial meshes.
  */
-class WJoinContourTree
+class WJoinContourTree : public WTransferable
 {
 friend class WJoinContourTreeTest;
 public:
@@ -60,6 +62,8 @@ public:
      * \param dataset Reference to the dataset.
      */
     explicit WJoinContourTree( boost::shared_ptr< WDataSetSingle > dataset );
+
+    WJoinContourTree();
 
     /**
      * Build the join tree.
@@ -75,11 +79,34 @@ public:
      */
     boost::shared_ptr< std::set< size_t > > getVolumeVoxelsEnclosedByISOSurface( const double isoValue ) const;
 
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual const std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
     /**
      * Sort the indices on their element value of the value set in descending order.
      */
     void sortIndexArray();
+
+    static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 
 private:
     boost::shared_ptr< WGridRegular3D > m_grid; //!< Stores the reference to the grid of the given dataset to get the neighbours of a voxel
@@ -117,5 +144,15 @@ private:
         boost::shared_ptr< WValueSet < double > > m_valueSet; //!< Reference to the ISO values
     };
 };
+
+inline const std::string WJoinContourTree::getName() const
+{
+    return "JoinContourTree";
+}
+
+inline const std::string WJoinContourTree::getDescription() const
+{
+    return "Computes the Join-Tree out of a given dataset.";
+}
 
 #endif  // WJOINCONTOURTREE_H

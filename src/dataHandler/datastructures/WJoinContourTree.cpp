@@ -27,13 +27,20 @@
 #include <vector>
 
 #include "../../common/WStringUtils.h"
+#include "../../common/WTransferable.h"
 #include "../../common/datastructures/WUnionFind.h"
 #include "../../common/exceptions/WNotImplemented.h"
 #include "../WValueSet.h"
 #include "WJoinContourTree.h"
 
+WJoinContourTree::WJoinContourTree()
+    : WTransferable()
+{
+}
+
 WJoinContourTree::WJoinContourTree( boost::shared_ptr< WDataSetSingle > dataset )
-    : m_elementIndices( dataset->getValueSet()->size() ),
+    : WTransferable(),
+      m_elementIndices( dataset->getValueSet()->size() ),
       m_joinTree( dataset->getValueSet()->size() ),
       m_lowestVoxel( dataset->getValueSet()->size() )
 {
@@ -120,4 +127,17 @@ WJoinContourTree::IndirectCompare::IndirectCompare( boost::shared_ptr< WValueSet
 bool WJoinContourTree::IndirectCompare::operator()( size_t i, size_t j )
 {
     return ( m_valueSet->getScalar( i ) > m_valueSet->getScalar( j ) );
+}
+
+// make the class beeing a WTransferrable:
+// ---------------------------------------
+boost::shared_ptr< WPrototyped > WJoinContourTree::m_prototype = boost::shared_ptr< WPrototyped >();
+
+boost::shared_ptr< WPrototyped > WJoinContourTree::getPrototype()
+{
+    if( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WJoinContourTree() );
+    }
+    return m_prototype;
 }
