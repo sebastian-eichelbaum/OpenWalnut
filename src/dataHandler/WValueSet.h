@@ -82,7 +82,7 @@ public:
     }
 
     /**
-     * \return The number of integrals stored in this set.
+     * \return The number of integral types stored in this set.
      */
     virtual size_t rawSize() const
     {
@@ -91,7 +91,7 @@ public:
 
     /**
      * \param i id of the scalar to retrieve
-     * \return The i-th value if the value set is of scalar type.
+     * \return The i-th scalar stored in this value set. There are rawSize() such scalars.
      */
     virtual T getScalar( size_t i ) const
     {
