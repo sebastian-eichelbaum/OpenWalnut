@@ -46,7 +46,7 @@
 
 WMSurfaceParticles::WMSurfaceParticles():
     WModule(),
-    m_rootNode( new osg::Node() )
+    m_rootNode( new WGEGroupNode() )
 {
     // Initialize members
 }
@@ -291,6 +291,10 @@ void WMSurfaceParticles::moduleMain()
     // Signal ready state.
     ready();
 
+    // add this module's group node
+    m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
     // Now wait for data
     while ( !m_shutdownFlag() )
     {
@@ -341,7 +345,6 @@ void WMSurfaceParticles::moduleMain()
             osg::ref_ptr< WOffscreen > offscreen1 = new WOffscreen( sceneCamera, 0 );
             osg::ref_ptr< WOffscreen > offscreen2 = new WOffscreen( sceneCamera, 1 );
 
-
             // **********************************************************************************************
             // create several textures and attach them
             // **********************************************************************************************
@@ -359,15 +362,11 @@ void WMSurfaceParticles::moduleMain()
             // **********************************************************************************************
 
             // update node
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-            m_rootNode = offscreen1;
-            m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             debugLog() << "Adding new rendering.";
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen2 );
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( cube );
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( createTextureHud( surfaceHudTex ) );
-
+            m_rootNode->insert( offscreen1 );
+            m_rootNode->insert( offscreen2 );
+            m_rootNode->insert( cube );
+            m_rootNode->insert( createTextureHud( surfaceTex ) );
         }
     }
 

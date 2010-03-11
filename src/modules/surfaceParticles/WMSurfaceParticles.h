@@ -26,6 +26,7 @@
 #define WMSURFACEPARTICLES_H
 
 #include <string>
+#include <utility>
 
 #include <osg/Node>
 #include <osg/Uniform>
@@ -172,7 +173,7 @@ private:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-    osg::ref_ptr< osg::Node > m_rootNode;
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
      * the DVR shader.

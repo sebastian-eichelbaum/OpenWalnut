@@ -55,6 +55,8 @@ public:
      *
      * \param buffer the buffer to attach the texture to
      * \param texture the texture to attach
+     *
+     * \note if the node is added to the graph, these functions should only be called from within an update callback.
      */
     void attach( BufferComponent buffer, osg::ref_ptr< osg::Texture2D > texture );
 
@@ -62,6 +64,8 @@ public:
      * This method attaches a texture to the given buffer. The texture gets created with the resolution of the FBO.
      *
      * \param buffer the buffer to attach the new texture to
+     *
+     * \note if the node is added to the graph, these functions should only be called from within an update callback.
      *
      * \return the newly created texture.
      */
@@ -71,6 +75,8 @@ public:
      * Detaches the texture currently bound to the specified buffer.
      *
      * \param buffer the buffer to detach.
+     *
+     * \note if the node is added to the graph, these functions should only be called from within an update callback.
      */
     void detach( BufferComponent buffer );
 
