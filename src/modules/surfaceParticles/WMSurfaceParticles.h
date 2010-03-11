@@ -29,6 +29,7 @@
 
 #include <osg/Node>
 #include <osg/Uniform>
+#include <osgDB/WriteFile>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -158,6 +159,15 @@ private:
     /////////////////////////////////////////////////////////////////////
     // OSG Stuff
     /////////////////////////////////////////////////////////////////////
+
+    /**
+     * Renders the surface to an FBO.
+     *
+     * \param bbox the bounding box that should be used
+     *
+     * \return the node which contains the cube with the surface rendering
+     */
+    osg::ref_ptr< osg::Node > renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox );
 
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.

@@ -30,6 +30,9 @@
 #include <osg/Geode>
 #include <osg/Material>
 #include <osg/StateAttribute>
+#include <osg/FrameBufferObject>
+#include <osg/MatrixTransform>
+#include <osg/Projection>
 
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataTexture3D.h"
@@ -122,6 +125,181 @@ void WMSurfaceParticles::properties()
     m_particleSize->setMax( 100 );
 }
 
+osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
+{
+    // use the OSG Shapes, create unit cube
+    osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bbox.first, bbox.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
+    cube->asTransform()->getChild( 0 )->setName( "DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
+    m_shader->apply( cube );
+
+    // bind the texture to the node
+    osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
+    osg::ref_ptr< osg::Texture3D > directionTexture3D = m_directionDataSet->getTexture()->getTexture();
+    osg::StateSet* rootState = cube->getOrCreateStateSet();
+    rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+    rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
+
+    // enable transparency
+    rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    // setup all those uniforms
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // for the texture, also bind the appropriate uniforms
+    rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
+    rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
+
+    // we need to specify the texture scaling parameters to the shader
+    rootState->addUniform( new osg::Uniform( "u_tex1Scale", m_directionDataSet->getTexture()->getMinMaxScale() ) );
+    rootState->addUniform( new osg::Uniform( "u_tex1Min", m_directionDataSet->getTexture()->getMinValue() ) );
+    rootState->addUniform( new osg::Uniform( "u_tex1Max", m_directionDataSet->getTexture()->getMaxValue() ) );
+
+    osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
+    isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
+    steps->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
+    alpha->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    osg::ref_ptr< osg::Uniform > gridResolution = new osg::Uniform( "u_gridResolution", static_cast< float >( m_gridResolution->get() ) );
+    gridResolution->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    osg::ref_ptr< osg::Uniform > particleSize = new osg::Uniform( "u_particleSize", static_cast< float >( m_particleSize->get() ) );
+    particleSize->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    rootState->addUniform( isovalue );
+    rootState->addUniform( steps );
+    rootState->addUniform( alpha );
+    rootState->addUniform( gridResolution );
+    rootState->addUniform( particleSize );
+
+    return cube;
+}
+
+/**
+ * Creates a 2D texture appropriate for offscreen rendering.
+ *
+ * \param width the width
+ * \param height the height
+ * \param internalFormat the internal format
+ *
+ * \return
+ */
+osg::Texture2D* create2DTex( size_t width, size_t height, GLint internalFormat = GL_RGBA )
+{
+    osg::Texture2D* tex = new osg::Texture2D;
+    tex->setTextureSize( width, height );
+    tex->setInternalFormat( internalFormat );
+    tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+    tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+    tex->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE );
+    tex->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE );
+
+    return tex;
+}
+
+/**
+ * Create a simple texture display. This is useful for debugging FBO rendered textures.
+ *
+ * \param tex the texture to show
+ *
+ * \return the node
+ */
+osg::ref_ptr< osg::Node > createTextureHud( osg::Texture2D* tex )
+{
+    osg::ref_ptr< osg::Projection >  m_rootNode = osg::ref_ptr< osg::Projection >( new osg::Projection );
+    m_rootNode->setName( "HUDNode" );
+
+    // Initialize the projection matrix for viewing everything we
+    // will add as descendants of this node. Use screen coordinates
+    // to define the horizontal and vertical extent of the projection
+    // matrix. Positions described under this node will equate to
+    // pixel coordinates.
+    m_rootNode->setMatrix( osg::Matrix::ortho2D( 0, 1024, 0, 768 ) );
+
+    // For the HUD model view matrix use an identity matrix
+    osg::ref_ptr< osg::MatrixTransform > HUDModelViewMatrix = new osg::MatrixTransform;
+    HUDModelViewMatrix->setMatrix( osg::Matrix::identity() );
+
+    // Make sure the model view matrix is not affected by any transforms
+    // above it in the scene graph
+    HUDModelViewMatrix->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+
+    // Add the HUD projection matrix as a child of the root node
+    // and the HUD model view matrix as a child of the projection matrix
+    // Anything under this node will be viewed using this projection matrix
+    // and positioned with this model view matrix.
+    m_rootNode->addChild( HUDModelViewMatrix );
+    // Add the Geometry node to contain HUD geometry as a child of the
+    // HUD model view matrix.
+
+    osg::ref_ptr< WGEGroupNode >  m_HUDs = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+
+    // A geometry node for our HUD
+    osg::ref_ptr<osg::Geode> HUDGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+
+    HUDModelViewMatrix->addChild( m_HUDs );
+    m_HUDs->insert( HUDGeode );
+
+    // Set up geometry for the HUD and add it to the HUD
+    osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();
+
+    osg::ref_ptr< osg::Vec3Array > HUDBackgroundVertices = new osg::Vec3Array;
+    HUDBackgroundVertices->push_back( osg::Vec3( 0, 0, -1 ) );
+    HUDBackgroundVertices->push_back( osg::Vec3( 320, 0, -1 ) );
+    HUDBackgroundVertices->push_back( osg::Vec3( 320, 320, -1 ) );
+    HUDBackgroundVertices->push_back( osg::Vec3( 0, 320, -1 ) );
+
+    osg::ref_ptr< osg::Vec3Array > HUDBackgroundTex = new osg::Vec3Array;
+    HUDBackgroundTex->push_back( osg::Vec3( 0, 0, 0 ) );
+    HUDBackgroundTex->push_back( osg::Vec3( 1, 0, 0 ) );
+    HUDBackgroundTex->push_back( osg::Vec3( 1, 1, 0 ) );
+    HUDBackgroundTex->push_back( osg::Vec3( 0, 1, 0 ) );
+
+    osg::ref_ptr< osg::DrawElementsUInt > HUDBackgroundIndices = new osg::DrawElementsUInt( osg::PrimitiveSet::POLYGON, 0 );
+    HUDBackgroundIndices->push_back( 0 );
+    HUDBackgroundIndices->push_back( 1 );
+    HUDBackgroundIndices->push_back( 2 );
+    HUDBackgroundIndices->push_back( 3 );
+
+    osg::ref_ptr< osg::Vec4Array > HUDcolors = new osg::Vec4Array;
+    HUDcolors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
+    osg::ref_ptr< osg::Vec3Array > HUDnormals = new osg::Vec3Array;
+    HUDnormals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
+    HUDBackgroundGeometry->setNormalArray( HUDnormals );
+    HUDBackgroundGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+    HUDBackgroundGeometry->addPrimitiveSet( HUDBackgroundIndices );
+    HUDBackgroundGeometry->setVertexArray( HUDBackgroundVertices );
+    HUDBackgroundGeometry->setColorArray( HUDcolors );
+    HUDBackgroundGeometry->setTexCoordArray( 0, HUDBackgroundTex );
+    HUDBackgroundGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    HUDGeode->addDrawable( HUDBackgroundGeometry );
+
+    // Create and set up a state set using the texture from above
+    osg::ref_ptr< osg::StateSet > HUDStateSet = new osg::StateSet();
+    HUDStateSet->setTextureAttributeAndModes( 0, tex, osg::StateAttribute::ON );
+    HUDGeode->setStateSet( HUDStateSet );
+
+    // For this state set, turn blending on (so alpha texture looks right)
+    //HUDStateSet->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+    // Disable depth testing so geometry is draw regardless of depth values
+    // of geometry already draw.
+    HUDStateSet->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+    HUDStateSet->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+    // Need to make sure this geometry is draw last. RenderBins are handled
+    // in numerical order so set bin number to 11
+    HUDStateSet->setRenderBinDetails( 11, "RenderBin" );
+
+    return m_rootNode;
+}
+
 void WMSurfaceParticles::moduleMain()
 {
     m_shader = osg::ref_ptr< WShader > ( new WShader( "GPUSurfaceParticles" ) );
@@ -172,61 +350,77 @@ void WMSurfaceParticles::moduleMain()
             // get the BBox
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 
-            // use the OSG Shapes, create unit cube
-            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
-            cube->asTransform()->getChild( 0 )->setName( "DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
-            m_shader->apply( cube );
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            // Render the surface to a texture
+            //////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
-            osg::ref_ptr< osg::Texture3D > directionTexture3D = m_directionDataSet->getTexture()->getTexture();
-            osg::StateSet* rootState = cube->getOrCreateStateSet();
-            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-            rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
+            osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
+            size_t width = sceneCamera->getViewport()->width();
+            size_t height = sceneCamera->getViewport()->height();
 
-            // enable transparency
-            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+            // **********************************************************************************************
+            // create several textures
+            // **********************************************************************************************
 
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup all those uniforms
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // The surface
+            osg::Texture2D* surfaceTex = create2DTex( width, height );
+            // The Depth Buffer
+            osg::Texture2D* depthTex = create2DTex( width, height, GL_LUMINANCE );
 
-            // for the texture, also bind the appropriate uniforms
-            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
-            rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
+            // create the first render pass node
+            osg::ref_ptr< osg::Node > cube = renderSurface( bb );
 
-            // we need to specify the texture scaling parameters to the shader
-            rootState->addUniform( new osg::Uniform( "u_tex1Scale", m_directionDataSet->getTexture()->getMinMaxScale() ) );
-            rootState->addUniform( new osg::Uniform( "u_tex1Min", m_directionDataSet->getTexture()->getMinValue() ) );
-            rootState->addUniform( new osg::Uniform( "u_tex1Max", m_directionDataSet->getTexture()->getMaxValue() ) );
+            // **********************************************************************************************
+            // Camera
+            // **********************************************************************************************
 
-            osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
-            isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
+            //osg::ref_ptr< osg::Node > cube = renderSurface( bb );
 
-            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
-            steps->setUpdateCallback( new SafeUniformCallback( this ) );
+            // setup the camera to use inside the FBO
+            //osg::ref_ptr<osg::Camera> camera = new osg::Camera( *sceneCamera );
+            osg::Camera* camera = new osg::Camera;
 
-            osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
-            alpha->setUpdateCallback( new SafeUniformCallback( this ) );
+            // set up the background color and clear mask.
+            camera->setClearColor( sceneCamera->getClearColor() );
+            camera->setClearMask( sceneCamera->getClearMask() );
 
-            osg::ref_ptr< osg::Uniform > gridResolution = new osg::Uniform( "u_gridResolution", static_cast< float >( m_gridResolution->get() ) );
-            gridResolution->setUpdateCallback( new SafeUniformCallback( this ) );
+            // set view
+            camera->setReferenceFrame( osg::Transform::RELATIVE_RF );
 
-            osg::ref_ptr< osg::Uniform > particleSize = new osg::Uniform( "u_particleSize", static_cast< float >( m_particleSize->get() ) );
-            particleSize->setUpdateCallback( new SafeUniformCallback( this ) );
+            // set viewport
+            camera->setViewport( sceneCamera->getViewport() );
 
-            rootState->addUniform( isovalue );
-            rootState->addUniform( steps );
-            rootState->addUniform( alpha );
-            rootState->addUniform( gridResolution );
-            rootState->addUniform( particleSize );
+            // create an FBO
+            osg::ref_ptr<osg::FrameBufferObject> fbo = new osg::FrameBufferObject();
+            fbo->setAttachment( osg::Camera::COLOR_BUFFER, osg::FrameBufferAttachment( surfaceTex ) );
+            //fbo->setAttachment( osg::Camera::DEPTH_BUFFER,  osg::FrameBufferAttachment( depthTex ) );
+
+            // tell the camera to use OpenGL frame buffer object where supported.
+            camera->setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
+
+            // attach the texture and use it as the color buffer.
+            camera->attach( osg::Camera::COLOR_BUFFER, surfaceTex );
+            //camera->attach( osg::Camera::DEPTH_BUFFER,  depthTex );
+
+            // set the camera to render before the main camera.
+            camera->setRenderOrder( osg::Camera::PRE_RENDER );
+
+            // attach the subgraph
+            camera->addChild( cube );
+
+            // **********************************************************************************************
+            // Update scene
+            // **********************************************************************************************
 
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-            m_rootNode = cube;
+            m_rootNode = camera;
             m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             debugLog() << "Adding new rendering.";
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+            //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( cube );
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( createTextureHud( surfaceTex ) );
+
         }
     }
 
