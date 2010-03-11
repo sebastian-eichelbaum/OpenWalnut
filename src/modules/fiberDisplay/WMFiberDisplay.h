@@ -116,6 +116,7 @@ protected:
 private:
     WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
+    WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
 
     WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
 
@@ -150,6 +151,8 @@ private:
      */
     osg::ref_ptr< WShader >m_shader;
 
+    osg::ref_ptr<osg::Uniform> m_uniformTubeThickness; //!< tube thickness
+
     /**
      * switches between fiber display and tube representation
      */
@@ -159,6 +162,11 @@ private:
      * Enable disable global or local coloring
      */
     void toggleColoring();
+
+    /**
+     * changes tube parameters
+     */
+    void adjustTubes();
 
     /**
      * Node callback to handle updates properly

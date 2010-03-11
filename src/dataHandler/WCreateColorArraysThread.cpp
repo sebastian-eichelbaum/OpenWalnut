@@ -58,11 +58,10 @@ void WCreateColorArraysThread::threadMain()
         pc += (*m_lineLengths)[i]*3;
     }
 
-
     float r, g, b, rr, gg, bb;
     float x1, x2, y1, y2, z1, z2;
     float lastx, lasty, lastz;
-    for ( size_t i = m_left; i < m_right; ++i )
+    for ( int i = m_left; i < m_right; ++i )
     {
         x1 = (*m_vertices)[pc];
         y1 = (*m_vertices)[pc + 1];

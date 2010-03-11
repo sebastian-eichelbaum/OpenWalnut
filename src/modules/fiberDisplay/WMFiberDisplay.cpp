@@ -198,6 +198,10 @@ void WMFiberDisplay::properties()
 {
     m_useTubesProp = m_properties2->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
     m_coloring = m_properties2->addProperty( "Global/Local coloring", "Switches the coloring between global and local.", true );
+    m_tubeThickness = m_properties2->addProperty( "Tube thickness", "Adjusts the thickness of tubes", 50.,
+            boost::bind( &WMFiberDisplay::adjustTubes, this ) );
+    m_tubeThickness->setMin( 0 );
+    m_tubeThickness->setMax( 1000 );
 }
 
 void WMFiberDisplay::toggleTubes()
@@ -212,6 +216,9 @@ void WMFiberDisplay::toggleTubes()
             osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) );
             osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
             rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) ) );
+
+            m_uniformTubeThickness = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "u_thickness", static_cast<float>( m_tubeThickness->get() ) ) );
+            rootState->addUniform( m_uniformTubeThickness );
         }
         else
         {
@@ -228,5 +235,13 @@ void WMFiberDisplay::toggleColoring()
     {
         m_tubeDrawable->setColoringMode( m_coloring->get( true ) );
         m_tubeDrawable->dirtyDisplayList();
+    }
+}
+
+void WMFiberDisplay::adjustTubes()
+{
+    if ( m_tubeThickness->changed() )
+    {
+        m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
     }
 }

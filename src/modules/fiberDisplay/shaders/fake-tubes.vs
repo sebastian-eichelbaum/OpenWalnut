@@ -2,6 +2,7 @@ varying float tangent_dot_view;
 varying vec3 tangentR3;
 varying float s_param;
 varying vec4 myColor;
+uniform float u_thickness;
 
 void main()
 {
@@ -9,7 +10,7 @@ void main()
 
 	vec3 tangent;
 
-	float thickness = 0.01;
+	float thickness = 0.01 * u_thickness/ 100.;
 
 	tangentR3 = gl_Normal;
 	tangent = (gl_ModelViewProjectionMatrix * vec4(gl_Normal,0.)).xyz; //< transform our tangent vector
