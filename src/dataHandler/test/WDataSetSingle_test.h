@@ -99,7 +99,7 @@ public:
         {
             data[i] = i;
         }
-        boost::shared_ptr< WValueSet< double > > valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
+        boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
         WDataSetSingle ds( valueSet, grid );
 
         TS_ASSERT_EQUALS( ds.interpolate( wmath::WPosition() ), data[0] );
