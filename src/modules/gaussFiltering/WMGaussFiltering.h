@@ -127,9 +127,10 @@ private:
      * \param x index for x direction
      * \param y index for x direction
      * \param z index for x direction
+     * \param offset the offset to add to the index (useful for addressing vector/tensor elements)
      */
     template< typename T > double filterAtPosition(  boost::shared_ptr< WValueSet< T > > vals,
-                                                     size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z );
+                                                     size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z, size_t offset );
 
     /**
      * Run the filter over the field.

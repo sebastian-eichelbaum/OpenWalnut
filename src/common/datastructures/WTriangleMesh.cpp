@@ -26,6 +26,17 @@
 
 #include "WTriangleMesh.h"
 
+// init _static_ member variable and provide a linker reference to it
+boost::shared_ptr< WPrototyped > WTriangleMesh::m_prototype = boost::shared_ptr< WPrototyped >();
+
+boost::shared_ptr< WPrototyped > WTriangleMesh::getPrototype()
+{
+    if ( !m_prototype )
+    {
+         m_prototype = boost::shared_ptr< WPrototyped >( new WTriangleMesh() );
+    }
+    return m_prototype;
+}
 
 WTriangleMesh::WTriangleMesh()
     : m_fastAddVertId( 0 ),

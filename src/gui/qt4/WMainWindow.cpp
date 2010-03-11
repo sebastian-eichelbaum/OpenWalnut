@@ -183,9 +183,9 @@ void WMainWindow::setupPermanentToolBar()
     roiButton->setToolTip( "Create New ROI" );
     projectButton->setToolTip( "Load a project from file" );
 
+    m_permanentToolBar->addWidget( loadButton );
     m_permanentToolBar->addWidget( projectButton );
     m_permanentToolBar->addSeparator();
-    m_permanentToolBar->addWidget( loadButton );
     m_permanentToolBar->addWidget( roiButton );
 
     m_permanentToolBar->addSeparator();

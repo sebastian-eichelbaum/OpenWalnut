@@ -288,6 +288,44 @@ wmath::WValue< int > WGridRegular3D::getVoxelCoord( const wmath::WPosition& pos 
     return result;
 }
 
+size_t WGridRegular3D::getCellId( const wmath::WPosition& pos ) const
+{
+    // TODO(wiebel): change this to eassert.
+    if( m_matrix != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
+    {
+        throw WException( "Only feasible for untranslated grid so far." );
+    }
+
+    wmath::WPosition posRelativeToOrigin = pos - m_origin;
+
+    size_t xCellId = floor( posRelativeToOrigin[0] / m_offsetX );
+    size_t yCellId = floor( posRelativeToOrigin[1] / m_offsetY );
+    size_t zCellId = floor( posRelativeToOrigin[2] / m_offsetZ );
+
+    return xCellId + yCellId * ( m_nbPosX - 1 ) + zCellId * ( m_nbPosX - 1 ) * ( m_nbPosY - 1 );
+}
+
+std::vector< size_t > WGridRegular3D::getCellVertexIds( size_t cellId ) const
+{
+    std::vector< size_t > vertices( 8 );
+    size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
+    size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
+    size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );
+    size_t minVertexIdX = minVertexIdY % ( m_nbPosX - 1 );
+
+    size_t minVertexId = minVertexIdX + minVertexIdY * m_nbPosX + minVertexIdZ * m_nbPosX * m_nbPosY;
+
+    vertices[0] = minVertexId;
+    vertices[1] = minVertexId + 1;
+    vertices[2] = minVertexId + m_nbPosX;
+    vertices[3] = minVertexId + m_nbPosX +1;
+    vertices[4] = minVertexId + m_nbPosX * m_nbPosY;
+    vertices[5] = minVertexId + m_nbPosX * m_nbPosY + 1;
+    vertices[6] = minVertexId + m_nbPosX * m_nbPosY + m_nbPosX;
+    vertices[7] = minVertexId + m_nbPosX * m_nbPosY + m_nbPosX +1;
+    return vertices;
+}
+
 boost::shared_ptr< std::vector< wmath::WPosition > > WGridRegular3D::getVoxelVertices( const wmath::WPosition& point, const double margin ) const
 {
     typedef boost::shared_ptr< std::vector< wmath::WPosition > > ReturnType;

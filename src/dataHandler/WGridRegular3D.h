@@ -313,6 +313,33 @@ public:
     wmath::WValue< int > getVoxelCoord( const wmath::WPosition& pos ) const;
 
     /**
+     * Computes the id of the cell containing the position pos.
+     *
+     * \param pos The position selecting the cell.
+     */
+    size_t getCellId( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the ids of the vertices of a cell given by its id.
+     *
+     * \param cellId The id of the cell we want to know ther vertices of.
+
+     * \verbatim
+        z-axis  y-axis
+        |      /
+        | 6___/_7
+        |/:    /|
+        4_:___5 |
+        | :...|.|
+        |.2   | 3
+        |_____|/ ____x-axis
+       0      1
+       \endverbatim
+     *
+     */
+    std::vector< size_t > getCellVertexIds( const size_t cellId ) const;
+
+    /**
      * Computes the vertices for a voxel cuboid around the given point:
      *
      * \verbatim

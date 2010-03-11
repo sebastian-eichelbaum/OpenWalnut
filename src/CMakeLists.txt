@@ -25,12 +25,22 @@ ENDIF()
 #--------------------------
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/common/platformDependent/visualStudio/" )
+
+  OPTION( OW_USE_ZLIB "Use zlib" ON )
+
+  IF( OW_USE_ZLIB )
+    FIND_PACKAGE( ZLIB )
+  ENDIF( OW_USE_ZLIB )
 ENDIF()
 
 
 # Package dependencies:
 #----------------------
 ### BOOST ###
+IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+  SET( Boost_USE_STATIC_LIBS ON )
+ENDIF()
+
 SET( Boost_USE_MULTITHREAD ON )
 
 # To see which boost libs we currently use, you may run the following command
@@ -64,19 +74,27 @@ ENDIF()
 
 ### OpenSceneGraph ###
 SET( MIN_OSG_VERSION 2.8.0 )
-FIND_PACKAGE( osg ${MIN_OSG_VERSION} REQUIRED )
-FIND_PACKAGE( osgUtil ${MIN_OSG_VERSION} REQUIRED )
-FIND_PACKAGE( osgDB ${MIN_OSG_VERSION} REQUIRED )
-FIND_PACKAGE( osgViewer ${MIN_OSG_VERSION} REQUIRED )
-FIND_PACKAGE( osgText ${MIN_OSG_VERSION} REQUIRED )
-FIND_PACKAGE( osgGA ${MIN_OSG_VERSION} REQUIRED )
-FIND_PACKAGE( osgSim ${MIN_OSG_VERSION} REQUIRED )
-FIND_PACKAGE( OpenThreads ${MIN_OSG_VERSION} REQUIRED )
-SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGTEXT_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OSGSIM_LIBRARY} ${OPENTHREADS_LIBRARY} )
-SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGTEXT_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OSGSIM_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
-# When new cmake version available >=2.6.4 we may use this the line below instead the stuff above
-# FIND_PACKAGE( OpenSceneGraph 2.8.0 REQUIRED osgDB osgUtil osgGA osgViewer osgSim OpenThreads )
-INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
+  FIND_PACKAGE( osg ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( osgUtil ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( osgDB ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( osgViewer ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( osgText ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( osgGA ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( osgSim ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( OpenThreads ${MIN_OSG_VERSION} REQUIRED )
+  SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGTEXT_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OSGSIM_LIBRARY} ${OPENTHREADS_LIBRARY} )
+  SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGTEXT_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OSGSIM_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
+  # When new cmake version available >=2.6.4 we may use this the line below instead the stuff above
+  # FIND_PACKAGE( OpenSceneGraph 2.8.0 REQUIRED osgDB osgUtil osgGA osgViewer osgSim OpenThreads )
+  INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+ELSE()
+  IF( NOT VERSION LESS 2.6.3 )
+    SET ( CMAKE_PREFIX_PATH "$ENV{ProgramFiles}/OpenSceneGraph" )
+  ENDIF()
+  FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgUtil osgDB osgViewer osgText osgGA osgSim )
+  INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+ENDIF()
 
 # other options:
 #---------------
@@ -140,11 +158,19 @@ add_custom_target( fontsDirectoryConfiguration
   )
 
 #---------- shell scripts -------------
-add_custom_target( binDirectoryConfiguration
-  ALL
-  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyShellScripts.cmake
-  COMMENT "Put all shell scripts to the right place."
+IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+  add_custom_target( binDirectoryConfiguration
+    ALL
+    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyShellScriptsWin.cmake
+    COMMENT "Put all shell scripts to the right place."
   )
+ELSE()
+  add_custom_target( binDirectoryConfiguration
+    ALL
+    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyShellScripts.cmake
+    COMMENT "Put all shell scripts to the right place."
+  )
+ENDIF()
 
 # Special targets:
 #-------------------------------------------------------------------------------------------------------------
