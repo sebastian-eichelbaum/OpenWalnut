@@ -30,7 +30,6 @@
 #include <osg/Geode>
 #include <osg/Material>
 #include <osg/StateAttribute>
-#include <osg/FrameBufferObject>
 #include <osg/MatrixTransform>
 #include <osg/Projection>
 
@@ -40,6 +39,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WOffscreen.h"
 
 #include "WMSurfaceParticles.h"
 #include "surfaceParticles.xpm"
@@ -177,28 +177,6 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     rootState->addUniform( particleSize );
 
     return cube;
-}
-
-/**
- * Creates a 2D texture appropriate for offscreen rendering.
- *
- * \param width the width
- * \param height the height
- * \param internalFormat the internal format
- *
- * \return
- */
-osg::Texture2D* create2DTex( size_t width, size_t height, GLint internalFormat = GL_RGBA )
-{
-    osg::Texture2D* tex = new osg::Texture2D;
-    tex->setTextureSize( width, height );
-    tex->setInternalFormat( internalFormat );
-    tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
-    tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
-    tex->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE );
-    tex->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE );
-
-    return tex;
 }
 
 /**
@@ -355,58 +333,22 @@ void WMSurfaceParticles::moduleMain()
             //////////////////////////////////////////////////////////////////////////////////////////////////
 
             osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
-            size_t width = sceneCamera->getViewport()->width();
-            size_t height = sceneCamera->getViewport()->height();
 
-            // **********************************************************************************************
-            // create several textures
-            // **********************************************************************************************
-
-            // The surface
-            osg::Texture2D* surfaceTex = create2DTex( width, height );
-            // The Depth Buffer
-            osg::Texture2D* depthTex = create2DTex( width, height, GL_LUMINANCE );
+            // setup the camera to use inside the FBO
+            osg::ref_ptr< WOffscreen > offscreen = new WOffscreen( true, sceneCamera );
 
             // create the first render pass node
             osg::ref_ptr< osg::Node > cube = renderSurface( bb );
 
             // **********************************************************************************************
-            // Camera
+            // create several textures and attach them
             // **********************************************************************************************
 
-            //osg::ref_ptr< osg::Node > cube = renderSurface( bb );
-
-            // setup the camera to use inside the FBO
-            //osg::ref_ptr<osg::Camera> camera = new osg::Camera( *sceneCamera );
-            osg::Camera* camera = new osg::Camera;
-
-            // set up the background color and clear mask.
-            camera->setClearColor( sceneCamera->getClearColor() );
-            camera->setClearMask( sceneCamera->getClearMask() );
-
-            // set view
-            camera->setReferenceFrame( osg::Transform::RELATIVE_RF );
-
-            // set viewport
-            camera->setViewport( sceneCamera->getViewport() );
-
-            // create an FBO
-            osg::ref_ptr<osg::FrameBufferObject> fbo = new osg::FrameBufferObject();
-            fbo->setAttachment( osg::Camera::COLOR_BUFFER, osg::FrameBufferAttachment( surfaceTex ) );
-            //fbo->setAttachment( osg::Camera::DEPTH_BUFFER,  osg::FrameBufferAttachment( depthTex ) );
-
-            // tell the camera to use OpenGL frame buffer object where supported.
-            camera->setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
-
-            // attach the texture and use it as the color buffer.
-            camera->attach( osg::Camera::COLOR_BUFFER, surfaceTex );
-            //camera->attach( osg::Camera::DEPTH_BUFFER,  depthTex );
-
-            // set the camera to render before the main camera.
-            camera->setRenderOrder( osg::Camera::PRE_RENDER );
+            // The surface
+            osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen->attach( osg::Camera::COLOR_BUFFER );
 
             // attach the subgraph
-            camera->addChild( cube );
+            offscreen->addChild( cube );
 
             // **********************************************************************************************
             // Update scene
@@ -414,11 +356,11 @@ void WMSurfaceParticles::moduleMain()
 
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-            m_rootNode = camera;
+            m_rootNode = offscreen;
             m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             debugLog() << "Adding new rendering.";
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-            //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( cube );
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( cube );
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( createTextureHud( surfaceTex ) );
 
         }
