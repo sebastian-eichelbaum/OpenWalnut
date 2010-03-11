@@ -332,23 +332,27 @@ void WMSurfaceParticles::moduleMain()
             // Render the surface to a texture
             //////////////////////////////////////////////////////////////////////////////////////////////////
 
-            osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
-
-            // setup the camera to use inside the FBO
-            osg::ref_ptr< WOffscreen > offscreen = new WOffscreen( true, sceneCamera );
-
             // create the first render pass node
             osg::ref_ptr< osg::Node > cube = renderSurface( bb );
+
+            osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
+
+            // setup the FBO
+            osg::ref_ptr< WOffscreen > offscreen1 = new WOffscreen( sceneCamera, 0 );
+            osg::ref_ptr< WOffscreen > offscreen2 = new WOffscreen( sceneCamera, 1 );
+
 
             // **********************************************************************************************
             // create several textures and attach them
             // **********************************************************************************************
 
             // The surface
-            osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen->attach( osg::Camera::COLOR_BUFFER );
+            osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen1->attach( osg::Camera::COLOR_BUFFER0 );
+            osg::ref_ptr< osg::Texture2D > surfaceHudTex = offscreen2->attach( osg::Camera::COLOR_BUFFER0 );
 
             // attach the subgraph
-            offscreen->addChild( cube );
+            offscreen1->addChild( cube );
+            offscreen2->addChild( createTextureHud( surfaceTex ) );
 
             // **********************************************************************************************
             // Update scene
@@ -356,12 +360,13 @@ void WMSurfaceParticles::moduleMain()
 
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-            m_rootNode = offscreen;
+            m_rootNode = offscreen1;
             m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             debugLog() << "Adding new rendering.";
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen2 );
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( cube );
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( createTextureHud( surfaceTex ) );
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( createTextureHud( surfaceHudTex ) );
 
         }
     }

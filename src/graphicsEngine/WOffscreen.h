@@ -29,7 +29,9 @@
 #include <osg/FrameBufferObject>
 
 /**
- * TODO(ebaum): write.
+ * This class encapsulates an OSG Camera and a corresponding framebuffer object. It is especially useful for offscreen renderings. It is a camera
+ * which, by default, is the same as the camera in the this instance nesting graph. It allows simple attachment of textures to a offscreen
+ * rendering as well as easy texture creation.
  */
 class WOffscreen: public osg::Camera
 {
@@ -39,8 +41,9 @@ public:
      * Creates a new offscreen rendering instance. It uses the specified camera for setup.
      *
      * \param reference the reference camera.
+     * \param num the order number. This camera gets rendered at the num'th place in the pre render queue of the subgraph it is attached to.
      */
-    explicit WOffscreen( bool a, osg::ref_ptr< osg::Camera > reference );
+    WOffscreen( osg::ref_ptr< osg::Camera > reference, int num = 0 );
 
     /**
      * Destructor.

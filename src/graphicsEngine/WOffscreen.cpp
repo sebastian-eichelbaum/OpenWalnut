@@ -22,14 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-
 #include <osg/Texture>
 #include <osg/Texture2D>
 
 #include "WOffscreen.h"
 
-WOffscreen::WOffscreen( bool a, osg::ref_ptr< osg::Camera > reference ):
+WOffscreen::WOffscreen( osg::ref_ptr< osg::Camera > reference, int num ):
     osg::Camera(),
     m_referenceCamera( reference ),
     m_fbo( new osg::FrameBufferObject() )
@@ -39,7 +37,7 @@ WOffscreen::WOffscreen( bool a, osg::ref_ptr< osg::Camera > reference ):
     setClearMask( reference->getClearMask() );
     setReferenceFrame( osg::Transform::RELATIVE_RF );
     setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
-    setRenderOrder( osg::Camera::PRE_RENDER );
+    setRenderOrder( osg::Camera::PRE_RENDER, num );
 }
 
 WOffscreen::~WOffscreen()
