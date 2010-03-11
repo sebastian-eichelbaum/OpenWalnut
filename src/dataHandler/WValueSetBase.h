@@ -83,7 +83,7 @@ public:
      */
     virtual size_t elementsPerValue() const
     {
-        return std::pow( m_dimension, m_order );
+        return static_cast< size_t >( std::pow( static_cast< double >( m_dimension ), static_cast< int >( m_order ) ) );
     }
 
     /**
