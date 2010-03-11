@@ -88,12 +88,17 @@ WPagerEEGLibeep::~WPagerEEGLibeep()
     }
 }
 
-boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t segment, std::size_t start, std::size_t length )
+std::size_t WPagerEEGLibeep::getNumberOfSegments() const
 {
-    if( segment != 0 )
+    return 1;
+}
+
+boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const
+{
+    if( segmentID != 0 )
     {
         std::ostringstream stream;
-        stream << m_fileName << " has no segment number " << segment;
+        stream << m_fileName << " has no segment number " << segmentID;
         throw WOutOfBounds( stream.str() );
     }
 
