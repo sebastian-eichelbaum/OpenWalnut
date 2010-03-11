@@ -25,13 +25,15 @@
 #ifndef WTRIANGLEMESH_TEST_H
 #define WTRIANGLEMESH_TEST_H
 
+#include <algorithm>
+#include <list>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WTriangleMesh.h"
 #include "../../math/WVector3D.h"
-
+#include "../WTriangleMesh.h"
+#include "WTriangleMeshTraits.h"
 
 /**
  * Testing the WTriangleMesh class.
@@ -284,6 +286,126 @@ public:
         TS_ASSERT_DELTA( mesh.m_vertNormals[0][0], expectedVertNormal[0], delta );
         TS_ASSERT_DELTA( mesh.m_vertNormals[0][1], expectedVertNormal[1], delta );
         TS_ASSERT_DELTA( mesh.m_vertNormals[0][2], expectedVertNormal[2], delta );
+    }
+
+    /**
+     * Two WTriangleMeshes are considered to be equal only if they have the same
+     * points in same order and the same indices of points for the triangles also
+     * in same order.
+     * From an objective point of view there might be different ordering resuling
+     * in the same structure, but this is to expensive to compute.
+     */
+    void testEqualityOperator( void )
+    {
+        WTriangleMesh mesh;
+        mesh.resizeVertices( 3 );
+        mesh.fastAddVert( wmath::WPosition( 1,  0, 0 ) );
+        mesh.fastAddVert( wmath::WPosition( 0,  1, 0 ) );
+        mesh.fastAddVert( wmath::WPosition( 1,  0, 0 ) );
+        mesh.resizeTriangles( 1 );
+        mesh.fastAddTriangle(  0,  1,  2 );
+
+        WTriangleMesh expected( mesh );
+
+        TS_ASSERT_EQUALS( expected, mesh );
+        std::swap( mesh.m_triangles[0].pointID[0], mesh.m_triangles[0].pointID[1] );
+        TS_ASSERT_DIFFERS( expected, mesh );
+    }
+
+    /**
+     * Decompose the following scene into seven components A, B, C, D, E, F, G.
+     \verbatim
+
+     12      o-----o          o----o
+            / \   / \         |\  /|
+           /   \ /   \        | \/ |
+     11   o-----o-----o       | /\ |
+           \   / \   /        |/  \|
+     10     \ /   \ /         o----o B
+      9      o-----o  A
+
+      8            o
+      7      o     |\
+            / \    | \
+           /   \   |  \
+      6   o-----o--+--o\
+      5          \ o-+--o C
+                  \ /
+      4            o D
+
+      3   o E (degenerated)
+
+      2   o-----o F (degenerated)
+
+      1   o-----o G
+           \   /
+            \ /
+      0      o
+
+          0  1  2  3  4 5     6    7
+
+     \endverbatim
+     */
+    void testComponentDecomposition( void )
+    {
+        WTriangleMesh mesh;
+        mesh.resizeVertices( 25 );
+
+        mesh.fastAddVert( wmath::WPosition( 1,  0, 0 ) ); // 0
+        mesh.fastAddVert( wmath::WPosition( 0,  1, 0 ) ); // 1
+        mesh.fastAddVert( wmath::WPosition( 2,  1, 0 ) ); // 2
+        mesh.fastAddVert( wmath::WPosition( 0,  2, 0 ) ); // 3
+        mesh.fastAddVert( wmath::WPosition( 2,  2, 0 ) ); // 4
+        mesh.fastAddVert( wmath::WPosition( 0,  3, 0 ) ); // 5
+        mesh.fastAddVert( wmath::WPosition( 3,  4, 0 ) ); // 6
+        mesh.fastAddVert( wmath::WPosition( 3,  5, 0 ) ); // 7
+        mesh.fastAddVert( wmath::WPosition( 5,  5, 0 ) ); // 8
+        mesh.fastAddVert( wmath::WPosition( 0,  6, 0 ) ); // 9
+        mesh.fastAddVert( wmath::WPosition( 2,  6, 0 ) ); // 10
+        mesh.fastAddVert( wmath::WPosition( 4,  6, 0 ) ); // 11
+        mesh.fastAddVert( wmath::WPosition( 1,  7, 0 ) ); // 12
+        mesh.fastAddVert( wmath::WPosition( 3,  8, 0 ) ); // 13
+        mesh.fastAddVert( wmath::WPosition( 1,  9, 0 ) ); // 14
+        mesh.fastAddVert( wmath::WPosition( 3,  9, 0 ) ); // 15
+        mesh.fastAddVert( wmath::WPosition( 6, 10, 0 ) ); // 16
+        mesh.fastAddVert( wmath::WPosition( 7, 10, 0 ) ); // 17
+        mesh.fastAddVert( wmath::WPosition( 0, 11, 0 ) ); // 18
+        mesh.fastAddVert( wmath::WPosition( 2, 11, 0 ) ); // 19
+        mesh.fastAddVert( wmath::WPosition( 4, 11, 0 ) ); // 20
+        mesh.fastAddVert( wmath::WPosition( 1, 12, 0 ) ); // 21
+        mesh.fastAddVert( wmath::WPosition( 3, 12, 0 ) ); // 23
+        mesh.fastAddVert( wmath::WPosition( 6, 12, 0 ) ); // 23
+        mesh.fastAddVert( wmath::WPosition( 7, 12, 0 ) ); // 24
+
+        mesh.resizeTriangles( 16 );
+        mesh.fastAddTriangle(  0,  1,  2 ); // 0
+        mesh.fastAddTriangle(  3,  4,  4 ); // 1
+        mesh.fastAddTriangle(  5,  5,  5 ); // 2
+        mesh.fastAddTriangle(  9, 10, 12 ); // 3
+        mesh.fastAddTriangle( 10,  6, 11 ); // 4
+        mesh.fastAddTriangle(  7,  8, 13 ); // 5
+        mesh.fastAddTriangle( 18, 14, 19 ); // 6
+        mesh.fastAddTriangle( 14, 15, 19 ); // 7
+        mesh.fastAddTriangle( 15, 20, 19 ); // 8
+        mesh.fastAddTriangle( 20, 22, 19 ); // 9
+        mesh.fastAddTriangle( 22, 21, 19 ); // 10
+        mesh.fastAddTriangle( 21, 18, 19 ); // 11
+        mesh.fastAddTriangle( 16, 17, 23 ); // 12
+        mesh.fastAddTriangle( 16, 17, 24 ); // 13
+        mesh.fastAddTriangle( 16, 23, 24 ); // 14
+        mesh.fastAddTriangle( 17, 23, 24 ); // 15
+
+        boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > components = tm_utils::componentDecomposition( mesh );
+        TS_ASSERT_EQUALS( components->size(), 7 );
+
+        WTriangleMesh expected;
+        expected.resizeVertices( 3 );
+        expected.fastAddVert( wmath::WPosition( 1, 0, 0 ) );
+        expected.fastAddVert( wmath::WPosition( 0, 1, 0 ) );
+        expected.fastAddVert( wmath::WPosition( 2, 1, 0 ) );
+        expected.resizeTriangles( 1 );
+        expected.fastAddTriangle( 0, 1, 2 );
+        TS_ASSERT_EQUALS( *components->front(), expected );
     }
 };
 

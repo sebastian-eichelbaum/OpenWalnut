@@ -25,8 +25,13 @@
 #ifndef WTRIANGLEMESH_H
 #define WTRIANGLEMESH_H
 
+#include <algorithm>
+#include <iostream>
+#include <list>
 #include <string>
 #include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
@@ -40,7 +45,32 @@
 struct Triangle
 {
     size_t pointID[3]; //!< the ID of the vertices representing the triangle corners
+    bool operator==( const Triangle& rhs ) const;
 };
+
+inline bool Triangle::operator==( const Triangle& rhs ) const
+{
+    return pointID[0] == rhs.pointID[0] && pointID[1] == rhs.pointID[1] && pointID[2] == rhs.pointID[2];
+}
+
+class WTriangleMesh;
+
+/**
+ * TriangleMesh utils
+ */
+namespace tm_utils
+{
+    /**
+     * Decompose the given mesh into connected components.
+     *
+     * \param mesh The triangle mesh to decompose
+     *
+     * \return List of components where each of them is a WTriangleMesh again.
+     */
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
+
+    std::ostream& operator<<( std::ostream& os, const WTriangleMesh& rhs );
+}
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
@@ -135,6 +165,13 @@ public:
     const std::vector< wmath::WPosition >& getVertices() const;
 
     /**
+     * Get the vector of triangles (vertex IDs).
+     *
+     * \return const reference to the triangles
+     */
+    const std::vector< Triangle >& getTriangles() const;
+
+    /**
      * \return the state of the variable telling fastAddVert where to insert the vertex.
      */
     size_t getFastAddVertId() const;
@@ -222,6 +259,18 @@ public:
      */
     void computeVertNormals();
 
+    /**
+     * Checks if two meshes are exactly the same. Same number of triangles, and
+     * points, and indices as well as same ordering. Keep in mind different
+     * ordering might result in the same structure but is considered different
+     * here.
+     *
+     * \param rhs The other mesh to compare with
+     *
+     * \return True if and only if both: vertices and triangles are exactly the same.
+     */
+    bool operator==( const WTriangleMesh& rhs ) const;
+
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 
@@ -267,4 +316,12 @@ inline const std::string WTriangleMesh::getDescription() const
 {
     return "Triangle mesh data structure allowing for convenient access of the elements.";
 }
+
+inline bool WTriangleMesh::operator==( const WTriangleMesh& rhs ) const
+{
+    return std::equal( m_vertices.begin(), m_vertices.end(), rhs.m_vertices.begin() ) &&
+           std::equal( m_triangles.begin(), m_triangles.end(), rhs.m_triangles.begin() );
+}
+
+
 #endif  // WTRIANGLEMESH_H

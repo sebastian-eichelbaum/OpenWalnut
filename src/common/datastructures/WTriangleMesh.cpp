@@ -22,9 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+#include <list>
+#include <map>
+#include <sstream>
+#include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include "WTriangleMesh.h"
+#include "WUnionFind.h"
 
 // init _static_ member variable and provide a linker reference to it
 boost::shared_ptr< WPrototyped > WTriangleMesh::m_prototype = boost::shared_ptr< WPrototyped >();
@@ -86,6 +94,11 @@ void WTriangleMesh::setVertices( const std::vector< wmath::WPosition >& vertices
 const std::vector< wmath::WPosition >& WTriangleMesh::getVertices() const
 {
     return m_vertices;
+}
+
+const std::vector< Triangle >& WTriangleMesh::getTriangles() const
+{
+    return m_triangles;
 }
 
 size_t WTriangleMesh::getFastAddVertId() const
@@ -236,4 +249,68 @@ void WTriangleMesh::computeVertNormals()
     }
 
     m_computedVertNormals = true;
+}
+
+std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh& rhs )
+{
+    std::stringstream ss;
+    ss << "WTriangleMesh( #vertices=" << rhs.getNumVertices() << " #triangles=" << rhs.getNumTriangles() << " )" << std::endl;
+    using string_utils::operator<<;
+    size_t count = 0;
+    ss << std::endl;
+    const std::vector< Triangle > triangles = rhs.getTriangles();
+    const std::vector< wmath::WPosition > vertices = rhs.getVertices();
+    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle, ++count )
+    {
+        std::stringstream prefix;
+        prefix << "triangle: " << count << "[ ";
+        std::string indent( prefix.str().size(), ' ' );
+        ss << prefix.str() << vertices[ triangle->pointID[0] ] << std::endl;
+        ss << indent << vertices[ triangle->pointID[1] ] << std::endl;
+        ss << indent << vertices[ triangle->pointID[2] ] << std::endl;
+        ss << std::string( indent.size() - 2, ' ' ) << "]" << std::endl;
+    }
+    return os << ss.str();
+}
+
+boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::componentDecomposition( const WTriangleMesh& mesh )
+{
+    // idea: every vertex is in its own component then successivley join those components in accordance with the triangles
+    WUnionFind uf( mesh.getNumVertices() );
+
+    const std::vector< Triangle >& triangles = mesh.getTriangles();
+    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
+    {
+        uf.merge( triangle->pointID[0], triangle->pointID[1] );
+        uf.merge( triangle->pointID[0], triangle->pointID[2] );
+        // uf.merge( triangle->pointID[2], triangle->pointID[1] ); not neede here since they are all in same set already
+    }
+    // construct meshes
+    std::map< size_t, boost::shared_ptr< WTriangleMesh > > buckets;
+    const std::vector< wmath::WPosition >& vertices = mesh.getVertices();
+    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
+    {
+        size_t component = uf.find( triangle->pointID[0] );
+        if( buckets.find( component ) == buckets.end() )
+        {
+            buckets[ component ] = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh() );
+        }
+        // we discard the order of the points and indices, but semantically the structure remains the same
+
+        buckets[ component ]->resizeVertices( buckets[ component ]->getNumVertices() + 3 );
+        buckets[ component ]->resizeTriangles( buckets[ component ]->getNumTriangles() + 1 );
+        size_t id = buckets[ component ]->getFastAddVertId();
+        buckets[ component ]->fastAddVert( vertices[ triangle->pointID[0] ] );
+        buckets[ component ]->fastAddVert( vertices[ triangle->pointID[1] ] );
+        buckets[ component ]->fastAddVert( vertices[ triangle->pointID[2] ] );
+        buckets[ component ]->fastAddTriangle( id, id + 1, id + 2 );
+    }
+
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > result( new std::list< boost::shared_ptr< WTriangleMesh > >() );
+    for( std::map< size_t, boost::shared_ptr< WTriangleMesh > >::const_iterator value = buckets.begin(); value != buckets.end(); ++value )
+    {
+        result->push_back( value->second );
+    }
+
+    return result;
 }
