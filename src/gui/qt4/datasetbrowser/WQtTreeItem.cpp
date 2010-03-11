@@ -79,9 +79,17 @@ void WQtTreeItem::updateTooltip( std::string progress )
     // also list the connectors
     std::string conList = "";
     std::set< boost::shared_ptr< WModuleInputConnector > > cons = m_module->getInputConnectors();
+    std::set< boost::shared_ptr< WModuleOutputConnector > > consOut = m_module->getOutputConnectors();
     conList += "<table><tr><th>Name</th><th>Description</th><th>Connected</th></tr>";
     int conCount = 0;
     for ( std::set< boost::shared_ptr< WModuleInputConnector > >::const_iterator it = cons.begin(); it != cons.end(); ++it )
+    {
+        ++conCount;
+        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>&nbsp;" + ( *it )->getDescription() + "&nbsp;</td>";
+        conList += ( *it )->isConnected() ? "<td>&nbsp;yes&nbsp;</td>" : "<td>&nbsp;no&nbsp;</td>";
+        conList += "</tr>";
+    }
+    for ( std::set< boost::shared_ptr< WModuleOutputConnector > >::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
     {
         ++conCount;
         conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>&nbsp;" + ( *it )->getDescription() + "&nbsp;</td>";
