@@ -169,6 +169,11 @@ void WMMarchingCubes::connectors()
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
+    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh > >(
+            new WModuleOutputData< WTriangleMesh >( shared_from_this(), "out", "The mesh representing the isosurface." ) );
+
+    addConnector( m_output );
+
     // call WModules initialization
     WModule::connectors();
 }
@@ -570,10 +575,10 @@ unsigned int WMMarchingCubes::getVertexID( unsigned int nX, unsigned int nY, uns
 void WMMarchingCubes::renderSurface()
 {
     unsigned int nextID = 0;
-    WTriangleMesh triMesh;
-    triMesh.clearMesh();
-    triMesh.resizeVertices( m_idToVertices.size() );
-    triMesh.resizeTriangles( m_trivecTriangles.size() );
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh() );
+    triMesh->clearMesh();
+    triMesh->resizeVertices( m_idToVertices.size() );
+    triMesh->resizeTriangles( m_trivecTriangles.size() );
 
     // TODO(wiebel): MC what is this for?
     float xOff = 0.5f;
@@ -585,9 +590,9 @@ void WMMarchingCubes::renderSurface()
     while ( mapIterator != m_idToVertices.end() )
     {
         ( *mapIterator ).second.newID = nextID;
-        triMesh.fastAddVert( wmath::WPosition( ( *mapIterator ).second.x + xOff,
-                                               ( *mapIterator ).second.y + yOff,
-                                               ( *mapIterator ).second.z + zOff ) );
+        triMesh->fastAddVert( wmath::WPosition( ( *mapIterator ).second.x + xOff,
+                                                ( *mapIterator ).second.y + yOff,
+                                                ( *mapIterator ).second.z + zOff ) );
         nextID++;
         mapIterator++;
     }
@@ -601,12 +606,14 @@ void WMMarchingCubes::renderSurface()
             unsigned int newID = m_idToVertices[( *vecIterator ).pointID[i]].newID;
             ( *vecIterator ).pointID[i] = newID;
         }
-        triMesh.fastAddTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1],
+        triMesh->fastAddTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1],
                                  ( *vecIterator ).pointID[2] );
         vecIterator++;
     }
 
-    renderMesh( &triMesh );
+    renderMesh( triMesh );
+    m_triMesh = triMesh;
+    m_output->updateData( m_triMesh );
 
     // TODO(wiebel): MC make the filename set automatically
 //     bool saved = save( "/tmp/isosurfaceTestMesh.vtk", triMesh );
@@ -617,7 +624,7 @@ void WMMarchingCubes::renderSurface()
 }
 
 
-void WMMarchingCubes::renderMesh( WTriangleMesh* mesh )
+void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
 {
 //    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
     m_moduleNode->remove( m_surfaceGeode );

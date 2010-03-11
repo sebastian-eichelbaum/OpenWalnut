@@ -25,10 +25,13 @@
 #ifndef WTRIANGLEMESH_H
 #define WTRIANGLEMESH_H
 
+#include <string>
 #include <vector>
 
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
+#include "../WTransferable.h"
+
 
 
 /**
@@ -42,7 +45,7 @@ struct Triangle
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class WTriangleMesh
+class WTriangleMesh : public WTransferable
 {
 /**
  * Only UnitTests may be friends.
@@ -59,6 +62,27 @@ public:
      * Clears and destroys mesh.
      */
     ~WTriangleMesh();
+
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual const std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
 
     /**
      * \return Size of the vertex container.
@@ -199,6 +223,8 @@ public:
     void computeVertNormals();
 
 protected:
+    static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
+
 private:
     std::vector< wmath::WPosition > m_vertices;  //!< All vertices of the mesh.
     std::vector< Triangle > m_triangles;  //!< All triangles of the mesh, given as groups of vertex indices.
@@ -230,5 +256,15 @@ inline  wmath::WPosition WTriangleMesh::getVertex( size_t id ) const
 inline size_t WTriangleMesh::getTriangleVertexId( size_t triId, size_t vertId ) const
 {
     return m_triangles[triId].pointID[vertId];
+}
+
+inline const std::string WTriangleMesh::getName() const
+{
+    return "WTriangleMesh";
+}
+
+inline const std::string WTriangleMesh::getDescription() const
+{
+    return "Triangle mesh data structure allowing for convenient access of the elements.";
 }
 #endif  // WTRIANGLEMESH_H
