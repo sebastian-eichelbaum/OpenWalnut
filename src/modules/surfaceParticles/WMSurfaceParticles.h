@@ -95,11 +95,6 @@ protected:
     virtual void properties();
 
     /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr< osg::Node > m_rootNode;
-
-    /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
     virtual void activate();
@@ -126,20 +121,14 @@ private:
      */
     boost::shared_ptr< WDataSetSingle > m_directionDataSet;
 
-    /**
-     * If this property is true, as special shader is used which emulates isosurfaces using the m_isoValue property.
-     */
-    WPropBool m_isoSurface;
+    /////////////////////////////////////////////////////////////////////
+    // The Properties
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * The Isovalue used in the case m_isoSurface is true.
      */
     WPropInt m_isoValue;
-
-    /**
-     * The color used when in isosurface mode for blending.
-     */
-    WPropColor m_isoColor;
 
     /**
      * The number of steps to walk along the ray.
@@ -152,14 +141,28 @@ private:
     WPropInt m_alpha;
 
     /**
-     * If true, the shader will only color using the depth of the point on the surface.
+     * Determines the grid resolution in relation to the dataset grid.
      */
-    WPropBool m_useSimpleDepthColoring;
+    WPropDouble m_gridResolution;
+
+    /**
+     * The size of a particle in relation to the voxel
+     */
+    WPropDouble m_particleSize;
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /////////////////////////////////////////////////////////////////////
+    // OSG Stuff
+    /////////////////////////////////////////////////////////////////////
+
+    /**
+     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     */
+    osg::ref_ptr< osg::Node > m_rootNode;
 
     /**
      * the DVR shader.

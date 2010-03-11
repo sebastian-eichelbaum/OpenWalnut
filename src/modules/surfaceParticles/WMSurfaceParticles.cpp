@@ -104,13 +104,8 @@ void WMSurfaceParticles::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_isoSurface    = m_properties2->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the"
-                                                                      "transfer function.", true );
     m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
                                                                       50 );
-    m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
-                      m_propCondition );
-
     m_stepCount     = m_properties2->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
@@ -118,7 +113,13 @@ void WMSurfaceParticles::properties()
 
     m_alpha         = m_properties2->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
-    m_useSimpleDepthColoring = m_properties2->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
+    m_gridResolution = m_properties2->addProperty( "Grid Resolution",
+            "Determines the grid resolution for the particles in relation to the dataset grid.", 25.0
+    );
+
+    m_particleSize = m_properties2->addProperty( "Particle Size", "The size of a particle in relation to the voxel.", 1.0 );
+    m_particleSize->setMin(   0 );
+    m_particleSize->setMax( 100 );
 }
 
 void WMSurfaceParticles::moduleMain()
@@ -152,13 +153,6 @@ void WMSurfaceParticles::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet ) || ( m_directionDataSet != newDirectionDataSet );
         bool dataValid =   ( newDataSet && newDirectionDataSet );
 
-        // m_isoColor changed
-        if ( m_isoColor->changed() )
-        {
-            // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
-            dataChanged = true;
-        }
-
         // As the data has changed, we need to recreate the texture.
         if ( dataChanged && dataValid )
         {
@@ -179,7 +173,7 @@ void WMSurfaceParticles::moduleMain()
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 
             // use the OSG Shapes, create unit cube
-            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, m_isoColor->get( true ) );
+            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
             cube->asTransform()->getChild( 0 )->setName( "DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
             m_shader->apply( cube );
 
@@ -209,23 +203,23 @@ void WMSurfaceParticles::moduleMain()
             osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
             isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
 
-            osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() );
-            isosurface->setUpdateCallback( new SafeUniformCallback( this ) );
-
             osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
             steps->setUpdateCallback( new SafeUniformCallback( this ) );
 
             osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
             alpha->setUpdateCallback( new SafeUniformCallback( this ) );
 
-            osg::ref_ptr< osg::Uniform > depthCueingOnly = new osg::Uniform( "u_depthCueingOnly", m_useSimpleDepthColoring->get() );
-            depthCueingOnly->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > gridResolution = new osg::Uniform( "u_gridResolution", static_cast< float >( m_gridResolution->get() ) );
+            gridResolution->setUpdateCallback( new SafeUniformCallback( this ) );
+
+            osg::ref_ptr< osg::Uniform > particleSize = new osg::Uniform( "u_particleSize", static_cast< float >( m_particleSize->get() ) );
+            particleSize->setUpdateCallback( new SafeUniformCallback( this ) );
 
             rootState->addUniform( isovalue );
-            rootState->addUniform( isosurface );
             rootState->addUniform( steps );
             rootState->addUniform( alpha );
-            rootState->addUniform( depthCueingOnly );
+            rootState->addUniform( gridResolution );
+            rootState->addUniform( particleSize );
 
             // update node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
@@ -254,10 +248,6 @@ void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform,
     {
         uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) / 100.0 ) );
     }
-    if ( m_module->m_isoSurface->changed() && ( uniform->getName() == "u_isosurface" ) )
-    {
-        uniform->set( m_module->m_isoSurface->get( true ) );
-    }
     if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
     {
         uniform->set( m_module->m_stepCount->get( true ) );
@@ -266,9 +256,13 @@ void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform,
     {
         uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
     }
-    if ( m_module->m_useSimpleDepthColoring->changed() && ( uniform->getName() == "u_depthCueingOnly" ) )
+    if ( m_module->m_gridResolution->changed() && ( uniform->getName() == "u_gridResolution" ) )
     {
-        uniform->set( m_module->m_useSimpleDepthColoring->get( true ) );
+        uniform->set( static_cast< float >( m_module->m_gridResolution->get( true ) ) );
+    }
+    if ( m_module->m_particleSize->changed() && ( uniform->getName() == "u_particleSize" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_particleSize->get( true ) ) );
     }
 }
 
