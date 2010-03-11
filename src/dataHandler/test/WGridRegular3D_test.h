@@ -486,6 +486,38 @@ public:
                 "This point: 27 is not part of this grid:  nbPosX: 3 nbPosY: 3 nbPosZ: 3" );
     }
 
+    /**
+     * Check whether we get the right Ids.
+     */
+    void testGetCellVertexIds( void )
+    {
+        WGridRegular3D g( 5, 3, 3, 0, 0, 0, 1, 1, 1 );
+        std::vector< size_t > vertexIds = g.getCellVertexIds( 5 );
+        TS_ASSERT_EQUALS( vertexIds.size(), 8 );
+        TS_ASSERT_EQUALS( vertexIds[0], 6 );
+        TS_ASSERT_EQUALS( vertexIds[1], 7 );
+        TS_ASSERT_EQUALS( vertexIds[2], 11 );
+        TS_ASSERT_EQUALS( vertexIds[3], 12 );
+        TS_ASSERT_EQUALS( vertexIds[4], 21 );
+        TS_ASSERT_EQUALS( vertexIds[5], 22 );
+        TS_ASSERT_EQUALS( vertexIds[6], 26 );
+        TS_ASSERT_EQUALS( vertexIds[7], 27 );
+    }
+
+    /**
+     * Check whether we get the right cellId.
+     */
+    void testGetCellId( void )
+    {
+        WGridRegular3D g( 5, 3, 3, 0, 0, 0, 1, 1, 1 );
+        size_t cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) );
+        TS_ASSERT_EQUALS( cellId, 7 );
+
+        // We should get an exception if the grid is not the origin, as this is not supported so far
+        WGridRegular3D g1( 5, 3, 3, 1.4, 2.5, 6.4, 1, 1, 1 );
+        TS_ASSERT_THROWS_ANYTHING( g1.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) ) );
+    }
+
 private:
     double m_delta; //!< Maximum amount to values are allowed to differ.
 };

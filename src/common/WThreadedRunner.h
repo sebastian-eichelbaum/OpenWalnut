@@ -27,22 +27,10 @@
 
 #include <stdint.h>
 
-#ifdef _MSC_VER
-    #define USE_BOOST_THREADS 0
-#else
-    #define USE_BOOST_THREADS 1
-#endif
-
-#if !USE_BOOST_THREADS
-#include <OpenThreads/Thread>
-#endif
-
 #include <boost/function.hpp>
 
-#if USE_BOOST_THREADS
 #include <boost/thread.hpp>
 #include <boost/thread/thread.hpp>
-#endif
 
 #include "WFlag.h"
 
@@ -50,9 +38,6 @@
  * Base class for all classes needing to be executed in a separate thread.
  */
 class WThreadedRunner
-#if !USE_BOOST_THREADS
-    : public OpenThreads::Thread
-#endif
 {
 public:
 
@@ -106,13 +91,7 @@ protected:
     /**
      * Thread instance.
      */
-#if USE_BOOST_THREADS
     boost::thread* m_Thread;
-#else
-    OpenThreads::Thread *m_Thread;
-
-    bool m_firstRun;
-#endif
 
     /**
      * True if thread should end execution. NOTE: do not use this. Use m_shutdownFlag instead.

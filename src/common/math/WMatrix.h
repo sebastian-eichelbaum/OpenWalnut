@@ -58,6 +58,29 @@ public:
     }
 
     /**
+     * Makes the matix contain the identity matrix, i.e. 1 on the diagonal.
+     */
+    WMatrix& makeIdentity()
+    {
+        size_t nbRows = this->size() / m_nbCols;
+        for( size_t i = 0; i < nbRows; ++i )
+        {
+            for( size_t j = 0; j < m_nbCols; ++j )
+            {
+                if( i == j )
+                {
+                    (*this)( i, j ) = 1;
+                }
+                else
+                {
+                    (*this)( i, j ) = 0;
+                }
+            }
+        }
+        return *this;
+    }
+
+    /**
      * Get number of rows.
      */
     size_t getNbRows() const

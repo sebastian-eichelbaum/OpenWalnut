@@ -121,7 +121,7 @@ float pointDistance( vec3 p1, vec3 p2 )
  */
 vec3 getDirection( vec3 point )
 {
-    return abs( ( u_tex1Scale * texture3D( tex1, point ).rgb ) + vec3( u_tex1Min ) );
+    return normalize( abs( ( u_tex1Scale * texture3D( tex1, point ).rgb ) + vec3( u_tex1Min ) ) );
 }
 
 /**

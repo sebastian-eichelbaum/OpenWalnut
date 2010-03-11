@@ -36,6 +36,7 @@
 #include "../../common/datastructures/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
@@ -194,9 +195,12 @@ private:
      * Prepares and commits everything for rendering with the OSG
      * \param mesh The mesh that will be rendered.
      */
-    void renderMesh( WTriangleMesh* mesh );
+    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Input connector required by this module.
+
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is proved as output through the connector.
 
     static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
     static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.

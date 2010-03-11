@@ -26,6 +26,7 @@
 #define WVALUESETBASE_H
 
 #include <cstddef>
+#include <cmath>
 #include "WDataHandlerEnums.h"
 
 /**
@@ -73,6 +74,16 @@ public:
     virtual size_t order() const
     {
         return m_order;
+    }
+
+    /**
+     * Returns the number of elements of type T per value.
+     * \note this is dimension to the power of order.
+     * \return number of elements per value
+     */
+    virtual size_t elementsPerValue() const
+    {
+        return static_cast< size_t >( std::pow( static_cast< double >( m_dimension ), static_cast< int >( m_order ) ) );
     }
 
     /**
