@@ -47,14 +47,20 @@ public:
     virtual ~WPagerEEG();
 
     /**
+     * Get the number of segments this EEG consists of.
+     * \return number of segments
+     */
+    virtual std::size_t getNumberOfSegments() const = 0;
+
+    /**
      * Get the values of all channels for a given sample range.
      *
-     * \param segment segment number to read the values from
+     * \param segmentID segment number to read the values from
      * \param start start sample of the sample range
      * \param length length of the sample range
      * \return matrix of values
      */
-    virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segment, std::size_t start, std::size_t length ) = 0;
+    virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const = 0;
 
 protected:
     /**

@@ -22,54 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPAGEREEGLIBEEP_H
-#define WPAGEREEGLIBEEP_H
-
 #include <cstddef>
 
-#include <string>
-#include <vector>
+#include <sstream>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WEEGValueMatrix.h"
-#include "WPagerEEG.h"
+#include "../common/exceptions/WOutOfBounds.h"
+#include "exceptions/WDHException.h"
+#include "io/WPagerEEG.h"
+#include "WEEGValueMatrix.h"
+#include "WEEG2Segment.h"
 
-typedef struct eeg_dummy_t eeg_t;
 
-
-/**
- * Class to load an EEG file and keep it open to support paging.
- * Uses the libeep library to read the CNT format.
- * \ingroup dataHandler
- */
-class WPagerEEGLibeep : public WPagerEEG
+WEEG2Segment::WEEG2Segment( boost::shared_ptr< WPagerEEG > pager, std::size_t segmentID )
+    : m_pager( pager ),
+      m_segmentID( segmentID )
 {
-public:
-    /**
-     * Constructor
-     *
-     * \param fileName path and filename to a CNT file
-     */
-    explicit WPagerEEGLibeep( std::string fileName );
+    if( !m_pager )
+    {
+        throw WDHException( "Couldn't construct new EEG segment: pager invalid" );
+    }
 
-    /**
-     * Virtual destructor
-     */
-    virtual ~WPagerEEGLibeep();
+    if( m_segmentID >= m_pager->getNumberOfSegments() )
+    {
+        std::ostringstream stream;
+        stream << "The EEG has no segment number " << m_segmentID;
+        throw WOutOfBounds( stream.str() );
+    }
+}
 
-    virtual std::size_t getNumberOfSegments() const;
-
-    virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const;
-
-protected:
-private:
-    eeg_t* m_eeg; //!< handler for the cnt file opened by libeep
-
-    std::size_t m_nbChannels; //!< number of channels
-    std::size_t m_nbSamples; //!< number of samples
-
-    std::vector< double > m_scales; //!< scale factors of the channels
-};
-
-#endif  // WPAGEREEGLIBEEP_H
+boost::shared_ptr< WEEGValueMatrix > WEEG2Segment::getValues( std::size_t start, std::size_t length ) const
+{
+    // No test whether start and length are valid - this should be done only
+    // one time by the pager.
+    return m_pager->getValues( m_segmentID, start, length );
+}

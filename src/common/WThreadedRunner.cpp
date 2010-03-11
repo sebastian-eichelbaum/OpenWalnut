@@ -25,7 +25,7 @@
 #include <iostream>
 
 #include "WConditionOneShot.h"
-#include "../common/WLogger.h"
+#include "WLogger.h"
 
 #include "WThreadedRunner.h"
 
@@ -34,7 +34,6 @@ WThreadedRunner::WThreadedRunner():
 {
     // initialize members
     m_FinishRequested = false;
-    m_Thread = NULL;
 }
 
 WThreadedRunner::~WThreadedRunner()
@@ -42,20 +41,16 @@ WThreadedRunner::~WThreadedRunner()
     // cleanup
     // XXX is this working if thread already has finished?
     // wait( true ); <-- no
-    if( m_Thread )
-    {
-        delete m_Thread;
-    }
 }
 
 void WThreadedRunner::run()
 {
-    m_Thread = new boost::thread( boost::bind( &WThreadedRunner::threadMain, this ) );
+    run( boost::bind( &WThreadedRunner::threadMain, this ) );
 }
 
 void WThreadedRunner::run( THREADFUNCTION f )
 {
-    m_Thread = new boost::thread( f );
+    m_thread = boost::thread( f );
 }
 
 void WThreadedRunner::wait( bool requestFinish )
@@ -69,7 +64,7 @@ void WThreadedRunner::wait( bool requestFinish )
         m_FinishRequested = true;
         m_shutdownFlag( true );
     }
-    m_Thread->join();
+    m_thread.join();
 }
 
 void WThreadedRunner::waitForStop()
@@ -88,7 +83,7 @@ void WThreadedRunner::notifyStop()
 
 void WThreadedRunner::yield() const
 {
-    m_Thread->yield();
+    m_thread.yield();
 }
 
 void WThreadedRunner::sleep( const int32_t t ) const

@@ -91,7 +91,7 @@ protected:
     /**
      * Thread instance.
      */
-    boost::thread* m_Thread;
+    boost::thread m_thread;
 
     /**
      * True if thread should end execution. NOTE: do not use this. Use m_shutdownFlag instead.
@@ -128,6 +128,21 @@ protected:
     WBoolFlag m_shutdownFlag;
 
 private:
+
+    /**
+     * Disallow copy construction.
+     *
+     * \param rhs the other threaded runner.
+     */
+    WThreadedRunner( const WThreadedRunner & rhs );
+
+    /**
+     * Disallow copy assignment.
+     *
+     * \param rhs the other threaded runner.
+     * \return this.
+     */
+    WThreadedRunner& operator=( const WThreadedRunner & rhs );
 };
 
 #endif  // WTHREADEDRUNNER_H
