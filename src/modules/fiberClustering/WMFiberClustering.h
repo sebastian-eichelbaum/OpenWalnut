@@ -161,13 +161,6 @@ private:
     std::string lookUpTableFileName() const;
 
     /**
-     * For each cluster a dataset is generated in which its fibers are blurred.
-     *
-     * \return Datasets containing the blurred clusters.
-     */
-    boost::shared_ptr< WDataSetSingle > blurClusters() const;
-
-    /**
      * Updates the output with new cluster.
      */
     void updateOutput();

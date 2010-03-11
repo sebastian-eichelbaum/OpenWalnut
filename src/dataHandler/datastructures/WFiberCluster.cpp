@@ -92,7 +92,7 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
 void WFiberCluster::generateCenterLine()
 {
     // make copies of the fibers
-    boost::shared_ptr< WDataSetFiberVector > fibs = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector() );
+    boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector() );
     size_t avgFiberSize = 0;
     for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
     {

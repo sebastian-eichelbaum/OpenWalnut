@@ -178,8 +178,6 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
 
 boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair< wmath::WPosition, wmath::WPosition >& bb ) const
 {
-    boost::shared_ptr< WGridRegular3D > grid;
-
     int32_t nbVoxelsPerUnit = m_voxelsPerUnit->get( true );
 
     // TODO(math): implement the snap-to-grid (of the T1 image) feature for fll and bur.
@@ -190,8 +188,10 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     size_t nbPosY = std::ceil( bb.second[1] - bb.first[1] ) + 1;
     size_t nbPosZ = std::ceil( bb.second[2] - bb.first[2] ) + 1;
 
-    grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( nbVoxelsPerUnit * nbPosX, nbVoxelsPerUnit * nbPosY, nbVoxelsPerUnit * nbPosZ,
-                                                                    bb.first, 1, 1, 1 ) );
+    boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
+                                                                  nbVoxelsPerUnit * nbPosY,
+                                                                  nbVoxelsPerUnit * nbPosZ,
+                                                                  bb.first, 1, 1, 1 ) );
     return grid;
 }
 
@@ -314,19 +314,15 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 
 void WMVoxelizer::connectors()
 {
-    using boost::shared_ptr;
-
-    typedef WModuleInputData< const WFiberCluster > InputConnectorType; // just an alias
-    m_input = shared_ptr< InputConnectorType >( new InputConnectorType( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
+    typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
+    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
     addConnector( m_input );
 
-    typedef WModuleOutputData< WDataSetSingle > OutputConnectorType; // just an alias
-    m_output = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
+    typedef WModuleOutputData< WDataSetSingle > OutputType; // just an alias
+    m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
 
-    m_dirOutput = shared_ptr< OutputConnectorType >( new OutputConnectorType( shared_from_this(), "voxelDirectionOutput",
-        "The voxelized direction data set." )
-    );
+    m_dirOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelDirectionOutput", "The voxelized direction dataset." ) );
     addConnector( m_dirOutput );
 
     WModule::connectors();  // call WModules initialization

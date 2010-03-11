@@ -195,16 +195,6 @@ void WMFiberClustering::update()
     updateOutput();
 }
 
-boost::shared_ptr< WDataSetSingle > WMFiberClustering::blurClusters() const
-{
-    boost::shared_ptr< WValueSet< double > > valueSet;
-    boost::shared_ptr< WGridRegular3D > grid;
-    std::vector< double > data;
-    valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 3, data, W_DT_DOUBLE ) );
-    grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 100, 100, 100, 0.5, 0.5, 0.5 ) );
-    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, grid ) );
-}
-
 bool WMFiberClustering::dLtTableExists()
 {
     std::string dLtFileName = lookUpTableFileName();
@@ -217,9 +207,7 @@ bool WMFiberClustering::dLtTableExists()
             debugLog() << "trying to read table from: " << dLtFileName;
             // TODO(math): replace this hard coded path when properties are available
             WReaderLookUpTableVTK r( dLtFileName );
-            using boost::shared_ptr;
-            using std::vector;
-            shared_ptr< vector< double > > data = shared_ptr< vector < double > >( new vector< double >() );
+            boost::shared_ptr< std::vector< double > > data( new std::vector< double >() );
             r.readTable( data );
             m_dLtTable.reset( new WDXtLookUpTable( static_cast< size_t >( data->back() ) ) );
             m_lastFibsSize = static_cast< size_t >( data->back() );
@@ -257,7 +245,7 @@ void WMFiberClustering::cluster()
         m_clusterIDs[i] = i;
     }
 
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber clustering", numFibers ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Fiber clustering", numFibers ) );
     m_progress->addSubProgress( progress );
 
     boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dLt; // NOLINT
@@ -393,12 +381,11 @@ void WMFiberClustering::meld( size_t qClusterID, size_t rClusterID )
 
 void WMFiberClustering::connectors()
 {
-    using boost::shared_ptr;
     typedef WModuleInputData< WDataSetFibers > InputData;  // just an alias
     typedef WModuleOutputData< WFiberCluster > OutputData; // -"-
 
-    m_fiberInput = shared_ptr< InputData >( new InputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
-    m_output = shared_ptr< OutputData >( new OutputData( shared_from_this(), "clusterOutput", "One Cluster" ) );
+    m_fiberInput = boost::shared_ptr< InputData >( new InputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
+    m_output = boost::shared_ptr< OutputData >( new OutputData( shared_from_this(), "clusterOutput", "One Cluster" ) );
 
     addConnector( m_fiberInput );
     addConnector( m_output );

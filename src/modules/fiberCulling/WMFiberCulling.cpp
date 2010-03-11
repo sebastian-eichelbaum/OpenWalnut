@@ -107,12 +107,11 @@ void WMFiberCulling::update()
 
 void WMFiberCulling::connectors()
 {
-    using boost::shared_ptr;
     typedef WModuleInputData< WDataSetFibers > FiberInputData;  // just an alias
-    m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
+    m_fiberInput = boost::shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
 
     typedef WModuleOutputData< WDataSetFibers > FiberOutputData;  // just an alias
-    m_output = shared_ptr< FiberOutputData >( new FiberOutputData( shared_from_this(), "fiberOutput", "The fibers that survied culling." ) );
+    m_output = boost::shared_ptr< FiberOutputData >( new FiberOutputData( shared_from_this(), "fiberOutput", "The fibers that survied culling." ) );
 
     addConnector( m_fiberInput );
     addConnector( m_output );
@@ -150,7 +149,7 @@ void WMFiberCulling::cullOutFibers()
     const double proxSquare = proximity_t * proximity_t;
     dSt = boost::bind( wmath::WFiber::distDST, proxSquare, _1, _2 );
 
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber culling", numFibers ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Fiber culling", numFibers ) );
     m_progress->addSubProgress( progress );
 
     for( size_t q = 0; q < numFibers; ++q )  // loop over all streamlines

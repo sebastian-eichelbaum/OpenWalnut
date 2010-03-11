@@ -107,7 +107,7 @@ public:
     {
         WDataSetFiberVector expected( *m_cluster->getDataSetReference() ); // make a copy
 
-        boost::shared_ptr< WDataSetFiberVector > fibs = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( expected ) );
+        boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector( expected ) );
         fibs->at( 1 ).reverseOrder(); // simulate wrong direction of the second fiber
 
         m_cluster->unifyDirection( fibs );
@@ -143,7 +143,7 @@ public:
         expected.push_back( a );
         expected.push_back( b );
 
-        boost::shared_ptr< WDataSetFiberVector > ds = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( expected ) );
+        boost::shared_ptr< WDataSetFiberVector > ds( new WDataSetFiberVector( expected ) );
         ds->at( 1 ).reverseOrder();
         m_cluster->unifyDirection( ds );
         TS_ASSERT_EQUALS( *ds, expected ); // second tract should flip over
@@ -190,7 +190,7 @@ public:
         expected.push_back( a );
         expected.push_back( b );
 
-        boost::shared_ptr< WDataSetFiberVector > ds = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( expected ) );
+        boost::shared_ptr< WDataSetFiberVector > ds( new WDataSetFiberVector( expected ) );
         ds->at( 1 ).reverseOrder();
         m_cluster->unifyDirection( ds );
         TS_ASSERT_EQUALS( *ds, expected ); // second tract should flip over
@@ -239,7 +239,7 @@ public:
         expected.push_back( a );
         expected.push_back( b );
 
-        boost::shared_ptr< WDataSetFiberVector > ds = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( expected ) );
+        boost::shared_ptr< WDataSetFiberVector > ds( new WDataSetFiberVector( expected ) );
         ds->at( 1 ).reverseOrder();
         m_cluster->unifyDirection( ds );
         TS_ASSERT_EQUALS( *ds, expected ); // second tract should flip over
@@ -295,7 +295,7 @@ public:
         expected.push_back( a );
         expected.push_back( b );
 
-        boost::shared_ptr< WDataSetFiberVector > ds = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( expected ) );
+        boost::shared_ptr< WDataSetFiberVector > ds( new WDataSetFiberVector( expected ) );
         ds->at( 1 ).reverseOrder();
         m_cluster->unifyDirection( ds );
         TS_ASSERT_EQUALS( *ds, expected ); // second tract should flip over
@@ -342,7 +342,7 @@ public:
         expected.push_back( a );
         expected.push_back( b );
 
-        boost::shared_ptr< WDataSetFiberVector > ds = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( expected ) );
+        boost::shared_ptr< WDataSetFiberVector > ds( new WDataSetFiberVector( expected ) );
         ds->at( 1 ).reverseOrder();
         m_cluster->unifyDirection( ds );
         TS_ASSERT_EQUALS( *ds, expected ); // second tract should flip over
@@ -414,7 +414,7 @@ private:
         fib_b.push_back( wmath::WPosition( 0, 2, 0 ) );
         fib_b.push_back( wmath::WPosition( 2, 2, 0 ) );
         fib_b.push_back( wmath::WPosition( 4, 2, 0 ) );
-        boost::shared_ptr< WDataSetFiberVector > ds = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector() );
+        boost::shared_ptr< WDataSetFiberVector > ds( new WDataSetFiberVector() );
         ds->push_back( fib_a );
         ds->push_back( fib_b );
         generateFiberCluster( ds );

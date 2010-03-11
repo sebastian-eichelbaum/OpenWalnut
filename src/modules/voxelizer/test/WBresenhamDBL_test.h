@@ -46,8 +46,7 @@ public:
      */
     void setUp( void )
     {
-        boost::shared_ptr< WGridRegular3D > grid;
-        grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
         m_algo = boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, false ) );
     }
 
@@ -115,8 +114,7 @@ public:
 //     */
 //    void testRasteringIn3rdQuadrant( void )
 //    {
-//        boost::shared_ptr< WGridRegular3D > grid;
-//        grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, -2, -2, -2, 1, 1, 1 ) );
+//        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, -2, -2, -2, 1, 1, 1 ) );
 //        m_algo = boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, false ) );
 //
 //        wmath::WLine l;

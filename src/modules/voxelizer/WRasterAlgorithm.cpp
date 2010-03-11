@@ -47,19 +47,13 @@ WRasterAlgorithm::~WRasterAlgorithm()
 
 boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateDataSet() const
 {
-    boost::shared_ptr< WDataSetSingle > result;
-    boost::shared_ptr< WValueSet< double > > valueSet;
-    valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, m_values, W_DT_DOUBLE ) );
-    result = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
-    return result;
+    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_values, W_DT_DOUBLE ) );
+    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
 }
 
 boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateVectorDataSet() const
 {
-    boost::shared_ptr< WDataSetSingle > result;
-    boost::shared_ptr< WValueSet< double > > valueSet;
-    valueSet = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 1, 3, m_dirValues, W_DT_DOUBLE ) );
-    result = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
-    return result;
+    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 1, 3, m_dirValues, W_DT_DOUBLE ) );
+    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
 }
 
