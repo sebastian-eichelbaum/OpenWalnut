@@ -412,10 +412,39 @@ public:
         expected.m_vertices[ 0 ] = wmath::WPosition( 0, 2, 0 );
         expected.m_vertices[ 1 ] = wmath::WPosition( 2, 2, 0 );
         expected.resizeTriangles( 1 );
-        Triangle x = { { 0, 1, 1 } }; // NOLINT
-        expected.m_triangles[ 0 ] = x;
-
+        Triangle x1 = { { 0, 1, 1 } }; // NOLINT
+        expected.m_triangles[ 0 ] = x1;
         TS_ASSERT_EQUALS( **( ++cit ), expected );
+
+        expected.resizeVertices( 1 );
+        expected.m_vertices[ 0 ] = wmath::WPosition( 0, 3, 0 );
+        expected.resizeTriangles( 1 );
+        Triangle x2 = { { 0, 0, 0 } }; // NOLINT
+        expected.m_triangles[ 0 ] = x2;
+        TS_ASSERT_EQUALS( **( ++cit ), expected );
+
+        expected.resizeVertices( 5 );
+        expected.m_vertices[ 0 ] = wmath::WPosition( 0,  6, 0 );
+        expected.m_vertices[ 1 ] = wmath::WPosition( 2,  6, 0 );
+        expected.m_vertices[ 2 ] = wmath::WPosition( 1,  7, 0 );
+        expected.m_vertices[ 3 ] = wmath::WPosition( 3,  4, 0 );
+        expected.m_vertices[ 4 ] = wmath::WPosition( 4,  6, 0 );
+        expected.resizeTriangles( 2 );
+        Triangle x3 = { { 0, 1, 2 } }; // NOLINT
+        Triangle x4 = { { 1, 3, 4 } }; // NOLINT
+        expected.m_triangles[ 0 ] = x3;
+        expected.m_triangles[ 1 ] = x4;
+        TS_ASSERT_EQUALS( **( ++cit ), expected );
+    }
+
+    /**
+     * On an empty mesh an empty list should be generated.
+     */
+    void testComponentDecompositionOnEmptyMesh( void )
+    {
+        WTriangleMesh mesh;
+        boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > result = tm_utils::componentDecomposition( mesh );
+        TS_ASSERT( result->empty() );
     }
 };
 
