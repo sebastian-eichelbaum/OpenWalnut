@@ -24,6 +24,9 @@
 
 #version 120
 
+#include "TextureUtils.glsl"
+#include "TransformationTools.glsl"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Varyings
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,6 +78,9 @@ uniform float u_gridResolution;
 
 // Relative size of the particle to the voxel
 uniform float u_particleSize;
+
+// Animation reference.
+uniform float u_animationTime;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -141,7 +147,7 @@ float pointDistance( vec3 p1, vec3 p2 )
  */
 vec3 getDirection( vec3 point )
 {
-    return normalize( abs( ( u_tex1Scale * texture3D( tex1, point ).rgb ) + vec3( u_tex1Min ) ) );
+    return texture3DUnscaled( tex1, point, u_tex1Min, u_tex1Scale ).rgb;
 }
 
 /**
@@ -179,23 +185,19 @@ void main()
             // Therefore, the complete standard pipeline is reproduced here:
             
             // 1: transfer to world space and right after it, to eye space
-            vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
+            vec3 curPointProjected = project( curPoint );
             
-            // 2: scale to screen space and [0,1]
-            // -> x and y is not needed
-            // curPointProjected.x /= curPointProjected.w;
-            // curPointProjected.x  = curPointProjected.x * 0.5 + 0.5 ;
-            // curPointProjected.y /= curPointProjected.w;
-            // curPointProjected.y  = curPointProjected.y * 0.5 + 0.5 ;
-            curPointProjected.z /= curPointProjected.w;
-            curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
-
-            // 3: set depth value
+            // 2: set depth value
             gl_FragDepth = curPointProjected.z;
 
-            // 4: set colors/ ooutput to textures
-            // The values need to be transferred to the next (image space based) steps.
+            // 3: Project direction to image space
+            vec2 projectedDirection = projectVector( getDirection( curPoint ) ).xy;
+            float angle = u_animationTime / 5.0;
+            mat2 rot = mat2( vec2( cos( angle ) , sin( angle ) ), vec2( -sin( angle ), cos( angle )  ) );
+            projectedDirection = rot * projectedDirection;
 
+            // 4: initial particle distribution
+            // The values need to be transferred to the next (image space based) steps.
 
             // the current point is now relating to the coordinate system, which is in { (x,y,z) | x in [-1,1], y in [-1,1] and z in [-1,1] } 
             // (the texture coordinate system). We increase the resolution by scaling the point:
@@ -207,7 +209,12 @@ void main()
 
             // the raster point is then, for each voxel in  { (x,y,z) | x in [-1,1], y in [-1,1] and z in [-1,1] }, interpreted as sphere surface:
             float sphere = ( rasterPoint.x * rasterPoint.x + rasterPoint.y * rasterPoint.y  ) * 4.0 * u_particleSize;
-            color = vec4( 1.0-sphere, 0.0, 0.0, 1.0);
+
+            // 5: Set all outputs
+            // Tex0: Isosurface, Depth, Particle Distribution, Alpha
+            gl_FragData[0] = vec4( curPointProjected.z, curPointProjected.z, 1.0 - sphere, u_alpha );
+            // Tex1: Projected Directions X, Projected Directions Y, Projected Directions Z
+            gl_FragData[1] = vec4( normalize( abs( projectedDirection ) ), 0.0, 1.0 );
 
             break;
         }
@@ -227,10 +234,5 @@ void main()
     {
         discard;
     }
-
-    // set the color
-    color.a = u_alpha;
-    gl_FragData[0] = color;
-    gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
 }
 

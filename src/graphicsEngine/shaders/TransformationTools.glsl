@@ -47,6 +47,47 @@ vec3 project( vec4 point )
 }
 
 /**
+ * Projects a given vector to screen-space. It does not scale the final vector to [0,1] as project() would have done.
+ * 
+ * \param vector the vector to project
+ * 
+ * \return the projected vector in unscaled screen-space ( [-1,1] per component )
+ */
+vec3 projectVector( vec4 vector )
+{
+    vec4 base = vec4( 0.0, 0.0, 0.0, 1.0 );
+    vec4 diff = vector;
+  
+    vec4 diffP=gl_ModelViewProjectionMatrix * diff;
+    vec4 baseP=gl_ModelViewProjectionMatrix * base;
+
+    // scale by w
+    diffP.x /= diffP.w;
+    diffP.y /= diffP.w;
+    diffP.z /= diffP.w;
+
+    baseP.x /= baseP.w;
+    baseP.y /= baseP.w;
+    baseP.z /= baseP.w;
+
+    return ( diffP - baseP ).xyz;
+}
+
+/**
+ * Projects a given vector to screen-space. It does not scale the final vector to [0,1] as project() would have done.
+ * 
+ * \param vector the vector to project
+ * 
+ * \return the projected vector in unscaled screen-space ( [-1,1] per component )
+ *
+ * \note This assumes the homogeneous coordinate to be 1.
+ */
+vec3 projectVector( vec3 vector )
+{
+    return projectVector( vec4( vector, 1.0 ) );
+}
+
+/**
  * Projects a given point to screen-space, where (0,0) is the lower left corner and (1,1) the upper right. The Depth
  * is stored in the returned vector's Z value.
  * 

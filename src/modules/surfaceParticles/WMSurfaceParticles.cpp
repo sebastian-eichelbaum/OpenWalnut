@@ -141,7 +141,7 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
 
     // enable transparency
-    rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+    rootState->setMode( GL_BLEND, osg::StateAttribute::OFF );
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // setup all those uniforms
@@ -171,11 +171,15 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     osg::ref_ptr< osg::Uniform > particleSize = new osg::Uniform( "u_particleSize", static_cast< float >( m_particleSize->get() ) );
     particleSize->setUpdateCallback( new SafeUniformCallback( this ) );
 
+    osg::ref_ptr< osg::Uniform > animationTime = new osg::Uniform( "u_animationTime", static_cast< float >( 0 ) );
+    animationTime->setUpdateCallback( new ShaderAnimationCallback() );
+
     rootState->addUniform( isovalue );
     rootState->addUniform( steps );
     rootState->addUniform( alpha );
     rootState->addUniform( gridResolution );
     rootState->addUniform( particleSize );
+    rootState->addUniform( animationTime );
 
     return cube;
 }
@@ -246,6 +250,8 @@ void WMSurfaceParticles::moduleMain()
 
             // For debugging:
             osg::ref_ptr< WGETextureHud > hud = new WGETextureHud();
+            // increase texture size a little bit
+            hud->setMaxElementWidth( 512 );
 
             // **********************************************************************************************
             // Render Pass 1: Rendering the geometry and projecting the directions
@@ -262,21 +268,13 @@ void WMSurfaceParticles::moduleMain()
             osg::ref_ptr< osg::Node > cube = renderSurface( bb );
             offscreen1->addChild( cube );
 
-
-
-
-
-
-
-
-
-
             // **********************************************************************************************
             // Update scene
             // **********************************************************************************************
 
             // update node
             debugLog() << "Adding new rendering.";
+            m_rootNode->clear();
             m_rootNode->insert( offscreen1 );
             m_rootNode->insert( hud );
         }
@@ -291,6 +289,12 @@ void WMSurfaceParticles::SafeUpdateCallback::operator()( osg::Node* node, osg::N
 {
     // currently, there is nothing to update
     traverse( node, nv );
+}
+
+void WMSurfaceParticles::ShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
+{
+    m_counter++;
+    uniform->set( (float)m_counter );
 }
 
 void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
