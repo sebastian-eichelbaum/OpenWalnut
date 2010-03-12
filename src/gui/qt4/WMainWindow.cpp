@@ -607,16 +607,16 @@ void WMainWindow::newRoi()
         return;
     }
 
-    if ( m_datasetBrowser->getSelectedRoi().get() == NULL )
+    if ( m_datasetBrowser->getFirstRoiInSelectedBranch().get() == NULL )
     {
-        boost::shared_ptr< WROIBox > newRoi = boost::shared_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
                 wmath::WPosition( 80., 80., 80. ) ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
     }
     else
     {
-        boost::shared_ptr< WROIBox > newRoi = boost::shared_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
                 wmath::WPosition( 80., 80., 80. ) ) );
-        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getSelectedRoi()->getROI() );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
     }
 }

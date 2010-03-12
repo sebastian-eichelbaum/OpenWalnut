@@ -22,30 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WROI.h"
+#ifndef WQTBRANCHTREEITEM_H
+#define WQTBRANCHTREEITEM_H
 
-#include "WPickHandler.h"
+#include <QtCore/QTimer>
+#include <QtGui/QProgressBar>
+#include <QtGui/QTreeWidgetItem>
 
-WROI::WROI() :
-    osg::Geode()
+#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "WQtTreeItem.h"
+
+class WQtRoiTreeItem;
+
+/**
+ * This class represents a roi branch in the tree widget
+ */
+class WQtBranchTreeItem  : public QTreeWidgetItem
 {
-}
+public:
+    /**
+     * default constructor
+     *
+     * \param parent
+     */
+    explicit WQtBranchTreeItem( QTreeWidgetItem * parent );
 
-WROI::~WROI()
-{
-}
+    /**
+     * destructor
+     */
+    ~WQtBranchTreeItem();
 
-boost::signals2::signal0< void >* WROI::getSignalIsModified()
-{
-    return &m_signalIsModified;
-}
+    /**
+     * Add a roi to the tree view.
+     * \param roi The new roi.
+     */
+    WQtRoiTreeItem* addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi );
 
-void WROI::setNot( bool isNot )
-{
-    m_isNot = isNot;
-}
+protected:
+private:
+};
 
-bool WROI::isNot()
-{
-    return m_isNot;
-}
+#endif  // WQTBRANCHTREEITEM_H

@@ -38,11 +38,10 @@ WQtRoiHeaderTreeItem::~WQtRoiHeaderTreeItem()
 {
 }
 
-WQtRoiTreeItem* WQtRoiHeaderTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi )
+WQtBranchTreeItem* WQtRoiHeaderTreeItem::addBranch()
 {
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi );
-
-    std::string name = "ROI";
+    WQtBranchTreeItem* rti = new WQtBranchTreeItem( this );
+    std::string name = "Branch";
     rti->setText( 0, QString( name.c_str() ) );
     return rti;
 }

@@ -129,11 +129,11 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_surfaceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
     m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
 
-    m_geode = osg::ref_ptr<osg::Geode>( new osg::Geode );
+    //m_geode = osg::ref_ptr<osg::Geode>( new osg::Geode );
     std::stringstream ss;
     ss << "ROIBox" << boxId;
 
-    m_geode->setName( ss.str() );
+    setName( ss.str() );
     m_surfaceGeometry->setName( ss.str() );
 
     osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
@@ -150,8 +150,8 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
 
     m_surfaceGeometry->addPrimitiveSet( surfaceElements );
     m_surfaceGeometry->addPrimitiveSet( lineElements );
-    m_geode->addDrawable( m_surfaceGeometry );
-    osg::StateSet* state = m_geode->getOrCreateStateSet();
+    addDrawable( m_surfaceGeometry );
+    osg::StateSet* state = getOrCreateStateSet();
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     osg::LineWidth* linewidth = new osg::LineWidth();
@@ -175,10 +175,18 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     m_isNot = false;
 
     assert( WGraphicsEngine::getGraphicsEngine() );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( m_geode );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
 
-    m_geode->setUserData( this );
-    m_geode->setUpdateCallback( new ROIBoxNodeCallback );
+    setUserData( this );
+    setUpdateCallback( osg::ref_ptr<ROIBoxNodeCallback>( new ROIBoxNodeCallback ) );
+}
+
+WROIBox::~WROIBox()
+{
+//    std::cout << "destructor called" << std::endl;
+//    std::cout << "ref count geode: " << m_geode->referenceCount() << std::endl;
+//
+//    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_geode );
 }
 
 wmath::WPosition WROIBox::getMinPos() const

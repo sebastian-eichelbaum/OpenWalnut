@@ -57,7 +57,7 @@ public:
      *
      * \param newRoi
      */
-    void addRoi( boost::shared_ptr< WROI > newRoi );
+    void addRoi( osg::ref_ptr< WROI > newRoi );
 
     /**
      * adds a new ROI below a master ROI
@@ -65,14 +65,21 @@ public:
      * \param newRoi
      * \param parentRoi
      */
-    void addRoi( boost::shared_ptr< WROI > newRoi, boost::shared_ptr< WROI > parentRoi );
+    void addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi );
 
     /**
      * removes a roi
      *
      * \param roi
      */
-    void removeRoi( boost::shared_ptr< WROI > roi );
+    void removeRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+
+    /**
+     * removes a branch
+     *
+     * \param roi the first roi in the branch
+     */
+    void removeBranch( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
      * connects a fiber dataset to the roi manager

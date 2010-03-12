@@ -39,9 +39,11 @@ class WPickHandler;
 /**
  * Superclass for different ROI (region of interest) types.
  */
-class WROI
+class WROI : public osg::Geode
 {
 public:
+    WROI();
+
     /**
      * Need virtual destructor because of virtual function.
      */
@@ -70,7 +72,7 @@ public:
 
 protected:
     osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
-    osg::ref_ptr< osg::Geode> m_geode; //!< The graphical representation of the ROI.
+
     bool m_isModified; //!< Indicates whether a changed ROI has already taken effect. Means: if true, still some updates needed.
 
     /**
