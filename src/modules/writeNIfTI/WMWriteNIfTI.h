@@ -119,6 +119,8 @@ private:
      */
     WPropFilename m_filename;
 
+    boost::shared_ptr< WCondition > m_write; //!< Fires to indicate a changed filename.
+
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
 };
