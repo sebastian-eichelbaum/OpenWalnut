@@ -45,6 +45,14 @@
 struct Triangle
 {
     size_t pointID[3]; //!< the ID of the vertices representing the triangle corners
+
+    /**
+     * Compares two triangles. Triangles having the same position in different order are considered different since it maybe to expensive.
+     *
+     * \param rhs The other triangle.
+     *
+     * \return True if and only if both triangles having the same positions in same order.
+     */
     bool operator==( const Triangle& rhs ) const;
 };
 
@@ -69,6 +77,14 @@ namespace tm_utils
      */
     boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
 
+    /**
+     * Prints for each mesh #vertices and #triangles, as well as each triangle with its positions. No point IDs are printed.
+     *
+     * \param os Output stream to print on.
+     * \param rhs The mesh instance.
+     *
+     * \return The output stream again for further usage.
+     */
     std::ostream& operator<<( std::ostream& os, const WTriangleMesh& rhs );
 }
 
@@ -322,6 +338,5 @@ inline bool WTriangleMesh::operator==( const WTriangleMesh& rhs ) const
     return std::equal( m_vertices.begin(), m_vertices.end(), rhs.m_vertices.begin() ) &&
            std::equal( m_triangles.begin(), m_triangles.end(), rhs.m_triangles.begin() );
 }
-
 
 #endif  // WTRIANGLEMESH_H
