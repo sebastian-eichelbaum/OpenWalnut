@@ -25,8 +25,11 @@
 #ifndef WGETEXTUREHUD_H
 #define WGETEXTUREHUD_H
 
+#include <list>
+
+#include <boost/thread.hpp>
+
 #include <osg/Projection>
-#include <osg/MatrixTransform>
 #include <osg/Geode>
 #include <osg/Texture2D>
 
@@ -55,7 +58,7 @@ public:
     /**
      * Class implementing one texture HUD entry representing a texture in the HUD.
      */
-    class WGETextureHudEntry: public osg::Geode
+    class WGETextureHudEntry: public osg::MatrixTransform
     {
     public: // NOLINT
 
@@ -63,15 +66,35 @@ public:
          * Constructor.
          *
          * \param texture the texture to show in the HUD
+         * \param transparency true if transparency should be shown
          */
-        explicit WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture );
+        WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency = false );
 
         /**
          * Destructor.
          */
         ~WGETextureHudEntry();
 
+        /**
+         * Returns the real width of the contained texture.
+         *
+         * \return the real width.
+         */
+        unsigned int getRealWidth();
+
+        /**
+         * Returns the real height of the contained texture.
+         *
+         * \return the real height.
+         */
+        unsigned int getRealHeight();
+
     protected:
+
+        /**
+         * The texture.
+         */
+        osg::ref_ptr< osg::Texture2D > m_texture;
     private:
     };
 
@@ -89,9 +112,64 @@ public:
      */
     void removeTexture( osg::ref_ptr< WGETextureHudEntry > texture );
 
+    /**
+     * Gets the maximum width of a tex element.
+     *
+     * \return the maximum width.
+     */
+    unsigned int getMaxElementWidth();
+
+    /**
+     * Sets the new maximum width of a texture column.
+     *
+     * \param width the new width
+     */
+    void setMaxElementWidth( unsigned int width );
+
 protected:
 
+    /**
+     * The group Node where all those texture reside in. Theoretically, it is nonsense to use a separate group inside a osg::Projection since it
+     * also is a group node. But WGEGroupNode offers all those nice and thread-safe insert/remove methods.
+     */
+    osg::ref_ptr< WGEGroupNode > m_group;
+
+    /**
+     * The maximum element width.
+     */
+    unsigned int m_maxElementWidth;
+
 private:
+
+    /**
+     * Callback which aligns and renders the textures.
+     */
+    class SafeUpdateCallback : public osg::NodeCallback
+    {
+    public: // NOLINT
+
+        /**
+         * Constructor.
+         *
+         * \param hud just set the creating HUD as pointer for later reference.
+         */
+        explicit SafeUpdateCallback( osg::ref_ptr< WGETextureHud > hud ): m_hud( hud )
+        {
+        };
+
+        /**
+         * operator () - called during the update traversal.
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+
+        /**
+         * Pointer used to access members of the hud. This is faster than casting the first parameter of operator() to WGETextureHud.
+         */
+        osg::ref_ptr< WGETextureHud > m_hud;
+    };
 };
 
 #endif  // WGETEXTUREHUD_H

@@ -22,14 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
 #include <osg/Camera>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/MatrixTransform>
 
 #include "WGETextureHud.h"
 
 WGETextureHud::WGETextureHud():
-    osg::Projection()
+    osg::Projection(),
+    m_group( new WGEGroupNode ),
+    m_maxElementWidth( 256 )
 {
     // Initialize the projection matrix for viewing everything we
     // will add as descendants of this node. Use screen coordinates
@@ -38,6 +43,8 @@ WGETextureHud::WGETextureHud():
     // pixel coordinates.
     setMatrix( osg::Matrix::ortho2D( 0, 1024, 0, 768 ) );
     getOrCreateStateSet()->setRenderBinDetails( 1000, "RenderBin" );
+    addChild( m_group );
+    m_group->addUpdateCallback( new SafeUpdateCallback( this ) );
 }
 
 WGETextureHud::~WGETextureHud()
@@ -45,19 +52,71 @@ WGETextureHud::~WGETextureHud()
     // cleanup
 }
 
+void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    // TODO(ebaum): all those values (viewport, size of textures) are hardcoded. This is ugly but works for now.
+
+    // set the new size of the widget (how can we get this data?)
+    unsigned int screenHeight = 768;
+    unsigned int screenWidth = 1204;
+    m_hud->setMatrix( osg::Matrix::ortho2D( 0, screenWidth, 0, screenHeight ) );
+
+    // update all those
+    osg::Group* group = static_cast< osg::Group* >( node );
+
+    unsigned int nextX = 0;
+    unsigned int nextY = 0;
+
+    // iterate all children
+    for( size_t i = 0; i < group->getNumChildren(); ++i )
+    {
+        // all children are WGETextureHudEntries.
+        WGETextureHudEntry* tex = static_cast< WGETextureHudEntry* >( group->getChild( i ) );
+
+        // scale the height of the quad (texture) to have proper aspect ratio
+        double height = m_hud->getMaxElementWidth() * tex->getRealHeight() / tex->getRealWidth();
+
+        // scale them to their final size
+        osg::Matrixd scale = osg::Matrixd::scale( m_hud->getMaxElementWidth(), height, 1.0 );
+
+        // need to add a "linebreak"?
+        if ( nextY + height > screenHeight )
+        {
+            nextX += m_hud->getMaxElementWidth() + 5;
+            nextY = 0;
+        }
+
+        // transform them to the right place
+        osg::Matrixd translate = osg::Matrixd::translate( static_cast< double >( nextX ), static_cast< double >( nextY ), 0.0 );
+        tex->setMatrix( scale * translate );
+
+        // calc the y position of the next texture
+        nextY += height + 5;
+    }
+
+    // update all the others
+    traverse( node, nv );
+}
+
 void WGETextureHud::addTexture( osg::ref_ptr< WGETextureHudEntry > texture )
 {
-
+    m_group->insert( texture );
 }
 
 void WGETextureHud::removeTexture( osg::ref_ptr< WGETextureHudEntry > texture )
 {
-
+    m_group->remove( texture );
 }
 
-WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture ):
-    osg::Geode()
+WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency ):
+    osg::MatrixTransform(),
+    m_texture( texture )
 {
+    setMatrix( osg::Matrixd::identity() );
+    setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+
+    osg::Geode* geode = new osg::Geode();
+
     // Set up geometry for the HUD and add it to the HUD
     osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();
 
@@ -92,14 +151,53 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     HUDBackgroundGeometry->setTexCoordArray( 0, HUDBackgroundTex );
     HUDBackgroundGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-    addDrawable( HUDBackgroundGeometry );
+    geode->addDrawable( HUDBackgroundGeometry );
 
     // Create and set up a state set using the texture from above
-    getOrCreateStateSet()->setTextureAttributeAndModes( 0, texture, osg::StateAttribute::ON );
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setTextureAttributeAndModes( 0, texture, osg::StateAttribute::ON );
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+
+    // en/disable blending
+    if ( !transparency )
+    {
+        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_BLEND, osg::StateAttribute::OFF );
+        //state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    }
+    else
+    {
+        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_BLEND, osg::StateAttribute::ON );
+        state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    }
+
+    // add the geode
+    addChild( geode );
 }
 
 WGETextureHud::WGETextureHudEntry::~WGETextureHudEntry()
 {
     // cleanup
+}
+
+unsigned int WGETextureHud::WGETextureHudEntry::getRealWidth()
+{
+    return m_texture->getTextureWidth();
+}
+
+unsigned int WGETextureHud::WGETextureHudEntry::getRealHeight()
+{
+    return m_texture->getTextureHeight();
+}
+
+unsigned int WGETextureHud::getMaxElementWidth()
+{
+    return m_maxElementWidth;
+}
+
+void WGETextureHud::setMaxElementWidth( unsigned int width )
+{
+    m_maxElementWidth = width;
 }
 
