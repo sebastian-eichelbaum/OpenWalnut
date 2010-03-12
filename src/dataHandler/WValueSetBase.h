@@ -83,6 +83,7 @@ public:
      */
     virtual size_t elementsPerValue() const
     {
+        // Windows Hack: the MSVC obviously does not support ( oh wonder, which wonder ) pow with integers.
         return static_cast< size_t >( std::pow( static_cast< double >( m_dimension ), static_cast< int >( m_order ) ) );
     }
 

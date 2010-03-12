@@ -22,54 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPAGEREEGLIBEEP_H
-#define WPAGEREEGLIBEEP_H
+#ifndef WEEG2_H
+#define WEEG2_H
 
 #include <cstddef>
 
-#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WEEGValueMatrix.h"
-#include "WPagerEEG.h"
-
-typedef struct eeg_dummy_t eeg_t;
+#include "io/WPagerEEG.h"
+#include "WEEG2Segment.h"
+#include "WRecording.h"
 
 
 /**
- * Class to load an EEG file and keep it open to support paging.
- * Uses the libeep library to read the CNT format.
+ * Class which contains EEG recording data, read from a WPagerEEG.
  * \ingroup dataHandler
  */
-class WPagerEEGLibeep : public WPagerEEG
+class WEEG2 : public WRecording
 {
 public:
     /**
      * Constructor
      *
-     * \param fileName path and filename to a CNT file
+     * \param pager pager class which contains the data, read from a file on
+     *              demand
      */
-    explicit WPagerEEGLibeep( std::string fileName );
+    explicit WEEG2( boost::shared_ptr< WPagerEEG > pager );
 
     /**
-     * Virtual destructor
+     * Get the number of segments this EEG consists of.
+     *
+     * \return number of segments
      */
-    virtual ~WPagerEEGLibeep();
+    std::size_t getNumberOfSegments() const;
 
-    virtual std::size_t getNumberOfSegments() const;
-
-    virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const;
+    /**
+     * Get one segment.
+     *
+     * \param segmentID number of segment
+     * \return segment
+     */
+    boost::shared_ptr< WEEG2Segment > getSegment( std::size_t segmentID ) const;
 
 protected:
 private:
-    eeg_t* m_eeg; //!< handler for the cnt file opened by libeep
-
-    std::size_t m_nbChannels; //!< number of channels
-    std::size_t m_nbSamples; //!< number of samples
-
-    std::vector< double > m_scales; //!< scale factors of the channels
+    std::vector< boost::shared_ptr< WEEG2Segment > > m_segments; //!< list of all segments this EEG consists of
 };
 
-#endif  // WPAGEREEGLIBEEP_H
+#endif  // WEEG2_H

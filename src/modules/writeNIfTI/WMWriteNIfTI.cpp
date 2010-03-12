@@ -42,7 +42,8 @@
 #include "WMWriteNIfTI.h"
 
 WMWriteNIfTI::WMWriteNIfTI() :
-    WModule()
+    WModule(),
+    m_write( new WCondition() )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -87,6 +88,7 @@ void WMWriteNIfTI::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_write );
 
     // signal ready state
     ready();
@@ -104,7 +106,7 @@ void WMWriteNIfTI::moduleMain()
             m_moduleState.wait();
             continue;
         }
-
+        writeToFile();
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
         m_moduleState.wait();
@@ -127,10 +129,7 @@ void WMWriteNIfTI::connectors()
 void WMWriteNIfTI::properties()
 {
     m_filename = m_properties2->addProperty( "Filename", "Filename where to write the nifty file to.",
-                    WKernel::getAppPathObject() );
-
-    // bind a custom callback, triggered whenever the filename changes
-    m_filename->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
+                                             WKernel::getAppPathObject(), m_write );
 }
 
 template< typename T > void WMWriteNIfTI::castData( void*& returnData )
@@ -177,6 +176,29 @@ void WMWriteNIfTI::writeToFile()
     outField->slice_dim = 3;
 
     outField->qform_code = 1;
+    outField->sform_code = 0;
+
+    wmath::WMatrix< double > matrix = grid->getTransformationMatrix();
+    for( size_t i = 0; i < 4; ++i )
+    {
+        for( size_t j = 0; j < 4; ++j )
+        {
+            outField->qto_xyz.m[i][j] = matrix( i, j );
+        }
+    }
+
+    {
+        float dx, dy, dz;
+        nifti_mat44_to_quatern( outField->qto_xyz, &( outField->quatern_b ),
+                                &( outField->quatern_c ), &( outField->quatern_d ),
+                                &( outField->qoffset_x ), &( outField->qoffset_y ),
+                                &( outField->qoffset_z ),
+                                &dx, &dy, &dz,
+                                &( outField->qfac ) );
+    }
+
+    outField->qto_ijk = nifti_mat44_inverse( outField->qto_xyz );
+
 
     void* data = 0;
     switch( ( *m_dataSet ).getValueSet()->getDataType() )

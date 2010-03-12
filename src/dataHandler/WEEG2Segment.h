@@ -22,54 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPAGEREEGLIBEEP_H
-#define WPAGEREEGLIBEEP_H
+#ifndef WEEG2SEGMENT_H
+#define WEEG2SEGMENT_H
 
 #include <cstddef>
 
-#include <string>
-#include <vector>
-
 #include <boost/shared_ptr.hpp>
 
-#include "../WEEGValueMatrix.h"
-#include "WPagerEEG.h"
-
-typedef struct eeg_dummy_t eeg_t;
+#include "io/WPagerEEG.h"
+#include "WEEGValueMatrix.h"
 
 
 /**
- * Class to load an EEG file and keep it open to support paging.
- * Uses the libeep library to read the CNT format.
+ * Class which contains one segment of an EEG recording, read from a WPagerEEG.
  * \ingroup dataHandler
  */
-class WPagerEEGLibeep : public WPagerEEG
+class WEEG2Segment
 {
 public:
     /**
      * Constructor
      *
-     * \param fileName path and filename to a CNT file
+     * \param pager pager class which contains the data, read from a file on
+     *              demand
+     * \param segmentID number of this segment
      */
-    explicit WPagerEEGLibeep( std::string fileName );
+    WEEG2Segment( boost::shared_ptr< WPagerEEG > pager, std::size_t segmentID );
 
     /**
-     * Virtual destructor
+     * Get the values of all channels for a given sample range.
+     *
+     * \param start start sample of the sample range
+     * \param length length of the sample range
+     * \return matrix of values
      */
-    virtual ~WPagerEEGLibeep();
-
-    virtual std::size_t getNumberOfSegments() const;
-
-    virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const;
+    boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t start, std::size_t length ) const;
 
 protected:
 private:
-    eeg_t* m_eeg; //!< handler for the cnt file opened by libeep
-
-    std::size_t m_nbChannels; //!< number of channels
-    std::size_t m_nbSamples; //!< number of samples
-
-    std::vector< double > m_scales; //!< scale factors of the channels
+    boost::shared_ptr< WPagerEEG > m_pager; //!< pager class which contains the data, read from a file on demand
+    std::size_t m_segmentID; //!< number of this segment
 };
 
-#endif  // WPAGEREEGLIBEEP_H
+#endif  // WEEG2SEGMENT_H

@@ -140,6 +140,13 @@ public:
     boost::shared_ptr< WGEViewer > getViewerByName( std::string name );
 
     /**
+     * Returns the unnamed view, which is the view for the default scene which can be acquired using getScene().
+     *
+     * \return the viewer for the default scene.
+     */
+    boost::shared_ptr< WGEViewer > getViewer();
+
+    /**
      * Returns the currently selected default font usable in osgText nodes.
      *
      * \return Filename of the default font.

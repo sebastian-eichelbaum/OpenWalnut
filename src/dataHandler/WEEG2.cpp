@@ -22,54 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPAGEREEGLIBEEP_H
-#define WPAGEREEGLIBEEP_H
-
 #include <cstddef>
 
-#include <string>
+#include <sstream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WEEGValueMatrix.h"
-#include "WPagerEEG.h"
+#include "../common/exceptions/WOutOfBounds.h"
+#include "io/WPagerEEG.h"
+#include "WEEG2.h"
 
-typedef struct eeg_dummy_t eeg_t;
 
-
-/**
- * Class to load an EEG file and keep it open to support paging.
- * Uses the libeep library to read the CNT format.
- * \ingroup dataHandler
- */
-class WPagerEEGLibeep : public WPagerEEG
+WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager )
 {
-public:
-    /**
-     * Constructor
-     *
-     * \param fileName path and filename to a CNT file
-     */
-    explicit WPagerEEGLibeep( std::string fileName );
+    m_segments.reserve( pager->getNumberOfSegments() );
+    for( std::size_t segmentID = 0; segmentID < pager->getNumberOfSegments(); ++segmentID )
+    {
+        m_segments.push_back( boost::shared_ptr< WEEG2Segment >( new WEEG2Segment( pager, segmentID ) ) );
+    }
+}
 
-    /**
-     * Virtual destructor
-     */
-    virtual ~WPagerEEGLibeep();
+std::size_t WEEG2::getNumberOfSegments() const
+{
+    return m_segments.size();
+}
 
-    virtual std::size_t getNumberOfSegments() const;
+boost::shared_ptr< WEEG2Segment > WEEG2::getSegment( std::size_t segmentID ) const
+{
+    if( segmentID >= m_segments.size() )
+    {
+        std::ostringstream stream;
+        stream << "The EEG has no segment number " << segmentID;
+        throw WOutOfBounds( stream.str() );
+    }
 
-    virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const;
-
-protected:
-private:
-    eeg_t* m_eeg; //!< handler for the cnt file opened by libeep
-
-    std::size_t m_nbChannels; //!< number of channels
-    std::size_t m_nbSamples; //!< number of samples
-
-    std::vector< double > m_scales; //!< scale factors of the channels
-};
-
-#endif  // WPAGEREEGLIBEEP_H
+    return m_segments[segmentID];
+}
