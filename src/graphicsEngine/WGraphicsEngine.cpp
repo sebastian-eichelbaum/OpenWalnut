@@ -177,6 +177,12 @@ boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string nam
     return out;
 }
 
+boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewer()
+{
+    boost::mutex::scoped_lock lock( m_viewersLock );
+    return m_viewers[ "main" ];
+}
+
 void WGraphicsEngine::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
