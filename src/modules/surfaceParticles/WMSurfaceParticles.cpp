@@ -40,6 +40,7 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEOffscreen.h"
+#include "../../graphicsEngine/WGETextureHud.h"
 
 #include "WMSurfaceParticles.h"
 #include "surfaceParticles.xpm"
@@ -351,11 +352,13 @@ void WMSurfaceParticles::moduleMain()
 
             // The surface
             osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen1->attach( osg::Camera::COLOR_BUFFER0 );
-            osg::ref_ptr< osg::Texture2D > surfaceHudTex = offscreen2->attach( osg::Camera::COLOR_BUFFER0 );
+
+            // For debugging:
+            osg::ref_ptr< WGETextureHud > hud = new WGETextureHud();
+            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
 
             // attach the subgraph
             offscreen1->addChild( cube );
-            offscreen2->addChild( createTextureHud( surfaceTex ) );
 
             // **********************************************************************************************
             // Update scene
@@ -364,9 +367,8 @@ void WMSurfaceParticles::moduleMain()
             // update node
             debugLog() << "Adding new rendering.";
             m_rootNode->insert( offscreen1 );
-            m_rootNode->insert( offscreen2 );
             m_rootNode->insert( cube );
-            m_rootNode->insert( createTextureHud( surfaceTex ) );
+            m_rootNode->insert( hud );
         }
     }
 
