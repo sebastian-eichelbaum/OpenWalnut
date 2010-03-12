@@ -78,7 +78,7 @@ namespace tm_utils
     boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
 
     /**
-     * Prints for each mesh #vertices and #triangles, as well as each triangle with its positions. No point IDs are printed.
+     * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
      *
      * \param os Output stream to print on.
      * \param rhs The mesh instance.

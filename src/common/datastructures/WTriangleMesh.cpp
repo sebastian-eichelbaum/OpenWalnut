@@ -273,43 +273,100 @@ std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh& rhs )
     return os << ss.str();
 }
 
+namespace tm_utils
+{
+    /**
+     * WPosition comparator for build up a map with WPositions as keys.
+     */
+    struct WPositionCompareLess
+    {
+        /**
+         * Determines if a position is "smaller" than another one.
+         * \warning This ordering makes no sense at all, but is needed for the map!
+         *
+         * \param pos1 First positions to compare with
+         * \param pos2 Second position to compare with
+         *
+         * \return True if and only if the first, second or third components of the positions are smaller
+         */
+        bool operator()( const wmath::WPosition& pos1, const wmath::WPosition& pos2 ) const
+        {
+            if( pos1[0] < pos2[0] || pos1[1] < pos2[1] || pos1[2] < pos2[2] )
+            {
+                return true;
+            }
+            return false;
+        }
+    };
+}
+
 boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::componentDecomposition( const WTriangleMesh& mesh )
 {
-    // idea: every vertex is in its own component then successivley join those components in accordance with the triangles
-    WUnionFind uf( mesh.getNumVertices() );
+    WUnionFind uf( mesh.getNumVertices() ); // idea: every vertex in own component, then successivley join in accordance with the triangles
 
     const std::vector< Triangle >& triangles = mesh.getTriangles();
     for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
     {
         uf.merge( triangle->pointID[0], triangle->pointID[1] );
-        uf.merge( triangle->pointID[0], triangle->pointID[2] );
-        // uf.merge( triangle->pointID[2], triangle->pointID[1] ); not neede here since they are all in same set already
+        uf.merge( triangle->pointID[0], triangle->pointID[2] ); // uf.merge( triangle->pointID[2], triangle->pointID[1] ); they are already in same
     }
-    // construct meshes
-    std::map< size_t, boost::shared_ptr< WTriangleMesh > > buckets;
+
+    // ATTENTION: The reason for using the complex BucketType instead of pasting vertices directly into a new WTriangleMesh
+    // is performance! For example: If there are many vertices reused inside the former WTriangleMesh mesh, then we want
+    // to reuse them in the new components too. Hence we must determine if a certain vertex is already inside the new component.
+    // Since the vertices are organized in a vector, we can use std::find( v.begin, v.end(), vertexToLookUp ) which results
+    // in O(N^2) or we could use faster lookUp via key and value leading to the map and the somehow complicated BucketType.
+    typedef std::map< wmath::WPosition, size_t, WPositionCompareLess > VertexType; // look up fast if a vertex is already inside the new mesh!
+    typedef std::vector< Triangle > TriangleType;
+    typedef std::pair< VertexType, TriangleType > BucketType; // Later on the Bucket will be transformed into the new WTriangleMesh component
+    std::map< size_t, BucketType > buckets; // Key identify with the cannonical element from UnionFind the new connected component
+
     const std::vector< wmath::WPosition >& vertices = mesh.getVertices();
     for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
     {
         size_t component = uf.find( triangle->pointID[0] );
         if( buckets.find( component ) == buckets.end() )
         {
-            buckets[ component ] = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh() );
+            buckets[ component ] = BucketType( VertexType( WPositionCompareLess() ), TriangleType() ); // create new bucket
         }
-        // we discard the order of the points and indices, but semantically the structure remains the same
 
-        buckets[ component ]->resizeVertices( buckets[ component ]->getNumVertices() + 3 );
-        buckets[ component ]->resizeTriangles( buckets[ component ]->getNumTriangles() + 1 );
-        size_t id = buckets[ component ]->getFastAddVertId();
-        buckets[ component ]->fastAddVert( vertices[ triangle->pointID[0] ] );
-        buckets[ component ]->fastAddVert( vertices[ triangle->pointID[1] ] );
-        buckets[ component ]->fastAddVert( vertices[ triangle->pointID[2] ] );
-        buckets[ component ]->fastAddTriangle( id, id + 1, id + 2 );
+        // Note: We discard the order of the points and indices, but semantically the structure remains the same
+        VertexType& mapRef = buckets[ component ].first; // short hand alias
+        Triangle x = { { 0, 0, 0 } }; // NOLINT
+        for( int i = 0; i < 3; ++i )
+        {
+            size_t id = 0;
+            const wmath::WPosition& vertex = vertices[ triangle->pointID[i] ];
+            if( mapRef.find( vertex ) == mapRef.end() )
+            {
+                id = mapRef.size(); // since size might change in next line
+                mapRef[ vertex ] = id;
+            }
+            else
+            {
+                id = mapRef[ vertex ];
+            }
+            x.pointID[i] = id;
+        }
+
+        buckets[ component ].second.push_back( x );
     }
 
     boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > result( new std::list< boost::shared_ptr< WTriangleMesh > >() );
-    for( std::map< size_t, boost::shared_ptr< WTriangleMesh > >::const_iterator value = buckets.begin(); value != buckets.end(); ++value )
+    for( std::map< size_t, BucketType >::const_iterator cit = buckets.begin(); cit != buckets.end(); ++cit )
     {
-        result->push_back( value->second );
+        std::vector< wmath::WPosition > newVertices;
+        newVertices.resize( cit->second.first.size() );
+        for( VertexType::const_iterator vit = cit->second.first.begin(); vit != cit->second.first.end(); ++vit )
+        {
+            newVertices.at( vit->second ) = vit->first; // if you are sure that vit->second is always valid replace at() call with operator[]
+        }
+        boost::shared_ptr< WTriangleMesh > newMesh( new WTriangleMesh() );
+        newMesh->resizeVertices( newVertices.size() );
+        newMesh->setVertices( newVertices );
+        newMesh->resizeTriangles( cit->second.second.size() );
+        newMesh->setTriangles( cit->second.second );
+        result->push_back( newMesh );
     }
 
     return result;

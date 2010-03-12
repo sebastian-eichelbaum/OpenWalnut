@@ -398,6 +398,7 @@ public:
         boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > components = tm_utils::componentDecomposition( mesh );
         TS_ASSERT_EQUALS( components->size(), 7 );
 
+        std::list< boost::shared_ptr< WTriangleMesh > >::const_iterator cit = components->begin();
         WTriangleMesh expected;
         expected.resizeVertices( 3 );
         expected.fastAddVert( wmath::WPosition( 1, 0, 0 ) );
@@ -405,7 +406,16 @@ public:
         expected.fastAddVert( wmath::WPosition( 2, 1, 0 ) );
         expected.resizeTriangles( 1 );
         expected.fastAddTriangle( 0, 1, 2 );
-        TS_ASSERT_EQUALS( *components->front(), expected );
+        TS_ASSERT_EQUALS( **cit, expected );
+
+        expected.resizeVertices( 2 );
+        expected.m_vertices[ 0 ] = wmath::WPosition( 0, 2, 0 );
+        expected.m_vertices[ 1 ] = wmath::WPosition( 2, 2, 0 );
+        expected.resizeTriangles( 1 );
+        Triangle x = { { 0, 1, 1 } }; // NOLINT
+        expected.m_triangles[ 0 ] = x;
+
+        TS_ASSERT_EQUALS( **( ++cit ), expected );
     }
 };
 
