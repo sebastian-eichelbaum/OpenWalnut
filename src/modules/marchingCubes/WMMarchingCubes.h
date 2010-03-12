@@ -136,6 +136,12 @@ public:
     virtual const char** getXPMIcon() const;
 
     /**
+     * Transform the positions to the correct coordiante system given by the grid.
+     * \param positions A data structure holding the positions.
+     */
+    void transformPositions( ID2WPointXYZId* positions );
+
+    /**
      * Generate the triangles for the surface on the given dataSet (inGrid, vals).
      * \param inGrid The grid of the data set
      * \param vals the value set of the data set
