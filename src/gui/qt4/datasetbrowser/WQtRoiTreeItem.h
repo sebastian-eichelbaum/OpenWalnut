@@ -59,13 +59,6 @@ public:
      */
     boost::shared_ptr< WRMROIRepresentation > getRoi();
 
-    /**
-     * Add a roi to the tree view.
-     * \param roi The new roi.
-     */
-    WQtRoiTreeItem* addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi );
-
-
 protected:
 private:
     boost::shared_ptr< WRMROIRepresentation > m_roi; //!< roi

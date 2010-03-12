@@ -49,7 +49,7 @@ public:
      * \param roi
      * \param branch
      */
-    WRMROIRepresentation( boost::shared_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch );
+    WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch );
 
     /**
      * destructor
@@ -61,7 +61,7 @@ public:
      *
      * \return the roi
      */
-    boost::shared_ptr< WROI > getROI();
+    osg::ref_ptr< WROI > getROI();
 
     /**
      * getter for bit field for a selected fiber dataset
@@ -123,7 +123,7 @@ private:
 
     bool m_dirty; //!< dirty flag, indicates the bit fields need updating
 
-    boost::shared_ptr< WROI > m_roi; //!< stores a pointer to the associated roi
+    osg::ref_ptr< WROI > m_roi; //!< stores a pointer to the associated roi
 
     boost::shared_ptr< WRMBranch > m_branch; //!< stores a pointer to the branch this roi belongs to
 

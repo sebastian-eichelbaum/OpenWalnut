@@ -29,6 +29,7 @@
 
 #include <QtGui/QTreeWidgetItem>
 
+#include "WQtBranchTreeItem.h"
 #include "WQtRoiTreeItem.h"
 
 /**
@@ -50,10 +51,10 @@ public:
     virtual ~WQtRoiHeaderTreeItem();
 
     /**
-     * Add a roi to the tree view.
-     * \param roi The new roi.
+     * Add new branch to the tree view.
      */
-    WQtRoiTreeItem* addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi );
+    WQtBranchTreeItem* addBranch();
+
 
 protected:
 private:

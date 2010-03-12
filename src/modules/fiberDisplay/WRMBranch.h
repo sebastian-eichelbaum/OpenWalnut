@@ -60,6 +60,21 @@ public:
     void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
+     * removes a roi from the branch
+     *
+     * \param roi
+     */
+    void removeRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+
+    /**
+     * removes all rois from the branch
+     *
+     */
+    void removeAllRois();
+
+
+
+    /**
      * getter for the bitfield
      *
      * \return the bitfield
@@ -89,6 +104,11 @@ public:
      * sets dirty flag true and notifies the branch
      */
     void setDirty();
+
+    /**
+     * returns whether the branch is empty
+     */
+    bool isEmpty();
 
     /**
      * returns a pointer to the first roi in the branch

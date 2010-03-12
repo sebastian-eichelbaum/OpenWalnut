@@ -24,6 +24,7 @@
 
 #include "WQtTreeWidget.h"
 #include "WQtSubjectTreeItem.h"
+#include <QtGui/QKeyEvent>
 
 WQtTreeWidget::WQtTreeWidget( QWidget* parent )
     : QTreeWidget( parent )
@@ -76,3 +77,8 @@ void WQtTreeWidget::moveTreeItemUp()
         }
     }
 }
+
+//void WQtTreeWidget::keyPressEvent(QKeyEvent *e)
+//{
+//    std::cout << "key pressed: " << e->key() << std::endl;
+//}

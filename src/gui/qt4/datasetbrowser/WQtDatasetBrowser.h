@@ -129,6 +129,13 @@ public:
      */
     boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
 
+    /**
+     * Returns the first roi in the currently selected branch.
+     *
+     * \return pointer to roi representation
+     */
+    boost::shared_ptr< WRMROIRepresentation > getFirstRoiInSelectedBranch();
+
 protected:
 
     /**
@@ -196,6 +203,11 @@ private slots:
      * change order of items, move currently selected item up
      */
     void moveTreeItemUp();
+
+    /**
+     * delete a tree item
+     */
+    void deleteTreeItem();
 
 
 signals:
