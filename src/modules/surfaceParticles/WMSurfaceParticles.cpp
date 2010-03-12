@@ -39,7 +39,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WOffscreen.h"
+#include "../../graphicsEngine/WGEOffscreen.h"
 
 #include "WMSurfaceParticles.h"
 #include "surfaceParticles.xpm"
@@ -342,8 +342,8 @@ void WMSurfaceParticles::moduleMain()
             osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
 
             // setup the FBO
-            osg::ref_ptr< WOffscreen > offscreen1 = new WOffscreen( sceneCamera, 0 );
-            osg::ref_ptr< WOffscreen > offscreen2 = new WOffscreen( sceneCamera, 1 );
+            osg::ref_ptr< WGEOffscreen > offscreen1 = new WGEOffscreen( sceneCamera, 0 );
+            osg::ref_ptr< WGEOffscreen > offscreen2 = new WGEOffscreen( sceneCamera, 1 );
 
             // **********************************************************************************************
             // create several textures and attach them
