@@ -47,6 +47,7 @@
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
 #include "../../common/math/WVector3D.h"
+#include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -250,6 +251,25 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 }
 
 
+void WMMarchingCubes::transformPositions( ID2WPointXYZId* positions )
+{
+    wmath::WMatrix< double > mat = m_grid->getTransformationMatrix();
+    for( ID2WPointXYZId::iterator it = positions->begin(); it != positions->end(); ++it )
+    {
+        wmath::WPosition pos = wmath::WPosition( it->second.x, it->second.y, it->second.z );
+
+        std::vector< double > resultPos4D( 4 );
+        resultPos4D[0] = mat( 0, 0 ) * pos[0] + mat( 0, 1 ) * pos[1] + mat( 0, 2 ) * pos[2] + mat( 0, 3 ) * 1;
+        resultPos4D[1] = mat( 1, 0 ) * pos[0] + mat( 1, 1 ) * pos[1] + mat( 1, 2 ) * pos[2] + mat( 1, 3 ) * 1;
+        resultPos4D[2] = mat( 2, 0 ) * pos[0] + mat( 2, 1 ) * pos[1] + mat( 2, 2 ) * pos[2] + mat( 2, 3 ) * 1;
+        resultPos4D[3] = mat( 3, 0 ) * pos[0] + mat( 3, 1 ) * pos[1] + mat( 3, 2 ) * pos[2] + mat( 3, 3 ) * 1;
+
+        it->second.x = resultPos4D[0] / resultPos4D[3];
+        it->second.y = resultPos4D[1] / resultPos4D[3];
+        it->second.z = resultPos4D[2] / resultPos4D[3];
+    }
+}
+
 template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr< WGrid > inGrid,
                                                               boost::shared_ptr< WValueSet< T > > vals,
                                                               double isoValue )
@@ -415,6 +435,8 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
             }
         }
     }
+
+    transformPositions( &m_idToVertices );
     progress->finish();
 }
 
