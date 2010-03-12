@@ -245,7 +245,7 @@ void WMSurfaceParticles::moduleMain()
 
             // setup the FBO
             osg::ref_ptr< WGEOffscreen > offscreen1 = new WGEOffscreen( sceneCamera, 0 );
-            offscreen1->setClearColor( osg::Vec4( 1.0, 0.0, 0.0, 0.0 ) );
+            offscreen1->setClearColor( osg::Vec4( 1.0, 1.0, 1.0, 0.5 ) );
             osg::ref_ptr< WGEOffscreen > offscreen2 = new WGEOffscreen( sceneCamera, 1 );
 
             // **********************************************************************************************
@@ -257,12 +257,6 @@ void WMSurfaceParticles::moduleMain()
 
             // For debugging:
             osg::ref_ptr< WGETextureHud > hud = new WGETextureHud();
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex, true ) );
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex, true ) );
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex, true ) );
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
             hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
 
             // attach the subgraph

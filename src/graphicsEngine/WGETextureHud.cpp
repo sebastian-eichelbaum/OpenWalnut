@@ -28,6 +28,7 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/MatrixTransform>
+#include <osg/TexEnv>
 
 #include "WGETextureHud.h"
 
@@ -36,15 +37,9 @@ WGETextureHud::WGETextureHud():
     m_group( new WGEGroupNode ),
     m_maxElementWidth( 256 )
 {
-    // Initialize the projection matrix for viewing everything we
-    // will add as descendants of this node. Use screen coordinates
-    // to define the horizontal and vertical extent of the projection
-    // matrix. Positions described under this node will equate to
-    // pixel coordinates.
-    setMatrix( osg::Matrix::ortho2D( 0, 1024, 0, 768 ) );
     getOrCreateStateSet()->setRenderBinDetails( 1000, "RenderBin" );
-    addChild( m_group );
     m_group->addUpdateCallback( new SafeUpdateCallback( this ) );
+    addChild( m_group );
 }
 
 WGETextureHud::~WGETextureHud()
@@ -55,17 +50,21 @@ WGETextureHud::~WGETextureHud()
 void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // TODO(ebaum): all those values (viewport, size of textures) are hardcoded. This is ugly but works for now.
+    // TODO(ebaum): use shader to selectively render channels ( if one only wants to see the alpha channel for example).
 
     // set the new size of the widget (how can we get this data?)
-    unsigned int screenHeight = 768;
     unsigned int screenWidth = 1204;
+    unsigned int screenHeight = 768;
     m_hud->setMatrix( osg::Matrix::ortho2D( 0, screenWidth, 0, screenHeight ) );
+
+    // border around each element
+    unsigned int border = 5;
 
     // update all those
     osg::Group* group = static_cast< osg::Group* >( node );
 
-    unsigned int nextX = 0;
-    unsigned int nextY = 0;
+    unsigned int nextX = border;
+    unsigned int nextY = border;
 
     // iterate all children
     for( size_t i = 0; i < group->getNumChildren(); ++i )
@@ -80,10 +79,10 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         osg::Matrixd scale = osg::Matrixd::scale( m_hud->getMaxElementWidth(), height, 1.0 );
 
         // need to add a "linebreak"?
-        if ( nextY + height > screenHeight )
+        if ( nextY + height + border > screenHeight )
         {
-            nextX += m_hud->getMaxElementWidth() + 5;
-            nextY = 0;
+            nextX += m_hud->getMaxElementWidth() + border;
+            nextY = border;
         }
 
         // transform them to the right place
@@ -91,7 +90,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         tex->setMatrix( scale * translate );
 
         // calc the y position of the next texture
-        nextY += height + 5;
+        nextY += height + border;
     }
 
     // update all the others
@@ -157,13 +156,19 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     osg::StateSet* state = geode->getOrCreateStateSet();
     state->setTextureAttributeAndModes( 0, texture, osg::StateAttribute::ON );
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+    state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+    // This disables colorblending of the texture with the underlying quad
+    // osg::TexEnv* decalState = new osg::TexEnv();
+    // decalState->setMode( osg::TexEnv::DECAL );
+    // state->setTextureAttribute( 0, decalState, osg::StateAttribute::ON );
 
     // en/disable blending
     if ( !transparency )
     {
         state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
         state->setMode( GL_BLEND, osg::StateAttribute::OFF );
-        //state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     }
     else
     {
