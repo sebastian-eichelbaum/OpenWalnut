@@ -33,8 +33,8 @@ typedef enum
     MODULEHEADER,
     MODULE,
     ROIHEADER,
-    ROI,
-    SUBROI
+    ROIBRANCH,
+    ROI
 }
 WTreeItemType;
 

@@ -38,7 +38,7 @@ WROIManagerFibers::~WROIManagerFibers()
 {
 }
 
-void WROIManagerFibers::addRoi( boost::shared_ptr< WROI > newRoi )
+void WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi )
 {
     // create new branch
     boost::shared_ptr< WRMBranch > newBranch = boost::shared_ptr< WRMBranch >( new WRMBranch( shared_from_this() ) );
@@ -58,7 +58,7 @@ void WROIManagerFibers::addRoi( boost::shared_ptr< WROI > newRoi )
     }
 }
 
-void WROIManagerFibers::addRoi( boost::shared_ptr< WROI > newRoi, boost::shared_ptr< WROI > parentRoi )
+void WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi )
 {
     // find branch
     boost::shared_ptr< WRMBranch > branch;
@@ -83,8 +83,49 @@ void WROIManagerFibers::addRoi( boost::shared_ptr< WROI > newRoi, boost::shared_
     }
 }
 
-void WROIManagerFibers::removeRoi( boost::shared_ptr< WROI > /*roi */ )
+void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 {
+    if ( m_recalcLock )
+        return;
+    m_recalcLock = true;
+
+    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    {
+        ( *iter )->removeRoi( roi );
+
+        if ( (*iter )->isEmpty() )
+        {
+            m_branches.erase( iter );
+            break;
+        }
+    }
+
+    m_recalcLock = false;
+    setDirty();
+}
+
+void WROIManagerFibers::removeBranch( boost::shared_ptr< WRMROIRepresentation > roi )
+{
+    if ( m_recalcLock )
+        return;
+    m_recalcLock = true;
+
+    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    {
+        if ( roi == ( *iter )->getFirstRoi() )
+        {
+            ( *iter )->removeAllRois();
+        }
+
+        if ( (*iter )->isEmpty() )
+        {
+            m_branches.erase( iter );
+            break;
+        }
+    }
+
+    m_recalcLock = false;
+    setDirty();
 }
 
 void WROIManagerFibers::addFiberDataset( boost::shared_ptr< const WDataSetFibers > fibers )

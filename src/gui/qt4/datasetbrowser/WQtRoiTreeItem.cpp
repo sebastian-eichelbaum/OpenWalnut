@@ -41,12 +41,3 @@ boost::shared_ptr< WRMROIRepresentation > WQtRoiTreeItem::getRoi()
 {
     return m_roi;
 }
-
-WQtRoiTreeItem* WQtRoiTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi )
-{
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, SUBROI );
-
-    std::string name = "ROI";
-    rti->setText( 0, QString( name.c_str() ) );
-    return rti;
-}

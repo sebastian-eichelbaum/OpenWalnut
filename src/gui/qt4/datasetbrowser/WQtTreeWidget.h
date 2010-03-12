@@ -56,6 +56,10 @@ public slots:
      * change order of items, move currently selected item up
      */
     void moveTreeItemUp();
+
+    //void keyPressEvent(QKeyEvent *e);
+
+
 protected:
 private:
 };

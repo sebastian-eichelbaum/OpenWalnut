@@ -45,6 +45,24 @@ void WRMBranch::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     m_rois.push_back( roi );
 }
 
+void WRMBranch::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+{
+    for( std::list< boost::shared_ptr< WRMROIRepresentation > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    {
+        if ( ( *iter ) == roi )
+        {
+            m_rois.erase( iter );
+            setDirty();
+            break;
+        }
+    }
+}
+
+void WRMBranch::removeAllRois()
+{
+    m_rois.clear();
+}
+
 boost::shared_ptr< std::vector< bool > > WRMBranch::getBitField()
 {
     if ( m_dirty )
@@ -126,4 +144,9 @@ boost::shared_ptr< WRMROIRepresentation >WRMBranch::getFirstRoi()
 boost::shared_ptr< WROIManagerFibers > WRMBranch::getRoiManager()
 {
     return m_roiManager;
+}
+
+bool WRMBranch::isEmpty()
+{
+    return m_rois.empty();
 }

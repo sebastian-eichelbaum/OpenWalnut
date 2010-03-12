@@ -29,13 +29,14 @@
 #include "WRMBranch.h"
 
 #include "WROIManagerFibers.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../graphicsEngine/WROIBox.h"
 
 #include "WRMROIRepresentation.h"
 
 
 
-WRMROIRepresentation::WRMROIRepresentation( boost::shared_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch  ) :
+WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch  ) :
     m_roi( roi ),
     m_branch( branch )
 {
@@ -47,9 +48,10 @@ WRMROIRepresentation::WRMROIRepresentation( boost::shared_ptr< WROI > roi, boost
 
 WRMROIRepresentation::~WRMROIRepresentation()
 {
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_roi );
 }
 
-boost::shared_ptr< WROI > WRMROIRepresentation::getROI()
+osg::ref_ptr< WROI > WRMROIRepresentation::getROI()
 {
     return m_roi;
 }
@@ -88,7 +90,7 @@ void WRMROIRepresentation::recalculate()
     m_boxMin.resize( 3 );
     m_boxMax.resize( 3 );
 
-    boost::shared_ptr<WROIBox> box = boost::shared_static_cast<WROIBox>( m_roi );
+    osg::ref_ptr<WROIBox> box = osg::static_pointer_cast<WROIBox>( m_roi );
 
     m_boxMin[0] = box->getMinPos()[0];
     m_boxMax[0] = box->getMaxPos()[0];

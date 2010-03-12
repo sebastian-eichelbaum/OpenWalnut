@@ -39,7 +39,7 @@
 /**
  * A box representing a region of interest.
  */
-class WROIBox : public WROI, public osg::Referenced
+class WROIBox : public WROI
 {
 public:
     /**
@@ -48,6 +48,8 @@ public:
      * \param maxPos Right, upper, back corner. Maximal x, y and z coordinates.
      */
     WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos );
+
+    virtual ~WROIBox();
 
     /**
      * Get the corner of the box that has minimal x, y and z values
