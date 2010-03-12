@@ -53,7 +53,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
     // TODO(ebaum): use shader to selectively render channels ( if one only wants to see the alpha channel for example).
 
     // set the new size of the widget (how can we get this data?)
-    unsigned int screenWidth = 1204;
+    unsigned int screenWidth = 1024;
     unsigned int screenHeight = 768;
     m_hud->setMatrix( osg::Matrix::ortho2D( 0, screenWidth, 0, screenHeight ) );
 

@@ -235,32 +235,41 @@ void WMSurfaceParticles::moduleMain()
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 
             //////////////////////////////////////////////////////////////////////////////////////////////////
-            // Render the surface to a texture
+            // Prepare FBO
             //////////////////////////////////////////////////////////////////////////////////////////////////
-
-            // create the first render pass node
-            osg::ref_ptr< osg::Node > cube = renderSurface( bb );
 
             osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
 
             // setup the FBO
             osg::ref_ptr< WGEOffscreen > offscreen1 = new WGEOffscreen( sceneCamera, 0 );
-            offscreen1->setClearColor( osg::Vec4( 1.0, 1.0, 1.0, 0.5 ) );
-            osg::ref_ptr< WGEOffscreen > offscreen2 = new WGEOffscreen( sceneCamera, 1 );
+            offscreen1->setClearColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+
+            // For debugging:
+            osg::ref_ptr< WGETextureHud > hud = new WGETextureHud();
 
             // **********************************************************************************************
-            // create several textures and attach them
+            // Render Pass 1: Rendering the geometry and projecting the directions
             // **********************************************************************************************
 
             // The surface
             osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen1->attach( osg::Camera::COLOR_BUFFER0 );
+            osg::ref_ptr< osg::Texture2D > dirTex = offscreen1->attach( osg::Camera::COLOR_BUFFER1 );
 
-            // For debugging:
-            osg::ref_ptr< WGETextureHud > hud = new WGETextureHud();
             hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
+            hud->addTexture( new WGETextureHud::WGETextureHudEntry( dirTex ) );
 
-            // attach the subgraph
+            // attach the geometry to the first FBO
+            osg::ref_ptr< osg::Node > cube = renderSurface( bb );
             offscreen1->addChild( cube );
+
+
+
+
+
+
+
+
+
 
             // **********************************************************************************************
             // Update scene
@@ -269,7 +278,6 @@ void WMSurfaceParticles::moduleMain()
             // update node
             debugLog() << "Adding new rendering.";
             m_rootNode->insert( offscreen1 );
-            m_rootNode->insert( cube );
             m_rootNode->insert( hud );
         }
     }

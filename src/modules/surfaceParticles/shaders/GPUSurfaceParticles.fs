@@ -230,6 +230,7 @@ void main()
 
     // set the color
     color.a = u_alpha;
-    gl_FragColor = color;
+    gl_FragData[0] = color;
+    gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
 }
 
