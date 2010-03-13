@@ -30,6 +30,7 @@
 #include "../../common/datastructures/WTriangleMesh.h"
 
 #include "WMTriangleMeshRenderer.h"
+#include "trianglemeshrenderer.xpm"
 
 WMTriangleMeshRenderer::WMTriangleMeshRenderer():
     WModule(),
@@ -47,6 +48,11 @@ boost::shared_ptr< WModule > WMTriangleMeshRenderer::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMTriangleMeshRenderer() );
+}
+
+const char** WMTriangleMeshRenderer::getXPMIcon() const
+{
+    return trianglemeshrenderer_xpm;
 }
 
 const std::string WMTriangleMeshRenderer::getName() const
