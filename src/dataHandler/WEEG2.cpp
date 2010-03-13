@@ -30,22 +30,41 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/exceptions/WOutOfBounds.h"
+#include "exceptions/WDHException.h"
 #include "io/WPagerEEG.h"
+#include "WEEGChannelInfo.h"
+#include "WEEG2Segment.h"
 #include "WEEG2.h"
 
 
 WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager )
 {
+    if( !pager )
+    {
+        throw WDHException( "Couldn't construct new EEG: pager invalid" );
+    }
+
     m_segments.reserve( pager->getNumberOfSegments() );
     for( std::size_t segmentID = 0; segmentID < pager->getNumberOfSegments(); ++segmentID )
     {
         m_segments.push_back( boost::shared_ptr< WEEG2Segment >( new WEEG2Segment( pager, segmentID ) ) );
+    }
+
+    m_channelInfos.reserve( pager->getNumberOfChannels() );
+    for( std::size_t channelID = 0; channelID < pager->getNumberOfChannels(); ++channelID )
+    {
+        m_channelInfos.push_back( boost::shared_ptr< WEEGChannelInfo >( new WEEGChannelInfo( pager, channelID ) ) );
     }
 }
 
 std::size_t WEEG2::getNumberOfSegments() const
 {
     return m_segments.size();
+}
+
+std::size_t WEEG2::getNumberOfChannels() const
+{
+    return m_channelInfos.size();
 }
 
 boost::shared_ptr< WEEG2Segment > WEEG2::getSegment( std::size_t segmentID ) const
@@ -58,4 +77,16 @@ boost::shared_ptr< WEEG2Segment > WEEG2::getSegment( std::size_t segmentID ) con
     }
 
     return m_segments[segmentID];
+}
+
+boost::shared_ptr< WEEGChannelInfo > WEEG2::getChannelInfo( std::size_t channelID ) const
+{
+    if( channelID >= m_channelInfos.size() )
+    {
+        std::ostringstream stream;
+        stream << "The EEG has no channel number " << channelID;
+        throw WOutOfBounds( stream.str() );
+    }
+
+    return m_channelInfos[channelID];
 }

@@ -48,9 +48,17 @@ public:
 
     /**
      * Get the number of segments this EEG consists of.
+     *
      * \return number of segments
      */
     virtual std::size_t getNumberOfSegments() const = 0;
+
+    /**
+     * Get the number of channels this EEG has.
+     *
+     * \return number of channels
+     */
+    virtual std::size_t getNumberOfChannels() const = 0;
 
     /**
      * Get the values of all channels for a given sample range.
@@ -61,6 +69,14 @@ public:
      * \return matrix of values
      */
     virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const = 0;
+
+    /**
+     * Get the label of a given channel
+     *
+     * \param channelID channelnumber
+     * \return label as string
+     */
+    virtual std::string getChannelLabel( std::size_t channelID ) const = 0;
 
 protected:
     /**

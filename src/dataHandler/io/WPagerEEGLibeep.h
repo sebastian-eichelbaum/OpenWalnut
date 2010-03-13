@@ -60,7 +60,11 @@ public:
 
     virtual std::size_t getNumberOfSegments() const;
 
+    virtual std::size_t getNumberOfChannels() const;
+
     virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const;
+
+    virtual std::string getChannelLabel( std::size_t channelID ) const;
 
 protected:
 private:

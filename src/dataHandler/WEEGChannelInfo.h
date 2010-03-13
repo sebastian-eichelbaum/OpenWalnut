@@ -22,17 +22,45 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEEGVALUEMATRIX_H
-#define WEEGVALUEMATRIX_H
+#ifndef WEEGCHANNELINFO_H
+#define WEEGCHANNELINFO_H
 
-#include <vector>
+#include <cstddef>
+
+#include <string>
+
+#include <boost/shared_ptr.hpp>
+
+#include "io/WPagerEEG.h"
 
 
 /**
- * Values of an EEG.
- * Saved as vector of channels, and each channel is a vector of samples.
+ * Class which contains information about one channel of an EEG recording, read
+ * from a WPagerEEG.
  * \ingroup dataHandler
  */
-typedef std::vector< std::vector< double > > WEEGValueMatrix;
+class WEEGChannelInfo
+{
+public:
+    /**
+     * Constructor
+     *
+     * \param pager pager class which contains the data, read from a file on
+     *              demand
+     * \param channelID number of this channel
+     */
+    WEEGChannelInfo( boost::shared_ptr< WPagerEEG > pager, std::size_t channelID );
 
-#endif  // WEEGVALUEMATRIX_H
+    /**
+     * Get the label of the channel.
+     *
+     * \return label as string
+     */
+    std::string getLabel() const;
+
+protected:
+private:
+    std::string m_label; //!< label of the channel
+};
+
+#endif  // WEEGCHANNELINFO_H

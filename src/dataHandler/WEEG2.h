@@ -32,6 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "io/WPagerEEG.h"
+#include "WEEGChannelInfo.h"
 #include "WEEG2Segment.h"
 #include "WRecording.h"
 
@@ -59,6 +60,13 @@ public:
     std::size_t getNumberOfSegments() const;
 
     /**
+     * Get the number of channels this EEG has.
+     *
+     * \return number of channels
+     */
+    std::size_t getNumberOfChannels() const;
+
+    /**
      * Get one segment.
      *
      * \param segmentID number of segment
@@ -66,9 +74,19 @@ public:
      */
     boost::shared_ptr< WEEG2Segment > getSegment( std::size_t segmentID ) const;
 
+    /**
+     * Get one channel info object.
+     *
+     * \param channelID number of channel
+     * \return object containing information about the channel
+     */
+    boost::shared_ptr< WEEGChannelInfo > getChannelInfo( std::size_t channelID ) const;
+
 protected:
 private:
     std::vector< boost::shared_ptr< WEEG2Segment > > m_segments; //!< list of all segments this EEG consists of
+
+    std::vector< boost::shared_ptr< WEEGChannelInfo > > m_channelInfos; //!< list of the information about all channel infos this EEG has
 };
 
 #endif  // WEEG2_H

@@ -22,17 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEEGVALUEMATRIX_H
-#define WEEGVALUEMATRIX_H
+#include <cstddef>
 
-#include <vector>
+#include <sstream>
+#include <string>
+
+#include <boost/shared_ptr.hpp>
+
+#include "../common/exceptions/WOutOfBounds.h"
+#include "exceptions/WDHException.h"
+#include "io/WPagerEEG.h"
+#include "WEEGChannelInfo.h"
 
 
-/**
- * Values of an EEG.
- * Saved as vector of channels, and each channel is a vector of samples.
- * \ingroup dataHandler
- */
-typedef std::vector< std::vector< double > > WEEGValueMatrix;
+WEEGChannelInfo::WEEGChannelInfo( boost::shared_ptr< WPagerEEG > pager, std::size_t channelID )
+{
+    if( !pager )
+    {
+        throw WDHException( "Couldn't construct new EEG channel info: pager invalid" );
+    }
 
-#endif  // WEEGVALUEMATRIX_H
+    if( channelID >= pager->getNumberOfChannels() )
+    {
+        std::ostringstream stream;
+        stream << "The EEG has no channel number " << channelID;
+        throw WOutOfBounds( stream.str() );
+    }
+
+    m_label = pager->getChannelLabel( channelID );
+}
+
+std::string WEEGChannelInfo::getLabel() const
+{
+    return m_label;
+}
