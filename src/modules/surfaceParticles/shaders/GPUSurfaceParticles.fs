@@ -192,7 +192,7 @@ void main()
 
             // 3: Project direction to image space
             vec2 projectedDirection = projectVector( getDirection( curPoint ) ).xy;
-            float angle = u_animationTime / 5.0;
+            float angle = u_animationTime / 15.0;
             mat2 rot = mat2( vec2( cos( angle ) , sin( angle ) ), vec2( -sin( angle ), cos( angle )  ) );
             projectedDirection = rot * projectedDirection;
 
