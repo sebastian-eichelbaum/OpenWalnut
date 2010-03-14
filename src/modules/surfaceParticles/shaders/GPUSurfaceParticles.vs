@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "TransformationTools.glsl"
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
@@ -70,7 +72,7 @@ void main()
     // Therefore use two points, as we transform a vector
     vec4 camLookAt = vec4( 0.0, 0.0, -1.0, 1.0 );
     vec4 camPos    = vec4( 0.0, 0.0, 0.0, 1.0 );
-    v_ray = ( gl_ModelViewMatrixInverse * ( camLookAt - camPos ) ).xyz;
+    v_ray = worldToLocal( camLookAt, camPos ).xyz;
 
     // Simply project the vertex
     gl_Position = ftransform();

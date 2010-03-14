@@ -39,7 +39,8 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WOffscreen.h"
+#include "../../graphicsEngine/WGEOffscreen.h"
+#include "../../graphicsEngine/WGETextureHud.h"
 
 #include "WMSurfaceParticles.h"
 #include "surfaceParticles.xpm"
@@ -140,7 +141,7 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
 
     // enable transparency
-    rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+    rootState->setMode( GL_BLEND, osg::StateAttribute::OFF );
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // setup all those uniforms
@@ -170,112 +171,17 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     osg::ref_ptr< osg::Uniform > particleSize = new osg::Uniform( "u_particleSize", static_cast< float >( m_particleSize->get() ) );
     particleSize->setUpdateCallback( new SafeUniformCallback( this ) );
 
+    osg::ref_ptr< osg::Uniform > animationTime = new osg::Uniform( "u_animationTime", static_cast< float >( 0 ) );
+    animationTime->setUpdateCallback( new ShaderAnimationCallback() );
+
     rootState->addUniform( isovalue );
     rootState->addUniform( steps );
     rootState->addUniform( alpha );
     rootState->addUniform( gridResolution );
     rootState->addUniform( particleSize );
+    rootState->addUniform( animationTime );
 
     return cube;
-}
-
-/**
- * Create a simple texture display. This is useful for debugging FBO rendered textures.
- *
- * \param tex the texture to show
- *
- * \return the node
- */
-osg::ref_ptr< osg::Node > createTextureHud( osg::Texture2D* tex )
-{
-    osg::ref_ptr< osg::Projection >  m_rootNode = osg::ref_ptr< osg::Projection >( new osg::Projection );
-    m_rootNode->setName( "HUDNode" );
-
-    // Initialize the projection matrix for viewing everything we
-    // will add as descendants of this node. Use screen coordinates
-    // to define the horizontal and vertical extent of the projection
-    // matrix. Positions described under this node will equate to
-    // pixel coordinates.
-    m_rootNode->setMatrix( osg::Matrix::ortho2D( 0, 1024, 0, 768 ) );
-
-    // For the HUD model view matrix use an identity matrix
-    osg::ref_ptr< osg::MatrixTransform > HUDModelViewMatrix = new osg::MatrixTransform;
-    HUDModelViewMatrix->setMatrix( osg::Matrix::identity() );
-
-    // Make sure the model view matrix is not affected by any transforms
-    // above it in the scene graph
-    HUDModelViewMatrix->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
-
-    // Add the HUD projection matrix as a child of the root node
-    // and the HUD model view matrix as a child of the projection matrix
-    // Anything under this node will be viewed using this projection matrix
-    // and positioned with this model view matrix.
-    m_rootNode->addChild( HUDModelViewMatrix );
-    // Add the Geometry node to contain HUD geometry as a child of the
-    // HUD model view matrix.
-
-    osg::ref_ptr< WGEGroupNode >  m_HUDs = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
-
-    // A geometry node for our HUD
-    osg::ref_ptr<osg::Geode> HUDGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-
-    HUDModelViewMatrix->addChild( m_HUDs );
-    m_HUDs->insert( HUDGeode );
-
-    // Set up geometry for the HUD and add it to the HUD
-    osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();
-
-    osg::ref_ptr< osg::Vec3Array > HUDBackgroundVertices = new osg::Vec3Array;
-    HUDBackgroundVertices->push_back( osg::Vec3( 0, 0, -1 ) );
-    HUDBackgroundVertices->push_back( osg::Vec3( 320, 0, -1 ) );
-    HUDBackgroundVertices->push_back( osg::Vec3( 320, 320, -1 ) );
-    HUDBackgroundVertices->push_back( osg::Vec3( 0, 320, -1 ) );
-
-    osg::ref_ptr< osg::Vec3Array > HUDBackgroundTex = new osg::Vec3Array;
-    HUDBackgroundTex->push_back( osg::Vec3( 0, 0, 0 ) );
-    HUDBackgroundTex->push_back( osg::Vec3( 1, 0, 0 ) );
-    HUDBackgroundTex->push_back( osg::Vec3( 1, 1, 0 ) );
-    HUDBackgroundTex->push_back( osg::Vec3( 0, 1, 0 ) );
-
-    osg::ref_ptr< osg::DrawElementsUInt > HUDBackgroundIndices = new osg::DrawElementsUInt( osg::PrimitiveSet::POLYGON, 0 );
-    HUDBackgroundIndices->push_back( 0 );
-    HUDBackgroundIndices->push_back( 1 );
-    HUDBackgroundIndices->push_back( 2 );
-    HUDBackgroundIndices->push_back( 3 );
-
-    osg::ref_ptr< osg::Vec4Array > HUDcolors = new osg::Vec4Array;
-    HUDcolors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-
-    osg::ref_ptr< osg::Vec3Array > HUDnormals = new osg::Vec3Array;
-    HUDnormals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
-    HUDBackgroundGeometry->setNormalArray( HUDnormals );
-    HUDBackgroundGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
-    HUDBackgroundGeometry->addPrimitiveSet( HUDBackgroundIndices );
-    HUDBackgroundGeometry->setVertexArray( HUDBackgroundVertices );
-    HUDBackgroundGeometry->setColorArray( HUDcolors );
-    HUDBackgroundGeometry->setTexCoordArray( 0, HUDBackgroundTex );
-    HUDBackgroundGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-    HUDGeode->addDrawable( HUDBackgroundGeometry );
-
-    // Create and set up a state set using the texture from above
-    osg::ref_ptr< osg::StateSet > HUDStateSet = new osg::StateSet();
-    HUDStateSet->setTextureAttributeAndModes( 0, tex, osg::StateAttribute::ON );
-    HUDGeode->setStateSet( HUDStateSet );
-
-    // For this state set, turn blending on (so alpha texture looks right)
-    //HUDStateSet->setMode( GL_BLEND, osg::StateAttribute::ON );
-
-    // Disable depth testing so geometry is draw regardless of depth values
-    // of geometry already draw.
-    HUDStateSet->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-    HUDStateSet->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-
-    // Need to make sure this geometry is draw last. RenderBins are handled
-    // in numerical order so set bin number to 11
-    HUDStateSet->setRenderBinDetails( 11, "RenderBin" );
-
-    return m_rootNode;
 }
 
 void WMSurfaceParticles::moduleMain()
@@ -333,29 +239,34 @@ void WMSurfaceParticles::moduleMain()
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 
             //////////////////////////////////////////////////////////////////////////////////////////////////
-            // Render the surface to a texture
+            // Prepare FBO
             //////////////////////////////////////////////////////////////////////////////////////////////////
-
-            // create the first render pass node
-            osg::ref_ptr< osg::Node > cube = renderSurface( bb );
 
             osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
 
             // setup the FBO
-            osg::ref_ptr< WOffscreen > offscreen1 = new WOffscreen( sceneCamera, 0 );
-            osg::ref_ptr< WOffscreen > offscreen2 = new WOffscreen( sceneCamera, 1 );
+            osg::ref_ptr< WGEOffscreen > offscreen1 = new WGEOffscreen( sceneCamera, 0 );
+            offscreen1->setClearColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+
+            // For debugging:
+            osg::ref_ptr< WGETextureHud > hud = new WGETextureHud();
+            // increase texture size a little bit
+            hud->setMaxElementWidth( 512 );
 
             // **********************************************************************************************
-            // create several textures and attach them
+            // Render Pass 1: Rendering the geometry and projecting the directions
             // **********************************************************************************************
 
             // The surface
             osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen1->attach( osg::Camera::COLOR_BUFFER0 );
-            osg::ref_ptr< osg::Texture2D > surfaceHudTex = offscreen2->attach( osg::Camera::COLOR_BUFFER0 );
+            osg::ref_ptr< osg::Texture2D > dirTex = offscreen1->attach( osg::Camera::COLOR_BUFFER1 );
 
-            // attach the subgraph
+            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
+            hud->addTexture( new WGETextureHud::WGETextureHudEntry( dirTex ) );
+
+            // attach the geometry to the first FBO
+            osg::ref_ptr< osg::Node > cube = renderSurface( bb );
             offscreen1->addChild( cube );
-            offscreen2->addChild( createTextureHud( surfaceTex ) );
 
             // **********************************************************************************************
             // Update scene
@@ -363,10 +274,9 @@ void WMSurfaceParticles::moduleMain()
 
             // update node
             debugLog() << "Adding new rendering.";
+            m_rootNode->clear();
             m_rootNode->insert( offscreen1 );
-            m_rootNode->insert( offscreen2 );
-            m_rootNode->insert( cube );
-            m_rootNode->insert( createTextureHud( surfaceTex ) );
+            m_rootNode->insert( hud );
         }
     }
 
@@ -379,6 +289,12 @@ void WMSurfaceParticles::SafeUpdateCallback::operator()( osg::Node* node, osg::N
 {
     // currently, there is nothing to update
     traverse( node, nv );
+}
+
+void WMSurfaceParticles::ShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
+{
+    m_counter++;
+    uniform->set( (float)m_counter );
 }
 
 void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WOFFSCREEN_H
-#define WOFFSCREEN_H
+#ifndef WGEOFFSCREEN_H
+#define WGEOFFSCREEN_H
 
 #include <osg/Camera>
 #include <osg/FrameBufferObject>
@@ -33,7 +33,7 @@
  * which, by default, is the same as the camera in the this instance nesting graph. It allows simple attachment of textures to a offscreen
  * rendering as well as easy texture creation.
  */
-class WOffscreen: public osg::Camera
+class WGEOffscreen: public osg::Camera
 {
 public:
 
@@ -43,12 +43,12 @@ public:
      * \param reference the reference camera.
      * \param num the order number. This camera gets rendered at the num'th place in the pre render queue of the subgraph it is attached to.
      */
-    WOffscreen( osg::ref_ptr< osg::Camera > reference, int num = 0 );
+    WGEOffscreen( osg::ref_ptr< osg::Camera > reference, int num = 0 );
 
     /**
      * Destructor.
      */
-    virtual ~WOffscreen();
+    virtual ~WGEOffscreen();
 
     /**
      * Attach a given texture to a buffer.
@@ -104,5 +104,5 @@ protected:
 private:
 };
 
-#endif  // WOFFSCREEN_H
+#endif  // WGEOFFSCREEN_H
 

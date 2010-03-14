@@ -25,9 +25,9 @@
 #include <osg/Texture>
 #include <osg/Texture2D>
 
-#include "WOffscreen.h"
+#include "WGEOffscreen.h"
 
-WOffscreen::WOffscreen( osg::ref_ptr< osg::Camera > reference, int num ):
+WGEOffscreen::WGEOffscreen( osg::ref_ptr< osg::Camera > reference, int num ):
     osg::Camera(),
     m_referenceCamera( reference ),
     m_fbo( new osg::FrameBufferObject() )
@@ -40,33 +40,33 @@ WOffscreen::WOffscreen( osg::ref_ptr< osg::Camera > reference, int num ):
     setRenderOrder( osg::Camera::PRE_RENDER, num );
 }
 
-WOffscreen::~WOffscreen()
+WGEOffscreen::~WGEOffscreen()
 {
     // cleanup
 }
 
-void WOffscreen::attach( BufferComponent buffer, osg::ref_ptr< osg::Texture2D > texture )
+void WGEOffscreen::attach( BufferComponent buffer, osg::ref_ptr< osg::Texture2D > texture )
 {
     m_fbo->setAttachment( buffer, osg::FrameBufferAttachment( texture ) );
 
     osg::Camera::attach( buffer, texture );
 }
 
-osg::ref_ptr< osg::Texture2D > WOffscreen::attach( BufferComponent buffer )
+osg::ref_ptr< osg::Texture2D > WGEOffscreen::attach( BufferComponent buffer )
 {
     osg::ref_ptr< osg::Texture2D > tex = createTexture();
     attach( buffer, tex );
     return tex;
 }
 
-void WOffscreen::detach( BufferComponent buffer )
+void WGEOffscreen::detach( BufferComponent buffer )
 {
     m_fbo->setAttachment( buffer, osg::FrameBufferAttachment() );
 
     osg::Camera::detach( buffer );
 }
 
-osg::ref_ptr< osg::Texture2D > WOffscreen::createTexture( GLint internalFormat )
+osg::ref_ptr< osg::Texture2D > WGEOffscreen::createTexture( GLint internalFormat )
 {
     osg::ref_ptr< osg::Texture2D > tex = new osg::Texture2D;
     tex->setTextureSize( m_referenceCamera->getViewport()->width(), m_referenceCamera->getViewport()->height() );
