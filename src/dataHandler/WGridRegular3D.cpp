@@ -389,3 +389,7 @@ std::vector< size_t > WGridRegular3D::getNeighbours( size_t id ) const
     return neighbours;
 }
 
+bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
+{
+    return getVoxelNum( pos ) != -1; // note this is an integer comparision, hence it should be numerical stable!
+}

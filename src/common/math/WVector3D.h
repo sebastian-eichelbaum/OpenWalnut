@@ -30,6 +30,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "../WLimits.h"
 #include "WValue.h"
 
 namespace wmath
@@ -90,6 +91,16 @@ public:
      */
     double distanceSquare( const WVector3D &other ) const;
 
+    /**
+     * Determines if a position is "smaller" than another one.
+     * \warning This ordering makes no sense at all, but is needed for a map or set!
+     *
+     * \param rhs Right hand side vector to compare with
+     *
+     * \return True if and only if the first, second or third components of the vectors are smaller
+     */
+    bool operator<( const wmath::WVector3D& rhs ) const;
+
 protected:
 private:
 };
@@ -116,6 +127,17 @@ inline double WVector3D::dotProduct( const WVector3D& factor2 ) const
         result += (*this)[i] * factor2[i];
     }
     return result;
+}
+
+inline bool WVector3D::operator<( const wmath::WVector3D& rhs ) const
+{
+    if( ( ( (*this)[0] < rhs[0] ) && ( std::abs( (*this)[0] - rhs[0] ) > wlimits::FLT_EPS ) ) || // using FLT_EPS to make it more robust
+        ( ( (*this)[1] < rhs[1] ) && ( std::abs( (*this)[1] - rhs[1] ) > wlimits::FLT_EPS ) ) ||
+        ( ( (*this)[2] < rhs[2] ) && ( std::abs( (*this)[2] - rhs[2] ) > wlimits::FLT_EPS ) ) )
+    {
+        return true;
+    }
+    return false;
 }
 }  // End of namespace
 #endif  // WVECTOR3D_H

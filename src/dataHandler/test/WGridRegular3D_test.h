@@ -34,6 +34,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../common/WLimits.h"
 #include "../../common/exceptions/WOutOfBounds.h"
 #include "../../common/math/test/WVector3DTraits.h"
 #include "../WGridRegular3D.h"
@@ -516,6 +517,14 @@ public:
         // We should get an exception if the grid is not the origin, as this is not supported so far
         WGridRegular3D g1( 5, 3, 3, 1.4, 2.5, 6.4, 1, 1, 1 );
         TS_ASSERT_THROWS_ANYTHING( g1.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) ) );
+    }
+
+    void testEnclosesQuery( void )
+    {
+        WGridRegular3D g( 2, 2, 2, 1., 1., 1. );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 1, 1, 1 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 1, 1, 1.0 + wlimits::DBL_EPS ) ) );
     }
 
 private:

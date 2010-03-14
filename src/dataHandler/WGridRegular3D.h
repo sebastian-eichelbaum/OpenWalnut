@@ -379,6 +379,15 @@ public:
      */
     std::vector< size_t > getNeighbours( size_t id ) const;
 
+    /**
+     * Decides whether a certain position is inside this grid or not.
+     *
+     * \param pos Position to test
+     *
+     * \return True if and only if the given point is inside or on boundary of this grid, otherwise false.
+     */
+    bool encloses( const wmath::WPosition& pos ) const;
+
 protected:
 private:
     /**

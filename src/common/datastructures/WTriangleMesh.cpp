@@ -273,33 +273,6 @@ std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh& rhs )
     return os << ss.str();
 }
 
-namespace tm_utils
-{
-    /**
-     * WPosition comparator for build up a map with WPositions as keys.
-     */
-    struct WPositionCompareLess
-    {
-        /**
-         * Determines if a position is "smaller" than another one.
-         * \warning This ordering makes no sense at all, but is needed for the map!
-         *
-         * \param pos1 First positions to compare with
-         * \param pos2 Second position to compare with
-         *
-         * \return True if and only if the first, second or third components of the positions are smaller
-         */
-        bool operator()( const wmath::WPosition& pos1, const wmath::WPosition& pos2 ) const
-        {
-            if( pos1[0] < pos2[0] || pos1[1] < pos2[1] || pos1[2] < pos2[2] )
-            {
-                return true;
-            }
-            return false;
-        }
-    };
-}
-
 boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::componentDecomposition( const WTriangleMesh& mesh )
 {
     WUnionFind uf( mesh.getNumVertices() ); // idea: every vertex in own component, then successivley join in accordance with the triangles
@@ -316,7 +289,7 @@ boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::c
     // to reuse them in the new components too. Hence we must determine if a certain vertex is already inside the new component.
     // Since the vertices are organized in a vector, we can use std::find( v.begin, v.end(), vertexToLookUp ) which results
     // in O(N^2) or we could use faster lookUp via key and value leading to the map and the somehow complicated BucketType.
-    typedef std::map< wmath::WPosition, size_t, WPositionCompareLess > VertexType; // look up fast if a vertex is already inside the new mesh!
+    typedef std::map< wmath::WPosition, size_t > VertexType; // look up fast if a vertex is already inside the new mesh!
     typedef std::vector< Triangle > TriangleType;
     typedef std::pair< VertexType, TriangleType > BucketType; // Later on the Bucket will be transformed into the new WTriangleMesh component
     std::map< size_t, BucketType > buckets; // Key identify with the cannonical element from UnionFind the new connected component
@@ -327,7 +300,7 @@ boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::c
         size_t component = uf.find( triangle->pointID[0] );
         if( buckets.find( component ) == buckets.end() )
         {
-            buckets[ component ] = BucketType( VertexType( WPositionCompareLess() ), TriangleType() ); // create new bucket
+            buckets[ component ] = BucketType( VertexType(), TriangleType() ); // create new bucket
         }
 
         // Note: We discard the order of the points and indices, but semantically the structure remains the same
