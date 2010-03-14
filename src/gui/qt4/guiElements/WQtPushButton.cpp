@@ -30,7 +30,9 @@ WQtPushButton::WQtPushButton( QIcon icon, QString name, QWidget* parent, QString
     : QPushButton( icon, label, parent )
 {
     m_name = name;
-    connect( this, SIGNAL( pressed() ), this, SLOT( emitPressed() ) );
+    // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
+    // pressed left button.
+    connect( this, SIGNAL( released() ), this, SLOT( emitPressed() ) );
 }
 
 WQtPushButton::~WQtPushButton()
