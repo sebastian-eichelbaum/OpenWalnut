@@ -102,7 +102,7 @@ bool WTubeDrawable::getColoringMode() const
     return m_globalColoring;
 }
 
-void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
+void WTubeDrawable::drawFibers( osg::RenderInfo& /* renderInfo */ ) const //NOLINT
 {
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
