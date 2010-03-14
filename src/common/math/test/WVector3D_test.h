@@ -222,6 +222,23 @@ public:
         tmp = vec.dotProduct( tmpOrtho );
         TS_ASSERT_DELTA( tmp, 0., delta );
     }
+
+    /**
+     * Upto the precision of wlimits::FLT_EPS the operator< should be stable. If the difference
+     * of two vectors is below FLT_EPS we consider them generously as nearly equal!
+     */
+    void testOperatorLessOnNumericalStability( void )
+    {
+        WVector3D a( 0, 0, 0 );
+        WVector3D b( a );
+        TS_ASSERT( !( a < b ) );
+        b[2] = 1;
+        TS_ASSERT( a < b );
+        a += WVector3D( 0, 0, 1 - wlimits::FLT_EPS );
+        TS_ASSERT( !( a < b ) );
+        a -= WVector3D( 0, 0, wlimits::DBL_EPS );
+        TS_ASSERT( a < b );
+    }
 };
 
 #endif  // WVECTOR3D_TEST_H
