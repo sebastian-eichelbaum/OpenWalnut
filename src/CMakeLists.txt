@@ -221,7 +221,7 @@ ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
 # Set dirs to exclude from stylecheck
-SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/libeep/avr/;/dataHandler/io/libeep/cnt/;/dataHandler/io/libeep/eep/;/common/platformDependent/visualStudio/" )
+SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/dataHandler/io/libeep/avr/;/dataHandler/io/libeep/cnt/;/dataHandler/io/libeep/eep/;/common/platformDependent/visualStudio/" )
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
     FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
@@ -283,6 +283,14 @@ IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
                        COMMAND cp -rf ${PROJECT_SOURCE_DIR}/modules/marchingCubes/test/fixtures ${PROJECT_BINARY_DIR}/modules/marchingCubes
                        COMMENT "Copy fixtures to the right place."
                  )
+ELSE()
+	ADD_CUSTOM_TARGET( fixtures
+					   ALL
+					   COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/FixturesWin.cmake
+					
+    COMMENT "Copy fixtures to the right place."
+  )
+
 ENDIF()
 
 #-------------------------------------------------------------------------------------------------------------

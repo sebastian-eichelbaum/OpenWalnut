@@ -73,28 +73,32 @@ boost::shared_ptr< WDataSet > WLoaderBiosig::load()
 {
     assert( m_fileName.substr( m_fileName.size() - 4 ) == ".edf" && "We expect only EDF so far." );
 
+#ifdef _MSC_VER
+    hd =  biosig_sopen( m_fileName.c_str(), "r", 0 );
+#else
     hd =  sopen( m_fileName.c_str(), "r", 0 );
+#endif
 
     switch( B4C_ERRNUM )
     {
         case B4C_NO_ERROR:
             break;
         case B4C_FORMAT_UNKNOWN:
-            throw WException( "BIOSIG: Unknown format!" );
+            throw WException( std::string( "BIOSIG: Unknown format!" ) );
             break;
         case B4C_FORMAT_UNSUPPORTED:
-            throw WException( "BIOSIG: Unsupported format!" );
+            throw WException( std::string( "BIOSIG: Unsupported format!" ) );
             break;
         case B4C_UNSPECIFIC_ERROR:
-            throw WException( "BIOSIG: Unspecific error occured!" );
+            throw WException( std::string( "BIOSIG: Unspecific error occured!" ) );
             break;
         default:
-            throw WException( "BIOSIG: An error occured! The type is not known to OpenWalnut biosig loader." );
+            throw WException( std::string( "BIOSIG: An error occured! The type is not known to OpenWalnut biosig loader." ) );
     }
 
     if( hd->NRec == -1 )
     {
-        throw WException( "Unknown number of blocks in file loaded by biosig!" );
+        throw WException( std::string( "Unknown number of blocks in file loaded by biosig!" ) );
     }
 
 
@@ -110,7 +114,11 @@ boost::shared_ptr< WDataSet > WLoaderBiosig::load()
 
     biosig_data_type* DATA = 0;
     size_t LEN = 1;
+#ifdef _MSC_VER
+    size_t dummy = biosig_sread( DATA, 0, LEN, hd );
+#else
     size_t dummy = sread( DATA, 0, LEN, hd );
+#endif
     wlog::info( "BIOSIG" ) << " DataSize " << dummy;
     size_t nbSamples = LEN*hd->SPR*hd->NS;
     m_rows =  hd->data.size[0];
@@ -136,7 +144,7 @@ boost::shared_ptr< WDataSet > WLoaderBiosig::load()
     WEEGElectrodeLibrary lib = extractElectrodePositions();
 
     if( hd->NS != lib.size() )
-        throw WDHException( "Contents of edf and elc files are not compatible: Different number of channels." );
+        throw WDHException( std::string( "Contents of edf and elc files are not compatible: Different number of channels." ) );
 
     WEEGChannelLabels labels( hd->NS );
     for( unsigned int i = 0; i < hd->NS; ++i )

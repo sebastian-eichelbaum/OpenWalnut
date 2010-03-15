@@ -25,6 +25,7 @@
 #ifndef WVALUESET_TEST_H
 #define WVALUESET_TEST_H
 
+#include <stdint.h>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>

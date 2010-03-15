@@ -44,7 +44,7 @@ public:
     void testInstantiation( void )
     {
         TS_ASSERT_THROWS_NOTHING( WException e() );
-        TS_ASSERT_THROWS_NOTHING( WException e( "Some message" ) );
+        TS_ASSERT_THROWS_NOTHING( WException e( std::string( "Some message" ) ) );
     }
 
     /**
@@ -52,7 +52,7 @@ public:
      */
     void testGetMessage( void )
     {
-        WException e( "Dummy exception" );
+        WException e( std::string( "Dummy exception" ) );
         e.m_trace.push_back( "first" );
         e.m_trace.push_back( "second" );
         std::string expected = "Dummy exception\n\ntrace: first\ntrace: second";

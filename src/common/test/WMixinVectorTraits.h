@@ -33,7 +33,9 @@
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
 {
+#ifndef _MSC_VER
 CXXTEST_TEMPLATE_INSTANTIATION
+#endif
 /**
  * Enables better UnitTest OutPut if something fails with a mixin vector, so
  * you see immedeatly what is failing.

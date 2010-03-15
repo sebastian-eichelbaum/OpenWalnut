@@ -228,8 +228,13 @@ public:
         wmath::WLine expected;
         for( size_t i = 0; i < 3; ++i )
         {
+#ifndef _MSC_VER
             line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
             expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
+#else
+            line.push_back( WPosition( i, std::pow( static_cast< double >( -1 ), static_cast< int >( i % 2 ) ), 0 ) );
+            expected.push_back( WPosition( i, std::pow( static_cast< double >( -1 ), static_cast< int >( i % 2 ) ), 0 ) );
+#endif
             expected.push_back( WPosition( i + 0.5, 0, 0 ) );
         }
         expected.pop_back();
@@ -248,17 +253,29 @@ public:
         wmath::WLine expected;
         for( size_t i = 0; i < 100; ++i )
         {
+#ifndef _MSC_VER
             line.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
             expected.push_back( WPosition( i, std::pow( -1, i % 2 ), 0 ) );
             expected.push_back( WPosition( i + 0.25, std::pow( -1, i % 2 ) * 0.5, 0 ) );
             expected.push_back( WPosition( i + 0.5,  0, 0 ) );
             expected.push_back( WPosition( i + 0.75, std::pow( -1, ( i + 1 ) % 2 ) * 0.5, 0 ) );
+#else
+            line.push_back( WPosition( i, std::pow( static_cast< double >( -1 ), static_cast< int >( i % 2 ) ), 0 ) );
+            expected.push_back( WPosition( i, std::pow( static_cast< double >( -1 ), static_cast< int >( i % 2 ) ), 0 ) );
+            expected.push_back( WPosition( i + 0.25, std::pow( static_cast< double >( -1 ), static_cast< int >( i % 2 ) ) * 0.5, 0 ) );
+            expected.push_back( WPosition( i + 0.5,  0, 0 ) );
+            expected.push_back( WPosition( i + 0.75, std::pow( static_cast< double >( -1 ), static_cast< int >( ( i + 1 ) % 2 ) ) * 0.5, 0 ) );
+#endif
         }
         expected.pop_back();
         expected.pop_back();
         expected.pop_back();
         line.resample( 4 * 99 + 1 );
+#ifndef _MSC_VER
         assert_equals_delta( expected, line, 1.0e-10 * std::sqrt( 5 ) / 4 );
+#else
+        assert_equals_delta( expected, line, 1.0e-10 * std::sqrt( static_cast< double >( 5 ) ) / 4 );
+#endif
     }
 
     /**

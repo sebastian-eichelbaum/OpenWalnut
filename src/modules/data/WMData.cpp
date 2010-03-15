@@ -32,9 +32,9 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/exceptions/WDHException.h"
-#ifndef _MSC_VER
+//#ifndef _MSC_VER
 #include "../../dataHandler/io/WLoaderBiosig.h"
-#endif
+//#endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
 #include "../../dataHandler/io/WLoaderLibeep.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
@@ -205,13 +205,13 @@ void WMData::moduleMain()
         WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
     }
-#ifndef _MSC_VER
+//#ifndef _MSC_VER
     else if( suffix == ".edf" )
     {
         WLoaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
-#endif
+//#endif
     else if( suffix == ".asc" )
     {
         WLoaderEEGASCII eegAsciiLoader( fileName );
