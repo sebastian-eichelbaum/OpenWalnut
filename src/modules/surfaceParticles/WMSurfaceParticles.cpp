@@ -95,9 +95,18 @@ void WMSurfaceParticles::connectors()
                                                                                   "\"in\"." )
     );
 
-
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_directionInput );
+
+    // and the fiber directions inside the volume
+    m_tracesInput = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
+        new WModuleInputData< WDataSetSingle >( shared_from_this(), "traces", "The voxelized fiber traces for each voxel in the input"
+                                                                              "\"in\"." )
+    );
+
+    // As properties, every connector needs to be added to the list of connectors.
+    addConnector( m_tracesInput );
+
 
     // call WModules initialization
     WModule::connectors();
@@ -136,9 +145,11 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     // bind the texture to the node
     osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
     osg::ref_ptr< osg::Texture3D > directionTexture3D = m_directionDataSet->getTexture()->getTexture();
+    osg::ref_ptr< osg::Texture3D > tracesTexture3D = m_tracesDataSet->getTexture()->getTexture();
     osg::StateSet* rootState = cube->getOrCreateStateSet();
     rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
     rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
+    rootState->setTextureAttributeAndModes( 2, tracesTexture3D, osg::StateAttribute::ON );
 
     // enable transparency
     rootState->setMode( GL_BLEND, osg::StateAttribute::OFF );
@@ -150,11 +161,17 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     // for the texture, also bind the appropriate uniforms
     rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
     rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
+    rootState->addUniform( new osg::Uniform( "tex2", 2 ) );
 
     // we need to specify the texture scaling parameters to the shader
     rootState->addUniform( new osg::Uniform( "u_tex1Scale", m_directionDataSet->getTexture()->getMinMaxScale() ) );
     rootState->addUniform( new osg::Uniform( "u_tex1Min", m_directionDataSet->getTexture()->getMinValue() ) );
     rootState->addUniform( new osg::Uniform( "u_tex1Max", m_directionDataSet->getTexture()->getMaxValue() ) );
+
+    // we need to specify the texture scaling parameters to the shader
+    rootState->addUniform( new osg::Uniform( "u_tex2Scale", m_tracesDataSet->getTexture()->getMinMaxScale() ) );
+    rootState->addUniform( new osg::Uniform( "u_tex2Min", m_tracesDataSet->getTexture()->getMinValue() ) );
+    rootState->addUniform( new osg::Uniform( "u_tex2Max", m_tracesDataSet->getTexture()->getMaxValue() ) );
 
     osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
     isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
@@ -171,7 +188,7 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     osg::ref_ptr< osg::Uniform > particleSize = new osg::Uniform( "u_particleSize", static_cast< float >( m_particleSize->get() ) );
     particleSize->setUpdateCallback( new SafeUniformCallback( this ) );
 
-    osg::ref_ptr< osg::Uniform > animationTime = new osg::Uniform( "u_animationTime", static_cast< float >( 0 ) );
+    osg::ref_ptr< osg::Uniform > animationTime = new osg::Uniform( "u_animationTime", 0 );
     animationTime->setUpdateCallback( new ShaderAnimationCallback() );
 
     rootState->addUniform( isovalue );
@@ -192,6 +209,7 @@ void WMSurfaceParticles::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_directionInput->getDataChangedCondition() );
+    m_moduleState.add( m_tracesInput->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     // Signal ready state.
@@ -215,15 +233,17 @@ void WMSurfaceParticles::moduleMain()
         // has the data changed?
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
         boost::shared_ptr< WDataSetSingle > newDirectionDataSet = m_directionInput->getData();
+        boost::shared_ptr< WDataSetSingle > newTracesDataSet = m_tracesInput->getData();
 
-        bool dataChanged = ( m_dataSet != newDataSet ) || ( m_directionDataSet != newDirectionDataSet );
-        bool dataValid =   ( newDataSet && newDirectionDataSet );
+        bool dataChanged = ( m_dataSet != newDataSet ) || ( m_directionDataSet != newDirectionDataSet ) || ( m_tracesDataSet != newTracesDataSet );
+        bool dataValid =   ( newDataSet && newDirectionDataSet && newTracesDataSet );
 
         // As the data has changed, we need to recreate the texture.
         if ( dataChanged && dataValid )
         {
             m_dataSet = newDataSet;
             m_directionDataSet = newDirectionDataSet;
+            m_tracesDataSet = newTracesDataSet;
 
             debugLog() << "Data changed. Uploading new data as texture.";
 
@@ -294,7 +314,7 @@ void WMSurfaceParticles::SafeUpdateCallback::operator()( osg::Node* node, osg::N
 void WMSurfaceParticles::ShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
     m_counter++;
-    uniform->set( (float)m_counter );
+    uniform->set( m_counter );
 }
 
 void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )

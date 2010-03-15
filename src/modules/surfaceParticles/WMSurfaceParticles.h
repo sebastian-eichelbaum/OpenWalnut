@@ -114,14 +114,24 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_directionInput;
 
     /**
+     * The input for the volumized fiber traces. Mostly, this is some kind of integrated length data.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_tracesInput;
+
+    /**
      * This is a pointer to the dataset the module is currently working on.
      */
     boost::shared_ptr< WDataSetSingle > m_dataSet;
 
     /**
-     * The dataset containing the fiber directions for each voxel in m_dataSet
+     * The dataset containing the fiber directions for each voxel in m_dataSet.
      */
     boost::shared_ptr< WDataSetSingle > m_directionDataSet;
+
+    /**
+     * The dataset containing the fiber traces in each voxel in m_dataSet.
+     */
+    boost::shared_ptr< WDataSetSingle > m_tracesDataSet;
 
     /////////////////////////////////////////////////////////////////////
     // The Properties
@@ -263,7 +273,7 @@ private:
         /**
          * Counts the updates. Used as reference for animation.
          */
-        unsigned int m_counter;
+        int m_counter;
     };
 
 };

@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #version 120
+#extension GL_EXT_gpu_shader4 : enable
 
 #include "TextureUtils.glsl"
 #include "TransformationTools.glsl"
@@ -56,6 +57,18 @@ uniform float u_tex1Min;
 // texture containing the directional data -> the max value of the values in the texture
 uniform float u_tex1Max;
 
+// texture containing the tracing data
+uniform sampler3D tex2;
+
+// texture containing the tracing data -> the scaling factor of the values in the texture
+uniform float u_tex2Scale;
+
+// texture containing the tracing data -> the min value of the values in the texture
+uniform float u_tex2Min;
+
+// texture containing the tracing data -> the max value of the values in the texture
+uniform float u_tex2Max;
+
 // **************************************************************************
 // Uniforms for the isosurface mode
 // **************************************************************************
@@ -80,7 +93,7 @@ uniform float u_gridResolution;
 uniform float u_particleSize;
 
 // Animation reference.
-uniform float u_animationTime;
+uniform int u_animationTime;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -192,9 +205,14 @@ void main()
 
             // 3: Project direction to image space
             vec2 projectedDirection = projectVector( getDirection( curPoint ) ).xy;
-            float angle = u_animationTime / 15.0;
+            float angle = float( u_animationTime ) / 15.0;
             mat2 rot = mat2( vec2( cos( angle ) , sin( angle ) ), vec2( -sin( angle ), cos( angle )  ) );
             projectedDirection = rot * projectedDirection;
+            
+
+
+            float test = ( texture3D( tex2, curPoint ).r );
+
 
             // 4: initial particle distribution
             // The values need to be transferred to the next (image space based) steps.
@@ -214,7 +232,17 @@ void main()
             // Tex0: Isosurface, Depth, Particle Distribution, Alpha
             gl_FragData[0] = vec4( curPointProjected.z, curPointProjected.z, 1.0 - sphere, u_alpha );
             // Tex1: Projected Directions X, Projected Directions Y, Projected Directions Z
-            gl_FragData[1] = vec4( normalize( abs( projectedDirection ) ), 0.0, 1.0 );
+            gl_FragData[1] = vec4( projectedDirection.r, 0.0, 0.0, 1.0 );
+            //gl_FragData[1] = vec4( normalize( abs( projectedDirection ) ), 0.0, 1.0 );
+
+            // this creates a angle between 0 and 2 PI
+            float ts = (u_animationTime%100) * 0.01 * 6.28;
+            float anim = abs( sin( 3.14 * 2.0 + ts) );
+
+            if ( abs( anim - test ) <= 0.1 )
+                gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
+            else
+                gl_FragData[1] = vec4( 0.0, 0.0, 0.0, 1.0 );
 
             break;
         }

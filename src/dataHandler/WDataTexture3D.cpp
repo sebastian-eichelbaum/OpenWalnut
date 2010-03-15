@@ -376,6 +376,7 @@ void WDataTexture3D::findMinMax( float* source, int components )
 
 void WDataTexture3D::createTexture()
 {
+    boost::unique_lock< boost::shared_mutex > lock( m_creationLock );
     if ( !m_texture )
     {
         osg::ref_ptr< osg::Image > ima;
@@ -422,6 +423,7 @@ void WDataTexture3D::createTexture()
         m_texture->setImage( ima );
         m_texture->setResizeNonPowerOfTwoHint( false );
     }
+    lock.unlock();
 }
 
 dataType WDataTexture3D::getDataType()

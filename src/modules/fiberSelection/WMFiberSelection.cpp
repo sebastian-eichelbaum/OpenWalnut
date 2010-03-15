@@ -404,7 +404,7 @@ void WMFiberSelection::moduleMain()
                     new WDataSetFiberVector( newFibers )
             );
             newFiberCluster->setDataSetReference( newFiberVector );
-
+            newFiberCluster->generateCenterLine();
             progress1->finish();
 
             // finally -> update the output
