@@ -36,7 +36,7 @@ WPlane::WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos )
     : m_normal( normal ),
       m_pos( pos )
 {
-    m_first = normal.crossProduct( wmath::WVector3D( 1, 1, 1 ) );
+    m_first = normal.crossProduct( wmath::WVector3D( 1, 0, 0 ) );
     m_first.normalize();
     m_second = normal.crossProduct( m_first );
     m_second.normalize();
@@ -59,6 +59,28 @@ void WPlane::resetPosition( wmath::WPosition newPos )
 }
 
 
+boost::shared_ptr< std::set< wmath::WPosition > > WPlane::samplePoints( double stepWidth, size_t numX, size_t numY ) const
+{
+    // idea: start from m_pos in m_first direction until boundary reached, increment in m_second direction from m_pos and start again
+    boost::shared_ptr< std::set< wmath::WPosition > > result( new std::set< wmath::WPosition >() );
+
+    // the plane has two directions m_first and m_second
+    const wmath::WVector3D ycrement = stepWidth * m_second;
+    const wmath::WVector3D xcrement = stepWidth * m_first;
+    result->insert( m_pos );
+    for( size_t i = 0; i < numY; ++i )
+    {
+        for( size_t j = 0; j < numX; ++j )
+        {
+            result->insert( m_pos - i * ycrement - j * xcrement );
+            result->insert( m_pos + i * ycrement - j * xcrement );
+            result->insert( m_pos - i * ycrement + j * xcrement );
+            result->insert( m_pos + i * ycrement + j * xcrement );
+        }
+    }
+    return result;
+}
+
 boost::shared_ptr< std::set< wmath::WPosition > > WPlane::samplePoints( const WGridRegular3D& grid, double stepWidth )
 {
     // idea: start from m_pos in m_first direction until boundary reached, increment in m_second direction from m_pos and start again
@@ -71,6 +93,7 @@ boost::shared_ptr< std::set< wmath::WPosition > > WPlane::samplePoints( const WG
     wmath::WPosition y_offset_down = m_pos;
     wmath::WPosition x_offset_right = m_pos;
     wmath::WPosition x_offset_left = m_pos;
+    // TODO(math): assert( grid.encloses( m_pos ) );
     while( grid.encloses( y_offset_up ) || grid.encloses( y_offset_down ) )
     {
         if( grid.encloses( y_offset_up ) ) // walk up

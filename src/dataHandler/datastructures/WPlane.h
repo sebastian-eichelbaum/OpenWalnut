@@ -76,9 +76,20 @@ public:
      * \param grid
      * \param stepWidth
      *
-     * \return Vector of positions on the plane
+     * \return Set of positions on the plane
      */
     boost::shared_ptr< std::set< wmath::WPosition > > samplePoints( const WGridRegular3D& grid, double stepWidth );
+
+    /**
+     * Computes a fixed number of sample points on that plane.
+     *
+     * \param stepWidth
+     * \param numX
+     * \param numY
+     *
+     * \return Set of positions on the plane
+     */
+    boost::shared_ptr< std::set< wmath::WPosition > > samplePoints( double stepWidth, size_t numX, size_t numY ) const;
 
 protected:
     wmath::WVector3D m_normal; //!< Direction of the plane

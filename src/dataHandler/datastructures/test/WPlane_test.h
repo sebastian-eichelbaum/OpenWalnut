@@ -25,8 +25,11 @@
 #ifndef WPLANE_TEST_H
 #define WPLANE_TEST_H
 
+#include <set>
+
 #include <cxxtest/TestSuite.h>
 
+#include "../../../common/math/test/WPositionTraits.h"
 #include "../WPlane.h"
 
 /**
@@ -35,14 +38,46 @@
 class WPlaneTest : public CxxTest::TestSuite
 {
 public:
+//    /**
+//     * Simple sampling test
+//     */
+//    void testSamplePointsFromCenter( void )
+//    {
+//        WPlane p( wmath::WVector3D( 0, 0, 1 ), wmath::WPosition( 1.5, 1.5, 1. ) );
+//        WGridRegular3D grid( 2, 2, 2, 1., 1., 1. );
+//        boost::shared_ptr< std::set< wmath::WPosition > > expected( new std::set< wmath::WPosition > );
+//        expected->insert( wmath::WPosition(   1,   1, 1 ) );
+//        expected->insert( wmath::WPosition( 1.5,   1, 1 ) );
+//        expected->insert( wmath::WPosition(   2,   1, 1 ) );
+//        expected->insert( wmath::WPosition(   1, 1.5, 1 ) );
+//        expected->insert( wmath::WPosition( 1.5, 1.5, 1 ) );
+//        expected->insert( wmath::WPosition(   2, 1.5, 1 ) );
+//        expected->insert( wmath::WPosition(   1,   2, 1 ) );
+//        expected->insert( wmath::WPosition( 1.5,   2, 1 ) );
+//        expected->insert( wmath::WPosition(   2,   2, 1 ) );
+//        using string_utils::operator<<;
+//        TS_ASSERT_EQUALS( *expected, *p.samplePoints( grid, 0.5 ) );
+//    }
+
     /**
-     * TODO(math): Document this!
+     * A predefined number of sampling points with step width from the center position.
      */
-    void testSamplePointsFromCenter( void )
+    void testFixedSampling( void )
     {
-        WPlane p( wmath::WVector3D( 0, 0, 1 ), wmath::WPosition( 1, 1, 1 ) );
-        // boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( ) );
-    }
+        WPlane p( wmath::WVector3D( 0, 0, 1 ), wmath::WPosition( 1.5, 1.5, 1. ) );
+        boost::shared_ptr< std::set< wmath::WPosition > > expected( new std::set< wmath::WPosition > );
+        expected->insert( wmath::WPosition(   1,   1, 1 ) );
+        expected->insert( wmath::WPosition(   1, 1.5, 1 ) );
+        expected->insert( wmath::WPosition(   1,   2, 1 ) );
+        expected->insert( wmath::WPosition( 1.5,   1, 1 ) );
+        expected->insert( wmath::WPosition(   2,   1, 1 ) );
+        expected->insert( wmath::WPosition( 1.5, 1.5, 1 ) );
+        expected->insert( wmath::WPosition(   2, 1.5, 1 ) );
+        expected->insert( wmath::WPosition(   1, 1.5, 1 ) );
+        expected->insert( wmath::WPosition( 1.5,   2, 1 ) );
+        expected->insert( wmath::WPosition(   2,   2, 1 ) );
+        TS_ASSERT_EQUALS( *expected, *p.samplePoints( 0.5, 2, 2 ) );
+     }
 };
 
 #endif  // WPLANE_TEST_H

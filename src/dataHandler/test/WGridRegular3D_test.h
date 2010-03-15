@@ -519,6 +519,9 @@ public:
         TS_ASSERT_THROWS_ANYTHING( g1.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) ) );
     }
 
+    /**
+     * If a point is inside of the boundary of a grid encloses should return true, otherwise false.
+     */
     void testEnclosesQuery( void )
     {
         WGridRegular3D g( 2, 2, 2, 1., 1., 1. );

@@ -131,13 +131,33 @@ inline double WVector3D::dotProduct( const WVector3D& factor2 ) const
 
 inline bool WVector3D::operator<( const wmath::WVector3D& rhs ) const
 {
-    if( ( ( (*this)[0] < rhs[0] ) && ( std::abs( (*this)[0] - rhs[0] ) > wlimits::FLT_EPS ) ) || // using FLT_EPS to make it more robust
-        ( ( (*this)[1] < rhs[1] ) && ( std::abs( (*this)[1] - rhs[1] ) > wlimits::FLT_EPS ) ) ||
-        ( ( (*this)[2] < rhs[2] ) && ( std::abs( (*this)[2] - rhs[2] ) > wlimits::FLT_EPS ) ) )
+    if( (*this)[0] < rhs[0] )
     {
         return true;
     }
-    return false;
+    if( (*this)[0] > rhs[0] )
+    {
+        return false;
+    }
+    else
+    {
+        if( (*this)[1] < rhs[1] )
+        {
+            return true;
+        }
+        if( (*this)[1] > rhs[1] )
+        {
+            return false;
+        }
+        else
+        {
+            if( (*this)[2] < rhs[2] )
+            {
+                return true;
+            }
+            return false;
+        }
+    }
 }
 }  // End of namespace
 #endif  // WVECTOR3D_H

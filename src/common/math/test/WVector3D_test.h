@@ -224,8 +224,7 @@ public:
     }
 
     /**
-     * Upto the precision of wlimits::FLT_EPS the operator< should be stable. If the difference
-     * of two vectors is below FLT_EPS we consider them generously as nearly equal!
+     * A vector a is small than a vector b if a is small than b in lexicographical order.
      */
     void testOperatorLessOnNumericalStability( void )
     {
@@ -235,8 +234,6 @@ public:
         b[2] = 1;
         TS_ASSERT( a < b );
         a += WVector3D( 0, 0, 1 - wlimits::FLT_EPS );
-        TS_ASSERT( !( a < b ) );
-        a -= WVector3D( 0, 0, wlimits::DBL_EPS );
         TS_ASSERT( a < b );
     }
 };
