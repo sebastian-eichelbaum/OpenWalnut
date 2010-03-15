@@ -110,18 +110,20 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
 
-#if 0
+#if 1
     osg::State& state = *renderInfo.getState();
 
-    state.setVertexPointer( 3, GL_FLOAT ,0, &(*verts)[0] );
-    state.setColorPointer( 3 , GL_FLOAT ,0 , &(*colors)[0] );
+    state.disableAllVertexArrays();
+    state.setVertexPointer( 3, GL_FLOAT , 0, &( *verts )[0] );
+    state.setColorPointer( 3 , GL_FLOAT , 0, &( *colors )[0] );
 
-    //for ( size_t i = 0; i < active->size(); ++i )
-    for ( size_t i = 0; i < 10000; ++i )
+
+    for ( size_t i = 0; i < active->size(); ++i )
+    //for ( size_t i = 0; i < 35000; ++i )
     {
         if ( (*active)[i] )
         {
-            glDrawArrays( GL_LINE_STRIP, (*startIndexes)[i], (*pointsPerLine)[i] );
+            state.glDrawArraysInstanced( GL_LINE_STRIP, (*startIndexes)[i], (*pointsPerLine)[i], 1);
         }
     }
 
