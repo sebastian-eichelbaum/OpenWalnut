@@ -143,7 +143,7 @@ double WDataSetSingle::getValueAt( int x, int y, int z )
     return getValueAt( id );
 }
 
-double WDataSetSingle::interpolate( wmath::WPosition pos )
+double WDataSetSingle::interpolate( wmath::WPosition pos, bool* success )
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
@@ -161,6 +161,13 @@ double WDataSetSingle::interpolate( wmath::WPosition pos )
     if( !( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ) )
     {
         throw WException( "Only implemented for scalar values so far." );
+    }
+
+    *success = grid->encloses( pos );
+
+    if( !*success )
+    {
+        return 0;
     }
 
     std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
@@ -194,5 +201,7 @@ double WDataSetSingle::interpolate( wmath::WPosition pos )
     {
         result += h[i] * getValueAt( vertexIds[i] );
     }
+
+    *success = true;
     return result;
 }
