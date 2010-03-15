@@ -150,17 +150,17 @@ double WDataSetSingle::interpolate( wmath::WPosition pos )
     // TODO(wiebel): change this to eassert.
     if( !grid )
     {
-        throw WException( "This data set has a grid whose type is not yet supported for interpolation." );
+        throw WException( std::string(  "This data set has a grid whose type is not yet supported for interpolation." ) );
     }
     // TODO(wiebel): change this to eassert.
     if( grid->getTransformationMatrix() != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
     {
-        throw WException( "Only feasible for untranslated grid so far." );
+        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
     }
     // TODO(wiebel): change this to eassert.
     if( !( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ) )
     {
-        throw WException( "Only implemented for scalar values so far." );
+        throw WException( std::string( "Only implemented for scalar values so far." ) );
     }
 
     std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );

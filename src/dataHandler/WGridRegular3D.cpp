@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <vector>
+#include <string>
 
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
@@ -293,7 +294,7 @@ size_t WGridRegular3D::getCellId( const wmath::WPosition& pos ) const
     // TODO(wiebel): change this to eassert.
     if( m_matrix != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
     {
-        throw WException( "Only feasible for untranslated grid so far." );
+        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
     }
 
     wmath::WPosition posRelativeToOrigin = pos - m_origin;
