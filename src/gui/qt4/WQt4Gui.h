@@ -74,6 +74,11 @@ public:
     virtual boost::shared_ptr< WModule > getSelectedModule();
 
     /**
+     * Slot gets called whenever we need to update the texture sorter.
+     */
+    virtual void slotUpdateTextureSorter();
+
+    /**
      * Slot gets called whenever a new module is added.
      *
      * \param module the module to be added

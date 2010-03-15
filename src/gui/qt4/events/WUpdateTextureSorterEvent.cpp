@@ -22,32 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEVENTTYPES_H
-#define WEVENTTYPES_H
+#include "WEventTypes.h"
 
-#include <QtCore/QEvent>
+#include "WUpdateTextureSorterEvent.h"
 
-/**
- * This header contains every custom event ID used in QT's event mechanism. Please note, that since Qt4.4 there is
- * QEvent::registerEventType which can handle this job better than this header. But as we use an older Qt Version we need to do it
- * this way.
- */
+WUpdateTextureSorterEvent::WUpdateTextureSorterEvent()
+    : QEvent( static_cast< QEvent::Type >( WQT_UPDATE_TEXTURE_SORTER_EVENT ) )
+{
+    // initialize members
+}
 
-// when a module got associated
-#define WQT_ASSOC_EVENT QEvent::User + 1
-
-// when a module signals its ready state
-#define WQT_READY_EVENT QEvent::User + 2
-
-// when a roi got associated
-#define WQT_ROI_ASSOC_EVENT QEvent::User + 3
-
-// when a module crashes
-#define WQT_CRASH_EVENT QEvent::User + 4
-
-// when a subject signals a newly registered data set
-#define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
-
-
-#endif  // WEVENTTYPES_H
+WUpdateTextureSorterEvent::~WUpdateTextureSorterEvent()
+{
+    // cleanup
+}
 

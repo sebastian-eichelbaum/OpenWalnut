@@ -22,32 +22,31 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEVENTTYPES_H
-#define WEVENTTYPES_H
+#ifndef WUPDATETEXTURESORTEREVENT_H
+#define WUPDATETEXTURESORTEREVENT_H
 
 #include <QtCore/QEvent>
 
 /**
- * This header contains every custom event ID used in QT's event mechanism. Please note, that since Qt4.4 there is
- * QEvent::registerEventType which can handle this job better than this header. But as we use an older Qt Version we need to do it
- * this way.
+ * Event signalling a new module has been associated with the root container in the kernel. Please note that it is possible that
+ * the module is already marked as "ready" while processing this event due to the multithreading.
  */
+class WUpdateTextureSorterEvent: public QEvent
+{
+public:
 
-// when a module got associated
-#define WQT_ASSOC_EVENT QEvent::User + 1
+    /**
+     * Creates a new event instance denoting that the specified module got associated in the root container.
+     */
+    explicit WUpdateTextureSorterEvent();
 
-// when a module signals its ready state
-#define WQT_READY_EVENT QEvent::User + 2
+    /**
+     * Destructor.
+     */
+    virtual ~WUpdateTextureSorterEvent();
 
-// when a roi got associated
-#define WQT_ROI_ASSOC_EVENT QEvent::User + 3
+private:
+};
 
-// when a module crashes
-#define WQT_CRASH_EVENT QEvent::User + 4
-
-// when a subject signals a newly registered data set
-#define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
-
-
-#endif  // WEVENTTYPES_H
+#endif  // WUPDATETEXTURESORTEREVENT_H
 

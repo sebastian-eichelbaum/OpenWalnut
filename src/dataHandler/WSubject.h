@@ -129,7 +129,7 @@ public:
 //     /**
 //      * Returns the dataset which corresponds to the specified ID. It throws an exception, if the dataset does not exists anymore.
 //      *
-//      * \param datasetID the ID to search the dataset for
+//      * \ param datasetID the ID to search the dataset for
 //      *
 //      * \return the dataset.
 //      *
