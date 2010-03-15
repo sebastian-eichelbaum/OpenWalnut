@@ -209,10 +209,8 @@ void main()
             mat2 rot = mat2( vec2( cos( angle ) , sin( angle ) ), vec2( -sin( angle ), cos( angle )  ) );
             projectedDirection = rot * projectedDirection;
             
-
-
             float test = ( texture3D( tex2, curPoint ).r );
-
+            float testInv = 1.0 - ( texture3D( tex2, curPoint ).r );
 
             // 4: initial particle distribution
             // The values need to be transferred to the next (image space based) steps.
@@ -235,14 +233,25 @@ void main()
             gl_FragData[1] = vec4( projectedDirection.r, 0.0, 0.0, 1.0 );
             //gl_FragData[1] = vec4( normalize( abs( projectedDirection ) ), 0.0, 1.0 );
 
-            // this creates a angle between 0 and 2 PI
-            float ts = (u_animationTime%100) * 0.01 * 6.28;
-            float anim = abs( sin( 3.14 * 2.0 + ts) );
+            int timeStep = u_animationTime;
+            // this creates a triangle function
+            
+            float anim1 = ( ( timeStep * 1 ) % 100) * 0.012;
+            float anim2 = ( ( timeStep * 1 ) % 100) * 0.012;
 
-            if ( abs( anim - test ) <= 0.1 )
-                gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
-            else
-                gl_FragData[1] = vec4( 0.0, 0.0, 0.0, 1.0 );
+            vec4 ocol = vec4( 0.0, 0.0, 0.0, 1.0);
+
+            if ( abs( anim1 - test ) <= 0.075 )
+            {
+                ocol.r +=  test * test * 10.0;
+            }
+            if ( abs( anim2 - testInv ) <= 0.01 )
+            {
+                ocol.g += testInv * testInv * 10.0;
+            }
+
+
+            gl_FragData[0] = ocol;
 
             break;
         }

@@ -278,15 +278,15 @@ void WMSurfaceParticles::moduleMain()
             // **********************************************************************************************
 
             // The surface
-            osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen1->attach( osg::Camera::COLOR_BUFFER0 );
-            osg::ref_ptr< osg::Texture2D > dirTex = offscreen1->attach( osg::Camera::COLOR_BUFFER1 );
+            //osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen1->attach( osg::Camera::COLOR_BUFFER0 );
+            //osg::ref_ptr< osg::Texture2D > dirTex = offscreen1->attach( osg::Camera::COLOR_BUFFER1 );
 
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
-            hud->addTexture( new WGETextureHud::WGETextureHudEntry( dirTex ) );
+            //hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
+            //hud->addTexture( new WGETextureHud::WGETextureHudEntry( dirTex ) );
 
             // attach the geometry to the first FBO
             osg::ref_ptr< osg::Node > cube = renderSurface( bb );
-            offscreen1->addChild( cube );
+            //offscreen1->addChild( cube );
 
             // **********************************************************************************************
             // Update scene
@@ -295,8 +295,10 @@ void WMSurfaceParticles::moduleMain()
             // update node
             debugLog() << "Adding new rendering.";
             m_rootNode->clear();
-            m_rootNode->insert( offscreen1 );
-            m_rootNode->insert( hud );
+    //        m_rootNode->insert( offscreen1 );
+    //        m_rootNode->insert( hud );
+            m_rootNode->insert( cube );
+
         }
     }
 
