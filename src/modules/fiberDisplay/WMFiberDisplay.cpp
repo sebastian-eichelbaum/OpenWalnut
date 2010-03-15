@@ -146,6 +146,7 @@ void WMFiberDisplay::create()
     m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
     m_tubeDrawable->setDataset( m_dataset );
     m_tubeDrawable->setUseDisplayList( false );
+    m_tubeDrawable->setDataVariance( osg::Object::DYNAMIC );
 
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( m_tubeDrawable );
