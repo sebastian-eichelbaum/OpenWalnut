@@ -614,6 +614,7 @@ RECURSIVE              = YES
 
 EXCLUDE                = src/dataHandler/io/nifti \
                          src/dataHandler/io/biosig \
+                         src/dataHandler/io/biosigWin \
                          src/dataHandler/io/libeep \
                          src/common/platformDependent/visualStudio/inttypes.h
 
