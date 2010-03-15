@@ -124,18 +124,20 @@ public:
      */
     void clear();
 
-    /**
-     * Returns the dataset which corresponds to the specified ID. It throws an exception, if the dataset does not exists anymore.
-     *
-     * \param datasetID the ID to search the dataset for
-     *
-     * \return the dataset.
-     *
-     * \throw WNoSuchDataSet in case the dataset can't be found.
-     *
-     * \note you should avoid this function. Do NOT store ID's. They may change.
-     */
-    boost::shared_ptr< WDataSet > getDataSetByID( size_t datasetID );
+// TODO(all): rethink this
+//  wiebel: I deactivated this as we want to resort thes list ... so we have to rethinks this.
+//     /**
+//      * Returns the dataset which corresponds to the specified ID. It throws an exception, if the dataset does not exists anymore.
+//      *
+//      * \param datasetID the ID to search the dataset for
+//      *
+//      * \return the dataset.
+//      *
+//      * \throw WNoSuchDataSet in case the dataset can't be found.
+//      *
+//      * \note you should avoid this function. Do NOT store ID's. They may change.
+//      */
+//     boost::shared_ptr< WDataSet > getDataSetByID( size_t datasetID );
 
     /**
      * This gives a list of data textures from all supporting datasets in this subject.
@@ -157,7 +159,14 @@ public:
      *
      * \return the condition
      */
-    boost::shared_ptr< WCondition > getChangeCondition();
+    boost::shared_ptr< WCondition > getChangeCondition() const;
+
+    /**
+     * This condition fires whenever the list of datasets changes.
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getListChangeCondition() const;
 
 protected:
 
@@ -175,6 +184,11 @@ protected:
      * This condition set fires whenever one dataset gets dirty or the list of datasets changes.
      */
     boost::shared_ptr< WConditionSet > m_changeCondition;
+
+    /**
+     * This condition set fires whenever the list of datasets changes.
+     */
+    boost::shared_ptr< WConditionSet > m_listChangeCondition;
 
 private:
 
