@@ -140,17 +140,23 @@ void WMFiberSelection::properties()
 }
 
 /**
- * This structure stores some tracing information along the fiber. It is defined in this file scope as local types can't be used as template
- * parameters. (but it is needed in a list)
+ * Namespace for the FibTrace structure.
  */
-typedef struct
+namespace
 {
-    size_t idx;         // current index
-    bool which;         // true if isInside is true for VOI1, for VOI2 it is false
-    // size_t lastIdx;     // the last index , idx-1 <- not needed
-    bool isInside;      // true if idx is inside a VOI
-    bool wasInside;     // true if idx-1 was inside a VOI
-} FibTrace;
+    /**
+     * This structure stores some tracing information along the fiber. It is defined in this file scope as local types can't be used as template
+     * parameters. (but it is needed in a list)
+     */
+    typedef struct
+    {
+        size_t idx;         //!< current index
+        bool which;         //!< true if isInside is true for VOI1, for VOI2 it is false
+        // size_t lastIdx;     //!< the last index , idx-1 <- not needed
+        bool isInside;      //!< true if idx is inside a VOI
+        bool wasInside;     //!< true if idx-1 was inside a VOI
+    } FibTrace;
+}
 
 void WMFiberSelection::moduleMain()
 {
