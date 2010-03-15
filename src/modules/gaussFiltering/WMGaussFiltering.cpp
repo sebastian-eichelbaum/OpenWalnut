@@ -315,19 +315,6 @@ void WMGaussFiltering::properties()
     m_iterations      = m_properties2->addProperty( "Iterations",         "How often should the filter be applied.", 1, m_propCondition );
     m_iterations->setMin( 0 );
     m_iterations->setMax( 100 );
-
-    //     ( m_properties->addInt( "Filter Size", 1 ) )->connect( boost::bind( &WMGaussFiltering::slotPropertyChanged, this, _1 ) );
 }
 
-void WMGaussFiltering::slotPropertyChanged( std::string propertyName )
-{
-    if( propertyName == "Filter Size" )
-    {
-        // TODO(wiebel): need code here
-    }
-    else
-    {
-        std::cout << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
-}
+
