@@ -54,14 +54,20 @@ void WMClusterParamDisplay::connectors()
 
 void WMClusterParamDisplay::properties()
 {
-    m_isoValue = m_properties2->addProperty( "Iso Value", "", 0.01 );
+    m_isoValue = m_properties2->addProperty( "Iso Value", "", 0.05 );
+    m_drawISOSurface = m_properties2->addProperty( "ISO Surface", "En/Disables the display of the ISO Surface", true );
 }
 
 void WMClusterParamDisplay::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_isoValue->getCondition() );
+    m_moduleState.add( m_drawISOSurface->getCondition() );
     initSubModules();
+
+    // initial values
+    m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
+    m_clusterSlicer->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
 
     ready();
 
@@ -78,6 +84,10 @@ void WMClusterParamDisplay::moduleMain()
         {
             m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
             m_clusterSlicer->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
+        }
+        if( m_drawISOSurface->changed() )
+        {
+            m_isoSurface->getProperties2()->getProperty( "active" )->toPropBool()->set( m_drawISOSurface->get( true ) );
         }
     }
 }
@@ -118,6 +128,8 @@ void WMClusterParamDisplay::initSubModules()
     m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
     m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
     m_voxelizer->getProperties2()->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    m_gaussFiltering->getProperties2()->getProperty( "Iterations" )->toPropInt()->set( 12 );
+    m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" )->toPropBool()->set( false );
 
     // forward properties
     m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Output cluster ID" ) );
@@ -125,4 +137,5 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
     m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
+    m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Opacity %" ) );
 }
