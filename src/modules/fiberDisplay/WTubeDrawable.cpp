@@ -109,23 +109,26 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
     boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
-#if 0
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_COLOR_ARRAY );
 
-    glVertexPointer( 3, GL_FLOAT, 0, &(*verts)[0] ); //NOLINT
-    glColorPointer( 3, GL_FLOAT, 0, &(*colors)[0] ); //NOLINT
+#if 1
+    osg::State& state = *renderInfo.getState();
+
+    state.disableAllVertexArrays();
+    state.setVertexPointer( 3, GL_FLOAT , 0, &( *verts )[0] );
+    state.setColorPointer( 3 , GL_FLOAT , 0, &( *colors )[0] );
+
 
     for ( size_t i = 0; i < active->size(); ++i )
+    //for ( size_t i = 0; i < 35000; ++i )
     {
         if ( (*active)[i] )
         {
-            glDrawArrays( GL_LINE_STRIP, (*startIndexes)[i] * 3, (*pointsPerLine)[i] );
+            state.glDrawArraysInstanced( GL_LINE_STRIP, (*startIndexes)[i], (*pointsPerLine)[i], 1);
         }
     }
 
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_COLOR_ARRAY );
+    state.disableVertexPointer();
+    state.disableColorPointer();
 #else
     for ( size_t i = 0; i < active->size(); ++i )
     {

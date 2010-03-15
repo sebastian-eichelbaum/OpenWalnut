@@ -259,9 +259,12 @@ void WMNavSlices::create()
     }
 }
 
-osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
+namespace //anonymous name space
 {
-    return osg::Vec3( v[0], v[1], v[2] );
+    osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
+    {
+        return osg::Vec3( v[0], v[1], v[2] );
+    }
 }
 
 void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
