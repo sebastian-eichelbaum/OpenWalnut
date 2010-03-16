@@ -85,12 +85,22 @@ public:
      */
     virtual void newSegment( const wmath::WPosition& start, const wmath::WPosition& end );
 
+    /**
+     * Gets called whenever all lines have been rasterized.
+     */
+    virtual void finished();
+
 protected:
 
     /**
-     * Stores the current length of the fiber at each voxel.
+     * Stores the current length of the centerline fiber at each voxel.
      */
-    std::vector< double > m_lengthValues;
+    std::vector< double > m_paramValues;
+
+    /**
+     * Stores whether the voxel has been set in the past or not.
+     */
+    std::vector< bool > m_paramSetValues;
 
     /**
      * The centerline of the cluster

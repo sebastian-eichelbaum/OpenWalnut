@@ -62,7 +62,7 @@ namespace
     }
 }
 
-void WIntegrationParameterization::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int /*axis*/,
+void WIntegrationParameterization::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
                                                       const double /*value*/,
                                                       const wmath::WPosition& /*start*/,
                                                       const wmath::WPosition& /*end*/ )

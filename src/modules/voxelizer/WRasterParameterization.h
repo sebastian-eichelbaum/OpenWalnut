@@ -88,6 +88,11 @@ public:
      */
     virtual void newSegment( const wmath::WPosition& start, const wmath::WPosition& end );
 
+    /**
+     * This method gets called whenever all lines got rasterized.
+     */
+    virtual void finished();
+
 protected:
 
     /**

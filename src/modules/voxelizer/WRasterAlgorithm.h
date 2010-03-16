@@ -84,6 +84,11 @@ public:
      */
     void addParameterizationAlgorithm( boost::shared_ptr< WRasterParameterization > algorithm );
 
+    /**
+     * Called whenever all lines have been rasterized.
+     */
+    virtual void finished();
+
 protected:
 
     /**

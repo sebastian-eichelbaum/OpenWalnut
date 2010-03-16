@@ -85,3 +85,18 @@ void WRasterAlgorithm::parameterizeVoxel( const wmath::WValue< int >& voxel, siz
         m_parameterizations[ i ]->parameterizeVoxel( voxel, voxelIdx, axis, value, start, end );
     }
 }
+
+void WRasterAlgorithm::finished()
+{
+    // lock the parameterization list for reading
+    boost::shared_lock< boost::shared_mutex > lock =  boost::shared_lock< boost::shared_mutex >( m_parameterizationsLock );
+
+    // NOTE: the list already is locked (in raster method, hopefully)
+    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    {
+        m_parameterizations[ i ]->finished();
+    }
+
+    lock.unlock();
+}
+

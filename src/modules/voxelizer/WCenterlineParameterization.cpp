@@ -28,7 +28,8 @@
 
 WCenterlineParameterization::WCenterlineParameterization( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< wmath::WFiber > centerline ):
     WRasterParameterization( grid ),
-    m_lengthValues( grid->size(), 0.0 ),
+    m_paramValues( grid->size(), 0.0 ),
+    m_paramSetValues( grid->size(), false ),
     m_centerline( centerline ),
     m_currentStartParameter( 0.0 ),
     m_currentEndParameter( 0.0 )
@@ -43,7 +44,7 @@ WCenterlineParameterization::~WCenterlineParameterization()
 
 boost::shared_ptr< WDataSetSingle > WCenterlineParameterization::getDataSet()
 {
-    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_lengthValues, W_DT_DOUBLE ) );
+    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_paramValues, W_DT_DOUBLE ) );
     return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
 }
 
@@ -66,41 +67,57 @@ namespace
     }
 }
 
-void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int /*axis*/,
+void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
                                                       const double /*value*/,
                                                       const wmath::WPosition& /*start*/,
                                                       const wmath::WPosition& /*end*/ )
 {
-    // ok, this looks ugly but setting the whole 27-neighborhood produces better results
-    m_lengthValues[ index( voxel[0],   voxel[1]+1, voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1]+1, voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1]+1, voxel[2],   m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1]-1, voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1]-1, voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1]-1, voxel[2],   m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1],   voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1],   voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0],   voxel[1],   voxel[2],   m_grid ) ] = m_currentStartParameter;
+    // update a 27 neighbourhood
+    size_t indices[ 27 ];
+    indices[0]  = index( voxel[0],   voxel[1],   voxel[2],   m_grid );
+    indices[1]  = index( voxel[0],   voxel[1],   voxel[2]+1, m_grid );
+    indices[2]  = index( voxel[0],   voxel[1],   voxel[2]-1, m_grid );
+    indices[3]  = index( voxel[0],   voxel[1]+1, voxel[2],   m_grid );
+    indices[4]  = index( voxel[0],   voxel[1]+1, voxel[2]+1, m_grid );
+    indices[5]  = index( voxel[0],   voxel[1]+1, voxel[2]-1, m_grid );
+    indices[6]  = index( voxel[0],   voxel[1]-1, voxel[2],   m_grid );
+    indices[7]  = index( voxel[0],   voxel[1]-1, voxel[2]+1, m_grid );
+    indices[8]  = index( voxel[0],   voxel[1]-1, voxel[2]-1, m_grid );
 
-    m_lengthValues[ index( voxel[0]+1, voxel[1]+1, voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]+1, voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]+1, voxel[2],   m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]-1, voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]-1, voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]-1, voxel[2],   m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1],   voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1],   voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]+1, voxel[1],   voxel[2],   m_grid ) ] = m_currentStartParameter;
+    indices[9]  = index( voxel[0]+1, voxel[1],   voxel[2],   m_grid );
+    indices[10] = index( voxel[0]+1, voxel[1],   voxel[2]+1, m_grid );
+    indices[11] = index( voxel[0]+1, voxel[1],   voxel[2]-1, m_grid );
+    indices[12] = index( voxel[0]+1, voxel[1]+1, voxel[2],   m_grid );
+    indices[13] = index( voxel[0]+1, voxel[1]+1, voxel[2]+1, m_grid );
+    indices[14] = index( voxel[0]+1, voxel[1]+1, voxel[2]-1, m_grid );
+    indices[15] = index( voxel[0]+1, voxel[1]-1, voxel[2],   m_grid );
+    indices[16] = index( voxel[0]+1, voxel[1]-1, voxel[2]+1, m_grid );
+    indices[17] = index( voxel[0]+1, voxel[1]-1, voxel[2]-1, m_grid );
 
-    m_lengthValues[ index( voxel[0]-1, voxel[1]+1, voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]+1, voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]+1, voxel[2],   m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]-1, voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]-1, voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]-1, voxel[2],   m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1],   voxel[2]+1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1],   voxel[2]-1, m_grid ) ] = m_currentStartParameter;
-    m_lengthValues[ index( voxel[0]-1, voxel[1],   voxel[2],   m_grid ) ] = m_currentStartParameter;
+    indices[18] = index( voxel[0]-1, voxel[1],   voxel[2],   m_grid );
+    indices[19] = index( voxel[0]-1, voxel[1],   voxel[2]+1, m_grid );
+    indices[20] = index( voxel[0]-1, voxel[1],   voxel[2]-1, m_grid );
+    indices[21] = index( voxel[0]-1, voxel[1]+1, voxel[2],   m_grid );
+    indices[22] = index( voxel[0]-1, voxel[1]+1, voxel[2]+1, m_grid );
+    indices[23] = index( voxel[0]-1, voxel[1]+1, voxel[2]-1, m_grid );
+    indices[24] = index( voxel[0]-1, voxel[1]-1, voxel[2],   m_grid );
+    indices[25] = index( voxel[0]-1, voxel[1]-1, voxel[2]+1, m_grid );
+    indices[26] = index( voxel[0]-1, voxel[1]-1, voxel[2]-1, m_grid );
+
+    // now update the neighbourhood
+    for ( unsigned int i = 0; i < 27; ++i )
+    {
+        if ( m_paramSetValues[ indices[i] ] )
+        {
+            m_paramValues[ indices[i] ] = 0.5 * ( m_paramValues[ indices[i] ] + m_currentStartParameter );
+        }
+        else
+        {
+            m_paramValues[ indices[i] ] = m_currentStartParameter;
+        }
+
+        m_paramSetValues[ indices[i] ] = true;
+    }
 }
 
 void WCenterlineParameterization::newLine( const wmath::WLine& line )
@@ -139,8 +156,12 @@ void WCenterlineParameterization::newSegment( const wmath::WPosition& start, con
         }
     }
 
-    m_currentStartParameter = std::min( m_currentEndParameter, m_currentStartParameter );
+    m_currentStartParameter = m_currentStartParameter;
 
     WRasterParameterization::newSegment( start, end );
+}
+
+void WCenterlineParameterization::finished()
+{
 }
 

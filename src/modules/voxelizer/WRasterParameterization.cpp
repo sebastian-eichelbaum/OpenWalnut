@@ -38,10 +38,18 @@ WRasterParameterization::~WRasterParameterization()
 void WRasterParameterization::newLine( const wmath::WLine& /*line*/ )
 {
     // do nothing here
+    // Overwrite in your class if you need to handle this.
 }
 
-void WRasterParameterization::newSegment( const wmath::WPosition& start, const wmath::WPosition& end )
+void WRasterParameterization::newSegment( const wmath::WPosition& /*start*/, const wmath::WPosition& /*end*/ )
 {
     // do nothing here
+    // Overwrite in your class if you need to handle this.
+}
+
+void WRasterParameterization::finished()
+{
+    // do nothing here
+    // Overwrite in your class if you need to handle this.
 }
 
