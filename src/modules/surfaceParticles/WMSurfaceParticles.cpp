@@ -324,7 +324,7 @@ void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform,
     // update some uniforms:
     if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
     {
-        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) / 100.0 ) );
+        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) ) / 100.0f );
     }
     if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
     {
