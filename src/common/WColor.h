@@ -107,6 +107,10 @@ public:
      */
     void setRGB( double r, double g, double b );
 
+    /**
+     * Computes the inverse of this color in means of RGB space.
+     */
+    void inverse();
 
     /**
      * Compares two WColor instances on all four channels.

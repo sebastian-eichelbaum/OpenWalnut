@@ -33,7 +33,6 @@
 #include "WGEUtils.h"
 #include "../common/math/WPosition.h"
 
-
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
 {
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
