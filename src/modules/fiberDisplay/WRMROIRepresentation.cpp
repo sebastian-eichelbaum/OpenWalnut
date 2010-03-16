@@ -171,3 +171,8 @@ boost::shared_ptr< WProperties2 > WRMROIRepresentation::getProperties()
 {
     return m_properties;
 }
+
+boost::shared_ptr< WRMBranch > WRMROIRepresentation::getBranch()
+{
+    return m_branch;
+}

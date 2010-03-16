@@ -28,8 +28,9 @@
 #include "WQtRoiTreeItem.h"
 #include "WQtBranchTreeItem.h"
 
-WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent ) :
-    QTreeWidgetItem( parent, ROIBRANCH )
+WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch ) :
+    QTreeWidgetItem( parent, ROIBRANCH ),
+    m_branch( branch )
 {
 }
 
@@ -44,4 +45,9 @@ WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresen
     std::string name = "ROI";
     rti->setText( 0, QString( name.c_str() ) );
     return rti;
+}
+
+boost::shared_ptr< WRMBranch > WQtBranchTreeItem::getBranch()
+{
+    return m_branch;
 }

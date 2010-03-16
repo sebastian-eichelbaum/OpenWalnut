@@ -29,6 +29,7 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QTreeWidgetItem>
 
+#include "../../../modules/fiberDisplay/WRMBranch.h"
 #include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
 #include "WQtTreeItem.h"
 
@@ -44,8 +45,9 @@ public:
      * default constructor
      *
      * \param parent
+     * \param branch
      */
-    explicit WQtBranchTreeItem( QTreeWidgetItem * parent );
+    explicit WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch );
 
     /**
      * destructor
@@ -58,8 +60,16 @@ public:
      */
     WQtRoiTreeItem* addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi );
 
+    /**
+     * getter
+     * \return the branch representation object
+     */
+    boost::shared_ptr< WRMBranch > getBranch();
+
+
 protected:
 private:
+    boost::shared_ptr< WRMBranch > m_branch; //!< roi
 };
 
 #endif  // WQTBRANCHTREEITEM_H
