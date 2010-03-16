@@ -241,7 +241,7 @@ void WMFiberDisplay::toggleColoring()
 
 void WMFiberDisplay::adjustTubes()
 {
-    if ( m_tubeThickness->changed() )
+    if ( m_tubeThickness->changed() && m_useTubesProp->get( true ) )
     {
         m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
     }
