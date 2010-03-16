@@ -100,9 +100,10 @@ private:
     boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
     boost::shared_ptr< WModule > m_clusterSlicer; //!< Module slicing the cluster volume
 
-    // TODO(math): forward this to all submodules which needs this: isoSurface, clusterSlicer
     WPropDouble m_isoValue; //!< ISO Value for selecting the volume
     WPropBool   m_drawISOSurface; //!< En/Disable the display of the ISO Surface
+    // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
+    WPropBool   m_go; //!< wrapper for clustering go property so project files can make use of it
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H

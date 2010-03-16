@@ -56,6 +56,9 @@ void WMClusterParamDisplay::properties()
 {
     m_isoValue = m_properties2->addProperty( "Iso Value", "", 0.05 );
     m_drawISOSurface = m_properties2->addProperty( "ISO Surface", "En/Disables the display of the ISO Surface", true );
+
+    // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
+    m_go = m_properties2->addProperty( "Go", "Runs the fiberClustering submodule", false );
 }
 
 void WMClusterParamDisplay::moduleMain()
@@ -63,11 +66,16 @@ void WMClusterParamDisplay::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_isoValue->getCondition() );
     m_moduleState.add( m_drawISOSurface->getCondition() );
+
+    // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
+    m_moduleState.add( m_go->getCondition() );
+
     initSubModules();
 
     // initial values
     m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
     m_clusterSlicer->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
+    m_fiberClustering->getProperties2()->getProperty( "Go" )->toPropBool()->set( true );
 
     ready();
 
@@ -85,9 +93,16 @@ void WMClusterParamDisplay::moduleMain()
             m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
             m_clusterSlicer->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
         }
+
         if( m_drawISOSurface->changed() )
         {
             m_isoSurface->getProperties2()->getProperty( "active" )->toPropBool()->set( m_drawISOSurface->get( true ) );
+        }
+
+        // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
+        if( m_go->changed() )
+        {
+            m_fiberClustering->getProperties2()->getProperty( "Go" )->toPropBool()->set( m_go->get( true ) );
         }
     }
 }
@@ -133,10 +148,11 @@ void WMClusterParamDisplay::initSubModules()
 
     // forward properties
     m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Output cluster ID" ) );
-    m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );
     m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
     m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide Slices" ) );
     m_properties2->addProperty( m_isoSurface->getProperties2()->getProperty( "Opacity %" ) );
+    // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
+    // m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );
 }
