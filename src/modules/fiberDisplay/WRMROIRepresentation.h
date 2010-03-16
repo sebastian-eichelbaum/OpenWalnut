@@ -99,6 +99,12 @@ public:
      */
     boost::shared_ptr< WProperties2 > getProperties();
 
+    /**
+     * getter
+     * \return branch the roi belongs to
+     */
+    boost::shared_ptr< WRMBranch > getBranch();
+
 protected:
     /**
      * slot gets called when a property has changed

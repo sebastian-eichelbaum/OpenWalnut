@@ -110,16 +110,13 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
 
-#if 1
     osg::State& state = *renderInfo.getState();
 
     state.disableAllVertexArrays();
     state.setVertexPointer( 3, GL_FLOAT , 0, &( *verts )[0] );
     state.setColorPointer( 3 , GL_FLOAT , 0, &( *colors )[0] );
 
-
     for ( size_t i = 0; i < active->size(); ++i )
-    //for ( size_t i = 0; i < 35000; ++i )
     {
         if ( (*active)[i] )
         {
@@ -129,23 +126,6 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 
     state.disableVertexPointer();
     state.disableColorPointer();
-#else
-    for ( size_t i = 0; i < active->size(); ++i )
-    {
-        if ( (*active)[i] )
-        {
-            glBegin( GL_LINE_STRIP );
-            int idx = (*startIndexes)[i] * 3;
-            for ( size_t k = 0; k < pointsPerLine->at( i ); ++k )
-            {
-                glColor3f( (*colors)[idx], (*colors)[idx + 1], (*colors)[idx + 2] );
-                glVertex3f( (*verts)[idx], (*verts)[idx + 1], (*verts)[idx + 2] );
-                idx += 3;
-            }
-            glEnd();
-        }
-    }
-#endif
 }
 
 void WTubeDrawable::drawTubes() const

@@ -263,7 +263,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
             default:
             {
                 m_tiRois->setExpanded( true );
-                WQtBranchTreeItem* newBranch = m_tiRois->addBranch();
+                WQtBranchTreeItem* newBranch = m_tiRois->addBranch( roi->getBranch() );
                 newBranch->setExpanded( true );
                 WQtRoiTreeItem* item = newBranch->addRoiItem( roi );
                 item->setDisabled( false );
@@ -274,7 +274,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     else
     {
         m_tiRois->setExpanded( true );
-        WQtBranchTreeItem* newBranch = m_tiRois->addBranch();
+        WQtBranchTreeItem* newBranch = m_tiRois->addBranch( roi->getBranch() );
         newBranch->setExpanded( true );
         WQtRoiTreeItem* item = newBranch->addRoiItem( roi );
         item->setDisabled( false );
@@ -325,6 +325,7 @@ void WQtDatasetBrowser::selectTreeItem()
             case ROIHEADER:
                 break;
             case ROIBRANCH:
+                props = ( static_cast< WQtBranchTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getBranch()->getProperties();
                 break;
             case ROI:
                 props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();

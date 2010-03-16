@@ -31,6 +31,7 @@
 
 #include <boost/enable_shared_from_this.hpp>
 
+#include "./../../common/WProperties2.h"
 #include "WRMROIRepresentation.h"
 
 class WROIManagerFibers;
@@ -124,7 +125,19 @@ public:
      */
     boost::shared_ptr< WROIManagerFibers > getRoiManager();
 
+    /**
+     * returns the properties object
+     */
+    boost::shared_ptr< WProperties2 > getProperties();
+
+
 protected:
+    /**
+     * slot gets called when a property has changed
+     *
+     */
+    void slotToggleNot();
+
 private:
     bool m_dirty; //!< dirty flag to indicate the bit field must be recalculated
 
@@ -138,6 +151,16 @@ private:
      * lock to prevent concurrent threads trying to update the branch
      */
     boost::shared_mutex m_updateLock;
+
+    /**
+     * the property object for the module
+     */
+    boost::shared_ptr< WProperties2 > m_properties;
+
+    /**
+     * indicates if the branch is negated
+     */
+    WPropBool m_isNot;
 };
 
 #endif  // WRMBRANCH_H

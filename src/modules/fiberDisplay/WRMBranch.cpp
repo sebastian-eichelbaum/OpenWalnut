@@ -34,6 +34,8 @@ WRMBranch::WRMBranch( boost::shared_ptr< WROIManagerFibers > roiManager ) :
     m_roiManager( roiManager )
 {
     setDirty();
+    m_properties = boost::shared_ptr< WProperties2 >( new WProperties2() );
+    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMBranch::slotToggleNot, this ) );
 }
 
 WRMBranch::~WRMBranch()
@@ -100,15 +102,23 @@ void WRMBranch::recalculate()
         {
             for ( size_t i = 0 ; i < mbf->size() ; ++i )
             {
-                mbf->at( i ) = mbf->at( i ) & bf->at( i );
+                ( *mbf )[i] = ( *mbf )[i] & ( *bf )[i];
             }
         }
         else
         {
             for ( size_t i = 0 ; i < mbf->size() ; ++i )
             {
-                mbf->at( i ) = mbf->at( i ) & !bf->at( i );
+                ( *mbf )[i] = ( *mbf )[i] & !( *bf )[i];
             }
+        }
+    }
+
+    if ( m_isNot->get() )
+    {
+       for ( size_t i = 0 ; i < mbf->size() ; ++i )
+        {
+            ( *mbf )[i] = !( *mbf )[i];
         }
     }
 
@@ -150,3 +160,15 @@ bool WRMBranch::isEmpty()
 {
     return m_rois.empty();
 }
+
+void WRMBranch::slotToggleNot()
+{
+    //std::cout << "toggle not " << (m_isNot->get() ? "true" : "false") << std::endl;
+    setDirty();
+}
+
+boost::shared_ptr< WProperties2 > WRMBranch::getProperties()
+{
+    return m_properties;
+}
+
