@@ -22,37 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMIXINVECTORTRAITS_H
-#define WMIXINVECTORTRAITS_H
+#include "WEventTypes.h"
 
-#include <sstream>
+#include "WUpdateTextureSorterEvent.h"
 
-#include "../WMixinVector.h"
-#include "WTraitsBase.h"
-
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
+WUpdateTextureSorterEvent::WUpdateTextureSorterEvent()
+    : QEvent( static_cast< QEvent::Type >( WQT_UPDATE_TEXTURE_SORTER_EVENT ) )
 {
-#ifndef _MSC_VER
-CXXTEST_TEMPLATE_INSTANTIATION
-#endif
-/**
- * Enables better UnitTest OutPut if something fails with a mixin vector, so
- * you see immedeatly what is failing.
- */
-template< class T > class ValueTraits< WMixinVector< T > > : public WTraitsBase
-{
-public:
-    /**
-     * Constructs a new ValueTrait of a mixin vector for better test output
-     */
-    explicit ValueTraits( const WMixinVector< T > & v )
-    {
-        std::stringstream ss;
-        ss << v;
-        m_s = ss.str();
-    }
-};
+    // initialize members
 }
-#endif  // CXXTEST_RUNNING
-#endif  // WMIXINVECTORTRAITS_H
+
+WUpdateTextureSorterEvent::~WUpdateTextureSorterEvent()
+{
+    // cleanup
+}
+

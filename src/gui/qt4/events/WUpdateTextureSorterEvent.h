@@ -22,37 +22,31 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMIXINVECTORTRAITS_H
-#define WMIXINVECTORTRAITS_H
+#ifndef WUPDATETEXTURESORTEREVENT_H
+#define WUPDATETEXTURESORTEREVENT_H
 
-#include <sstream>
+#include <QtCore/QEvent>
 
-#include "../WMixinVector.h"
-#include "WTraitsBase.h"
-
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-#ifndef _MSC_VER
-CXXTEST_TEMPLATE_INSTANTIATION
-#endif
 /**
- * Enables better UnitTest OutPut if something fails with a mixin vector, so
- * you see immedeatly what is failing.
+ * Event signalling a new module has been associated with the root container in the kernel. Please note that it is possible that
+ * the module is already marked as "ready" while processing this event due to the multithreading.
  */
-template< class T > class ValueTraits< WMixinVector< T > > : public WTraitsBase
+class WUpdateTextureSorterEvent: public QEvent
 {
 public:
+
     /**
-     * Constructs a new ValueTrait of a mixin vector for better test output
+     * Creates a new event instance denoting that the specified module got associated in the root container.
      */
-    explicit ValueTraits( const WMixinVector< T > & v )
-    {
-        std::stringstream ss;
-        ss << v;
-        m_s = ss.str();
-    }
+    explicit WUpdateTextureSorterEvent();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WUpdateTextureSorterEvent();
+
+private:
 };
-}
-#endif  // CXXTEST_RUNNING
-#endif  // WMIXINVECTORTRAITS_H
+
+#endif  // WUPDATETEXTURESORTEREVENT_H
+

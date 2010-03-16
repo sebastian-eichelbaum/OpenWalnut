@@ -45,5 +45,9 @@
 // when a module crashes
 #define WQT_CRASH_EVENT QEvent::User + 4
 
+// when a subject signals a newly registered data set
+#define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
+
+
 #endif  // WEVENTTYPES_H
 

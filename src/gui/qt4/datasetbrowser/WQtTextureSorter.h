@@ -25,15 +25,26 @@
 #ifndef WQTTEXTURESORTER_H
 #define WQTTEXTURESORTER_H
 
+#include <vector>
+#include <boost/shared_ptr.hpp>
+
 #include <QtGui/QWidget>
 #include <QtGui/QListWidget>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
+
+#include "../../../common/WSharedSequenceContainer.h"
+#include "../../../common/WSharedObject.h"
+
+class WDataSet;
 
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
 class WQtTextureSorter : public QWidget
 {
+    Q_OBJECT
+
 public:
     /**
      * Default constructor.
@@ -49,12 +60,34 @@ public:
      */
     virtual ~WQtTextureSorter();
 
+    /**
+     * Update the list view from the list of data sets.
+     */
+    virtual void update();
+
 private:
     QListWidget* m_textureListWidget; //!< pointer to the tree widget
     QVBoxLayout* m_layout; //!< Layout of the widget
 
     QPushButton* m_downButton; //!< button down
     QPushButton* m_upButton; //!< button up
+
+    typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType; //!< Short for container we want to access b< WSharedSequenceContainer
+    typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType; //!< The SharedContainer
+    typedef DatasetSharedContainerType::WSharedAccess DatasetAccess; //!< Shorthand for the access handler.
+    DatasetSharedContainerType textures; //!< Local list of of the textures to sort.
+
+    /**
+     * This function returns whether the dataset lhs is above rhs in the texture sorter.
+     * \param lhs First dataset.
+     * \param rhs Second dataset.
+     */
+    bool isLess( boost::shared_ptr< WDataSet > lhs, boost::shared_ptr< WDataSet > rhs );
+
+    /**
+     * Resorts the datasets in the subject according to the list in the texture sorter.
+     */
+    void sort();
 
 private slots:
     /**

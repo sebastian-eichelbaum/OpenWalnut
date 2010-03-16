@@ -25,6 +25,7 @@
 #ifndef WDATASETSINGLE_TEST_H
 #define WDATASETSINGLE_TEST_H
 
+#include <stdint.h>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>

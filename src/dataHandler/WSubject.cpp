@@ -39,6 +39,7 @@ WSubject::WSubject():
     m_datasets(),
     m_datasetAccess( m_datasets.getAccessObject() ),
     m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
+    m_listChangeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_personalInfo( WPersonalInformation::createDummyInformation() )
 {
 }
@@ -47,6 +48,7 @@ WSubject::WSubject( WPersonalInformation personInfo ):
     m_datasets(),
     m_datasetAccess( m_datasets.getAccessObject() ),
     m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
+    m_listChangeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_personalInfo( personInfo )
 {
 }
@@ -78,6 +80,7 @@ void WSubject::addDataSet( boost::shared_ptr< WDataSet > dataset )
         m_changeCondition->add( c );
     }
     m_changeCondition->notify();
+    m_listChangeCondition->notify();
 }
 
 void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
@@ -96,6 +99,7 @@ void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
     m_datasetAccess->endWrite();
 
     m_changeCondition->notify();
+    m_listChangeCondition->notify();
 }
 
 void WSubject::clear()
@@ -115,27 +119,31 @@ void WSubject::clear()
     m_datasetAccess->get().clear();
 
     m_datasetAccess->endWrite();
+
+    m_listChangeCondition->notify();
 }
 
-boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
-{
-    m_datasetAccess->beginRead();
+// TODO(all): rethink this
+//  wiebel: I deactivated this as we want to resort thes list ... so we have to rethinks this.
+// boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
+// {
+//     m_datasetAccess->beginRead();
 
-    // search it
-    boost::shared_ptr< WDataSet > result;
-    try
-    {
-        result = m_datasetAccess->get().at( datasetID );
-    }
-    catch( const std::out_of_range& e )
-    {
-        throw WDHNoSuchDataSet();
-    }
+//     // search it
+//     boost::shared_ptr< WDataSet > result;
+//     try
+//     {
+//         result = m_datasetAccess->get().at( datasetID );
+//     }
+//     catch( const std::out_of_range& e )
+//     {
+//         throw WDHNoSuchDataSet();
+//     }
 
-    m_datasetAccess->endRead();
+//     m_datasetAccess->endRead();
 
-    return result;
-}
+//     return result;
+// }
 
 std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bool onlyActive )
 {
@@ -162,8 +170,13 @@ WSubject::DatasetAccess WSubject::getAccessObject()
     return m_datasets.getAccessObject();
 }
 
-boost::shared_ptr< WCondition > WSubject::getChangeCondition()
+boost::shared_ptr< WCondition > WSubject::getChangeCondition() const
 {
     return m_changeCondition;
+}
+
+boost::shared_ptr< WCondition > WSubject::getListChangeCondition() const
+{
+    return m_listChangeCondition;
 }
 
