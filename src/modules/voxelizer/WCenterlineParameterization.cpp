@@ -29,6 +29,7 @@
 WCenterlineParameterization::WCenterlineParameterization( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< wmath::WFiber > centerline ):
     WRasterParameterization( grid ),
     m_paramValues( grid->size(), 0.0 ),
+    m_paramFinalValues( grid->size(), 0.0 ),
     m_paramSetValues( grid->size(), false ),
     m_centerline( centerline ),
     m_currentStartParameter( 0.0 ),
@@ -44,7 +45,7 @@ WCenterlineParameterization::~WCenterlineParameterization()
 
 boost::shared_ptr< WDataSetSingle > WCenterlineParameterization::getDataSet()
 {
-    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_paramValues, W_DT_DOUBLE ) );
+    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_paramFinalValues, W_DT_DOUBLE ) );
     return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
 }
 
@@ -65,6 +66,47 @@ namespace
         size_t nbXY = grid->getNbCoordsX() * grid->getNbCoordsY();
         return x + y * nbX + z * nbXY;
     }
+
+    typedef struct
+    {
+        size_t indices[27];
+    } Neighbourhood;
+
+    Neighbourhood neighbourhood( int x, int y, int z, boost::shared_ptr< WGridRegular3D > grid )
+    {
+        Neighbourhood n;
+        n.indices[0]  = index( x,   y,   z,   grid );
+        n.indices[1]  = index( x,   y,   z+1, grid );
+        n.indices[2]  = index( x,   y,   z-1, grid );
+        n.indices[3]  = index( x,   y+1, z,   grid );
+        n.indices[4]  = index( x,   y+1, z+1, grid );
+        n.indices[5]  = index( x,   y+1, z-1, grid );
+        n.indices[6]  = index( x,   y-1, z,   grid );
+        n.indices[7]  = index( x,   y-1, z+1, grid );
+        n.indices[8]  = index( x,   y-1, z-1, grid );
+
+        n.indices[9]  = index( x+1, y,   z,   grid );
+        n.indices[10] = index( x+1, y,   z+1, grid );
+        n.indices[11] = index( x+1, y,   z-1, grid );
+        n.indices[12] = index( x+1, y+1, z,   grid );
+        n.indices[13] = index( x+1, y+1, z+1, grid );
+        n.indices[14] = index( x+1, y+1, z-1, grid );
+        n.indices[15] = index( x+1, y-1, z,   grid );
+        n.indices[16] = index( x+1, y-1, z+1, grid );
+        n.indices[17] = index( x+1, y-1, z-1, grid );
+
+        n.indices[18] = index( x-1, y,   z,   grid );
+        n.indices[19] = index( x-1, y,   z+1, grid );
+        n.indices[20] = index( x-1, y,   z-1, grid );
+        n.indices[21] = index( x-1, y+1, z,   grid );
+        n.indices[22] = index( x-1, y+1, z+1, grid );
+        n.indices[23] = index( x-1, y+1, z-1, grid );
+        n.indices[24] = index( x-1, y-1, z,   grid );
+        n.indices[25] = index( x-1, y-1, z+1, grid );
+        n.indices[26] = index( x-1, y-1, z-1, grid );
+
+        return n;
+    }
 }
 
 void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
@@ -73,50 +115,21 @@ void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >&
                                                       const wmath::WPosition& /*end*/ )
 {
     // update a 27 neighbourhood
-    size_t indices[ 27 ];
-    indices[0]  = index( voxel[0],   voxel[1],   voxel[2],   m_grid );
-    indices[1]  = index( voxel[0],   voxel[1],   voxel[2]+1, m_grid );
-    indices[2]  = index( voxel[0],   voxel[1],   voxel[2]-1, m_grid );
-    indices[3]  = index( voxel[0],   voxel[1]+1, voxel[2],   m_grid );
-    indices[4]  = index( voxel[0],   voxel[1]+1, voxel[2]+1, m_grid );
-    indices[5]  = index( voxel[0],   voxel[1]+1, voxel[2]-1, m_grid );
-    indices[6]  = index( voxel[0],   voxel[1]-1, voxel[2],   m_grid );
-    indices[7]  = index( voxel[0],   voxel[1]-1, voxel[2]+1, m_grid );
-    indices[8]  = index( voxel[0],   voxel[1]-1, voxel[2]-1, m_grid );
-
-    indices[9]  = index( voxel[0]+1, voxel[1],   voxel[2],   m_grid );
-    indices[10] = index( voxel[0]+1, voxel[1],   voxel[2]+1, m_grid );
-    indices[11] = index( voxel[0]+1, voxel[1],   voxel[2]-1, m_grid );
-    indices[12] = index( voxel[0]+1, voxel[1]+1, voxel[2],   m_grid );
-    indices[13] = index( voxel[0]+1, voxel[1]+1, voxel[2]+1, m_grid );
-    indices[14] = index( voxel[0]+1, voxel[1]+1, voxel[2]-1, m_grid );
-    indices[15] = index( voxel[0]+1, voxel[1]-1, voxel[2],   m_grid );
-    indices[16] = index( voxel[0]+1, voxel[1]-1, voxel[2]+1, m_grid );
-    indices[17] = index( voxel[0]+1, voxel[1]-1, voxel[2]-1, m_grid );
-
-    indices[18] = index( voxel[0]-1, voxel[1],   voxel[2],   m_grid );
-    indices[19] = index( voxel[0]-1, voxel[1],   voxel[2]+1, m_grid );
-    indices[20] = index( voxel[0]-1, voxel[1],   voxel[2]-1, m_grid );
-    indices[21] = index( voxel[0]-1, voxel[1]+1, voxel[2],   m_grid );
-    indices[22] = index( voxel[0]-1, voxel[1]+1, voxel[2]+1, m_grid );
-    indices[23] = index( voxel[0]-1, voxel[1]+1, voxel[2]-1, m_grid );
-    indices[24] = index( voxel[0]-1, voxel[1]-1, voxel[2],   m_grid );
-    indices[25] = index( voxel[0]-1, voxel[1]-1, voxel[2]+1, m_grid );
-    indices[26] = index( voxel[0]-1, voxel[1]-1, voxel[2]-1, m_grid );
+    Neighbourhood n = neighbourhood( voxel[0], voxel[1], voxel[2], m_grid );
 
     // now update the neighbourhood
     for ( unsigned int i = 0; i < 27; ++i )
     {
-        if ( m_paramSetValues[ indices[i] ] )
+        if ( m_paramSetValues[ n.indices[i] ] )
         {
-            m_paramValues[ indices[i] ] = 0.5 * ( m_paramValues[ indices[i] ] + m_currentStartParameter );
+            m_paramValues[ n.indices[i] ] = 0.5 * ( m_paramValues[ n.indices[i] ] + m_currentStartParameter );
         }
         else
         {
-            m_paramValues[ indices[i] ] = m_currentStartParameter;
+            m_paramValues[ n.indices[i] ] = m_currentStartParameter;
         }
 
-        m_paramSetValues[ indices[i] ] = true;
+        m_paramSetValues[ n.indices[i] ] = true;
     }
 }
 
@@ -163,5 +176,37 @@ void WCenterlineParameterization::newSegment( const wmath::WPosition& start, con
 
 void WCenterlineParameterization::finished()
 {
+    // do some selective dilatation on the final grid
+
+    for ( size_t x = 0; x < m_grid->getNbCoordsX(); ++x )
+    {
+        for ( size_t y = 0; y < m_grid->getNbCoordsY(); ++y )
+        {
+            for ( size_t z = 0; z < m_grid->getNbCoordsZ(); ++z )
+            {
+                size_t idx = index( x, y, z, m_grid );
+
+                // copy
+                m_paramFinalValues[ idx ] = m_paramValues[ idx ];
+
+                // has been set during rasterization?
+                if ( !m_paramSetValues[ idx ] )
+                {
+                    m_paramSetValues[ idx ] = true;
+
+                    // find maximum in neighbourhood
+                    Neighbourhood n = neighbourhood( x, y, z, m_grid );
+
+                    double maxVal = m_paramValues[ n.indices[ 0 ] ];
+                    for ( unsigned int i = 1; i < 27; ++i )
+                    {
+                        maxVal = std::max( m_paramValues[ n.indices[i] ], maxVal );
+                    }
+
+                    m_paramFinalValues[ idx ] = maxVal;
+                }
+            }
+        }
+    }
 }
 

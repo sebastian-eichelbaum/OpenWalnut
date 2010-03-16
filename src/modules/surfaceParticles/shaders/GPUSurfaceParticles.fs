@@ -241,16 +241,22 @@ void main()
 
             vec4 ocol = vec4( 0.0, 0.0, 0.0, 1.0);
 
-            if ( abs( anim1 - test ) <= 0.075 )
+            int t = int( abs( anim1 - test ) * 10.0 ) % 10;
+            float t2 = ( t % 2 ) / 2.0;
+        
+            bool doRed = abs( anim1 - test ) <= 0.075;
+            bool doGreen = abs( anim2 - testInv ) <= 0.01;
+            if ( doRed )
             {
                 ocol.r +=  test * test * 10.0;
             }
-            if ( abs( anim2 - testInv ) <= 0.01 )
+            if ( doGreen )
             {
+                ocol.r = 0.0;
                 ocol.g += testInv * testInv * 10.0;
             }
 
-
+            //ocol.b =test ;
             gl_FragData[0] = ocol;
 
             break;

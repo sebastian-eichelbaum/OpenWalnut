@@ -98,6 +98,11 @@ protected:
     std::vector< double > m_paramValues;
 
     /**
+     * The values with applied selective dilatation.
+     */
+    std::vector< double > m_paramFinalValues;
+
+    /**
      * Stores whether the voxel has been set in the past or not.
      */
     std::vector< bool > m_paramSetValues;

@@ -151,6 +151,9 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
     rootState->setTextureAttributeAndModes( 2, tracesTexture3D, osg::StateAttribute::ON );
 
+    //tracesTexture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+    //tracesTexture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+
     // enable transparency
     rootState->setMode( GL_BLEND, osg::StateAttribute::OFF );
 
