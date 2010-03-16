@@ -242,7 +242,7 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
     // update some uniforms:
     if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
     {
-        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) / 100.0 ) );
+        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) ) / 100.0f );
     }
     if ( m_module->m_isoSurface->changed() && ( uniform->getName() == "u_isosurface" ) )
     {
