@@ -35,6 +35,7 @@
 #include "marchingCubesCaseTables.h"
 #include "../../common/datastructures/WTriangleMesh.h"
 #include "../../common/WLimits.h"
+#include "../../common/WAssert.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -203,6 +204,7 @@ void WMMarchingCubes::properties()
 void WMMarchingCubes::generateSurfacePre( double isoValue )
 {
     debugLog() << "Isovalue: " << isoValue;
+    WAssert( ( *m_dataSet ).getValueSet()->order() == 0, "This module only works on scalars." );
     switch( (*m_dataSet).getValueSet()->getDataType() )
     {
         case W_DT_UNSIGNED_CHAR:
