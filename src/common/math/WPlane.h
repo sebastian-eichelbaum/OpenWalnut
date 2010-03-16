@@ -31,7 +31,6 @@
 
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "../WGridRegular3D.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
@@ -71,14 +70,26 @@ public:
     void resetPosition( wmath::WPosition newPos );
 
     /**
-     * Computes sample points on that plane.
+     * Computes with relative coordinates a point in this plane. (0,0) means its position is returned.
      *
-     * \param grid
-     * \param stepWidth
+     * \param x how far along the direction of the first vector which spans the plane
+     * \param y how far along the direction of the second vector which spans the plane too
      *
-     * \return Set of positions on the plane
+     * \return the new calculated position
      */
-    boost::shared_ptr< std::set< wmath::WPosition > > samplePoints( const WGridRegular3D& grid, double stepWidth );
+    wmath::WPosition getPointInPlane( double x, double y ) const;
+
+//    \cond
+//    /**
+//     * Computes sample points on that plane.
+//     *
+//     * \param grid
+//     * \param stepWidth
+//     *
+//     * \return Set of positions on the plane
+//     */
+//    boost::shared_ptr< std::set< wmath::WPosition > > samplePoints( const WGridRegular3D& grid, double stepWidth );
+//    \endcond
 
     /**
      * Computes a fixed number of sample points on that plane.

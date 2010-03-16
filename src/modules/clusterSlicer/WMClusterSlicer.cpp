@@ -26,11 +26,12 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGEGeometryUtils.h"
+#include "../../common/math/WPlane.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGEGeometryUtils.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../kernel/WKernel.h"
 #include "WMClusterSlicer.h"
 
 WMClusterSlicer::WMClusterSlicer()
@@ -71,7 +72,8 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels = m_properties2->addProperty( "Show/Hide ISO Voxels", "En/Disables to draw the voxels withing a given ISOSurface.", true );
+    m_drawISOVoxels = m_properties2->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
+    m_drawSlices    = m_properties2->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", true );
     m_isoValue      = m_properties2->addProperty( "Iso Value", "", 0.01 );
 }
 
@@ -82,6 +84,7 @@ void WMClusterSlicer::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_inputDataSet->getDataChangedCondition() );
     m_moduleState.add( m_isoValue->getCondition() );
+    m_moduleState.add( m_drawSlices->getCondition() );
     m_moduleState.add( m_drawISOVoxels->getCondition() );
 
     ready();
@@ -127,9 +130,45 @@ void WMClusterSlicer::moduleMain()
                 updateDisplay();
             }
         }
+
+        if( m_drawSlices->changed() )
+        {
+            if( dataValid )
+            {
+                updateSlices();
+            }
+        }
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+}
+
+void WMClusterSlicer::updateSlices()
+{
+    if( m_drawSlices->get( true ) )
+    {
+        boost::shared_ptr< wmath::WFiber > centerLine = m_cluster->getCenterLine();
+        if( !centerLine.get() )
+        {
+            errorLog() << "CenterLine of the bundle is empty => no slices are drawn";
+        }
+        else
+        {
+            m_sliceGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old group node
+            const wmath::WFiber& cL = *centerLine; // just an alias
+            for( size_t i = 1; i < cL.size(); ++i )
+            {
+                wmath::WVector3D tangent = cL[i] - cL[i-1];
+                WPlane p( tangent, cL[i-1] );
+                m_sliceGeode->insert( wge::genFinitePlane( 10, 10, p ) );
+            }
+            m_rootNode->insert( m_sliceGeode );
+        }
+    }
+    else
+    {
+        m_rootNode->remove( m_sliceGeode );
+    }
 }
 
 void WMClusterSlicer::updateDisplay()

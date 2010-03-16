@@ -27,11 +27,11 @@
 
 #include <osg/Geode>
 
-#include "../common/datastructures/WTriangleMesh.h"
 #include "../common/WColor.h"
-#include "../common/math/WPosition.h"
+#include "../common/datastructures/WTriangleMesh.h"
 #include "../common/math/WLine.h"
-
+#include "../common/math/WPlane.h"
+#include "../common/math/WPosition.h"
 
 namespace wge
 {
@@ -92,6 +92,18 @@ namespace wge
     osg::ref_ptr< osg::Geode > generateLineStripGeode( const wmath::WLine& line,
                                                        const float thickness = 3.0f,
                                                        const WColor& color = WColor( 0, 0, 0, 0 ) );
+
+    /**
+     * Generates a geode out of a Plane with a fixed size in direction of the vectors which span that plane.
+     *
+     * \param xSize how far the plane from its center along the x-axis should be drawn (both directions)
+     * \param ySize how far the plane from its center along the y-axis should be drawn (both directions)
+     * \param p The plane instance
+     * \param color The color of the plane
+     *
+     * \return The new assembled geode for this plane
+     */
+    osg::ref_ptr< osg::Geode > genFinitePlane( double xSize, double ySize, const WPlane& p, const WColor& color = WColor( 0, 0.7, 0.7 ) );
 } // end of namespace wge
 
 #endif  // WGEGEODEUTILS_H
