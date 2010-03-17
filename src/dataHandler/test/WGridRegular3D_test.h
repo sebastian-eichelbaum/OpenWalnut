@@ -493,16 +493,9 @@ public:
     void testGetCellVertexIds( void )
     {
         WGridRegular3D g( 5, 3, 3, 0, 0, 0, 1, 1, 1 );
-        std::vector< size_t > vertexIds = g.getCellVertexIds( 5 );
-        TS_ASSERT_EQUALS( vertexIds.size(), 8 );
-        TS_ASSERT_EQUALS( vertexIds[0], 6 );
-        TS_ASSERT_EQUALS( vertexIds[1], 7 );
-        TS_ASSERT_EQUALS( vertexIds[2], 11 );
-        TS_ASSERT_EQUALS( vertexIds[3], 12 );
-        TS_ASSERT_EQUALS( vertexIds[4], 21 );
-        TS_ASSERT_EQUALS( vertexIds[5], 22 );
-        TS_ASSERT_EQUALS( vertexIds[6], 26 );
-        TS_ASSERT_EQUALS( vertexIds[7], 27 );
+        size_t ids[] = { 23, 24, 28, 29, 38, 39, 43, 44 }; // NOLINT
+        std::vector< size_t > expected( ids, ids + 8 );
+        TS_ASSERT_EQUALS(  g.getCellVertexIds( 15 ), expected );
     }
 
     /**
