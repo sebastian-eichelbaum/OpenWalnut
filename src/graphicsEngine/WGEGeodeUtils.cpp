@@ -283,7 +283,7 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( double xSize, double ySize, cons
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     osg::StateSet* stateset = new osg::StateSet;
-    stateset->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     geometry->setStateSet( stateset );
 
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
