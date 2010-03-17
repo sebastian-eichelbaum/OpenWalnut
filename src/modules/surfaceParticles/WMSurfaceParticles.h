@@ -163,6 +163,11 @@ private:
     WPropDouble m_particleSize;
 
     /**
+     * The color used when in isosurface mode for blending.
+     */
+    WPropColor m_isoColor;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

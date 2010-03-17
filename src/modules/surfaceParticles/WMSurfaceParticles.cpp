@@ -100,13 +100,11 @@ void WMSurfaceParticles::connectors()
 
     // and the fiber directions inside the volume
     m_tracesInput = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "traces", "The voxelized fiber traces for each voxel in the input"
-                                                                              "\"in\"." )
+        new WModuleInputData< WDataSetSingle >( shared_from_this(), "traces", "The voxelized fiber traces for each voxel in the input \"in\"." )
     );
 
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_tracesInput );
-
 
     // call WModules initialization
     WModule::connectors();
@@ -133,12 +131,17 @@ void WMSurfaceParticles::properties()
     m_particleSize = m_properties2->addProperty( "Particle Size", "The size of a particle in relation to the voxel.", 1.0 );
     m_particleSize->setMin(   0 );
     m_particleSize->setMax( 100 );
+
+    m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 0.0, 0.0, 0.0, 1.0 ),
+                      m_propCondition );
+
 }
 
 osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
 {
     // use the OSG Shapes, create unit cube
-    osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bbox.first, bbox.second, WColor( 0.0, 0.0, 0.0, 1.0 ) );
+    osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bbox.first, bbox.second, m_isoColor->get( true ) );
+    cube->addUpdateCallback( new SafeUpdateCallback( this ) );
     cube->asTransform()->getChild( 0 )->setName( "DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
     m_shader->apply( cube );
 
@@ -155,7 +158,7 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     //tracesTexture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
     // enable transparency
-    rootState->setMode( GL_BLEND, osg::StateAttribute::OFF );
+    rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // setup all those uniforms
@@ -312,7 +315,20 @@ void WMSurfaceParticles::moduleMain()
 
 void WMSurfaceParticles::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    // currently, there is nothing to update
+    // update material info
+    if ( m_module->m_isoColor->changed() || m_initialUpdate )
+    {
+        // Grab the color
+        WColor c = m_module->m_isoColor->get( true );
+
+        // Set the diffuse color and material:
+        osg::ref_ptr< osg::Material > mat = new osg::Material();
+        mat->setDiffuse( osg::Material::FRONT, osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() ) );
+        node->getOrCreateStateSet()->setAttribute( mat, osg::StateAttribute::ON );
+
+        m_initialUpdate = false;
+    }
+
     traverse( node, nv );
 }
 

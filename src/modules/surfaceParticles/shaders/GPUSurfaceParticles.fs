@@ -163,6 +163,44 @@ vec3 getDirection( vec3 point )
     return texture3DUnscaled( tex1, point, u_tex1Min, u_tex1Scale ).rgb;
 }
 
+/** 
+ * @brief Function to calculate lighting intensitybased on "Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1".
+ * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need 
+ * the intensity.
+ *
+ * @param ambient   materials ambient intensity
+ * @param diffuse   materials diffuse intensity
+ * @param specular  materials specular intensity
+ * @param shininess material shininess
+ * @param lightIntensity  the light intensity
+ * @param ambientIntensity the ambient light intensity
+ * @param normalDir the normal
+ * @param viewDir   viewing direction
+ * @param lightDir  light direction
+ * 
+ * @return the light intensity.
+ */
+float blinnPhongIlluminationIntensity(float ambient, float diffuse, float specular, float shininess, 
+							 float lightIntensity, float ambientIntensity, 
+							 vec3 normalDir, vec3 viewDir, vec3 lightDir )
+{
+  vec3 H =  normalize( lightDir + viewDir );
+  
+  // compute ambient term
+  float ambientV = ambient * ambientIntensity;
+
+  // compute diffuse term
+  float diffuseLight = max(dot(lightDir, normalDir), 0.);
+  float diffuseV = diffuse * diffuseLight;
+
+  // compute specular term
+  float specularLight = pow(max(dot(H, normalDir), 0.), shininess);
+  if( diffuseLight <= 0.) specularLight = 0.;
+  float specularV = specular * specularLight;
+
+  return ambientV + (diffuseV + specularV)*lightIntensity;
+}
+
 /**
  * Main entry point of the fragment shader.
  */
@@ -201,63 +239,70 @@ void main()
             vec3 curPointProjected = project( curPoint );
             
             // 2: set depth value
-            gl_FragDepth = curPointProjected.z;
+            gl_FragDepth = curPointProjected.z; 
 
-            // 3: Project direction to image space
-            vec2 projectedDirection = projectVector( getDirection( curPoint ) ).xy;
-            float angle = float( u_animationTime ) / 15.0;
-            mat2 rot = mat2( vec2( cos( angle ) , sin( angle ) ), vec2( -sin( angle ), cos( angle )  ) );
-            projectedDirection = rot * projectedDirection;
-            
-            float test = ( texture3D( tex2, curPoint ).r );
-            float testInv = 1.0 - ( texture3D( tex2, curPoint ).r );
+            // 3: find a proper normal for a headlight
+            float s = 0.01;
+            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
-            // 4: initial particle distribution
-            // The values need to be transferred to the next (image space based) steps.
+            vec3 dir = v_ray;
+            dir += vec3( valueXP, 0.0, 0.0 );
+            dir -= vec3( valueXM, 0.0, 0.0 );
+            dir += vec3( 0.0, valueYP, 0.0 );
+            dir -= vec3( 0.0, valueYM, 0.0 );
+            dir += vec3( 0.0, 0.0, valueZP );
+            dir -= vec3( 0.0, 0.0, valueZP );
 
-            // the current point is now relating to the coordinate system, which is in { (x,y,z) | x in [-1,1], y in [-1,1] and z in [-1,1] } 
-            // (the texture coordinate system). We increase the resolution by scaling the point:
-            curPoint *= u_gridResolution;
+            // Phong:
+            float light = blinnPhongIlluminationIntensity( 
+                    0.1,                        // material ambient
+                    1.0,                        // material diffuse
+                    1.3,                        // material specular
+                    10.0,                       // shinines
+                    1.0,                             // light diffuse
+                    0.75* (1.0-curPointProjected.z), // light ambient
+                    normalize( -dir ),          // normal
+                    normalize( v_ray ),         // view direction
+                    normalize( v_lightSource )  // light source position
+            );
 
-            // each point can than be defined as offset to a voxels root coordinate:
-            vec3 rasterPoint = curPoint - floor( curPoint );
-            rasterPoint -= vec3( 0.5, 0.5, 0.5 );
+            // 3: get the current trace value from tex2, which in most cases is a increasing number along the rasterized line direction
+            float trace    =       ( texture3D( tex2, curPoint ).r );
+            float traceInv = 1.0 - ( texture3D( tex2, curPoint ).r );
 
-            // the raster point is then, for each voxel in  { (x,y,z) | x in [-1,1], y in [-1,1] and z in [-1,1] }, interpreted as sphere surface:
-            float sphere = ( rasterPoint.x * rasterPoint.x + rasterPoint.y * rasterPoint.y  ) * 4.0 * u_particleSize;
-
-            // 5: Set all outputs
-            // Tex0: Isosurface, Depth, Particle Distribution, Alpha
-            gl_FragData[0] = vec4( curPointProjected.z, curPointProjected.z, 1.0 - sphere, u_alpha );
-            // Tex1: Projected Directions X, Projected Directions Y, Projected Directions Z
-            gl_FragData[1] = vec4( projectedDirection.r, 0.0, 0.0, 1.0 );
-            //gl_FragData[1] = vec4( normalize( abs( projectedDirection ) ), 0.0, 1.0 );
-
+            // 4: prepare animation
+            // the current time step:
             int timeStep = u_animationTime;
-            // this creates a triangle function
             
+            // create a triangle function increasing time in 1/100 steps
             float anim1 = ( ( timeStep * 1 ) % 100) * 0.012;
             float anim2 = ( ( timeStep * 1 ) % 100) * 0.012;
 
-            vec4 ocol = vec4( 0.0, 0.0, 0.0, 1.0);
-
-            int t = int( abs( anim1 - test ) * 10.0 ) % 10;
-            float t2 = ( t % 2 ) / 2.0;
-        
-            bool doRed = abs( anim1 - test ) <= 0.075;
-            bool doGreen = abs( anim2 - testInv ) <= 0.01;
+            // original surface color
+            vec4 ocol = vec4( vec3( 0.0 ), 1.0 );//( 1.0 - curPointProjected.z ) * gl_Color;
+            ocol.a = u_alpha;
+       
+            bool doRed   = abs( anim1 - trace ) <= 0.075;
+            bool doGreen = abs( anim2 - traceInv ) <= 0.01;
             if ( doRed )
             {
-                ocol.r +=  test * test * 10.0;
+                ocol.r = 1.0;
+                ocol.g = 0.0;
+                ocol.b = 0.0;
             }
             if ( doGreen )
             {
                 ocol.r = 0.0;
-                ocol.g += testInv * testInv * 10.0;
+                ocol.g = 1.0;
+                ocol.b = 0.0;
             }
 
-            //ocol.b =test ;
-            gl_FragData[0] = ocol;
+            gl_FragData[0] =  light * gl_Color + ocol;
 
             break;
         }
