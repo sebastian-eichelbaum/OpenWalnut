@@ -84,7 +84,7 @@ public:
         l.push_back( wmath::WPosition( 0.7, 0.7, 0.7 ) );
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
-        expected[13] = 1.0;
+        expected[13] = 2.0;
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
     }
 
@@ -101,7 +101,7 @@ public:
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[0] = 1.0;
-        expected[13] = 1.0;
+        expected[13] = 2.0;
         expected[26] = 1.0;
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
     }
@@ -121,7 +121,7 @@ public:
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[0] = 1.0;
-        expected[13] = 1.0;
+        expected[13] = 2.0;
         expected[26] = 1.0;
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
     }
@@ -139,7 +139,7 @@ public:
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[0] = 1.0;
-        expected[13] = 1.0;
+        expected[13] = 2.0;
         expected[26] = 1.0;
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
         m_algo->m_values[0] = m_algo->m_values[13] = m_algo->m_values[26] = 0.0; // reset the values array

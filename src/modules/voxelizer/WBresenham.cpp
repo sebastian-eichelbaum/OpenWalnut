@@ -195,11 +195,11 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     if( m_antialiased )
     {
         distances = computeDistances( idx, start, end );
-        m_values[ idx ] = filter( distances[0] );
+        m_values[ idx ] += filter( distances[0] );
     }
     else
     {
-        m_values[ idx ] = 1.0;
+        m_values[ idx ] += 1.0;
         return;
     }
 
@@ -227,44 +227,44 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     switch( axis )
     {
         case 0 :
-                m_values[ idx + nbX ] = filter( distances[3] );
+                m_values[ idx + nbX ]  += filter( distances[3] );
                 setFiberVector( idx + nbX, fibTangente );
 
-                m_values[ idx - nbX ] = filter( distances[4] );
+                m_values[ idx - nbX ]  += filter( distances[4] );
                 setFiberVector( idx - nbX, fibTangente );
 
-                m_values[ idx + nbXY ] = filter( distances[5] );
+                m_values[ idx + nbXY ] += filter( distances[5] );
                 setFiberVector( idx + nbXY, fibTangente );
 
-                m_values[ idx - nbXY ] = filter( distances[6] );
+                m_values[ idx - nbXY ] += filter( distances[6] );
                 setFiberVector( idx - nbXY, fibTangente );
 
                 break;
         case 1 :
-                m_values[ idx + 1 ] = filter( distances[1] );
+                m_values[ idx + 1 ]    += filter( distances[1] );
                 setFiberVector( idx + 1, fibTangente );
 
-                m_values[ idx - 1 ] = filter( distances[2] );
+                m_values[ idx - 1 ]    += filter( distances[2] );
                 setFiberVector( idx - 1, fibTangente );
 
-                m_values[ idx + nbXY ] = filter( distances[5] );
+                m_values[ idx + nbXY ] += filter( distances[5] );
                 setFiberVector( idx + nbXY, fibTangente );
 
-                m_values[ idx - nbXY ] = filter( distances[6] );
+                m_values[ idx - nbXY ] += filter( distances[6] );
                 setFiberVector( idx - nbXY, fibTangente );
 
                 break;
         case 2 :
-                m_values[ idx + 1 ] = filter( distances[1] );
+                m_values[ idx + 1 ]   += filter( distances[1] );
                 setFiberVector( idx + 1, fibTangente );
 
-                m_values[ idx - 1 ] = filter( distances[2] );
+                m_values[ idx - 1 ]   += filter( distances[2] );
                 setFiberVector( idx - 1, fibTangente );
 
-                m_values[ idx + nbX ] = filter( distances[3] );
+                m_values[ idx + nbX ] += filter( distances[3] );
                 setFiberVector( idx + nbX, fibTangente );
 
-                m_values[ idx - nbX ] = filter( distances[4] );
+                m_values[ idx - nbX ] += filter( distances[4] );
                 setFiberVector( idx - nbX, fibTangente );
 
                 break;
