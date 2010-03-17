@@ -111,7 +111,7 @@ public:
      *
      * \return Scalar value for that given position
      */
-    double interpolate( wmath::WPosition pos, bool* success );
+    double interpolate( const wmath::WPosition& pos, bool* success );
 
     /**
      * Get the value stored at a certain grid position of the data set in type double.

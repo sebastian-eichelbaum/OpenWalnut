@@ -143,7 +143,7 @@ double WDataSetSingle::getValueAt( int x, int y, int z )
     return getValueAt( id );
 }
 
-double WDataSetSingle::interpolate( wmath::WPosition pos, bool* success )
+double WDataSetSingle::interpolate( const wmath::WPosition& pos, bool* success )
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
