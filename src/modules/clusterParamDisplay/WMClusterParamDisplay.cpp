@@ -45,9 +45,13 @@ boost::shared_ptr< WModule > WMClusterParamDisplay::factory() const
 
 void WMClusterParamDisplay::connectors()
 {
-    typedef WModuleInputForwardData< WDataSetFibers > InputType;
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
-    addConnector( m_input );
+    typedef WModuleInputForwardData< WDataSetFibers > InFiberType;
+    m_fibers = boost::shared_ptr< InFiberType >( new InFiberType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
+    addConnector( m_fibers );
+
+    typedef WModuleInputForwardData< WDataSetSingle > InParamDSType;
+    m_paramDS = boost::shared_ptr< InParamDSType >( new InParamDSType( shared_from_this(), "paramDS", "Parameter Dataset such as FA" ) );
+    addConnector( m_paramDS );
 
     WModule::connectors();
 }
@@ -131,13 +135,14 @@ void WMClusterParamDisplay::initSubModules()
     m_clusterSlicer->isReady().wait();
 
     // wiring
-    m_input->forward( m_fiberClustering->getInputConnector( "fiberInput" ) );
+    m_fibers->forward( m_fiberClustering->getInputConnector( "fiberInput" ) );
+    m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramDS" ) );
 
     m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
     m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
     m_clusterSlicer->getInputConnector( "cluster" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
-    m_clusterSlicer->getInputConnector( "dataset" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+    m_clusterSlicer->getInputConnector( "clusterDS" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
 
     // preset properties
     m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );

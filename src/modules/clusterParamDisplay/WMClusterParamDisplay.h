@@ -92,7 +92,8 @@ protected:
     virtual void initSubModules();
 
 private:
-    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_fibers;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_paramDS;  //!< Input connector for the parameter dataset
 
     boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
     boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster

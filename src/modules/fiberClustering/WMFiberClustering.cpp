@@ -33,18 +33,18 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WDXtLookUpTable.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WIOTools.h"
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"
-#include "../../common/datastructures/WDXtLookUpTable.h"
-#include "../../common/datastructures/WFiber.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMFiberClustering.h"

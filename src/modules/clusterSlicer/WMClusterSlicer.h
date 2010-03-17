@@ -110,6 +110,16 @@ protected:
     void updateSlices();
 
     /**
+     * Computes the average of the positions inside the paramDS which are also inside the cluster volume main component.
+     * All other positions will be deleted from this set.
+     *
+     * \param samplePoints Set of position where the parameter should be gained out of the paramDS, be aware
+     *
+     * \return The average value of those value where its positions are inside the ISO-Surface/Volume/Cluster. If no position is inside, 0.0 is returned.
+     */
+    double averageParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const;
+
+    /**
      * Generates new geode for marking the volume voxels
      *
      * \return Newly constructed geode
@@ -121,12 +131,14 @@ protected:
     osg::ref_ptr< WGEGroupNode > m_sliceGeode; //!< Separate geode for slices
 
     typedef WModuleInputData< WFiberCluster >  InputClusterType; //!< Internal alias for m_inputCluster's type
-    boost::shared_ptr< InputClusterType >  m_inputCluster; //!< InputConnector for a fiber cluster with its CenterLine
+    boost::shared_ptr< InputClusterType >  m_fiberCluster; //!< InputConnector for a fiber cluster with its CenterLine
     typedef WModuleInputData< WDataSetSingle > InputDataSetType; //!< Internal alias for m_inputDataSet's type
-    boost::shared_ptr< InputDataSetType >  m_inputDataSet; //!< InputConnector for the dataset derived from a voxelized cluster
+    boost::shared_ptr< InputDataSetType >  m_clusterDataSet; //!< InputConnector for the dataset derived from a voxelized cluster
+    boost::shared_ptr< InputDataSetType >  m_paramDataSet; //!< InputConnector for the dataset of parameters like FA etc.
 
     boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
-    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Dataset derived from a voxelized cluster
+    boost::shared_ptr< WDataSetSingle > m_clusterDS; //!< Dataset derived from a voxelized cluster
+    boost::shared_ptr< WDataSetSingle > m_paramDS; //!< Dataset derived from a voxelized cluster
 
     boost::shared_ptr< WJoinContourTree >   m_joinTree; //!< Stores the JoinTree
     boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
