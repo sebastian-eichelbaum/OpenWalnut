@@ -110,6 +110,13 @@ public:
     void setColoringMode( bool globalColoring );
 
     /**
+     * Set the use of custom colors
+     *
+     * \param custom
+     */
+    void setCustomColoring( bool custom );
+
+    /**
      * In which mode coloring for the fibers is applied.
      *
      * \return True for global, false for local coloring
@@ -137,6 +144,8 @@ private:
     bool m_useTubes; //!< flag
 
     bool m_globalColoring; //!< True indicates global, false local coloring
+
+    bool m_customColoring; //!< True indicates use of custom colors
 };
 
 #endif  // WTUBEDRAWABLE_H

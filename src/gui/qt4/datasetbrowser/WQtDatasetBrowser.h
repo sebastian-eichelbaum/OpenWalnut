@@ -168,9 +168,14 @@ protected:
 
 private:
     WQtTreeWidget* m_treeWidget; //!< pointer to the tree widget
+
+    WQtTreeWidget* m_roiTreeWidget; //!< pointer to the tree widget
+
     WQtTextureSorter* m_textureSorter; //!< pointer to the tree widget
 
     QTabWidget* m_tabWidget; //!< pointer to the tab widget
+
+    QTabWidget* m_tabWidget2; //!< pointer to the tab widget
 
     QWidget* m_panel; //!< panel
 
@@ -188,6 +193,20 @@ private slots:
      * is rebuilt with the controls provided by the tree item
      */
     void selectTreeItem();
+
+    /**
+     * function that gets called when a tree item is selected, on a new select that tab widget
+     * is rebuilt with the controls provided by the tree item
+     */
+    void selectRoiTreeItem();
+
+    /**
+     * function that builds the property tab
+     *
+     * \param props
+     */
+    void buildPropTab( boost::shared_ptr< WProperties2 > props );
+
 
     /**
      * function gets called when a change to a tree item, eg. check box status, occurs

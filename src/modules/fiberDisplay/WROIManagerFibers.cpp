@@ -136,6 +136,7 @@ void WROIManagerFibers::addFiberDataset( boost::shared_ptr< const WDataSetFibers
     m_kdTree = boost::shared_ptr< WKdTree >( new WKdTree( verts->size() / 3, &( ( *verts )[0] ) ) );
 
     addBitField( fibers->size() );
+    createCustomColorArray();
 
     setDirty();
 }
@@ -290,4 +291,40 @@ void WROIManagerFibers::addDefaultNotifier( boost::function< void( boost::shared
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     m_notifiers.push_back( notifier );
     lock.unlock();
+}
+
+void WROIManagerFibers::createCustomColorArray()
+{
+    boost::shared_ptr< std::vector< float > > colors = m_fibers->getGlobalColors();
+    m_customColors = boost::shared_ptr< std::vector< float > >( new std::vector< float >( ( *colors ).size() ) );
+
+    for ( size_t i = 0; i < ( *colors ).size(); ++i )
+    {
+        ( *m_customColors )[i] = ( *colors )[i];
+    }
+}
+
+boost::shared_ptr< std::vector< float > >WROIManagerFibers::getCustomColors()
+{
+    return m_customColors;
+}
+
+void WROIManagerFibers::updateBundleColor( boost::shared_ptr<WRMBranch> branch, WColor color )
+{
+    boost::shared_ptr< std::vector< bool > > bf = branch->getBitField();
+    boost::shared_ptr< std::vector< size_t > > starts = m_fibers->getLineStartIndexes();
+    boost::shared_ptr< std::vector< size_t > > lengths = m_fibers->getLineLengths();
+
+    for ( size_t i = 0; i < bf->size(); ++i )
+    {
+        if ( (*bf)[i] )
+        {
+            for ( size_t k = (*starts)[i]; k < (*starts)[i] + (*lengths)[i]; ++k)
+            {
+                (*m_customColors)[k*3] = color.getRed();
+                (*m_customColors)[k*3+1] = color.getGreen();
+                (*m_customColors)[k*3+2] = color.getBlue();
+            }
+        }
+    }
 }

@@ -115,6 +115,7 @@ protected:
 
 private:
     WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
+    WPropBool m_customColoring; //!< Enable/Disable custom colors
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
 

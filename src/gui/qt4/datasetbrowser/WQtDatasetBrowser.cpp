@@ -71,11 +71,25 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_textureSorter->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
+    m_tabWidget2 = new QTabWidget( m_panel );
 
     m_layout = new QVBoxLayout();
-
     m_layout->addWidget( m_treeWidget );
-    m_layout->addWidget( m_textureSorter );
+    m_layout->addWidget( m_tabWidget2 );
+
+
+    m_tabWidget2->addTab( m_textureSorter, QString( "texture sorter" ) );
+
+    m_roiTreeWidget = new WQtTreeWidget();
+    m_roiTreeWidget->setHeaderLabel( QString( "ROIs" ) );
+    m_roiTreeWidget->setHeaderHidden( true );
+    m_roiTreeWidget->setDragEnabled( true );
+    m_roiTreeWidget->viewport()->setAcceptDrops( true );
+    m_roiTreeWidget->setDropIndicatorShown( true );
+    m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
+    m_tabWidget2->addTab( m_roiTreeWidget, QString( "rois" ) );
+
+
     m_layout->addWidget( m_tabWidget );
 
     m_panel->setLayout( m_layout );
@@ -86,7 +100,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     m_tiModules = new WQtModuleHeaderTreeItem( m_treeWidget );
     m_tiModules->setText( 0, QString( "Modules" ) );
-    m_tiRois = new WQtRoiHeaderTreeItem( m_treeWidget );
+    m_tiRois = new WQtRoiHeaderTreeItem( m_roiTreeWidget );
     m_tiRois->setText( 0, QString( "ROIs" ) );
 
     connectSlots();
@@ -95,7 +109,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_showToolBarText = true;
     WPreferences::getPreference( "qt4gui.toolBarIconText", &m_showToolBarText );
 
-    QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_treeWidget );
+    QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteTreeItem() ) );
 }
 
@@ -107,6 +121,7 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 void WQtDatasetBrowser::connectSlots()
 {
     connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
 }
 
@@ -238,13 +253,13 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 
 void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 {
-    if ( m_treeWidget->selectedItems().count() != 0 )
+    if ( m_roiTreeWidget->selectedItems().count() != 0 )
     {
-        switch ( m_treeWidget->selectedItems().at( 0 )->type() )
+        switch ( m_roiTreeWidget->selectedItems().at( 0 )->type() )
         {
             case ROI :
             {
-                WQtBranchTreeItem* branchItem =( static_cast< WQtBranchTreeItem* >( m_treeWidget->selectedItems().at( 0 )->parent() ) );
+                WQtBranchTreeItem* branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
                 m_tiRois->setExpanded( true );
                 branchItem->setExpanded( true );
                 WQtRoiTreeItem* item = branchItem->addRoiItem( roi );
@@ -253,7 +268,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
             }
             case ROIBRANCH :
             {
-                WQtBranchTreeItem* branchItem =( static_cast< WQtBranchTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) );
+                WQtBranchTreeItem* branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) );
                 m_tiRois->setExpanded( true );
                 branchItem->setExpanded( true );
                 WQtRoiTreeItem* item = branchItem->addRoiItem( roi );
@@ -323,18 +338,51 @@ void WQtDatasetBrowser::selectTreeItem()
                 createCompatibleButtons( module );
                 break;
             case ROIHEADER:
-                break;
             case ROIBRANCH:
-                props = ( static_cast< WQtBranchTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getBranch()->getProperties();
-                break;
             case ROI:
-                props = ( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
                 break;
             default:
                 break;
         }
     }
+    buildPropTab( props );
+}
 
+void WQtDatasetBrowser::selectRoiTreeItem()
+{
+    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
+    m_tabWidget->clear();
+    m_mainWindow->getCompatiblesToolBar()->clearButtons();
+
+    boost::shared_ptr< WModule > module;
+    boost::shared_ptr< WProperties2 > props;
+
+    if ( m_roiTreeWidget->selectedItems().size() != 0  )
+    {
+        switch ( m_roiTreeWidget->selectedItems().at( 0 )->type() )
+        {
+            case SUBJECT:
+            case DATASET:
+            case MODULEHEADER:
+            case MODULE:
+            case ROIHEADER:
+                break;
+            case ROIBRANCH:
+                props = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getBranch()->getProperties();
+                break;
+            case ROI:
+                props = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
+                break;
+            default:
+                break;
+        }
+    }
+    buildPropTab( props );
+}
+
+
+void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties2 > props )
+{
     WQtDSBWidget* tab = new WQtDSBWidget( "Settings" );
 
     if ( props.get() )
@@ -458,13 +506,13 @@ int WQtDatasetBrowser::getFirstSubject()
 boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getSelectedRoi()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
-    if ( m_treeWidget->selectedItems().count() == 0 )
+    if ( m_roiTreeWidget->selectedItems().count() == 0 )
     {
         return roi;
     }
-    if ( m_treeWidget->selectedItems().at( 0 )->type() == ROI )
+    if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
     {
-        roi =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi();
+        roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
     }
     return roi;
 }
@@ -472,18 +520,18 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getSelectedRoi()
 boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelectedBranch()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
-    if ( m_treeWidget->selectedItems().count() == 0 )
+    if ( m_roiTreeWidget->selectedItems().count() == 0 )
     {
         return roi;
     }
-    if ( m_treeWidget->selectedItems().at( 0 )->type() == ROI )
+    if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
     {
-        WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_treeWidget->selectedItems().at( 0 )->parent() ) );
+        WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
         roi =( static_cast< WQtRoiTreeItem* >( branch->child( 0 ) ) )->getRoi();
     }
-    if ( m_treeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
+    if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
     {
-        WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) );
+        WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) );
         if ( branch->childCount() > 0 )
         {
             roi =( static_cast< WQtRoiTreeItem* >( branch->child( 0 ) ) )->getRoi();
@@ -496,23 +544,23 @@ void WQtDatasetBrowser::deleteTreeItem()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
 
-    if ( m_treeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
+    if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
     {
         roi = getFirstRoiInSelectedBranch();
         if ( roi )
         {
             WKernel::getRunningKernel()->getRoiManager()->removeBranch( roi );
         }
-        delete m_treeWidget->selectedItems().at( 0 );
+        delete m_roiTreeWidget->selectedItems().at( 0 );
     }
 
-    else if ( m_treeWidget->selectedItems().at( 0 )->type() == ROI )
+    else if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
     {
-        roi =( static_cast< WQtRoiTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getRoi();
-        WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_treeWidget->selectedItems().at( 0 )->parent() ) );
+        roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
+        WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
         if ( roi )
         {
-            delete m_treeWidget->selectedItems().at( 0 );
+            delete m_roiTreeWidget->selectedItems().at( 0 );
             WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
         }
         if ( branch->childCount() == 0 )

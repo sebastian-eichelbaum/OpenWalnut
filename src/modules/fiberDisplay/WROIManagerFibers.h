@@ -146,6 +146,24 @@ public:
      */
     void recalculate();
 
+    /**
+     * creates a color array, that is used for coloring of fibers
+     */
+    void createCustomColorArray();
+
+    /**
+     * getter
+     */
+    boost::shared_ptr< std::vector< float > >getCustomColors();
+
+    /**
+     * updates the custom color array with the color of a selected branch
+     *
+     * \param branch
+     * \param color
+     */
+    void updateBundleColor( boost::shared_ptr<WRMBranch> branch, WColor color );
+
 protected:
 private:
     bool m_dirty; //!< dirty flag
@@ -188,6 +206,8 @@ private:
      * bool to lock the update function, will be removed again once we found out why the boost lock isnt working
      */
     bool m_recalcLock;
+
+    boost::shared_ptr< std::vector< float > >m_customColors; //!< vector to store custom colors
 };
 
 #endif  // WROIMANAGERFIBERS_H

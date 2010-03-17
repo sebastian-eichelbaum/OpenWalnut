@@ -138,6 +138,13 @@ protected:
      */
     void slotToggleNot();
 
+    /**
+     * slot gets called when a property has changed
+     *
+     */
+    void slotChangeBundleColor();
+
+
 private:
     bool m_dirty; //!< dirty flag to indicate the bit field must be recalculated
 
@@ -161,6 +168,11 @@ private:
      * indicates if the branch is negated
      */
     WPropBool m_isNot;
+
+    /**
+     * The color used when in isosurface mode for blending.
+     */
+    WPropColor m_bundleColor;
 };
 
 #endif  // WRMBRANCH_H
