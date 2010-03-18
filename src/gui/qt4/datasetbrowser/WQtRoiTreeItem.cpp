@@ -31,6 +31,14 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRM
     QTreeWidgetItem( parent, type ),
     m_roi( roi )
 {
+    if ( m_roi->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    {
+        this->setCheckState( 0, Qt::Checked );
+    }
+    else
+    {
+        this->setCheckState( 0, Qt::Unchecked );
+    }
 }
 
 WQtRoiTreeItem::~WQtRoiTreeItem()

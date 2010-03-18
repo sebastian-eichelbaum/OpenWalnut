@@ -105,6 +105,13 @@ public:
      */
     boost::shared_ptr< WRMBranch > getBranch();
 
+    /**
+     * getter
+     *
+     * \return roi is active
+     */
+    bool isActive();
+
 protected:
     /**
      * slot gets called when a property has changed
@@ -173,6 +180,11 @@ private:
      * indicates if the roi is negated
      */
     WPropBool m_isNot;
+
+    /**
+     * indicates if the roi is active
+     */
+    WPropBool m_isActive;
 };
 
 #endif  // WRMROIREPRESENTATION_H

@@ -113,6 +113,7 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
     boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
+    boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
 
     boost::shared_ptr< std::vector< float > > colors;
     if ( m_customColoring )
@@ -131,6 +132,7 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     state.disableAllVertexArrays();
     state.setVertexPointer( 3, GL_FLOAT , 0, &( *verts )[0] );
     state.setColorPointer( 3 , GL_FLOAT , 0, &( *colors )[0] );
+    state.setNormalPointer( GL_FLOAT , 0, &( *tangents )[0] );
 
     for ( size_t i = 0; i < active->size(); ++i )
     {
