@@ -33,27 +33,33 @@
 #include "exceptions/WDHException.h"
 #include "io/WPagerEEG.h"
 #include "WEEGChannelInfo.h"
+#include "WEEGPositionsLibrary.h"
 #include "WEEG2Segment.h"
 #include "WEEG2.h"
 
 
-WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager )
+WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary )
 {
     if( !pager )
     {
         throw WDHException( "Couldn't construct new EEG: pager invalid" );
     }
 
+    if( !positionsLibrary )
+    {
+        throw WDHException( "Couldn't construct new EEG: positions library invalid" );
+    }
+
     m_segments.reserve( pager->getNumberOfSegments() );
     for( std::size_t segmentID = 0; segmentID < pager->getNumberOfSegments(); ++segmentID )
     {
-        m_segments.push_back( boost::shared_ptr< WEEG2Segment >( new WEEG2Segment( pager, segmentID ) ) );
+        m_segments.push_back( boost::shared_ptr< WEEG2Segment >( new WEEG2Segment( segmentID, pager ) ) );
     }
 
     m_channelInfos.reserve( pager->getNumberOfChannels() );
     for( std::size_t channelID = 0; channelID < pager->getNumberOfChannels(); ++channelID )
     {
-        m_channelInfos.push_back( boost::shared_ptr< WEEGChannelInfo >( new WEEGChannelInfo( pager, channelID ) ) );
+        m_channelInfos.push_back( boost::shared_ptr< WEEGChannelInfo >( new WEEGChannelInfo( channelID, pager, positionsLibrary ) ) );
     }
 }
 

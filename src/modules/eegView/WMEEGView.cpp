@@ -85,16 +85,16 @@ void WMEEGView::connectors()
 void WMEEGView::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_drawElektrodes  = m_properties2->addProperty( "Draw Elektrodes",
-                                                    "Draw the 3D positions of the elektrodes.",
+    m_drawElectrodes  = m_properties2->addProperty( "Draw Electrodes",
+                                                    "Draw the 3D positions of the electrodes.",
                                                     true,
                                                     m_propCondition );
     m_drawHeadSurface = m_properties2->addProperty( "Draw Head Surface",
-                                                    "Draw the head surface between the elektrodes.",
+                                                    "Draw the head surface between the electrodes.",
                                                     true,
                                                     m_propCondition );
     m_drawLabels      = m_properties2->addProperty( "Draw Labels",
-                                                    "Draw the labels of the elektrodes at their 3D positions.",
+                                                    "Draw the labels of the electrodes at their 3D positions.",
                                                     true,
                                                     m_propCondition );
 }
@@ -175,22 +175,22 @@ void WMEEGView::moduleMain()
             }
         }
 
-        // draw elektrodes property changed?
-        if( m_drawElektrodes->changed() )
+        // draw electrodes property changed?
+        if( m_drawElectrodes->changed() )
         {
-            if( m_elektrodesNode.valid() )
+            if( m_electrodesNode.valid() )
             {
-                m_rootNode3d->remove( m_elektrodesNode );
+                m_rootNode3d->remove( m_electrodesNode );
             }
 
-            if( m_drawElektrodes->get( true ) && m_eeg.get() )
+            if( m_drawElectrodes->get( true ) && m_eeg.get() )
             {
-                m_elektrodesNode = drawElektrodes();
-                m_rootNode3d->insert( m_elektrodesNode );
+                m_electrodesNode = drawElectrodes();
+                m_rootNode3d->insert( m_electrodesNode );
             }
             else
             {
-                m_elektrodesNode = NULL;
+                m_electrodesNode = NULL;
             }
         }
 
@@ -416,14 +416,14 @@ void WMEEGView::redraw()
             m_event.setNode( NULL );
         }
 
-        if( m_drawElektrodes->get( true ) )
+        if( m_drawElectrodes->get( true ) )
         {
-            m_elektrodesNode = drawElektrodes();
-            m_rootNode3d->addChild( m_elektrodesNode );
+            m_electrodesNode = drawElectrodes();
+            m_rootNode3d->addChild( m_electrodesNode );
         }
         else
         {
-            m_elektrodesNode = NULL;
+            m_electrodesNode = NULL;
         }
 
         if( m_drawHeadSurface->get( true ) )
@@ -463,18 +463,18 @@ void WMEEGView::redraw()
         m_event.setTime( -1.0 );
         m_event.setNode( NULL );
 
-        m_elektrodesNode = NULL;
+        m_electrodesNode = NULL;
         m_headSurfaceNode = NULL;
         m_labelsNode = NULL;
     }
 }
 
-osg::ref_ptr< osg::Node > WMEEGView::drawElektrodes()
+osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
 {
-    // draw 3d positions of elektrodes
+    // draw 3d positions of electrodes
     const float sphereSize = 4.0f;
 
-    osg::ref_ptr< osg::Group > elektrodes( new osg::Group );
+    osg::ref_ptr< osg::Group > electrodes( new osg::Group );
 
     for( size_t channel = 0; channel < m_eeg->getNumberOfChannels(); ++channel )
     {
@@ -486,10 +486,10 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElektrodes()
 
         osg::Geode* sphereGeode = new osg::Geode;
         sphereGeode->addDrawable( shape );
-        elektrodes->addChild( sphereGeode );
+        electrodes->addChild( sphereGeode );
     }
 
-    return elektrodes;
+    return electrodes;
 }
 
 osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
@@ -534,7 +534,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 
 osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
 {
-    // draw elektrode labels in 3d
+    // draw electrode labels in 3d
     const float sphereSize = 4.0f;
     const osg::Vec3 text3dOffset( 0.0, 0.0, sphereSize );
     const double text3dSize = 32.0;
