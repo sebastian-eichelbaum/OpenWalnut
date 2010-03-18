@@ -66,7 +66,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, 0., 0., 0., 1., 1., 1. ) );
         TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, 0., 0., 0.,
                 WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ), 1., 1., 1. ) );
-        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, WMatrix< double >( 4, 4 ), 1., 1., 1. ) );
+        TS_ASSERT_THROWS_NOTHING( WGridRegular3D grid( 3, 3, 3, WMatrix< double >( 4, 4 ).makeIdentity(), 1., 1., 1. ) );
     }
 
     /**
@@ -84,7 +84,7 @@ public:
                 WVector3D( 3., 1., 2. ), WVector3D( 1., 3., 2. ), WVector3D( 1., 2., 3. ), 1., 1., 1. );
         TS_ASSERT_EQUALS( grid3.size(), 27 );
 
-        WGridRegular3D grid4( 3, 3, 3, WMatrix< double >( 4, 4 ), 1., 1., 1. );
+        WGridRegular3D grid4( 3, 3, 3, WMatrix< double >( 4, 4 ).makeIdentity(), 1., 1., 1. );
         TS_ASSERT_EQUALS( grid4.size(), 27 );
     }
 
