@@ -25,6 +25,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -348,8 +349,9 @@ boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::c
     return result;
 }
 
-boost::shared_ptr< wmath::WLine > tm_utils::intersection( const WTriangleMesh& mesh, const WPlane& plane )
+boost::shared_ptr< std::set< size_t > > tm_utils::intersection( const WTriangleMesh& mesh, const WPlane& plane )
 {
+    boost::shared_ptr< std::set< size_t > > result( new std::set< size_t > );
     const std::vector< wmath::WPosition >& vertices = mesh.getVertices();
     const std::vector< Triangle >& triangles = mesh.getTriangles();
     for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
@@ -359,9 +361,11 @@ boost::shared_ptr< wmath::WLine > tm_utils::intersection( const WTriangleMesh& m
                                           vertices[ triangle->pointID[2] ],
                                           plane ) )
         {
-            // compute vertex and update result
+            result->insert( triangle->pointID[0] );
+            result->insert( triangle->pointID[1] );
+            result->insert( triangle->pointID[2] );
         }
     }
 
-    return boost::shared_ptr< wmath::WLine >( new wmath::WLine );
+    return result;
 }

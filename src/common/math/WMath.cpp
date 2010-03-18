@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "WMath.h"
+#include "WPlane.h"
 #include "WPosition.h"
 #include "WVector3D.h"
 
@@ -35,5 +36,9 @@ bool wmath::testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPos
     double r2 = normal.dotProduct( p2 - planePoint );
     double r3 = normal.dotProduct( p3 - planePoint );
 
-    return false; // TODO(math): implement this via signums
+    if( std::abs( ( ( r1 > 0 ) - ( r1 < 0 ) ) + ( ( r2 > 0) - ( r2 < 0 ) ) + ( ( r3 > 0 ) - ( r3 < 0 ) ) ) == 3 )
+    {
+        return false;
+    }
+    return true;
 }

@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <iostream>
 #include <list>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -77,7 +78,15 @@ namespace tm_utils
      */
     boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
 
-    boost::shared_ptr< wmath::WLine > intersection( const WTriangleMesh& mesh, const WPlane& plane );
+    /**
+     * Compute all vertices which are involed with triangles intersecting the given plane.
+     *
+     * \param mesh The mesh
+     * \param plane The plane
+     *
+     * \return Set of vertices indices which triangles intersects the plane
+     */
+    boost::shared_ptr< std::set< size_t > > intersection( const WTriangleMesh& mesh, const WPlane& plane );
 
     /**
      * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.

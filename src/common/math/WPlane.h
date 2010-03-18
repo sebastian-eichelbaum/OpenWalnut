@@ -127,12 +127,12 @@ private:
 
 inline const wmath::WPosition& WPlane::getPosition() const
 {
-    return m_normal;
+    return m_pos;
 }
 
 inline const wmath::WVector3D& WPlane::getNormal() const
 {
-    return m_pos;
+    return m_normal;
 }
 
 #endif  // WPLANE_H

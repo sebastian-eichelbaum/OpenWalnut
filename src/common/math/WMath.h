@@ -25,6 +25,8 @@
 #ifndef WMATH_H
 #define WMATH_H
 
+#include "WPosition.h"
+#include "WVector3D.h"
 #include "WPlane.h"
 
 /**
