@@ -29,6 +29,7 @@
 
 #include <osg/Geode>
 
+#include "../../common/datastructures/WColoredVertices.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -113,7 +114,8 @@ private:
     /**
      * An input connector used to get mehses from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_input;
+    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput;
+    boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput; //!< for each vertex ID in that container a special color is given.
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 

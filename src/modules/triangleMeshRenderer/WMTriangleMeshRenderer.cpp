@@ -23,14 +23,15 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <map>
 
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/datastructures/WTriangleMesh.h"
-
-#include "WMTriangleMeshRenderer.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../kernel/WKernel.h"
 #include "trianglemeshrenderer.xpm"
+#include "WMTriangleMeshRenderer.h"
 
 WMTriangleMeshRenderer::WMTriangleMeshRenderer():
     WModule(),
@@ -68,11 +69,17 @@ const std::string WMTriangleMeshRenderer::getDescription() const
 
 void WMTriangleMeshRenderer::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputData < WTriangleMesh  > >(
-        new WModuleInputData< WTriangleMesh >( shared_from_this(), "in", "The mesh to display" )
+    m_meshInput = boost::shared_ptr< WModuleInputData < WTriangleMesh > >(
+        new WModuleInputData< WTriangleMesh >( shared_from_this(), "mesh", "The mesh to display" )
         );
 
-    addConnector( m_input );
+    addConnector( m_meshInput );
+
+    m_colorMapInput = boost::shared_ptr< WModuleInputData < WColoredVertices > >(
+        new WModuleInputData< WColoredVertices >( shared_from_this(), "colorMap", "The special colors" )
+        );
+
+    addConnector( m_colorMapInput );
 
     // call WModules initialization
     WModule::connectors();
@@ -87,7 +94,8 @@ void WMTriangleMeshRenderer::moduleMain()
 {
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_meshInput->getDataChangedCondition() );
+    m_moduleState.add( m_colorMapInput->getDataChangedCondition() );
 
     // signal ready state
     ready();
@@ -107,7 +115,7 @@ void WMTriangleMeshRenderer::moduleMain()
             break;
         }
         // invalid data
-        boost::shared_ptr< WTriangleMesh > mesh = m_input->getData();
+        boost::shared_ptr< WTriangleMesh > mesh = m_meshInput->getData();
         if ( !mesh )
         {
             debugLog() << "Invalid Data. Disabling.";
@@ -163,17 +171,34 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     // ------------------------------------------------
     // colors
-    osg::Vec4Array* colors = new osg::Vec4Array;
+    osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
 
-    colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
-    surfaceGeometry->setColorArray( colors );
-    surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    if( !colorMap )
+    {
+        colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+    else
+    {
+        for( size_t i = 0; i < mesh->getNumVertices(); ++i )
+        {
+            colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
+        }
+        for( std::map< size_t, WColor >::const_iterator vc = colorMap->getData().begin(); vc != colorMap->getData().end(); ++vc )
+        {
+            colors->at( vc->first ) = wge::osgColor( vc->second );
+        }
+
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    }
 
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
-
 
     m_moduleNode->insert( m_surfaceGeode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
