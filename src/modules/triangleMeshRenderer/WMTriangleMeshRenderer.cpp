@@ -121,8 +121,9 @@ void WMTriangleMeshRenderer::moduleMain()
             debugLog() << "Invalid Data. Disabling.";
             continue;
         }
-
+        debugLog() << "Start rendering Mesh";
         renderMesh( mesh );
+        debugLog() << "Rendering Mesh done";
     }
 }
 
@@ -176,19 +177,25 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     if( !colorMap )
     {
+        debugLog() << "No Color Map found, using gray colors";
         colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
     else
     {
+        debugLog() << "Color Map found... using it";
         for( size_t i = 0; i < mesh->getNumVertices(); ++i )
         {
             colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
         }
         for( std::map< size_t, WColor >::const_iterator vc = colorMap->getData().begin(); vc != colorMap->getData().end(); ++vc )
         {
-            colors->at( vc->first ) = wge::osgColor( vc->second );
+            // ATTENTION: the colormap might not be available and hence an old one, but the new mesh might have triggered the update
+            if( vc->first < colors->size() )
+            {
+                colors->at( vc->first ) = wge::osgColor( vc->second );
+            }
         }
 
         surfaceGeometry->setColorArray( colors );

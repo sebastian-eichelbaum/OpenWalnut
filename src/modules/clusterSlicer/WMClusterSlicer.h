@@ -30,6 +30,7 @@
 #include <utility>
 #include <vector>
 
+#include "../../common/datastructures/WColoredVertices.h"
 #include "../../common/datastructures/WTriangleMesh.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
@@ -113,11 +114,11 @@ protected:
     void updateSlices();
 
     /**
-     * Renders the given mesh so that all trianges intersecting the slices are drawn in the slice specific color.
+     * Slices the given mesh with the color of the slices used for slicing.
      *
      * \param mesh Triangle mesh describing the ISO surface
      */
-    void renderMesh( const WTriangleMesh& mesh );
+    void sliceAndColorMesh( const WTriangleMesh& mesh );
 
     /**
      * Computes the average of the positions inside the paramDS which are also inside the cluster volume main component.
@@ -139,21 +140,23 @@ protected:
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
     osg::ref_ptr< osg::Geode >   m_isoVoxelGeode; //!< Separate geode for voxels of the cluster volume
     osg::ref_ptr< WGEGroupNode > m_sliceGeode; //!< Separate geode for slices
-    osg::ref_ptr< osg::Geode >   m_surfaceGeode; //!< Pointer to geode containing the surface.
 
     typedef WModuleInputData< WFiberCluster >  InputClusterType; //!< Internal alias for m_cluster type
-    boost::shared_ptr< InputClusterType >  m_fiberCluster; //!< InputConnector for a fiber cluster with its CenterLine
+    boost::shared_ptr< InputClusterType >   m_fiberClusterInput; //!< InputConnector for a fiber cluster with its CenterLine
     typedef WModuleInputData< WDataSetSingle > InputDataSetType; //!< Internal alias for m_*DataSets types
-    boost::shared_ptr< InputDataSetType >  m_clusterDataSet; //!< InputConnector for the dataset derived from a voxelized cluster
-    boost::shared_ptr< InputDataSetType >  m_paramDataSet; //!< InputConnector for the dataset of parameters like FA etc.
+    boost::shared_ptr< InputDataSetType >   m_clusterDataSetInput; //!< InputConnector for the dataset derived from a voxelized cluster
+    boost::shared_ptr< InputDataSetType >   m_paramDataSetInput; //!< InputConnector for the dataset of parameters like FA etc.
     typedef WModuleInputData< WTriangleMesh > InputMeshType; //!< Internal alias for the m_triangleMesh type
-    boost::shared_ptr< InputMeshType >     m_triangleMesh; //!< InputConnector for the triangle mesh
+    boost::shared_ptr< InputMeshType >      m_triangleMeshInput; //!< InputConnector for the triangle mesh
+    typedef WModuleOutputData< WColoredVertices > OutputColorMapType; //!< Interal alias for the ColorMap Type
+    boost::shared_ptr< OutputColorMapType > m_colorMapOutput; //!< OutputConnector to forward the color Map to TriangleMeshRenderer
 
     boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
     boost::shared_ptr< WDataSetSingle > m_clusterDS; //!< Dataset derived from a voxelized cluster
     boost::shared_ptr< WDataSetSingle > m_paramDS; //!< Dataset derived from a voxelized cluster
     boost::shared_ptr< std::vector< std::pair< double, WPlane > > > m_slices; //!< stores all planes and their average parameters along centerLine
     boost::shared_ptr< WTriangleMesh > m_mesh; //!< Reference to the TriangleMesh to make intersections
+    boost::shared_ptr< WColoredVertices > m_colorMap; //!< Stores the color for vertices belonging to the intersection with the mesh and the planes
 
     boost::shared_ptr< WJoinContourTree >   m_joinTree; //!< Stores the JoinTree
     boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value

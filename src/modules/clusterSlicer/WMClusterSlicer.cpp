@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <map>
 #include <set>
 #include <string>
 #include <utility>
@@ -70,17 +71,20 @@ const std::string WMClusterSlicer::getDescription() const
 
 void WMClusterSlicer::connectors()
 {
-    m_fiberCluster = boost::shared_ptr< InputClusterType >( new InputClusterType( shared_from_this(), "cluster", "A cluster of fibers" ) );
-    addConnector( m_fiberCluster );
+    m_fiberClusterInput = boost::shared_ptr< InputClusterType >( new InputClusterType( shared_from_this(), "cluster", "A cluster of fibers" ) );
+    addConnector( m_fiberClusterInput );
 
-    m_clusterDataSet = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "clusterDS", "DataSet from a cluster" ) );
-    addConnector( m_clusterDataSet );
+    m_clusterDataSetInput = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "clusterDS", "DataSet from cluster" ) );
+    addConnector( m_clusterDataSetInput );
 
-    m_paramDataSet = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "paramDS", "DataSet of the parameters" ) );
-    addConnector( m_paramDataSet );
+    m_paramDataSetInput = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "paramDS", "DataSet of the parameters" ) );
+    addConnector( m_paramDataSetInput );
 
-    m_triangleMesh = boost::shared_ptr< InputMeshType >( new InputMeshType( shared_from_this(), "mesh", "TrianglMesh" ) );
-    addConnector( m_triangleMesh );
+    m_triangleMeshInput = boost::shared_ptr< InputMeshType >( new InputMeshType( shared_from_this(), "mesh", "TrianglMesh" ) );
+    addConnector( m_triangleMeshInput );
+
+    m_colorMapOutput = boost::shared_ptr< OutputColorMapType >( new OutputColorMapType( shared_from_this(), "colorMap", "VertexID and colors" ) );
+    addConnector( m_colorMapOutput );
 
     WModule::connectors();
 }
@@ -97,9 +101,9 @@ void WMClusterSlicer::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_clusterDataSet->getDataChangedCondition() );
-    m_moduleState.add( m_paramDataSet->getDataChangedCondition() );
-    m_moduleState.add( m_triangleMesh->getDataChangedCondition() );
+    // m_moduleState.add( m_clusterDataSetInput->getDataChangedCondition() );
+    m_moduleState.add( m_paramDataSetInput->getDataChangedCondition() );
+    m_moduleState.add( m_triangleMeshInput->getDataChangedCondition() );
     m_moduleState.add( m_drawSlices->getCondition() );
     m_moduleState.add( m_drawISOVoxels->getCondition() );
 
@@ -114,10 +118,10 @@ void WMClusterSlicer::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WDataSetSingle > newClusterDS = m_clusterDataSet->getData();
-        boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberCluster->getData();
-        boost::shared_ptr< WDataSetSingle > newParamDS   = m_paramDataSet->getData();
-        boost::shared_ptr< WTriangleMesh >  newMesh      = m_triangleMesh->getData();
+        boost::shared_ptr< WDataSetSingle > newClusterDS = m_clusterDataSetInput->getData();
+        boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberClusterInput->getData();
+        boost::shared_ptr< WDataSetSingle > newParamDS   = m_paramDataSetInput->getData();
+        boost::shared_ptr< WTriangleMesh >  newMesh      = m_triangleMeshInput->getData();
         bool dataChanged = ( m_clusterDS != newClusterDS ) || ( m_cluster != newCluster ) || ( m_paramDS != newParamDS ) || ( m_mesh != newMesh );
         bool dataValid = m_clusterDS && m_cluster && m_paramDS && m_mesh;
         if( dataChanged )
@@ -154,9 +158,10 @@ void WMClusterSlicer::moduleMain()
         {
             if( dataValid )
             {
+                debugLog() << "Full update requested.";
                 updateDisplay();
                 updateSlices();
-                renderMesh( *m_mesh );
+                sliceAndColorMesh( *m_mesh );
             }
         }
 
@@ -206,134 +211,78 @@ double WMClusterSlicer::averageParameter( boost::shared_ptr< std::set< wmath::WP
 void WMClusterSlicer::updateSlices()
 {
     m_rootNode->remove( m_sliceGeode );
-    if( m_drawSlices->get( true ) )
+    boost::shared_ptr< wmath::WFiber > centerLine = m_cluster->getCenterLine();
+    if( !centerLine.get() )
     {
-        boost::shared_ptr< wmath::WFiber > centerLine = m_cluster->getCenterLine();
-        if( !centerLine.get() )
+        errorLog() << "CenterLine of the bundle is empty => no slices are drawn";
+    }
+    else
+    {
+        m_slices = boost::shared_ptr< std::vector< std::pair< double, WPlane > > >( new std::vector< std::pair< double, WPlane > > );
+        m_maxAVG = wlimits::MIN_DOUBLE;
+        m_minAVG = wlimits::MAX_DOUBLE;
+        m_sliceGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old group node
+        const wmath::WFiber& cL = *centerLine; // just an alias
+        for( size_t i = 1; i < cL.size(); ++i )
         {
-            errorLog() << "CenterLine of the bundle is empty => no slices are drawn";
-        }
-        else
-        {
-            m_slices = boost::shared_ptr< std::vector< std::pair< double, WPlane > > >( new std::vector< std::pair< double, WPlane > > );
-            m_maxAVG = wlimits::MIN_DOUBLE;
-            m_minAVG = wlimits::MAX_DOUBLE;
-            m_sliceGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old group node
-            const wmath::WFiber& cL = *centerLine; // just an alias
-            for( size_t i = 1; i < cL.size(); ++i )
-            {
-                wmath::WVector3D tangent = cL[i] - cL[i-1];
-                WPlane p( tangent, cL[i-1] );
+            wmath::WVector3D tangent = cL[i] - cL[i-1];
+            WPlane p( tangent, cL[i-1] );
 
-                boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p.samplePoints( 0.5, 40, 40 );
-                double avg = averageParameter( samplePoints );
-                if( avg > m_maxAVG )
-                {
-                    m_maxAVG = avg;
-                }
-                if( avg < m_minAVG )
-                {
-                    m_minAVG = avg;
-                }
-                m_slices->push_back( std::make_pair( avg, p ) );
+            boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p.samplePoints( 0.5, 40, 40 );
+            double avg = averageParameter( samplePoints );
+            if( avg > m_maxAVG )
+            {
+                m_maxAVG = avg;
+            }
+            if( avg < m_minAVG )
+            {
+                m_minAVG = avg;
+            }
+            m_slices->push_back( std::make_pair( avg, p ) );
+            if( m_drawSlices->get( true ) )
+            {
                 m_sliceGeode->insert( wge::genPointBlobs( samplePoints, 0.1 ) );
             }
-            for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
-            {
-                double scaledAVG = 0.0;
-                if( m_maxAVG == m_minAVG )
-                {
-                    scaledAVG = 0;
-                }
-                else
-                {
-                    scaledAVG = ( cit->first - m_minAVG ) / ( m_maxAVG - m_minAVG );
-                }
-                WColor color( scaledAVG, scaledAVG, 1 );
-                m_sliceGeode->insert( wge::genFinitePlane( 10, 10, cit->second, color, true ) );
-            }
-            m_rootNode->insert( m_sliceGeode );
         }
+    }
+    if( m_drawSlices->get( true ) )
+    {
+        for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
+        {
+            double scaledAVG = 0.0;
+            if( m_maxAVG == m_minAVG )
+            {
+                scaledAVG = 0;
+            }
+            else
+            {
+                scaledAVG = ( cit->first - m_minAVG ) / ( m_maxAVG - m_minAVG );
+            }
+            WColor color( scaledAVG, scaledAVG, 1 );
+            m_sliceGeode->insert( wge::genFinitePlane( 10, 10, cit->second, color, true ) );
+        }
+        m_rootNode->insert( m_sliceGeode );
     }
 }
 
-void WMClusterSlicer::renderMesh( const WTriangleMesh& mesh )
+void WMClusterSlicer::sliceAndColorMesh( const WTriangleMesh& mesh )
 {
-    m_rootNode->remove( m_surfaceGeode );
-    osg::Geometry* surfaceGeometry = new osg::Geometry();
-    m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    m_colorMap = boost::shared_ptr< WColoredVertices >( new WColoredVertices );
+    std::map< size_t, WColor > cm;
 
-    osg::Vec3Array* vertices = new osg::Vec3Array;
-    for( size_t i = 0; i < mesh.getNumVertices(); ++i )
-    {
-        wmath::WPosition vertPos;
-        vertPos = mesh.getVertex( i );
-        vertices->push_back( osg::Vec3( vertPos[0], vertPos[1], vertPos[2] ) );
-    }
-    surfaceGeometry->setVertexArray( vertices );
-
-    osg::DrawElementsUInt* surfaceElement;
-
-    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-    for( unsigned int triId = 0; triId < mesh.getNumTriangles(); ++triId )
-    {
-        for( unsigned int vertId = 0; vertId < 3; ++vertId )
-        {
-            surfaceElement->push_back( mesh.getTriangleVertexId( triId, vertId ) );
-        }
-    }
-    surfaceGeometry->addPrimitiveSet( surfaceElement );
-
-    // ------------------------------------------------
-    // normals
-    osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
-
-    for( unsigned int vertId = 0; vertId < mesh.getNumVertices(); ++vertId )
-    {
-        wmath::WVector3D tmpNormal = mesh.getVertexNormal( vertId );
-        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
-    }
-    surfaceGeometry->setNormalArray( normals.get() );
-    surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-
-    m_surfaceGeode->addDrawable( surfaceGeometry );
-    osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();
-
-    // ------------------------------------------------
-    // colors
-    osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    for( size_t i = 0; i < mesh.getNumVertices(); ++i )
-    {
-        colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
-    }
     for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
     {
         boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( mesh, slice->second );
-        double scaledAVG = 0.0;
-        if( m_maxAVG == m_minAVG )
-        {
-            scaledAVG = 0;
-        }
-        else
-        {
-            scaledAVG = ( slice->first - m_minAVG ) / ( m_maxAVG - m_minAVG );
-        }
+        double scaledAVG = ( m_maxAVG == m_minAVG ? 0.0 : ( slice->first - m_minAVG ) / ( m_maxAVG - m_minAVG ) );
         WColor sliceColor( scaledAVG, scaledAVG, 1 );
         for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex )
         {
-            colors->at( *coloredVertex ) = wge::osgColor( sliceColor );
+            cm[ *coloredVertex ] = sliceColor;
         }
     }
 
-    surfaceGeometry->setColorArray( colors );
-    surfaceGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-
-    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
-    lightModel->setTwoSided( true );
-    state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
-
-    m_rootNode->insert( m_surfaceGeode );
+    m_colorMap->setData( cm );
+    m_colorMapOutput->updateData( m_colorMap );
 }
 
 void WMClusterSlicer::updateDisplay()
