@@ -31,7 +31,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../common/math/WPosition.h"
 #include "io/WPagerEEG.h"
+#include "WEEGPositionsLibrary.h"
 
 
 /**
@@ -45,11 +47,15 @@ public:
     /**
      * Constructor
      *
+     * \param channelID number of this channel
      * \param pager pager class which contains the data, read from a file on
      *              demand
-     * \param channelID number of this channel
+     * \param positionsLibrary class which contains the positions of the
+     *                         electrodes
      */
-    WEEGChannelInfo( boost::shared_ptr< WPagerEEG > pager, std::size_t channelID );
+    WEEGChannelInfo( std::size_t channelID,
+                     boost::shared_ptr< WPagerEEG > pager,
+                     boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary );
 
     /**
      * Get the label of the channel.
@@ -58,9 +64,17 @@ public:
      */
     std::string getLabel() const;
 
+    /**
+     * Get the position of the electrode.
+     *
+     * \return position
+     */
+    wmath::WPosition getPosition() const;
+
 protected:
 private:
     std::string m_label; //!< label of the channel
+    wmath::WPosition m_position; //!< position of the electrode
 };
 
 #endif  // WEEGCHANNELINFO_H

@@ -22,39 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cstddef>
+#include <map>
+#include <string>
 
-#include <sstream>
-
-#include <boost/shared_ptr.hpp>
-
+#include "../common/WStringUtils.h"
 #include "../common/exceptions/WOutOfBounds.h"
-#include "exceptions/WDHException.h"
-#include "io/WPagerEEG.h"
-#include "WEEGValueMatrix.h"
-#include "WEEG2Segment.h"
+#include "../common/math/WPosition.h"
+#include "WEEGPositionsLibrary.h"
 
 
-WEEG2Segment::WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG > pager )
-    : m_segmentID( segmentID ),
-      m_pager( pager )
+WEEGPositionsLibrary::WEEGPositionsLibrary( const std::map< std::string, wmath::WPosition >& positions )
 {
-    if( !m_pager )
+    // put all the elements from positions in m_posititions, but convert the labels to uppercase
+    for( std::map< std::string, wmath::WPosition >::const_iterator iter = positions.begin(); iter != positions.end(); ++iter )
     {
-        throw WDHException( "Couldn't construct new EEG segment: pager invalid" );
-    }
-
-    if( m_segmentID >= m_pager->getNumberOfSegments() )
-    {
-        std::ostringstream stream;
-        stream << "The EEG has no segment number " << m_segmentID;
-        throw WOutOfBounds( stream.str() );
+        m_positions[string_utils::toUpper( iter->first )] = iter->second;
     }
 }
 
-boost::shared_ptr< WEEGValueMatrix > WEEG2Segment::getValues( std::size_t start, std::size_t length ) const
+wmath::WPosition WEEGPositionsLibrary::getPosition( std::string label ) const
 {
-    // No test whether start and length are valid - this should be done only
-    // one time by the pager.
-    return m_pager->getValues( m_segmentID, start, length );
+    std::map< std::string, wmath::WPosition >::const_iterator iter = m_positions.find( string_utils::toUpper( label ) );
+
+    if( iter == m_positions.end() )
+    {
+        throw WOutOfBounds( "EEG Positions Library doesn't contain a position for electrode " + label );
+    }
+
+    return iter->second;
 }

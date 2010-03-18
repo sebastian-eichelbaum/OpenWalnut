@@ -22,46 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEEG2SEGMENT_H
-#define WEEG2SEGMENT_H
+#ifndef WREADERELC_H
+#define WREADERELC_H
 
-#include <cstddef>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
-#include "io/WPagerEEG.h"
-#include "WEEGValueMatrix.h"
+#include "WReader.h"
+#include "../WEEGPositionsLibrary.h"
 
 
 /**
- * Class which contains one segment of an EEG recording, read from a WPagerEEG.
+ * Read electrode positions from an ELC file.
  * \ingroup dataHandler
  */
-class WEEG2Segment
+class WReaderELC : public WReader
 {
 public:
     /**
-     * Constructor
+     * Constructs a reader object.
      *
-     * \param segmentID number of this segment
-     * \param pager pager class which contains the data, read from a file on
-     *              demand
+     * \param fname path to file which should be loaded
      */
-    WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG > pager );
+    explicit WReaderELC( std::string fname );
 
     /**
-     * Get the values of all channels for a given sample range.
+     * Read the file and create a dataset out of it.
      *
-     * \param start start sample of the sample range
-     * \param length length of the sample range
-     * \return matrix of values
+     * \return reference to the dataset
      */
-    boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t start, std::size_t length ) const;
+    boost::shared_ptr< WEEGPositionsLibrary > read();
 
 protected:
 private:
-    std::size_t m_segmentID; //!< number of this segment
-    boost::shared_ptr< WPagerEEG > m_pager; //!< pager class which contains the data, read from a file on demand
 };
 
-#endif  // WEEG2SEGMENT_H
+#endif  // WREADERELC_H

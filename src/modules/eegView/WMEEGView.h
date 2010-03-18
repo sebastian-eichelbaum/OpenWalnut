@@ -124,7 +124,7 @@ private:
     /**
      * Property determining whether elekrode positions should be drawn.
      */
-    WPropBool m_drawElektrodes;
+    WPropBool m_drawElectrodes;
 
     /**
      * Property determining whether the head surface should be drawn.
@@ -159,9 +159,9 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode3d;
 
     /**
-     * OSG node for the 3D display of the elektrode positions
+     * OSG node for the 3D display of the electrode positions
      */
-    osg::ref_ptr< osg::Node > m_elektrodesNode;
+    osg::ref_ptr< osg::Node > m_electrodesNode;
 
     /**
      * OSG node for the 3D display of the head surface
@@ -169,7 +169,7 @@ private:
     osg::ref_ptr< osg::Node > m_headSurfaceNode;
 
     /**
-     * OSG node for the 3D display of the elektrode labels
+     * OSG node for the 3D display of the electrode labels
      */
     osg::ref_ptr< osg::Node > m_labelsNode;
 
@@ -195,8 +195,8 @@ private:
     WFlag< double >* m_eventPositionFlag;
 
     /**
-     * A ScalarsToColors object mapping the potentials at the elektrodes to
-     * colors. Used for the display of elektrode positions and the head surface.
+     * A ScalarsToColors object mapping the potentials at the electrodes to
+     * colors. Used for the display of electrode positions and the head surface.
      */
     osg::ref_ptr< osgSim::ScalarsToColors > m_colorMap;
 
@@ -225,11 +225,11 @@ private:
     void redraw();
 
     /**
-     * Draw the elektrode positions in 3D.
+     * Draw the electrode positions in 3D.
      *
-     * \return an OSG Node containing the elektrode positions
+     * \return an OSG Node containing the electrode positions
      */
-    osg::ref_ptr< osg::Node > drawElektrodes();
+    osg::ref_ptr< osg::Node > drawElectrodes();
 
     /**
      * Draw the head surface in 3D.
@@ -239,9 +239,9 @@ private:
     osg::ref_ptr< osg::Node > drawHeadSurface();
 
     /**
-     * Draw the elektrode labels in 3D.
+     * Draw the electrode labels in 3D.
      *
-     * \return an OSG Node containing the elektrode labels
+     * \return an OSG Node containing the electrode labels
      */
     osg::ref_ptr< osg::Node > drawLabels();
 
@@ -267,7 +267,7 @@ private:
          * \param channel the number of the channel
          * \param event the event on which the ShapeDrawable updates
          * \param eeg the WEEG dataset
-         * \param colorMap the object mapping the elektrode potentials to colors
+         * \param colorMap the object mapping the electrode potentials to colors
          */
         UpdateColorOfShapeDrawableCallback( size_t channel,
                                             const WEvent* event,
@@ -308,7 +308,7 @@ private:
         const boost::shared_ptr< const WEEG > m_eeg;
 
         /**
-         * The ScalarsToColors object mapping the potentials at the elektrodes
+         * The ScalarsToColors object mapping the potentials at the electrodes
          * to colors.
          */
         const osg::ref_ptr< const osgSim::ScalarsToColors > m_colorMap;

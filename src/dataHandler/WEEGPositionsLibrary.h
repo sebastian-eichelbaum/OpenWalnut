@@ -22,46 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEEG2SEGMENT_H
-#define WEEG2SEGMENT_H
+#ifndef WEEGPOSITIONSLIBRARY_H
+#define WEEGPOSITIONSLIBRARY_H
 
-#include <cstddef>
+#include <map>
+#include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include "io/WPagerEEG.h"
-#include "WEEGValueMatrix.h"
+#include "../common/math/WPosition.h"
 
 
 /**
- * Class which contains one segment of an EEG recording, read from a WPagerEEG.
+ * Class which contains the positions of EEG electrodes by label.
  * \ingroup dataHandler
  */
-class WEEG2Segment
+class WEEGPositionsLibrary
 {
 public:
     /**
      * Constructor
      *
-     * \param segmentID number of this segment
-     * \param pager pager class which contains the data, read from a file on
-     *              demand
+     * \param positions mapping from labels to positions
      */
-    WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG > pager );
+    explicit WEEGPositionsLibrary( const std::map< std::string, wmath::WPosition >& positions );
 
     /**
-     * Get the values of all channels for a given sample range.
+     * Get the position of an electrode with the given label
      *
-     * \param start start sample of the sample range
-     * \param length length of the sample range
-     * \return matrix of values
+     * \param label label of the electrode
+     * \return position of the electrode
      */
-    boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t start, std::size_t length ) const;
+    wmath::WPosition getPosition( std::string label ) const;
 
 protected:
 private:
-    std::size_t m_segmentID; //!< number of this segment
-    boost::shared_ptr< WPagerEEG > m_pager; //!< pager class which contains the data, read from a file on demand
+    std::map< std::string, wmath::WPosition > m_positions; //!< mapping from labels to positions
 };
 
-#endif  // WEEG2SEGMENT_H
+#endif  // WEEGPOSITIONSLIBRARY_H

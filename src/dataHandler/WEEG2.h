@@ -33,6 +33,7 @@
 
 #include "io/WPagerEEG.h"
 #include "WEEGChannelInfo.h"
+#include "WEEGPositionsLibrary.h"
 #include "WEEG2Segment.h"
 #include "WRecording.h"
 
@@ -49,8 +50,10 @@ public:
      *
      * \param pager pager class which contains the data, read from a file on
      *              demand
+     * \param positionsLibrary class which contains the positions of the
+     *                         electrodes
      */
-    explicit WEEG2( boost::shared_ptr< WPagerEEG > pager );
+    WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary );
 
     /**
      * Get the number of segments this EEG consists of.
