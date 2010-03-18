@@ -33,11 +33,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../math/WLine.h"
+#include "../math/WPlane.h"
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
 #include "../WTransferable.h"
-
-
 
 /**
  * A triangle consisting of 3 id of vertices that represent its corners
@@ -76,6 +76,8 @@ namespace tm_utils
      * \return List of components where each of them is a WTriangleMesh again.
      */
     boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
+
+    boost::shared_ptr< wmath::WLine > intersection( const WTriangleMesh& mesh, const WPlane& plane );
 
     /**
      * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.

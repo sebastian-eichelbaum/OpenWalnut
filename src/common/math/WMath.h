@@ -25,18 +25,25 @@
 #ifndef WMATH_H
 #define WMATH_H
 
+#include "WPlane.h"
+
 /**
- * All classes and functions of math module of OpenWalnut.
+ * All helper functions of math module of OpenWalnut.
  */
 namespace wmath
 {
-// wiebel:
-//   There is no code here yet, because I created this file only
-//   to have a good place to specify the documentation for the
-//   namespace. There are already classes belonging to this
-//   namespace in other files.
-//
-//   Please remove this comment if it is not appropriate anymore.
+    /**
+     * Checks if the triangle intersects with the given plane. If you are interessted in the points of
+     * intersection if any \see intersection().
+     *
+     * \param p1 first point of the triangle
+     * \param p2 second point of the triangle
+     * \param p3 third point of the triangle
+     * \param p The plane to test with
+     *
+     * \return True if both intersects otherwise false.
+     */
+    bool testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p );
 }
 
 #endif  // WMATH_H

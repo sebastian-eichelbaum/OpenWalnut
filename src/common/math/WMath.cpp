@@ -23,3 +23,17 @@
 //---------------------------------------------------------------------------
 
 #include "WMath.h"
+#include "WPosition.h"
+#include "WVector3D.h"
+
+bool wmath::testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p )
+{
+    const WVector3D& normal = p.getNormal();
+    const WPosition& planePoint = p.getPosition();
+
+    double r1 = normal.dotProduct( p1 - planePoint );
+    double r2 = normal.dotProduct( p2 - planePoint );
+    double r3 = normal.dotProduct( p3 - planePoint );
+
+    return false; // TODO(math): implement this via signums
+}

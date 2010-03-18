@@ -31,6 +31,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../math/WLine.h"
+#include "../math/WMath.h"
+#include "../math/WPlane.h"
 #include "WTriangleMesh.h"
 #include "WUnionFind.h"
 
@@ -343,4 +346,22 @@ boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::c
     }
 
     return result;
+}
+
+boost::shared_ptr< wmath::WLine > tm_utils::intersection( const WTriangleMesh& mesh, const WPlane& plane )
+{
+    const std::vector< wmath::WPosition >& vertices = mesh.getVertices();
+    const std::vector< Triangle >& triangles = mesh.getTriangles();
+    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
+    {
+        if( wmath::testIntersectTriangle( vertices[ triangle->pointID[0] ],
+                                          vertices[ triangle->pointID[1] ],
+                                          vertices[ triangle->pointID[2] ],
+                                          plane ) )
+        {
+            // compute vertex and update result
+        }
+    }
+
+    return boost::shared_ptr< wmath::WLine >( new wmath::WLine );
 }

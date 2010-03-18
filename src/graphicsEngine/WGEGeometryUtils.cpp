@@ -28,10 +28,11 @@
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
+#include "../common/datastructures/WTriangleMesh.h"
+#include "../common/math/WPosition.h"
 #include "exceptions/WGEException.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
-#include "../common/math/WPosition.h"
 
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
 {

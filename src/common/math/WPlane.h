@@ -79,6 +79,20 @@ public:
      */
     wmath::WPosition getPointInPlane( double x, double y ) const;
 
+    /**
+     * Returns a point in that plane.
+     *
+     * \return The point in that plane describing its position
+     */
+    const wmath::WPosition& getPosition() const;
+
+    /**
+     * Returns the normal of the plane.
+     *
+     * \return Normalized normal vector.
+     */
+    const wmath::WVector3D& getNormal() const;
+
 //    \cond
 //    /**
 //     * Computes sample points on that plane.
@@ -110,4 +124,15 @@ protected:
 
 private:
 };
+
+inline const wmath::WPosition& WPlane::getPosition() const
+{
+    return m_normal;
+}
+
+inline const wmath::WVector3D& WPlane::getNormal() const
+{
+    return m_pos;
+}
+
 #endif  // WPLANE_H
