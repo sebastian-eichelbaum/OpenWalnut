@@ -52,6 +52,7 @@
 #include "../modules/template/WMTemplate.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
+#include "../modules/lineGuidedSlice/WMLineGuidedSlice.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
@@ -96,6 +97,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMTriangleMeshRenderer() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMLineGuidedSlice() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );

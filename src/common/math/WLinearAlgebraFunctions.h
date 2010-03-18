@@ -39,6 +39,14 @@ namespace wmath
     WVector3D multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec );
 
     /**
+     * Applies a coordinate transformation in homogenous coordinates to a vector.
+     *
+     * \param mat 4x4 matrix
+     * \param vec vector
+     */
+    WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec );
+
+    /**
      * helper routine to invert a 3x3 matrix
      *
      * \param mat 3x3 matrix
@@ -46,6 +54,15 @@ namespace wmath
      * \return inverted 3x3 matrix
      */
     WMatrix<double> invertMatrix3x3( WMatrix<double> mat );
+
+    /**
+     * helper routine to invert a 4x4 matrix
+     *
+     * \param mat 4x4 matrix
+     *
+     * \return inverted 4x4 matrix
+     */
+    WMatrix<double> invertMatrix4x4( WMatrix<double> mat );
 }
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H

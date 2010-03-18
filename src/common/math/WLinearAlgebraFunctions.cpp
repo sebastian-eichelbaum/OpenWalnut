@@ -22,10 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WLinearAlgebraFunctions.h"
 
 #include "WMatrix.h"
 #include "WVector3D.h"
+#include "../WAssert.h"
 
 namespace wmath
 {
@@ -35,6 +38,22 @@ WVector3D multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec )
     result[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2];
     result[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2];
     result[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2];
+    return result;
+}
+
+WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec )
+{
+    WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Matrix has wrong size." );
+    std::vector< double > resultVec4D( 4 );
+    resultVec4D[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2] + mat( 0, 3 ) * 1;
+    resultVec4D[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2] + mat( 1, 3 ) * 1;
+    resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] + mat( 2, 3 ) * 1;
+    resultVec4D[3] = mat( 3, 0 ) * vec[0] + mat( 3, 1 ) * vec[1] + mat( 3, 2 ) * vec[2] + mat( 3, 3 ) * 1;
+
+    wmath::WVector3D result;
+    result[0] = resultVec4D[0] / resultVec4D[3];
+    result[1] = resultVec4D[1] / resultVec4D[3];
+    result[2] = resultVec4D[2] / resultVec4D[3];
     return result;
 }
 
@@ -62,5 +81,186 @@ WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
     r( 2, 2 ) = ( mat( 0, 0 ) * mat( 1, 1 ) - mat(  0, 1 ) * mat( 1, 0 ) ) / det;
 
     return r;
+}
+
+WMatrix<double> invertMatrix4x4( WMatrix<double> mat )
+{
+    assert( mat.getNbRows() );
+    assert( mat.getNbCols() );
+    double det =
+        mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) * mat( 3, 3 ) +
+        mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 3 ) * mat( 3, 1 ) +
+        mat( 0, 0 ) * mat( 1, 3 ) * mat( 2, 1 ) * mat( 3, 2 ) +
+
+        mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 3 ) * mat( 3, 2 ) +
+        mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 0 ) * mat( 3, 3 ) +
+        mat( 0, 1 ) * mat( 1, 3 ) * mat( 2, 2 ) * mat( 3, 0 ) +
+
+        mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 1 ) * mat( 3, 3 ) +
+        mat( 0, 2 ) * mat( 1, 1 ) * mat( 2, 3 ) * mat( 3, 0 ) +
+        mat( 0, 2 ) * mat( 1, 3 ) * mat( 2, 0 ) * mat( 3, 1 ) +
+
+        mat( 0, 3 ) * mat( 1, 0 ) * mat( 2, 2 ) * mat( 3, 1 ) +
+        mat( 0, 3 ) * mat( 1, 1 ) * mat( 2, 0 ) * mat( 3, 2 ) +
+        mat( 0, 3 ) * mat( 1, 2 ) * mat( 2, 1 ) * mat( 3, 0 ) -
+
+        mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 3 ) * mat( 3, 2 ) -
+        mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 ) * mat( 3, 3 ) -
+        mat( 0, 0 ) * mat( 1, 3 ) * mat( 2, 2 ) * mat( 3, 1 ) -
+
+        mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) * mat( 3, 3 ) -
+        mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 3 ) * mat( 3, 0 ) -
+        mat( 0, 1 ) * mat( 1, 3 ) * mat( 2, 0 ) * mat( 3, 2 ) -
+
+        mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 3 ) * mat( 3, 1 ) -
+        mat( 0, 2 ) * mat( 1, 1 ) * mat( 2, 0 ) * mat( 3, 3 ) -
+        mat( 0, 2 ) * mat( 1, 3 ) * mat( 2, 1 ) * mat( 3, 0 ) -
+
+        mat( 0, 3 ) * mat( 1, 0 ) * mat( 2, 1 ) * mat( 3, 2 ) -
+        mat( 0, 3 ) * mat( 1, 1 ) * mat( 2, 2 ) * mat( 3, 0 ) -
+        mat( 0, 3 ) * mat( 1, 2 ) * mat( 2, 0 ) * mat( 3, 1 );
+
+    WMatrix<double> result( 4, 4 );
+
+    result( 0, 0 ) =
+        mat( 1, 1 ) * mat( 2, 2 ) * mat( 3, 3 ) +
+        mat( 1, 2 ) * mat( 2, 3 ) * mat( 3, 1 ) +
+        mat( 1, 3 ) * mat( 2, 1 ) * mat( 3, 2 ) -
+        mat( 1, 1 ) * mat( 2, 3 ) * mat( 3, 2 ) -
+        mat( 1, 2 ) * mat( 2, 1 ) * mat( 3, 3 ) -
+        mat( 1, 3 ) * mat( 2, 2 ) * mat( 3, 1 );
+
+    result( 0, 1 ) =
+        mat( 0, 1 ) * mat( 2, 3 ) * mat( 3, 2 ) +
+        mat( 0, 2 ) * mat( 2, 1 ) * mat( 3, 3 ) +
+        mat( 0, 3 ) * mat( 2, 2 ) * mat( 3, 1 ) -
+        mat( 0, 1 ) * mat( 2, 2 ) * mat( 3, 3 ) -
+        mat( 0, 2 ) * mat( 2, 3 ) * mat( 3, 1 ) -
+        mat( 0, 3 ) * mat( 2, 1 ) * mat( 3, 2 );
+
+    result( 0, 2 ) =
+        mat( 0, 1 ) * mat( 1, 2 ) * mat( 3, 3 ) +
+        mat( 0, 2 ) * mat( 1, 3 ) * mat( 3, 1 ) +
+        mat( 0, 3 ) * mat( 1, 1 ) * mat( 3, 2 ) -
+        mat( 0, 1 ) * mat( 1, 3 ) * mat( 3, 2 ) -
+        mat( 0, 2 ) * mat( 1, 1 ) * mat( 3, 3 ) -
+        mat( 0, 3 ) * mat( 1, 2 ) * mat( 3, 1 );
+
+    result( 0, 3 ) =
+        mat( 0, 1 ) * mat( 1, 3 ) * mat( 2, 2 ) +
+        mat( 0, 2 ) * mat( 1, 1 ) * mat( 2, 3 ) +
+        mat( 0, 3 ) * mat( 1, 2 ) * mat( 2, 1 ) -
+        mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 3 ) -
+        mat( 0, 2 ) * mat( 1, 3 ) * mat( 2, 1 ) -
+        mat( 0, 3 ) * mat( 1, 1 ) * mat( 2, 2 );
+
+    result( 1, 0 ) =
+        mat( 1, 0 ) * mat( 2, 3 ) * mat( 3, 2 ) +
+        mat( 1, 2 ) * mat( 2, 0 ) * mat( 3, 3 ) +
+        mat( 1, 3 ) * mat( 2, 2 ) * mat( 3, 0 ) -
+        mat( 1, 0 ) * mat( 2, 2 ) * mat( 3, 3 ) -
+        mat( 1, 2 ) * mat( 2, 3 ) * mat( 3, 0 ) -
+        mat( 1, 3 ) * mat( 2, 0 ) * mat( 3, 2 );
+
+    result( 1, 1 ) =
+        mat( 0, 0 ) * mat( 2, 2 ) * mat( 3, 3 ) +
+        mat( 0, 2 ) * mat( 2, 3 ) * mat( 3, 0 ) +
+        mat( 0, 3 ) * mat( 2, 0 ) * mat( 3, 2 ) -
+        mat( 0, 0 ) * mat( 2, 3 ) * mat( 3, 2 ) -
+        mat( 0, 2 ) * mat( 2, 0 ) * mat( 3, 3 ) -
+        mat( 0, 3 ) * mat( 2, 2 ) * mat( 3, 0 );
+
+    result( 1, 2 ) =
+        mat( 0, 0 ) * mat( 1, 3 ) * mat( 3, 2 ) +
+        mat( 0, 2 ) * mat( 1, 0 ) * mat( 3, 3 ) +
+        mat( 0, 3 ) * mat( 1, 2 ) * mat( 3, 0 ) -
+        mat( 0, 0 ) * mat( 1, 2 ) * mat( 3, 3 ) -
+        mat( 0, 2 ) * mat( 1, 3 ) * mat( 3, 0 ) -
+        mat( 0, 3 ) * mat( 1, 0 ) * mat( 3, 2 );
+
+    result( 1, 3 ) =
+        mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 3 ) +
+        mat( 0, 2 ) * mat( 1, 3 ) * mat( 2, 0 ) +
+        mat( 0, 3 ) * mat( 1, 0 ) * mat( 2, 2 ) -
+        mat( 0, 0 ) * mat( 1, 3 ) * mat( 2, 2 ) -
+        mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 3 ) -
+        mat( 0, 3 ) * mat( 1, 2 ) * mat( 2, 0 );
+
+    result( 2, 0 ) =
+        mat( 1, 0 ) * mat( 2, 1 ) * mat( 3, 3 ) +
+        mat( 1, 1 ) * mat( 2, 3 ) * mat( 3, 0 ) +
+        mat( 1, 3 ) * mat( 2, 0 ) * mat( 3, 1 ) -
+        mat( 1, 0 ) * mat( 2, 3 ) * mat( 3, 1 ) -
+        mat( 1, 1 ) * mat( 2, 0 ) * mat( 3, 3 ) -
+        mat( 1, 3 ) * mat( 2, 1 ) * mat( 3, 0 );
+
+    result( 2, 1 ) =
+        mat( 0, 0 ) * mat( 2, 3 ) * mat( 3, 1 ) +
+        mat( 0, 1 ) * mat( 2, 0 ) * mat( 3, 3 ) +
+        mat( 0, 3 ) * mat( 2, 1 ) * mat( 3, 0 ) -
+        mat( 0, 0 ) * mat( 2, 1 ) * mat( 3, 3 ) -
+        mat( 0, 1 ) * mat( 2, 3 ) * mat( 3, 0 ) -
+        mat( 0, 3 ) * mat( 2, 0 ) * mat( 3, 1 );
+
+    result( 2, 2 ) =
+        mat( 0, 0 ) * mat( 1, 1 ) * mat( 3, 3 ) +
+        mat( 0, 1 ) * mat( 1, 3 ) * mat( 3, 0 ) +
+        mat( 0, 3 ) * mat( 1, 0 ) * mat( 3, 1 ) -
+        mat( 0, 0 ) * mat( 1, 3 ) * mat( 3, 1 ) -
+        mat( 0, 1 ) * mat( 1, 0 ) * mat( 3, 3 ) -
+        mat( 0, 3 ) * mat( 1, 1 ) * mat( 3, 0 );
+
+    result( 2, 3 ) =
+        mat( 0, 0 ) * mat( 1, 3 ) * mat( 2, 1 ) +
+        mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 3 ) +
+        mat( 0, 3 ) * mat( 1, 1 ) * mat( 2, 0 ) -
+        mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 3 ) -
+        mat( 0, 1 ) * mat( 1, 3 ) * mat( 2, 0 ) -
+        mat( 0, 3 ) * mat( 1, 0 ) * mat( 2, 1 );
+
+    result( 3, 0 ) =
+        mat( 1, 0 ) * mat( 2, 2 ) * mat( 3, 1 ) +
+        mat( 1, 1 ) * mat( 2, 0 ) * mat( 3, 2 ) +
+        mat( 1, 2 ) * mat( 2, 1 ) * mat( 3, 0 ) -
+        mat( 1, 0 ) * mat( 2, 1 ) * mat( 3, 2 ) -
+        mat( 1, 1 ) * mat( 2, 2 ) * mat( 3, 0 ) -
+        mat( 1, 2 ) * mat( 2, 0 ) * mat( 3, 1 );
+
+    result( 3, 1 ) =
+        mat( 0, 0 ) * mat( 2, 1 ) * mat( 3, 2 ) +
+        mat( 0, 1 ) * mat( 2, 2 ) * mat( 3, 0 ) +
+        mat( 0, 2 ) * mat( 2, 0 ) * mat( 3, 1 ) -
+        mat( 0, 0 ) * mat( 2, 2 ) * mat( 3, 1 ) -
+        mat( 0, 1 ) * mat( 2, 0 ) * mat( 3, 2 ) -
+        mat( 0, 2 ) * mat( 2, 1 ) * mat( 3, 0 );
+
+    result( 3, 2 ) =
+        mat( 0, 0 ) * mat( 1, 2 ) * mat( 3, 1 ) +
+        mat( 0, 1 ) * mat( 1, 0 ) * mat( 3, 2 ) +
+        mat( 0, 2 ) * mat( 1, 1 ) * mat( 3, 0 ) -
+        mat( 0, 0 ) * mat( 1, 1 ) * mat( 3, 2 ) -
+        mat( 0, 1 ) * mat( 1, 2 ) * mat( 3, 0 ) -
+        mat( 0, 2 ) * mat( 1, 0 ) * mat( 3, 1 );
+
+    result( 3, 3 ) =
+        mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) +
+        mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 0 ) +
+        mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 1 ) -
+        mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 ) -
+        mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
+        mat( 0, 2 ) * mat( 1, 1 ) * mat( 2, 0 );
+
+    WAssert( det != 0, "Determinat is zero. This matrix can not be inverted." );
+
+    double detInv = 1. / det;
+    for( size_t r = 0; r < 4; ++r)
+    {
+        for( size_t c = 0; c < 4; ++c )
+        {
+            result( c, r ) *= detInv;
+        }
+    }
+
+    return result;
 }
 }

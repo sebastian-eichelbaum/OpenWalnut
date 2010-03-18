@@ -31,6 +31,8 @@ namespace wmath
 {
 /**
  * Matrix template class with variable number of rows and columns.
+ * The access function are row-major, which means that the rows
+ * are the first parameter or index.
  */
 template< typename T > class WMatrix : WValue< T >
 {
@@ -149,9 +151,35 @@ public:
         return *this;
     }
 
+    /**
+     * Multiplication of two matrices.
+     * \param rhs The right hand side of the multiplication
+     */
+    WMatrix operator*( const WMatrix& rhs ) const;
+
 protected:
 private:
     size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).
 };
+
+
+template< typename T > WMatrix< T > WMatrix< T >::operator*( const WMatrix< T >& rhs ) const
+{
+    assert( rhs.getNbRows() == getNbCols() );
+    WMatrix< T > result( getNbRows(), rhs.getNbCols() );
+
+    for( size_t r = 0; r < getNbRows(); ++r)
+    {
+        for( size_t c = 0; c < rhs.getNbCols(); ++c )
+        {
+            for( size_t i = 0; i < getNbCols(); ++i )
+            {
+                result( r, c ) += ( *this )( r, i ) * rhs( i, c );
+            }
+        }
+    }
+    return result;
+}
+
 }  // End of namespace
 #endif  // WMATRIX_H
