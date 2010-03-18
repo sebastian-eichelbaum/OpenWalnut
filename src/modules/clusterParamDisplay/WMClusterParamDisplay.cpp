@@ -143,6 +143,7 @@ void WMClusterParamDisplay::initSubModules()
     m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
     m_clusterSlicer->getInputConnector( "cluster" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
     m_clusterSlicer->getInputConnector( "clusterDS" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+    m_clusterSlicer->getInputConnector( "mesh" )->connect( m_isoSurface->getOutputConnector( "out" ) );
 
     // preset properties
     m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
