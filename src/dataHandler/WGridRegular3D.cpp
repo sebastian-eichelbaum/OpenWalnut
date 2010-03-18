@@ -67,7 +67,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -95,7 +95,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix = mat;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 
@@ -125,7 +125,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -154,7 +154,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -179,7 +179,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int i ) const
@@ -206,6 +206,17 @@ wmath::WVector3D WGridRegular3D::transformTexCoord( wmath::WPosition point )
     r[0] = r[0] * m_offsetX + 0.5;
     r[1] = r[1] * m_offsetY + 0.5;
     r[2] = r[2] * m_offsetZ + 0.5;
+
+    return r;
+}
+
+wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
+{
+    wmath::WVector3D r( wmath::transformVector3DWithMatrix4D( m_matrixInverse, point ) );
+
+    r[0] = r[0] / m_nbPosX;
+    r[1] = r[1] / m_nbPosY;
+    r[2] = r[2] / m_nbPosZ;
 
     return r;
 }

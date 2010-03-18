@@ -228,6 +228,12 @@ public:
     wmath::WVector3D transformTexCoord( wmath::WPosition point );
 
     /**
+     * Transforms world coordinates to texture coordinates.
+     * \param point The point with these coordinated will be transformed.
+     */
+    wmath::WVector3D worldCoordToTexCoord( wmath::WPosition point );
+
+    /**
      * Returns the i'th voxel where the given position belongs too.
      *
      * A voxel is a cuboid which surrounds a point on the grid.
