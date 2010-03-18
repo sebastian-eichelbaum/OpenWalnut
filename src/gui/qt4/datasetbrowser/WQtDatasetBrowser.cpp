@@ -66,12 +66,14 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_treeWidget->viewport()->setAcceptDrops( true );
     m_treeWidget->setDropIndicatorShown( true );
     m_treeWidget->setDragDropMode( QAbstractItemView::InternalMove );
+    m_treeWidget->setMinimumHeight( 250 );
 
     m_textureSorter = new WQtTextureSorter( m_panel );
     m_textureSorter->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
     m_tabWidget2 = new QTabWidget( m_panel );
+    m_tabWidget->setMinimumHeight( 220 );
 
     m_layout = new QVBoxLayout();
     m_layout->addWidget( m_treeWidget );
@@ -121,8 +123,9 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 void WQtDatasetBrowser::connectSlots()
 {
     connect( m_treeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
-    connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeRoiTreeItem() ) );
 }
 
 
@@ -469,6 +472,16 @@ void WQtDatasetBrowser::changeTreeItem()
         module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 }
+
+void WQtDatasetBrowser::changeRoiTreeItem()
+{
+    if ( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
+    {
+        boost::shared_ptr< WRMROIRepresentation > roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
+        roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+    }
+}
+
 
 void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
