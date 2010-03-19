@@ -292,7 +292,6 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
     newItem->setSelected( true );
-
 }
 
 boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
