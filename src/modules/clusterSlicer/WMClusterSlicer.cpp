@@ -22,7 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <functional>
 #include <map>
+#include <numeric>
 #include <set>
 #include <string>
 #include <utility>
@@ -45,8 +48,8 @@
 WMClusterSlicer::WMClusterSlicer()
     : WModule(),
       m_rootNode( osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() ) ),
-      m_maxAVG( 0.0 ),
-      m_minAVG( 0.0 )
+      m_maxMean( 0.0 ),
+      m_minMean( 0.0 )
 {
 }
 
@@ -94,6 +97,9 @@ void WMClusterSlicer::properties()
     m_drawISOVoxels = m_properties2->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
     m_drawSlices    = m_properties2->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", true );
     m_isoValue      = m_properties2->addProperty( "Iso Value", "", 0.01 );
+    m_meanSelector  = m_properties2->addProperty( "Mean Type", "Selects the mean type, must be on of: 0==arithmetic, 1==geometric, 2==median", 2 );
+    m_meanSelector->setMin( 0 );
+    m_meanSelector->setMax( 2 );
 }
 
 void WMClusterSlicer::moduleMain()
@@ -106,6 +112,7 @@ void WMClusterSlicer::moduleMain()
     m_moduleState.add( m_triangleMeshInput->getDataChangedCondition() );
     m_moduleState.add( m_drawSlices->getCondition() );
     m_moduleState.add( m_drawISOVoxels->getCondition() );
+    m_moduleState.add( m_meanSelector->getCondition() );
 
     ready();
 
@@ -154,7 +161,7 @@ void WMClusterSlicer::moduleMain()
             m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
         }
 
-        if( m_drawISOVoxels->changed() || m_isoValue->changed() || dataChanged )
+        if( m_drawISOVoxels->changed() || m_isoValue->changed() || dataChanged || m_meanSelector->changed() )
         {
             if( dataValid )
             {
@@ -177,11 +184,11 @@ void WMClusterSlicer::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-double WMClusterSlicer::averageParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const
+wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const
 {
-    size_t valueCount = 0;
-    double avg = 0.0;
-    bool inParamGrid = false;
+    std::vector< double > samples;
+    samples.reserve( samplePoints->size() );
+
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_clusterDS->getGrid() );
     assert( grid != 0 );
 
@@ -193,11 +200,11 @@ double WMClusterSlicer::averageParameter( boost::shared_ptr< std::set< wmath::WP
         {
             if( m_isoVoxels->count( static_cast< size_t >( id ) ) == 1 ) // check if its in main component
             {
+                bool inParamGrid = false;
                 double value = m_paramDS->interpolate( *pos, &inParamGrid );
                 if( inParamGrid ) // check if its in paramDS
                 {
-                    avg += value;
-                    ++valueCount;
+                    samples.push_back( value );
                     ++pos;
                     continue;
                 }
@@ -205,7 +212,23 @@ double WMClusterSlicer::averageParameter( boost::shared_ptr< std::set< wmath::WP
         }
         samplePoints->erase( pos++ ); // erase in case the pos is not in main component or in paramDS or in clusterDS
     }
-    return ( !valueCount ? avg : avg / valueCount );
+    double arithmeticMean = std::accumulate( samples.begin(), samples.end(), 0.0 );
+    arithmeticMean = arithmeticMean / ( samples.empty() ? 1.0 : samples.size() );
+
+    std::nth_element( samples.begin(), samples.begin() + samples.size() / 2, samples.end() );
+    double median = ( samples.empty() ? 0.0 : samples[ samples.size() / 2 ] );
+
+    // discard first all elements <= 0.0 since then the geometric mean does not make any sense
+
+    std::vector< double >::iterator newEnd = std::remove_if( samples.begin(), samples.end(), std::bind2nd( std::less_equal< double >(), 0.0 ) );
+    double geometricMean = std::accumulate( samples.begin(), newEnd, 1.0, std::multiplies< double >() );
+    geometricMean = std::pow( geometricMean, ( samples.empty() ? 0.0 : 1.0 / samples.size() ) );
+
+    wmath::WValue< double > result( 3 );
+    result[0] = arithmeticMean;
+    result[1] = geometricMean;
+    result[2] = median;
+    return result;
 }
 
 void WMClusterSlicer::updateSlices()
@@ -219,8 +242,8 @@ void WMClusterSlicer::updateSlices()
     else
     {
         m_slices = boost::shared_ptr< std::vector< std::pair< double, WPlane > > >( new std::vector< std::pair< double, WPlane > > );
-        m_maxAVG = wlimits::MIN_DOUBLE;
-        m_minAVG = wlimits::MAX_DOUBLE;
+        m_maxMean = wlimits::MIN_DOUBLE;
+        m_minMean = wlimits::MAX_DOUBLE;
         m_sliceGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old group node
         const wmath::WFiber& cL = *centerLine; // just an alias
         for( size_t i = 1; i < cL.size(); ++i )
@@ -229,16 +252,16 @@ void WMClusterSlicer::updateSlices()
             WPlane p( tangent, cL[i-1] );
 
             boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p.samplePoints( 0.5, 40, 40 );
-            double avg = averageParameter( samplePoints );
-            if( avg > m_maxAVG )
+            double mean = meanParameter( samplePoints )[ m_meanSelector->get( true ) ];
+            if( mean > m_maxMean )
             {
-                m_maxAVG = avg;
+                m_maxMean = mean;
             }
-            if( avg < m_minAVG )
+            if( mean < m_minMean )
             {
-                m_minAVG = avg;
+                m_minMean = mean;
             }
-            m_slices->push_back( std::make_pair( avg, p ) );
+            m_slices->push_back( std::make_pair( mean, p ) );
             if( m_drawSlices->get( true ) )
             {
                 m_sliceGeode->insert( wge::genPointBlobs( samplePoints, 0.1 ) );
@@ -249,16 +272,16 @@ void WMClusterSlicer::updateSlices()
     {
         for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
         {
-            double scaledAVG = 0.0;
-            if( m_maxAVG == m_minAVG )
+            double scaledMean = 0.0;
+            if( m_maxMean == m_minMean )
             {
-                scaledAVG = 0;
+                scaledMean = 0;
             }
             else
             {
-                scaledAVG = ( cit->first - m_minAVG ) / ( m_maxAVG - m_minAVG );
+                scaledMean = ( cit->first - m_minMean ) / ( m_maxMean - m_minMean );
             }
-            WColor color( scaledAVG, scaledAVG, 1 );
+            WColor color( scaledMean, scaledMean, 1 );
             m_sliceGeode->insert( wge::genFinitePlane( 10, 10, cit->second, color, true ) );
         }
         m_rootNode->insert( m_sliceGeode );
@@ -273,8 +296,8 @@ void WMClusterSlicer::sliceAndColorMesh( const WTriangleMesh& mesh )
     for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
     {
         boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( mesh, slice->second );
-        double scaledAVG = ( m_maxAVG == m_minAVG ? 0.0 : ( slice->first - m_minAVG ) / ( m_maxAVG - m_minAVG ) );
-        WColor sliceColor( scaledAVG, scaledAVG, 1 );
+        double scaledMean = ( m_maxMean == m_minMean ? 0.0 : ( slice->first - m_minMean ) / ( m_maxMean - m_minMean ) );
+        WColor sliceColor( scaledMean, scaledMean, 1 );
         for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex )
         {
             cm[ *coloredVertex ] = sliceColor;

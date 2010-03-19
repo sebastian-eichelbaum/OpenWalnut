@@ -164,6 +164,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
     m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Mean Type" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide Slices" ) );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping

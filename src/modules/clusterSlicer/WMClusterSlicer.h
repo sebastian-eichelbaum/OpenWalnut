@@ -128,7 +128,7 @@ protected:
      *
      * \return The average value of those value where its positions are inside the ISO-Surface/Volume/Cluster. If no position is inside, 0.0 is returned.
      */
-    double averageParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const;
+    wmath::WValue< double > meanParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const;
 
     /**
      * Generates new geode for marking the volume voxels
@@ -164,9 +164,10 @@ protected:
     WPropBool   m_drawISOVoxels; //!< En/Disable the display of cluster volume voxels
     WPropBool   m_drawSlices; //!< En/Disable the display of slices along center line
     WPropDouble m_isoValue; //!< The ISO value selecting the size of the cluster volume
+    WPropInt    m_meanSelector; //!< Selects the mean: 0 == arithmeticMean, 1 == geometricMean, 2 == median (default)
 
-    double m_maxAVG; //!< maximum average (of sample points of a plane) parameter value over all planes
-    double m_minAVG; //!< minimum average (of sample points of a plane) parameter value over all planes
+    double m_maxMean; //!< maximum average (of sample points of a plane) parameter value over all planes
+    double m_minMean; //!< minimum average (of sample points of a plane) parameter value over all planes
 private:
 };
 
