@@ -30,7 +30,7 @@
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
 
-#include "../../dataHandler/WEEG.h"
+#include "../../dataHandler/WEEG2.h"
 #include "../../graphicsEngine/WEvent.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
@@ -114,7 +114,7 @@ private:
     /**
      * Input connector for a EEG dataset
      */
-    boost::shared_ptr< WModuleInputData< WEEG > > m_input;
+    boost::shared_ptr< WModuleInputData< WEEG2 > > m_input;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -139,7 +139,7 @@ private:
     /**
      * Pointer to the loaded EEG dataset
      */
-    boost::shared_ptr< WEEG > m_eeg;
+    boost::shared_ptr< WEEG2 > m_eeg;
 
     /**
      * Custom widget which is used by this module to display its data.
@@ -264,14 +264,14 @@ private:
         /**
          * Constructor
          *
-         * \param channel the number of the channel
+         * \param channelID the number of the channel
          * \param event the event on which the ShapeDrawable updates
          * \param eeg the WEEG dataset
          * \param colorMap the object mapping the electrode potentials to colors
          */
-        UpdateColorOfShapeDrawableCallback( size_t channel,
+        UpdateColorOfShapeDrawableCallback( size_t channelID,
                                             const WEvent* event,
-                                            boost::shared_ptr< const WEEG > eeg,
+                                            boost::shared_ptr< const WEEG2 > eeg,
                                             osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
 
         /**
@@ -288,7 +288,7 @@ private:
         /**
          * The number of the channel
          */
-        const size_t m_channel;
+        const size_t m_channelID;
 
         /**
          * The time position which is currently used.
@@ -305,7 +305,7 @@ private:
         /**
          * The WEEG dataset
          */
-        const boost::shared_ptr< const WEEG > m_eeg;
+        const boost::shared_ptr< const WEEG2 > m_eeg;
 
         /**
          * The ScalarsToColors object mapping the potentials at the electrodes
@@ -328,7 +328,7 @@ private:
          * \param event the event on which the Geometry updates
          * \param eeg the WEEG dataset
          */
-        UpdateColorOfGeometryCallback( const WEvent* event, boost::shared_ptr< const WEEG > eeg );
+        UpdateColorOfGeometryCallback( const WEvent* event, boost::shared_ptr< const WEEG2 > eeg );
 
         /**
          * Callback method called by the NodeVisitor.
@@ -356,7 +356,7 @@ private:
         /**
          * The WEEG dataset
          */
-        const boost::shared_ptr< const WEEG > m_eeg;
+        const boost::shared_ptr< const WEEG2 > m_eeg;
     };
 };
 
