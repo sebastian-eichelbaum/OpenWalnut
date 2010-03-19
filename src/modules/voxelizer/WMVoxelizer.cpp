@@ -384,7 +384,8 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, vertices->size() - ver->size(), ver->size() ) );
             for( size_t j = 0; j < ver->size(); ++j )
             {
-                colors->push_back( wge::osgColor( WColor( 1, 0, 0, values[i] ) ) );
+                double transparency = ( values[i] <= 1.0 ? values[i] : 1.0 );
+                colors->push_back( wge::osgColor( WColor( 1, 0, 0, transparency ) ) );
             }
         }
     }
