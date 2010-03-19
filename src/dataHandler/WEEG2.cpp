@@ -25,6 +25,7 @@
 #include <cstddef>
 
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -38,6 +39,8 @@
 #include "WEEG2Segment.h"
 #include "WEEG2.h"
 
+
+boost::shared_ptr< WPrototyped > WEEG2::m_prototype = boost::shared_ptr< WPrototyped >();
 
 WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary )
 {
@@ -76,6 +79,10 @@ WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPosit
     }
 }
 
+WEEG2::WEEG2()
+{
+}
+
 std::size_t WEEG2::getNumberOfSegments() const
 {
     return m_segments.size();
@@ -108,4 +115,24 @@ boost::shared_ptr< WEEGChannelInfo > WEEG2::getChannelInfo( std::size_t channelI
     }
 
     return m_channelInfos[channelID];
+}
+
+const std::string WEEG2::getName() const
+{
+    return "WEEG2";
+}
+
+const std::string WEEG2::getDescription() const
+{
+    return "Contains EEG data";
+}
+
+boost::shared_ptr< WPrototyped > WEEG2::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WEEG2() );
+    }
+
+    return m_prototype;
 }

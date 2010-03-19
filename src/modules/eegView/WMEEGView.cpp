@@ -28,6 +28,10 @@
 #include <osg/LightModel>
 #include <osgSim/ColorRange>
 
+#include "../../dataHandler/WEEG2.h"
+#include "../../dataHandler/WEEGChannelInfo.h"
+#include "../../dataHandler/WEEG2Segment.h"
+#include "../../dataHandler/WEEGValueMatrix.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -72,7 +76,7 @@ const char** WMEEGView::getXPMIcon() const
 void WMEEGView::connectors()
 {
     // initialize connectors
-    m_input = boost::shared_ptr< WModuleInputData< WEEG > >( new WModuleInputData< WEEG >(
+    m_input = boost::shared_ptr< WModuleInputData< WEEG2 > >( new WModuleInputData< WEEG2 >(
         shared_from_this(), "in", "Loaded EEG-dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -346,20 +350,29 @@ void WMEEGView::redraw()
         debugLog() << "  Number of channels: " << nbChannels;
 
         // draw 2D plot
-        for( size_t segment = 0; segment < m_eeg->getNumberOfSegments(); ++segment )
+        for( size_t segmentID = 0; segmentID < m_eeg->getNumberOfSegments(); ++segmentID )
         {
-            debugLog() << "  Segment " << segment;
-            size_t nbSamples = m_eeg->getNumberOfSamples( segment );
+            debugLog() << "  Segment " << segmentID;
+            boost::shared_ptr< WEEG2Segment > segment = m_eeg->getSegment( segmentID );
+            size_t nbSamples = segment->getNumberOfSamples();
             debugLog() << "    Number of Samples: " << nbSamples;
 
-            for( size_t channel = 0; channel < nbChannels; ++channel )
+            // limit number of samples
+            if( nbSamples > 16384 )
             {
-                debugLog() << "    Channel " << channel;
-                debugLog() << "      Channel label: " << m_eeg->getChannelLabel( channel );
+                nbSamples = 16384;
+            }
+
+            boost::shared_ptr< WEEGValueMatrix > values = segment->getValues( 0, nbSamples );
+            for( size_t channelID = 0; channelID < nbChannels; ++channelID )
+            {
+                debugLog() << "    Channel " << channelID;
+                boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
+                debugLog() << "      Channel label: " << channelInfo->getLabel();
 
                 // create text geode for the channel label
                 osgText::Text* text = new osgText::Text;
-                text->setText( m_eeg->getChannelLabel( channel ) );
+                text->setText( channelInfo->getLabel() );
                 text->setPosition( text2dOffset );
                 text->setAlignment( osgText::Text::RIGHT_CENTER );
                 text->setAxisAlignment( osgText::Text::SCREEN );
@@ -374,9 +387,9 @@ void WMEEGView::redraw()
                 osg::Geometry* geometry = new osg::Geometry;
 
                 osg::Vec3Array* vertices = new osg::Vec3Array( nbSamples );
-                for( size_t sample = 0; sample < nbSamples; ++sample )
+                for( size_t sampleID = 0; sampleID < nbSamples; ++sampleID )
                 {
-                    (*vertices)[sample] = osg::Vec3( sample, (*m_eeg)( segment, channel, sample ), 0.0 );
+                    (*vertices)[sampleID] = osg::Vec3( sampleID, (*values)[channelID][sampleID], 0.0 );
                 }
                 geometry->setVertexArray( vertices );
 
@@ -395,7 +408,7 @@ void WMEEGView::redraw()
                 scale->setMatrix( scaleMatrix );
 
                 osg::MatrixTransform* translate = new osg::MatrixTransform;
-                translate->setMatrix( osg::Matrix::translate( xOffset, 2 * spacing * ( nbChannels - channel ) - spacing, 0.0 ) );
+                translate->setMatrix( osg::Matrix::translate( xOffset, 2 * spacing * ( nbChannels - channelID ) - spacing, 0.0 ) );
 
                 // connect all creates nodes
                 scale->addChild( linesGeode );
@@ -406,7 +419,7 @@ void WMEEGView::redraw()
         }
 
         // draw event marker
-        if( m_event.getNode().valid() && 0.0 < m_event.getTime() && m_event.getTime() <= m_eeg->getNumberOfSamples( 0 ) - 1 )
+        if( m_event.getNode().valid() && 0.0 < m_event.getTime() && m_event.getTime() <= 16384 - 1 )
         {
             m_rootNode2d->addChild( m_event.getNode() );
         }
@@ -476,13 +489,14 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
 
     osg::ref_ptr< osg::Group > electrodes( new osg::Group );
 
-    for( size_t channel = 0; channel < m_eeg->getNumberOfChannels(); ++channel )
+    for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
     {
-        osg::Vec3 pos = wge::osgVec3( m_eeg->getChannelPosition( channel ) );
+        boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
+        osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
 
         // create sphere geode on electrode position
         osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
-        shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channel, &m_event, m_eeg, m_colorMap ) );
+        shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channelID, &m_event, m_eeg, m_colorMap ) );
 
         osg::Geode* sphereGeode = new osg::Geode;
         sphereGeode->addDrawable( shape );
@@ -499,9 +513,9 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 
     std::vector< wmath::WPosition > positions;
     positions.reserve( nbChannels );
-    for( size_t channel = 0; channel < nbChannels; ++channel )
+    for( size_t channelID = 0; channelID < nbChannels; ++channelID )
     {
-        positions.push_back( m_eeg->getChannelPosition( channel ) );
+        positions.push_back( m_eeg->getChannelInfo( channelID )->getPosition() );
     }
 
     WTriangleMesh mesh = wge::triangulate( positions );
@@ -542,13 +556,14 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
 
     osg::ref_ptr< osg::Group > labels( new osg::Group );
 
-    for( size_t channel = 0; channel < m_eeg->getNumberOfChannels(); ++channel )
+    for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
     {
-        osg::Vec3 pos = wge::osgVec3( m_eeg->getChannelPosition( channel ) );
+        boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
+        osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
 
         // create text geode for the channel label
         osgText::Text* text = new osgText::Text;
-        text->setText( m_eeg->getChannelLabel( channel ) );
+        text->setText( channelInfo->getLabel() );
         text->setPosition( pos + text3dOffset );
         text->setAlignment( osgText::Text::CENTER_BOTTOM );
         text->setAxisAlignment( osgText::Text::SCREEN );
@@ -566,7 +581,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
 
 void WMEEGView::updateEvent( WEvent* event, double time )
 {
-    if( m_eeg.get() && 0.0 <= time && time <= m_eeg->getNumberOfSamples( 0 ) - 1 )
+    if( m_eeg.get() && 0.0 <= time && time <= 16384 - 1 )
     {
         const osg::Vec4 color( 0.75, 0.0, 0.0, 1.0 );
         const unsigned int spacing = 16;
@@ -604,16 +619,16 @@ void WMEEGView::updateEvent( WEvent* event, double time )
 }
 
 WMEEGView::UpdateColorOfShapeDrawableCallback::UpdateColorOfShapeDrawableCallback(
-        size_t channel,
+        size_t channelID,
         const WEvent* event,
-        boost::shared_ptr< const WEEG > eeg,
+        boost::shared_ptr< const WEEG2 > eeg,
         osg::ref_ptr< const osgSim::ScalarsToColors > colorMap )
-    : m_channel( channel ),
+    : m_channelID( channelID ),
       m_event( event ),
       m_eeg( eeg ),
       m_colorMap( colorMap )
 {
-    assert( channel < eeg->getNumberOfChannels() );
+    assert( m_channelID < eeg->getNumberOfChannels() );
     m_currentTime = -2.0;
 }
 
@@ -627,10 +642,10 @@ void WMEEGView::UpdateColorOfShapeDrawableCallback::update( osg::NodeVisitor* /*
         {
             // calculate color value between -1 and 1
             float color;
-            if( 0.0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
+            if( 0.0 <= newTime && newTime <= 16384 - 1 )
             {
                 const float scale = 0.5;
-                color = (*m_eeg)( 0, m_channel, newTime + 0.5 ) * scale;
+                color = ( *m_eeg->getSegment( 0 )->getValues( newTime + 0.5, 1 ) )[m_channelID][0] * scale;
             }
             else
             {
@@ -645,7 +660,7 @@ void WMEEGView::UpdateColorOfShapeDrawableCallback::update( osg::NodeVisitor* /*
 }
 
 WMEEGView::UpdateColorOfGeometryCallback::UpdateColorOfGeometryCallback( const WEvent* event,
-                                                                         boost::shared_ptr< const WEEG > eeg )
+                                                                         boost::shared_ptr< const WEEG2 > eeg )
     : m_event( event ),
       m_eeg( eeg )
 {
@@ -661,14 +676,15 @@ void WMEEGView::UpdateColorOfGeometryCallback::update( osg::NodeVisitor* /*nv*/,
         if( geometry )
         {
             osg::FloatArray* texCoords = static_cast< osg::FloatArray* >( geometry->getTexCoordArray( 0 ) );
-            if( 0.0 <= newTime && newTime <= m_eeg->getNumberOfSamples( 0 ) - 1 )
+            if( 0.0 <= newTime && newTime <= 16384 - 1 )
             {
+                boost::shared_ptr< WEEGValueMatrix > values = m_eeg->getSegment( 0 )->getValues( newTime + 0.5, 1 );
                 for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
                 {
                     const int size = 256;
                     const float scale = 0.25f;
                     const float factor = scale * ( 1.0f - 1.0f / size );
-                    (*texCoords)[channelID] = (*m_eeg)( 0, channelID, newTime + 0.5 ) * factor + 0.5f;
+                    (*texCoords)[channelID] = (*values)[channelID][0] * factor + 0.5f;
                 }
             }
             else
