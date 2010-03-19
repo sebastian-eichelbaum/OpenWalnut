@@ -32,6 +32,7 @@
 
 #include "../../common/datastructures/WColoredVertices.h"
 #include "../../common/datastructures/WTriangleMesh.h"
+#include "../../common/WCondition.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
@@ -104,14 +105,16 @@ protected:
     virtual void activate();
 
     /**
-     * Complete redraw of the scene.
+     * Updates either the planes representing the slices or the ISOVoxels of the volume
+     *
+     * \param force If true the scene is updated even if no property changed
      */
-    void updateDisplay();
+    void updateDisplay( bool force = false );
 
     /**
-     * Complete redraw of the slices.
+     * Computes the slices which are used for the statistics.
      */
-    void updateSlices();
+    void generateSlices();
 
     /**
      * Slices the given mesh with the color of the slices used for slicing.
@@ -140,6 +143,7 @@ protected:
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
     osg::ref_ptr< osg::Geode >   m_isoVoxelGeode; //!< Separate geode for voxels of the cluster volume
     osg::ref_ptr< WGEGroupNode > m_sliceGeode; //!< Separate geode for slices
+    osg::ref_ptr< WGEGroupNode > m_samplePointsGeode; //!< Separate geode for the sample Points
 
     typedef WModuleInputData< WFiberCluster >  InputClusterType; //!< Internal alias for m_cluster type
     boost::shared_ptr< InputClusterType >   m_fiberClusterInput; //!< InputConnector for a fiber cluster with its CenterLine
@@ -161,10 +165,16 @@ protected:
     boost::shared_ptr< WJoinContourTree >   m_joinTree; //!< Stores the JoinTree
     boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
 
+    boost::shared_ptr< WCondition > m_fullUpdate; //!< Indicates a complete update of display and computed data (time consuming)
+
     WPropBool   m_drawISOVoxels; //!< En/Disable the display of cluster volume voxels
     WPropBool   m_drawSlices; //!< En/Disable the display of slices along center line
     WPropDouble m_isoValue; //!< The ISO value selecting the size of the cluster volume
     WPropInt    m_meanSelector; //!< Selects the mean: 0 == arithmeticMean, 1 == geometricMean, 2 == median (default)
+    WPropInt    m_planeNumX; //!< how many sample points in first direction of the slice
+    WPropInt    m_planeNumY; //!< how many sample points in the second direction of the slice
+    WPropDouble m_planeStepWidth; //!< distance of the sample points on the slices
+    WPropDouble m_centerLineScale; //!< rescales the centerline for using more or less slices.
 
     double m_maxMean; //!< maximum average (of sample points of a plane) parameter value over all planes
     double m_minMean; //!< minimum average (of sample points of a plane) parameter value over all planes

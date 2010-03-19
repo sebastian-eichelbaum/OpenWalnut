@@ -138,11 +138,20 @@ void WMClusterParamDisplay::initSubModules()
     add( m_meshRenderer );
     m_meshRenderer->isReady().wait();
 
+    // preset properties
+    debugLog() << "Start step submodule properties";
+    m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
+    m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
+    m_voxelizer->getProperties2()->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    m_gaussFiltering->getProperties2()->getProperty( "Iterations" )->toPropInt()->set( 3 );
+    m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" )->toPropBool()->set( false );
+    m_isoSurface->getProperties2()->getProperty( "active" )->toPropBool()->set( false );
+    debugLog() << "Submodule properties set";
+
     // wiring
-    m_fibers->forward( m_fiberClustering->getInputConnector( "fiberInput" ) );
+    debugLog() << "Start wiring";
     m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramDS" ) );
 
-    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
     m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
     m_clusterSlicer->getInputConnector( "cluster" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
@@ -151,13 +160,9 @@ void WMClusterParamDisplay::initSubModules()
     m_meshRenderer->getInputConnector( "mesh" )->connect( m_isoSurface->getOutputConnector( "out" ) );
     m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMap" ) );
 
-    // preset properties
-    m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
-    m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
-    m_voxelizer->getProperties2()->getProperty( "Display Voxels" )->toPropBool()->set( false );
-    m_gaussFiltering->getProperties2()->getProperty( "Iterations" )->toPropInt()->set( 3 );
-    m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" )->toPropBool()->set( false );
-    m_isoSurface->getProperties2()->getProperty( "active" )->toPropBool()->set( false );
+    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberClustering->getOutputConnector( "clusterOutput" ) );
+    m_fibers->forward( m_fiberClustering->getInputConnector( "fiberInput" ) ); // init rippling
+    debugLog() << "Wiring done";
 
     // forward properties
     m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Output cluster ID" ) );
@@ -166,6 +171,10 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Mean Type" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide Slices" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes #X-SamplePoints" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes #Y-SamplePoints" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes Step Width" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "#Planes" ) );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
     // m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );

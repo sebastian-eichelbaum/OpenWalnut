@@ -74,9 +74,14 @@ void WMVoxelizer::moduleMain()
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
+        m_moduleState.wait();
         if ( !m_input->getData() ) // ok, the output has not yet sent data
         {
-            m_moduleState.wait();
+            // since there is no data yet we will eat property changes
+            m_drawVoxels->get( true );
+            m_rasterAlgo->get( true );
+            m_antialiased->get( true );
+            m_drawfibers->get( true );
             continue;
         }
 
@@ -103,8 +108,6 @@ void WMVoxelizer::moduleMain()
         {
             updateCenterLine();
         }
-
-        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 }
 

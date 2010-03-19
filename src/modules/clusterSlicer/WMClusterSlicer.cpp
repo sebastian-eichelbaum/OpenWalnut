@@ -48,6 +48,7 @@
 WMClusterSlicer::WMClusterSlicer()
     : WModule(),
       m_rootNode( osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() ) ),
+      m_fullUpdate( new WCondition ),
       m_maxMean( 0.0 ),
       m_minMean( 0.0 )
 {
@@ -94,12 +95,20 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels = m_properties2->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
-    m_drawSlices    = m_properties2->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", true );
-    m_isoValue      = m_properties2->addProperty( "Iso Value", "", 0.01 );
-    m_meanSelector  = m_properties2->addProperty( "Mean Type", "Selects the mean type, must be on of: 0==arithmetic, 1==geometric, 2==median", 2 );
+    m_drawISOVoxels     = m_properties2->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
+    m_drawSlices        = m_properties2->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", false );
+    m_isoValue          = m_properties2->addProperty( "Iso Value", "", 0.01, m_fullUpdate );
+    m_meanSelector      = m_properties2->addProperty( "Mean Type", "Selects the mean type, must be on of:"
+                                                                   " 0==arithmetic, 1==geometric, 2==median", 2, m_fullUpdate );
+    m_planeNumX         = m_properties2->addProperty( "Planes #X-SamplePoints", "#samplePoints in first direction", 40, m_fullUpdate );
+    m_planeNumY         = m_properties2->addProperty( "Planes #Y-SamplePoints", "#samplePoints in second direction", 40, m_fullUpdate );
+    m_planeStepWidth    = m_properties2->addProperty( "Planes Step Width", "Distance between sample points", 0.5, m_fullUpdate );
+    m_centerLineScale   = m_properties2->addProperty( "#Planes", "Scales the center line to have more or less samples", 1.0, m_fullUpdate );
     m_meanSelector->setMin( 0 );
     m_meanSelector->setMax( 2 );
+    m_planeNumX->setMin( 1 );
+    m_planeNumY->setMin( 1 );
+    m_planeStepWidth->setMin( 0.0 );
 }
 
 void WMClusterSlicer::moduleMain()
@@ -107,19 +116,23 @@ void WMClusterSlicer::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     m_moduleState.setResetable( true, true );
-    // m_moduleState.add( m_clusterDataSetInput->getDataChangedCondition() );
     m_moduleState.add( m_paramDataSetInput->getDataChangedCondition() );
     m_moduleState.add( m_triangleMeshInput->getDataChangedCondition() );
     m_moduleState.add( m_drawSlices->getCondition() );
     m_moduleState.add( m_drawISOVoxels->getCondition() );
-    m_moduleState.add( m_meanSelector->getCondition() );
+    m_moduleState.add( m_fullUpdate );
 
     ready();
 
     while( !m_shutdownFlag() )
     {
+        debugLog() << "In main loop";
         m_moduleState.wait();
-
+        debugLog() << "Processing...";
+        if( m_drawSlices->changed() )
+        {
+            debugLog() << "Draw slices changed!";
+        }
         if( m_shutdownFlag() )
         {
             break;
@@ -133,24 +146,20 @@ void WMClusterSlicer::moduleMain()
         bool dataValid = m_clusterDS && m_cluster && m_paramDS && m_mesh;
         if( dataChanged )
         {
-            if( m_mesh != newMesh )
-            {
-                m_mesh = newMesh;
-                if( m_mesh )
-                {
-                    m_mesh->computeVertNormals(); // time consuming
-                }
-            }
+            debugLog() << "Data changed...";
             m_clusterDS = newClusterDS;
             m_cluster = newCluster;
             m_paramDS = newParamDS;
+            m_mesh = newMesh;
             dataValid = m_clusterDS && m_cluster && m_paramDS && m_mesh;
             if( !m_clusterDS || !m_cluster || !m_paramDS || !m_mesh )
             {
+                debugLog() << "Waiting for data change since given Data is invalid";
                 continue;
             }
 
             assert( m_clusterDS && "Invalid dataset to compute JoinTree on" );
+            debugLog() << "Building Join Tree";
             m_joinTree = boost::shared_ptr< WJoinContourTree >( new WJoinContourTree( m_clusterDS ) );
             m_joinTree->buildJoinTree();
         }
@@ -161,22 +170,24 @@ void WMClusterSlicer::moduleMain()
             m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
         }
 
-        if( m_drawISOVoxels->changed() || m_isoValue->changed() || dataChanged || m_meanSelector->changed() )
+        if( m_isoValue->changed() || dataChanged || m_meanSelector->changed() || m_planeNumX->changed() ||
+            m_planeNumY->changed() || m_planeStepWidth->changed() || m_centerLineScale->changed() )
         {
+            m_isoValue->get( true ); // indicate we have processed all!
             if( dataValid )
             {
-                debugLog() << "Full update requested.";
-                updateDisplay();
-                updateSlices();
+                debugLog() << "Doing: full update";
+                generateSlices();
                 sliceAndColorMesh( *m_mesh );
+                updateDisplay( true ); // force display update here
+                debugLog() << "Full update done.";
             }
         }
-
-        if( m_drawSlices->changed() )
+        else if( m_drawSlices->changed() || m_drawISOVoxels->changed() )
         {
             if( dataValid )
             {
-                updateSlices();
+                updateDisplay();
             }
         }
     }
@@ -231,65 +242,52 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
     return result;
 }
 
-void WMClusterSlicer::updateSlices()
+void WMClusterSlicer::generateSlices()
 {
-    m_rootNode->remove( m_sliceGeode );
-    boost::shared_ptr< wmath::WFiber > centerLine = m_cluster->getCenterLine();
-    if( !centerLine.get() )
+    debugLog() << "Generating Slices";
+    wmath::WFiber centerLine( *m_cluster->getCenterLine() ); // copy the centerline
+    if( centerLine.empty() )
     {
         errorLog() << "CenterLine of the bundle is empty => no slices are drawn";
+        return;
     }
-    else
-    {
-        m_slices = boost::shared_ptr< std::vector< std::pair< double, WPlane > > >( new std::vector< std::pair< double, WPlane > > );
-        m_maxMean = wlimits::MIN_DOUBLE;
-        m_minMean = wlimits::MAX_DOUBLE;
-        m_sliceGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old group node
-        const wmath::WFiber& cL = *centerLine; // just an alias
-        for( size_t i = 1; i < cL.size(); ++i )
-        {
-            wmath::WVector3D tangent = cL[i] - cL[i-1];
-            WPlane p( tangent, cL[i-1] );
+    centerLine.resample( static_cast< size_t >( m_centerLineScale->get( true ) * centerLine.size() ) );
 
-            boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p.samplePoints( 0.5, 40, 40 );
-            double mean = meanParameter( samplePoints )[ m_meanSelector->get( true ) ];
-            if( mean > m_maxMean )
-            {
-                m_maxMean = mean;
-            }
-            if( mean < m_minMean )
-            {
-                m_minMean = mean;
-            }
-            m_slices->push_back( std::make_pair( mean, p ) );
-            if( m_drawSlices->get( true ) )
-            {
-                m_sliceGeode->insert( wge::genPointBlobs( samplePoints, 0.1 ) );
-            }
-        }
-    }
-    if( m_drawSlices->get( true ) )
+    m_slices = boost::shared_ptr< std::vector< std::pair< double, WPlane > > >( new std::vector< std::pair< double, WPlane > > );
+    m_maxMean = wlimits::MIN_DOUBLE;
+    m_minMean = wlimits::MAX_DOUBLE;
+    const int nbX = m_planeNumX->get( true );
+    const int nbY = m_planeNumY->get( true );
+    const double stepWidth = m_planeStepWidth->get( true );
+    const int meanType = m_meanSelector->get( true );
+    m_rootNode->remove( m_samplePointsGeode );
+    m_samplePointsGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
+    for( size_t i = 1; i < centerLine.size(); ++i )
     {
-        for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
+        wmath::WVector3D tangent = centerLine[i] - centerLine[i-1];
+        WPlane p( tangent, centerLine[i-1] );
+
+        boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p.samplePoints( stepWidth, nbX, nbY  );
+        double mean = meanParameter( samplePoints )[ meanType ];
+        if( mean > m_maxMean )
         {
-            double scaledMean = 0.0;
-            if( m_maxMean == m_minMean )
-            {
-                scaledMean = 0;
-            }
-            else
-            {
-                scaledMean = ( cit->first - m_minMean ) / ( m_maxMean - m_minMean );
-            }
-            WColor color( scaledMean, scaledMean, 1 );
-            m_sliceGeode->insert( wge::genFinitePlane( 10, 10, cit->second, color, true ) );
+            m_maxMean = mean;
         }
-        m_rootNode->insert( m_sliceGeode );
+        if( mean < m_minMean )
+        {
+            m_minMean = mean;
+        }
+        m_slices->push_back( std::make_pair( mean, p ) );
+        if( m_drawSlices->get( true ) )
+        {
+            m_samplePointsGeode->insert( wge::genPointBlobs( samplePoints, 0.1 ) );
+        }
     }
 }
 
 void WMClusterSlicer::sliceAndColorMesh( const WTriangleMesh& mesh )
 {
+    debugLog() << "Building color map...";
     m_colorMap = boost::shared_ptr< WColoredVertices >( new WColoredVertices );
     std::map< size_t, WColor > cm;
 
@@ -305,19 +303,49 @@ void WMClusterSlicer::sliceAndColorMesh( const WTriangleMesh& mesh )
     }
 
     m_colorMap->setData( cm );
+    debugLog() << "Done with color map building";
     m_colorMapOutput->updateData( m_colorMap );
 }
 
-void WMClusterSlicer::updateDisplay()
+void WMClusterSlicer::updateDisplay( bool force )
 {
-    m_rootNode->remove( m_isoVoxelGeode );
-    m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
-
-    if( m_drawISOVoxels->get( true ) )
+    debugLog() << "Forced updating display: " << force;
+    if( m_drawISOVoxels->changed() || force )
     {
-        assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_clusterDS." );
-        m_isoVoxelGeode = generateISOVoxelGeode();
-        m_rootNode->insert( m_isoVoxelGeode );
+        m_rootNode->remove( m_isoVoxelGeode );
+        m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
+        if( m_drawISOVoxels->get( true ) )
+        {
+            assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_clusterDS." );
+            m_isoVoxelGeode = generateISOVoxelGeode();
+            m_rootNode->insert( m_isoVoxelGeode );
+        }
+    }
+
+    if( m_drawSlices->changed() || force )
+    {
+        m_rootNode->remove( m_sliceGeode );
+        m_sliceGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
+        if( m_drawSlices->get( true ) ) // regenerate
+        {
+            const double width = m_planeNumX->get() * m_planeStepWidth->get();
+            const double height = m_planeNumY->get() * m_planeStepWidth->get();
+            for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
+            {
+                double scaledMean = 0.0;
+                if( m_maxMean == m_minMean )
+                {
+                    scaledMean = 0;
+                }
+                else
+                {
+                    scaledMean = ( cit->first - m_minMean ) / ( m_maxMean - m_minMean );
+                }
+                WColor color( scaledMean, scaledMean, 1 );
+                m_sliceGeode->insert( wge::genFinitePlane( width, height, cit->second, color, true ) );
+            }
+            m_rootNode->insert( m_sliceGeode );
+        }
     }
 }
 
