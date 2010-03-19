@@ -253,14 +253,14 @@ ADD_CUSTOM_TARGET( identify
 #-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET( vtest
-                   COMMAND make test ARGS="-V"
+                   COMMAND $(MAKE) test ARGS="-V"
                    COMMENT "Runs the test in verboseness to see what actually went wrong"
                  )
 
 #-------------------------------------------------------------------------------------------------------------
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET( cicheck
-                   COMMAND make stylecheck && make test && make doc
+                   COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
                    COMMENT "Checks if all is well to commit"
                  )
 
@@ -296,11 +296,11 @@ ADD_CUSTOM_TARGET( many
                    COMMAND ${CMAKE_COMMAND} ${PROJECT_SOURCE_DIR}
                    COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
                    COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
-                   COMMAND make -C ${NUM_CORES_BINARY_DIR} > /dev/null
-                   COMMAND if [ -e ${NUM_CORES_BINARY} ]\; then echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; make all -j\$\$\(${NUM_CORES_BINARY}\)\; else echo WARNING: No binary for numCores found: ${NUM_CORES_BINARY}. Using 1 core.\; make all -j1\; fi
-                   COMMAND make test
-                   COMMAND make stylecheck
-                   COMMAND make doc
+                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
+                   COMMAND if [ -e ${NUM_CORES_BINARY} ]\; then echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; $(MAKE) all -j\$\$\(${NUM_CORES_BINARY}\)\; else echo WARNING: No binary for numCores found: ${NUM_CORES_BINARY}. Using 1 core.\; $(MAKE) all -j1\; fi
+                   COMMAND $(MAKE) test
+                   COMMAND $(MAKE) stylecheck
+                   COMMAND $(MAKE) doc
                    COMMENT "Make many special make targets in combination."
                  )
 
@@ -308,7 +308,7 @@ ADD_CUSTOM_TARGET( many
 # Make target for MacOS. The difference to the normal one is that we need to fix some paths in libraries.
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
 ADD_CUSTOM_TARGET( macos
-                   make all && ${PROJECT_SOURCE_DIR}/../tools/MacOS/macOS_install_tool
+                   $(MAKE) all && ${PROJECT_SOURCE_DIR}/../tools/MacOS/macOS_install_tool
                    COMMENT "Make on MacOS. This incudes fixing paths in libraries."
                  )
 ENDIF()
