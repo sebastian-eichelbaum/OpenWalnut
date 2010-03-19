@@ -98,6 +98,18 @@ std::size_t WPagerEEGLibeep::getNumberOfChannels() const
     return m_nbChannels;
 }
 
+std::size_t WPagerEEGLibeep::getNumberOfSamples( std::size_t segmentID ) const
+{
+    if( segmentID != 0 )
+    {
+        std::ostringstream stream;
+        stream << m_fileName << " has no segment number " << segmentID;
+        throw WOutOfBounds( stream.str() );
+    }
+
+    return m_nbSamples;
+}
+
 boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const
 {
     if( segmentID != 0 )

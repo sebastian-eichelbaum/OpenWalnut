@@ -50,6 +50,13 @@ public:
     WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG > pager );
 
     /**
+     * Get the number of samples this segment consists of.
+     *
+     * \return number of samples
+     */
+    std::size_t getNumberOfSamples() const;
+
+    /**
      * Get the values of all channels for a given sample range.
      *
      * \param start start sample of the sample range
@@ -62,6 +69,7 @@ protected:
 private:
     std::size_t m_segmentID; //!< number of this segment
     boost::shared_ptr< WPagerEEG > m_pager; //!< pager class which contains the data, read from a file on demand
+    std::size_t m_nbSamples; //!< number of samples this segment consists of
 };
 
 #endif  // WEEG2SEGMENT_H

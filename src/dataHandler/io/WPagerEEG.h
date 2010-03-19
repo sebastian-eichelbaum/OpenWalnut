@@ -61,6 +61,14 @@ public:
     virtual std::size_t getNumberOfChannels() const = 0;
 
     /**
+     * Get the number of samples of a given segment.
+     *
+     * \param segmentID segment number being inspected
+     * \return number of samples
+     */
+    virtual std::size_t getNumberOfSamples( std::size_t segmentID ) const = 0;
+
+    /**
      * Get the values of all channels for a given sample range.
      *
      * \param segmentID segment number to read the values from
