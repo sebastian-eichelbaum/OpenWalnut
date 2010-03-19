@@ -281,21 +281,23 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
         if ( m_isPicked )
         {
-            float diffX = newPixelPos.first - m_oldPixelPosition.first;
-//             float diffY = newPixelPos.second - m_oldPixelPosition.second;
-            float diff = fabs( diffX );
-
-            osg::Vec3 startPosScreen( m_oldPixelPosition.first, 0.0, 0.0 );
-            osg::Vec3 endPosScreen( newPixelPos.first, 0.0, 0.0 );
+            osg::Vec3 startPosScreen( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
+            osg::Vec3 endPosScreen( newPixelPos.first, newPixelPos.second, 0.0 );
 
             osg::Vec3 startPosWorld = wge::unprojectFromScreen( startPosScreen, m_viewer->getCamera() );
             osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
 
             osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
+            float diff = wv3D2ov3( normal ) * moveDirWorld;
 
-            if( wv3D2ov3( normal ) * moveDirWorld < 0 )
+            // recognize also small values.
+            if( diff < 0 && diff > -1 )
             {
-                diff *= -1;
+                diff = -1;
+            }
+            if( diff > 0 && diff < 1 )
+            {
+                diff = 1;
             }
 
             if ( pickInfo.getName() == "Axial Slice" )
