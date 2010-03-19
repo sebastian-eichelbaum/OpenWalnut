@@ -50,6 +50,13 @@ WEEG2Segment::WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG 
         stream << "The EEG has no segment number " << m_segmentID;
         throw WOutOfBounds( stream.str() );
     }
+
+    m_nbSamples = m_pager->getNumberOfSamples( m_segmentID );
+}
+
+std::size_t WEEG2Segment::getNumberOfSamples() const
+{
+    return m_nbSamples;
 }
 
 boost::shared_ptr< WEEGValueMatrix > WEEG2Segment::getValues( std::size_t start, std::size_t length ) const
