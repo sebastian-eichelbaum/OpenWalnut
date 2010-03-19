@@ -220,7 +220,7 @@ bool WMFiberClustering::dLtTableExists()
 
             return true;
         }
-        catch( WDHException e )
+        catch( const WDHException& e )
         {
             debugLog() << e.what() << std::endl;
         }
@@ -302,9 +302,9 @@ void WMFiberClustering::cluster()
         {
             w.writeTable( m_dLtTable->getData(), m_lastFibsSize );
         }
-        catch( WDHIOFailure& e )
+        catch( const WDHIOFailure& e )
         {
-            errorLog() << "Could write dlt file. check permissions!";
+            errorLog() << "Could write dlt file. check permissions! " << e.what();
         }
     }
 }
