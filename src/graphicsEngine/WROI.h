@@ -70,6 +70,26 @@ public:
      */
     bool isNot();
 
+    /**
+     * getter
+     *
+     * \return the active flag
+     */
+    bool isActive();
+
+    /**
+     * setter
+     *
+     * \param active
+     */
+    void setActive( bool active );
+
+    /**
+     * Getter for modified flag
+     */
+    bool isModified();
+
+
 protected:
     osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
 
@@ -85,6 +105,8 @@ protected:
     WColor m_color; //!< The selected onject (Fibers, region on surface, ...) will have this color if m_useColor.
 
     bool m_useColor; //!< Indicated whether m_color should be used for display.
+
+    bool m_isActive; //!< active or not
 
 private:
     /**

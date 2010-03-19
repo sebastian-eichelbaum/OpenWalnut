@@ -166,6 +166,18 @@ void WRMROIRepresentation::setDirty()
 void WRMROIRepresentation::slotToggleNot()
 {
     m_roi->setNot( m_isNot->get() );
+    m_roi->setActive( m_isActive->get() );
+
+    if ( m_isActive->get() )
+    {
+        m_roi->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_roi->setNodeMask( 0x0 );
+    }
+
+
     setDirty();
 }
 

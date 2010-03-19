@@ -199,13 +199,6 @@ wmath::WPosition WROIBox::getMaxPos() const
     return m_maxPos;
 }
 
-bool WROIBox::isModified()
-{
-    bool tmp = m_isModified;
-    m_isModified = false;
-    return tmp;
-}
-
 void WROIBox::registerRedrawRequest( WPickInfo pickInfo )
 {
     boost::unique_lock< boost::shared_mutex > lock;
@@ -280,13 +273,20 @@ void WROIBox::updateGFX()
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
             {
                 osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-                colors->push_back( osg::Vec4( 1.f, .0f, .0f, 0.5f ) );
+                if ( m_isNot )
+                {
+                    colors->push_back( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) );
+                }
+                else
+                {
+                    colors->push_back( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) );
+                }
                 m_surfaceGeometry->setColorArray( colors );
             }
             if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT && m_pickInfo.getPickNormal() != wmath::WVector3D() )
             {
                 osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-                colors->push_back( osg::Vec4( .0f, 1.0f, .0f, 0.5f ) );
+                colors->push_back( osg::Vec4( .0f, 1.0f, .0f, 0.4f ) );
                 m_surfaceGeometry->setColorArray( colors );
             }
         }
@@ -299,9 +299,30 @@ void WROIBox::updateGFX()
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-        colors->push_back( osg::Vec4( 0.f, 0.f, 1.f, 0.5f ) );
+        if ( m_isNot )
+        {
+            colors->push_back( osg::Vec4( 1.0f, 0.f, 0.f, 0.4f ) );
+        }
+        else
+        {
+            colors->push_back( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) );
+        }
         m_surfaceGeometry->setColorArray( colors );
         m_isPicked = false;
+    }
+
+    if ( isModified() )
+    {
+        osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
+        if ( m_isNot )
+        {
+            colors->push_back( osg::Vec4( 1.0f, 0.f, 0.f, 0.4f ) );
+        }
+        else
+        {
+            colors->push_back( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) );
+        }
+        m_surfaceGeometry->setColorArray( colors );
     }
 
     lock.unlock();
