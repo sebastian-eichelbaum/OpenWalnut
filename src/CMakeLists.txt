@@ -25,12 +25,6 @@ ENDIF()
 #--------------------------
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/common/platformDependent/visualStudio/" )
-
-  OPTION( OW_USE_ZLIB "Use zlib" ON )
-
-  IF( OW_USE_ZLIB )
-    FIND_PACKAGE( ZLIB )
-  ENDIF( OW_USE_ZLIB )
 ENDIF()
 
 
