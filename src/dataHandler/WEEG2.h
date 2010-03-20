@@ -27,12 +27,14 @@
 
 #include <cstddef>
 
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include "io/WPagerEEG.h"
 #include "WEEGChannelInfo.h"
+#include "WEEGPositionsLibrary.h"
 #include "WEEG2Segment.h"
 #include "WRecording.h"
 
@@ -49,8 +51,16 @@ public:
      *
      * \param pager pager class which contains the data, read from a file on
      *              demand
+     * \param positionsLibrary class which contains the positions of the
+     *                         electrodes
      */
-    explicit WEEG2( boost::shared_ptr< WPagerEEG > pager );
+    WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary );
+
+    /**
+     * Constructor creating a quite unusable instance. Useful for prototype
+     * mechanism.
+     */
+    WEEG2();
 
     /**
      * Get the number of segments this EEG consists of.
@@ -82,7 +92,15 @@ public:
      */
     boost::shared_ptr< WEEGChannelInfo > getChannelInfo( std::size_t channelID ) const;
 
+    virtual const std::string getName() const;
+
+    virtual const std::string getDescription() const;
+
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
     std::vector< boost::shared_ptr< WEEG2Segment > > m_segments; //!< list of all segments this EEG consists of
 

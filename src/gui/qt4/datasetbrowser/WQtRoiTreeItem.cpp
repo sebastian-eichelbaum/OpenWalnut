@@ -31,13 +31,15 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRM
     QTreeWidgetItem( parent, type ),
     m_roi( roi )
 {
+    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable );
+
     if ( m_roi->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {
-        this->setCheckState( 0, Qt::Checked );
+        setCheckState( 0, Qt::Checked );
     }
     else
     {
-        this->setCheckState( 0, Qt::Unchecked );
+        setCheckState( 0, Qt::Unchecked );
     }
 }
 

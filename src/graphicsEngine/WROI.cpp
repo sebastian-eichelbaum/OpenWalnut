@@ -43,9 +43,29 @@ boost::signals2::signal0< void >* WROI::getSignalIsModified()
 void WROI::setNot( bool isNot )
 {
     m_isNot = isNot;
+    m_isModified = true;
 }
 
 bool WROI::isNot()
 {
     return m_isNot;
 }
+
+bool WROI::isActive()
+{
+    return m_isActive;
+}
+
+void WROI::setActive( bool active )
+{
+    m_isActive = active;
+    m_isModified = true;
+}
+
+bool WROI::isModified()
+{
+    bool tmp = m_isModified;
+    m_isModified = false;
+    return tmp;
+}
+

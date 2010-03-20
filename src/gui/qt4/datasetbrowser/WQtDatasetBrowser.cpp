@@ -256,47 +256,42 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 
 void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 {
+    WQtRoiTreeItem* newItem;
+    WQtBranchTreeItem* branchItem;
+
+    m_tiRois->setExpanded( true );
+
     if ( m_roiTreeWidget->selectedItems().count() != 0 )
     {
         switch ( m_roiTreeWidget->selectedItems().at( 0 )->type() )
         {
             case ROI :
             {
-                WQtBranchTreeItem* branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
-                m_tiRois->setExpanded( true );
-                branchItem->setExpanded( true );
-                WQtRoiTreeItem* item = branchItem->addRoiItem( roi );
-                item->setDisabled( false );
+                branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
                 break;
             }
             case ROIBRANCH :
             {
-                WQtBranchTreeItem* branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) );
-                m_tiRois->setExpanded( true );
-                branchItem->setExpanded( true );
-                WQtRoiTreeItem* item = branchItem->addRoiItem( roi );
-                item->setDisabled( false );
+                branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) );
                 break;
             }
             default:
             {
-                m_tiRois->setExpanded( true );
-                WQtBranchTreeItem* newBranch = m_tiRois->addBranch( roi->getBranch() );
-                newBranch->setExpanded( true );
-                WQtRoiTreeItem* item = newBranch->addRoiItem( roi );
-                item->setDisabled( false );
+                branchItem = m_tiRois->addBranch( roi->getBranch() );
                 break;
             }
         }
     }
     else
     {
-        m_tiRois->setExpanded( true );
-        WQtBranchTreeItem* newBranch = m_tiRois->addBranch( roi->getBranch() );
-        newBranch->setExpanded( true );
-        WQtRoiTreeItem* item = newBranch->addRoiItem( roi );
-        item->setDisabled( false );
+        branchItem = m_tiRois->addBranch( roi->getBranch() );
     }
+
+    m_tabWidget2->setCurrentIndex( m_tabWidget2->indexOf( m_roiTreeWidget ) );
+    branchItem->setExpanded( true );
+    newItem = branchItem->addRoiItem( roi );
+    newItem->setDisabled( false );
+    newItem->setSelected( true );
 }
 
 boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()

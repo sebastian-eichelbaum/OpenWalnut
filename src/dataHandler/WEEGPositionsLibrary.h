@@ -22,59 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEEGCHANNELINFO_H
-#define WEEGCHANNELINFO_H
+#ifndef WEEGPOSITIONSLIBRARY_H
+#define WEEGPOSITIONSLIBRARY_H
 
-#include <cstddef>
-
+#include <map>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include "../common/math/WPosition.h"
-#include "io/WPagerEEG.h"
-#include "WEEGPositionsLibrary.h"
 
 
 /**
- * Class which contains information about one channel of an EEG recording, read
- * from a WPagerEEG.
+ * Class which contains the positions of EEG electrodes by label.
  * \ingroup dataHandler
  */
-class WEEGChannelInfo
+class WEEGPositionsLibrary
 {
 public:
     /**
      * Constructor
      *
-     * \param channelID number of this channel
-     * \param pager pager class which contains the data, read from a file on
-     *              demand
-     * \param positionsLibrary class which contains the positions of the
-     *                         electrodes
+     * \param positions mapping from labels to positions
      */
-    WEEGChannelInfo( std::size_t channelID,
-                     boost::shared_ptr< WPagerEEG > pager,
-                     boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary );
+    explicit WEEGPositionsLibrary( const std::map< std::string, wmath::WPosition >& positions );
 
     /**
-     * Get the label of the channel.
+     * Get the position of an electrode with the given label
      *
-     * \return label as string
+     * \param label label of the electrode
+     * \return position of the electrode
      */
-    std::string getLabel() const;
-
-    /**
-     * Get the position of the electrode.
-     *
-     * \return position
-     */
-    wmath::WPosition getPosition() const;
+    wmath::WPosition getPosition( std::string label ) const;
 
 protected:
 private:
-    std::string m_label; //!< label of the channel
-    wmath::WPosition m_position; //!< position of the electrode
+    std::map< std::string, wmath::WPosition > m_positions; //!< mapping from labels to positions
 };
 
-#endif  // WEEGCHANNELINFO_H
+#endif  // WEEGPOSITIONSLIBRARY_H

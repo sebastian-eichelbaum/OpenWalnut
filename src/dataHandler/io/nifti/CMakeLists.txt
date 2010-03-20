@@ -5,15 +5,13 @@ MESSAGE( STATUS "Inlcuded NIfTI lib building information." )
 
 OPTION ( NIFTI_BUILD_SHARED_LIBS "Toggle building shared libraries for NIfTI" OFF )
 
-# Zlib support currently not on Visual Studio
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-	ADD_DEFINITIONS( -DHAVE_ZLIB )
-ENDIF()
+FIND_PACKAGE( ZLIB )
+
 # this now works on win if we specify the zlib directory
-IF( OW_USE_ZLIB )
+IF( ZLIB_FOUND )
 	ADD_DEFINITIONS( -DHAVE_ZLIB )
 	INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} )
-ENDIF( OW_USE_ZLIB )
+ENDIF( ZLIB_FOUND )
 
 SET(ZNZLIB_SRC znzlib.c znzlib.h)
 SET(NIFTI_ZNZLIB_NAME ${PACKAGE_PREFIX}znz)
@@ -21,12 +19,9 @@ ADD_LIBRARY(${NIFTI_ZNZLIB_NAME} ${ZNZLIB_SRC} )
 TARGET_LINK_LIBRARIES( ${NIFTI_ZNZLIB_NAME} ${NIFTI_ZLIB_LIBRARIES} )
 
 # Zlib support currently not on Visual Studio
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    TARGET_LINK_LIBRARIES(  ${NIFTI_ZNZLIB_NAME} z )
-ENDIF()
-IF( OW_USE_ZLIB ) 
+IF( ZLIB_FOUND ) 
     TARGET_LINK_LIBRARIES(  ${NIFTI_ZNZLIB_NAME} ${ZLIB_LIBRARY} )
-ENDIF( OW_USE_ZLIB )
+ENDIF( ZLIB_FOUND )
 
 # Set library version when building shared libs.
 IF( NIFTI_BUILD_SHARED_LIBS)

@@ -22,59 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEEGCHANNELINFO_H
-#define WEEGCHANNELINFO_H
-
-#include <cstddef>
+#ifndef WREADERELC_H
+#define WREADERELC_H
 
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/math/WPosition.h"
-#include "io/WPagerEEG.h"
-#include "WEEGPositionsLibrary.h"
+#include "WReader.h"
+#include "../WEEGPositionsLibrary.h"
 
 
 /**
- * Class which contains information about one channel of an EEG recording, read
- * from a WPagerEEG.
+ * Read electrode positions from an ELC file.
  * \ingroup dataHandler
  */
-class WEEGChannelInfo
+class WReaderELC : public WReader
 {
 public:
     /**
-     * Constructor
+     * Constructs a reader object.
      *
-     * \param channelID number of this channel
-     * \param pager pager class which contains the data, read from a file on
-     *              demand
-     * \param positionsLibrary class which contains the positions of the
-     *                         electrodes
+     * \param fname path to file which should be loaded
      */
-    WEEGChannelInfo( std::size_t channelID,
-                     boost::shared_ptr< WPagerEEG > pager,
-                     boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary );
+    explicit WReaderELC( std::string fname );
 
     /**
-     * Get the label of the channel.
+     * Read the file and create a dataset out of it.
      *
-     * \return label as string
+     * \return reference to the dataset
      */
-    std::string getLabel() const;
-
-    /**
-     * Get the position of the electrode.
-     *
-     * \return position
-     */
-    wmath::WPosition getPosition() const;
+    boost::shared_ptr< WEEGPositionsLibrary > read();
 
 protected:
 private:
-    std::string m_label; //!< label of the channel
-    wmath::WPosition m_position; //!< position of the electrode
 };
 
-#endif  // WEEGCHANNELINFO_H
+#endif  // WREADERELC_H

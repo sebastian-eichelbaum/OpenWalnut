@@ -22,33 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
+#include <map>
 #include <string>
 
-#include "WTreeItemTypes.h"
-#include "WQtRoiTreeItem.h"
-#include "WQtBranchTreeItem.h"
+#include "../common/WStringUtils.h"
+#include "../common/exceptions/WOutOfBounds.h"
+#include "../common/math/WPosition.h"
+#include "WEEGPositionsLibrary.h"
 
-WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch ) :
-    QTreeWidgetItem( parent, ROIBRANCH ),
-    m_branch( branch )
+
+WEEGPositionsLibrary::WEEGPositionsLibrary( const std::map< std::string, wmath::WPosition >& positions )
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled );
+    // put all the elements from positions in m_posititions, but convert the labels to uppercase
+    for( std::map< std::string, wmath::WPosition >::const_iterator iter = positions.begin(); iter != positions.end(); ++iter )
+    {
+        m_positions[string_utils::toUpper( iter->first )] = iter->second;
+    }
 }
 
-WQtBranchTreeItem::~WQtBranchTreeItem()
+wmath::WPosition WEEGPositionsLibrary::getPosition( std::string label ) const
 {
-}
+    std::map< std::string, wmath::WPosition >::const_iterator iter = m_positions.find( string_utils::toUpper( label ) );
 
-WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi )
-{
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
+    if( iter == m_positions.end() )
+    {
+        throw WOutOfBounds( "EEG Positions Library doesn't contain a position for electrode " + label );
+    }
 
-    std::string name = "ROI";
-    rti->setText( 0, QString( name.c_str() ) );
-    return rti;
-}
-
-boost::shared_ptr< WRMBranch > WQtBranchTreeItem::getBranch()
-{
-    return m_branch;
+    return iter->second;
 }

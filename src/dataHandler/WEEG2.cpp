@@ -25,36 +25,62 @@
 #include <cstddef>
 
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WLimits.h"
 #include "../common/exceptions/WOutOfBounds.h"
 #include "exceptions/WDHException.h"
 #include "io/WPagerEEG.h"
 #include "WEEGChannelInfo.h"
+#include "WEEGPositionsLibrary.h"
 #include "WEEG2Segment.h"
 #include "WEEG2.h"
 
 
-WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager )
+boost::shared_ptr< WPrototyped > WEEG2::m_prototype = boost::shared_ptr< WPrototyped >();
+
+WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary )
 {
     if( !pager )
     {
         throw WDHException( "Couldn't construct new EEG: pager invalid" );
     }
 
-    m_segments.reserve( pager->getNumberOfSegments() );
-    for( std::size_t segmentID = 0; segmentID < pager->getNumberOfSegments(); ++segmentID )
+    if( !positionsLibrary )
     {
-        m_segments.push_back( boost::shared_ptr< WEEG2Segment >( new WEEG2Segment( pager, segmentID ) ) );
+        throw WDHException( "Couldn't construct new EEG: positions library invalid" );
     }
 
-    m_channelInfos.reserve( pager->getNumberOfChannels() );
-    for( std::size_t channelID = 0; channelID < pager->getNumberOfChannels(); ++channelID )
+    std::size_t nbSegments = pager->getNumberOfSegments();
+    if( nbSegments <= 0 || wlimits::MAX_RECORDING_SEGMENTS < nbSegments )
     {
-        m_channelInfos.push_back( boost::shared_ptr< WEEGChannelInfo >( new WEEGChannelInfo( pager, channelID ) ) );
+        throw WDHException( "Couldn't construct new EEG: invalid number of segments" );
     }
+
+    std::size_t nbChannels = pager->getNumberOfChannels();
+    if( nbChannels <= 0 || wlimits::MAX_RECORDING_CHANNELS < nbChannels )
+    {
+        throw WDHException( "Couldn't construct new EEG: invalid number of channels" );
+    }
+
+    m_segments.reserve( nbSegments );
+    for( std::size_t segmentID = 0; segmentID < nbSegments; ++segmentID )
+    {
+        m_segments.push_back( boost::shared_ptr< WEEG2Segment >( new WEEG2Segment( segmentID, pager ) ) );
+    }
+
+    m_channelInfos.reserve( nbChannels );
+    for( std::size_t channelID = 0; channelID < nbChannels; ++channelID )
+    {
+        m_channelInfos.push_back( boost::shared_ptr< WEEGChannelInfo >( new WEEGChannelInfo( channelID, pager, positionsLibrary ) ) );
+    }
+}
+
+WEEG2::WEEG2()
+{
 }
 
 std::size_t WEEG2::getNumberOfSegments() const
@@ -89,4 +115,24 @@ boost::shared_ptr< WEEGChannelInfo > WEEG2::getChannelInfo( std::size_t channelI
     }
 
     return m_channelInfos[channelID];
+}
+
+const std::string WEEG2::getName() const
+{
+    return "WEEG2";
+}
+
+const std::string WEEG2::getDescription() const
+{
+    return "Contains EEG data";
+}
+
+boost::shared_ptr< WPrototyped > WEEG2::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WEEG2() );
+    }
+
+    return m_prototype;
 }
