@@ -190,10 +190,7 @@ void WMData::moduleMain()
     }
 
     if( suffix == ".nii"
-//#ifndef _MSC_VER
-        || suffix == ".gz"
-//#endif
-        )
+        || ( suffix == ".gz" && ::nifti_compiled_with_zlib() ) )
     {
         if( suffix == ".gz" )  // it may be a NIfTI file too
         {
