@@ -66,6 +66,14 @@ WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPosit
         throw WDHException( "Couldn't construct new EEG: invalid number of channels" );
     }
 
+    m_samplingRate = pager->getSamplingRate();
+    if( m_samplingRate <= 0.0 || wlimits::MAX_RECORDING_SAMPLING_FREQUENCY < m_samplingRate )
+    {
+        throw WDHException( "Couldn't construct new EEG: invalid sampling rate" );
+    }
+
+    setFileName( pager->getFileName() );
+
     m_segments.reserve( nbSegments );
     for( std::size_t segmentID = 0; segmentID < nbSegments; ++segmentID )
     {
@@ -91,6 +99,11 @@ std::size_t WEEG2::getNumberOfSegments() const
 std::size_t WEEG2::getNumberOfChannels() const
 {
     return m_channelInfos.size();
+}
+
+double WEEG2::getSamplingRate() const
+{
+    return m_samplingRate;
 }
 
 boost::shared_ptr< WEEG2Segment > WEEG2::getSegment( std::size_t segmentID ) const

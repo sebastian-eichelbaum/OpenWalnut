@@ -77,6 +77,13 @@ public:
     std::size_t getNumberOfChannels() const;
 
     /**
+     * Get the sampling rate used by the recording.
+     *
+     * \return sampling rate
+     */
+    double getSamplingRate() const;
+
+    /**
      * Get one segment.
      *
      * \param segmentID number of segment
@@ -102,6 +109,8 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
+    double m_samplingRate; //!< sampling rate used by the recording
+
     std::vector< boost::shared_ptr< WEEG2Segment > > m_segments; //!< list of all segments this EEG consists of
 
     std::vector< boost::shared_ptr< WEEGChannelInfo > > m_channelInfos; //!< list of the information about all channel infos this EEG has
