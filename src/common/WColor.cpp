@@ -226,3 +226,10 @@ void WColor::inverse()
     m_green = std::abs( 1. - m_green );
     m_blue = std::abs( 1. - m_blue );
 }
+
+void WColor::average( const WColor& other )
+{
+    m_red = ( m_red + other.getRed() ) / 2.0;
+    m_green = ( m_green + other.getGreen() ) / 2.0;
+    m_blue = ( m_blue + other.getBlue() ) / 2.0;
+}

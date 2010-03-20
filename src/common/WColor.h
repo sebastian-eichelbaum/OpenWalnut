@@ -113,6 +113,14 @@ public:
     void inverse();
 
     /**
+     * Computes the arithmetic mean of this and the other color. This is done component wisely.
+     * For example red mixed with green will become yellow.
+     *
+     * \param other The other color to mix in here :D.
+     */
+    void average( const WColor& other );
+
+    /**
      * Compares two WColor instances on all four channels.
      *
      * \param rhs The other WColor instance
