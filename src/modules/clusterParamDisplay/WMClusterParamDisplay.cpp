@@ -168,6 +168,8 @@ void WMClusterParamDisplay::initSubModules()
 
     // forward properties
     m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Output cluster ID" ) );
+    m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Max cluster distance" ) );
+    m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Min point distance" ) );
     m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
     m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
