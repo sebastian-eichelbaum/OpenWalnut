@@ -84,11 +84,14 @@ void WMClusterSlicer::connectors()
     m_paramDataSetInput = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "paramDS", "DataSet of the parameters" ) );
     addConnector( m_paramDataSetInput );
 
-    m_triangleMeshInput = boost::shared_ptr< InputMeshType >( new InputMeshType( shared_from_this(), "mesh", "TrianglMesh" ) );
+    m_triangleMeshInput = boost::shared_ptr< InputMeshType >( new InputMeshType( shared_from_this(), "meshIN", "TrianglMesh" ) );
     addConnector( m_triangleMeshInput );
 
     m_colorMapOutput = boost::shared_ptr< OutputColorMapType >( new OutputColorMapType( shared_from_this(), "colorMap", "VertexID and colors" ) );
     addConnector( m_colorMapOutput );
+
+    m_meshOutput = boost::shared_ptr< OutputMeshType >( new OutputMeshType( shared_from_this(), "meshOUT", "The Mesh to forward it for rendering" ) );
+    addConnector( m_meshOutput );
 
     WModule::connectors();
 }
@@ -97,13 +100,16 @@ void WMClusterSlicer::properties()
 {
     m_drawISOVoxels     = m_properties2->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
     m_drawSlices        = m_properties2->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", false );
-    m_isoValue          = m_properties2->addProperty( "Iso Value", "", 0.01, m_fullUpdate );
+    m_isoValue          = m_properties2->addProperty( "Iso Value", "", 0.01 );
     m_meanSelector      = m_properties2->addProperty( "Mean Type", "Selects the mean type, must be on of:"
                                                                    " 0==arithmetic, 1==geometric, 2==median", 2, m_fullUpdate );
     m_planeNumX         = m_properties2->addProperty( "Planes #X-SamplePoints", "#samplePoints in first direction", 40, m_fullUpdate );
     m_planeNumY         = m_properties2->addProperty( "Planes #Y-SamplePoints", "#samplePoints in second direction", 40, m_fullUpdate );
     m_planeStepWidth    = m_properties2->addProperty( "Planes Step Width", "Distance between sample points", 0.5, m_fullUpdate );
     m_centerLineScale   = m_properties2->addProperty( "#Planes", "Scales the center line to have more or less samples", 1.0, m_fullUpdate );
+    m_selectBiggestComponentOnly = m_properties2->addProperty( "Biggest Component Only",
+       "If true, first the mesh is decomposed into its components (expensive!) and the biggest will be drawn", false );
+
     m_meanSelector->setMin( 0 );
     m_meanSelector->setMax( 2 );
     m_planeNumX->setMin( 1 );
@@ -121,18 +127,15 @@ void WMClusterSlicer::moduleMain()
     m_moduleState.add( m_drawSlices->getCondition() );
     m_moduleState.add( m_drawISOVoxels->getCondition() );
     m_moduleState.add( m_fullUpdate );
+    m_moduleState.add( m_selectBiggestComponentOnly->getCondition() );
 
     ready();
 
     while( !m_shutdownFlag() )
     {
-        debugLog() << "In main loop";
+        debugLog() << "Waiting...";
         m_moduleState.wait();
-        debugLog() << "Processing...";
-        if( m_drawSlices->changed() )
-        {
-            debugLog() << "Draw slices changed!";
-        }
+
         if( m_shutdownFlag() )
         {
             break;
@@ -142,53 +145,62 @@ void WMClusterSlicer::moduleMain()
         boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberClusterInput->getData();
         boost::shared_ptr< WDataSetSingle > newParamDS   = m_paramDataSetInput->getData();
         boost::shared_ptr< WTriangleMesh >  newMesh      = m_triangleMeshInput->getData();
-        bool dataChanged = ( m_clusterDS != newClusterDS ) || ( m_cluster != newCluster ) || ( m_paramDS != newParamDS ) || ( m_mesh != newMesh );
-        bool dataValid = m_clusterDS && m_cluster && m_paramDS && m_mesh;
+        bool meshChanged = ( m_mesh != newMesh );
+        bool paramDSChanged = ( m_paramDS != newParamDS );
+        bool clusterChanged = ( m_cluster != newCluster );
+        bool clusterDSChanged = ( m_clusterDS != newClusterDS );
+        bool dataChanged = clusterDSChanged || clusterChanged || paramDSChanged || meshChanged;
+
+        m_clusterDS = newClusterDS;
+        m_cluster = newCluster;
+        m_paramDS = newParamDS;
+        m_mesh = newMesh;
+
+        if( !( m_clusterDS.get() && m_cluster.get() && m_paramDS.get() && m_mesh.get() ) )
+        {
+            debugLog() << "Invalid data. Waiting for data change again.";
+            continue;
+        }
+
         if( dataChanged )
         {
             debugLog() << "Data changed...";
-            m_clusterDS = newClusterDS;
-            m_cluster = newCluster;
-            m_paramDS = newParamDS;
-            m_mesh = newMesh;
-            dataValid = m_clusterDS && m_cluster && m_paramDS && m_mesh;
-            if( !m_clusterDS || !m_cluster || !m_paramDS || !m_mesh )
+            if( meshChanged )
             {
-                debugLog() << "Waiting for data change since given Data is invalid";
-                continue;
+                if( clusterDSChanged )
+                {
+                    debugLog() << "Building Join Tree";
+                    m_joinTree = boost::shared_ptr< WJoinContourTree >( new WJoinContourTree( m_clusterDS ) );
+                    m_joinTree->buildJoinTree();
+                    debugLog() << "Finished building Join Tree";
+                }
+                // when the mesh has changed the isoValue must have had changed too
+                m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
+                if( m_selectBiggestComponentOnly->get( true ) )
+                {
+                    debugLog() << "Start mesh decomposition";
+                    m_components = tm_utils::componentDecomposition( *m_mesh );
+                    debugLog() << "Decomposing mesh done";
+                }
             }
-
-            assert( m_clusterDS && "Invalid dataset to compute JoinTree on" );
-            debugLog() << "Building Join Tree";
-            m_joinTree = boost::shared_ptr< WJoinContourTree >( new WJoinContourTree( m_clusterDS ) );
-            m_joinTree->buildJoinTree();
         }
 
-        if( ( m_isoValue->changed() || dataChanged ) && m_joinTree )
+        if( meshChanged || paramDSChanged || m_meanSelector->changed() || m_planeNumX->changed()
+                        || m_planeNumY->changed() || m_planeStepWidth->changed() || m_centerLineScale->changed() )
         {
-            assert( m_clusterDS && "JoinTree cannot be valid since there is no valid m_clusterDS." );
-            m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
-        }
-
-        if( m_isoValue->changed() || dataChanged || m_meanSelector->changed() || m_planeNumX->changed() ||
-            m_planeNumY->changed() || m_planeStepWidth->changed() || m_centerLineScale->changed() )
-        {
-            m_isoValue->get( true ); // indicate we have processed all!
-            if( dataValid )
-            {
-                debugLog() << "Doing: full update";
-                generateSlices();
-                sliceAndColorMesh( *m_mesh );
-                updateDisplay( true ); // force display update here
-                debugLog() << "Full update done.";
-            }
+            debugLog() << "Performing full update";
+            generateSlices();
+            sliceAndColorMesh( m_mesh );
+            updateDisplay( true ); // force display update here (erasing invalid planes)
+            debugLog() << "Full update done.";
         }
         else if( m_drawSlices->changed() || m_drawISOVoxels->changed() )
         {
-            if( dataValid )
-            {
-                updateDisplay();
-            }
+            updateDisplay();
+        }
+        else if( m_selectBiggestComponentOnly->changed() )
+        {
+            sliceAndColorMesh( m_mesh );
         }
     }
 
@@ -285,20 +297,67 @@ void WMClusterSlicer::generateSlices()
     }
 }
 
-void WMClusterSlicer::sliceAndColorMesh( const WTriangleMesh& mesh )
+/**
+ * Compares two WTrianglesMeshes on their size of vertices. This is private here since it makes sense only to this module ATM.
+ */
+struct WMeshSizeComp
 {
-    debugLog() << "Building color map...";
+    /**
+     * Comparator on num vertex of two WTriangleMeshes
+     *
+     * \param m First Mesh
+     * \param n Second Mesh
+     *
+     * \return True if and only if the first Mesh has less vertices as the second mesh.
+     */
+    bool operator()( const boost::shared_ptr< WTriangleMesh >& m, const boost::shared_ptr< WTriangleMesh >& n ) const
+    {
+        return m->getNumVertices() < n->getNumVertices();
+    }
+};
+
+void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh )
+{
+    debugLog() << "Selecting mesh component...";
+    boost::shared_ptr< WTriangleMesh > renderMesh = mesh;
+    assert( renderMesh.get() );
+    if( m_selectBiggestComponentOnly->get( true ) )
+    {
+        if( !m_components.get() )
+        {
+            debugLog() << "Start mesh decomposition";
+            m_components = tm_utils::componentDecomposition( *renderMesh );
+            debugLog() << "Decomposing mesh done";
+        }
+        renderMesh = *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() );
+    }
+
+    debugLog() << "Mesh selected";
+
+    if( renderMesh != m_meshOutput->getData() )
+    {
+        m_meshOutput->updateData( renderMesh );
+    }
+
+    debugLog() << "Building mesh color map...";
     m_colorMap = boost::shared_ptr< WColoredVertices >( new WColoredVertices );
     std::map< size_t, WColor > cm;
 
     for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
     {
-        boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( mesh, slice->second );
+        boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
         double scaledMean = ( m_maxMean == m_minMean ? 0.0 : ( slice->first - m_minMean ) / ( m_maxMean - m_minMean ) );
         WColor sliceColor( scaledMean, scaledMean, 1 );
         for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex )
         {
-            cm[ *coloredVertex ] = sliceColor;
+            if( cm.find( *coloredVertex ) != cm.end() )
+            {
+                cm[ *coloredVertex ].average( sliceColor ); // arithmetic mean mixin of the present color with the new one!
+            }
+            else
+            {
+                cm[ *coloredVertex ] = sliceColor;
+            }
         }
     }
 

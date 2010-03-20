@@ -25,6 +25,7 @@
 #ifndef WMCLUSTERSLICER_H
 #define WMCLUSTERSLICER_H
 
+#include <list>
 #include <set>
 #include <string>
 #include <utility>
@@ -121,7 +122,7 @@ protected:
      *
      * \param mesh Triangle mesh describing the ISO surface
      */
-    void sliceAndColorMesh( const WTriangleMesh& mesh );
+    void sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh );
 
     /**
      * Computes the average of the positions inside the paramDS which are also inside the cluster volume main component.
@@ -154,6 +155,8 @@ protected:
     boost::shared_ptr< InputMeshType >      m_triangleMeshInput; //!< InputConnector for the triangle mesh
     typedef WModuleOutputData< WColoredVertices > OutputColorMapType; //!< Interal alias for the ColorMap Type
     boost::shared_ptr< OutputColorMapType > m_colorMapOutput; //!< OutputConnector to forward the color Map to TriangleMeshRenderer
+    typedef WModuleOutputData< WTriangleMesh > OutputMeshType; //!< Internal alias for the Mesh Type
+    boost::shared_ptr< OutputMeshType > m_meshOutput; //!< OutputConnector to forwarde the selected Mesh (e.g. if component selection is enabled )
 
     boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
     boost::shared_ptr< WDataSetSingle > m_clusterDS; //!< Dataset derived from a voxelized cluster
@@ -164,6 +167,7 @@ protected:
 
     boost::shared_ptr< WJoinContourTree >   m_joinTree; //!< Stores the JoinTree
     boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components; //!< Mesh decomposed into connected components
 
     boost::shared_ptr< WCondition > m_fullUpdate; //!< Indicates a complete update of display and computed data (time consuming)
 
@@ -175,6 +179,7 @@ protected:
     WPropInt    m_planeNumY; //!< how many sample points in the second direction of the slice
     WPropDouble m_planeStepWidth; //!< distance of the sample points on the slices
     WPropDouble m_centerLineScale; //!< rescales the centerline for using more or less slices.
+    WPropBool   m_selectBiggestComponentOnly; //!< If true, first the mesh is decomposed into its components (expensive!) & the biggest will be drawn
 
     double m_maxMean; //!< maximum average (of sample points of a plane) parameter value over all planes
     double m_minMean; //!< minimum average (of sample points of a plane) parameter value over all planes
