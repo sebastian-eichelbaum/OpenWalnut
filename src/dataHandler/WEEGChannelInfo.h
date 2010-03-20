@@ -58,6 +58,13 @@ public:
                      boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary );
 
     /**
+     * Get the unit used by the recording of the channel.
+     *
+     * \return unit as string
+     */
+    std::string getUnit() const;
+
+    /**
      * Get the label of the channel.
      *
      * \return label as string
@@ -73,6 +80,7 @@ public:
 
 protected:
 private:
+    std::string m_unit; //!< unit used by the recording of the channel
     std::string m_label; //!< label of the channel
     wmath::WPosition m_position; //!< position of the electrode
 };

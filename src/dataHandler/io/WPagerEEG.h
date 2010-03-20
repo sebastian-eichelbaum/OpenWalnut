@@ -47,6 +47,13 @@ public:
     virtual ~WPagerEEG();
 
     /**
+     * Get the name of the loaded file.
+     *
+     * \return name of file
+     */
+    std::string getFileName() const;
+
+    /**
      * Get the number of segments this EEG consists of.
      *
      * \return number of segments
@@ -79,9 +86,24 @@ public:
     virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const = 0;
 
     /**
-     * Get the label of a given channel
+     * Get the sampling rate used by the recording.
      *
-     * \param channelID channelnumber
+     * \return sampling rate
+     */
+    virtual double getSamplingRate() const = 0;
+
+    /**
+     * Get the unit used by the recording of a given channel.
+     *
+     * \param channelID channel number
+     * \return unit as string
+     */
+    virtual std::string getChannelUnit( std::size_t channelID ) const = 0;
+
+    /**
+     * Get the label of a given channel.
+     *
+     * \param channelID channel number
      * \return label as string
      */
     virtual std::string getChannelLabel( std::size_t channelID ) const = 0;

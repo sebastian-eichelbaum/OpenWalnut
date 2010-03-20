@@ -157,6 +157,23 @@ boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t seg
     return values;
 }
 
+double WPagerEEGLibeep::getSamplingRate() const
+{
+    return eep_get_rate( m_eeg );
+}
+
+std::string WPagerEEGLibeep::getChannelUnit( std::size_t channelID ) const
+{
+    if( channelID >= m_nbChannels )
+    {
+        std::ostringstream stream;
+        stream << m_fileName << " has no channel number " << channelID;
+        throw WOutOfBounds( stream.str() );
+    }
+
+    return eep_get_chan_unit( m_eeg, channelID );
+}
+
 std::string WPagerEEGLibeep::getChannelLabel( std::size_t channelID ) const
 {
     if( channelID >= m_nbChannels )

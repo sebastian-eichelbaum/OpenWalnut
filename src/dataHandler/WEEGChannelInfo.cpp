@@ -58,8 +58,14 @@ WEEGChannelInfo::WEEGChannelInfo( std::size_t channelID,
         throw WOutOfBounds( stream.str() );
     }
 
+    m_unit = pager->getChannelUnit( channelID );
     m_label = pager->getChannelLabel( channelID );
     m_position = positionsLibrary->getPosition( m_label );
+}
+
+std::string WEEGChannelInfo::getUnit() const
+{
+    return m_unit;
 }
 
 std::string WEEGChannelInfo::getLabel() const

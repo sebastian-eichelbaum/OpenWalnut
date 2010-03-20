@@ -66,6 +66,10 @@ public:
 
     virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const;
 
+    virtual double getSamplingRate() const;
+
+    virtual std::string getChannelUnit( std::size_t channelID ) const;
+
     virtual std::string getChannelLabel( std::size_t channelID ) const;
 
 protected:

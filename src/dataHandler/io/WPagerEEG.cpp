@@ -33,6 +33,11 @@ WPagerEEG::~WPagerEEG()
 {
 }
 
+std::string WPagerEEG::getFileName() const
+{
+    return m_fileName;
+}
+
 WPagerEEG::WPagerEEG( std::string fileName )
     : m_fileName( fileName )
 {

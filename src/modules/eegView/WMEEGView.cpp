@@ -348,6 +348,7 @@ void WMEEGView::redraw()
         debugLog() << "  Number of segments: " << m_eeg->getNumberOfSegments();
         size_t nbChannels = m_eeg->getNumberOfChannels();
         debugLog() << "  Number of channels: " << nbChannels;
+        debugLog() << "  Sampling Rate: " << m_eeg->getSamplingRate();
 
         // draw 2D plot
         for( size_t segmentID = 0; segmentID < m_eeg->getNumberOfSegments(); ++segmentID )
@@ -368,6 +369,7 @@ void WMEEGView::redraw()
             {
                 debugLog() << "    Channel " << channelID;
                 boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
+                debugLog() << "      Channel unit: " << channelInfo->getUnit();
                 debugLog() << "      Channel label: " << channelInfo->getLabel();
 
                 // create text geode for the channel label
