@@ -347,7 +347,7 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
     {
         boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
         double scaledMean = ( m_maxMean == m_minMean ? 0.0 : ( slice->first - m_minMean ) / ( m_maxMean - m_minMean ) );
-        WColor sliceColor( scaledMean, scaledMean, 1 );
+        WColor sliceColor( 0, scaledMean, 1 );
         for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex )
         {
             if( cm.find( *coloredVertex ) != cm.end() )
