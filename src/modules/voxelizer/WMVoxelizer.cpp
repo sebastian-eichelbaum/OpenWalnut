@@ -115,7 +115,7 @@ void WMVoxelizer::properties()
 {
     m_antialiased     = m_properties2->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
     m_drawfibers      = m_properties2->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
-    m_drawBoundingBox = m_properties2->addProperty( "Bounding BoxEnable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
+    m_drawBoundingBox = m_properties2->addProperty( "BoundingBox", "Enable/Disable drawing of a clusters BoundingBox.", true );
     m_drawCenterLine  = m_properties2->addProperty( "CenterLine", "Enable/Disable display of the CenterLine", true );
     m_lighting        = m_properties2->addProperty( "Lighting", "Enable/Disable lighting.", true );
     m_drawVoxels      = m_properties2->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
@@ -221,7 +221,7 @@ void WMVoxelizer::updateCenterLine()
         boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
         if( centerLine )
         {
-            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 2.f );
+            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.f );
         }
         else
         {
