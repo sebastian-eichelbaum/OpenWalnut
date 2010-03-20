@@ -197,19 +197,6 @@ wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
     return m_matrix;
 }
 
-wmath::WVector3D WGridRegular3D::transformTexCoord( wmath::WPosition point )
-{
-    wmath::WVector3D p( point[0] - 0.5 , point[1] - 0.5, point[2] - 0.5 );
-
-    wmath::WVector3D r( wmath::multMatrixWithVector3D( m_matrixInverse , p ) );
-
-    r[0] = r[0] * m_offsetX + 0.5;
-    r[1] = r[1] * m_offsetY + 0.5;
-    r[2] = r[2] * m_offsetZ + 0.5;
-
-    return r;
-}
-
 wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
     wmath::WVector3D r( wmath::transformVector3DWithMatrix4D( m_matrixInverse, point ) );
