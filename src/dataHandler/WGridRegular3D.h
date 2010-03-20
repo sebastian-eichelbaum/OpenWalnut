@@ -222,12 +222,6 @@ public:
     wmath::WMatrix<double> getTransformationMatrix() const;
 
     /**
-     * Transforms texture coordinates according to transforation of the grid.
-     * \param point The point with these coordinated will be transformed.
-     */
-    wmath::WVector3D transformTexCoord( wmath::WPosition point );
-
-    /**
      * Transforms world coordinates to texture coordinates.
      * \param point The point with these coordinated will be transformed.
      */
