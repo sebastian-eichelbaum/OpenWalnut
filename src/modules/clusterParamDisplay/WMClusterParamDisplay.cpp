@@ -180,6 +180,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes Step Width" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "#Planes" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Biggest Component Only" ) );
+    m_properties2->addProperty( m_meshRenderer->getProperties2()->getProperty( "Opacity %" ) );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
     // m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );
