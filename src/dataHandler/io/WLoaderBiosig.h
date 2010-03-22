@@ -31,7 +31,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WLoaderEEG.h"
+#ifdef _MSC_VER
+#include "biosigWin/biosig.h"
+#else
 #include "biosig/biosig.h"
+#endif
 
 
 /**

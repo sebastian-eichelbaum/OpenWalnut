@@ -48,7 +48,34 @@ protected:
     virtual ~WGEScene();
 
 private:
+//    /**
+//     * Node callback to handle updates properly
+//     */
+//    class bbCallback : public osg::Node::ComputeBoundingSphereCallback
+//    {
+//    public: // NOLINT
+//        /**
+//         * operator ()
+//         *
+//         * \param node the osg node
+//         * \param nv the node visitor
+//         */
+//        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
+//        {
+//            osg::ref_ptr< WMFiberDisplay > module = static_cast< WMFiberDisplay* > ( node->getUserData() );
+//
+//            if ( module )
+//            {
+//                module->update();
+//                module->toggleTubes();
+//                module->toggleColoring();
+//            }
+//            traverse( node, nv );
+//        }
+//    };
 };
+
+
 
 #endif  // WGESCENE_H
 

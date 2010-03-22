@@ -222,10 +222,10 @@ public:
     wmath::WMatrix<double> getTransformationMatrix() const;
 
     /**
-     * Transforms texture coordinates according to transforation of the grid.
+     * Transforms world coordinates to texture coordinates.
      * \param point The point with these coordinated will be transformed.
      */
-    wmath::WVector3D transformTexCoord( wmath::WPosition point );
+    wmath::WVector3D worldCoordToTexCoord( wmath::WPosition point );
 
     /**
      * Returns the i'th voxel where the given position belongs too.
@@ -378,6 +378,15 @@ public:
      * \return Vector of voxel ids which are all neighboured
      */
     std::vector< size_t > getNeighbours( size_t id ) const;
+
+    /**
+     * Decides whether a certain position is inside this grid or not.
+     *
+     * \param pos Position to test
+     *
+     * \return True if and only if the given point is inside or on boundary of this grid, otherwise false.
+     */
+    bool encloses( const wmath::WPosition& pos ) const;
 
 protected:
 private:

@@ -98,6 +98,18 @@ std::size_t WPagerEEGLibeep::getNumberOfChannels() const
     return m_nbChannels;
 }
 
+std::size_t WPagerEEGLibeep::getNumberOfSamples( std::size_t segmentID ) const
+{
+    if( segmentID != 0 )
+    {
+        std::ostringstream stream;
+        stream << m_fileName << " has no segment number " << segmentID;
+        throw WOutOfBounds( stream.str() );
+    }
+
+    return m_nbSamples;
+}
+
 boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const
 {
     if( segmentID != 0 )
@@ -143,6 +155,23 @@ boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t seg
     delete[] buffer;
 
     return values;
+}
+
+double WPagerEEGLibeep::getSamplingRate() const
+{
+    return eep_get_rate( m_eeg );
+}
+
+std::string WPagerEEGLibeep::getChannelUnit( std::size_t channelID ) const
+{
+    if( channelID >= m_nbChannels )
+    {
+        std::ostringstream stream;
+        stream << m_fileName << " has no channel number " << channelID;
+        throw WOutOfBounds( stream.str() );
+    }
+
+    return eep_get_chan_unit( m_eeg, channelID );
 }
 
 std::string WPagerEEGLibeep::getChannelLabel( std::size_t channelID ) const

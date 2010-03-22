@@ -27,35 +27,31 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <algorithm>
+
+#include <boost/bind.hpp>
 
 #include <QtCore/QList>
 #include <QtGui/QScrollArea>
 #include <QtGui/QVBoxLayout>
-
-#include "../../../common/WLogger.h"
-#include "../../../common/WPreferences.h"
+#include <QtGui/QListWidgetItem>
 
 #include "../../../dataHandler/WDataSet.h"
+#include "../../../dataHandler/WSubject.h"
+#include "../../../dataHandler/WDataHandler.h"
+#include "../../../dataHandler/exceptions/WDHNoSuchSubject.h"
 
 #include "WQtTextureSorter.h"
-#include "../events/WModuleAssocEvent.h"
-#include "../events/WRoiAssocEvent.h"
-#include "../events/WModuleReadyEvent.h"
-#include "../events/WEventTypes.h"
-#include "WQtNumberEdit.h"
-#include "WQtNumberEditDouble.h"
 
 #include "../../../kernel/WModuleFactory.h"
-#include "../WMainWindow.h"
 
-#include "../../../modules/data/WMData.h"
 
 
 WQtTextureSorter::WQtTextureSorter( QWidget* parent )
     : QWidget( parent )
 {
     m_textureListWidget = new QListWidget( this );
-    m_textureListWidget->setToolTip( "List of available textures." );
+    m_textureListWidget->setToolTip( "List of available textures. <b>Sorting Does not work yet.</b>" );
 
     m_layout = new QVBoxLayout();
 
@@ -65,12 +61,11 @@ WQtTextureSorter::WQtTextureSorter( QWidget* parent )
     m_upButton = new QPushButton();
     m_upButton->setText( QString( "up" ) );
 
-    // TODO(all): reenable these buttons if sorting works again
-    m_downButton->setDisabled( true );
-    m_upButton->setDisabled( true );
-
     buttonLayout->addWidget( m_downButton );
     buttonLayout->addWidget( m_upButton );
+
+    connect( m_upButton, SIGNAL( pressed() ), this, SLOT( moveItemUp() ) );
+    connect( m_downButton, SIGNAL( pressed() ), this, SLOT( moveItemDown() ) );
 
     m_layout->addWidget( m_textureListWidget );
     m_layout->addLayout( buttonLayout );
@@ -82,12 +77,169 @@ WQtTextureSorter::~WQtTextureSorter()
 {
 }
 
+// TODO(wiebel): have a second look on this begin/end read/write mess.
+void WQtTextureSorter::update()
+{
+    boost::shared_ptr< WSubject > subject;
+    try
+    {
+        subject =  WDataHandler::getDefaultSubject();
+    }
+    catch( WDHNoSuchSubject )
+    {
+        return;
+    }
+
+    if( !subject )
+    {
+        return;
+    }
+
+
+    DatasetAccess ta = textures.getAccessObject();
+    ta->beginRead();
+
+    if( ta->get().empty() )
+    {
+        ta->endRead();
+
+        DatasetAccess da = subject->getAccessObject();
+        da->beginRead();
+
+        for( DatasetContainerType::iterator it = da->get().begin(); it != da->get().end(); ++it )
+        {
+            if( ( *it )->isTexture() )
+            {
+                da->endRead();
+                ta->beginWrite();
+                ta->get().push_back( *it );
+                ta->endWrite();
+                da->beginRead();
+            }
+        }
+        da->endRead();
+    }
+    else
+    {
+        ta->endRead();
+
+        DatasetAccess da = subject->getAccessObject();
+        da->beginRead();
+        for( DatasetContainerType::iterator it = da->get().begin(); it != da->get().end(); ++it )
+        {
+            if( ( *it )->isTexture() )
+            {
+                ta->beginRead();
+                if( std::find( ta->get().begin(), ta->get().end(), *it ) == ta->get().end() )
+                {
+                    ta->endRead();
+                    ta->beginWrite();
+                    ta->get().push_back( *it );
+                    ta->endWrite();
+                }
+                else
+                {
+                    ta->endRead();
+                }
+            }
+        }
+        da->endRead();
+    }
+
+    int index =  m_textureListWidget->currentIndex().row();
+    m_textureListWidget->clear();
+
+    ta->beginRead();
+    for( DatasetContainerType::iterator it = ta->get().begin(); it != ta->get().end(); ++it )
+    {
+        std::string name = string_utils::tokenize( ( *it )->getFileName().c_str(), "/" ).back();
+        m_textureListWidget->addItem( name.c_str() );
+    }
+    ta->endRead();
+
+    m_textureListWidget->setCurrentRow( index );
+}
+
 void WQtTextureSorter::moveItemDown()
 {
-//     m_treeWidget->moveTreeItemDown();
+    unsigned int index =  m_textureListWidget->currentIndex().row();
+
+    DatasetAccess ta = textures.getAccessObject();
+    ta->beginRead();
+
+    if( index < ta->get().size() - 1 )
+    {
+        ta->endRead();
+        QListWidgetItem* ci = m_textureListWidget->takeItem( index );
+
+        if( ci )
+        {
+            m_textureListWidget->insertItem( index + 1, ci );
+            m_textureListWidget->clearSelection();
+            m_textureListWidget->setCurrentItem( ci );
+            ci->setSelected( true );
+            ta->beginWrite();
+            boost::shared_ptr< WDataSet > tmp = ta->get()[index+1];
+            ta->get()[index+1] = ta->get()[index];
+            ta->get()[index] = tmp;
+            ta->endWrite();
+        }
+    }
+    else
+    {
+        ta->endRead();
+    }
+    sort();
 }
 
 void WQtTextureSorter::moveItemUp()
 {
-//     m_treeWidget->moveTreeItemUp();
+    unsigned int index =  m_textureListWidget->currentIndex().row();
+
+    if( index > 0 )
+    {
+        QListWidgetItem* ci = m_textureListWidget->takeItem( index );
+
+        if( ci )
+        {
+            DatasetAccess ta = textures.getAccessObject();
+            ta->beginWrite();
+
+            m_textureListWidget->insertItem( index - 1, ci );
+            m_textureListWidget->clearSelection();
+            m_textureListWidget->setCurrentItem( ci );
+            ci->setSelected( true );
+            boost::shared_ptr< WDataSet > tmp = ta->get()[index-1];
+            ta->get()[index-1] = ta->get()[index];
+            ta->get()[index] = tmp;
+
+            ta->endWrite();
+        }
+    }
+    sort();
+}
+
+bool WQtTextureSorter::isLess( boost::shared_ptr< WDataSet > lhs, boost::shared_ptr< WDataSet > rhs )
+{
+    DatasetAccess ta = textures.getAccessObject();
+    ta->beginRead();
+
+    DatasetContainerType::iterator itLHS = std::find( ta->get().begin(), ta->get().end(), lhs );
+    DatasetContainerType::iterator itRHS = std::find( ta->get().begin(), ta->get().end(), rhs );
+
+    bool result = itLHS < itRHS;
+    ta->endRead();
+
+    return result;
+}
+
+void WQtTextureSorter::sort()
+{
+    DatasetAccess da = WDataHandler::getDefaultSubject()->getAccessObject();
+    da->beginWrite();
+
+    std::sort( da->get().begin(), da->get().end(), boost::bind( boost::mem_fn( &WQtTextureSorter::isLess ), this, _1, _2 ) );
+
+    da->endWrite();
+    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
 }

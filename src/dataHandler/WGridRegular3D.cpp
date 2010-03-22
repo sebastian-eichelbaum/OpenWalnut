@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <vector>
+#include <string>
 
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
@@ -66,7 +67,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -94,7 +95,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix = mat;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 
@@ -124,7 +125,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -153,7 +154,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -178,7 +179,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
 
     m_matrix( 3, 3 ) = 1.;
 
-    m_matrixInverse = wmath::invertMatrix3x3( m_matrix );
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int i ) const
@@ -196,15 +197,13 @@ wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
     return m_matrix;
 }
 
-wmath::WVector3D WGridRegular3D::transformTexCoord( wmath::WPosition point )
+wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
-    wmath::WVector3D p( point[0] - 0.5 , point[1] - 0.5, point[2] - 0.5 );
+    wmath::WVector3D r( wmath::transformVector3DWithMatrix4D( m_matrixInverse, point ) );
 
-    wmath::WVector3D r( wmath::multMatrixWithVector3D( m_matrixInverse , p ) );
-
-    r[0] = r[0] * m_offsetX + 0.5;
-    r[1] = r[1] * m_offsetY + 0.5;
-    r[2] = r[2] * m_offsetZ + 0.5;
+    r[0] = r[0] / m_nbPosX;
+    r[1] = r[1] / m_nbPosY;
+    r[2] = r[2] / m_nbPosZ;
 
     return r;
 }
@@ -293,7 +292,7 @@ size_t WGridRegular3D::getCellId( const wmath::WPosition& pos ) const
     // TODO(wiebel): change this to eassert.
     if( m_matrix != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
     {
-        throw WException( "Only feasible for untranslated grid so far." );
+        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
     }
 
     wmath::WPosition posRelativeToOrigin = pos - m_origin;
@@ -389,3 +388,7 @@ std::vector< size_t > WGridRegular3D::getNeighbours( size_t id ) const
     return neighbours;
 }
 
+bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
+{
+    return getVoxelNum( pos ) != -1; // note this is an integer comparision, hence it should be numerical stable!
+}

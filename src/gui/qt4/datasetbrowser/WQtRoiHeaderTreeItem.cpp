@@ -32,15 +32,16 @@
 WQtRoiHeaderTreeItem::WQtRoiHeaderTreeItem( QTreeWidget * parent ) :
     QTreeWidgetItem( parent, ROIHEADER )
 {
+    setFlags( Qt::ItemIsEnabled );
 }
 
 WQtRoiHeaderTreeItem::~WQtRoiHeaderTreeItem()
 {
 }
 
-WQtBranchTreeItem* WQtRoiHeaderTreeItem::addBranch()
+WQtBranchTreeItem* WQtRoiHeaderTreeItem::addBranch( boost::shared_ptr< WRMBranch> branch )
 {
-    WQtBranchTreeItem* rti = new WQtBranchTreeItem( this );
+    WQtBranchTreeItem* rti = new WQtBranchTreeItem( this, branch );
     std::string name = "Branch";
     rti->setText( 0, QString( name.c_str() ) );
     return rti;

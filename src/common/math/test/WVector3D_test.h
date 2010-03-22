@@ -222,6 +222,20 @@ public:
         tmp = vec.dotProduct( tmpOrtho );
         TS_ASSERT_DELTA( tmp, 0., delta );
     }
+
+    /**
+     * A vector a is small than a vector b if a is small than b in lexicographical order.
+     */
+    void testOperatorLessOnNumericalStability( void )
+    {
+        WVector3D a( 0, 0, 0 );
+        WVector3D b( a );
+        TS_ASSERT( !( a < b ) );
+        b[2] = 1;
+        TS_ASSERT( a < b );
+        a += WVector3D( 0, 0, 1 - wlimits::FLT_EPS );
+        TS_ASSERT( a < b );
+    }
 };
 
 #endif  // WVECTOR3D_TEST_H

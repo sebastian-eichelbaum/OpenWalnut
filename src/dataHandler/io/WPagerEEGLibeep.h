@@ -62,7 +62,13 @@ public:
 
     virtual std::size_t getNumberOfChannels() const;
 
+    virtual std::size_t getNumberOfSamples( std::size_t segmentID ) const;
+
     virtual boost::shared_ptr< WEEGValueMatrix > getValues( std::size_t segmentID, std::size_t start, std::size_t length ) const;
+
+    virtual double getSamplingRate() const;
+
+    virtual std::string getChannelUnit( std::size_t channelID ) const;
 
     virtual std::string getChannelLabel( std::size_t channelID ) const;
 

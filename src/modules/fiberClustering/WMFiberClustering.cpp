@@ -33,18 +33,19 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WDXtLookUpTable.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WIOTools.h"
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"
-#include "../../common/datastructures/WDXtLookUpTable.h"
-#include "../../common/datastructures/WFiber.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
+#include "../../dataHandler/exceptions/WDHIOFailure.h"
 #include "../../dataHandler/io/WReaderLookUpTableVTK.h"
 #include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMFiberClustering.h"
@@ -219,7 +220,7 @@ bool WMFiberClustering::dLtTableExists()
 
             return true;
         }
-        catch( WDHException e )
+        catch( const WDHException& e )
         {
             debugLog() << e.what() << std::endl;
         }
@@ -294,8 +295,18 @@ void WMFiberClustering::cluster()
 
     m_lastFibsSize = m_fibs->size();
 
-    WWriterLookUpTableVTK w( lookUpTableFileName(), true );
-    w.writeTable( m_dLtTable->getData(), m_lastFibsSize );
+    if( !wiotools::fileExists( lookUpTableFileName() ) )
+    {
+        WWriterLookUpTableVTK w( lookUpTableFileName(), true );
+        try
+        {
+            w.writeTable( m_dLtTable->getData(), m_lastFibsSize );
+        }
+        catch( const WDHIOFailure& e )
+        {
+            errorLog() << "Could write dlt file. check permissions! " << e.what();
+        }
+    }
 }
 
 osg::ref_ptr< osg::Geode > WMFiberClustering::genFiberGeode( const WFiberCluster &cluster, const WColor& color ) const

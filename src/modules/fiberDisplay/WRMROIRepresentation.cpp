@@ -44,6 +44,8 @@ WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::sha
     setDirty();
     m_properties = boost::shared_ptr< WProperties2 >( new WProperties2() );
     m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMROIRepresentation::slotToggleNot, this ) );
+    m_isActive = m_properties->addProperty( "active", "description", true, boost::bind( &WRMROIRepresentation::slotToggleNot, this ) );
+    m_isActive->setHidden( true );
 }
 
 WRMROIRepresentation::~WRMROIRepresentation()
@@ -164,10 +166,32 @@ void WRMROIRepresentation::setDirty()
 void WRMROIRepresentation::slotToggleNot()
 {
     m_roi->setNot( m_isNot->get() );
+    m_roi->setActive( m_isActive->get() );
+
+    if ( m_isActive->get() )
+    {
+        m_roi->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_roi->setNodeMask( 0x0 );
+    }
+
+
     setDirty();
 }
 
 boost::shared_ptr< WProperties2 > WRMROIRepresentation::getProperties()
 {
     return m_properties;
+}
+
+boost::shared_ptr< WRMBranch > WRMROIRepresentation::getBranch()
+{
+    return m_branch;
+}
+
+bool WRMROIRepresentation::isActive()
+{
+    return m_isActive->get();
 }

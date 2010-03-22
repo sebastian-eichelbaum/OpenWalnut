@@ -61,10 +61,6 @@ public:
      */
     wmath::WPosition getMaxPos() const;
 
-    /**
-     * Getter for modified flag
-     */
-    bool isModified();
 
 protected:
 private:

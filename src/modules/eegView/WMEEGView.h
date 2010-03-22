@@ -30,7 +30,7 @@
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
 
-#include "../../dataHandler/WEEG.h"
+#include "../../dataHandler/WEEG2.h"
 #include "../../graphicsEngine/WEvent.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
@@ -114,7 +114,7 @@ private:
     /**
      * Input connector for a EEG dataset
      */
-    boost::shared_ptr< WModuleInputData< WEEG > > m_input;
+    boost::shared_ptr< WModuleInputData< WEEG2 > > m_input;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -124,7 +124,7 @@ private:
     /**
      * Property determining whether elekrode positions should be drawn.
      */
-    WPropBool m_drawElektrodes;
+    WPropBool m_drawElectrodes;
 
     /**
      * Property determining whether the head surface should be drawn.
@@ -139,7 +139,7 @@ private:
     /**
      * Pointer to the loaded EEG dataset
      */
-    boost::shared_ptr< WEEG > m_eeg;
+    boost::shared_ptr< WEEG2 > m_eeg;
 
     /**
      * Custom widget which is used by this module to display its data.
@@ -159,9 +159,9 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode3d;
 
     /**
-     * OSG node for the 3D display of the elektrode positions
+     * OSG node for the 3D display of the electrode positions
      */
-    osg::ref_ptr< osg::Node > m_elektrodesNode;
+    osg::ref_ptr< osg::Node > m_electrodesNode;
 
     /**
      * OSG node for the 3D display of the head surface
@@ -169,7 +169,7 @@ private:
     osg::ref_ptr< osg::Node > m_headSurfaceNode;
 
     /**
-     * OSG node for the 3D display of the elektrode labels
+     * OSG node for the 3D display of the electrode labels
      */
     osg::ref_ptr< osg::Node > m_labelsNode;
 
@@ -195,8 +195,8 @@ private:
     WFlag< double >* m_eventPositionFlag;
 
     /**
-     * A ScalarsToColors object mapping the potentials at the elektrodes to
-     * colors. Used for the display of elektrode positions and the head surface.
+     * A ScalarsToColors object mapping the potentials at the electrodes to
+     * colors. Used for the display of electrode positions and the head surface.
      */
     osg::ref_ptr< osgSim::ScalarsToColors > m_colorMap;
 
@@ -225,11 +225,11 @@ private:
     void redraw();
 
     /**
-     * Draw the elektrode positions in 3D.
+     * Draw the electrode positions in 3D.
      *
-     * \return an OSG Node containing the elektrode positions
+     * \return an OSG Node containing the electrode positions
      */
-    osg::ref_ptr< osg::Node > drawElektrodes();
+    osg::ref_ptr< osg::Node > drawElectrodes();
 
     /**
      * Draw the head surface in 3D.
@@ -239,9 +239,9 @@ private:
     osg::ref_ptr< osg::Node > drawHeadSurface();
 
     /**
-     * Draw the elektrode labels in 3D.
+     * Draw the electrode labels in 3D.
      *
-     * \return an OSG Node containing the elektrode labels
+     * \return an OSG Node containing the electrode labels
      */
     osg::ref_ptr< osg::Node > drawLabels();
 
@@ -264,14 +264,14 @@ private:
         /**
          * Constructor
          *
-         * \param channel the number of the channel
+         * \param channelID the number of the channel
          * \param event the event on which the ShapeDrawable updates
          * \param eeg the WEEG dataset
-         * \param colorMap the object mapping the elektrode potentials to colors
+         * \param colorMap the object mapping the electrode potentials to colors
          */
-        UpdateColorOfShapeDrawableCallback( size_t channel,
+        UpdateColorOfShapeDrawableCallback( size_t channelID,
                                             const WEvent* event,
-                                            boost::shared_ptr< const WEEG > eeg,
+                                            boost::shared_ptr< const WEEG2 > eeg,
                                             osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
 
         /**
@@ -288,7 +288,7 @@ private:
         /**
          * The number of the channel
          */
-        const size_t m_channel;
+        const size_t m_channelID;
 
         /**
          * The time position which is currently used.
@@ -305,10 +305,10 @@ private:
         /**
          * The WEEG dataset
          */
-        const boost::shared_ptr< const WEEG > m_eeg;
+        const boost::shared_ptr< const WEEG2 > m_eeg;
 
         /**
-         * The ScalarsToColors object mapping the potentials at the elektrodes
+         * The ScalarsToColors object mapping the potentials at the electrodes
          * to colors.
          */
         const osg::ref_ptr< const osgSim::ScalarsToColors > m_colorMap;
@@ -328,7 +328,7 @@ private:
          * \param event the event on which the Geometry updates
          * \param eeg the WEEG dataset
          */
-        UpdateColorOfGeometryCallback( const WEvent* event, boost::shared_ptr< const WEEG > eeg );
+        UpdateColorOfGeometryCallback( const WEvent* event, boost::shared_ptr< const WEEG2 > eeg );
 
         /**
          * Callback method called by the NodeVisitor.
@@ -356,7 +356,7 @@ private:
         /**
          * The WEEG dataset
          */
-        const boost::shared_ptr< const WEEG > m_eeg;
+        const boost::shared_ptr< const WEEG2 > m_eeg;
     };
 };
 

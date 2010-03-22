@@ -36,7 +36,8 @@
 WTubeDrawable::WTubeDrawable():
     osg::Drawable(),
     m_useTubes( false ),
-    m_globalColoring( true )
+    m_globalColoring( true ),
+    m_customColoring( false )
 {
     setSupportsDisplayList( false );
     // This contructor intentionally left blank. Duh.
@@ -102,47 +103,47 @@ bool WTubeDrawable::getColoringMode() const
     return m_globalColoring;
 }
 
-void WTubeDrawable::drawFibers( osg::RenderInfo& /* renderInfo */ ) const //NOLINT
+void WTubeDrawable::setCustomColoring( bool custom )
+{
+    m_customColoring = custom;
+}
+
+void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 {
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
     boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
-    boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+    boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
+
+    boost::shared_ptr< std::vector< float > > colors;
+    if ( m_customColoring )
+    {
+        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
+    }
+    else
+    {
+        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+    }
+
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
-#if 0
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_COLOR_ARRAY );
 
-    glVertexPointer( 3, GL_FLOAT, 0, &(*verts)[0] ); //NOLINT
-    glColorPointer( 3, GL_FLOAT, 0, &(*colors)[0] ); //NOLINT
+    osg::State& state = *renderInfo.getState();
+
+    state.disableAllVertexArrays();
+    state.setVertexPointer( 3, GL_FLOAT , 0, &( *verts )[0] );
+    state.setColorPointer( 3 , GL_FLOAT , 0, &( *colors )[0] );
+    state.setNormalPointer( GL_FLOAT , 0, &( *tangents )[0] );
 
     for ( size_t i = 0; i < active->size(); ++i )
     {
         if ( (*active)[i] )
         {
-            glDrawArrays( GL_LINE_STRIP, (*startIndexes)[i] * 3, (*pointsPerLine)[i] );
+            state.glDrawArraysInstanced( GL_LINE_STRIP, (*startIndexes)[i], (*pointsPerLine)[i], 1);
         }
     }
 
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_COLOR_ARRAY );
-#else
-    for ( size_t i = 0; i < active->size(); ++i )
-    {
-        if ( (*active)[i] )
-        {
-            glBegin( GL_LINE_STRIP );
-            int idx = (*startIndexes)[i] * 3;
-            for ( size_t k = 0; k < pointsPerLine->at( i ); ++k )
-            {
-                glColor3f( (*colors)[idx], (*colors)[idx + 1], (*colors)[idx + 2] );
-                glVertex3f( (*verts)[idx], (*verts)[idx + 1], (*verts)[idx + 2] );
-                idx += 3;
-            }
-            glEnd();
-        }
-    }
-#endif
+    state.disableVertexPointer();
+    state.disableColorPointer();
 }
 
 void WTubeDrawable::drawTubes() const
@@ -151,7 +152,17 @@ void WTubeDrawable::drawTubes() const
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
     boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
     boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
-    boost::shared_ptr< std::vector< float > > colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+
+    boost::shared_ptr< std::vector< float > > colors;
+    if ( m_customColoring )
+    {
+        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
+    }
+    else
+    {
+        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+    }
+
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
 
     for( size_t i = 0; i < active->size(); ++i )

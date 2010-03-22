@@ -28,6 +28,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WLinearAlgebraFunctions.h"
+#include "../WMatrix.h"
 
 using wmath::WMatrix;
 /**
@@ -42,6 +43,32 @@ public:
      */
     void testOneOftheFunctions( void )
     {
+    }
+
+    /**
+     * Test the inversion of 4x4 matrices
+     */
+    void test4x4Inverse()
+    {
+        wmath::WMatrix<double> m( 4, 4 );
+
+        for( size_t r = 0; r < 4; ++r)
+        {
+            for( size_t c = 0; c < 4; ++c )
+            {
+                m( c, r ) = r + c * 4 + 1;
+            }
+        }
+        m( 2, 2 ) = 12;
+        m( 3, 3 ) = 15;
+
+        wmath::WMatrix<double> m_inv = wmath::invertMatrix4x4( m );
+
+        wmath::WMatrix<double> id = wmath::WMatrix<double>( 4, 4 ).makeIdentity();
+
+        wmath::WMatrix<double> m_m_inv = m * m_inv;
+
+        TS_ASSERT( m_m_inv == id );
     }
 };
 

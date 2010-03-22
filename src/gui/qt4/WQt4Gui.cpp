@@ -39,12 +39,15 @@
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleProjectFileCombiner.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WSubject.h"
 #include "WOpenCustomDockWidgetEvent.h"
 #include "WQt4Gui.h"
 #include "events/WModuleAssocEvent.h"
 #include "events/WRoiAssocEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleCrashEvent.h"
+#include "events/WUpdateTextureSorterEvent.h"
 
 WQt4Gui::WQt4Gui( int argc, char** argv )
     : WGUI( argc, argv )
@@ -55,24 +58,16 @@ WQt4Gui::~WQt4Gui()
 {
 }
 
-#ifdef _WIN32
-// need this on windows to make it link correctly.
-//const unsigned int boost::program_options::options_description::m_default_line_length = 2048;
-#endif
-
 bool WQt4Gui::parseOptions()
 {
     namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
     po::options_description desc( "Allowed options" );
 
-//#ifndef _WIN32
-// TODO(wiebel): this does not link on windows at the moment. But it should!
     desc.add_options()
         ( "help,h", "Prints this help message" )
         ( "project,p", po::value< std::string >(), "Project file to be loaded on startup." )
         ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" )
         ( "timed-output,t", "Flag indicating if all log strings should have a time string preceding" );
-//#endif
 
     po::positional_options_description p;
     p.add( "input", -1 );
@@ -149,6 +144,9 @@ int WQt4Gui::run()
 
     m_mainWindow->getModuleButtonSignal()->connect( boost::bind( &WKernel::applyModule, m_kernel, _1, _2 ) );
 
+    WCondition::t_ConditionNotifierType newDatasetSignal = boost::bind( &WQt4Gui::slotUpdateTextureSorter, this );
+    WDataHandler::getDefaultSubject()->getListChangeCondition()->subscribeSignal( newDatasetSignal );
+
     // bind the GUI's slot with the ready signal
     t_ModuleGenericSignalHandlerType assocSignal = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToBrowser, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ASSOCIATED, assocSignal );
@@ -192,6 +190,12 @@ int WQt4Gui::run()
     WKernel::getRunningKernel()->getGraphicsEngine()->wait( true );
 
     return qtRetCode;
+}
+
+void WQt4Gui::slotUpdateTextureSorter()
+{
+    // create a new event for this and insert it into event queue
+    QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WUpdateTextureSorterEvent() );
 }
 
 void WQt4Gui::slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > module )

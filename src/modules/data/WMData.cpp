@@ -31,13 +31,16 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WEEG2.h"
 #include "../../dataHandler/exceptions/WDHException.h"
-#ifndef _MSC_VER
+//#ifndef _MSC_VER
 #include "../../dataHandler/io/WLoaderBiosig.h"
-#endif
+//#endif
 #include "../../dataHandler/io/WLoaderEEGASCII.h"
 #include "../../dataHandler/io/WLoaderLibeep.h"
 #include "../../dataHandler/io/WLoaderNIfTI.h"
+#include "../../dataHandler/io/WPagerEEGLibeep.h"
+#include "../../dataHandler/io/WReaderELC.h"
 #include "../../dataHandler/io/WReaderFiberVTK.h"
 #include "WMData.h"
 
@@ -187,10 +190,7 @@ void WMData::moduleMain()
     }
 
     if( suffix == ".nii"
-//#ifndef _MSC_VER
-        || suffix == ".gz"
-//#endif
-        )
+        || ( suffix == ".gz" && ::nifti_compiled_with_zlib() ) )
     {
         if( suffix == ".gz" )  // it may be a NIfTI file too
         {
@@ -205,13 +205,13 @@ void WMData::moduleMain()
         WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
     }
-#ifndef _MSC_VER
+//#ifndef _MSC_VER
     else if( suffix == ".edf" )
     {
         WLoaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
-#endif
+//#endif
     else if( suffix == ".asc" )
     {
         WLoaderEEGASCII eegAsciiLoader( fileName );
@@ -219,8 +219,15 @@ void WMData::moduleMain()
     }
     else if( suffix == ".cnt" )
     {
-        WLoaderLibeep libeepLoader( fileName );
-        m_dataSet = libeepLoader.load();
+        boost::shared_ptr< WPagerEEG > pager( new WPagerEEGLibeep( fileName ) );
+
+        std::string elcFileName = fileName;
+        elcFileName.resize( elcFileName.size() - 3 ); // drop suffix
+        elcFileName += "elc"; // add new suffix
+        WReaderELC elcReader( elcFileName );
+        boost::shared_ptr< WEEGPositionsLibrary > eegPositionsLibrary = elcReader.read();
+
+        m_dataSet = boost::shared_ptr< WEEG2 >( new WEEG2( pager, eegPositionsLibrary ) );
     }
     else if( suffix == ".fib" )
     {

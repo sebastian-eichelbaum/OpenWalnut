@@ -30,16 +30,25 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/exceptions/WOutOfBounds.h"
+#include "../common/math/WPosition.h"
 #include "exceptions/WDHException.h"
 #include "io/WPagerEEG.h"
+#include "WEEGPositionsLibrary.h"
 #include "WEEGChannelInfo.h"
 
 
-WEEGChannelInfo::WEEGChannelInfo( boost::shared_ptr< WPagerEEG > pager, std::size_t channelID )
+WEEGChannelInfo::WEEGChannelInfo( std::size_t channelID,
+                                  boost::shared_ptr< WPagerEEG > pager,
+                                  boost::shared_ptr< WEEGPositionsLibrary > positionsLibrary )
 {
     if( !pager )
     {
         throw WDHException( "Couldn't construct new EEG channel info: pager invalid" );
+    }
+
+    if( !positionsLibrary )
+    {
+        throw WDHException( "Couldn't construct new EEG channel info: positions library invalid" );
     }
 
     if( channelID >= pager->getNumberOfChannels() )
@@ -49,10 +58,23 @@ WEEGChannelInfo::WEEGChannelInfo( boost::shared_ptr< WPagerEEG > pager, std::siz
         throw WOutOfBounds( stream.str() );
     }
 
+    m_unit = pager->getChannelUnit( channelID );
     m_label = pager->getChannelLabel( channelID );
+    m_position = positionsLibrary->getPosition( m_label );
+}
+
+std::string WEEGChannelInfo::getUnit() const
+{
+    return m_unit;
 }
 
 std::string WEEGChannelInfo::getLabel() const
 {
     return m_label;
 }
+
+wmath::WPosition WEEGChannelInfo::getPosition() const
+{
+    return m_position;
+}
+
