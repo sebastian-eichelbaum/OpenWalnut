@@ -552,28 +552,31 @@ void WQtDatasetBrowser::deleteTreeItem()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
 
-    if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
+    if ( m_roiTreeWidget->selectedItems().count() > 0 )
     {
-        roi = getFirstRoiInSelectedBranch();
-        if ( roi )
+        if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
         {
-            WKernel::getRunningKernel()->getRoiManager()->removeBranch( roi );
-        }
-        delete m_roiTreeWidget->selectedItems().at( 0 );
-    }
-
-    else if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
-    {
-        roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
-        WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
-        if ( roi )
-        {
+            roi = getFirstRoiInSelectedBranch();
+            if ( roi )
+            {
+                WKernel::getRunningKernel()->getRoiManager()->removeBranch( roi );
+            }
             delete m_roiTreeWidget->selectedItems().at( 0 );
-            WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
         }
-        if ( branch->childCount() == 0 )
+
+        else if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
         {
-            delete branch;
+            roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
+            WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
+            if ( roi )
+            {
+                delete m_roiTreeWidget->selectedItems().at( 0 );
+                WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
+            }
+            if ( branch->childCount() == 0 )
+            {
+                delete branch;
+            }
         }
     }
 }
