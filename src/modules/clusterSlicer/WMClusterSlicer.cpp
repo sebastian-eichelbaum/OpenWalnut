@@ -295,6 +295,10 @@ void WMClusterSlicer::generateSlices()
             m_samplePointsGeode->insert( wge::genPointBlobs( samplePoints, 0.1 ) );
         }
     }
+    if( m_drawSlices->get( true ) )
+    {
+        m_rootNode->insert( m_samplePointsGeode );
+    }
 }
 
 /**
