@@ -37,8 +37,10 @@
 #include <osg/LightModel>
 
 #include "../../common/datastructures/WTriangleMesh.h"
+#include "../../common/math/WMath.h"
 #include "../../common/math/WPlane.h"
 #include "../../common/WColor.h"
+#include "../../common/WAssert.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -109,6 +111,7 @@ void WMClusterSlicer::properties()
     m_centerLineScale   = m_properties2->addProperty( "#Planes", "Scales the center line to have more or less samples", 1.0, m_fullUpdate );
     m_selectBiggestComponentOnly = m_properties2->addProperty( "Biggest Component Only",
        "If true, first the mesh is decomposed into its components (expensive!) and the biggest will be drawn", false );
+    m_alternateColoring = m_properties2->addProperty( "Alternate Mesh Coloring", "En/Disables the alternative mesh colorer", true, m_fullUpdate );
 
     m_meanSelector->setMin( 0 );
     m_meanSelector->setMax( 2 );
@@ -185,7 +188,7 @@ void WMClusterSlicer::moduleMain()
             }
         }
 
-        if( meshChanged || paramDSChanged || m_meanSelector->changed() || m_planeNumX->changed()
+        if( meshChanged || paramDSChanged || m_meanSelector->changed() || m_planeNumX->changed() || m_alternateColoring->changed()
                         || m_planeNumY->changed() || m_planeStepWidth->changed() || m_centerLineScale->changed() )
         {
             debugLog() << "Performing full update";
@@ -345,36 +348,134 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     debugLog() << "Building mesh color map...";
     m_colorMap = boost::shared_ptr< WColoredVertices >( new WColoredVertices );
-    std::map< size_t, std::pair< double, int > > cm;
+    std::map< size_t, WColor > cmData;
 
-    for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
+    if( !m_alternateColoring->get( true ) )
     {
-        boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
-        double scaledMean = ( m_maxMean == m_minMean ? 0.0 : ( slice->first - m_minMean ) / ( m_maxMean - m_minMean ) );
-        for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex )
+        std::map< size_t, std::pair< double, int > > cm;
+
+        for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
         {
-            if( cm.find( *coloredVertex ) != cm.end() )
+            boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
+            double scaledMean = ( m_maxMean == m_minMean ? 0.0 : ( slice->first - m_minMean ) / ( m_maxMean - m_minMean ) );
+            for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex ) // NOLINT
             {
-                cm[ *coloredVertex ].first += scaledMean;
-                cm[ *coloredVertex ].second++;
-            }
-            else
-            {
-                cm[ *coloredVertex ].first  = scaledMean;
-                cm[ *coloredVertex ].second = 1;
+                if( cm.find( *coloredVertex ) != cm.end() )
+                {
+                    cm[ *coloredVertex ].first += scaledMean;
+                    cm[ *coloredVertex ].second++;
+                }
+                else
+                {
+                    cm[ *coloredVertex ].first  = scaledMean;
+                    cm[ *coloredVertex ].second = 1;
+                }
             }
         }
-    }
 
-    std::map< size_t, WColor > cmData;
-    for( std::map< size_t, std::pair< double, int > >::const_iterator vertexColor = cm.begin(); vertexColor != cm.end(); ++vertexColor )
+        for( std::map< size_t, std::pair< double, int > >::const_iterator vertexColor = cm.begin(); vertexColor != cm.end(); ++vertexColor )
+        {
+            cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0 );
+        }
+    }
+    else
     {
-        cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0 );
+        const std::vector< wmath::WPosition >& vertices = renderMesh->getVertices();
+        for( size_t i = 0; i < vertices.size(); ++i )
+        {
+            WAssert( m_slices->size() > 2, "We only support alternative coloring with more than 2 slices" );
+
+            // std::cout << "Vertex: " << vertices[i] << std::endl;
+            // if( !isBoundaryVertex( vertices[i] ) )
+            // {
+                std::vector< PlanePair > planePairs = computeNeighbouringPlanePairs( vertices[i] );
+                if( !planePairs.empty() )
+                {
+                    PlanePair closestPlanes = closestPlanePair( planePairs, vertices[i] );
+                    if( closestPlanes.first != 0 || closestPlanes.second != 0 ) // if (0,0) then it may be a boundary vertex
+                    {
+                        cmData[ i ] = colorFromPlanePair( vertices[i], closestPlanes );
+                    }
+                }
+            // }
+        }
     }
 
     m_colorMap->setData( cmData );
     debugLog() << "Done with color map building";
     m_colorMapOutput->updateData( m_colorMap );
+}
+
+bool WMClusterSlicer::isInBetween( const wmath::WPosition& vertex, const PlanePair& pp ) const
+{
+    const WPlane& p = ( *m_slices )[ pp.first ].second;
+    const WPlane& q = ( *m_slices )[ pp.second ].second;
+    double r = p.getNormal().dotProduct( vertex - p.getPosition() );
+    double s = q.getNormal().dotProduct( vertex - q.getPosition() );
+    if( wmath::signum( r ) != wmath::signum( s ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+std::vector< WMClusterSlicer::PlanePair > WMClusterSlicer::computeNeighbouringPlanePairs( const wmath::WPosition& vertex ) const
+{
+    // assume base point/origin of every plane is on center line
+    std::vector< PlanePair > result;
+    for( size_t i = 1; i < m_slices->size(); ++i )
+    {
+        if( isInBetween( vertex, std::make_pair( i, i-1 ) ) )
+        {
+            result.push_back( std::make_pair( i, i-1 ) );
+        }
+    }
+    return result;
+}
+
+WMClusterSlicer::PlanePair WMClusterSlicer::closestPlanePair( const std::vector< PlanePair >& pairs, const wmath::WPosition& vertex ) const
+{
+    double minDistance = wlimits::MAX_DOUBLE;
+    PlanePair result( 0, 0 );
+    for( std::vector< PlanePair >::const_iterator pp = pairs.begin(); pp != pairs.end(); ++pp )
+    {
+        const WPlane& p = ( *m_slices )[ pp->first ].second;
+        const WPlane& q = ( *m_slices )[ pp->second ].second;
+        double sqDistance = std::min( ( vertex - p.getPosition() ).normSquare(),  ( vertex - q.getPosition() ).normSquare() );
+        if( minDistance > sqDistance )
+        {
+            minDistance = sqDistance;
+            result = *pp;
+        }
+    }
+    // check if coloring is necessary
+    const WPlane& firstPlane = m_slices->front().second;
+    const WPlane& lastPlane =  m_slices->back().second;
+
+    double distanceToFirst = firstPlane.getNormal().dotProduct( vertex - firstPlane.getPosition() );
+    double distanceToLast  = lastPlane.getNormal().dotProduct( vertex - lastPlane.getPosition() );
+    if( ( distanceToFirst < 0 && ( vertex - firstPlane.getPosition() ).normSquare() < minDistance ) ||
+        ( distanceToLast > 0 && ( vertex - lastPlane.getPosition() ).normSquare() < minDistance ) )
+    {
+        return std::make_pair( 0, 0 );
+    }
+
+    return result;
+}
+
+WColor WMClusterSlicer::colorFromPlanePair( const wmath::WPosition& vertex, const PlanePair& pp ) const
+{
+    const WPlane& p = ( *m_slices )[ pp.first ].second;
+    const WPlane& q = ( *m_slices )[ pp.second ].second;
+    double distanceToP = std::abs( p.getNormal().dotProduct( vertex - p.getPosition() ) );
+    double distanceToQ = std::abs( q.getNormal().dotProduct( vertex - q.getPosition() ) );
+    // std::cout << "distP, distQ: " << distanceToP << " " << distanceToQ << std::endl;
+    double colorP = ( *m_slices )[ pp.first ].first;
+    double colorQ = ( *m_slices )[ pp.second ].first;
+    double vertexColor = colorQ * ( distanceToP / ( distanceToP + distanceToQ ) ) + colorP * ( distanceToQ / ( distanceToP + distanceToQ ) );
+    // std::cout << "colorP, colorQ, vertexColor: " << colorP << " " << colorQ << " " << vertexColor << std::endl;
+    vertexColor = ( m_maxMean == m_minMean ? 0.0 : ( vertexColor - m_minMean ) / ( m_maxMean - m_minMean ) );
+    return WColor( 0, vertexColor, 1 );
 }
 
 void WMClusterSlicer::updateDisplay( bool force )

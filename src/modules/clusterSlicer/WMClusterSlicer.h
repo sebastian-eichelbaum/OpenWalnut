@@ -180,10 +180,55 @@ protected:
     WPropDouble m_planeStepWidth; //!< distance of the sample points on the slices
     WPropDouble m_centerLineScale; //!< rescales the centerline for using more or less slices.
     WPropBool   m_selectBiggestComponentOnly; //!< If true, first the mesh is decomposed into its components (expensive!) & the biggest will be drawn
+    WPropBool   m_alternateColoring; //!< En/Disables alternative mesh coloring strategy
 
     double m_maxMean; //!< maximum average (of sample points of a plane) parameter value over all planes
     double m_minMean; //!< minimum average (of sample points of a plane) parameter value over all planes
 private:
+    /**
+     * A pair of plane indices. Just for convinience.
+     */
+    typedef std::pair< size_t, size_t > PlanePair;
+
+    /**
+     * Determines if the given vertex is in between the given two planes.
+     *
+     * \param vertex Which to test
+     * \param pp Model the boundaries
+     *
+     * \return True if and only if the vertex is really in between the given two planes.
+     */
+    bool isInBetween( const wmath::WPosition& vertex, const PlanePair& pp ) const;
+
+    /**
+     * Determines all possible plane pairs then enclose the given vertex.
+     *
+     * \param vertex Which select the plane pairs
+     *
+     * \return A vector of plane pairs
+     */
+    std::vector< PlanePair > computeNeighbouringPlanePairs( const wmath::WPosition& vertex ) const;
+
+    /**
+     * Check for every consecutive pair of planes if it encloses the point better than any other consecutive pair. Also check
+     * if the vertex is before the first plane or behind the last plane (e.g. is outside of the planes).
+     *
+     * \param pairs Vector of plane pairs
+     * \param vertex The vertex selecting the closes plane pair
+     *
+     * \return The closes plane pair (pair of indices) or (0,0) if its outside of all planes.
+     */
+    PlanePair closestPlanePair( const std::vector< PlanePair >& pairs, const wmath::WPosition& vertex ) const;
+
+    /**
+     * Interpolates the color of two planes depending on which the vertex is closer.
+     *
+     * \param vertex Vertex to compute color for
+     * \param pp The both planes
+     *
+     * \return The color of the vertex dependen on its distance to the planes and their colors.
+     */
+    WColor colorFromPlanePair( const wmath::WPosition& vertex, const PlanePair& pp ) const;
 };
 
 #endif  // WMCLUSTERSLICER_H

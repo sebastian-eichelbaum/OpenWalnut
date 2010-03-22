@@ -46,6 +46,29 @@ namespace wmath
      * \return True if both intersects otherwise false.
      */
     bool testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p );
+
+    /**
+     * Computes the signum for the given value.
+     *
+     * \tparam Type for which must support operator< 0, and operator> 0
+     * \param value To compute signum for
+     *
+     * \return The signum of the value so that signum( val ) * val == std::abs( val );
+     */
+    template< typename T > int signum( const T& value );
+}
+
+template< typename T > inline int wmath::signum( const T& value )
+{
+    if( value < 0 )
+    {
+        return -1;
+    }
+    else if( value > 0 )
+    {
+        return 1;
+    }
+    return 0;
 }
 
 #endif  // WMATH_H
