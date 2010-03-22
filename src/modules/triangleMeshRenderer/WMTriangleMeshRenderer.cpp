@@ -80,7 +80,9 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
+    m_opacityProp->setMin( 0 );
+    m_opacityProp->setMax( 100 );
 }
 
 void WMTriangleMeshRenderer::moduleMain()
@@ -165,7 +167,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     // colors
     osg::Vec4Array* colors = new osg::Vec4Array;
 
-    colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
+    colors->push_back( osg::Vec4( .3f, .3f, 0.3f, 1.0f ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -174,9 +176,23 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
 
+    {
+        osg::ref_ptr< osg::Material > material = new osg::Material();
+        material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+        material->setSpecular(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+        material->setAmbient(   osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
+        material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+        material->setShininess( osg::Material::FRONT, 25.0 );
+        state->setAttribute( material );
+    }
 
     m_moduleNode->insert( m_surfaceGeode );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "triangleMeshRenderer" ) );
+    m_shader->apply( m_surfaceGeode );
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+
+    m_moduleNode->addUpdateCallback( new TriangleMeshRendererCallback( boost::shared_dynamic_cast< WMTriangleMeshRenderer >( shared_from_this() ) ) );
 }
 
 void WMTriangleMeshRenderer::activate()
@@ -198,3 +214,12 @@ void WMTriangleMeshRenderer::activate()
     WModule::activate();
 }
 
+
+void WMTriangleMeshRenderer::update()
+{
+    if( m_opacityProp->changed() )
+    {
+        osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
+        rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
+    }
+}
