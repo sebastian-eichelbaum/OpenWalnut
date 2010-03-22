@@ -391,8 +391,10 @@ void WMainWindow::projectLoad()
     QStringList::const_iterator constIterator;
     for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
-        WModuleProjectFileCombiner proj( ( *constIterator ).toStdString() );
-        proj.run();
+        boost::shared_ptr< WModuleProjectFileCombiner > proj = boost::shared_ptr< WModuleProjectFileCombiner >(
+                new WModuleProjectFileCombiner( ( *constIterator ).toStdString() )
+        );
+        proj->run();
     }
 }
 
