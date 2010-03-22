@@ -140,12 +140,16 @@ void WModuleProjectFileCombiner::parse()
             wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Malformed. Skipping.";
         }
     }
+
+    wlog::debug( "Project Loader [Parser]" ) << "Parsing done.";
     // close it
     input.close();
 }
 
 void WModuleProjectFileCombiner::apply()
 {
+    wlog::debug( "Project Loader" ) << "Applying...";
+
     // now, as we have created the modules, we need to set the properties for each of it.
     for ( std::list< PropertyValue >::const_iterator iter = m_properties.begin(); iter != m_properties.end(); ++iter )
     {
