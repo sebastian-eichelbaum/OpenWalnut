@@ -124,14 +124,6 @@ void WMSurfaceParticles::properties()
 
     m_alpha         = m_properties2->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
-    m_gridResolution = m_properties2->addProperty( "Grid Resolution",
-            "Determines the grid resolution for the particles in relation to the dataset grid.", 25.0
-    );
-
-    m_particleSize = m_properties2->addProperty( "Particle Size", "The size of a particle in relation to the voxel.", 1.0 );
-    m_particleSize->setMin(   0 );
-    m_particleSize->setMax( 100 );
-
     m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 0.0, 0.0, 0.0, 1.0 ),
                       m_propCondition );
 
@@ -188,20 +180,12 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
     alpha->setUpdateCallback( new SafeUniformCallback( this ) );
 
-    osg::ref_ptr< osg::Uniform > gridResolution = new osg::Uniform( "u_gridResolution", static_cast< float >( m_gridResolution->get() ) );
-    gridResolution->setUpdateCallback( new SafeUniformCallback( this ) );
-
-    osg::ref_ptr< osg::Uniform > particleSize = new osg::Uniform( "u_particleSize", static_cast< float >( m_particleSize->get() ) );
-    particleSize->setUpdateCallback( new SafeUniformCallback( this ) );
-
     osg::ref_ptr< osg::Uniform > animationTime = new osg::Uniform( "u_animationTime", 0 );
     animationTime->setUpdateCallback( new ShaderAnimationCallback() );
 
     rootState->addUniform( isovalue );
     rootState->addUniform( steps );
     rootState->addUniform( alpha );
-    rootState->addUniform( gridResolution );
-    rootState->addUniform( particleSize );
     rootState->addUniform( animationTime );
 
     return cube;
@@ -352,14 +336,6 @@ void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform,
     if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
     {
         uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_gridResolution->changed() && ( uniform->getName() == "u_gridResolution" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_gridResolution->get( true ) ) );
-    }
-    if ( m_module->m_particleSize->changed() && ( uniform->getName() == "u_particleSize" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_particleSize->get( true ) ) );
     }
 }
 

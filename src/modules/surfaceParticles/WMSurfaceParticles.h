@@ -153,16 +153,6 @@ private:
     WPropInt m_alpha;
 
     /**
-     * Determines the grid resolution in relation to the dataset grid.
-     */
-    WPropDouble m_gridResolution;
-
-    /**
-     * The size of a particle in relation to the voxel
-     */
-    WPropDouble m_particleSize;
-
-    /**
      * The color used when in isosurface mode for blending.
      */
     WPropColor m_isoColor;

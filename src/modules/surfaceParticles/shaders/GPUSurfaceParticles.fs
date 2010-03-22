@@ -260,49 +260,67 @@ void main()
 
             // Phong:
             float light = blinnPhongIlluminationIntensity( 
-                    0.1,                        // material ambient
-                    1.0,                        // material diffuse
-                    1.3,                        // material specular
-                    10.0,                       // shinines
-                    1.0,                             // light diffuse
-                    0.75* (1.0-curPointProjected.z), // light ambient
-                    normalize( -dir ),          // normal
-                    normalize( v_ray ),         // view direction
-                    normalize( v_lightSource )  // light source position
+                    0.1,                                // material ambient
+                    1.0,                                // material diffuse
+                    1.3,                                // material specular
+                    10.0,                               // shinines
+                    1.0,                                // light diffuse
+                    0.75* (1.0-curPointProjected.z),    // light ambient
+                    normalize( -dir ),                  // normal
+                    normalize( v_ray ),                 // view direction
+                    normalize( v_lightSource )          // light source position
             );
 
             // 3: get the current trace value from tex2, which in most cases is a increasing number along the rasterized line direction
-            float trace    =       ( texture3D( tex2, curPoint ).r );
-            float traceInv = 1.0 - ( texture3D( tex2, curPoint ).r );
+            int trace    = int(         ( texture3D( tex2, curPoint ).r * 100.0 ) );
+            int traceInv = int( 100.0 - ( texture3D( tex2, curPoint ).r * 100.0 ) );
 
             // 4: prepare animation
             // the current time step:
             int timeStep = u_animationTime;
             
+            // timeStep = 34;
             // create a triangle function increasing time in 1/100 steps
-            float anim1 = ( ( timeStep * 1 ) % 100) * 0.012;
-            float anim2 = ( ( timeStep * 1 ) % 100) * 0.012;
+            int anim1 = ( ( timeStep * 1 ) % 150);
+            int anim2 = ( ( timeStep * 1 ) % 200);
+            
+            // To have more than one halo at a time:
+            /*
+            anim1 = anim1 % 50;
+            anim2 = anim2 % 50;
+            trace = trace % 50;
+            traceInv = traceInv % 50;
+            */
 
             // original surface color
-            vec4 ocol = vec4( vec3( 0.0 ), 1.0 );//( 1.0 - curPointProjected.z ) * gl_Color;
+            vec4 ocol = light * gl_Color;
             ocol.a = u_alpha;
-       
-            bool doRed   = abs( anim1 - trace ) <= 0.075;
-            bool doGreen = abs( anim2 - traceInv ) <= 0.01;
+
+            // apply animation color
+            bool doRed   = abs( anim1 - trace ) <= 7;
+            bool doGreen = abs( anim2 - traceInv ) <= 1;
             if ( doRed )
             {
-                ocol.r = 1.0;
+                ocol.r = light + 0.4;
                 ocol.g = 0.0;
                 ocol.b = 0.0;
             }
             if ( doGreen )
             {
                 ocol.r = 0.0;
-                ocol.g = 1.0;
+                ocol.g = light + 0.4;
                 ocol.b = 0.0;
             }
 
-            gl_FragData[0] =  light * gl_Color + ocol;
+            bool doWhite   = ( abs( anim2 - traceInv ) == 2 ) || ( abs( anim1 - trace ) == 8 );
+            if ( doWhite )
+            {
+                ocol.r = 1.0;
+                ocol.g = 1.0;
+                ocol.b = 1.0;
+            }
+                 
+            gl_FragData[0] = ocol;
 
             break;
         }
