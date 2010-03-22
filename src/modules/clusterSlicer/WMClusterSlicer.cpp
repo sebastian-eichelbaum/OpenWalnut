@@ -341,27 +341,34 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     debugLog() << "Building mesh color map...";
     m_colorMap = boost::shared_ptr< WColoredVertices >( new WColoredVertices );
-    std::map< size_t, WColor > cm;
+    std::map< size_t, std::pair< double, int > > cm;
 
     for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
     {
         boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
         double scaledMean = ( m_maxMean == m_minMean ? 0.0 : ( slice->first - m_minMean ) / ( m_maxMean - m_minMean ) );
-        WColor sliceColor( 0, scaledMean, 1 );
         for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex )
         {
             if( cm.find( *coloredVertex ) != cm.end() )
             {
-                cm[ *coloredVertex ].average( sliceColor ); // arithmetic mean mixin of the present color with the new one!
+                cm[ *coloredVertex ].first += scaledMean;
+                cm[ *coloredVertex ].second++;
             }
             else
             {
-                cm[ *coloredVertex ] = sliceColor;
+                cm[ *coloredVertex ].first  = scaledMean;
+                cm[ *coloredVertex ].second = 1;
             }
         }
     }
 
-    m_colorMap->setData( cm );
+    std::map< size_t, WColor > cmData;
+    for( std::map< size_t, std::pair< double, int > >::const_iterator vertexColor = cm.begin(); vertexColor != cm.end(); ++vertexColor )
+    {
+        cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0 );
+    }
+
+    m_colorMap->setData( cmData );
     debugLog() << "Done with color map building";
     m_colorMapOutput->updateData( m_colorMap );
 }
