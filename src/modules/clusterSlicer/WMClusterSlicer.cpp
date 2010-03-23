@@ -277,12 +277,35 @@ void WMClusterSlicer::generateSlices()
     const int meanType = m_meanSelector->get( true );
     m_rootNode->remove( m_samplePointsGeode );
     m_samplePointsGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
+
+    wmath::WVector3D generator = ( centerLine.front() - centerLine.midPoint() );
+    generator = generator.crossProduct( centerLine.back() - centerLine.midPoint() );
     for( size_t i = 1; i < centerLine.size(); ++i )
     {
         wmath::WVector3D tangent = centerLine[i] - centerLine[i-1];
-        WPlane p( tangent, centerLine[i-1] );
+        wmath::WVector3D first = tangent.crossProduct( generator );
+        wmath::WVector3D second = tangent.crossProduct( first );
+        boost::shared_ptr< WPlane > p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
+//        if( i < centerLine.size() - 1 ) // a successor exist
+//        {
+//            wmath::WVector3D succTangent = centerLine[i+1] - centerLine[i];
+//            wmath::WVector3D first = tangent.crossProduct( succTangent );
+//            wmath::WVector3D second = tangent.crossProduct( first );
+//            p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
+//        }
+//        else if( i > 2 )
+//        {
+//            wmath::WVector3D predTangent = centerLine[i-1] - centerLine[i-2];
+//            wmath::WVector3D first = tangent.crossProduct( predTangent );
+//            wmath::WVector3D second = tangent.crossProduct( first );
+//            p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
+//        }
+//        else
+//        {
+//            p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1] ) );
+//        }
 
-        boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p.samplePoints( stepWidth, nbX, nbY  );
+        boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p->samplePoints( stepWidth, nbX, nbY  );
         double mean = meanParameter( samplePoints )[ meanType ];
         if( mean > m_maxMean )
         {
@@ -292,7 +315,7 @@ void WMClusterSlicer::generateSlices()
         {
             m_minMean = mean;
         }
-        m_slices->push_back( std::make_pair( mean, p ) );
+        m_slices->push_back( std::make_pair( mean, WPlane( *p ) ) );
         if( m_drawSlices->get( true ) )
         {
             m_samplePointsGeode->insert( wge::genPointBlobs( samplePoints, 0.1 ) );

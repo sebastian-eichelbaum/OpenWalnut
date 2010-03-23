@@ -162,7 +162,7 @@ void WPlane::setPlaneVectors( const wmath::WVector3D& first, const wmath::WVecto
 
     std::stringstream msg2;
     msg2 << "The given two vectors are not linear independent!: " << first << " and " << second;
-    WAssert( wmath::linearIndependent( m_first, second ), msg2.str() );
+    WAssert( wmath::linearIndependent( first, second ), msg2.str() );
 
     m_first = first;
     m_second = second;

@@ -165,12 +165,12 @@ public:
      */
     void testLinearIndependenceOnNumericalStability( void )
     {
-        wmath::WVector3D u( wlimits::FLT_EPS, wlimits::FLT_EPS, wlimits::FLT_EPS );
-        wmath::WVector3D v( wlimits::FLT_EPS, wlimits::FLT_EPS, 1 );
+        wmath::WVector3D u( wlimits::DBL_EPS, wlimits::DBL_EPS, wlimits::DBL_EPS );
+        wmath::WVector3D v( wlimits::DBL_EPS, wlimits::DBL_EPS, 1 );
         TS_ASSERT( !wmath::linearIndependent( u, v ) );
         TS_ASSERT( !wmath::linearIndependent( v, u ) );
         TS_ASSERT( !wmath::linearIndependent( u, u ) );
-        u[0] = wlimits::FLT_EPS * 2;
+        u[0] = wlimits::DBL_EPS * 2;
         TS_ASSERT( wmath::linearIndependent( u, v ) );
         TS_ASSERT( wmath::linearIndependent( v, u ) );
         TS_ASSERT( !wmath::linearIndependent( u, u ) );
