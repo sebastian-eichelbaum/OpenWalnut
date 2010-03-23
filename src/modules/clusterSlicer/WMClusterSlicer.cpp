@@ -519,6 +519,9 @@ void WMClusterSlicer::updateDisplay( bool force )
     if( m_drawSlices->changed() || force )
     {
         m_rootNode->remove( m_sliceGeode );
+
+        generateSlices(); // for recomputation of sample point geode
+
         m_sliceGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
         if( m_drawSlices->get( true ) ) // regenerate
         {
