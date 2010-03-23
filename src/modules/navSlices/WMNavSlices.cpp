@@ -460,6 +460,8 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         quad->push_back( 0 );
         sliceGeometry->addPrimitiveSet( quad );
     }
+    WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->setPosition(
+            wmath::WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get() ) );
 
     return sliceGeometry;
 }
@@ -537,6 +539,17 @@ void WMNavSlices::updateTextures()
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
+
+                if ( ( *iter )->isInterpolated() )
+                {
+                    texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+                    texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+                }
+                else
+                {
+                    texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+                    texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+                }
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms

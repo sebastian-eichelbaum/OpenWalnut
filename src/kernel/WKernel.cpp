@@ -96,6 +96,8 @@ void WKernel::init()
     findAppPath();
     m_roiManager = boost::shared_ptr< WROIManagerFibers >( new WROIManagerFibers() );
 
+    m_selectionManager = boost::shared_ptr< WSelectionManager >( new WSelectionManager() );
+
     // get module factory
     m_moduleFactory = WModuleFactory::getModuleFactory();
 
@@ -255,4 +257,9 @@ std::string WKernel::getFontPath()
 {
     findAppPath();
     return WKernel::m_fontPath.file_string();
+}
+
+boost::shared_ptr< WSelectionManager>WKernel::getSelectionManager()
+{
+    return m_selectionManager;
 }

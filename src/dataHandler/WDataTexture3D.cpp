@@ -38,7 +38,8 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     m_valueSet( valueSet ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( grid ) ),
     m_changeCondition( new WCondition() ),
-    m_globalActive( true )
+    m_globalActive( true ),
+    m_interpolation( true )
 {
     // initialize members
 }
@@ -461,5 +462,16 @@ float WDataTexture3D::scaleInterval( float value ) const
 {
     return value;
     //return ( value - m_minValue ) / m_scale;
+}
+
+bool WDataTexture3D::isInterpolated()
+{
+    return m_interpolation;
+}
+
+void WDataTexture3D::setInterpolation( bool interpol )
+{
+    m_interpolation = interpol;
+    notifyChange();
 }
 

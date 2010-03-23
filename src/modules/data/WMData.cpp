@@ -130,6 +130,10 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
         {
             m_dataSet->getTexture()->setGloballyActive( m_active->get() );
         }
+        else if ( property == m_interpolation )
+        {
+            m_dataSet->getTexture()->setInterpolation( m_interpolation->get() );
+        }
     }
     else
     {
