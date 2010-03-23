@@ -68,6 +68,8 @@ WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
                 mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
                 mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 );
 
+    WAssert( det != 0, "Determinat is zero. This matrix can not be inverted." );
+
     WMatrix<double> r( 3, 3 );
 
     r( 0, 0 ) = ( mat( 1, 1 ) * mat( 2, 2 ) - mat(  1, 2 ) * mat( 2, 1 ) ) / det;
@@ -262,5 +264,15 @@ WMatrix<double> invertMatrix4x4( WMatrix<double> mat )
     }
 
     return result;
+}
+
+bool linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v )
+{
+    wmath::WVector3D cp = u.crossProduct( v );
+    if( std::abs( cp[0] ) < wlimits::FLT_EPS && std::abs( cp[1] ) < wlimits::FLT_EPS && std::abs( cp[2] ) < wlimits::FLT_EPS )
+    {
+        return false;
+    }
+    return true;
 }
 }
