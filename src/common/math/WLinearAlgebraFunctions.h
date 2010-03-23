@@ -63,6 +63,18 @@ namespace wmath
      * \return inverted 4x4 matrix
      */
     WMatrix<double> invertMatrix4x4( WMatrix<double> mat );
+
+    /**
+     * Checks if the given two vectors are linearly independent.
+     *
+     * \param u First vector
+     * \param v Second vector
+     *
+     * \return True if they are linear independent.
+     *
+     * \note This check is performed with the cross product != (0,0,0) but in numerical stability with FLT_EPS.
+     */
+    bool linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v );
 }
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H
