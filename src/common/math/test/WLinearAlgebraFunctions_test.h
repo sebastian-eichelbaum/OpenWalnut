@@ -105,8 +105,9 @@ public:
                 m( r, c ) = i;
             }
         }
-        TS_ASSERT_THROWS_EQUALS( wmath::invertMatrix3x3( m ), WException& e, std::string( e.what() ),
-                "WAssert failed. Message: Determinat is zero. This matrix can not be inverted." );
+        TS_ASSERT_THROWS( wmath::invertMatrix3x3( m ), WException& e );
+        // ATTENTION we can't compare the messages from WAssert since there is now a path string in side which is different on any developers machine
+        //           "Assertion failed: det != 0 (in file /home/lmath/repos/OpenWalnut/src/common/math/WLinearAlgebraFunctions.cpp at line 71),....
     }
 
     /**
