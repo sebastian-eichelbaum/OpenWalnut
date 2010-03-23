@@ -27,8 +27,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/datastructures/WTriangleMesh.h"
+#include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
+#include "../../common/WAssert.h"
 #include "WPlane.h"
 
 WPlane::WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos )
@@ -38,6 +40,15 @@ WPlane::WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos )
     m_first = normal.crossProduct( wmath::WVector3D( 1, 0, 0 ) );
     m_first.normalize();
     m_second = normal.crossProduct( m_first );
+    m_second.normalize();
+}
+
+WPlane::WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos, const wmath::WVector3D& first, const wmath::WVector3D& second )
+    : m_normal( normal ),
+      m_pos( pos )
+{
+    setPlaneVectors( first, second );
+    m_first.normalize();
     m_second.normalize();
 }
 
@@ -141,4 +152,18 @@ boost::shared_ptr< std::set< wmath::WPosition > > WPlane::samplePoints( double s
 wmath::WPosition WPlane::getPointInPlane( double x, double y ) const
 {
     return m_pos + x * m_first + y * m_second;
+}
+
+void WPlane::setPlaneVectors( const wmath::WVector3D& first, const wmath::WVector3D& second )
+{
+    std::stringstream msg;
+    msg << "The give two vectors are not perpendicular to plane. First: " << first << " second: " << second << " for plane normal: " << m_normal;
+    WAssert( std::abs( first.dotProduct( m_normal ) ) < wlimits::FLT_EPS && std::abs( second.dotProduct( m_normal ) ) < wlimits::FLT_EPS, msg.str() );
+
+    std::stringstream msg2;
+    msg2 << "The given two vectors are not linear independent!: " << first << " and " << second;
+    WAssert( wmath::linearIndependent( m_first, second ), msg2.str() );
+
+    m_first = first;
+    m_second = second;
 }

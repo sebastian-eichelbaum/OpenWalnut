@@ -49,6 +49,19 @@ public:
     WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos );
 
     /**
+     * Constructs a plane with its normal and its base point/origin as well as explicitly specifying its vectors in the plane.
+     *
+     * \param normal Normal vector for the direction
+     * \param pos Base point of the plane, aka origin.
+     * \param first First vector perpendicular to the normal
+     * \param second Second vector perpendicular to the normal and linearly independent from first.
+     *
+     * \note Due to numerical stability a comparision to 0.0 is not performed. Instead the absolute value of the dot product is checked to
+     * be smaller than the FLT_EPS. FLT_EPS is used instead of DBL_EPS just numerical errors may sum up above DBL_EPS.
+     */
+    WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos, const wmath::WVector3D& first, const wmath::WVector3D& second );
+
+    /**
      * Destructor.
      */
     virtual ~WPlane();
@@ -92,6 +105,15 @@ public:
      * \return Normalized normal vector.
      */
     const wmath::WVector3D& getNormal() const;
+
+    /**
+     * Resets the vector spanning the plane. Both must be linear independent and perpendicular to the already
+     * existing normal vector. After setting the vectors they are normalized.
+     *
+     * \param first First vector spanning the plane
+     * \param second Second vector spanning the plane
+     */
+    void setPlaneVectors( const wmath::WVector3D& first, const wmath::WVector3D& second );
 
 //    \cond
 //    /**
