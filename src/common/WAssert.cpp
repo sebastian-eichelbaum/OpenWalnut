@@ -22,5 +22,28 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
+#include <boost/lexical_cast.hpp>
 
 #include "WAssert.h"
+
+void wAssertFailed( std::string const& expression, std::string const& file, std::size_t line, std::string const& msg )
+{
+#ifdef WASSERT_AS_CASSERT
+    std::cerr << "Assertion failed: " << expression << " (in file " << file << " at line " << line << ")";
+    if( msg.length() > 0 )
+    {
+        std::cerr << ", Message: " << msg;
+    }
+    std::cerr << std::endl;
+    abort();
+#else
+    std::string s = "Assertion failed: " + expression + " (in file " + file + " at line " + boost::lexical_cast< std::string >( line ) + ")";
+    if( msg.length() > 0 )
+    {
+        s += ", Message: " + msg;
+    }
+    throw WException( s );
+#endif
+}

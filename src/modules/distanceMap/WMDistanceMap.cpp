@@ -158,7 +158,7 @@ template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSet
 
 boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WValueSetBase > inSet )
 {
-    WAssert( inSet->dimension() == 1 );
+    WAssert( inSet->dimension() == 1, "" );
     assert( inSet->order() == 0 );
 
     switch( inSet->getDataType() )
