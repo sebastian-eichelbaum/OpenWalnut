@@ -36,6 +36,7 @@
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
+#include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
 #include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
@@ -84,6 +85,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMDeterministicFTMori() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberCulling() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
