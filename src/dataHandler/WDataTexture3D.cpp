@@ -39,7 +39,8 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( grid ) ),
     m_changeCondition( new WCondition() ),
     m_globalActive( true ),
-    m_interpolation( true )
+    m_interpolation( true ),
+    m_cmap( 0 )
 {
     // initialize members
 }
@@ -472,6 +473,17 @@ bool WDataTexture3D::isInterpolated()
 void WDataTexture3D::setInterpolation( bool interpol )
 {
     m_interpolation = interpol;
+    notifyChange();
+}
+
+int WDataTexture3D::getSelectedColormap()
+{
+    return m_cmap;
+}
+
+void WDataTexture3D::setSelectedColormap( int cmap )
+{
+    m_cmap = cmap;
     notifyChange();
 }
 

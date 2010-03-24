@@ -112,6 +112,10 @@ void WMData::properties()
     m_opacity = m_properties2->addProperty( "Opacity %", "The opacity of this data on other surfaces.", 100, propertyCallback );
     m_opacity->setMax( 100 );
     m_opacity->setMin( 0 );
+
+    m_colorMap = m_properties2->addProperty( "Colormap", "Selected Colormap", 0, propertyCallback );
+    m_colorMap->setMin( 0 );
+    m_colorMap->setMax( 5 );
 }
 
 void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
@@ -133,6 +137,10 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
         else if ( property == m_interpolation )
         {
             m_dataSet->getTexture()->setInterpolation( m_interpolation->get() );
+        }
+        else if ( property == m_colorMap )
+        {
+            m_dataSet->getTexture()->setSelectedColormap( m_colorMap->get() );
         }
     }
     else

@@ -149,6 +149,12 @@ protected:
     WPropBool m_interpolation;
 
     /**
+     * which color map to use?
+     */
+    WPropInt m_colorMap;
+
+
+    /**
      * Threshold value for this data.
      */
     WPropInt m_threshold;

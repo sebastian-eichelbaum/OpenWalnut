@@ -170,6 +170,18 @@ public:
      */
     void setInterpolation( bool interpol );
 
+    /**
+     * getter
+     */
+    int getSelectedColormap();
+
+    /**
+     * setter
+     *
+     * \param cmap
+     */
+    void setSelectedColormap( int cmap );
+
 protected:
 
     /**
@@ -265,6 +277,11 @@ protected:
      * flag denotes whether the texture filter should active or not
      */
     bool m_interpolation;
+
+    /**
+     * indicates which colormap to use
+     */
+    int m_cmap;
 
     /**
      * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
