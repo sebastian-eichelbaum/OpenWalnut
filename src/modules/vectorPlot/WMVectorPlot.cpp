@@ -103,7 +103,6 @@ void WMVectorPlot::properties()
     m_yPos->setMax( 200 );
     m_zPos->setMin( 0 );
     m_zPos->setMax( 160 );
-
 }
 
 void WMVectorPlot::moduleMain()
