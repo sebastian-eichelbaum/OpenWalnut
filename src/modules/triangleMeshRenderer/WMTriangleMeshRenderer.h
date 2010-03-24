@@ -122,6 +122,7 @@ private:
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput;
     boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput; //!< for each vertex ID in that container a special color is given.
 
+    WPropColor m_meshColor; //!< The color of the mesh
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.

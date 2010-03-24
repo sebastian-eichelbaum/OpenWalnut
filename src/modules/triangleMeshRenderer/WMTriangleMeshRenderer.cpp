@@ -87,6 +87,7 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
+    m_meshColor   = m_properties2->addProperty( "Mesh Color", "Color of the mesh.", WColor( .9f, .9f, 0.9f ) );
     m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
@@ -98,6 +99,7 @@ void WMTriangleMeshRenderer::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_meshInput->getDataChangedCondition() );
     m_moduleState.add( m_colorMapInput->getDataChangedCondition() );
+    m_moduleState.add( m_meshColor->getCondition() );
 
     // signal ready state
     ready();
@@ -177,10 +179,10 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
 
-    if( !colorMap )
+    if( !colorMap && m_meshColor->changed() )
     {
-        debugLog() << "No Color Map found, using gray colors";
-        colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
+        debugLog() << "No Color Map found, using a single color";
+        colors->push_back( wge::osgColor( m_meshColor->get( true ) ) );
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
@@ -189,7 +191,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
         debugLog() << "Color Map found... using it";
         for( size_t i = 0; i < mesh->getNumVertices(); ++i )
         {
-            colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
+            colors->push_back( wge::osgColor( m_meshColor->get() ) );
         }
         for( std::map< size_t, WColor >::const_iterator vc = colorMap->getData().begin(); vc != colorMap->getData().end(); ++vc )
         {
