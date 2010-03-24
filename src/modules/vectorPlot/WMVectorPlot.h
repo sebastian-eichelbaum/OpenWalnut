@@ -30,6 +30,7 @@
 
 #include <osg/Geode>
 
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -125,46 +126,30 @@ private:
     boost::shared_ptr< WDataSetSingle > m_dataSet;
 
     /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
      * list of positions to plot vectors on, this will come from a selection tool class
      */
     boost::shared_ptr< std::vector< wmath::WPosition > > m_positions;
 
-    /**
-     * projects the vectors on the slice.
-     */
-    WPropBool     m_projectOnSlice;
+    WPropBool     m_projectOnSlice; //!< projects the vectors on the slice.
 
-    /**
-     * Switches between a set color or direction color coding.
-     */
-    WPropBool     m_coloringMode;
+    WPropBool     m_coloringMode; //!< indicates a set color or direction color coding.
+
+    WPropInt      m_xPos; //!< x posistion of the slice
+
+    WPropInt      m_yPos; //!< y posistion of the slice
+
+    WPropInt      m_zPos; //!< z posistion of the slice
+
+    WPropBool     m_showonX; //!< in dicates whether the vector should be shown on slice X
+
+    WPropBool     m_showonY; //!< in dicates whether the vector should be shown on slice Y
+
+    WPropBool     m_showonZ; //!< in dicates whether the vector should be shown on slice Z
 
 
+    WPropColor    m_aColor; //!< color
 
-    /**
-     * An integer value.
-     */
-    WPropInt      m_xPos;
-
-    /**
-     * An integer value.
-     */
-    WPropInt      m_yPos;
-
-    /**
-     * An integer value.
-     */
-    WPropInt      m_zPos;
-
-    /**
-     * A color.
-     */
-    WPropColor    m_aColor;
+    osg::ref_ptr< WShader > m_shader; //!< the shader object for this module
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
@@ -200,24 +185,6 @@ private:
          * Denotes whether the update callback is called the first time.
          */
         bool m_initialUpdate;
-    };
-
-    /**
-     * This shows how to write custom constraints for your modules. Please refer to the documentation in properties() for more details.
-     *
-     * \note: always use WPVBaseTypes to specialize the PropertyVariable template.
-     */
-    class StringLength: public WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint
-    {
-        /**
-         * You need to overwrite this method. It decides whether the specified new value should be accepted or not.
-         *
-         * \param property the property thats going to be changed.
-         * \param value the new value
-         *
-         * \return true if the new value is OK.
-         */
-        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > >  property, WPVBaseTypes::PV_STRING value );
     };
 };
 
