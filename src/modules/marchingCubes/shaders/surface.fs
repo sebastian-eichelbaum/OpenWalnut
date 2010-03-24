@@ -67,7 +67,7 @@ void lookupTex(inout vec4 col, in int type, in sampler3D tex,  in float threshol
             col1.r = (col1.r - threshold) / (1.0 - threshold);
         }
 
-        colorMap(col1, col1.r);
+        colorMap(col1, col1.r, useColorMap );
     }
 
     col.rgb = mix( col.rgb, col1.rgb, alpha);
