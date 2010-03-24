@@ -34,7 +34,7 @@
 #include "../../common/WColor.h"
 
 #include "WMVectorPlot.h"
-#include "template.xpm"
+#include "vectorplot.xpm"
 
 WMVectorPlot::WMVectorPlot():
     WModule()
@@ -54,7 +54,7 @@ boost::shared_ptr< WModule > WMVectorPlot::factory() const
 
 const char** WMVectorPlot::getXPMIcon() const
 {
-    return template_xpm;
+    return vectorplot_xpm;
 }
 
 const std::string WMVectorPlot::getName() const
@@ -89,13 +89,13 @@ void WMVectorPlot::properties()
     m_yPos->setHidden( true );
     m_zPos->setHidden( true );
 
-    m_projectOnSlice = m_properties2->addProperty( "projection",           "Description.", false );
-    m_coloringMode   = m_properties2->addProperty( "color mode",           "Description.", false );
-    m_aColor         = m_properties2->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    m_projectOnSlice = m_properties2->addProperty( "Projection",           "", false );
+    m_coloringMode   = m_properties2->addProperty( "Color Mode",           "", false );
+    m_aColor         = m_properties2->addProperty( "Color",                  "", WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
-    m_showonX        = m_properties2->addProperty( "show on x", "Description", true );
-    m_showonY        = m_properties2->addProperty( "show on y", "Description", true );
-    m_showonZ        = m_properties2->addProperty( "show on z", "Description", true );
+    m_showonX        = m_properties2->addProperty( "Show on x", "", true );
+    m_showonY        = m_properties2->addProperty( "Show on y", "", true );
+    m_showonZ        = m_properties2->addProperty( "Show on z", "", true );
 
     m_xPos->setMin( 0 );
     m_xPos->setMax( 160 );
