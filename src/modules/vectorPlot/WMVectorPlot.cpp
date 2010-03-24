@@ -59,7 +59,7 @@ const char** WMVectorPlot::getXPMIcon() const
 
 const std::string WMVectorPlot::getName() const
 {
-    return "VectorPlot";
+    return "Vector Plot";
 }
 
 const std::string WMVectorPlot::getDescription() const
