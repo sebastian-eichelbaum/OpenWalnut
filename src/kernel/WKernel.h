@@ -37,6 +37,7 @@
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/WGUI.h"
 #include "../modules/fiberDisplay/WROIManagerFibers.h"
+#include "WSelectionManager.h"
 #include "WModule.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
@@ -167,6 +168,10 @@ public:
      */
     boost::shared_ptr< WROIManagerFibers>getRoiManager();
 
+    /**
+     * get for selection manager
+     */
+    boost::shared_ptr< WSelectionManager>getSelectionManager();
 
     /**
      * getter for font path
@@ -195,6 +200,11 @@ protected:
      * Pointer to a roi manager
      */
     boost::shared_ptr< WROIManagerFibers >m_roiManager;
+
+    /**
+     * pointer to a selection manager
+     */
+    boost::shared_ptr< WSelectionManager >m_selectionManager;
 
     /**
      * The module factory to use.

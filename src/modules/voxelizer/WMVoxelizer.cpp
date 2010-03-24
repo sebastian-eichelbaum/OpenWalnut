@@ -48,6 +48,7 @@
 #include "WBresenhamDBL.h"
 #include "WMVoxelizer.h"
 #include "WRasterAlgorithm.h"
+#include "voxelizer.xpm"
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
@@ -63,6 +64,12 @@ boost::shared_ptr< WModule > WMVoxelizer::factory() const
 {
     return boost::shared_ptr< WModule >( new WMVoxelizer() );
 }
+
+const char** WMVoxelizer::getXPMIcon() const
+{
+    return voxelizer_xpm;
+}
+
 
 void WMVoxelizer::moduleMain()
 {

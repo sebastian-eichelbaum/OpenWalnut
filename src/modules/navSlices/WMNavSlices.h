@@ -263,6 +263,11 @@ private:
     std::vector< osg::ref_ptr<osg::Uniform> > m_thresholdUniforms;
 
     /**
+     * vector of thresholds per texture
+     */
+    std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms;
+
+    /**
      * vector of samplers
      */
     std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;

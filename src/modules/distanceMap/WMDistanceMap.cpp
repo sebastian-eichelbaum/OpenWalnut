@@ -141,8 +141,8 @@ void WMDistanceMap::properties()
 
 template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSetHelper( boost::shared_ptr< WValueSet< T > > inSet )
 {
-    assert( inSet->dimension() == 1 );
-    assert( inSet->order() == 0 );
+    WAssert( inSet->dimension() == 1, "Works only for scalar data." );
+    WAssert( inSet->order() == 0, "Works only for scalar data." );
 
     std::vector< float > data( inSet->size() );
     for( unsigned int i = 0; i < inSet->size(); ++i )
@@ -158,8 +158,8 @@ template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSet
 
 boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WValueSetBase > inSet )
 {
-    WAssert( inSet->dimension() == 1, "" );
-    assert( inSet->order() == 0 );
+    WAssert( inSet->dimension() == 1, "Works only for scalar data." );
+    WAssert( inSet->order() == 0, "Works only for scalar data."  );
 
     switch( inSet->getDataType() )
     {
@@ -176,7 +176,7 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
             return boost::shared_dynamic_cast< WValueSet< float > >( inSet );
             break;
         default:
-            assert( false && "Unknow data type in makeFloatDataSet" );
+            WAssert( false, "Unknow data type in makeFloatDataSet" );
     }
 }
 
@@ -187,10 +187,10 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     // wiebel: I know that this is not the most speed and memory efficient way to deal with different data types.
     //         However, it seems the most feasible at the moment (2009-11-24).
     boost::shared_ptr< WValueSet< float > > valueSet = makeFloatValueSet( ( *dataSet ).getValueSet() );
-    assert( valueSet );
+    WAssert( valueSet, "Works only for float data sets." );
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *dataSet ).getGrid() );
-    assert( grid );
+    WAssert( grid, "Works only for data on regular 3D grids."  );
 
     // TODO(wiebel): we should be able to do all this without the value vector.
     const std::vector< float >* source = valueSet->rawDataVectorPointer();

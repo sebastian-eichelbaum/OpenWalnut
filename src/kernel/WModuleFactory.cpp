@@ -36,6 +36,7 @@
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
+#include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
 #include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
@@ -54,6 +55,7 @@
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
 #include "../modules/lineGuidedSlice/WMLineGuidedSlice.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
+#include "../modules/vectorPlot/WMVectorPlot.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -84,6 +86,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMDeterministicFTMori() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberCulling() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
@@ -106,6 +109,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
 
     lock.unlock();
 

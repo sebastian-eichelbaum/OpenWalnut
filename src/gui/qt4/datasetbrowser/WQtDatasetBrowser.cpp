@@ -80,7 +80,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_layout->addWidget( m_tabWidget2 );
 
 
-    m_tabWidget2->addTab( m_textureSorter, QString( "texture sorter" ) );
+    m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
 
     m_roiTreeWidget = new WQtTreeWidget();
     m_roiTreeWidget->setHeaderLabel( QString( "ROIs" ) );
@@ -89,7 +89,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_roiTreeWidget->viewport()->setAcceptDrops( true );
     m_roiTreeWidget->setDropIndicatorShown( true );
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
-    m_tabWidget2->addTab( m_roiTreeWidget, QString( "rois" ) );
+    m_tabWidget2->addTab( m_roiTreeWidget, QString( "ROIs" ) );
 
 
     m_layout->addWidget( m_tabWidget );
