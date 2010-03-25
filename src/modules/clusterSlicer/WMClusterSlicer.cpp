@@ -286,24 +286,6 @@ void WMClusterSlicer::generateSlices()
         wmath::WVector3D first = tangent.crossProduct( generator );
         wmath::WVector3D second = tangent.crossProduct( first );
         boost::shared_ptr< WPlane > p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
-//        if( i < centerLine.size() - 1 ) // a successor exist
-//        {
-//            wmath::WVector3D succTangent = centerLine[i+1] - centerLine[i];
-//            wmath::WVector3D first = tangent.crossProduct( succTangent );
-//            wmath::WVector3D second = tangent.crossProduct( first );
-//            p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
-//        }
-//        else if( i > 2 )
-//        {
-//            wmath::WVector3D predTangent = centerLine[i-1] - centerLine[i-2];
-//            wmath::WVector3D first = tangent.crossProduct( predTangent );
-//            wmath::WVector3D second = tangent.crossProduct( first );
-//            p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
-//        }
-//        else
-//        {
-//            p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1] ) );
-//        }
 
         boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p->samplePoints( stepWidth, nbX, nbY  );
         double mean = meanParameter( samplePoints )[ meanType ];
@@ -321,6 +303,8 @@ void WMClusterSlicer::generateSlices()
             m_samplePointsGeode->insert( wge::genPointBlobs( samplePoints, 0.1 ) );
         }
     }
+    infoLog() << "Max-Mean: " << m_maxMean;
+    infoLog() << "Min-Mean: " << m_minMean;
     if( m_drawSlices->get( true ) )
     {
         m_rootNode->insert( m_samplePointsGeode );
@@ -380,7 +364,7 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
         for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
         {
             boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
-            double scaledMean = ( m_maxMean == m_minMean ? 0.0 : ( slice->first - m_minMean ) / ( m_maxMean - m_minMean ) );
+            double scaledMean = mapMeanOntoScale( slice->first );
             for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex ) // NOLINT
             {
                 if( cm.find( *coloredVertex ) != cm.end() )
@@ -408,25 +392,26 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
         {
             WAssert( m_slices->size() > 2, "We only support alternative coloring with more than 2 slices" );
 
-            // std::cout << "Vertex: " << vertices[i] << std::endl;
-            // if( !isBoundaryVertex( vertices[i] ) )
-            // {
-                std::vector< PlanePair > planePairs = computeNeighbouringPlanePairs( vertices[i] );
-                if( !planePairs.empty() )
+            std::vector< PlanePair > planePairs = computeNeighbouringPlanePairs( vertices[i] );
+            if( !planePairs.empty() )
+            {
+                PlanePair closestPlanes = closestPlanePair( planePairs, vertices[i] );
+                if( closestPlanes.first != 0 || closestPlanes.second != 0 ) // if (0,0) then it may be a boundary vertex
                 {
-                    PlanePair closestPlanes = closestPlanePair( planePairs, vertices[i] );
-                    if( closestPlanes.first != 0 || closestPlanes.second != 0 ) // if (0,0) then it may be a boundary vertex
-                    {
-                        cmData[ i ] = colorFromPlanePair( vertices[i], closestPlanes );
-                    }
+                    cmData[ i ] = colorFromPlanePair( vertices[i], closestPlanes );
                 }
-            // }
+            }
         }
     }
 
     m_colorMap->setData( cmData );
     debugLog() << "Done with color map building";
     m_colorMapOutput->updateData( m_colorMap );
+}
+
+double WMClusterSlicer::mapMeanOntoScale( double meanValue ) const
+{
+    return ( m_maxMean == m_minMean ? 0.0 : ( meanValue - m_minMean ) / ( m_maxMean - m_minMean ) );
 }
 
 bool WMClusterSlicer::isInBetween( const wmath::WPosition& vertex, const PlanePair& pp ) const
@@ -497,8 +482,7 @@ WColor WMClusterSlicer::colorFromPlanePair( const wmath::WPosition& vertex, cons
     double colorQ = ( *m_slices )[ pp.second ].first;
     double vertexColor = colorQ * ( distanceToP / ( distanceToP + distanceToQ ) ) + colorP * ( distanceToQ / ( distanceToP + distanceToQ ) );
     // std::cout << "colorP, colorQ, vertexColor: " << colorP << " " << colorQ << " " << vertexColor << std::endl;
-    vertexColor = ( m_maxMean == m_minMean ? 0.0 : ( vertexColor - m_minMean ) / ( m_maxMean - m_minMean ) );
-    return WColor( 0, vertexColor, 1 );
+    return WColor( 0, mapMeanOntoScale( vertexColor ), 1 );
 }
 
 void WMClusterSlicer::updateDisplay( bool force )
@@ -529,15 +513,7 @@ void WMClusterSlicer::updateDisplay( bool force )
             const double height = m_planeNumY->get() * m_planeStepWidth->get();
             for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
             {
-                double scaledMean = 0.0;
-                if( m_maxMean == m_minMean )
-                {
-                    scaledMean = 0;
-                }
-                else
-                {
-                    scaledMean = ( cit->first - m_minMean ) / ( m_maxMean - m_minMean );
-                }
+                double scaledMean = mapMeanOntoScale( cit->first );
                 WColor color( scaledMean, scaledMean, 1 );
                 m_sliceGeode->insert( wge::genFinitePlane( width, height, cit->second, color, true ) );
             }

@@ -229,6 +229,15 @@ private:
      * \return The color of the vertex dependen on its distance to the planes and their colors.
      */
     WColor colorFromPlanePair( const wmath::WPosition& vertex, const PlanePair& pp ) const;
+
+    /**
+     * Maps the given mean value into an Interval [0,1] so later you may use this as a color channel.
+     *
+     * \param meanValue The value to map, e.g. relative minMean and maxMean
+     *
+     * \return A number between 0 and 1.
+     */
+    double mapMeanOntoScale( double meanValue ) const;
 };
 
 #endif  // WMCLUSTERSLICER_H
