@@ -22,15 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WValue.h"
+#include "../../dataHandler/WGridRegular3D.h"
 #include "WBresenham.h"
 
 WBresenham::WBresenham( boost::shared_ptr< WGridRegular3D > grid, bool antialiased )
@@ -195,11 +196,11 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     if( m_antialiased )
     {
         distances = computeDistances( idx, start, end );
-        m_values[ idx ] += filter( distances[0] );
+        m_values[ idx ] = std::max( filter( distances[0] ), m_values[ idx ] );
     }
     else
     {
-        m_values[ idx ] += 1.0;
+        m_values[ idx ] = 1.0;
         return;
     }
 
@@ -227,44 +228,44 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     switch( axis )
     {
         case 0 :
-                m_values[ idx + nbX ]  += filter( distances[3] );
+                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
                 setFiberVector( idx + nbX, fibTangente );
 
-                m_values[ idx - nbX ]  += filter( distances[4] );
+                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
                 setFiberVector( idx - nbX, fibTangente );
 
-                m_values[ idx + nbXY ] += filter( distances[5] );
+                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
                 setFiberVector( idx + nbXY, fibTangente );
 
-                m_values[ idx - nbXY ] += filter( distances[6] );
+                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
                 setFiberVector( idx - nbXY, fibTangente );
 
                 break;
         case 1 :
-                m_values[ idx + 1 ]    += filter( distances[1] );
+                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
                 setFiberVector( idx + 1, fibTangente );
 
-                m_values[ idx - 1 ]    += filter( distances[2] );
+                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
                 setFiberVector( idx - 1, fibTangente );
 
-                m_values[ idx + nbXY ] += filter( distances[5] );
+                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
                 setFiberVector( idx + nbXY, fibTangente );
 
-                m_values[ idx - nbXY ] += filter( distances[6] );
+                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
                 setFiberVector( idx - nbXY, fibTangente );
 
                 break;
         case 2 :
-                m_values[ idx + 1 ]   += filter( distances[1] );
+                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
                 setFiberVector( idx + 1, fibTangente );
 
-                m_values[ idx - 1 ]   += filter( distances[2] );
+                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
                 setFiberVector( idx - 1, fibTangente );
 
-                m_values[ idx + nbX ] += filter( distances[3] );
+                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
                 setFiberVector( idx + nbX, fibTangente );
 
-                m_values[ idx - nbX ] += filter( distances[4] );
+                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
                 setFiberVector( idx - nbX, fibTangente );
 
                 break;
