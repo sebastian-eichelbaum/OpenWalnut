@@ -42,44 +42,44 @@
 #include "../../graphicsEngine/WGEOffscreen.h"
 #include "../../graphicsEngine/WGETextureHud.h"
 
-#include "WMSurfaceParticles.h"
-#include "surfaceParticles.xpm"
+#include "WMSurfaceBars.h"
+#include "surfaceBars.xpm"
 
-WMSurfaceParticles::WMSurfaceParticles():
+WMSurfaceBars::WMSurfaceBars():
     WModule(),
     m_rootNode( new WGEGroupNode() )
 {
     // Initialize members
 }
 
-WMSurfaceParticles::~WMSurfaceParticles()
+WMSurfaceBars::~WMSurfaceBars()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMSurfaceParticles::factory() const
+boost::shared_ptr< WModule > WMSurfaceBars::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMSurfaceParticles() );
+    return boost::shared_ptr< WModule >( new WMSurfaceBars() );
 }
 
-const char** WMSurfaceParticles::getXPMIcon() const
+const char** WMSurfaceBars::getXPMIcon() const
 {
-    return surfaceParticles_xpm;
+    return surfaceBars_xpm;
 }
 
-const std::string WMSurfaceParticles::getName() const
+const std::string WMSurfaceBars::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "Surface Particles";
+    return "Surface Bars";
 }
 
-const std::string WMSurfaceParticles::getDescription() const
+const std::string WMSurfaceBars::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "This module can show particles on a GPU based Isosurface.";
+    return "This module can show moving bars of different sizes in two different directions.";
 }
 
-void WMSurfaceParticles::connectors()
+void WMSurfaceBars::connectors()
 {
     // needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
@@ -110,7 +110,7 @@ void WMSurfaceParticles::connectors()
     WModule::connectors();
 }
 
-void WMSurfaceParticles::properties()
+void WMSurfaceBars::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -128,7 +128,7 @@ void WMSurfaceParticles::properties()
                       m_propCondition );
 }
 
-osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
+osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
 {
     // use the OSG Shapes, create unit cube
     osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bbox.first, bbox.second, m_isoColor->get( true ) );
@@ -190,7 +190,7 @@ osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::W
     return cube;
 }
 
-void WMSurfaceParticles::moduleMain()
+void WMSurfaceBars::moduleMain()
 {
     m_shader = osg::ref_ptr< WShader > ( new WShader( "GPUSurfaceParticles" ) );
 
@@ -295,7 +295,7 @@ void WMSurfaceParticles::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-void WMSurfaceParticles::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMSurfaceBars::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // update material info
     if ( m_module->m_isoColor->changed() || m_initialUpdate )
@@ -314,13 +314,13 @@ void WMSurfaceParticles::SafeUpdateCallback::operator()( osg::Node* node, osg::N
     traverse( node, nv );
 }
 
-void WMSurfaceParticles::ShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
+void WMSurfaceBars::ShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
     m_counter++;
     uniform->set( m_counter );
 }
 
-void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
+void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
     if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
@@ -337,7 +337,7 @@ void WMSurfaceParticles::SafeUniformCallback::operator()( osg::Uniform* uniform,
     }
 }
 
-void WMSurfaceParticles::activate()
+void WMSurfaceBars::activate()
 {
     // Activate/Deactivate the rendering
     if ( m_rootNode )

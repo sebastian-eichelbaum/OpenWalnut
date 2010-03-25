@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMSURFACEPARTICLES_H
-#define WMSURFACEPARTICLES_H
+#ifndef WMSURFACEBARS_H
+#define WMSURFACEBARS_H
 
 #include <string>
 #include <utility>
@@ -40,19 +40,19 @@
  * This module is a raytracing based isosurface using special methods for animating particle flow on its surface.
  * \ingroup modules
  */
-class WMSurfaceParticles: public WModule
+class WMSurfaceBars: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMSurfaceParticles();
+    WMSurfaceBars();
 
     /**
      * Destructor.
      */
-    virtual ~WMSurfaceParticles();
+    virtual ~WMSurfaceBars();
 
     /**
      * Gives back the name of this module.
@@ -198,7 +198,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUpdateCallback( WMSurfaceParticles* module ): m_module( module ), m_initialUpdate( true )
+        explicit SafeUpdateCallback( WMSurfaceBars* module ): m_module( module ), m_initialUpdate( true )
         {
         };
 
@@ -213,7 +213,7 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMSurfaceParticles* m_module;
+        WMSurfaceBars* m_module;
 
         /**
          * Denotes whether the update callback is called the first time.
@@ -233,7 +233,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUniformCallback( WMSurfaceParticles* module ): m_module( module )
+        explicit SafeUniformCallback( WMSurfaceBars* module ): m_module( module )
         {
         };
 
@@ -248,7 +248,7 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMSurfaceParticles* m_module;
+        WMSurfaceBars* m_module;
     };
 
     /**
@@ -272,5 +272,5 @@ private:
     };
 };
 
-#endif  // WMSURFACEPARTICLES_H
+#endif  // WMSURFACEBARS_H
 

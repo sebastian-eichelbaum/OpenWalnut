@@ -48,7 +48,7 @@
 #include "../modules/hud/WMHud.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
 #include "../modules/navSlices/WMNavSlices.h"
-#include "../modules/surfaceParticles/WMSurfaceParticles.h"
+#include "../modules/surfaceBars/WMSurfaceBars.h"
 #include "../modules/template/WMTemplate.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
@@ -102,7 +102,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
-    m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceBars() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
 
     lock.unlock();

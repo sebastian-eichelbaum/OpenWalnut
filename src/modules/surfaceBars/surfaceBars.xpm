@@ -1,5 +1,5 @@
 /* XPM */
-static const char * surfaceParticles_xpm[] = {
+static const char * surfaceBars_xpm[] = {
 "32 32 224 2",
 "  	c None",
 ". 	c #0000FF",
