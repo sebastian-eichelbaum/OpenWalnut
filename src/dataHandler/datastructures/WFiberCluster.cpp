@@ -91,6 +91,14 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
 
 void WFiberCluster::generateCenterLine()
 {
+    m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber() );
+
+    // empty datasets can be ignored
+    if ( m_fibs->size() == 0 )
+    {
+        return;
+    }
+
     // make copies of the fibers
     boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector() );
     size_t avgFiberSize = 0;
@@ -108,7 +116,6 @@ void WFiberCluster::generateCenterLine()
         cit->resample( avgFiberSize );
     }
 
-    m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber() );
     m_centerLine->reserve( avgFiberSize );
     for( size_t i = 0; i < avgFiberSize; ++i )
     {

@@ -242,7 +242,7 @@ void main()
             gl_FragDepth = curPointProjected.z; 
 
             // 3: find a proper normal for a headlight
-            float s = 0.01;
+            float s = 0.005;
             float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
             float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
             float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
@@ -265,7 +265,7 @@ void main()
                     1.3,                                // material specular
                     10.0,                               // shinines
                     1.0,                                // light diffuse
-                    0.75* (1.0-curPointProjected.z),    // light ambient
+                    0.75,                               // light ambient
                     normalize( -dir ),                  // normal
                     normalize( v_ray ),                 // view direction
                     normalize( v_lightSource )          // light source position

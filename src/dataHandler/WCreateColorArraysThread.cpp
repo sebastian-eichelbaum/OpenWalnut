@@ -52,6 +52,21 @@ WCreateColorArraysThread::~WCreateColorArraysThread()
 
 void WCreateColorArraysThread::threadMain()
 {
+    if ( !m_vertices || !m_tangents || !m_globalColors || !m_localColors || !m_lineStartIndexes || !m_lineLengths )
+    {
+        return;
+    }
+
+    if ( !m_vertices->size() ||
+         !m_tangents->size() ||
+         !m_globalColors->size() ||
+         !m_localColors->size() ||
+         !m_lineStartIndexes->size() ||
+         !m_lineLengths->size() )
+    {
+        return;
+    }
+
     int pc = 0;
     for ( int i = 0; i < m_left; ++i )
     {

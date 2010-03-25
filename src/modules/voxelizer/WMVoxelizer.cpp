@@ -82,6 +82,12 @@ void WMVoxelizer::moduleMain()
             m_moduleState.wait();
             continue;
         }
+        if ( m_input->getData()->size() == 0 )
+        {
+            infoLog() << "Got empty fiber dataset. Ignoring.";
+            m_moduleState.wait();
+            continue;
+        }
 
         // full update
         if( m_antialiased->changed() ||
@@ -194,7 +200,7 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
-                                                                  bb.first, 1, 1, 1 ) );
+                                                                  bb.first, 1.0/nbVoxelsPerUnit, 1.0/nbVoxelsPerUnit, 1.0/nbVoxelsPerUnit ) );
     return grid;
 }
 
