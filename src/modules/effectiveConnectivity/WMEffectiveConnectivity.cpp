@@ -29,7 +29,7 @@
 
 #include <cmath>
 
-#include "WMConnectomeView.h"
+#include "WMEffectiveConnectivity.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -51,8 +51,8 @@
 #include "../data/WMData.h"
 
 
-WMConnectomeView::WMConnectomeView():
-    WModuleContainer( "Connectome View", "Connectome View allows connectome data to be displayed in the context of MRI data." ),
+WMEffectiveConnectivity::WMEffectiveConnectivity():
+    WModuleContainer( "Effecitve Connectivity", "This module is able to visualize effective connectivity graphs." ),
     m_dataSet()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -61,28 +61,28 @@ WMConnectomeView::WMConnectomeView():
     // want to initialize some modules using the module factory BEFORE the moduleMain() call, overwrite WModule::initialize().
 }
 
-WMConnectomeView::~WMConnectomeView()
+WMEffectiveConnectivity::~WMEffectiveConnectivity()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMConnectomeView::factory() const
+boost::shared_ptr< WModule > WMEffectiveConnectivity::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMConnectomeView() );
+    return boost::shared_ptr< WModule >( new WMEffectiveConnectivity() );
 }
 
-const std::string WMConnectomeView::getName() const
+const std::string WMEffectiveConnectivity::getName() const
 {
     return WModuleContainer::getName();
 }
 
-const std::string WMConnectomeView::getDescription() const
+const std::string WMEffectiveConnectivity::getDescription() const
 {
     return WModuleContainer::getDescription();
 }
 
-void WMConnectomeView::moduleMain()
+void WMEffectiveConnectivity::moduleMain()
 {
     // signal ready state
     ready();
@@ -90,7 +90,7 @@ void WMConnectomeView::moduleMain()
     waitForStop();
 }
 
-void WMConnectomeView::connectors()
+void WMEffectiveConnectivity::connectors()
 {
     // this is the scalar field input
     m_mrtInput = boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > >(
@@ -114,13 +114,13 @@ void WMConnectomeView::connectors()
     WModule::connectors();
 }
 
-void WMConnectomeView::properties()
+void WMEffectiveConnectivity::properties()
 {
     m_test = m_properties2->addProperty( "Test", "A test value for testing test stuff", 1, boost::bind(
-                &WMConnectomeView::slotPropertyChanged, this ) );
+                &WMEffectiveConnectivity::slotPropertyChanged, this ) );
 }
 
-void WMConnectomeView::slotPropertyChanged()
+void WMEffectiveConnectivity::slotPropertyChanged()
 {
 }
 

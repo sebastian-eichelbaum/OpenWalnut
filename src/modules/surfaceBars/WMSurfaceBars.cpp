@@ -76,7 +76,8 @@ const std::string WMSurfaceBars::getName() const
 const std::string WMSurfaceBars::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "This module can show moving bars of different sizes in two different directions.";
+    return "This module can show moving bars of different sizes in two different directions. The sizes and speed parameters can be set using "
+           "properties.";
 }
 
 void WMSurfaceBars::connectors()

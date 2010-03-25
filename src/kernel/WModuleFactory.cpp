@@ -32,7 +32,7 @@
 #include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/clusterSlicer/WMClusterSlicer.h"
-#include "../modules/connectomeView/WMConnectomeView.h"
+#include "../modules/effectiveConnectivity/WMEffectiveConnectivity.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
@@ -99,7 +99,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
-    m_prototypes.insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMEffectiveConnectivity() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceBars() ) );

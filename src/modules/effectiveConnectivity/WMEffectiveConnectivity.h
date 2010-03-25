@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMCONNECTOMEVIEW_H
-#define WMCONNECTOMEVIEW_H
+#ifndef WMEFFECTIVECONNECTIVITY_H
+#define WMEFFECTIVECONNECTIVITY_H
 
 #include <map>
 #include <string>
@@ -45,18 +45,18 @@
  * module to be composed from other modules.
  * \ingroup modules
  */
-class WMConnectomeView : public WModuleContainer
+class WMEffectiveConnectivity : public WModuleContainer
 {
 public:
     /**
      * Standard constructor.
      */
-    WMConnectomeView();
+    WMEffectiveConnectivity();
 
     /**
      * Destructor.
      */
-    ~WMConnectomeView();
+    ~WMEffectiveConnectivity();
 
     /**
      * Gives back the name of this module.
@@ -124,4 +124,4 @@ private:
     boost::shared_ptr< const WDataSetSingle > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
 };
 
-#endif  // WMCONNECTOMEVIEW_H
+#endif  // WMEFFECTIVECONNECTIVITY_H
