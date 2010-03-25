@@ -76,6 +76,7 @@ void WMVoxelizer::moduleMain()
     m_moduleState.setResetable();
     m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
     m_moduleState.add( m_fullUpdate );
+    m_moduleState.add( m_drawCenterLine->getCondition() );
 
     ready();
 

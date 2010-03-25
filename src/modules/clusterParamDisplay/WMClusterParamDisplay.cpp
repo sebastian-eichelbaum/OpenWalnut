@@ -147,6 +147,7 @@ void WMClusterParamDisplay::initSubModules()
     m_voxelizer->getProperties2()->getProperty( "Lighting" )->toPropBool()->set( false );
     m_gaussFiltering->getProperties2()->getProperty( "Iterations" )->toPropInt()->set( 3 );
     m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" )->toPropBool()->set( false );
+    m_clusterSlicer->getProperties2()->getProperty( "Biggest Component Only" )->toPropBool()->set( true );
     m_isoSurface->getProperties2()->getProperty( "active" )->toPropBool()->set( false );
     debugLog() << "Submodule properties set";
 
@@ -171,7 +172,9 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Max cluster distance" ) );
     m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Min point distance" ) );
     m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
+    m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "CenterLine" ) );
     m_properties2->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
+    m_properties2->addProperty( m_meshRenderer->getProperties2()->getProperty( "Opacity %" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Mean Type" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide Slices" ) );
@@ -180,7 +183,11 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes Step Width" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "#Planes" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Biggest Component Only" ) );
-    m_properties2->addProperty( m_meshRenderer->getProperties2()->getProperty( "Opacity %" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Custom Scale" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MinScale" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MaxScale" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MinScaleColor" ) );
+    m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MaxScaleColor" ) );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
     // m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );

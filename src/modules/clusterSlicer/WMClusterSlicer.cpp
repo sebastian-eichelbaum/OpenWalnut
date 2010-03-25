@@ -118,6 +118,15 @@ void WMClusterSlicer::properties()
     m_planeNumX->setMin( 1 );
     m_planeNumY->setMin( 1 );
     m_planeStepWidth->setMin( 0.0 );
+    m_customScale       = m_properties2->addProperty( "Custom Scale", "", true, m_fullUpdate );
+    m_minScale          = m_properties2->addProperty( "MinScale", "Mean threshold below which is mapped to 0", 0.1, m_fullUpdate );
+    m_maxScale          = m_properties2->addProperty( "MaxScale", "Mean threshold above which is mapped to 1", 0.9, m_fullUpdate );
+    m_minScale->setMin( 0.0 );
+    m_minScale->setMax( 1.0 );
+    m_maxScale->setMin( 0.0 );
+    m_maxScale->setMax( 1.0 );
+    m_minScaleColor     = m_properties2->addProperty( "MinScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
+    m_maxScaleColor     = m_properties2->addProperty( "MaxScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
 }
 
 void WMClusterSlicer::moduleMain()
@@ -189,7 +198,8 @@ void WMClusterSlicer::moduleMain()
         }
 
         if( meshChanged || paramDSChanged || m_meanSelector->changed() || m_planeNumX->changed() || m_alternateColoring->changed()
-                        || m_planeNumY->changed() || m_planeStepWidth->changed() || m_centerLineScale->changed() )
+                        || m_planeNumY->changed() || m_planeStepWidth->changed() || m_centerLineScale->changed() || m_customScale->changed()
+                        || m_minScale->changed() || m_maxScale->changed() || m_minScaleColor->changed() || m_maxScaleColor->changed() )
         {
             debugLog() << "Performing full update";
             generateSlices();
@@ -411,7 +421,25 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
 
 double WMClusterSlicer::mapMeanOntoScale( double meanValue ) const
 {
-    return ( m_maxMean == m_minMean ? 0.0 : ( meanValue - m_minMean ) / ( m_maxMean - m_minMean ) );
+    if( m_customScale->get( true ) )
+    {
+        if( meanValue < m_minScale->get( true ) )
+        {
+            return 0.0;
+        }
+        else if( meanValue > m_maxScale->get( true ) )
+        {
+            return 1.0;
+        }
+        else
+        {
+            return ( m_maxScale->get() == m_minScale->get() ? 0.0 : ( meanValue - m_minScale->get() ) / ( m_maxScale->get() - m_minScale->get() ) );
+        }
+    }
+    else
+    {
+        return ( m_maxMean == m_minMean ? 0.0 : ( meanValue - m_minMean ) / ( m_maxMean - m_minMean ) );
+    }
 }
 
 bool WMClusterSlicer::isInBetween( const wmath::WPosition& vertex, const PlanePair& pp ) const

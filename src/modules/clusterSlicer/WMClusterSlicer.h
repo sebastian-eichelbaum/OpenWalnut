@@ -181,6 +181,11 @@ protected:
     WPropDouble m_centerLineScale; //!< rescales the centerline for using more or less slices.
     WPropBool   m_selectBiggestComponentOnly; //!< If true, first the mesh is decomposed into its components (expensive!) & the biggest will be drawn
     WPropBool   m_alternateColoring; //!< En/Disables alternative mesh coloring strategy
+    WPropBool   m_customScale; //!< En/Disables custom color scaling
+    WPropDouble m_minScale;
+    WPropColor  m_minScaleColor;
+    WPropDouble m_maxScale;
+    WPropColor  m_maxScaleColor;
 
     double m_maxMean; //!< maximum average (of sample points of a plane) parameter value over all planes
     double m_minMean; //!< minimum average (of sample points of a plane) parameter value over all planes
