@@ -25,6 +25,8 @@
 #ifndef WINTEGRATIONPARAMETERIZATION_H
 #define WINTEGRATIONPARAMETERIZATION_H
 
+#include <vector>
+
 #include "WRasterParameterization.h"
 
 /**

@@ -126,7 +126,6 @@ void WMSurfaceParticles::properties()
 
     m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 0.0, 0.0, 0.0, 1.0 ),
                       m_propCondition );
-
 }
 
 osg::ref_ptr< osg::Node > WMSurfaceParticles::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
@@ -288,7 +287,6 @@ void WMSurfaceParticles::moduleMain()
     //        m_rootNode->insert( offscreen1 );
     //        m_rootNode->insert( hud );
             m_rootNode->insert( cube );
-
         }
     }
 

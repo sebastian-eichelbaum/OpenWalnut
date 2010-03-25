@@ -270,7 +270,6 @@ private:
          */
         int m_counter;
     };
-
 };
 
 #endif  // WMSURFACEPARTICLES_H

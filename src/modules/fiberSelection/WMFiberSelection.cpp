@@ -155,7 +155,8 @@ namespace
         // size_t lastIdx;     //!< the last index , idx-1 <- not needed
         bool isInside;      //!< true if idx is inside a VOI
         bool wasInside;     //!< true if idx-1 was inside a VOI
-    } FibTrace;
+    }
+    FibTrace;
 }
 
 void WMFiberSelection::moduleMain()
@@ -239,8 +240,8 @@ void WMFiberSelection::moduleMain()
                 size_t len = fibLen->at( fidx );
 
                 // trace information for both VOI
-                FibTrace current1 = { 0, true, false, false };
-                FibTrace current2 = { 0, false, false, false };
+                FibTrace current1 = { 0, true, false, false };  // NOLINT
+                FibTrace current2 = { 0, false, false, false }; // NOLINT
                 std::vector< FibTrace > hits1;
                 std::vector< FibTrace > hits2;
 
@@ -321,7 +322,6 @@ void WMFiberSelection::moduleMain()
                                                                     std::max( hits1[ hits1.size() - 1 ].idx, hits2[ 0 ].idx ) ) );
                     }
                 }
-
             }
             debugLog() << "Iterating over all fibers: done!";
             progress1->finish();

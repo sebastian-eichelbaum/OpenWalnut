@@ -25,6 +25,8 @@
 #ifndef WCENTERLINEPARAMETERIZATION_H
 #define WCENTERLINEPARAMETERIZATION_H
 
+#include <vector>
+
 #include "../../common/datastructures/WFiber.h"
 
 #include "WRasterParameterization.h"

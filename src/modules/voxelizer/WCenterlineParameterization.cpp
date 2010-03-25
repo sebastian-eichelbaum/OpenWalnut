@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <iostream>
 
 #include "WCenterlineParameterization.h"
@@ -70,7 +71,8 @@ namespace
     typedef struct
     {
         size_t indices[27];
-    } Neighbourhood;
+    }
+    Neighbourhood;
 
     Neighbourhood neighbourhood( int x, int y, int z, boost::shared_ptr< WGridRegular3D > grid )
     {

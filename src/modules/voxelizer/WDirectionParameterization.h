@@ -25,6 +25,8 @@
 #ifndef WDIRECTIONPARAMETERIZATION_H
 #define WDIRECTIONPARAMETERIZATION_H
 
+#include <vector>
+
 #include "WRasterParameterization.h"
 
 /**
