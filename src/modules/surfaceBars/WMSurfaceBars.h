@@ -245,26 +245,6 @@ private:
          */
         WMSurfaceBars* m_module;
     };
-
-    /**
-     * Callback for a special time uniform useful for animation.
-     */
-    class ShaderAnimationCallback : public osg::Uniform::Callback
-    {
-    public:
-        /**
-         * Operator called on uniform update.
-         *
-         * \param uniform the uniform to update
-         * \param nv the visitor.
-         */
-        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
-
-        /**
-         * Counts the updates. Used as reference for animation.
-         */
-        int m_counter;
-    };
 };
 
 #endif  // WMSURFACEBARS_H

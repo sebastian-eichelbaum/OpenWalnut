@@ -105,8 +105,10 @@ void WMEffectiveConnectivityCluster::moduleMain()
     boost::shared_ptr< WProperties2 >  props = m_fiberSelection->getProperties2();
     props->getProperty( "VOI1 Threshold" )->toPropDouble()->set( 50.0 );
     props->getProperty( "VOI2 Threshold" )->toPropDouble()->set( 50.0 );
-    props->getProperty( "Cut Fibers" )->toPropBool()->set( false );
+    props->getProperty( "Cut Fibers" )->toPropBool()->set( true );
+    m_properties2->addProperty( props->getProperty( "Cut Fibers" ) );
     props->getProperty( "Prefer Shortest Path" )->toPropBool()->set( false );
+    m_properties2->addProperty( props->getProperty( "Prefer Shortest Path" ) );
 
     //////////////////////////////////////////////////////////////////////
     // Voxelize
@@ -121,10 +123,12 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // now wait for it to be ready
     m_voxelizer->isReady().wait();
 
-    // set some props
+    // set/forward some props
     props = m_voxelizer->getProperties2();
     props->getProperty( "CenterLine" )->toPropBool()->set( true );
     props->getProperty( "active" )->toPropBool()->set( false );
+    props->getProperty( "Voxels per Unit" )->toPropBool()->set( 1 );
+    m_properties2->addProperty( props->getProperty( "Voxels per Unit" ) );
 
     //////////////////////////////////////////////////////////////////////
     // Gauss Filter the voxel output
@@ -139,7 +143,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // now wait for it to be ready
     m_gauss->isReady().wait();
 
-    // set some props
+    // set/forward some props
     props = m_gauss->getProperties2();
     props->getProperty( "Iterations" )->toPropInt()->set( 3 );
 
@@ -156,11 +160,15 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // now wait for it to be ready
     m_animation->isReady().wait();
 
-    // set some props
+    // set/forward some props
     props = m_animation->getProperties2();
     props->getProperty( "Isovalue" )->toPropInt()->set( 30 );
+    m_properties2->addProperty( props->getProperty( "Isovalue" ) );
     props->getProperty( "Step Count" )->toPropInt()->set( 500 );
+    m_properties2->addProperty( props->getProperty( "Step Count" ) );
     props->getProperty( "Iso Color" )->toPropColor()->set( WColor( 0.0, 0.5, 1.0, 1.0 ) );
+    m_properties2->addProperty( props->getProperty( "Iso Color" ) );
+
 
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +238,8 @@ void WMEffectiveConnectivityCluster::connectors()
     WModule::connectors();
 }
 
-void WMEffectiveConnectivityCluster::properties()
+void WMEffectiveConnectivityCluster::activate()
 {
+    m_animation->getProperties2()->getProperty( "active" )->toPropBool()->set( m_active->get() );
 }
 

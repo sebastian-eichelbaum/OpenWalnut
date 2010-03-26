@@ -39,8 +39,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEOffscreen.h"
-#include "../../graphicsEngine/WGETextureHud.h"
+#include "../../graphicsEngine/WGEShaderAnimationCallback.h"
 
 #include "WMSurfaceBars.h"
 #include "surfaceBars.xpm"
@@ -173,7 +172,7 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
     alpha->setUpdateCallback( new SafeUniformCallback( this ) );
 
     osg::ref_ptr< osg::Uniform > animationTime = new osg::Uniform( "u_animationTime", 0 );
-    animationTime->setUpdateCallback( new ShaderAnimationCallback() );
+    animationTime->setUpdateCallback( new WGEShaderAnimationCallback() );
 
     rootState->addUniform( isovalue );
     rootState->addUniform( steps );
@@ -238,35 +237,8 @@ void WMSurfaceBars::moduleMain()
             // get the BBox
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 
-            //////////////////////////////////////////////////////////////////////////////////////////////////
-            // Prepare FBO
-            //////////////////////////////////////////////////////////////////////////////////////////////////
-
-            osg::ref_ptr<osg::Camera> sceneCamera = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera();
-
-            // setup the FBO
-            osg::ref_ptr< WGEOffscreen > offscreen1 = new WGEOffscreen( sceneCamera, 0 );
-            offscreen1->setClearColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
-
-            // For debugging:
-            osg::ref_ptr< WGETextureHud > hud = new WGETextureHud();
-            // increase texture size a little bit
-            hud->setMaxElementWidth( 512 );
-
-            // **********************************************************************************************
-            // Render Pass 1: Rendering the geometry and projecting the directions
-            // **********************************************************************************************
-
-            // The surface
-            //osg::ref_ptr< osg::Texture2D > surfaceTex = offscreen1->attach( osg::Camera::COLOR_BUFFER0 );
-            //osg::ref_ptr< osg::Texture2D > dirTex = offscreen1->attach( osg::Camera::COLOR_BUFFER1 );
-
-            //hud->addTexture( new WGETextureHud::WGETextureHudEntry( surfaceTex ) );
-            //hud->addTexture( new WGETextureHud::WGETextureHudEntry( dirTex ) );
-
             // attach the geometry to the first FBO
             osg::ref_ptr< osg::Node > cube = renderSurface( bb );
-            //offscreen1->addChild( cube );
 
             // **********************************************************************************************
             // Update scene
@@ -275,8 +247,6 @@ void WMSurfaceBars::moduleMain()
             // update node
             debugLog() << "Adding new rendering.";
             m_rootNode->clear();
-    //        m_rootNode->insert( offscreen1 );
-    //        m_rootNode->insert( hud );
             m_rootNode->insert( cube );
         }
     }
@@ -303,12 +273,6 @@ void WMSurfaceBars::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
     }
 
     traverse( node, nv );
-}
-
-void WMSurfaceBars::ShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
-{
-    m_counter++;
-    uniform->set( m_counter );
 }
 
 void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
