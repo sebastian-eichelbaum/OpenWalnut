@@ -78,6 +78,7 @@ WMMarchingCubes::WMMarchingCubes():
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
+    //
 }
 
 WMMarchingCubes::~WMMarchingCubes()

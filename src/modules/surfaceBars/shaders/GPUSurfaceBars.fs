@@ -236,7 +236,7 @@ void main()
 
             // Phong:
             float light = blinnPhongIlluminationIntensity( 
-                    0.1,                                // material ambient
+                    0.3,                                // material ambient
                     1.0,                                // material diffuse
                     1.3,                                // material specular
                     10.0,                               // shinines

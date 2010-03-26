@@ -127,7 +127,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     props = m_voxelizer->getProperties2();
     props->getProperty( "CenterLine" )->toPropBool()->set( true );
     props->getProperty( "active" )->toPropBool()->set( false );
-    props->getProperty( "Voxels per Unit" )->toPropBool()->set( 1 );
+    props->getProperty( "Voxels per Unit" )->toPropInt()->set( 2 );
     m_properties2->addProperty( props->getProperty( "Voxels per Unit" ) );
 
     //////////////////////////////////////////////////////////////////////

@@ -23,6 +23,10 @@
 //---------------------------------------------------------------------------
 
 #version 120
+#extension GL_EXT_gpu_shader4 : enable
+
+#include "TextureUtils.glsl"
+#include "TransformationTools.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
@@ -92,6 +96,44 @@ float pointDistance( vec3 p1, vec3 p2 )
     return length( p1 - p2 );
 }
 
+/** 
+ * @brief Function to calculate lighting intensitybased on "Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1".
+ * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need 
+ * the intensity.
+ *
+ * @param ambient   materials ambient intensity
+ * @param diffuse   materials diffuse intensity
+ * @param specular  materials specular intensity
+ * @param shininess material shininess
+ * @param lightIntensity  the light intensity
+ * @param ambientIntensity the ambient light intensity
+ * @param normalDir the normal
+ * @param viewDir   viewing direction
+ * @param lightDir  light direction
+ * 
+ * @return the light intensity.
+ */
+float blinnPhongIlluminationIntensity(float ambient, float diffuse, float specular, float shininess, 
+							 float lightIntensity, float ambientIntensity, 
+							 vec3 normalDir, vec3 viewDir, vec3 lightDir )
+{
+  vec3 H =  normalize( lightDir + viewDir );
+  
+  // compute ambient term
+  float ambientV = ambient * ambientIntensity;
+
+  // compute diffuse term
+  float diffuseLight = max(dot(lightDir, normalDir), 0.);
+  float diffuseV = diffuse * diffuseLight;
+
+  // compute specular term
+  float specularLight = pow(max(dot(H, normalDir), 0.), shininess);
+  if( diffuseLight <= 0.) specularLight = 0.;
+  float specularV = specular * specularLight;
+
+  return ambientV + (diffuseV + specularV)*lightIntensity;
+}
+
 /**
  * Main entry point of the fragment shader.
  */
@@ -130,19 +172,40 @@ void main()
                 // Therefore, the complete standard pipeline is reproduced here:
                 
                 // 1: transfer to world space and right after it, to eye space
-                vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
+                vec3 curPointProjected = project( curPoint );
                 
-                // 2: scale to screen space and [0,1]
-                // -> x and y is not needed
-                // curPointProjected.x /= curPointProjected.w;
-                // curPointProjected.x  = curPointProjected.x * 0.5 + 0.5 ;
-                // curPointProjected.y /= curPointProjected.w;
-                // curPointProjected.y  = curPointProjected.y * 0.5 + 0.5 ;
-                curPointProjected.z /= curPointProjected.w;
-                curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
+                // 2: set depth value
+                gl_FragDepth = curPointProjected.z; 
 
-                // 3: set depth value
-                gl_FragDepth = curPointProjected.z;
+                // 3: find a proper normal for a headlight
+                float s = 0.005;
+                float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+                float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+                float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+                float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+                float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
+                float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+
+                vec3 dir = v_ray;
+                dir += vec3( valueXP, 0.0, 0.0 );
+                dir -= vec3( valueXM, 0.0, 0.0 );
+                dir += vec3( 0.0, valueYP, 0.0 );
+                dir -= vec3( 0.0, valueYM, 0.0 );
+                dir += vec3( 0.0, 0.0, valueZP );
+                dir -= vec3( 0.0, 0.0, valueZP );
+
+                // Phong:
+                float light = blinnPhongIlluminationIntensity( 
+                        0.3,                                // material ambient
+                        1.0,                                // material diffuse
+                        1.3,                                // material specular
+                        10.0,                               // shinines
+                        1.0,                                // light diffuse
+                        0.75,                               // light ambient
+                        normalize( -dir ),                  // normal
+                        normalize( v_ray ),                 // view direction
+                        normalize( v_lightSource )          // light source position
+                );
 
                 // 4: set color
                 vec4 color;
