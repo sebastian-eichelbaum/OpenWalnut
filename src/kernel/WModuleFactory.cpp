@@ -33,6 +33,7 @@
 #include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/clusterSlicer/WMClusterSlicer.h"
 #include "../modules/effectiveConnectivity/WMEffectiveConnectivity.h"
+#include "../modules/effectiveConnectivity/WMEffectiveConnectivityCluster.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
@@ -100,6 +101,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMEffectiveConnectivity() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMEffectiveConnectivityCluster() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceBars() ) );

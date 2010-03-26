@@ -116,11 +116,5 @@ void WMEffectiveConnectivity::connectors()
 
 void WMEffectiveConnectivity::properties()
 {
-    m_test = m_properties2->addProperty( "Test", "A test value for testing test stuff", 1, boost::bind(
-                &WMEffectiveConnectivity::slotPropertyChanged, this ) );
-}
-
-void WMEffectiveConnectivity::slotPropertyChanged()
-{
 }
 

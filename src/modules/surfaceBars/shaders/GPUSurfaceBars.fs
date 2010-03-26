@@ -32,7 +32,7 @@
 // Varyings
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GPUSurfaceParticles.varyings"
+#include "GPUSurfaceBars.varyings"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -45,29 +45,17 @@
 // texture containing the data
 uniform sampler3D tex0;
 
-// texture containing the directional data
+// texture containing the tracing data
 uniform sampler3D tex1;
 
-// texture containing the directional data -> the scaling factor of the values in the texture
+// texture containing the tracing data -> the scaling factor of the values in the texture
 uniform float u_tex1Scale;
 
-// texture containing the directional data -> the min value of the values in the texture
+// texture containing the tracing data -> the min value of the values in the texture
 uniform float u_tex1Min;
 
-// texture containing the directional data -> the max value of the values in the texture
-uniform float u_tex1Max;
-
-// texture containing the tracing data
-uniform sampler3D tex2;
-
-// texture containing the tracing data -> the scaling factor of the values in the texture
-uniform float u_tex2Scale;
-
-// texture containing the tracing data -> the min value of the values in the texture
-uniform float u_tex2Min;
-
 // texture containing the tracing data -> the max value of the values in the texture
-uniform float u_tex2Max;
+uniform float u_tex1Max;
 
 // **************************************************************************
 // Uniforms for the isosurface mode
@@ -149,18 +137,6 @@ vec3 findRayEnd( out float d )
 float pointDistance( vec3 p1, vec3 p2 )
 {
     return length( p1 - p2 );
-}
-
-/**
- * Gets the direction stored in tex1 at the given point.
- * 
- * \param point the point
- * 
- * \return the direction at point
- */
-vec3 getDirection( vec3 point )
-{
-    return texture3DUnscaled( tex1, point, u_tex1Min, u_tex1Scale ).rgb;
 }
 
 /** 
@@ -271,9 +247,9 @@ void main()
                     normalize( v_lightSource )          // light source position
             );
 
-            // 3: get the current trace value from tex2, which in most cases is a increasing number along the rasterized line direction
-            int trace    = int(         ( texture3D( tex2, curPoint ).r * 100.0 ) );
-            int traceInv = int( 100.0 - ( texture3D( tex2, curPoint ).r * 100.0 ) );
+            // 3: get the current trace value from tex1, which in most cases is a increasing number along the rasterized line direction
+            int trace    = int(         ( texture3D( tex1, curPoint ).r * 100.0 ) );
+            int traceInv = int( 100.0 - ( texture3D( tex1, curPoint ).r * 100.0 ) );
 
             // 4: prepare animation
             // the current time step:

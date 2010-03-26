@@ -25,32 +25,38 @@
 #ifndef WMEFFECTIVECONNECTIVITYCLUSTER_H
 #define WMEFFECTIVECONNECTIVITYCLUSTER_H
 
+#include <map>
 #include <string>
+#include <vector>
 
+#include <osg/Node>
 #include <osg/Geode>
+#include <osg/Uniform>
+
+#include "../../dataHandler/WDataSetFibers.h"
 
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "../../kernel/WModuleContainer.h"
+#include "../../kernel/WModuleInputForwardData.h"
+#include "../../kernel/WModuleOutputForwardData.h"
 
 /**
- * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
- * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
+ * This module is able to visualize connectome data in the context of MRI data. It uses the module container class to allow the
+ * module to be composed from other modules.
  * \ingroup modules
  */
-class WMEffectiveConnectivityCluster: public WModule
+class WMEffectiveConnectivityCluster : public WModuleContainer
 {
 public:
-
     /**
-     * Default constructor.
+     * Standard constructor.
      */
     WMEffectiveConnectivityCluster();
 
     /**
      * Destructor.
      */
-    virtual ~WMEffectiveConnectivityCluster();
+    ~WMEffectiveConnectivityCluster();
 
     /**
      * Gives back the name of this module.
@@ -60,7 +66,7 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description to module.
+     * \return description of module.
      */
     virtual const std::string getDescription() const;
 
@@ -71,11 +77,6 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
-
-    /**
-     * Get the icon for this module in XPM format.
-     */
-    virtual const char** getXPMIcon() const;
 
 protected:
 
@@ -94,122 +95,29 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr<osg::Geode> m_rootNode;
-
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
 
     /**
-     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
+     * The fiber dataset used.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_fiberInput;
 
     /**
-     * The output connector used to provide the calculated data to other modules.
+     * The volume of interest 1.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+    boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_VOI1;
 
     /**
-     * This is a pointer to the dataset the module is currently working on.
+     * The volume of interest 2.
      */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
+    boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_VOI2;
 
-    /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
+    boost::shared_ptr< WModule > m_fiberSelection;       //!< The fiber selection module.
+    boost::shared_ptr< WModule > m_voxelizer;            //!< The voxelizer module.
+    boost::shared_ptr< WModule > m_gauss;                //!< The gauss filter which filters the voxelized fibers.
+    boost::shared_ptr< WModule > m_animation;            //!< The final animation.
 
-    /**
-     * En/Disables an feature.
-     */
-    WPropBool     m_enableFeature;
 
-    /**
-     * An integer value.
-     */
-    WPropInt      m_anInteger;
-
-    /**
-     * A double value.
-     */
-    WPropDouble   m_aDouble;
-
-    /**
-     * A string.
-     */
-    WPropString   m_aString;
-
-    /**
-     * A filename.
-     */
-    WPropFilename m_aFile;
-
-    /**
-     * A color.
-     */
-    WPropColor    m_aColor;
-
-    /**
-     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
-     * moduleMain().
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMEffectiveConnectivityCluster* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMEffectiveConnectivityCluster* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time.
-         */
-        bool m_initialUpdate;
-    };
-
-    /**
-     * This shows how to write custom constraints for your modules. Please refer to the documentation in properties() for more details.
-     *
-     * \note: always use WPVBaseTypes to specialize the PropertyVariable template.
-     */
-    class StringLength: public WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint
-    {
-        /**
-         * You need to overwrite this method. It decides whether the specified new value should be accepted or not.
-         *
-         * \param property the property thats going to be changed.
-         * \param value the new value
-         *
-         * \return true if the new value is OK.
-         */
-        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > >  property, WPVBaseTypes::PV_STRING value );
-    };
 };
 
 #endif  // WMEFFECTIVECONNECTIVITYCLUSTER_H
-

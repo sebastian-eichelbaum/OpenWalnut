@@ -124,11 +124,6 @@ private:
     boost::shared_ptr< WDataSetSingle > m_dataSet;
 
     /**
-     * The dataset containing the fiber directions for each voxel in m_dataSet.
-     */
-    boost::shared_ptr< WDataSetSingle > m_directionDataSet;
-
-    /**
      * The dataset containing the fiber traces in each voxel in m_dataSet.
      */
     boost::shared_ptr< WDataSetSingle > m_tracesDataSet;

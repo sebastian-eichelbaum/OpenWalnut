@@ -139,12 +139,10 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
 
     // bind the texture to the node
     osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
-    osg::ref_ptr< osg::Texture3D > directionTexture3D = m_directionDataSet->getTexture()->getTexture();
     osg::ref_ptr< osg::Texture3D > tracesTexture3D = m_tracesDataSet->getTexture()->getTexture();
     osg::StateSet* rootState = cube->getOrCreateStateSet();
     rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-    rootState->setTextureAttributeAndModes( 1, directionTexture3D, osg::StateAttribute::ON );
-    rootState->setTextureAttributeAndModes( 2, tracesTexture3D, osg::StateAttribute::ON );
+    rootState->setTextureAttributeAndModes( 1, tracesTexture3D, osg::StateAttribute::ON );
 
     //tracesTexture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
     //tracesTexture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
@@ -159,17 +157,11 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
     // for the texture, also bind the appropriate uniforms
     rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
     rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
-    rootState->addUniform( new osg::Uniform( "tex2", 2 ) );
 
     // we need to specify the texture scaling parameters to the shader
-    rootState->addUniform( new osg::Uniform( "u_tex1Scale", m_directionDataSet->getTexture()->getMinMaxScale() ) );
-    rootState->addUniform( new osg::Uniform( "u_tex1Min", m_directionDataSet->getTexture()->getMinValue() ) );
-    rootState->addUniform( new osg::Uniform( "u_tex1Max", m_directionDataSet->getTexture()->getMaxValue() ) );
-
-    // we need to specify the texture scaling parameters to the shader
-    rootState->addUniform( new osg::Uniform( "u_tex2Scale", m_tracesDataSet->getTexture()->getMinMaxScale() ) );
-    rootState->addUniform( new osg::Uniform( "u_tex2Min", m_tracesDataSet->getTexture()->getMinValue() ) );
-    rootState->addUniform( new osg::Uniform( "u_tex2Max", m_tracesDataSet->getTexture()->getMaxValue() ) );
+    rootState->addUniform( new osg::Uniform( "u_tex1Scale", m_tracesDataSet->getTexture()->getMinMaxScale() ) );
+    rootState->addUniform( new osg::Uniform( "u_tex1Min", m_tracesDataSet->getTexture()->getMinValue() ) );
+    rootState->addUniform( new osg::Uniform( "u_tex1Max", m_tracesDataSet->getTexture()->getMaxValue() ) );
 
     osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
     isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
@@ -193,7 +185,7 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
 
 void WMSurfaceBars::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "GPUSurfaceParticles" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "GPUSurfaceBars" ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -222,17 +214,15 @@ void WMSurfaceBars::moduleMain()
 
         // has the data changed?
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
-        boost::shared_ptr< WDataSetSingle > newDirectionDataSet = m_directionInput->getData();
         boost::shared_ptr< WDataSetSingle > newTracesDataSet = m_tracesInput->getData();
 
-        bool dataChanged = ( m_dataSet != newDataSet ) || ( m_directionDataSet != newDirectionDataSet ) || ( m_tracesDataSet != newTracesDataSet );
-        bool dataValid =   ( newDataSet && newDirectionDataSet && newTracesDataSet );
+        bool dataChanged = ( m_dataSet != newDataSet ) || ( m_tracesDataSet != newTracesDataSet );
+        bool dataValid =   ( newDataSet && newTracesDataSet );
 
         // As the data has changed, we need to recreate the texture.
         if ( dataChanged && dataValid )
         {
             m_dataSet = newDataSet;
-            m_directionDataSet = newDirectionDataSet;
             m_tracesDataSet = newTracesDataSet;
 
             debugLog() << "Data changed. Uploading new data as texture.";
