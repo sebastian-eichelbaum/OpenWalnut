@@ -36,7 +36,12 @@
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
+#include "WEEGViewHandler.h"
+#include "WLabelsTransformCallback.h"
+#include "WLineStripCallback.h"
 #include "WMEEGView.h"
+#include "WPanTransformCallback.h"
+#include "WScaleTransformCallback.h"
 #include "eeg.xpm"
 
 
@@ -101,6 +106,42 @@ void WMEEGView::properties()
                                                     "Draw the labels of the electrodes at their 3D positions.",
                                                     true,
                                                     m_propCondition );
+    m_labelsWidth     = m_properties2->addProperty( "Labels Width",
+                                                    "The width of the label display in pixel.",
+                                                    24 );
+    m_timePos         = m_properties2->addProperty( "Time Position",
+                                                    "The time position in seconds where to start the graph at the left edge.",
+                                                    0.0 );
+    m_timeRange       = m_properties2->addProperty( "Time Range",
+                                                    "The width of the graph in seconds.",
+                                                    4.0 );
+    m_graphWidth      = m_properties2->addProperty( "Graph Width",
+                                                    "The width of the graph in pixel.",
+                                                    992 );
+    m_yPos            = m_properties2->addProperty( "Y Position",
+                                                    "The y position in pixel at the lower edge.",
+                                                    -730.25 );
+    m_ySpacing        = m_properties2->addProperty( "Spacing",
+                                                    "The distance between two curves of the graph in pixel.",
+                                                    11.5 );
+    m_ySensitivity    = m_properties2->addProperty( "Sensitivity",
+                                                    "The sensitivity of the graph in microvolt per pixel.",
+                                                    128.0 );
+
+    m_labelsWidth->setMin( 0 );
+    m_labelsWidth->setMax( 64 );
+    m_timePos->setMin( 0.0 );
+    m_timePos->setMax( 86400.0 );
+    m_timeRange->setMin( 0.01 );
+    m_timeRange->setMax( 60.0 );
+    m_graphWidth->setMin( 1 );
+    m_graphWidth->setMax( 4096 );
+    m_yPos->setMin( -1048576.0 );
+    m_yPos->setMax( 0.0 );
+    m_ySpacing->setMin( 0.0 );
+    m_ySpacing->setMax( 1024.0 );
+    m_ySensitivity->setMin( 0.001 );
+    m_ySensitivity->setMax( 8192.0 );
 }
 
 void WMEEGView::notifyConnectionEstablished(
@@ -123,6 +164,9 @@ void WMEEGView::moduleMain()
     m_moduleState.add( m_dataChanged.getCondition() );
     m_moduleState.add( m_active->getCondition() );
     m_moduleState.add( m_propCondition );
+
+    // create GUI event handler
+    m_handler = new WEEGViewHandler( m_labelsWidth, m_timePos, m_timeRange, m_graphWidth, m_yPos, m_ySpacing, m_ySensitivity );
 
     {
         // create color map
@@ -288,8 +332,12 @@ bool WMEEGView::openCustomWidget()
     if( success )
     {
         debugLog() << "Succesfully opened EEG View widget.";
+
+        m_widget->getViewer()->getView()->addEventHandler( m_handler );
+
         m_eventPositionFlag = m_widget->getViewer()->getMarkHandler()->getPositionFlag();
         m_moduleState.add( m_eventPositionFlag->getCondition() );
+
         if( m_rootNode2d.valid() )
         {
             debugLog() << "Adding rootNode to scene after opened EEG View widget";
@@ -309,8 +357,12 @@ void WMEEGView::closeCustomWidget()
     {
         m_widget->getScene()->remove( m_rootNode2d );
     }
+
     m_moduleState.remove( m_eventPositionFlag->getCondition() );
     m_eventPositionFlag = NULL;
+
+    m_widget->getViewer()->getView()->getEventHandlers().remove( m_handler );
+
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
 
@@ -328,15 +380,12 @@ void WMEEGView::redraw()
         }
     }
 
-    if( m_eeg.get() )
+    if( m_eeg.get() && 0 < m_eeg->getNumberOfSegments() )
     {
-        const osg::Vec3 text2dOffset( -8.0, 0.0, 0.0 );
-        const double text2dSize = 32.0;
+        const float text2dOffset = 2.0f;
+        const float text2dSize = 32.0f;
         const osg::Vec4 text2dColor( 0.0, 0.0, 0.0, 1.0 );
         const osg::Vec4 linesColor( 0.0, 0.0, 0.0, 1.0 );
-        const osg::Matrix scaleMatrix = osg::Matrix::scale( 1.0, 4.0, 1.0 );
-        const double xOffset = 0.0;
-        const unsigned int spacing = 16;
 
         m_rootNode2d = new WGEGroupNode;
         osg::StateSet* stateset = m_rootNode2d->getOrCreateStateSet();
@@ -348,77 +397,81 @@ void WMEEGView::redraw()
         debugLog() << "  Number of segments: " << m_eeg->getNumberOfSegments();
         size_t nbChannels = m_eeg->getNumberOfChannels();
         debugLog() << "  Number of channels: " << nbChannels;
-        debugLog() << "  Sampling Rate: " << m_eeg->getSamplingRate();
+        double rate = m_eeg->getSamplingRate();
+        debugLog() << "  Sampling Rate: " << rate;
+        debugLog() << "  Segment " << 0;
+        boost::shared_ptr< WEEG2Segment > segment = m_eeg->getSegment( 0 );
+        size_t nbSamples = segment->getNumberOfSamples();
+        debugLog() << "    Number of Samples: " << nbSamples;
+
+        // reset and adjust properties to given dataset
+        m_ySpacing->set( 736.0 / nbChannels );
+        m_yPos->set( 368.0 / nbChannels - 736.0 );
+        m_timePos->set( 0.0 );
+        m_timePos->setMax( nbSamples / rate );
 
         // draw 2D plot
-        for( size_t segmentID = 0; segmentID < m_eeg->getNumberOfSegments(); ++segmentID )
+        // create text geode for the channel labels
+        osg::Geode* textGeode = new osg::Geode;
+
+        // create pan matrix transfom node
+        osg::MatrixTransform* panTransform = new osg::MatrixTransform;
+        panTransform->setDataVariance( osg::Object::DYNAMIC );
+        panTransform->setUpdateCallback( new WPanTransformCallback( m_labelsWidth, m_timePos, m_timeRange, m_graphWidth, m_yPos ) );
+
+        for( size_t channelID = 0; channelID < nbChannels; ++channelID )
         {
-            debugLog() << "  Segment " << segmentID;
-            boost::shared_ptr< WEEG2Segment > segment = m_eeg->getSegment( segmentID );
-            size_t nbSamples = segment->getNumberOfSamples();
-            debugLog() << "    Number of Samples: " << nbSamples;
+            debugLog() << "    Channel " << channelID;
+            boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
+            debugLog() << "      Channel unit: " << channelInfo->getUnit();
+            debugLog() << "      Channel label: " << channelInfo->getLabel();
 
-            // limit number of samples
-            if( nbSamples > 16384 )
-            {
-                nbSamples = 16384;
-            }
+            // create text for the channel label
+            osgText::Text* text = new osgText::Text;
+            text->setText( channelInfo->getLabel() );
+            text->setPosition( osg::Vec3( text2dOffset, -static_cast< float >( channelID ), 0.0f ) );
+            text->setAlignment( osgText::Text::LEFT_CENTER );
+            text->setAxisAlignment( osgText::Text::SCREEN );
+            text->setCharacterSize( text2dSize );
+            text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+            text->setColor( text2dColor );
 
-            boost::shared_ptr< WEEGValueMatrix > values = segment->getValues( 0, nbSamples );
-            for( size_t channelID = 0; channelID < nbChannels; ++channelID )
-            {
-                debugLog() << "    Channel " << channelID;
-                boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
-                debugLog() << "      Channel unit: " << channelInfo->getUnit();
-                debugLog() << "      Channel label: " << channelInfo->getLabel();
+            textGeode->addDrawable( text );
 
-                // create text geode for the channel label
-                osgText::Text* text = new osgText::Text;
-                text->setText( channelInfo->getLabel() );
-                text->setPosition( text2dOffset );
-                text->setAlignment( osgText::Text::RIGHT_CENTER );
-                text->setAxisAlignment( osgText::Text::SCREEN );
-                text->setCharacterSize( text2dSize );
-                text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
-                text->setColor( text2dColor );
+            // create geode to draw the actual data as line strip
+            osg::Geometry* geometry = new osg::Geometry;
 
-                osg::Geode* textGeode = new osg::Geode;
-                textGeode->addDrawable( text );
+            osg::Vec4Array* colors = new osg::Vec4Array;
+            colors->push_back( linesColor );
+            geometry->setColorArray( colors );
+            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-                // create geode to draw the actual data as line strip
-                osg::Geometry* geometry = new osg::Geometry;
+            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 0 ) );
 
-                osg::Vec3Array* vertices = new osg::Vec3Array( nbSamples );
-                for( size_t sampleID = 0; sampleID < nbSamples; ++sampleID )
-                {
-                    (*vertices)[sampleID] = osg::Vec3( sampleID, (*values)[channelID][sampleID], 0.0 );
-                }
-                geometry->setVertexArray( vertices );
+            geometry->setDataVariance( osg::Object::DYNAMIC );
+            geometry->setUpdateCallback( new WLineStripCallback( channelID, m_timePos, m_timeRange, segment, rate ) );
 
-                osg::Vec4Array* colors = new osg::Vec4Array;
-                colors->push_back( linesColor );
-                geometry->setColorArray( colors );
-                geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            osg::Geode* linesGeode = new osg::Geode;
+            linesGeode->addDrawable( geometry );
 
-                geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, nbSamples ) );
+            // create scaling matrix transform node
+            osg::MatrixTransform* scaleTransform = new osg::MatrixTransform;
+            scaleTransform->setDataVariance( osg::Object::DYNAMIC );
+            scaleTransform->setUpdateCallback( new WScaleTransformCallback( channelID, m_ySpacing, m_ySensitivity ) );
 
-                osg::Geode* linesGeode = new osg::Geode;
-                linesGeode->addDrawable( geometry );
-
-                // create the matrix transform nodes
-                osg::MatrixTransform* scale = new osg::MatrixTransform;
-                scale->setMatrix( scaleMatrix );
-
-                osg::MatrixTransform* translate = new osg::MatrixTransform;
-                translate->setMatrix( osg::Matrix::translate( xOffset, 2 * spacing * ( nbChannels - channelID ) - spacing, 0.0 ) );
-
-                // connect all creates nodes
-                scale->addChild( linesGeode );
-                translate->addChild( textGeode );
-                translate->addChild( scale );
-                m_rootNode2d->addChild( translate );
-            }
+            // connect all creates nodes
+            scaleTransform->addChild( linesGeode );
+            panTransform->addChild( scaleTransform );
         }
+
+        // create matrix transform node for the labels
+        osg::MatrixTransform* labelsTransform = new osg::MatrixTransform;
+        labelsTransform->setDataVariance( osg::Object::DYNAMIC );
+        labelsTransform->setUpdateCallback( new WLabelsTransformCallback( m_yPos, m_ySpacing ) );
+        labelsTransform->addChild( textGeode );
+
+        m_rootNode2d->addChild( labelsTransform );
+        m_rootNode2d->addChild( panTransform );
 
         // draw event marker
         if( m_event.getNode().valid() && 0.0 < m_event.getTime() && m_event.getTime() <= 16384 - 1 )

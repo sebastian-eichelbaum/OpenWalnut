@@ -56,7 +56,7 @@
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
 
-#include "../../dataHandler/WEEG.h"
+#include "../../dataHandler/WEEG2.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataSetFibers.h"
 
@@ -237,9 +237,9 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             // it is a fiber dataset -> add the FiberDisplay module
             autoAdd( module, "Fiber Display" );
         }
-        else if ( dataModule->getDataSet()->isA< WEEG >() )
+        else if ( dataModule->getDataSet()->isA< WEEG2 >() )
         {
-            // it is a eeg dataset -> add the eegView module?
+            // it is a eeg dataset -> add the eegView module
             autoAdd( module, "EEG View" );
         }
     }

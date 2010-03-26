@@ -35,6 +35,7 @@
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "WEEGViewHandler.h"
 
 
 /**
@@ -122,7 +123,7 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * Property determining whether elekrode positions should be drawn.
+     * Property determining whether electode positions should be drawn.
      */
     WPropBool m_drawElectrodes;
 
@@ -132,9 +133,45 @@ private:
     WPropBool m_drawHeadSurface;
 
     /**
-     * Property determining whether elekrode labels should be drawn.
+     * Property determining whether electrode labels should be drawn.
      */
     WPropBool m_drawLabels;
+
+    /**
+     * the width of the label display in pixel as property
+     */
+    WPropInt m_labelsWidth;
+
+    /**
+     * the time position in seconds where to start the graph at the left edge as
+     * property
+     */
+    WPropDouble m_timePos;
+
+    /**
+     * the width of the graph in seconds as property
+     */
+    WPropDouble m_timeRange;
+
+    /**
+     * the width of the graph in pixel as property
+     */
+    WPropInt m_graphWidth;
+
+    /**
+     * the y position in pixel at the lower edge as property
+     */
+    WPropDouble m_yPos;
+
+    /**
+     * the distance between two curves of the graph in pixel as property
+     */
+    WPropDouble m_ySpacing;
+
+    /**
+     * the sensitivity of the graph in microvolt per pixel as property
+     */
+    WPropDouble m_ySensitivity;
 
     /**
      * Pointer to the loaded EEG dataset
@@ -145,6 +182,11 @@ private:
      * Custom widget which is used by this module to display its data.
      */
     boost::shared_ptr< WCustomWidget > m_widget;
+
+    /**
+     * GUI event handler used for interactive changing of many properties
+     */
+    osg::ref_ptr< WEEGViewHandler > m_handler;
 
     /**
      * OSG node for all 2D stuff of this module. All other OSG nodes should be
