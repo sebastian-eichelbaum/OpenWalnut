@@ -26,13 +26,13 @@
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 
-
 #include "WGEShaderAnimationCallback.h"
 
 WGEShaderAnimationCallback::WGEShaderAnimationCallback( int ticksPerSecond ):
     osg::Uniform::Callback(),
     m_ticksPerSec( ticksPerSecond )
 {
+    // TODO(ebaum): make this stuff compatible to windows
     timeval tv;
     gettimeofday( &tv, 0L );
 
@@ -46,6 +46,7 @@ WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
 
 void WGEShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
+    // TODO(ebaum): make this stuff compatible to windows
     timeval tv;
     gettimeofday( &tv, 0L );
 

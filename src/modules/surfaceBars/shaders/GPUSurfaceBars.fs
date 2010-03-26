@@ -80,7 +80,7 @@ uniform float u_gridResolution;
 // Relative size of the particle to the voxel
 uniform float u_particleSize;
 
-// Animation reference.
+// Animation reference in 100th of a second
 uniform int u_animationTime;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,7 +253,7 @@ void main()
 
             // 4: prepare animation
             // the current time step:
-            int timeStep = u_animationTime;
+            int timeStep = u_animationTime / 4; // scale 100th of a second to 25 times per second
             
             // timeStep = 34;
             // create a triangle function increasing time in 1/100 steps
