@@ -49,7 +49,7 @@
 #include "../../graphicsEngine/WShader.h"
 
 #include "../data/WMData.h"
-
+#include "effectiveConnectivity.xpm"
 
 WMEffectiveConnectivity::WMEffectiveConnectivity():
     WModuleContainer( "Effecitve Connectivity", "This module is able to visualize effective connectivity graphs." ),
@@ -70,6 +70,11 @@ WMEffectiveConnectivity::~WMEffectiveConnectivity()
 boost::shared_ptr< WModule > WMEffectiveConnectivity::factory() const
 {
     return boost::shared_ptr< WModule >( new WMEffectiveConnectivity() );
+}
+
+const char** WMEffectiveConnectivity::getXPMIcon() const
+{
+    return effectiveConnectivity_xpm;
 }
 
 const std::string WMEffectiveConnectivity::getName() const

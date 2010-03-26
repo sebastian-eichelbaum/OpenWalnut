@@ -49,7 +49,7 @@
 #include "../../graphicsEngine/WShader.h"
 
 #include "../data/WMData.h"
-
+#include "effectiveConnectivityCluster.xpm"
 
 WMEffectiveConnectivityCluster::WMEffectiveConnectivityCluster():
     WModuleContainer( "Effective Connectivity Cluster", "This module is able to visualize effective connectivity cluster." )
@@ -69,6 +69,11 @@ WMEffectiveConnectivityCluster::~WMEffectiveConnectivityCluster()
 boost::shared_ptr< WModule > WMEffectiveConnectivityCluster::factory() const
 {
     return boost::shared_ptr< WModule >( new WMEffectiveConnectivityCluster() );
+}
+
+const char** WMEffectiveConnectivityCluster::getXPMIcon() const
+{
+    return effectiveConnectivityCluster_xpm;
 }
 
 const std::string WMEffectiveConnectivityCluster::getName() const
