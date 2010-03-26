@@ -70,6 +70,8 @@ int main( int argc, char** argv )
         WLogger::getLogger()->wait( true );
     }
 
+    std::cout << "Closed OpenWalnut smoothly. Goodbye!" << std::endl;
+
     return result;
 }
 

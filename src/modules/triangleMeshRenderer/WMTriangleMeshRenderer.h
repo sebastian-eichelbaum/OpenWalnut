@@ -86,6 +86,11 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
+    /**
+     *  updates shader parameters
+     */
+    void update();
+
 protected:
 
     /**
@@ -115,9 +120,14 @@ private:
      */
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_input;
 
+    WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
+
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
+
+    osg::ref_ptr< WShader > m_shader; //!< The shader used for the iso surface in m_geode
+
 
     /**
      * This function generates the osg geometry from the WTriangleMesh.
@@ -125,5 +135,43 @@ private:
      */
     void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
 };
+
+/**
+ * Adapter object for realizing callbacks of the node representing the surface in the osg
+ */
+class TriangleMeshRendererCallback : public osg::NodeCallback
+{
+public:
+    /**
+     * Constructor of the callback adapter.
+     * \param module A function of this module will be called
+     */
+    explicit TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module );
+
+    /**
+     * Function that is called by the osg and that call the function in the module.
+     * \param node The node we are called.
+     * \param nv the visitor calling us.
+     */
+    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+
+private:
+    boost::shared_ptr< WMTriangleMeshRenderer > m_module; //!< Pointer to the module to which the function that is called belongs to.
+};
+
+inline TriangleMeshRendererCallback::TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module )
+    : m_module( module )
+{
+}
+
+inline void TriangleMeshRendererCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    if ( m_module )
+    {
+        m_module->update();
+    }
+    traverse( node, nv );
+}
+
 
 #endif  // WMTRIANGLEMESHRENDERER_H

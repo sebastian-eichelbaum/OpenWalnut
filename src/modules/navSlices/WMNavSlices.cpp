@@ -460,6 +460,8 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         quad->push_back( 0 );
         sliceGeometry->addPrimitiveSet( quad );
     }
+    WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->setPosition(
+            wmath::WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get() ) );
 
     return sliceGeometry;
 }
@@ -537,15 +539,28 @@ void WMNavSlices::updateTextures()
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
+
+                if ( ( *iter )->isInterpolated() )
+                {
+                    texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+                    texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+                }
+                else
+                {
+                    texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+                    texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+                }
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms
                 float t = ( *iter )->getThreshold() / 255.0;
                 float a = ( *iter )->getAlpha();
+                int cmap = ( *iter )->getSelectedColormap();
 
                 m_typeUniforms[c]->set( ( *iter )->getDataType() );
                 m_thresholdUniforms[c]->set( t );
                 m_alphaUniforms[c]->set( a );
+                m_cmapUniforms[c]->set( cmap );
 
                 ++c;
             }
@@ -612,12 +627,24 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex8", 8 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex9", 9 ) ) );
 
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap0", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap1", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap2", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap3", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap4", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap5", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap6", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap7", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
+
     for ( int i = 0; i < 10; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
         rootState->addUniform( m_alphaUniforms[i] );
         rootState->addUniform( m_samplerUniforms[i] );
+        rootState->addUniform( m_cmapUniforms[i] );
     }
 
     m_highlightUniformSagittal = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "highlighted", 0 ) );

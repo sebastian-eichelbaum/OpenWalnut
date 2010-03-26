@@ -30,44 +30,19 @@
 #include "WException.h"
 
 /**
- * This class provides an interface siilar to assert,
- * but allows us to either throw an exception or a usual
- * assertion failure.
- * \warning At the moment we only support exceptions in very simple way. Assertions are future work.
+ * Implements assertion logic.
+ *
+ * If the flag WASSERT_AS_CASSERT is set, an error message is output to stderr,
+ * then abort() is called. If the flag is not set, a WException is thrown.
+ *
+ * \param expression The expression that failed.
+ * \param file The name of the file where the assertion statement can be found.
+ * \param line The line in the file.
+ * \param msg An optional message.
  */
-class WAssert
-{
-public:
-    /**
-     * OpenWalnut assertion.
-     * \param value evaluated value of the assertion expression
-     */
-    inline explicit WAssert( bool value );
-    /**
-     * OpenWalnut assertion with info message.
-     * \param value evaluated value of the assertion expression
-     * \param msg Message describing the assertion.
-     */
-    inline explicit WAssert( bool value, std::string msg );
-protected:
-private:
-};
+void wAssertFailed( std::string const& expression, std::string const& file, std::size_t line, std::string const& msg );
 
-WAssert::WAssert( bool value )
-{
-    if( !value )
-    {
-        throw WException( "WAssert failed. Please have a look at the backtrace for more information." );
-    }
-}
-
-WAssert::WAssert( bool value, std::string msg )
-{
-    if( !value )
-    {
-        throw WException( "WAssert failed. Message: " + msg );
-    }
-}
-
+//! the actual assertion macro
+#define WAssert( e, msg )  ( ( e ) ? ( ( void )0 ) : ( wAssertFailed( #e, __FILE__, __LINE__, msg ) ) )
 
 #endif  // WASSERT_H

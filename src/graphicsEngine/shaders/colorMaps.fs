@@ -42,7 +42,7 @@ vec3 colorMap1 ( in float value )
     else // iq == 5
         return vec3(1., 0., q);
 }
-/*
+
 vec3 colorMap2( in float value )
 {
     vec4 color8  = vec4(255./255., 255./255., 204./255., 1.);
@@ -164,20 +164,18 @@ vec3 colorMap6( in float value )
 
     return vec3(colorRed, colorGreen, colorBlue);
 }
-*/
-void colorMap( inout vec3 col, in float value )
+
+void colorMap( inout vec3 col, in float value, int cmap )
 {
 
-    if ( useColorMap == 1 )
+    if ( cmap == 1 )
         col = colorMap1( value );
-        /*
-    else if ( useColorMap == 2 )
+    else if ( cmap == 2 )
         col = colorMap2( value );
-    else if ( useColorMap == 3 )
+    else if ( cmap == 3 )
         col = colorMap3( value );
-    else if ( useColorMap == 4 )
+    else if ( cmap == 4 )
         col = colorMap4( value );
-        */
     else
         col = defaultColorMap( value );
 }

@@ -34,7 +34,6 @@
 #include "../../kernel/WModuleInputData.h"
 
 #include "../../graphicsEngine/WShader.h"
-#include "../../common/math/WPosition.h"
 
 #include "WTubeDrawable.h"
 

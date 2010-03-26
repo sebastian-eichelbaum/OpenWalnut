@@ -22,28 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WSELECTIONMANAGER_H
+#define WSELECTIONMANAGER_H
 
-#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include "WAssert.h"
+#include "WCrosshair.h"
 
-void wAssertFailed( std::string const& expression, std::string const& file, std::size_t line, std::string const& msg )
+/**
+ * manages the several selection tools
+ */
+class WSelectionManager
 {
-#ifdef WASSERT_AS_CASSERT
-    std::cerr << "Assertion failed: " << expression << " (in file " << file << " at line " << line << ")";
-    if( msg.length() > 0 )
-    {
-        std::cerr << ", Message: " << msg;
-    }
-    std::cerr << std::endl;
-    abort();
-#else
-    std::string s = "Assertion failed: " + expression + " (in file " + file + " at line " + boost::lexical_cast< std::string >( line ) + ")";
-    if( msg.length() > 0 )
-    {
-        s += ", Message: " + msg;
-    }
-    throw WException( s );
-#endif
-}
+public:
+    /**
+     * standard constructor
+     */
+    WSelectionManager();
+
+    /**
+     * destructor
+     */
+    virtual ~WSelectionManager();
+
+    /**
+     * getter
+     */
+    boost::shared_ptr< WCrosshair >getCrosshair();
+
+protected:
+private:
+    boost::shared_ptr< WCrosshair >m_crosshair; //!< stores pointer to crosshair
+};
+
+#endif  // WSELECTIONMANAGER_H

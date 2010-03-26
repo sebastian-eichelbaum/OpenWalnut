@@ -51,6 +51,7 @@
 #include "WDirectionParameterization.h"
 #include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
+#include "voxelizer.xpm"
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
@@ -65,6 +66,11 @@ WMVoxelizer::~WMVoxelizer()
 boost::shared_ptr< WModule > WMVoxelizer::factory() const
 {
     return boost::shared_ptr< WModule >( new WMVoxelizer() );
+}
+
+const char** WMVoxelizer::getXPMIcon() const
+{
+    return voxelizer_xpm;
 }
 
 void WMVoxelizer::moduleMain()

@@ -22,28 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WCROSSHAIR_H
+#define WCROSSHAIR_H
 
-#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
+#include "../common/math/WVector3D.h"
 
-#include "WAssert.h"
-
-void wAssertFailed( std::string const& expression, std::string const& file, std::size_t line, std::string const& msg )
+/**
+ * TODO(schurade): Document this!
+ */
+class WCrosshair
 {
-#ifdef WASSERT_AS_CASSERT
-    std::cerr << "Assertion failed: " << expression << " (in file " << file << " at line " << line << ")";
-    if( msg.length() > 0 )
-    {
-        std::cerr << ", Message: " << msg;
-    }
-    std::cerr << std::endl;
-    abort();
-#else
-    std::string s = "Assertion failed: " + expression + " (in file " + file + " at line " + boost::lexical_cast< std::string >( line ) + ")";
-    if( msg.length() > 0 )
-    {
-        s += ", Message: " + msg;
-    }
-    throw WException( s );
-#endif
-}
+public:
+    /**
+     * TODO(schurade): Document this!
+     */
+    WCrosshair();
+
+    /**
+     * TODO(schurade): Document this!
+     */
+    ~WCrosshair();
+
+    /**
+     * getter
+     */
+    wmath::WPosition getPosition();
+
+    /**
+     * setter
+     *
+     * \param position
+     */
+    void setPosition( wmath::WPosition position );
+
+protected:
+private:
+    wmath::WPosition m_position; //!< stores the position
+};
+
+#endif  // WCROSSHAIR_H
