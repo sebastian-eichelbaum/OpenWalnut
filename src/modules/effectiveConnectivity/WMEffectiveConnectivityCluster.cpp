@@ -33,6 +33,8 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osgText/Text>
+#include <osgText/FadeText>
 #include <osg/StateSet>
 #include <osg/StateAttribute>
 #include <osg/PolygonMode>
@@ -46,13 +48,15 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEResourceManager.h"
+#include "../../graphicsEngine/WGELabel.h"
 
 #include "../data/WMData.h"
 #include "effectiveConnectivityCluster.xpm"
 
 WMEffectiveConnectivityCluster::WMEffectiveConnectivityCluster():
-    WModuleContainer( "Effective Connectivity Cluster", "This module is able to visualize effective connectivity cluster." )
+    WModuleContainer( "Effective Connectivity Cluster", "This module is able to visualize effective connectivity cluster." ),
+    m_rootNode( new WGEGroupNode() )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // NOTE: Do not use the module factory inside this constructor. This will cause a dead lock as the module factory is locked
@@ -169,8 +173,6 @@ void WMEffectiveConnectivityCluster::moduleMain()
     props->getProperty( "Iso Color" )->toPropColor()->set( WColor( 0.0, 0.5, 1.0, 1.0 ) );
     m_properties2->addProperty( props->getProperty( "Iso Color" ) );
 
-
-
     //////////////////////////////////////////////////////////////////////////////////
     // Hard wire the modules
     //////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +192,6 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_VOI1->forward( m_fiberSelection->getInputConnector( "VOI1" ) );
     m_VOI2->forward( m_fiberSelection->getInputConnector( "VOI2" ) );
 
-
     //////////////////////////////////////////////////////////////////////////////////
     // Done!
     //////////////////////////////////////////////////////////////////////////////////
@@ -198,8 +199,71 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // signal ready state
     ready();
 
-    // wait for stop request
-    waitForStop();
+    // wake up on property change
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
+
+    // Signal ready state.
+    ready();
+
+    // add this module's group node
+    m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
+    // Now wait for data
+    bool first = true;
+    while ( !m_shutdownFlag() )
+    {
+        m_moduleState.wait();
+
+        // woke up since the module is requested to finish
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // has one of the properties changed?
+        if ( m_voi1Name->changed() || m_voi2Name->changed() || first )
+        {
+            // create some labels
+            osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+
+            osg::ref_ptr< osgText::FadeText > label1 = new osgText::FadeText();
+            label1->setText( m_voi1Name->get( true ) );
+            label1->setCharacterSize( 8 );
+            label1->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+            label1->setAxisAlignment(osgText::Text::SCREEN);
+            label1->setAlignment( osgText::Text::CENTER_CENTER );
+            label1->setPosition( osg::Vec3( 84, 36 , 56 ) ); // the position relative to the current coordinate system
+            label1->setColor( osg::Vec4( 0, 0, 0, 1 ) );
+            label1->setFadeSpeed( 0.05 );
+            osg::ref_ptr< osgText::FadeText > label2 = new osgText::FadeText();
+            label2->setText( m_voi2Name->get( true ) );
+            label2->setCharacterSize( 8 );
+            label2->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+            label2->setAxisAlignment( osgText::Text::SCREEN );
+            label1->setAlignment( osgText::Text::CENTER_CENTER );
+            label2->setPosition( osg::Vec3( 69, 36 , 56 ) ); // the position relative to the current coordinate system
+            label2->setColor( osg::Vec4( 0, 0, 0, 1 ) );
+            label2->setFadeSpeed( 0.05 );
+            geode->getOrCreateStateSet()->setRenderBinDetails( 11, "RenderBin");
+            geode->getOrCreateStateSet()->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+
+
+
+            geode->addDrawable( label1 );
+            geode->addDrawable( label2 );
+
+            m_rootNode->clear();
+            m_rootNode->insert( geode );
+        }
+
+        first = false;
+    }
+
+    // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
+    // allocated memory and remove all OSG nodes.
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 
     // stop container and the contained modules.
     stop();
@@ -236,6 +300,15 @@ void WMEffectiveConnectivityCluster::connectors()
 
     // call WModules initialization
     WModule::connectors();
+}
+
+void WMEffectiveConnectivityCluster::properties()
+{
+    // Initialize the properties
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_voi1Name = m_properties2->addProperty( "Name of VOI1", "The name of the VOI1.", std::string( "" ), m_propCondition );
+    m_voi2Name = m_properties2->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "" ), m_propCondition );
 }
 
 void WMEffectiveConnectivityCluster::activate()

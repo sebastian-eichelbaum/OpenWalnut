@@ -30,8 +30,6 @@
 #include <vector>
 
 #include <osg/Node>
-#include <osg/Geode>
-#include <osg/Uniform>
 
 #include "../../dataHandler/WDataSetFibers.h"
 
@@ -39,6 +37,7 @@
 #include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WModuleInputForwardData.h"
 #include "../../kernel/WModuleOutputForwardData.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 
 /**
  * This module is able to visualize connectome data in the context of MRI data. It uses the module container class to allow the
@@ -96,6 +95,11 @@ protected:
     virtual void connectors();
 
     /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
     virtual void activate();
@@ -121,6 +125,35 @@ private:
     boost::shared_ptr< WModule > m_voxelizer;            //!< The voxelizer module.
     boost::shared_ptr< WModule > m_gauss;                //!< The gauss filter which filters the voxelized fibers.
     boost::shared_ptr< WModule > m_animation;            //!< The final animation.
+
+    /////////////////////////////////////////////////////////////////////
+    // The Properties
+    /////////////////////////////////////////////////////////////////////
+
+    /**
+     * The name of the first region of interest
+     */
+    WPropString m_voi1Name;
+
+    /**
+     * The name of the first region of interest
+     */
+    WPropString m_voi2Name;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /////////////////////////////////////////////////////////////////////
+    // OSG Stuff
+    /////////////////////////////////////////////////////////////////////
+
+    /**
+     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     */
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
+
 };
 
 #endif  // WMEFFECTIVECONNECTIVITYCLUSTER_H
