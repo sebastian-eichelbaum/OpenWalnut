@@ -22,41 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEEGPOSITIONSLIBRARY_H
-#define WEEGPOSITIONSLIBRARY_H
+#include <osg/Matrix>
+#include <osg/MatrixTransform>
+#include <osg/Node>
+#include <osg/NodeVisitor>
 
-#include <map>
-#include <string>
-
-#include "../common/exceptions/WOutOfBounds.h"
-#include "../common/math/WPosition.h"
+#include "../../common/WPropertyTypes.h"
+#include "../../common/WPropertyVariable.h"
+#include "WLabelsTransformCallback.h"
 
 
-/**
- * Class which contains the positions of EEG electrodes by label.
- * \ingroup dataHandler
- */
-class WEEGPositionsLibrary
+WLabelsTransformCallback::WLabelsTransformCallback( WPropDouble yPos, WPropDouble ySpacing )
+    : m_currentYPos( 0.0 ),
+      m_currentYSpacing( 1.0 ),
+      m_yPos( yPos ),
+      m_ySpacing( ySpacing )
 {
-public:
-    /**
-     * Constructor
-     *
-     * \param positions mapping from labels to positions
-     */
-    explicit WEEGPositionsLibrary( const std::map< std::string, wmath::WPosition >& positions );
+}
 
-    /**
-     * Get the position of an electrode with the given label
-     *
-     * \param label label of the electrode
-     * \return position of the electrode
-     */
-    wmath::WPosition getPosition( std::string label ) const throw( WOutOfBounds );
+void WLabelsTransformCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    const double yPos = m_yPos->get();
+    const double ySpacing = m_ySpacing->get();
 
-protected:
-private:
-    std::map< std::string, wmath::WPosition > m_positions; //!< mapping from labels to positions
-};
+    if( yPos != m_currentYPos || ySpacing != m_currentYSpacing )
+    {
+        osg::MatrixTransform* transform = static_cast< osg::MatrixTransform* >( node );
+        if( transform )
+        {
+            transform->setMatrix( osg::Matrix::scale( 1.0, ySpacing, 1.0 ) * osg::Matrix::translate( 0.0, -yPos, 0.0 ) );
+        }
 
-#endif  // WEEGPOSITIONSLIBRARY_H
+        m_currentYPos = yPos;
+        m_currentYSpacing = ySpacing;
+    }
+
+    traverse( node, nv );
+}

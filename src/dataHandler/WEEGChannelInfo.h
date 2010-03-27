@@ -32,8 +32,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/math/WPosition.h"
-#include "io/WPagerEEG.h"
 #include "WEEGPositionsLibrary.h"
+#include "exceptions/WDHException.h"
+#include "io/WPagerEEG.h"
 
 
 /**
@@ -47,9 +48,9 @@ public:
     /**
      * Constructor
      *
-     * \param channelID number of this channel
-     * \param pager pager class which contains the data, read from a file on
-     *              demand
+     * \param channelID        number of this channel
+     * \param pager            pager class which contains the data, read from a
+     *                         file on demand
      * \param positionsLibrary class which contains the positions of the
      *                         electrodes
      */
@@ -76,12 +77,13 @@ public:
      *
      * \return position
      */
-    wmath::WPosition getPosition() const;
+    wmath::WPosition getPosition() const throw( WDHException );
 
 protected:
 private:
     std::string m_unit; //!< unit used by the recording of the channel
     std::string m_label; //!< label of the channel
+    bool m_hasPosition; //!< whether there is a valid position for this electrode
     wmath::WPosition m_position; //!< position of the electrode
 };
 

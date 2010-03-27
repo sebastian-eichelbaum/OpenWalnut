@@ -35,6 +35,8 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
 {
     // setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
+    setFloating( true );
+    resize( 1024, 768 );
 
     m_glWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( title, this, projectionMode ) );
     m_glWidget->initialize();

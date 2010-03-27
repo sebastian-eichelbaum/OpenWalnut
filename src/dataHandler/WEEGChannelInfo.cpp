@@ -31,10 +31,10 @@
 
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WPosition.h"
-#include "exceptions/WDHException.h"
-#include "io/WPagerEEG.h"
 #include "WEEGPositionsLibrary.h"
 #include "WEEGChannelInfo.h"
+#include "exceptions/WDHException.h"
+#include "io/WPagerEEG.h"
 
 
 WEEGChannelInfo::WEEGChannelInfo( std::size_t channelID,
@@ -60,7 +60,16 @@ WEEGChannelInfo::WEEGChannelInfo( std::size_t channelID,
 
     m_unit = pager->getChannelUnit( channelID );
     m_label = pager->getChannelLabel( channelID );
-    m_position = positionsLibrary->getPosition( m_label );
+
+    try
+    {
+        m_position = positionsLibrary->getPosition( m_label );
+        m_hasPosition = true;
+    }
+    catch( const WOutOfBounds& )
+    {
+        m_hasPosition = false;
+    }
 }
 
 std::string WEEGChannelInfo::getUnit() const
@@ -73,8 +82,14 @@ std::string WEEGChannelInfo::getLabel() const
     return m_label;
 }
 
-wmath::WPosition WEEGChannelInfo::getPosition() const
+wmath::WPosition WEEGChannelInfo::getPosition() const throw( WDHException )
 {
-    return m_position;
+    if( m_hasPosition )
+    {
+        return m_position;
+    }
+    else
+    {
+        throw WDHException( "The position of this electrode is unknown." );
+    }
 }
-

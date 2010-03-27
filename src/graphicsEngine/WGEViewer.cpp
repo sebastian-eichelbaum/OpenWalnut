@@ -66,10 +66,13 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
             case( WGECamera::PERSPECTIVE ):
                 // camera manipulator
                 m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
+
+                m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
+
+                m_pickHandler = new WPickHandler();
+                m_View->addEventHandler( m_pickHandler );
                 break;
             case( WGECamera::TWO_D ):
-                m_View->setCameraManipulator( new WGE2DManipulator() );
-
                 m_markHandler = new WMarkHandler();
                 m_View->addEventHandler( m_markHandler );
                 break;
@@ -79,11 +82,6 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
 
         // add the stats handler
         m_View->addEventHandler( new osgViewer::StatsHandler );
-
-        m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
-
-        m_pickHandler = new WPickHandler();
-        m_View->addEventHandler( m_pickHandler );
     }
     catch( ... )
     {
@@ -142,6 +140,8 @@ void WGEViewer::setBgColor( WColor bgColor )
 
 void WGEViewer::resize( int width, int height )
 {
+    m_View->getEventQueue()->windowResize( 0, 0, width, height );
+
     WGEGraphicsWindow::resize( width, height );
 
     // also update the camera
