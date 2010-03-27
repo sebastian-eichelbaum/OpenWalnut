@@ -202,7 +202,7 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
-                                                                  bb.first, 1, 1, 1 ) );
+                                                                  bb.first, 1. / nbVoxelsPerUnit, 1. / nbVoxelsPerUnit, 1. / nbVoxelsPerUnit ) );
     return grid;
 }
 

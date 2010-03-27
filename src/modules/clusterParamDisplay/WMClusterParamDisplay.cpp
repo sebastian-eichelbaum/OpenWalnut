@@ -190,6 +190,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MaxScale" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MinScaleColor" ) );
     m_properties2->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MaxScaleColor" ) );
+    m_properties2->addProperty( m_voxelizer->getProperties2()->getProperty( "Voxels per Unit" ) );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
     // m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );
