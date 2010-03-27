@@ -28,6 +28,7 @@
 #include <map>
 #include <string>
 
+#include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WPosition.h"
 
 
@@ -51,7 +52,7 @@ public:
      * \param label label of the electrode
      * \return position of the electrode
      */
-    wmath::WPosition getPosition( std::string label ) const;
+    wmath::WPosition getPosition( std::string label ) const throw( WOutOfBounds );
 
 protected:
 private:

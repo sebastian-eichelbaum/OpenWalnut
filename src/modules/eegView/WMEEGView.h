@@ -26,6 +26,7 @@
 #define WMEEGVIEW_H
 
 #include <string>
+#include <vector>
 
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
@@ -367,10 +368,13 @@ private:
         /**
          * Constructor
          *
-         * \param event the event on which the Geometry updates
-         * \param eeg the WEEG dataset
+         * \param channelIDs the mapping from vertex indices to channel IDs
+         * \param event      the event on which the Geometry updates
+         * \param eeg        the WEEG dataset
          */
-        UpdateColorOfGeometryCallback( const WEvent* event, boost::shared_ptr< const WEEG2 > eeg );
+        UpdateColorOfGeometryCallback( const std::vector< std::size_t >& channelIDs,
+                                       const WEvent* event,
+                                       boost::shared_ptr< const WEEG2 > eeg );
 
         /**
          * Callback method called by the NodeVisitor.
@@ -389,6 +393,11 @@ private:
          * this.
          */
         double m_currentTime;
+
+        /**
+         * the mapping from vertex indices to channel IDs
+         */
+        const std::vector< std::size_t > m_channelIDs;
 
         /**
          * The event on which the Geometry updates

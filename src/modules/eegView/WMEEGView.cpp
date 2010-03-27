@@ -547,15 +547,22 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
     for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
     {
         boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
-        osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
+        try
+        {
+            osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
 
-        // create sphere geode on electrode position
-        osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
-        shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channelID, &m_event, m_eeg, m_colorMap ) );
+            // create sphere geode on electrode position
+            osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
+            shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channelID, &m_event, m_eeg, m_colorMap ) );
 
-        osg::Geode* sphereGeode = new osg::Geode;
-        sphereGeode->addDrawable( shape );
-        electrodes->addChild( sphereGeode );
+            osg::Geode* sphereGeode = new osg::Geode;
+            sphereGeode->addDrawable( shape );
+            electrodes->addChild( sphereGeode );
+        }
+        catch( const WDHException& )
+        {
+            warnLog() << "The position of the electrode " << channelInfo->getLabel() << " is unknown.";
+        }
     }
 
     return electrodes;
@@ -564,14 +571,28 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
 osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 {
     // draw head surface
-    size_t nbChannels = m_eeg->getNumberOfChannels();
+    const size_t nbChannels = m_eeg->getNumberOfChannels();
 
     std::vector< wmath::WPosition > positions;
     positions.reserve( nbChannels );
+    std::vector< std::size_t > channelIDs;
+    channelIDs.reserve( nbChannels );
     for( size_t channelID = 0; channelID < nbChannels; ++channelID )
     {
-        positions.push_back( m_eeg->getChannelInfo( channelID )->getPosition() );
+        boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
+        try
+        {
+            wmath::WPosition position = channelInfo->getPosition();
+            positions.push_back( position );
+            channelIDs.push_back( channelID );
+        }
+        catch( const WDHException& )
+        {
+            warnLog() << "The position of the electrode " << channelInfo->getLabel() << " is unknown.";
+        }
     }
+
+    const std::size_t nbPositions = positions.size();
 
     WTriangleMesh mesh = wge::triangulate( positions );
     osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( &mesh, true );
@@ -588,13 +609,9 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 
     state->setTextureAttributeAndModes( 0, m_colorMapTexture );
     osg::FloatArray* texCoords = new osg::FloatArray;
-    texCoords->reserve( nbChannels );
-    for( size_t channelID = 0; channelID < nbChannels; ++channelID )
-    {
-        texCoords->push_back( 0.5f );
-    }
+    texCoords->assign( nbPositions, 0.5f );
     geometry->setTexCoordArray( 0, texCoords );
-    geometry->setUpdateCallback( new UpdateColorOfGeometryCallback( &m_event, m_eeg ) );
+    geometry->setUpdateCallback( new UpdateColorOfGeometryCallback( channelIDs, &m_event, m_eeg ) );
 
     osg::ref_ptr< osg::Geode > surface( new osg::Geode );
     surface->addDrawable( geometry );
@@ -614,21 +631,28 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
     for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
     {
         boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
-        osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
+        try
+        {
+            osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
 
-        // create text geode for the channel label
-        osgText::Text* text = new osgText::Text;
-        text->setText( channelInfo->getLabel() );
-        text->setPosition( pos + text3dOffset );
-        text->setAlignment( osgText::Text::CENTER_BOTTOM );
-        text->setAxisAlignment( osgText::Text::SCREEN );
-        text->setCharacterSize( text3dSize );
-        text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
-        text->setColor( text3dColor );
+            // create text geode for the channel label
+            osgText::Text* text = new osgText::Text;
+            text->setText( channelInfo->getLabel() );
+            text->setPosition( pos + text3dOffset );
+            text->setAlignment( osgText::Text::CENTER_BOTTOM );
+            text->setAxisAlignment( osgText::Text::SCREEN );
+            text->setCharacterSize( text3dSize );
+            text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+            text->setColor( text3dColor );
 
-        osg::Geode* textGeode = new osg::Geode;
-        textGeode->addDrawable( text );
-        labels->addChild( textGeode );
+            osg::Geode* textGeode = new osg::Geode;
+            textGeode->addDrawable( text );
+            labels->addChild( textGeode );
+        }
+        catch( const WDHException& )
+        {
+            warnLog() << "The position of the electrode " << channelInfo->getLabel() << " is unknown.";
+        }
     }
 
     return labels;
@@ -714,12 +738,14 @@ void WMEEGView::UpdateColorOfShapeDrawableCallback::update( osg::NodeVisitor* /*
     }
 }
 
-WMEEGView::UpdateColorOfGeometryCallback::UpdateColorOfGeometryCallback( const WEvent* event,
+WMEEGView::UpdateColorOfGeometryCallback::UpdateColorOfGeometryCallback( const std::vector< std::size_t >& channelIDs,
+                                                                         const WEvent* event,
                                                                          boost::shared_ptr< const WEEG2 > eeg )
-    : m_event( event ),
+    : m_currentTime( -1.0 ),
+      m_channelIDs( channelIDs ),
+      m_event( event ),
       m_eeg( eeg )
 {
-    m_currentTime = -1.0;
 }
 
 void WMEEGView::UpdateColorOfGeometryCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
@@ -734,19 +760,19 @@ void WMEEGView::UpdateColorOfGeometryCallback::update( osg::NodeVisitor* /*nv*/,
             if( 0.0 <= newTime && newTime <= 16384 - 1 )
             {
                 boost::shared_ptr< WEEGValueMatrix > values = m_eeg->getSegment( 0 )->getValues( newTime + 0.5, 1 );
-                for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
+                for( size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
                 {
                     const int size = 256;
                     const float scale = 0.25f;
                     const float factor = scale * ( 1.0f - 1.0f / size );
-                    (*texCoords)[channelID] = (*values)[channelID][0] * factor + 0.5f;
+                    (*texCoords)[vertexID] = (*values)[m_channelIDs[vertexID]][0] * factor + 0.5f;
                 }
             }
             else
             {
-                for( size_t channelID = 0; channelID < m_eeg->getNumberOfChannels(); ++channelID )
+                for( size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
                 {
-                    (*texCoords)[channelID] = 0.5f;
+                    (*texCoords)[vertexID] = 0.5f;
                 }
             }
             geometry->setTexCoordArray( 0, texCoords );
