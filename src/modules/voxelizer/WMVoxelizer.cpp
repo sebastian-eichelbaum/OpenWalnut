@@ -360,7 +360,7 @@ void WMVoxelizer::connectors()
 }
 
 
-std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
+std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster )
 {
     const WDataSetFiberVector& fibs = *cluster.getDataSetReference();
 
@@ -376,6 +376,7 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
         const wmath::WFiber& fiber = fibs[*cit];
+
         for( size_t i = 0; i < fiber.size(); ++i )
         {
             for( int x = 0; x < 3; ++x )
@@ -385,6 +386,7 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
             }
         }
     }
+
     return std::make_pair( fll, bur );
 }
 

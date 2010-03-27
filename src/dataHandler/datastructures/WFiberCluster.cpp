@@ -91,6 +91,7 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
 
 void WFiberCluster::generateCenterLine()
 {
+    // TODO(ebaum): undo or move this crap
     m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber() );
 
     // empty datasets can be ignored
@@ -98,6 +99,24 @@ void WFiberCluster::generateCenterLine()
     {
         return;
     }
+
+    size_t longest = 0;
+    size_t longestID = 0;
+    for( size_t cit = 0; cit < m_fibs->size(); ++cit )
+    {
+        if ( m_fibs->at( cit ).size() > longest )
+        {
+            longest = m_fibs->at( cit ).size();
+            longestID = cit;
+        }
+    }
+
+    for ( wmath::WFiber::const_iterator cit = m_fibs->at( longestID ).begin(); cit != m_fibs->at( longestID ).end(); ++cit )
+    {
+        m_centerLine->push_back( *cit );
+    }
+
+/*
 
     // make copies of the fibers
     boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector() );
@@ -126,7 +145,7 @@ void WFiberCluster::generateCenterLine()
         }
         avgPosition /= fibs->size();
         m_centerLine->push_back( avgPosition );
-    }
+    }*/
 }
 
 void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const

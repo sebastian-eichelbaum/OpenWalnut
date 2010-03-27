@@ -222,48 +222,43 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     {
         return;
     }
+
     assert( distances.size() == 7 );
     switch( axis )
     {
         case 0 :
-                m_values[ idx + nbX ] = filter( distances[3] );
+                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
+                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
+                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
+                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
+
                 parameterizeVoxel( voxel, idx + nbX, axis, m_values[ idx + nbX ], start, end );
-
-                m_values[ idx - nbX ] = filter( distances[4] );
                 parameterizeVoxel( voxel, idx - nbX, axis, m_values[ idx - nbX ], start, end );
-
-                m_values[ idx + nbXY ] = filter( distances[5] );
                 parameterizeVoxel( voxel, idx + nbXY, axis, m_values[ idx + nbXY ], start, end );
-
-                m_values[ idx - nbXY ] = filter( distances[6] );
                 parameterizeVoxel( voxel, idx - nbXY, axis, m_values[ idx - nbXY ], start, end );
 
                 break;
         case 1 :
-                m_values[ idx + 1 ] = filter( distances[1] );
+                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
+                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
+                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
+                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
+
                 parameterizeVoxel( voxel, idx + 1, axis, m_values[ idx + 1 ], start, end );
-
-                m_values[ idx - 1 ] = filter( distances[2] );
                 parameterizeVoxel( voxel, idx - 1, axis, m_values[ idx - 1 ], start, end );
-
-                m_values[ idx + nbXY ] = filter( distances[5] );
                 parameterizeVoxel( voxel, idx + nbXY, axis, m_values[ idx + nbXY ], start, end );
-
-                m_values[ idx - nbXY ] = filter( distances[6] );
                 parameterizeVoxel( voxel, idx - nbXY, axis, m_values[ idx - nbXY ], start, end );
 
                 break;
         case 2 :
-                m_values[ idx + 1 ] = filter( distances[1] );
+                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
+                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
+                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
+                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
+
                 parameterizeVoxel( voxel, idx + 1, axis, m_values[ idx + 1 ], start, end );
-
-                m_values[ idx - 1 ] = filter( distances[2] );
                 parameterizeVoxel( voxel, idx - 1, axis, m_values[ idx - 1 ], start, end );
-
-                m_values[ idx + nbX ] = filter( distances[3] );
                 parameterizeVoxel( voxel, idx + nbX, axis, m_values[ idx + nbX ], start, end );
-
-                m_values[ idx - nbX ] = filter( distances[4] );
                 parameterizeVoxel( voxel, idx - nbX, axis, m_values[ idx - nbX ], start, end );
 
                 break;

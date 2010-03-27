@@ -125,6 +125,7 @@ void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >&
         if ( m_paramSetValues[ n.indices[i] ] )
         {
             m_paramValues[ n.indices[i] ] = 0.5 * ( m_paramValues[ n.indices[i] ] + m_currentStartParameter );
+            //m_paramValues[ n.indices[i] ] = std::max( m_paramValues[ n.indices[i] ], m_currentStartParameter );
         }
         else
         {

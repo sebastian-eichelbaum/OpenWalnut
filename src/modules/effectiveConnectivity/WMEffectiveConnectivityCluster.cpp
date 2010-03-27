@@ -130,7 +130,11 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // set/forward some props
     props = m_voxelizer->getProperties2();
     props->getProperty( "CenterLine" )->toPropBool()->set( true );
-    props->getProperty( "active" )->toPropBool()->set( false );
+    //props->getProperty( "active" )->toPropBool()->set( false );
+    props->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
+    props->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    props->getProperty( "Lighting" )->toPropBool()->set( false );
+
     props->getProperty( "Voxels per Unit" )->toPropInt()->set( 2 );
     m_properties2->addProperty( props->getProperty( "Voxels per Unit" ) );
 
@@ -172,6 +176,9 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_properties2->addProperty( props->getProperty( "Step Count" ) );
     props->getProperty( "Iso Color" )->toPropColor()->set( WColor( 0.0, 0.5, 1.0, 1.0 ) );
     m_properties2->addProperty( props->getProperty( "Iso Color" ) );
+    props->getProperty( "Opacity %" )->toPropInt()->set( 100 );
+    m_properties2->addProperty( props->getProperty( "Opacity %" ) );
+
 
     //////////////////////////////////////////////////////////////////////////////////
     // Hard wire the modules

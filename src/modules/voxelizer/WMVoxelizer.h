@@ -31,6 +31,7 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/datastructures/WFiberCluster.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -150,7 +151,7 @@ protected:
      *
      * \return Pair of WPositions: first == front lower left, second == back upper right
      */
-    std::pair< wmath::WPosition, wmath::WPosition > createBoundingBox( const WFiberCluster& cluster ) const;
+    std::pair< wmath::WPosition, wmath::WPosition > createBoundingBox( const WFiberCluster& cluster );
 
     /**
      * Constructs a grid out of the given bounding box.
