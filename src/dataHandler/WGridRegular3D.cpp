@@ -25,7 +25,9 @@
 #include <cmath>
 #include <vector>
 #include <string>
+#include <utility>
 
+#include "../common/WAssert.h"
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
 #include "WGridRegular3D.h"
@@ -287,13 +289,25 @@ wmath::WValue< int > WGridRegular3D::getVoxelCoord( const wmath::WPosition& pos 
     return result;
 }
 
+bool WGridRegular3D::isNotRotatedOrSheared() const
+{
+    bool onlyTranslatedOrScaled = true;
+    for( size_t r = 0; r < 4; ++r )
+    {
+        for( size_t c = 0; c < 3; ++c )
+        {
+            if( c != r && m_matrix( r, c )!=0 )
+            {
+                onlyTranslatedOrScaled &= false;
+            }
+        }
+    }
+    return onlyTranslatedOrScaled;
+}
+
 size_t WGridRegular3D::getCellId( const wmath::WPosition& pos ) const
 {
-    // TODO(wiebel): change this to eassert.
-    if( m_matrix != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
-    {
-        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
-    }
+    WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
 
     wmath::WPosition posRelativeToOrigin = pos - m_origin;
 
@@ -391,4 +405,13 @@ std::vector< size_t > WGridRegular3D::getNeighbours( size_t id ) const
 bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 {
     return getVoxelNum( pos ) != -1; // note this is an integer comparision, hence it should be numerical stable!
+}
+
+std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
+{
+    WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
+    return std::make_pair( getOrigin(),
+                           getOrigin() + getDirectionX() * ( getNbCoordsX() - 1 )
+                           + getDirectionY() * ( getNbCoordsY() - 1 )
+                           + getDirectionZ() * ( getNbCoordsZ() - 1 )  );
 }

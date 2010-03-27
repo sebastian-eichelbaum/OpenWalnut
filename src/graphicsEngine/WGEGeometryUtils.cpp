@@ -97,39 +97,45 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
 
 WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points )
 {
-    osg::ref_ptr< osg::Vec3Array > osgPoints = wge::osgVec3Array( points );
+    WTriangleMesh mesh;
+    mesh.setVertices( points );
 
-    // The osg triangulator sorts the points and returns the triangles with the
-    // indizes of the sorted points. Since we don't want to change the sequence
-    // of the points, we have to save the original index of each point.
-    std::map< osg::Vec3, size_t > map;
-    for( size_t index = 0; index < osgPoints->size(); ++index )
+    if( 3 <= points.size() )
     {
-        map[ (*osgPoints)[index] ] = index;
-    }
+        osg::ref_ptr< osg::Vec3Array > osgPoints = wge::osgVec3Array( points );
 
-    osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator( new osgUtil::DelaunayTriangulator( osgPoints ) );
-    if( triangulator->triangulate() )
-    {
-        osg::ref_ptr< const osg::DrawElementsUInt > osgTriangles( triangulator->getTriangles() );
-        size_t nbTriangles = osgTriangles->size() / 3;
-        std::vector< Triangle > triangles( nbTriangles );
-        for( size_t triangleID = 0; triangleID < nbTriangles; ++triangleID )
+        // The osg triangulator sorts the points and returns the triangles with
+        // the indizes of the sorted points. Since we don't want to change the
+        // sequence of the points, we have to save the original index of each
+        // point.
+        std::map< osg::Vec3, size_t > map;
+        for( size_t index = 0; index < osgPoints->size(); ++index )
         {
-            // Convert the new index of the osgTriangle to the original index
-            // stored in map.
-            triangles[triangleID].pointID[0] = map[ (*osgPoints)[ (*osgTriangles)[3 * triangleID] ] ];
-            triangles[triangleID].pointID[1] = map[ (*osgPoints)[ (*osgTriangles)[3 * triangleID + 1] ] ];
-            triangles[triangleID].pointID[2] = map[ (*osgPoints)[ (*osgTriangles)[3 * triangleID + 2] ] ];
+            map[ (*osgPoints)[index] ] = index;
         }
 
-        WTriangleMesh mesh;
-        mesh.setVertices( points );
-        mesh.setTriangles( triangles );
-        return mesh;
+        osg::ref_ptr< osgUtil::DelaunayTriangulator > triangulator( new osgUtil::DelaunayTriangulator( osgPoints ) );
+        if( triangulator->triangulate() )
+        {
+            osg::ref_ptr< const osg::DrawElementsUInt > osgTriangles( triangulator->getTriangles() );
+            size_t nbTriangles = osgTriangles->size() / 3;
+            std::vector< Triangle > triangles( nbTriangles );
+            for( size_t triangleID = 0; triangleID < nbTriangles; ++triangleID )
+            {
+                // Convert the new index of the osgTriangle to the original
+                // index stored in map.
+                triangles[triangleID].pointID[0] = map[ (*osgPoints)[ (*osgTriangles)[3 * triangleID] ] ];
+                triangles[triangleID].pointID[1] = map[ (*osgPoints)[ (*osgTriangles)[3 * triangleID + 1] ] ];
+                triangles[triangleID].pointID[2] = map[ (*osgPoints)[ (*osgTriangles)[3 * triangleID + 2] ] ];
+            }
+
+            mesh.setTriangles( triangles );
+        }
+        else
+        {
+            throw WGEException( "Error in triangulation" );
+        }
     }
-    else
-    {
-        throw WGEException( "Error in triangulation" );
-    }
+
+    return mesh;
 }

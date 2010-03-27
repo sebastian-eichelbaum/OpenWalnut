@@ -506,10 +506,6 @@ public:
         WGridRegular3D g( 5, 3, 3, 0, 0, 0, 1, 1, 1 );
         size_t cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) );
         TS_ASSERT_EQUALS( cellId, 7 );
-
-        // We should get an exception if the grid is not the origin, as this is not supported so far
-        WGridRegular3D g1( 5, 3, 3, 1.4, 2.5, 6.4, 1, 1, 1 );
-        TS_ASSERT_THROWS_ANYTHING( g1.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) ) );
     }
 
     /**
