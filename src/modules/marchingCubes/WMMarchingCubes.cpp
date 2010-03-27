@@ -605,19 +605,14 @@ void WMMarchingCubes::renderSurface()
     triMesh->resizeVertices( m_idToVertices.size() );
     triMesh->resizeTriangles( m_trivecTriangles.size() );
 
-    // TODO(wiebel): MC what is this for?
-    float xOff = 0.5f;
-    float yOff = 0.5f;
-    float zOff = 0.5f;
-
     // Rename vertices.
     ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
     while ( mapIterator != m_idToVertices.end() )
     {
         ( *mapIterator ).second.newID = nextID;
-        triMesh->fastAddVert( wmath::WPosition( ( *mapIterator ).second.x + xOff,
-                                                ( *mapIterator ).second.y + yOff,
-                                                ( *mapIterator ).second.z + zOff ) );
+        triMesh->fastAddVert( wmath::WPosition( ( *mapIterator ).second.x,
+                                                ( *mapIterator ).second.y,
+                                                ( *mapIterator ).second.z ) );
         nextID++;
         mapIterator++;
     }
