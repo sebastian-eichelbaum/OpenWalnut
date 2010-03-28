@@ -237,12 +237,20 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
             if( m_isoVoxels->count( static_cast< size_t >( id ) ) == 1 ) // check if its in main component
             {
                 bool inParamGrid = false;
-                double value = m_paramDS->interpolate( *pos, &inParamGrid );
-                if( inParamGrid ) // check if its in paramDS
+                double isoValue = m_clusterDS->interpolate( *pos, &inParamGrid );
+                if( inParamGrid )
                 {
-                    samples.push_back( value );
-                    ++pos;
-                    continue;
+                    if( isoValue > m_isoValue->get() )
+                    {
+                        inParamGrid = false;
+                        double value = m_paramDS->interpolate( *pos, &inParamGrid );
+                        if( inParamGrid ) // check if its in paramDS
+                        {
+                            samples.push_back( value );
+                            ++pos;
+                            continue;
+                        }
+                    }
                 }
             }
         }
