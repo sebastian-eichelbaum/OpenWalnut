@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <list>
 #include <map>
+#include <string>
 
 #include <osg/LightModel>
 
