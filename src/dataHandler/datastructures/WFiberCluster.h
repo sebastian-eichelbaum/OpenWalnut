@@ -181,6 +181,8 @@ protected:
     void unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const;
 
 private:
+    void elongateCenterLine();
+
     /**
      * All indices in this set are members of this cluster
      */

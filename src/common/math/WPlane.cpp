@@ -37,10 +37,7 @@ WPlane::WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos )
     : m_normal( normal ),
       m_pos( pos )
 {
-    m_first = normal.crossProduct( wmath::WVector3D( 1, 0, 0 ) );
-    m_first.normalize();
-    m_second = normal.crossProduct( m_first );
-    m_second.normalize();
+    setNormal( normal );
 }
 
 WPlane::WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos, const wmath::WVector3D& first, const wmath::WVector3D& second )

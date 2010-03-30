@@ -28,6 +28,7 @@
 #include "WPosition.h"
 #include "WVector3D.h"
 #include "WPlane.h"
+#include "WLine.h"
 
 /**
  * All helper functions of math module of OpenWalnut.
@@ -46,6 +47,13 @@ namespace wmath
      * \return True if both intersects otherwise false.
      */
     bool testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p );
+
+    bool intersectPlaneSegment( const WPlane& p,
+                                const wmath::WPosition& p1,
+                                const wmath::WPosition& p2,
+                                boost::shared_ptr< wmath::WPosition > pointOfIntersection );
+
+    bool intersectPlaneLineNearCP( const WPlane& p, const wmath::WLine& l, boost::shared_ptr< wmath::WPosition > cutPoint );
 
     /**
      * Computes the signum for the given value.

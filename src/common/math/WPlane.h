@@ -115,6 +115,20 @@ public:
      */
     void setPlaneVectors( const wmath::WVector3D& first, const wmath::WVector3D& second );
 
+    void setNormal( const wmath::WVector3D& normal )
+    {
+        m_normal = normal.normalized();
+        wmath::WVector3D gen( 1, 0, 0 );
+        if( normal.crossProduct( gen ) ==  wmath::WVector3D( 0, 0, 0 ) )
+        {
+            gen = wmath::WVector3D( 0, 1, 0 );
+        }
+        m_first = normal.crossProduct( gen );
+        m_first.normalize();
+        m_second = normal.crossProduct( m_first );
+        m_second.normalize();
+    }
+
 //    \cond
 //    /**
 //     * Computes sample points on that plane.

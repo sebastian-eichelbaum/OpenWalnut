@@ -27,6 +27,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/math/WMath.h"
+#include "../../common/math/WPlane.h"
 #include "../../common/WLimits.h"
 #include "../../common/WTransferable.h"
 #include "../WDataSetFiberVector.h"
@@ -119,6 +121,46 @@ void WFiberCluster::generateCenterLine()
         }
         avgPosition /= fibs->size();
         m_centerLine->push_back( avgPosition );
+    }
+
+    elongateCenterLine();
+}
+
+void WFiberCluster::elongateCenterLine()
+{
+    // first end
+    assert( m_centerLine->size() > 1 );
+    wmath::WVector3D normal( m_centerLine->at( 0 ) - m_centerLine->at( 1 ) );
+    WPlane p( normal, m_centerLine->at( 0 ) + normal );
+    boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
+    bool intersectionFound = true;
+    std::set< wmath::WPosition > cutPoints;
+    while( intersectionFound )
+    {
+        intersectionFound = false;
+        wmath::WPosition avg( 0, 0, 0 );
+        for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+        {
+            if( wmath::intersectPlaneLineNearCP( p, m_fibs->at( *cit ), cutPoint ) )
+            {
+                intersectionFound = true;
+                cutPoints.insert( *cutPoint );
+                avg += *cutPoint;
+            }
+        }
+        if( cutPoints.size() > 0 )
+        {
+            avg[0] /= static_cast< double >( cutPoints.size() );
+            avg[1] /= static_cast< double >( cutPoints.size() );
+            avg[2] /= static_cast< double >( cutPoints.size() );
+            m_centerLine->insert( m_centerLine->begin(), avg );
+            p.resetPosition( avg + ( m_centerLine->at( 0 ) -  m_centerLine->at( 1 ) ) );
+//            p.setNormal( m_centerLine->at( 0 ) - m_centerLine->at( 1 ) );
+        }
+        else // no intersections found => abort
+        {
+            break;
+        }
     }
 }
 
