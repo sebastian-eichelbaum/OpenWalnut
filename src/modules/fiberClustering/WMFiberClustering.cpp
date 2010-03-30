@@ -134,8 +134,8 @@ void WMFiberClustering::activate()
 
 void WMFiberClustering::properties()
 {
-    m_maxDistance_t   = m_properties2->addProperty( "Max cluster distance", "Maximum distance of two fibers in one cluster.", 6.5 );
-    m_proximity_t     = m_properties2->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 0.0 );
+    m_maxDistance_t   = m_properties2->addProperty( "Max cluster distance", "Maximum distance of two fibers in one cluster.", 4.0 );
+    m_proximity_t     = m_properties2->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 0.6 );
     m_minClusterSize  = m_properties2->addProperty( "Min cluster size", "Minium of fibers per cluster", 10 );
     m_clusterOutputID = m_properties2->addProperty( "Output cluster ID", "This cluster ID will be connected to the output.", 0, m_updateOutput );
     m_invisibleFibers = m_properties2->addProperty( "Invisible fibers", "Trigger fiber display", false,
