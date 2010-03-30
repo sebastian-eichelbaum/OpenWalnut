@@ -107,7 +107,7 @@ void WMVoxelizer::moduleMain()
             update();
         }
 
-        if( m_drawfibers->changed() )
+        if( m_drawfibers->changed() || m_explicitFiberColor->changed() || m_fiberTransparency->changed() )
         {
             updateFibers();
         }
@@ -131,6 +131,10 @@ void WMVoxelizer::properties()
                                                     std::string( "WBresenham" ), m_fullUpdate );
     m_voxelsPerUnit   = m_properties2->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
                                                                        "is useful to increase the resolution of the grid", 1, m_fullUpdate );
+    m_fiberTransparency = m_properties2->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
+    m_fiberTransparency->setMin( 0.0 );
+    m_fiberTransparency->setMax( 1.0 );
+    m_explicitFiberColor = m_properties2->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
 }
 
 void WMVoxelizer::activate()
@@ -173,7 +177,13 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
         for( size_t i = 1; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
-            colors->push_back( wge::osgColor( wge::getRGBAColorFromDirection( fib[i], fib[i-1] ) ) );
+            WColor col = m_explicitFiberColor->get( true );
+            if( m_explicitFiberColor->get() == WColor( 0.2, 0.2, 0.2 ) )
+            {
+                col = wge::getRGBAColorFromDirection( fib[i], fib[i-1] );
+            }
+            col.setAlpha( m_fiberTransparency->get( true ) );
+            colors->push_back( wge::osgColor( col ) );
         }
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );

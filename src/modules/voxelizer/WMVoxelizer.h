@@ -188,6 +188,8 @@ private:
     WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
     WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
     WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
+    WPropDouble m_fiberTransparency; //!< Trancparency of the fibers
+    WPropColor m_explicitFiberColor; //!< If set not to 0.2 0.2 0.2 all fiber having this color
 
     /**
      * Node callback to hide unhide bounding box
