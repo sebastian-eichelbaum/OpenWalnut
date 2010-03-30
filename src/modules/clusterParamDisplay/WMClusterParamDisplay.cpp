@@ -58,7 +58,7 @@ void WMClusterParamDisplay::connectors()
 
 void WMClusterParamDisplay::properties()
 {
-    m_isoValue = m_properties2->addProperty( "Iso Value", "", 0.12 );
+    m_isoValue = m_properties2->addProperty( "Iso Value", "", 0.2 );
     m_drawISOSurface = m_properties2->addProperty( "ISO Surface", "En/Disables the display of the ISO Surface", true );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
