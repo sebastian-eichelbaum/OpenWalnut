@@ -88,10 +88,30 @@ void WMTriangleMeshRenderer::connectors()
 void WMTriangleMeshRenderer::properties()
 {
     m_meshColor   = m_properties2->addProperty( "Mesh Color", "Color of the mesh.", WColor( .9f, .9f, 0.9f ) );
+    m_mainComponentOnly = m_properties2->addProperty( "Main Component", "Main component only", false );
     m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 }
+
+/**
+ * Compares two WTrianglesMeshes on their size of vertices. This is private here since it makes sense only to this module ATM.
+ */
+struct WMeshSizeComp
+{
+    /**
+     * Comparator on num vertex of two WTriangleMeshes
+     *
+     * \param m First Mesh
+     * \param n Second Mesh
+     *
+     * \return True if and only if the first Mesh has less vertices as the second mesh.
+     */
+    bool operator()( const boost::shared_ptr< WTriangleMesh >& m, const boost::shared_ptr< WTriangleMesh >& n ) const
+    {
+        return m->getNumVertices() < n->getNumVertices();
+    }
+};
 
 void WMTriangleMeshRenderer::moduleMain()
 {
@@ -100,6 +120,7 @@ void WMTriangleMeshRenderer::moduleMain()
     m_moduleState.add( m_meshInput->getDataChangedCondition() );
     m_moduleState.add( m_colorMapInput->getDataChangedCondition() );
     m_moduleState.add( m_meshColor->getCondition() );
+    m_moduleState.add( m_mainComponentOnly->getCondition() );
 
     // signal ready state
     ready();
@@ -126,7 +147,17 @@ void WMTriangleMeshRenderer::moduleMain()
             continue;
         }
         debugLog() << "Start rendering Mesh";
-        renderMesh( mesh );
+        if( m_mainComponentOnly->get( true ) )
+        {
+            debugLog() << "Start mesh decomposition";
+            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components = tm_utils::componentDecomposition( *mesh );
+            debugLog() << "Decomposing mesh done";
+            renderMesh( *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() ) );
+        }
+        else
+        {
+            renderMesh( mesh );
+        }
         debugLog() << "Rendering Mesh done";
     }
 }

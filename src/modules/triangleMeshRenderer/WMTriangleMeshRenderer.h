@@ -124,6 +124,7 @@ private:
 
     WPropColor m_meshColor; //!< The color of the mesh
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
+    WPropBool m_mainComponentOnly; //!< En/Disable display of only the main component (biggest vertices number)
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 
