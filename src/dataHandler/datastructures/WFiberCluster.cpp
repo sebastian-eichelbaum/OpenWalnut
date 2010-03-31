@@ -135,22 +135,49 @@ void WFiberCluster::elongateCenterLine()
     boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
     bool intersectionFound = true;
 
+    // in the beginning all fibers participate
+    boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector() );
+    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+    {
+        fibs->push_back( m_fibs->at( *cit ) );
+    }
+
     while( intersectionFound )
     {
         intersectionFound = false;
         size_t intersectingFibers = 0;
-        for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+//        wmath::WPosition avg( 0, 0, 0 );
+        for( WDataSetFiberVector::iterator cit = fibs->begin(); cit != fibs->end(); )
         {
-            if( wmath::intersectPlaneLineNearCP( p, m_fibs->at( *cit ), cutPoint ) )
+            if( wmath::intersectPlaneLineNearCP( p, *cit, cutPoint ) )
             {
-                intersectingFibers++;
-                intersectionFound = true;
+                if( ( *cutPoint - p.getPosition() ).norm() < 20 )
+                {
+//                    avg += *cutPoint;
+                    intersectingFibers++;
+                    intersectionFound = true;
+                    ++cit;
+                }
+                else
+                {
+                    cit = fibs->erase( cit );
+                }
+            }
+            else
+            {
+                cit = fibs->erase( cit );
             }
         }
         if( intersectingFibers > 10 )
         {
             cL.insert( cL.begin(), cL[0] + ( cL[0] - cL[1] ) );
             p.resetPosition( cL[0] + ( cL[0] -  cL[1] ) );
+//            avg[0] /= static_cast< double >( intersectingFibers );
+//            avg[1] /= static_cast< double >( intersectingFibers );
+//            avg[2] /= static_cast< double >( intersectingFibers );
+//            cL.insert( cL.begin(), 0.995 * ( cL[0] + ( cL[0] - cL[1] ) ) + 0.005 * avg );
+//            p.resetPosition( cL[0] + ( cL[0] -  cL[1] ) );
+//            p.setNormal( ( cL[0] -  cL[1] ) );
         }
         else // no intersections found => abort
         {
@@ -158,24 +185,52 @@ void WFiberCluster::elongateCenterLine()
         }
     }
     // second ending of the centerline
+    boost::shared_ptr< WDataSetFiberVector > fobs( new WDataSetFiberVector() );
+    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+    {
+        fobs->push_back( m_fibs->at( *cit ) );
+    }
+
+    // try to discard other lines from other end
+
     WPlane q( cL.back() - cL[ cL.size() - 2 ], cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) );
     intersectionFound = true;
     while( intersectionFound )
     {
         intersectionFound = false;
         size_t intersectingFibers = 0;
-        for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+//        wmath::WPosition avg( 0, 0, 0 );
+        for( WDataSetFiberVector::iterator cit = fobs->begin(); cit != fobs->end(); )
         {
-            if( wmath::intersectPlaneLineNearCP( q, m_fibs->at( *cit ), cutPoint ) )
+            if( wmath::intersectPlaneLineNearCP( q, *cit, cutPoint ) )
             {
-                intersectingFibers++;
-                intersectionFound = true;
+                if( ( *cutPoint - q.getPosition() ).norm() < 20 )
+                {
+//                    avg += *cutPoint;
+                    intersectingFibers++;
+                    intersectionFound = true;
+                    ++cit;
+                }
+                else
+                {
+                    cit = fobs->erase( cit );
+                }
+            }
+            else
+            {
+                cit = fobs->erase( cit );
             }
         }
         if( intersectingFibers > 10 )
         {
             cL.push_back(  cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) );
             q.resetPosition(  cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) );
+//            avg[0] /= static_cast< double >( intersectingFibers );
+//            avg[1] /= static_cast< double >( intersectingFibers );
+//            avg[2] /= static_cast< double >( intersectingFibers );
+//            cL.push_back( 0.995 * ( cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) ) + 0.005 * avg );
+//            q.resetPosition( cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) );
+//            q.setNormal( cL.back() - cL[ cL.size() - 2 ] );
         }
         else // no intersections found => abort
         {
