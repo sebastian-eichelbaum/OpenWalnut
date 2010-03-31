@@ -13,25 +13,17 @@ uniform int type1;
 uniform float alpha0;
 uniform float alpha1;
 
-#include "colorMaps.fs"
-
-void lookupTex(inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha)
+void parameterColorMap( inout vec4 col, in sampler3D tex, in vec3 coords )
 {
-    vec3 col1 = vec3(0.0);
-
-    col1 = clamp( texture3D(tex, v).rgb, 0.0, 1.0);
-
-    if ( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0) return;
-
-    if ( type == 16 && useColorMap != -1)
-    {
-        if (threshold < 1.0)
-            col1.r = (col1.r - threshold) / (1.0 - threshold);
-
-        colorMap(col1, col1.r);
-    }
-
-    col.rgb = mix( col.rgb, col1.rgb, alpha);
+    vec3 val = vec3(0.0);
+    val = clamp( texture3D(tex, coords).rgb, 0.0, 1.0);
+    float value = val.x; // get a float
+    clamp( 0.1, 0.9, value );
+    value = ( value - 0.1 ) * 0.8; // scale to [0,1]
+    col.r = 0.;
+    col.g = value;
+    col.b = 1.;
+    col.a = 1.;
 }
 
 void main()
@@ -40,14 +32,22 @@ void main()
     vec4 colFib = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 colFA = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if ( type1 > 0 ) lookupTex(colFA, type1, tex1, threshold1, VaryingTexCoord1.xyz, alpha1);
-    if ( type0 > 0 ) lookupTex(colFib, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0);
-
-    col = clamp(colFA, 0.0, 1.0);
-
-    if ( ( colFib.r + colFib.g + colFib.b ) < 0.2 )
+    if ( type1 > 0 )
     {
-        discard;
+        parameterColorMap( colFA, tex1, VaryingTexCoord1.xyz );
+    }
+    col = clamp( colFA, 0.0, 1.0 );
+
+    if ( texture3D( tex0, VaryingTexCoord0.xyz ).r < 0.2 )
+    {
+//         if(
+//             VaryingTexCoord0.x < 0.001 || VaryingTexCoord0.x > 0.9
+//             || VaryingTexCoord0.y < 0.001 || VaryingTexCoord0.y > 0.3
+//             || VaryingTexCoord0.z < 0.001 || VaryingTexCoord0.z > 0.9
+//             )
+            discard;
+//         else
+//             col =  vec4( 1, 1, 1, 1);
     }
     gl_FragColor = col;
 }

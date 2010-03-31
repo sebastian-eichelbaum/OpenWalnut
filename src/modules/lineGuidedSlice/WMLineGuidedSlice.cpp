@@ -157,6 +157,8 @@ void WMLineGuidedSlice::updateCenterLine()
 void WMLineGuidedSlice::create()
 {
     m_sliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_sliceNode->setDataVariance( osg::Object::DYNAMIC );
+
     m_sliceNode->setName( "Line Guided Slice" );
 
     m_sliceNode->addDrawable( createGeometry() );
@@ -192,22 +194,9 @@ void WMLineGuidedSlice::setSlicePosFromPick( WPickInfo pickInfo )
         std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
         if( m_isPicked )
         {
-            float diffX = newPixelPos.first - m_oldPixelPosition.first;
-//             float diffY = newPixelPos.second - m_oldPixelPosition.second;
-            float diff = fabs( diffX ) * .01;
+            float diff = newPixelPos.first - m_oldPixelPosition.first;
 
-            osg::Vec3 startPosScreen( m_oldPixelPosition.first, 0.0, 0.0 );
-            osg::Vec3 endPosScreen( newPixelPos.first, 0.0, 0.0 );
-
-            osg::Vec3 startPosWorld = wge::unprojectFromScreen( startPosScreen, m_viewer->getCamera() );
-            osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
-
-            osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
-
-            if( wv3D2ov3( normal ) * moveDirWorld < 0 )
-            {
-                diff *= -1;
-            }
+            diff *= 0.01;
 
             m_pos->set( m_pos->get() + diff );
 
@@ -226,7 +215,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
 {
     int posOnLine = m_pos->get() * m_centerLine->size();
 
-    if( posOnLine > m_centerLine->size() - 2 )
+    if( posOnLine > ( m_centerLine->size() - 2. ) )
     {
         posOnLine = m_centerLine->size() - 2;
     }
@@ -274,7 +263,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
             texCoords->clear();
             for( size_t i = 0; i < nbVerts; ++i )
             {
-                texCoords->push_back( wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                texCoords->push_back( wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] + wmath::WVector3D( 0.5, 0.5, 0.5 ) ) ) );
             }
             sliceGeometry->setTexCoordArray( counter, texCoords );
             ++counter;
