@@ -126,6 +126,17 @@ void WMSurfaceBars::properties()
 
     m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 0.0, 0.0, 0.0, 1.0 ),
                       m_propCondition );
+
+    m_size1         = m_properties2->addProperty( "Beam1 Size",       "The relative size of the first beam. A value of 0 gets mapped to the "
+                                                                      "smallest size, whilst 100 gets mapped to the largest. This is typically "
+                                                                      "one third of the size of the voxelized surface.", 10 );
+    m_size2         = m_properties2->addProperty( "Beam2 Size",       "The relative size of the second beam. A value of 0 gets mapped to the "
+                                                                      "smallest size, whilst 100 gets mapped to the largest. This is typically "
+                                                                      "one third of the size of the voxelized surface.", 50 );
+    m_speed1         = m_properties2->addProperty( "Beam1 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
+    m_speed2         = m_properties2->addProperty( "Beam2 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
+    m_parameterScale = m_properties2->addProperty( "Parameter Scale", "Scaling the parameter space on the fly creates consistently sized and fast "
+                                                                      "beams over multiple WMSurfaceBars instances.", 1.0 );
 }
 
 osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
@@ -174,10 +185,28 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
     osg::ref_ptr< osg::Uniform > animationTime = new osg::Uniform( "u_animationTime", 0 );
     animationTime->setUpdateCallback( new WGEShaderAnimationCallback() );
 
+    osg::ref_ptr< osg::Uniform > size1 = new osg::Uniform( "u_size1", 0 );
+    osg::ref_ptr< osg::Uniform > size2 = new osg::Uniform( "u_size2", 0 );
+    size1->setUpdateCallback( new SafeUniformCallback( this ) );
+    size2->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    osg::ref_ptr< osg::Uniform > speed1 = new osg::Uniform( "u_speed1", 0 );
+    osg::ref_ptr< osg::Uniform > speed2 = new osg::Uniform( "u_speed2", 0 );
+    speed1->setUpdateCallback( new SafeUniformCallback( this ) );
+    speed2->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    osg::ref_ptr< osg::Uniform > paramScale = new osg::Uniform( "u_parameterScale", 0 );
+    paramScale->setUpdateCallback( new SafeUniformCallback( this ) );
+
     rootState->addUniform( isovalue );
     rootState->addUniform( steps );
     rootState->addUniform( alpha );
     rootState->addUniform( animationTime );
+    rootState->addUniform( size1 );
+    rootState->addUniform( size2 );
+    rootState->addUniform( speed1 );
+    rootState->addUniform( speed2 );
+    rootState->addUniform( paramScale );
 
     return cube;
 }
@@ -278,7 +307,7 @@ void WMSurfaceBars::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
 void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
-    if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
+    if ( m_module->m_isoValue->changed()  && ( uniform->getName() == "u_isovalue" ) )
     {
         uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) ) / 100.0f );
     }
@@ -289,6 +318,30 @@ void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg:
     if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
     {
         uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
+    }
+    if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_size1" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
+    }
+    if ( m_module->m_size1->changed() && ( uniform->getName() == "u_size1" ) )
+    {
+        uniform->set( m_module->m_size1->get( true ) );
+    }
+    if ( m_module->m_size2->changed() && ( uniform->getName() == "u_size2" ) )
+    {
+        uniform->set( m_module->m_size2->get( true ) );
+    }
+    if ( m_module->m_speed1->changed() && ( uniform->getName() == "u_speed1" ) )
+    {
+        uniform->set( m_module->m_speed1->get( true ) );
+    }
+    if ( m_module->m_speed2->changed() && ( uniform->getName() == "u_speed2" ) )
+    {
+        uniform->set( m_module->m_speed2->get( true ) );
+    }
+    if ( m_module->m_parameterScale->changed() && ( uniform->getName() == "u_parameterScale" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_parameterScale->get( true ) ) );
     }
 }
 

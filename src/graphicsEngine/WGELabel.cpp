@@ -22,15 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WGEResourceManager.h"
+
 #include "WGELabel.h"
 
-WGELabel::WGELabel()
+WGELabel::WGELabel():
+    osgText::Text(),
+    m_anchor( 0.0, 0.0, 0.0 )
 {
     // initialize members
+    setCharacterSize( 21 );
+    setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+    setAxisAlignment( osgText::Text::SCREEN );
+    setAlignment( osgText::Text::LEFT_BOTTOM );
+    setBackdropType( osgText::Text::OUTLINE );
+    setColor( osg::Vec4( 0.9, 0.9, 0.9, 1 ) );
 }
 
 WGELabel::~WGELabel()
 {
     // cleanup
+}
+
+osg::Vec3& WGELabel::getAnchor()
+{
+    return m_anchor;
+}
+
+void WGELabel::setAnchor( const osg::Vec3& anchor )
+{
+    m_anchor = osg::Vec3( anchor );
 }
 

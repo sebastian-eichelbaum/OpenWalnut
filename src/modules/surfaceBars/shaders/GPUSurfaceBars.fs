@@ -71,17 +71,30 @@ uniform int u_steps;
 uniform float u_alpha;
 
 // **************************************************************************
-// Uniforms defining the initial particle distribution
+// Animation
 // **************************************************************************
-
-// Uniform defining the grid resolution scaling in relation to the dataset grid
-uniform float u_gridResolution;
-
-// Relative size of the particle to the voxel
-uniform float u_particleSize;
 
 // Animation reference in 100th of a second
 uniform int u_animationTime;
+
+// **************************************************************************
+// Setup appearance of surface beams
+// **************************************************************************
+
+// The size of beam 1
+uniform int u_size1;
+
+// The size of beam 2
+uniform int u_size2;
+
+// The speed of beam 1 relative to the clock in u_animationTime
+uniform int u_speed1;
+
+// The speed of beam 2 relative to the clock in u_animationTime
+uniform int u_speed2;
+
+// Scaling factor to resize the parameter space to match others.
+uniform float u_parameterScale;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -177,6 +190,16 @@ float blinnPhongIlluminationIntensity(float ambient, float diffuse, float specul
   return ambientV + (diffuseV + specularV)*lightIntensity;
 }
 
+bool epsilonEquals( float value, float equals, float epsilon = 0.01 )
+{
+    return abs( value - equals ) <= epsilon;
+}
+
+bool inInterval( float value, float valStart, float valEnd )
+{
+    return ( value >= valStart ) && ( value <= valEnd );
+}
+
 /**
  * Main entry point of the fragment shader.
  */
@@ -248,17 +271,23 @@ void main()
             );
 
             // 3: get the current trace value from tex1, which in most cases is a increasing number along the rasterized line direction
-            int trace    = int(         ( texture3D( tex1, curPoint ).r * 100.0 ) );
-            int traceInv = int( 100.0 - ( texture3D( tex1, curPoint ).r * 100.0 ) );
+            float paramSpaceSize = 100;
+            float minSize = ( paramSpaceSize * 0.01 );  // the minimum size of 1% of the parameter space size
+            float maxSize = ( paramSpaceSize * 0.30 );  // the maximum size -> 30% of parameter space size
+
+            float trace    = texture3D( tex1, curPoint ).r  * ( paramSpaceSize );
+            float traceInv = ( 1.0 - texture3D( tex1, curPoint ).r ) * ( paramSpaceSize );
 
             // 4: prepare animation
             // the current time step:
-            int timeStep = u_animationTime / 4; // scale 100th of a second to 25 times per second
+            float timeStep = u_animationTime / 4.0; // scale 100th of a second to 25 times per second
             
-            // timeStep = 34;
+            //timeStep = 0;
             // create a triangle function increasing time in 1/100 steps
-            int anim1 = ( ( timeStep * 1 ) % 150);
-            int anim2 = ( ( timeStep * 1 ) % 200);
+            float relativeSpeed1 = float( u_speed1 ) / 12.5;
+            float relativeSpeed2 = float( u_speed2 ) / 12.5;
+            float anim1 = ( int( timeStep * relativeSpeed1 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
+            float anim2 = ( int( timeStep * relativeSpeed2 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
             
             // To have more than one halo at a time:
             /*
@@ -273,22 +302,31 @@ void main()
             ocol.a = u_alpha;
 
             // apply animation color
-            bool doRed   = abs( anim1 - trace ) <= 7;
-            bool doGreen = abs( anim2 - traceInv ) <= 1;
-            if ( doRed )
+            // ensure the beam is at leas 1% and at most 30% of the space long
+            float halfSize1 = ( minSize + maxSize * ( u_size1 / 100.0 ) ) / 2.0;
+            float halfSize2 = ( minSize + maxSize * ( u_size2 / 100.0 ) ) / 2.0;
+
+            // does this fragment belong to the beam?
+            bool belongsToBeam1 = abs( anim1 - trace ) <= halfSize1;
+            bool belongsToBeam2 = abs( anim2 - traceInv ) <= halfSize2;
+
+            // check four cases:
+            if ( belongsToBeam1 )                       // 1. fragment belongs only to beam 1
             {
                 ocol.r = light + 0.4;
                 ocol.g = 0.0;
                 ocol.b = 0.0;
-            }
-            if ( doGreen )
+            } 
+            if ( ( belongsToBeam2 && !belongsToBeam1 ) || ( belongsToBeam2 && ( u_size1 > u_size2 ) ) )                       // 2. fragment belongs only to beam 2
             {
                 ocol.r = 0.0;
                 ocol.g = light + 0.4;
                 ocol.b = 0.0;
             }
 
-            bool doWhite   = ( abs( anim2 - traceInv ) == 2 ) || ( abs( anim1 - trace ) == 8 );
+            // 4. fragment belongs to a border
+            bool doWhite   = ( epsilonEquals( abs( anim2 - traceInv ), halfSize2 + 0.5, 0.5 ) ||
+                               epsilonEquals( abs( anim1 - trace ),    halfSize1 + 0.5, 0.5 ) );
             if ( doWhite )
             {
                 ocol.r = 1.0;

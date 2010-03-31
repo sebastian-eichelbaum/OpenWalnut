@@ -25,10 +25,13 @@
 #ifndef WGELABEL_H
 #define WGELABEL_H
 
+#include <osgText/Text>
+#include <osgText/FadeText>
+
 /**
  * TODO(ebaum): write.
  */
-class WGELabel
+class WGELabel: public osgText::Text
 {
 public:
 
@@ -42,7 +45,26 @@ public:
      */
     virtual ~WGELabel();
 
+    /**
+     * Gets the current anchor point of the label.
+     *
+     * \return the anchor.
+     */
+    virtual osg::Vec3& getAnchor();
+
+    /**
+     * Sets the anchor point in world coordinates of this labels.
+     *
+     * \param anchor the anchor point
+     */
+    virtual void setAnchor( const osg::Vec3& anchor );
+
 protected:
+
+    /**
+     * The anchor of the label in world space.
+     */
+    osg::Vec3 m_anchor;
 
 private:
 };

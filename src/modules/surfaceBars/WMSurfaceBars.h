@@ -148,6 +148,33 @@ private:
     WPropInt m_alpha;
 
     /**
+     * The size of beam 1. A value of 0 denotes the smallest size and a value of 100 the largest, which typically is one third of the length of
+     * the fiber cluster.
+     */
+    WPropInt m_size1;
+
+    /**
+     * The size of beam 1. A value of 0 denotes the smallest size and a value of 100 the largest, which typically is one third of the length of
+     * the fiber cluster.
+     */
+    WPropInt m_size2;
+
+    /**
+     * The speed of beam 1 on the surface. This is relative to the clock which ticks 25 times per second.
+     */
+    WPropInt m_speed1;
+
+    /**
+     * The speed of beam 2 on the surface. This is relative to the clock which ticks 25 times per second.
+     */
+    WPropInt m_speed2;
+
+    /**
+     * Scaling the parameter space ensures consistent sizes and speeds along multiple WMSurfaceBars instances.
+     */
+    WPropDouble m_parameterScale;
+
+    /**
      * The color used when in isosurface mode for blending.
      */
     WPropColor m_isoColor;

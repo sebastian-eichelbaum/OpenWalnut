@@ -48,7 +48,9 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
+#include "../../graphicsEngine/WGEBorderLayout.h"
 #include "../../graphicsEngine/WGEResourceManager.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../graphicsEngine/WGELabel.h"
 
 #include "../data/WMData.h"
@@ -130,7 +132,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // set/forward some props
     props = m_voxelizer->getProperties2();
     props->getProperty( "CenterLine" )->toPropBool()->set( true );
-    //props->getProperty( "active" )->toPropBool()->set( false );
+    props->getProperty( "active" )->toPropBool()->set( false );
     props->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
     props->getProperty( "Display Voxels" )->toPropBool()->set( false );
     props->getProperty( "Lighting" )->toPropBool()->set( false );
@@ -153,7 +155,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
     // set/forward some props
     props = m_gauss->getProperties2();
-    props->getProperty( "Iterations" )->toPropInt()->set( 3 );
+    props->getProperty( "Iterations" )->toPropInt()->set( 2 );
 
     //////////////////////////////////////////////////////////////////////
     // Animation
@@ -170,7 +172,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
     // set/forward some props
     props = m_animation->getProperties2();
-    props->getProperty( "Isovalue" )->toPropInt()->set( 30 );
+    props->getProperty( "Isovalue" )->toPropInt()->set( 32 );
     m_properties2->addProperty( props->getProperty( "Isovalue" ) );
     props->getProperty( "Step Count" )->toPropInt()->set( 500 );
     m_properties2->addProperty( props->getProperty( "Step Count" ) );
@@ -178,7 +180,10 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_properties2->addProperty( props->getProperty( "Iso Color" ) );
     props->getProperty( "Opacity %" )->toPropInt()->set( 100 );
     m_properties2->addProperty( props->getProperty( "Opacity %" ) );
-
+    m_properties2->addProperty( props->getProperty( "Beam1 Size" ) );
+    m_properties2->addProperty( props->getProperty( "Beam2 Size" ) );
+    m_properties2->addProperty( props->getProperty( "Beam1 Speed" ) );
+    m_properties2->addProperty( props->getProperty( "Beam2 Speed" ) );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Hard wire the modules
@@ -232,37 +237,21 @@ void WMEffectiveConnectivityCluster::moduleMain()
         // has one of the properties changed?
         if ( m_voi1Name->changed() || m_voi2Name->changed() || first )
         {
-            // create some labels
-            osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+            osg::ref_ptr< WGEBorderLayout > layouter = new WGEBorderLayout();
 
-            osg::ref_ptr< osgText::FadeText > label1 = new osgText::FadeText();
+            osg::ref_ptr< WGELabel > label1 = new WGELabel();
             label1->setText( m_voi1Name->get( true ) );
-            label1->setCharacterSize( 8 );
-            label1->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
-            label1->setAxisAlignment(osgText::Text::SCREEN);
-            label1->setAlignment( osgText::Text::CENTER_CENTER );
-            label1->setPosition( osg::Vec3( 84, 36 , 56 ) ); // the position relative to the current coordinate system
-            label1->setColor( osg::Vec4( 0, 0, 0, 1 ) );
-            label1->setFadeSpeed( 0.05 );
-            osg::ref_ptr< osgText::FadeText > label2 = new osgText::FadeText();
+            label1->setAnchor( osg::Vec3( 90, 36 , 62 ) ); // the position relative to the current screen coordinate system
+
+            osg::ref_ptr< WGELabel > label2 = new WGELabel();
             label2->setText( m_voi2Name->get( true ) );
-            label2->setCharacterSize( 8 );
-            label2->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
-            label2->setAxisAlignment( osgText::Text::SCREEN );
-            label1->setAlignment( osgText::Text::CENTER_CENTER );
-            label2->setPosition( osg::Vec3( 69, 36 , 56 ) ); // the position relative to the current coordinate system
-            label2->setColor( osg::Vec4( 0, 0, 0, 1 ) );
-            label2->setFadeSpeed( 0.05 );
-            geode->getOrCreateStateSet()->setRenderBinDetails( 11, "RenderBin");
-            geode->getOrCreateStateSet()->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+            label2->setAnchor( osg::Vec3( 69, 30 , 65 ) ); // the position relative to the current screen coordinate system
 
-
-
-            geode->addDrawable( label1 );
-            geode->addDrawable( label2 );
+            layouter->addLayoutable( label1 );
+            layouter->addLayoutable( label2 );
 
             m_rootNode->clear();
-            m_rootNode->insert( geode );
+            m_rootNode->insert( layouter );
         }
 
         first = false;
@@ -314,8 +303,8 @@ void WMEffectiveConnectivityCluster::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_voi1Name = m_properties2->addProperty( "Name of VOI1", "The name of the VOI1.", std::string( "" ), m_propCondition );
-    m_voi2Name = m_properties2->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "" ), m_propCondition );
+    m_voi1Name = m_properties2->addProperty( "Name of VOI1", "The name of the VOI1.", std::string( "Hallo" ), m_propCondition );
+    m_voi2Name = m_properties2->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "du da" ), m_propCondition );
 }
 
 void WMEffectiveConnectivityCluster::activate()
