@@ -128,40 +128,61 @@ void WFiberCluster::generateCenterLine()
 
 void WFiberCluster::elongateCenterLine()
 {
-    // first end
+    // first ending of the centerline
     assert( m_centerLine->size() > 1 );
-    wmath::WVector3D normal( m_centerLine->at( 0 ) - m_centerLine->at( 1 ) );
-    WPlane p( normal, m_centerLine->at( 0 ) + normal );
+    wmath::WFiber cL( *m_centerLine );
+    WPlane p( cL[0] - cL[1], cL[0] + ( cL[0] - cL[1] ) );
     boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
     bool intersectionFound = true;
-    std::set< wmath::WPosition > cutPoints;
+
     while( intersectionFound )
     {
         intersectionFound = false;
-        wmath::WPosition avg( 0, 0, 0 );
+        size_t intersectingFibers = 0;
         for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
         {
             if( wmath::intersectPlaneLineNearCP( p, m_fibs->at( *cit ), cutPoint ) )
             {
+                intersectingFibers++;
                 intersectionFound = true;
-                cutPoints.insert( *cutPoint );
-                avg += *cutPoint;
             }
         }
-        if( cutPoints.size() > 0 )
+        if( intersectingFibers > 10 )
         {
-            avg[0] /= static_cast< double >( cutPoints.size() );
-            avg[1] /= static_cast< double >( cutPoints.size() );
-            avg[2] /= static_cast< double >( cutPoints.size() );
-            m_centerLine->insert( m_centerLine->begin(), avg );
-            p.resetPosition( avg + ( m_centerLine->at( 0 ) -  m_centerLine->at( 1 ) ) );
-//            p.setNormal( m_centerLine->at( 0 ) - m_centerLine->at( 1 ) );
+            cL.insert( cL.begin(), cL[0] + ( cL[0] - cL[1] ) );
+            p.resetPosition( cL[0] + ( cL[0] -  cL[1] ) );
         }
         else // no intersections found => abort
         {
             break;
         }
     }
+    // second ending of the centerline
+    WPlane q( cL.back() - cL[ cL.size() - 2 ], cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) );
+    intersectionFound = true;
+    while( intersectionFound )
+    {
+        intersectionFound = false;
+        size_t intersectingFibers = 0;
+        for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+        {
+            if( wmath::intersectPlaneLineNearCP( q, m_fibs->at( *cit ), cutPoint ) )
+            {
+                intersectingFibers++;
+                intersectionFound = true;
+            }
+        }
+        if( intersectingFibers > 10 )
+        {
+            cL.push_back(  cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) );
+            q.resetPosition(  cL.back() + ( cL.back() - cL[ cL.size() - 2 ] ) );
+        }
+        else // no intersections found => abort
+        {
+            break;
+        }
+    }
+    *m_centerLine = cL;
 }
 
 void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const
