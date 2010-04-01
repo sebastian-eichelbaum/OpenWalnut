@@ -36,6 +36,7 @@
 #include "WMoriThread.h"
 
 #include "WMDeterministicFTMori.h"
+#include "moriTracking.xpm"
 
 WMDeterministicFTMori::WMDeterministicFTMori()
     : WModule(),
@@ -51,6 +52,11 @@ WMDeterministicFTMori::~WMDeterministicFTMori()
 boost::shared_ptr< WModule > WMDeterministicFTMori::factory() const
 {
     return boost::shared_ptr< WModule >( new WMDeterministicFTMori() );
+}
+
+const char** WMDeterministicFTMori::getXPMIcon() const
+{
+    return moriTracking_xpm;
 }
 
 const std::string WMDeterministicFTMori::getName() const
