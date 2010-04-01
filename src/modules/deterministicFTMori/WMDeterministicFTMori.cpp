@@ -135,21 +135,21 @@ void WMDeterministicFTMori::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_minFA = m_properties2->addProperty( "min FA", "The fractional anisotropy threshold value needed by "
+    m_minFA = m_properties2->addProperty( "Min. FA", "The fractional anisotropy threshold value needed by "
                                                     "Mori's fiber tracking algorithm.", 0.2, m_propCondition );
     m_minFA->setMax( 1.0 );
     m_minFA->setMin( 0.0 );
 
-    m_minPoints = m_properties2->addProperty( "min points", "The minimum number of points per fiber.", 30, m_propCondition );
+    m_minPoints = m_properties2->addProperty( "Min. Points", "The minimum number of points per fiber.", 30, m_propCondition );
     m_minPoints->setMax( 100 );
     m_minPoints->setMin( 1 );
 
-    m_minCos = m_properties2->addProperty( "min cosine", "Minimum cosine of the angle between two"
+    m_minCos = m_properties2->addProperty( "Min. Cosine", "Minimum cosine of the angle between two"
                                            " adjacent fiber segments.", 0.80, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );
 
-    m_run = m_properties2->addProperty( "start the algorithm", "Starts the algorithm using the given paratemers.", false, m_propCondition );
+    m_run = m_properties2->addProperty( "Start the Algorithm", "Starts the algorithm using the given paratemers.", false, m_propCondition );
 }
 
 void WMDeterministicFTMori::activate()
