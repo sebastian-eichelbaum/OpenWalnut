@@ -49,6 +49,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMFiberClustering.h"
+#include "fiberClustering.xpm"
 
 WMFiberClustering::WMFiberClustering()
     : WModule(),
@@ -66,6 +67,11 @@ WMFiberClustering::~WMFiberClustering()
 boost::shared_ptr< WModule > WMFiberClustering::factory() const
 {
     return boost::shared_ptr< WModule >( new WMFiberClustering() );
+}
+
+const char** WMFiberClustering::getXPMIcon() const
+{
+    return fiberClustering_xpm;
 }
 
 void WMFiberClustering::moduleMain()
