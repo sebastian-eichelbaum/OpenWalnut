@@ -402,6 +402,11 @@ private:
      */
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
 
+    /**
+     * Return whether the transformations of the grid are only translation and/or scaling
+     */
+    bool isNotRotatedOrSheared() const;
+
     wmath::WPosition m_origin; //!< Origin of the grid.
 
     unsigned int m_nbPosX; //!< Number of positions in x direction
@@ -475,12 +480,5 @@ inline wmath::WPosition WGridRegular3D::getOrigin() const
 {
     return m_origin;
 }
-
-inline std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
-{
-    return std::make_pair( getOrigin(),
-                           getOrigin() + getDirectionX() * getNbCoordsX() + getDirectionY() * getNbCoordsY() + getDirectionZ() * getNbCoordsZ() );
-}
-
 
 #endif  // WGRIDREGULAR3D_H

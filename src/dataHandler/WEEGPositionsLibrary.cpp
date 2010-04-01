@@ -40,7 +40,7 @@ WEEGPositionsLibrary::WEEGPositionsLibrary( const std::map< std::string, wmath::
     }
 }
 
-wmath::WPosition WEEGPositionsLibrary::getPosition( std::string label ) const
+wmath::WPosition WEEGPositionsLibrary::getPosition( std::string label ) const throw( WOutOfBounds )
 {
     std::map< std::string, wmath::WPosition >::const_iterator iter = m_positions.find( string_utils::toUpper( label ) );
 
