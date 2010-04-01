@@ -113,13 +113,20 @@ void WMData::properties()
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
 
     // several other properties
-    m_interpolation = m_properties2->addProperty( "Interpolation", "Is interpolation active?", true, propertyCallback );
-    m_threshold = m_properties2->addProperty( "Threshold", "The value threshold.", 0, propertyCallback );
-    m_opacity = m_properties2->addProperty( "Opacity %", "The opacity of this data on other surfaces.", 100, propertyCallback );
+    m_interpolation = m_properties2->addProperty( "Interpolation",
+                                                  "If active, the boundaries of single voxels"
+                                                  " will not be visible in colormaps. The transition between"
+                                                  " them will be smooth by using interpolation then.",
+                                                  true,
+                                                  propertyCallback );
+    m_threshold = m_properties2->addProperty( "Threshold", "Values below this threshold will not be "
+                                              "shown in colormaps.", 0, propertyCallback );
+    m_opacity = m_properties2->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
+                                            " values from several data sets.", 100, propertyCallback );
     m_opacity->setMax( 100 );
     m_opacity->setMin( 0 );
 
-    m_colorMap = m_properties2->addProperty( "Colormap", "Selected Colormap", 0, propertyCallback );
+    m_colorMap = m_properties2->addProperty( "Colormap", "Colormap type.", 0, propertyCallback );
     m_colorMap->setMin( 0 );
     m_colorMap->setMax( 5 );
 }
