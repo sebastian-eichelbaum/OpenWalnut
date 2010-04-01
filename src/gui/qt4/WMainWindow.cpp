@@ -559,8 +559,8 @@ bool WMainWindow::event( QEvent* event )
         WModuleCrashEvent* e1 = dynamic_cast< WModuleCrashEvent* >( event );     // NOLINT
         if ( e1 )
         {
-            QString title = "Module crashed: " + QString::fromStdString( e1->getModule()->getName() );
-            QString message = "<b>Module Crashed</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
+            QString title = "Problem in module: " + QString::fromStdString( e1->getModule()->getName() );
+            QString message = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
                               "<br/><b>Message:  </b>" + QString::fromStdString( e1->getMessage() );
             QMessageBox::critical( this, title, message );
         }
