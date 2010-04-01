@@ -85,6 +85,11 @@ public:
     virtual boost::shared_ptr< WModule > factory() const;
 
     /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
+    /**
      * Gets the type of the module. This is useful for FAST differentiation between several modules like standard modules and data
      * modules which play a special role in OpenWalnut/Kernel.
      *

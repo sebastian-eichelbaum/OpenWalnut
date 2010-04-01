@@ -43,6 +43,7 @@
 #include "../../dataHandler/io/WReaderELC.h"
 #include "../../dataHandler/io/WReaderFiberVTK.h"
 #include "WMData.h"
+#include "data.xpm"
 
 WMData::WMData():
     WModule(),
@@ -59,6 +60,11 @@ WMData::~WMData()
 boost::shared_ptr< WModule > WMData::factory() const
 {
     return boost::shared_ptr< WModule >( new WMData() );
+}
+
+const char** WMData::getXPMIcon() const
+{
+    return data_xpm;
 }
 
 const std::string WMData::getName() const

@@ -31,6 +31,7 @@
 #include "../../kernel/WKernel.h"
 #include "../data/WMData.h"
 #include "WMCoordinateSystem.h"
+#include "coordinateSystem.xpm"
 
 WMCoordinateSystem::WMCoordinateSystem() :
     WModule()
@@ -44,6 +45,11 @@ WMCoordinateSystem::~WMCoordinateSystem()
 boost::shared_ptr< WModule > WMCoordinateSystem::factory() const
 {
     return boost::shared_ptr< WMCoordinateSystem >( new WMCoordinateSystem() );
+}
+
+const char** WMCoordinateSystem::getXPMIcon() const
+{
+    return coordinateSystem_xpm;
 }
 
 void WMCoordinateSystem::moduleMain()
