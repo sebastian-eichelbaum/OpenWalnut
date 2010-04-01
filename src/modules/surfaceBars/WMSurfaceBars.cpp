@@ -126,7 +126,7 @@ void WMSurfaceBars::properties()
 
     m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 0.0, 0.0, 0.0, 1.0 ),
                       m_propCondition );
-
+    m_saturation    = m_properties2->addProperty( "Saturation %",     "The saturation in %.", 100 );
     m_size1         = m_properties2->addProperty( "Beam1 Size",       "The relative size of the first beam. A value of 0 gets mapped to the "
                                                                       "smallest size, whilst 100 gets mapped to the largest. This is typically "
                                                                       "one third of the size of the voxelized surface.", 10 );
@@ -195,8 +195,11 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
     speed1->setUpdateCallback( new SafeUniformCallback( this ) );
     speed2->setUpdateCallback( new SafeUniformCallback( this ) );
 
-    osg::ref_ptr< osg::Uniform > paramScale = new osg::Uniform( "u_parameterScale", 0 );
+    osg::ref_ptr< osg::Uniform > paramScale = new osg::Uniform( "u_parameterScale", 1.0f );
     paramScale->setUpdateCallback( new SafeUniformCallback( this ) );
+
+    osg::ref_ptr< osg::Uniform > saturation = new osg::Uniform( "u_saturation", 1.0f );
+    saturation->setUpdateCallback( new SafeUniformCallback( this ) );
 
     rootState->addUniform( isovalue );
     rootState->addUniform( steps );
@@ -207,6 +210,7 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
     rootState->addUniform( speed1 );
     rootState->addUniform( speed2 );
     rootState->addUniform( paramScale );
+    rootState->addUniform( saturation );
 
     return cube;
 }
@@ -343,6 +347,11 @@ void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg:
     {
         uniform->set( static_cast< float >( m_module->m_parameterScale->get( true ) ) );
     }
+    if ( m_module->m_saturation->changed() && ( uniform->getName() == "u_saturation" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_saturation->get( true ) ) / 100.0f );
+    }
+
 }
 
 void WMSurfaceBars::activate()

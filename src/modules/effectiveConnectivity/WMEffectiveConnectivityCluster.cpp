@@ -29,6 +29,8 @@
 
 #include <cmath>
 
+#include <boost/shared_ptr.hpp>
+
 #include "WMEffectiveConnectivityCluster.h"
 
 #include <osg/Geode>
@@ -47,11 +49,14 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleOutputData.h"
 #include "../../graphicsEngine/WGEBorderLayout.h"
 #include "../../graphicsEngine/WGEResourceManager.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../graphicsEngine/WGELabel.h"
+#include "../../graphicsEngine/WGEUtils.h"
 
 #include "../data/WMData.h"
 #include "effectiveConnectivityCluster.xpm"
@@ -92,6 +97,33 @@ const std::string WMEffectiveConnectivityCluster::getDescription() const
     return WModuleContainer::getDescription();
 }
 
+void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
+                                                      boost::shared_ptr< WModuleConnector > output )
+{
+    if ( !output )
+    {
+        // if the connector gets reset -> ignore this case
+        return;
+    }
+
+    // cast it to the target type
+    boost::shared_ptr< WModuleOutputData < WFiberCluster > > o = boost::shared_static_cast< WModuleOutputData< WFiberCluster > >( output );
+    if ( !o )
+    {
+        errorLog() << "New data is not a WFiberCluster? That should not happen!";
+    }
+
+    // grab data
+    boost::shared_ptr< WFiberCluster > fibs = o->getData();
+    boost::shared_ptr< wmath::WFiber > lline = fibs->getCenterLine();
+
+    // the first and the last point of the longest line are required:
+    m_labelPos2 = ( *lline )[ lline->size() - 2 ];
+    m_labelPos1 = ( *lline )[ 1 ];
+
+    m_propCondition->notify();
+}
+
 void WMEffectiveConnectivityCluster::moduleMain()
 {
     //////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +147,11 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_properties2->addProperty( props->getProperty( "Cut Fibers" ) );
     props->getProperty( "Prefer Shortest Path" )->toPropBool()->set( false );
     m_properties2->addProperty( props->getProperty( "Prefer Shortest Path" ) );
+
+    // as this module needs the centerline / longest line -> subscribe to the output connector DATA_CHANGE signal
+    m_fiberSelection->getOutputConnector( "cluster" )->subscribeSignal( DATA_CHANGED,
+        boost::bind( &WMEffectiveConnectivityCluster::fiberDataChange, this, _1, _2 )
+    );
 
     //////////////////////////////////////////////////////////////////////
     // Voxelize
@@ -180,10 +217,13 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_properties2->addProperty( props->getProperty( "Iso Color" ) );
     props->getProperty( "Opacity %" )->toPropInt()->set( 100 );
     m_properties2->addProperty( props->getProperty( "Opacity %" ) );
+    m_properties2->addProperty( props->getProperty( "Saturation %" ) );
     m_properties2->addProperty( props->getProperty( "Beam1 Size" ) );
     m_properties2->addProperty( props->getProperty( "Beam2 Size" ) );
     m_properties2->addProperty( props->getProperty( "Beam1 Speed" ) );
     m_properties2->addProperty( props->getProperty( "Beam2 Speed" ) );
+    m_properties2->addProperty( props->getProperty( "Parameter Scale" ) );
+
 
     //////////////////////////////////////////////////////////////////////////////////
     // Hard wire the modules
@@ -235,20 +275,29 @@ void WMEffectiveConnectivityCluster::moduleMain()
         }
 
         // has one of the properties changed?
-        if ( m_voi1Name->changed() || m_voi2Name->changed() || first )
+        if ( m_voi1Name->changed() || m_voi2Name->changed() || m_labelCharacterSize->changed() || first )
         {
             osg::ref_ptr< WGEBorderLayout > layouter = new WGEBorderLayout();
 
-            osg::ref_ptr< WGELabel > label1 = new WGELabel();
-            label1->setText( m_voi1Name->get( true ) );
-            label1->setAnchor( osg::Vec3( 90, 36 , 62 ) ); // the position relative to the current screen coordinate system
+            std::string voi1 = m_voi1Name->get( true );
+            std::string voi2 = m_voi2Name->get( true );
+            if ( !voi1.empty() )
+            {
+                osg::ref_ptr< WGELabel > label1 = new WGELabel();
+                label1->setText( voi1 );
+                label1->setAnchor( wge::osgVec3( m_labelPos1 ) ); // the position relative to the current world coordinate system
+                label1->setCharacterSize( m_labelCharacterSize->get( true ) );
+                layouter->addLayoutable( label1 );
+            }
 
-            osg::ref_ptr< WGELabel > label2 = new WGELabel();
-            label2->setText( m_voi2Name->get( true ) );
-            label2->setAnchor( osg::Vec3( 69, 30 , 65 ) ); // the position relative to the current screen coordinate system
-
-            layouter->addLayoutable( label1 );
-            layouter->addLayoutable( label2 );
+            if ( !voi2.empty() )
+            {
+                osg::ref_ptr< WGELabel > label2 = new WGELabel();
+                label2->setText( voi2 );
+                label2->setAnchor( wge::osgVec3( m_labelPos2 ) ); // the position relative to the current world coordinate system
+                label2->setCharacterSize( m_labelCharacterSize->get( true ) );
+                layouter->addLayoutable( label2 );
+            }
 
             m_rootNode->clear();
             m_rootNode->insert( layouter );
@@ -303,8 +352,10 @@ void WMEffectiveConnectivityCluster::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_voi1Name = m_properties2->addProperty( "Name of VOI1", "The name of the VOI1.", std::string( "Hallo" ), m_propCondition );
-    m_voi2Name = m_properties2->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "du da" ), m_propCondition );
+    m_voi1Name = m_properties2->addProperty( "Name of VOI1", "The name of the VOI1.", std::string( "" ), m_propCondition );
+    m_voi2Name = m_properties2->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "" ), m_propCondition );
+
+    m_labelCharacterSize = m_properties2->addProperty( "Font Size", "The size of the label fonts.", 20, m_propCondition );
 }
 
 void WMEffectiveConnectivityCluster::activate()

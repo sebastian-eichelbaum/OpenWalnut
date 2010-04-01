@@ -170,6 +170,11 @@ private:
     WPropInt m_speed2;
 
     /**
+     * Saturation of final rendering.
+     */
+    WPropInt m_saturation;
+
+    /**
      * Scaling the parameter space ensures consistent sizes and speeds along multiple WMSurfaceBars instances.
      */
     WPropDouble m_parameterScale;

@@ -32,6 +32,7 @@
 #include <osg/Node>
 
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../common/math/WPosition.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
@@ -104,6 +105,15 @@ protected:
      */
     virtual void activate();
 
+    /**
+     * This method is called whenever the data on the fiberSelection module output changes.
+     *
+     * \param input this is the input receiving the change, in this case, the voxelizer
+     * \param output this is the sender, the fiberSelection module.
+     *
+     */
+    void fiberDataChange( boost::shared_ptr< WModuleConnector > input, boost::shared_ptr< WModuleConnector > output );
+
 private:
 
     /**
@@ -126,6 +136,16 @@ private:
     boost::shared_ptr< WModule > m_gauss;                //!< The gauss filter which filters the voxelized fibers.
     boost::shared_ptr< WModule > m_animation;            //!< The final animation.
 
+    /**
+     * The position of the first label showing m_voi1Name
+     */
+    wmath::WPosition m_labelPos1;
+
+    /**
+     * The position of the second label showing m_voi2Name
+     */
+    wmath::WPosition m_labelPos2;
+
     /////////////////////////////////////////////////////////////////////
     // The Properties
     /////////////////////////////////////////////////////////////////////
@@ -139,6 +159,11 @@ private:
      * The name of the first region of interest
      */
     WPropString m_voi2Name;
+
+    /**
+     * Size of the label font.
+     */
+    WPropInt m_labelCharacterSize;
 
     /**
      * A condition used to notify about changes in several properties.

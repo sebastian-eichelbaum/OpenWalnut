@@ -81,6 +81,9 @@ uniform int u_animationTime;
 // Setup appearance of surface beams
 // **************************************************************************
 
+// the saturation of the final image. Useful to gray out stuff.
+uniform float u_saturation;
+
 // The size of beam 1
 uniform int u_size1;
 
@@ -271,8 +274,8 @@ void main()
             );
 
             // 3: get the current trace value from tex1, which in most cases is a increasing number along the rasterized line direction
-            float paramSpaceSize = 100;
-            float minSize = ( paramSpaceSize * 0.01 );  // the minimum size of 1% of the parameter space size
+            float paramSpaceSize = 1000.0;
+            float minSize = ( paramSpaceSize * 0.05 );  // the minimum size of 1% of the parameter space size
             float maxSize = ( paramSpaceSize * 0.30 );  // the maximum size -> 30% of parameter space size
 
             float trace    = texture3D( tex1, curPoint ).r  * ( paramSpaceSize );
@@ -282,10 +285,10 @@ void main()
             // the current time step:
             float timeStep = u_animationTime / 4.0; // scale 100th of a second to 25 times per second
             
-            //timeStep = 0;
+            //timeStep = 25;
             // create a triangle function increasing time in 1/100 steps
-            float relativeSpeed1 = float( u_speed1 ) / 12.5;
-            float relativeSpeed2 = float( u_speed2 ) / 12.5;
+            float relativeSpeed1 = 2.5; //float( u_speed1 ) / 12.5;
+            float relativeSpeed2 = 2.5; // float( u_speed2 ) / 12.5;
             float anim1 = ( int( timeStep * relativeSpeed1 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
             float anim2 = ( int( timeStep * relativeSpeed2 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
             
@@ -325,8 +328,8 @@ void main()
             }
 
             // 4. fragment belongs to a border
-            bool doWhite   = ( epsilonEquals( abs( anim2 - traceInv ), halfSize2 + 0.5, 0.5 ) ||
-                               epsilonEquals( abs( anim1 - trace ),    halfSize1 + 0.5, 0.5 ) );
+            bool doWhite   = ( epsilonEquals( abs( anim2 - traceInv ), halfSize2 + 0.5, 5.0 ) ||
+                               epsilonEquals( abs( anim1 - trace ),    halfSize1 + 0.5, 5.0 ) );
             if ( doWhite )
             {
                 ocol.r = 1.0;
@@ -334,6 +337,8 @@ void main()
                 ocol.b = 1.0;
             }
                  
+            ocol *= u_saturation;
+            ocol.a = u_alpha;
             gl_FragData[0] = ocol;
 
             break;
