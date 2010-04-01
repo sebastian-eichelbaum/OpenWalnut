@@ -98,7 +98,7 @@ void WMDataTypeConversion::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        WAssert( m_dataSet, "No data set found.");
+        WAssert( m_dataSet, "No data set found." );
 
         switch( (*m_dataSet).getValueSet()->getDataType() )
         {
