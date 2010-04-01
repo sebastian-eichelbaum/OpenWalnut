@@ -69,7 +69,7 @@ void WMCoordinateSystem::moduleMain()
 
 const std::string WMCoordinateSystem::getName() const
 {
-    return "Coordinate System Module";
+    return "Coordinate System";
 }
 
 const std::string WMCoordinateSystem::getDescription() const
