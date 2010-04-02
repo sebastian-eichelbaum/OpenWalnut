@@ -106,6 +106,17 @@ private:
      * sampling rate used by the recording
      */
     double m_samplingRate;
+
+    /**
+     * Convert the given double value to std::size_t and clamp it into the given
+     * range
+     *
+     * \param value value to convert
+     * \param min   minimum of the valid range
+     * \param max   maximum of the valid range
+     * \return converted value
+     */
+    std::size_t clampToRange( double value, std::size_t min, std::size_t max ) const;
 };
 
 #endif  // WLINESTRIPCALLBACK_H

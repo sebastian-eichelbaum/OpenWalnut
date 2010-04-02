@@ -68,12 +68,17 @@ void WLineStripCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawab
         osg::Geometry* geometry = static_cast< osg::Geometry* >( drawable );
         if( geometry )
         {
-            const std::size_t startSample = timePos * m_samplingRate;
-            const std::size_t endSample = std::ceil( ( timePos + timeRange ) * m_samplingRate ) + 1;
-            const std::size_t currentStartSample = m_currentTimePos * m_samplingRate;
+            const std::size_t nbSamples = m_segment->getNumberOfSamples();
+            const std::size_t startSample = clampToRange( timePos * m_samplingRate, 0u, nbSamples - 1u );
+            const std::size_t endSample = clampToRange( std::ceil( ( timePos + timeRange ) * m_samplingRate ) + 1.0,
+                                                        startSample,
+                                                        nbSamples );
+            const std::size_t currentStartSample = clampToRange( m_currentTimePos * m_samplingRate, 0u, nbSamples - 1u );
             const std::size_t currentEndSample = ( 0.0 <= m_currentTimeRange ) ?
-                                                     std::ceil( ( m_currentTimePos + m_currentTimeRange ) * m_samplingRate ) + 1 :
-                                                     currentStartSample;
+                    clampToRange( std::ceil( ( m_currentTimePos + m_currentTimeRange ) * m_samplingRate ) + 1.0,
+                                  currentStartSample,
+                                  nbSamples ) :
+                    currentStartSample;
 
             osg::Vec3Array* vertices = new osg::Vec3Array();
             vertices->reserve( endSample - startSample );
@@ -124,4 +129,19 @@ void WLineStripCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawab
         m_currentTimePos = timePos;
         m_currentTimeRange = timeRange;
     }
+}
+
+std::size_t WLineStripCallback::clampToRange( double value, std::size_t min, std::size_t max ) const
+{
+    std::size_t out = ( value > 0.0 ) ? value : 0u;
+    if( out < min )
+    {
+        out = min;
+    }
+    else if( max < out )
+    {
+        out = max;
+    }
+
+    return out;
 }
