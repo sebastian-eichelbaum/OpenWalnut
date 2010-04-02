@@ -32,10 +32,10 @@
 #include <osgSim/ScalarsToColors>
 
 #include "../../dataHandler/WEEG2.h"
-#include "../../graphicsEngine/WEvent.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "WEEGEvent.h"
 #include "WEEGViewHandler.h"
 
 
@@ -175,6 +175,11 @@ private:
     WPropDouble m_ySensitivity;
 
     /**
+     * event marking a special time position as WFlag
+     */
+    boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > m_event;
+
+    /**
      * Pointer to the loaded EEG dataset
      */
     boost::shared_ptr< WEEG2 > m_eeg;
@@ -228,16 +233,6 @@ private:
     bool m_wasActive;
 
     /**
-     * Event marking a special time position
-     */
-    WEvent m_event;
-
-    /**
-     * Flag from WMarkHandler which contains a new event position.
-     */
-    WFlag< double >* m_eventPositionFlag;
-
-    /**
      * A ScalarsToColors object mapping the potentials at the electrodes to
      * colors. Used for the display of electrode positions and the head surface.
      */
@@ -287,128 +282,6 @@ private:
      * \return an OSG Node containing the electrode labels
      */
     osg::ref_ptr< osg::Node > drawLabels();
-
-    /**
-     * Changes an WEvent to the given time position
-     *
-     * \param event the WEvent which should be changed
-     * \param time the new time position
-     */
-    void updateEvent( WEvent* event, double time );
-
-    /**
-     * OSG Update Callback to change the color of a ShapeDrawable when an event
-     * position changed.
-     * \note Only add it to a ShapeDrawable!
-     */
-    class UpdateColorOfShapeDrawableCallback : public osg::Drawable::UpdateCallback
-    {
-    public:
-        /**
-         * Constructor
-         *
-         * \param channelID the number of the channel
-         * \param event the event on which the ShapeDrawable updates
-         * \param eeg the WEEG dataset
-         * \param colorMap the object mapping the electrode potentials to colors
-         */
-        UpdateColorOfShapeDrawableCallback( size_t channelID,
-                                            const WEvent* event,
-                                            boost::shared_ptr< const WEEG2 > eeg,
-                                            osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
-
-        /**
-         * Callback method called by the NodeVisitor.
-         * Changes the color of the drawable according to the event.
-         *
-         * \param drawable The drawable this callback is connected to. Should be
-         *                 a ShapeDrawable.
-         */
-        virtual void update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable );
-
-    protected:
-    private:
-        /**
-         * The number of the channel
-         */
-        const size_t m_channelID;
-
-        /**
-         * The time position which is currently used.
-         * The color is updated if the new time from the m_event is different to
-         * this.
-         */
-        double m_currentTime;
-
-        /**
-         * The event on which the ShapeDrawable updates
-         */
-        const WEvent* const m_event;
-
-        /**
-         * The WEEG dataset
-         */
-        const boost::shared_ptr< const WEEG2 > m_eeg;
-
-        /**
-         * The ScalarsToColors object mapping the potentials at the electrodes
-         * to colors.
-         */
-        const osg::ref_ptr< const osgSim::ScalarsToColors > m_colorMap;
-    };
-
-    /**
-     * OSG Update Callback to change the color of a Geometry by changing its 1D
-     * texture coordinates when an event position changed.
-     * \note Only add it to a Geometry with a 1D texture!
-     */
-    class UpdateColorOfGeometryCallback : public osg::Drawable::UpdateCallback
-    {
-    public:
-        /**
-         * Constructor
-         *
-         * \param channelIDs the mapping from vertex indices to channel IDs
-         * \param event      the event on which the Geometry updates
-         * \param eeg        the WEEG dataset
-         */
-        UpdateColorOfGeometryCallback( const std::vector< std::size_t >& channelIDs,
-                                       const WEvent* event,
-                                       boost::shared_ptr< const WEEG2 > eeg );
-
-        /**
-         * Callback method called by the NodeVisitor.
-         * Changes the color of the drawable according to the event.
-         *
-         * \param drawable The drawable this callback is connected to. Should be
-         *                 a Geometry with a 1D texture.
-         */
-        virtual void update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable );
-
-    protected:
-    private:
-        /**
-         * The time position which is currently used.
-         * The color is updated if the new time from the m_event is different to
-         * this.
-         */
-        double m_currentTime;
-
-        /**
-         * the mapping from vertex indices to channel IDs
-         */
-        const std::vector< std::size_t > m_channelIDs;
-
-        /**
-         * The event on which the Geometry updates
-         */
-        const WEvent* const m_event;
-
-        /**
-         * The WEEG dataset
-         */
-        const boost::shared_ptr< const WEEG2 > m_eeg;
-    };
 };
 
 #endif  // WMEEGVIEW_H
