@@ -488,6 +488,7 @@ void WMEEGView::redraw()
                                          m_yPos,
                                          m_ySpacing,
                                          m_ySensitivity,
+                                         m_colorSensitivity,
                                          m_event,
                                          eventParentNode,
                                          m_eeg,

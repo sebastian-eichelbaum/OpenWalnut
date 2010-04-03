@@ -48,6 +48,7 @@ WEEGViewHandler::WEEGViewHandler( WPropInt labelsWidth,
                                   WPropDouble yPos,
                                   WPropDouble ySpacing,
                                   WPropDouble ySensitivity,
+                                  WPropDouble colorSensitivity,
                                   boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event,
                                   osg::ref_ptr< WGEGroupNode > eventParentNode,
                                   boost::shared_ptr< WEEG2 > eeg,
@@ -59,6 +60,7 @@ WEEGViewHandler::WEEGViewHandler( WPropInt labelsWidth,
       m_yPos( yPos ),
       m_ySpacing( ySpacing ),
       m_ySensitivity( ySensitivity ),
+      m_colorSensitivity( colorSensitivity ),
       m_event( event ),
       m_eventParentNode( eventParentNode ),
       m_eeg( eeg ),
@@ -168,22 +170,42 @@ bool WEEGViewHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIAction
 
             if( delta != 0.0f )
             {
-                if( ea.getButtonMask() & osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
+                switch( ea.getButtonMask() )
                 {
-                    // change the spacing of the different graphs
-                    const float addend = -0.001f * delta;
-                    m_ySpacing->set( m_ySpacing->get() * ( 1.0f + addend ) );
+                    case osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON:
+                    {
+                        // change the sensitivity of the color map
+                        m_colorSensitivity->set( m_colorSensitivity->get() * ( 1.0f + 0.001f * delta ) );
 
-                    // adjust yPos to zoom into the current mouse position
-                    m_yPos->set( m_yPos->get() * ( 1.0f + addend ) + ea.getY() * addend );
-                }
-                else
-                {
-                    // change the sensitivity of the graphs
-                    m_ySensitivity->set( m_ySensitivity->get() * ( 1.0f + 0.001f * delta ) );
-                }
+                        handled = true;
+                        break;
+                    }
+                    case osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON:
+                    {
+                        // change the spacing of the different graphs
+                        const float addend = -0.001f * delta;
+                        m_ySpacing->set( m_ySpacing->get() * ( 1.0f + addend ) );
 
-                handled = true;
+                        // adjust yPos to zoom into the current mouse position
+                        m_yPos->set( m_yPos->get() * ( 1.0f + addend ) + ea.getY() * addend );
+
+                        handled = true;
+                        break;
+                    }
+                    case 0u: // no button pressed
+                    {
+                        // change the sensitivity of the graphs
+                        m_ySensitivity->set( m_ySensitivity->get() * ( 1.0f + 0.001f * delta ) );
+
+                        handled = true;
+                        break;
+                    }
+                    default:
+                    {
+                        // do nothing
+                        break;
+                    }
+                }
             }
 
             break;

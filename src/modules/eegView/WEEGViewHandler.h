@@ -50,23 +50,26 @@ public:
     /**
      * Constructor
      *
-     * \param labelsWidth     the width of the label display in pixel as
-     *                            property
-     * \param timePos         the time position in seconds where to start the
-     *                            graph at the left edge as property
-     * \param timeRange       the width of the graph in seconds as property
-     * \param graphWidth      the width of the graph in pixel as property
-     * \param yPos            the y position in pixel at the lower edge as
-     *                            property
-     * \param ySpacing        the distance between two curves of the graph in
-     *                            pixel as property
-     * \param ySensitivity    the sensitivity of the graph in microvolt per
-     *                            pixel as property
-     * \param event           event marking a special time position as WFlag
-     * \param eventParentNode parent node, where an marked event position is
-     *                            inserted and removed from
-     * \param eeg             pointer to the loaded EEG dataset
-     * \param segmentID       number of the segment
+     * \param labelsWidth      the width of the label display in pixel as
+     *                             property
+     * \param timePos          the time position in seconds where to start the
+     *                             graph at the left edge as property
+     * \param timeRange        the width of the graph in seconds as property
+     * \param graphWidth       the width of the graph in pixel as property
+     * \param yPos             the y position in pixel at the lower edge as
+     *                             property
+     * \param ySpacing         the distance between two curves of the graph in
+     *                             pixel as property
+     * \param ySensitivity     the sensitivity of the graph in microvolt per
+     *                             pixel as property
+     * \param colorSensitivity The sensitivity of the color map as property. The
+     *                             color map ranges from -colorSensitivity to
+     *                             +colorSensitivity in microvolt.
+     * \param event            event marking a special time position as WFlag
+     * \param eventParentNode  parent node, where an marked event position is
+     *                             inserted and removed from
+     * \param eeg              pointer to the loaded EEG dataset
+     * \param segmentID        number of the segment
      */
     WEEGViewHandler( WPropInt labelsWidth,
                      WPropDouble timePos,
@@ -75,6 +78,7 @@ public:
                      WPropDouble yPos,
                      WPropDouble ySpacing,
                      WPropDouble ySensitivity,
+                     WPropDouble colorSensitivity,
                      boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event,
                      osg::ref_ptr< WGEGroupNode > eventParentNode,
                      boost::shared_ptr< WEEG2 > eeg,
@@ -125,6 +129,12 @@ private:
      * the sensitivity of the graph in microvolt per pixel as property
      */
     WPropDouble m_ySensitivity;
+
+    /**
+     * The sensitivity of the color map as property. The color map ranges
+     * from -m_colorSensitivity to +m_colorSensitivity in microvolt.
+     */
+    WPropDouble m_colorSensitivity;
 
     /**
      * event marking a special time position as WFlag
