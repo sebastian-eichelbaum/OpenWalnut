@@ -33,37 +33,41 @@
 #include <osg/Geometry>
 
 #include "../../common/WFlag.h"
+#include "../../common/WPropertyTypes.h"
+#include "../../common/WPropertyVariable.h"
 #include "WEEGEvent.h"
 #include "WHeadSurfaceCallback.h"
 
 
 WHeadSurfaceCallback::WHeadSurfaceCallback( const std::vector< std::size_t >& channelIDs,
+                                            WPropDouble colorSensitivity,
                                             boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event )
-    : m_currentTime( -1.0 ),
+    : m_currentColorSensitivity( 1.0 ),
+      m_currentTime( -1.0 ),
       m_channelIDs( channelIDs ),
+      m_colorSensitivity( colorSensitivity ),
       m_event( event )
 {
 }
 
 void WHeadSurfaceCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
 {
+    const double colorSensitivity = m_colorSensitivity->get();
     boost::shared_ptr< WEEGEvent > event = m_event->get();
-    const double newTime = event->getTime();
-    if( newTime != m_currentTime )
+    const double time = event->getTime();
+    if( colorSensitivity != m_currentColorSensitivity || time != m_currentTime )
     {
         osg::Geometry* geometry = static_cast< osg::Geometry* >( drawable );
         if( geometry )
         {
             osg::FloatArray* texCoords = static_cast< osg::FloatArray* >( geometry->getTexCoordArray( 0 ) );
-            if( 0.0 <= newTime )
+            if( 0.0 <= time )
             {
+                const std::size_t size = 256u;
                 const std::vector< double >& values = event->getValues();
                 for( std::size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
                 {
-                    const int size = 256;
-                    const double scale = 0.01;
-                    const double factor = scale * ( 1.0 - 1.0 / size );
-                    (*texCoords)[vertexID] = values[m_channelIDs[vertexID]] * factor + 0.5;
+                    (*texCoords)[vertexID] = values[m_channelIDs[vertexID]] * ( 0.5 - 0.5 / size ) / colorSensitivity + 0.5;
                 }
             }
             else
@@ -73,9 +77,11 @@ void WHeadSurfaceCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* draw
                     (*texCoords)[vertexID] = 0.5f;
                 }
             }
+
             geometry->setTexCoordArray( 0, texCoords );
         }
 
-        m_currentTime = newTime;
+        m_currentColorSensitivity = colorSensitivity;
+        m_currentTime = time;
     }
 }

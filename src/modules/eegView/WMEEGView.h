@@ -175,6 +175,12 @@ private:
     WPropDouble m_ySensitivity;
 
     /**
+     * The sensitivity of the color map as property. The color map ranges
+     * from -m_colorSensitivity to +m_colorSensitivity in microvolt.
+     */
+    WPropDouble m_colorSensitivity;
+
+    /**
      * event marking a special time position as WFlag
      */
     boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > m_event;

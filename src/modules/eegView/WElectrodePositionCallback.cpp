@@ -32,15 +32,20 @@
 #include <osgSim/ScalarsToColors>
 
 #include "../../common/WFlag.h"
+#include "../../common/WPropertyTypes.h"
+#include "../../common/WPropertyVariable.h"
 #include "WEEGEvent.h"
 #include "WElectrodePositionCallback.h"
 
 
 WElectrodePositionCallback::WElectrodePositionCallback( std::size_t channelID,
+        WPropDouble colorSensitivity,
         boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event,
         osg::ref_ptr< const osgSim::ScalarsToColors > colorMap )
     : m_channelID( channelID ),
+      m_currentColorSensitivity( 0.0 ),
       m_currentTime( -2.0 ),
+      m_colorSensitivity( colorSensitivity ),
       m_event( event ),
       m_colorMap( colorMap )
 {
@@ -48,19 +53,19 @@ WElectrodePositionCallback::WElectrodePositionCallback( std::size_t channelID,
 
 void WElectrodePositionCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
 {
+    const double colorSensitivity = m_colorSensitivity->get();
     boost::shared_ptr< WEEGEvent > event = m_event->get();
-    const double newTime = event->getTime();
-    if( newTime != m_currentTime )
+    const double time = event->getTime();
+    if( colorSensitivity != m_currentColorSensitivity || time != m_currentTime )
     {
         osg::ShapeDrawable* shape = static_cast< osg::ShapeDrawable* >( drawable );
         if( shape )
         {
             // calculate color value between -1 and 1
             float color;
-            if( 0.0 <= newTime )
+            if( 0.0 <= time )
             {
-                const double scale = 0.02;
-                color = event->getValues()[m_channelID] * scale;
+                color = event->getValues()[m_channelID] / colorSensitivity;
             }
             else
             {
@@ -70,6 +75,7 @@ void WElectrodePositionCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable
             shape->setColor( m_colorMap->getColor( color ) );
         }
 
-        m_currentTime = newTime;
+        m_currentColorSensitivity = colorSensitivity;
+        m_currentTime = time;
     }
 }

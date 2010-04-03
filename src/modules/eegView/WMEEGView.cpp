@@ -94,39 +94,42 @@ void WMEEGView::connectors()
 void WMEEGView::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_drawElectrodes  = m_properties2->addProperty( "Draw Electrodes",
-                                                    "Draw the 3D positions of the electrodes.",
-                                                    true,
-                                                    m_propCondition );
-    m_drawHeadSurface = m_properties2->addProperty( "Draw Head Surface",
-                                                    "Draw the head surface between the electrodes.",
-                                                    true,
-                                                    m_propCondition );
-    m_drawLabels      = m_properties2->addProperty( "Draw Labels",
-                                                    "Draw the labels of the electrodes at their 3D positions.",
-                                                    true,
-                                                    m_propCondition );
-    m_labelsWidth     = m_properties2->addProperty( "Labels Width",
-                                                    "The width of the label display in pixel.",
-                                                    24 );
-    m_timePos         = m_properties2->addProperty( "Time Position",
-                                                    "The time position in seconds where to start the graph at the left edge.",
-                                                    0.0 );
-    m_timeRange       = m_properties2->addProperty( "Time Range",
-                                                    "The width of the graph in seconds.",
-                                                    4.0 );
-    m_graphWidth      = m_properties2->addProperty( "Graph Width",
-                                                    "The width of the graph in pixel.",
-                                                    992 );
-    m_yPos            = m_properties2->addProperty( "Y Position",
-                                                    "The y position in pixel at the lower edge.",
-                                                    -730.25 );
-    m_ySpacing        = m_properties2->addProperty( "Spacing",
-                                                    "The distance between two curves of the graph in pixel.",
-                                                    11.5 );
-    m_ySensitivity    = m_properties2->addProperty( "Sensitivity",
-                                                    "The sensitivity of the graph in microvolt per pixel.",
-                                                    128.0 );
+    m_drawElectrodes   = m_properties2->addProperty( "Draw Electrodes",
+                                                     "Draw the 3D positions of the electrodes.",
+                                                     true,
+                                                     m_propCondition );
+    m_drawHeadSurface  = m_properties2->addProperty( "Draw Head Surface",
+                                                     "Draw the head surface between the electrodes.",
+                                                     true,
+                                                     m_propCondition );
+    m_drawLabels       = m_properties2->addProperty( "Draw Labels",
+                                                     "Draw the labels of the electrodes at their 3D positions.",
+                                                     true,
+                                                     m_propCondition );
+    m_labelsWidth      = m_properties2->addProperty( "Labels Width",
+                                                     "The width of the label display in pixel.",
+                                                     24 );
+    m_timePos          = m_properties2->addProperty( "Time Position",
+                                                     "The time position in seconds where to start the graph at the left edge.",
+                                                     0.0 );
+    m_timeRange        = m_properties2->addProperty( "Time Range",
+                                                     "The width of the graph in seconds.",
+                                                     4.0 );
+    m_graphWidth       = m_properties2->addProperty( "Graph Width",
+                                                     "The width of the graph in pixel.",
+                                                     992 );
+    m_yPos             = m_properties2->addProperty( "Y Position",
+                                                     "The y position in pixel at the lower edge.",
+                                                     -724.5 );
+    m_ySpacing         = m_properties2->addProperty( "Spacing",
+                                                     "The distance between two curves of the graph in pixel.",
+                                                     23.0 );
+    m_ySensitivity     = m_properties2->addProperty( "Sensitivity",
+                                                     "The sensitivity of the graph in microvolt per pixel.",
+                                                     2.0 );
+    m_colorSensitivity = m_properties2->addProperty( "Color Sensitivity",
+            "The sensitivity of the color map. It ranges from -Color Sensitivity to +Color Sensitivity in microvolt.",
+                                                     23.0 );
 
     m_labelsWidth->setMin( 0 );
     m_labelsWidth->setMax( 64 );
@@ -141,7 +144,9 @@ void WMEEGView::properties()
     m_ySpacing->setMin( 0.0 );
     m_ySpacing->setMax( 1024.0 );
     m_ySensitivity->setMin( 0.001 );
-    m_ySensitivity->setMax( 8192.0 );
+    m_ySensitivity->setMax( 100.0 );
+    m_colorSensitivity->setMin( 0.01 );
+    m_colorSensitivity->setMax( 10000.0 );
 }
 
 void WMEEGView::notifyConnectionEstablished(
@@ -561,7 +566,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
             // create sphere geode on electrode position
             osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
             shape->setDataVariance( osg::Object::DYNAMIC );
-            shape->setUpdateCallback( new WElectrodePositionCallback( channelID, m_event, m_colorMap ) );
+            shape->setUpdateCallback( new WElectrodePositionCallback( channelID, m_colorSensitivity, m_event, m_colorMap ) );
 
             osg::Geode* sphereGeode = new osg::Geode;
             sphereGeode->addDrawable( shape );
@@ -621,7 +626,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
     geometry->setTexCoordArray( 0, texCoords );
 
     geometry->setDataVariance( osg::Object::DYNAMIC );
-    geometry->setUpdateCallback( new WHeadSurfaceCallback( channelIDs, m_event ) );
+    geometry->setUpdateCallback( new WHeadSurfaceCallback( channelIDs, m_colorSensitivity, m_event ) );
 
     osg::ref_ptr< osg::Geode > surface( new osg::Geode );
     surface->addDrawable( geometry );

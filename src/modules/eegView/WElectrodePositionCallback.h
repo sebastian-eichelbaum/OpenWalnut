@@ -34,6 +34,7 @@
 #include <osgSim/ScalarsToColors>
 
 #include "../../common/WFlag.h"
+#include "../../common/WPropertyTypes.h"
 #include "WEEGEvent.h"
 
 
@@ -48,11 +49,16 @@ public:
     /**
      * Constructor
      *
-     * \param channelID the number of the channel
-     * \param event     event marking a special time position as WFlag
-     * \param colorMap  the object mapping the electrode potentials to colors
+     * \param channelID        the number of the channel
+     * \param colorSensitivity The sensitivity of the color map as property. The
+     *                             color map ranges from -colorSensitivity to
+     *                             +colorSensitivity in microvolt.
+     * \param event            event marking a special time position as WFlag
+     * \param colorMap         the object mapping the electrode potentials to
+     *                             colors
      */
     WElectrodePositionCallback( std::size_t channelID,
+                                WPropDouble colorSensitivity,
                                 boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event,
                                 osg::ref_ptr< const osgSim::ScalarsToColors > colorMap );
 
@@ -73,11 +79,22 @@ private:
     const std::size_t m_channelID;
 
     /**
+     * the sensitivity of the color map which is currently used
+     */
+    double m_currentColorSensitivity;
+
+    /**
      * The time position which is currently used.
      * The color is updated if the new time from the m_event is different to
      * this.
      */
     double m_currentTime;
+
+    /**
+     * The sensitivity of the color map as property. The color map ranges
+     * from -m_colorSensitivity to +m_colorSensitivity in microvolt.
+     */
+    WPropDouble m_colorSensitivity;
 
     /**
      * event marking a special time position as WFlag

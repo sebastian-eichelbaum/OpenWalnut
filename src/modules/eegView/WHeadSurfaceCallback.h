@@ -34,6 +34,7 @@
 #include <osg/Drawable>
 
 #include "../../common/WFlag.h"
+#include "../../common/WPropertyTypes.h"
 #include "WEEGEvent.h"
 
 
@@ -48,10 +49,14 @@ public:
     /**
      * Constructor
      *
-     * \param channelIDs the mapping from vertex indices to channel IDs
-     * \param event      event marking a special time position as WFlag
+     * \param channelIDs       the mapping from vertex indices to channel IDs
+     * \param colorSensitivity The sensitivity of the color map as property. The
+     *                             color map ranges from -colorSensitivity to
+     *                             +colorSensitivity in microvolt.
+     * \param event            event marking a special time position as WFlag
      */
     WHeadSurfaceCallback( const std::vector< std::size_t >& channelIDs,
+                          WPropDouble colorSensitivity,
                           boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event );
 
     /**
@@ -66,6 +71,11 @@ public:
 protected:
 private:
     /**
+     * the sensitivity of the color map which is currently used
+     */
+    double m_currentColorSensitivity;
+
+    /**
      * The time position which is currently used.
      * The color is updated if the new time from the m_event is different to
      * this.
@@ -76,6 +86,12 @@ private:
      * the mapping from vertex indices to channel IDs
      */
     const std::vector< std::size_t > m_channelIDs;
+
+    /**
+     * The sensitivity of the color map as property. The color map ranges
+     * from -m_colorSensitivity to +m_colorSensitivity in microvolt.
+     */
+    WPropDouble m_colorSensitivity;
 
     /**
      * event marking a special time position as WFlag
