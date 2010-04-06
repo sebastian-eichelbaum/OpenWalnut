@@ -212,6 +212,7 @@ void WMData::moduleMain()
         m_threshold->setHidden();
         m_opacity->setHidden();
         m_active->setHidden();
+        m_colorMap->setHidden();
     }
 
     if( suffix == ".nii"
