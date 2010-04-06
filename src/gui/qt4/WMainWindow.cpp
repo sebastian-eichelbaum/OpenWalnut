@@ -609,16 +609,18 @@ void WMainWindow::newRoi()
         return;
     }
 
+    wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
+    wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
+
     if ( m_datasetBrowser->getFirstRoiInSelectedBranch().get() == NULL )
     {
-        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
-                wmath::WPosition( 80., 80., 80. ) ) );
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
     }
     else
     {
-        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
-                wmath::WPosition( 80., 80., 80. ) ) );
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
     }
 }
