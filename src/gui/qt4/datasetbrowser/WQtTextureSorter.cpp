@@ -112,7 +112,7 @@ void WQtTextureSorter::update()
             {
                 da->endRead();
                 ta->beginWrite();
-                ta->get().push_back( *it );
+                ta->get().insert( ta->get().begin(), *it );
                 ta->endWrite();
                 da->beginRead();
             }
@@ -134,7 +134,7 @@ void WQtTextureSorter::update()
                 {
                     ta->endRead();
                     ta->beginWrite();
-                    ta->get().push_back( *it );
+                    ta->get().insert( ta->get().begin(), *it );
                     ta->endWrite();
                 }
                 else
@@ -158,6 +158,7 @@ void WQtTextureSorter::update()
     ta->endRead();
 
     m_textureListWidget->setCurrentRow( index );
+    sort();
 }
 
 void WQtTextureSorter::moveItemDown()
