@@ -192,7 +192,9 @@ void WModuleProjectFileCombiner::apply()
         // if isReady now is false, the module has crashed before it got ready -> remove the module from the list
         if ( ( *iter ).second->isCrashed()() )
         {
-            wlog::warn( "Project Loader" ) << "The module with ID " << ( *iter ).first << " crashed. Connections and properties relating to this"
+            wlog::warn( "Project Loader" ) << "In the module with ID "
+                                           << ( *iter ).first
+                                           << " a problem occurred. Connections and properties relating to this"
                                            << " module will fail.";
             m_modules.erase( iter );
         }

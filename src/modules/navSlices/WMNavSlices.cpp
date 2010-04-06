@@ -96,7 +96,7 @@ const char** WMNavSlices::getXPMIcon() const
 
 const std::string WMNavSlices::getName() const
 {
-    return "Navigation Slice Module";
+    return "Navigation Slices";
 }
 
 const std::string WMNavSlices::getDescription() const

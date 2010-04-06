@@ -38,6 +38,7 @@
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
 #include "WMFiberCulling.h"
+#include "fiberCulling.xpm"
 
 WMFiberCulling::WMFiberCulling()
     : WModule(),
@@ -52,6 +53,11 @@ WMFiberCulling::~WMFiberCulling()
 boost::shared_ptr< WModule > WMFiberCulling::factory() const
 {
     return boost::shared_ptr< WModule >( new WMFiberCulling() );
+}
+
+const char** WMFiberCulling::getXPMIcon() const
+{
+    return fiberCulling_xpm;
 }
 
 void WMFiberCulling::moduleMain()

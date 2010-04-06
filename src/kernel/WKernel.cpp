@@ -159,7 +159,7 @@ void WKernel::threadMain()
 
     // default modules
     {
-        std::string stdModules = "Coordinate System Module,HUD";
+        std::string stdModules = "Coordinate System,HUD";
         WPreferences::getPreference( "modules.default", &stdModules );
         std::vector< std::string > defMods = string_utils::tokenize( stdModules, "," );
         for ( std::vector< std::string >::iterator iter = defMods.begin(); iter != defMods.end(); ++iter )

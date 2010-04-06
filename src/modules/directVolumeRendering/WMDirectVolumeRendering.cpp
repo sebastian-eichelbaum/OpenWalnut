@@ -94,14 +94,14 @@ void WMDirectVolumeRendering::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_isoSurface    = m_properties2->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the"
+    m_isoSurface    = m_properties2->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the "
                                                                       "transfer function.", true );
-    m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
+    m_isoValue      = m_properties2->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
                                                                       50 );
     m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
 
-    m_stepCount     = m_properties2->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
+    m_stepCount     = m_properties2->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value "
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );

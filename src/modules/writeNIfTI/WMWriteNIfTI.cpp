@@ -32,6 +32,7 @@
 
 #include <cmath>
 
+#include "../../common/WAssert.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
@@ -128,7 +129,7 @@ void WMWriteNIfTI::connectors()
 
 void WMWriteNIfTI::properties()
 {
-    m_filename = m_properties2->addProperty( "Filename", "Filename where to write the nifty file to.",
+    m_filename = m_properties2->addProperty( "Filename", "Filename where to write the NIfTI file to.",
                                              WKernel::getAppPathObject(), m_write );
 }
 
@@ -224,7 +225,7 @@ void WMWriteNIfTI::writeToFile()
             outField->nbyper = 2;
             break;
         default:
-            assert( 0 && "Data set type not yet supported." );
+            WAssert( false, "Data set type not yet supported." );
     }
     outField->data = data;
 
