@@ -231,6 +231,30 @@ void WMData::moduleMain()
 
         WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+
+        boost::shared_ptr< WDataSetSingle > dss;
+        dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+        if( dss )
+        {
+            switch( (*dss).getValueSet()->getDataType() )
+            {
+                case W_DT_UNSIGNED_CHAR:
+                case W_DT_INT16:
+                case W_DT_SIGNED_INT:
+                    m_colorMap->set( 0 );
+                    break;
+                case W_DT_FLOAT:
+                case W_DT_DOUBLE:
+                    m_colorMap->set( 5 );
+                    break;
+                default:
+                    WAssert( false, "Unknow data type in Data module" );
+            }
+        }
+        else
+        {
+            WAssert( false, "WDataSetSingle needed at this position." );
+        }
     }
 //#ifndef _MSC_VER
     else if( suffix == ".edf" )
