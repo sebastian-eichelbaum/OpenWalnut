@@ -135,6 +135,9 @@ void WMMarchingCubes::moduleMain()
             continue;
         }
 
+        m_isoValueProp->setMin( m_dataSet->getMin() );
+        m_isoValueProp->setMax( m_dataSet->getMax() );
+
         // update ISO surface
         debugLog() << "Computing surface ...";
 
