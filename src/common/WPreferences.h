@@ -32,7 +32,7 @@
 #include <boost/program_options.hpp>
 
 #include "../common/WIOTools.h"
-#include "WPropertiesOld.h"
+#include "WProperties2.h"
 #include "WLogger.h"
 
 /**
@@ -50,7 +50,7 @@ public:
     template< typename T> static bool getPreference( std::string prefName, T* retVal );
 protected:
 private:
-    static WPropertiesOld m_preferences; //!< Structure for caching the preferences.
+    static WProperties2 m_preferences; //!< Structure for caching the preferences.
 };
 
 template< typename T > bool WPreferences::getPreference( std::string prefName, T* retVal )
@@ -59,9 +59,11 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     {
         return false;
     }
-    if( m_preferences.existsProp( prefName ) )
+
+    boost::shared_ptr< WPropertyBase > pref = m_preferences.findProperty( prefName );
+    if( pref )
     {
-        *retVal =  m_preferences.getValue< T >( prefName );
+        *retVal =  pref->toPropertyVariable< T >()->get();
         return true;
     }
 
@@ -103,7 +105,7 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     if( configuration.count( prefName ) )
     {
         *retVal = configuration[ prefName ].as< T >();
-        m_preferences.addProperty( prefName, *retVal, true );
+        m_preferences.addProperty( prefName, "Preference cache.", *retVal );
         return true;
     }
     else

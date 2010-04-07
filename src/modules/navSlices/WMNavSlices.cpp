@@ -566,7 +566,9 @@ void WMNavSlices::updateTextures()
             }
 
             // TODO(schurade): used? Not used? Replace by new Property please
-            // rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+            // rootState->addUniform( osg::ref_ptr<osg::Uniform>(
+            //            new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) )
+            // );
         }
     }
 

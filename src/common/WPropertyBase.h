@@ -161,6 +161,14 @@ public:
     WPropPosition toPropPosition();
 
     /**
+     * Helper converts this instance to an arbitrary type.
+     *
+     * \return the property of given type of NULL if not valid type
+     */
+    template< typename T >
+    boost::shared_ptr< WPropertyVariable< T > > toPropertyVariable();
+
+    /**
      * Signal signature emitted during set operations
      */
     typedef boost::function<void ( boost::shared_ptr< WPropertyBase > )> PropertyChangeNotifierType;
@@ -204,6 +212,12 @@ protected:
 
 private:
 };
+
+template< typename T >
+boost::shared_ptr< WPropertyVariable< T > > WPropertyBase::toPropertyVariable()
+{
+    return boost::shared_dynamic_cast< WPropertyVariable< T > >( shared_from_this() );
+}
 
 #endif  // WPROPERTYBASE_H
 
