@@ -178,6 +178,9 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
         default:
             WAssert( false, "Unknow data type in makeFloatDataSet" );
     }
+
+    assert( false && "If this assertion is reached, the code above has to be fixed." );
+    return boost::shared_ptr< WValueSet< float > >();
 }
 
 boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shared_ptr< const WDataSetSingle > dataSet )

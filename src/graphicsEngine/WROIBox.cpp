@@ -113,6 +113,7 @@ void setVertices( osg::Vec3Array* vertices, wmath::WPosition minPos, wmath::WPos
 WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     WROI(),
     boxId( maxBoxId++ ),
+    m_pickNormal( wmath::WVector3D() ),
     m_oldPixelPosition( std::make_pair( 0, 0 ) )
 {
     m_minPos = minPos;
@@ -242,16 +243,15 @@ void WROIBox::updateGFX()
             osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
 
             // resize Box
-            if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT && m_pickInfo.getPickNormal() != wmath::WVector3D() )
+            if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
             {
-                wmath::WVector3D normal = m_pickInfo.getPickNormal();
-                if( normal[0] <= 0 && normal[1] <= 0 && normal[2] <= 0 )
+                if( m_pickNormal[0] <= 0 && m_pickNormal[1] <= 0 && m_pickNormal[2] <= 0 )
                 {
-                    m_maxPos += normal * ( moveVec * normal );
+                    m_maxPos += m_pickNormal * ( moveVec * m_pickNormal );
                 }
-                if( normal[0] >= 0 && normal[1] >= 0 && normal[2] >= 0 )
+                if( m_pickNormal[0] >= 0 && m_pickNormal[1] >= 0 && m_pickNormal[2] >= 0 )
                 {
-                    m_minPos += normal * ( moveVec * normal );
+                    m_minPos += m_pickNormal * ( moveVec * m_pickNormal );
                 }
 
                 setVertices( vertices, m_minPos, m_maxPos );
@@ -269,6 +269,7 @@ void WROIBox::updateGFX()
         }
         else
         {
+            m_pickNormal = m_pickInfo.getPickNormal();
             // color for moving box
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
             {
@@ -283,7 +284,7 @@ void WROIBox::updateGFX()
                 }
                 m_surfaceGeometry->setColorArray( colors );
             }
-            if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT && m_pickInfo.getPickNormal() != wmath::WVector3D() )
+            if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
             {
                 osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
                 colors->push_back( osg::Vec4( .0f, 1.0f, .0f, 0.4f ) );
@@ -298,6 +299,8 @@ void WROIBox::updateGFX()
     }
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
+        // Perform all actions necessary for finishing a pick
+
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
         if ( m_isNot )
         {
@@ -308,6 +311,7 @@ void WROIBox::updateGFX()
             colors->push_back( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) );
         }
         m_surfaceGeometry->setColorArray( colors );
+        m_pickNormal = wmath::WVector3D();
         m_isPicked = false;
     }
 

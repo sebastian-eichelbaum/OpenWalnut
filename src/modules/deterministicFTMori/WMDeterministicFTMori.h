@@ -70,6 +70,11 @@ public:
     virtual boost::shared_ptr< WModule > factory() const;
 
     /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
+    /**
      * Return the name of this module.
      * \return The name of this module.
      */

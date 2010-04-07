@@ -96,7 +96,7 @@ const char** WMNavSlices::getXPMIcon() const
 
 const std::string WMNavSlices::getName() const
 {
-    return "Navigation Slice Module";
+    return "Navigation Slices";
 }
 
 const std::string WMNavSlices::getDescription() const
@@ -565,7 +565,10 @@ void WMNavSlices::updateTextures()
                 ++c;
             }
 
-            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+            // TODO(schurade): used? Not used? Replace by new Property please
+            // rootState->addUniform( osg::ref_ptr<osg::Uniform>(
+            //            new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) )
+            // );
         }
     }
 

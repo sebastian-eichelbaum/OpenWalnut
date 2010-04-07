@@ -229,7 +229,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             // if it already is running: add it
             if ( !WMNavSlices::isRunning() )
             {
-                autoAdd( module, "Navigation Slice Module" );
+                autoAdd( module, "Navigation Slices" );
             }
         }
         else if ( dataModule->getDataSet()->isA< WDataSetFibers >() )
@@ -245,13 +245,13 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     }
 
     // nav slices use separate buttons for slice on/off switching
-    if ( module->getName() == "Navigation Slice Module" )
+    if ( module->getName() == "Navigation Slices" )
     {
         boost::shared_ptr< WPropertyBase > prop = module->getProperties2()->findProperty( "showAxial" );
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"showAxial\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"showAxial\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -267,7 +267,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"showCoronal\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"showCoronal\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -283,7 +283,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"showSagittal\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"showSagittal\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -300,7 +300,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"Axial Slice\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Axial Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -315,7 +315,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"Coronal Slice\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Coronal Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -330,7 +330,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if ( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slice Module does not provide the property \"Sagittal Slice\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Sagittal Slice\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -559,8 +559,8 @@ bool WMainWindow::event( QEvent* event )
         WModuleCrashEvent* e1 = dynamic_cast< WModuleCrashEvent* >( event );     // NOLINT
         if ( e1 )
         {
-            QString title = "Module crashed: " + QString::fromStdString( e1->getModule()->getName() );
-            QString message = "<b>Module Crashed</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
+            QString title = "Problem in module: " + QString::fromStdString( e1->getModule()->getName() );
+            QString message = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
                               "<br/><b>Message:  </b>" + QString::fromStdString( e1->getMessage() );
             QMessageBox::critical( this, title, message );
         }
@@ -609,16 +609,18 @@ void WMainWindow::newRoi()
         return;
     }
 
+    wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
+    wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
+
     if ( m_datasetBrowser->getFirstRoiInSelectedBranch().get() == NULL )
     {
-        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
-                wmath::WPosition( 80., 80., 80. ) ) );
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
     }
     else
     {
-        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
-                wmath::WPosition( 80., 80., 80. ) ) );
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
     }
 }

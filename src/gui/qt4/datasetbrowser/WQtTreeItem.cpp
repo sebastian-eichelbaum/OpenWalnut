@@ -72,7 +72,12 @@ std::string WQtTreeItem::getName()
 
 void WQtTreeItem::updateTooltip( std::string progress )
 {
-    std::string tooltip = "<b>Module: </b>" + m_module->getName() + "<br/>";
+    std::string tooltip = "";
+    if ( m_module->isCrashed()() )
+    {
+        tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
+    }
+    tooltip += "<b>Module: </b>" + m_module->getName() + "<br/>";
     tooltip += "<b>Progress: </b>" + progress + "<br/>";
     tooltip += "<b>Connectors: </b>";
 
@@ -120,7 +125,7 @@ void WQtTreeItem::updateState()
     std::string progress = "waiting";
     if ( m_module->isCrashed()() )
     {
-        setText( 0, ( m_name + " - crashed" ).c_str() );
+        setText( 0, ( m_name + " (problem occurred)" ).c_str() );
     }
     else if ( p->isPending() )
     {

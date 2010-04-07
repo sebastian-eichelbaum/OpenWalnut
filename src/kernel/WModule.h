@@ -44,7 +44,6 @@
 #include "../dataHandler/WValueSet.h"
 
 #include "../common/WLogger.h"
-#include "../common/WProperties.h"
 #include "../common/WProperties2.h"
 #include "../common/WProgressCombiner.h"
 #include "../common/WProgress.h"
@@ -116,13 +115,6 @@ public:
      * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
      */
     boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name );
-
-    /**
-     * Return a pointer to the properties object of the module.
-     *
-     * \return the properties
-     */
-    boost::shared_ptr< WProperties > getProperties() const;
 
     /**
      * Return a pointer to the properties object of the module.
@@ -400,11 +392,6 @@ protected:
     // Members
     //
     // **************************************************************************************************************************
-
-    /**
-     * the property object for the module
-     */
-    boost::shared_ptr< WProperties > m_properties;
 
     /**
      * The property object for the module.

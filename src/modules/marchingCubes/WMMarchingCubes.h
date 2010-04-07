@@ -33,7 +33,7 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../common/datastructures/WTriangleMesh.h"
+#include "../../common/datastructures/WTriangleMesh2.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -151,7 +151,7 @@ public:
 
     /**
      * Activate the rendering of the computed surface.
-     * This converts the surface to a WTriangleMesh and calls renderMesh afterwards
+     * This converts the surface to a WTriangleMesh2 and calls renderMesh afterwards
      */
     void renderSurface();
 
@@ -178,38 +178,16 @@ protected:
 
 private:
 
-    WPropDouble m_isoValueProp; //!< Property holding the iso value
-    WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
-    WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
-
     /**
      * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
      */
     void notifyTextureChange();
 
     /**
-     * True when textures haven changed.
-     */
-    bool m_textureChanged;
-
-    /**
-     * This condition denotes whether we need to recompute the surface
-     */
-    boost::shared_ptr< WCondition > m_recompute;
-
-    /**
      * Prepares and commits everything for rendering with the OSG
      * \param mesh The mesh that will be rendered.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
-
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Input connector required by this module.
-
-    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is proved as output through the connector.
-
-    static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
-    static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.
+    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
 
     /**
      * Calculates the intersection point id of the isosurface with an
@@ -255,6 +233,51 @@ private:
      */
     unsigned int getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ );
 
+    /**
+     * Store the mesh in legacy vtk file format.
+     * \param fileName the file where the triMesh will be written to
+     * \param triMesh this mesh will be stored.
+     */
+    bool save( std::string fileName, const WTriangleMesh2& triMesh ) const;
+
+    /**
+     * Load meshes saved with WMMarchingCubes::save
+     * \param fileName the mesh will be loaded from this file
+     */
+    WTriangleMesh2 load( std::string fileName );
+
+    /**
+     * Kind of a convenience function for generate surface.
+     * It performs the conversions of the value sets of different data types.
+     * \param isoValue The surface will represent this value.
+     */
+    void generateSurfacePre( double isoValue );
+
+
+    WPropDouble m_isoValueProp; //!< Property holding the iso value
+    WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
+    WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
+
+    /**
+     * True when textures haven changed.
+     */
+    bool m_textureChanged;
+
+    /**
+     * This condition denotes whether we need to recompute the surface
+     */
+    boost::shared_ptr< WCondition > m_recompute;
+
+
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output;  //!< Input connector required by this module.
+
+    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+
+    static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
+    static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.
+
+
     unsigned int m_nCellsX;  //!< No. of cells in x direction.
     unsigned int m_nCellsY;  //!< No. of cells in y direction.
     unsigned int m_nCellsZ;  //!< No. of cells in z direction.
@@ -268,25 +291,6 @@ private:
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 
-    /**
-     * Store the mesh in legacy vtk file format.
-     * \param fileName the file where the triMesh will be written to
-     * \param triMesh this mesh will be stored.
-     */
-    bool save( std::string fileName, const WTriangleMesh& triMesh ) const;
-
-    /**
-     * Load meshes saved with WMMarchingCubes::save
-     * \param fileName the mesh will be loaded from this file
-     */
-    WTriangleMesh load( std::string fileName );
-
-    /**
-     * Kind of a convenience function for generate surface.
-     * It performs the conversions of the value sets of different data types.
-     * \param isoValue The surface will represent this value.
-     */
-    void generateSurfacePre( double isoValue );
 
     boost::shared_ptr< const WDataSetSingle > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
     boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for the dimensions of the texture.

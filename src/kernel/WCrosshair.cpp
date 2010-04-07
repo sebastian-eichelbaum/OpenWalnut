@@ -24,14 +24,6 @@
 
 #include "WCrosshair.h"
 
-WCrosshair::WCrosshair()
-{
-}
-
-WCrosshair::~WCrosshair()
-{
-}
-
 wmath::WPosition WCrosshair::getPosition()
 {
     return m_position;
