@@ -24,4 +24,4 @@
 
 #include "WPreferences.h"
 
-WProperties WPreferences::m_preferences;
+WPropertiesOld WPreferences::m_preferences;

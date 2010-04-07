@@ -32,7 +32,7 @@
 #include <boost/program_options.hpp>
 
 #include "../common/WIOTools.h"
-#include "WProperties.h"
+#include "WPropertiesOld.h"
 #include "WLogger.h"
 
 /**
@@ -50,7 +50,7 @@ public:
     template< typename T> static bool getPreference( std::string prefName, T* retVal );
 protected:
 private:
-    static WProperties m_preferences; //!< Structure for caching the preferences.
+    static WPropertiesOld m_preferences; //!< Structure for caching the preferences.
 };
 
 template< typename T > bool WPreferences::getPreference( std::string prefName, T* retVal )

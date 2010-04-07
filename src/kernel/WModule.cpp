@@ -64,7 +64,6 @@ WModule::WModule():
     m_moduleState()
 {
     // initialize members
-    m_properties = boost::shared_ptr< WProperties >( new WProperties() );
     m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
     m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
@@ -324,11 +323,6 @@ void WModule::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
                                 boost::shared_ptr< WModuleConnector > /*output*/ )
 {
     // By default this callback does nothing. Overwrite it in your module.
-}
-
-boost::shared_ptr< WProperties > WModule::getProperties() const
-{
-    return m_properties;
 }
 
 boost::shared_ptr< WProperties2 > WModule::getProperties2() const

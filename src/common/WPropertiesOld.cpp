@@ -30,20 +30,20 @@
 
 #include "../common/WLogger.h"
 
-#include "WProperties.h"
+#include "WPropertiesOld.h"
 
-WProperties::WProperties()
+WPropertiesOld::WPropertiesOld()
 {
 }
 
-WProperties::~WProperties()
+WPropertiesOld::~WPropertiesOld()
 {
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addBool( std::string name, bool value, bool hidden,
+boost::signals2::signal1< void, std::string >* WPropertiesOld::addBool( std::string name, bool value, bool hidden,
         std::string shortDesc, std::string longDesc )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
 
     WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
@@ -51,22 +51,10 @@ boost::signals2::signal1< void, std::string >* WProperties::addBool( std::string
     return prop->getSignalValueChanged();
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addChar( std::string name, char value, bool hidden,
+boost::signals2::signal1< void, std::string >* WPropertiesOld::addChar( std::string name, char value, bool hidden,
         std::string shortDesc, std::string longDesc )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
-}
-
-
-boost::signals2::signal1< void, std::string >* WProperties::addInt( std::string name, int value, bool hidden,
-        std::string shortDesc, std::string longDesc )
-{
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
 
     WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
@@ -75,10 +63,10 @@ boost::signals2::signal1< void, std::string >* WProperties::addInt( std::string 
 }
 
 
-boost::signals2::signal1< void, std::string >* WProperties::addFloat( std::string name, float value, bool hidden,
+boost::signals2::signal1< void, std::string >* WPropertiesOld::addInt( std::string name, int value, bool hidden,
         std::string shortDesc, std::string longDesc )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
 
     WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
@@ -87,10 +75,22 @@ boost::signals2::signal1< void, std::string >* WProperties::addFloat( std::strin
 }
 
 
-boost::signals2::signal1< void, std::string >* WProperties::addDouble( std::string name, double value, bool hidden,
+boost::signals2::signal1< void, std::string >* WPropertiesOld::addFloat( std::string name, float value, bool hidden,
         std::string shortDesc, std::string longDesc )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
+
+    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
+    m_propertyList[name] = prop;
+    m_propertyVector.push_back( prop );
+    return prop->getSignalValueChanged();
+}
+
+
+boost::signals2::signal1< void, std::string >* WPropertiesOld::addDouble( std::string name, double value, bool hidden,
+        std::string shortDesc, std::string longDesc )
+{
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
 
     WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
@@ -100,9 +100,9 @@ boost::signals2::signal1< void, std::string >* WProperties::addDouble( std::stri
 
 
 boost::signals2::signal1< void, std::string >*
-WProperties::addString( std::string name, std::string value, bool hidden, std::string shortDesc, std::string longDesc )
+WPropertiesOld::addString( std::string name, std::string value, bool hidden, std::string shortDesc, std::string longDesc )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
 
     WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
@@ -110,10 +110,10 @@ WProperties::addString( std::string name, std::string value, bool hidden, std::s
     return prop->getSignalValueChanged();
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addColor( std::string name, WColor value, bool hidden,
+boost::signals2::signal1< void, std::string >* WPropertiesOld::addColor( std::string name, WColor value, bool hidden,
         std::string shortDesc, std::string longDesc )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
 
     WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
@@ -121,20 +121,20 @@ boost::signals2::signal1< void, std::string >* WProperties::addColor( std::strin
     return prop->getSignalValueChanged();
 }
 
-void WProperties::addProperty( WProperty* prop )
+void WPropertiesOld::addProperty( WProperty* prop )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WPropertiesOld", LL_WARNING );
 
     m_propertyList[prop->getName()] = prop;
     m_propertyVector.push_back( prop );
 }
 
-bool WProperties::existsProp( std::string name )
+bool WPropertiesOld::existsProp( std::string name )
 {
     return ( findProp( name ) != 0 );
 }
 
-WProperty* WProperties::findProp( std::string name )
+WProperty* WPropertiesOld::findProp( std::string name )
 {
     if( m_propertyList.count( name ) != 0 )
     {
@@ -151,7 +151,7 @@ WProperty* WProperties::findProp( std::string name )
 }
 
 
-std::string WProperties::getValueString( const std::string prop )
+std::string WPropertiesOld::getValueString( const std::string prop )
 {
     if( findProp( prop ) )
     {
@@ -160,12 +160,12 @@ std::string WProperties::getValueString( const std::string prop )
     return "";
 }
 
-std::vector< WProperty* >& WProperties::getPropertyVector()
+std::vector< WProperty* >& WPropertiesOld::getPropertyVector()
 {
     return m_propertyVector;
 }
 
-void WProperties::hideProperty( std::string name )
+void WPropertiesOld::hideProperty( std::string name )
 {
     if ( findProp( name ) )
     {
@@ -173,7 +173,7 @@ void WProperties::hideProperty( std::string name )
     }
 }
 
-void WProperties::unhideProperty( std::string name )
+void WPropertiesOld::unhideProperty( std::string name )
 {
     if ( findProp( name ) )
     {
@@ -181,7 +181,7 @@ void WProperties::unhideProperty( std::string name )
     }
 }
 
-void WProperties::reemitChangedValueSignals()
+void WPropertiesOld::reemitChangedValueSignals()
 {
     std::vector< WProperty* >::iterator iter;
     for( iter = m_propertyVector.begin(); iter != m_propertyVector.end(); ++iter )
@@ -196,7 +196,7 @@ void WProperties::reemitChangedValueSignals()
     }
 }
 
-bool WProperties::isDirty() const
+bool WPropertiesOld::isDirty() const
 {
     std::vector< WProperty* >::const_iterator cit;
     for( cit = m_propertyVector.begin(); cit != m_propertyVector.end(); ++cit )

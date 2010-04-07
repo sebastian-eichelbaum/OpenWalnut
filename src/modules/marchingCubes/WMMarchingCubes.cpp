@@ -756,7 +756,9 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
         state->addUniform( m_samplerUniforms[i] );
     }
 
-    state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+    // TODO(wiebel): used? Not used? Replace by new Property please
+    // state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
     if( m_shaderUseTransparency )
     {

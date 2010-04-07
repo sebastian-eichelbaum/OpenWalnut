@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTIES_H
-#define WPROPERTIES_H
+#ifndef WPROPERTIESOLD_H
+#define WPROPERTIESOLD_H
 
 #include <map>
 #include <string>
@@ -39,18 +39,18 @@
 /**
  * class to manage properties of an object and to provide convinience methods for easy access and manipulation
  */
-class WProperties
+class WPropertiesOld
 {
 public:
     /**
      * standard constructor
      */
-    WProperties();
+    WPropertiesOld();
 
     /**
      * destructor
      */
-    virtual ~WProperties();
+    virtual ~WPropertiesOld();
 
     /**
      * sets a flag hidden, which can be used by the datasetbrowser for instance
@@ -342,7 +342,7 @@ private:
     boost::shared_mutex m_updateLock;
 };
 
-template< typename T > boost::signals2::signal1< void, std::string >* WProperties::addProperty( std::string name, T value, bool hidden,
+template< typename T > boost::signals2::signal1< void, std::string >* WPropertiesOld::addProperty( std::string name, T value, bool hidden,
         std::string shortDesc, std::string longDesc )
 {
     WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
@@ -351,4 +351,4 @@ template< typename T > boost::signals2::signal1< void, std::string >* WPropertie
     return prop->getSignalValueChanged();
 }
 
-#endif  // WPROPERTIES_H
+#endif  // WPROPERTIESOLD_H
