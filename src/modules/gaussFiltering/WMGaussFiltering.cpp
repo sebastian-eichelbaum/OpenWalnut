@@ -199,7 +199,7 @@ void WMGaussFiltering::moduleMain()
         }
 
         // has the data changed?
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         if ( dataChanged || !m_dataSet )
         // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
@@ -275,7 +275,7 @@ void WMGaussFiltering::moduleMain()
                     assert( false && "Unknown data type in Gauss Filtering module" );
             }
 
-            m_output->updateData( boost::shared_ptr<WDataSetSingle>( new WDataSetSingle( newValueSet, m_dataSet->getGrid() ) ) );
+            m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_dataSet->getGrid() ) ) );
         }
 
         // if the number of iterations is 0 -> simply set the input as output
@@ -289,16 +289,16 @@ void WMGaussFiltering::moduleMain()
 void WMGaussFiltering::connectors()
 {
     // initialize connectors
-    m_input = boost::shared_ptr<WModuleInputData<WDataSetSingle> >(
-            new WModuleInputData<WDataSetSingle> ( shared_from_this(), "in",
+    m_input = boost::shared_ptr<WModuleInputData<WDataSetScalar> >(
+            new WModuleInputData<WDataSetScalar> ( shared_from_this(), "in",
                     "The dataset to filter" ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
     // initialize connectors
-    m_output = boost::shared_ptr<WModuleOutputData<WDataSetSingle> >(
-            new WModuleOutputData<WDataSetSingle> ( shared_from_this(), "out",
+    m_output = boost::shared_ptr<WModuleOutputData<WDataSetScalar> >(
+            new WModuleOutputData<WDataSetScalar> ( shared_from_this(), "out",
                     "The filtered data set." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.

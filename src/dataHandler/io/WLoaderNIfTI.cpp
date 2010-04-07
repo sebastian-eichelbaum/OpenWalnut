@@ -33,6 +33,8 @@
 #include "../WDataSet.h"
 #include "../WSubject.h"
 #include "../WDataSetSingle.h"
+#include "../WDataSetVector.h"
+#include "../WDataSetScalar.h"
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
 #include "../WValueSetBase.h"
@@ -157,7 +159,19 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
             columns, rows, frames, header->dx, header->dy, header->dz ) );
     }
 
-    boost::shared_ptr< WDataSet > newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
+    boost::shared_ptr< WDataSet > newDataSet;
+    if( vDim == 3 )
+    {
+        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetVector( newValueSet, newGrid ) );
+    }
+    else if( vDim == 1 )
+    {
+        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetScalar( newValueSet, newGrid ) );
+    }
+    else
+    {
+        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
+    }
     newDataSet->setFileName( m_fileName );
 
     return newDataSet;

@@ -69,8 +69,8 @@ const std::string WMVectorPlot::getDescription() const
 
 void WMVectorPlot::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The dataset to display" )
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetVector > >(
+        new WModuleInputData< WDataSetVector >( shared_from_this(), "in", "The dataset to display" )
         );
 
     addConnector( m_input );
@@ -128,7 +128,7 @@ void WMVectorPlot::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        boost::shared_ptr< WDataSetVector > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
