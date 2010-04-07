@@ -84,9 +84,14 @@ protected:
     virtual void threadMain();
 
     /**
-     * Gets called when the thread should be stopped.
+     * Gets called when the thread should be stopped. The purpose of this method is to allow derived classes to handle this kind of event.
      */
     virtual void notifyStop();
+
+    /**
+     * This method's purpose is to request a stop without waiting for it.
+     */
+    virtual void requestStop();
 
     /**
      * Thread instance.

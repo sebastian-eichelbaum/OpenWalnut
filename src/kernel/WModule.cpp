@@ -380,10 +380,13 @@ void WModule::threadMain()
     }
     catch( const std::exception& e )
     {
-        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), " Module (" + getName() + ")", LL_ERROR );
-
         // convert these exceptions to WException
         WException ce = WException( e );
+
+        // print this message AFTER creation of WException to have the backtrace before the message
+        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), "Module (" + getName() + ")", LL_ERROR );
+
+        // communicate error
         signal_error( shared_from_this(), ce );
 
         // hopefully, all waiting threads use isReadyOrCrashed to wait.

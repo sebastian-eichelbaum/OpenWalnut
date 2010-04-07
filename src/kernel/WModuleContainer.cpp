@@ -49,7 +49,8 @@
 WModuleContainer::WModuleContainer( std::string name, std::string description ):
     WModule(),
     m_name( name ),
-    m_description( description )
+    m_description( description ),
+    m_crashIfModuleCrashes( true )
 {
     WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + getName() + ")", LL_INFO );
     // initialize members
@@ -108,6 +109,10 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 
     // now module->isUsable() is true
     // -> so run it
+
+    // connect the containers signal handler explicitly
+    t_ModuleErrorSignalHandlerType func = boost::bind( &WModuleContainer::moduleError, this, _1, _2 );
+    module->subscribeSignal( WM_ERROR, func );
 
     // connect default ready/error notifiers
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
@@ -360,5 +365,25 @@ void WModuleContainer::finishedPendingThread( boost::shared_ptr< WThreadedRunner
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_pendingThreadsLock );
     m_pendingThreads.erase( thread );
     lock.unlock();
+}
+
+void WModuleContainer::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
+{
+    errorLog() << "Error in module \"" << module->getName() << "\". Forwarding to nesting container.";
+
+    // simply forward it to the other signal handler
+    signal_error( module, exception );
+
+    if ( m_crashIfModuleCrashes )
+    {
+        infoLog() << "Crash caused this container to shutdown.";
+        requestStop();
+        m_isCrashed( true );
+    }
+}
+
+void WModuleContainer::setCrashIfModuleCrashes( bool crashIfCrashed )
+{
+    m_crashIfModuleCrashes = crashIfCrashed;
 }
 
