@@ -34,7 +34,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread.hpp>
 
-#include "WProperty.h"
+#include "WPropertyOld.h"
 
 /**
  * class to manage properties of an object and to provide convinience methods for easy access and manipulation
@@ -69,7 +69,7 @@ public:
     /**
      * returns a vector to the properties sorted by their insertion order
      */
-    std::vector< WProperty* >& getPropertyVector();
+    std::vector< WPropertyOld* >& getPropertyVector();
 
     /**
      * adds a boolean property to the list of properties
@@ -188,7 +188,7 @@ public:
      *
      * \param prop the property to add
      */
-    void addProperty( WProperty* prop );
+    void addProperty( WPropertyOld* prop );
 
     /**
      * getter for the value of a property as std string
@@ -304,13 +304,13 @@ public:
     bool existsProp( std::string name );
 
     /**
-     * If there are WProperty objects which are marked as dirty, then their
+     * If there are WPropertyOld objects which are marked as dirty, then their
      * signals are reemitted.
      */
     void reemitChangedValueSignals();
 
     /**
-     * Indicates if at least one WProperty is dirty or all are clean.
+     * Indicates if at least one WPropertyOld is dirty or all are clean.
      *
      * \return True if at least one property is dirty, false otherwise
      */
@@ -320,21 +320,21 @@ public:
      * helper function that finds a property by its name
      *
      * \param name the name of the property
-     * \return pointer to a WProperty object
+     * \return pointer to a WPropertyOld object
      */
-    WProperty* findProp( std::string name );
+    WPropertyOld* findProp( std::string name );
 
 private:
     /**
      * map of properties for easy access with name string
      */
-    std::map < std::string, WProperty* > m_propertyList;
+    std::map < std::string, WPropertyOld* > m_propertyList;
 
     /**
      * vector of properties to retain the order of creation so that widgets created from this
      * properties object always look the same
      */
-    std::vector< WProperty* > m_propertyVector;
+    std::vector< WPropertyOld* > m_propertyVector;
 
     /**
      * boost mutex object for thread safety of updating of properties
@@ -345,7 +345,7 @@ private:
 template< typename T > boost::signals2::signal1< void, std::string >* WPropertiesOld::addProperty( std::string name, T value, bool hidden,
         std::string shortDesc, std::string longDesc )
 {
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
+    WPropertyOld* prop = new WPropertyOld( name, value, hidden, shortDesc, longDesc );
     m_propertyList[name] = prop;
     m_propertyVector.push_back( prop );
     return prop->getSignalValueChanged();

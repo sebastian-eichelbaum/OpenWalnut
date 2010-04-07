@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTY_H
-#define WPROPERTY_H
+#ifndef WPROPERTYOLD_H
+#define WPROPERTYOLD_H
 
 #include <string>
 
@@ -50,7 +50,7 @@ PropertyType;
 /**
  * class to encapsulate one property
  */
-class WProperty
+class WPropertyOld
 {
 public:
     /**
@@ -62,7 +62,7 @@ public:
      * \param shortDesc short description of the property
      * \param longDesc long description of the property
      */
-    WProperty( std::string name, std::string value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WPropertyOld( std::string name, std::string value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     /**
      * constructors
      *
@@ -72,7 +72,7 @@ public:
      * \param shortDesc short description of the property
      * \param longDesc long description of the property
      */
-    WProperty( std::string name, bool value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WPropertyOld( std::string name, bool value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     /**
      * constructors
      *
@@ -82,7 +82,7 @@ public:
      * \param shortDesc short description of the property
      * \param longDesc long description of the property
      */
-    WProperty( std::string name, char value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WPropertyOld( std::string name, char value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     /**
      * constructors
      *
@@ -92,7 +92,7 @@ public:
      * \param shortDesc short description of the property
      * \param longDesc long description of the property
      */
-    WProperty( std::string name, int value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WPropertyOld( std::string name, int value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     /**
      * constructors
      *
@@ -102,7 +102,7 @@ public:
      * \param shortDesc short description of the property
      * \param longDesc long description of the property
      */
-    WProperty( std::string name, float value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WPropertyOld( std::string name, float value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     /**
      * constructors
      *
@@ -112,7 +112,7 @@ public:
      * \param shortDesc short description of the property
      * \param longDesc long description of the property
      */
-    WProperty( std::string name, double value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WPropertyOld( std::string name, double value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
     /**
      * constructors
      *
@@ -122,12 +122,12 @@ public:
      * \param shortDesc short description of the property
      * \param longDesc long description of the property
      */
-    WProperty( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
+    WPropertyOld( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
 
     /**
      * destructor
      */
-    virtual ~WProperty();
+    virtual ~WPropertyOld();
 
     /**
      * getter for type
@@ -370,4 +370,4 @@ private:
     boost::signals2::signal1< void, std::string > m_signalValueChanged;
 };
 
-#endif  // WPROPERTY_H
+#endif  // WPROPERTYOLD_H
