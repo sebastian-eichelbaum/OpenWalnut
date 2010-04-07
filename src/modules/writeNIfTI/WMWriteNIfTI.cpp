@@ -129,7 +129,7 @@ void WMWriteNIfTI::connectors()
 
 void WMWriteNIfTI::properties()
 {
-    m_filename = m_properties2->addProperty( "Filename", "Filename where to write the NIfTI file to.",
+    m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
                                              WKernel::getAppPathObject(), m_write );
 }
 

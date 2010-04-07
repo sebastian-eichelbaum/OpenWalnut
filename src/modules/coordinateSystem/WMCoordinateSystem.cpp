@@ -79,25 +79,25 @@ const std::string WMCoordinateSystem::getDescription() const
 
 void WMCoordinateSystem::properties()
 {
-    m_dataSetAddedProp = m_properties2->addProperty( "dataSetAdded", "", false, true );
+    m_dataSetAddedProp = m_properties->addProperty( "dataSetAdded", "", false, true );
 
-    m_axialPosProp = m_properties2->addProperty( "axialPos", "", 80 );
-    m_coronalPosProp = m_properties2->addProperty( "coronalPos", "", 100 );
-    m_sagittalPosProp = m_properties2->addProperty( "sagittalPos", "", 80 );
+    m_axialPosProp = m_properties->addProperty( "axialPos", "", 80 );
+    m_coronalPosProp = m_properties->addProperty( "coronalPos", "", 100 );
+    m_sagittalPosProp = m_properties->addProperty( "sagittalPos", "", 80 );
 
     // initialize the properties with a certain standard set
     // those properties will be updatet as soon as the first dataset is looaded
-    m_zeroXProp = m_properties2->addProperty( "zeroX", "", 80.0 );
-    m_zeroYProp = m_properties2->addProperty( "zeroY", "", 100.0 );
-    m_zeroZProp = m_properties2->addProperty( "zeroZ", "", 80.0 );
+    m_zeroXProp = m_properties->addProperty( "zeroX", "", 80.0 );
+    m_zeroYProp = m_properties->addProperty( "zeroY", "", 100.0 );
+    m_zeroZProp = m_properties->addProperty( "zeroZ", "", 80.0 );
 
-    m_fltXProp = m_properties2->addProperty( "fltX", "", 0.0 );
-    m_fltYProp = m_properties2->addProperty( "fltY", "", 0.0 );
-    m_fltZProp = m_properties2->addProperty( "fltZ", "", 0.0 );
+    m_fltXProp = m_properties->addProperty( "fltX", "", 0.0 );
+    m_fltYProp = m_properties->addProperty( "fltY", "", 0.0 );
+    m_fltZProp = m_properties->addProperty( "fltZ", "", 0.0 );
 
-    m_brbXProp = m_properties2->addProperty( "brbX", "", 160.0 );
-    m_brbYProp = m_properties2->addProperty( "brbY", "", 200.0 );
-    m_brbZProp = m_properties2->addProperty( "brbZ", "", 160.0 );
+    m_brbXProp = m_properties->addProperty( "brbX", "", 160.0 );
+    m_brbYProp = m_properties->addProperty( "brbY", "", 200.0 );
+    m_brbZProp = m_properties->addProperty( "brbZ", "", 160.0 );
 }
 
 void WMCoordinateSystem::createGeometry()

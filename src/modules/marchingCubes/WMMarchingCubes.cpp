@@ -180,7 +180,7 @@ void WMMarchingCubes::connectors()
 
 void WMMarchingCubes::properties()
 {
-    m_isoValueProp = m_properties2->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     {
@@ -192,11 +192,11 @@ void WMMarchingCubes::properties()
         }
     }
 
-    m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
+    m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )

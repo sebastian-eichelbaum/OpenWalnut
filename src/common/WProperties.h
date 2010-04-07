@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTIES2_H
-#define WPROPERTIES2_H
+#ifndef WPROPERTIES_H
+#define WPROPERTIES_H
 
 #include <map>
 #include <string>
@@ -42,7 +42,7 @@
  * class to manage properties of an object and to provide convinience methods for easy access and manipulation. It also allows
  * thread safe iteration on its elements.
  */
-class WProperties2
+class WProperties
 {
 public:
 
@@ -76,12 +76,12 @@ public:
     /**
      * standard constructor
      */
-    WProperties2();
+    WProperties();
 
     /**
      * destructor
      */
-    virtual ~WProperties2();
+    virtual ~WProperties();
 
     /**
      * Simply insert the specified property to the list.
@@ -765,7 +765,7 @@ private:
 };
 
 template< typename T>
-boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial, bool hide )
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial, bool hide )
 {
     boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
             new WPropertyVariable< T >( name, description, initial )
@@ -776,7 +776,7 @@ boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::stri
 }
 
 template< typename T>
-boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial,
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial,
                                                                        boost::shared_ptr< WCondition > condition, bool hide )
 {
     boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
@@ -788,7 +788,7 @@ boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::stri
 }
 
 template< typename T>
-boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial,
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial,
                                                                        WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
@@ -800,7 +800,7 @@ boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::stri
 }
 
 template< typename T>
-boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::string name, std::string description, const T& initial,
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial,
                                                                        boost::shared_ptr< WCondition > condition,
                                                                        WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
@@ -812,4 +812,4 @@ boost::shared_ptr< WPropertyVariable< T > > WProperties2::addProperty( std::stri
     return p;
 }
 
-#endif  // WPROPERTIES2_H
+#endif  // WPROPERTIES_H

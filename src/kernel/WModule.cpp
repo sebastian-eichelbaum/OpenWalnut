@@ -64,8 +64,8 @@ WModule::WModule():
     m_moduleState()
 {
     // initialize members
-    m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
-    m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
+    m_properties = boost::shared_ptr< WProperties >( new WProperties() );
+    m_active = m_properties->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
 
     // the isReadyOrCrashed condition set needs to be set up here
@@ -325,9 +325,9 @@ void WModule::notifyDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
     // By default this callback does nothing. Overwrite it in your module.
 }
 
-boost::shared_ptr< WProperties2 > WModule::getProperties2() const
+boost::shared_ptr< WProperties > WModule::getProperties() const
 {
-    return m_properties2;
+    return m_properties;
 }
 
 boost::shared_ptr< WProgressCombiner > WModule::getRootProgressCombiner()

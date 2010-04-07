@@ -159,7 +159,7 @@ void WModuleProjectFileCombiner::apply()
         boost::shared_ptr< WModule > m = m_modules[ ( *iter ).first.first ];
 
         // has this module the specified property?
-        boost::shared_ptr< WPropertyBase > prop = m->getProperties2()->findProperty( ( *iter ).first.second );
+        boost::shared_ptr< WPropertyBase > prop = m->getProperties()->findProperty( ( *iter ).first.second );
         if ( !prop )
         {
             wlog::error( "Project Loader" ) << "The module \"" << m->getName() << "\" has no property named \"" <<

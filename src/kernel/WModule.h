@@ -44,7 +44,7 @@
 #include "../dataHandler/WValueSet.h"
 
 #include "../common/WLogger.h"
-#include "../common/WProperties2.h"
+#include "../common/WProperties.h"
 #include "../common/WProgressCombiner.h"
 #include "../common/WProgress.h"
 #include "../common/WThreadedRunner.h"
@@ -121,7 +121,7 @@ public:
      *
      * \return the properties.
      */
-    boost::shared_ptr< WProperties2 > getProperties2() const;
+    boost::shared_ptr< WProperties > getProperties() const;
 
     /**
      * Determines whether the module instance is properly initialized.
@@ -396,7 +396,7 @@ protected:
     /**
      * The property object for the module.
      */
-    boost::shared_ptr< WProperties2 > m_properties2;
+    boost::shared_ptr< WProperties > m_properties;
 
     /**
      * Progress indicator used as parent for all progress' of this module.

@@ -117,15 +117,15 @@ void WMVoxelizer::moduleMain()
 
 void WMVoxelizer::properties()
 {
-    m_antialiased     = m_properties2->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
-    m_drawfibers      = m_properties2->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
-    m_drawBoundingBox = m_properties2->addProperty( "Bounding BoxEnable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
-    m_drawCenterLine  = m_properties2->addProperty( "CenterLine", "Enable/Disable display of the CenterLine", true );
-    m_lighting        = m_properties2->addProperty( "Lighting", "Enable/Disable lighting.", true );
-    m_drawVoxels      = m_properties2->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
-    m_rasterAlgo      = m_properties2->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
+    m_antialiased     = m_properties->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
+    m_drawfibers      = m_properties->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
+    m_drawBoundingBox = m_properties->addProperty( "Bounding BoxEnable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
+    m_drawCenterLine  = m_properties->addProperty( "CenterLine", "Enable/Disable display of the CenterLine", true );
+    m_lighting        = m_properties->addProperty( "Lighting", "Enable/Disable lighting.", true );
+    m_drawVoxels      = m_properties->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
+    m_rasterAlgo      = m_properties->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
                                                     std::string( "WBresenham" ), m_fullUpdate );
-    m_voxelsPerUnit   = m_properties2->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
+    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
                                                                        "is useful to increase the resolution of the grid", 1, m_fullUpdate );
 }
 

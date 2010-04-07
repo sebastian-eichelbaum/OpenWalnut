@@ -116,17 +116,17 @@ void WMNavSlices::properties()
 {
     // NOTE: the appropriate type of addProperty is chosen by the type of the specified initial value.
     // So if you specify a bool as initial value, addProperty will create a WPropBool.
-    m_showAxial      = m_properties2->addProperty( "showAxial",      "Determines whether the axial slice should be visible.", true, true );
-    m_showCoronal    = m_properties2->addProperty( "showCoronal",    "Determines whether the coronal slice should be visible.", true, true );
-    m_showSagittal   = m_properties2->addProperty( "showSagittal",   "Determines whether the sagittal slice should be visible.", true, true );
+    m_showAxial      = m_properties->addProperty( "showAxial",      "Determines whether the axial slice should be visible.", true, true );
+    m_showCoronal    = m_properties->addProperty( "showCoronal",    "Determines whether the coronal slice should be visible.", true, true );
+    m_showSagittal   = m_properties->addProperty( "showSagittal",   "Determines whether the sagittal slice should be visible.", true, true );
 
-    m_axialPos       = m_properties2->addProperty( "Axial Slice",       "Position of axial slice.",    80 );
+    m_axialPos       = m_properties->addProperty( "Axial Slice",       "Position of axial slice.",    80 );
     m_axialPos->setMin( 0 );
     m_axialPos->setMax( 160 );
-    m_coronalPos     = m_properties2->addProperty( "Coronal Slice",     "Position of coronal slice.", 100 );
+    m_coronalPos     = m_properties->addProperty( "Coronal Slice",     "Position of coronal slice.", 100 );
     m_coronalPos->setMin( 0 );
     m_coronalPos->setMax( 160 );
-    m_sagittalPos    = m_properties2->addProperty( "Sagittal Slice",    "Position of sagittal slice.", 80 );
+    m_sagittalPos    = m_properties->addProperty( "Sagittal Slice",    "Position of sagittal slice.", 80 );
     m_sagittalPos->setMin( 0 );
     m_sagittalPos->setMax( 160 );
 
@@ -134,9 +134,9 @@ void WMNavSlices::properties()
     m_coronalPos->setHidden();
     m_sagittalPos->setHidden();
 
-    m_maxAxial       = m_properties2->addProperty( "maxAxial",       "Max position of axial slice.",    160, true );
-    m_maxCoronal     = m_properties2->addProperty( "maxCoronal",     "Max position of coronal slice.",  200, true );
-    m_maxSagittal    = m_properties2->addProperty( "maxSagittal",    "Max position of sagittal slice.", 160, true );
+    m_maxAxial       = m_properties->addProperty( "maxAxial",       "Max position of axial slice.",    160, true );
+    m_maxCoronal     = m_properties->addProperty( "maxCoronal",     "Max position of coronal slice.",  200, true );
+    m_maxSagittal    = m_properties->addProperty( "maxSagittal",    "Max position of sagittal slice.", 160, true );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,

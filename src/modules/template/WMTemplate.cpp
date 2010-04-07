@@ -160,12 +160,12 @@ void WMTemplate::properties()
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_enableFeature  = m_properties2->addProperty( "Enable Feature",           "Description.", true );
-    m_anInteger      = m_properties2->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
-    m_aDouble        = m_properties2->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
-    m_aString        = m_properties2->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile          = m_properties2->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
-    m_aColor         = m_properties2->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    m_enableFeature  = m_properties->addProperty( "Enable Feature",           "Description.", true );
+    m_anInteger      = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
+    m_aDouble        = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
+    m_aString        = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
+    m_aFile          = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
+    m_aColor         = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all

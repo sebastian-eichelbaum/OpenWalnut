@@ -116,7 +116,7 @@ void WMConnectomeView::connectors()
 
 void WMConnectomeView::properties()
 {
-    m_test = m_properties2->addProperty( "Test", "A test value for testing test stuff", 1, boost::bind(
+    m_test = m_properties->addProperty( "Test", "A test value for testing test stuff", 1, boost::bind(
                 &WMConnectomeView::slotPropertyChanged, this ) );
 }
 

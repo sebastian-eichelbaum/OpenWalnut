@@ -80,7 +80,7 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
-    m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
+    m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 }

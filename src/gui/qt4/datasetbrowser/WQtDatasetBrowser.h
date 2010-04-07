@@ -205,7 +205,7 @@ private slots:
      *
      * \param props
      */
-    void buildPropTab( boost::shared_ptr< WProperties2 > props );
+    void buildPropTab( boost::shared_ptr< WProperties > props );
 
 
     /**

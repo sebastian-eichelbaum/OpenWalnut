@@ -63,7 +63,7 @@ void WBatchLoader::threadMain()
                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" )
         );
 
-        boost::shared_ptr< WPropertyBase > p = mod->getProperties2()->findProperty( "filename" );
+        boost::shared_ptr< WPropertyBase > p = mod->getProperties()->findProperty( "filename" );
         if ( p.get() )
         {
             p->toPropFilename()->set( *iter );

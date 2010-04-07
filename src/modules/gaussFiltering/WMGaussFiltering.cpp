@@ -312,7 +312,7 @@ void WMGaussFiltering::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_iterations      = m_properties2->addProperty( "Iterations",         "How often should the filter be applied.", 1, m_propCondition );
+    m_iterations      = m_properties->addProperty( "Iterations",         "How often should the filter be applied.", 1, m_propCondition );
     m_iterations->setMin( 0 );
     m_iterations->setMax( 100 );
 

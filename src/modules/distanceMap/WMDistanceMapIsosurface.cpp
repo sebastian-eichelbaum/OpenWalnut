@@ -78,17 +78,17 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // now wait for it to be ready
     m_marchingCubesModule->isReady().wait();
-    boost::shared_ptr< WProperties2 >  mcProps = m_marchingCubesModule->getProperties2();
+    boost::shared_ptr< WProperties >  mcProps = m_marchingCubesModule->getProperties();
     m_isoValueProp = mcProps->getProperty( "Iso Value" )->toPropDouble();
     m_isoValueProp->set( 0.5 );
     m_isoValueProp->setMin( 0.0 );
     m_isoValueProp->setMax( 1.0 );
-    m_properties2->addProperty( m_isoValueProp );
+    m_properties->addProperty( m_isoValueProp );
 
 
     m_useTextureProp = mcProps->getProperty( "Use Texture" )->toPropBool();
     m_useTextureProp->set( true );
-    m_properties2->addProperty( m_useTextureProp );
+    m_properties->addProperty( m_useTextureProp );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Distance Map
@@ -168,6 +168,6 @@ void WMDistanceMapIsosurface::connectors()
 
 void WMDistanceMapIsosurface::activate()
 {
-    m_marchingCubesModule->getProperties2()->getProperty( "active" )->toPropBool()->set( m_active->get() );
+    m_marchingCubesModule->getProperties()->getProperty( "active" )->toPropBool()->set( m_active->get() );
 }
 

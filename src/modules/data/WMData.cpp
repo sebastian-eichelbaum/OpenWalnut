@@ -106,27 +106,27 @@ void WMData::properties()
     // properties
 
     // filename of file to load and handle
-    m_filename = m_properties2->addProperty( "filename", "The file to load.", WKernel::getAppPathObject(), true );
-    m_dataName = m_properties2->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
+    m_filename = m_properties->addProperty( "filename", "The file to load.", WKernel::getAppPathObject(), true );
+    m_dataName = m_properties->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
 
     // use this callback for the other properties
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
 
     // several other properties
-    m_interpolation = m_properties2->addProperty( "Interpolation",
+    m_interpolation = m_properties->addProperty( "Interpolation",
                                                   "If active, the boundaries of single voxels"
                                                   " will not be visible in colormaps. The transition between"
                                                   " them will be smooth by using interpolation then.",
                                                   true,
                                                   propertyCallback );
-    m_threshold = m_properties2->addProperty( "Threshold", "Values below this threshold will not be "
+    m_threshold = m_properties->addProperty( "Threshold", "Values below this threshold will not be "
                                               "shown in colormaps.", 0, propertyCallback );
-    m_opacity = m_properties2->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
+    m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
                                             " values from several data sets.", 100, propertyCallback );
     m_opacity->setMax( 100 );
     m_opacity->setMin( 0 );
 
-    m_colorMap = m_properties2->addProperty( "Colormap", "Colormap type.", 0, propertyCallback );
+    m_colorMap = m_properties->addProperty( "Colormap", "Colormap type.", 0, propertyCallback );
     m_colorMap->setMin( 0 );
     m_colorMap->setMax( 5 );
 }
