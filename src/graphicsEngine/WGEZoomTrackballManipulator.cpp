@@ -30,6 +30,7 @@ WGEZoomTrackballManipulator::WGEZoomTrackballManipulator():
     m_allowThrow( false )
 {
     m_zoom = 1.0;
+    setTrackballSize( .3 ); // changes the effect of a mouse move for rotation
     WPreferences::getPreference( "ge.zoomTrackballManipulator.allowThrow", &m_allowThrow );
 }
 
