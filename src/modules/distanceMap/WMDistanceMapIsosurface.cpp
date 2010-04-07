@@ -145,8 +145,8 @@ void WMDistanceMapIsosurface::connectors()
     // initialize connectors
 
     // this is the scalar field input
-    m_input = boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > >(
-        new WModuleInputForwardData< WDataSetSingle >( shared_from_this(),
+    m_input = boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > >(
+        new WModuleInputForwardData< WDataSetScalar >( shared_from_this(),
                                                                "in", "Dataset to compute distance map for." )
         );
 
@@ -154,8 +154,8 @@ void WMDistanceMapIsosurface::connectors()
     addConnector( m_input );
 
     // this output is used to provide the distance map to other modules.
-    m_output = boost::shared_ptr< WModuleOutputForwardData< WDataSetSingle > >(
-        new WModuleOutputForwardData< WDataSetSingle >( shared_from_this(),
+    m_output = boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > >(
+        new WModuleOutputForwardData< WDataSetScalar >( shared_from_this(),
                                                                "out", "Distance map for the input data set." )
         );
 

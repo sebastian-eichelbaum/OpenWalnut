@@ -34,7 +34,6 @@
 
 #include "../../common/WProgress.h"
 #include "../../kernel/WKernel.h"
-#include "../data/WMData.h"
 #include "WMApplyMask.h"
 #include "apply_mask.xpm"
 
@@ -151,23 +150,23 @@ void WMApplyMask::moduleMain()
 void WMApplyMask::connectors()
 {
     // initialize connectors
-    m_dataInput = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle >(
+    m_dataInput = boost::shared_ptr< WModuleInputData< WDataSetScalar > >( new WModuleInputData< WDataSetScalar >(
                     shared_from_this(), "dataSet", "The dataset to apply the mask to." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_dataInput );
 
     // initialize connectors
-    m_maskInput = boost::shared_ptr< WModuleInputData< WDataSetSingle > >(
-            new WModuleInputData< WDataSetSingle >( shared_from_this(), "mask",
+    m_maskInput = boost::shared_ptr< WModuleInputData< WDataSetScalar > >(
+            new WModuleInputData< WDataSetScalar >( shared_from_this(), "mask",
                     "The mask applied to the data." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_maskInput );
 
     // initialize connectors
-    m_output = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >(
-            new WModuleOutputData< WDataSetSingle >( shared_from_this(), "out",
+    m_output = boost::shared_ptr< WModuleOutputData< WDataSetScalar > >(
+            new WModuleOutputData< WDataSetScalar >( shared_from_this(), "out",
                     "The filtered data set." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -214,6 +213,6 @@ template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet
     boost::shared_ptr< WValueSet< T > > valueSet;
     valueSet = boost::shared_ptr< WValueSet< T > >( new WValueSet< T >( 0, 1, newVals, type ) );
 
-    m_dataSetOut = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_dataSet->getGrid() ) );
+    m_dataSetOut = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_dataSet->getGrid() ) );
     m_output->updateData( m_dataSetOut );
 }
