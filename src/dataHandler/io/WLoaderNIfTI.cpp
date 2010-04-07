@@ -34,6 +34,7 @@
 #include "../WSubject.h"
 #include "../WDataSetSingle.h"
 #include "../WDataSetVector.h"
+#include "../WDataSetScalar.h"
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
 #include "../WValueSetBase.h"
@@ -162,6 +163,10 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
     if( vDim == 3 )
     {
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetVector( newValueSet, newGrid ) );
+    }
+    else if( vDim == 1 )
+    {
+        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetScalar( newValueSet, newGrid ) );
     }
     else
     {
