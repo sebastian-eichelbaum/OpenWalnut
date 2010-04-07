@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "../common/WAssert.h"
+#include "../common/WLimits.h"
 #include "WDataSetSingle.h"
 
 #include "WDataSetScalar.h"
@@ -36,8 +37,46 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     WAssert( newGrid, "No grid given." );
     WAssert( newValueSet->size() == newGrid->size(), "Number of values unequal number of positions in grid." );
     WAssert( newValueSet->order() == 0, "The value set does not contain scalars." );
+
+    double max = wlimits::MIN_DOUBLE;
+    double min = wlimits::MAX_DOUBLE;
+
+    for( size_t i = 0; i < newValueSet->size(); ++i )
+    {
+        double tmp = newValueSet->getScalarDouble( i );
+        max = max < tmp ? tmp : max;
+        min = min > tmp ? tmp : min;
+    }
+    m_maximum = max;
+    m_minimum = min;
+}
+
+WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
+                                boost::shared_ptr< WGrid > newGrid,
+                                double max,
+                                double min )
+    : WDataSetSingle( newValueSet, newGrid )
+{
+    WAssert( newValueSet, "No value set given." );
+    WAssert( newGrid, "No grid given." );
+    WAssert( newValueSet->size() == newGrid->size(), "Number of values unequal number of positions in grid." );
+    WAssert( newValueSet->order() == 0, "The value set does not contain scalars." );
+
+    WAssert( max >= min, "max must be at least as large as min." );
+    m_maximum = max;
+    m_minimum = min;
 }
 
 WDataSetScalar::~WDataSetScalar()
 {
+}
+
+double WDataSetScalar::getMax() const
+{
+    return m_maximum;
+}
+
+double WDataSetScalar::getMin() const
+{
+    return m_minimum;
 }

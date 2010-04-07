@@ -37,6 +37,7 @@ public:
 
     /**
      * Constructs an instance out of an appropriate value set and a grid.
+     * Computes the maximum an minimum values stored as member variables.
      *
      * \param newValueSet the scalar value set to use
      * \param newGrid the grid which maps world space to the value set
@@ -45,12 +46,38 @@ public:
                     boost::shared_ptr< WGrid > newGrid );
 
     /**
+     * Constructs an instance out of an appropriate value set and a grid.
+     * Computes the maximum an minimum values stored as member variables.
+     *
+     * \param newValueSet the scalar value set to use
+     * \param newGrid the grid which maps world space to the value set
+     * \param min a priori known smallest scalar value in newValueSet
+     * \param max a priori known largest scalar value in newValueSet
+     */
+    WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
+                    boost::shared_ptr< WGrid > newGrid,
+                    double min,
+                    double max );
+
+    /**
      * Destroys this DataSet instance
      */
     virtual ~WDataSetScalar();
 
+    /**
+     * Returns the largest of the scalars stored in the data set
+     */
+    double getMax() const;
+
+    /**
+     * Returns the smallest of the scalars stored in the data set
+     */
+    double getMin() const;
+
 protected:
 private:
+    double m_maximum; //!< Largest scalar of data set.
+    double m_minimum; //!< Smallest scalar of data set.
 };
 
 #endif  // WDATASETSCALAR_H
