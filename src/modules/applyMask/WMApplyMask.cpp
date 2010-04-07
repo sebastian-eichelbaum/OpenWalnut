@@ -33,6 +33,7 @@
 #include <cmath>
 
 #include "../../common/WProgress.h"
+#include "../../common/WAssert.h"
 #include "../../kernel/WKernel.h"
 #include "WMApplyMask.h"
 #include "apply_mask.xpm"
@@ -101,7 +102,7 @@ void WMApplyMask::moduleMain()
             {
                 boost::shared_ptr< WValueSet< unsigned char > > vals;
                 vals = boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 applyMask( vals, type );
                 break;
             }
@@ -109,7 +110,7 @@ void WMApplyMask::moduleMain()
             {
                 boost::shared_ptr< WValueSet< int16_t > > vals;
                 vals = boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 applyMask( vals, type );
                 break;
             }
@@ -117,7 +118,7 @@ void WMApplyMask::moduleMain()
             {
                 boost::shared_ptr< WValueSet< int32_t > > vals;
                 vals = boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 applyMask( vals, type );
                 break;
             }
@@ -125,7 +126,7 @@ void WMApplyMask::moduleMain()
             {
                 boost::shared_ptr< WValueSet< float > > vals;
                 vals = boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 applyMask( vals, type );
                 break;
             }
@@ -133,7 +134,7 @@ void WMApplyMask::moduleMain()
             {
                 boost::shared_ptr< WValueSet< double > > vals;
                 vals = boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 applyMask( vals, type );
                 break;
             }

@@ -209,7 +209,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< unsigned char > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -217,7 +217,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< int16_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -225,7 +225,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< int32_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -233,7 +233,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< float > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -241,12 +241,12 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< double > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
         default:
-            assert( false && "Unknow data type in MarchingCubes module" );
+            WAssert( false, "Unknow data type in MarchingCubes module" );
     }
 }
 
@@ -274,14 +274,14 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
                                                               boost::shared_ptr< WValueSet< T > > vals,
                                                               double isoValue )
 {
-    assert( vals );
+    WAssert( vals, "No value set provided." );
 
     m_idToVertices.clear();
     m_trivecTriangles.clear();
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
     m_grid = grid;
-    assert( grid );
+    WAssert( grid, "Grid is not of type WGridRegular3D." );
 
     m_fCellLengthX = grid->getOffsetX();
     m_fCellLengthY = grid->getOffsetY();
@@ -794,7 +794,7 @@ int myIsfinite( double number )
     // Microsoft Visual C++ and Borland C++ Builder use _finite().
     return _finite(number);
 #else
-    assert( 0 && "isfinite not provided on this platform or platform not known" );
+    WAssert( false, "isfinite not provided on this platform or platform not known." );
 #endif
 }
 

@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "../../common/WAssert.h"
 #include "../../common/WIOTools.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
@@ -223,7 +224,7 @@ void WMData::moduleMain()
             boost::filesystem::path p( fileName );
             p.replace_extension( "" );
             suffix = getSuffix( p.string() );
-            assert( suffix == ".nii" && "currently only nii files may be gzipped" );
+            WAssert( suffix == ".nii", "Currently only nii files may be gzipped." );
         }
 
         m_isTexture = true;

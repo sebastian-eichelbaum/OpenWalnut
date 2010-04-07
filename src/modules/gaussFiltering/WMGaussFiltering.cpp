@@ -33,6 +33,7 @@
 
 #include "../../common/WStringUtils.h"
 #include "../../common/WProgress.h"
+#include "../../common/WAssert.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
@@ -81,9 +82,9 @@ size_t getId( size_t xDim, size_t yDim, size_t /*zDim*/, size_t x, size_t y, siz
 
 double mask( size_t i, size_t j, size_t k )
 {
-    assert( i < 3 );
-    assert( j < 3 );
-    assert( k < 3 );
+    WAssert( i < 3, "Index larger than two where [0,1,2] is expected." );
+    WAssert( j < 3, "Index larger than two where [0,1,2] is expected."  );
+    WAssert( k < 3, "Index larger than two where [0,1,2] is expected."  );
     double maskEntries[3][3][3] = { // NOLINT
             { { 0, 1, 0 }, { 1, 2, 1 }, { 0, 1, 0 } }, // NOLINT
             { { 1, 2, 1 }, { 2, 4, 2 }, { 1, 2, 1 } }, // NOLINT
@@ -148,7 +149,7 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
 {
     // the grid used
     boost::shared_ptr<WGridRegular3D> grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    assert( grid );
+    WAssert( grid, "Grid is not of type WGridRegular3D." );
 
     // use a custom progress combiner
     boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >(
@@ -235,7 +236,7 @@ void WMGaussFiltering::moduleMain()
                 {
                     boost::shared_ptr<WValueSet<unsigned char> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
-                    assert( vals );
+                    WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
@@ -243,7 +244,7 @@ void WMGaussFiltering::moduleMain()
                 {
                     boost::shared_ptr<WValueSet<int16_t> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
-                    assert( vals );
+                    WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
@@ -251,7 +252,7 @@ void WMGaussFiltering::moduleMain()
                 {
                     boost::shared_ptr<WValueSet<int32_t> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
-                    assert( vals );
+                    WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
@@ -259,7 +260,7 @@ void WMGaussFiltering::moduleMain()
                 {
                     boost::shared_ptr<WValueSet<float> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<float> >( ( *m_dataSet ).getValueSet() );
-                    assert( vals );
+                    WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
@@ -267,12 +268,12 @@ void WMGaussFiltering::moduleMain()
                 {
                     boost::shared_ptr<WValueSet<double> > vals;
                     vals = boost::shared_dynamic_cast<WValueSet<double> >( ( *m_dataSet ).getValueSet() );
-                    assert( vals );
+                    WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
                 default:
-                    assert( false && "Unknown data type in Gauss Filtering module" );
+                    WAssert( false, "Unknown data type in Gauss Filtering module" );
             }
 
             m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_dataSet->getGrid() ) ) );
@@ -315,19 +316,4 @@ void WMGaussFiltering::properties()
     m_iterations      = m_properties->addProperty( "Iterations",         "How often should the filter be applied.", 1, m_propCondition );
     m_iterations->setMin( 0 );
     m_iterations->setMax( 100 );
-
-    //     ( m_properties->addInt( "Filter Size", 1 ) )->connect( boost::bind( &WMGaussFiltering::slotPropertyChanged, this, _1 ) );
-}
-
-void WMGaussFiltering::slotPropertyChanged( std::string propertyName )
-{
-    if( propertyName == "Filter Size" )
-    {
-        // TODO(wiebel): need code here
-    }
-    else
-    {
-        std::cout << propertyName << std::endl;
-        assert( 0 && "This property name is not supported by this function yet." );
-    }
 }

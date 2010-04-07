@@ -137,7 +137,7 @@ template< typename T > void WMWriteNIfTI::castData( void*& returnData )
 {
     boost::shared_ptr< WValueSetBase > valsB = ( *m_dataSet ).getValueSet();
     boost::shared_ptr< WValueSet< T > > vals = boost::shared_dynamic_cast< WValueSet< T > >( ( *m_dataSet ).getValueSet() );
-    assert( vals && "Seems that value set type is not yet supported." );
+    WAssert( vals, "Seems that value set type is not yet supported." );
 
     T* data = new T[vals->size()];
     for( unsigned int i = 0; i < vals->size(); ++i )
@@ -153,14 +153,15 @@ void WMWriteNIfTI::writeToFile()
     nifti_image *outField = nifti_simple_init_nim();
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    assert( grid && "Seems that grid is of wrong type." );
+    WAssert( grid, "Seems that grid is of wrong type." );
 
     size_t nbValues = ( *m_dataSet ).getValueSet()->size();
 
     outField->nx = grid->getNbCoordsX();
     outField->ny = grid->getNbCoordsY();
     outField->nz = grid->getNbCoordsZ();
-    assert( grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() == nbValues );
+    WAssert( grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() == nbValues,
+             "Overall size incompatible with size in axis directions." );
 
     // TODO(wiebel): only able to handle scalars now.
     outField->nt = 1;

@@ -35,6 +35,7 @@
 #include <osg/Geometry>
 #include <osg/Group>
 
+#include "../../common/WAssert.h"
 #include "../../common/math/WVector3D.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
@@ -155,10 +156,10 @@ void WMNavSlices::notifyTextureChange()
 void WMNavSlices::moduleMain()
 {
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
-    assert( ge );
+    WAssert( ge, "No graphics engine present." );
 
     m_viewer = ge->getViewerByName( "main" );
-    assert( m_viewer );
+    WAssert( m_viewer, "Requested viewer not found." );
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
 
     // signal ready state

@@ -179,7 +179,7 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
             WAssert( false, "Unknow data type in makeFloatDataSet" );
     }
 
-    assert( false && "If this assertion is reached, the code above has to be fixed." );
+    WAssert( false, "If this assertion is reached, the code above has to be fixed." );
     return boost::shared_ptr< WValueSet< float > >();
 }
 
