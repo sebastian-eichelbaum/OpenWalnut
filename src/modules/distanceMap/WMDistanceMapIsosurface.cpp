@@ -80,7 +80,7 @@ void WMDistanceMapIsosurface::moduleMain()
     m_marchingCubesModule->isReady().wait();
     boost::shared_ptr< WProperties >  mcProps = m_marchingCubesModule->getProperties();
     m_isoValueProp = mcProps->getProperty( "Iso Value" )->toPropDouble();
-    m_isoValueProp->set( 0.5 );
+    m_isoValueProp->set( 0.2 );
     m_isoValueProp->setMin( 0.0 );
     m_isoValueProp->setMax( 1.0 );
     m_properties->addProperty( m_isoValueProp );
@@ -89,6 +89,10 @@ void WMDistanceMapIsosurface::moduleMain()
     m_useTextureProp = mcProps->getProperty( "Use Texture" )->toPropBool();
     m_useTextureProp->set( true );
     m_properties->addProperty( m_useTextureProp );
+
+    m_opacityProp = mcProps->getProperty( "Opacity %" )->toPropInt();
+    m_properties->addProperty( m_opacityProp );
+
 
     //////////////////////////////////////////////////////////////////////////////////
     // Distance Map
