@@ -152,13 +152,13 @@ std::vector< size_t >WTriangleMesh2::getTriangles()
     return m_triangles;
 }
 
-osg::Vec3 WTriangleMesh2::getVertex( size_t index )
+osg::Vec3 WTriangleMesh2::getVertex( size_t index ) const
 {
     WAssert( index < m_countVerts, "get vertex: index out of range" );
     return ( *m_verts )[index];
 }
 
-wmath::WPosition WTriangleMesh2::getVertexAsPosition( size_t index )
+wmath::WPosition WTriangleMesh2::getVertexAsPosition( size_t index ) const
 {
     WAssert( index < m_countVerts, "get vertex as position: index out of range" );
     return wmath::WPosition( ( *m_verts )[index][0], ( *m_verts )[index][1], ( *m_verts )[index][2] );
@@ -276,12 +276,12 @@ osg::Vec3 WTriangleMesh2::calcNormal( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec
     return tempNormal;
 }
 
-size_t WTriangleMesh2::vertSize()
+size_t WTriangleMesh2::vertSize() const
 {
     return m_countVerts;
 }
 
-size_t WTriangleMesh2::triangleSize()
+size_t WTriangleMesh2::triangleSize() const
 {
     return m_countTriangles;
 }

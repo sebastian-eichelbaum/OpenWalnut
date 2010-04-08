@@ -201,7 +201,7 @@ public:
      * \param index
      * \return vertex
      */
-    osg::Vec3 getVertex( size_t index );
+    osg::Vec3 getVertex( size_t index ) const;
 
     /**
      * getter
@@ -218,7 +218,7 @@ public:
      * \param index
      * \return vertex
      */
-    wmath::WPosition getVertexAsPosition( size_t index );
+    wmath::WPosition getVertexAsPosition( size_t index ) const;
 
     /**
      * getter
@@ -234,19 +234,44 @@ public:
      *
      * \return number of vertexes in the mesh
      */
-    size_t vertSize();
+    size_t vertSize() const;
 
     /**
      * getter
      *
      * \return number of triangles in the mesh
      */
-    size_t triangleSize();
+    size_t triangleSize() const;
 
     /**
      * performs a loop subdivision on the triangle mesh
      */
     void doLoopSubD();
+
+    /**
+     * returns the id of the first vertex of a triangle
+     *
+     * \param triId id of the triangle
+     * \return id of the vertex
+     */
+    size_t getTriVertId0( size_t triId ) const;
+
+    /**
+     * returns the id of the second vertex of a triangle
+     *
+     * \param triId id of the triangle
+     * \return id of the vertex
+     */
+    size_t getTriVertId1( size_t triId ) const;
+
+    /**
+     * return the id of the third vertex of a triangle
+     *
+     * \param triId id of the triangle
+     * \return id of the vertex
+     */
+    size_t getTriVertId2( size_t triId ) const;
+
 
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
@@ -342,31 +367,6 @@ private:
      * \param vertId new id of the third vertex
      */
     void setTriVert2( size_t triId, size_t vertId );
-
-    /**
-     * returns the id of the first vertex of a triangle
-     *
-     * \param triId id of the triangle
-     * \return id of the vertex
-     */
-    size_t getTriVertId0( size_t triId );
-
-    /**
-     * returns the id of the second vertex of a triangle
-     *
-     * \param triId id of the triangle
-     * \return id of the vertex
-     */
-    size_t getTriVertId1( size_t triId );
-
-    /**
-     * return the id of the third vertex of a triangle
-     *
-     * \param triId id of the triangle
-     * \return id of the vertex
-     */
-    size_t getTriVertId2( size_t triId );
-
 
 
     // the next functions are helper functions for the loop subdivision algorithm and exist only for that
@@ -530,19 +530,19 @@ inline osg::Vec3 WTriangleMesh2::getTriVert( size_t triId, size_t vertNum )
     return ( *m_verts )[ m_triangles[ triId * 3  + vertNum] ];
 }
 
-inline size_t WTriangleMesh2::getTriVertId0( size_t triId )
+inline size_t WTriangleMesh2::getTriVertId0( size_t triId ) const
 {
     WAssert( triId < m_countTriangles, "get tri vert id 0: triangle id out of range" );
     return m_triangles[triId * 3];
 }
 
-inline size_t WTriangleMesh2::getTriVertId1( size_t triId )
+inline size_t WTriangleMesh2::getTriVertId1( size_t triId ) const
 {
     WAssert( triId < m_countTriangles, "get tri vert id 1: triangle id out of range" );
     return m_triangles[triId * 3 + 1];
 }
 
-inline size_t WTriangleMesh2::getTriVertId2( size_t triId )
+inline size_t WTriangleMesh2::getTriVertId2( size_t triId ) const
 {
     WAssert( triId < m_countTriangles, "get tri vert id 2: triangle id out of range" );
     return m_triangles[triId * 3 + 2];
