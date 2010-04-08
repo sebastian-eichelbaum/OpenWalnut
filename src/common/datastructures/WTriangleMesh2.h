@@ -34,6 +34,8 @@
 #include "../WTransferable.h"
 #include "../math/WVector3D.h"
 
+#include "../WAssert.h"
+
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
@@ -204,11 +206,11 @@ public:
     /**
      * getter
      *
-     * \param triangleIndex
+     * \param triId
      * \param vertNum
      * \return vertex
      */
-    osg::Vec3 getVertex( size_t triangleIndex, size_t vertNum );
+    osg::Vec3 getTriVert( size_t triId, size_t vertNum );
 
     /**
      * getter
@@ -240,6 +242,11 @@ public:
      * \return number of triangles in the mesh
      */
     size_t triangleSize();
+
+    /**
+     * performs a loop subdivision on the triangle mesh
+     */
+    void doLoopSubD();
 
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
@@ -309,6 +316,139 @@ private:
      */
     size_t getNeighbor( const size_t coVert1, const size_t coVert2, const size_t triangleNum );
 
+    /**
+     * higher level access function to the triangle vector, sets the first vertex of a triangle to
+     * a given vertex id
+     *
+     * \param triId the id of the triangle to modify
+     * \param vertId new id of the first vertex
+     */
+    void setTriVert0( size_t triId, size_t vertId );
+
+    /**
+     * higher level access function to the triangle vector, sets the second vertex of a triangle to
+     * a given vertex id
+     *
+     * \param triId the id of the triangle to modify
+     * \param vertId new id of the second vertex
+     */
+    void setTriVert1( size_t triId, size_t vertId );
+
+    /**
+     * higher level access function to the triangle vector, sets the third vertex of a triangle to
+     * a given vertex id
+     *
+     * \param triId the id of the triangle to modify
+     * \param vertId new id of the third vertex
+     */
+    void setTriVert2( size_t triId, size_t vertId );
+
+    /**
+     * returns the id of the first vertex of a triangle
+     *
+     * \param triId id of the triangle
+     * \return id of the vertex
+     */
+    size_t getTriVertId0( size_t triId );
+
+    /**
+     * returns the id of the second vertex of a triangle
+     *
+     * \param triId id of the triangle
+     * \return id of the vertex
+     */
+    size_t getTriVertId1( size_t triId );
+
+    /**
+     * return the id of the third vertex of a triangle
+     *
+     * \param triId id of the triangle
+     * \return id of the vertex
+     */
+    size_t getTriVertId2( size_t triId );
+
+
+
+    // the next functions are helper functions for the loop subdivision algorithm and exist only for that
+    // purpose, for more information read http://research.microsoft.com/en-us/um/people/cloop/thesis.pdf
+
+
+    /**
+     * changes the vertex ids of a triangle
+     *
+     * \param triId
+     * \param vertId1
+     * \param vertId2
+     * \param vertId3
+     */
+    void loopSetTriangle( size_t triId, size_t vertId1, size_t vertId2, size_t vertId3 );
+
+    /**
+     * erases a triangle from the vertexe's list of triangles it is part of
+     *
+     * \param triId
+     * \param vertId
+     */
+    void loopEraseTriangleFromVertex( size_t triId, size_t vertId );
+
+    /**
+     * calculates the new position of a vertex depending on it's location in the grid and number of neighbors
+     *
+     * \param vertId the vertex id
+     * \return new position in 3D space
+     */
+    osg::Vec3 loopCalcNewPosition( size_t vertId );
+
+    /**
+     * inserts the center triangle in a given triangle,
+     *
+     * \param triId the triangle id
+     */
+    void loopInsertCenterTriangle( size_t triId );
+
+    /**
+     * inserts the 3 corner triangles in a given triangle
+     *
+     * \param triId the triangle id
+     */
+    void loopInsertCornerTriangles( size_t triId );
+
+    /**
+     * calculates the vertex id for a given edge, inserts a new vertex of none exists yet
+     *
+     * \param triId the triangle id
+     * \param edgeV1
+     * \param edgeV2
+     * \param V3
+     * \return index of the vertex
+     */
+    size_t loopCalcEdgeVert( size_t triId, size_t edgeV1, size_t edgeV2, size_t V3 );
+
+    /**
+     * loop helper function
+     * \param n
+     * \return alpha
+     */
+    double loopGetAlpha( int n );
+
+    /**
+     * returns the id of the next vertex int he triangle
+     *
+     * \param triNum id of the triangle
+     * \param vertNum id of the vertex
+     * \return id of the next vertex
+     */
+    size_t loopGetNextVertex( size_t triNum, size_t vertNum );
+
+    /**
+     * returns the id of the third vertex of a triangle for two given vertexes
+     *
+     * \param coVert1
+     * \param coVert2
+     * \param triangleNum
+     * \return id of the third vertex
+     */
+    size_t loopGetThirdVert( size_t coVert1, size_t coVert2, size_t triangleNum );
 
 
     size_t m_countVerts; //!< number of vertexes in the mesh
@@ -335,18 +475,23 @@ private:
     std::vector < std::vector< size_t > >m_vertexIsInTriangle; //!< for each vertex, list of triangles it is part of
 
     std::vector< std::vector< size_t > > m_triangleNeighbors; //!< edge neighbors for each triangle
+
+    size_t m_numTriVerts; //!< stores the number of vertexes before the loop subdivion is run, needed by the loop algorithm
+
+    size_t m_numTriFaces; //!< stores the number of triangles before the loop subdivion is run, needed by the loop algorithm
 };
 
 
 inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
 {
-    ( *m_verts )[m_countVerts++] = vert;
+    if ( ( *m_verts ).size() == m_countVerts )
+    {
+        ( *m_verts ).resize( m_countVerts + 1 );
+    }
+    ( *m_verts )[m_countVerts] = vert;
+    ++m_countVerts;
 }
 
-inline osg::Vec3 WTriangleMesh2::getVertex( size_t triangleIndex, size_t vertNum )
-{
-    return ( *m_verts )[ m_triangles[ triangleIndex * 3  + vertNum] ];
-}
 
 inline const std::string WTriangleMesh2::getName() const
 {
@@ -357,5 +502,51 @@ inline const std::string WTriangleMesh2::getDescription() const
 {
     return "Triangle mesh data structure allowing for convenient access of the elements.";
 }
+
+inline void WTriangleMesh2::setTriVert0( size_t triId, size_t vertId )
+{
+    WAssert( triId < m_countTriangles, "set tri vert 0: triangle id out of range" );
+    WAssert( vertId < m_countVerts, "vertex id out of range" );
+    m_triangles[ triId * 3 ] = vertId;
+}
+
+inline void WTriangleMesh2::setTriVert1( size_t triId, size_t vertId )
+{
+    WAssert( triId < m_countTriangles, "set tri vert 1: triangle id out of range" );
+    WAssert( vertId < m_countVerts, "vertex id out of range" );
+    m_triangles[ triId * 3 + 1] = vertId;
+}
+
+inline void WTriangleMesh2::setTriVert2( size_t triId, size_t vertId )
+{
+    WAssert( triId < m_countTriangles, "set tri vert 2: triangle id out of range" );
+    WAssert( vertId < m_countVerts, "vertex id out of range" );
+    m_triangles[ triId * 3 + 2] = vertId;
+}
+
+inline osg::Vec3 WTriangleMesh2::getTriVert( size_t triId, size_t vertNum )
+{
+    WAssert( triId < m_countTriangles, "triangle id out of range" );
+    return ( *m_verts )[ m_triangles[ triId * 3  + vertNum] ];
+}
+
+inline size_t WTriangleMesh2::getTriVertId0( size_t triId )
+{
+    WAssert( triId < m_countTriangles, "get tri vert id 0: triangle id out of range" );
+    return m_triangles[triId * 3];
+}
+
+inline size_t WTriangleMesh2::getTriVertId1( size_t triId )
+{
+    WAssert( triId < m_countTriangles, "get tri vert id 1: triangle id out of range" );
+    return m_triangles[triId * 3 + 1];
+}
+
+inline size_t WTriangleMesh2::getTriVertId2( size_t triId )
+{
+    WAssert( triId < m_countTriangles, "get tri vert id 2: triangle id out of range" );
+    return m_triangles[triId * 3 + 2];
+}
+
 
 #endif  // WTRIANGLEMESH2_H

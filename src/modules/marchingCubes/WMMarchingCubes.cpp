@@ -100,7 +100,7 @@ const std::string WMMarchingCubes::getName() const
 
 const std::string WMMarchingCubes::getDescription() const
 {
-    return "This module implement the marching cubes"
+    return "This module implements the marching cubes"
 " algorithm with a consistent triangulation. It allows to compute isosurfaces"
 " for a given isovalue on data given on a grid only consisting of cubes. It yields"
 " the surface as triangle soup.";
@@ -644,6 +644,8 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     m_moduleNode->remove( m_surfaceGeode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+
+    m_surfaceGeode->setName( "iso surface" );
 
     surfaceGeometry->setVertexArray( mesh->getVertexArray() );
 
