@@ -115,27 +115,27 @@ void WMSurfaceBars::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
+    m_isoValue      = m_properties->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
                                                                       50 );
-    m_stepCount     = m_properties2->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
+    m_stepCount     = m_properties->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
-    m_alpha         = m_properties2->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
+    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
-    m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 0.0, 0.0, 0.0, 1.0 ),
+    m_isoColor      = m_properties->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 0.0, 0.0, 0.0, 1.0 ),
                       m_propCondition );
-    m_saturation    = m_properties2->addProperty( "Saturation %",     "The saturation in %.", 100 );
-    m_size1         = m_properties2->addProperty( "Beam1 Size",       "The relative size of the first beam. A value of 0 gets mapped to the "
+    m_saturation    = m_properties->addProperty( "Saturation %",     "The saturation in %.", 100 );
+    m_size1         = m_properties->addProperty( "Beam1 Size",       "The relative size of the first beam. A value of 0 gets mapped to the "
                                                                       "smallest size, whilst 100 gets mapped to the largest. This is typically "
                                                                       "one third of the size of the voxelized surface.", 10 );
-    m_size2         = m_properties2->addProperty( "Beam2 Size",       "The relative size of the second beam. A value of 0 gets mapped to the "
+    m_size2         = m_properties->addProperty( "Beam2 Size",       "The relative size of the second beam. A value of 0 gets mapped to the "
                                                                       "smallest size, whilst 100 gets mapped to the largest. This is typically "
                                                                       "one third of the size of the voxelized surface.", 50 );
-    m_speed1         = m_properties2->addProperty( "Beam1 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
-    m_speed2         = m_properties2->addProperty( "Beam2 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
-    m_parameterScale = m_properties2->addProperty( "Parameter Scale", "Scaling the parameter space on the fly creates consistently sized and fast "
+    m_speed1         = m_properties->addProperty( "Beam1 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
+    m_speed2         = m_properties->addProperty( "Beam2 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
+    m_parameterScale = m_properties->addProperty( "Parameter Scale", "Scaling the parameter space on the fly creates consistently sized and fast "
                                                                       "beams over multiple WMSurfaceBars instances.", 1.0 );
 }
 

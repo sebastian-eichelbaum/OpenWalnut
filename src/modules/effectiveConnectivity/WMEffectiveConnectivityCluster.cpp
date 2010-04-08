@@ -140,13 +140,13 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_fiberSelection->isReady().wait();
 
     // set some props
-    boost::shared_ptr< WProperties2 >  props = m_fiberSelection->getProperties2();
+    boost::shared_ptr< WProperties >  props = m_fiberSelection->getProperties();
     props->getProperty( "VOI1 Threshold" )->toPropDouble()->set( 50.0 );
     props->getProperty( "VOI2 Threshold" )->toPropDouble()->set( 50.0 );
     props->getProperty( "Cut Fibers" )->toPropBool()->set( true );
-    m_properties2->addProperty( props->getProperty( "Cut Fibers" ) );
+    m_properties->addProperty( props->getProperty( "Cut Fibers" ) );
     props->getProperty( "Prefer Shortest Path" )->toPropBool()->set( false );
-    m_properties2->addProperty( props->getProperty( "Prefer Shortest Path" ) );
+    m_properties->addProperty( props->getProperty( "Prefer Shortest Path" ) );
 
     // as this module needs the centerline / longest line -> subscribe to the output connector DATA_CHANGE signal
     m_fiberSelection->getOutputConnector( "cluster" )->subscribeSignal( DATA_CHANGED,
@@ -167,7 +167,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_voxelizer->isReady().wait();
 
     // set/forward some props
-    props = m_voxelizer->getProperties2();
+    props = m_voxelizer->getProperties();
     props->getProperty( "CenterLine" )->toPropBool()->set( true );
     props->getProperty( "active" )->toPropBool()->set( false );
     props->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
@@ -175,7 +175,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     props->getProperty( "Lighting" )->toPropBool()->set( false );
 
     props->getProperty( "Voxels per Unit" )->toPropInt()->set( 2 );
-    m_properties2->addProperty( props->getProperty( "Voxels per Unit" ) );
+    m_properties->addProperty( props->getProperty( "Voxels per Unit" ) );
 
     //////////////////////////////////////////////////////////////////////
     // Gauss Filter the voxel output
@@ -191,7 +191,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_gauss->isReady().wait();
 
     // set/forward some props
-    props = m_gauss->getProperties2();
+    props = m_gauss->getProperties();
     props->getProperty( "Iterations" )->toPropInt()->set( 2 );
 
     //////////////////////////////////////////////////////////////////////
@@ -208,21 +208,21 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_animation->isReady().wait();
 
     // set/forward some props
-    props = m_animation->getProperties2();
+    props = m_animation->getProperties();
     props->getProperty( "Isovalue" )->toPropInt()->set( 32 );
-    m_properties2->addProperty( props->getProperty( "Isovalue" ) );
+    m_properties->addProperty( props->getProperty( "Isovalue" ) );
     props->getProperty( "Step Count" )->toPropInt()->set( 500 );
-    m_properties2->addProperty( props->getProperty( "Step Count" ) );
+    m_properties->addProperty( props->getProperty( "Step Count" ) );
     props->getProperty( "Iso Color" )->toPropColor()->set( WColor( 0.0, 0.5, 1.0, 1.0 ) );
-    m_properties2->addProperty( props->getProperty( "Iso Color" ) );
+    m_properties->addProperty( props->getProperty( "Iso Color" ) );
     props->getProperty( "Opacity %" )->toPropInt()->set( 100 );
-    m_properties2->addProperty( props->getProperty( "Opacity %" ) );
-    m_properties2->addProperty( props->getProperty( "Saturation %" ) );
-    m_properties2->addProperty( props->getProperty( "Beam1 Size" ) );
-    m_properties2->addProperty( props->getProperty( "Beam2 Size" ) );
-    m_properties2->addProperty( props->getProperty( "Beam1 Speed" ) );
-    m_properties2->addProperty( props->getProperty( "Beam2 Speed" ) );
-    m_properties2->addProperty( props->getProperty( "Parameter Scale" ) );
+    m_properties->addProperty( props->getProperty( "Opacity %" ) );
+    m_properties->addProperty( props->getProperty( "Saturation %" ) );
+    m_properties->addProperty( props->getProperty( "Beam1 Size" ) );
+    m_properties->addProperty( props->getProperty( "Beam2 Size" ) );
+    m_properties->addProperty( props->getProperty( "Beam1 Speed" ) );
+    m_properties->addProperty( props->getProperty( "Beam2 Speed" ) );
+    m_properties->addProperty( props->getProperty( "Parameter Scale" ) );
 
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -352,14 +352,14 @@ void WMEffectiveConnectivityCluster::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_voi1Name = m_properties2->addProperty( "Name of VOI1", "The name of the VOI1.", std::string( "" ), m_propCondition );
-    m_voi2Name = m_properties2->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "" ), m_propCondition );
+    m_voi1Name = m_properties->addProperty( "Name of VOI1", "The name of the VOI1.", std::string( "" ), m_propCondition );
+    m_voi2Name = m_properties->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "" ), m_propCondition );
 
-    m_labelCharacterSize = m_properties2->addProperty( "Font Size", "The size of the label fonts.", 20, m_propCondition );
+    m_labelCharacterSize = m_properties->addProperty( "Font Size", "The size of the label fonts.", 20, m_propCondition );
 }
 
 void WMEffectiveConnectivityCluster::activate()
 {
-    m_animation->getProperties2()->getProperty( "active" )->toPropBool()->set( m_active->get() );
+    m_animation->getProperties()->getProperty( "active" )->toPropBool()->set( m_active->get() );
 }
 
