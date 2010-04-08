@@ -30,11 +30,11 @@
 
 #include <osg/Geode>
 
-#include "../WColor.h"
-#include "../WTransferable.h"
-#include "../math/WVector3D.h"
+#include "../common/WColor.h"
+#include "../common/WTransferable.h"
+#include "../common/math/WVector3D.h"
 
-#include "../WAssert.h"
+#include "../common/WAssert.h"
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
