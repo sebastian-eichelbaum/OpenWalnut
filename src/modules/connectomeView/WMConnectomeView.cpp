@@ -48,9 +48,6 @@
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WShader.h"
 
-#include "../data/WMData.h"
-
-
 WMConnectomeView::WMConnectomeView():
     WModuleContainer( "Connectome View", "Connectome View allows connectome data to be displayed in the context of MRI data." ),
     m_dataSet()

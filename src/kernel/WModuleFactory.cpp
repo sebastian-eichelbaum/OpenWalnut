@@ -34,7 +34,6 @@
 #include "../modules/clusterSlicer/WMClusterSlicer.h"
 #include "../modules/connectomeView/WMConnectomeView.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
-#include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
 #include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"

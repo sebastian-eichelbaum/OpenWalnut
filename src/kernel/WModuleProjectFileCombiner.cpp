@@ -78,6 +78,7 @@ void WModuleProjectFileCombiner::parse()
 
     // this is the proper regular expression for modules
     static const boost::regex modRe( "^MODULE:([0-9]*):(.*)$" );
+    static const boost::regex dataRe( "^DATA:([0-9]*):(.*)$" );
     static const boost::regex conRe( "^CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
     static const boost::regex commentRe( "^//.*$" );
@@ -100,14 +101,50 @@ void WModuleProjectFileCombiner::parse()
 
             // create a module instance
             boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( matches[2] );
+
+            // data modules are not allowed here
             if ( !proto )
             {
                 wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << matches[2] << "\". Skipping.";
+            }
+            else if ( proto->getType() == MODULE_DATA )
+            {
+                wlog::error( "Project Loader" ) << "Data modules are not allowed to be specified in a \"MODULE\" Statement." <<
+                                                   " Use the \"DATA\" statement instead. Skipping.";
             }
             else
             {
                 boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
                 m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
+            }
+        }
+        else if ( boost::regex_match( line, matches, dataRe ) )
+        {
+            // it is a dataset line
+            // matches[1] is the ID
+            // matches[2] is the filename
+            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Data \"" << matches[2] << "\" with ID " << matches[1];
+
+            // create a module instance
+            boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( "Data Module" );
+            if ( !proto )
+            {
+                wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << "Data Module" << "\"."
+                                                << " This should not happen!. Skipping.";
+            }
+            else
+            {
+                std::string parameter = std::string( matches[2] );
+                boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+                if ( parameter.empty() )
+                {
+                    wlog::error( "Project Loader" ) << "Data modules need an additional filename parameter. Skipping.";
+                }
+                else
+                {
+                    boost::shared_static_cast< WMData >( module )->setFilename( parameter );
+                    m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
+                }
             }
         }
         else if ( boost::regex_match( line, matches, conRe ) )
@@ -146,6 +183,29 @@ void WModuleProjectFileCombiner::parse()
 
 void WModuleProjectFileCombiner::apply()
 {
+    // now add each module to the target container
+    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
+    {
+        m_container->add( ( *iter ).second );
+    }
+
+    // now wait for the modules to get ready. We could have waited for this in the previous loop, but a long loading module would block others.
+    // -> so we wait after adding and starting them
+    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
+    {
+        ( *iter ).second->isReadyOrCrashed().wait();
+
+        // if isReady now is false, the module has crashed before it got ready -> remove the module from the list
+        if ( ( *iter ).second->isCrashed()() )
+        {
+            wlog::warn( "Project Loader" ) << "In the module with ID "
+                                           << ( *iter ).first
+                                           << " a problem occurred. Connections and properties relating to this"
+                                           << " module will fail.";
+            m_modules.erase( iter );
+        }
+    }
+
     // now, as we have created the modules, we need to set the properties for each of it.
     for ( std::list< PropertyValue >::const_iterator iter = m_properties.begin(); iter != m_properties.end(); ++iter )
     {
@@ -170,29 +230,6 @@ void WModuleProjectFileCombiner::apply()
         {
             // set the property here
             prop->setAsString( ( *iter ).second );
-        }
-    }
-
-    // now add each module to the target container
-    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
-    {
-        m_container->add( ( *iter ).second );
-    }
-
-    // now wait for the modules to get ready. We could have waited for this in the previous loop, but a long loading module would block others.
-    // -> so we wait after adding and starting them
-    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
-    {
-        ( *iter ).second->isReadyOrCrashed().wait();
-
-        // if isReady now is false, the module has crashed before it got ready -> remove the module from the list
-        if ( ( *iter ).second->isCrashed()() )
-        {
-            wlog::warn( "Project Loader" ) << "In the module with ID "
-                                           << ( *iter ).first
-                                           << " a problem occurred. Connections and properties relating to this"
-                                           << " module will fail.";
-            m_modules.erase( iter );
         }
     }
 

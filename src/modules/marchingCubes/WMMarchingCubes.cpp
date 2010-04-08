@@ -52,8 +52,6 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
 
-#include "../data/WMData.h"
-
 #include "WMMarchingCubes.h"
 
 

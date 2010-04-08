@@ -81,9 +81,19 @@ protected:
     virtual void connectors();
 
     /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
     virtual void activate();
+
+    /**
+     * Setup the modules
+     */
+    virtual void moduleSetup();
 
 private:
 

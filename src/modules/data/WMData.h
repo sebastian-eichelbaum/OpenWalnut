@@ -97,6 +97,24 @@ public:
      */
     virtual MODULE_TYPE getType() const;
 
+    /**
+     * Sets the filename of the file to load. If this method is called multiple times it has no effect. It has to be called right after
+     * construction BEFORE running the data module.
+     *
+     * \note The reason for using this method to set the filename instead of a property is, that a property gets set AFTER ready(), but this (and
+     * only this module) needs it before ready got called.
+     *
+     * \param fname the name of the file
+     */
+    virtual void setFilename( boost::filesystem::path fname );
+
+    /**
+     * Gets the path of the file that has been loaded. It always is the value which has been set during the FIRST call of setFilename.
+     *
+     * \return the path of the file that has been loaded.
+     */
+    virtual boost::filesystem::path getFilename() const;
+
 protected:
     /**
      * \par Description
@@ -139,9 +157,14 @@ protected:
     virtual void notifyStop();
 
     /**
-     * The filename to load.
+     * The filename of the dataset to load.
      */
-    WPropFilename m_filename;
+    boost::filesystem::path m_fileName;
+
+    /**
+     * true if the m_fileName has been set earlier.
+     */
+    bool m_fileNameSet;
 
     /**
      * The name of the dataset. Usually the filename.
@@ -157,7 +180,6 @@ protected:
      * which color map to use?
      */
     WPropInt m_colorMap;
-
 
     /**
      * Threshold value for this data.

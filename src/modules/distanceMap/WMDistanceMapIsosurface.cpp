@@ -64,7 +64,7 @@ const char** WMDistanceMapIsosurface::getXPMIcon() const
     return distancemapIsosurface_xpm;
 }
 
-void WMDistanceMapIsosurface::moduleMain()
+void WMDistanceMapIsosurface::moduleSetup()
 {
     //////////////////////////////////////////////////////////////////////////////////
     // Marching Cubes
@@ -96,8 +96,8 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // create a new instance of WMDistanceMap
     // NOTE: as the distance map is a "local" module, we can't use the module factory (as WMDistanceMap is not a prototype there).
-    // The initialization of the module has to be done by the ModuleFactory to ensure proper initialization.
     m_distanceMapModule = boost::shared_ptr< WModule >( new WMDistanceMap() );
+    // The initialization of the module has to be done by the ModuleFactory to ensure proper initialization.
     WModuleFactory::initializeModule( m_distanceMapModule );
 
     // add it to the container
@@ -126,8 +126,18 @@ void WMDistanceMapIsosurface::moduleMain()
     // we want the container input connector "in" to be connected to the input of WMDistanceMap
     m_input->forward( m_distanceMapModule->getInputConnector( "in" ) );
 
+}
+
+void WMDistanceMapIsosurface::moduleMain()
+{
     //////////////////////////////////////////////////////////////////////////////////
-    // Done!
+    // Initialize the modules whose properties we want to forward.
+    //////////////////////////////////////////////////////////////////////////////////
+
+    moduleSetup();
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // Done! Modules are set up.
     //////////////////////////////////////////////////////////////////////////////////
 
     // signal ready state
@@ -164,6 +174,11 @@ void WMDistanceMapIsosurface::connectors()
 
     // call WModules initialization
     WModule::connectors();
+}
+
+void WMDistanceMapIsosurface::properties()
+{
+    // this module's properties get added during moduleMain.
 }
 
 void WMDistanceMapIsosurface::activate()

@@ -38,7 +38,6 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "../data/WMData.h"
 #include "../../dataHandler/io/nifti/nifti1_io.h"
 #include "WMWriteNIfTI.h"
 

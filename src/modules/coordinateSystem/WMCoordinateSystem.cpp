@@ -29,7 +29,6 @@
 #include <osg/Geometry>
 
 #include "../../kernel/WKernel.h"
-#include "../data/WMData.h"
 #include "WMCoordinateSystem.h"
 #include "coordinateSystem.xpm"
 

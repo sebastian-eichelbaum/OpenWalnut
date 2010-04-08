@@ -51,7 +51,6 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../data/WMData.h"
 #include "WMNavSlices.h"
 #include "navslices.xpm"
 

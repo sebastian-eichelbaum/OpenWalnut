@@ -48,6 +48,7 @@
 
 WMData::WMData():
     WModule(),
+    m_fileNameSet( false ),
     m_isTexture()
 {
     // initialize members
@@ -83,6 +84,20 @@ boost::shared_ptr< WDataSet > WMData::getDataSet()
     return m_dataSet;
 }
 
+void WMData::setFilename( boost::filesystem::path fname )
+{
+    if ( !m_fileNameSet )
+    {
+        m_fileNameSet = true;
+        m_fileName = fname;
+    }
+}
+
+boost::filesystem::path WMData::getFilename() const
+{
+    return m_fileName;
+}
+
 MODULE_TYPE WMData::getType() const
 {
     return MODULE_DATA;
@@ -106,8 +121,6 @@ void WMData::properties()
 {
     // properties
 
-    // filename of file to load and handle
-    m_filename = m_properties->addProperty( "filename", "The file to load.", WKernel::getAppPathObject(), true );
     m_dataName = m_properties->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
 
     // use this callback for the other properties
@@ -193,8 +206,10 @@ void WMData::notifyStop()
 
 void WMData::moduleMain()
 {
+    WAssert( m_fileNameSet, "No filename specified." );
+
     using wiotools::getSuffix;
-    std::string fileName = m_filename->get().string();
+    std::string fileName = m_fileName.string();
 
     debugLog() << "Loading data from \"" << fileName << "\".";
     m_dataName->set( fileName );
@@ -208,7 +223,6 @@ void WMData::moduleMain()
         || suffix == ".edf" )
     {
         // hide other properties since they make no sense fo these data set types.
-        m_filename->setHidden();
         m_interpolation->setHidden();
         m_threshold->setHidden();
         m_opacity->setHidden();
@@ -256,13 +270,11 @@ void WMData::moduleMain()
             WAssert( false, "WDataSetSingle needed at this position." );
         }
     }
-//#ifndef _MSC_VER
     else if( suffix == ".edf" )
     {
         WLoaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
-//#endif
     else if( suffix == ".asc" )
     {
         WLoaderEEGASCII eegAsciiLoader( fileName );
