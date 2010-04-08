@@ -98,7 +98,7 @@ void WMDistanceMap::moduleMain()
         // found some data
         debugLog() << "Data changed. Updating ...";
         boost::shared_ptr< WValueSet< float > > distanceMapValueSet = createOffset( m_dataSet );
-        m_distanceMapDataSet = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( distanceMapValueSet, m_dataSet->getGrid() ) );
+        m_distanceMapDataSet = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( distanceMapValueSet, m_dataSet->getGrid() ) );
 
         WLogger::getLogger()->addLogMessage( "Done!", "Distance Map", LL_INFO );
 
@@ -114,16 +114,16 @@ void WMDistanceMap::connectors()
 {
     // initialize connectors
 
-    m_input = boost::shared_ptr<WModuleInputData< WDataSetSingle > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
+    m_input = boost::shared_ptr<WModuleInputData< WDataSetScalar > >(
+        new WModuleInputData< WDataSetScalar >( shared_from_this(),
                                                                "in", "Dataset to compute distance map for." )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
-    m_output = boost::shared_ptr<WModuleOutputData< WDataSetSingle > >(
-        new WModuleOutputData< WDataSetSingle >( shared_from_this(),
+    m_output = boost::shared_ptr<WModuleOutputData< WDataSetScalar > >(
+        new WModuleOutputData< WDataSetScalar >( shared_from_this(),
                                                                "out", "Distance map for the input data set." )
         );
 
@@ -179,11 +179,11 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
             WAssert( false, "Unknow data type in makeFloatDataSet" );
     }
 
-    assert( false && "If this assertion is reached, the code above has to be fixed." );
+    WAssert( false, "If this assertion is reached, the code above has to be fixed." );
     return boost::shared_ptr< WValueSet< float > >();
 }
 
-boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shared_ptr< const WDataSetSingle > dataSet )
+boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shared_ptr< const WDataSetScalar > dataSet )
 {
     std::vector<float> floatDataset;
 

@@ -34,14 +34,45 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread.hpp>
 
-#include "WProperty.h"
+#include "WSharedObject.h"
+#include "WPropertyBase.h"
+#include "WPropertyVariable.h"
 
 /**
- * class to manage properties of an object and to provide convinience methods for easy access and manipulation
+ * class to manage properties of an object and to provide convinience methods for easy access and manipulation. It also allows
+ * thread safe iteration on its elements.
  */
 class WProperties
 {
 public:
+
+    // the following typedefs are for convenience.
+
+    /**
+     * For shortening: a type defining a shared vector of WSubject pointers.
+     */
+    typedef std::vector< boost::shared_ptr< WPropertyBase > > PropertyContainerType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedObject< PropertyContainerType > PropertySharedContainerType;
+
+    /**
+     * The access type
+     */
+    typedef PropertySharedContainerType::WSharedAccess PropertyAccessType;
+
+    /**
+     * The const iterator type of the container.
+     */
+    typedef PropertyContainerType::const_iterator PropertyConstIterator;
+
+    /**
+     * The iterator type of the container.
+     */
+    typedef PropertyContainerType::iterator PropertyIterator;
+
     /**
      * standard constructor
      */
@@ -53,302 +84,732 @@ public:
     virtual ~WProperties();
 
     /**
-     * sets a flag hidden, which can be used by the datasetbrowser for instance
-     *
-     * \param name of the property to hide
-     */
-    void hideProperty( std::string name );
-
-    /**
-     * sets a flag hidden, which can be used by the datasetbrowser for instance
-     *
-     * \param name name of the property to unhide
-     */
-    void unhideProperty( std::string name );
-
-    /**
-     * returns a vector to the properties sorted by their insertion order
-     */
-    std::vector< WProperty* >& getPropertyVector();
-
-    /**
-     * adds a boolean property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    boost::signals2::signal1< void, std::string >*
-        addBool( std::string name, bool value = false, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
-     * adds a char property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    boost::signals2::signal1< void, std::string >*
-        addChar( std::string name, char value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
-     * adds an integer property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    boost::signals2::signal1< void, std::string >*
-        addInt( std::string name, int value = 0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
-     * adds a float property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    boost::signals2::signal1< void, std::string >*
-        addFloat( std::string name, float value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
-     * adds a double property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    boost::signals2::signal1< void, std::string >*
-        addDouble( std::string name, double value = 0.0, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
-     * adds a string property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    boost::signals2::signal1< void, std::string >*
-        addString( std::string name, std::string value = "", bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
-     * adds a color property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    boost::signals2::signal1< void, std::string >*
-        addColor( std::string name, WColor value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
-     * adds a color property to the list of properties
-     *
-     * \param name of the property
-     * \param value of the property
-     * \param hidden true if hidden from automatic widget generation
-     * \param shortDesc short description
-     * \param longDesc long description
-     *
-     * \return pointer to boost signal object that is fired whern a property changes
-     */
-    template< typename T> boost::signals2::signal1< void, std::string >*
-    addProperty( std::string name, T value, bool hidden = false, std::string shortDesc = "", std::string longDesc = "" );
-
-    /**
      * Simply insert the specified property to the list.
      *
      * \param prop the property to add
      */
-    void addProperty( WProperty* prop );
+    void addProperty( boost::shared_ptr< WPropertyBase > prop );
 
     /**
-     * getter for the value of a property as std string
-     *
-     * \param prop the name of the property
-     * \return string of property
-     */
-    std::string getValueString( const std::string prop );
-
-    /**
-     * sets the value of an existing property
-     *
-     * \param prop string with name of property
-     * \param arg value
-     */
-    template < typename T >  void setValue( std::string prop, const T& arg )
-    {
-        boost::shared_lock< boost::shared_mutex > slock;
-        slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
-
-        if( findProp( prop ) )
-        {
-            findProp( prop )->setValue( arg );
-        }
-
-        slock.unlock();
-    }
-
-    /**
-     * sets the minimum value of an existing property
-     *
-     * \param prop string with name of property
-     * \param arg value
-     */
-    template < typename T >  void setMin( std::string prop, const T& arg )
-    {
-        if( findProp( prop ) )
-        {
-            findProp( prop )->setMin( arg );
-        }
-    }
-
-    /**
-     * sets the maximum value of an existing property
-     *
-     * \param prop string with name of property
-     * \param arg value
-     */
-    template < typename T >  void setMax( std::string prop, const T& arg )
-    {
-        if( findProp( prop ) )
-        {
-            findProp( prop )->setMax( arg );
-        }
-    }
-
-    /**
-     * returns the value of an existing property
-     *
-     * \param prop name of the property
-     * \return the value
-     */
-    template < typename T >  T  getValue( std::string prop )
-    {
-        if( findProp( prop ) )
-        {
-            return findProp( prop )->getValue< T >();
-        }
-
-        // TODO(schurade): do not use NULL as return value in this case. Throw exception instead.
-        return 0;
-    }
-
-    /**
-     * returns the minimum value of an existing property
-     *
-     * \param prop name of the property
-     * \return the minimum value
-     */
-    template < typename T >  T  getMin( std::string prop )
-    {
-        if( findProp( prop ) )
-        {
-            return findProp( prop )->getMin< T >();
-        }
-
-        // TODO(schurade): do not use NULL as return value in this case. Throw exception instead.
-        return 0;
-    }
-
-    /**
-     * returns the maximum value of an existing property
-     *
-     * \param prop name of the property
-     * \return the maximum value
-     */
-    template < typename T >  T  getMax( std::string prop )
-    {
-        if( findProp( prop ) )
-        {
-            return findProp( prop )->getMax< T >();
-        }
-
-        // TODO(schurade): do not use NULL as return value in this case. Throw exception instead.
-        return 0;
-    }
-
-    /**
-     * helper function that finds a property by its name
+     * Helper function that finds a property by its name. Use this method to find out whether the property exists or not, since
+     * findProperty throws an exception.
      *
      * \param name name of searched property.
      */
-    bool existsProp( std::string name );
+    bool existsProperty( std::string name );
 
     /**
-     * If there are WProperty objects which are marked as dirty, then their
-     * signals are reemitted.
-     */
-    void reemitChangedValueSignals();
-
-    /**
-     * Indicates if at least one WProperty is dirty or all are clean.
-     *
-     * \return True if at least one property is dirty, false otherwise
-     */
-    bool isDirty() const;
-
-    /**
-     * helper function that finds a property by its name
+     * Function searches the property. If it does not exists, it throws an exception.
      *
      * \param name the name of the property
-     * \return pointer to a WProperty object
+     *
+     * \return a WProperty object
      */
-    WProperty* findProp( std::string name );
+    boost::shared_ptr< WPropertyBase > getProperty( std::string name );
+
+    /**
+     * Searches the property with a given name. It does not throw any exception. It simply returns NULL if it can't be found.
+     *
+     * \param name the name of the property to search
+     *
+     * \return the property or NULL if not found.
+     */
+    boost::shared_ptr< WPropertyBase > findProperty( std::string name );
+
+    /**
+     * Returns the access object usable to iterate/modify the property list in a thread safe manner.
+     *
+     * \return the access control object.
+     */
+    PropertySharedContainerType::WSharedAccess getAccessObject();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    // Convenience methods to create and add properties
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    template< typename T>
+    boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    template< typename T>
+    boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+                                                             boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    template< typename T>
+    boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+                                                             WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    template< typename T>
+    boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+                                                             boost::shared_ptr< WCondition > condition,
+                                                             WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Convenience methods to create and add properties
+    // NOTE: these methods use the type of the initial parameter to automatically use the proper type.
+    // This works, since the compiler always calls the function with the best matching parameter types.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // convenience methods for
+    // template< typename T>
+    // boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial, bool hide = false );
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropBool      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropInt       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropDouble    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropString    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropFilename  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropSelection      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropPosition      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropColor         addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&  initial, bool hide = false );
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // convenience methods for
+    // template< typename T>
+    // boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+    //                                                          boost::shared_ptr< WCondition > condition, bool hide = false );
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropBool      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropInt       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropDouble    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropString    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropFilename  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropSelection addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropPosition  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // convenience methods for
+    // template< typename T>
+    // boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+    //                                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropBool      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropInt       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropDouble    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropString    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropFilename  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropSelection addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropPosition  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION& initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&  initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // convenience methods for
+    // template< typename T>
+    // boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+    //                                                          boost::shared_ptr< WCondition > condition,
+    //                                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropBool      addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropInt       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     * It also sets the min and max constraint to [0,100].
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropDouble    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropString    addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropFilename  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropSelection addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropPosition  addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
 private:
-    /**
-     * map of properties for easy access with name string
-     */
-    std::map < std::string, WProperty* > m_propertyList;
 
     /**
-     * vector of properties to retain the order of creation so that widgets created from this
-     * properties object always look the same
+     * The set of proerties. This uses the operators ==,<,> WProperty to determine equalness.
      */
-    std::vector< WProperty* > m_propertyVector;
+    PropertySharedContainerType m_properties;
 
     /**
-     * boost mutex object for thread safety of updating of properties
+     * Access to the above property list.
      */
-    boost::shared_mutex m_updateLock;
+    PropertySharedContainerType::WSharedAccess m_propAccess;
 };
 
-template< typename T > boost::signals2::signal1< void, std::string >* WProperties::addProperty( std::string name, T value, bool hidden,
-        std::string shortDesc, std::string longDesc )
+template< typename T>
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial, bool hide )
 {
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial )
+    );
+    p->setHidden( hide );
+    addProperty( p );
+    return p;
+}
+
+template< typename T>
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial,
+                                                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial, condition )
+    );
+    p->setHidden( hide );
+    addProperty( p );
+    return p;
+}
+
+template< typename T>
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial,
+                                                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial, notifier )
+    );
+    p->setHidden( hide );
+    addProperty( p );
+    return p;
+}
+
+template< typename T>
+boost::shared_ptr< WPropertyVariable< T > > WProperties::addProperty( std::string name, std::string description, const T& initial,
+                                                                       boost::shared_ptr< WCondition > condition,
+                                                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    boost::shared_ptr< WPropertyVariable< T > > p = boost::shared_ptr< WPropertyVariable< T > >(
+            new WPropertyVariable< T >( name, description, initial, condition, notifier )
+    );
+    p->setHidden( hide );
+    addProperty( p );
+    return p;
 }
 
 #endif  // WPROPERTIES_H

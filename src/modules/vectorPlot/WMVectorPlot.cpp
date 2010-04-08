@@ -69,8 +69,8 @@ const std::string WMVectorPlot::getDescription() const
 
 void WMVectorPlot::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The dataset to display" )
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetVector > >(
+        new WModuleInputData< WDataSetVector >( shared_from_this(), "in", "The dataset to display" )
         );
 
     addConnector( m_input );
@@ -81,28 +81,28 @@ void WMVectorPlot::connectors()
 
 void WMVectorPlot::properties()
 {
-    m_xPos           = m_properties2->addProperty( "X Pos of the slice", "Description.", 80 );
-    m_yPos           = m_properties2->addProperty( "Y Pos of the slice", "Description.", 100 );
-    m_zPos           = m_properties2->addProperty( "Z Pos of the slice", "Description.", 80 );
+    m_xPos           = m_properties->addProperty( "X Pos of the slice", "Description.", 80 );
+    m_yPos           = m_properties->addProperty( "Y Pos of the slice", "Description.", 100 );
+    m_zPos           = m_properties->addProperty( "Z Pos of the slice", "Description.", 80 );
 
     m_xPos->setHidden( true );
     m_yPos->setHidden( true );
     m_zPos->setHidden( true );
 
-    m_projectOnSlice = m_properties2->addProperty( "Projection",
+    m_projectOnSlice = m_properties->addProperty( "Projection",
                                                    "If active, the vectors are projected into the surface "
                                                    "used to place them. Thus their "
                                                    "representation is tangential to the surface.",
                                                    false );
-    m_coloringMode   = m_properties2->addProperty( "Direction Coloring",
+    m_coloringMode   = m_properties->addProperty( "Direction Coloring",
                                                    "Draw each vector in a color indicating its direction. ", false );
-    m_aColor         = m_properties2->addProperty( "Color",
+    m_aColor         = m_properties->addProperty( "Color",
                                                    "This color is used if direction coloring is deactivated.",
                                                    WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
-    m_showonX        = m_properties2->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true );
-    m_showonY        = m_properties2->addProperty( "Show Coronal", "Show vectors on coronal slice.", true );
-    m_showonZ        = m_properties2->addProperty( "Show Axial", "Show vectors on axial slice.", true );
+    m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true );
+    m_showonY        = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true );
+    m_showonZ        = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true );
 
     m_xPos->setMin( 0 );
     m_xPos->setMax( 160 );
@@ -128,7 +128,7 @@ void WMVectorPlot::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        boost::shared_ptr< WDataSetVector > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 

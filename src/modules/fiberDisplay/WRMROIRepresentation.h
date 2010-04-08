@@ -34,7 +34,7 @@
 #include <boost/thread/thread.hpp>
 
 #include "WKdTree.h"
-#include "./../../common/WProperties2.h"
+#include "./../../common/WProperties.h"
 #include "../../graphicsEngine/WROI.h"
 class WRMBranch;
 /**
@@ -97,7 +97,7 @@ public:
     /**
      * returns the properties object
      */
-    boost::shared_ptr< WProperties2 > getProperties();
+    boost::shared_ptr< WProperties > getProperties();
 
     /**
      * getter
@@ -174,7 +174,7 @@ private:
     /**
      * the property object for the module
      */
-    boost::shared_ptr< WProperties2 > m_properties;
+    boost::shared_ptr< WProperties > m_properties;
 
     /**
      * indicates if the roi is negated

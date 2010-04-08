@@ -65,8 +65,7 @@ WModule::WModule():
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties() );
-    m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
-    m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
+    m_active = m_properties->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
 
     // the isReadyOrCrashed condition set needs to be set up here
@@ -331,11 +330,6 @@ boost::shared_ptr< WProperties > WModule::getProperties() const
     return m_properties;
 }
 
-boost::shared_ptr< WProperties2 > WModule::getProperties2() const
-{
-    return m_properties2;
-}
-
 boost::shared_ptr< WProgressCombiner > WModule::getRootProgressCombiner()
 {
     return m_progress;
@@ -386,10 +380,13 @@ void WModule::threadMain()
     }
     catch( const std::exception& e )
     {
-        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), " Module (" + getName() + ")", LL_ERROR );
-
         // convert these exceptions to WException
         WException ce = WException( e );
+
+        // print this message AFTER creation of WException to have the backtrace before the message
+        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), "Module (" + getName() + ")", LL_ERROR );
+
+        // communicate error
         signal_error( shared_from_this(), ce );
 
         // hopefully, all waiting threads use isReadyOrCrashed to wait.

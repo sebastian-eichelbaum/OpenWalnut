@@ -35,7 +35,6 @@
 #include "../modules/effectiveConnectivity/WMEffectiveConnectivity.h"
 #include "../modules/effectiveConnectivity/WMEffectiveConnectivityCluster.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
-#include "../modules/data/WMData.h" // this is the ONLY module with a special meaning.
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
 #include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
@@ -223,11 +222,26 @@ std::set< boost::shared_ptr< WModule > > WModuleFactory::getCompatiblePrototypes
 
     // get offered outputs
     std::set<boost::shared_ptr<WModuleOutputConnector> > cons = module->getOutputConnectors();
+
+    // First add all modules with no input connector.
+    for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end(); ++listIter )
+    {
+        // get connectors of this prototype
+        std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
+        if(  pcons.size() == 0  )
+        {
+            compatibles.insert( *listIter );
+        }
+    }
+
+    // return early if we have no output connector, because the modules with no input connector
+    // are already added at this point.
     if( cons.size() == 0 )
     {
-        // in this case return the empty list
         return compatibles;
     }
+
+
     // TODO(ebaum): see ticket #178 for this
     if ( cons.size() > 1 )
     {

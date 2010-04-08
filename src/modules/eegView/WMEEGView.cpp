@@ -37,6 +37,8 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WEEGViewHandler.h"
+#include "WElectrodePositionCallback.h"
+#include "WHeadSurfaceCallback.h"
 #include "WLabelsTransformCallback.h"
 #include "WLineStripCallback.h"
 #include "WMEEGView.h"
@@ -48,9 +50,7 @@
 WMEEGView::WMEEGView()
     : WModule(),
       m_dataChanged( new WCondition, true ),
-      m_wasActive( false ),
-      m_event( -1.0 ),
-      m_eventPositionFlag( NULL )
+      m_wasActive( false )
 {
 }
 
@@ -94,39 +94,42 @@ void WMEEGView::connectors()
 void WMEEGView::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_drawElectrodes  = m_properties2->addProperty( "Draw Electrodes",
+    m_drawElectrodes   = m_properties->addProperty( "Draw Electrodes",
                                                     "Draw the 3D positions of the electrodes.",
                                                     true,
                                                     m_propCondition );
-    m_drawHeadSurface = m_properties2->addProperty( "Draw Head Surface",
+    m_drawHeadSurface  = m_properties->addProperty( "Draw Head Surface",
                                                     "Draw the head surface between the electrodes.",
                                                     true,
                                                     m_propCondition );
-    m_drawLabels      = m_properties2->addProperty( "Draw Labels",
+    m_drawLabels       = m_properties->addProperty( "Draw Labels",
                                                     "Draw the labels of the electrodes at their 3D positions.",
                                                     true,
                                                     m_propCondition );
-    m_labelsWidth     = m_properties2->addProperty( "Labels Width",
+    m_labelsWidth      = m_properties->addProperty( "Labels Width",
                                                     "The width of the label display in pixel.",
                                                     24 );
-    m_timePos         = m_properties2->addProperty( "Time Position",
+    m_timePos          = m_properties->addProperty( "Time Position",
                                                     "The time position in seconds where to start the graph at the left edge.",
                                                     0.0 );
-    m_timeRange       = m_properties2->addProperty( "Time Range",
+    m_timeRange        = m_properties->addProperty( "Time Range",
                                                     "The width of the graph in seconds.",
                                                     4.0 );
-    m_graphWidth      = m_properties2->addProperty( "Graph Width",
+    m_graphWidth       = m_properties->addProperty( "Graph Width",
                                                     "The width of the graph in pixel.",
                                                     992 );
-    m_yPos            = m_properties2->addProperty( "Y Position",
+    m_yPos             = m_properties->addProperty( "Y Position",
                                                     "The y position in pixel at the lower edge.",
-                                                    -730.25 );
-    m_ySpacing        = m_properties2->addProperty( "Spacing",
+                                                    -724.5 );
+    m_ySpacing         = m_properties->addProperty( "Spacing",
                                                     "The distance between two curves of the graph in pixel.",
-                                                    11.5 );
-    m_ySensitivity    = m_properties2->addProperty( "Sensitivity",
+                                                    23.0 );
+    m_ySensitivity     = m_properties->addProperty( "Sensitivity",
                                                     "The sensitivity of the graph in microvolt per pixel.",
-                                                    128.0 );
+                                                    2.0 );
+    m_colorSensitivity = m_properties->addProperty( "Color Sensitivity",
+            "The sensitivity of the color map. It ranges from -Color Sensitivity to +Color Sensitivity in microvolt.",
+                                                    23.0 );
 
     m_labelsWidth->setMin( 0 );
     m_labelsWidth->setMax( 64 );
@@ -141,7 +144,9 @@ void WMEEGView::properties()
     m_ySpacing->setMin( 0.0 );
     m_ySpacing->setMax( 1024.0 );
     m_ySensitivity->setMin( 0.001 );
-    m_ySensitivity->setMax( 8192.0 );
+    m_ySensitivity->setMax( 100.0 );
+    m_colorSensitivity->setMin( 0.01 );
+    m_colorSensitivity->setMax( 10000.0 );
 }
 
 void WMEEGView::notifyConnectionEstablished(
@@ -165,8 +170,9 @@ void WMEEGView::moduleMain()
     m_moduleState.add( m_active->getCondition() );
     m_moduleState.add( m_propCondition );
 
-    // create GUI event handler
-    m_handler = new WEEGViewHandler( m_labelsWidth, m_timePos, m_timeRange, m_graphWidth, m_yPos, m_ySpacing, m_ySensitivity );
+    // create WFlag for the event
+    m_event = boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > >( new WFlag< boost::shared_ptr< WEEGEvent > >(
+            new WCondition, boost::shared_ptr< WEEGEvent >() ) );
 
     {
         // create color map
@@ -210,17 +216,6 @@ void WMEEGView::moduleMain()
                 m_eeg = m_input->getData();
             }
             redraw();
-        }
-
-        // new event position marked?
-        if( m_eventPositionFlag )
-        {
-            double eventPosition = m_eventPositionFlag->get();
-            if( eventPosition != m_event.getTime() )
-            {
-                debugLog() << "New event position: " << eventPosition;
-                updateEvent( &m_event, eventPosition );
-            }
         }
 
         // draw electrodes property changed?
@@ -333,10 +328,10 @@ bool WMEEGView::openCustomWidget()
     {
         debugLog() << "Succesfully opened EEG View widget.";
 
-        m_widget->getViewer()->getView()->addEventHandler( m_handler );
-
-        m_eventPositionFlag = m_widget->getViewer()->getMarkHandler()->getPositionFlag();
-        m_moduleState.add( m_eventPositionFlag->getCondition() );
+        if( m_handler )
+        {
+            m_widget->getViewer()->getView()->addEventHandler( m_handler );
+        }
 
         if( m_rootNode2d.valid() )
         {
@@ -358,10 +353,10 @@ void WMEEGView::closeCustomWidget()
         m_widget->getScene()->remove( m_rootNode2d );
     }
 
-    m_moduleState.remove( m_eventPositionFlag->getCondition() );
-    m_eventPositionFlag = NULL;
-
-    m_widget->getViewer()->getView()->getEventHandlers().remove( m_handler );
+    if( m_handler )
+    {
+        m_widget->getViewer()->getView()->getEventHandlers().remove( m_handler );
+    }
 
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
 }
@@ -378,7 +373,14 @@ void WMEEGView::redraw()
         {
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode3d );
         }
+        if( m_handler )
+        {
+            m_widget->getViewer()->getView()->getEventHandlers().remove( m_handler );
+        }
     }
+
+    // reset event position
+    m_event->set( boost::shared_ptr< WEEGEvent >( new WEEGEvent ) );
 
     if( m_eeg.get() && 0 < m_eeg->getNumberOfSegments() )
     {
@@ -470,20 +472,29 @@ void WMEEGView::redraw()
         labelsTransform->setUpdateCallback( new WLabelsTransformCallback( m_yPos, m_ySpacing ) );
         labelsTransform->addChild( textGeode );
 
+        // create group node as parent for the events
+        WGEGroupNode* eventParentNode = new WGEGroupNode;
+        panTransform->addChild( eventParentNode );
+
+        // add labels and graph to the root node
         m_rootNode2d->addChild( labelsTransform );
         m_rootNode2d->addChild( panTransform );
 
-        // draw event marker
-        if( m_event.getNode().valid() && 0.0 < m_event.getTime() && m_event.getTime() <= 16384 - 1 )
-        {
-            m_rootNode2d->addChild( m_event.getNode() );
-        }
-        else
-        {
-            m_event.setTime( -1.0 );
-            m_event.setNode( NULL );
-        }
+        // create GUI event handler
+        m_handler = new WEEGViewHandler( m_labelsWidth,
+                                         m_timePos,
+                                         m_timeRange,
+                                         m_graphWidth,
+                                         m_yPos,
+                                         m_ySpacing,
+                                         m_ySensitivity,
+                                         m_colorSensitivity,
+                                         m_event,
+                                         eventParentNode,
+                                         m_eeg,
+                                         0 );
 
+        // draw the electrode positions in 3D
         if( m_drawElectrodes->get( true ) )
         {
             m_electrodesNode = drawElectrodes();
@@ -494,6 +505,7 @@ void WMEEGView::redraw()
             m_electrodesNode = NULL;
         }
 
+        // draw the head surface in 3D
         if( m_drawHeadSurface->get( true ) )
         {
             m_headSurfaceNode = drawHeadSurface();
@@ -504,6 +516,7 @@ void WMEEGView::redraw()
             m_headSurfaceNode = NULL;
         }
 
+        // draw the electrode labels in 3D
         if( m_drawLabels->get( true ) )
         {
             m_labelsNode = drawLabels();
@@ -521,15 +534,15 @@ void WMEEGView::redraw()
             m_widget->getScene()->insert( m_rootNode2d );
 
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode3d );
+
+            m_widget->getViewer()->getView()->addEventHandler( m_handler );
         }
     }
     else
     {
         m_rootNode2d = NULL;
         m_rootNode3d = NULL;
-
-        m_event.setTime( -1.0 );
-        m_event.setNode( NULL );
+        m_handler = NULL;
 
         m_electrodesNode = NULL;
         m_headSurfaceNode = NULL;
@@ -553,7 +566,8 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
 
             // create sphere geode on electrode position
             osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
-            shape->setUpdateCallback( new UpdateColorOfShapeDrawableCallback( channelID, &m_event, m_eeg, m_colorMap ) );
+            shape->setDataVariance( osg::Object::DYNAMIC );
+            shape->setUpdateCallback( new WElectrodePositionCallback( channelID, m_colorSensitivity, m_event, m_colorMap ) );
 
             osg::Geode* sphereGeode = new osg::Geode;
             sphereGeode->addDrawable( shape );
@@ -598,7 +612,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
     osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( &mesh, true );
 
     osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -611,7 +625,9 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
     osg::FloatArray* texCoords = new osg::FloatArray;
     texCoords->assign( nbPositions, 0.5f );
     geometry->setTexCoordArray( 0, texCoords );
-    geometry->setUpdateCallback( new UpdateColorOfGeometryCallback( channelIDs, &m_event, m_eeg ) );
+
+    geometry->setDataVariance( osg::Object::DYNAMIC );
+    geometry->setUpdateCallback( new WHeadSurfaceCallback( channelIDs, m_colorSensitivity, m_event ) );
 
     osg::ref_ptr< osg::Geode > surface( new osg::Geode );
     surface->addDrawable( geometry );
@@ -658,126 +674,3 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
     return labels;
 }
 
-void WMEEGView::updateEvent( WEvent* event, double time )
-{
-    if( m_eeg.get() && 0.0 <= time && time <= 16384 - 1 )
-    {
-        const osg::Vec4 color( 0.75, 0.0, 0.0, 1.0 );
-        const unsigned int spacing = 16;
-
-        // create geode to draw the event as line
-        osg::Geometry* geometry = new osg::Geometry;
-
-        osg::Vec3Array* vertices = new osg::Vec3Array( 2 );
-        (*vertices)[0] = osg::Vec3( time, 0.0, 0.0 );
-        (*vertices)[1] = osg::Vec3( time, 2 * spacing * m_eeg->getNumberOfChannels(), 0.0 );
-        geometry->setVertexArray( vertices );
-
-        osg::Vec4Array* colors = new osg::Vec4Array;
-        colors->push_back( color );
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
-
-        osg::Geode* geode = new osg::Geode;
-        geode->addDrawable( geometry );
-
-        if( m_rootNode2d.valid() )
-        {
-            if( event->getNode().valid() )
-            {
-                m_rootNode2d->remove( event->getNode() );
-            }
-            m_rootNode2d->insert( geode );
-        }
-
-        event->setTime( time );
-        event->setNode( geode );
-    }
-}
-
-WMEEGView::UpdateColorOfShapeDrawableCallback::UpdateColorOfShapeDrawableCallback(
-        size_t channelID,
-        const WEvent* event,
-        boost::shared_ptr< const WEEG2 > eeg,
-        osg::ref_ptr< const osgSim::ScalarsToColors > colorMap )
-    : m_channelID( channelID ),
-      m_event( event ),
-      m_eeg( eeg ),
-      m_colorMap( colorMap )
-{
-    assert( m_channelID < eeg->getNumberOfChannels() );
-    m_currentTime = -2.0;
-}
-
-void WMEEGView::UpdateColorOfShapeDrawableCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
-{
-    const double newTime = m_event->getTime();
-    if( newTime != m_currentTime )
-    {
-        osg::ShapeDrawable* shape = static_cast< osg::ShapeDrawable* >( drawable );
-        if( shape )
-        {
-            // calculate color value between -1 and 1
-            float color;
-            if( 0.0 <= newTime && newTime <= 16384 - 1 )
-            {
-                const float scale = 0.5;
-                color = ( *m_eeg->getSegment( 0 )->getValues( newTime + 0.5, 1 ) )[m_channelID][0] * scale;
-            }
-            else
-            {
-                color = 0.0f;
-            }
-
-            shape->setColor( m_colorMap->getColor( color ) );
-        }
-
-        m_currentTime = newTime;
-    }
-}
-
-WMEEGView::UpdateColorOfGeometryCallback::UpdateColorOfGeometryCallback( const std::vector< std::size_t >& channelIDs,
-                                                                         const WEvent* event,
-                                                                         boost::shared_ptr< const WEEG2 > eeg )
-    : m_currentTime( -1.0 ),
-      m_channelIDs( channelIDs ),
-      m_event( event ),
-      m_eeg( eeg )
-{
-}
-
-void WMEEGView::UpdateColorOfGeometryCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawable )
-{
-    const double newTime = m_event->getTime();
-    if( newTime != m_currentTime )
-    {
-        osg::Geometry* geometry = static_cast< osg::Geometry* >( drawable );
-        if( geometry )
-        {
-            osg::FloatArray* texCoords = static_cast< osg::FloatArray* >( geometry->getTexCoordArray( 0 ) );
-            if( 0.0 <= newTime && newTime <= 16384 - 1 )
-            {
-                boost::shared_ptr< WEEGValueMatrix > values = m_eeg->getSegment( 0 )->getValues( newTime + 0.5, 1 );
-                for( size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
-                {
-                    const int size = 256;
-                    const float scale = 0.25f;
-                    const float factor = scale * ( 1.0f - 1.0f / size );
-                    (*texCoords)[vertexID] = (*values)[m_channelIDs[vertexID]][0] * factor + 0.5f;
-                }
-            }
-            else
-            {
-                for( size_t vertexID = 0; vertexID < texCoords->size(); ++vertexID )
-                {
-                    (*texCoords)[vertexID] = 0.5f;
-                }
-            }
-            geometry->setTexCoordArray( 0, texCoords );
-        }
-
-        m_currentTime = newTime;
-    }
-}

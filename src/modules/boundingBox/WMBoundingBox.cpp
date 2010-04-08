@@ -30,6 +30,7 @@
 
 #include <cmath>
 
+#include "../../common/WAssert.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
@@ -98,7 +99,7 @@ void WMBoundingBox::moduleMain()
 
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
-        assert( grid && "Seems that grid is of wrong type." );
+        WAssert( grid, "Seems that grid is of wrong type." );
 
         std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 

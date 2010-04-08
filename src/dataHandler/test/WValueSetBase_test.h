@@ -69,6 +69,11 @@ public:
     {
         return 255;
     }
+
+    virtual double getScalarDouble( size_t i ) const
+    {
+        return 255;
+    }
 };
 
 /**

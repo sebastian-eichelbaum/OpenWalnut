@@ -62,13 +62,11 @@ public:
     virtual void apply( osg::ref_ptr< osg::Node > node );
 
     /**
-     * Apply this shader to the specified node. Use this method to ensure, that reload events can be handled properly during the
-     * update cycle.
+     * Removes the shader from the specified node.
      *
      * \param node the node where the program is registered to.
      */
     virtual void deactivate( osg::ref_ptr< osg::Node > node );
-
 
     /**
      * Initiate a reload of the shader during the next update cycle.

@@ -73,8 +73,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
                 m_View->addEventHandler( m_pickHandler );
                 break;
             case( WGECamera::TWO_D ):
-                m_markHandler = new WMarkHandler();
-                m_View->addEventHandler( m_markHandler );
+                // no manipulators nor gui handlers
                 break;
             default:
                 throw WGEInitFailed( "Unknown projection mode" );
@@ -167,11 +166,6 @@ std::string WGEViewer::getName() const
 osg::ref_ptr< WPickHandler > WGEViewer::getPickHandler()
 {
     return m_pickHandler;
-}
-
-osg::ref_ptr< WMarkHandler > WGEViewer::getMarkHandler() const
-{
-    return m_markHandler;
 }
 
 void WGEViewer::reset()

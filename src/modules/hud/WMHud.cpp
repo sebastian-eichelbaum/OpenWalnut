@@ -27,6 +27,7 @@
 #include <osg/MatrixTransform>
 #include <osg/Projection>
 
+#include "../../common/WAssert.h"
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WGEResourceManager.h"
 
@@ -195,7 +196,7 @@ void WMHud::init()
 
     // connect updateGFX with picking
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    assert( viewer );
+    WAssert( viewer, "Requested viewer (main) not found." );
     viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 

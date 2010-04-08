@@ -110,12 +110,12 @@ private:
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
      * This is a pointer to the dataset the module is currently working on.
      */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
+    boost::shared_ptr< WDataSetScalar > m_dataSet;
 
     /**
      * If this property is true, as special shader is used which emulates isosurfaces using the m_isoValue property.

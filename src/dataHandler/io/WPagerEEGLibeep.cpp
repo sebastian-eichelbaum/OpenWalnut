@@ -123,7 +123,7 @@ boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t seg
     {
         std::ostringstream stream;
         stream << "Could not read sample number " << start + length - 1 << " of file " << m_fileName
-               << ", it has only " << m_nbSamples << " samples";
+               << ", it only has " << m_nbSamples << " samples";
         throw WOutOfBounds( stream.str() );
     }
 

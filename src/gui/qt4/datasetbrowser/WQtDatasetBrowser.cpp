@@ -315,7 +315,7 @@ void WQtDatasetBrowser::selectTreeItem()
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule > module;
-    boost::shared_ptr< WProperties2 > props;
+    boost::shared_ptr< WProperties > props;
 
     if ( m_treeWidget->selectedItems().size() != 0  )
     {
@@ -325,14 +325,14 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties2();
+                props = module->getProperties();
                 createCompatibleButtons( module );
                 break;
             case MODULEHEADER:
                 break;
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties2();
+                props = module->getProperties();
                 createCompatibleButtons( module );
                 break;
             case ROIHEADER:
@@ -353,7 +353,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule > module;
-    boost::shared_ptr< WProperties2 > props;
+    boost::shared_ptr< WProperties > props;
 
     if ( m_roiTreeWidget->selectedItems().size() != 0  )
     {
@@ -379,17 +379,17 @@ void WQtDatasetBrowser::selectRoiTreeItem()
 }
 
 
-void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties2 > props )
+void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
 {
     WQtDSBWidget* tab = new WQtDSBWidget( "Settings" );
 
     if ( props.get() )
     {
-        WProperties2::PropertyAccessType propAccess = props->getAccessObject();
+        WProperties::PropertyAccessType propAccess = props->getAccessObject();
         propAccess->beginRead();
 
         // iterate all properties. This Locks the properties set -> use endIteration to unlock
-        for ( WProperties2::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
+        for ( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
             if ( !( *iter )->isHidden() )
             {
@@ -458,13 +458,13 @@ void WQtDatasetBrowser::changeTreeItem()
     if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == DATASET )
     {
         boost::shared_ptr< WModule > module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-        module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+        module->getProperties()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
     else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == MODULE )
     {
         boost::shared_ptr< WModule > module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
 
-        module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+        module->getProperties()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 }
 

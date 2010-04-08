@@ -59,9 +59,11 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     {
         return false;
     }
-    if( m_preferences.existsProp( prefName ) )
+
+    boost::shared_ptr< WPropertyBase > pref = m_preferences.findProperty( prefName );
+    if( pref )
     {
-        *retVal =  m_preferences.getValue< T >( prefName );
+        *retVal =  pref->toPropertyVariable< T >()->get();
         return true;
     }
 
@@ -103,7 +105,7 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     if( configuration.count( prefName ) )
     {
         *retVal = configuration[ prefName ].as< T >();
-        m_preferences.addProperty( prefName, *retVal, true );
+        m_preferences.addProperty( prefName, "Preference cache.", *retVal );
         return true;
     }
     else

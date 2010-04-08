@@ -196,6 +196,13 @@ public:
      */
     DataModuleListType getDataModules();
 
+    /**
+     * Sets a flag denoting whether the container (which also is a module) should be marked as "crashed" if a nested module crashes.
+     *
+     * \param crashIfCrashed true if it also should crash.
+     */
+    void setCrashIfModuleCrashes( bool crashIfCrashed = true );
+
 protected:
 
     /**
@@ -263,6 +270,22 @@ protected:
      * Lock for m_pendingThreads.
      */
     boost::shared_mutex m_pendingThreadsLock;
+
+    /**
+     * This method is called whenever a module inside the container crashes. By default, this method does nothing but forwarding the using
+     * WModule's signals.
+     *
+     * \param module the module that has crashed.
+     * \param exception the exception.
+     */
+    virtual void moduleError( boost::shared_ptr< WModule > module, const WException& exception );
+
+    /**
+     * This flag denotes whether the whole container should be marked as crashed if one of the contained modules crashes. By default, this is
+     * true. The root container (the container not nested in any other container) sets this to false explicitly. Modules using the container to
+     * encapsulate a whole bunch of modules can decide, but by default they crash too.
+     */
+    bool m_crashIfModuleCrashes;
 
 private:
 };

@@ -247,7 +247,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // nav slices use separate buttons for slice on/off switching
     if ( module->getName() == "Navigation Slices" )
     {
-        boost::shared_ptr< WPropertyBase > prop = module->getProperties2()->findProperty( "showAxial" );
+        boost::shared_ptr< WPropertyBase > prop = module->getProperties()->findProperty( "showAxial" );
         if ( !prop )
         {
                WLogger::getLogger()->
@@ -263,7 +263,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             m_permanentToolBar->addWidget( button );
         }
 
-        prop = module->getProperties2()->findProperty( "showCoronal" );
+        prop = module->getProperties()->findProperty( "showCoronal" );
         if ( !prop )
         {
                WLogger::getLogger()->
@@ -279,7 +279,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             m_permanentToolBar->addWidget( button );
         }
 
-        prop = module->getProperties2()->findProperty( "showSagittal" );
+        prop = module->getProperties()->findProperty( "showSagittal" );
         if ( !prop )
         {
                WLogger::getLogger()->
@@ -296,7 +296,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
 
         // now setup the nav widget sliders
-        prop = module->getProperties2()->findProperty( "Axial Slice" );
+        prop = module->getProperties()->findProperty( "Axial Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
@@ -311,7 +311,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties2()->findProperty( "Coronal Slice" );
+        prop = module->getProperties()->findProperty( "Coronal Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
@@ -326,7 +326,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties2()->findProperty( "Sagittal Slice" );
+        prop = module->getProperties()->findProperty( "Sagittal Slice" );
         if ( !prop )
         {
                WLogger::getLogger()->
@@ -609,16 +609,18 @@ void WMainWindow::newRoi()
         return;
     }
 
+    wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
+    wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
+
     if ( m_datasetBrowser->getFirstRoiInSelectedBranch().get() == NULL )
     {
-        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
-                wmath::WPosition( 80., 80., 80. ) ) );
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
     }
     else
     {
-        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( wmath::WPosition( 60., 60., 60. ),
-                wmath::WPosition( 80., 80., 80. ) ) );
+        osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
     }
 }

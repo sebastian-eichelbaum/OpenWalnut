@@ -8,8 +8,7 @@ ADD_SUBDIRECTORY( constraints )
 ADD_SUBDIRECTORY( math )
 
 ADD_LIBRARY( common ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} ${MATH_SRC} ${FIBERSIMILARITY_SRC} )
-# The OSG Libs are needed for common as the unit tests will fail to compile
-TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} )
+TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} )
 
 
 # Unit tests

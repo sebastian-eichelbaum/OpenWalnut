@@ -31,7 +31,7 @@
 
 #include <boost/enable_shared_from_this.hpp>
 
-#include "./../../common/WProperties2.h"
+#include "./../../common/WProperties.h"
 #include "WRMROIRepresentation.h"
 
 class WROIManagerFibers;
@@ -128,7 +128,7 @@ public:
     /**
      * returns the properties object
      */
-    boost::shared_ptr< WProperties2 > getProperties();
+    boost::shared_ptr< WProperties > getProperties();
 
 
 protected:
@@ -162,7 +162,7 @@ private:
     /**
      * the property object for the module
      */
-    boost::shared_ptr< WProperties2 > m_properties;
+    boost::shared_ptr< WProperties > m_properties;
 
     /**
      * indicates if the branch is negated

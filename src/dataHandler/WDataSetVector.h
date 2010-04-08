@@ -22,43 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTIES_TEST_H
-#define WPROPERTIES_TEST_H
+#ifndef WDATASETVECTOR_H
+#define WDATASETVECTOR_H
 
-#include <cxxtest/TestSuite.h>
-
-#include "../WLogger.h"
-#include "../WProperties.h"
-
-//TODO(math): When logger is singelton remove this!
-static WLogger logger;
+#include "WDataSetSingle.h"
 
 /**
- * unit tests the properties class
+ * This data set type contains vectors as values.
+ * \ingroup dataHandler
  */
-class WPropertiesTest : public CxxTest::TestSuite
+class WDataSetVector : public WDataSetSingle
 {
 public:
-    /**
-     * tests creating an integer property
-     */
-    void testAddProp( void )
-    {
-        WProperties props;
-        props.addInt( "test", 57, "test57", "longDesc57" );
-        TS_ASSERT_EQUALS( props.getValue< int >( "test" ), 57 );
-    }
 
     /**
-     * tests creating an integer property and changing its value
+     * Constructs an instance out of an appropriate value set and a grid.
+     *
+     * \param newValueSet the vector value set to use
+     * \param newGrid the grid which maps world space to the value set
      */
-    void testChangeProp( void )
-    {
-        WProperties props;
-        props.addInt( "test", 57, "test57", "longDesc57" );
-        props.setValue( "test", 61 );
-        TS_ASSERT_EQUALS( props.getValue< int >( "test" ), 61 );
-    }
+    WDataSetVector( boost::shared_ptr< WValueSetBase > newValueSet,
+                    boost::shared_ptr< WGrid > newGrid );
+
+    /**
+     * Construct an empty and unusable instance. This is needed for the prototype mechanism.
+     */
+    WDataSetVector();
+
+    /**
+     * Destroys this DataSet instance
+     */
+    virtual ~WDataSetVector();
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
+protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
+private:
 };
 
-#endif  // WPROPERTIES_TEST_H
+#endif  // WDATASETVECTOR_H

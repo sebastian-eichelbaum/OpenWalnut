@@ -52,8 +52,6 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
 
-#include "../data/WMData.h"
-
 #include "WMMarchingCubes.h"
 
 
@@ -101,7 +99,7 @@ const std::string WMMarchingCubes::getName() const
 
 const std::string WMMarchingCubes::getDescription() const
 {
-    return "This module implement the marching cubes"
+    return "This module implements the marching cubes"
 " algorithm with a consistent triangulation. It allows to compute isosurfaces"
 " for a given isovalue on data given on a grid only consisting of cubes. It yields"
 " the surface as triangle soup.";
@@ -136,6 +134,9 @@ void WMMarchingCubes::moduleMain()
             continue;
         }
 
+        m_isoValueProp->setMin( m_dataSet->getMin() );
+        m_isoValueProp->setMax( m_dataSet->getMax() );
+
         // update ISO surface
         debugLog() << "Computing surface ...";
 
@@ -162,8 +163,8 @@ void WMMarchingCubes::moduleMain()
 void WMMarchingCubes::connectors()
 {
     // initialize connectors
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar > >(
+        new WModuleInputData< WDataSetScalar >( shared_from_this(),
                                                                "in", "Dataset to compute isosurface for." )
         );
 
@@ -181,7 +182,7 @@ void WMMarchingCubes::connectors()
 
 void WMMarchingCubes::properties()
 {
-    m_isoValueProp = m_properties2->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     {
@@ -193,11 +194,11 @@ void WMMarchingCubes::properties()
         }
     }
 
-    m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
+    m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties2->addProperty( "Use Texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -210,7 +211,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< unsigned char > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -218,7 +219,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< int16_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -226,7 +227,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< int32_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -234,7 +235,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< float > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
@@ -242,12 +243,12 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         {
             boost::shared_ptr< WValueSet< double > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
-            assert( vals );
+            WAssert( vals, "Data type and data type indicator must fit." );
             generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
             break;
         }
         default:
-            assert( false && "Unknow data type in MarchingCubes module" );
+            WAssert( false, "Unknow data type in MarchingCubes module" );
     }
 }
 
@@ -275,14 +276,14 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
                                                               boost::shared_ptr< WValueSet< T > > vals,
                                                               double isoValue )
 {
-    assert( vals );
+    WAssert( vals, "No value set provided." );
 
     m_idToVertices.clear();
     m_trivecTriangles.clear();
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
     m_grid = grid;
-    assert( grid );
+    WAssert( grid, "Grid is not of type WGridRegular3D." );
 
     m_fCellLengthX = grid->getOffsetX();
     m_fCellLengthY = grid->getOffsetY();
@@ -643,6 +644,8 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
+    m_surfaceGeode->setName( "iso surface" );
+
     surfaceGeometry->setVertexArray( mesh->getVertexArray() );
 
     osg::DrawElementsUInt* surfaceElement;
@@ -757,7 +760,9 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
         state->addUniform( m_samplerUniforms[i] );
     }
 
-    state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+    // TODO(wiebel): used? Not used? Replace by new Property please
+    // state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
     if( m_shaderUseTransparency )
     {
@@ -793,7 +798,7 @@ int myIsfinite( double number )
     // Microsoft Visual C++ and Borland C++ Builder use _finite().
     return _finite(number);
 #else
-    assert( 0 && "isfinite not provided on this platform or platform not known" );
+    WAssert( false, "isfinite not provided on this platform or platform not known." );
 #endif
 }
 
@@ -803,75 +808,75 @@ void WMMarchingCubes::notifyTextureChange()
 }
 
 // TODO(wiebel): MC move this to a separate module in the future
-bool WMMarchingCubes::save( std::string /*fileName*/, const WTriangleMesh2& /*triMesh*/ ) const
+bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh2& triMesh ) const
 {
-//    if( triMesh.getNumVertices() == 0 )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Marching Cubes", LL_ERROR );
-//        return false;
-//    }
-//
-//    if( triMesh.getNumTriangles() == 0 )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Marching Cubes", LL_ERROR );
-//        return false;
-//    }
-//
-//    const char* c_file = fileName.c_str();
-//    std::ofstream dataFile( c_file );
-//
-//    if ( dataFile )
-//    {
-//        WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
-//    }
-//    else
-//    {
-//        WLogger::getLogger()->addLogMessage( "open file failed" + fileName , "Marching Cubes", LL_ERROR );
-//        return false;
-//    }
-//
-//    dataFile.precision( 16 );
-//
-//    WLogger::getLogger()->addLogMessage( "start writing file", "Marching Cubes", LL_DEBUG );
-//    dataFile << ( "# vtk DataFile Version 2.0\n" );
-//    dataFile << ( "generated using OpenWalnut\n" );
-//    dataFile << ( "ASCII\n" );
-//    dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
-//
-//    wmath::WPosition point;
-//    dataFile << "POINTS " << triMesh.getNumVertices() << " float\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
-//    {
-//        point = triMesh.getVertex( i );
-//        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
-//        {
-//            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
-//            return false;
-//        }
-//        dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
-//    }
-//
-//    dataFile << "CELLS " << triMesh.getNumTriangles() << " " << triMesh.getNumTriangles() * 4 << "\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumTriangles(); ++i )
-//    {
-//        dataFile << "3 " << triMesh.getTriangleVertexId( i, 0 ) << " "
-//                 <<  triMesh.getTriangleVertexId( i, 1 ) << " "
-//                 <<  triMesh.getTriangleVertexId( i, 2 ) << "\n";
-//    }
-//    dataFile << "CELL_TYPES "<< triMesh.getNumTriangles() <<"\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumTriangles(); ++i )
-//    {
-//        dataFile << "5\n";
-//    }
-//    dataFile << "POINT_DATA " << triMesh.getNumVertices() << "\n";
-//    dataFile << "SCALARS scalars float\n";
-//    dataFile << "LOOKUP_TABLE default\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
-//    {
-//        dataFile << "0\n";
-//    }
-//    dataFile.close();
-//    WLogger::getLogger()->addLogMessage( "saving done", "Marching Cubes", LL_DEBUG );
+    if( triMesh.vertSize() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
+    if( triMesh.triangleSize() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
+    const char* c_file = fileName.c_str();
+    std::ofstream dataFile( c_file );
+
+    if ( dataFile )
+    {
+        WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
+    }
+    else
+    {
+        WLogger::getLogger()->addLogMessage( "open file failed" + fileName , "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
+    dataFile.precision( 16 );
+
+    WLogger::getLogger()->addLogMessage( "start writing file", "Marching Cubes", LL_DEBUG );
+    dataFile << ( "# vtk DataFile Version 2.0\n" );
+    dataFile << ( "generated using OpenWalnut\n" );
+    dataFile << ( "ASCII\n" );
+    dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
+
+    wmath::WPosition point;
+    dataFile << "POINTS " << triMesh.vertSize() << " float\n";
+    for ( size_t i = 0; i < triMesh.vertSize(); ++i )
+    {
+        point = triMesh.getVertexAsPosition( i );
+        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+        {
+            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
+            return false;
+        }
+        dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
+    }
+
+    dataFile << "CELLS " << triMesh.triangleSize() << " " << triMesh.triangleSize() * 4 << "\n";
+    for ( size_t i = 0; i < triMesh.triangleSize(); ++i )
+    {
+        dataFile << "3 " << triMesh.getTriVertId0( i ) << " "
+                 <<  triMesh.getTriVertId1( i ) << " "
+                 <<  triMesh.getTriVertId2( i ) << "\n";
+    }
+    dataFile << "CELL_TYPES "<< triMesh.triangleSize() <<"\n";
+    for ( size_t i = 0; i < triMesh.triangleSize(); ++i )
+    {
+        dataFile << "5\n";
+    }
+    dataFile << "POINT_DATA " << triMesh.vertSize() << "\n";
+    dataFile << "SCALARS scalars float\n";
+    dataFile << "LOOKUP_TABLE default\n";
+    for ( size_t i = 0; i < triMesh.vertSize(); ++i )
+    {
+        dataFile << "0\n";
+    }
+    dataFile.close();
+    WLogger::getLogger()->addLogMessage( "saving done", "Marching Cubes", LL_DEBUG );
     return true;
 }
 

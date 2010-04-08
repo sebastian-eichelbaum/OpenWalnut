@@ -126,11 +126,11 @@ void WMFiberCulling::connectors()
 
 void WMFiberCulling::properties()
 {
-    m_dSt_culling_t    = m_properties2->addProperty( "Min fiber distance", "If below, the shorter fiber is culled out", 6.5 );
-    m_proximity_t      = m_properties2->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 1.0 );
-    m_saveCulledCurves = m_properties2->addProperty( "Save result", "If true the remaining fibers are save to a file", false );
-    m_savePath         = m_properties2->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
-    m_run              = m_properties2->addProperty( "Run", "Go go go with those parameters", false, m_recompute );
+    m_dSt_culling_t    = m_properties->addProperty( "Min fiber distance", "If below, the shorter fiber is culled out", 6.5 );
+    m_proximity_t      = m_properties->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 1.0 );
+    m_saveCulledCurves = m_properties->addProperty( "Save result", "If true the remaining fibers are save to a file", false );
+    m_savePath         = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
+    m_run              = m_properties->addProperty( "Run", "Go go go with those parameters", false, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
     m_savePath->addConstraint( PC_NOTEMPTY );
 }

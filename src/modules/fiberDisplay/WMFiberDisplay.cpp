@@ -197,11 +197,11 @@ void WMFiberDisplay::activate()
 
 void WMFiberDisplay::properties()
 {
-    m_customColoring = m_properties2->addProperty( "Custom Coloring", "Switches the coloring between custom and predefined.", false );
-    m_coloring = m_properties2->addProperty( "Global/Local Coloring", "Switches the coloring between global and local.", true );
+    m_customColoring = m_properties->addProperty( "Custom Coloring", "Switches the coloring between custom and predefined.", false );
+    m_coloring = m_properties->addProperty( "Global/Local Coloring", "Switches the coloring between global and local.", true );
 
-    m_useTubesProp = m_properties2->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
-    m_tubeThickness = m_properties2->addProperty( "Tube Thickness", "Adjusts the thickness of the tubes.", 50.,
+    m_useTubesProp = m_properties->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
+    m_tubeThickness = m_properties->addProperty( "Tube Thickness", "Adjusts the thickness of the tubes.", 50.,
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 1000 );

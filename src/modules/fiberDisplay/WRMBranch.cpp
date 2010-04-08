@@ -34,7 +34,7 @@ WRMBranch::WRMBranch( boost::shared_ptr< WROIManagerFibers > roiManager ) :
     m_roiManager( roiManager )
 {
     setDirty();
-    m_properties = boost::shared_ptr< WProperties2 >( new WProperties2() );
+    m_properties = boost::shared_ptr< WProperties >( new WProperties() );
     m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMBranch::slotToggleNot, this ) );
     m_bundleColor = m_properties->addProperty( "Bundle Color", "description", WColor( 1.0, 0.0, 0.0, 1.0 ),
             boost::bind( &WRMBranch::slotChangeBundleColor, this ) );
@@ -172,7 +172,7 @@ void WRMBranch::slotToggleNot()
     setDirty();
 }
 
-boost::shared_ptr< WProperties2 > WRMBranch::getProperties()
+boost::shared_ptr< WProperties > WRMBranch::getProperties()
 {
     return m_properties;
 }

@@ -107,6 +107,8 @@ void WKernel::init()
     // initialize module container
     m_moduleContainer = boost::shared_ptr< WModuleContainer >( new WModuleContainer( "KernelRootContainer",
                 "Root module container in Kernel." ) );
+    // this avoids the root container to be marked as "crashed" if a contained module crashes.
+    m_moduleContainer->setCrashIfModuleCrashes( false );
 
     // initialize graphics engine, or, at least set some stuff
     m_graphicsEngine->setShaderPath( m_shaderPath.file_string() );
@@ -159,7 +161,7 @@ void WKernel::threadMain()
 
     // default modules
     {
-        std::string stdModules = "Coordinate System,HUD";
+        std::string stdModules = "";
         WPreferences::getPreference( "modules.default", &stdModules );
         std::vector< std::string > defMods = string_utils::tokenize( stdModules, "," );
         for ( std::vector< std::string >::iterator iter = defMods.begin(); iter != defMods.end(); ++iter )

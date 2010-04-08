@@ -22,8 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cassert>
-
 #include "WTalairachConverter.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 

@@ -30,6 +30,7 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -118,12 +119,12 @@ private:
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_input;
 
     /**
      * This is a pointer to the dataset the module is currently working on.
      */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
+    boost::shared_ptr< WDataSetVector > m_dataSet;
 
     /**
      * list of positions to plot vectors on, this will come from a selection tool class

@@ -25,6 +25,7 @@
 #include <list>
 #include <vector>
 
+#include "../../common/WAssert.h"
 #include "WUpdateThread.h"
 #include "WROIManagerFibers.h"
 
@@ -143,7 +144,7 @@ void WROIManagerFibers::addFiberDataset( boost::shared_ptr< const WDataSetFibers
 
 void WROIManagerFibers::removeFiberDataset( boost::shared_ptr< const WDataSetFibers > /*fibers*/ )
 {
-    assert( 0 && "removeFiberDataset( --- ) not implemented yet." );
+    WAssert( false, "removeFiberDataset( --- ) not implemented yet." );
 }
 
 boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getBitField()
