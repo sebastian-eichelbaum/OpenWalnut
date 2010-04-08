@@ -64,7 +64,7 @@ const char** WMDistanceMapIsosurface::getXPMIcon() const
     return distancemapIsosurface_xpm;
 }
 
-void WMDistanceMapIsosurface::moduleSetup()
+void WMDistanceMapIsosurface::moduleMain()
 {
     //////////////////////////////////////////////////////////////////////////////////
     // Marching Cubes
@@ -130,16 +130,6 @@ void WMDistanceMapIsosurface::moduleSetup()
     // we want the container input connector "in" to be connected to the input of WMDistanceMap
     m_input->forward( m_distanceMapModule->getInputConnector( "in" ) );
 
-}
-
-void WMDistanceMapIsosurface::moduleMain()
-{
-    //////////////////////////////////////////////////////////////////////////////////
-    // Initialize the modules whose properties we want to forward.
-    //////////////////////////////////////////////////////////////////////////////////
-
-    moduleSetup();
-
     //////////////////////////////////////////////////////////////////////////////////
     // Done! Modules are set up.
     //////////////////////////////////////////////////////////////////////////////////
@@ -178,11 +168,6 @@ void WMDistanceMapIsosurface::connectors()
 
     // call WModules initialization
     WModule::connectors();
-}
-
-void WMDistanceMapIsosurface::properties()
-{
-    // this module's properties get added during moduleMain.
 }
 
 void WMDistanceMapIsosurface::activate()
