@@ -27,6 +27,8 @@
 
 #include "WDataSetVector.h"
 
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetVector::m_prototype = boost::shared_ptr< WPrototyped >();
 
 WDataSetVector::WDataSetVector( boost::shared_ptr< WValueSetBase > newValueSet,
                                 boost::shared_ptr< WGrid > newGrid )
@@ -38,6 +40,22 @@ WDataSetVector::WDataSetVector( boost::shared_ptr< WValueSetBase > newValueSet,
     WAssert( newValueSet->order() == 1, "The value set does not contain vectors." );
 }
 
+WDataSetVector::WDataSetVector()
+    : WDataSetSingle()
+{
+}
+
 WDataSetVector::~WDataSetVector()
 {
 }
+
+boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetVector() );
+    }
+
+    return m_prototype;
+}
+

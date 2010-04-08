@@ -28,6 +28,8 @@
 
 #include "WDataSetScalar.h"
 
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetScalar::m_prototype = boost::shared_ptr< WPrototyped >();
 
 WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
                                 boost::shared_ptr< WGrid > newGrid )
@@ -49,6 +51,12 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     }
     m_maximum = max;
     m_minimum = min;
+}
+
+WDataSetScalar::WDataSetScalar()
+    : WDataSetSingle()
+{
+    // default constructor used by the prototype mechanism
 }
 
 WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
@@ -80,3 +88,14 @@ double WDataSetScalar::getMin() const
 {
     return m_minimum;
 }
+
+boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetScalar() );
+    }
+
+    return m_prototype;
+}
+

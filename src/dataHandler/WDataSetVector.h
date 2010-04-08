@@ -45,11 +45,29 @@ public:
                     boost::shared_ptr< WGrid > newGrid );
 
     /**
+     * Construct an empty and unusable instance. This is needed for the prototype mechanism.
+     */
+    WDataSetVector();
+
+    /**
      * Destroys this DataSet instance
      */
     virtual ~WDataSetVector();
 
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
 };
 

@@ -60,6 +60,11 @@ public:
                     double max );
 
     /**
+     * Construct an empty and unusable instance. This is needed for the prototype mechanism.
+     */
+    WDataSetScalar();
+
+    /**
      * Destroys this DataSet instance
      */
     virtual ~WDataSetScalar();
@@ -74,7 +79,20 @@ public:
      */
     double getMin() const;
 
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
+
+    /**
+     * The prototype as singleton.
+     */
+    static boost::shared_ptr< WPrototyped > m_prototype;
+
 private:
     double m_maximum; //!< Largest scalar of data set.
     double m_minimum; //!< Smallest scalar of data set.
