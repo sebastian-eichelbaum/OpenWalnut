@@ -232,7 +232,7 @@ public:
     /**
      * getter
      *
-     * \return number of vertexes in the mesh
+     * \return number of vertices in the mesh
      */
     size_t vertSize() const;
 
