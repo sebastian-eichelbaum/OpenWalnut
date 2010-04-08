@@ -100,7 +100,7 @@ const std::string WMMarchingCubes::getName() const
 
 const std::string WMMarchingCubes::getDescription() const
 {
-    return "This module implement the marching cubes"
+    return "This module implements the marching cubes"
 " algorithm with a consistent triangulation. It allows to compute isosurfaces"
 " for a given isovalue on data given on a grid only consisting of cubes. It yields"
 " the surface as triangle soup.";
@@ -645,6 +645,8 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
+    m_surfaceGeode->setName( "iso surface" );
+
     surfaceGeometry->setVertexArray( mesh->getVertexArray() );
 
     osg::DrawElementsUInt* surfaceElement;
@@ -807,75 +809,75 @@ void WMMarchingCubes::notifyTextureChange()
 }
 
 // TODO(wiebel): MC move this to a separate module in the future
-bool WMMarchingCubes::save( std::string /*fileName*/, const WTriangleMesh2& /*triMesh*/ ) const
+bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh2& triMesh ) const
 {
-//    if( triMesh.getNumVertices() == 0 )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Marching Cubes", LL_ERROR );
-//        return false;
-//    }
-//
-//    if( triMesh.getNumTriangles() == 0 )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Marching Cubes", LL_ERROR );
-//        return false;
-//    }
-//
-//    const char* c_file = fileName.c_str();
-//    std::ofstream dataFile( c_file );
-//
-//    if ( dataFile )
-//    {
-//        WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
-//    }
-//    else
-//    {
-//        WLogger::getLogger()->addLogMessage( "open file failed" + fileName , "Marching Cubes", LL_ERROR );
-//        return false;
-//    }
-//
-//    dataFile.precision( 16 );
-//
-//    WLogger::getLogger()->addLogMessage( "start writing file", "Marching Cubes", LL_DEBUG );
-//    dataFile << ( "# vtk DataFile Version 2.0\n" );
-//    dataFile << ( "generated using OpenWalnut\n" );
-//    dataFile << ( "ASCII\n" );
-//    dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
-//
-//    wmath::WPosition point;
-//    dataFile << "POINTS " << triMesh.getNumVertices() << " float\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
-//    {
-//        point = triMesh.getVertex( i );
-//        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
-//        {
-//            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
-//            return false;
-//        }
-//        dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
-//    }
-//
-//    dataFile << "CELLS " << triMesh.getNumTriangles() << " " << triMesh.getNumTriangles() * 4 << "\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumTriangles(); ++i )
-//    {
-//        dataFile << "3 " << triMesh.getTriangleVertexId( i, 0 ) << " "
-//                 <<  triMesh.getTriangleVertexId( i, 1 ) << " "
-//                 <<  triMesh.getTriangleVertexId( i, 2 ) << "\n";
-//    }
-//    dataFile << "CELL_TYPES "<< triMesh.getNumTriangles() <<"\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumTriangles(); ++i )
-//    {
-//        dataFile << "5\n";
-//    }
-//    dataFile << "POINT_DATA " << triMesh.getNumVertices() << "\n";
-//    dataFile << "SCALARS scalars float\n";
-//    dataFile << "LOOKUP_TABLE default\n";
-//    for ( unsigned int i = 0; i < triMesh.getNumVertices(); ++i )
-//    {
-//        dataFile << "0\n";
-//    }
-//    dataFile.close();
-//    WLogger::getLogger()->addLogMessage( "saving done", "Marching Cubes", LL_DEBUG );
+    if( triMesh.vertSize() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
+    if( triMesh.triangleSize() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
+    const char* c_file = fileName.c_str();
+    std::ofstream dataFile( c_file );
+
+    if ( dataFile )
+    {
+        WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
+    }
+    else
+    {
+        WLogger::getLogger()->addLogMessage( "open file failed" + fileName , "Marching Cubes", LL_ERROR );
+        return false;
+    }
+
+    dataFile.precision( 16 );
+
+    WLogger::getLogger()->addLogMessage( "start writing file", "Marching Cubes", LL_DEBUG );
+    dataFile << ( "# vtk DataFile Version 2.0\n" );
+    dataFile << ( "generated using OpenWalnut\n" );
+    dataFile << ( "ASCII\n" );
+    dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
+
+    wmath::WPosition point;
+    dataFile << "POINTS " << triMesh.vertSize() << " float\n";
+    for ( size_t i = 0; i < triMesh.vertSize(); ++i )
+    {
+        point = triMesh.getVertexAsPosition( i );
+        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+        {
+            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
+            return false;
+        }
+        dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
+    }
+
+    dataFile << "CELLS " << triMesh.triangleSize() << " " << triMesh.triangleSize() * 4 << "\n";
+    for ( size_t i = 0; i < triMesh.triangleSize(); ++i )
+    {
+        dataFile << "3 " << triMesh.getTriVertId0( i ) << " "
+                 <<  triMesh.getTriVertId1( i ) << " "
+                 <<  triMesh.getTriVertId2( i ) << "\n";
+    }
+    dataFile << "CELL_TYPES "<< triMesh.triangleSize() <<"\n";
+    for ( size_t i = 0; i < triMesh.triangleSize(); ++i )
+    {
+        dataFile << "5\n";
+    }
+    dataFile << "POINT_DATA " << triMesh.vertSize() << "\n";
+    dataFile << "SCALARS scalars float\n";
+    dataFile << "LOOKUP_TABLE default\n";
+    for ( size_t i = 0; i < triMesh.vertSize(); ++i )
+    {
+        dataFile << "0\n";
+    }
+    dataFile.close();
+    WLogger::getLogger()->addLogMessage( "saving done", "Marching Cubes", LL_DEBUG );
     return true;
 }
 

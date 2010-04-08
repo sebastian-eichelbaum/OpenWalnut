@@ -33,7 +33,7 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../common/datastructures/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
