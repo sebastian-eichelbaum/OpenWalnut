@@ -188,6 +188,7 @@ void WMTemplate::properties()
     // You even can add one property multiple times to different groups:
     m_group2->addProperty( m_aColor );
     m_group1a->addProperty( m_aDouble );
+    m_group1a->addProperty( m_enableFeature );
 
     // How can the values of the properties be changed? You can take a look at moduleMain where this is shown. For short: m_anInteger->set( 2 )
     // and m_anInteger->get().

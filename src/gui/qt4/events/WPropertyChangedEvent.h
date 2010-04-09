@@ -22,34 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEVENTTYPES_H
-#define WEVENTTYPES_H
+#ifndef WPROPERTYCHANGEDEVENT_H
+#define WPROPERTYCHANGEDEVENT_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <QtCore/QEvent>
 
 /**
- * This header contains every custom event ID used in QT's event mechanism. Please note, that since Qt4.4 there is
- * QEvent::registerEventType which can handle this job better than this header. But as we use an older Qt Version we need to do it
- * this way.
+ * Event signalling a new module has been associated with the root container in the kernel. Please note that it is possible that
+ * the module is already marked as "ready" while processing this event due to the multithreading.
  */
+class WPropertyChangedEvent: public QEvent
+{
+public:
 
-// when a module got associated
-#define WQT_ASSOC_EVENT QEvent::User + 1
+    /**
+     * Creates a new event instance denoting that a property has changed.
+     */
+    WPropertyChangedEvent();
 
-// when a module signals its ready state
-#define WQT_READY_EVENT QEvent::User + 2
+    /**
+     * Destructor.
+     */
+    virtual ~WPropertyChangedEvent();
 
-// when a roi got associated
-#define WQT_ROI_ASSOC_EVENT QEvent::User + 3
+protected:
+private:
+};
 
-// when a module crashes
-#define WQT_CRASH_EVENT QEvent::User + 4
-
-// when a subject signals a newly registered data set
-#define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
-
-// when a property changes
-#define WQT_PROPERTY_CHANGED_EVENT QEvent::User + 6
-
-#endif  // WEVENTTYPES_H
+#endif  // WPROPERTYCHANGEDEVENT_H
 

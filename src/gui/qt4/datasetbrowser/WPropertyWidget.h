@@ -83,6 +83,11 @@ public:
 protected:
 
     /**
+     * Called whenever the widget should update itself.
+     */
+    virtual void update() = 0;
+
+    /**
      * The property handled by the widget.
      */
     boost::shared_ptr< WPropertyBase > m_property;

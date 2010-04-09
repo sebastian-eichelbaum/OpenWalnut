@@ -58,6 +58,11 @@ public:
 protected:
 
     /**
+     * Called whenever the widget should update.
+     */
+    virtual void update();
+
+    /**
      * The integer property represented by this widget.
      */
     WPropString m_stringProperty;
