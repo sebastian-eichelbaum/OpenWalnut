@@ -39,8 +39,11 @@
 #include "WPropertyVariable.h"
 
 /**
- * class to manage properties of an object and to provide convinience methods for easy access and manipulation. It also allows
- * thread safe iteration on its elements.
+ * Class to manage properties of an object and to provide convenience methods for easy access and manipulation. It also allows
+ * thread safe iteration on its elements. The main purpose of this class is to group properties together and to allow searching properties by a
+ * given name. The name of each property in a group has to be unique and is constructed using the group names containing them: hello.you.property
+ * is the property with the name "property" in the group "you" which against is in the group "hello".
+ * \note The root group of each module does not have a name.
  */
 class WProperties
 {
@@ -74,14 +77,33 @@ public:
     typedef PropertyContainerType::iterator PropertyIterator;
 
     /**
-     * standard constructor
+     * Constructor. Creates an empty list of properties.
+     *
+     * \note WModule::getProperties always returns an unnamed instance.
+     *
+     * \param name the name of the property group. The GUI is using this name for naming the tabs/group boxes
+     * \param description the description of the group.
      */
-    WProperties();
+    WProperties( std::string name = "", std::string description = "Root Group" );
 
     /**
      * destructor
      */
     virtual ~WProperties();
+
+    /**
+     * The name of this property group.
+     *
+     * \return the name
+     */
+    std::string getName() const;
+
+    /**
+     * The description of this property group.
+     *
+     * \return the description.
+     */
+    std::string getDescription() const;
 
     /**
      * Simply insert the specified property to the list.
@@ -754,6 +776,16 @@ public:
 private:
 
     /**
+     * The name of this properties group.
+     */
+    std::string m_name;
+
+    /**
+     * The description of this property group.
+     */
+    std::string m_description;
+
+    /**
      * The set of proerties. This uses the operators ==,<,> WProperty to determine equalness.
      */
     PropertySharedContainerType m_properties;
@@ -762,6 +794,15 @@ private:
      * Access to the above property list.
      */
     PropertySharedContainerType::WSharedAccess m_propAccess;
+
+    /**
+     * Compares the names of two properties and returns true if they are equal.
+     *
+     * \param prop1 the first prop.
+     * \param prop2 the second prop.
+     */
+    bool propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const;
+
 };
 
 template< typename T>

@@ -29,10 +29,13 @@
 
 #include "WLogger.h"
 #include "exceptions/WPropertyUnknown.h"
+#include "exceptions/WPropertyNotUnique.h"
 
 #include "WProperties.h"
 
-WProperties::WProperties():
+WProperties::WProperties( std::string name, std::string description ):
+    m_name( name ),
+    m_description( description ),
     m_propAccess( m_properties.getAccessObject() )
 {
 }
@@ -41,9 +44,41 @@ WProperties::~WProperties()
 {
 }
 
+std::string WProperties::getName() const
+{
+    return m_name;
+}
+
+std::string WProperties::getDescription() const
+{
+    return m_description;
+}
+
+bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
+{
+    return ( prop1->getName() == prop2->getName() );
+}
+
 void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
     m_propAccess->beginWrite();
+
+    // check uniqueness:
+    if ( std::count_if( m_propAccess->get().begin(), m_propAccess->get().end(),
+            boost::bind( boost::mem_fn( &WProperties::propNamePredicate ), this, prop, _1 ) ) )
+    {
+        m_propAccess->endWrite();
+        // oh oh, this property name is not unique in this group
+        if ( !getName().empty() )
+        {
+            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (\"" + getName() + "\")." );
+        }
+        else
+        {
+            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (unnamed root)." );
+        }
+    }
+
     m_propAccess->get().push_back( prop );
     m_propAccess->endWrite();
 }

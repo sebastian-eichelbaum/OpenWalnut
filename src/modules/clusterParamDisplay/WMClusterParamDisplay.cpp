@@ -124,5 +124,5 @@ void WMClusterParamDisplay::initSubModules()
     m_properties->addProperty( m_fiberClustering->getProperties()->getProperty( "Go" ) );
     m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Tracts" ) );
     m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show/Hide ISO Voxels" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show or Hide ISO Voxels" ) );
 }

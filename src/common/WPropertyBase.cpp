@@ -27,6 +27,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include "exceptions/WPropertyNameMalformed.h"
+
 #include "WPropertyBase.h"
 #include "WPropertyVariable.h"
 
@@ -35,7 +37,12 @@ WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_description( description ),
     m_hidden( false )
 {
-    // initialize members
+    // check name validity
+    if ( ( m_name.find( std::string( "/" ) ) != std::string::npos ) || m_name.empty() )
+    {
+        throw WPropertyNameMalformed( "Property name \"" + name +
+                                      "\" is malformed. Do not use slashes (\"/\") or empty strings in property names." );
+    }
 }
 
 WPropertyBase::~WPropertyBase()
