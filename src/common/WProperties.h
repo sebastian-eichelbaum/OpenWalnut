@@ -802,7 +802,6 @@ private:
      * \param prop2 the second prop.
      */
     bool propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const;
-
 };
 
 template< typename T>
