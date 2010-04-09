@@ -111,6 +111,12 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_showToolBarText = true;
     WPreferences::getPreference( "qt4gui.toolBarIconText", &m_showToolBarText );
 
+    // These modules will be allowed to be shown.
+    std::string moduleWhiteList;
+    WPreferences::getPreference( "modules.whiteList", &moduleWhiteList );
+    m_moduleWhiteList = string_utils::tokenize( moduleWhiteList, "," );
+
+
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteTreeItem() ) );
 }
@@ -433,13 +439,21 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
     addTabWidgetContent( tab );
 }
 
-
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
     std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
     for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
+        if( !m_moduleWhiteList.empty() )
+        {
+            const std::string tmpName = ( *iter )->getName();
+            if( std::find( m_moduleWhiteList.begin(), m_moduleWhiteList.end(), tmpName ) == m_moduleWhiteList.end() )
+            {
+                continue; //do nothing for modules that are not in white list
+            }
+        }
+
         QString buttonText = "";
         if( m_showToolBarText )
         {

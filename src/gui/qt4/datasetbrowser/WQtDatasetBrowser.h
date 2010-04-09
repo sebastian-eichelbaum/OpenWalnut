@@ -187,6 +187,8 @@ private:
 
     bool m_showToolBarText; //!< Show tool bar icons with text
 
+    std::vector< std::string > m_moduleWhiteList; //!< Stores a list of modules allowed to be shown.
+
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
