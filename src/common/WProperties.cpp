@@ -34,8 +34,7 @@
 #include "WProperties.h"
 
 WProperties::WProperties( std::string name, std::string description ):
-    m_name( name ),
-    m_description( description ),
+    WPropertyBase( name, description ),
     m_propAccess( m_properties.getAccessObject() )
 {
 }
@@ -44,14 +43,15 @@ WProperties::~WProperties()
 {
 }
 
-std::string WProperties::getName() const
+PROPERTY_TYPE WProperties::getType() const
 {
-    return m_name;
+    return PV_GROUP;
 }
 
-std::string WProperties::getDescription() const
+bool WProperties::setAsString( std::string /*value*/ )
 {
-    return m_description;
+    // groups can't be set in any way. -> ignore it.
+    return true;
 }
 
 bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
@@ -122,6 +122,14 @@ boost::shared_ptr< WPropertyBase > WProperties::getProperty( std::string name )
 WProperties::PropertySharedContainerType::WSharedAccess WProperties::getAccessObject()
 {
     return m_properties.getAccessObject();
+}
+
+WPropGroup WProperties::addPropertyGroup( std::string name, std::string description, bool hide )
+{
+    WPropGroup p = WPropGroup( new WProperties( name, description ) );
+    p->setHidden( hide );
+    addProperty( p );
+    return p;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -384,8 +384,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
     buildPropTab( props );
 }
 
-
-void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
+WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
     WQtDSBWidget* tab = new WQtDSBWidget( "Settings" );
 
@@ -393,6 +392,8 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
     {
         WProperties::PropertyAccessType propAccess = props->getAccessObject();
         propAccess->beginRead();
+
+        tab->setName( QString::fromStdString( props->getName() ) );
 
         // iterate all properties. This Locks the properties set -> use endIteration to unlock
         for ( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
@@ -427,6 +428,9 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "DatasetBrowser",
                                 LL_WARNING );
                         break;
+                    case PV_GROUP:
+                        tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
+                        break;
                     default:
                         WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "DatasetBrowser", LL_WARNING );
                         break;
@@ -435,7 +439,14 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
         }
         propAccess->endRead();
     }
+
     tab->addSpacer();
+    return tab;
+}
+
+void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
+{
+    WQtDSBWidget* tab = buildPropWidget( props );
     addTabWidgetContent( tab );
 }
 
@@ -498,7 +509,7 @@ void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     sa->setWidget( content );
     sa->setWidgetResizable( true );
 
-    m_tabWidget->addTab( sa, content->getName() );
+    m_tabWidget->addTab( sa, "Settings" );
 }
 
 void WQtDatasetBrowser::moveTreeItemDown()

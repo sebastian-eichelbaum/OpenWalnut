@@ -30,6 +30,7 @@
 #include "exceptions/WPropertyNameMalformed.h"
 
 #include "WPropertyBase.h"
+#include "WProperties.h"
 #include "WPropertyVariable.h"
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
@@ -118,5 +119,10 @@ WPropColor WPropertyBase::toPropColor()
 WPropPosition WPropertyBase::toPropPosition()
 {
     return boost::shared_static_cast< WPVPosition >( shared_from_this() );
+}
+
+WPropGroup WPropertyBase::toPropGroup()
+{
+    return boost::shared_static_cast< WPVGroup >( shared_from_this() );
 }
 

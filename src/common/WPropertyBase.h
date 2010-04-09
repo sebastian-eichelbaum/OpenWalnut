@@ -161,6 +161,13 @@ public:
     WPropPosition toPropPosition();
 
     /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as group
+     */
+    WPropGroup toPropGroup();
+
+    /**
      * Helper converts this instance to an arbitrary type.
      *
      * \return the property of given type of NULL if not valid type

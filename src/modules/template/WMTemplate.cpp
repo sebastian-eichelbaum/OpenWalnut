@@ -169,10 +169,25 @@ void WMTemplate::properties()
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all
-    // properties of this module. The second argument is a description. A nice feature is the possibility to specify an own condition, which gets
-    // fired when the property gets modified. This is especially useful to wake up the module's thread on property changes. So, the property
-    // m_anInteger will wake the module thread on changes. m_enableFeature and m_aColor should not wake up the module thread. They get read by
-    // the update callback of this modules OSG node, to update the color.
+    // properties of this group and must not contain any slashes (/). The second argument is a description. A nice feature is the possibility
+    // to specify an own condition, which gets fired when the property gets modified. This is especially useful to wake up the module's thread
+    // on property changes. So, the property m_anInteger will wake the module thread on changes. m_enableFeature and m_aColor should not wake up
+    // the module thread. They get read by the update callback of this modules OSG node, to update the color.
+
+    // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
+    // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
+
+    m_group1        = m_properties->addPropertyGroup( "Group 1",  "A nice group for grouping stuff." );
+    m_group1a       = m_group1->addPropertyGroup(     "Group 1a", "A group nested into \"Group 1\"." );
+    m_group2        = m_properties->addPropertyGroup( "Group 2",  "Another nice group for grouping stuff." );
+
+    // To understand how the groups can be used, you should consider that m_properties itself is a WPropGroup! This means, you can use your newly
+    // created groups exactly in the same way as you would use m_properties.
+    m_group1Bool    = m_group1->addProperty( "Funny stuff", "A grouped property", true );
+
+    // You even can add one property multiple times to different groups:
+    m_group2->addProperty( m_aColor );
+    m_group1a->addProperty( m_aDouble );
 
     // How can the values of the properties be changed? You can take a look at moduleMain where this is shown. For short: m_anInteger->set( 2 )
     // and m_anInteger->get().

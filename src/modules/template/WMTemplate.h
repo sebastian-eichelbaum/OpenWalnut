@@ -127,9 +127,29 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
+     * To group properties, use WPropGroup.
+     */
+    WPropGroup    m_group1;
+
+    /**
+     * To group properties, use WPropGroup.
+     */
+    WPropGroup    m_group1a;
+
+    /**
+     * To group properties, use WPropGroup.
+     */
+    WPropGroup    m_group2;
+
+    /**
      * En/Disables an feature.
      */
     WPropBool     m_enableFeature;
+
+    /**
+     * A nice feature trigger inside m_group1
+     */
+    WPropBool     m_group1Bool;
 
     /**
      * An integer value.
