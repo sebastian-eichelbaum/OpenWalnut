@@ -28,6 +28,7 @@
 #include <string>
 
 #include <QtGui/QDockWidget>
+#include <QtGui/QSlider>
 
 #include "../../common/WPropertyVariable.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
@@ -99,6 +100,8 @@ private:
      */
     QString m_sliderTitle;
 
+    QSlider *m_slider; //!< A pointer to the slider widget.
+
     /**
      * My GL widget.
      */
@@ -108,6 +111,11 @@ private:
      * the scene which is displayed by the GL widget
      */
     osg::ref_ptr< WGEGroupNode > m_scene;
+
+    /**
+     * Update slider if property changed.
+     */
+    void handleChangedPropertyValue();
 
 private slots:
 

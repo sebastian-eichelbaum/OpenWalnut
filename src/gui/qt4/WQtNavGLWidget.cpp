@@ -26,7 +26,6 @@
 #include <iostream>
 
 #include <QtGui/QDockWidget>
-#include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
 
@@ -42,10 +41,10 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
     setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
 
-    QSlider *slider = new QSlider( Qt::Horizontal );
-    slider->setMaximum( maxValue );
-    slider->setValue( maxValue / 2 );
-    slider->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    m_slider = new QSlider( Qt::Horizontal );
+    m_slider->setMaximum( maxValue );
+    m_slider->setValue( maxValue / 2 );
+    m_slider->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     QWidget* panel = new QWidget( this );
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -99,17 +98,22 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
     }
 
     layout->addWidget( m_glWidget.get() );
-    layout->addWidget( slider );
+    layout->addWidget( m_slider );
 
     panel->setLayout( layout );
 
     setWidget( panel );
 
-    connect( slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderValueChanged( int ) ) );
+    connect( m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderValueChanged( int ) ) );
 }
 
 WQtNavGLWidget::~WQtNavGLWidget()
 {
+    if( m_slider )
+    {
+        delete m_slider;
+        m_slider = 0;
+    }
 }
 
 void WQtNavGLWidget::closeEvent( QCloseEvent* event )
@@ -142,5 +146,13 @@ void WQtNavGLWidget::sliderValueChanged( int value )
 void WQtNavGLWidget::setSliderProperty( WPropInt prop )
 {
     m_sliderProp = prop;
+    m_sliderProp->getCondition()->subscribeSignal( boost::bind( &WQtNavGLWidget::handleChangedPropertyValue, this ) );
 }
 
+void WQtNavGLWidget::handleChangedPropertyValue()
+{
+    if( m_slider )
+    {
+        m_slider->setValue( m_sliderProp->get() );
+    }
+}
