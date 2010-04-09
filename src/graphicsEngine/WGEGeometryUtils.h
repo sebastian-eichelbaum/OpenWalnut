@@ -105,12 +105,25 @@ namespace wge
     osg::ref_ptr< osg::Vec3Array > generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners );
 
     /**
-     * Calculate the Delaunay Triangulatation of the given points.
+     * Calculate the Delaunay Triangulation of the given points.
      *
-     * \param points vector of the points to triangulate
+     * If the parameter transformationFactor is not zero, the points will be
+     * transformed to calcule the triangles to get a better triangulation, but
+     * the returned mesh will consist of the original points.
+     * Every point which lies above the centroid of all points will be put away
+     * from this centroid by transformationFactor * height above the centroid.
+     * Any point below the centroid will be drawn to the centroid because its
+     * height is negative. This effect is inverted with a negative
+     * transformationFactor.
+     * This transformation is used to calculate the head surface between several
+     * electrodes, were a transformationFactor of -0.005 is reasonable.
+     *
+     * \param points               vector of the points to triangulate
+     * \param transformationFactor magnitude of the transformation before the
+     *                                 triangulation
      * \return triangulation as WTriangleMesh
      */
-    WTriangleMesh triangulate( const std::vector< wmath::WPosition >& points );
+    WTriangleMesh triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor = 0.0 );
 }
 
 #endif  // WGEGEOMETRYUTILS_H
