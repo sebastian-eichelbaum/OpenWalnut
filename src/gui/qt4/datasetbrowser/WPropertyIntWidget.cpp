@@ -116,7 +116,6 @@ void WPropertyIntWidget::update()
     // set the initial values
     m_edit.setText( QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() ) );
     m_slider.setValue( m_intProperty->get() );
-
 }
 
 void WPropertyIntWidget::sliderChanged( int value )
