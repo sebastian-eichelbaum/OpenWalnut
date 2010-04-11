@@ -52,7 +52,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleProjectFileCombiner.h"
+#include "../../kernel/combiner/WModuleProjectFileCombiner.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
 
@@ -447,11 +447,6 @@ boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLo
     return &m_loaderSignal;
 }
 
-boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* WMainWindow::getModuleButtonSignal()
-{
-    return &m_moduleButtonSignal;
-}
-
 WIconManager*  WMainWindow::getIconManager()
 {
     return &m_iconManager;
@@ -592,12 +587,6 @@ void WMainWindow::closeCustomDockWidget( std::string title )
         }
     }
     //m_customDockWidgetsLock.unlock();
-}
-
-void WMainWindow::slotActivateModule( QString module )
-{
-    // TODO(schurade): do we really need the signal? Why can't we use the kernel directly?
-    m_moduleButtonSignal( getDatasetBrowser()->getSelectedModule(), WModuleFactory::getModuleFactory()->getPrototypeByName( module.toStdString() ) );
 }
 
 void WMainWindow::newRoi()

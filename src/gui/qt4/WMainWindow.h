@@ -102,13 +102,6 @@ public:
     boost::signals2::signal1< void, std::vector< std::string > >* getLoaderSignal();
 
     /**
-     * Returns the signal emitted by those module buttons in the compatibility tab.
-     *
-     * \return the signal.
-     */
-    boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* getModuleButtonSignal();
-
-    /**
      * Searches for a custom dock widget with a given name and returns it, if
      * found.
      *
@@ -171,12 +164,6 @@ public slots:
     void openAboutDialog();
 
     /**
-     * get called when a module button
-     * \param module name of teh module
-     */
-    void slotActivateModule( QString module );
-
-    /**
      * gets called when the button new roi is pressed
      */
     void newRoi();
@@ -226,11 +213,6 @@ private:
     boost::mutex m_customDockWidgetsLock;
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal; //!< boost signal for open file dialog
-
-    /**
-     * boost signal object
-     */
-    boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > > m_moduleButtonSignal;
 
     /**
      * Combine a module with a prototype only if the module is available. Else, nothing happens.

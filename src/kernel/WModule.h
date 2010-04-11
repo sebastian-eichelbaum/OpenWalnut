@@ -206,13 +206,6 @@ public:
     virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier );
 
     /**
-     * Returns a set of prototypes compatible with this module's connectors.
-     *
-     * \return set of prototypes.
-     */
-    virtual std::set< boost::shared_ptr< WModule > > getCompatibles();
-
-    /**
      * Gets the modules base progress. This is actually a progress combiner, which bundles all progresses.
      *
      * \return the progress combiner for this module.

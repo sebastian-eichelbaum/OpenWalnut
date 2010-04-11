@@ -38,7 +38,7 @@
 #include "../../common/WIOTools.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleProjectFileCombiner.h"
+#include "../../kernel/combiner/WModuleProjectFileCombiner.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "WOpenCustomDockWidgetEvent.h"
@@ -141,8 +141,6 @@ int WQt4Gui::run()
 #else
     getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
 #endif
-
-    m_mainWindow->getModuleButtonSignal()->connect( boost::bind( &WKernel::applyModule, m_kernel, _1, _2 ) );
 
     WCondition::t_ConditionNotifierType newDatasetSignal = boost::bind( &WQt4Gui::slotUpdateTextureSorter, this );
     WDataHandler::getDefaultSubject()->getListChangeCondition()->subscribeSignal( newDatasetSignal );

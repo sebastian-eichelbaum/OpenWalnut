@@ -453,12 +453,13 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
-    std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
-    for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
+    std::set< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+
+    for ( std::set< boost::shared_ptr< WApplyPrototypeCombiner > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
         if( !m_moduleWhiteList.empty() )
         {
-            const std::string tmpName = ( *iter )->getName();
+            const std::string tmpName = ( *iter )->getTargetPrototype()->getName();
             if( std::find( m_moduleWhiteList.begin(), m_moduleWhiteList.end(), tmpName ) == m_moduleWhiteList.end() )
             {
                 continue; //do nothing for modules that are not in white list
@@ -468,13 +469,13 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
         QString buttonText = "";
         if( m_showToolBarText )
         {
-            buttonText = ( *iter )->getName().c_str();
+            buttonText = ( *iter )->getTargetPrototype()->getName().c_str();
         }
 
-        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
-                m_mainWindow->getIconManager()->getIcon( ( *iter )->getName().c_str() ), buttonText );
-        button->setToolTip( ( *iter )->getName().c_str() );
-        connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
+        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getTargetPrototype()->getName().c_str() ),
+                m_mainWindow->getIconManager()->getIcon( ( *iter )->getTargetPrototype()->getName().c_str() ), buttonText );
+        button->setToolTip( ( *iter )->getTargetPrototype()->getName().c_str() );
+        //connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
     }
 }
 

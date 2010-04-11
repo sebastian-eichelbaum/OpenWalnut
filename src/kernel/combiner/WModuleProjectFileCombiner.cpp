@@ -31,17 +31,17 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "WKernel.h"
-#include "WModuleCombiner.h"
-#include "WModuleFactory.h"
-#include "WModuleConnector.h"
-#include "WModule.h"
-#include "WModuleInputConnector.h"
-#include "WModuleOutputConnector.h"
-#include "exceptions/WModuleConnectorNotFound.h"
+#include "../WKernel.h"
+#include "../WModuleCombiner.h"
+#include "../WModuleFactory.h"
+#include "../WModuleConnector.h"
+#include "../WModule.h"
+#include "../WModuleInputConnector.h"
+#include "../WModuleOutputConnector.h"
+#include "../exceptions/WModuleConnectorNotFound.h"
 
-#include "../common/exceptions/WFileNotFound.h"
-#include "../common/WLogger.h"
+#include "../../common/exceptions/WFileNotFound.h"
+#include "../../common/WLogger.h"
 
 #include "WModuleProjectFileCombiner.h"
 

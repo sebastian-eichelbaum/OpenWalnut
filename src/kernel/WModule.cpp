@@ -271,11 +271,6 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
     }
 }
 
-std::set< boost::shared_ptr< WModule > > WModule::getCompatibles()
-{
-    return WModuleFactory::getModuleFactory()->getCompatiblePrototypes( shared_from_this() );
-}
-
 const WBoolFlag&  WModule::isInitialized() const
 {
     return m_initialized;
