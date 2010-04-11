@@ -36,7 +36,8 @@
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_name( name ),
     m_description( description ),
-    m_hidden( false )
+    m_hidden( false ),
+    m_updateCondition( new WConditionSet() )
 {
     // check name validity
     if ( ( m_name.find( std::string( "/" ) ) != std::string::npos ) || m_name.empty() )
@@ -78,7 +79,11 @@ bool WPropertyBase::isHidden() const
 
 void WPropertyBase::setHidden( bool hidden )
 {
-    m_hidden = hidden;
+    if ( m_hidden != hidden )
+    {
+        m_hidden = hidden;
+        m_updateCondition->notify();
+    }
 }
 
 WPropInt WPropertyBase::toPropInt()
@@ -124,5 +129,10 @@ WPropPosition WPropertyBase::toPropPosition()
 WPropGroup WPropertyBase::toPropGroup()
 {
     return boost::shared_static_cast< WPVGroup >( shared_from_this() );
+}
+
+boost::shared_ptr< WCondition > WPropertyBase::getUpdateCondition() const
+{
+    return m_updateCondition;
 }
 

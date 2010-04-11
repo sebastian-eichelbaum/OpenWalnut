@@ -37,6 +37,7 @@ WProperties::WProperties( std::string name, std::string description ):
     WPropertyBase( name, description ),
     m_propAccess( m_properties.getAccessObject() )
 {
+    m_updateCondition->add( m_properties.getChangeCondition() );
 }
 
 WProperties::~WProperties()
