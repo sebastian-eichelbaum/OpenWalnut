@@ -6,7 +6,7 @@
 ## It is a comma seperated list. If this is not specified the default empty is assumed.
 ## An example could be
 # default="HUD"
-whiteList ="Isosurface,Bounding Box, Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI" # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
+whiteList ="Isosurface,Bounding Box,Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI" # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
 
 [qt4gui]
 # hideAxial = yes # hide the axial view widget
