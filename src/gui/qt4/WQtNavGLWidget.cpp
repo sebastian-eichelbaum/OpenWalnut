@@ -28,10 +28,14 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QApplication>
 
-#include "WQtNavGLWidget.h"
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGEScene.h"
+#include "events/WPropertyChangedEvent.h"
+#include "events/WEventTypes.h"
+
+#include "WQtNavGLWidget.h"
 
 WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, std::string sliderTitle )
     : QDockWidget( title, parent )
@@ -149,10 +153,24 @@ void WQtNavGLWidget::setSliderProperty( WPropInt prop )
     m_sliderProp->getCondition()->subscribeSignal( boost::bind( &WQtNavGLWidget::handleChangedPropertyValue, this ) );
 }
 
+bool WQtNavGLWidget::event( QEvent* event )
+{
+    // a property changed
+    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
+    {
+        if( m_slider )
+        {
+            m_slider->setValue( m_sliderProp->get() );
+        }
+        return true;
+    }
+
+    return QWidget::event( event );
+}
+
 void WQtNavGLWidget::handleChangedPropertyValue()
 {
-    if( m_slider )
-    {
-        m_slider->setValue( m_sliderProp->get() );
-    }
+    // post an event to handle it in the gui thread
+    QCoreApplication::postEvent( this, new WPropertyChangedEvent() );
 }
+

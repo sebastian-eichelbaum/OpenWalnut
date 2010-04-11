@@ -88,6 +88,17 @@ protected:
      */
     virtual void closeEvent( QCloseEvent* event );
 
+    /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes property change events.
+     *
+     * \note QT Doc says: use event() for custom events.
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
 private:
 
     /**
@@ -100,7 +111,11 @@ private:
      */
     QString m_sliderTitle;
 
-    QSlider *m_slider; //!< A pointer to the slider widget.
+    /**
+     * The slider representing the property.
+     * \todo this has to be replaced by a WPropertyIntWidget!
+     */
+    QSlider *m_slider;
 
     /**
      * My GL widget.
