@@ -162,6 +162,8 @@ void WMTemplate::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_enableFeature  = m_properties->addProperty( "Enable Feature",           "Description.", true );
     m_anInteger      = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
+    m_anIntegerClone = m_properties->addProperty( "CLONE!Number of Shape Rows",
+                                                  "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
     m_aDouble        = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
     m_aString        = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
     m_aFile          = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
@@ -173,6 +175,10 @@ void WMTemplate::properties()
     // to specify an own condition, which gets fired when the property gets modified. This is especially useful to wake up the module's thread
     // on property changes. So, the property m_anInteger will wake the module thread on changes. m_enableFeature and m_aColor should not wake up
     // the module thread. They get read by the update callback of this modules OSG node, to update the color.
+    //
+    // m_anIntegerClone has a special purpose in this example. It shows that you can simply update properties from within your module whilst the
+    // GUI updates itself. You can, for example, set constraints or simply modify values depending on input data, most probably useful to set
+    // nice default values or min/max constraints.
 
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
@@ -345,6 +351,12 @@ void WMTemplate::moduleMain()
             // You should grab your values at the beginning of such calculation blocks, since the property might change at any time!
             int rows = m_anInteger->get( true );
             double radii = m_aDouble->get( true );
+
+            // You can set other properties here. This example simply sets the value of m_anIntegerClone. The set command allows an additional
+            // parameter. If it is true, the specified property condition does not fire if it is set. This is useful if your module main loop
+            // waits for the condition of the property you want to set. Setting the property without suppressing the notification would cause
+            // another loop in your module.
+            m_anIntegerClone->set( m_anInteger->get(), true );
 
             debugLog() << "Number of Rows: " << rows;
             debugLog() << "Radii: " << radii;

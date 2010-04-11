@@ -412,6 +412,9 @@ template < typename T >
 WPropertyVariable< T >::~WPropertyVariable()
 {
     // clean up
+    m_updateCondition->remove( m_constraintsChanged );
+    m_updateCondition->remove( WFlag< T >::getValueChangeCondition() );
+
     m_notifierConnection.disconnect();
     m_constraints.clear();
 }

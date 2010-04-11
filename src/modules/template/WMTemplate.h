@@ -157,6 +157,11 @@ private:
     WPropInt      m_anInteger;
 
     /**
+     * An integer value. It is synchronized with m_anInteger.
+     */
+    WPropInt      m_anIntegerClone;
+
+    /**
      * A double value.
      */
     WPropDouble   m_aDouble;
