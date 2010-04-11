@@ -37,21 +37,18 @@
 
 #include "WQtNavGLWidget.h"
 
-WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, std::string sliderTitle )
-    : QDockWidget( title, parent )
+WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle )
+    : QDockWidget( title, parent ),
+    m_propWidget( NULL )
 {
     m_sliderTitle = QString( sliderTitle.c_str() );
 
     setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
 
-    m_slider = new QSlider( Qt::Horizontal );
-    m_slider->setMaximum( maxValue );
-    m_slider->setValue( maxValue / 2 );
-    m_slider->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     QWidget* panel = new QWidget( this );
 
-    QVBoxLayout* layout = new QVBoxLayout();
+    m_layout = new QVBoxLayout();
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
     m_glWidget->setFixedSize( 150, 150 );
@@ -101,22 +98,18 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
         m_scene->setMatrix( m );
     }
 
-    layout->addWidget( m_glWidget.get() );
-    layout->addWidget( m_slider );
+    m_layout->addWidget( m_glWidget.get() );
 
-    panel->setLayout( layout );
+    panel->setLayout( m_layout );
 
     setWidget( panel );
-
-    connect( m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderValueChanged( int ) ) );
 }
 
 WQtNavGLWidget::~WQtNavGLWidget()
 {
-    if( m_slider )
+    if ( m_propWidget )
     {
-        delete m_slider;
-        m_slider = 0;
+        delete m_propWidget;
     }
 }
 
@@ -138,39 +131,9 @@ boost::shared_ptr<WQtGLWidget>WQtNavGLWidget::getGLWidget()
     return m_glWidget;
 }
 
-void WQtNavGLWidget::sliderValueChanged( int value )
-{
-    if ( m_sliderProp )
-    {
-        m_sliderProp->set( value );
-    }
-    emit navSliderValueChanged( m_sliderTitle, value );
-}
-
 void WQtNavGLWidget::setSliderProperty( WPropInt prop )
 {
-    m_sliderProp = prop;
-    m_sliderProp->getCondition()->subscribeSignal( boost::bind( &WQtNavGLWidget::handleChangedPropertyValue, this ) );
-}
-
-bool WQtNavGLWidget::event( QEvent* event )
-{
-    // a property changed
-    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
-    {
-        if( m_slider )
-        {
-            m_slider->setValue( m_sliderProp->get() );
-        }
-        return true;
-    }
-
-    return QWidget::event( event );
-}
-
-void WQtNavGLWidget::handleChangedPropertyValue()
-{
-    // post an event to handle it in the gui thread
-    QCoreApplication::postEvent( this, new WPropertyChangedEvent() );
+    m_propWidget = new WPropertyIntWidget( prop, NULL, parentWidget() );
+    m_layout->addWidget( m_propWidget );
 }
 
