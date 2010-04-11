@@ -269,7 +269,6 @@ std::set< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getComp
         if( ( *cons.begin() )->connectable( *pcons.begin() )  &&  ( *pcons.begin() )->connectable( *cons.begin() ) )
         {
             // it is compatible -> add to list
-
             compatibles.insert( boost::shared_ptr< WApplyPrototypeCombiner >(
                 new WApplyPrototypeCombiner( module, ( *cons.begin() )->getName(), *listIter, ( *pcons.begin() )->getName() ) )
             );

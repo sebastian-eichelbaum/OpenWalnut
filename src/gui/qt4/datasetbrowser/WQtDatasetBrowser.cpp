@@ -42,6 +42,7 @@
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WEventTypes.h"
+#include "../guiElements/WQtApplyModulePushButton.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtTextureSorter.h"
@@ -462,20 +463,14 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
             const std::string tmpName = ( *iter )->getTargetPrototype()->getName();
             if( std::find( m_moduleWhiteList.begin(), m_moduleWhiteList.end(), tmpName ) == m_moduleWhiteList.end() )
             {
-                continue; //do nothing for modules that are not in white list
+                continue; // do nothing for modules that are not in white list
             }
         }
 
-        QString buttonText = "";
-        if( m_showToolBarText )
-        {
-            buttonText = ( *iter )->getTargetPrototype()->getName().c_str();
-        }
-
-        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getTargetPrototype()->getName().c_str() ),
-                m_mainWindow->getIconManager()->getIcon( ( *iter )->getTargetPrototype()->getName().c_str() ), buttonText );
-        button->setToolTip( ( *iter )->getTargetPrototype()->getName().c_str() );
-        //connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
+        WQtApplyModulePushButton* button = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
+                                                                         *iter, m_showToolBarText
+        );
+        m_mainWindow->getCompatiblesToolBar()->addWidget( button );
     }
 }
 
