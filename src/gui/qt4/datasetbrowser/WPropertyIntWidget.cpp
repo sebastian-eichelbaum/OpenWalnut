@@ -50,6 +50,21 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
 
+    update();
+
+    // connect the modification signal of the edit and slider with our callback
+    connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
+    connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
+}
+
+WPropertyIntWidget::~WPropertyIntWidget()
+{
+    // cleanup
+}
+
+void WPropertyIntWidget::update()
+{
     // get the min constraint
     WPVInt::PropertyConstraintMin minC = m_intProperty->getMin();
     int min = 0;
@@ -101,16 +116,6 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     // set the initial values
     m_edit.setText( QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() ) );
     m_slider.setValue( m_intProperty->get() );
-
-    // connect the modification signal of the edit and slider with our callback
-    connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
-    connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
-    connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
-}
-
-WPropertyIntWidget::~WPropertyIntWidget()
-{
-    // cleanup
 }
 
 void WPropertyIntWidget::sliderChanged( int value )

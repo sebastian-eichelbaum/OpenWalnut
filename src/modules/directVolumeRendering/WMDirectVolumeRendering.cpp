@@ -32,6 +32,7 @@
 #include <osg/StateAttribute>
 
 #include "../../kernel/WKernel.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WColor.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -78,8 +79,8 @@ const std::string WMDirectVolumeRendering::getDescription() const
 void WMDirectVolumeRendering::connectors()
 {
     // DVR needs one input: the scalar dataset
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The scalar dataset shown using DVR." )
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
+        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The scalar dataset shown using DVR." )
     );
 
     // As properties, every connector needs to be added to the list of connectors.
@@ -94,21 +95,21 @@ void WMDirectVolumeRendering::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_isoSurface    = m_properties2->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the"
+    m_isoSurface    = m_properties->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the "
                                                                       "transfer function.", true );
-    m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
+    m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
                                                                       50 );
-    m_isoColor      = m_properties2->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+    m_isoColor      = m_properties->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
 
-    m_stepCount     = m_properties2->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
+    m_stepCount     = m_properties->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value "
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
-    m_alpha         = m_properties2->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
+    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
-    m_useSimpleDepthColoring = m_properties2->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
+    m_useSimpleDepthColoring = m_properties->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
 }
 
 void WMDirectVolumeRendering::moduleMain()
@@ -135,7 +136,7 @@ void WMDirectVolumeRendering::moduleMain()
         m_moduleState.wait();
 
         // has the data changed?
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         if ( dataChanged || !m_dataSet )
         // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all

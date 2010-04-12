@@ -31,7 +31,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 
 /**
  * Computes a distance map from an anatomy dataset.
@@ -99,22 +99,22 @@ protected:
 
 private:
 
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
 
     /**
      * Source dataset.
      */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
+    boost::shared_ptr< WDataSetScalar > m_dataSet;
 
     /**
      * Connector to provide the distance map to other modules.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
     /**
      * Target dataset.
      */
-    boost::shared_ptr< WDataSetSingle > m_distanceMapDataSet;
+    boost::shared_ptr< WDataSetScalar > m_distanceMapDataSet;
 
     /**
      * Function to create a distance map from Anatomy data set.
@@ -122,7 +122,7 @@ private:
      * \param dataSet the data set that is used to compute the distance field.
      * The distance is computed to the boundary between foreground an background
      */
-    boost::shared_ptr< WValueSet< float > > createOffset( boost::shared_ptr< const WDataSetSingle > dataSet );
+    boost::shared_ptr< WValueSet< float > > createOffset( boost::shared_ptr< const WDataSetScalar > dataSet );
 
     /**
      * Gauss function.

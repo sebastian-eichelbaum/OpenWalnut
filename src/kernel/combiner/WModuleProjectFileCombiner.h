@@ -33,7 +33,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
-#include "WModuleCombiner.h"
+#include "../WModuleCombiner.h"
 
 /**
  * This is a base class for all module combination classes. The basic idea is to hide the actual combination work from others. These classes may

@@ -33,6 +33,7 @@
 #include "../../../common/math/WPosition.h"
 #include "../../../common/WIOTools.h"
 #include "../../../common/WLogger.h"
+#include "../../../graphicsEngine/WTriangleMesh2.h"
 #include "../WMMarchingCubes.h"
 
 static WLogger logger;
@@ -262,7 +263,7 @@ public:
     void testSaveZero()
     {
         WMMarchingCubes mc;
-        WTriangleMesh triMesh;
+        WTriangleMesh2 triMesh( 0, 0 );
         std::string fileName = wiotools::tempFileName();
 
         bool result = mc.save( fileName, triMesh );
@@ -276,16 +277,8 @@ public:
     void testSaveInfinteNan()
     {
         WMMarchingCubes mc;
-        WTriangleMesh triMesh;
-
         const unsigned int nbPos = 10;
-        std::vector< Triangle > triangles( 0 );
-        Triangle tri;
-        for( unsigned int i = 0; i < 3; ++i )
-        {
-            tri.pointID[i] = i;
-        }
-        triangles.push_back( tri );
+        WTriangleMesh2 triMesh( nbPos, 3 );
 
         std::vector< wmath::WPosition > vertices( 0 );
         for( unsigned int posId = 0; posId < nbPos; ++posId )
@@ -293,9 +286,8 @@ public:
             double x = posId * posId + 3.4;
             double y = posId + 1;
             double z = 3. /  static_cast< double >( posId ); // provide nan values by dividing with zero
-            vertices.push_back( wmath::WPosition( x, y, z ) );
+            triMesh.addVertex( x, y, z );
         }
-        triMesh.setVertices( vertices );
 
         std::string fileName = wiotools::tempFileName();
 
@@ -305,93 +297,92 @@ public:
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have all coordinates values finite.
         TS_ASSERT( !wiotools::fileExists( fileName ) );
     }
+// TODO(wiebel): reactivate these when schurade has reactivated loading
+//     /**
+//      * Test reading of surfaces
+//      */
+//     void testLoad()
+//     {
+//         if( !loggerInitialized )
+//         {
+//             std::cout << "Initialize logger." << std::endl;
+//             logger.run();
+//             loggerInitialized = true;
+//         }
 
-    /**
-     * Test reading of surfaces
-     */
-    void testLoad()
-    {
-        if( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.run();
-            loggerInitialized = true;
-        }
+//         WMMarchingCubes mc;
+//         WTriangleMesh2 triMesh = mc.load( "./fixtures/surfaceMeshFile.vtk" );
 
-        WMMarchingCubes mc;
-        WTriangleMesh triMesh;
-        triMesh = mc.load( "./fixtures/surfaceMeshFile.vtk" );
+//         TS_ASSERT_EQUALS( triMesh.triangleSize(), 28 );
+//         TS_ASSERT_EQUALS( triMesh.vertSize(), 16 );
+//         TS_ASSERT_EQUALS( triMesh.getTriVertId0( 0 ), 0 );
+//         TS_ASSERT_EQUALS( triMesh.getTriVertId0( 1 ), 0 );
+//         TS_ASSERT_EQUALS( triMesh.getTriVertId2( 1 ), 5 );
+//         TS_ASSERT_EQUALS( triMesh.getTriVertId1( 14 ), 7 );
 
-        TS_ASSERT_EQUALS( triMesh.getNumTriangles(), 28 );
-        TS_ASSERT_EQUALS( triMesh.getNumVertices(), 16 );
-        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 0, 0 ), 0 );
-        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 1, 0 ), 0 );
-        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 1, 2 ), 5 );
-        TS_ASSERT_EQUALS( triMesh.getTriangleVertexId( 14, 1 ), 7 );
+//         osg::Vec3 expectedPosition( 93.5, 115.5, 41.5 );
+//         TS_ASSERT_EQUALS( triMesh.getVertex( 0 ), expectedPosition );
+//         TS_ASSERT_EQUALS( triMesh.getVertex( 5 ), expectedPosition );
+//         TS_ASSERT_EQUALS( triMesh.getVertex( 7 ), expectedPosition );
+//         TS_ASSERT_DIFFERS( triMesh.getVertex( 8 ), expectedPosition );
 
-        wmath::WPosition expectedPosition( 93.5, 115.5, 41.5 );
-        TS_ASSERT_EQUALS( triMesh.getVertex( 0 ), expectedPosition );
-        TS_ASSERT_EQUALS( triMesh.getVertex( 5 ), expectedPosition );
-        TS_ASSERT_EQUALS( triMesh.getVertex( 7 ), expectedPosition );
-        TS_ASSERT_DIFFERS( triMesh.getVertex( 8 ), expectedPosition );
+//         TS_ASSERT_THROWS( mc.load( "no such file" ), std::runtime_error );
+//     }
 
-        TS_ASSERT_THROWS( mc.load( "no such file" ), std::runtime_error );
-    }
+//     /**
+//      * Test first saving data and the loading it back.
+//      */
+//     void testSaveAndLoad()
+//     {
+//         WMMarchingCubes mc;
+//         WTriangleMesh2 triMesh;
 
-    /**
-     * Test first saving data and the loading it back.
-     */
-    void testSaveAndLoad()
-    {
-        WMMarchingCubes mc;
-        WTriangleMesh triMesh;
+//         const unsigned int nbPos = 10;
+//         const unsigned int nbTris = nbPos - 2;
+//         std::vector< Triangle > triangles( 0 );
+//         for( unsigned int triId = 0; triId < nbTris; ++triId )
+//         {
+//             Triangle tri;
+//             for( unsigned int i = 0; i < 3; ++i )
+//             {
+//                 tri.pointID[i] = triId + i;
+//             }
+//             triangles.push_back( tri );
+//         }
+//         triMesh.setTriangles( triangles );
 
-        const unsigned int nbPos = 10;
-        const unsigned int nbTris = nbPos - 2;
-        std::vector< Triangle > triangles( 0 );
-        for( unsigned int triId = 0; triId < nbTris; ++triId )
-        {
-            Triangle tri;
-            for( unsigned int i = 0; i < 3; ++i )
-            {
-                tri.pointID[i] = triId + i;
-            }
-            triangles.push_back( tri );
-        }
-        triMesh.setTriangles( triangles );
+//         std::vector< wmath::WPosition > vertices( 0 );
+//         for( unsigned int posId = 0; posId < nbPos; ++posId )
+//         {
+//             double x = posId * posId + 3.4;
+//             double y = posId + 1;
+//             double z = 3. / static_cast< double >( posId + 1 );
+//             vertices.push_back( wmath::WPosition( x, y, z ) );
+//         }
+//         triMesh.setVertices( vertices );
 
-        std::vector< wmath::WPosition > vertices( 0 );
-        for( unsigned int posId = 0; posId < nbPos; ++posId )
-        {
-            double x = posId * posId + 3.4;
-            double y = posId + 1;
-            double z = 3. / static_cast< double >( posId + 1 );
-            vertices.push_back( wmath::WPosition( x, y, z ) );
-        }
-        triMesh.setVertices( vertices );
+//         std::string fileName = wiotools::tempFileName();
 
-        std::string fileName = wiotools::tempFileName();
+//         mc.save( fileName, triMesh );
+//         WTriangleMesh2 result = mc.load( fileName );
 
-        mc.save( fileName, triMesh );
-        WTriangleMesh result = mc.load( fileName );
+//         TS_ASSERT_EQUALS( triMesh.getNumTriangles(), result.getNumTriangles() );
+//         TS_ASSERT_EQUALS( triMesh.getNumVertices(), result.getNumVertices() );
+//         TS_ASSERT_EQUALS( triMesh.getFastAddVertId(), result.getFastAddVertId() );
+//         TS_ASSERT_EQUALS( triMesh.getFastAddTriangleId(), result.getFastAddTriangleId() );
 
-        TS_ASSERT_EQUALS( triMesh.getNumTriangles(), result.getNumTriangles() );
-        TS_ASSERT_EQUALS( triMesh.getNumVertices(), result.getNumVertices() );
-        TS_ASSERT_EQUALS( triMesh.getFastAddVertId(), result.getFastAddVertId() );
-        TS_ASSERT_EQUALS( triMesh.getFastAddTriangleId(), result.getFastAddTriangleId() );
-
-        for( unsigned int i = 0; i < nbPos; ++i)
-        {
-            for( unsigned int j = 0; j < 3; ++j)
-            {
-                double delta = 1e-5;
-                // TODO(wiebel): find out why this works only for delta=1e-5
-                TS_ASSERT_DELTA( triMesh.getVertex( i )[j], result.getVertex( i )[j], delta );
-            }
-        }
-        TS_ASSERT( wiotools::fileExists( fileName ) );
-        std::remove( fileName.c_str() );
-    }
+//         for( unsigned int i = 0; i < nbPos; ++i)
+//         {
+//             for( unsigned int j = 0; j < 3; ++j)
+//             {
+//                 double delta = 1e-5;
+//                 // TODO(wiebel): find out why this works only for delta=1e-5
+//                 TS_ASSERT_DELTA( triMesh.getVertex( i )[j], result.getVertex( i )[j], delta );
+//             }
+//         }
+//         TS_ASSERT( wiotools::fileExists( fileName ) );
+//         std::remove( fileName.c_str() );
+//     }
 };
 
 #endif  // WMMARCHINGCUBES_TEST_H

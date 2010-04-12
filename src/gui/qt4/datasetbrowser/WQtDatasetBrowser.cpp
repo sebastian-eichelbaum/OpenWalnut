@@ -42,6 +42,7 @@
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WEventTypes.h"
+#include "../guiElements/WQtApplyModulePushButton.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtTextureSorter.h"
@@ -110,6 +111,12 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     // preset for toolbar text.
     m_showToolBarText = true;
     WPreferences::getPreference( "qt4gui.toolBarIconText", &m_showToolBarText );
+
+    // These modules will be allowed to be shown.
+    std::string moduleWhiteList;
+    WPreferences::getPreference( "modules.whiteList", &moduleWhiteList );
+    m_moduleWhiteList = string_utils::tokenize( moduleWhiteList, "," );
+
 
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteTreeItem() ) );
@@ -315,7 +322,7 @@ void WQtDatasetBrowser::selectTreeItem()
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule > module;
-    boost::shared_ptr< WProperties2 > props;
+    boost::shared_ptr< WProperties > props;
 
     if ( m_treeWidget->selectedItems().size() != 0  )
     {
@@ -325,14 +332,14 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties2();
+                props = module->getProperties();
                 createCompatibleButtons( module );
                 break;
             case MODULEHEADER:
                 break;
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-                props = module->getProperties2();
+                props = module->getProperties();
                 createCompatibleButtons( module );
                 break;
             case ROIHEADER:
@@ -353,7 +360,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule > module;
-    boost::shared_ptr< WProperties2 > props;
+    boost::shared_ptr< WProperties > props;
 
     if ( m_roiTreeWidget->selectedItems().size() != 0  )
     {
@@ -378,18 +385,19 @@ void WQtDatasetBrowser::selectRoiTreeItem()
     buildPropTab( props );
 }
 
-
-void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties2 > props )
+WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
     WQtDSBWidget* tab = new WQtDSBWidget( "Settings" );
 
     if ( props.get() )
     {
-        WProperties2::PropertyAccessType propAccess = props->getAccessObject();
+        WProperties::PropertyAccessType propAccess = props->getAccessObject();
         propAccess->beginRead();
 
+        tab->setName( QString::fromStdString( props->getName() ) );
+
         // iterate all properties. This Locks the properties set -> use endIteration to unlock
-        for ( WProperties2::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
+        for ( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
             if ( !( *iter )->isHidden() )
             {
@@ -421,6 +429,9 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties2 > props )
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "DatasetBrowser",
                                 LL_WARNING );
                         break;
+                    case PV_GROUP:
+                        tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
+                        break;
                     default:
                         WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "DatasetBrowser", LL_WARNING );
                         break;
@@ -429,27 +440,37 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties2 > props )
         }
         propAccess->endRead();
     }
+
     tab->addSpacer();
-    addTabWidgetContent( tab );
+    return tab;
 }
 
+void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
+{
+    WQtDSBWidget* tab = buildPropWidget( props );
+    addTabWidgetContent( tab );
+}
 
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
-    std::set< boost::shared_ptr< WModule > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
-    for ( std::set< boost::shared_ptr< WModule > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
+    std::set< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+
+    for ( std::set< boost::shared_ptr< WApplyPrototypeCombiner > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
-        QString buttonText = "";
-        if( m_showToolBarText )
+        if( !m_moduleWhiteList.empty() )
         {
-            buttonText = ( *iter )->getName().c_str();
+            const std::string tmpName = ( *iter )->getTargetPrototype()->getName();
+            if( std::find( m_moduleWhiteList.begin(), m_moduleWhiteList.end(), tmpName ) == m_moduleWhiteList.end() )
+            {
+                continue; // do nothing for modules that are not in white list
+            }
         }
 
-        WQtPushButton* button = m_mainWindow->getCompatiblesToolBar()->addPushButton( QString( ( *iter )->getName().c_str() ),
-                m_mainWindow->getIconManager()->getIcon( ( *iter )->getName().c_str() ), buttonText );
-        button->setToolTip( ( *iter )->getName().c_str() );
-        connect( button, SIGNAL( pushButtonPressed( QString ) ), m_mainWindow, SLOT( slotActivateModule( QString ) ) );
+        WQtApplyModulePushButton* button = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
+                                                                         *iter, m_showToolBarText
+        );
+        m_mainWindow->getCompatiblesToolBar()->addWidget( button );
     }
 }
 
@@ -458,13 +479,13 @@ void WQtDatasetBrowser::changeTreeItem()
     if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == DATASET )
     {
         boost::shared_ptr< WModule > module =( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
-        module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+        module->getProperties()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
     else if ( m_treeWidget->selectedItems().size() == 1 && m_treeWidget->selectedItems().at( 0 )->type() == MODULE )
     {
         boost::shared_ptr< WModule > module =( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
 
-        module->getProperties2()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+        module->getProperties()->getProperty( "active" )->toPropBool()->set( m_treeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 }
 
@@ -484,7 +505,7 @@ void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     sa->setWidget( content );
     sa->setWidgetResizable( true );
 
-    m_tabWidget->addTab( sa, content->getName() );
+    m_tabWidget->addTab( sa, "Settings" );
 }
 
 void WQtDatasetBrowser::moveTreeItemDown()

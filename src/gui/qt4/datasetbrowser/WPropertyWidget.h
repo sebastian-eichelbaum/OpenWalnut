@@ -83,6 +83,11 @@ public:
 protected:
 
     /**
+     * Called whenever the widget should update itself.
+     */
+    virtual void update() = 0;
+
+    /**
      * The property handled by the widget.
      */
     boost::shared_ptr< WPropertyBase > m_property;
@@ -106,6 +111,27 @@ protected:
      * Flag denoting whether the widget is set to an invalid value.
      */
     bool m_invalid;
+
+    /**
+     * Callback for WPropertyBase::getChangeCondition. It emits an event to ensure all updates are done in gui thread.
+     */
+    virtual void propertyChangeNotifier();
+
+    /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes property change events.
+     *
+     * \note QT Doc says: use event() for custom events.
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
+    /**
+     * The connection for propertyChangeNotifier().
+     */
+    boost::signals2::connection m_connection;
 
 private:
 };

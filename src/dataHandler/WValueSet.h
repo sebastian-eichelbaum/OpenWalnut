@@ -99,6 +99,15 @@ public:
     }
 
     /**
+     * \param i id of the scalar to retrieve
+     * \return The i-th scalar stored in this value set. There are rawSize() such scalars.
+     */
+    virtual double getScalarDouble( size_t i ) const
+    {
+        return static_cast< double >( m_data[i] );
+    }
+
+    /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.
      */
     const T * rawData() const

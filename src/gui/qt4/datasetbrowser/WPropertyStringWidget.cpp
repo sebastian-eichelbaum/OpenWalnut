@@ -45,7 +45,7 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
     m_layout.addWidget( &m_edit );
 
     // set the initial values
-    m_edit.setText( QString( m_stringProperty->get().c_str() ) );
+    update();
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
@@ -55,6 +55,11 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
 WPropertyStringWidget::~WPropertyStringWidget()
 {
     // cleanup
+}
+
+void WPropertyStringWidget::update()
+{
+    m_edit.setText( QString( m_stringProperty->get().c_str() ) );
 }
 
 void WPropertyStringWidget::editChanged()
@@ -70,4 +75,5 @@ void WPropertyStringWidget::textEdited( const QString& text )
     std::string value = text.toStdString();
     invalidate( !m_stringProperty->accept( value ) );
 }
+
 

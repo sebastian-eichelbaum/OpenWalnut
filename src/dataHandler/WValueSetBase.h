@@ -61,6 +61,12 @@ public:
     virtual size_t rawSize() const = 0;
 
     /**
+     * \param i id of the scalar to retrieve
+     * \return The i-th scalar stored in this value set. There are rawSize() such scalars.
+     */
+    virtual double getScalarDouble( size_t i ) const = 0;
+
+    /**
      * \return Dimension of the values in this ValueSet
      */
     virtual size_t dimension() const

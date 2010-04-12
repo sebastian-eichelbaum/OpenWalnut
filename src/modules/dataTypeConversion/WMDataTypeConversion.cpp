@@ -31,13 +31,13 @@
 
 #include <cmath>
 
+#include "../../common/WAssert.h"
 #include "../../common/WStringUtils.h"
 #include "../../common/WProgress.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "../data/WMData.h"
 #include "WMDataTypeConversion.h"
 #include "datatypeconversion.xpm"
 
@@ -97,7 +97,7 @@ void WMDataTypeConversion::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        assert( m_dataSet );
+        WAssert( m_dataSet, "No data set found." );
 
         switch( (*m_dataSet).getValueSet()->getDataType() )
         {
@@ -105,7 +105,7 @@ void WMDataTypeConversion::moduleMain()
             {
                 boost::shared_ptr<WValueSet<unsigned char> > vals;
                 vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;
             }
@@ -113,14 +113,14 @@ void WMDataTypeConversion::moduleMain()
             {
                 boost::shared_ptr<WValueSet<int16_t> > vals;
                 vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
             }
             case W_DT_SIGNED_INT:
             {
                 boost::shared_ptr<WValueSet<int32_t> > vals;
                 vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;
             }
@@ -128,7 +128,7 @@ void WMDataTypeConversion::moduleMain()
             {
                 boost::shared_ptr< WValueSet< float > > vals;
                 vals = boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;
             }
@@ -136,12 +136,12 @@ void WMDataTypeConversion::moduleMain()
             {
                 boost::shared_ptr< WValueSet< double > > vals;
                 vals = boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
-                assert( vals );
+                WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;
             }
             default:
-                assert( false && "Unknow data type in Data Type Conversion module" );
+                WAssert( false, "Unknow data type in Data Type Conversion module." );
         }
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.

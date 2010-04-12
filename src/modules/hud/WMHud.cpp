@@ -27,10 +27,12 @@
 #include <osg/MatrixTransform>
 #include <osg/Projection>
 
+#include "../../common/WAssert.h"
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WGEResourceManager.h"
 
 #include "WMHud.h"
+#include "hud.xpm"
 
 WMHud::WMHud()
 {
@@ -43,6 +45,11 @@ WMHud::~WMHud()
 boost::shared_ptr< WModule > WMHud::factory() const
 {
     return boost::shared_ptr< WModule >( new WMHud() );
+}
+
+const char** WMHud::getXPMIcon() const
+{
+    return hud_xpm;
 }
 
 const std::string WMHud::getName() const
@@ -189,7 +196,7 @@ void WMHud::init()
 
     // connect updateGFX with picking
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    assert( viewer );
+    WAssert( viewer, "Requested viewer (main) not found." );
     viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 

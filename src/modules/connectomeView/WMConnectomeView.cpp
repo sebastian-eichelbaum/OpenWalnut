@@ -48,9 +48,6 @@
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WShader.h"
 
-#include "../data/WMData.h"
-
-
 WMConnectomeView::WMConnectomeView():
     WModuleContainer( "Connectome View", "Connectome View allows connectome data to be displayed in the context of MRI data." ),
     m_dataSet()
@@ -116,7 +113,7 @@ void WMConnectomeView::connectors()
 
 void WMConnectomeView::properties()
 {
-    m_test = m_properties2->addProperty( "Test", "A test value for testing test stuff", 1, boost::bind(
+    m_test = m_properties->addProperty( "Test", "A test value for testing test stuff", 1, boost::bind(
                 &WMConnectomeView::slotPropertyChanged, this ) );
 }
 

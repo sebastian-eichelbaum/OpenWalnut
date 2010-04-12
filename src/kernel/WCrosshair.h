@@ -29,36 +29,29 @@
 #include "../common/math/WVector3D.h"
 
 /**
- * TODO(schurade): Document this!
+ * This class stores the position of the crossing navigation slices,
+ * which is also represented as crosshairs in the navigation widgets.
+ * It can be used for placing things. An example are the ROIBoxes which
+ * are placed at the crosshairs position at the moment I am writing this.
  */
 class WCrosshair
 {
 public:
     /**
-     * TODO(schurade): Document this!
-     */
-    WCrosshair();
-
-    /**
-     * TODO(schurade): Document this!
-     */
-    ~WCrosshair();
-
-    /**
-     * getter
+     * Get the position of the corsshair.
      */
     wmath::WPosition getPosition();
 
     /**
-     * setter
+     * Set the position of the crosshair for updating it.
      *
-     * \param position
+     * \param position The new position.
      */
     void setPosition( wmath::WPosition position );
 
 protected:
 private:
-    wmath::WPosition m_position; //!< stores the position
+    wmath::WPosition m_position; //!< Stores the current position of the crosshair.
 };
 
 #endif  // WCROSSHAIR_H

@@ -45,7 +45,6 @@
 
 #include "../common/WLogger.h"
 #include "../common/WProperties.h"
-#include "../common/WProperties2.h"
 #include "../common/WProgressCombiner.h"
 #include "../common/WProgress.h"
 #include "../common/WThreadedRunner.h"
@@ -120,16 +119,9 @@ public:
     /**
      * Return a pointer to the properties object of the module.
      *
-     * \return the properties
-     */
-    boost::shared_ptr< WProperties > getProperties() const;
-
-    /**
-     * Return a pointer to the properties object of the module.
-     *
      * \return the properties.
      */
-    boost::shared_ptr< WProperties2 > getProperties2() const;
+    boost::shared_ptr< WProperties > getProperties() const;
 
     /**
      * Determines whether the module instance is properly initialized.
@@ -212,13 +204,6 @@ public:
      * \return connection descriptor.
      */
     virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier );
-
-    /**
-     * Returns a set of prototypes compatible with this module's connectors.
-     *
-     * \return set of prototypes.
-     */
-    virtual std::set< boost::shared_ptr< WModule > > getCompatibles();
 
     /**
      * Gets the modules base progress. This is actually a progress combiner, which bundles all progresses.
@@ -402,14 +387,9 @@ protected:
     // **************************************************************************************************************************
 
     /**
-     * the property object for the module
-     */
-    boost::shared_ptr< WProperties > m_properties;
-
-    /**
      * The property object for the module.
      */
-    boost::shared_ptr< WProperties2 > m_properties2;
+    boost::shared_ptr< WProperties > m_properties;
 
     /**
      * Progress indicator used as parent for all progress' of this module.

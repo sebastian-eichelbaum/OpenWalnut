@@ -64,9 +64,8 @@ WModule::WModule():
     m_moduleState()
 {
     // initialize members
-    m_properties = boost::shared_ptr< WProperties >( new WProperties() );
-    m_properties2 = boost::shared_ptr< WProperties2 >( new WProperties2() );
-    m_active = m_properties2->addProperty( "active", "Determines whether the module should be activated.", true, true );
+    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
+    m_active = m_properties->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
 
     // the isReadyOrCrashed condition set needs to be set up here
@@ -272,11 +271,6 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
     }
 }
 
-std::set< boost::shared_ptr< WModule > > WModule::getCompatibles()
-{
-    return WModuleFactory::getModuleFactory()->getCompatiblePrototypes( shared_from_this() );
-}
-
 const WBoolFlag&  WModule::isInitialized() const
 {
     return m_initialized;
@@ -331,11 +325,6 @@ boost::shared_ptr< WProperties > WModule::getProperties() const
     return m_properties;
 }
 
-boost::shared_ptr< WProperties2 > WModule::getProperties2() const
-{
-    return m_properties2;
-}
-
 boost::shared_ptr< WProgressCombiner > WModule::getRootProgressCombiner()
 {
     return m_progress;
@@ -386,10 +375,13 @@ void WModule::threadMain()
     }
     catch( const std::exception& e )
     {
-        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), " Module (" + getName() + ")", LL_ERROR );
-
         // convert these exceptions to WException
         WException ce = WException( e );
+
+        // print this message AFTER creation of WException to have the backtrace before the message
+        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), "Module (" + getName() + ")", LL_ERROR );
+
+        // communicate error
         signal_error( shared_from_this(), ce );
 
         // hopefully, all waiting threads use isReadyOrCrashed to wait.

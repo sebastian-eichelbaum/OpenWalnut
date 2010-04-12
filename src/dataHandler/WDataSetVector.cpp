@@ -22,29 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WEvent.h"
+#include "../common/WAssert.h"
+#include "WDataSetSingle.h"
 
-WEvent::WEvent( double time )
-    : m_time( time )
+#include "WDataSetVector.h"
+
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetVector::m_prototype = boost::shared_ptr< WPrototyped >();
+
+WDataSetVector::WDataSetVector( boost::shared_ptr< WValueSetBase > newValueSet,
+                                boost::shared_ptr< WGrid > newGrid )
+    : WDataSetSingle( newValueSet, newGrid )
+{
+    WAssert( newValueSet, "No value set given." );
+    WAssert( newGrid, "No grid given." );
+    WAssert( newValueSet->size() == newGrid->size(), "Number of values unequal number of positions in grid." );
+    WAssert( newValueSet->order() == 1, "The value set does not contain vectors." );
+}
+
+WDataSetVector::WDataSetVector()
+    : WDataSetSingle()
 {
 }
 
-void WEvent::setTime( double time )
+WDataSetVector::~WDataSetVector()
 {
-    m_time = time;
 }
 
-double WEvent::getTime() const
+boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
 {
-    return m_time;
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetVector() );
+    }
+
+    return m_prototype;
 }
 
-void WEvent::setNode( osg::ref_ptr< osg::Node > node )
-{
-    m_node = node;
-}
-
-osg::ref_ptr< osg::Node > WEvent::getNode() const
-{
-    return m_node;
-}

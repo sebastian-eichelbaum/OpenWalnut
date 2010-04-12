@@ -22,64 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEVENT_H
-#define WEVENT_H
+#ifndef WQTAPPLYMODULEPUSHBUTTON_H
+#define WQTAPPLYMODULEPUSHBUTTON_H
 
-#include <osg/Node>
+#include <string>
 
+#include <boost/shared_ptr.hpp>
+
+#include <QtGui/QPushButton>
+
+#include "../WIconManager.h"
+#include "../../../kernel/combiner/WApplyPrototypeCombiner.h"
 
 /**
- * This class marks a special time position in an EEG or MEG recording.
+ * Implements a QPushButton with a boost signal for convenience.
  */
-class WEvent
+class WQtApplyModulePushButton : public QPushButton
 {
+    Q_OBJECT
+
 public:
-    /**
-     * Constructor
-     *
-     * \param time sets the time position
-     */
-    explicit WEvent( double time );
 
     /**
-     * Set the time position
+     * Constructor creating a module application button.
      *
-     * \param time time position
+     * \param parent the parent
+     * \param iconManager the icon manager to use
+     * \param combiner the combiner that is represented by this button
+     * \param useText  true if a text should be shown.
      */
-    void setTime( double time );
+    WQtApplyModulePushButton( QWidget* parent, WIconManager* iconManager,
+                              boost::shared_ptr< WApplyPrototypeCombiner > combiner, bool useText = true );
 
     /**
-     * Get the time position
-     *
-     * \return time position
+     * destructor
      */
-    double getTime() const;
-
-    /**
-     * Set the OSG-Node representing the event
-     *
-     * \param node OSG-Node as ref_ptr
-     */
-    void setNode( osg::ref_ptr< osg::Node > node );
-
-    /**
-     * Get the OSG-Node representing the event
-     *
-     * \return OSG-Node as ref_ptr
-     */
-    osg::ref_ptr< osg::Node > getNode() const;
+    virtual ~WQtApplyModulePushButton();
 
 protected:
-private:
-    /**
-     * time position
-     */
-    double m_time;
 
     /**
-     * OSG-Node representing the event
+     * The combiner used in this button.
      */
-    osg::ref_ptr< osg::Node > m_node;
+    boost::shared_ptr< WApplyPrototypeCombiner > m_combiner;
+
+private:
+public slots:
+
+    /**
+     * Slot getting called when the button got pressed. It applies the combiner.
+     */
+    void emitPressed();
 };
 
-#endif  // WEVENT_H
+#endif  // WQTAPPLYMODULEPUSHBUTTON_H

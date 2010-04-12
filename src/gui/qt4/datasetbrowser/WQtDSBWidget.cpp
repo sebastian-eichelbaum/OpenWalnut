@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <QtGui/QGroupBox>
+
 #include "WQtDSBWidget.h"
 
 WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
@@ -69,6 +71,19 @@ WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
     return new WPropertyFilenameWidget( property, &m_controlLayout, this );
 }
 
+void WQtDSBWidget::addGroup( WQtDSBWidget* widget )
+{
+    // TODO(ebaum): extend it to collapse the group
+    QGroupBox* group = new QGroupBox( widget->getName() , this );
+    QGridLayout* grid = new QGridLayout();
+    grid->addWidget( widget, 0, 0 );
+    group->setLayout( grid );
+
+    // create a new group box
+    int row = m_controlLayout.rowCount();
+    m_controlLayout.addWidget( group, row, 0, 1, 2 );
+}
+
 void WQtDSBWidget::addSpacer()
 {
     m_pageLayout.addStretch();
@@ -79,3 +94,9 @@ QString WQtDSBWidget::getName()
 {
     return m_name;
 }
+
+void WQtDSBWidget::setName( QString name )
+{
+    m_name = name;
+}
+

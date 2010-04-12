@@ -22,43 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTIES_TEST_H
-#define WPROPERTIES_TEST_H
+#include <string>
 
-#include <cxxtest/TestSuite.h>
+#include "WPropertyNameMalformed.h"
 
-#include "../WLogger.h"
-#include "../WProperties.h"
-
-//TODO(math): When logger is singelton remove this!
-static WLogger logger;
-
-/**
- * unit tests the properties class
- */
-class WPropertiesTest : public CxxTest::TestSuite
+WPropertyNameMalformed::WPropertyNameMalformed( const std::string& msg )
+    : WException( msg )
 {
-public:
-    /**
-     * tests creating an integer property
-     */
-    void testAddProp( void )
-    {
-        WProperties props;
-        props.addInt( "test", 57, "test57", "longDesc57" );
-        TS_ASSERT_EQUALS( props.getValue< int >( "test" ), 57 );
-    }
+    // init members
+}
 
-    /**
-     * tests creating an integer property and changing its value
-     */
-    void testChangeProp( void )
-    {
-        WProperties props;
-        props.addInt( "test", 57, "test57", "longDesc57" );
-        props.setValue( "test", 61 );
-        TS_ASSERT_EQUALS( props.getValue< int >( "test" ), 61 );
-    }
-};
-
-#endif  // WPROPERTIES_TEST_H
+WPropertyNameMalformed::~WPropertyNameMalformed() throw()
+{
+    // clean up
+}

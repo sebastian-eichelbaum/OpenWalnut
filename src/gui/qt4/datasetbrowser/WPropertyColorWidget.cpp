@@ -47,8 +47,7 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     m_layout.addWidget( &m_button );
 
     // set the initial values
-    m_button.setPalette( QPalette( toQColor( m_colorProperty->get() ) ) );
-
+    update();
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_button, SIGNAL( released() ), this, SLOT( buttonReleased() ) );
@@ -57,6 +56,11 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
 WPropertyColorWidget::~WPropertyColorWidget()
 {
     // cleanup
+}
+
+void WPropertyColorWidget::update()
+{
+    m_button.setPalette( QPalette( toQColor( m_colorProperty->get() ) ) );
 }
 
 QColor WPropertyColorWidget::toQColor( WColor color )

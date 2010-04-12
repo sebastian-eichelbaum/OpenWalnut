@@ -100,33 +100,33 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels     = m_properties2->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
-    m_drawSlices        = m_properties2->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", false );
-    m_isoValue          = m_properties2->addProperty( "Iso Value", "", 0.01 );
-    m_meanSelector      = m_properties2->addProperty( "Mean Type", "Selects the mean type, must be on of:"
+    m_drawISOVoxels     = m_properties->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
+    m_drawSlices        = m_properties->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", false );
+    m_isoValue          = m_properties->addProperty( "Iso Value", "", 0.01 );
+    m_meanSelector      = m_properties->addProperty( "Mean Type", "Selects the mean type, must be on of:"
                                                                    " 0==arithmetic, 1==geometric, 2==median", 2, m_fullUpdate );
-    m_planeNumX         = m_properties2->addProperty( "Planes #X-SamplePoints", "#samplePoints in first direction", 40, m_fullUpdate );
-    m_planeNumY         = m_properties2->addProperty( "Planes #Y-SamplePoints", "#samplePoints in second direction", 40, m_fullUpdate );
-    m_planeStepWidth    = m_properties2->addProperty( "Planes Step Width", "Distance between sample points", 0.5, m_fullUpdate );
-    m_centerLineScale   = m_properties2->addProperty( "#Planes", "Scales the center line to have more or less samples", 1.0, m_fullUpdate );
-    m_selectBiggestComponentOnly = m_properties2->addProperty( "Biggest Component Only",
+    m_planeNumX         = m_properties->addProperty( "Planes #X-SamplePoints", "#samplePoints in first direction", 40, m_fullUpdate );
+    m_planeNumY         = m_properties->addProperty( "Planes #Y-SamplePoints", "#samplePoints in second direction", 40, m_fullUpdate );
+    m_planeStepWidth    = m_properties->addProperty( "Planes Step Width", "Distance between sample points", 0.5, m_fullUpdate );
+    m_centerLineScale   = m_properties->addProperty( "#Planes", "Scales the center line to have more or less samples", 1.0, m_fullUpdate );
+    m_selectBiggestComponentOnly = m_properties->addProperty( "Biggest Component Only",
        "If true, first the mesh is decomposed into its components (expensive!) and the biggest will be drawn", false );
-    m_alternateColoring = m_properties2->addProperty( "Alternate Mesh Coloring", "En/Disables the alternative mesh colorer", true, m_fullUpdate );
+    m_alternateColoring = m_properties->addProperty( "Alternate Mesh Coloring", "En/Disables the alternative mesh colorer", true, m_fullUpdate );
 
     m_meanSelector->setMin( 0 );
     m_meanSelector->setMax( 2 );
     m_planeNumX->setMin( 1 );
     m_planeNumY->setMin( 1 );
     m_planeStepWidth->setMin( 0.0 );
-    m_customScale       = m_properties2->addProperty( "Custom Scale", "", true, m_fullUpdate );
-    m_minScale          = m_properties2->addProperty( "MinScale", "Mean threshold below which is mapped to 0", 0.1, m_fullUpdate );
-    m_maxScale          = m_properties2->addProperty( "MaxScale", "Mean threshold above which is mapped to 1", 0.9, m_fullUpdate );
+    m_customScale       = m_properties->addProperty( "Custom Scale", "", true, m_fullUpdate );
+    m_minScale          = m_properties->addProperty( "MinScale", "Mean threshold below which is mapped to 0", 0.1, m_fullUpdate );
+    m_maxScale          = m_properties->addProperty( "MaxScale", "Mean threshold above which is mapped to 1", 0.9, m_fullUpdate );
     m_minScale->setMin( 0.0 );
     m_minScale->setMax( 1.0 );
     m_maxScale->setMin( 0.0 );
     m_maxScale->setMax( 1.0 );
-    m_minScaleColor     = m_properties2->addProperty( "MinScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
-    m_maxScaleColor     = m_properties2->addProperty( "MaxScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
+    m_minScaleColor     = m_properties->addProperty( "MinScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
+    m_maxScaleColor     = m_properties->addProperty( "MaxScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
 }
 
 void WMClusterSlicer::moduleMain()

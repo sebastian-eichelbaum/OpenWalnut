@@ -57,14 +57,20 @@ void WThreadedRunner::wait( bool requestFinish )
 {
     if( requestFinish )
     {
-        // first notify
-        notifyStop();
-
-        // then signal it
-        m_FinishRequested = true;
-        m_shutdownFlag( true );
+        requestStop();
     }
     m_thread.join();
+}
+
+
+void WThreadedRunner::requestStop()
+{
+    // first notify
+    notifyStop();
+
+    // then signal it
+    m_FinishRequested = true;
+    m_shutdownFlag( true );
 }
 
 void WThreadedRunner::waitForStop()

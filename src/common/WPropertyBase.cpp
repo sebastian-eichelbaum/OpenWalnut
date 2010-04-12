@@ -27,15 +27,24 @@
 
 #include <boost/filesystem.hpp>
 
+#include "exceptions/WPropertyNameMalformed.h"
+
 #include "WPropertyBase.h"
+#include "WProperties.h"
 #include "WPropertyVariable.h"
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_name( name ),
     m_description( description ),
-    m_hidden( false )
+    m_hidden( false ),
+    m_updateCondition( new WConditionSet() )
 {
-    // initialize members
+    // check name validity
+    if ( ( m_name.find( std::string( "/" ) ) != std::string::npos ) || m_name.empty() )
+    {
+        throw WPropertyNameMalformed( "Property name \"" + name +
+                                      "\" is malformed. Do not use slashes (\"/\") or empty strings in property names." );
+    }
 }
 
 WPropertyBase::~WPropertyBase()
@@ -70,7 +79,11 @@ bool WPropertyBase::isHidden() const
 
 void WPropertyBase::setHidden( bool hidden )
 {
-    m_hidden = hidden;
+    if ( m_hidden != hidden )
+    {
+        m_hidden = hidden;
+        m_updateCondition->notify();
+    }
 }
 
 WPropInt WPropertyBase::toPropInt()
@@ -111,5 +124,15 @@ WPropColor WPropertyBase::toPropColor()
 WPropPosition WPropertyBase::toPropPosition()
 {
     return boost::shared_static_cast< WPVPosition >( shared_from_this() );
+}
+
+WPropGroup WPropertyBase::toPropGroup()
+{
+    return boost::shared_static_cast< WPVGroup >( shared_from_this() );
+}
+
+boost::shared_ptr< WCondition > WPropertyBase::getUpdateCondition() const
+{
+    return m_updateCondition;
 }
 

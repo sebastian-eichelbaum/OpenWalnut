@@ -38,8 +38,10 @@
 
 #include "../../common/math/WVector3D.h"
 
+#include "../../dataHandler/WDataSetScalar.h"
+
 /**
- * Gauss filtering for WDataSetSingle
+ * Gauss filtering for WDataSetScalar
  *
  * \problem It works only on double value sets so far.
  * \reminder The boundary values will not be touched an considered to be zero.
@@ -135,7 +137,7 @@ private:
      * \return the filtered array of values.
      */
     template< typename T > std::vector< double > filterField( boost::shared_ptr< WValueSet< T > > vals,
-                                                              boost::shared_ptr<WGridRegular3D> grid,
+                                                              boost::shared_ptr< WGridRegular3D > grid,
                                                               boost::shared_ptr< WProgress > prog );
 
     /**
@@ -149,8 +151,8 @@ private:
     template< typename T > boost::shared_ptr< WValueSet< double > > iterativeFilterField( boost::shared_ptr< WValueSet< T > > vals,
                                                                                           unsigned int iterations );
 
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
-    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this filter module.
+    boost::shared_ptr< WDataSetScalar > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
 };
 #endif  // WMGAUSSFILTERING_H

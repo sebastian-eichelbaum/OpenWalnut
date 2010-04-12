@@ -67,6 +67,11 @@ public:
 protected:
 
     /**
+     * Called whenever the widget should update.
+     */
+    virtual void update();
+
+    /**
      * The boolean property represented by this widget.
      */
     WPropBool m_boolProperty;

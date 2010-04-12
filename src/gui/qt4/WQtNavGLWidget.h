@@ -28,9 +28,11 @@
 #include <string>
 
 #include <QtGui/QDockWidget>
+#include <QtGui/QSlider>
 
 #include "../../common/WPropertyVariable.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "datasetbrowser/WPropertyIntWidget.h"
 
 #include "WQtGLWidget.h"
 
@@ -47,10 +49,9 @@ public:
      *
      * \param title Title will be displayed above the widget
      * \param parent The widget that manages this widget
-     * \param maxValue Maximum value for the corresponding nav slice slider
      * \param sliderTitle Name of the slider corresponding to the property it manipulates
      */
-    explicit WQtNavGLWidget( QString title, QWidget* parent, int maxValue = 100, std::string sliderTitle="pos" );
+    explicit WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle="pos" );
 
     /**
      * destructor.
@@ -90,14 +91,14 @@ protected:
 private:
 
     /**
-     * The property which is controlled by the slider
-     */
-    WPropInt m_sliderProp;
-
-    /**
      * The slider's title.
      */
     QString m_sliderTitle;
+
+    /**
+     * The property widget representing the slice slider.
+     */
+    WPropertyIntWidget* m_propWidget;
 
     /**
      * My GL widget.
@@ -109,24 +110,15 @@ private:
      */
     osg::ref_ptr< WGEGroupNode > m_scene;
 
-private slots:
+    /**
+     * Update slider if property changed.
+     */
+    void handleChangedPropertyValue();
 
     /**
-     * Slot getting called whenever the slider gets moved.
-     *
-     * \param value the new value of the slider.
+     * Layout of this widget.
      */
-    void sliderValueChanged( int value );
-
-signals:
-
-    /**
-     * Signals a value change event inside the slider.
-     *
-     * \param name name of the slider.
-     * \param value value of the slider.
-     */
-    void navSliderValueChanged( QString name, int value );
+    QVBoxLayout* m_layout;
 };
 
 #endif  // WQTNAVGLWIDGET_H

@@ -34,6 +34,8 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include "WPropertyTypes.h"
+#include "WCondition.h"
+#include "WConditionSet.h"
 
 /**
  * Abstract base class for all properties. Simply provides name and type information.
@@ -100,6 +102,22 @@ public:
      */
     virtual bool setAsString( std::string value ) = 0;
 
+    /**
+     * This method returns a condition which gets fired whenever the property changes somehow. It is fired when:
+     * \li \ref setHidden is called and the hidden state changes
+     * \li \ref setAsString is called and the value changes
+     * \li WPropertyVariable::set is called and the value changes (regardless of suppression during set)
+     * \li WPropertyVariable::setMin/setMax is called and the value changes
+     * \li WPropertyVariable::addConstraint is called
+     * \li WPropertyVariable::removeConstraints is called
+     * \li WProperties::addProperty is called
+     * \li WProperties::addPropertyGroup is called
+     * This is especially useful if you simply want to know that something has happened.
+     *
+     * \return a condition notified whenever something changes.
+     */
+    virtual boost::shared_ptr< WCondition > getUpdateCondition() const;
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // Helpers for easy conversion to the possible types
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +179,21 @@ public:
     WPropPosition toPropPosition();
 
     /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as group
+     */
+    WPropGroup toPropGroup();
+
+    /**
+     * Helper converts this instance to an arbitrary type.
+     *
+     * \return the property of given type of NULL if not valid type
+     */
+    template< typename T >
+    boost::shared_ptr< WPropertyVariable< T > > toPropertyVariable();
+
+    /**
      * Signal signature emitted during set operations
      */
     typedef boost::function<void ( boost::shared_ptr< WPropertyBase > )> PropertyChangeNotifierType;
@@ -202,8 +235,20 @@ protected:
      */
     PropertyChangeSignalType signal_PropertyChange;
 
+    /**
+     * Condition notified whenever something changes. See getUpdateCondition for more details.
+     * \see getUpdateCondition
+     */
+    boost::shared_ptr< WConditionSet > m_updateCondition;
+
 private:
 };
+
+template< typename T >
+boost::shared_ptr< WPropertyVariable< T > > WPropertyBase::toPropertyVariable()
+{
+    return boost::shared_dynamic_cast< WPropertyVariable< T > >( shared_from_this() );
+}
 
 #endif  // WPROPERTYBASE_H
 

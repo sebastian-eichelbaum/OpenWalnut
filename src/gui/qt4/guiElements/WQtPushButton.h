@@ -84,14 +84,6 @@ signals:
      * \param name the name of the button.
      */
     void pushButtonPressed( QString name );
-
-    /**
-     * Signals whenever the button got toggled.
-     *
-     * \param name the name of the button.
-     * \param value true if toggled.
-     */
-    void pushButtonToggled( QString name, bool value );
 };
 
 #endif  // WQTPUSHBUTTON_H

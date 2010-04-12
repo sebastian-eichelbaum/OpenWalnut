@@ -121,20 +121,20 @@ void WMVoxelizer::moduleMain()
 
 void WMVoxelizer::properties()
 {
-    m_antialiased     = m_properties2->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
-    m_drawfibers      = m_properties2->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
-    m_drawBoundingBox = m_properties2->addProperty( "BoundingBox", "Enable/Disable drawing of a clusters BoundingBox.", true );
-    m_drawCenterLine  = m_properties2->addProperty( "CenterLine", "Enable/Disable display of the CenterLine", true );
-    m_lighting        = m_properties2->addProperty( "Lighting", "Enable/Disable lighting.", true );
-    m_drawVoxels      = m_properties2->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
-    m_rasterAlgo      = m_properties2->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
+    m_antialiased     = m_properties->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
+    m_drawfibers      = m_properties->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
+    m_drawBoundingBox = m_properties->addProperty( "BoundingBox", "Enable/Disable drawing of a clusters BoundingBox.", true );
+    m_drawCenterLine  = m_properties->addProperty( "CenterLine", "Enable/Disable display of the CenterLine", true );
+    m_lighting        = m_properties->addProperty( "Lighting", "Enable/Disable lighting.", true );
+    m_drawVoxels      = m_properties->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
+    m_rasterAlgo      = m_properties->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
                                                     std::string( "WBresenham" ), m_fullUpdate );
-    m_voxelsPerUnit   = m_properties2->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
+    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
                                                                        "is useful to increase the resolution of the grid", 1, m_fullUpdate );
-    m_fiberTransparency = m_properties2->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
+    m_fiberTransparency = m_properties->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
     m_fiberTransparency->setMin( 0.0 );
     m_fiberTransparency->setMax( 1.0 );
-    m_explicitFiberColor = m_properties2->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
+    m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
 }
 
 void WMVoxelizer::activate()

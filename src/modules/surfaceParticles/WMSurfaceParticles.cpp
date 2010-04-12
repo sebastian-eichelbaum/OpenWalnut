@@ -107,20 +107,20 @@ void WMSurfaceParticles::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_isoValue      = m_properties2->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
+    m_isoValue      = m_properties->addProperty( "Isovalue",         "The Isovalue used whenever the Isosurface Mode is turned on.",
                                                                       50 );
-    m_stepCount     = m_properties2->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
+    m_stepCount     = m_properties->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value"
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
-    m_alpha         = m_properties2->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
+    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
-    m_gridResolution = m_properties2->addProperty( "Grid Resolution",
+    m_gridResolution = m_properties->addProperty( "Grid Resolution",
             "Determines the grid resolution for the particles in relation to the dataset grid.", 25.0
     );
 
-    m_particleSize = m_properties2->addProperty( "Particle Size", "The size of a particle in relation to the voxel.", 1.0 );
+    m_particleSize = m_properties->addProperty( "Particle Size", "The size of a particle in relation to the voxel.", 1.0 );
     m_particleSize->setMin(   0 );
     m_particleSize->setMax( 100 );
 }

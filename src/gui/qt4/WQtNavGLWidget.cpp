@@ -26,29 +26,29 @@
 #include <iostream>
 
 #include <QtGui/QDockWidget>
-#include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QApplication>
 
-#include "WQtNavGLWidget.h"
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGEScene.h"
+#include "events/WPropertyChangedEvent.h"
+#include "events/WEventTypes.h"
 
-WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, std::string sliderTitle )
-    : QDockWidget( title, parent )
+#include "WQtNavGLWidget.h"
+
+WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle )
+    : QDockWidget( title, parent ),
+    m_propWidget( NULL )
 {
     m_sliderTitle = QString( sliderTitle.c_str() );
 
     setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
 
-    QSlider *slider = new QSlider( Qt::Horizontal );
-    slider->setMaximum( maxValue );
-    slider->setValue( maxValue / 2 );
-    slider->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     QWidget* panel = new QWidget( this );
 
-    QVBoxLayout* layout = new QVBoxLayout();
+    m_layout = new QVBoxLayout();
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
     m_glWidget->setFixedSize( 150, 150 );
@@ -98,18 +98,19 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, int maxValue, st
         m_scene->setMatrix( m );
     }
 
-    layout->addWidget( m_glWidget.get() );
-    layout->addWidget( slider );
+    m_layout->addWidget( m_glWidget.get() );
 
-    panel->setLayout( layout );
+    panel->setLayout( m_layout );
 
     setWidget( panel );
-
-    connect( slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderValueChanged( int ) ) );
 }
 
 WQtNavGLWidget::~WQtNavGLWidget()
 {
+    if ( m_propWidget )
+    {
+        delete m_propWidget;
+    }
 }
 
 void WQtNavGLWidget::closeEvent( QCloseEvent* event )
@@ -130,17 +131,9 @@ boost::shared_ptr<WQtGLWidget>WQtNavGLWidget::getGLWidget()
     return m_glWidget;
 }
 
-void WQtNavGLWidget::sliderValueChanged( int value )
-{
-    if ( m_sliderProp )
-    {
-        m_sliderProp->set( value );
-    }
-    emit navSliderValueChanged( m_sliderTitle, value );
-}
-
 void WQtNavGLWidget::setSliderProperty( WPropInt prop )
 {
-    m_sliderProp = prop;
+    m_propWidget = new WPropertyIntWidget( prop, NULL, parentWidget() );
+    m_layout->addWidget( m_propWidget );
 }
 

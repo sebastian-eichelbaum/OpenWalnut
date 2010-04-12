@@ -95,7 +95,7 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
     return vertices;
 }
 
-WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points )
+WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor )
 {
     WTriangleMesh mesh;
     mesh.setVertices( points );
@@ -103,6 +103,25 @@ WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points )
     if( 3 <= points.size() )
     {
         osg::ref_ptr< osg::Vec3Array > osgPoints = wge::osgVec3Array( points );
+
+        if( transformationFactor != 0.0 )
+        {
+            // Transform the points as described in the Doxygen description of
+            // this function.
+            osg::Vec3 centroid;
+            for( std::size_t pointID = 0; pointID < osgPoints->size(); ++pointID )
+            {
+                centroid += (*osgPoints)[pointID];
+            }
+            centroid /= osgPoints->size();
+
+            for( std::size_t pointID = 0; pointID < osgPoints->size(); ++pointID )
+            {
+                const double factor = ( (*osgPoints)[pointID].z() - centroid.z() ) * transformationFactor + 1.0;
+                (*osgPoints)[pointID].x() = ( (*osgPoints)[pointID].x() - centroid.x() ) * factor + centroid.x();
+                (*osgPoints)[pointID].y() = ( (*osgPoints)[pointID].y() - centroid.y() ) * factor + centroid.y();
+            }
+        }
 
         // The osg triangulator sorts the points and returns the triangles with
         // the indizes of the sorted points. Since we don't want to change the

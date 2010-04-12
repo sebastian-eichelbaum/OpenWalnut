@@ -78,17 +78,21 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // now wait for it to be ready
     m_marchingCubesModule->isReady().wait();
-    boost::shared_ptr< WProperties2 >  mcProps = m_marchingCubesModule->getProperties2();
+    boost::shared_ptr< WProperties >  mcProps = m_marchingCubesModule->getProperties();
     m_isoValueProp = mcProps->getProperty( "Iso Value" )->toPropDouble();
-    m_isoValueProp->set( 0.5 );
+    m_isoValueProp->set( 0.2 );
     m_isoValueProp->setMin( 0.0 );
     m_isoValueProp->setMax( 1.0 );
-    m_properties2->addProperty( m_isoValueProp );
+    m_properties->addProperty( m_isoValueProp );
 
 
     m_useTextureProp = mcProps->getProperty( "Use Texture" )->toPropBool();
     m_useTextureProp->set( true );
-    m_properties2->addProperty( m_useTextureProp );
+    m_properties->addProperty( m_useTextureProp );
+
+    m_opacityProp = mcProps->getProperty( "Opacity %" )->toPropInt();
+    m_properties->addProperty( m_opacityProp );
+
 
     //////////////////////////////////////////////////////////////////////////////////
     // Distance Map
@@ -96,8 +100,8 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // create a new instance of WMDistanceMap
     // NOTE: as the distance map is a "local" module, we can't use the module factory (as WMDistanceMap is not a prototype there).
-    // The initialization of the module has to be done by the ModuleFactory to ensure proper initialization.
     m_distanceMapModule = boost::shared_ptr< WModule >( new WMDistanceMap() );
+    // The initialization of the module has to be done by the ModuleFactory to ensure proper initialization.
     WModuleFactory::initializeModule( m_distanceMapModule );
 
     // add it to the container
@@ -127,7 +131,7 @@ void WMDistanceMapIsosurface::moduleMain()
     m_input->forward( m_distanceMapModule->getInputConnector( "in" ) );
 
     //////////////////////////////////////////////////////////////////////////////////
-    // Done!
+    // Done! Modules are set up.
     //////////////////////////////////////////////////////////////////////////////////
 
     // signal ready state
@@ -145,8 +149,8 @@ void WMDistanceMapIsosurface::connectors()
     // initialize connectors
 
     // this is the scalar field input
-    m_input = boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > >(
-        new WModuleInputForwardData< WDataSetSingle >( shared_from_this(),
+    m_input = boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > >(
+        new WModuleInputForwardData< WDataSetScalar >( shared_from_this(),
                                                                "in", "Dataset to compute distance map for." )
         );
 
@@ -154,8 +158,8 @@ void WMDistanceMapIsosurface::connectors()
     addConnector( m_input );
 
     // this output is used to provide the distance map to other modules.
-    m_output = boost::shared_ptr< WModuleOutputForwardData< WDataSetSingle > >(
-        new WModuleOutputForwardData< WDataSetSingle >( shared_from_this(),
+    m_output = boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > >(
+        new WModuleOutputForwardData< WDataSetScalar >( shared_from_this(),
                                                                "out", "Distance map for the input data set." )
         );
 
@@ -168,6 +172,6 @@ void WMDistanceMapIsosurface::connectors()
 
 void WMDistanceMapIsosurface::activate()
 {
-    m_marchingCubesModule->getProperties2()->getProperty( "active" )->toPropBool()->set( m_active->get() );
+    m_marchingCubesModule->getProperties()->getProperty( "active" )->toPropBool()->set( m_active->get() );
 }
 

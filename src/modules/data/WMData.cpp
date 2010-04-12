@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "../../common/WAssert.h"
 #include "../../common/WIOTools.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
@@ -43,9 +44,11 @@
 #include "../../dataHandler/io/WReaderELC.h"
 #include "../../dataHandler/io/WReaderFiberVTK.h"
 #include "WMData.h"
+#include "data.xpm"
 
 WMData::WMData():
     WModule(),
+    m_fileNameSet( false ),
     m_isTexture()
 {
     // initialize members
@@ -61,6 +64,11 @@ boost::shared_ptr< WModule > WMData::factory() const
     return boost::shared_ptr< WModule >( new WMData() );
 }
 
+const char** WMData::getXPMIcon() const
+{
+    return data_xpm;
+}
+
 const std::string WMData::getName() const
 {
     return "Data Module";
@@ -74,6 +82,20 @@ const std::string WMData::getDescription() const
 boost::shared_ptr< WDataSet > WMData::getDataSet()
 {
     return m_dataSet;
+}
+
+void WMData::setFilename( boost::filesystem::path fname )
+{
+    if ( !m_fileNameSet )
+    {
+        m_fileNameSet = true;
+        m_fileName = fname;
+    }
+}
+
+boost::filesystem::path WMData::getFilename() const
+{
+    return m_fileName;
 }
 
 MODULE_TYPE WMData::getType() const
@@ -99,21 +121,26 @@ void WMData::properties()
 {
     // properties
 
-    // filename of file to load and handle
-    m_filename = m_properties2->addProperty( "filename", "The file to load.", WKernel::getAppPathObject(), true );
-    m_dataName = m_properties2->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
+    m_dataName = m_properties->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
 
     // use this callback for the other properties
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
 
     // several other properties
-    m_interpolation = m_properties2->addProperty( "Interpolation", "Is interpolation active?", true, propertyCallback );
-    m_threshold = m_properties2->addProperty( "Threshold", "The value threshold.", 0, propertyCallback );
-    m_opacity = m_properties2->addProperty( "Opacity %", "The opacity of this data on other surfaces.", 100, propertyCallback );
+    m_interpolation = m_properties->addProperty( "Interpolation",
+                                                  "If active, the boundaries of single voxels"
+                                                  " will not be visible in colormaps. The transition between"
+                                                  " them will be smooth by using interpolation then.",
+                                                  true,
+                                                  propertyCallback );
+    m_threshold = m_properties->addProperty( "Threshold", "Values below this threshold will not be "
+                                              "shown in colormaps.", 0, propertyCallback );
+    m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
+                                            " values from several data sets.", 100, propertyCallback );
     m_opacity->setMax( 100 );
     m_opacity->setMin( 0 );
 
-    m_colorMap = m_properties2->addProperty( "Colormap", "Selected Colormap", 0, propertyCallback );
+    m_colorMap = m_properties->addProperty( "Colormap", "Colormap type.", 0, propertyCallback );
     m_colorMap->setMin( 0 );
     m_colorMap->setMax( 5 );
 }
@@ -179,8 +206,10 @@ void WMData::notifyStop()
 
 void WMData::moduleMain()
 {
+    WAssert( m_fileNameSet, "No filename specified." );
+
     using wiotools::getSuffix;
-    std::string fileName = m_filename->get().string();
+    std::string fileName = m_fileName.string();
 
     debugLog() << "Loading data from \"" << fileName << "\".";
     m_dataName->set( fileName );
@@ -194,11 +223,11 @@ void WMData::moduleMain()
         || suffix == ".edf" )
     {
         // hide other properties since they make no sense fo these data set types.
-        m_filename->setHidden();
         m_interpolation->setHidden();
         m_threshold->setHidden();
         m_opacity->setHidden();
         m_active->setHidden();
+        m_colorMap->setHidden();
     }
 
     if( suffix == ".nii"
@@ -209,21 +238,43 @@ void WMData::moduleMain()
             boost::filesystem::path p( fileName );
             p.replace_extension( "" );
             suffix = getSuffix( p.string() );
-            assert( suffix == ".nii" && "currently only nii files may be gzipped" );
+            WAssert( suffix == ".nii", "Currently only nii files may be gzipped." );
         }
 
         m_isTexture = true;
 
         WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+
+        boost::shared_ptr< WDataSetSingle > dss;
+        dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+        if( dss )
+        {
+            switch( (*dss).getValueSet()->getDataType() )
+            {
+                case W_DT_UNSIGNED_CHAR:
+                case W_DT_INT16:
+                case W_DT_SIGNED_INT:
+                    m_colorMap->set( 0 );
+                    break;
+                case W_DT_FLOAT:
+                case W_DT_DOUBLE:
+                    m_colorMap->set( 5 );
+                    break;
+                default:
+                    WAssert( false, "Unknow data type in Data module" );
+            }
+        }
+        else
+        {
+            WAssert( false, "WDataSetSingle needed at this position." );
+        }
     }
-//#ifndef _MSC_VER
     else if( suffix == ".edf" )
     {
         WLoaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
-//#endif
     else if( suffix == ".asc" )
     {
         WLoaderEEGASCII eegAsciiLoader( fileName );

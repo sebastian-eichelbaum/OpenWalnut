@@ -22,46 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTY_TEST_H
-#define WPROPERTY_TEST_H
+#include <string>
 
-#include <cxxtest/TestSuite.h>
+#include "WQtApplyModulePushButton.h"
 
-#include "../WProperty.h"
-
-/**
- * unit tests the property class
- */
-class WPropertyTest : public CxxTest::TestSuite
+WQtApplyModulePushButton::WQtApplyModulePushButton( QWidget* parent, WIconManager* iconManager,
+                                                    boost::shared_ptr< WApplyPrototypeCombiner > combiner, bool useText ):
+    QPushButton( parent ),
+    m_combiner( combiner )
 {
-public:
-    /**
-     * Tests the property class by creating a boolean property
-     */
-    void testBool( void )
+    setIcon( iconManager->getIcon( combiner->getTargetPrototype()->getName().c_str() ) );
+    setToolTip( combiner->getTargetPrototype()->getName().c_str() );
+
+    if ( useText )
     {
-        WProperty prop( "testProp", true );
-        TS_ASSERT_EQUALS( prop.getValue<bool>(), true );
+        setText( combiner->getTargetPrototype()->getName().c_str() );
     }
 
-    /**
-     * Test whether a value can be set to a property.
-     */
-    void testBoolSetFalse( void )
-    {
-        WProperty prop( "testProp", true );
-        prop.setValue( false );
-        TS_ASSERT_EQUALS( prop.getValue<bool>(), false );
-    }
+    // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
+    // pressed left button.
+    connect( this, SIGNAL( released() ), this, SLOT( emitPressed() ) );
+}
 
-    /**
-     * Test whether the boolean is properly stored as string internally.
-     */
-    void testBoolGetString( void )
-    {
-        WProperty prop( "testProp", true );
-        TS_ASSERT_EQUALS( prop.getValueString(), "1" );
-    }
-};
+WQtApplyModulePushButton::~WQtApplyModulePushButton()
+{
+}
 
-#endif  // WPROPERTY_TEST_H
+void WQtApplyModulePushButton::emitPressed()
+{
+    m_combiner->run();
+}
+

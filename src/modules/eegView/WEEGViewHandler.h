@@ -25,11 +25,20 @@
 #ifndef WEEGVIEWHANDLER_H
 #define WEEGVIEWHANDLER_H
 
+#include <cstddef>
+
+#include <boost/shared_ptr.hpp>
+
+#include <osg/ref_ptr>
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventAdapter>
 #include <osgGA/GUIEventHandler>
 
+#include "../../common/WFlag.h"
 #include "../../common/WPropertyTypes.h"
+#include "../../dataHandler/WEEG2.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "WEEGEvent.h"
 
 
 /**
@@ -41,16 +50,26 @@ public:
     /**
      * Constructor
      *
-     * \param labelsWidth  the width of the label display in pixel as property
-     * \param timePos      the time position in seconds where to start the graph
-     *                         at the left edge as property
-     * \param timeRange    the width of the graph in seconds as property
-     * \param graphWidth   the width of the graph in pixel as property
-     * \param yPos         the y position in pixel at the lower edge as property
-     * \param ySpacing     the distance between two curves of the graph in pixel
-     *                         as property
-     * \param ySensitivity the sensitivity of the graph in microvolt per pixel
-     *                         as property
+     * \param labelsWidth      the width of the label display in pixel as
+     *                             property
+     * \param timePos          the time position in seconds where to start the
+     *                             graph at the left edge as property
+     * \param timeRange        the width of the graph in seconds as property
+     * \param graphWidth       the width of the graph in pixel as property
+     * \param yPos             the y position in pixel at the lower edge as
+     *                             property
+     * \param ySpacing         the distance between two curves of the graph in
+     *                             pixel as property
+     * \param ySensitivity     the sensitivity of the graph in microvolt per
+     *                             pixel as property
+     * \param colorSensitivity The sensitivity of the color map as property. The
+     *                             color map ranges from -colorSensitivity to
+     *                             +colorSensitivity in microvolt.
+     * \param event            event marking a special time position as WFlag
+     * \param eventParentNode  parent node, where an marked event position is
+     *                             inserted and removed from
+     * \param eeg              pointer to the loaded EEG dataset
+     * \param segmentID        number of the segment
      */
     WEEGViewHandler( WPropInt labelsWidth,
                      WPropDouble timePos,
@@ -58,7 +77,12 @@ public:
                      WPropInt graphWidth,
                      WPropDouble yPos,
                      WPropDouble ySpacing,
-                     WPropDouble ySensitivity );
+                     WPropDouble ySensitivity,
+                     WPropDouble colorSensitivity,
+                     boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event,
+                     osg::ref_ptr< WGEGroupNode > eventParentNode,
+                     boost::shared_ptr< WEEG2 > eeg,
+                     std::size_t segmentID );
 
     /**
      * Handle events.
@@ -106,8 +130,42 @@ private:
      */
     WPropDouble m_ySensitivity;
 
+    /**
+     * The sensitivity of the color map as property. The color map ranges
+     * from -m_colorSensitivity to +m_colorSensitivity in microvolt.
+     */
+    WPropDouble m_colorSensitivity;
+
+    /**
+     * event marking a special time position as WFlag
+     */
+    boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > m_event;
+
+    /**
+     * parent node, where an marked event position is inserted and removed from
+     */
+    osg::ref_ptr< WGEGroupNode > m_eventParentNode;
+
+    /**
+     * pointer to the loaded EEG dataset
+     */
+    boost::shared_ptr< WEEG2 > m_eeg;
+
+    /**
+     * number of the segment
+     */
+    std::size_t m_segmentID;
+
     float m_oldX; //!< previous mouse x position
     float m_oldY; //!< previous mouse y position
+
+    /**
+     * Update the event position according to the clicked position
+     *
+     * \param x the x coordinate of the mouse pointer in pixel
+     * \return true if handled, false otherwise
+     */
+    bool markEvent( float x );
 };
 
 #endif  // WEEGVIEWHANDLER_H

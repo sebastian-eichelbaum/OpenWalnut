@@ -22,189 +22,367 @@
 //
 //---------------------------------------------------------------------------
 
-
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "../common/WLogger.h"
+#include "WLogger.h"
+#include "exceptions/WPropertyUnknown.h"
+#include "exceptions/WPropertyNotUnique.h"
 
 #include "WProperties.h"
 
-WProperties::WProperties()
+WProperties::WProperties( std::string name, std::string description ):
+    WPropertyBase( name, description ),
+    m_propAccess( m_properties.getAccessObject() )
 {
+    m_updateCondition->add( m_properties.getChangeCondition() );
 }
 
 WProperties::~WProperties()
 {
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addBool( std::string name, bool value, bool hidden,
-        std::string shortDesc, std::string longDesc )
+PROPERTY_TYPE WProperties::getType() const
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
+    return PV_GROUP;
 }
 
-boost::signals2::signal1< void, std::string >* WProperties::addChar( std::string name, char value, bool hidden,
-        std::string shortDesc, std::string longDesc )
+bool WProperties::setAsString( std::string /*value*/ )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
+    // groups can't be set in any way. -> ignore it.
+    return true;
 }
 
-
-boost::signals2::signal1< void, std::string >* WProperties::addInt( std::string name, int value, bool hidden,
-        std::string shortDesc, std::string longDesc )
+bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
+    return ( prop1->getName() == prop2->getName() );
 }
 
-
-boost::signals2::signal1< void, std::string >* WProperties::addFloat( std::string name, float value, bool hidden,
-        std::string shortDesc, std::string longDesc )
+void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
+    m_propAccess->beginWrite();
 
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
-}
-
-
-boost::signals2::signal1< void, std::string >* WProperties::addDouble( std::string name, double value, bool hidden,
-        std::string shortDesc, std::string longDesc )
-{
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
-}
-
-
-boost::signals2::signal1< void, std::string >*
-WProperties::addString( std::string name, std::string value, bool hidden, std::string shortDesc, std::string longDesc )
-{
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
-}
-
-boost::signals2::signal1< void, std::string >* WProperties::addColor( std::string name, WColor value, bool hidden,
-        std::string shortDesc, std::string longDesc )
-{
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    WProperty* prop = new WProperty( name, value, hidden, shortDesc, longDesc );
-    m_propertyList[name] = prop;
-    m_propertyVector.push_back( prop );
-    return prop->getSignalValueChanged();
-}
-
-void WProperties::addProperty( WProperty* prop )
-{
-    WLogger::getLogger()->addLogMessage( "[DEPRECATED] WProperty is deprecated. Use WPropertyVariable instead.", "WProperties", LL_WARNING );
-
-    m_propertyList[prop->getName()] = prop;
-    m_propertyVector.push_back( prop );
-}
-
-bool WProperties::existsProp( std::string name )
-{
-    return ( findProp( name ) != 0 );
-}
-
-WProperty* WProperties::findProp( std::string name )
-{
-    if( m_propertyList.count( name ) != 0 )
+    // check uniqueness:
+    if ( std::count_if( m_propAccess->get().begin(), m_propAccess->get().end(),
+            boost::bind( boost::mem_fn( &WProperties::propNamePredicate ), this, prop, _1 ) ) )
     {
-        return m_propertyList[name];
-    }
-    else
-    {
-        // TODO(schurade): since the gui tries to set properties over all connected modules, the error
-        // message here can be misleading, removing it for now
-        // std::string msg( "Property doesn't exist: " + name );
-        // WLogger::getLogger()->addLogMessage( msg, "Properties", LL_ERROR );
-        return 0;
-    }
-}
-
-
-std::string WProperties::getValueString( const std::string prop )
-{
-    if( findProp( prop ) )
-    {
-        return findProp( prop )->getValueString();
-    }
-    return "";
-}
-
-std::vector< WProperty* >& WProperties::getPropertyVector()
-{
-    return m_propertyVector;
-}
-
-void WProperties::hideProperty( std::string name )
-{
-    if ( findProp( name ) )
-    {
-        findProp( name )->hide();
-    }
-}
-
-void WProperties::unhideProperty( std::string name )
-{
-    if ( findProp( name ) )
-    {
-        findProp( name )->unhide();
-    }
-}
-
-void WProperties::reemitChangedValueSignals()
-{
-    std::vector< WProperty* >::iterator iter;
-    for( iter = m_propertyVector.begin(); iter != m_propertyVector.end(); ++iter )
-    {
-        WProperty* property = *iter;
-        if( property->isDirty() )
+        m_propAccess->endWrite();
+        // oh oh, this property name is not unique in this group
+        if ( !getName().empty() )
         {
-            property->dirty( false );
-            // Refire but don't change the value.
-            property->signalValueChanged();
+            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (\"" + getName() + "\")." );
+        }
+        else
+        {
+            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (unnamed root)." );
         }
     }
+
+    m_propAccess->get().push_back( prop );
+    m_propAccess->endWrite();
 }
 
-bool WProperties::isDirty() const
+boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
 {
-    std::vector< WProperty* >::const_iterator cit;
-    for( cit = m_propertyVector.begin(); cit != m_propertyVector.end(); ++cit )
+    boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
+
+    m_propAccess->beginRead();
+
+    // iterate over the items
+    for ( PropertyContainerType::const_iterator it = m_propAccess->get().begin(); it != m_propAccess->get().end(); ++it )
     {
-        if( ( *cit )->isDirty() )
+        if ( ( *it )->getName() == name )
         {
-            return true;
+            result = ( *it );
+            break;
         }
     }
-    return false;
+    m_propAccess->endRead();
+
+    return result;
 }
+
+bool WProperties::existsProperty( std::string name )
+{
+    return ( findProperty( name ) != boost::shared_ptr< WPropertyBase >() );
+}
+
+boost::shared_ptr< WPropertyBase > WProperties::getProperty( std::string name )
+{
+    boost::shared_ptr< WPropertyBase > p = findProperty( name );
+    if ( p == boost::shared_ptr< WPropertyBase >() )
+    {
+        throw WPropertyUnknown( "Property \"" + name + "\" can't be found." );
+    }
+
+    return p;
+}
+
+WProperties::PropertySharedContainerType::WSharedAccess WProperties::getAccessObject()
+{
+    return m_properties.getAccessObject();
+}
+
+WPropGroup WProperties::addPropertyGroup( std::string name, std::string description, bool hide )
+{
+    WPropGroup p = WPropGroup( new WProperties( name, description ) );
+    p->setHidden( hide );
+    addProperty( p );
+    return p;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+WPropBool WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, hide );
+}
+
+WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial, bool hide )
+{
+    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, hide );
+    p->setMin( 0 );
+    p->setMax( 100 );
+    return p;
+}
+
+WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial, bool hide )
+{
+    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, hide );
+    p->setMin( 0.0 );
+    p->setMax( 100.0 );
+    return p;
+}
+
+WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, hide );
+}
+
+WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide )
+{
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
+}
+
+WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, hide );
+}
+
+WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, hide );
+}
+
+WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, hide );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+//                                                          boost::shared_ptr< WCondition > condition, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+WPropBool WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                     boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, hide );
+}
+
+WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                    boost::shared_ptr< WCondition > condition, bool hide )
+{
+    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, hide );
+    p->setMin( 0 );
+    p->setMax( 100 );
+    return p;
+}
+
+WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, hide );
+    p->setMin( 0.0 );
+    p->setMax( 100.0 );
+    return p;
+}
+
+WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, hide );
+}
+
+WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                         boost::shared_ptr< WCondition > condition, bool hide )
+{
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
+}
+
+WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                          boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, hide );
+}
+
+WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                         boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, hide );
+}
+
+WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                     boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, hide );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+//                                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+WPropBool WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, notifier, hide );
+}
+
+WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                    WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, notifier, hide );
+    p->setMin( 0 );
+    p->setMax( 100 );
+    return p;
+}
+
+WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, notifier, hide );
+    p->setMin( 0.0 );
+    p->setMax( 100.0 );
+    return p;
+}
+
+WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, notifier, hide );
+}
+
+WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                         WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
+}
+
+WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, notifier, hide );
+}
+
+WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                         WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, notifier, hide );
+}
+
+WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, notifier, hide );
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// convenience methods for
+// template< typename T>
+// boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
+//                                                          boost::shared_ptr< WCondition > condition,
+//                                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+WPropBool WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, notifier, hide );
+}
+
+WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, notifier, hide );
+    p->setMin( 0 );
+    p->setMax( 100 );
+    return p;
+}
+
+WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, notifier, hide );
+    p->setMin( 0.0 );
+    p->setMax( 100.0 );
+    return p;
+}
+
+WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, notifier, hide );
+}
+
+WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
+    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    return p;
+}
+
+WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
+                                          boost::shared_ptr< WCondition > condition,
+                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, notifier, hide );
+}
+
+WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
+                                         boost::shared_ptr< WCondition > condition,
+                                         WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, notifier, hide );
+}
+
+WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
+                                     boost::shared_ptr< WCondition > condition,
+                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, notifier, hide );
+}
+

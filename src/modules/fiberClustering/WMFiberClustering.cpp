@@ -134,13 +134,13 @@ void WMFiberClustering::activate()
 
 void WMFiberClustering::properties()
 {
-    m_maxDistance_t   = m_properties2->addProperty( "Max cluster distance", "Maximum distance of two fibers in one cluster.", 4.0 );
-    m_proximity_t     = m_properties2->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 0.6 );
-    m_minClusterSize  = m_properties2->addProperty( "Min cluster size", "Minium of fibers per cluster", 10 );
-    m_clusterOutputID = m_properties2->addProperty( "Output cluster ID", "This cluster ID will be connected to the output.", 0, m_updateOutput );
-    m_invisibleFibers = m_properties2->addProperty( "Invisible fibers", "Trigger fiber display", false,
+    m_maxDistance_t   = m_properties->addProperty( "Max cluster distance", "Maximum distance of two fibers in one cluster.", 4.0 );
+    m_proximity_t     = m_properties->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 0.6 );
+    m_minClusterSize  = m_properties->addProperty( "Min cluster size", "Minium of fibers per cluster", 10 );
+    m_clusterOutputID = m_properties->addProperty( "Output cluster ID", "This cluster ID will be connected to the output.", 0, m_updateOutput );
+    m_invisibleFibers = m_properties->addProperty( "Invisible fibers", "Trigger fiber display", false,
                                                     boost::bind( &WMFiberClustering::activate, this ) );
-    m_run             = m_properties2->addProperty( "Go", "Initiate run", false, m_update );
+    m_run             = m_properties->addProperty( "Go", "Initiate run", false, m_update );
     m_run->get( true ); // disable initial run
 }
 

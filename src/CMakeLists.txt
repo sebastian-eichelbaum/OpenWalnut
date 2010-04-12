@@ -228,19 +228,29 @@ FOREACH( dirname ${EXCLUDE_DIRS} )
         LIST( REMOVE_ITEM STYLE_CPP ${fname} )
     ENDFOREACH( fname )
 ENDFOREACH( dirname )
+
 IF( CMAKE_COLOR_MAKEFILE )
-    ADD_CUSTOM_TARGET( stylecheck
-                       COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py --color ${STYLE_CPP} ${STYLE_H}
-                       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                       COMMENT "Check if code complies to CodingStandard"
-                     )
+    SET( STYLECHECK_OPTIONS "--color" )
 ELSE()
-    ADD_CUSTOM_TARGET( stylecheck
-                       COMMAND  ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLE_CPP} ${STYLE_H}
-                       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                       COMMENT "Check if code complies to CodingStandard and use noncolored output for violation messages"
-                     )
+    SET( STYLECHECK_OPTIONS "" )
 ENDIF()
+
+IF( CMAKE_HOST_WIN32 )
+	SET( XARGS_OPTIONS "-n 128" )
+ELSE()
+	SET( XARGS_OPTIONS "" )
+ENDIF()
+
+FILE( WRITE ${PROJECT_BINARY_DIR}/brainlintlist "" )
+FOREACH( fname ${STYLE_CPP} ${STYLE_H} )
+	FILE( APPEND ${PROJECT_BINARY_DIR}/brainlintlist "${fname}\n" )
+ENDFOREACH()
+
+ADD_CUSTOM_TARGET( stylecheck
+				   COMMAND  cat ${PROJECT_BINARY_DIR}/brainlintlist | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLECHECK_OPTIONS}
+				   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+				   COMMENT "Check if code complies to CodingStandard"
+				 )
 
 #-------------------------------------------------------------------------------------------------------------
 # Writes information about the revision of the current code to a file

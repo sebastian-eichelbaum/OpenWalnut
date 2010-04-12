@@ -101,10 +101,15 @@ void WMFiberDisplay::moduleMain()
 
             if( m_dataset->size() != 0 ) // incase of an empty fiber dataset nothing is to display
             {
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+                boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber Display", 2 ) );
+                m_progress->addSubProgress( progress );
 
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+                ++*progress;
                 WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
+                ++*progress;
                 create();
+                progress->finish();
             }
             else
             {
@@ -197,11 +202,11 @@ void WMFiberDisplay::activate()
 
 void WMFiberDisplay::properties()
 {
-    m_customColoring = m_properties2->addProperty( "Custom coloring", "Switches the coloring between custom and predefined.", false );
-    m_coloring = m_properties2->addProperty( "Global/Local coloring", "Switches the coloring between global and local.", true );
+    m_customColoring = m_properties->addProperty( "Custom Coloring", "Switches the coloring between custom and predefined.", false );
+    m_coloring = m_properties->addProperty( "Global or Local Coloring", "Switches the coloring between global and local.", true );
 
-    m_useTubesProp = m_properties2->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
-    m_tubeThickness = m_properties2->addProperty( "Tube thickness", "Adjusts the thickness of tubes", 50.,
+    m_useTubesProp = m_properties->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
+    m_tubeThickness = m_properties->addProperty( "Tube Thickness", "Adjusts the thickness of the tubes.", 50.,
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 1000 );

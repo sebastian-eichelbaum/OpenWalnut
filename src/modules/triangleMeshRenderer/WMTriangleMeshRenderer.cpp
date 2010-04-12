@@ -88,9 +88,9 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
-    m_meshColor   = m_properties2->addProperty( "Mesh Color", "Color of the mesh.", WColor( .9f, .9f, 0.9f ) );
-    m_mainComponentOnly = m_properties2->addProperty( "Main Component", "Main component only", false );
-    m_opacityProp = m_properties2->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
+    m_meshColor   = m_properties->addProperty( "Mesh Color", "Color of the mesh.", WColor( .9f, .9f, 0.9f ) );
+    m_mainComponentOnly = m_properties->addProperty( "Main Component", "Main component only", false );
+    m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 }
