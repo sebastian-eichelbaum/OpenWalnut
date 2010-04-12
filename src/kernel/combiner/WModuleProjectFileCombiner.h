@@ -95,7 +95,7 @@ public:
      *
      * \param output the stream to print the state to.
      */
-    virtual void save( std::ostream& output );
+    virtual void save( std::ostream& output );   // NOLINT
 
 protected:
 

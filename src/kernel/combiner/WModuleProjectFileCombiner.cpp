@@ -303,7 +303,8 @@ void WModuleProjectFileCombiner::done()
  * \param prefix    the prefix (name prefix of property)
  * \param module    the module ID to use
  */
-void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, std::string prefix, unsigned int module )
+void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, std::string prefix,  // NOLINT
+                      unsigned int module )
 {
     // get access object
     WProperties::PropertyAccessType a = props->getAccessObject();
@@ -338,7 +339,7 @@ void printProperties( std::ostream& output, boost::shared_ptr< WProperties > pro
     a->endWrite();
 }
 
-void WModuleProjectFileCombiner::save( std::ostream& output )
+void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
 {
     // grab access object of root container
     WModuleContainer::ModuleAccessType container = WKernel::getRunningKernel()->getRootContainer()->getAccessObject();
