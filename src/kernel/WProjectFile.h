@@ -31,11 +31,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
-#include "WProjectFileParser.h"
+#include "WProjectFileIO.h"
 
 /**
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known
- * WProjectFileParser instances which then do their job.
+ * WProjectFileIO instances which then do their job.
  */
 class WProjectFile: public WThreadedRunner,
                     public boost::enable_shared_from_this< WProjectFile >
@@ -80,7 +80,7 @@ protected:
     /**
      * The parser instances. They are used to parse the file.
      */
-    std::vector< WProjectFileParser* > m_parsers;
+    std::vector< WProjectFileIO* > m_parsers;
 
 private:
 };

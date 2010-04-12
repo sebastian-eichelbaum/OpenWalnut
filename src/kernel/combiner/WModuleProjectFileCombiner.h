@@ -33,16 +33,16 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WProjectFileParser.h"
+#include "../WProjectFileIO.h"
 
 #include "../WModuleCombiner.h"
 
 /**
  * This class is able to parse project files and create the appropriate module graph inside a specified container. It is also derived from
- * WProjectFileParser to allow WProjectFile to fill this combiner.
+ * WProjectFileIO to allow WProjectFile to fill this combiner.
  */
 class WModuleProjectFileCombiner: public WModuleCombiner,
-                                  public WProjectFileParser
+                                  public WProjectFileIO
 {
 public:
 

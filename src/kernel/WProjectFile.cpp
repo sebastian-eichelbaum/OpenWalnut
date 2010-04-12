@@ -78,7 +78,7 @@ void WProjectFile::save()
     }
 
     // allow each parser to handle save request
-    for ( std::vector< WProjectFileParser* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+    for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
     {
         ( *iter )->save( output );
     }
@@ -115,7 +115,7 @@ void WProjectFile::threadMain()
             match = false;
 
             // allow each parser to handle the line.
-            for ( std::vector< WProjectFileParser* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+            for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
             {
                 if ( ( *iter )->parse( line, i ) )
                 {
@@ -136,7 +136,7 @@ void WProjectFile::threadMain()
         input.close();
 
         // finally, let every one know that we have finished
-        for ( std::vector< WProjectFileParser* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+        for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
         {
             ( *iter )->done();
         }

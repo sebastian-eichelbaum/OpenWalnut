@@ -52,13 +52,13 @@
 
 WModuleProjectFileCombiner::WModuleProjectFileCombiner( boost::shared_ptr< WModuleContainer > target ):
     WModuleCombiner( target ),
-    WProjectFileParser()
+    WProjectFileIO()
 {
 }
 
 WModuleProjectFileCombiner::WModuleProjectFileCombiner():
     WModuleCombiner( WKernel::getRunningKernel()->getRootContainer() ),
-    WProjectFileParser()
+    WProjectFileIO()
 {
 }
 

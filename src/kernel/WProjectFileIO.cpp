@@ -22,19 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WProjectFileParser.h"
+#include "WProjectFileIO.h"
 
-WProjectFileParser::WProjectFileParser()
+WProjectFileIO::WProjectFileIO()
 {
     // initialize
 }
 
-WProjectFileParser::~WProjectFileParser()
+WProjectFileIO::~WProjectFileIO()
 {
     // cleanup!
 }
 
-void WProjectFileParser::done()
+void WProjectFileIO::done()
 {
     // do nothing here. Overwrite this method if your specific parser needs to do some post processing.
 }

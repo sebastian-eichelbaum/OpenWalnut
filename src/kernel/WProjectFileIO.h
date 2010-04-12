@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROJECTFILEPARSER_H
-#define WPROJECTFILEPARSER_H
+#ifndef WPROJECTFILEIO_H
+#define WPROJECTFILEIO_H
 
 #include <ostream>
 #include <string>
@@ -32,19 +32,19 @@
  * A base class for all parts of OpenWalnut which can be serialized to a project file. It is used by WProjectFile to actually parse the file line
  * by line. Derive from this class if you write your own parser and use it to fill your internal data structures.
  */
-class WProjectFileParser
+class WProjectFileIO
 {
 public:
 
     /**
      * Default constructor.
      */
-    WProjectFileParser();
+    WProjectFileIO();
 
     /**
      * Destructor.
      */
-    virtual ~WProjectFileParser();
+    virtual ~WProjectFileIO();
 
     /**
      * This method parses the specified line and interprets it. It gets called line by line by WProjectFile.
@@ -74,5 +74,5 @@ protected:
 private:
 };
 
-#endif  // WPROJECTFILEPARSER_H
+#endif  // WPROJECTFILEIO_H
 
