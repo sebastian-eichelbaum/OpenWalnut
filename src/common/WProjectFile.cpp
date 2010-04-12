@@ -56,13 +56,13 @@ WProjectFile::~WProjectFile()
     // cleanup
 }
 
-void WProjectFile::run()
+void WProjectFile::load()
 {
     // the instance needs to be added here, as it else could be freed before the thread finishes ( remember: it is a shared_ptr ).
     WKernel::getRunningKernel()->getRootContainer()->addPendingThread( shared_from_this() );
 
     // actually run
-    WThreadedRunner::run();
+    run();
 }
 
 void WProjectFile::threadMain()

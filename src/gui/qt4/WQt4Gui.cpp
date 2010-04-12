@@ -172,7 +172,7 @@ int WQt4Gui::run()
             );
 
             // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-            proj->run();
+            proj->load();
         }
         catch( const WException& e )
         {

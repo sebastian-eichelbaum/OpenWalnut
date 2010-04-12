@@ -57,7 +57,7 @@ public:
     /**
      * Parses the project file and applies it. It applies the project file asynchronously!
      */
-    virtual void run();
+    virtual void load();
 
 protected:
 
