@@ -133,8 +133,8 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // matches[1] and [2] are the module ID and connector name of the output connector
         // matches[3] and [4] are the module ID and connector name of the target input connector
 
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Connection between \"" << matches[2] << "\" of module " << matches[1] <<
-                                                           " and \"" << matches[4] << "\" of module " << matches[3] << ".";
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Connection between \"" << matches[2] << "\" of module "
+                                                 << matches[1] << " and \"" << matches[4] << "\" of module " << matches[3] << ".";
 
         // now we search in modules[ matches[1] ] for an output connector named matches[2]
         m_connections.push_back( Connection( Connector( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ),
@@ -147,8 +147,8 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // matches[2] is the property name
         // matches[3] is the property value
 
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << matches[2] << "\" of module " << matches[1] << " set to "
-                                                 << matches[3];
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << matches[2] << "\" of module " << matches[1]
+                                                 << " set to " << matches[3];
 
         m_properties.push_back( PropertyValue( Property( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
     }

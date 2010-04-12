@@ -23,7 +23,8 @@
 //---------------------------------------------------------------------------
 
 #include <fstream>
-#include <utility>
+#include <string>
+#include <vector>
 
 #include <boost/regex.hpp>
 
@@ -119,7 +120,7 @@ void WProjectFile::threadMain()
             ( *iter )->done();
         }
     }
-    catch ( const std::exception& e )
+    catch( const std::exception& e )
     {
         // remove from thread list
         WKernel::getRunningKernel()->getRootContainer()->finishedPendingThread( shared_from_this() );
