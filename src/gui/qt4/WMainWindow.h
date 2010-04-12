@@ -178,6 +178,11 @@ public slots:
      */
     void projectSave();
 
+    /**
+     * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.
+     */
+    void setFibersLoaded();
+
 private:
     /**
      * Sets up the permanent tool bar.
@@ -206,6 +211,8 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
+
+    bool m_fibLoaded; //!< Indicates whether a fiber data set is already loaded.
 
     /**
      * All registered WQtCustomDockWidgets.
