@@ -103,6 +103,14 @@ public:
     virtual bool setAsString( std::string value ) = 0;
 
     /**
+     * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
+     * should also print min/max constraints and so on. This simply is the value.
+     *
+     * \return the value as a string.
+     */
+    virtual std::string getAsString() = 0;
+
+    /**
      * This method returns a condition which gets fired whenever the property changes somehow. It is fired when:
      * \li \ref setHidden is called and the hidden state changes
      * \li \ref setAsString is called and the value changes

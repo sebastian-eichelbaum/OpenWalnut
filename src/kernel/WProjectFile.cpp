@@ -101,7 +101,7 @@ void WProjectFile::threadMain()
         }
 
         // the comment
-        static const boost::regex commentRe( "^//.*$" );
+        static const boost::regex commentRe( "^ *//.*$" );
 
         // read it line by line
         std::string line;       // the current line

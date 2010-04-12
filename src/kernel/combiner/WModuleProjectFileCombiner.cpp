@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <map>
+#include <set>
 #include <list>
 #include <string>
 #include <utility>
@@ -41,6 +42,10 @@
 #include "../exceptions/WModuleConnectorNotFound.h"
 
 #include "../../common/exceptions/WFileNotFound.h"
+#include "../../common/WProperties.h"
+#include "../../common/WPropertyBase.h"
+#include "../../common/WPropertyVariable.h"
+#include "../../common/WPropertyTypes.h"
 #include "../../common/WLogger.h"
 
 #include "WModuleProjectFileCombiner.h"
@@ -65,10 +70,10 @@ WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
 bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumber )
 {
     // this is the proper regular expression for modules
-    static const boost::regex modRe( "^MODULE:([0-9]*):(.*)$" );
-    static const boost::regex dataRe( "^DATA:([0-9]*):(.*)$" );
-    static const boost::regex conRe( "^CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
-    static const boost::regex propRe( "^PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
+    static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):(.*)$" );
+    static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
+    static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
     boost::smatch matches;  // the list of matches
     if ( boost::regex_match( line, matches, modRe ) )
@@ -289,8 +294,111 @@ void WModuleProjectFileCombiner::done()
     apply();
 }
 
+/**
+ * Recursively prints the properties and nested properties.
+ *
+ * \param output    the output stream to print to
+ * \param props     the properties to recursively print
+ * \param indent    the indentation level
+ * \param prefix    the prefix (name prefix of property)
+ * \param module    the module ID to use
+ */
+void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, std::string prefix, unsigned int module )
+{
+    // get access object
+    WProperties::PropertyAccessType a = props->getAccessObject();
+    a->beginWrite();    // use write lock here to avoid manipulation of properties list during file write
+
+    output << indent << "// Property Group: " << props->getName() << std::endl;
+
+    // iterate of them and print them to output
+    for ( WProperties::PropertyConstIterator iter = a->get().begin(); iter != a->get().end(); ++iter )
+    {
+        if ( ( *iter )->getType() != PV_GROUP )
+        {
+            output << indent + "    " << "PROPERTY:(" << module << "," << prefix + ( *iter )->getName() << ")="
+                   << ( *iter )->getAsString() << std::endl;
+        }
+        else
+        {
+            // it is a group -> recursively print it
+            if ( prefix.empty() )
+            {
+                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", ( *iter )->getName() + "/", module );
+            }
+            else
+            {
+                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", prefix + ( *iter )->getName() + "/", module );
+            }
+        }
+    }
+
+    output << indent << "// Property Group END: " << props->getName() << std::endl;
+
+    a->endWrite();
+}
+
 void WModuleProjectFileCombiner::save( std::ostream& output )
 {
+    // grab access object of root container
+    WModuleContainer::ModuleAccessType container = WKernel::getRunningKernel()->getRootContainer()->getAccessObject();
 
+    std::map< boost::shared_ptr< WModule >, unsigned int > moduleToIDMap;
+
+    // get a write access to avoid others to modify the container while project file is written.
+    container->beginWrite();
+
+    output << "// Modules and Properties" << std::endl <<std::endl;
+
+    // iterate all modules:
+    unsigned int i = 0;
+    for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
+    {
+        // store the mapping of ptr to ID
+        moduleToIDMap[ ( *iter ) ] = i;
+
+        // handle data modules separately
+        if ( ( *iter )->getType() == MODULE_DATA )
+        {
+            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WMData >( ( *iter ) )->getFilename() << std::endl;
+        }
+        else
+        {
+            output << "MODULE:" << i << ":" <<  ( *iter )->getName() << std::endl;
+        }
+
+        // the properties:
+        printProperties( output, ( *iter )->getProperties(), "", "", i );
+
+        // some readability:
+        output << std::endl;
+        ++i;
+    }
+
+    // finally, process all connections for each module
+    output << "// Connections" << std::endl;
+
+    // iterate over all modules
+    for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
+    {
+        // iterate over all outputs
+        const std::set< boost::shared_ptr< WModuleOutputConnector > >& outs = ( *iter )->getOutputConnectors();
+        for ( std::set< boost::shared_ptr< WModuleOutputConnector > >::const_iterator citer = outs.begin(); citer != outs.end(); ++citer )
+        {
+            // iterate over all connections:
+            // TODO(ebaum): iterating over a protected member variable? Thats ugly. This should be adopted to WSharedAccess
+            boost::unique_lock<boost::shared_mutex> lock( ( *citer )->m_connectionListLock );
+            for ( std::set<boost::shared_ptr<WModuleConnector> >::const_iterator iciter = ( *citer )->m_connected.begin();
+                  iciter != ( *citer )->m_connected.end(); ++iciter )
+            {
+                output << "CONNECTION:(" << moduleToIDMap[ ( *iter ) ] << "," << ( *citer )->getName() << ")->(" <<
+                                            moduleToIDMap[ ( *iciter )->m_module ] << "," << ( *iciter )->getName() << ")" << std::endl;
+            }
+            lock.unlock();
+        }
+    }
+
+    // thats it
+    container->endWrite();
 }
 

@@ -44,6 +44,8 @@
 class WModuleConnector: public boost::enable_shared_from_this<WModuleConnector>
 {
 friend class WModuleConnectorTest;
+friend class WModuleProjectFileCombiner;
+
 public:
 
     /**

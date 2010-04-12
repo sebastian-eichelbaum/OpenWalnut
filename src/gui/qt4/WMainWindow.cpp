@@ -412,7 +412,6 @@ void WMainWindow::projectSave()
             QString message = "<b>Problem while saving project file.</b><br/><br/><b>File:  </b>" + ( *constIterator ) +
                               "<br/><b>Message:  </b>" + QString::fromStdString( e.what() );
             QMessageBox::critical( this, title, message );
-
         }
     }
 }
