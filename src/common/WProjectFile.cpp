@@ -65,6 +65,12 @@ void WProjectFile::load()
     run();
 }
 
+void WProjectFile::save()
+{
+    wlog::info( "Project File" ) << "Saving project file \"" << m_project.file_string() << "\".";
+    wlog::info( "Project File" ) << "SORRY. Not yet implemented.";
+}
+
 void WProjectFile::threadMain()
 {
     try

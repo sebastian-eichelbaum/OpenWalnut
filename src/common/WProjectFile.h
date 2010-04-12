@@ -59,6 +59,11 @@ public:
      */
     virtual void load();
 
+    /**
+     * Saves the current state to the file specified in the constructor.
+     */
+    virtual void save();
+
 protected:
 
     /**

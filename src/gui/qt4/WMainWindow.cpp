@@ -75,6 +75,7 @@ void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
+    m_iconManager.addIcon( std::string( "saveProject" ), projOpen_xpm ); // TODO(wiebel): please add a nice project save icon here
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
@@ -173,18 +174,22 @@ void WMainWindow::setupPermanentToolBar()
 
     WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
-    WQtPushButton* projectButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
+    WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
+    WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
     connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
-    connect( projectButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
+    connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
+    connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSave() ) );
 
     loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
-    projectButton->setToolTip( "Load a project from file" );
+    projectLoadButton->setToolTip( "Load a project from file" );
+    projectSaveButton->setToolTip( "Save current project to file" );
 
     m_permanentToolBar->addWidget( loadButton );
-    m_permanentToolBar->addWidget( projectButton );
+    m_permanentToolBar->addWidget( projectLoadButton );
+    m_permanentToolBar->addWidget( projectSaveButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( roiButton );
 
@@ -370,6 +375,35 @@ WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 WQtToolBar* WMainWindow::getCompatiblesToolBar()
 {
     return m_compatiblesToolBar;
+}
+
+void WMainWindow::projectSave()
+{
+    QFileDialog fd;
+    fd.setWindowTitle( "Save Project as" );
+    fd.setFileMode( QFileDialog::AnyFile );
+
+    QStringList filters;
+    filters << "Project File (*.owproj)"
+            << "Any files (*)";
+    fd.setNameFilters( filters );
+    fd.setViewMode( QFileDialog::Detail );
+    QStringList fileNames;
+    if ( fd.exec() )
+    {
+        fileNames = fd.selectedFiles();
+    }
+
+    QStringList::const_iterator constIterator;
+    for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    {
+        boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                new WProjectFile( ( *constIterator ).toStdString() )
+        );
+
+        // This call is synchronous.
+        proj->save();
+    }
 }
 
 void WMainWindow::projectLoad()

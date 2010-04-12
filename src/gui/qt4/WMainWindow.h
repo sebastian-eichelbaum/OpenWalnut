@@ -173,6 +173,11 @@ public slots:
      */
     void projectLoad();
 
+    /**
+     * Gets called whenever the user presses the project save button.
+     */
+    void projectSave();
+
 private:
     /**
      * Sets up the permanent tool bar.
