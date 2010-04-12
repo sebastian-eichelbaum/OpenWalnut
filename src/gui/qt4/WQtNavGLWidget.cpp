@@ -59,6 +59,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
 
     m_scene = new WGEScene();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
+    m_glWidget->getViewer()->getView()->requestContinuousUpdate( false );
     m_glWidget->getViewer()->setScene( m_scene );
 
     if( title ==  QString( "axial" ) )
