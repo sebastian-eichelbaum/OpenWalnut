@@ -75,7 +75,7 @@ void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
-    m_iconManager.addIcon( std::string( "saveProject" ), projOpen_xpm ); // TODO(wiebel): please add a nice project save icon here
+    m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
@@ -188,6 +188,7 @@ void WMainWindow::setupPermanentToolBar()
     projectSaveButton->setToolTip( "Save current project to file" );
 
     m_permanentToolBar->addWidget( loadButton );
+    m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( projectLoadButton );
     m_permanentToolBar->addWidget( projectSaveButton );
     m_permanentToolBar->addSeparator();
