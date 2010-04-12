@@ -122,9 +122,7 @@ void WMMarchingCubes::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        // acquire data from the input connector
-        m_dataSet = m_input->getData();
-        if ( !m_dataSet.get() )
+        if ( !m_input->getData().get() )
         {
             // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
@@ -133,17 +131,30 @@ void WMMarchingCubes::moduleMain()
             continue;
         }
 
-        m_isoValueProp->setMin( m_dataSet->getMin() );
-        m_isoValueProp->setMax( m_dataSet->getMax() );
+        if( m_dataSet != m_input->getData() )
+        {
+            // acquire data from the input connector
+            m_dataSet = m_input->getData();
+
+            // set appropriate constraints for properties
+            m_isoValueProp->setMin( m_dataSet->getMin() );
+            m_isoValueProp->setMax( m_dataSet->getMax() );
+            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ) );
+            m_moduleState.wait(); // need this to avoid double executing because "set" fires the conditionset
+        }
 
         // update ISO surface
         debugLog() << "Computing surface ...";
+
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 2 ) );
+        m_progress->addSubProgress( progress );
 
         generateSurfacePre( m_isoValueProp->get() );
 
         // TODO(wiebel): MC remove this from here
         //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
 
+        ++*progress;
         debugLog() << "Rendering surface ...";
 
         // settings for normal isosurface
@@ -152,6 +163,7 @@ void WMMarchingCubes::moduleMain()
 
         renderSurface();
         debugLog() << "Done!";
+        progress->finish();
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
