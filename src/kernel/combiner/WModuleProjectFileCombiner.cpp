@@ -289,3 +289,8 @@ void WModuleProjectFileCombiner::done()
     apply();
 }
 
+void WModuleProjectFileCombiner::save( std::ostream& output )
+{
+
+}
+

@@ -25,6 +25,7 @@
 #ifndef WPROJECTFILEPARSER_H
 #define WPROJECTFILEPARSER_H
 
+#include <ostream>
 #include <string>
 
 /**
@@ -60,6 +61,13 @@ public:
      * processing after parsing line by line.
      */
     virtual void done();
+
+    /**
+     * Saves the state to the specified stream.
+     *
+     * \param output the stream to print the state to.
+     */
+    virtual void save( std::ostream& output ) = 0;
 
 protected:
 

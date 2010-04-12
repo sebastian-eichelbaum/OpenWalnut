@@ -25,6 +25,7 @@
 #ifndef WMODULEPROJECTFILECOMBINER_H
 #define WMODULEPROJECTFILECOMBINER_H
 
+#include <ostream>
 #include <list>
 #include <map>
 #include <string>
@@ -88,6 +89,13 @@ public:
      * processing after parsing line by line.
      */
     virtual void done();
+
+    /**
+     * Saves the state to the specified stream.
+     *
+     * \param output the stream to print the state to.
+     */
+    virtual void save( std::ostream& output );
 
 protected:
 

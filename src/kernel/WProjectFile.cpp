@@ -31,6 +31,7 @@
 #include "WKernel.h"
 #include "combiner/WModuleProjectFileCombiner.h"
 #include "../common/exceptions/WFileNotFound.h"
+#include "../common/exceptions/WFileOpenFailed.h"
 
 #include "WProjectFile.h"
 
@@ -68,7 +69,21 @@ void WProjectFile::load()
 void WProjectFile::save()
 {
     wlog::info( "Project File" ) << "Saving project file \"" << m_project.file_string() << "\".";
-    wlog::info( "Project File" ) << "SORRY. Not yet implemented.";
+
+    // open the file for write
+    std::ofstream output( m_project.file_string().c_str() );
+    if ( !output.is_open() )
+    {
+        throw WFileOpenFailed( "The project file \"" + m_project.file_string() + "\" could not be opened for write access." );
+    }
+
+    // allow each parser to handle save request
+    for ( std::vector< WProjectFileParser* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+    {
+        ( *iter )->save( output );
+    }
+
+    output.close();
 }
 
 void WProjectFile::threadMain()

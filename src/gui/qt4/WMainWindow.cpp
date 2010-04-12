@@ -401,8 +401,19 @@ void WMainWindow::projectSave()
                 new WProjectFile( ( *constIterator ).toStdString() )
         );
 
-        // This call is synchronous.
-        proj->save();
+        try
+        {
+            // This call is synchronous.
+            proj->save();
+        }
+        catch( const std::exception& e )
+        {
+            QString title = "Problem while saving project file.";
+            QString message = "<b>Problem while saving project file.</b><br/><br/><b>File:  </b>" + ( *constIterator ) +
+                              "<br/><b>Message:  </b>" + QString::fromStdString( e.what() );
+            QMessageBox::critical( this, title, message );
+
+        }
     }
 }
 
