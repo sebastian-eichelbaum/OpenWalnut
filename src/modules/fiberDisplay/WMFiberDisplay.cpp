@@ -101,10 +101,15 @@ void WMFiberDisplay::moduleMain()
 
             if( m_dataset->size() != 0 ) // incase of an empty fiber dataset nothing is to display
             {
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+                boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber Display", 2 ) );
+                m_progress->addSubProgress( progress );
 
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
+                ++*progress;
                 WKernel::getRunningKernel()->getRoiManager()->addFiberDataset( m_dataset );
+                ++*progress;
                 create();
+                progress->finish();
             }
             else
             {
