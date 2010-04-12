@@ -38,7 +38,7 @@
 #include "../../common/WIOTools.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/WProjectFile.h"
+#include "../../kernel/WProjectFile.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "WOpenCustomDockWidgetEvent.h"

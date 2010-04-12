@@ -28,9 +28,9 @@
 
 #include <boost/regex.hpp>
 
-#include "../kernel/WKernel.h"
-#include "../kernel/combiner/WModuleProjectFileCombiner.h"
-#include "exceptions/WFileNotFound.h"
+#include "WKernel.h"
+#include "combiner/WModuleProjectFileCombiner.h"
+#include "../common/exceptions/WFileNotFound.h"
 
 #include "WProjectFile.h"
 

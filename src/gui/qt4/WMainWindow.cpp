@@ -52,7 +52,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/WProjectFile.h"
+#include "../../kernel/WProjectFile.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
 

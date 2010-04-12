@@ -32,7 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WProjectFileParser.h"
+#include "../WProjectFileParser.h"
 
 #include "../WModuleCombiner.h"
 
