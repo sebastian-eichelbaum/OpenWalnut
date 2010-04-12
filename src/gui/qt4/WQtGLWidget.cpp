@@ -104,7 +104,9 @@ WQtGLWidget::~WQtGLWidget()
 void WQtGLWidget::initialize()
 {
     if ( m_isInitialized() )
+    {
         return;
+    }
 
     // initialize OpenGL context and OpenSceneGraph
     osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
