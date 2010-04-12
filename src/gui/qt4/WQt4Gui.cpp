@@ -38,7 +38,7 @@
 #include "../../common/WIOTools.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
-#include "../../kernel/combiner/WModuleProjectFileCombiner.h"
+#include "../../common/WProjectFile.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "WOpenCustomDockWidgetEvent.h"
@@ -167,9 +167,10 @@ int WQt4Gui::run()
     {
         try
         {
-            boost::shared_ptr< WModuleProjectFileCombiner > proj = boost::shared_ptr< WModuleProjectFileCombiner >(
-                    new WModuleProjectFileCombiner( m_optionsMap["project"].as< std::string >() )
+            boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                    new WProjectFile( m_optionsMap["project"].as< std::string >() )
             );
+
             // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
             proj->run();
         }

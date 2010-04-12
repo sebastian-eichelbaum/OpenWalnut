@@ -52,7 +52,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
-#include "../../kernel/combiner/WModuleProjectFileCombiner.h"
+#include "../../common/WProjectFile.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
 
@@ -391,9 +391,11 @@ void WMainWindow::projectLoad()
     QStringList::const_iterator constIterator;
     for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
-        boost::shared_ptr< WModuleProjectFileCombiner > proj = boost::shared_ptr< WModuleProjectFileCombiner >(
-                new WModuleProjectFileCombiner( ( *constIterator ).toStdString() )
+        boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                new WProjectFile( ( *constIterator ).toStdString() )
         );
+
+        // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
         proj->run();
     }
 }

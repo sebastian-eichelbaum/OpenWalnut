@@ -31,18 +31,17 @@
 #include <utility>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/filesystem.hpp>
+
+#include "../../common/WProjectFileParser.h"
 
 #include "../WModuleCombiner.h"
 
 /**
- * This is a base class for all module combination classes. The basic idea is to hide the actual combination work from others. These classes may
- * be useful in the GUI. The GUI can create a module combiner instance in a special way, with an interface the GUI wants to have. Then, the
- * kernel can construct the actual module graph out of it. Another purpose is some kind of project file loading. One can write a combiner which
- * loads projects files and creates a module graph out of it. The only think which all the combiners need to know: the target container. Derive
- * all specific combiner classes from this one.
+ * This class is able to parse project files and create the appropriate module graph inside a specified container. It is also derived from
+ * WProjectFileParser to allow WProjectFile to fill this combiner.
  */
-class WModuleProjectFileCombiner: public WModuleCombiner
+class WModuleProjectFileCombiner: public WModuleCombiner,
+                                  public WProjectFileParser
 {
 public:
 
@@ -50,16 +49,13 @@ public:
      * Creates an empty combiner.
      *
      * \param target the target container where to add the modules to.
-     * \param project the project file to load.
      */
-    WModuleProjectFileCombiner( boost::filesystem::path project, boost::shared_ptr< WModuleContainer > target );
+    explicit WModuleProjectFileCombiner( boost::shared_ptr< WModuleContainer > target );
 
     /**
      * Creates an empty combiner. This constructor automatically uses the kernel's root container as target container.
-     *
-     * \param project the project file to load.
      */
-    explicit WModuleProjectFileCombiner( boost::filesystem::path project );
+    WModuleProjectFileCombiner();
 
     /**
      * Destructor.
@@ -77,12 +73,23 @@ public:
      */
     virtual void apply();
 
-protected:
+    /**
+     * This method parses the specified line and interprets it to fill the internal module graph structure.
+     *
+     * \param line the current line as string
+     * \param lineNumber the current line number. Useful for error/warning/debugging output.
+     *
+     * \return true if the line could be parsed.
+     */
+    virtual bool parse( std::string line, unsigned int lineNumber );
 
     /**
-     * The project file path. This file gets loaded during apply().
+     * Called whenever the end of the project file has been reached. This is useful if your specific parser class wants to do some post
+     * processing after parsing line by line.
      */
-    boost::filesystem::path m_project;
+    virtual void done();
+
+protected:
 
     /**
      * The module ID type. A pair of ID and pointer to module.
@@ -123,11 +130,6 @@ protected:
      * All properties.
      */
     std::list< PropertyValue > m_properties;
-
-    /**
-     * Parses the input file and fills m_modules, m_connections and m_properites.
-     */
-    void parse();
 
 private:
 };
