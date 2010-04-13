@@ -111,6 +111,13 @@ public:
     void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
+     * Removes a roi entry from the dataset browser
+     *
+     * \param roi pointer to the roi representation object
+     */
+    void removeRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+
+    /**
      * helper funtion to connect all qt widgets with their functions
      */
     void connectSlots();

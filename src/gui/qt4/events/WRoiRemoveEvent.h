@@ -22,36 +22,48 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEVENTTYPES_H
-#define WEVENTTYPES_H
+#ifndef WROIREMOVEEVENT_H
+#define WROIREMOVEEVENT_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <QtCore/QEvent>
 
+#include "../../../graphicsEngine/WROI.h"
+#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+
+
 /**
- * This header contains every custom event ID used in QT's event mechanism. Please note, that since Qt4.4 there is
- * QEvent::registerEventType which can handle this job better than this header. But as we use an older Qt Version we need to do it
- * this way.
+ * Event signalling a roi has been removed from the roi manager in the kernel.
  */
+class WRoiRemoveEvent : public QEvent
+{
+public:
+    /**
+     * constructor
+     * \param roi
+     */
+    explicit WRoiRemoveEvent( boost::shared_ptr< WRMROIRepresentation > roi );
 
-// when a module got associated
-#define WQT_ASSOC_EVENT QEvent::User + 1
+    /**
+     * destructor
+     */
+    ~WRoiRemoveEvent();
 
-// when a module signals its ready state
-#define WQT_READY_EVENT QEvent::User + 2
+    /**
+     * Getter for the roi that got removed.
+     *
+     * \return the roi.
+     */
+    boost::shared_ptr< WRMROIRepresentation > getRoi();
 
-// when a roi got associated
-#define WQT_ROI_ASSOC_EVENT QEvent::User + 3
+protected:
+    /**
+     * The roi that got removed.
+     */
+    boost::shared_ptr< WRMROIRepresentation > m_roi;
 
-// when a module crashes
-#define WQT_CRASH_EVENT QEvent::User + 4
+private:
+};
 
-// when a subject signals a newly registered data set
-#define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
-
-// when a property changes
-#define WQT_PROPERTY_CHANGED_EVENT QEvent::User + 6
-
-// when a roi got removed
-#define WQT_ROI_REMOVE_EVENT QEvent::User + 7
-
-#endif  // WEVENTTYPES_H
+#endif  // WROIREMOVEEVENT_H
