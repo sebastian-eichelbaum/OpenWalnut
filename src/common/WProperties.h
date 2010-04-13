@@ -793,6 +793,19 @@ public:
                                 boost::shared_ptr< WCondition > condition,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
+protected:
+
+   /**
+    * Helping function to find a property inside a specific group. It does not recursively find properties nested inside other property groups.
+    *
+    * \param props the group to search in. This is not a shared pointer since it is not needed. It simply can't happen that it is freed during
+    * findProperty as it is contained in this or a nested properties instance.
+    * \param name the name of the property inside THIS group.
+    *
+    * \return the property if found, else NULL.
+    */
+    boost::shared_ptr< WPropertyBase > findProperty( WProperties* props, std::string name );
+
 private:
 
     /**
