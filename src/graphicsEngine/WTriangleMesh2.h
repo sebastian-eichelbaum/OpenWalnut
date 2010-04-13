@@ -127,6 +127,14 @@ public:
     void addTriangle( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 vert2 );
 
     /**
+     * sets a vertex to a new position
+     *
+     * \param index
+     * \param vert
+     */
+    void setVertex( size_t index, osg::Vec3 vert );
+
+    /**
      * sets the normal for a given vertex
      *
      * \param index
@@ -221,6 +229,14 @@ public:
     /**
      * getter
      *
+     * \param index
+     * \return color
+     */
+    osg::Vec4 getVertColor( size_t index ) const;
+
+    /**
+     * getter
+     *
      * \param triId
      * \param vertNum
      * \return vertex
@@ -287,6 +303,32 @@ public:
      */
     size_t getTriVertId2( size_t triId ) const;
 
+    /**
+     *  adds a mesh to the existing, no check for duplicate vertexes is performed, an additional
+     *  vector may be specified to move the mesh to add
+     *
+     *  \param mesh
+     *  \param xOff
+     *  \param yOff
+     *  \param zOff
+     */
+    void addMesh( boost::shared_ptr<WTriangleMesh2> mesh, float xOff = 0., float yOff = 0., float zOff = 0. );
+
+    /**
+     *  moves the entire mesh to a new postion
+     *
+     *  \param xOff
+     *  \param yOff
+     *  \param zOff
+     */
+    void translateMesh( float xOff, float yOff, float zOff );
+
+    /**
+     * multiplies the vertex vectors of the mesh with a given number
+     *
+     * \param zoom
+     */
+    void zoomMesh( float zoom );
 
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
@@ -584,6 +626,11 @@ inline size_t WTriangleMesh2::getTriVertId2( size_t triId ) const
 {
     WAssert( triId < m_countTriangles, "get tri vert id 2: triangle id out of range" );
     return m_triangles[triId * 3 + 2];
+}
+
+inline void WTriangleMesh2::setVertex( size_t index, osg::Vec3 vert )
+{
+    ( *m_verts )[index] = vert;
 }
 
 #endif  // WTRIANGLEMESH2_H

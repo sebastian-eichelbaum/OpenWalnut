@@ -185,6 +185,12 @@ osg::Vec3 WTriangleMesh2::getVertex( size_t index ) const
     return ( *m_verts )[index];
 }
 
+osg::Vec4 WTriangleMesh2::getVertColor( size_t index ) const
+{
+    WAssert( index < m_countVerts, "get vertex: index out of range" );
+    return ( *m_vertColors )[index];
+}
+
 wmath::WPosition WTriangleMesh2::getVertexAsPosition( size_t index ) const
 {
     WAssert( index < m_countVerts, "get vertex as position: index out of range" );
@@ -389,6 +395,10 @@ void WTriangleMesh2::doLoopSubD()
     }
 
     delete[] newVertexPositions;
+
+    ( *m_vertNormals ).resize( ( *m_verts ).size() );
+    ( *m_vertColors ).resize( ( *m_verts ).size() );
+
     m_meshDirty = true;
 }
 
@@ -563,6 +573,44 @@ size_t WTriangleMesh2::loopGetThirdVert( size_t coVert1, size_t coVert2, size_t 
         return getTriVertId1( triangleNum );
     }
     return getTriVertId2( triangleNum );
+}
+
+void WTriangleMesh2::addMesh( boost::shared_ptr<WTriangleMesh2> mesh, float xOff, float yOff, float zOff )
+{
+    size_t oldVertSize = m_countVerts;
+
+    ( *m_vertColors ).resize( oldVertSize + mesh->vertSize() );
+    for ( size_t i = 0; i < mesh->vertSize(); ++i )
+    {
+        osg::Vec3 v( mesh->getVertex( i ) );
+        v[0] += xOff;
+        v[1] += yOff;
+        v[2] += zOff;
+        addVertex( v );
+        setVertexColor( oldVertSize + i, mesh->getVertColor( i ) );
+    }
+    for ( size_t i = 0; i < mesh->triangleSize(); ++i )
+    {
+        addTriangle( mesh->getTriVertId0( i ) + oldVertSize, mesh->getTriVertId1( i ) + oldVertSize, mesh->getTriVertId2( i ) + oldVertSize );
+    }
+    m_meshDirty = true;
+}
+
+void WTriangleMesh2::translateMesh( float xOff, float yOff, float zOff )
+{
+    osg::Vec3 t( xOff, yOff, zOff );
+    for ( size_t i = 0; i < ( *m_verts ).size(); ++i )
+    {
+        ( *m_verts )[i] += t;
+    }
+}
+
+void WTriangleMesh2::zoomMesh( float zoom )
+{
+    for ( size_t i = 0; i < ( *m_verts ).size(); ++i )
+    {
+        ( *m_verts )[i] *= zoom;
+    }
 }
 
 std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh2& rhs )
