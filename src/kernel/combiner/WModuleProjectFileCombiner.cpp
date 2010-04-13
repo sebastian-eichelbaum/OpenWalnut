@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <map>
+#include <set>
 #include <list>
 #include <string>
 #include <utility>
@@ -41,22 +42,24 @@
 #include "../exceptions/WModuleConnectorNotFound.h"
 
 #include "../../common/exceptions/WFileNotFound.h"
+#include "../../common/WProperties.h"
+#include "../../common/WPropertyBase.h"
+#include "../../common/WPropertyVariable.h"
+#include "../../common/WPropertyTypes.h"
 #include "../../common/WLogger.h"
 
 #include "WModuleProjectFileCombiner.h"
 
-WModuleProjectFileCombiner::WModuleProjectFileCombiner( boost::filesystem::path project, boost::shared_ptr< WModuleContainer > target ):
+WModuleProjectFileCombiner::WModuleProjectFileCombiner( boost::shared_ptr< WModuleContainer > target ):
     WModuleCombiner( target ),
-    m_project( project )
+    WProjectFileIO()
 {
-    parse();
 }
 
-WModuleProjectFileCombiner::WModuleProjectFileCombiner( boost::filesystem::path project ):
+WModuleProjectFileCombiner::WModuleProjectFileCombiner():
     WModuleCombiner( WKernel::getRunningKernel()->getRootContainer() ),
-    m_project( project )
+    WProjectFileIO()
 {
-    parse();
 }
 
 WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
@@ -64,121 +67,102 @@ WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
     // cleanup
 }
 
-void WModuleProjectFileCombiner::parse()
+bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumber )
 {
-    // Parse the file
-    wlog::info( "Kernel" ) << "Loading project file \"" << m_project.file_string() << "\".";
-
-    // read the file
-    std::ifstream input( m_project.file_string().c_str() );
-    if ( !input.is_open() )
-    {
-        throw WFileNotFound( "The project file \"" + m_project.file_string() + "\" does not exist." );
-    }
-
     // this is the proper regular expression for modules
-    static const boost::regex modRe( "^MODULE:([0-9]*):(.*)$" );
-    static const boost::regex dataRe( "^DATA:([0-9]*):(.*)$" );
-    static const boost::regex conRe( "^CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
-    static const boost::regex propRe( "^PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
-    static const boost::regex commentRe( "^//.*$" );
+    static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):(.*)$" );
+    static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
+    static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
-    // read it line by line
-    std::string line;       // the current line
     boost::smatch matches;  // the list of matches
-    int i = 0;              // line counter
-
-    while ( std::getline( input, line ) )
+    if ( boost::regex_match( line, matches, modRe ) )
     {
-        i++;
-        if ( boost::regex_match( line, matches, modRe ) )
+        // it is a module line
+        // matches[1] is the ID
+        // matches[2] is the name of the module
+
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Module \"" << matches[2] << "\" with ID " << matches[1];
+
+        // create a module instance
+        boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( matches[2] );
+
+        // data modules are not allowed here
+        if ( !proto )
         {
-            // it is a module line
-            // matches[1] is the ID
-            // matches[2] is the name of the module
+            wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << matches[2] << "\". Skipping.";
+        }
+        else if ( proto->getType() == MODULE_DATA )
+        {
+            wlog::error( "Project Loader" ) << "Data modules are not allowed to be specified in a \"MODULE\" Statement." <<
+                                               " Use the \"DATA\" statement instead. Skipping.";
+        }
+        else
+        {
+            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+            m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
+        }
+    }
+    else if ( boost::regex_match( line, matches, dataRe ) )
+    {
+        // it is a dataset line
+        // matches[1] is the ID
+        // matches[2] is the filename
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1];
 
-            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Module \"" << matches[2] << "\" with ID " << matches[1];
-
-            // create a module instance
-            boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( matches[2] );
-
-            // data modules are not allowed here
-            if ( !proto )
+        // create a module instance
+        boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( "Data Module" );
+        if ( !proto )
+        {
+            wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << "Data Module" << "\"."
+                                            << " This should not happen!. Skipping.";
+        }
+        else
+        {
+            std::string parameter = std::string( matches[2] );
+            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+            if ( parameter.empty() )
             {
-                wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << matches[2] << "\". Skipping.";
-            }
-            else if ( proto->getType() == MODULE_DATA )
-            {
-                wlog::error( "Project Loader" ) << "Data modules are not allowed to be specified in a \"MODULE\" Statement." <<
-                                                   " Use the \"DATA\" statement instead. Skipping.";
+                wlog::error( "Project Loader" ) << "Data modules need an additional filename parameter. Skipping.";
             }
             else
             {
-                boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+                boost::shared_static_cast< WMData >( module )->setFilename( parameter );
                 m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
             }
         }
-        else if ( boost::regex_match( line, matches, dataRe ) )
-        {
-            // it is a dataset line
-            // matches[1] is the ID
-            // matches[2] is the filename
-            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Data \"" << matches[2] << "\" with ID " << matches[1];
-
-            // create a module instance
-            boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( "Data Module" );
-            if ( !proto )
-            {
-                wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << "Data Module" << "\"."
-                                                << " This should not happen!. Skipping.";
-            }
-            else
-            {
-                std::string parameter = std::string( matches[2] );
-                boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
-                if ( parameter.empty() )
-                {
-                    wlog::error( "Project Loader" ) << "Data modules need an additional filename parameter. Skipping.";
-                }
-                else
-                {
-                    boost::shared_static_cast< WMData >( module )->setFilename( parameter );
-                    m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
-                }
-            }
-        }
-        else if ( boost::regex_match( line, matches, conRe ) )
-        {
-            // it is a connector line
-            // matches[1] and [2] are the module ID and connector name of the output connector
-            // matches[3] and [4] are the module ID and connector name of the target input connector
-
-            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Connection between \"" << matches[2] << "\" of module " << matches[1] <<
-                                                               " and \"" << matches[4] << "\" of module " << matches[3] << ".";
-
-            // now we search in modules[ matches[1] ] for an output connector named matches[2]
-            m_connections.push_back( Connection( Connector( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ),
-                                               Connector( boost::lexical_cast< unsigned int >( matches[3] ), matches[4] ) ) );
-        }
-        else if ( boost::regex_match( line, matches, propRe ) )
-        {
-            // it is a property line
-            // matches[1] is the module ID
-            // matches[2] is the property name
-            // matches[3] is the property value
-
-            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Property \"" << matches[2] << "\" of module " << matches[1] << " set to "
-                                                     << matches[3];
-
-            m_properties.push_back( PropertyValue( Property( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
-        }
-        else if ( !line.empty() && !boost::regex_match( line, matches, commentRe ) )
-        {
-            wlog::debug( "Project Loader [Parser]" ) << "Line " << i << ": Malformed. Skipping.";
-        }
     }
-    // close it
-    input.close();
+    else if ( boost::regex_match( line, matches, conRe ) )
+    {
+        // it is a connector line
+        // matches[1] and [2] are the module ID and connector name of the output connector
+        // matches[3] and [4] are the module ID and connector name of the target input connector
+
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Connection between \"" << matches[2] << "\" of module "
+                                                 << matches[1] << " and \"" << matches[4] << "\" of module " << matches[3] << ".";
+
+        // now we search in modules[ matches[1] ] for an output connector named matches[2]
+        m_connections.push_back( Connection( Connector( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ),
+                                           Connector( boost::lexical_cast< unsigned int >( matches[3] ), matches[4] ) ) );
+    }
+    else if ( boost::regex_match( line, matches, propRe ) )
+    {
+        // it is a property line
+        // matches[1] is the module ID
+        // matches[2] is the property name
+        // matches[3] is the property value
+
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << matches[2] << "\" of module " << matches[1]
+                                                 << " set to " << matches[3];
+
+        m_properties.push_back( PropertyValue( Property( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void WModuleProjectFileCombiner::apply()
@@ -303,5 +287,119 @@ void WModuleProjectFileCombiner::apply()
     m_modules.clear();
     m_connections.clear();
     m_properties.clear();
+}
+
+void WModuleProjectFileCombiner::done()
+{
+    apply();
+}
+
+/**
+ * Recursively prints the properties and nested properties.
+ *
+ * \param output    the output stream to print to
+ * \param props     the properties to recursively print
+ * \param indent    the indentation level
+ * \param prefix    the prefix (name prefix of property)
+ * \param module    the module ID to use
+ */
+void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, std::string prefix,  // NOLINT
+                      unsigned int module )
+{
+    // get access object
+    WProperties::PropertyAccessType a = props->getAccessObject();
+    a->beginWrite();    // use write lock here to avoid manipulation of properties list during file write
+
+    output << indent << "// Property Group: " << props->getName() << std::endl;
+
+    // iterate of them and print them to output
+    for ( WProperties::PropertyConstIterator iter = a->get().begin(); iter != a->get().end(); ++iter )
+    {
+        if ( ( *iter )->getType() != PV_GROUP )
+        {
+            output << indent + "    " << "PROPERTY:(" << module << "," << prefix + ( *iter )->getName() << ")="
+                   << ( *iter )->getAsString() << std::endl;
+        }
+        else
+        {
+            // it is a group -> recursively print it
+            if ( prefix.empty() )
+            {
+                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", ( *iter )->getName() + "/", module );
+            }
+            else
+            {
+                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", prefix + ( *iter )->getName() + "/", module );
+            }
+        }
+    }
+
+    output << indent << "// Property Group END: " << props->getName() << std::endl;
+
+    a->endWrite();
+}
+
+void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
+{
+    // grab access object of root container
+    WModuleContainer::ModuleAccessType container = WKernel::getRunningKernel()->getRootContainer()->getAccessObject();
+
+    std::map< boost::shared_ptr< WModule >, unsigned int > moduleToIDMap;
+
+    // get a write access to avoid others to modify the container while project file is written.
+    container->beginWrite();
+
+    output << "// Modules and Properties" << std::endl <<std::endl;
+
+    // iterate all modules:
+    unsigned int i = 0;
+    for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
+    {
+        // store the mapping of ptr to ID
+        moduleToIDMap[ ( *iter ) ] = i;
+
+        // handle data modules separately
+        if ( ( *iter )->getType() == MODULE_DATA )
+        {
+            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WMData >( ( *iter ) )->getFilename() << std::endl;
+        }
+        else
+        {
+            output << "MODULE:" << i << ":" <<  ( *iter )->getName() << std::endl;
+        }
+
+        // the properties:
+        printProperties( output, ( *iter )->getProperties(), "", "", i );
+
+        // some readability:
+        output << std::endl;
+        ++i;
+    }
+
+    // finally, process all connections for each module
+    output << "// Connections" << std::endl;
+
+    // iterate over all modules
+    for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
+    {
+        // iterate over all outputs
+        const std::set< boost::shared_ptr< WModuleOutputConnector > >& outs = ( *iter )->getOutputConnectors();
+        for ( std::set< boost::shared_ptr< WModuleOutputConnector > >::const_iterator citer = outs.begin(); citer != outs.end(); ++citer )
+        {
+            // iterate over all connections:
+            // TODO(ebaum): iterating over a protected member variable? Thats ugly. This should be adopted to WSharedAccess
+            boost::unique_lock<boost::shared_mutex> lock( ( *citer )->m_connectionListLock );
+            for ( std::set<boost::shared_ptr<WModuleConnector> >::const_iterator iciter = ( *citer )->m_connected.begin();
+                  iciter != ( *citer )->m_connected.end(); ++iciter )
+            {
+                output << "CONNECTION:(" << moduleToIDMap[ ( *iter ) ] << "," << ( *citer )->getName() << ")->(" <<
+                                            moduleToIDMap[ ( *iciter )->m_module ] << "," << ( *iciter )->getName() << ")" << std::endl;
+            }
+            lock.unlock();
+        }
+    }
+
+    // thats it
+    container->endWrite();
 }
 

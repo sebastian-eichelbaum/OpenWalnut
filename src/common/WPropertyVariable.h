@@ -297,6 +297,14 @@ public:
      */
     virtual bool setAsString( std::string value );
 
+    /**
+     * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
+     * should also print min/max constraints and so on. This simply is the value.
+     *
+     * \return the value as a string.
+     */
+    virtual std::string getAsString();
+
 protected:
 
     /**
@@ -455,6 +463,16 @@ bool WPropertyVariable< T >::setAsString( std::string value )
     }
 
     return true;
+}
+
+template < typename T >
+std::string WPropertyVariable< T >::getAsString()
+{
+    std::string val;
+    val = boost::lexical_cast< std::string >( WFlag< T >::get() );
+    // try catch( const boost::bad_lexical_cast &e ) ? No if this happens something is wrong with the value
+
+    return val;
 }
 
 template < typename T >

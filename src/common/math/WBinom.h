@@ -22,25 +22,64 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#ifndef WBINOM_H
+#define WBINOM_H
+
+#include <string>
+
+namespace wmath
+{
+/**
+ * Implements compile-time calculation of binomial coefficients.
+ *
+ *
+ * WBinom< n, k >::value = n! / ( k!(n-k)! ).
+ *
+ * \note For k > n, compilation fails.
+ */
+template< std::size_t n, std::size_t k >
+struct WBinom
+{
+    enum
+    {
+        value = WBinom< n - 1, k - 1 >::value + WBinom< n - 1, k >::value
+    };
+};
 
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * Specialization for n = k.
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
+template< std::size_t n >
+struct WBinom< n, n >
+{
+    enum
+    {
+        value = 1
+    };
+};
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+/**
+ * Specialization for k = 0.
+ */
+template< std::size_t n >
+struct WBinom< n, 0 >
+{
+    enum
+    {
+        value = 1
+    };
+};
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+/**
+ * This specialization of the WBinom struct is needed to avoid
+ * infinite recursion in case of k > n. The compiler should abort
+ * compilation with an error message.
+ */
+template< std::size_t k >
+struct WBinom< 0, k >
+{
+};
 
-#endif  // WICONS_H
+} // namespace wmath
+
+#endif  // WBINOM_H

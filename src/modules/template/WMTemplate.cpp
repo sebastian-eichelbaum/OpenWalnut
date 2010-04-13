@@ -344,7 +344,7 @@ void WMTemplate::moduleMain()
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
         // The if statement also checks for data validity as it uses the data! You should also always do that.
-        if ( m_anInteger->changed() || m_aDouble->changed() || ( dataChanged && dataValid ) )
+        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataChanged  ) && dataValid )
         {
             debugLog() << "Creating new OSG node";
 

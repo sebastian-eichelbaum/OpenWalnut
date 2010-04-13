@@ -55,6 +55,12 @@ bool WProperties::setAsString( std::string /*value*/ )
     return true;
 }
 
+std::string WProperties::getAsString()
+{
+    // groups can't be set in any way. -> ignore it.
+    return "";
+}
+
 bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
 {
     return ( prop1->getName() == prop2->getName() );

@@ -22,25 +22,50 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#ifndef WSPHERECREATOR_H
+#define WSPHERECREATOR_H
+
+#include <boost/shared_ptr.hpp>
+
+#include "../../graphicsEngine/WTriangleMesh2.h"
 
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * TODO(schurade): Document this!
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
+class WSphereCreator
+{
+public:
+    /**
+     * constructor, does nothing
+     */
+    WSphereCreator();
+    /**
+     * destructor
+     */
+    ~WSphereCreator();
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+    /**
+     * creates a sphere mesh by executing a given number of loopsubd on a
+     *
+     * \param resolution
+     * \param zoom
+     * \param xOff
+     * \param yOff
+     * \param zOff
+     */
+    boost::shared_ptr<WTriangleMesh2>createSphere( int resolution, float zoom = 1., float xOff = 0., float yOff = 0., float zOff = 0. );
 
-#endif  // WICONS_H
+
+
+protected:
+private:
+    /**
+     * creates a sphere mesh by executing a given number of loopsubd on a icosahedrom
+     *
+     * \param iterations
+     */
+    boost::shared_ptr<WTriangleMesh2>createIcosahedronSphere( int iterations );
+};
+
+#endif  // WSPHERECREATOR_H

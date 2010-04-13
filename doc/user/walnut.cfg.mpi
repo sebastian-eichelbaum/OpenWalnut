@@ -1,6 +1,9 @@
 ## This is a sample configuration file for OpenWalnut.
 ## Uncomment the options you are interested in.
 
+[general]
+allowOnlyOneFiberDataSet = yes # This will prevent you from accidently loading multiple fiber data sets.
+
 [modules]
 ## use this to specify the default module to add during load.
 ## It is a comma seperated list. If this is not specified the default empty is assumed.
@@ -21,4 +24,4 @@ toolBarIconText = no # show text next to module's icon
 # bgColor.g = .9 # background color (green part)
 # bgColor.b = .9 # background color (blue part)
 # zoomTrackballManipulator.allowThrow = yes # allow the auto-rotation thing when "throwing" an object with the mouse
-# multiThreadedViewers = no # Use multiple threads for the multiple viewers. Causes hanging on some machines when opening a new view.
+multiThreadedViewers = no # Use multiple threads for the multiple viewers. Causes hanging on some machines when opening a new view.

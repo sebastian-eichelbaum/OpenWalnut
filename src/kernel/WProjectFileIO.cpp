@@ -22,25 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include "WProjectFileIO.h"
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
+WProjectFileIO::WProjectFileIO()
+{
+    // initialize
+}
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+WProjectFileIO::~WProjectFileIO()
+{
+    // cleanup!
+}
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+void WProjectFileIO::done()
+{
+    // do nothing here. Overwrite this method if your specific parser needs to do some post processing.
+}
 
-#endif  // WICONS_H

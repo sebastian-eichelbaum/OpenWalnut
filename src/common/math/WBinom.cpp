@@ -22,25 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
-
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
-
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
-
-#endif  // WICONS_H
+#include "WBinom.h"

@@ -22,25 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#ifndef WTENSORFUNCTIONS_H
+#define WTENSORFUNCTIONS_H
 
+#include <vector>
+
+#include "WTensorSym.h"
+
+namespace wmath
+{
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * Compute all eigenvalues as well as the corresponding eigenvectors of a
+ * symmetric real Matrix.
+ *
+ * \pre Data_T must be castable to double.
+ *
+ * \param[in] mat A real symmetric matrix.
+ * \param[out] eigenValues A pointer to a vector of eigenvalues.
+ * \param[out] eigenVectors A pointer to a vector of eigenvectors.
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
+template< typename Data_T >
+void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
+                          std::vector< Data_T >* eigenValues,
+                          std::vector< WTensor< 1, 3, Data_T > >* eigenVectors );
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+} // namespace wmath
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
-
-#endif  // WICONS_H
+#endif  // WTENSORFUNCTIONS_H

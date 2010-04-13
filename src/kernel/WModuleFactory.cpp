@@ -45,21 +45,22 @@
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
+#include "../modules/geometryGlyphs/WMGeometryGlyphs.h"
 #include "../modules/hud/WMHud.h"
+#include "../modules/joinTreeTester/WMJoinTreeTester.h"
+#include "../modules/lineGuidedSlice/WMLineGuidedSlice.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/surfaceParticles/WMSurfaceParticles.h"
 #include "../modules/template/WMTemplate.h"
-#include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
-#include "../modules/lineGuidedSlice/WMLineGuidedSlice.h"
-#include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "../modules/vectorPlot/WMVectorPlot.h"
-#include "../modules/joinTreeTester/WMJoinTreeTester.h"
-#include "WModuleFactory.h"
+#include "../modules/voxelizer/WMVoxelizer.h"
+#include "../modules/writeNIfTI/WMWriteNIfTI.h"
+#include "combiner/WApplyPrototypeCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
-#include "combiner/WApplyPrototypeCombiner.h"
+#include "WModuleFactory.h"
 
 // factory instance as singleton
 boost::shared_ptr< WModuleFactory > WModuleFactory::m_instance = boost::shared_ptr< WModuleFactory >();
@@ -111,6 +112,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMJoinTreeTester() ) );
 
     lock.unlock();
