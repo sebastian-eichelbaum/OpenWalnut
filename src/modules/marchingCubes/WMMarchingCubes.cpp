@@ -50,6 +50,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 
 #include "WMMarchingCubes.h"
@@ -210,6 +211,8 @@ void WMMarchingCubes::properties()
     m_opacityProp->setMax( 100 );
 
     m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
+
+    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.3, 0.3, 0.3, 1.0 ) );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -296,9 +299,10 @@ template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr<
     m_grid = grid;
     WAssert( grid, "Grid is not of type WGridRegular3D." );
 
-    m_fCellLengthX = grid->getOffsetX();
-    m_fCellLengthY = grid->getOffsetY();
-    m_fCellLengthZ = grid->getOffsetZ();
+    // We choose the following to be 1 as we transform the positions later.
+    m_fCellLengthX = 1;
+    m_fCellLengthY = 1;
+    m_fCellLengthZ = 1;
 
     m_nCellsX = grid->getNbCoordsX() - 1;
     m_nCellsY = grid->getNbCoordsY() - 1;
@@ -647,7 +651,6 @@ void WMMarchingCubes::renderSurface()
 //     }
 }
 
-
 void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
 {
 //    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
@@ -684,7 +687,8 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     // colors
     osg::Vec4Array* colors = new osg::Vec4Array;
 
-    colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
+    WColor c = m_surfaceColor->get( true );
+    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -706,16 +710,11 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     // ------------------------------------------------
     // Shader stuff
 
-    // TODO(wiebel): fix texture coords.
-    double xext = m_grid->getOffsetX() * m_grid->getNbCoordsX();
-    double yext = m_grid->getOffsetY() * m_grid->getNbCoordsY();
-    double zext = m_grid->getOffsetZ() * m_grid->getNbCoordsZ();
-
     osg::Vec3Array* texCoords = new osg::Vec3Array;
     for( size_t i = 0; i < mesh->vertSize(); ++i )
     {
         osg::Vec3 vertPos = mesh->getVertex( i );
-        texCoords->push_back( osg::Vec3( vertPos[0]/xext, vertPos[1]/yext, vertPos[2]/zext ) );
+        texCoords->push_back( wge::wv3D2ov3( m_grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
     }
     surfaceGeometry->setTexCoordArray( 0, texCoords );
 
@@ -1012,7 +1011,7 @@ WTriangleMesh2 WMMarchingCubes::load( std::string /*fileName*/ )
     return triMesh;
 }
 
-void WMMarchingCubes::updateTextures()
+void WMMarchingCubes::updateGraphics()
 {
     if ( m_active->get() )
     {
@@ -1021,6 +1020,17 @@ void WMMarchingCubes::updateTextures()
     else
     {
         m_surfaceGeode->setNodeMask( 0x0 );
+    }
+
+    if( m_surfaceColor->changed() )
+    {
+        osg::Vec4Array* colors = new osg::Vec4Array;
+
+        WColor c = m_surfaceColor->get( true );
+        colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+        osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
 
     if ( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )

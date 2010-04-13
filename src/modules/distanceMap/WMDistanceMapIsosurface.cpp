@@ -90,6 +90,9 @@ void WMDistanceMapIsosurface::moduleMain()
     m_useTextureProp->set( true );
     m_properties->addProperty( m_useTextureProp );
 
+    m_surfaceColorProp = mcProps->getProperty( "Surface Color" )->toPropColor();
+    m_properties->addProperty( m_surfaceColorProp );
+
     m_opacityProp = mcProps->getProperty( "Opacity %" )->toPropInt();
     m_properties->addProperty( m_opacityProp );
 

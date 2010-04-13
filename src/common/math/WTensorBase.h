@@ -285,7 +285,7 @@ template< typename Index_T >
 std::size_t const WTensorBase< order, dim, Data_T >::getPos( Index_T const* const pos )
 {
     return WTensorBase< order - 1, dim, Data_T >::getPos( pos ) * dim + pos[ order - 1 ];
-};
+}
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >

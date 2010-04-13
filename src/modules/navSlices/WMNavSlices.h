@@ -138,6 +138,14 @@ private:
     void notifyTextureChange();
 
     /**
+     * Computes the bounding box from the loaded textures an sets min/max of the slice positions
+     */
+    void setMaxMinFromBoundingBox();
+
+
+    std::pair< wmath::WPosition, wmath::WPosition > m_bb; //!< bounding box of textures.
+
+    /**
      * True when textures have changed.
      */
     bool m_textureChanged;
@@ -299,8 +307,8 @@ private:
 
             if ( module )
             {
-                module->updateGeometry();
-                module->updateTextures();
+                module->updateGeometry(); // Keep this order. The update routines depend on it.
+                module->updateTextures(); // Keep this order. The update routines depend on it.
             }
             traverse( node, nv );
         }
