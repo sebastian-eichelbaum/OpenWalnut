@@ -210,6 +210,8 @@ void WMMarchingCubes::properties()
     m_opacityProp->setMax( 100 );
 
     m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
+
+    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.3, 0.3, 0.3, 1.0 ) );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -684,7 +686,8 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     // colors
     osg::Vec4Array* colors = new osg::Vec4Array;
 
-    colors->push_back( osg::Vec4( .9f, .9f, 0.9f, 1.0f ) );
+    WColor c = m_surfaceColor->get( true );
+    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -1012,7 +1015,7 @@ WTriangleMesh2 WMMarchingCubes::load( std::string /*fileName*/ )
     return triMesh;
 }
 
-void WMMarchingCubes::updateTextures()
+void WMMarchingCubes::updateGraphics()
 {
     if ( m_active->get() )
     {
@@ -1021,6 +1024,17 @@ void WMMarchingCubes::updateTextures()
     else
     {
         m_surfaceGeode->setNodeMask( 0x0 );
+    }
+
+    if( m_surfaceColor->changed() )
+    {
+        osg::Vec4Array* colors = new osg::Vec4Array;
+
+        WColor c = m_surfaceColor->get( true );
+        colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+        osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
 
     if ( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )

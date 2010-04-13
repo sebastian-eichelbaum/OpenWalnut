@@ -159,7 +159,7 @@ public:
     /**
      *  updates textures and shader parameters
      */
-    void updateTextures();
+    void updateGraphics();
 
 protected:
     /**
@@ -258,6 +258,7 @@ private:
     WPropDouble m_isoValueProp; //!< Property holding the iso value
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
+    WPropColor m_surfaceColor; //!< Property determining the color for the surface if no textures are displayed
 
     /**
      * True when textures haven changed.
@@ -348,7 +349,7 @@ inline void SurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* 
 {
     if ( m_module )
     {
-        m_module->updateTextures();
+        m_module->updateGraphics();
     }
     traverse( node, nv );
 }
