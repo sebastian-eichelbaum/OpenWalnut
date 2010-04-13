@@ -56,6 +56,7 @@
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "../modules/vectorPlot/WMVectorPlot.h"
+#include "../modules/geometryGlyphs/WMGeometryGlyphs.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -110,6 +111,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
 
     lock.unlock();
 

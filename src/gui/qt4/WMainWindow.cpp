@@ -66,7 +66,8 @@
 
 WMainWindow::WMainWindow() :
     QMainWindow(),
-    m_iconManager()
+    m_iconManager(),
+    m_fibLoaded( false )
 {
     setupGUI();
 }
@@ -471,7 +472,34 @@ void WMainWindow::openLoadDialog()
     {
         stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
     }
-    m_loaderSignal( stdFileNames );
+
+    //
+    // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
+    //
+    bool allowOnlyOneFiberDataSet = false;
+    bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
+    if( WPreferences::getPreference( "general.allowOnlyOneFiberDataSet", &allowOnlyOneFiberDataSet ) && allowOnlyOneFiberDataSet )
+    {
+        for( std::vector< std::string >::iterator it = stdFileNames.begin(); it != stdFileNames.end(); ++it )
+        {
+            using wiotools::getSuffix;
+            std::string suffix = getSuffix( *it );
+            bool isFib = ( suffix == ".fib" );
+            if( m_fibLoaded && isFib )
+            {
+                QCoreApplication::postEvent( this, new WModuleCrashEvent(
+                                                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ),
+                                                 std::string( "Tried to load two fiber data sets. This is not allowed by your preferences." ) ) );
+                doubleFibersFound = true;
+            }
+            m_fibLoaded |= isFib;
+        }
+    }
+
+    if( !doubleFibersFound )
+    {
+        m_loaderSignal( stdFileNames );
+    }
 }
 
 void WMainWindow::openAboutDialog()
@@ -659,4 +687,9 @@ void WMainWindow::newRoi()
         osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
     }
+}
+
+void WMainWindow::setFibersLoaded()
+{
+    m_fibLoaded = true;
 }

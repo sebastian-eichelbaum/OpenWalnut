@@ -25,16 +25,16 @@
 #ifndef WTRIANGLEMESH2_H
 #define WTRIANGLEMESH2_H
 
-#include <vector>
+#include <list>
 #include <string>
+#include <vector>
 
 #include <osg/Geode>
 
+#include "../common/math/WVector3D.h"
+#include "../common/WAssert.h"
 #include "../common/WColor.h"
 #include "../common/WTransferable.h"
-#include "../common/math/WVector3D.h"
-
-#include "../common/WAssert.h"
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
@@ -49,6 +49,14 @@ public:
      * \param triangleNum
      */
     WTriangleMesh2( size_t vertNum, size_t triangleNum );
+
+    /**
+     * Constructs a new mesh out of the given vertices and triangles.
+     *
+     * \param vertices Vec3Array storing all vertices
+     * \param triangles Vector of consecutive vertex indices where each 3 IDs are a triangle starting at 0,1,2 for first triangle 3,4,5 for the second
+     */
+    WTriangleMesh2( osg::ref_ptr< osg::Vec3Array > vertices, const std::vector< size_t >& triangles );
 
     /**
      * destructor
@@ -119,6 +127,14 @@ public:
     void addTriangle( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 vert2 );
 
     /**
+     * sets a vertex to a new position
+     *
+     * \param index
+     * \param vert
+     */
+    void setVertex( size_t index, osg::Vec3 vert );
+
+    /**
      * sets the normal for a given vertex
      *
      * \param index
@@ -171,7 +187,14 @@ public:
      *
      * \return pointer to the vertex array
      */
-    osg::ref_ptr< osg::Vec3Array >getVertexArray();
+    osg::ref_ptr< osg::Vec3Array > getVertexArray();
+
+    /**
+     * Returns a const reference pointer to the vertex array.
+     *
+     * \return vertex array
+     */
+    osg::ref_ptr< const osg::Vec3Array >getVertexArray() const;
 
     /**
      * getter
@@ -189,11 +212,11 @@ public:
     osg::ref_ptr< osg::Vec4Array >getVertexColorArray();
 
     /**
-     * getter
+     * Returns a const reference to the vertex ids of the triangles.
      *
-     * \return the triangle list
+     * \return The triangle vertex id list
      */
-    std::vector< size_t >getTriangles();
+    const std::vector< size_t >& getTriangles() const;
 
     /**
      * getter
@@ -202,6 +225,14 @@ public:
      * \return vertex
      */
     osg::Vec3 getVertex( size_t index ) const;
+
+    /**
+     * getter
+     *
+     * \param index
+     * \return color
+     */
+    osg::Vec4 getVertColor( size_t index ) const;
 
     /**
      * getter
@@ -272,6 +303,32 @@ public:
      */
     size_t getTriVertId2( size_t triId ) const;
 
+    /**
+     *  adds a mesh to the existing, no check for duplicate vertexes is performed, an additional
+     *  vector may be specified to move the mesh to add
+     *
+     *  \param mesh
+     *  \param xOff
+     *  \param yOff
+     *  \param zOff
+     */
+    void addMesh( boost::shared_ptr<WTriangleMesh2> mesh, float xOff = 0., float yOff = 0., float zOff = 0. );
+
+    /**
+     *  moves the entire mesh to a new postion
+     *
+     *  \param xOff
+     *  \param yOff
+     *  \param zOff
+     */
+    void translateMesh( float xOff, float yOff, float zOff );
+
+    /**
+     * multiplies the vertex vectors of the mesh with a given number
+     *
+     * \param zoom
+     */
+    void zoomMesh( float zoom );
 
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
@@ -481,6 +538,30 @@ private:
     size_t m_numTriFaces; //!< stores the number of triangles before the loop subdivion is run, needed by the loop algorithm
 };
 
+/**
+ * TriangleMesh utils
+ */
+namespace tm_utils
+{
+    /**
+     * Decompose the given mesh into connected components.
+     *
+     * \param mesh The triangle mesh to decompose
+     *
+     * \return List of components where each of them is a WTriangleMesh again.
+     */
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > componentDecomposition( const WTriangleMesh2& mesh );
+
+    /**
+     * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
+     *
+     * \param os Output stream to print on.
+     * \param rhs The mesh instance.
+     *
+     * \return The output stream again for further usage.
+     */
+    std::ostream& operator<<( std::ostream& os, const WTriangleMesh2& rhs );
+}
 
 inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
 {
@@ -491,7 +572,6 @@ inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
     ( *m_verts )[m_countVerts] = vert;
     ++m_countVerts;
 }
-
 
 inline const std::string WTriangleMesh2::getName() const
 {
@@ -548,5 +628,9 @@ inline size_t WTriangleMesh2::getTriVertId2( size_t triId ) const
     return m_triangles[triId * 3 + 2];
 }
 
+inline void WTriangleMesh2::setVertex( size_t index, osg::Vec3 vert )
+{
+    ( *m_verts )[index] = vert;
+}
 
 #endif  // WTRIANGLEMESH2_H

@@ -36,6 +36,7 @@
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "../../common/WConditionOneShot.h"
 #include "../../common/WIOTools.h"
+#include "../../common/WPreferences.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WProjectFile.h"
@@ -159,7 +160,41 @@ int WQt4Gui::run()
     // check if we want to load data due to command line and call the respective function
     if( m_optionsMap.count("input") )
     {
-        m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+        //
+        // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
+        //
+        bool allowOnlyOneFiberDataSet = false;
+        bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
+        if( WPreferences::getPreference( "general.allowOnlyOneFiberDataSet", &allowOnlyOneFiberDataSet ) && allowOnlyOneFiberDataSet )
+        {
+            bool fibFound = false;
+            std::vector< std::string > tmpFiles = m_optionsMap["input"].as< std::vector< std::string > >();
+            for( std::vector< std::string >::iterator it = tmpFiles.begin(); it != tmpFiles.end(); ++it )
+            {
+                using wiotools::getSuffix;
+                std::string suffix = getSuffix( *it );
+                bool isFib = ( suffix == ".fib" );
+                if( fibFound && isFib )
+                {
+                    QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent(
+                                                     WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ),
+                                                     std::string( "Tried to load two fiber data sets. This is not allowed by your preferences." ) ) );
+                    doubleFibersFound = true;
+                }
+                fibFound |= isFib;
+            }
+            if( fibFound && !doubleFibersFound )
+            {
+                // Found exactly one fiber data set. So signal this to main window.
+                // If more than one are found we do not load them anyways. Thus we can allow to load a new one.
+                m_mainWindow->setFibersLoaded();
+            }
+        }
+
+        if( !doubleFibersFound )
+        {
+            m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+        }
     }
 
     // Load project file
