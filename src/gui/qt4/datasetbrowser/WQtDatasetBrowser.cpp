@@ -429,6 +429,9 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "DatasetBrowser",
                                 LL_WARNING );
                         break;
+                    case PV_TRIGGER:
+                        tab->addProp( ( *iter )->toPropTrigger() );
+                        break;
                     case PV_GROUP:
                         tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
                         break;

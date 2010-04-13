@@ -182,6 +182,11 @@ private:
     WPropColor    m_aColor;
 
     /**
+     * A trigger which can be used to trigger some kind of operation.
+     */
+    WPropTrigger  m_aTrigger;
+
+    /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
      * moduleMain().
      */

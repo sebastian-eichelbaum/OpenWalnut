@@ -160,6 +160,8 @@ void WMTemplate::properties()
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_aTrigger       = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.",
+                                                  WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     m_enableFeature  = m_properties->addProperty( "Enable Feature",           "Description.", true );
     m_anInteger      = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
     m_anIntegerClone = m_properties->addProperty( "CLONE!Number of Shape Rows",
@@ -174,7 +176,11 @@ void WMTemplate::properties()
     // properties of this group and must not contain any slashes (/). The second argument is a description. A nice feature is the possibility
     // to specify an own condition, which gets fired when the property gets modified. This is especially useful to wake up the module's thread
     // on property changes. So, the property m_anInteger will wake the module thread on changes. m_enableFeature and m_aColor should not wake up
-    // the module thread. They get read by the update callback of this modules OSG node, to update the color.
+    // the module thread. They get read by the update callback of this modules OSG node, to update the color. m_aTrigger is a property which can
+    // be used to trigger costly operations. The GUI shows them as buttons with the description as button text. The user can then press them and
+    // the WPropTrigger will change its state to PV_TRIGGER_TRIGGERED. In the moduleMain documentation, you'll find a more detailed description
+    // of how to use trigger properties. Be aware, that these kind of properties should be used carefully. They somehow inhibit the update flow
+    // through the module graph.
     //
     // m_anIntegerClone has a special purpose in this example. It shows that you can simply update properties from within your module whilst the
     // GUI updates itself. You can, for example, set constraints or simply modify values depending on input data, most probably useful to set

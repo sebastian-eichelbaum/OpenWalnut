@@ -244,6 +244,11 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, hide );
 }
 
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, hide );
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
 // template< typename T>
@@ -305,6 +310,12 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
                                      boost::shared_ptr< WCondition > condition, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, hide );
+}
+
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, hide );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -370,6 +381,11 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, notifier, hide );
 }
 
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, notifier, hide );
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
@@ -441,5 +457,12 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, notifier, hide );
+}
+
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       boost::shared_ptr< WCondition > condition,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, notifier, hide );
 }
 

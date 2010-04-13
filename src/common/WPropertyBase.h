@@ -189,6 +189,13 @@ public:
     /**
      * Helper converts this instance to its native type.
      *
+     * \return the property as trigger property
+     */
+    WPropTrigger toPropTrigger();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
      * \return the property as group
      */
     WPropGroup toPropGroup();

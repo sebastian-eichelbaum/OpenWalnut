@@ -131,6 +131,11 @@ WPropGroup WPropertyBase::toPropGroup()
     return boost::shared_static_cast< WPVGroup >( shared_from_this() );
 }
 
+WPropTrigger WPropertyBase::toPropTrigger()
+{
+    return boost::shared_static_cast< WPVTrigger >( shared_from_this() );
+}
+
 boost::shared_ptr< WCondition > WPropertyBase::getUpdateCondition() const
 {
     return m_updateCondition;

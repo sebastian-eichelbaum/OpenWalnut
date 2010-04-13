@@ -62,13 +62,14 @@ typedef enum
     PV_PATH,           // a Boost Path object denoting a filename/path
     PV_SELECTION,      // a list of strings, selectable
     PV_POSITION,       // a position property
-    PV_COLOR           // a color property
+    PV_COLOR,          // a color property
+    PV_TRIGGER         // for triggering an event
 }
 PROPERTY_TYPE;
 
 /**
  * Namespace containing all base types of the WPropertyVariables. Use these types instead of issuing int32_t, double, bool, ...
- * directly.
+ * directly. It also contains some user defined types including the needed operators.
  *
  * \note You can use only types which overwrite the << and >> operators!
  */
@@ -83,6 +84,21 @@ namespace WPVBaseTypes
     // typedef std::list< std::pair< std::string, bool > >     PV_SELECTION;   //!< base type used for every WPVSelection
     typedef wmath::WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
+    typedef enum
+    {
+        PV_TRIGGER_READY = 0,                                               //!< Trigger property: is ready to be triggered (again)
+        PV_TRIGGER_TRIGGERED                                                //!< Trigger property: got triggered
+    }                                                       PV_TRIGGER;     //!< base type used for every WPVTrigger
+
+    /**
+     * Write a PV_TRIGGER in string representation to the given output stream.
+     */
+    std::ostream& operator<<( std::ostream& out, const PV_TRIGGER& c );
+
+    /**
+     * Write a PV_TRIGGER in string representation to the given input stream.
+     */
+    std::istream& operator>>( std::istream& in, PV_TRIGGER& c );
 }
 
 /**
@@ -137,6 +153,11 @@ typedef WPropertyVariable< WPVBaseTypes::PV_POSITION > WPVPosition;
 typedef WPropertyVariable< WPVBaseTypes::PV_COLOR > WPVColor;
 
 /**
+ * Trigger properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_TRIGGER > WPVTrigger;
+
+/**
  * Some convenience type alias for a even more easy usage of WPropertyVariable.
  * These typdefs define some pointer alias.
  */
@@ -185,6 +206,11 @@ typedef boost::shared_ptr< WPVColor > WPropColor;
  * Alias for the group properties.
  */
 typedef boost::shared_ptr< WPVGroup > WPropGroup;
+
+/**
+ * Alias for the trigger properties.
+ */
+typedef boost::shared_ptr< WPVTrigger > WPropTrigger;
 
 /**
  * This namespace contains several helper classes which translate their template type to an enum.
@@ -350,6 +376,24 @@ namespace PROPERTY_TYPE_HELPER
         PROPERTY_TYPE getType()
         {
             return PV_COLOR;
+        }
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_TRIGGER >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_TRIGGER;
         }
     };
 }
