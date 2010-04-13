@@ -444,6 +444,32 @@ void WMTemplate::moduleMain()
             m_output->updateData( newData );
             // This sets the new data to the output connector and automatically notifies all modules connected to your output.
         }
+
+        // As we provided our condition to m_aTrigger too, the main thread will wake up if it changes. The GUI can change the trigger only to the
+        // state "PV_TRIGGER_TRIGGERED" (this is the case if the user presses the button).
+        if ( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            // Now that the trigger has the state "triggered", a time consuming operation can be done here.
+            debugLog() << "User triggered an important and time consuming operation.";
+
+            // Do something here. As above, do not forget to inform the user about your progress.
+            int steps = 10;
+            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing something important", steps ) );
+            m_progress->addSubProgress( progress1 );
+            for ( int i = 0; i < steps; ++i )
+            {
+                ++*progress1;
+                sleep( 1 );
+            }
+            progress1->finish();
+
+            // As long as the module does not reset the trigger to "ready", the GUI disables the trigger button. This is very useful to avoid
+            // that a user presses the button multiple times during an operation. When setting the property back to "ready", the GUI re-enables
+            // the button and the user can press it again.
+            // To avoid the moduleMain- loop to awake every time we reset the trigger, provide a second parameter to the set() method. It denotes
+            // whether the change notification should be fired or not. In our case, we avoid this by providing false to the second parameter.
+            m_aTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+        }
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
