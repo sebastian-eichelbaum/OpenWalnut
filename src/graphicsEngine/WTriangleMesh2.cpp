@@ -22,9 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#include <iostream>
+#include <list>
+#include <map>
+#include <sstream>
 #include <string>
+#include <vector>
 
+#include <osg/io_utils>
+
+#include "../common/datastructures/WUnionFind.h"
 #include "WTriangleMesh2.h"
 
 // init _static_ member variable and provide a linker reference to it
@@ -42,11 +49,11 @@ boost::shared_ptr< WPrototyped > WTriangleMesh2::getPrototype()
 /**
  * constructor that already reserves space for a given number of triangles and vertexes
  */
-WTriangleMesh2::WTriangleMesh2( size_t vertNum, size_t triangleNum ) :
-    m_countVerts( 0 ),
-    m_countTriangles( 0 ),
-    m_meshDirty( true ),
-    m_neighborsCalculated( false )
+WTriangleMesh2::WTriangleMesh2( size_t vertNum, size_t triangleNum )
+    : m_countVerts( 0 ),
+      m_countTriangles( 0 ),
+      m_meshDirty( true ),
+      m_neighborsCalculated( false )
 {
     m_verts = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
     m_vertNormals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
@@ -55,6 +62,21 @@ WTriangleMesh2::WTriangleMesh2( size_t vertNum, size_t triangleNum ) :
     m_triangles.resize( triangleNum * 3 );
     m_triangleNormals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( triangleNum ) );
     m_triangleColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( triangleNum ) );
+}
+
+WTriangleMesh2::WTriangleMesh2( osg::ref_ptr< osg::Vec3Array > vertices, const std::vector< size_t >& triangles )
+    : m_countVerts( vertices->size() ),
+      m_countTriangles( triangles.size() / 3 ),
+      m_meshDirty( true ),
+      m_neighborsCalculated( false ),
+      m_verts( vertices ),
+      m_vertNormals( new osg::Vec3Array( vertices->size() ) ),
+      m_vertColors( new osg::Vec4Array( vertices->size() ) ),
+      m_triangles( triangles ),
+      m_triangleNormals( new osg::Vec3Array( triangles.size() / 3 ) ),
+      m_triangleColors( new osg::Vec4Array( triangles.size() / 3 ) )
+{
+    WAssert( triangles.size() % 3 == 0, "Invalid triangle vector, having an invalid size (not divideable by 3)" );
 }
 
 WTriangleMesh2::~WTriangleMesh2()
@@ -133,6 +155,11 @@ osg::ref_ptr< osg::Vec3Array >WTriangleMesh2::getVertexArray()
     return m_verts;
 }
 
+osg::ref_ptr< const osg::Vec3Array >WTriangleMesh2::getVertexArray() const
+{
+    return m_verts;
+}
+
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh2::getVertexNormalArray( bool forceRecalc )
 {
     if ( forceRecalc || m_meshDirty )
@@ -147,7 +174,7 @@ osg::ref_ptr< osg::Vec4Array >WTriangleMesh2::getVertexColorArray()
     return m_vertColors;
 }
 
-std::vector< size_t >WTriangleMesh2::getTriangles()
+const std::vector< size_t >& WTriangleMesh2::getTriangles() const
 {
     return m_triangles;
 }
@@ -538,3 +565,90 @@ size_t WTriangleMesh2::loopGetThirdVert( size_t coVert1, size_t coVert2, size_t 
     return getTriVertId2( triangleNum );
 }
 
+std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh2& rhs )
+{
+    std::stringstream ss;
+    ss << "WTriangleMesh( #vertices=" << rhs.vertSize() << " #triangles=" << rhs.triangleSize() << " )" << std::endl;
+    using string_utils::operator<<;
+    size_t count = 0;
+    ss << std::endl;
+    const std::vector< size_t >& triangles = rhs.getTriangles();
+    osg::ref_ptr< const osg::Vec3Array > vertices = rhs.getVertexArray();
+    for( size_t vID = 0 ; vID <= triangles.size() - 3; ++count )
+    {
+        std::stringstream prefix;
+        prefix << "triangle: " << count << "[ ";
+        std::string indent( prefix.str().size(), ' ' );
+        using osg::operator<<; // using operator<< as defined in osg/io_utils
+        ss << prefix.str() << vertices->at( triangles[ vID++ ] ) << std::endl;
+        ss << indent << vertices->at( triangles[ vID++ ] ) << std::endl;
+        ss << indent << vertices->at( triangles[ vID++ ] ) << std::endl;
+        ss << std::string( indent.size() - 2, ' ' ) << "]" << std::endl;
+    }
+    return os << ss.str();
+}
+
+boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > tm_utils::componentDecomposition( const WTriangleMesh2& mesh )
+{
+    WUnionFind uf( mesh.vertSize() ); // idea: every vertex in own component, then successivley join in accordance with the triangles
+
+    const std::vector< size_t >& triangles = mesh.getTriangles();
+    for( size_t vID = 0; vID <= triangles.size() - 3; vID += 3)
+    {
+        uf.merge( triangles[ vID ], triangles[ vID + 1 ] );
+        uf.merge( triangles[ vID ], triangles[ vID + 2 ] ); // uf.merge( triangles[ vID + 2 ], triangles[ vID + 1 ] ); they are already in same
+    }
+
+    // ATTENTION: The reason for using the complex BucketType instead of pasting vertices directly into a new WTriangleMesh
+    // is performance! For example: If there are many vertices reused inside the former WTriangleMesh mesh, then we want
+    // to reuse them in the new components too. Hence we must determine if a certain vertex is already inside the new component.
+    // Since the vertices are organized in a vector, we can use std::find( v.begin, v.end(), vertexToLookUp ) which results
+    // in O(N^2) or we could use faster lookUp via key and value leading to the map and the somehow complicated BucketType.
+    typedef std::map< osg::Vec3, size_t > VertexType; // look up fast if a vertex is already inside the new mesh!
+    typedef std::vector< size_t > TriangleType;
+    typedef std::pair< VertexType, TriangleType > BucketType; // Later on the Bucket will be transformed into the new WTriangleMesh component
+    std::map< size_t, BucketType > buckets; // Key identify with the cannonical element from UnionFind the new connected component
+
+    osg::ref_ptr< const osg::Vec3Array > vertices = mesh.getVertexArray();
+    for( size_t vID = 0; vID <= triangles.size() - 3; vID += 3 )
+    {
+        size_t component = uf.find( triangles[ vID ] );
+        if( buckets.find( component ) == buckets.end() )
+        {
+            buckets[ component ] = BucketType( VertexType(), TriangleType() ); // create new bucket
+        }
+
+        // Note: We discard the order of the points and indices, but semantically the structure remains the same
+        VertexType& mapRef = buckets[ component ].first; // short hand alias
+        for( int i = 0; i < 3; ++i )
+        {
+            size_t id = 0;
+            const osg::Vec3& vertex = ( *vertices )[ triangles[ vID + i ] ];
+            if( mapRef.find( vertex ) == mapRef.end() )
+            {
+                id = mapRef.size(); // since size might change in next line
+                mapRef[ vertex ] = id;
+            }
+            else
+            {
+                id = mapRef[ vertex ];
+            }
+            buckets[ component ].second.push_back( id );
+        }
+    }
+
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > result( new std::list< boost::shared_ptr< WTriangleMesh2 > >() );
+    for( std::map< size_t, BucketType >::const_iterator cit = buckets.begin(); cit != buckets.end(); ++cit )
+    {
+        osg::ref_ptr< osg::Vec3Array > newVertices;
+        newVertices->resize( cit->second.first.size() );
+        for( VertexType::const_iterator vit = cit->second.first.begin(); vit != cit->second.first.end(); ++vit )
+        {
+            newVertices->at( vit->second ) = vit->first; // if you are sure that vit->second is always valid replace at() call with operator[]
+        }
+        boost::shared_ptr< WTriangleMesh2 > newMesh( new WTriangleMesh2( newVertices, cit->second.second ) );
+        result->push_back( newMesh );
+    }
+
+    return result;
+}
