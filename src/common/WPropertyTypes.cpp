@@ -26,13 +26,34 @@
 
 std::ostream& WPVBaseTypes::operator<<( std::ostream& out, const WPVBaseTypes::PV_TRIGGER& c )
 {
-    out << c;
+    // print it as nice string
+    switch( c )
+    {
+        case PV_TRIGGER_TRIGGERED:
+            out << "PV_TRIGGER_TRIGGERED";
+            break;
+        default:
+            out << "PV_TRIGGER_READY";
+    }
+
     return out;
 }
 
 std::istream& WPVBaseTypes::operator>>( std::istream& in, WPVBaseTypes::PV_TRIGGER& c )
 {
-    in >> c;
+    std::string s;
+    in >> s;
+
+    // interpret string
+    if ( s == "PV_TRIGGER_TRIGGERED" )
+    {
+        c = PV_TRIGGER_TRIGGERED;
+    }
+    else
+    {
+        c = PV_TRIGGER_READY;
+    }
+
     return in;
 }
 

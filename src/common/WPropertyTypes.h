@@ -84,19 +84,34 @@ namespace WPVBaseTypes
     // typedef std::list< std::pair< std::string, bool > >     PV_SELECTION;   //!< base type used for every WPVSelection
     typedef wmath::WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
+
+    /**
+     * Enum denoting the possible trigger states. It is used for trigger properties.
+     */
     typedef enum
     {
         PV_TRIGGER_READY = 0,                                               //!< Trigger property: is ready to be triggered (again)
         PV_TRIGGER_TRIGGERED                                                //!< Trigger property: got triggered
-    }                                                       PV_TRIGGER;     //!< base type used for every WPVTrigger
+    }
+                                                            PV_TRIGGER;     //!< base type used for every WPVTrigger
 
     /**
      * Write a PV_TRIGGER in string representation to the given output stream.
+     *
+     * \param out the output stream to print the value to
+     * \param c the trigger value to output
+     *
+     * \return the output stream extended by the trigger value.
      */
     std::ostream& operator<<( std::ostream& out, const PV_TRIGGER& c );
 
     /**
      * Write a PV_TRIGGER in string representation to the given input stream.
+     *
+     * \param in the input stream to read the value from
+     * \param c  set the value red to this
+     *
+     * \return the input stream.
      */
     std::istream& operator>>( std::istream& in, PV_TRIGGER& c );
 }
