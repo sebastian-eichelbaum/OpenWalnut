@@ -454,9 +454,9 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
-    std::set< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
-    for ( std::set< boost::shared_ptr< WApplyPrototypeCombiner > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
+    for ( std::vector< boost::shared_ptr< WApplyPrototypeCombiner > >::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
         if( !m_moduleWhiteList.empty() )
         {

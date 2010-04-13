@@ -212,9 +212,22 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost
     return getPrototypeByName( instance->getName() );
 }
 
-std::set< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
+/**
+ * Sorting function for sorting the compatibles list. It uses the alphabetical order of the names.
+ *
+ * \param lhs the first combiner
+ * \param rhs the second combiner
+ *
+ * \return true if lhs < rhs
+ */
+bool compatiblesSort( boost::shared_ptr< WApplyPrototypeCombiner >  lhs, boost::shared_ptr< WApplyPrototypeCombiner > rhs )
 {
-    std::set< boost::shared_ptr < WApplyPrototypeCombiner > > compatibles;
+    return ( lhs->getTargetPrototype()->getName() < rhs->getTargetPrototype()->getName() );
+}
+
+std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
+{
+    std::vector< boost::shared_ptr < WApplyPrototypeCombiner > > compatibles;
 
     // for this a read lock is sufficient
     boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
@@ -229,7 +242,7 @@ std::set< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getComp
         std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
         if(  pcons.size() == 0  )
         {
-            compatibles.insert( boost::shared_ptr< WApplyPrototypeCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
+            compatibles.push_back( boost::shared_ptr< WApplyPrototypeCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
         }
     }
 
@@ -269,13 +282,16 @@ std::set< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getComp
         if( ( *cons.begin() )->connectable( *pcons.begin() )  &&  ( *pcons.begin() )->connectable( *cons.begin() ) )
         {
             // it is compatible -> add to list
-            compatibles.insert( boost::shared_ptr< WApplyPrototypeCombiner >(
+            compatibles.push_back( boost::shared_ptr< WApplyPrototypeCombiner >(
                 new WApplyPrototypeCombiner( module, ( *cons.begin() )->getName(), *listIter, ( *pcons.begin() )->getName() ) )
             );
         }
     }
 
     slock.unlock();
+
+    // sort the compatibles
+    std::sort( compatibles.begin(), compatibles.end(), compatiblesSort );
 
     return compatibles;
 }
