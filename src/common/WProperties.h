@@ -36,13 +36,17 @@
 
 #include "WSharedObject.h"
 #include "WPropertyBase.h"
+#include "WPropertyTypes.h"
 #include "WPropertyVariable.h"
 
 /**
- * class to manage properties of an object and to provide convinience methods for easy access and manipulation. It also allows
- * thread safe iteration on its elements.
+ * Class to manage properties of an object and to provide convenience methods for easy access and manipulation. It also allows
+ * thread safe iteration on its elements. The main purpose of this class is to group properties together and to allow searching properties by a
+ * given name. The name of each property in a group has to be unique and is constructed using the group names containing them: hello/you/property
+ * is the property with the name "property" in the group "you" which against is in the group "hello".
+ * \note The root group of each module does not have a name.
  */
-class WProperties
+class WProperties: public WPropertyBase
 {
 public:
 
@@ -74,9 +78,14 @@ public:
     typedef PropertyContainerType::iterator PropertyIterator;
 
     /**
-     * standard constructor
+     * Constructor. Creates an empty list of properties.
+     *
+     * \note WModule::getProperties always returns an unnamed instance.
+     *
+     * \param name the name of the property group. The GUI is using this name for naming the tabs/group boxes
+     * \param description the description of the group.
      */
-    WProperties();
+    WProperties( std::string name = "unnamed group", std::string description = "an unnamed group of properties" );
 
     /**
      * destructor
@@ -126,6 +135,15 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
     ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create and add a new property group. Use these groups to structure your properties.
+     *
+     * \param name the name of the group.
+     * \param description the description of the group.
+     * \param hide true if group should be completely hidden.
+     */
+    WPropGroup addPropertyGroup( std::string name, std::string description, bool hide = false );
 
     /**
      * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
@@ -194,6 +212,30 @@ public:
     boost::shared_ptr< WPropertyVariable< T > > addProperty( std::string name, std::string description, const T& initial,
                                                              boost::shared_ptr< WCondition > condition,
                                                              WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Gets the real type of this instance. In this case, PV_GROUP.
+     *
+     * \return the real type.
+     */
+    virtual PROPERTY_TYPE getType() const;
+
+    /**
+     * This methods allows properties to be set by a string value. This method does nothing here, as groups can not be set in any kind.
+     *
+     * \param value the new value to set. IGNORED.
+     *
+     * \return always true
+     */
+    virtual bool setAsString( std::string value );
+
+    /**
+     * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
+     * should also print min/max constraints and so on. This simply is the value.
+     *
+     * \return the value as a string.
+     */
+    virtual std::string getAsString();
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
@@ -762,6 +804,14 @@ private:
      * Access to the above property list.
      */
     PropertySharedContainerType::WSharedAccess m_propAccess;
+
+    /**
+     * Compares the names of two properties and returns true if they are equal.
+     *
+     * \param prop1 the first prop.
+     * \param prop2 the second prop.
+     */
+    bool propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const;
 };
 
 template< typename T>

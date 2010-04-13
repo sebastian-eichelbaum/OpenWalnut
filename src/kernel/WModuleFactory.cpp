@@ -58,6 +58,7 @@
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
+#include "combiner/WApplyPrototypeCombiner.h"
 
 // factory instance as singleton
 boost::shared_ptr< WModuleFactory > WModuleFactory::m_instance = boost::shared_ptr< WModuleFactory >();
@@ -213,9 +214,9 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost
     return getPrototypeByName( instance->getName() );
 }
 
-std::set< boost::shared_ptr< WModule > > WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
+std::set< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
 {
-    std::set< boost::shared_ptr < WModule > > compatibles;
+    std::set< boost::shared_ptr < WApplyPrototypeCombiner > > compatibles;
 
     // for this a read lock is sufficient
     boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
@@ -223,14 +224,14 @@ std::set< boost::shared_ptr< WModule > > WModuleFactory::getCompatiblePrototypes
     // get offered outputs
     std::set<boost::shared_ptr<WModuleOutputConnector> > cons = module->getOutputConnectors();
 
-    // First add all modules with no input connector.
+    // First, add all modules with no input connector.
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end(); ++listIter )
     {
         // get connectors of this prototype
         std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
         if(  pcons.size() == 0  )
         {
-            compatibles.insert( *listIter );
+            compatibles.insert( boost::shared_ptr< WApplyPrototypeCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
         }
     }
 
@@ -241,8 +242,6 @@ std::set< boost::shared_ptr< WModule > > WModuleFactory::getCompatiblePrototypes
         return compatibles;
     }
 
-
-    // TODO(ebaum): see ticket #178 for this
     if ( cons.size() > 1 )
     {
         wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << module->getName() <<  " module (more than 1 output connector). Using "
@@ -272,7 +271,9 @@ std::set< boost::shared_ptr< WModule > > WModuleFactory::getCompatiblePrototypes
         if( ( *cons.begin() )->connectable( *pcons.begin() )  &&  ( *pcons.begin() )->connectable( *cons.begin() ) )
         {
             // it is compatible -> add to list
-            compatibles.insert( *listIter );
+            compatibles.insert( boost::shared_ptr< WApplyPrototypeCombiner >(
+                new WApplyPrototypeCombiner( module, ( *cons.begin() )->getName(), *listIter, ( *pcons.begin() )->getName() ) )
+            );
         }
     }
 

@@ -32,6 +32,7 @@
 #include <boost/thread.hpp>
 
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning. Every one knowing the factory also knows this
+#include "combiner/WApplyPrototypeCombiner.h"
 #include "WModule.h"
 
 /**
@@ -114,13 +115,13 @@ public:
     static bool isA( boost::shared_ptr< WModule > module );
 
     /**
-     * Returns a set of modules compatible with the specified one.
+     * Returns a set of module combiners with module combinations compatible with the specified one.
      *
-     * \param module the module to find prototype for.
+     * \param module the module to find the compatibles for.
      *
-     * \return set of compatible prototypes.
+     * \return set of compatible combiners.
      */
-    std::set< boost::shared_ptr< WModule > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
+    std::set< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
 
     /**
      * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is

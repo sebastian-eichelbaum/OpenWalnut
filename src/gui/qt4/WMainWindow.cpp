@@ -52,7 +52,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleProjectFileCombiner.h"
+#include "../../kernel/WProjectFile.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
 
@@ -66,7 +66,8 @@
 
 WMainWindow::WMainWindow() :
     QMainWindow(),
-    m_iconManager()
+    m_iconManager(),
+    m_fibLoaded( false )
 {
     setupGUI();
 }
@@ -75,6 +76,7 @@ void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
+    m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
@@ -109,19 +111,19 @@ void WMainWindow::setupGUI()
         bool hideWidget;
         if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
         {
-            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, 160, "Axial Slice" ) );
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, "Axial Slice" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
-            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, 200, "Coronal Slice" ) );
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, "Coronal Slice" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
-            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, 160, "Sagittal Slice" ) );
+            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, "Sagittal Slice" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
@@ -173,18 +175,23 @@ void WMainWindow::setupPermanentToolBar()
 
     WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
-    WQtPushButton* projectButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
+    WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
+    WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
     connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
-    connect( projectButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
+    connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
+    connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSave() ) );
 
     loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
-    projectButton->setToolTip( "Load a project from file" );
+    projectLoadButton->setToolTip( "Load a project from file" );
+    projectSaveButton->setToolTip( "Save current project to file" );
 
     m_permanentToolBar->addWidget( loadButton );
-    m_permanentToolBar->addWidget( projectButton );
+    m_permanentToolBar->addSeparator();
+    m_permanentToolBar->addWidget( projectLoadButton );
+    m_permanentToolBar->addWidget( projectSaveButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( roiButton );
 
@@ -372,6 +379,45 @@ WQtToolBar* WMainWindow::getCompatiblesToolBar()
     return m_compatiblesToolBar;
 }
 
+void WMainWindow::projectSave()
+{
+    QFileDialog fd;
+    fd.setWindowTitle( "Save Project as" );
+    fd.setFileMode( QFileDialog::AnyFile );
+
+    QStringList filters;
+    filters << "Project File (*.owproj)"
+            << "Any files (*)";
+    fd.setNameFilters( filters );
+    fd.setViewMode( QFileDialog::Detail );
+    QStringList fileNames;
+    if ( fd.exec() )
+    {
+        fileNames = fd.selectedFiles();
+    }
+
+    QStringList::const_iterator constIterator;
+    for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    {
+        boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                new WProjectFile( ( *constIterator ).toStdString() )
+        );
+
+        try
+        {
+            // This call is synchronous.
+            proj->save();
+        }
+        catch( const std::exception& e )
+        {
+            QString title = "Problem while saving project file.";
+            QString message = "<b>Problem while saving project file.</b><br/><br/><b>File:  </b>" + ( *constIterator ) +
+                              "<br/><b>Message:  </b>" + QString::fromStdString( e.what() );
+            QMessageBox::critical( this, title, message );
+        }
+    }
+}
+
 void WMainWindow::projectLoad()
 {
     QFileDialog fd;
@@ -391,10 +437,12 @@ void WMainWindow::projectLoad()
     QStringList::const_iterator constIterator;
     for ( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
-        boost::shared_ptr< WModuleProjectFileCombiner > proj = boost::shared_ptr< WModuleProjectFileCombiner >(
-                new WModuleProjectFileCombiner( ( *constIterator ).toStdString() )
+        boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                new WProjectFile( ( *constIterator ).toStdString() )
         );
-        proj->run();
+
+        // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+        proj->load();
     }
 }
 
@@ -424,7 +472,34 @@ void WMainWindow::openLoadDialog()
     {
         stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
     }
-    m_loaderSignal( stdFileNames );
+
+    //
+    // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
+    //
+    bool allowOnlyOneFiberDataSet = false;
+    bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
+    if( WPreferences::getPreference( "general.allowOnlyOneFiberDataSet", &allowOnlyOneFiberDataSet ) && allowOnlyOneFiberDataSet )
+    {
+        for( std::vector< std::string >::iterator it = stdFileNames.begin(); it != stdFileNames.end(); ++it )
+        {
+            using wiotools::getSuffix;
+            std::string suffix = getSuffix( *it );
+            bool isFib = ( suffix == ".fib" );
+            if( m_fibLoaded && isFib )
+            {
+                QCoreApplication::postEvent( this, new WModuleCrashEvent(
+                                                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ),
+                                                 std::string( "Tried to load two fiber data sets. This is not allowed by your preferences." ) ) );
+                doubleFibersFound = true;
+            }
+            m_fibLoaded |= isFib;
+        }
+    }
+
+    if( !doubleFibersFound )
+    {
+        m_loaderSignal( stdFileNames );
+    }
 }
 
 void WMainWindow::openAboutDialog()
@@ -445,11 +520,6 @@ void WMainWindow::openAboutDialog()
 boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
 {
     return &m_loaderSignal;
-}
-
-boost::signals2::signal2< void, boost::shared_ptr< WModule >, boost::shared_ptr< WModule > >* WMainWindow::getModuleButtonSignal()
-{
-    return &m_moduleButtonSignal;
 }
 
 WIconManager*  WMainWindow::getIconManager()
@@ -594,12 +664,6 @@ void WMainWindow::closeCustomDockWidget( std::string title )
     //m_customDockWidgetsLock.unlock();
 }
 
-void WMainWindow::slotActivateModule( QString module )
-{
-    // TODO(schurade): do we really need the signal? Why can't we use the kernel directly?
-    m_moduleButtonSignal( getDatasetBrowser()->getSelectedModule(), WModuleFactory::getModuleFactory()->getPrototypeByName( module.toStdString() ) );
-}
-
 void WMainWindow::newRoi()
 {
     // do nothing if we can not get
@@ -623,4 +687,9 @@ void WMainWindow::newRoi()
         osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
     }
+}
+
+void WMainWindow::setFibersLoaded()
+{
+    m_fibLoaded = true;
 }

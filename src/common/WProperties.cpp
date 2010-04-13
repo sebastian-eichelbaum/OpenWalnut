@@ -29,21 +29,63 @@
 
 #include "WLogger.h"
 #include "exceptions/WPropertyUnknown.h"
+#include "exceptions/WPropertyNotUnique.h"
 
 #include "WProperties.h"
 
-WProperties::WProperties():
+WProperties::WProperties( std::string name, std::string description ):
+    WPropertyBase( name, description ),
     m_propAccess( m_properties.getAccessObject() )
 {
+    m_updateCondition->add( m_properties.getChangeCondition() );
 }
 
 WProperties::~WProperties()
 {
 }
 
+PROPERTY_TYPE WProperties::getType() const
+{
+    return PV_GROUP;
+}
+
+bool WProperties::setAsString( std::string /*value*/ )
+{
+    // groups can't be set in any way. -> ignore it.
+    return true;
+}
+
+std::string WProperties::getAsString()
+{
+    // groups can't be set in any way. -> ignore it.
+    return "";
+}
+
+bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
+{
+    return ( prop1->getName() == prop2->getName() );
+}
+
 void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
     m_propAccess->beginWrite();
+
+    // check uniqueness:
+    if ( std::count_if( m_propAccess->get().begin(), m_propAccess->get().end(),
+            boost::bind( boost::mem_fn( &WProperties::propNamePredicate ), this, prop, _1 ) ) )
+    {
+        m_propAccess->endWrite();
+        // oh oh, this property name is not unique in this group
+        if ( !getName().empty() )
+        {
+            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (\"" + getName() + "\")." );
+        }
+        else
+        {
+            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (unnamed root)." );
+        }
+    }
+
     m_propAccess->get().push_back( prop );
     m_propAccess->endWrite();
 }
@@ -87,6 +129,14 @@ boost::shared_ptr< WPropertyBase > WProperties::getProperty( std::string name )
 WProperties::PropertySharedContainerType::WSharedAccess WProperties::getAccessObject()
 {
     return m_properties.getAccessObject();
+}
+
+WPropGroup WProperties::addPropertyGroup( std::string name, std::string description, bool hide )
+{
+    WPropGroup p = WPropGroup( new WProperties( name, description ) );
+    p->setHidden( hide );
+    addProperty( p );
+    return p;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -32,6 +32,7 @@
 #include "disc.xpm"
 #include "fileopen.xpm"
 #include "projOpen.xpm"
+#include "projSave.xpm"
 #include "quit.xpm"
 
 #include "axial.xpm"

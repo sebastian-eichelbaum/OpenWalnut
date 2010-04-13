@@ -35,6 +35,8 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
 
+#include "../common/WSharedObject.h"
+
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
@@ -51,6 +53,34 @@ class WMData;
 class WModuleContainer: public WModule
 {
 public:
+
+    // the following typedefs are for convenience; to help accessing the container in a thread safe way.
+
+    /**
+     * For shortening: a type defining a shared vector of WModule pointers.
+     */
+    typedef std::set< boost::shared_ptr< WModule > > ModuleContainerType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedObject< ModuleContainerType > ModuleSharedContainerType;
+
+    /**
+     * The access type
+     */
+    typedef ModuleSharedContainerType::WSharedAccess ModuleAccessType;
+
+    /**
+     * The const iterator type of the container.
+     */
+    typedef ModuleContainerType::const_iterator ModuleConstIterator;
+
+    /**
+     * The iterator type of the container.
+     */
+    typedef ModuleContainerType::iterator ModuleIterator;
+
 
     /**
      * Constructor. Initializes container.
@@ -203,6 +233,13 @@ public:
      */
     void setCrashIfModuleCrashes( bool crashIfCrashed = true );
 
+    /**
+     * Returns the access object usable to iterate the module list in a thread safe manner. DO not modify the list.
+     *
+     * \return the access control object.
+     */
+    ModuleSharedContainerType::WSharedAccess getAccessObject();
+
 protected:
 
     /**
@@ -212,14 +249,14 @@ protected:
     virtual void moduleMain();
 
     /**
-     * Lock for module set.
-     */
-    boost::shared_mutex m_moduleSetLock;
-
-    /**
      * The modules associated with this container.
      */
-    std::set< boost::shared_ptr< WModule > > m_modules;
+    ModuleSharedContainerType m_modules;
+
+    /**
+     * Access to the above module set.
+     */
+    ModuleSharedContainerType::WSharedAccess m_moduleAccess;
 
     /**
      * Name of the module.

@@ -116,6 +116,14 @@ public:
     boost::shared_ptr< WCondition > getCondition();
 
     /**
+     * Returns the condition denoting a value change. In contrast to getCondition, this condition fires regardless of notification is suppressed
+     * during set() or not.
+     *
+     * \return the condition denoting a value change.
+     */
+    boost::shared_ptr< WCondition > getValueChangeCondition();
+
+    /**
      * Determines whether the specified value is acceptable. In WFlags, this always returns true. To modify the behaviour,
      * implement this function in an appropriate way.
      *
@@ -140,6 +148,12 @@ protected:
     boost::shared_ptr< WCondition > m_condition;
 
     /**
+     * This condition is fired whenever the value changes. In contrast to m_condition, this also fires if set() is called with
+     * suppressNotification=true.
+     */
+    boost::shared_ptr< WCondition > m_valueChangeCondition;
+
+    /**
      * The flag value.
      */
     T m_flag;
@@ -160,6 +174,7 @@ typedef WFlag< bool > WBoolFlag;
 template < typename T >
 WFlag< T >::WFlag( WCondition* condition, T initial ):
     m_condition( boost::shared_ptr< WCondition >( condition ) ),
+    m_valueChangeCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_flag( initial ),
     m_changed( true )
 {
@@ -168,6 +183,7 @@ WFlag< T >::WFlag( WCondition* condition, T initial ):
 template < typename T >
 WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, T initial ):
     m_condition( condition ),
+    m_valueChangeCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_flag( initial ),
     m_changed( true )
 {
@@ -235,6 +251,7 @@ bool WFlag< T >::set( T value, bool suppressNotification )
     {
         m_condition->notify();
     }
+    m_valueChangeCondition->notify();
 
     return true;
 }
@@ -243,6 +260,12 @@ template < typename T >
 boost::shared_ptr< WCondition > WFlag< T >::getCondition()
 {
     return m_condition;
+}
+
+template < typename T >
+boost::shared_ptr< WCondition > WFlag< T >::getValueChangeCondition()
+{
+    return m_valueChangeCondition;
 }
 
 template < typename T >

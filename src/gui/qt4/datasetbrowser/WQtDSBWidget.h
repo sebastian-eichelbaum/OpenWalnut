@@ -138,6 +138,13 @@ public:
     WPropertyColorWidget* addProp( WPropColor property );
 
     /**
+     * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.
+     *
+     * \param widget the widget
+     */
+    void addGroup( WQtDSBWidget* widget );
+
+    /**
      * helper function to add a spacer at the end
      */
     void addSpacer();
@@ -146,6 +153,13 @@ public:
      * getter for m_name
      */
     QString getName();
+
+    /**
+     * Sets the name of this widget.
+     *
+     * \param name the name.
+     */
+    void setName( QString name );
 
 protected:
 private:

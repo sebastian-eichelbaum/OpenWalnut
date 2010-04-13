@@ -165,7 +165,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUpdateCallback( WMVectorPlot* module ): m_module( module ), m_initialUpdate( true )
+        explicit SafeUpdateCallback( WMVectorPlot* module ): m_module( module )
         {
         };
 
@@ -181,11 +181,6 @@ private:
          * Pointer used to access members of the module to modify the node.
          */
         WMVectorPlot* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time.
-         */
-        bool m_initialUpdate;
     };
 };
 

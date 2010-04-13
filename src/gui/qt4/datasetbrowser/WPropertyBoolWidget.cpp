@@ -36,15 +36,14 @@ WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* prope
 {
     // initialize members
     m_button.setCheckable( true );
-    m_checkbox.setChecked( m_boolProperty->get() );
-    m_button.setChecked( m_boolProperty->get() );
+    update();
 
     // layout both against each other
-    m_button.setVisible( asButton );
-    m_checkbox.setVisible( !asButton );
-    m_layout.addWidget( asButton ? static_cast< QWidget* >( &m_button ) : static_cast< QWidget* >( &m_checkbox ) );
+    m_button.setVisible( m_asButton );
+    m_checkbox.setVisible( !m_asButton );
+    m_layout.addWidget( m_asButton ? static_cast< QWidget* >( &m_button ) : static_cast< QWidget* >( &m_checkbox ) );
 
-    if ( asButton )
+    if ( m_asButton )
     {
         m_layout.setContentsMargins( 1, 1, 1, 1 );
     }
@@ -58,6 +57,13 @@ WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* prope
 WPropertyBoolWidget::~WPropertyBoolWidget()
 {
     // cleanup
+}
+
+void WPropertyBoolWidget::update()
+{
+    // simply set the new state
+    m_checkbox.setChecked( m_boolProperty->get() );
+    m_button.setChecked( m_boolProperty->get() );
 }
 
 QPushButton* WPropertyBoolWidget::getButton()

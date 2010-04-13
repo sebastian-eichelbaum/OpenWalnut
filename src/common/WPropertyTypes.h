@@ -38,6 +38,7 @@
 
 template < typename T >
 class WPropertyVariable;
+class WProperties;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NOTE: If you add new types here, please also add corresponding addProperty methods to WProperties
@@ -53,6 +54,7 @@ class WPropertyVariable;
 typedef enum
 {
     PV_UNKNOWN,        // type not know
+    PV_GROUP,          // the group property
     PV_INT,            // integer value
     PV_DOUBLE,         // floating point value
     PV_BOOL,           // boolean
@@ -88,6 +90,11 @@ namespace WPVBaseTypes
  * These typedefs are useful for casts, as they alias the PropertyVariable types. Please use these types instead of directly
  * int32_t, double, bool, ... so we are able to change the type later on without modifications of thousands of modules.
  */
+
+/**
+ * Group properties.
+ */
+typedef WProperties WPVGroup;
 
 /**
  * Int properties.
@@ -173,6 +180,11 @@ typedef boost::shared_ptr< WPVPosition > WPropPosition;
  * Alias for color property variables.
  */
 typedef boost::shared_ptr< WPVColor > WPropColor;
+
+/**
+ * Alias for the group properties.
+ */
+typedef boost::shared_ptr< WPVGroup > WPropGroup;
 
 /**
  * This namespace contains several helper classes which translate their template type to an enum.

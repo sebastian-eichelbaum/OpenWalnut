@@ -123,9 +123,7 @@ void WMMarchingCubes::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        // acquire data from the input connector
-        m_dataSet = m_input->getData();
-        if ( !m_dataSet.get() )
+        if ( !m_input->getData().get() )
         {
             // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
@@ -134,17 +132,30 @@ void WMMarchingCubes::moduleMain()
             continue;
         }
 
-        m_isoValueProp->setMin( m_dataSet->getMin() );
-        m_isoValueProp->setMax( m_dataSet->getMax() );
+        if( m_dataSet != m_input->getData() )
+        {
+            // acquire data from the input connector
+            m_dataSet = m_input->getData();
+
+            // set appropriate constraints for properties
+            m_isoValueProp->setMin( m_dataSet->getMin() );
+            m_isoValueProp->setMax( m_dataSet->getMax() );
+            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ) );
+            m_moduleState.wait(); // need this to avoid double executing because "set" fires the conditionset
+        }
 
         // update ISO surface
         debugLog() << "Computing surface ...";
+
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 2 ) );
+        m_progress->addSubProgress( progress );
 
         generateSurfacePre( m_isoValueProp->get() );
 
         // TODO(wiebel): MC remove this from here
         //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
 
+        ++*progress;
         debugLog() << "Rendering surface ...";
 
         // settings for normal isosurface
@@ -153,6 +164,7 @@ void WMMarchingCubes::moduleMain()
 
         renderSurface();
         debugLog() << "Done!";
+        progress->finish();
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
@@ -752,12 +764,24 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex8", 8 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex9", 9 ) ) );
 
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap0", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap1", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap2", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap3", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap4", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap5", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap6", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap7", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
+    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
+
     for ( int i = 0; i < 10; ++i )
     {
         state->addUniform( m_typeUniforms[i] );
         state->addUniform( m_thresholdUniforms[i] );
         state->addUniform( m_alphaUniforms[i] );
         state->addUniform( m_samplerUniforms[i] );
+        state->addUniform( m_cmapUniforms[i] );
     }
 
     // TODO(wiebel): used? Not used? Replace by new Property please
@@ -1039,10 +1063,12 @@ void WMMarchingCubes::updateTextures()
                 // set threshold/opacity as uniforms
                 float t = ( *iter )->getThreshold() / 255.0;
                 float a = ( *iter )->getAlpha();
+                int cmap = ( *iter )->getSelectedColormap();
 
                 m_typeUniforms[c]->set( ( *iter )->getDataType() );
                 m_thresholdUniforms[c]->set( t );
                 m_alphaUniforms[c]->set( a );
+                m_cmapUniforms[c]->set( cmap );
 
                 ++c;
             }

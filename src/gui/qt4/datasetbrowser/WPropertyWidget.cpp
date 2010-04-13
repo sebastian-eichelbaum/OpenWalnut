@@ -24,6 +24,11 @@
 
 #include <string>
 
+#include <QtGui/QApplication>
+
+#include "../events/WEventTypes.h"
+#include "../events/WPropertyChangedEvent.h"
+
 #include "WPropertyWidget.h"
 
 WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, QGridLayout* propertyGrid, QWidget* parent ):
@@ -47,11 +52,32 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         m_propertyGrid->addWidget( &m_label, row, 0 );
         m_propertyGrid->addWidget( this, row, 1 );
     }
+
+    // setup the update callback
+    m_connection = m_property->getUpdateCondition()->subscribeSignal( boost::bind( &WPropertyWidget::propertyChangeNotifier, this ) );
 }
 
 WPropertyWidget::~WPropertyWidget()
 {
     // cleanup
+    m_connection.disconnect();
+}
+
+void WPropertyWidget::propertyChangeNotifier()
+{
+    QCoreApplication::postEvent( this, new WPropertyChangedEvent() );
+}
+
+bool WPropertyWidget::event( QEvent* event )
+{
+    // a property changed
+    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
+    {
+        update();
+        return true;
+    }
+
+    return QWidget::event( event );
 }
 
 std::string WPropertyWidget::getTooltip() const

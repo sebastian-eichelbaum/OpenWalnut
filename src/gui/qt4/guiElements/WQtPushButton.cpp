@@ -52,9 +52,5 @@ QString WQtPushButton::getName()
 void WQtPushButton::emitPressed()
 {
     emit pushButtonPressed( m_name );
-
-    // Strangely we need the inverted isChecked here.
-    // I think this is the case as the change of the checked flag happens after the call of this function.
-    emit pushButtonToggled( m_name, !this->isChecked() );
 }
 

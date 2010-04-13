@@ -44,6 +44,19 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     // layout both against each other
     m_layout.addWidget( &m_spin );
 
+    update();
+
+    // connect the modification signal of the edit and slider with our callback
+    connect( &m_spin, SIGNAL( editingFinished() ), this, SLOT( spinChanged() ) );
+}
+
+WPropertyDoubleWidget::~WPropertyDoubleWidget()
+{
+    // cleanup
+}
+
+void WPropertyDoubleWidget::update()
+{
     // get the min constraint
     WPVDouble::PropertyConstraintMin minC = m_doubleProperty->getMin();
     double min = 0.0;
@@ -84,14 +97,6 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     // set the initial values
     m_spin.setValue( m_doubleProperty->get() );
     m_spin.setSingleStep( ( max - min ) / 100.0 );
-
-    // connect the modification signal of the edit and slider with our callback
-    connect( &m_spin, SIGNAL( editingFinished() ), this, SLOT( spinChanged() ) );
-}
-
-WPropertyDoubleWidget::~WPropertyDoubleWidget()
-{
-    // cleanup
 }
 
 void WPropertyDoubleWidget::spinChanged()

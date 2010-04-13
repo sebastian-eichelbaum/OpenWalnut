@@ -57,6 +57,11 @@ public:
 protected:
 
     /**
+     * Called whenever the widget should update.
+     */
+    virtual void update();
+
+    /**
      * The filename property represented by this widget.
      */
     WPropFilename m_fnProperty;

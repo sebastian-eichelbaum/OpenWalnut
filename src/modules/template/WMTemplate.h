@@ -127,14 +127,39 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
+     * To group properties, use WPropGroup.
+     */
+    WPropGroup    m_group1;
+
+    /**
+     * To group properties, use WPropGroup.
+     */
+    WPropGroup    m_group1a;
+
+    /**
+     * To group properties, use WPropGroup.
+     */
+    WPropGroup    m_group2;
+
+    /**
      * En/Disables an feature.
      */
     WPropBool     m_enableFeature;
 
     /**
+     * A nice feature trigger inside m_group1
+     */
+    WPropBool     m_group1Bool;
+
+    /**
      * An integer value.
      */
     WPropInt      m_anInteger;
+
+    /**
+     * An integer value. It is synchronized with m_anInteger.
+     */
+    WPropInt      m_anIntegerClone;
 
     /**
      * A double value.

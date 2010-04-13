@@ -48,6 +48,8 @@
 // when a subject signals a newly registered data set
 #define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
 
+// when a property changes
+#define WQT_PROPERTY_CHANGED_EVENT QEvent::User + 6
 
 #endif  // WEVENTTYPES_H
 

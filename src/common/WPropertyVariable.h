@@ -209,7 +209,15 @@ public:
      *
      * \return the constraint created and added.
      */
-     boost::shared_ptr< PropertyConstraint > addConstraint( PROPERTYCONSTRAINT_TYPE constraint );
+    boost::shared_ptr< PropertyConstraint > addConstraint( PROPERTYCONSTRAINT_TYPE constraint );
+
+    /**
+     * Gets the condition, which gets notified whenever the list of constraints changes. It is notified AFTER the write lock has been released so
+     * a read lock can be acquired in the callback.
+     *
+     * \return the condition.
+     */
+    boost::shared_ptr< WCondition > getContraintsChangedCondition();
 
     /**
      * Creates a new WPropertyConstraintMin for this WPropertyVariable.
@@ -289,6 +297,14 @@ public:
      */
     virtual bool setAsString( std::string value );
 
+    /**
+     * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
+     * should also print min/max constraints and so on. This simply is the value.
+     *
+     * \return the value as a string.
+     */
+    virtual std::string getAsString();
+
 protected:
 
     /**
@@ -329,32 +345,53 @@ protected:
      */
     void propertyChangeNotifier();
 
+    /**
+     * this condition gets notified whenever the list of constraints changes.
+     * \note it gets AFTER the write lock has been released. So in callbacks, a read lock can be acquired.
+     */
+    boost::shared_ptr< WCondition > m_constraintsChanged;
+
 private:
 };
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):
         WFlag< T >( new WCondition(), initial ),
-        WPropertyBase( name, description )
+        WPropertyBase( name, description ),
+        m_constraintsChanged( new WCondition() )
 {
     updateType();
+
+    // set constraint and change condition to update condition set of WPropertyBase
+    m_updateCondition->add( m_constraintsChanged );
+    m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 }
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition ):
         WFlag< T >( condition, initial ),
-        WPropertyBase( name, description )
+        WPropertyBase( name, description ),
+        m_constraintsChanged( new WCondition() )
 {
     updateType();
+
+    // set constraint and change condition to update condition set of WPropertyBase
+    m_updateCondition->add( m_constraintsChanged );
+    m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 }
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial,
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( new WCondition(), initial ),
-        WPropertyBase( name, description )
+        WPropertyBase( name, description ),
+        m_constraintsChanged( new WCondition() )
 {
     updateType();
+
+    // set constraint and change condition to update condition set of WPropertyBase
+    m_updateCondition->add( m_constraintsChanged );
+    m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
     WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
@@ -365,9 +402,14 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition,
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( condition, initial ),
-        WPropertyBase( name, description )
+        WPropertyBase( name, description ),
+        m_constraintsChanged( new WCondition() )
 {
     updateType();
+
+    // set constraint and change condition to update condition set of WPropertyBase
+    m_updateCondition->add( m_constraintsChanged );
+    m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
     WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
@@ -378,6 +420,9 @@ template < typename T >
 WPropertyVariable< T >::~WPropertyVariable()
 {
     // clean up
+    m_updateCondition->remove( m_constraintsChanged );
+    m_updateCondition->remove( WFlag< T >::getValueChangeCondition() );
+
     m_notifierConnection.disconnect();
     m_constraints.clear();
 }
@@ -421,6 +466,16 @@ bool WPropertyVariable< T >::setAsString( std::string value )
 }
 
 template < typename T >
+std::string WPropertyVariable< T >::getAsString()
+{
+    std::string val;
+    val = boost::lexical_cast< std::string >( WFlag< T >::get() );
+    // try catch( const boost::bad_lexical_cast &e ) ? No if this happens something is wrong with the value
+
+    return val;
+}
+
+template < typename T >
 bool WPropertyVariable< T >::ensureValidity( T newValidValue, bool suppressNotification )
 {
     if ( !accept( WFlag< T >::get() ) )
@@ -439,6 +494,7 @@ void WPropertyVariable< T >::addConstraint( boost::shared_ptr< PropertyConstrain
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
     m_constraints.insert( constraint );
     lock.unlock();
+    m_constraintsChanged->notify();
 }
 
 template < typename T >
@@ -448,6 +504,12 @@ WPropertyVariable< T >::addConstraint( PROPERTYCONSTRAINT_TYPE constraint )
     boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > c = PropertyConstraint::create( constraint );
     addConstraint( c );
     return c;
+}
+
+template < typename T >
+boost::shared_ptr< WCondition > WPropertyVariable< T >::getContraintsChangedCondition()
+{
+    return m_constraintsChanged;
 }
 
 template < typename T >
@@ -477,6 +539,7 @@ boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin(
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
     m_constraints.insert( c );
     lock.unlock();
+    m_constraintsChanged->notify();
     return c;
 }
 
@@ -488,6 +551,7 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax(
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
     m_constraints.insert( c );
     lock.unlock();
+    m_constraintsChanged->notify();
     return c;
 }
 
@@ -577,6 +641,7 @@ void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type )
         }
     }
     lock.unlock();
+    m_constraintsChanged->notify();
 }
 
 template < typename T >

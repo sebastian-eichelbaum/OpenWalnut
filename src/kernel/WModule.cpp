@@ -64,7 +64,7 @@ WModule::WModule():
     m_moduleState()
 {
     // initialize members
-    m_properties = boost::shared_ptr< WProperties >( new WProperties() );
+    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
     m_active = m_properties->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
 
@@ -269,11 +269,6 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
             throw WModuleSignalUnknown( s.str() );
             break;
     }
-}
-
-std::set< boost::shared_ptr< WModule > > WModule::getCompatibles()
-{
-    return WModuleFactory::getModuleFactory()->getCompatiblePrototypes( shared_from_this() );
 }
 
 const WBoolFlag&  WModule::isInitialized() const

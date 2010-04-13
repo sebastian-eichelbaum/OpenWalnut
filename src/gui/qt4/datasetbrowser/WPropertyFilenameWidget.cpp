@@ -51,7 +51,7 @@ WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridL
     m_button.setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
 
     // set the initial values
-    m_button.setText( QString::fromStdString( m_fnProperty->get().file_string() ) );
+    update();
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_button, SIGNAL( released() ), this, SLOT( buttonReleased() ) );
@@ -60,6 +60,11 @@ WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridL
 WPropertyFilenameWidget::~WPropertyFilenameWidget()
 {
     // cleanup
+}
+
+void WPropertyFilenameWidget::update()
+{
+    m_button.setText( QString::fromStdString( m_fnProperty->get().file_string() ) );
 }
 
 void WPropertyFilenameWidget::buttonReleased()

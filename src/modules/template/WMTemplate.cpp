@@ -162,6 +162,8 @@ void WMTemplate::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_enableFeature  = m_properties->addProperty( "Enable Feature",           "Description.", true );
     m_anInteger      = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
+    m_anIntegerClone = m_properties->addProperty( "CLONE!Number of Shape Rows",
+                                                  "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
     m_aDouble        = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
     m_aString        = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
     m_aFile          = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
@@ -169,10 +171,30 @@ void WMTemplate::properties()
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all
-    // properties of this module. The second argument is a description. A nice feature is the possibility to specify an own condition, which gets
-    // fired when the property gets modified. This is especially useful to wake up the module's thread on property changes. So, the property
-    // m_anInteger will wake the module thread on changes. m_enableFeature and m_aColor should not wake up the module thread. They get read by
-    // the update callback of this modules OSG node, to update the color.
+    // properties of this group and must not contain any slashes (/). The second argument is a description. A nice feature is the possibility
+    // to specify an own condition, which gets fired when the property gets modified. This is especially useful to wake up the module's thread
+    // on property changes. So, the property m_anInteger will wake the module thread on changes. m_enableFeature and m_aColor should not wake up
+    // the module thread. They get read by the update callback of this modules OSG node, to update the color.
+    //
+    // m_anIntegerClone has a special purpose in this example. It shows that you can simply update properties from within your module whilst the
+    // GUI updates itself. You can, for example, set constraints or simply modify values depending on input data, most probably useful to set
+    // nice default values or min/max constraints.
+
+    // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
+    // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
+
+    m_group1        = m_properties->addPropertyGroup( "Group 1",  "A nice group for grouping stuff." );
+    m_group1a       = m_group1->addPropertyGroup(     "Group 1a", "A group nested into \"Group 1\"." );
+    m_group2        = m_properties->addPropertyGroup( "Group 2",  "Another nice group for grouping stuff." );
+
+    // To understand how the groups can be used, you should consider that m_properties itself is a WPropGroup! This means, you can use your newly
+    // created groups exactly in the same way as you would use m_properties.
+    m_group1Bool    = m_group1->addProperty( "Funny stuff", "A grouped property", true );
+
+    // You even can add one property multiple times to different groups:
+    m_group2->addProperty( m_aColor );
+    m_group1a->addProperty( m_aDouble );
+    m_group1a->addProperty( m_enableFeature );
 
     // How can the values of the properties be changed? You can take a look at moduleMain where this is shown. For short: m_anInteger->set( 2 )
     // and m_anInteger->get().
@@ -322,13 +344,19 @@ void WMTemplate::moduleMain()
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
         // The if statement also checks for data validity as it uses the data! You should also always do that.
-        if ( m_anInteger->changed() || m_aDouble->changed() || ( dataChanged && dataValid ) )
+        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataChanged  ) && dataValid )
         {
             debugLog() << "Creating new OSG node";
 
             // You should grab your values at the beginning of such calculation blocks, since the property might change at any time!
             int rows = m_anInteger->get( true );
             double radii = m_aDouble->get( true );
+
+            // You can set other properties here. This example simply sets the value of m_anIntegerClone. The set command allows an additional
+            // parameter. If it is true, the specified property condition does not fire if it is set. This is useful if your module main loop
+            // waits for the condition of the property you want to set. Setting the property without suppressing the notification would cause
+            // another loop in your module.
+            m_anIntegerClone->set( m_anInteger->get(), true );
 
             debugLog() << "Number of Rows: " << rows;
             debugLog() << "Radii: " << radii;

@@ -34,6 +34,8 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include "WPropertyTypes.h"
+#include "WCondition.h"
+#include "WConditionSet.h"
 
 /**
  * Abstract base class for all properties. Simply provides name and type information.
@@ -100,6 +102,30 @@ public:
      */
     virtual bool setAsString( std::string value ) = 0;
 
+    /**
+     * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
+     * should also print min/max constraints and so on. This simply is the value.
+     *
+     * \return the value as a string.
+     */
+    virtual std::string getAsString() = 0;
+
+    /**
+     * This method returns a condition which gets fired whenever the property changes somehow. It is fired when:
+     * \li \ref setHidden is called and the hidden state changes
+     * \li \ref setAsString is called and the value changes
+     * \li WPropertyVariable::set is called and the value changes (regardless of suppression during set)
+     * \li WPropertyVariable::setMin/setMax is called and the value changes
+     * \li WPropertyVariable::addConstraint is called
+     * \li WPropertyVariable::removeConstraints is called
+     * \li WProperties::addProperty is called
+     * \li WProperties::addPropertyGroup is called
+     * This is especially useful if you simply want to know that something has happened.
+     *
+     * \return a condition notified whenever something changes.
+     */
+    virtual boost::shared_ptr< WCondition > getUpdateCondition() const;
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // Helpers for easy conversion to the possible types
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +187,13 @@ public:
     WPropPosition toPropPosition();
 
     /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as group
+     */
+    WPropGroup toPropGroup();
+
+    /**
      * Helper converts this instance to an arbitrary type.
      *
      * \return the property of given type of NULL if not valid type
@@ -209,6 +242,12 @@ protected:
      * Signal getting fired whenever the property changes.
      */
     PropertyChangeSignalType signal_PropertyChange;
+
+    /**
+     * Condition notified whenever something changes. See getUpdateCondition for more details.
+     * \see getUpdateCondition
+     */
+    boost::shared_ptr< WConditionSet > m_updateCondition;
 
 private:
 };
