@@ -48,6 +48,7 @@
 
 WModuleContainer::WModuleContainer( std::string name, std::string description ):
     WModule(),
+    m_moduleAccess( m_modules.getAccessObject() ),
     m_name( name ),
     m_description( description ),
     m_crashIfModuleCrashes( true )
@@ -100,9 +101,10 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     }
 
     // get write lock
-    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
-    m_modules.insert( module );
-    lock.unlock();
+    m_moduleAccess->beginWrite();
+    m_moduleAccess->get().insert( module );
+    m_moduleAccess->endWrite();
+
     module->setAssociatedContainer( boost::shared_static_cast< WModuleContainer >( shared_from_this() ) );
     WLogger::getLogger()->addLogMessage( "Associated module \"" + module->getName() + "\" with container." , "ModuleContainer (" + getName() + ")",
             LL_INFO );
@@ -159,9 +161,10 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     module->wait( true );
 
     // get write lock
-    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
-    m_modules.erase( module );
-    lock.unlock();
+    m_moduleAccess->beginWrite();
+    m_moduleAccess->get().erase( module );
+    m_moduleAccess->endWrite();
+
     module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
 
     // TODO(ebaum): remove signal subscriptions
@@ -173,10 +176,10 @@ WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
 {
     DataModuleListType l;
 
-    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
+    m_moduleAccess->beginRead();
 
     // iterate module list
-    for( std::set< boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
+    for( ModuleConstIterator iter = m_moduleAccess->get().begin(); iter != m_moduleAccess->get().end(); ++iter )
     {
         // is this module a data module?
         if ( ( *iter )->getType() == MODULE_DATA )
@@ -190,7 +193,7 @@ WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
             }
         }
     }
-    slock.unlock();
+    m_moduleAccess->endRead();
 
     // now sort the list using the sorter
 
@@ -213,19 +216,19 @@ void WModuleContainer::stop()
     WLogger::getLogger()->addLogMessage( "Stopping modules." , "ModuleContainer (" + getName() + ")", LL_INFO );
 
     // read lock
-    slock = boost::shared_lock<boost::shared_mutex>( m_moduleSetLock );
-    for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_modules.begin(); listIter != m_modules.end(); ++listIter )
+    m_moduleAccess->beginRead();
+    for( ModuleConstIterator listIter = m_moduleAccess->get().begin(); listIter != m_moduleAccess->get().end(); ++listIter )
     {
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + ( *listIter )->getName() + "\" to finish." ,
                 "ModuleContainer (" + getName() + ")", LL_INFO );
         ( *listIter )->wait( true );
     }
-    slock.unlock();
+    m_moduleAccess->endRead();
 
     // get write lock
-    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_moduleSetLock );
-    m_modules.clear();
-    lock.unlock();
+    m_moduleAccess->beginWrite();
+    m_moduleAccess->get().clear();
+    m_moduleAccess->endWrite();
 }
 
 const std::string WModuleContainer::getName() const
@@ -385,5 +388,10 @@ void WModuleContainer::moduleError( boost::shared_ptr< WModule > module, const W
 void WModuleContainer::setCrashIfModuleCrashes( bool crashIfCrashed )
 {
     m_crashIfModuleCrashes = crashIfCrashed;
+}
+
+WModuleContainer::ModuleSharedContainerType::WSharedAccess WModuleContainer::getAccessObject()
+{
+    return m_moduleAccess;
 }
 

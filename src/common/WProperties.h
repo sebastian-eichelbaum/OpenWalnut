@@ -229,6 +229,14 @@ public:
      */
     virtual bool setAsString( std::string value );
 
+    /**
+     * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
+     * should also print min/max constraints and so on. This simply is the value.
+     *
+     * \return the value as a string.
+     */
+    virtual std::string getAsString();
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
     // NOTE: these methods use the type of the initial parameter to automatically use the proper type.

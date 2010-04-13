@@ -22,25 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#ifndef WFILEOPENFAILED_H
+#define WFILEOPENFAILED_H
+
+#include <string>
+
+#include "../WException.h"
 
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * Thrown whenever a file could not be opened.
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
+class WFileOpenFailed : public WException
+{
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WFileOpenFailed( const std::string& msg = "The file could not be opened." );
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+    /**
+     * Destructor.
+     */
+    virtual ~WFileOpenFailed() throw();
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+protected:
+private:
+};
 
-#endif  // WICONS_H
+#endif  // WFILEOPENFAILED_H
