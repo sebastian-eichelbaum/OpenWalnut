@@ -117,6 +117,8 @@ private:
     WPropBool m_customColoring; //!< Enable/Disable custom colors
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
+    WPropBool m_save; //!< this should be a button
+    WPropFilename m_saveFileName; //!< the filename for saving
 
     WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
 
@@ -167,6 +169,11 @@ private:
      * changes tube parameters
      */
     void adjustTubes();
+
+    /**
+     * saves the currently selected (active field from roi manager) fibers to a file
+     */
+    void saveSelected();
 
     /**
      * Node callback to handle updates properly

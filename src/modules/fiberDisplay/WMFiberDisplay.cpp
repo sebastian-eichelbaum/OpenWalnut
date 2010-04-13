@@ -210,6 +210,8 @@ void WMFiberDisplay::properties()
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 1000 );
+    m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
+    m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WKernel::getAppPathObject() );
 }
 
 void WMFiberDisplay::toggleTubes()
@@ -252,4 +254,10 @@ void WMFiberDisplay::adjustTubes()
     {
         m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
     }
+}
+
+void WMFiberDisplay::saveSelected()
+{
+    boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
+    m_dataset->saveSelected( m_saveFileName->getAsString(), active );
 }

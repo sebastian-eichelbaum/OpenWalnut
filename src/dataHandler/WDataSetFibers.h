@@ -34,6 +34,23 @@
 
 #include "WDataSet.h"
 
+/**
+ * converts an integer into a byte array and back
+ */
+union converterByteINT32
+{
+        unsigned char b[4]; //!< the bytes
+        int i; //!< the int
+};
+
+/**
+ * converts a float into a byte array and back
+ */
+union converterByteFloat
+{
+        unsigned char b[4]; //!< the bytes
+        float f; //!< the float
+};
 
 /**
  * Represents a simple set of WFibers.
@@ -147,6 +164,13 @@ public:
      */
     wmath::WPosition getTangent( size_t fiber, size_t vertex ) const;
 
+    /**
+     * saves the selected fiber bundles to a file
+     *
+     *\param filename
+     * \param active bitfield of the fiber selection
+     */
+    void saveSelected( std::string filename, boost::shared_ptr< std::vector< bool > > active ) const;
 protected:
 
     /**
