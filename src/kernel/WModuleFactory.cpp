@@ -24,6 +24,8 @@
 
 #include <iostream>
 #include <set>
+#include <vector>
+#include <algorithm>
 #include <string>
 #include <typeinfo>
 
