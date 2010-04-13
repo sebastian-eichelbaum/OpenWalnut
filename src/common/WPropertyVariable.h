@@ -336,9 +336,11 @@ protected:
      * Cleans m_constraints from all existing constrains of the specified type.
      *
      * \param type the type to remove.
+     * \param useLock true if a lock should be used and if m_constraintsChanged should be notified. Set this to false to use remove lock from inside
+     * another operation already using the lock and notifying.
      *
      */
-    void removeConstraints( PROPERTYCONSTRAINT_TYPE type );
+    void removeConstraints( PROPERTYCONSTRAINT_TYPE type, bool useLock = true );
 
     /**
      * This method gets called by WFlag whenever the value of the property changes. It re-emits the signal with a this pointer
@@ -534,9 +536,9 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::maxCons
 template < typename T >
 boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin( T min )
 {
-    removeConstraints( PC_MIN );
     boost::shared_ptr< WPropertyConstraintMin< T > > c = minConstraint( min );
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    removeConstraints( PC_MIN, false );
     m_constraints.insert( c );
     lock.unlock();
     m_constraintsChanged->notify();
@@ -546,9 +548,9 @@ boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin(
 template < typename T >
 boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax( T max )
 {
-    removeConstraints( PC_MAX );
     boost::shared_ptr< WPropertyConstraintMax< T > > c = maxConstraint( max );
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    removeConstraints( PC_MAX, false );
     m_constraints.insert( c );
     lock.unlock();
     m_constraintsChanged->notify();
@@ -626,9 +628,15 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::getMax(
 }
 
 template < typename T >
-void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type )
+void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type, bool useLock )
 {
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    // lock the constraints set
+    boost::unique_lock< boost::shared_mutex > lock;
+    if ( useLock )
+    {
+        lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    }
+
     for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); )
     {
         if ( ( *it )->getType() == type )
@@ -640,8 +648,13 @@ void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type )
             ++it;
         }
     }
-    lock.unlock();
-    m_constraintsChanged->notify();
+
+    // only notify and unlock if locked earlier.
+    if ( useLock )
+    {
+        lock.unlock();
+        m_constraintsChanged->notify();
+    }
 }
 
 template < typename T >
