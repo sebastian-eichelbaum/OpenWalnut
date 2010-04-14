@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "../common/WAssert.h"
 #include "../common/WLimits.h"
 #include "WDataSetSingle.h"
@@ -99,3 +102,56 @@ boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
     return m_prototype;
 }
 
+double WDataSetScalar::interpolate( wmath::WPosition pos )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+    // TODO(wiebel): change this to eassert.
+    if( !grid )
+    {
+        throw WException( std::string(  "This data set has a grid whose type is not yet supported for interpolation." ) );
+    }
+    // TODO(wiebel): change this to eassert.
+    if( grid->getTransformationMatrix() != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
+    {
+        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
+    }
+    // TODO(wiebel): change this to eassert.
+    if( !( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ) )
+    {
+        throw WException( std::string( "Only implemented for scalar values so far." ) );
+    }
+
+    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
+
+    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+
+    double lambdaX = localPos[0] / grid->getOffsetX();
+    double lambdaY = localPos[1] / grid->getOffsetY();
+    double lambdaZ = localPos[2] / grid->getOffsetZ();
+    std::vector< double > h( 8 );
+//         lZ     lY
+//         |      /
+//         | 6___/_7
+//         |/:    /|
+//         4_:___5 |
+//         | :...|.|
+//         |.2   | 3
+//         |_____|/ ____lX
+//        0      1
+    h[0] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+    h[1] = (     lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+    h[2] = ( 1 - lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+    h[3] = (     lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+    h[4] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+    h[5] = (     lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+    h[6] = ( 1 - lambdaX ) * (     lambdaY ) * (     lambdaZ );
+    h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
+
+    double result = 0;
+    for( size_t i = 0; i < 8; ++i )
+    {
+        result += h[i] * getValueAt( vertexIds[i] );
+    }
+    return result;
+}

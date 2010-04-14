@@ -80,6 +80,16 @@ public:
     double getMin() const;
 
     /**
+     * Interpolate the value fo the valueset at the given position
+     *
+     * \param pos The position for wich we would like to get a value.
+     *
+     * \return Scalar value for that given position
+     */
+    double interpolate( wmath::WPosition pos );
+
+
+    /**
      * Returns a prototype instantiated with the true type of the deriving class.
      *
      * \return the prototype.
