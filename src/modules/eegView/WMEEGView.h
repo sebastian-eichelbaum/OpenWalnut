@@ -37,6 +37,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../fiberDisplay/WRMROIRepresentation.h"
 #include "WEEGEvent.h"
+#include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
 
 
@@ -262,6 +263,11 @@ private:
      * interpolation on the head surface.
      */
     osg::ref_ptr< osg::Texture1D > m_colorMapTexture;
+
+    /**
+     * calculates a source position at a given time position
+     */
+    boost::shared_ptr< WEEGSourceCalculator > m_sourceCalculator;
 
     /**
      * Opens a custom widget and connects the m_node with it.
