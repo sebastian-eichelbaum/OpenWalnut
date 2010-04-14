@@ -29,7 +29,7 @@
 #include <map>
 #include <algorithm>
 
-#include "WBinom.h"
+#include "WCompileTimeFunctions.h"
 #include "../WAssert.h"
 
 // TODO(reichenbach): Remove vectors (because of the enum dataSize).

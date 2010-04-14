@@ -40,8 +40,14 @@ namespace wmath
 template< std::size_t n, std::size_t k >
 struct WBinom
 {
+    /**
+     * Using an enum here instead of a static constant.
+     */
     enum
     {
+        /**
+         * The computed value.
+         */
         value = WBinom< n - 1, k - 1 >::value + WBinom< n - 1, k >::value
     };
 };
@@ -52,8 +58,14 @@ struct WBinom
 template< std::size_t n >
 struct WBinom< n, n >
 {
+    /**
+     * Using an enum here instead of a static constant.
+     */
     enum
     {
+        /**
+         * The computed value.
+         */
         value = 1
     };
 };
@@ -64,8 +76,14 @@ struct WBinom< n, n >
 template< std::size_t n >
 struct WBinom< n, 0 >
 {
+    /**
+     * Using an enum here instead of a static constant.
+     */
     enum
     {
+        /**
+         * The computed value.
+         */
         value = 1
     };
 };
