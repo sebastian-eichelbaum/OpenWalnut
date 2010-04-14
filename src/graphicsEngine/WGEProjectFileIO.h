@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include <osg/Matrixd>
+
 #include "../kernel/WProjectFileIO.h"
 
 /**
@@ -70,6 +72,21 @@ public:
     virtual void save( std::ostream& output );   // NOLINT
 
 protected:
+
+    /**
+     * All Cameras parsed.
+     */
+    std::map< unsigned int, std::string > m_cameras;
+
+    /**
+     * All camera view matrices.
+     */
+    std::map< unsigned int, osg::Matrixd > m_viewMatrices;
+
+    /**
+     * All camera projection matrices.
+     */
+    std::map< unsigned int, osg::Matrixd > m_projMatrices;
 
 private:
 };

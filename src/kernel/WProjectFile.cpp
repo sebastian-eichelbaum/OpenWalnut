@@ -87,6 +87,7 @@ void WProjectFile::save()
     for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
     {
         ( *iter )->save( output );
+        output << std::endl;
     }
 
     output.close();
