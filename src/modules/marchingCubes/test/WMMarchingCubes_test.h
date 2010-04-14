@@ -93,10 +93,15 @@ public:
     void testSaveZero()
     {
         WMMarchingCubes mc;
-        WTriangleMesh2 triMesh( 0, 0 );
+        boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( 0, 0 ) );
+        mc.m_triMesh = triMesh;
         std::string fileName = wiotools::tempFileName();
+        mc.m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
+        mc.m_savePropGroup = mc.m_properties->addPropertyGroup( "Save Surface",  "" );
+        mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh File", "", boost::filesystem::path( fileName.c_str() ) );
+        mc.m_saveTriggerProp = mc.m_savePropGroup->addProperty( "Do Save",  "Press!", WPVBaseTypes::PV_TRIGGER_READY );
 
-        bool result = mc.save( fileName, triMesh );
+        bool result = mc.save();
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have any vertices or triangles.
         TS_ASSERT( !wiotools::fileExists( fileName ) );
     }
@@ -108,7 +113,8 @@ public:
     {
         WMMarchingCubes mc;
         const unsigned int nbPos = 10;
-        WTriangleMesh2 triMesh( nbPos, 3 );
+        boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( nbPos, 3 ) );
+        mc.m_triMesh = triMesh;
 
         std::vector< wmath::WPosition > vertices( 0 );
         for( unsigned int posId = 0; posId < nbPos; ++posId )
@@ -116,17 +122,22 @@ public:
             double x = posId * posId + 3.4;
             double y = posId + 1;
             double z = 3. /  static_cast< double >( posId ); // provide nan values by dividing with zero
-            triMesh.addVertex( x, y, z );
+            triMesh->addVertex( x, y, z );
         }
 
         std::string fileName = wiotools::tempFileName();
+        mc.m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
+        mc.m_savePropGroup = mc.m_properties->addPropertyGroup( "Save Surface",  "" );
+        mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh File", "", boost::filesystem::path( fileName.c_str() ) );
+        mc.m_saveTriggerProp = mc.m_savePropGroup->addProperty( "Do Save",  "Press!", WPVBaseTypes::PV_TRIGGER_READY );
 
-        mc.save( fileName, triMesh );
+        mc.save();
 
-        bool result = mc.save( fileName, triMesh );
+        bool result = mc.save();
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have all coordinates values finite.
         TS_ASSERT( !wiotools::fileExists( fileName ) );
     }
+
 // TODO(wiebel): reactivate these when schurade has reactivated loading
 //     /**
 //      * Test reading of surfaces

@@ -205,7 +205,14 @@ void WMMarchingCubes::properties()
 
     m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.3, 0.3, 0.3, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+
+    m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!",
+                                                  WPVBaseTypes::PV_TRIGGER_READY );
+    m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
+
+    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WKernel::getAppPathObject() );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -456,22 +463,23 @@ void WMMarchingCubes::notifyTextureChange()
     m_textureChanged = true;
 }
 
-// TODO(wiebel): MC move this to a separate module in the future
-bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh2& triMesh ) const
+bool WMMarchingCubes::save() const
 {
-    if( triMesh.vertSize() == 0 )
+    m_saveTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
+    if( m_triMesh->vertSize() == 0 )
     {
         WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Marching Cubes", LL_ERROR );
         return false;
     }
 
-    if( triMesh.triangleSize() == 0 )
+    if( m_triMesh->triangleSize() == 0 )
     {
         WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Marching Cubes", LL_ERROR );
         return false;
     }
 
-    const char* c_file = fileName.c_str();
+    const char* c_file = m_meshFile->get().file_string().c_str();
     std::ofstream dataFile( c_file );
 
     if ( dataFile )
@@ -480,7 +488,7 @@ bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh2& triMesh 
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "open file failed" + fileName , "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().file_string() , "Marching Cubes", LL_ERROR );
         return false;
     }
 
@@ -493,10 +501,10 @@ bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh2& triMesh 
     dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
 
     wmath::WPosition point;
-    dataFile << "POINTS " << triMesh.vertSize() << " float\n";
-    for ( size_t i = 0; i < triMesh.vertSize(); ++i )
+    dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
+    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
-        point = triMesh.getVertexAsPosition( i );
+        point = m_triMesh->getVertexAsPosition( i );
         if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
@@ -505,22 +513,22 @@ bool WMMarchingCubes::save( std::string fileName, const WTriangleMesh2& triMesh 
         dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
     }
 
-    dataFile << "CELLS " << triMesh.triangleSize() << " " << triMesh.triangleSize() * 4 << "\n";
-    for ( size_t i = 0; i < triMesh.triangleSize(); ++i )
+    dataFile << "CELLS " << m_triMesh->triangleSize() << " " << m_triMesh->triangleSize() * 4 << "\n";
+    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     {
-        dataFile << "3 " << triMesh.getTriVertId0( i ) << " "
-                 <<  triMesh.getTriVertId1( i ) << " "
-                 <<  triMesh.getTriVertId2( i ) << "\n";
+        dataFile << "3 " << m_triMesh->getTriVertId0( i ) << " "
+                 <<  m_triMesh->getTriVertId1( i ) << " "
+                 <<  m_triMesh->getTriVertId2( i ) << "\n";
     }
-    dataFile << "CELL_TYPES "<< triMesh.triangleSize() <<"\n";
-    for ( size_t i = 0; i < triMesh.triangleSize(); ++i )
+    dataFile << "CELL_TYPES "<< m_triMesh->triangleSize() <<"\n";
+    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     {
         dataFile << "5\n";
     }
-    dataFile << "POINT_DATA " << triMesh.vertSize() << "\n";
+    dataFile << "POINT_DATA " << m_triMesh->vertSize() << "\n";
     dataFile << "SCALARS scalars float\n";
     dataFile << "LOOKUP_TABLE default\n";
-    for ( size_t i = 0; i < triMesh.vertSize(); ++i )
+    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         dataFile << "0\n";
     }
