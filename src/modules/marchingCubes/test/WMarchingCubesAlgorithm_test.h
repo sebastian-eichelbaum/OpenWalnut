@@ -123,6 +123,9 @@ public:
     {
         WMarchingCubesAlgorithm mc;
         mc.m_tIsoLevel = 1.7;
+        mc.m_nCellsX = 1;
+        mc.m_nCellsY = 1;
+        mc.m_nCellsZ = 1;
 
         std::vector< unsigned char > data;
         data.push_back( 0 );
@@ -139,11 +142,12 @@ public:
 
         WPointXYZId expected;
         expected.newID = 0;
-        expected.x = 0.7;
-        expected.y = 1;
+        expected.x = 1;
+        expected.y = 0.35;
         expected.z = 0;
 
-        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 1 );
+        // This is the edge between grid pos 3 and 1 which are cell verts 2 and 3
+        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 2 );
 
         double delta = 1e-9;
         TS_ASSERT_DELTA( expected.x, result.x, delta );
@@ -160,6 +164,9 @@ public:
     {
         WMarchingCubesAlgorithm mc;
         mc.m_tIsoLevel = 1.7;
+        mc.m_nCellsX = 1;
+        mc.m_nCellsY = 1;
+        mc.m_nCellsZ = 1;
 
         std::vector< float > data;
         data.push_back( 0 );
@@ -176,11 +183,12 @@ public:
 
         WPointXYZId expected;
         expected.newID = 0;
-        expected.x = 0.7;
-        expected.y = 1;
+        expected.x = 1;
+        expected.y = 0.35;
         expected.z = 0;
 
-        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 1 );
+        // This is the edge between grid pos 3 and 1 which are cell verts 2 and 3
+        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 2 );
 
         double delta = 1e-9;
         TS_ASSERT_DELTA( expected.x, result.x, delta );
