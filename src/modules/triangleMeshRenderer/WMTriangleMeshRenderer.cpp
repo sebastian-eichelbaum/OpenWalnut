@@ -28,6 +28,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/datastructures/WTriangleMesh.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 
 #include "WMTriangleMeshRenderer.h"
 #include "trianglemeshrenderer.xpm"
@@ -68,8 +69,8 @@ const std::string WMTriangleMeshRenderer::getDescription() const
 
 void WMTriangleMeshRenderer::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputData < WTriangleMesh  > >(
-        new WModuleInputData< WTriangleMesh >( shared_from_this(), "in", "The mesh to display" )
+    m_input = boost::shared_ptr< WModuleInputData < WTriangleMesh2  > >(
+        new WModuleInputData< WTriangleMesh2 >( shared_from_this(), "in", "The mesh to display" )
         );
 
     addConnector( m_input );
@@ -109,7 +110,7 @@ void WMTriangleMeshRenderer::moduleMain()
             break;
         }
         // invalid data
-        boost::shared_ptr< WTriangleMesh > mesh = m_input->getData();
+        boost::shared_ptr< WTriangleMesh2 > mesh = m_input->getData();
         if ( !mesh )
         {
             debugLog() << "Invalid Data. Disabling.";
@@ -120,44 +121,43 @@ void WMTriangleMeshRenderer::moduleMain()
     }
 }
 
-void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
+void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
 {
     m_moduleNode->remove( m_surfaceGeode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     osg::Vec3Array* vertices = new osg::Vec3Array;
-    for( size_t i = 0; i < mesh->getNumVertices(); ++i )
+    for( size_t i = 0; i < mesh->vertSize(); ++i )
     {
-        wmath::WPosition vertPos;
-        vertPos = mesh->getVertex( i );
-        vertices->push_back( osg::Vec3( vertPos[0], vertPos[1], vertPos[2] ) );
+        // wmath::WPosition vertPos;
+        // vertPos = mesh->getVertex( i );
+        vertices->push_back( mesh->getVertex( i ) );
     }
     surfaceGeometry->setVertexArray( vertices );
 
     osg::DrawElementsUInt* surfaceElement;
 
     surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-    for( unsigned int triId = 0; triId < mesh->getNumTriangles(); ++triId )
+    for( unsigned int triId = 0; triId < mesh->triangleSize(); ++triId )
     {
-        for( unsigned int vertId = 0; vertId < 3; ++vertId )
-        {
-            surfaceElement->push_back( mesh->getTriangleVertexId( triId, vertId ) );
-        }
+            surfaceElement->push_back( mesh->getTriVertId0( triId ) );
+            surfaceElement->push_back( mesh->getTriVertId1( triId ) );
+            surfaceElement->push_back( mesh->getTriVertId2( triId ) );
     }
     surfaceGeometry->addPrimitiveSet( surfaceElement );
 
     // ------------------------------------------------
     // normals
-    osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
+    // osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
 
-    mesh->computeVertNormals(); // time consuming
-    for( unsigned int vertId = 0; vertId < mesh->getNumVertices(); ++vertId )
-    {
-        wmath::WVector3D tmpNormal = mesh->getVertexNormal( vertId );
-        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
-    }
-    surfaceGeometry->setNormalArray( normals.get() );
+    // mesh->computeVertNormals(); // time consuming
+    // for( unsigned int vertId = 0; vertId < mesh->getNumVertices(); ++vertId )
+    // {
+    //     wmath::WVector3D tmpNormal = mesh->getVertexNormal( vertId );
+    //     normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
+    // }
+    surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
     m_surfaceGeode->addDrawable( surfaceGeometry );

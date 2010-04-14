@@ -35,6 +35,7 @@
 #include "../../kernel/WModuleOutputData.h"
 
 class WTriangleMesh;
+class WTriangleMesh2;
 
 /**
  * Someone should add some documentation here.
@@ -118,7 +119,7 @@ private:
     /**
      * An input connector used to get mehses from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_input;
+    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_input;
 
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
 
@@ -133,7 +134,7 @@ private:
      * This function generates the osg geometry from the WTriangleMesh.
      * \param mesh The triangle mesh that will be rendered.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
+    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
 };
 
 /**

@@ -276,13 +276,6 @@ void WMMarchingCubes::renderSurface()
 {
     renderMesh( m_triMesh );
     m_output->updateData( m_triMesh );
-
-    // TODO(wiebel): MC make the filename set automatically
-//     bool saved = save( "/tmp/isosurfaceTestMesh.vtk", triMesh );
-//     if( saved )
-//     {
-//         WLogger::getLogger()->addLogMessage( "File opened", "Marching Cubes", LL_DEBUG );
-//     }
 }
 
 void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
@@ -535,115 +528,6 @@ bool WMMarchingCubes::save() const
     dataFile.close();
     WLogger::getLogger()->addLogMessage( "saving done", "Marching Cubes", LL_DEBUG );
     return true;
-}
-
-WTriangleMesh2 WMMarchingCubes::load( std::string /*fileName*/ )
-{
-    WTriangleMesh2 triMesh( 0, 0 );
-//    triMesh.clearMesh();
-//
-//    namespace su = string_utils;
-//
-//    std::ifstream ifs;
-//    ifs.open( fileName.c_str(), std::ifstream::in );
-//    if( !ifs || ifs.bad() )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Try load broken file '" + fileName + "'", "Marching Cubes", LL_ERROR );
-//        throw std::runtime_error( "Problem during reading file. Probably file not found." );
-//    }
-//    std::string line;
-//
-//    // ------ HEADER -------
-//    std::vector< std::string > header;
-//    for( int i = 0; i < 4; ++i )  // strip first four lines
-//    {
-//        std::getline( ifs, line );
-//        if( !ifs.good() )
-//        {
-//            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + fileName, "Marching Cubes", LL_ERROR );
-//        }
-//        header.push_back( line );
-//    }
-//    if( header.at(0) != "# vtk DataFile Version 2.0" )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Unsupported format version string: " + header.at( 0 ), "Marching Cubes", LL_WARNING );
-//    }
-//
-//    if( su::toUpper( su::trim( header.at( 2 ) ) ) != "ASCII" )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Only ASCII files supported, not " + header.at( 2 ), "Marching Cubes", LL_ERROR );
-//    }
-//
-//    if(  su::tokenize( header.at( 3 ) ).size() < 2 ||
-//         su::toUpper( su::tokenize( header.at( 3 ) )[1] ) != "UNSTRUCTURED_GRID" )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Invalid VTK DATASET type: " + su::tokenize( header.back() )[1], "Marching Cubes", LL_ERROR );
-//    }
-//
-//    // ------ POINTS -------
-//
-//    std::getline( ifs, line );
-//    size_t numPoints = 0;
-//    std::vector< std::string > tokens = su::tokenize( line );
-//    if( tokens.size() != 3 || su::toLower( tokens.at( 2 ) ) != "float" || su::toLower( tokens.at( 0 ) ) != "points"  )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Invalid VTK POINTS declaration: " + line, "Marching Cubes", LL_ERROR );
-//    }
-//    try
-//    {
-//        numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
-//    }
-//    catch( const boost::bad_lexical_cast &e )
-//    {
-//        WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Marching Cubes", LL_ERROR );
-//    }
-//
-//    std::vector< wmath::WPosition > points;
-//    points.reserve( numPoints );
-//    float pointData[3];
-//    for( unsigned int i = 0; i < numPoints; ++i )
-//    {
-//        ifs >> pointData[0] >>  pointData[1] >>  pointData[2];
-//        points.push_back( wmath::WPosition( pointData[0], pointData[1], pointData[2] ) );
-//    }
-//    triMesh.setVertices( points );
-//
-//    // ----- Vertex Ids For Cells---------
-//    char* cellsMarker = new char[30];
-//    size_t nbCells;
-//    size_t nbNumbers;
-//    ifs >> cellsMarker >> nbCells >> nbNumbers;
-//
-//    triMesh.resizeTriangles( nbCells );
-//    unsigned int nbCellVerts;
-//    for( unsigned int i = 0; i < nbCells; ++i )
-//    {
-//        unsigned int tri[3];
-//        ifs >> nbCellVerts >> tri[0]  >> tri[1]  >> tri[2];
-//        triMesh.fastAddTriangle( tri[0], tri[1], tri[2] );
-//        if( nbCellVerts != 3 )
-//            WLogger::getLogger()->addLogMessage( "Number of cell vertices should be 3 but found " + nbCellVerts, "Marching Cubes", LL_ERROR );
-//    }
-//
-//    // ----- Cell Types ---------
-//    char* cells_typesMarker = new char[30];
-//    size_t nbCellTypes;
-//    ifs >> cells_typesMarker >> nbCellTypes;
-//    unsigned int cellType;
-//    for( unsigned int i = 0; i < nbCellTypes; ++i )
-//    {
-//        ifs >> cellType;
-//        if( cellType != 5 )
-//        {
-//            WLogger::getLogger()->addLogMessage( "Invalid cell type: " + cellType, "Marching Cubes", LL_ERROR );
-//        }
-//    }
-//
-//    ifs.close();
-//
-//    // TODO(wiebel): probably load point data some time
-//
-    return triMesh;
 }
 
 void WMMarchingCubes::updateGraphics()
