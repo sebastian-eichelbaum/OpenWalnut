@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "../../common/WLogger.h"
 
 #include "WRoiProjectFileIO.h"

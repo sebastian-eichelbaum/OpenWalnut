@@ -25,6 +25,8 @@
 #ifndef WROIPROJECTFILEIO_H
 #define WROIPROJECTFILEIO_H
 
+#include <string>
+
 #include "../../common/WProjectFileIO.h"
 
 /**
