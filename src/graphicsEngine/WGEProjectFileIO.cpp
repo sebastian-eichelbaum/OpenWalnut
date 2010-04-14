@@ -73,7 +73,8 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         // matches[1] is the ID of the camera
         // matches[2] is the type of matrix definition (currently only "Matrix", later there might be "Eye", "Center", "Up".
         // matches[3] is the matrix line
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Camera Modelview Matrix \"" << matches[2] << "\" with ID " << matches[1];
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Camera Modelview Matrix \"" << matches[2]
+                                                 << "\" with ID " << matches[1];
 
         // valid?
         if ( ( matches[2] != "Matrix" ) )
@@ -84,7 +85,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         }
 
         // is there already a matrix for this camera? -> we do not care :-). Overwrite it.
-        m_viewMatrices[ boost::lexical_cast< unsigned int >( matches[1] ) ] = osg::Matrixd::identity();;
+        m_viewMatrices[ boost::lexical_cast< unsigned int >( matches[1] ) ] = osg::Matrixd::identity();
 
         // parse the matrix -> tokenize it and fill pointer appropriately
         typedef boost::tokenizer<boost::char_separator< char > > tokenizer;
@@ -95,9 +96,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         //double* values = new
         for ( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
         {
-
         }
-
 
         return true;
     }
@@ -108,8 +107,6 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
 void WGEProjectFileIO::done()
 {
     // apply camera here
-
-
 }
 
 void WGEProjectFileIO::save( std::ostream& output ) // NOLINT

@@ -26,10 +26,11 @@
 #define WGEPROJECTFILEIO_H
 
 #include <string>
+#include <map>
 
 #include <osg/Matrixd>
 
-#include "../kernel/WProjectFileIO.h"
+#include "../common/WProjectFileIO.h"
 
 /**
  * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings.
