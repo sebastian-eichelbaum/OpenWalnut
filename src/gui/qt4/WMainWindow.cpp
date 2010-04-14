@@ -178,10 +178,18 @@ void WMainWindow::setupPermanentToolBar()
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
+    // setup save button
+    QMenu* saveMenu = new QMenu( "Save Project", projectSaveButton );
+    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ) );
+    saveMenu->addAction( "Save Camera", this, SLOT( projectSaveCameraOnly() ) );
+    saveMenu->addAction( "Save ROIs", this, SLOT( projectSaveROIOnly() ) );
+    projectSaveButton->setPopupMode( QToolButton::MenuButtonPopup );
+    projectSaveButton->setMenu( saveMenu );
+
     connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
     connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
-    connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSave() ) );
+    connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
 
     loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
@@ -379,7 +387,7 @@ WQtToolBar* WMainWindow::getCompatiblesToolBar()
     return m_compatiblesToolBar;
 }
 
-void WMainWindow::projectSave()
+void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
     QFileDialog fd;
     fd.setWindowTitle( "Save Project as" );
@@ -406,7 +414,14 @@ void WMainWindow::projectSave()
         try
         {
             // This call is synchronous.
-            proj->save();
+            if ( writer.empty() )
+            {
+                proj->save();
+            }
+            else
+            {
+                proj->save( writer );
+            }
         }
         catch( const std::exception& e )
         {
@@ -416,6 +431,27 @@ void WMainWindow::projectSave()
             QMessageBox::critical( this, title, message );
         }
     }
+}
+
+void WMainWindow::projectSaveAll()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    // an empty list equals "all"
+    projectSave( w );
+}
+
+void WMainWindow::projectSaveCameraOnly()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    w.push_back( WProjectFile::getCameraWriter() );
+    projectSave( w );
+}
+
+void WMainWindow::projectSaveROIOnly()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    w.push_back( WProjectFile::getROIWriter() );
+    projectSave( w );
 }
 
 void WMainWindow::projectLoad()

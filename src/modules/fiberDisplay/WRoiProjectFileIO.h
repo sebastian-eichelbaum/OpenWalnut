@@ -22,33 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEPROJECTFILEIO_H
-#define WGEPROJECTFILEIO_H
+#ifndef WROIPROJECTFILEIO_H
+#define WROIPROJECTFILEIO_H
 
 #include <string>
-#include <map>
 
-#include <osg/Matrixd>
-
-#include "../common/WProjectFileIO.h"
+#include "../../common/WProjectFileIO.h"
 
 /**
- * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings for the main view with the
- * WGEZoomTrackbalManipulator.
+ * IO Class for writing the ROI structure to a project file.
  */
-class WGEProjectFileIO: public WProjectFileIO
+class WRoiProjectFileIO: public WProjectFileIO
 {
 public:
 
     /**
      * Default constructor.
      */
-    WGEProjectFileIO();
+    WRoiProjectFileIO();
 
     /**
      * Destructor.
      */
-    virtual ~WGEProjectFileIO();
+    virtual ~WRoiProjectFileIO();
 
     /**
      * This method parses the specified line and interprets it. It gets called line by line by WProjectFile.
@@ -75,38 +71,8 @@ public:
 
 protected:
 
-    /**
-     * All Cameras parsed.
-     */
-    typedef std::map< unsigned int, std::string > CameraList;
-
-    /**
-     * Camera map.
-     */
-    CameraList m_cameras;
-
-    /**
-     * All view's manipulator matrices.
-     */
-    std::map< unsigned int, osg::Matrixd > m_manipulatorMatrices;
-
-    /**
-     * The home position eye point.
-     */
-    std::map< unsigned int, osg::Vec3d > m_homeEyeVectors;
-
-    /**
-     * The home position center point.
-     */
-    std::map< unsigned int, osg::Vec3d > m_homeCenterVectors;
-
-    /**
-     * The home position up vector.
-     */
-    std::map< unsigned int, osg::Vec3d > m_homeUpVectors;
-
 private:
 };
 
-#endif  // WGEPROJECTFILEIO_H
+#endif  // WROIPROJECTFILEIO_H
 

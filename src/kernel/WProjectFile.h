@@ -64,6 +64,35 @@ public:
      */
     virtual void save();
 
+    /**
+     * Saves the current state to the file specified in the constructor. This also supports a custom list of writers. This is useful to only
+     * write some parts of the state.
+     *
+     * \param writer the list of writers to use.
+     */
+    virtual void save( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
+
+    /**
+     * Returns an instance of the Camera writer.
+     *
+     * \return the writer able to output the camera configuration to a stream.
+     */
+    static boost::shared_ptr< WProjectFileIO > getCameraWriter();
+
+    /**
+     * Returns an instance of the module writer.
+     *
+     * \return the writer able to output the module configuration to a stream.
+     */
+    static boost::shared_ptr< WProjectFileIO > getModuleWriter();
+
+    /**
+     * Returns an instance of the ROI writer.
+     *
+     * \return the writer able to output the ROI configuration to a stream.
+     */
+    static boost::shared_ptr< WProjectFileIO > getROIWriter();
+
 protected:
 
     /**
@@ -80,7 +109,7 @@ protected:
     /**
      * The parser instances. They are used to parse the file.
      */
-    std::vector< WProjectFileIO* > m_parsers;
+    std::vector< boost::shared_ptr< WProjectFileIO > > m_parsers;
 
 private:
 };

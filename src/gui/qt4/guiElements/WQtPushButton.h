@@ -28,11 +28,12 @@
 #include <string>
 
 #include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
 /**
  * Implements a QPushButton with a boost signal for convenience.
  */
-class WQtPushButton : public QPushButton
+class WQtPushButton : public QToolButton
 {
     Q_OBJECT
 
