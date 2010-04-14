@@ -364,6 +364,19 @@ public:
      */
     WPropColor         addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&  initial, bool hide = false );
 
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&  initial, bool hide = false );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // convenience methods for
@@ -502,6 +515,22 @@ public:
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                 boost::shared_ptr< WCondition > condition, bool hide = false );
 
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger   addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // convenience methods for
     // template< typename T>
@@ -638,6 +667,23 @@ public:
      */
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&  initial,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger   addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&  initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // convenience methods for
     // template< typename T>
@@ -792,6 +838,37 @@ public:
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                 boost::shared_ptr< WCondition > condition,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger   addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+protected:
+
+   /**
+    * Helping function to find a property inside a specific group. It does not recursively find properties nested inside other property groups.
+    *
+    * \param props the group to search in. This is not a shared pointer since it is not needed. It simply can't happen that it is freed during
+    * findProperty as it is contained in this or a nested properties instance.
+    * \param name the name of the property inside THIS group.
+    *
+    * \return the property if found, else NULL.
+    */
+    boost::shared_ptr< WPropertyBase > findProperty( WProperties* props, std::string name );
 
 private:
 

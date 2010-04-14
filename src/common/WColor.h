@@ -147,12 +147,12 @@ private:
 };
 
 /**
- * Write a color in string represensation to the given output stream.
+ * Write a color in string representation to the given output stream.
  */
 std::ostream& operator<<( std::ostream& out, const WColor& c );
 
 /**
- * Write a color in string represensation to the given input stream.
+ * Write a color in string representation to the given input stream.
  */
 std::istream& operator>>( std::istream& in, WColor& c );
 

@@ -90,6 +90,7 @@ private:
     WPropDouble m_isoValueProp; //!< Property holding the value for the distance.
     WPropInt m_opacityProp; //!< Property holding the value for the opacity of the surface.
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
+    WPropColor m_surfaceColorProp; //!< Property indicating which color to use for non-textured surface.
 
     boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > > m_output; //!< Connector to provide the distance map to other modules.

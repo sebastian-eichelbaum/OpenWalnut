@@ -94,6 +94,12 @@ public:
      */
     virtual void slotAddRoiToBrowser( boost::shared_ptr< WRMROIRepresentation > roi );
 
+    /**
+     * Slot gets called whenever a roi is removed.
+     *
+     * \param roi the roi to be removed
+     */
+    virtual void slotRemoveRoiFromBrowser( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
      * Slot gets called whenever a module switches its state to "ready".

@@ -31,7 +31,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
-#include "WProjectFileIO.h"
+#include "../common/WProjectFileIO.h"
 
 /**
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known

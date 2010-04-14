@@ -27,6 +27,7 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
@@ -121,7 +122,7 @@ public:
      *
      * \return set of compatible combiners.
      */
-    std::set< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
+    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
 
     /**
      * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is

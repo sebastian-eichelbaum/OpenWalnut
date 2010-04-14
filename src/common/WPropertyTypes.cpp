@@ -22,64 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WBINOM_H
-#define WBINOM_H
-
 #include <string>
 
-namespace wmath
+#include "WPropertyTypes.h"
+
+std::ostream& WPVBaseTypes::operator<<( std::ostream& out, const WPVBaseTypes::PV_TRIGGER& c )
 {
-/**
- * Implements compile-time calculation of binomial coefficients.
- *
- *
- * WBinom< n, k >::value = n! / ( k!(n-k)! ).
- *
- * \note For k > n, compilation fails.
- */
-template< std::size_t n, std::size_t k >
-struct WBinom
-{
-    enum
+    // print it as nice string
+    switch( c )
     {
-        value = WBinom< n - 1, k - 1 >::value + WBinom< n - 1, k >::value
-    };
-};
+        case PV_TRIGGER_TRIGGERED:
+            out << "PV_TRIGGER_TRIGGERED";
+            break;
+        default:
+            out << "PV_TRIGGER_READY";
+    }
 
-/**
- * Specialization for n = k.
- */
-template< std::size_t n >
-struct WBinom< n, n >
+    return out;
+}
+
+std::istream& WPVBaseTypes::operator>>( std::istream& in, WPVBaseTypes::PV_TRIGGER& c )
 {
-    enum
+    std::string s;
+    in >> s;
+
+    // interpret string
+    if ( s == "PV_TRIGGER_TRIGGERED" )
     {
-        value = 1
-    };
-};
-
-/**
- * Specialization for k = 0.
- */
-template< std::size_t n >
-struct WBinom< n, 0 >
-{
-    enum
+        c = PV_TRIGGER_TRIGGERED;
+    }
+    else
     {
-        value = 1
-    };
-};
+        c = PV_TRIGGER_READY;
+    }
 
-/**
- * This specialization of the WBinom struct is needed to avoid
- * infinite recursion in case of k > n. The compiler should abort
- * compilation with an error message.
- */
-template< std::size_t k >
-struct WBinom< 0, k >
-{
-};
+    return in;
+}
 
-} // namespace wmath
-
-#endif  // WBINOM_H

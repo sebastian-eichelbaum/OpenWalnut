@@ -35,7 +35,9 @@
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "../fiberDisplay/WRMROIRepresentation.h"
 #include "WEEGEvent.h"
+#include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
 
 
@@ -228,6 +230,13 @@ private:
     osg::ref_ptr< osg::Node > m_labelsNode;
 
     /**
+     * The ROI around the source dipole position at the time determined by
+     * m_event.
+     * Used to select the fibers around this dipole.
+     */
+    boost::weak_ptr< WRMROIRepresentation > m_roi;
+
+    /**
      * Bool flag which gets set when the data was changed.
      * The module threads waits for this flag and performs a redraw.
      */
@@ -237,6 +246,11 @@ private:
      * The current active-state. Whether the widget is open and usable.
      */
     bool m_wasActive;
+
+    /**
+     * The time of the current event. Used to check whether the event changed.
+     */
+    double m_currentEventTime;
 
     /**
      * A ScalarsToColors object mapping the potentials at the electrodes to
@@ -249,6 +263,11 @@ private:
      * interpolation on the head surface.
      */
     osg::ref_ptr< osg::Texture1D > m_colorMapTexture;
+
+    /**
+     * calculates a source position at a given time position
+     */
+    boost::shared_ptr< WEEGSourceCalculator > m_sourceCalculator;
 
     /**
      * Opens a custom widget and connects the m_node with it.

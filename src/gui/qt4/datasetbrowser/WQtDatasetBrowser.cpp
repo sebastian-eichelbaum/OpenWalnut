@@ -40,6 +40,7 @@
 #include "WQtDatasetBrowser.h"
 #include "../events/WModuleAssocEvent.h"
 #include "../events/WRoiAssocEvent.h"
+#include "../events/WRoiRemoveEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WEventTypes.h"
 #include "../guiElements/WQtApplyModulePushButton.h"
@@ -186,6 +187,17 @@ bool WQtDatasetBrowser::event( QEvent* event )
 
         return true;
     }
+    if( event->type() == WQT_ROI_REMOVE_EVENT )
+    {
+        WRoiRemoveEvent* e3 = dynamic_cast< WRoiRemoveEvent* >( event );
+        if( e3 )
+        {
+            removeRoi( e3->getRoi() );
+            WLogger::getLogger()->addLogMessage( "Removing roi from dataset browser.", "DatasetBrowser", LL_DEBUG );
+        }
+
+        return true;
+    }
 
     // a module changed its state to "ready" -> activate it in dataset browser
     if ( event->type() == WQT_READY_EVENT )
@@ -299,6 +311,29 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
     newItem->setSelected( true );
+}
+
+void WQtDatasetBrowser::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+{
+    for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
+    {
+        QTreeWidgetItem* branchTreeItem = m_tiRois->child( branchID );
+        for( int roiID = 0; roiID < branchTreeItem->childCount(); ++roiID )
+        {
+            WQtRoiTreeItem* roiTreeItem = dynamic_cast< WQtRoiTreeItem* >( branchTreeItem->child( roiID ) );
+            if( roiTreeItem && roiTreeItem->getRoi() == roi )
+            {
+                delete roiTreeItem;
+
+                if( branchTreeItem->childCount() == 0 )
+                {
+                    delete branchTreeItem;
+                }
+
+                break;
+            }
+        }
+    }
 }
 
 boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
@@ -429,6 +464,9 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
                         WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "DatasetBrowser",
                                 LL_WARNING );
                         break;
+                    case PV_TRIGGER:
+                        tab->addProp( ( *iter )->toPropTrigger() );
+                        break;
                     case PV_GROUP:
                         tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
                         break;
@@ -454,9 +492,9 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
-    std::set< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
-    for ( std::set< boost::shared_ptr< WApplyPrototypeCombiner > >::iterator iter = comps.begin(); iter != comps.end(); ++iter )
+    for ( std::vector< boost::shared_ptr< WApplyPrototypeCombiner > >::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
         if( !m_moduleWhiteList.empty() )
         {
@@ -588,15 +626,10 @@ void WQtDatasetBrowser::deleteTreeItem()
         else if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
         {
             roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
-            WQtBranchTreeItem* branch = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
             if ( roi )
             {
-                delete m_roiTreeWidget->selectedItems().at( 0 );
                 WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
-            }
-            if ( branch->childCount() == 0 )
-            {
-                delete branch;
+                // Removing the roi from the tree widget is also done by WROIManagerFibers::removeRoi().
             }
         }
     }

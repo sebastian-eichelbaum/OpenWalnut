@@ -160,6 +160,8 @@ void WMTemplate::properties()
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_aTrigger       = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.",
+                                                  WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     m_enableFeature  = m_properties->addProperty( "Enable Feature",           "Description.", true );
     m_anInteger      = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
     m_anIntegerClone = m_properties->addProperty( "CLONE!Number of Shape Rows",
@@ -174,7 +176,11 @@ void WMTemplate::properties()
     // properties of this group and must not contain any slashes (/). The second argument is a description. A nice feature is the possibility
     // to specify an own condition, which gets fired when the property gets modified. This is especially useful to wake up the module's thread
     // on property changes. So, the property m_anInteger will wake the module thread on changes. m_enableFeature and m_aColor should not wake up
-    // the module thread. They get read by the update callback of this modules OSG node, to update the color.
+    // the module thread. They get read by the update callback of this modules OSG node, to update the color. m_aTrigger is a property which can
+    // be used to trigger costly operations. The GUI shows them as buttons with the description as button text. The user can then press them and
+    // the WPropTrigger will change its state to PV_TRIGGER_TRIGGERED. In the moduleMain documentation, you'll find a more detailed description
+    // of how to use trigger properties. Be aware, that these kind of properties should be used carefully. They somehow inhibit the update flow
+    // through the module graph.
     //
     // m_anIntegerClone has a special purpose in this example. It shows that you can simply update properties from within your module whilst the
     // GUI updates itself. You can, for example, set constraints or simply modify values depending on input data, most probably useful to set
@@ -437,6 +443,32 @@ void WMTemplate::moduleMain()
             // How to set the data to the output and how to notify other modules about it?
             m_output->updateData( newData );
             // This sets the new data to the output connector and automatically notifies all modules connected to your output.
+        }
+
+        // As we provided our condition to m_aTrigger too, the main thread will wake up if it changes. The GUI can change the trigger only to the
+        // state "PV_TRIGGER_TRIGGERED" (this is the case if the user presses the button).
+        if ( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            // Now that the trigger has the state "triggered", a time consuming operation can be done here.
+            debugLog() << "User triggered an important and time consuming operation.";
+
+            // Do something here. As above, do not forget to inform the user about your progress.
+            int steps = 10;
+            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing something important", steps ) );
+            m_progress->addSubProgress( progress1 );
+            for ( int i = 0; i < steps; ++i )
+            {
+                ++*progress1;
+                sleep( 1 );
+            }
+            progress1->finish();
+
+            // As long as the module does not reset the trigger to "ready", the GUI disables the trigger button. This is very useful to avoid
+            // that a user presses the button multiple times during an operation. When setting the property back to "ready", the GUI re-enables
+            // the button and the user can press it again.
+            // To avoid the moduleMain- loop to awake every time we reset the trigger, provide a second parameter to the set() method. It denotes
+            // whether the change notification should be fired or not. In our case, we avoid this by providing false to the second parameter.
+            m_aTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
     }
 

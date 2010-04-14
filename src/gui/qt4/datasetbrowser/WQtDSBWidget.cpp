@@ -71,6 +71,11 @@ WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
     return new WPropertyFilenameWidget( property, &m_controlLayout, this );
 }
 
+WPropertyTriggerWidget* WQtDSBWidget::addProp( WPropTrigger property )
+{
+    return new WPropertyTriggerWidget( property, &m_controlLayout, this );
+}
+
 void WQtDSBWidget::addGroup( WQtDSBWidget* widget )
 {
     // TODO(ebaum): extend it to collapse the group

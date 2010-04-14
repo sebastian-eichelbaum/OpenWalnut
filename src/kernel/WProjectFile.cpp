@@ -30,6 +30,7 @@
 
 #include "WKernel.h"
 #include "combiner/WModuleProjectFileCombiner.h"
+#include "../graphicsEngine/WGEProjectFileIO.h"
 #include "../common/exceptions/WFileNotFound.h"
 #include "../common/exceptions/WFileOpenFailed.h"
 
@@ -49,12 +50,17 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
     // m_parsers.push_back( new W???() );
 
     // The Camera parser
-    // m_parsers.push_back( new W???() );
+    m_parsers.push_back( new WGEProjectFileIO() );
 }
 
 WProjectFile::~WProjectFile()
 {
     // cleanup
+    for ( std::vector< WProjectFileIO* >::iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+    {
+        delete( *iter );
+    }
+    m_parsers.clear();
 }
 
 void WProjectFile::load()
@@ -81,6 +87,7 @@ void WProjectFile::save()
     for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
     {
         ( *iter )->save( output );
+        output << std::endl;
     }
 
     output.close();

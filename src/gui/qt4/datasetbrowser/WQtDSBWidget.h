@@ -36,6 +36,7 @@
 #include "WPropertyDoubleWidget.h"
 #include "WPropertyColorWidget.h"
 #include "WPropertyFilenameWidget.h"
+#include "WPropertyTriggerWidget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -136,6 +137,15 @@ public:
      * \return the widget that has been added.
      */
     WPropertyColorWidget* addProp( WPropColor property );
+
+    /**
+     * Adds a new trigger property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    WPropertyTriggerWidget* addProp( WPropTrigger property );
 
     /**
      * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.

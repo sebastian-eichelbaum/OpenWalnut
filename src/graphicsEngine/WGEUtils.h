@@ -43,7 +43,7 @@ namespace wge
      * \param pos1 First point
      * \param pos2 Second point
      */
-     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
+    WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
 
     /**
      * Converts a WColor to an OSG compatible color
@@ -78,6 +78,12 @@ namespace wge
      * \param camera The matrices of this camera will used for unprojecting.
      */
     osg::Vec3 unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
+
+    /**
+     * Conversion of WVector3D to osg::Vec3
+     * \param v the vector to convert.
+     */
+    osg::Vec3 wv3D2ov3( wmath::WVector3D v );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
@@ -96,4 +102,10 @@ inline osg::Vec3 wge::osgVec3( const wmath::WPosition& pos )
 {
     return osg::Vec3( pos[0], pos[1], pos[2] );
 }
+
+inline osg::Vec3 wge::wv3D2ov3( wmath::WVector3D v )
+{
+    return osg::Vec3( v[0], v[1], v[2] );
+}
+
 #endif  // WGEUTILS_H

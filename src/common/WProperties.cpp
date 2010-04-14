@@ -27,6 +27,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
+
 #include "WLogger.h"
 #include "exceptions/WPropertyUnknown.h"
 #include "exceptions/WPropertyNotUnique.h"
@@ -70,6 +73,8 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
     m_propAccess->beginWrite();
 
+    // NOTE: WPropertyBase already prohibits invalid property names -> no check needed here
+
     // check uniqueness:
     if ( std::count_if( m_propAccess->get().begin(), m_propAccess->get().end(),
             boost::bind( boost::mem_fn( &WProperties::propNamePredicate ), this, prop, _1 ) ) )
@@ -90,14 +95,21 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     m_propAccess->endWrite();
 }
 
-boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
+/**
+ * Helping function to find a property inside a specific group. It does not recursively find properties nested inside other property groups.
+ *
+ * \param props the group to search in
+ * \param name the name of the property inside THIS group.
+ *
+ * \return the property if found, else NULL.
+ */
+boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
 {
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
-
-    m_propAccess->beginRead();
+    props->m_propAccess->beginRead();
 
     // iterate over the items
-    for ( PropertyContainerType::const_iterator it = m_propAccess->get().begin(); it != m_propAccess->get().end(); ++it )
+    for ( PropertyContainerType::const_iterator it = props->m_propAccess->get().begin(); it != props->m_propAccess->get().end(); ++it )
     {
         if ( ( *it )->getName() == name )
         {
@@ -105,7 +117,46 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
             break;
         }
     }
-    m_propAccess->endRead();
+
+    // done.
+    props->m_propAccess->endRead();
+
+    return result;
+}
+
+boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
+{
+    boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
+
+    // tokenize the name -> contains any paths?
+    typedef boost::tokenizer<boost::char_separator< char > > tokenizer;
+    boost::char_separator< char > sep( "/" );   // separate by /
+    tokenizer tok( name, sep );
+
+    // iterate along the path
+    WProperties* curProps = this;       // the group currently in while traversing the path
+    for ( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
+    {
+        // was the last token not a group?
+        if ( result && ( result->getType() != PV_GROUP ) )
+        {
+            // no it wasn't. This means that one token inside the path is no group, but it needs to be one
+            return boost::shared_ptr< WPropertyBase >();
+        }
+
+        // get the properties along the path
+        result = findProperty( curProps, boost::lexical_cast< std::string >( *it ) );
+        if ( !result )
+        {
+            // not found? Return NULL.
+            return boost::shared_ptr< WPropertyBase >();
+        }
+        else if ( result && ( result->getType() == PV_GROUP ) )
+        {
+            // it is a group. Go down
+            curProps = result->toPropGroup().get();
+        }
+    }
 
     return result;
 }
@@ -193,6 +244,11 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, hide );
 }
 
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, hide );
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
 // template< typename T>
@@ -254,6 +310,12 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
                                      boost::shared_ptr< WCondition > condition, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, hide );
+}
+
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, hide );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -319,6 +381,11 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, notifier, hide );
 }
 
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, notifier, hide );
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
@@ -390,5 +457,12 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, notifier, hide );
+}
+
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       boost::shared_ptr< WCondition > condition,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, notifier, hide );
 }
 
