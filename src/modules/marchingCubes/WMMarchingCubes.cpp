@@ -30,7 +30,6 @@
 #include <cmath>
 
 #include "iso_surface.xpm"
-#include "marchingCubesCaseTables.h"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
 
@@ -53,19 +52,13 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 
+#include "WMarchingCubesAlgorithm.h"
 #include "WMMarchingCubes.h"
 
 
 WMMarchingCubes::WMMarchingCubes():
     WModule(),
     m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ),
-    m_nCellsX( 0 ),
-    m_nCellsY( 0 ),
-    m_nCellsZ( 0 ),
-    m_fCellLengthX( 1 ),
-    m_fCellLengthY( 1 ),
-    m_fCellLengthZ( 1 ),
-    m_tIsoLevel( 100 ),
     m_dataSet(),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
@@ -219,6 +212,12 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 {
     debugLog() << "Isovalue: " << isoValue;
     WAssert( ( *m_dataSet ).getValueSet()->order() == 0, "This module only works on scalars." );
+
+    WMarchingCubesAlgorithm mcAlgo;
+    boost::shared_ptr< WGridRegular3D > gridRegular3D = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_dataSet ).getGrid() );
+    WAssert( gridRegular3D, "Grid is not of type WGridRegular3D." );
+    m_grid = gridRegular3D;
+
     switch( (*m_dataSet).getValueSet()->getDataType() )
     {
         case W_DT_UNSIGNED_CHAR:
@@ -226,7 +225,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< unsigned char > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
             break;
         }
         case W_DT_INT16:
@@ -234,7 +233,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int16_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
             break;
         }
         case W_DT_SIGNED_INT:
@@ -242,7 +241,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int32_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
             break;
         }
         case W_DT_FLOAT:
@@ -250,7 +249,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< float > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
             break;
         }
         case W_DT_DOUBLE:
@@ -258,7 +257,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< double > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            generateSurface( ( *m_dataSet ).getGrid(), vals, isoValue );
+            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
             break;
         }
         default:
@@ -266,381 +265,9 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
     }
 }
 
-
-void WMMarchingCubes::transformPositions( ID2WPointXYZId* positions )
-{
-    wmath::WMatrix< double > mat = m_grid->getTransformationMatrix();
-    for( ID2WPointXYZId::iterator it = positions->begin(); it != positions->end(); ++it )
-    {
-        wmath::WPosition pos = wmath::WPosition( it->second.x, it->second.y, it->second.z );
-
-        std::vector< double > resultPos4D( 4 );
-        resultPos4D[0] = mat( 0, 0 ) * pos[0] + mat( 0, 1 ) * pos[1] + mat( 0, 2 ) * pos[2] + mat( 0, 3 ) * 1;
-        resultPos4D[1] = mat( 1, 0 ) * pos[0] + mat( 1, 1 ) * pos[1] + mat( 1, 2 ) * pos[2] + mat( 1, 3 ) * 1;
-        resultPos4D[2] = mat( 2, 0 ) * pos[0] + mat( 2, 1 ) * pos[1] + mat( 2, 2 ) * pos[2] + mat( 2, 3 ) * 1;
-        resultPos4D[3] = mat( 3, 0 ) * pos[0] + mat( 3, 1 ) * pos[1] + mat( 3, 2 ) * pos[2] + mat( 3, 3 ) * 1;
-
-        it->second.x = resultPos4D[0] / resultPos4D[3];
-        it->second.y = resultPos4D[1] / resultPos4D[3];
-        it->second.z = resultPos4D[2] / resultPos4D[3];
-    }
-}
-
-template< typename T > void WMMarchingCubes::generateSurface( boost::shared_ptr< WGrid > inGrid,
-                                                              boost::shared_ptr< WValueSet< T > > vals,
-                                                              double isoValue )
-{
-    WAssert( vals, "No value set provided." );
-
-    m_idToVertices.clear();
-    m_trivecTriangles.clear();
-
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
-    m_grid = grid;
-    WAssert( grid, "Grid is not of type WGridRegular3D." );
-
-    // We choose the following to be 1 as we transform the positions later.
-    m_fCellLengthX = 1;
-    m_fCellLengthY = 1;
-    m_fCellLengthZ = 1;
-
-    m_nCellsX = grid->getNbCoordsX() - 1;
-    m_nCellsY = grid->getNbCoordsY() - 1;
-    m_nCellsZ = grid->getNbCoordsZ() - 1;
-
-    m_tIsoLevel = isoValue;
-
-    unsigned int nX = m_nCellsX + 1;
-    unsigned int nY = m_nCellsY + 1;
-
-
-    unsigned int nPointsInSlice = nX * nY;
-
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", m_nCellsZ ) );
-    m_progress->addSubProgress( progress );
-    // Generate isosurface.
-    for( unsigned int z = 0; z < m_nCellsZ; z++ )
-    {
-        ++*progress;
-        for( unsigned int y = 0; y < m_nCellsY; y++ )
-        {
-            for( unsigned int x = 0; x < m_nCellsX; x++ )
-            {
-                // Calculate table lookup index from those
-                // vertices which are below the isolevel.
-                unsigned int tableIndex = 0;
-                if( vals->getScalar( z * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
-                    tableIndex |= 1;
-                if( vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
-                    tableIndex |= 2;
-                if( vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
-                    tableIndex |= 4;
-                if( vals->getScalar( z * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
-                    tableIndex |= 8;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
-                    tableIndex |= 16;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
-                    tableIndex |= 32;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
-                    tableIndex |= 64;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
-                    tableIndex |= 128;
-
-                // Now create a triangulation of the isosurface in this
-                // cell.
-                if( wMarchingCubesCaseTables::edgeTable[tableIndex] != 0 )
-                {
-                    if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 8 )
-                    {
-                        WPointXYZId pt = calculateIntersection( vals, x, y, z, 3 );
-                        unsigned int id = getEdgeID( x, y, z, 3 );
-                        m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                    }
-                    if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 1 )
-                    {
-                        WPointXYZId pt = calculateIntersection( vals, x, y, z, 0 );
-                        unsigned int id = getEdgeID( x, y, z, 0 );
-                        m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                    }
-                    if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 256 )
-                    {
-                        WPointXYZId pt = calculateIntersection( vals, x, y, z, 8 );
-                        unsigned int id = getEdgeID( x, y, z, 8 );
-                        m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                    }
-
-                    if( x == m_nCellsX - 1 )
-                    {
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 4 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 2 );
-                            unsigned int id = getEdgeID( x, y, z, 2 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 2048 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 11 );
-                            unsigned int id = getEdgeID( x, y, z, 11 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                    }
-                    if( y == m_nCellsY - 1 )
-                    {
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 2 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 1 );
-                            unsigned int id = getEdgeID( x, y, z, 1 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 512 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 9 );
-                            unsigned int id = getEdgeID( x, y, z, 9 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                    }
-                    if( z == m_nCellsZ - 1 )
-                    {
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 16 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 4 );
-                            unsigned int id = getEdgeID( x, y, z, 4 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 128 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 7 );
-                            unsigned int id = getEdgeID( x, y, z, 7 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                    }
-                    if( ( x == m_nCellsX - 1 ) && ( y == m_nCellsY - 1 ) )
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 1024 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 10 );
-                            unsigned int id = getEdgeID( x, y, z, 10 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                    if( ( x == m_nCellsX - 1 ) && ( z == m_nCellsZ - 1 ) )
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 64 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 6 );
-                            unsigned int id = getEdgeID( x, y, z, 6 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-                    if( ( y == m_nCellsY - 1 ) && ( z == m_nCellsZ - 1 ) )
-                        if( wMarchingCubesCaseTables::edgeTable[tableIndex] & 32 )
-                        {
-                            WPointXYZId pt = calculateIntersection( vals, x, y, z, 5 );
-                            unsigned int id = getEdgeID( x, y, z, 5 );
-                            m_idToVertices.insert( ID2WPointXYZId::value_type( id, pt ) );
-                        }
-
-                    for( int i = 0; wMarchingCubesCaseTables::triTable[tableIndex][i] != -1; i += 3 )
-                    {
-                        WMCTriangle triangle;
-                        unsigned int pointID0, pointID1, pointID2;
-                        pointID0 = getEdgeID( x, y, z, wMarchingCubesCaseTables::triTable[tableIndex][i] );
-                        pointID1 = getEdgeID( x, y, z, wMarchingCubesCaseTables::triTable[tableIndex][i + 1] );
-                        pointID2 = getEdgeID( x, y, z, wMarchingCubesCaseTables::triTable[tableIndex][i + 2] );
-                        triangle.pointID[0] = pointID0;
-                        triangle.pointID[1] = pointID1;
-                        triangle.pointID[2] = pointID2;
-                        m_trivecTriangles.push_back( triangle );
-                    }
-                }
-            }
-        }
-    }
-
-    transformPositions( &m_idToVertices );
-    progress->finish();
-}
-
-template< typename T > WPointXYZId WMMarchingCubes::calculateIntersection( boost::shared_ptr< WValueSet< T > > vals,
-                                                                           unsigned int nX, unsigned int nY, unsigned int nZ,
-                                                                           unsigned int nEdgeNo )
-{
-    double x1;
-    double y1;
-    double z1;
-
-    double x2;
-    double y2;
-    double z2;
-
-    unsigned int v1x = nX;
-    unsigned int v1y = nY;
-    unsigned int v1z = nZ;
-
-    unsigned int v2x = nX;
-    unsigned int v2y = nY;
-    unsigned int v2z = nZ;
-
-    switch ( nEdgeNo )
-    {
-        case 0:
-            v2y += 1;
-            break;
-        case 1:
-            v1y += 1;
-            v2x += 1;
-            v2y += 1;
-            break;
-        case 2:
-            v1x += 1;
-            v1y += 1;
-            v2x += 1;
-            break;
-        case 3:
-            v1x += 1;
-            break;
-        case 4:
-            v1z += 1;
-            v2y += 1;
-            v2z += 1;
-            break;
-        case 5:
-            v1y += 1;
-            v1z += 1;
-            v2x += 1;
-            v2y += 1;
-            v2z += 1;
-            break;
-        case 6:
-            v1x += 1;
-            v1y += 1;
-            v1z += 1;
-            v2x += 1;
-            v2z += 1;
-            break;
-        case 7:
-            v1x += 1;
-            v1z += 1;
-            v2z += 1;
-            break;
-        case 8:
-            v2z += 1;
-            break;
-        case 9:
-            v1y += 1;
-            v2y += 1;
-            v2z += 1;
-            break;
-        case 10:
-            v1x += 1;
-            v1y += 1;
-            v2x += 1;
-            v2y += 1;
-            v2z += 1;
-            break;
-        case 11:
-            v1x += 1;
-            v2x += 1;
-            v2z += 1;
-            break;
-    }
-
-    x1 = v1x * m_fCellLengthX;
-    y1 = v1y * m_fCellLengthY;
-    z1 = v1z * m_fCellLengthZ;
-    x2 = v2x * m_fCellLengthX;
-    y2 = v2y * m_fCellLengthY;
-    z2 = v2z * m_fCellLengthZ;
-
-    unsigned int nPointsInSlice = ( m_nCellsX + 1 ) * ( m_nCellsY + 1 );
-    double val1 = vals->getScalar( v1z * nPointsInSlice + v1y * ( m_nCellsX + 1 ) + v1x );
-    double val2 = vals->getScalar( v2z * nPointsInSlice + v2y * ( m_nCellsX + 1 ) + v2x );
-
-    WPointXYZId intersection = interpolate( x1, y1, z1, x2, y2, z2, val1, val2 );
-    intersection.newID = 0;
-    return intersection;
-}
-
-WPointXYZId WMMarchingCubes::interpolate( double fX1, double fY1, double fZ1, double fX2, double fY2, double fZ2,
-                                             double tVal1, double tVal2 )
-{
-    WPointXYZId interpolation;
-    double mu;
-
-    mu = static_cast<double>( ( m_tIsoLevel - tVal1 ) ) / ( tVal2 - tVal1 );
-    interpolation.x = fX1 + mu * ( fX2 - fX1 );
-    interpolation.y = fY1 + mu * ( fY2 - fY1 );
-    interpolation.z = fZ1 + mu * ( fZ2 - fZ1 );
-    interpolation.newID = 0;
-
-    return interpolation;
-}
-
-int WMMarchingCubes::getEdgeID( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo )
-{
-    switch ( nEdgeNo )
-    {
-        case 0:
-            return 3 * getVertexID( nX, nY, nZ ) + 1;
-        case 1:
-            return 3 * getVertexID( nX, nY + 1, nZ );
-        case 2:
-            return 3 * getVertexID( nX + 1, nY, nZ ) + 1;
-        case 3:
-            return 3 * getVertexID( nX, nY, nZ );
-        case 4:
-            return 3 * getVertexID( nX, nY, nZ + 1 ) + 1;
-        case 5:
-            return 3 * getVertexID( nX, nY + 1, nZ + 1 );
-        case 6:
-            return 3 * getVertexID( nX + 1, nY, nZ + 1 ) + 1;
-        case 7:
-            return 3 * getVertexID( nX, nY, nZ + 1 );
-        case 8:
-            return 3 * getVertexID( nX, nY, nZ ) + 2;
-        case 9:
-            return 3 * getVertexID( nX, nY + 1, nZ ) + 2;
-        case 10:
-            return 3 * getVertexID( nX + 1, nY + 1, nZ ) + 2;
-        case 11:
-            return 3 * getVertexID( nX + 1, nY, nZ ) + 2;
-        default:
-            // Invalid edge no.
-            return -1;
-    }
-}
-
-unsigned int WMMarchingCubes::getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ )
-{
-    return nZ * ( m_nCellsY + 1 ) * ( m_nCellsX + 1) + nY * ( m_nCellsX + 1 ) + nX;
-}
-
 void WMMarchingCubes::renderSurface()
 {
-    unsigned int nextID = 0;
-    boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( m_idToVertices.size(), m_trivecTriangles.size() ) );
-
-    // Rename vertices.
-    ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
-    while ( mapIterator != m_idToVertices.end() )
-    {
-        ( *mapIterator ).second.newID = nextID;
-        triMesh->addVertex( ( *mapIterator ).second.x, ( *mapIterator ).second.y, ( *mapIterator ).second.z );
-        nextID++;
-        mapIterator++;
-    }
-
-    // Now rename triangles.
-    WMCTriangleVECTOR::iterator vecIterator = m_trivecTriangles.begin();
-    while ( vecIterator != m_trivecTriangles.end() )
-    {
-        for( unsigned int i = 0; i < 3; i++ )
-        {
-            unsigned int newID = m_idToVertices[( *vecIterator ).pointID[i]].newID;
-            ( *vecIterator ).pointID[i] = newID;
-        }
-        triMesh->addTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1], ( *vecIterator ).pointID[2] );
-        vecIterator++;
-    }
-
-    renderMesh( triMesh );
-    m_triMesh = triMesh;
+    renderMesh( m_triMesh );
     m_output->updateData( m_triMesh );
 
     // TODO(wiebel): MC make the filename set automatically

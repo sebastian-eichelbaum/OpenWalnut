@@ -87,34 +87,5 @@ public:
         TS_ASSERT_EQUALS( dataSetSingle.getGrid(), gridDummy );
         TS_ASSERT_DIFFERS( dataSetSingle.getGrid(), other );
     }
-
-    /**
-     * Test if the interpolate function works reasonable.
-     */
-    void testInterpolate( void )
-    {
-        // create dummies, since they are needed in almost every test
-        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 5, 3, 3, 1, 1, 1 ) );
-        std::vector< double > data( grid->size() );
-        for( size_t i = 0; i < grid->size(); ++i )
-        {
-            data[i] = i;
-        }
-        boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
-        WDataSetSingle ds( valueSet, grid );
-
-        TS_ASSERT_EQUALS( ds.interpolate( wmath::WPosition() ), data[0] );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 0 ) ), data[1], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 0 ) ), data[5], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 0 ) ), data[6], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 0, 1 ) ), data[15], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 1 ) ), data[16], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 1 ) ), data[20], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 1 ) ), data[21], 1e-9 );
-
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0.3, 0.4, 0.5 ) ), 9.8, 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0.5, 0.5, 0.5 ) ), 10.5, 1e-9 );
-    }
 };
-
 #endif  // WDATASETSINGLE_TEST_H

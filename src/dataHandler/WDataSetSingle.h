@@ -102,15 +102,6 @@ public:
     template< typename T > T getValueAt( size_t id );
 
     /**
-     * Interpolate the value fo the valueset at the given position
-     *
-     * \param pos The position for wich we would like to get a value.
-     *
-     * \return Scalar value for that given position
-     */
-    double interpolate( wmath::WPosition pos );
-
-    /**
      * Get the value stored at a certain grid position of the data set in type double.
      *
      * \param id The id'th value in the data set
@@ -161,17 +152,17 @@ protected:
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
 
-private:
-    /**
-     * Stores the reference of the WValueSet of this DataSetSingle instance.
-     */
-    boost::shared_ptr< WValueSetBase > m_valueSet;
-
     /**
      * Stores the reference of the WGrid of this DataSetSingle instance.
      */
     boost::shared_ptr< WGrid > m_grid;
 
+    /**
+     * Stores the reference of the WValueSet of this DataSetSingle instance.
+     */
+    boost::shared_ptr< WValueSetBase > m_valueSet;
+
+private:
     /**
      * The 3D texture representing this dataset.
      */
