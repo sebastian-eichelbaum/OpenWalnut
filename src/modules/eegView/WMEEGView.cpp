@@ -37,6 +37,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
+#include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
 #include "WElectrodePositionCallback.h"
 #include "WHeadSurfaceCallback.h"
@@ -288,12 +289,18 @@ void WMEEGView::moduleMain()
                 WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
             }
 
-            // TODO(cornimueller): calculate new position
-            wmath::WPosition position( 0.0, 0.0, 0.0 );
+            if( m_sourceCalculator )
+            {
+                wmath::WPosition position = m_sourceCalculator->calculate( event );
 
-            m_roi = WKernel::getRunningKernel()->getRoiManager()->addRoi( new WROIBox(
-                        position - wmath::WVector3D( 10.0, 10.0, 10.0 ),
-                        position + wmath::WVector3D( 10.0, 10.0, 10.0 ) ) );
+                m_roi = WKernel::getRunningKernel()->getRoiManager()->addRoi( new WROIBox(
+                            position - wmath::WVector3D( 10.0, 10.0, 10.0 ),
+                            position + wmath::WVector3D( 10.0, 10.0, 10.0 ) ) );
+            }
+            else
+            {
+                m_roi.reset();
+            }
 
             m_currentEventTime = event->getTime();
         }
@@ -560,6 +567,9 @@ void WMEEGView::redraw()
 
             m_widget->getViewer()->getView()->addEventHandler( m_handler );
         }
+
+        // create new source calculator
+        m_sourceCalculator = boost::shared_ptr< WEEGSourceCalculator >( new WEEGSourceCalculator( m_eeg ) );
     }
     else
     {
@@ -570,6 +580,8 @@ void WMEEGView::redraw()
         m_electrodesNode = NULL;
         m_headSurfaceNode = NULL;
         m_labelsNode = NULL;
+
+        m_sourceCalculator.reset();
     }
 }
 

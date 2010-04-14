@@ -33,7 +33,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WProjectFileIO.h"
+#include "../../common/WProjectFileIO.h"
 
 #include "../WModuleCombiner.h"
 

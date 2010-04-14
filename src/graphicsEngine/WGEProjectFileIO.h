@@ -26,8 +26,11 @@
 #define WGEPROJECTFILEIO_H
 
 #include <string>
+#include <map>
 
-#include "../kernel/WProjectFileIO.h"
+#include <osg/Matrixd>
+
+#include "../common/WProjectFileIO.h"
 
 /**
  * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings.
@@ -70,6 +73,21 @@ public:
     virtual void save( std::ostream& output );   // NOLINT
 
 protected:
+
+    /**
+     * All Cameras parsed.
+     */
+    std::map< unsigned int, std::string > m_cameras;
+
+    /**
+     * All camera view matrices.
+     */
+    std::map< unsigned int, osg::Matrixd > m_viewMatrices;
+
+    /**
+     * All camera projection matrices.
+     */
+    std::map< unsigned int, osg::Matrixd > m_projMatrices;
 
 private:
 };
