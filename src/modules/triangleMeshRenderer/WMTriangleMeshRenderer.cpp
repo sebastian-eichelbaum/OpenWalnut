@@ -25,11 +25,12 @@
 #include <list>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <osg/LightModel>
 
-#include "../../common/datastructures/WTriangleMesh.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WKernel.h"
 #include "trianglemeshrenderer.xpm"
 #include "WMTriangleMeshRenderer.h"
@@ -70,8 +71,8 @@ const std::string WMTriangleMeshRenderer::getDescription() const
 
 void WMTriangleMeshRenderer::connectors()
 {
-    m_meshInput = boost::shared_ptr< WModuleInputData < WTriangleMesh > >(
-        new WModuleInputData< WTriangleMesh >( shared_from_this(), "mesh", "The mesh to display" )
+    m_meshInput = boost::shared_ptr< WModuleInputData < WTriangleMesh2 > >(
+        new WModuleInputData< WTriangleMesh2 >( shared_from_this(), "mesh", "The mesh to display" )
         );
 
     addConnector( m_meshInput );
@@ -108,9 +109,9 @@ struct WMeshSizeComp
      *
      * \return True if and only if the first Mesh has less vertices as the second mesh.
      */
-    bool operator()( const boost::shared_ptr< WTriangleMesh >& m, const boost::shared_ptr< WTriangleMesh >& n ) const
+    bool operator()( const boost::shared_ptr< WTriangleMesh2 >& m, const boost::shared_ptr< WTriangleMesh2 >& n ) const
     {
-        return m->getNumVertices() < n->getNumVertices();
+        return m->vertSize() < n->vertSize();
     }
 };
 
@@ -141,7 +142,7 @@ void WMTriangleMeshRenderer::moduleMain()
             break;
         }
         // invalid data
-        boost::shared_ptr< WTriangleMesh > mesh = m_meshInput->getData();
+        boost::shared_ptr< WTriangleMesh2 > mesh = m_meshInput->getData();
         if ( !mesh )
         {
             debugLog() << "Invalid Data. Disabling.";
@@ -150,12 +151,10 @@ void WMTriangleMeshRenderer::moduleMain()
         debugLog() << "Start rendering Mesh";
         if( m_mainComponentOnly->get( true ) )
         {
-// TODO(all): make use of new WTriangleMesh2
-//            debugLog() << "Start mesh decomposition";
-//            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components = tm_utils::componentDecomposition( *mesh );
-//            debugLog() << "Decomposing mesh done";
-//            renderMesh( *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() ) );
-            renderMesh( mesh );
+            debugLog() << "Start mesh decomposition";
+            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > m_components = tm_utils::componentDecomposition( *mesh );
+            debugLog() << "Decomposing mesh done";
+            renderMesh( *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() ) );
         }
         else
         {
@@ -165,48 +164,35 @@ void WMTriangleMeshRenderer::moduleMain()
     }
 }
 
-void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
+void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
 {
     m_moduleNode->remove( m_surfaceGeode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
-    osg::Vec3Array* vertices = new osg::Vec3Array;
-    for( size_t i = 0; i < mesh->getNumVertices(); ++i )
-    {
-        wmath::WPosition vertPos;
-        vertPos = mesh->getVertex( i );
-        vertices->push_back( osg::Vec3( vertPos[0], vertPos[1], vertPos[2] ) );
-    }
-    surfaceGeometry->setVertexArray( vertices );
+    surfaceGeometry->setVertexArray( mesh->getVertexArray() );
 
     osg::DrawElementsUInt* surfaceElement;
 
     surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-    for( unsigned int triId = 0; triId < mesh->getNumTriangles(); ++triId )
+
+    std::vector< size_t > tris = mesh->getTriangles();
+    surfaceElement->reserve( tris.size() );
+
+    for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
     {
-        for( unsigned int vertId = 0; vertId < 3; ++vertId )
-        {
-            surfaceElement->push_back( mesh->getTriangleVertexId( triId, vertId ) );
-        }
+        surfaceElement->push_back( tris[vertId] );
     }
     surfaceGeometry->addPrimitiveSet( surfaceElement );
 
     // ------------------------------------------------
     // normals
-    osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
-
-    mesh->computeVertNormals(); // time consuming
-    for( unsigned int vertId = 0; vertId < mesh->getNumVertices(); ++vertId )
-    {
-        wmath::WVector3D tmpNormal = mesh->getVertexNormal( vertId );
-        normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
-    }
-    surfaceGeometry->setNormalArray( normals.get() );
+    surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
     osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();
+
 
     // ------------------------------------------------
     // colors
@@ -223,7 +209,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     else
     {
         debugLog() << "Color Map found... using it";
-        for( size_t i = 0; i < mesh->getNumVertices(); ++i )
+        for( size_t i = 0; i < mesh->vertSize(); ++i )
         {
             colors->push_back( wge::osgColor( m_meshColor->get() ) );
         }

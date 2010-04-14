@@ -31,11 +31,12 @@
 
 #include "../../common/datastructures/WColoredVertices.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-class WTriangleMesh;
+class WTriangleMesh2;
 
 /**
  * Someone should add some documentation here.
@@ -119,7 +120,7 @@ private:
     /**
      * An input connector used to get mehses from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput;
+    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshInput;
     boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput; //!< for each vertex ID in that container a special color is given.
 
     WPropColor m_meshColor; //!< The color of the mesh
@@ -137,7 +138,7 @@ private:
      * This function generates the osg geometry from the WTriangleMesh.
      * \param mesh The triangle mesh that will be rendered.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
+    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
 };
 
 /**

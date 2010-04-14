@@ -169,7 +169,7 @@ protected:
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< Output connector for a voxelized cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
     osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module

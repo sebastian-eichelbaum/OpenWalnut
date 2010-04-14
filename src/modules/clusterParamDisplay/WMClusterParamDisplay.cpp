@@ -179,7 +179,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Mesh Color" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Mean Type" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show/Hide Slices" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide Slices" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes #X-SamplePoints" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes #Y-SamplePoints" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes Step Width" ) );
