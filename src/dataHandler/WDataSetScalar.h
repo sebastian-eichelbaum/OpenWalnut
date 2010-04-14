@@ -80,14 +80,16 @@ public:
     double getMin() const;
 
     /**
-     * Interpolate the value fo the valueset at the given position
+     * Interpolate the value fo the valueset at the given position.
+     * If interpolation fails, the success parameter will be false
+     * and the value returned zero.
      *
      * \param pos The position for wich we would like to get a value.
+     * \param success indicates whether the interpolation was successful
      *
      * \return Scalar value for that given position
      */
-    double interpolate( wmath::WPosition pos );
-
+    double interpolate( const wmath::WPosition& pos, bool* success );
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.

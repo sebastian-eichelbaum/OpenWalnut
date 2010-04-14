@@ -102,7 +102,7 @@ boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
     return m_prototype;
 }
 
-double WDataSetScalar::interpolate( wmath::WPosition pos )
+double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
@@ -112,14 +112,21 @@ double WDataSetScalar::interpolate( wmath::WPosition pos )
         throw WException( std::string(  "This data set has a grid whose type is not yet supported for interpolation." ) );
     }
     // TODO(wiebel): change this to eassert.
-    if( grid->getTransformationMatrix() != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
-    {
-        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
-    }
+//    if( grid->getTransformationMatrix() != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
+//    {
+//        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
+//    }
     // TODO(wiebel): change this to eassert.
     if( !( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ) )
     {
         throw WException( std::string( "Only implemented for scalar values so far." ) );
+    }
+
+    *success = grid->encloses( pos );
+
+    if( !*success )
+    {
+        return 0;
     }
 
     std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
@@ -153,5 +160,7 @@ double WDataSetScalar::interpolate( wmath::WPosition pos )
     {
         result += h[i] * getValueAt( vertexIds[i] );
     }
+
+    *success = true;
     return result;
 }
