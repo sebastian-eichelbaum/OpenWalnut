@@ -22,39 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "../../common/WLogger.h"
 
-#include "WQtPushButton.h"
+#include "WRoiProjectFileIO.h"
 
-WQtPushButton::WQtPushButton( QIcon icon, QString name, QWidget* parent, QString label )
-    : QToolButton( parent )
+WRoiProjectFileIO::WRoiProjectFileIO():
+    WProjectFileIO()
 {
-    setText( label );
-    setIcon( icon );
-    setAutoRaise( false );
-
-    m_name = name;
-    // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
-    // pressed left button.
-    connect( this, SIGNAL( released() ), this, SLOT( emitPressed() ) );
+    // initialize members
 }
 
-WQtPushButton::~WQtPushButton()
+WRoiProjectFileIO::~WRoiProjectFileIO()
 {
+    // cleanup
 }
 
-void WQtPushButton::setName( QString name )
+bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )
 {
-    m_name = name;
+    // read something
+    return false;
 }
 
-QString WQtPushButton::getName()
+void WRoiProjectFileIO::done()
 {
-    return m_name;
+    // apply
 }
 
-void WQtPushButton::emitPressed()
+void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
 {
-    emit pushButtonPressed( m_name );
+    // save here
+    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              "// ROI Structure" << std::endl <<
+              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              std::endl;
+    output << "// Sorry. Not Yet Implemented." << std::endl;
+
+    wlog::info( "ROI Project File" ) << "Not yet implemented. Sorry.";
 }
 

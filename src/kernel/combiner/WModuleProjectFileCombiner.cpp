@@ -349,7 +349,10 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
     // get a write access to avoid others to modify the container while project file is written.
     container->beginWrite();
 
-    output << "// Modules and Properties" << std::endl <<std::endl;
+    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              "// Modules and Properties" << std::endl <<
+              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              std::endl;
 
     // iterate all modules:
     unsigned int i = 0;
@@ -377,7 +380,11 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
     }
 
     // finally, process all connections for each module
-    output << "// Connections" << std::endl;
+    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              "// Connections" << std::endl <<
+              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              std::endl;
+
 
     // iterate over all modules
     for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
