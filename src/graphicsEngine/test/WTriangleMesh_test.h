@@ -32,7 +32,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../../math/WVector3D.h"
-#include "../WTriangleMesh.h"
+#include "../WTriangleMesh2.h"
 #include "WTriangleMeshTraits.h"
 
 /**
@@ -46,8 +46,8 @@ public:
      */
     void testInstatiation()
     {
-        TS_ASSERT_THROWS_NOTHING( WTriangleMesh() );
-        WTriangleMesh mesh;
+        TS_ASSERT_THROWS_NOTHING( WTriangleMesh2() );
+        WTriangleMesh2 mesh;
         TS_ASSERT_EQUALS( mesh.m_fastAddVertId, 0 );
         TS_ASSERT_EQUALS( mesh.m_fastAddTriangleId, 0 );
     }
@@ -57,7 +57,7 @@ public:
      */
     void testClearMesh()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
         mesh.m_fastAddVertId = 9;  // just a number
         mesh.m_fastAddTriangleId = 10;  // just a number
         mesh.m_vertices.resize( 11 );  // just some size
@@ -76,7 +76,7 @@ public:
      */
     void testFastAddVert()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
         mesh.resizeVertices( 2 );
         wmath::WPosition newVert;
 
@@ -92,7 +92,7 @@ public:
      */
     void testFastAddTriangle()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
         mesh.resizeTriangles( 2 );
 
         TS_ASSERT_EQUALS( mesh.m_fastAddTriangleId, 0 );
@@ -107,7 +107,7 @@ public:
      */
     void testSetVertices()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
         std::vector< wmath::WPosition > vertices( 4 );
 
         TS_ASSERT_EQUALS( mesh.m_fastAddVertId, 0 );
@@ -122,7 +122,7 @@ public:
      */
     void testSetTriangles()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
         std::vector< Triangle > triangles( 5 );
 
         TS_ASSERT_EQUALS( mesh.m_fastAddTriangleId, 0 );
@@ -137,7 +137,7 @@ public:
      */
     void testgetTriangleNormal()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
 
         mesh.resizeVertices( 5 );
         wmath::WPosition newVert0( 0, 0, 0 );
@@ -172,7 +172,7 @@ public:
      */
     void testComputeTriNormals()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
 
         mesh.resizeVertices( 5 );
         wmath::WPosition newVert0( 0, 0, 0 );
@@ -219,7 +219,7 @@ public:
      */
     void testComputeVertNormals()
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
 
         mesh.resizeVertices( 5 );
         wmath::WPosition newVert0( 0, 0, 0 );
@@ -297,7 +297,7 @@ public:
      */
     void testEqualityOperator( void )
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
         mesh.resizeVertices( 3 );
         mesh.fastAddVert( wmath::WPosition( 1,  0, 0 ) );
         mesh.fastAddVert( wmath::WPosition( 0,  1, 0 ) );
@@ -305,7 +305,7 @@ public:
         mesh.resizeTriangles( 1 );
         mesh.fastAddTriangle(  0,  1,  2 );
 
-        WTriangleMesh expected( mesh );
+        WTriangleMesh2 expected( mesh );
 
         TS_ASSERT_EQUALS( expected, mesh );
         std::swap( mesh.m_triangles[0].pointID[0], mesh.m_triangles[0].pointID[1] );
@@ -348,7 +348,7 @@ public:
      */
     void testComponentDecomposition( void )
     {
-        WTriangleMesh mesh;
+        WTriangleMesh2 mesh;
         mesh.resizeVertices( 25 );
 
         mesh.fastAddVert( wmath::WPosition( 1,  0, 0 ) ); // 0
@@ -395,11 +395,11 @@ public:
         mesh.fastAddTriangle( 16, 23, 24 ); // 14
         mesh.fastAddTriangle( 17, 23, 24 ); // 15
 
-        boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > components = tm_utils::componentDecomposition( mesh );
+        boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > components = tm_utils::componentDecomposition( mesh );
         TS_ASSERT_EQUALS( components->size(), 7 );
 
-        std::list< boost::shared_ptr< WTriangleMesh > >::const_iterator cit = components->begin();
-        WTriangleMesh expected;
+        std::list< boost::shared_ptr< WTriangleMesh2 > >::const_iterator cit = components->begin();
+        WTriangleMesh2 expected;
         expected.resizeVertices( 3 );
         expected.fastAddVert( wmath::WPosition( 1, 0, 0 ) );
         expected.fastAddVert( wmath::WPosition( 0, 1, 0 ) );
@@ -442,8 +442,8 @@ public:
      */
     void testComponentDecompositionOnEmptyMesh( void )
     {
-        WTriangleMesh mesh;
-        boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > result = tm_utils::componentDecomposition( mesh );
+        WTriangleMesh2 mesh;
+        boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > result = tm_utils::componentDecomposition( mesh );
         TS_ASSERT( result->empty() );
     }
 };

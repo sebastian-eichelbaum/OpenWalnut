@@ -81,7 +81,7 @@ void WMLineGuidedSlice::connectors()
 
 void WMLineGuidedSlice::properties()
 {
-    m_pos = m_properties2->addProperty( "Slice Position", "Position of ths slice along the line.", 0., true );
+    m_pos = m_properties->addProperty( "Slice Position", "Position of ths slice along the line.", 0., true );
     m_pos->setMin( 0. );
     m_pos->setMax( 1. );
 }
@@ -332,7 +332,8 @@ void WMLineGuidedSlice::updateTextures()
                 ++c;
             }
 
-            sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
+            bool useTexture = m_properties->getProperty( "Use Texture" )->toPropBool()->get();
+            sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", useTexture ) ) );
         }
     }
 

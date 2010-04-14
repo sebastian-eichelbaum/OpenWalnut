@@ -293,9 +293,9 @@ void WMVoxelizer::update()
     raster( rasterAlgo );
 
     // update both outputs
-    boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
+    boost::shared_ptr< WDataSetScalar > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
-    boost::shared_ptr< WDataSetSingle > outputDataSetDir = rasterAlgo->generateVectorDataSet();
+    boost::shared_ptr< WDataSetScalar > outputDataSetDir = rasterAlgo->generateVectorDataSet();
     m_dirOutput->updateData( outputDataSetDir );
 
     if( m_drawVoxels->get() )
@@ -339,7 +339,7 @@ void WMVoxelizer::connectors()
     m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
     addConnector( m_input );
 
-    typedef WModuleOutputData< WDataSetSingle > OutputType; // just an alias
+    typedef WModuleOutputData< WDataSetScalar > OutputType; // just an alias
     m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
 
@@ -378,7 +378,7 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     return std::make_pair( fll, bur );
 }
 
-osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const
+osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );

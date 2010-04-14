@@ -36,14 +36,14 @@
 #include <osg/Geode>
 #include <osg/LightModel>
 
-#include "../../common/datastructures/WTriangleMesh.h"
 #include "../../common/math/WMath.h"
 #include "../../common/math/WPlane.h"
-#include "../../common/WColor.h"
 #include "../../common/WAssert.h"
+#include "../../common/WColor.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WKernel.h"
 #include "WMClusterSlicer.h"
 
@@ -100,8 +100,8 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels     = m_properties->addProperty( "Show/Hide ISO Voxels", "Show/Hide voxels withing a given ISOSurface.", true );
-    m_drawSlices        = m_properties->addProperty( "Show/Hide Slices", "Show/Hide slices along center line", false );
+    m_drawISOVoxels     = m_properties->addProperty( "Show|Hide ISO Voxels", "Show|Hide voxels withing a given ISOSurface.", true );
+    m_drawSlices        = m_properties->addProperty( "Show|Hide Slices", "Show|Hide slices along center line", false );
     m_isoValue          = m_properties->addProperty( "Iso Value", "", 0.01 );
     m_meanSelector      = m_properties->addProperty( "Mean Type", "Selects the mean type, must be on of:"
                                                                    " 0==arithmetic, 1==geometric, 2==median", 2, m_fullUpdate );
@@ -153,10 +153,10 @@ void WMClusterSlicer::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WDataSetSingle > newClusterDS = m_clusterDataSetInput->getData();
+        boost::shared_ptr< WDataSetScalar > newClusterDS = m_clusterDataSetInput->getData();
         boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberClusterInput->getData();
-        boost::shared_ptr< WDataSetSingle > newParamDS   = m_paramDataSetInput->getData();
-        boost::shared_ptr< WTriangleMesh >  newMesh      = m_triangleMeshInput->getData();
+        boost::shared_ptr< WDataSetScalar > newParamDS   = m_paramDataSetInput->getData();
+        boost::shared_ptr< WTriangleMesh2 > newMesh      = m_triangleMeshInput->getData();
         bool meshChanged = ( m_mesh != newMesh );
         bool paramDSChanged = ( m_paramDS != newParamDS );
         bool clusterChanged = ( m_cluster != newCluster );
@@ -342,16 +342,16 @@ struct WMeshSizeComp
      *
      * \return True if and only if the first Mesh has less vertices as the second mesh.
      */
-    bool operator()( const boost::shared_ptr< WTriangleMesh >& m, const boost::shared_ptr< WTriangleMesh >& n ) const
+    bool operator()( const boost::shared_ptr< WTriangleMesh2 >& m, const boost::shared_ptr< WTriangleMesh2 >& n ) const
     {
-        return m->getNumVertices() < n->getNumVertices();
+        return m->vertSize() < n->vertSize();
     }
 };
 
-void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh )
+void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
 {
     debugLog() << "Selecting mesh component...";
-    boost::shared_ptr< WTriangleMesh > renderMesh = mesh;
+    boost::shared_ptr< WTriangleMesh2 > renderMesh = mesh;
     assert( renderMesh.get() );
     if( m_selectBiggestComponentOnly->get( true ) )
     {
@@ -377,46 +377,46 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     if( !m_alternateColoring->get( true ) )
     {
-        std::map< size_t, std::pair< double, int > > cm;
-
-        for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
-        {
-            boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
-            double scaledMean = mapMeanOntoScale( slice->first );
-            for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex ) // NOLINT
-            {
-                if( cm.find( *coloredVertex ) != cm.end() )
-                {
-                    cm[ *coloredVertex ].first += scaledMean;
-                    cm[ *coloredVertex ].second++;
-                }
-                else
-                {
-                    cm[ *coloredVertex ].first  = scaledMean;
-                    cm[ *coloredVertex ].second = 1;
-                }
-            }
-        }
-
-        for( std::map< size_t, std::pair< double, int > >::const_iterator vertexColor = cm.begin(); vertexColor != cm.end(); ++vertexColor )
-        {
-            cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0 );
-        }
+//        std::map< size_t, std::pair< double, int > > cm;
+//
+//        for( std::vector< std::pair< double, WPlane > >::const_iterator slice = m_slices->begin(); slice != m_slices->end(); ++slice )
+//        {
+//            boost::shared_ptr< std::set< size_t > > coloredVertices = tm_utils::intersection( *renderMesh, slice->second );
+//            double scaledMean = mapMeanOntoScale( slice->first );
+//            for( std::set< size_t >::const_iterator coloredVertex = coloredVertices->begin(); coloredVertex != coloredVertices->end(); ++coloredVertex ) // NOLINT
+//            {
+//                if( cm.find( *coloredVertex ) != cm.end() )
+//                {
+//                    cm[ *coloredVertex ].first += scaledMean;
+//                    cm[ *coloredVertex ].second++;
+//                }
+//                else
+//                {
+//                    cm[ *coloredVertex ].first  = scaledMean;
+//                    cm[ *coloredVertex ].second = 1;
+//                }
+//            }
+//        }
+//
+//        for( std::map< size_t, std::pair< double, int > >::const_iterator vertexColor = cm.begin(); vertexColor != cm.end(); ++vertexColor )
+//        {
+//            cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0 );
+//        }
     }
     else
     {
-        const std::vector< wmath::WPosition >& vertices = renderMesh->getVertices();
-        for( size_t i = 0; i < vertices.size(); ++i )
+        osg::ref_ptr< osg::Vec3Array > vertices = renderMesh->getVertexArray();
+        for( size_t i = 0; i < vertices->size(); ++i )
         {
             WAssert( m_slices->size() > 2, "We only support alternative coloring with more than 2 slices" );
-
-            std::vector< PlanePair > planePairs = computeNeighbouringPlanePairs( vertices[i] );
+            wmath::WPosition vertex( ( *vertices)[i].x(), ( *vertices)[i].y(), ( *vertices)[i].z() );
+            std::vector< PlanePair > planePairs = computeNeighbouringPlanePairs( vertex );
             if( !planePairs.empty() )
             {
-                PlanePair closestPlanes = closestPlanePair( planePairs, vertices[i] );
+                PlanePair closestPlanes = closestPlanePair( planePairs, vertex );
                 if( closestPlanes.first != 0 || closestPlanes.second != 0 ) // if (0,0) then it may be a boundary vertex
                 {
-                    cmData[ i ] = colorFromPlanePair( vertices[i], closestPlanes );
+                    cmData[ i ] = colorFromPlanePair( vertex, closestPlanes );
                 }
             }
         }

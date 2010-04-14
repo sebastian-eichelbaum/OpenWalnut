@@ -49,7 +49,7 @@ void WMClusterParamDisplay::connectors()
     m_fibers = boost::shared_ptr< InFiberType >( new InFiberType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
     addConnector( m_fibers );
 
-    typedef WModuleInputForwardData< WDataSetSingle > InParamDSType;
+    typedef WModuleInputForwardData< WDataSetScalar > InParamDSType;
     m_paramDS = boost::shared_ptr< InParamDSType >( new InParamDSType( shared_from_this(), "paramDS", "Parameter Dataset such as FA" ) );
     addConnector( m_paramDS );
 
@@ -59,10 +59,10 @@ void WMClusterParamDisplay::connectors()
 void WMClusterParamDisplay::properties()
 {
     m_isoValue = m_properties->addProperty( "Iso Value", "", 0.2 );
-    m_drawISOSurface = m_properties2->addProperty( "ISO Surface", "En/Disables the display of the ISO Surface", true );
+    m_drawISOSurface = m_properties->addProperty( "ISO Surface", "En/Disables the display of the ISO Surface", true );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
-    m_go = m_properties2->addProperty( "Go", "Runs the fiberClustering submodule", false );
+    m_go = m_properties->addProperty( "Go", "Runs the fiberClustering submodule", false );
 }
 
 void WMClusterParamDisplay::moduleMain()
@@ -77,9 +77,9 @@ void WMClusterParamDisplay::moduleMain()
     initSubModules();
 
     // initial values
-    m_isoSurface->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
-    m_clusterSlicer->getProperties2()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
-    m_fiberClustering->getProperties2()->getProperty( "Go" )->toPropBool()->set( true );
+    m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
+    m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
+    m_fiberClustering->getProperties()->getProperty( "Go" )->toPropBool()->set( true );
 
     ready();
 
@@ -100,13 +100,13 @@ void WMClusterParamDisplay::moduleMain()
 
         if( m_drawISOSurface->changed() )
         {
-            m_meshRenderer->getProperties2()->getProperty( "active" )->toPropBool()->set( m_drawISOSurface->get( true ) );
+            m_meshRenderer->getProperties()->getProperty( "active" )->toPropBool()->set( m_drawISOSurface->get( true ) );
         }
 
         // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
         if( m_go->changed() )
         {
-            m_fiberClustering->getProperties2()->getProperty( "Go" )->toPropBool()->set( m_go->get( true ) );
+            m_fiberClustering->getProperties()->getProperty( "Go" )->toPropBool()->set( m_go->get( true ) );
         }
     }
 }
@@ -140,15 +140,15 @@ void WMClusterParamDisplay::initSubModules()
 
     // preset properties
     debugLog() << "Start step submodule properties";
-    m_fiberClustering->getProperties2()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
-    m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
-    m_voxelizer->getProperties2()->getProperty( "Display Voxels" )->toPropBool()->set( false );
-    m_voxelizer->getProperties2()->getProperty( "BoundingBox" )->toPropBool()->set( false );
-    m_voxelizer->getProperties2()->getProperty( "Lighting" )->toPropBool()->set( false );
-    m_gaussFiltering->getProperties2()->getProperty( "Iterations" )->toPropInt()->set( 3 );
-    m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" )->toPropBool()->set( false );
-    m_clusterSlicer->getProperties2()->getProperty( "Biggest Component Only" )->toPropBool()->set( true );
-    m_isoSurface->getProperties2()->getProperty( "active" )->toPropBool()->set( false );
+    m_fiberClustering->getProperties()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
+    m_voxelizer->getProperties()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
+    m_voxelizer->getProperties()->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    m_voxelizer->getProperties()->getProperty( "BoundingBox" )->toPropBool()->set( false );
+    m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false );
+    m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3 );
+    m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" )->toPropBool()->set( false );
+    m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( true );
+    m_isoSurface->getProperties()->getProperty( "active" )->toPropBool()->set( false );
     debugLog() << "Submodule properties set";
 
     // wiring
@@ -168,30 +168,30 @@ void WMClusterParamDisplay::initSubModules()
     debugLog() << "Wiring done";
 
     // forward properties
-    m_properties->addProperty( m_fiberClustering->getProperties2()->getProperty( "Output cluster ID" ) );
-    m_properties->addProperty( m_fiberClustering->getProperties2()->getProperty( "Max cluster distance" ) );
-    m_properties->addProperty( m_fiberClustering->getProperties2()->getProperty( "Min point distance" ) );
-    m_properties->addProperty( m_voxelizer->getProperties2()->getProperty( "Fiber Tracts" ) );
-    m_properties->addProperty( m_voxelizer->getProperties2()->getProperty( "CenterLine" ) );
-    m_properties->addProperty( m_voxelizer->getProperties2()->getProperty( "Lighting" ) );
-    m_properties->addProperty( m_gaussFiltering->getProperties2()->getProperty( "Iterations" ) );
-    m_properties->addProperty( m_meshRenderer->getProperties2()->getProperty( "Opacity %" ) );
-    m_properties->addProperty( m_meshRenderer->getProperties2()->getProperty( "Mesh Color" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide ISO Voxels" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Mean Type" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Show/Hide Slices" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes #X-SamplePoints" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes #Y-SamplePoints" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Planes Step Width" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "#Planes" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Biggest Component Only" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "Custom Scale" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MinScale" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MaxScale" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MinScaleColor" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties2()->getProperty( "MaxScaleColor" ) );
-    m_properties->addProperty( m_voxelizer->getProperties2()->getProperty( "Voxels per Unit" ) );
+    m_properties->addProperty( m_fiberClustering->getProperties()->getProperty( "Output cluster ID" ) );
+    m_properties->addProperty( m_fiberClustering->getProperties()->getProperty( "Max cluster distance" ) );
+    m_properties->addProperty( m_fiberClustering->getProperties()->getProperty( "Min point distance" ) );
+    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Tracts" ) );
+    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "CenterLine" ) );
+    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Lighting" ) );
+    m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
+    m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Opacity %" ) );
+    m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Mesh Color" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Mean Type" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show/Hide Slices" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes #X-SamplePoints" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes #Y-SamplePoints" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes Step Width" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "#Planes" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Custom Scale" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MinScale" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MaxScale" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MinScaleColor" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MaxScaleColor" ) );
+    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Voxels per Unit" ) );
 
     // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
-    // m_properties2->addProperty( m_fiberClustering->getProperties2()->getProperty( "Go" ) );
+    // m_properties->addProperty( m_fiberClustering->getProperties()->getProperty( "Go" ) );
 }

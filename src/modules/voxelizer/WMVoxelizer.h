@@ -31,7 +31,7 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "WBresenhamDBL.h"
@@ -134,7 +134,7 @@ protected:
      *
      * \return OSG Geode with the voxels as cuboids.
      */
-    osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const;
+    osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const;
 
     /**
      * Performs rasterization with the given algorithm.
@@ -168,8 +168,8 @@ protected:
 
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< Output connector for a voxelized cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< Output connector for a voxelized cluster
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
     osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module

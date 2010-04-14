@@ -77,7 +77,7 @@ void WMJoinTreeTester::connectors()
 
 void WMJoinTreeTester::properties()
 {
-    m_dbl = m_properties2->addProperty( "Iso", "", 0.0 );
+    m_dbl = m_properties->addProperty( "Iso", "", 0.0 );
     m_dbl->setMin( -1000000 );
     m_dbl->setMax( 1000000 );
 }

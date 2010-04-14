@@ -27,7 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WLogger.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "WRasterAlgorithm.h"
 
@@ -45,15 +45,15 @@ WRasterAlgorithm::~WRasterAlgorithm()
 {
 }
 
-boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateDataSet() const
+boost::shared_ptr< WDataSetScalar > WRasterAlgorithm::generateDataSet() const
 {
     boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_values, W_DT_DOUBLE ) );
-    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
+    return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_grid ) );
 }
 
-boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateVectorDataSet() const
+boost::shared_ptr< WDataSetScalar > WRasterAlgorithm::generateVectorDataSet() const
 {
     boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 1, 3, m_dirValues, W_DT_DOUBLE ) );
-    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
+    return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_grid ) );
 }
 

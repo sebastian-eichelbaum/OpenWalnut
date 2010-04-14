@@ -285,7 +285,7 @@ template< typename Index_T >
 std::size_t const WTensorBase< order, dim, Data_T >::getPos( Index_T const* const pos )
 {
     return WTensorBase< order - 1, dim, Data_T >::getPos( pos ) * dim + pos[ order - 1 ];
-};
+}
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
@@ -479,7 +479,7 @@ private:
          * Get the mapped position.
          *
          * \param pos An array of indices.
-         * 
+         *
          * \return The position that corresponds to the indices.
          */
         template< typename Index_T >
@@ -512,21 +512,21 @@ private:
 
             /**
              * Copy operator.
-             * 
+             *
              * \param p The position to copy.
              */
             explicit Position( Position const& p );
 
             /**
              * Increment position.
-             * 
+             *
              * \return *this.
              */
             Position& operator++ ();
 
             /**
              * Sorted increment position.
-             * 
+             *
              * \return *this.
              */
             Position& incrSym();
@@ -534,7 +534,7 @@ private:
             /**
              * Get sorted position.
              *
-             * \return A vector of sorted indices. 
+             * \return A vector of sorted indices.
              */
             Position operator() ();
 
@@ -1035,18 +1035,18 @@ public:
 
     /**
      * Multiply with another matrix.
-     * 
+     *
      * \param other The matrix to multiply with.
-     * 
+     *
      * \return The product.
      */
     WTensorFunc operator * ( WTensorFunc const& other ) const;
 
     /**
      * Multiply with a vector.
-     * 
+     *
      * \param other The vector to multiply with.
-     * 
+     *
      * \return The product.
      */
     WTensorFunc< TensorBase_T, 1, dim, Data_T > operator * ( WTensorFunc< TensorBase_T, 1, dim, Data_T > const& other ) const;

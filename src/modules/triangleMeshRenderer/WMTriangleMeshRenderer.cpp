@@ -150,10 +150,12 @@ void WMTriangleMeshRenderer::moduleMain()
         debugLog() << "Start rendering Mesh";
         if( m_mainComponentOnly->get( true ) )
         {
-            debugLog() << "Start mesh decomposition";
-            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components = tm_utils::componentDecomposition( *mesh );
-            debugLog() << "Decomposing mesh done";
-            renderMesh( *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() ) );
+// TODO(all): make use of new WTriangleMesh2
+//            debugLog() << "Start mesh decomposition";
+//            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components = tm_utils::componentDecomposition( *mesh );
+//            debugLog() << "Decomposing mesh done";
+//            renderMesh( *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() ) );
+            renderMesh( mesh );
         }
         else
         {

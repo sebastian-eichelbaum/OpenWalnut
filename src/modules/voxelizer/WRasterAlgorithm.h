@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
 #include "WRasterAlgorithm.h"
@@ -72,7 +72,7 @@ public:
      * \return Dataset where all voxels which are hit by the rastered lines are
      * non zero.
      */
-    boost::shared_ptr< WDataSetSingle > generateDataSet() const;
+    boost::shared_ptr< WDataSetScalar > generateDataSet() const;
 
     /**
      * Computes a dataset out of our voxel values and the previously given grid. It contains a vector at each position representing the direction
@@ -80,7 +80,7 @@ public:
      *
      * \return Dataset where all voxels which are hit by the rastered lines contain non-zero vectors.
      */
-    boost::shared_ptr< WDataSetSingle > generateVectorDataSet() const;
+    boost::shared_ptr< WDataSetScalar > generateVectorDataSet() const;
 
 protected:
 

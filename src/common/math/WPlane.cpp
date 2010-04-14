@@ -26,7 +26,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/datastructures/WTriangleMesh.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
