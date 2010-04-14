@@ -41,6 +41,7 @@
  */
 class WTriangleMesh2  : public WTransferable
 {
+friend class WTriangleMeshTest;
 public:
     /**
      * constructor that already reserves space for a given number of triangles and vertexes
@@ -330,6 +331,18 @@ public:
      */
     void zoomMesh( float zoom );
 
+    /**
+     * Checks if two meshes are exactly the same. Same number of triangles, and
+     * points, and indices as well as same ordering. Keep in mind different
+     * ordering might result in the same structure but is considered different
+     * here.
+     *
+     * \param rhs The other mesh to compare with
+     *
+     * \return True if and only if both: vertices and triangles are exactly the same.
+     */
+    bool operator==( const WTriangleMesh2& rhs ) const;
+
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 private:
@@ -562,6 +575,13 @@ namespace tm_utils
      */
     std::ostream& operator<<( std::ostream& os, const WTriangleMesh2& rhs );
 }
+
+inline bool WTriangleMesh2::operator==( const WTriangleMesh2& rhs ) const
+{
+    return std::equal( m_verts->begin(), m_verts->end(), rhs.m_verts->begin() ) &&
+           std::equal( m_triangles.begin(), m_triangles.end(), rhs.m_triangles.begin() );
+}
+
 
 inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
 {

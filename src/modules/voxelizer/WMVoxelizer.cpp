@@ -344,7 +344,9 @@ void WMVoxelizer::connectors()
     addConnector( m_output );
 
     typedef WModuleOutputData< WDataSetSingle > OutputDirType; // just an alias
-    m_dirOutput = boost::shared_ptr< OutputDirType >( new OutputDirType( shared_from_this(), "voxelDirectionOutput", "The voxelized direction dataset." ) );
+    m_dirOutput = boost::shared_ptr< OutputDirType >( new OutputDirType( shared_from_this(),
+                                                                         "voxelDirectionOutput",
+                                                                         "The voxelized direction dataset." ) );
     addConnector( m_dirOutput );
 
     WModule::connectors();  // call WModules initialization

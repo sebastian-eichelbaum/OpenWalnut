@@ -30,7 +30,7 @@
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
-#include "../../test/WTraitsBase.h"
+#include "../../common/test/WTraitsBase.h"
 #include "../WTriangleMesh2.h"
 
 #ifdef CXXTEST_RUNNING
