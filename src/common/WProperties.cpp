@@ -91,6 +91,13 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
         }
     }
 
+    // PV_PURPOSE_INFORMATION groups do not allow PV_PURPOSE_PARAMETER properties but vice versa.
+    if ( getPurpose() == PV_PURPOSE_INFORMATION )
+    {
+        prop->setPurpose( PV_PURPOSE_INFORMATION );
+    }
+    // INFORMATION properties are allowed inside PARAMETER groups -> do not set the properties purpose.
+
     m_propAccess->get().push_back( prop );
     m_propAccess->endWrite();
 }

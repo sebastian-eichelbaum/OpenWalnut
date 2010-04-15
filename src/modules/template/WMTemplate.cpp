@@ -233,9 +233,21 @@ void WMTemplate::properties()
     // Additionally, your can also use the m_active variable directly in your update callbacks to en-/disable some OSG nodes.
     // This template module uses method number 1. This might be the easiest and most commonly used way.
 
-    // TODO(ebaum): write
+    // Sometimes it is desirable to provide some values, statistics, counts, times, ... to the user. This would be possible by using a property
+    // and set the value to the value you want to show the user. Nice, but the user can change this value. PropertyConstraints can't help here,
+    // as they would forbid writing any value to the property (regardless if the module or the user wants to set it). In other words, these
+    // special properties serve another purpose. They are used for information output. Your module already provides another property list only
+    // for these kind of properties. m_infoProperties can be used in the same way as m_properties. The only difference is that each property and
+    // property group added here can't be modified from the outside world. Here is an example:
     m_aIntegerOutput = m_infoProperties->addProperty( "Run Count", "Number of run cycles the module made so far.", 0 );
-    m_aIntegerOutput->setPurpose( PV_PURPOSE_INFORMATION );
+    // Later on, we will use this property to provide the number of run cycles to the user.
+    // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
+    // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
+    m_aStringOutput = m_group1a->addProperty( "Hello World in C", "The hello world command in C.", std::string( "printf(\"Hello World!\");" ) );
+    m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
+    // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
+    // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
+    // parameter.
 }
 
 void WMTemplate::moduleMain()

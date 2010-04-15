@@ -192,6 +192,11 @@ private:
     WPropInt      m_aIntegerOutput;
 
     /**
+     * A property simply providing some text to the outside world.
+     */
+    WPropString   m_aStringOutput;
+
+    /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
      * moduleMain().
      */
