@@ -35,7 +35,7 @@ namespace wmath
  *
  * WBinom< n, k >::value = n! / ( k!(n-k)! ).
  *
- * \note For k > n, compilation fails.
+ * \note For k > n or n == k == 0, compilation fails.
  */
 template< std::size_t n, std::size_t k >
 struct WBinom
@@ -95,6 +95,54 @@ struct WBinom< n, 0 >
  */
 template< std::size_t k >
 struct WBinom< 0, k >
+{
+};
+
+/**
+ * Compute the nth power of a value.
+ *
+ * For base == exponent == 0, compilation fails.
+ */
+template< std::size_t base, std::size_t exponent >
+struct WPower
+{
+    /**
+     * Using an enum here instead of a static constant.
+     */
+    enum
+    {
+        /**
+         * The computed value.
+         */
+        value = base * WPower< base, exponent - 1 >::value
+    };
+};
+
+/**
+ * Compute the nth power of a value.
+ *
+ * Specialization for exponent = 0.
+ */
+template< std::size_t base >
+struct WPower< base, 0 >
+{
+    /**
+     * Using an enum here instead of a static constant.
+     */
+    enum
+    {
+        /**
+         * The computed value.
+         */
+        value = 1
+    };
+};
+
+/**
+ * Raising 0 to a power of 0 is an undefined operation.
+ */
+template<>
+struct WPower< 0, 0 >
 {
 };
 
