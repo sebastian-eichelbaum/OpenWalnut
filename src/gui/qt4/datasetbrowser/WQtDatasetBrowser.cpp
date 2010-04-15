@@ -389,7 +389,6 @@ void WQtDatasetBrowser::selectTreeItem()
         }
     }
     buildPropTab( props, infoProps );
-
 }
 
 void WQtDatasetBrowser::selectRoiTreeItem()
