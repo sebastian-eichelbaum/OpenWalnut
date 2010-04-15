@@ -139,11 +139,23 @@ struct WPower< base, 0 >
 };
 
 /**
- * Raising 0 to a power of 0 is an undefined operation.
+ * Compute the nth power of a value.
+ *
+ * Specialization for exponent = 0.
  */
-template<>
-struct WPower< 0, 0 >
+template< std::size_t exponent >
+struct WPower< 0, exponent >
 {
+    /**
+     * Using an enum here instead of a static constant.
+     */
+    enum
+    {
+        /**
+         * The computed value.
+         */
+        value = 0
+    };
 };
 
 } // namespace wmath
