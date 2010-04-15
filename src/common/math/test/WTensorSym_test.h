@@ -22,11 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WTENSOR_TEST_H
-#define WTENSOR_TEST_H
+#ifndef WTENSORSYM_TEST_H
+#define WTENSORSYM_TEST_H
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <cxxtest/TestSuite.h>
 #include "../WTensorSym.h"
@@ -197,4 +198,4 @@ public:
     }
 };
 
-#endif  // WTENSOR_TEST_H
+#endif  // WTENSORSYM_TEST_H
