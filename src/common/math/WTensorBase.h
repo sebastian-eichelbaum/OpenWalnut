@@ -269,6 +269,7 @@ template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorBase< order, dim, Data_T > const& WTensorBase< order, dim, Data_T >::operator = ( WTensorBase const& t )
 {
     m_data = t.m_data;
+    return *this;
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
@@ -352,7 +353,7 @@ bool WTensorBase< order, dim, Data_T >::operator != ( WTensorBase const& other )
  * the datatype of the elements.
  *
  * \note The type Data_T may not throw exceptions on construction, destruction or
- * during operator =.
+ * during any assignment operator.
  *
  * \see WTensorSym
  */
@@ -459,7 +460,7 @@ protected:
      *
      * \return *this.
      */
-    WTensorBaseSym& operator = ( WTensorBaseSym const& t );
+    WTensorBaseSym const& operator = ( WTensorBaseSym const& t );
 
     /**
      * Get the reference to an element in the data vector.
@@ -752,9 +753,10 @@ WTensorBaseSym< order, dim, Data_T >::WTensorBaseSym( WTensorBaseSym const& t )
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
-WTensorBaseSym< order, dim, Data_T >& WTensorBaseSym< order, dim, Data_T >::operator = ( WTensorBaseSym const& t )
+WTensorBaseSym< order, dim, Data_T > const& WTensorBaseSym< order, dim, Data_T >::operator = ( WTensorBaseSym const& t )
 {
     m_data = t.m_data;
+    return *this;
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
