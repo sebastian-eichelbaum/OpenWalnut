@@ -243,7 +243,9 @@ void WMTemplate::properties()
     // Later on, we will use this property to provide the number of run cycles to the user.
     // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
     // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
-    m_aStringOutput = m_group1a->addProperty( "Hello World in C", "The hello world command in C.", std::string( "printf(\"Hello World!\");" ) );
+    std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, html formatted strings, colors and " ) +
+                          std::string( "so on using properties! Isn't it <b>amazing</b>?" );
+    m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
     // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
@@ -293,7 +295,7 @@ void WMTemplate::moduleMain()
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        // As you might remember, this property is a information property to provide the number of run cycles to the outside world. It wont't be
+        // As you might remember, this property is an information property to provide the number of run cycles to the outside world. It won't be
         // modified but the module can modify it. This is useful to provide statistics, counts, times or even a "hello world" string to the user
         // as an information or status report. Please do not abuse these information properties as progress indicators. A short overview on how
         // to make progress indicators is provided some lines below. Here, we simply increase the value.
