@@ -39,7 +39,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_intProperty( property ),
     m_slider( Qt::Horizontal, this ),
     m_edit( this ),
-    m_layout()
+    m_layout( this )
 {
     // initialize members
     m_edit.resize( m_edit.minimumSizeHint().width() , m_edit.size().height() );

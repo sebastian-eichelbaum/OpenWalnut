@@ -426,7 +426,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
 
 WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
-    WQtDSBWidget* tab = new WQtDSBWidget( QString::fromStdString( props->getName() ) );
+    WQtDSBWidget* tab = new WQtDSBWidget( props->getName() );
 
     if ( props.get() )
     {
@@ -563,10 +563,9 @@ void WQtDatasetBrowser::changeRoiTreeItem()
     }
 }
 
-
 int WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
-    if ( !content )
+    if ( !content || content->isEmpty() )
     {
         return -1;
     }

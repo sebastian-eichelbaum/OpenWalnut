@@ -36,12 +36,12 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
     WPropertyWidget( property, propertyGrid, parent ),
     m_stringProperty( property ),
     m_edit( this ),
-    m_layout()
+    m_layout( this )
 {
     // initialize members
     setLayout( &m_layout );
 
-    // layout both against each other
+    // layout
     m_layout.addWidget( &m_edit );
 
     // set the initial values

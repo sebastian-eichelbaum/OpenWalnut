@@ -32,7 +32,8 @@ WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
     : QWidget( parent ),
     m_name( name.c_str() ),
     m_controlLayout(),
-    m_pageLayout()
+    m_pageLayout(),
+    m_numberOfWidgets( 0 )
 {
     m_pageLayout.addLayout( &m_controlLayout );
 }
@@ -43,41 +44,57 @@ WQtDSBWidget::~WQtDSBWidget()
 
 WPropertyBoolWidget* WQtDSBWidget::addProp( WPropBool property )
 {
+    ++m_numberOfWidgets;
+
     return new WPropertyBoolWidget( property, &m_controlLayout, this );
 }
 
 WPropertyIntWidget* WQtDSBWidget::addProp( WPropInt property )
 {
+    ++m_numberOfWidgets;
+
     return new WPropertyIntWidget( property, &m_controlLayout, this );
 }
 
 WPropertyDoubleWidget* WQtDSBWidget::addProp( WPropDouble property )
 {
+    ++m_numberOfWidgets;
+
     return new WPropertyDoubleWidget( property, &m_controlLayout, this );
 }
 
 WPropertyStringWidget* WQtDSBWidget::addProp( WPropString property )
 {
+    ++m_numberOfWidgets;
+
     return new WPropertyStringWidget( property, &m_controlLayout, this );
 }
 
 WPropertyColorWidget* WQtDSBWidget::addProp( WPropColor property )
 {
+    ++m_numberOfWidgets;
+
     return new WPropertyColorWidget( property, &m_controlLayout, this );
 }
 
 WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
 {
+    ++m_numberOfWidgets;
+
     return new WPropertyFilenameWidget( property, &m_controlLayout, this );
 }
 
 WPropertyTriggerWidget* WQtDSBWidget::addProp( WPropTrigger property )
 {
+    ++m_numberOfWidgets;
+
     return new WPropertyTriggerWidget( property, &m_controlLayout, this );
 }
 
 void WQtDSBWidget::addGroup( WQtDSBWidget* widget )
 {
+    ++m_numberOfWidgets;
+
     // TODO(ebaum): extend it to collapse the group
     QGroupBox* group = new QGroupBox( widget->getName() , this );
     QGridLayout* grid = new QGridLayout();
@@ -105,3 +122,7 @@ void WQtDSBWidget::setName( QString name )
     m_name = name;
 }
 
+bool WQtDSBWidget::isEmpty() const
+{
+    return !m_numberOfWidgets;
+}

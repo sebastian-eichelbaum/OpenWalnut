@@ -61,6 +61,13 @@ public:
     virtual ~WQtDSBWidget();
 
     /**
+     * True if there are no widgets inside.
+     *
+     * \return true if number of widgets is 0.
+     */
+    bool isEmpty() const;
+
+    /**
      * helper function to add a generic button
      * \param label Text on the push button
      */
@@ -188,6 +195,11 @@ private:
      * Layout used for the whole widget.
      */
     QVBoxLayout m_pageLayout;
+
+    /**
+     * The number of widgets inside this one.
+     */
+    unsigned int m_numberOfWidgets;
 };
 
 #endif  // WQTDSBWIDGET_H

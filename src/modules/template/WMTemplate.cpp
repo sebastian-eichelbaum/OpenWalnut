@@ -235,6 +235,7 @@ void WMTemplate::properties()
 
     // TODO(ebaum): write
     m_aIntegerOutput = m_infoProperties->addProperty( "Run Count", "Number of run cycles the module made so far.", 0 );
+    m_aIntegerOutput->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
 void WMTemplate::moduleMain()
