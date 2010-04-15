@@ -79,6 +79,14 @@ class WTensorSym : public WTensorFunc< WTensorBaseSym, order, dim, Data_T >
 //    return WTensor< order, T >( *this );
 //}
 
+/**
+ * Disallow instantiation of a symmetric tensor that has a dimension of 0.
+ */
+template< std::size_t order, typename Data_T >
+class WTensorSym< order, 0, Data_T >
+{
+};
+
 // ###################### special case WTensorSym< T, 0 > ##############################
 
 /**
