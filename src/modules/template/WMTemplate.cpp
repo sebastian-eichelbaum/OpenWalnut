@@ -220,7 +220,7 @@ void WMTemplate::properties()
     m_aDouble->setMax( 50.0 );
 
     // The most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
-    // to define the allowed values for your constraint. Take a look at the StringLength class on how to do it.
+    // to define the allowed values for your constraint. Take a look at the StringLength class in this module's code on how to do it.
     m_aString->addConstraint( boost::shared_ptr< StringLength >( new StringLength ) );
 
     // One last thing to mention is the active property. This property is available in all modules and represents the activation state of the
@@ -232,6 +232,9 @@ void WMTemplate::properties()
     // 3: react during your module main loop using the moduleState: m_moduleState.add( m_active->getCondition );
     // Additionally, your can also use the m_active variable directly in your update callbacks to en-/disable some OSG nodes.
     // This template module uses method number 1. This might be the easiest and most commonly used way.
+
+    // TODO(ebaum): write
+    m_aIntegerOutput = m_infoProperties->addProperty( "Run Count", "Number of run cycles the module made so far.", 0 );
 }
 
 void WMTemplate::moduleMain()
@@ -276,6 +279,12 @@ void WMTemplate::moduleMain()
         // or an property changes. The main loop now waits until something happens.
         debugLog() << "Waiting ...";
         m_moduleState.wait();
+
+        // As you might remember, this property is a information property to provide the number of run cycles to the outside world. It wont't be
+        // modified but the module can modify it. This is useful to provide statistics, counts, times or even a "hello world" string to the user
+        // as an information or status report. Please do not abuse these information properties as progress indicators. A short overview on how
+        // to make progress indicators is provided some lines below. Here, we simply increase the value.
+        m_aIntegerOutput->set( m_aIntegerOutput->get() +1 );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.

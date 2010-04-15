@@ -187,6 +187,11 @@ private:
     WPropTrigger  m_aTrigger;
 
     /**
+     * A property simply providing a integer value to the outside world.
+     */
+    WPropInt      m_aIntegerOutput;
+
+    /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
      * moduleMain().
      */
