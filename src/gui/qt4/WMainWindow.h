@@ -197,6 +197,11 @@ public slots:
     void projectSaveROIOnly();
 
     /**
+     * Gets called by the save menu to only save the Module settings
+     */
+    void projectSaveModuleOnly();
+
+    /**
      * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.
      */
     void setFibersLoaded();

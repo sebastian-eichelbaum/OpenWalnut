@@ -181,6 +181,7 @@ void WMainWindow::setupPermanentToolBar()
     // setup save button
     QMenu* saveMenu = new QMenu( "Save Project", projectSaveButton );
     saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ) );
+    saveMenu->addAction( "Save Modules", this, SLOT( projectSaveModuleOnly() ) );
     saveMenu->addAction( "Save Camera", this, SLOT( projectSaveCameraOnly() ) );
     saveMenu->addAction( "Save ROIs", this, SLOT( projectSaveROIOnly() ) );
     projectSaveButton->setPopupMode( QToolButton::MenuButtonPopup );
@@ -451,6 +452,13 @@ void WMainWindow::projectSaveROIOnly()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getROIWriter() );
+    projectSave( w );
+}
+
+void WMainWindow::projectSaveModuleOnly()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    w.push_back( WProjectFile::getModuleWriter() );
     projectSave( w );
 }
 
