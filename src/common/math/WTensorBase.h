@@ -760,6 +760,18 @@ WTensorBaseSym< order, dim, Data_T > const& WTensorBaseSym< order, dim, Data_T >
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
+std::size_t WTensorBaseSym< order, dim, Data_T >::getDimension() const
+{
+    return dim;
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+std::size_t WTensorBaseSym< order, dim, Data_T >::getOrder() const
+{
+    return order;
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
 Data_T const& WTensorBaseSym< order, dim, Data_T >::getAt( Index_T const* const pos ) const
 {
