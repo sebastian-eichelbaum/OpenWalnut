@@ -28,6 +28,7 @@
 #include "../../common/WAssert.h"
 #include "WUpdateThread.h"
 #include "WROIManagerFibers.h"
+#include "../../graphicsEngine/WROIBox.h"
 
 WROIManagerFibers::WROIManagerFibers()
 {
@@ -346,4 +347,14 @@ void WROIManagerFibers::updateBundleColor( boost::shared_ptr<WRMBranch> branch, 
             }
         }
     }
+}
+
+void WROIManagerFibers::setSelectedRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+{
+    m_selectedRoi = roi;
+}
+
+boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::getSelectedRoi()
+{
+    return m_selectedRoi;
 }

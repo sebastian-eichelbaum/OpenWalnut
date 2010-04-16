@@ -114,7 +114,9 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     WROI(),
     boxId( maxBoxId++ ),
     m_pickNormal( wmath::WVector3D() ),
-    m_oldPixelPosition( std::make_pair( 0, 0 ) )
+    m_oldPixelPosition( std::make_pair( 0, 0 ) ),
+    m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
+    m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) )
 {
     m_minPos = minPos;
     m_maxPos = maxPos;
@@ -276,11 +278,11 @@ void WROIBox::updateGFX()
                 osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
                 if ( m_isNot )
                 {
-                    colors->push_back( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) );
+                    colors->push_back( m_notColor );
                 }
                 else
                 {
-                    colors->push_back( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) );
+                    colors->push_back( m_color );
                 }
                 m_surfaceGeometry->setColorArray( colors );
             }
@@ -304,11 +306,11 @@ void WROIBox::updateGFX()
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
         if ( m_isNot )
         {
-            colors->push_back( osg::Vec4( 1.0f, 0.f, 0.f, 0.4f ) );
+            colors->push_back( m_notColor );
         }
         else
         {
-            colors->push_back( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) );
+            colors->push_back( m_color );
         }
         m_surfaceGeometry->setColorArray( colors );
         m_pickNormal = wmath::WVector3D();
@@ -320,14 +322,24 @@ void WROIBox::updateGFX()
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
         if ( m_isNot )
         {
-            colors->push_back( osg::Vec4( 1.0f, 0.f, 0.f, 0.4f ) );
+            colors->push_back( m_notColor );
         }
         else
         {
-            colors->push_back( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) );
+            colors->push_back( m_color );
         }
         m_surfaceGeometry->setColorArray( colors );
     }
 
     lock.unlock();
+}
+
+void WROIBox::setColor( osg::Vec4 color )
+{
+    m_color = color;
+}
+
+void WROIBox::setNotColor( osg::Vec4 color )
+{
+    m_notColor = color;
 }

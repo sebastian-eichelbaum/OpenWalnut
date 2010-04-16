@@ -417,6 +417,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
                 break;
         }
     }
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
     buildPropTab( props );
 }
 
@@ -610,7 +611,6 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelect
 void WQtDatasetBrowser::deleteTreeItem()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
-
     if ( m_roiTreeWidget->selectedItems().count() > 0 )
     {
         if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
@@ -633,4 +633,5 @@ void WQtDatasetBrowser::deleteTreeItem()
             }
         }
     }
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
 }
