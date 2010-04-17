@@ -62,43 +62,6 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
     m_glWidget->getViewer()->getView()->requestContinuousUpdate( false );
     m_glWidget->getViewer()->setScene( m_scene );
 
-    if( title ==  QString( "axial" ) )
-    {
-        osg::Matrix m;
-        m.makeRotate( 90.0, 1.0, 0.0, 0.0 );
-        osg::Matrix tm;
-        //tm.makeTranslate( osg::Vec3( 20.0, 0.0, 60.0 ) );
-        m *= tm;
-        osg::Matrix sm;
-        sm.makeScale( 1.2, 1.2, 1.2 );
-        m *= sm;
-        m_scene->setMatrix( m );
-    }
-    if( title == QString(  "coronal" ) )
-    {
-        osg::Matrix m;
-        m.makeIdentity();
-        osg::Matrix tm;
-        //tm.makeTranslate( osg::Vec3( 20.0, 0.0, 30.0 ) );
-        m *= tm;
-        osg::Matrix sm;
-        sm.makeScale( 1.2, 1.2, 1.2 );
-        m *= sm;
-        m_scene->setMatrix( m );
-    }
-    if( title == QString( "sagittal" ) )
-    {
-        osg::Matrix m;
-        m.makeRotate( 90.0, 0.0, 0.0, 1.0 );
-        osg::Matrix tm;
-        tm.makeTranslate( osg::Vec3( 200.0, 0.0, 0.0 ) );
-        m *= tm;
-        osg::Matrix sm;
-        sm.makeScale( 1.2, 1.2, 1.2 );
-        m *= sm;
-        m_scene->setMatrix( m );
-    }
-
     m_layout->addWidget( m_glWidget.get() );
 
     panel->setLayout( m_layout );
