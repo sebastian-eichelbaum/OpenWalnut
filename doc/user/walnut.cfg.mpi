@@ -6,10 +6,13 @@ allowOnlyOneFiberDataSet = yes # This will prevent you from accidently loading m
 
 [modules]
 ## use this to specify the default module to add during load.
-## It is a comma seperated list. If this is not specified the default empty is assumed.
+## It is a comma seperated list. If this is not specified the 
+## default empty is assumed.
 ## An example could be
-# default="HUD"
-whiteList ="Isosurface,Bounding Box,Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI" # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
+# default="HUD" 
+## A list of modules that will be provided through the GUI. 
+## If the list is empty all available modules are provided.
+whiteList ="Isosurface,Bounding Box,Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI,Mesh Reader,Triangle Mesh Renderer"
 
 [qt4gui]
 # hideAxial = yes # hide the axial view widget
