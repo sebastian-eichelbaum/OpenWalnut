@@ -54,9 +54,9 @@ WMDataTypeConversion::~WMDataTypeConversion()
     removeConnectors();
 }
 
-boost::shared_ptr<WModule> WMDataTypeConversion::factory() const
+boost::shared_ptr< WModule > WMDataTypeConversion::factory() const
 {
-    return boost::shared_ptr<WModule>( new WMDataTypeConversion() );
+    return boost::shared_ptr< WModule >( new WMDataTypeConversion() );
 }
 
 const char** WMDataTypeConversion::getXPMIcon() const
