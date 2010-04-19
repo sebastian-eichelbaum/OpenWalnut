@@ -10,11 +10,11 @@
 #include "SurfaceLIC.h"
 #include "../fantom/FTensor.h"
 
-SurfaceLIC::SurfaceLIC( const WDataSetVector& vectors, boost::shared_ptr< WTriangleMesh2 > mesh )
+SurfaceLIC::SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh2 > mesh )
     : m_vectors( vectors )
 {
-    WAssert( boost::shared_dynamic_cast< WGridRegular3D >( vectors.getGrid() ), "Only vector field with regular grid are allowed... aborting" );
-    m_mesh = new TriangleMesh( mesh, boost::shared_dynamic_cast< WGridRegular3D >( vectors.getGrid() ) );
+    WAssert( boost::shared_dynamic_cast< WGridRegular3D >( vectors->getGrid() ), "Only vector field with regular grid are allowed... aborting" );
+    m_mesh = new TriangleMesh( mesh, boost::shared_dynamic_cast< WGridRegular3D >( vectors->getGrid() ) );
 
     nbFold = 20;
     max_length = 10.;

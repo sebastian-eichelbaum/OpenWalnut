@@ -42,7 +42,7 @@ TensorField::~TensorField()
 FTensor TensorField::getInterpolatedVector(float x, float y, float z)
 {
     bool success = false;
-    wmath::WVector3D result = m_vectors->interpolate( wmath::WPosition( x, y, z ), success );
+    wmath::WVector3D result = m_vectors->interpolate( wmath::WPosition( x, y, z ), &success );
     WAssert( success, "Vector interpolation was not successful" );
     return FTensor( FArray( result[0], result[1], result[2] ) );
 

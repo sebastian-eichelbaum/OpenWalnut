@@ -31,7 +31,7 @@ F::FVector lastDirectionVector(3);
 //---------------------------------------------------------------------------
 #if 1
 
-FStreamlineOnSurfaceEuler::FStreamlineOnSurfaceEuler(const WDataSetVector& vectors, TriangleMesh* mesh )
+FStreamlineOnSurfaceEuler::FStreamlineOnSurfaceEuler( boost::shared_ptr< WDataSetVector > vectors, TriangleMesh* mesh )
     : allSteps(),
       steps(),
       allNormals(),

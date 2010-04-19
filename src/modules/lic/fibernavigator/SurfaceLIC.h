@@ -18,7 +18,7 @@
 class SurfaceLIC
 {
 public:
-    SurfaceLIC( const WDataSetVector &vectors, boost::shared_ptr< WTriangleMesh2 > mesh );
+    SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh2 > mesh );
     virtual ~SurfaceLIC();
     virtual void execute();
     std::vector< std::vector<float> > testLines;
@@ -29,7 +29,7 @@ private:
     {
     public:
 
-        MyLICStreamline( const WDataSetVector &vectors, TriangleMesh* mesh )
+        MyLICStreamline( boost::shared_ptr< WDataSetVector > vectors, TriangleMesh* mesh )
             : FStreamlineOnSurfaceEuler( vectors, mesh )
         {
         }
@@ -56,7 +56,7 @@ private:
         positive threshold;
     };
 
-    const WDataSetVector& m_vectors;
+    boost::shared_ptr< WDataSetVector > m_vectors;
     TriangleMesh* m_mesh;
     int nbTriangles;
 

@@ -92,7 +92,7 @@ public:
     };
 
 
-    FStreamlineOnSurfaceEuler( const WDataSetVector& vectors, TriangleMesh* mesh );
+    FStreamlineOnSurfaceEuler( boost::shared_ptr< WDataSetVector > vectors, TriangleMesh* mesh );
     virtual ~FStreamlineOnSurfaceEuler();
 
 
@@ -164,7 +164,7 @@ protected:
 
 protected:
 
-	const WDataSetVector& m_vectors;
+    boost::shared_ptr< WDataSetVector > m_vectors;
 	TensorField* m_tensorField;
     TriangleMesh* m_mesh;
 
