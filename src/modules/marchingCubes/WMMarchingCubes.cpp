@@ -133,8 +133,7 @@ void WMMarchingCubes::moduleMain()
             // set appropriate constraints for properties
             m_isoValueProp->setMin( m_dataSet->getMin() );
             m_isoValueProp->setMax( m_dataSet->getMax() );
-            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ) );
-            m_moduleState.wait(); // need this to avoid double executing because "set" fires the conditionset
+            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
         }
 
         // update ISO surface
