@@ -22,9 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "../common/WAssert.h"
 #include "WDataSetSingle.h"
-
 #include "WDataSetVector.h"
 
 // prototype instance as singleton
@@ -59,3 +61,96 @@ boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
     return m_prototype;
 }
 
+wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool *success )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+    // TODO(wiebel): change this to eassert.
+    if( !grid )
+    {
+        throw WException( std::string(  "This data set has a grid whose type is not yet supported for interpolation." ) );
+    }
+    // TODO(wiebel): change this to eassert.
+//    if( grid->getTransformationMatrix() != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
+//    {
+//        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
+//    }
+    // TODO(wiebel): change this to eassert.
+    if( !( m_valueSet->order() == 1 &&  m_valueSet->dimension() == 3 ) )
+    {
+        throw WException( std::string( "Only implemented for 3D Vectors so far." ) );
+    }
+
+    *success = grid->encloses( pos );
+
+    if( !*success )
+    {
+        return wmath::WVector3D( 0, 0, 0 );
+    }
+
+    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
+
+    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+
+    double lambdaX = localPos[0] / grid->getOffsetX();
+    double lambdaY = localPos[1] / grid->getOffsetY();
+    double lambdaZ = localPos[2] / grid->getOffsetZ();
+    std::vector< double > h( 8 );
+//         lZ     lY
+//         |      /
+//         | 6___/_7
+//         |/:    /|
+//         4_:___5 |
+//         | :...|.|
+//         |.2   | 3
+//         |_____|/ ____lX
+//        0      1
+    h[0] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+    h[1] = (     lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+    h[2] = ( 1 - lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+    h[3] = (     lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+    h[4] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+    h[5] = (     lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+    h[6] = ( 1 - lambdaX ) * (     lambdaY ) * (     lambdaZ );
+    h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
+
+    wmath::WVector3D result( 0, 0, 0 );
+    for( size_t i = 0; i < 8; ++i )
+    {
+        result += h[i] * getVectorAt( vertexIds[i] );
+    }
+
+    *success = true;
+    return result;
+}
+
+wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
+{
+        switch( getValueSet()->getDataType() )
+    {
+        case W_DT_UNSIGNED_CHAR:
+        {
+            return boost::shared_dynamic_cast< WValueSet< unsigned char > >( getValueSet() )->getVector3D( index );
+        }
+        case W_DT_INT16:
+        {
+            return boost::shared_dynamic_cast< WValueSet< int16_t > >( getValueSet() )->getVector3D( index );
+        }
+        case W_DT_SIGNED_INT:
+        {
+            return boost::shared_dynamic_cast< WValueSet< int32_t > >( getValueSet() )->getVector3D( index );
+        }
+        case W_DT_FLOAT:
+        {
+            return boost::shared_dynamic_cast< WValueSet< float > >( getValueSet() )->getVector3D( index );
+        }
+        case W_DT_DOUBLE:
+        {
+            return boost::shared_dynamic_cast< WValueSet< double > >( getValueSet() )->getVector3D( index );
+        }
+        default:
+            assert( false && "Unknow data type in dataset." );
+    }
+
+    return wmath::WVector3D( 0, 0, 0 );
+}
