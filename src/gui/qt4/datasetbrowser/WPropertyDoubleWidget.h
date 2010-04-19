@@ -27,7 +27,8 @@
 
 #include <string>
 
-#include <QtGui/QDoubleSpinBox>
+#include <QtGui/QLineEdit>
+#include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
 
 #include "WPropertyWidget.h"
@@ -67,23 +68,70 @@ protected:
     WPropDouble m_doubleProperty;
 
     /**
-     * Spin box for doubles
+     * The slider allowing modification of the integer value
      */
-    QDoubleSpinBox m_spin;
+    QSlider m_slider;
+
+    /**
+     * The edit field showing the value of the slider
+     */
+    QLineEdit m_edit;
 
     /**
      * Layout used to position the label and the checkbox
      */
     QHBoxLayout m_layout;
 
+    /**
+     * Converts a given value to a percentage between m_min and m_max.
+     *
+     * \param value the value.
+     *
+     * \return the percentage.
+     */
+    int toPercent( double value );
+
+    /**
+     * Converts the given percentage to the real double value using m_min and m_max.
+     *
+     * \param perc the percentage.
+     *
+     * \return the real double value.
+     */
+    double fromPercent( int perc );
+
+    /**
+     * The current minimum value.
+     */
+    double m_min;
+
+    /**
+     * The current maximum value.
+     */
+    double m_max;
+
 private:
 
 public slots:
 
     /**
-     * Called whenever return is pressed or the spin box has a chaged value and looses focus
+     * Called whenever the slider changes
+     *
+     * \param value the new value
      */
-    void spinChanged();
+    void sliderChanged( int value );
+
+    /**
+     * Called whenever the edit field changes
+     */
+    void editChanged();
+
+    /**
+     * Called when the text in m_edit changes.
+     *
+     * \param text
+     */
+    void textEdited( const QString& text );
 };
 
 #endif  // WPROPERTYDOUBLEWIDGET_H

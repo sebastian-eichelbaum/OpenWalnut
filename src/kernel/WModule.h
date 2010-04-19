@@ -124,6 +124,13 @@ public:
     boost::shared_ptr< WProperties > getProperties() const;
 
     /**
+     * Return a pointer to the information properties object of the module. The module intends these properties to not be modified.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getInformationProperties() const;
+
+    /**
      * Determines whether the module instance is properly initialized.
      *
      * \return true if properly initialized.
@@ -390,6 +397,13 @@ protected:
      * The property object for the module.
      */
     boost::shared_ptr< WProperties > m_properties;
+
+    /**
+     * The property object for the module containing only module whose purpose is "PV_PURPOSE_INFORMNATION". It is useful to define some property
+     * to only be of informational nature. The GUI does not modify them. As it is a WProperties instance, you can use it the same way as
+     * m_properties.
+     */
+    boost::shared_ptr< WProperties > m_infoProperties;
 
     /**
      * Progress indicator used as parent for all progress' of this module.

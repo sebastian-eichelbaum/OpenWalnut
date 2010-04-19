@@ -29,9 +29,11 @@
 #include <cstddef>
 #include <vector>
 
-#include "WValueSetBase.h"
-#include "WDataHandlerEnums.h"
 #include "../common/math/WValue.h"
+#include "../common/math/WVector3D.h"
+#include "../common/WAssert.h"
+#include "WDataHandlerEnums.h"
+#include "WValueSetBase.h"
 
 /**
  * Base Class for all value set types.
@@ -108,6 +110,15 @@ public:
     }
 
     /**
+     * Get the i'th vector
+     *
+     * \param index the index number of the vector
+     *
+     * \return the vector
+     */
+    wmath::WVector3D getVector3D( size_t index ) const;
+
+    /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.
      */
     const T * rawData() const
@@ -132,5 +143,12 @@ private:
      */
     const std::vector< T > m_data;  // WARNING: don't remove constness since &m_data[0] won't work anymore!
 };
+
+template< typename T > wmath::WVector3D WValueSet< T >::getVector3D( size_t index ) const
+{
+    WAssert( m_order == 1 && m_dimension == 3, "WValueSet<T>::getVector3D only implemented for order==1, dim==3 value sets" );
+    size_t offset = index * 3;
+    return wmath::WVector3D( m_data[ offset ], m_data[ offset + 1 ], m_data[ offset + 2 ] );
+}
 
 #endif  // WVALUESET_H

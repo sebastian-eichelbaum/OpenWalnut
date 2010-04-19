@@ -47,7 +47,7 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
+    WModuleInputConnector( boost::shared_ptr< WModule > module, std::string name="", std::string description="" );
 
     /**
      * Destructor.

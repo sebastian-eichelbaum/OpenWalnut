@@ -31,7 +31,7 @@
 
 #include "WModuleInputConnector.h"
 
-WModuleInputConnector::WModuleInputConnector( boost::shared_ptr<WModule> module, std::string name, std::string description ):
+WModuleInputConnector::WModuleInputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
     WModuleConnector( module, name, description )
 {
     // initialize members

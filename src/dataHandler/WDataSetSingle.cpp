@@ -51,8 +51,8 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
 
 WDataSetSingle::WDataSetSingle()
     : WDataSet(),
-    m_valueSet(),
     m_grid(),
+    m_valueSet(),
     m_texture3D()
 {
     // default constructor used by the prototype mechanism

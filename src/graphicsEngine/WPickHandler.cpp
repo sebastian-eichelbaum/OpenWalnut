@@ -33,9 +33,19 @@
 WPickHandler::WPickHandler()
     : m_hitResult( WPickInfo() ),
       m_startPick( WPickInfo() ),
-      m_shift( false )
+      m_shift( false ),
+      m_viewerName( "" )
 {
 }
+
+WPickHandler::WPickHandler( std::string viewerName )
+    : m_hitResult( WPickInfo() ),
+      m_startPick( WPickInfo() ),
+      m_shift( false ),
+      m_viewerName( viewerName )
+{
+}
+
 WPickHandler::~WPickHandler()
 {
 }
@@ -110,7 +120,7 @@ void WPickHandler::unpick( )
 {
     if( m_hitResult != WPickInfo() )
     {
-        m_hitResult = WPickInfo( "unpick", wmath::WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
+        m_hitResult = WPickInfo( "unpick", m_viewerName, wmath::WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
         m_startPick = WPickInfo();
     }
     m_pickSignal( getHitResult() );
@@ -137,6 +147,22 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     float x = ea.getX(); // pixel position in x direction
     float y = ea.getY(); // pixel position in x direction
 
+    // if we are in another viewer than the main view we just need the pixel position
+    if ( m_viewerName != "" && m_viewerName != "main" )
+    {
+        WPickInfo pickInfo;
+        pickInfo = WPickInfo( "", m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
+                              m_startPick.getModifierKey(),  m_startPick.getPickNormal() );
+        m_hitResult = pickInfo;
+
+        // if nothing was picked before remember the currently picked.
+        m_startPick = pickInfo;
+
+        m_pickSignal( getHitResult() );
+
+        return;
+    }
+
     bool intersetionsExist = view->computeIntersections( x, y, intersections );
 
     // if something is picked, get the right thing from the list, because it might be hidden.
@@ -158,7 +184,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         {
             while( ( hitr != intersections.end() ) && !startPickIsStillInList )
             {
-                WPickInfo pickInfoTmp( extractSuitableName( hitr ), wmath::WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
+                WPickInfo pickInfoTmp( extractSuitableName( hitr ), m_viewerName, wmath::WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
                 startPickIsStillInList |= ( pickInfoTmp.getName() == m_startPick.getName() );
 
                 if( !startPickIsStillInList ) // if iteration not finished yet go on in list
@@ -183,13 +209,13 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         pickNormal[0] = hitr->getWorldIntersectNormal()[0];
         pickNormal[1] = hitr->getWorldIntersectNormal()[1];
         pickNormal[2] = hitr->getWorldIntersectNormal()[2];
-        pickInfo = WPickInfo( extractSuitableName( hitr ), pickPos, std::make_pair( x, y ), WPickInfo::NONE, pickNormal );
+        pickInfo = WPickInfo( extractSuitableName( hitr ), m_viewerName, pickPos, std::make_pair( x, y ), WPickInfo::NONE, pickNormal );
     }
 
     // Use the old PickInfo with updated pixel info if we have previously picked something but the old is not in list anymore
     if( !startPickIsStillInList && m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
     {
-        pickInfo = WPickInfo( m_startPick.getName(), m_startPick.getPickPosition(), std::make_pair( x, y ),
+        pickInfo = WPickInfo( m_startPick.getName(), m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
                               m_startPick.getModifierKey(),  m_startPick.getPickNormal() );
     }
 

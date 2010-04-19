@@ -34,7 +34,7 @@
 
 #include "WModuleOutputConnector.h"
 
-WModuleOutputConnector::WModuleOutputConnector( boost::shared_ptr<WModule> module, std::string name, std::string description ):
+WModuleOutputConnector::WModuleOutputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
     WModuleConnector( module, name, description )
 {
     // initialize members

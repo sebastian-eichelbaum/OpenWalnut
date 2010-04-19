@@ -62,6 +62,13 @@ public:
     WPickHandler();
 
     /**
+     * Constructor that initalizes members with sensible defaults and sets the name of the viewer
+     *
+     * \param viewerName name of the viewer
+     */
+    explicit WPickHandler( std::string viewerName );
+
+    /**
      * Deals with the events found by the osg.
      * \param ea Event class for storing Keyboard, mouse and window events.
      * \param aa Interface by which GUIEventHandlers may request actions of the GUI system
@@ -105,6 +112,7 @@ protected:
     WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
     WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
     bool m_shift; //!< is shift pressed?
+    std::string m_viewerName; //!< which viewer sends the signal
 
 private:
     boost::signals2::signal1<void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.

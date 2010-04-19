@@ -358,6 +358,7 @@ void WQtDatasetBrowser::selectTreeItem()
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
+    boost::shared_ptr< WProperties > infoProps;
 
     if ( m_treeWidget->selectedItems().size() != 0  )
     {
@@ -368,6 +369,7 @@ void WQtDatasetBrowser::selectTreeItem()
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
                 props = module->getProperties();
+                infoProps = module->getInformationProperties();
                 createCompatibleButtons( module );
                 break;
             case MODULEHEADER:
@@ -375,6 +377,7 @@ void WQtDatasetBrowser::selectTreeItem()
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_treeWidget->selectedItems().at( 0 ) ) )->getModule();
                 props = module->getProperties();
+                infoProps = module->getInformationProperties();
                 createCompatibleButtons( module );
                 break;
             case ROIHEADER:
@@ -385,7 +388,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
         }
     }
-    buildPropTab( props );
+    buildPropTab( props, infoProps );
 }
 
 void WQtDatasetBrowser::selectRoiTreeItem()
@@ -417,12 +420,13 @@ void WQtDatasetBrowser::selectRoiTreeItem()
                 break;
         }
     }
-    buildPropTab( props );
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
+    buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 
 WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
-    WQtDSBWidget* tab = new WQtDSBWidget( "Settings" );
+    WQtDSBWidget* tab = new WQtDSBWidget( props->getName() );
 
     if ( props.get() )
     {
@@ -483,10 +487,33 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
     return tab;
 }
 
-void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props )
+void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
 {
-    WQtDSBWidget* tab = buildPropWidget( props );
-    addTabWidgetContent( tab );
+    WQtDSBWidget* tab = NULL;
+    WQtDSBWidget* infoTab = NULL;
+    if ( props )
+    {
+        tab = buildPropWidget( props );
+        tab->setName( "Settings" );
+    }
+    if ( infoProps )
+    {
+        infoTab = buildPropWidget( infoProps );
+        infoTab->setName( "Information" );
+    }
+
+    int infoIdx = addTabWidgetContent( infoTab );
+    int propIdx = addTabWidgetContent( tab );
+
+    // select the property widget preferably
+    if ( propIdx != -1 )
+    {
+        m_tabWidget->setCurrentIndex( propIdx );
+    }
+    else if ( infoIdx != -1 )
+    {
+        m_tabWidget->setCurrentIndex( infoIdx );
+    }
 }
 
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
@@ -536,14 +563,18 @@ void WQtDatasetBrowser::changeRoiTreeItem()
     }
 }
 
-
-void WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
+int WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
 {
+    if ( !content || content->isEmpty() )
+    {
+        return -1;
+    }
+
     QScrollArea* sa = new QScrollArea();
     sa->setWidget( content );
     sa->setWidgetResizable( true );
 
-    m_tabWidget->addTab( sa, "Settings" );
+    return m_tabWidget->addTab( sa, content->getName() );
 }
 
 void WQtDatasetBrowser::moveTreeItemDown()
@@ -633,4 +664,5 @@ void WQtDatasetBrowser::deleteTreeItem()
             }
         }
     }
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
 }

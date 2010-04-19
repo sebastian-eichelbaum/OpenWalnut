@@ -25,6 +25,8 @@
 #ifndef WEEGSOURCECALCULATOR_H
 #define WEEGSOURCECALCULATOR_H
 
+#include <cstddef>
+
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -64,10 +66,15 @@ private:
     const boost::shared_ptr< const WEEG2 > m_eeg;
 
     /**
-     * vector which says for each channel whether there is a position in the EEG
-     * dataset
+     * vector which saves for each channel whether there exists a position in
+     * the EEG dataset or not
      */
     std::vector< bool > m_hasPosition;
+
+    /**
+     * how many channels with positions exist in the EEG dataset
+     */
+    std::size_t m_numPositions;
 };
 
 #endif  // WEEGSOURCECALCULATOR_H

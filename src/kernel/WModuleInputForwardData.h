@@ -51,7 +51,7 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputForwardData( boost::shared_ptr<WModule> module, std::string name="", std::string description="" )
+    WModuleInputForwardData( boost::shared_ptr< WModule > module, std::string name="", std::string description="" )
         :WModuleInputData< T >( module, name, description )
     {
         // initialize the output data connector

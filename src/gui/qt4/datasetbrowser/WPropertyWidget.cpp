@@ -32,11 +32,12 @@
 #include "WPropertyWidget.h"
 
 WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, QGridLayout* propertyGrid, QWidget* parent ):
-    QWidget( parent ),
+    QStackedWidget( parent ),
     m_property( property ),
     m_propertyGrid( propertyGrid ),
     m_label( this ),
     m_useLabel( m_propertyGrid ),
+    m_parameterWidgets(),       // parent gets set by the QStackWidget
     m_invalid( false )
 {
     if ( m_useLabel )
@@ -52,6 +53,8 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         m_propertyGrid->addWidget( &m_label, row, 0 );
         m_propertyGrid->addWidget( this, row, 1 );
     }
+
+    addWidget( &m_parameterWidgets );
 
     // setup the update callback
     m_connection = m_property->getUpdateCondition()->subscribeSignal( boost::bind( &WPropertyWidget::propertyChangeNotifier, this ) );

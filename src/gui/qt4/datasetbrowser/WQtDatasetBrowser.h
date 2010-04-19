@@ -73,8 +73,10 @@ public:
      * adds a page to the context widget
      *
      * \param content A widget with controls
+     *
+     * \return the index of the new tab
      */
-    void addTabWidgetContent( WQtDSBWidget* content );
+    int addTabWidgetContent( WQtDSBWidget* content );
 
     /**
      * adds a subject entry to the tree widget
@@ -213,8 +215,9 @@ private slots:
      * function that builds the property tab
      *
      * \param props the properties.
+     * \param infoProps the information properties shown on a separate tab
      */
-    void buildPropTab( boost::shared_ptr< WProperties > props );
+    void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps );
 
     /**
      * Method builds a widgets containing all properties in props. It recursively calls itself to build group widgets for WPropGroup properties.

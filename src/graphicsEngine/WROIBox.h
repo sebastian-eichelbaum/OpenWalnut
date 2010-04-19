@@ -61,6 +61,17 @@ public:
      */
     wmath::WPosition getMaxPos() const;
 
+    /**
+     * setter
+     * \param color
+     */
+    void setColor( osg::Vec4 color );
+
+    /**
+     * setter
+     * \param color
+     */
+    void setNotColor( osg::Vec4 color );
 
 protected:
 private:
@@ -79,6 +90,10 @@ private:
     WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
 
     boost::shared_ptr< WGEViewer > m_viewer; //!< makes viewer available all over this class.
+
+    osg::Vec4 m_color; //!< the color of the box
+
+    osg::Vec4 m_notColor; //!< the color of the box when negated
 
     /**
      * note that there was a pick

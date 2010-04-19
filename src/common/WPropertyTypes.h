@@ -53,19 +53,32 @@ class WProperties;
  */
 typedef enum
 {
-    PV_UNKNOWN,        // type not know
-    PV_GROUP,          // the group property
-    PV_INT,            // integer value
-    PV_DOUBLE,         // floating point value
-    PV_BOOL,           // boolean
-    PV_STRING,         // a string
-    PV_PATH,           // a Boost Path object denoting a filename/path
-    PV_SELECTION,      // a list of strings, selectable
-    PV_POSITION,       // a position property
-    PV_COLOR,          // a color property
-    PV_TRIGGER         // for triggering an event
+    PV_UNKNOWN,        //!< type not known
+    PV_GROUP,          //!< the group property
+    PV_INT,            //!< integer value
+    PV_DOUBLE,         //!< floating point value
+    PV_BOOL,           //!< boolean
+    PV_STRING,         //!< a string
+    PV_PATH,           //!< a Boost Path object denoting a filename/path
+    PV_SELECTION,      //!< a list of strings, selectable
+    PV_POSITION,       //!< a position property
+    PV_COLOR,          //!< a color property
+    PV_TRIGGER         //!< for triggering an event
 }
 PROPERTY_TYPE;
+
+/**
+ * Enum of all possible purpose of a property. The purpose describes which meaning a property has for the creator of it. A PP_PARAMETER is a
+ * property which is meant to be modified to adopt the behaviour of the module (or whomever has created it). A PP_INFORMATION is only an output
+ * from the creator who wants to inform the outside world about values, states or whatever.
+ */
+typedef enum
+{
+    PV_PURPOSE_INFORMATION,     //!< information property not meant to be modified from someone (except the creating object)
+    PV_PURPOSE_PARAMETER        //!< a parameter meant to be modified by others to manipulate the behaviour of the module (or whomever created
+                                //!< the property)
+}
+PROPERTY_PURPOSE;
 
 /**
  * Namespace containing all base types of the WPropertyVariables. Use these types instead of issuing int32_t, double, bool, ...
