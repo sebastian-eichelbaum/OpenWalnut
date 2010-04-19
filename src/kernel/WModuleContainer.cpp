@@ -147,6 +147,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 {
+    // simple flat removal.
+
     WLogger::getLogger()->addLogMessage( "Removing module \"" + module->getName() + "\" from container." , "ModuleContainer (" + getName() + ")",
             LL_DEBUG );
 
@@ -160,6 +162,11 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
             LL_DEBUG );
     module->wait( true );
 
+    // remove progress combiner
+    m_progress->removeSubProgress( module->getRootProgressCombiner() );
+
+    // remove signal subscriptions
+
     // get write lock
     m_moduleAccess->beginWrite();
     m_moduleAccess->get().erase( module );
@@ -167,9 +174,6 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 
     module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
 
-    // TODO(ebaum): remove signal subscriptions
-    // TODO(ebaum): remove progress from combiner
-    // TODO(ebaum): flat or deep removal? What to do with associated modules?
 }
 
 WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
@@ -222,6 +226,7 @@ void WModuleContainer::stop()
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + ( *listIter )->getName() + "\" to finish." ,
                 "ModuleContainer (" + getName() + ")", LL_INFO );
         ( *listIter )->wait( true );
+        ( *listIter )->cleanup();
     }
     m_moduleAccess->endRead();
 

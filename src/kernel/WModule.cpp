@@ -90,7 +90,6 @@ WModule::WModule():
 WModule::~WModule()
 {
     // cleanup
-    removeConnectors();
 }
 
 void WModule::addConnector( boost::shared_ptr< WModuleInputConnector > con )
@@ -105,8 +104,6 @@ void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
 
 void WModule::disconnectAll()
 {
-    // TODO(ebaum): flat or deep removal? What to do with connected modules?
-
     // remove connections and their signals
     for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
          listIter != m_inputConnectors.end(); ++listIter )
@@ -125,7 +122,7 @@ void WModule::removeConnectors()
     m_initialized( false );
     m_isUsable( m_initialized() && m_isAssociated() );
 
-    // remove connections and their signals
+    // remove connections and their signals, this is flat removal. The module container can do deep removal
     disconnectAll();
 
     // clean up list

@@ -278,9 +278,9 @@ protected:
     void initialize();
 
     /**
-     * Removes connectors and cleans up.
+     * Called whenever the module should shutdown.
      */
-    void cleanup();
+    virtual void cleanup();
 
     /**
      * Adds the specified connector to the list of inputs.
