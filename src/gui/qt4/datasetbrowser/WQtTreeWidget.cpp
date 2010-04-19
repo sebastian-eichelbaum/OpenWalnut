@@ -38,6 +38,12 @@ WQtTreeWidget::~WQtTreeWidget()
 {
 }
 
+void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
+{
+//     takeTopLevelItem ( indexOfTopLevelItem( item  ) );
+    delete item;
+}
+
 void WQtTreeWidget::moveTreeItemDown()
 {
     QTreeWidgetItem *parent = currentItem()->parent();
