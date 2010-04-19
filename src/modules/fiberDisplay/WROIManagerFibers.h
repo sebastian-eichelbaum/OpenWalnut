@@ -173,6 +173,17 @@ public:
      */
     void updateBundleColor( boost::shared_ptr<WRMBranch> branch, WColor color );
 
+    /**
+     * setter
+     * \param roi
+     */
+    void setSelectedRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+
+    /**
+     * getter
+     */
+    boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
+
 protected:
 private:
     bool m_dirty; //!< dirty flag
@@ -222,6 +233,8 @@ private:
     bool m_recalcLock;
 
     boost::shared_ptr< std::vector< float > >m_customColors; //!< vector to store custom colors
+
+    boost::shared_ptr< WRMROIRepresentation > m_selectedRoi; //!< stores a pointer to the currently selected roi
 };
 
 #endif  // WROIMANAGERFIBERS_H

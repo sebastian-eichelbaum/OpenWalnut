@@ -115,9 +115,13 @@ public:
 protected:
     /**
      * slot gets called when a property has changed
-     *
      */
     void slotToggleNot();
+
+    /**
+     * slot gets called when a property has changed
+     */
+    void slotChangeThreshold();
 private:
     /**
      * tests the kd tree for intersections with the roi
@@ -180,6 +184,11 @@ private:
      * indicates if the roi is negated
      */
     WPropBool m_isNot;
+
+    /**
+     * threshold for an arbitrary roi
+     */
+    WPropDouble m_threshold;
 
     /**
      * indicates if the roi is active

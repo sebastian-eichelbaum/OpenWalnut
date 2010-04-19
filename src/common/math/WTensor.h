@@ -43,8 +43,9 @@ namespace wmath
  * in each direction.
  * The third template parameter is the datatype of the components, which is double by default.
  *
+ * \note The dimension may never be 0.
  * \note The type Data_T may not throw exceptions on construction, destruction or
- * during operator =.
+ * during any assignment operator.
  *
  * Access to specific elements of the tensor can be achieved in 2 ways:
  *
@@ -87,6 +88,15 @@ class WTensor : public WTensorFunc< WTensorBase, order, dim, Data_T >
  */
 template< std::size_t order, typename Data_T >
 class WTensor< order, 0, Data_T >
+{
+};
+
+/**
+ * Specialization for dim = 0 and order = 0. This essentially prohibits
+ * instantiation of a 0-dimensional tensor.
+ */
+template< typename Data_T >
+class WTensor< 0, 0, Data_T >
 {
 };
 

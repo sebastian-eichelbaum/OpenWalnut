@@ -24,10 +24,12 @@
 
 #include <cstddef>
 
+#include <limits>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WAssert.h"
 #include "../../common/math/WPosition.h"
 #include "../../dataHandler/WEEG2.h"
 #include "../../dataHandler/WEEGChannelInfo.h"
@@ -37,7 +39,8 @@
 
 
 WEEGSourceCalculator::WEEGSourceCalculator( const boost::shared_ptr< const WEEG2 > eeg )
-    : m_eeg( eeg )
+    : m_eeg( eeg ),
+      m_numPositions( 0 )
 {
     // it is possible to calculate some time position independend data
     // structures here (like the lead matrix)
@@ -49,6 +52,7 @@ WEEGSourceCalculator::WEEGSourceCalculator( const boost::shared_ptr< const WEEG2
         {
             m_eeg->getChannelInfo( channelID )->getPosition();
             m_hasPosition.push_back( true );
+            ++m_numPositions;
         }
         catch( const WDHException& )
         {
@@ -60,21 +64,24 @@ WEEGSourceCalculator::WEEGSourceCalculator( const boost::shared_ptr< const WEEG2
 wmath::WPosition WEEGSourceCalculator::calculate( const boost::shared_ptr< const WEEGEvent > event ) const
 {
     const std::vector< double >& values = event->getValues();
-    double min = 1.0 / 0.0;
+
+    WAssert( values.size() == m_hasPosition.size(), "Event and loaded EEG dataset have to have the same number of channels" );
+
     double sum = 0.0;
+    double min = std::numeric_limits< double >::infinity();
     for( std::size_t channelID = 0; channelID < values.size(); ++channelID )
     {
         if( m_hasPosition[channelID] )
         {
+            sum += values[channelID];
             if( values[channelID] < min )
             {
                 min = values[channelID];
             }
-            sum += values[channelID];
         }
     }
 
-    sum -= values.size() * min;
+    sum -= m_numPositions * min;
 
     wmath::WPosition source;
     for( std::size_t channelID = 0; channelID < values.size(); ++channelID )

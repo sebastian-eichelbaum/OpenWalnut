@@ -46,8 +46,9 @@ namespace wmath
  * in each direction.
  * The third template parameter is the datatype of the components, which is double by default.
  * 
+ * \note The dimension may never be 0.
  * \note The type Data_T may not throw exceptions on construction, destruction or
- * during operator =.
+ * during any assignment operator.
  *
  * Access to specific elements of the tensor can be achieved in 2 ways:
  *
@@ -63,7 +64,7 @@ namespace wmath
  * memory overhead per class (i.e. per allocation of the template parameters), which is of
  * constant size and thus does not depend on the number of instances.
  * 
- * Usage and operators are the same as with WTensor. Note, that changes to an
+ * Usage and operators are the same as with WTensor. Note that changes to an
  * element t(i,j,k,...) also change every element whose indices are a permutation of i,j,k... .
  * \see WTensor 
  */
@@ -77,6 +78,14 @@ class WTensorSym : public WTensorFunc< WTensorBaseSym, order, dim, Data_T >
 //{
 //    return WTensor< order, T >( *this );
 //}
+
+/**
+ * Disallow instantiation of a symmetric tensor that has a dimension of 0.
+ */
+template< std::size_t order, typename Data_T >
+class WTensorSym< order, 0, Data_T >
+{
+};
 
 // ###################### special case WTensorSym< T, 0 > ##############################
 

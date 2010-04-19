@@ -289,7 +289,7 @@ void WMEEGView::moduleMain()
                 WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
             }
 
-            if( m_sourceCalculator )
+            if( WKernel::getRunningKernel()->getRoiManager()->getBitField() && m_sourceCalculator )
             {
                 wmath::WPosition position = m_sourceCalculator->calculate( event );
 

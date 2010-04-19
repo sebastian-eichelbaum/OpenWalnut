@@ -22,22 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTRIANGLEMESHRENDERER_H
-#define WMTRIANGLEMESHRENDERER_H
+#ifndef WMMESHREADER_H
+#define WMMESHREADER_H
 
 #include <string>
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 
-class WTriangleMesh;
-class WTriangleMesh2;
-
-/**
+/** 
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "wiebel".
@@ -48,19 +45,19 @@ class WTriangleMesh2;
  *
  * \ingroup modules
  */
-class WMTriangleMeshRenderer: public WModule
+class WMMeshReader: public WModule
 {
 public:
 
     /**
      *
      */
-    WMTriangleMeshRenderer();
+    WMMeshReader();
 
     /**
      *
      */
-    virtual ~WMTriangleMeshRenderer();
+    virtual ~WMMeshReader();
 
     /**
      * Gives back the name of this module.
@@ -82,16 +79,6 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     */
-    virtual const char** getXPMIcon() const;
-
-    /**
-     *  updates shader parameters
-     */
-    void update();
-
 protected:
 
     /**
@@ -109,70 +96,20 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
 
 private:
-
     /**
-     * An input connector used to get mehses from other modules. The connection management between connectors must not be handled by the module.
+     * Reads the mesh file and creates a WTriangleMesh2 out of it.
+     *
+     * \return Reference to the dataset.
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_input;
+    virtual boost::shared_ptr< WTriangleMesh2 > read();
 
-    WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
-
-    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
-
-    osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
-
-    osg::ref_ptr< WShader > m_shader; //!< The shader used for the iso surface in m_geode
-
-
-    /**
-     * This function generates the osg geometry from the WTriangleMesh.
-     * \param mesh The triangle mesh that will be rendered.
-     */
-    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output;  //!< Input connector required by this module.
+    boost::shared_ptr< WCondition > m_propCondition;  //!<A condition used to notify about changes in several properties.
+    WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
+    WPropFilename m_meshFile; //!< The mesh will be read from this file.
 };
 
-/**
- * Adapter object for realizing callbacks of the node representing the surface in the osg
- */
-class TriangleMeshRendererCallback : public osg::NodeCallback
-{
-public:
-    /**
-     * Constructor of the callback adapter.
-     * \param module A function of this module will be called
-     */
-    explicit TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module );
-
-    /**
-     * Function that is called by the osg and that call the function in the module.
-     * \param node The node we are called.
-     * \param nv the visitor calling us.
-     */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-private:
-    boost::shared_ptr< WMTriangleMeshRenderer > m_module; //!< Pointer to the module to which the function that is called belongs to.
-};
-
-inline TriangleMeshRendererCallback::TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module )
-    : m_module( module )
-{
-}
-
-inline void TriangleMeshRendererCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module )
-    {
-        m_module->update();
-    }
-    traverse( node, nv );
-}
-
-
-#endif  // WMTRIANGLEMESHRENDERER_H
+#endif  // WMMESHREADER_H

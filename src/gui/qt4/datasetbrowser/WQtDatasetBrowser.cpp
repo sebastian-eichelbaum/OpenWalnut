@@ -420,6 +420,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
                 break;
         }
     }
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
     buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 
@@ -663,4 +664,5 @@ void WQtDatasetBrowser::deleteTreeItem()
             }
         }
     }
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
 }

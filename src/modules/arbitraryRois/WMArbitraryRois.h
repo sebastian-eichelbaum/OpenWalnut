@@ -22,25 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTRIANGLEMESHRENDERER_H
-#define WMTRIANGLEMESHRENDERER_H
+#ifndef WMARBITRARYROIS_H
+#define WMARBITRARYROIS_H
 
 #include <string>
+#include <vector>
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WROI.h"
+#include "../../graphicsEngine/WROIBox.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "../../dataHandler/WDataSetScalar.h"
 
-class WTriangleMesh;
-class WTriangleMesh2;
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 
-/**
+/** 
  * Someone should add some documentation here.
  * Probably the best person would be the module's
- * creator, i.e. "wiebel".
+ * creator, i.e. "schurade".
  *
  * This is only an empty template for a new module. For
  * an example module containing many interesting concepts
@@ -48,19 +52,19 @@ class WTriangleMesh2;
  *
  * \ingroup modules
  */
-class WMTriangleMeshRenderer: public WModule
+class WMArbitraryRois: public WModule
 {
 public:
 
     /**
      *
      */
-    WMTriangleMeshRenderer();
+    WMArbitraryRois();
 
     /**
      *
      */
-    virtual ~WMTriangleMeshRenderer();
+    virtual ~WMArbitraryRois();
 
     /**
      * Gives back the name of this module.
@@ -82,16 +86,6 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     */
-    virtual const char** getXPMIcon() const;
-
-    /**
-     *  updates shader parameters
-     */
-    void update();
-
 protected:
 
     /**
@@ -109,70 +103,75 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
 
 private:
+    /**
+     * create a selection box to mark the area in a dataset which will provide the data for a new roi
+     */
+    void initSelectionRoi();
 
     /**
-     * An input connector used to get mehses from other modules. The connection management between connectors must not be handled by the module.
+     * creates a new dataset
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_input;
-
-    WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
-
-    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
-
-    osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
-
-    osg::ref_ptr< WShader > m_shader; //!< The shader used for the iso surface in m_geode
-
+    void createCutDataset();
 
     /**
-     * This function generates the osg geometry from the WTriangleMesh.
-     * \param mesh The triangle mesh that will be rendered.
+     * renders the temporary roi
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    void renderMesh();
+
+    /**
+     * creates a roi and adds it to the roi manager
+     */
+    void finalizeRoi();
+
+    /**
+     * copies the data from the input dataset which is marked bby the selection box, otherwise data is zeo
+     *
+     * \param inGrid
+     * \param vals
+     */
+    template< typename T > std::vector< float > cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals );
+
+    /**
+     * True when textures haven changed.
+     */
+    bool m_textureChanged;
+
+    /**
+     * This condition denotes whether we need to recompute the surface
+     */
+    boost::shared_ptr< WCondition > m_recompute;
+
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
+
+    boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
+
+    boost::shared_ptr< const WDataSetScalar > m_newDataSet; //!< pointer to the created cut dataSet
+
+    osg::ref_ptr< WROIBox > m_selectionRoi; //!< stores a pointer to the cutting tool roi
+
+    /**
+     * A trigger which can be used to trigger some kind of operation.
+     */
+    WPropTrigger  m_aTrigger;
+
+    /**
+     * A trigger which can be used to trigger some kind of operation.
+     */
+    WPropTrigger  m_bTrigger;
+
+    WPropDouble   m_threshold; //!< the threshold for the roi
+
+    WPropColor m_surfaceColor; //!< Property determining the color for the surface
+
+    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
+
+    osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glpyhs
+
+    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+
+    bool m_showSelector; //!< flag indication if the temporary roi should be shown;
 };
 
-/**
- * Adapter object for realizing callbacks of the node representing the surface in the osg
- */
-class TriangleMeshRendererCallback : public osg::NodeCallback
-{
-public:
-    /**
-     * Constructor of the callback adapter.
-     * \param module A function of this module will be called
-     */
-    explicit TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module );
-
-    /**
-     * Function that is called by the osg and that call the function in the module.
-     * \param node The node we are called.
-     * \param nv the visitor calling us.
-     */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-private:
-    boost::shared_ptr< WMTriangleMeshRenderer > m_module; //!< Pointer to the module to which the function that is called belongs to.
-};
-
-inline TriangleMeshRendererCallback::TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module )
-    : m_module( module )
-{
-}
-
-inline void TriangleMeshRendererCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module )
-    {
-        m_module->update();
-    }
-    traverse( node, nv );
-}
-
-
-#endif  // WMTRIANGLEMESHRENDERER_H
+#endif  // WMARBITRARYROIS_H

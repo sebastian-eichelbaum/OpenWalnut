@@ -57,9 +57,14 @@ class WPickHandler: public osgGA::GUIEventHandler
 public:
 
     /**
-     * Constructor that initalizes members with sensible defaults.
-     */
+    * Constructor that initalizes members with sensible defaults.
+    */
     WPickHandler();
+
+    /**
+    * Constructor that initalizes members with sensible defaults and sets the name of the viewer
+    */
+    explicit WPickHandler( std::string viewerName );
 
     /**
      * Deals with the events found by the osg.
@@ -105,6 +110,7 @@ protected:
     WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
     WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
     bool m_shift; //!< is shift pressed?
+    std::string m_viewerName; //!< which viewer sends the signal
 
 private:
     boost::signals2::signal1<void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.

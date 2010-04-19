@@ -53,11 +53,12 @@ public:
      * Creates an object with the needed information.
      * \param name name of picked object
      * \param pickPosition position where object was hit
-     * \param pixelCoords pixel coordinates fo the mouse
+     * \param pixelCoords pixel coordinates of the mouse
      * \param modKey relevant modifier key pressed during the pick
      * \param pickNormal normal at position where object was hit. (0,0,0) means not set.
      */
     inline WPickInfo( std::string name,
+                      std::string viewerName,
                       wmath::WPosition pickPosition,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
@@ -80,9 +81,14 @@ public:
     inline void setModifierKey( const modifierKey& modKey );
 
     /**
-     * Get name of picked object.
-     */
+    * Get name of picked object.
+    */
     inline std::string getName() const;
+
+    /**
+    * Get name of the viewer.
+    */
+    inline std::string getViewerName() const;
 
     /**
      * Get position where object was hit.
@@ -115,6 +121,7 @@ protected:
 private:
 
     std::string m_name; //!< name of picked object.
+    std::string m_viewerName; //!< name of the viewer
     wmath::WPosition m_pickPosition; //!< position where object was hit.
     std::pair< float, float > m_pixelCoords; //!< Pixel coordinates of the mouse.
     modifierKey m_modKey; //!< modifier key associated with the pick
@@ -122,11 +129,13 @@ private:
 };
 
 WPickInfo::WPickInfo( std::string name,
+                      std::string viewerName,
                       wmath::WPosition pickPosition,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
                       wmath::WVector3D pickNormal ) :
     m_name( name ),
+    m_viewerName( viewerName ),
     m_pickPosition( pickPosition ),
     m_pixelCoords( pixelCoords ),
     m_modKey( modKey ),
@@ -136,6 +145,7 @@ WPickInfo::WPickInfo( std::string name,
 
 WPickInfo::WPickInfo() :
     m_name( "" ),
+    m_viewerName( "" ),
     m_pickPosition( wmath::WPosition() ),
     m_pixelCoords( std::make_pair( 0, 0 ) ),
     m_modKey( WPickInfo::NONE )
@@ -156,6 +166,11 @@ void WPickInfo::setModifierKey( const modifierKey& modKey )
 std::string WPickInfo::getName() const
 {
     return m_name;
+}
+
+std::string WPickInfo::getViewerName() const
+{
+    return m_viewerName;
 }
 
 wmath::WPosition WPickInfo::getPickPosition() const
