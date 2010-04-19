@@ -52,6 +52,7 @@ public:
     /**
      * Creates an object with the needed information.
      * \param name name of picked object
+     * \param viewerName name of the viewer
      * \param pickPosition position where object was hit
      * \param pixelCoords pixel coordinates of the mouse
      * \param modKey relevant modifier key pressed during the pick
