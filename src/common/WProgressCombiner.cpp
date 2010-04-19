@@ -86,6 +86,14 @@ void WProgressCombiner::addSubProgress( boost::shared_ptr< WProgress > progress 
     lock.unlock();
 }
 
+void WProgressCombiner::removeSubProgress( boost::shared_ptr< WProgress > progress )
+{
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_updateLock );
+    // add the progress to the children list
+    m_children.erase( progress );
+    lock.unlock();
+}
+
 void WProgressCombiner::finish()
 {
     // combiner just propagate the finish request down to all children

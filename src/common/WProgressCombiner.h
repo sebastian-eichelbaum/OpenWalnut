@@ -86,6 +86,13 @@ public:
     virtual void addSubProgress( boost::shared_ptr< WProgress > progress );
 
     /**
+     * Removes the specified sub progress from this combiner.
+     *
+     * \param progress the progress to remove.
+     */
+    virtual void removeSubProgress( boost::shared_ptr< WProgress > progress );
+
+    /**
      * Function updating the internal state. This needs to be called before any get function to ensure the getter return the right
      * values.
      *
