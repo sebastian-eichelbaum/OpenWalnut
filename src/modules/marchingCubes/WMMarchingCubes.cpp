@@ -163,6 +163,8 @@ void WMMarchingCubes::moduleMain()
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
         m_moduleState.wait();
     }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
 }
 
 void WMMarchingCubes::connectors()
