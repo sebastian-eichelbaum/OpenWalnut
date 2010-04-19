@@ -89,7 +89,7 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
 
-    m_menuBar = new QMenuBar( 0 );
+    m_menuBar = new QMenuBar( this );
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
     fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load", this, SLOT( openLoadDialog() ), QKeySequence( "Ctrl+L" ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( "Ctrl+Q" ) );
