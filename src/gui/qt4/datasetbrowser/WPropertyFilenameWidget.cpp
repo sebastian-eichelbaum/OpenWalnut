@@ -38,11 +38,11 @@
 WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_fnProperty( property ),
-    m_button( this ),
-    m_layout()
+    m_button( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets )
 {
     // initialize members
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
 
     // layout both against each other
     m_layout.addWidget( &m_button );

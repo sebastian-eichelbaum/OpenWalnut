@@ -30,6 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <QtGui/QWidget>
+#include <QtGui/QStackedWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QGridLayout>
 
@@ -39,7 +40,7 @@
 /**
  * Class building the base for all widgets representing properties. It simply contains the handled property object.
  */
-class WPropertyWidget: public QWidget
+class WPropertyWidget: public QStackedWidget
 {
     Q_OBJECT
 
@@ -106,6 +107,11 @@ protected:
      * If set to true, the widgets uses the control layout to combine the widget with a label
      */
     bool m_useLabel;
+
+    /**
+     * The widget containing a layout and provides the edit widgets for the property.
+     */
+    QWidget m_parameterWidgets;
 
     /**
      * Flag denoting whether the widget is set to an invalid value.

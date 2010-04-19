@@ -35,11 +35,11 @@
 WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_stringProperty( property ),
-    m_edit( this ),
-    m_layout( this )
+    m_edit( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets )
 {
     // initialize members
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
 
     // layout
     m_layout.addWidget( &m_edit );

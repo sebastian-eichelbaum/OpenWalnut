@@ -37,18 +37,19 @@
 WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_intProperty( property ),
-    m_slider( Qt::Horizontal, this ),
-    m_edit( this ),
-    m_layout( this )
+    m_slider( Qt::Horizontal, &m_parameterWidgets ),
+    m_edit( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets )
 {
     // initialize members
     m_edit.resize( m_edit.minimumSizeHint().width() , m_edit.size().height() );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
-    setLayout( &m_layout );
 
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
+
+    m_parameterWidgets.setLayout( &m_layout );
 
     update();
 
@@ -111,6 +112,7 @@ void WPropertyIntWidget::update()
     // resize the text widget
     m_edit.setMaxLength( length );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
+    m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 2 );
     m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
 
     // set the initial values

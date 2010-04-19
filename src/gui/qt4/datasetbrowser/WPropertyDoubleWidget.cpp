@@ -35,11 +35,11 @@
 WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_doubleProperty( property ),
-    m_spin( this ),
-    m_layout()
+    m_spin( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets )
 {
     // initialize members
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
 
     // layout both against each other
     m_layout.addWidget( &m_spin );

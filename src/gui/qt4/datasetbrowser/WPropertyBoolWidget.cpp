@@ -29,9 +29,9 @@
 WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent, bool asButton ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_boolProperty( property ),
-    m_checkbox( this ),
-    m_button( this ),
-    m_layout(),
+    m_checkbox( &m_parameterWidgets ),
+    m_button( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets ),
     m_asButton( asButton )
 {
     // initialize members
@@ -47,7 +47,7 @@ WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* prope
     {
         m_layout.setContentsMargins( 1, 1, 1, 1 );
     }
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
 
     // connect the modification signal of m_checkbox with our callback
     connect( &m_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( changed() ) );

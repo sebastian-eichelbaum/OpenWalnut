@@ -29,8 +29,8 @@
 WPropertyTriggerWidget::WPropertyTriggerWidget( WPropTrigger property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_triggerProperty( property ),
-    m_button( this ),
-    m_layout()
+    m_button( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets )
 {
     // initialize members
     m_button.setCheckable( true );
@@ -41,7 +41,7 @@ WPropertyTriggerWidget::WPropertyTriggerWidget( WPropTrigger property, QGridLayo
     m_button.setText( QString::fromStdString( property->getDescription() ) );
 
     m_layout.setContentsMargins( 1, 1, 1, 1 );
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
 
     // connect the modification signal of m_checkbox with our callback
     connect( &m_button, SIGNAL( toggled( bool ) ), this, SLOT( changed() ) );
