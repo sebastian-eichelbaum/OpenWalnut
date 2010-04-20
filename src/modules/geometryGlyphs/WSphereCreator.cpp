@@ -52,7 +52,7 @@ boost::shared_ptr<WTriangleMesh2>WSphereCreator::createSphere( int resolution, f
 
 boost::shared_ptr<WTriangleMesh2>WSphereCreator::createIcosahedronSphere( int iterations )
 {
-    float t = ( 1 + sqrt( 5 ) ) / 2;
+    float t = ( 1 + sqrt( 5.0 ) ) / 2;
     float tau = t / sqrt( 1 + t * t );
     float one = 1 / sqrt( 1 + t * t );
 

@@ -220,7 +220,7 @@ void WMTemplate::properties()
     m_aDouble->setMax( 50.0 );
 
     // The most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
-    // to define the allowed values for your constraint. Take a look at the StringLength class on how to do it.
+    // to define the allowed values for your constraint. Take a look at the StringLength class in this module's code on how to do it.
     m_aString->addConstraint( boost::shared_ptr< StringLength >( new StringLength ) );
 
     // One last thing to mention is the active property. This property is available in all modules and represents the activation state of the
@@ -232,6 +232,24 @@ void WMTemplate::properties()
     // 3: react during your module main loop using the moduleState: m_moduleState.add( m_active->getCondition );
     // Additionally, your can also use the m_active variable directly in your update callbacks to en-/disable some OSG nodes.
     // This template module uses method number 1. This might be the easiest and most commonly used way.
+
+    // Sometimes it is desirable to provide some values, statistics, counts, times, ... to the user. This would be possible by using a property
+    // and set the value to the value you want to show the user. Nice, but the user can change this value. PropertyConstraints can't help here,
+    // as they would forbid writing any value to the property (regardless if the module or the user wants to set it). In other words, these
+    // special properties serve another purpose. They are used for information output. Your module already provides another property list only
+    // for these kind of properties. m_infoProperties can be used in the same way as m_properties. The only difference is that each property and
+    // property group added here can't be modified from the outside world. Here is an example:
+    m_aIntegerOutput = m_infoProperties->addProperty( "Run Count", "Number of run cycles the module made so far.", 0 );
+    // Later on, we will use this property to provide the number of run cycles to the user.
+    // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
+    // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
+    std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, html formatted strings, colors and " ) +
+                          std::string( "so on using properties! Isn't it <b>amazing</b>?" );
+    m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
+    m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
+    // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
+    // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
+    // parameter.
 }
 
 void WMTemplate::moduleMain()
@@ -276,6 +294,12 @@ void WMTemplate::moduleMain()
         // or an property changes. The main loop now waits until something happens.
         debugLog() << "Waiting ...";
         m_moduleState.wait();
+
+        // As you might remember, this property is an information property to provide the number of run cycles to the outside world. It won't be
+        // modified but the module can modify it. This is useful to provide statistics, counts, times or even a "hello world" string to the user
+        // as an information or status report. Please do not abuse these information properties as progress indicators. A short overview on how
+        // to make progress indicators is provided some lines below. Here, we simply increase the value.
+        m_aIntegerOutput->set( m_aIntegerOutput->get() +1 );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.

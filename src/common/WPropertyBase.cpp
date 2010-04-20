@@ -37,6 +37,7 @@ WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_name( name ),
     m_description( description ),
     m_hidden( false ),
+    m_purpose( PV_PURPOSE_PARAMETER ),
     m_updateCondition( new WConditionSet() )
 {
     // check name validity
@@ -65,6 +66,16 @@ std::string WPropertyBase::getDescription() const
 PROPERTY_TYPE WPropertyBase::getType() const
 {
     return m_type;
+}
+
+PROPERTY_PURPOSE WPropertyBase::getPurpose() const
+{
+    return m_purpose;
+}
+
+void WPropertyBase::setPurpose( PROPERTY_PURPOSE purpose )
+{
+    m_purpose = purpose;
 }
 
 void WPropertyBase::updateType()

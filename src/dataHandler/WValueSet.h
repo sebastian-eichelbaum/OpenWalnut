@@ -25,13 +25,14 @@
 #ifndef WVALUESET_H
 #define WVALUESET_H
 
-#include <cassert>
 #include <cstddef>
 #include <vector>
 
-#include "WValueSetBase.h"
-#include "WDataHandlerEnums.h"
 #include "../common/math/WValue.h"
+#include "../common/math/WVector3D.h"
+#include "../common/WAssert.h"
+#include "WDataHandlerEnums.h"
+#include "WValueSetBase.h"
 
 /**
  * Base Class for all value set types.
@@ -67,17 +68,17 @@ public:
         switch( m_order )
         {
             case 0  :  // scalar
-                      assert( m_dimension == 1 && "but m_order was 0" );
-                      return rawSize();
+                WAssert( m_dimension == 1, "Although order zero, (dimension != 1) was found." );
+                return rawSize();
             case 1  :  // vector
-                      assert( rawSize() % m_dimension == 0 );
-                      return rawSize() / m_dimension;
+                WAssert( rawSize() % m_dimension == 0, "Raw size and dimension don't fit." );
+                return rawSize() / m_dimension;
             case 2  :  // matrix
-                      assert( rawSize() % ( m_dimension * m_dimension ) == 0 );
-                      return rawSize() / ( m_dimension * m_dimension );
+                WAssert( rawSize() % ( m_dimension * m_dimension ) == 0, "Raw size and dimension don't fit." );
+                return rawSize() / ( m_dimension * m_dimension );
             default :  // other
-                      assert( 1 == 0 && "Unsupported tensor order" );
-                      return 0;
+                WAssert( false, "Unsupported tensor order." );
+                return 0;
         }
     }
 
@@ -108,6 +109,15 @@ public:
     }
 
     /**
+     * Get the i'th vector
+     *
+     * \param index the index number of the vector
+     *
+     * \return the vector
+     */
+    wmath::WVector3D getVector3D( size_t index ) const;
+
+    /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.
      */
     const T * rawData() const
@@ -132,5 +142,12 @@ private:
      */
     const std::vector< T > m_data;  // WARNING: don't remove constness since &m_data[0] won't work anymore!
 };
+
+template< typename T > wmath::WVector3D WValueSet< T >::getVector3D( size_t index ) const
+{
+    WAssert( m_order == 1 && m_dimension == 3, "WValueSet<T>::getVector3D only implemented for order==1, dim==3 value sets" );
+    size_t offset = index * 3;
+    return wmath::WVector3D( m_data[ offset ], m_data[ offset + 1 ], m_data[ offset + 2 ] );
+}
 
 #endif  // WVALUESET_H

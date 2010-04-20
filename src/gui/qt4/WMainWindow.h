@@ -49,6 +49,7 @@
 #include "datasetbrowser/WQtDatasetBrowser.h"
 
 #include "../../kernel/WModule.h"
+#include "../../common/WProjectFileIO.h"
 
 // forward declarations
 class QMenuBar;
@@ -152,6 +153,13 @@ protected:
      */
     virtual bool event( QEvent* event );
 
+    /**
+     * Called for each project save request.
+     *
+     * \param writer the list of writers to use.
+     */
+    virtual void projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
+
 public slots:
     /**
      * gets called when menu option or toolbar button load is activated
@@ -176,7 +184,22 @@ public slots:
     /**
      * Gets called whenever the user presses the project save button.
      */
-    void projectSave();
+    void projectSaveAll();
+
+    /**
+     * Gets called by the save menu to only save the camera settings
+     */
+    void projectSaveCameraOnly();
+
+    /**
+     * Gets called by the save menu to only save the ROI settings
+     */
+    void projectSaveROIOnly();
+
+    /**
+     * Gets called by the save menu to only save the Module settings
+     */
+    void projectSaveModuleOnly();
 
     /**
      * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.

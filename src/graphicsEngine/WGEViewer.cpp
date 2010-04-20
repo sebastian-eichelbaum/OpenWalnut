@@ -63,14 +63,16 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         switch( projectionMode )
         {
             case( WGECamera::ORTHOGRAPHIC ):
+                m_pickHandler = new WPickHandler( name );
+                m_View->addEventHandler( m_pickHandler );
+                if ( name != std::string( "main" ) )
+                    break;
             case( WGECamera::PERSPECTIVE ):
                 // camera manipulator
                 m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );
 
                 m_View->setLightingMode( osg::View::HEADLIGHT ); // this is the default anyway
 
-                m_pickHandler = new WPickHandler();
-                m_View->addEventHandler( m_pickHandler );
                 break;
             case( WGECamera::TWO_D ):
                 // no manipulators nor gui handlers

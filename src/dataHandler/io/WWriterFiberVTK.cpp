@@ -22,13 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cassert>
 #include <fstream>
 #include <string>
 
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WAssert.h"
 #include "../../common/WIOTools.h"
 #include "../WDataSetFiberVector.h"
 #include "../exceptions/WDHIOFailure.h"
@@ -70,13 +70,13 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
         for( size_t j = 0; j < fib.size(); ++j )
         {
             const wmath::WPosition &point = fib[j];
-            assert( pntPosOffset % 3 == 0  && "(pOff % 3) was not equal to 0" );
-            assert( pntPosOffset / 3 < numPoints );
+            WAssert( pntPosOffset % 3 == 0, "(pOff % 3) was not equal to 0" );
+            WAssert( pntPosOffset / 3 < numPoints, "pntPosOffset is to large." );
             rawLineData[lnsPosOffset++] = static_cast< unsigned int >( pntPosOffset / 3 );
             rawPointData[pntPosOffset++] = static_cast< float >( point[0] );
             rawPointData[pntPosOffset++] = static_cast< float >( point[1] );
             rawPointData[pntPosOffset++] = static_cast< float >( point[2] );
-            assert( pntPosOffset < ( ( numPoints * 3 ) + 1 ) && "pOff < #pts" );
+            WAssert( pntPosOffset < ( ( numPoints * 3 ) + 1 ), "pOff < #pts" );
         }
     }
     wiotools::switchByteOrderOfArray< float >( rawPointData, numPoints * 3 );

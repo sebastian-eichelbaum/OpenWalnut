@@ -28,6 +28,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
 #include "WLoaderEEG.h"
 
@@ -102,8 +103,8 @@ WEEGElectrodeLibrary WLoaderEEG::extractElectrodePositions()
     }
 
     std::getline( ifs, line );
-    assert( elecPos.size() == numPositions );
-    assert( line.substr( 0, 6 )  == "Labels" );
+    WAssert( elecPos.size() == numPositions, "Incompatible number of positions and electrodes found." );
+    WAssert( line.substr( 0, 6 )  == "Labels", "Wrong string in file header found." );
 
     return elecPos;
 }

@@ -27,8 +27,12 @@
 #include "WQtPushButton.h"
 
 WQtPushButton::WQtPushButton( QIcon icon, QString name, QWidget* parent, QString label )
-    : QPushButton( icon, label, parent )
+    : QToolButton( parent )
 {
+    setText( label );
+    setIcon( icon );
+    setAutoRaise( false );
+
     m_name = name;
     // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
     // pressed left button.

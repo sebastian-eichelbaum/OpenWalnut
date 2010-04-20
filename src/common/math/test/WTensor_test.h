@@ -34,7 +34,7 @@
 /**
  * Test class for the WTensor template.
  */
-class WTensor_test : public CxxTest::TestSuite
+class WTensorTest : public CxxTest::TestSuite
 {
 public:
 

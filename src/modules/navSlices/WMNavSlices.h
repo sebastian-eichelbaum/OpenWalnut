@@ -128,6 +128,11 @@ private:
     void updateGeometry();
 
     /**
+    * updates the matrix for each slice View, so the slices are drawn centered
+    */
+    void updateViewportMatrix();
+
+    /**
      *  updates textures and shader parameters
      */
     void updateTextures();
@@ -213,6 +218,12 @@ private:
     osg::ref_ptr<osg::Geometry> createGeometry( int slice );
 
     /**
+    * creates the geometry for the cross
+    * \param slice ID of the slice to be drawn. 0=y, 1=x, 2=z
+    */
+    osg::ref_ptr<osg::Geometry> createCrossGeometry( int slice );
+
+    /**
      * creates and initializes the uniform parameters for the shader
      * \param rootState The uniforms will be applied to this state.
      */
@@ -231,6 +242,11 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
+    * the root node for the slices
+    */
+    osg::ref_ptr< WGEGroupNode > m_slicesNode;
+
+    /**
      * nodes for each slice, to be reused in other widgets
      */
     osg::ref_ptr<osg::Geode> m_xSliceNode;
@@ -244,6 +260,21 @@ private:
      * nodes for each slice, to be reused in other widgets
      */
     osg::ref_ptr<osg::Geode> m_zSliceNode;
+
+    /**
+    * nodes for each cross, to be reused in other widgets
+    */
+    osg::ref_ptr<osg::Geode> m_xCrossNode;
+
+    /**
+    * nodes for each cross, to be reused in other widgets
+    */
+    osg::ref_ptr<osg::Geode> m_yCrossNode;
+
+    /**
+    * nodes for each cross, to be reused in other widgets
+    */
+    osg::ref_ptr<osg::Geode> m_zCrossNode;
 
     /**
      * the shader object for this module

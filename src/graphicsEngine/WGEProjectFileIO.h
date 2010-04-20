@@ -33,7 +33,8 @@
 #include "../common/WProjectFileIO.h"
 
 /**
- * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings.
+ * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings for the main view with the
+ * WGEZoomTrackbalManipulator.
  */
 class WGEProjectFileIO: public WProjectFileIO
 {
@@ -77,17 +78,32 @@ protected:
     /**
      * All Cameras parsed.
      */
-    std::map< unsigned int, std::string > m_cameras;
+    typedef std::map< unsigned int, std::string > CameraList;
 
     /**
-     * All camera view matrices.
+     * Camera map.
      */
-    std::map< unsigned int, osg::Matrixd > m_viewMatrices;
+    CameraList m_cameras;
 
     /**
-     * All camera projection matrices.
+     * All view's manipulator matrices.
      */
-    std::map< unsigned int, osg::Matrixd > m_projMatrices;
+    std::map< unsigned int, osg::Matrixd > m_manipulatorMatrices;
+
+    /**
+     * The home position eye point.
+     */
+    std::map< unsigned int, osg::Vec3d > m_homeEyeVectors;
+
+    /**
+     * The home position center point.
+     */
+    std::map< unsigned int, osg::Vec3d > m_homeCenterVectors;
+
+    /**
+     * The home position up vector.
+     */
+    std::map< unsigned int, osg::Vec3d > m_homeUpVectors;
 
 private:
 };

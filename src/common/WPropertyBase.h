@@ -93,6 +93,27 @@ public:
     virtual PROPERTY_TYPE getType() const;
 
     /**
+     * Gets the purpose of a property. See PROPERTY_PURPOSE for more details. For short: it helps the GUI and others to understand what a module
+     * (or whomever created this property) intents with this property. Typically this value is PV_PURPOSE_PARAMETER, meaning that it is used to
+     * tune the behaviour of a module.
+     *
+     * \note always assume this to be a hint. It does not actually prevent someone from writing or interpreting a parameter property as an
+     * information property.
+     *
+     * \see PROPERTY_PURPOSE
+     * \return the purpose.
+     */
+    virtual PROPERTY_PURPOSE getPurpose() const;
+
+    /**
+     * Sets the purpose of the property. See \ref getPurpose for more details. You generally should avoid setting this value after
+     * initialization.
+     *
+     * \param purpose the purpose to set.
+     */
+    virtual void setPurpose( PROPERTY_PURPOSE purpose );
+
+    /**
      * This methods allows properties to be set by a string value. This is especially useful when a property is only available as string and the
      * real type of the property is unknown. This is a shortcut for casting the property and then setting the lexically casted value.
      *
@@ -234,6 +255,11 @@ protected:
      * Type of the PropertyVariable instance
      */
     PROPERTY_TYPE m_type;
+
+    /**
+     * The purpose of this property. PropertyBase always initializes it with PV_PURPOSE_PARAMETER.
+     */
+    PROPERTY_PURPOSE m_purpose;
 
     /**
      * Calculates the type of the property. This has to be done by the implementing class.

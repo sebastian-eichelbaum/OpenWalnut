@@ -55,9 +55,9 @@ WMGaussFiltering::~WMGaussFiltering()
     removeConnectors();
 }
 
-boost::shared_ptr<WModule> WMGaussFiltering::factory() const
+boost::shared_ptr< WModule > WMGaussFiltering::factory() const
 {
-    return boost::shared_ptr<WModule>( new WMGaussFiltering() );
+    return boost::shared_ptr< WModule >( new WMGaussFiltering() );
 }
 
 const char** WMGaussFiltering::getXPMIcon() const

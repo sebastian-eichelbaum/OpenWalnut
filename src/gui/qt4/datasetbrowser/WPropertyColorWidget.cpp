@@ -37,11 +37,11 @@
 WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_colorProperty( property ),
-    m_button( this ),
+    m_button( &m_parameterWidgets ),
     m_layout()
 {
     // initialize members
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
 
     // layout both against each other
     m_layout.addWidget( &m_button );

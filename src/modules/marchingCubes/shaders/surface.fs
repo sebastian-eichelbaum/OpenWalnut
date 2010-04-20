@@ -119,7 +119,9 @@ void main()
         if ( type0 > 0 ) lookupTex(col, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0, useCmap0);
     }
     if ( useLighting )
-        col = col + (ambient * col / 2.0) + (diffuse * col) + (specular * col / 2.0);
+    {
+        col = (ambient * col / 2.0) + (diffuse * col) + (specular * col / 2.0);
+    }
 
     col = clamp(col, 0.0, 1.0);
 

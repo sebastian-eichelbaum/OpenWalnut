@@ -55,7 +55,7 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleConnector( boost::shared_ptr<WModule> module, std::string name="", std::string description="" );
+    WModuleConnector( boost::shared_ptr< WModule > module, std::string name="", std::string description="" );
 
     /**
      * Destructor.
@@ -205,7 +205,7 @@ protected:
     /**
      * The Module this connector belongs to
      */
-    boost::shared_ptr<WModule> m_module;
+    boost::shared_ptr< WModule > m_module;
 
     /**
      * Gets called whenever a connector gets connected to the specified input.

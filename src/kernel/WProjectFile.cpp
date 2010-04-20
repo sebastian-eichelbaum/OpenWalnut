@@ -30,6 +30,7 @@
 
 #include "WKernel.h"
 #include "combiner/WModuleProjectFileCombiner.h"
+#include "../modules/fiberDisplay/WRoiProjectFileIO.h"
 #include "../graphicsEngine/WGEProjectFileIO.h"
 #include "../common/exceptions/WFileNotFound.h"
 #include "../common/exceptions/WFileOpenFailed.h"
@@ -44,23 +45,34 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
     // initialize members
 
     // The module graph parser
-    m_parsers.push_back( new WModuleProjectFileCombiner() );
+    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WModuleProjectFileCombiner() ) );
 
     // The ROI parser
-    // m_parsers.push_back( new W???() );
+    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WRoiProjectFileIO() ) );
 
     // The Camera parser
-    m_parsers.push_back( new WGEProjectFileIO() );
+    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WGEProjectFileIO() ) );
 }
 
 WProjectFile::~WProjectFile()
 {
     // cleanup
-    for ( std::vector< WProjectFileIO* >::iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
-    {
-        delete( *iter );
-    }
     m_parsers.clear();
+}
+
+boost::shared_ptr< WProjectFileIO > WProjectFile::getCameraWriter()
+{
+    return boost::shared_ptr< WProjectFileIO >( new WGEProjectFileIO() );
+}
+
+boost::shared_ptr< WProjectFileIO > WProjectFile::getModuleWriter()
+{
+    return boost::shared_ptr< WProjectFileIO >( new WModuleProjectFileCombiner() );
+}
+
+boost::shared_ptr< WProjectFileIO > WProjectFile::getROIWriter()
+{
+    return boost::shared_ptr< WProjectFileIO >( new WRoiProjectFileIO() );
 }
 
 void WProjectFile::load()
@@ -72,7 +84,7 @@ void WProjectFile::load()
     run();
 }
 
-void WProjectFile::save()
+void WProjectFile::save( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
     wlog::info( "Project File" ) << "Saving project file \"" << m_project.file_string() << "\".";
 
@@ -84,13 +96,18 @@ void WProjectFile::save()
     }
 
     // allow each parser to handle save request
-    for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+    for ( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = writer.begin(); iter != writer.end(); ++iter )
     {
         ( *iter )->save( output );
         output << std::endl;
     }
 
     output.close();
+}
+
+void WProjectFile::save()
+{
+    save( m_parsers );
 }
 
 void WProjectFile::threadMain()
@@ -122,13 +139,20 @@ void WProjectFile::threadMain()
             match = false;
 
             // allow each parser to handle the line.
-            for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+            for ( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
             {
-                if ( ( *iter )->parse( line, i ) )
+                try
                 {
-                    match = true;
-                    // the first parser matching this line -> next line
-                    break;
+                    if ( ( *iter )->parse( line, i ) )
+                    {
+                        match = true;
+                        // the first parser matching this line -> next line
+                        break;
+                    }
+                }
+                catch( const std::exception& e )
+                {
+                    wlog::error( "Project Loader" ) << "Line " << i << ": Parsing caused an exception. Line Malformed? Skipping.";
                 }
             }
 
@@ -143,7 +167,7 @@ void WProjectFile::threadMain()
         input.close();
 
         // finally, let every one know that we have finished
-        for ( std::vector< WProjectFileIO* >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+        for ( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
         {
             ( *iter )->done();
         }

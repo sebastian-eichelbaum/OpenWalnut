@@ -31,6 +31,7 @@
 
 #include "../common/WLogger.h"
 #include "../modules/applyMask/WMApplyMask.h"
+#include "../modules/arbitraryRois/WMArbitraryRois.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/clusterSlicer/WMClusterSlicer.h"
@@ -52,6 +53,7 @@
 #include "../modules/joinTreeTester/WMJoinTreeTester.h"
 #include "../modules/lineGuidedSlice/WMLineGuidedSlice.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
+#include "../modules/meshReader/WMMeshReader.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/surfaceParticles/WMSurfaceParticles.h"
 #include "../modules/template/WMTemplate.h"
@@ -115,8 +117,10 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
-    m_prototypes.insert( boost::shared_ptr< WModule >( new WMJoinTreeTester() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
 
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMJoinTreeTester() ) );
     lock.unlock();
 
     // for this a read lock is sufficient

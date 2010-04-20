@@ -37,18 +37,19 @@
 WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_intProperty( property ),
-    m_slider( Qt::Horizontal, this ),
-    m_edit( this ),
-    m_layout()
+    m_slider( Qt::Horizontal, &m_parameterWidgets ),
+    m_edit( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets )
 {
     // initialize members
     m_edit.resize( m_edit.minimumSizeHint().width() , m_edit.size().height() );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
-    setLayout( &m_layout );
 
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
+
+    m_parameterWidgets.setLayout( &m_layout );
 
     update();
 
@@ -101,16 +102,19 @@ void WPropertyIntWidget::update()
 
     // calculate maximum size of the text widget.
     // XXX: this is not the optimal way but works for now
-    int length = min < 0 ? 2 : 1;   // reserve some extra space for the "-" in negative numbers
-    float fmax = static_cast<float>( std::max( std::abs( min ), std::abs( max ) ) );    // use the number with the most numbers
-    while ( ( fmax / 10 ) >= 1.0 )
-    {
-        ++length;
-        fmax /= 10.0;
-    }
+    // int length = min < 0 ? 3 : 2;   // reserve some extra space for the "-" in negative numbers
+    // float fmax = static_cast<float>( std::max( std::abs( min ), std::abs( max ) ) );    // use the number with the most numbers
+    // while ( ( fmax / 10 ) >= 1.0 )
+    // {
+    //     ++length;
+    //     fmax /= 10.0;
+    // }
+    int length = 6; // use fixed length to have a uniform look among several widgets
+
     // resize the text widget
     m_edit.setMaxLength( length );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
+    m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 2 );
     m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
 
     // set the initial values
