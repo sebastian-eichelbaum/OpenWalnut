@@ -46,6 +46,7 @@
 #include "../modules/fiberCulling/WMFiberCulling.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
+#include "../modules/fiberTransform/WMFiberTransform.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
@@ -116,6 +117,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
 
     lock.unlock();
 
