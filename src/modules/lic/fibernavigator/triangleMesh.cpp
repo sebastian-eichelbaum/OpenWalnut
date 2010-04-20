@@ -20,6 +20,17 @@ TriangleMesh::TriangleMesh ( boost::shared_ptr< WTriangleMesh2 > mesh, boost::sh
     m_triangleTensorsCalculated = false;
 
     defaultColor = WColor( 0.78, 0.78, 0.78, 1.0 );
+    // copy vertices
+    for( size_t i = 0; i < mesh->vertSize(); ++i )
+    {
+        wmath::WPosition pos = mesh->getVertexAsPosition( i );
+        fastAddVert( Vector( pos[0], pos[1], pos[2] ) );
+    }
+    // copy triangles
+    for( size_t i = 0; i < mesh->triangleSize(); ++i )
+    {
+        fastAddTriangle( mesh->getTriVertId0( i ), mesh->getTriVertId1( i ), mesh->getTriVertId2( i ) );
+    }
 }
 
 TriangleMesh::~TriangleMesh ()
