@@ -29,6 +29,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "../../common/WAssert.h"
 #include "../../common/WException.h"
 #include "../../common/WStringUtils.h"
 #include "../WEEG.h"
@@ -70,7 +71,7 @@ boost::shared_ptr< WDataSet > WLoaderEEGASCII::load()
     while( !in.eof() )
     {
         tokens = string_utils::tokenize( tmp );
-        assert( tokens.size() == nbChannels );
+        WAssert( tokens.size() == nbChannels, "Error." );
         for( unsigned int i = 0; i < nbChannels; ++i )
         {
             segments[0][i].push_back(  boost::lexical_cast< double >( tokens[i].c_str() ) );
