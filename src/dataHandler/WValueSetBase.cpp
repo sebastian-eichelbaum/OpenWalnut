@@ -23,8 +23,8 @@
 //---------------------------------------------------------------------------
 
 #include <cstddef>
-#include <cassert>
 
+#include "../common/WAssert.h"
 #include "WValueSetBase.h"
 
 
@@ -33,8 +33,8 @@ WValueSetBase::WValueSetBase( size_t order, size_t dimension, dataType inDataTyp
       m_dimension( dimension ),
       m_dataType( inDataType )
 {
-        assert( order <= 2 );
-        assert( dimension >= 1 );
+    WAssert( order <= 2, "We probably do not (yet) support the found order of tensors." );
+    WAssert( dimension >= 1, "Dimension has to be 1 at least." );
 }
 
 WValueSetBase::~WValueSetBase()

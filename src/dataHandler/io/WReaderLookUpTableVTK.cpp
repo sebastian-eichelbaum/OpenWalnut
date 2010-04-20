@@ -30,6 +30,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WAssert.h"
 #include "../../common/WIOTools.h"
 #include "../../common/WStringUtils.h"
 #include "../exceptions/WDHException.h"
@@ -44,13 +45,13 @@ WReaderLookUpTableVTK::WReaderLookUpTableVTK( std::string fname )
 
 void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > > table ) const
 {
-    assert( table->size() == 0  && "error, since the vector will be filled IN HERE" );
+    WAssert( table->size() == 0, "Non-zero size indicates an error, since the vector will be filled IN HERE." );
 
     // code mainly taken from WLoaderFibers.cpp, and adjusted since I don't
     // know how to code this DRY. Any suggestions?
     std::ifstream ifs;
     ifs.open( m_fname.c_str(), std::ifstream::in | std::ifstream::binary );
-    assert( ifs && !ifs.bad() );
+    WAssert( ifs && !ifs.bad(), "" );
 
     std::vector< std::string > header;
     std::string line;
@@ -70,10 +71,10 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     {
         throw WDHIOFailure( "Reading first 4 lines of '" + m_fname + "': " + e.what() );
     }
-    assert( header[0] == "# vtk DataFile Version 3.0" );
-    assert( header[1] == "DXtLookUpTable from OpenWalnut" );
-    assert( header[2] == "BINARY" );
-    assert( header[3] == "FIELD DXtLookUpTable 1" );
+    WAssert( header[0] == "# vtk DataFile Version 3.0", "Wrong string in file header found." );
+    WAssert( header[1] == "DXtLookUpTable from OpenWalnut", "Wrong string in file header found." );
+    WAssert( header[2] == "BINARY", "Wrong string in file header found." );
+    WAssert( header[3] == "FIELD DXtLookUpTable 1", "Wrong string in file header found." );
 
     try
     {

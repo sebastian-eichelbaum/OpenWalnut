@@ -393,6 +393,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     QFileDialog fd;
     fd.setWindowTitle( "Save Project as" );
     fd.setFileMode( QFileDialog::AnyFile );
+    fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
     filters << "Project File (*.owproj)"

@@ -28,6 +28,7 @@
 #include "WDataTexture3D.h"
 #include "WValueSet.h"
 #include "WGrid.h"
+#include "../common/WAssert.h"
 #include "../common/WPrototyped.h"
 #include "../common/WException.h"
 
@@ -40,9 +41,10 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
                                 boost::shared_ptr< WGrid > newGrid )
     : WDataSet()
 {
-    assert( newValueSet );
-    assert( newGrid );
-    assert( newValueSet->size() == newGrid->size() );
+    WAssert( newValueSet, "Need a value set for new data set." );
+    WAssert( newGrid, "Need a grid for new data set." );
+    WAssert( newValueSet->size() == newGrid->size(),
+             "Number of grid position unequal number of values in value set." );
 
     m_valueSet = newValueSet;
     m_grid = newGrid;
@@ -129,7 +131,7 @@ double WDataSetSingle::getValueAt( size_t id )
             return static_cast< double >( boost::shared_dynamic_cast< WValueSet< double > >( getValueSet() )->getScalar( id ) );
         }
         default:
-            assert( false && "Unknow data type in dataset." );
+            WAssert( false, "Unknow data type in dataset." );
     }
 
     return 0.0;

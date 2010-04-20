@@ -27,6 +27,7 @@
 #include "exceptions/WDHException.h"
 
 #include "WDataTexture3D.h"
+#include "../common/WAssert.h"
 #include "../common/WTransferable.h"
 #include "../common/WCondition.h"
 #include "WDataSet.h"
@@ -42,7 +43,7 @@ WDataSet::WDataSet()
 
 void WDataSet::setFileName( const std::string fileName )
 {
-    assert( fileName != "" );
+    WAssert( fileName != "", "No filename set for data set." );
     m_fileName = fileName;
 }
 

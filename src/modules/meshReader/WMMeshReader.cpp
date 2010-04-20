@@ -29,6 +29,7 @@
 #include "../../graphicsEngine/WTriangleMesh2.h"
 
 #include "WMMeshReader.h"
+#include "meshreader.xpm"
 
 WMMeshReader::WMMeshReader():
     WModule()
@@ -45,6 +46,11 @@ boost::shared_ptr< WModule > WMMeshReader::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMMeshReader() );
+}
+
+const char** WMMeshReader::getXPMIcon() const
+{
+    return meshreader_xpm;
 }
 
 const std::string WMMeshReader::getName() const
