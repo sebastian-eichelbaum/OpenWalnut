@@ -22,39 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEVENTTYPES_H
-#define WEVENTTYPES_H
+#include "WEventTypes.h"
 
-#include <QtCore/QEvent>
+#include "WModuleDeleteEvent.h"
 
-/**
- * This header contains every custom event ID used in QT's event mechanism. Please note, that since Qt4.4 there is
- * QEvent::registerEventType which can handle this job better than this header. But as we use an older Qt Version we need to do it
- * this way.
- */
+WModuleDeleteEvent::WModuleDeleteEvent( WQtTreeItem* treeItem )
+    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_REMOVE_EVENT ) ),
+    m_item( treeItem )
+{
+    // initialize members
+}
 
-// when a module got associated
-#define WQT_ASSOC_EVENT QEvent::User + 1
+WModuleDeleteEvent::~WModuleDeleteEvent()
+{
+    // cleanup
+}
 
-// when a module signals its ready state
-#define WQT_READY_EVENT QEvent::User + 2
+WQtTreeItem* WModuleDeleteEvent::getTreeItem()
+{
+    return m_item;
+}
 
-// when a roi got associated
-#define WQT_ROI_ASSOC_EVENT QEvent::User + 3
-
-// when a module crashes
-#define WQT_CRASH_EVENT QEvent::User + 4
-
-// when a subject signals a newly registered data set
-#define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
-
-// when a property changes
-#define WQT_PROPERTY_CHANGED_EVENT QEvent::User + 6
-
-// when a roi got removed
-#define WQT_ROI_REMOVE_EVENT QEvent::User + 7
-
-// when a module got deleted
-#define WQT_MODULE_REMOVE_EVENT QEvent::User + 8
-
-#endif  // WEVENTTYPES_H

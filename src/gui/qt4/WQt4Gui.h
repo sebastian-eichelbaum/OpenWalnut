@@ -131,6 +131,13 @@ public:
      */
     virtual void closeCustomWidget( std::string title );
 
+    /**
+     * Returns the current main window instance or NULL if not existent.
+     *
+     * \return the main window instance.
+     */
+    static WMainWindow* getMainWindow();
+
 protected:
 
     /**
@@ -146,7 +153,7 @@ private:
     /**
      * Main window containing all needed widgets.
      */
-    WMainWindow* m_mainWindow;
+    static WMainWindow* m_mainWindow;
 
     /**
      * Graphics Engine instance.

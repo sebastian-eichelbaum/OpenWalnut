@@ -173,6 +173,13 @@ public:
      */
     const WBoolFlag& isReadyOrCrashed() const;
 
+    /**
+     * Returns a flag denoting whether the thread currently is running or nor. It is also useful to get a callback whenever a module stops.
+     *
+     * \return the flag
+     */
+    const WBoolFlag& isRunning() const;
+
      /**
       * The container this module is associated with.
       *
@@ -231,6 +238,12 @@ public:
      * \return the Type. If you do not overwrite this method, it will return MODULE_ARBITRARY.
      */
     virtual MODULE_TYPE getType() const;
+
+    /**
+     * Completely disconnects all connected connectors of this module. This is useful to isolate a module (for deletion, removal from a container
+     * and so on.)
+     */
+    void disconnect();
 
 protected:
 
@@ -300,11 +313,6 @@ protected:
      * Removes all connectors properly. It disconnects the connectors and cleans the connectors list.
      */
     void removeConnectors();
-
-    /**
-     * Completely disconnects all connected connectors of this module.
-     */
-    void disconnectAll();
 
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -439,6 +447,11 @@ protected:
      * It is true whenever m_isReady or m_isCrashed is true. This is mostly useful for functions which need to wait for a module to get ready.
      */
     WBoolFlag m_isReadyOrCrashed;
+
+    /**
+     * True if the module currently is running.
+     */
+    WBoolFlag m_isRunning;
 
     /**
      * Progress indicator for the "ready" state.

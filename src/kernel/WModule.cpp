@@ -60,6 +60,7 @@ WModule::WModule():
     m_isReady( new WConditionOneShot(), false ),
     m_isCrashed( new WConditionOneShot(), false ),
     m_isReadyOrCrashed( new WConditionSet(), false ),
+    m_isRunning( new WCondition(), false ),
     m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
     m_moduleState()
 {
@@ -102,7 +103,7 @@ void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
     m_outputConnectors.insert( con );
 }
 
-void WModule::disconnectAll()
+void WModule::disconnect()
 {
     // remove connections and their signals
     for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
@@ -123,7 +124,7 @@ void WModule::removeConnectors()
     m_isUsable( m_initialized() && m_isAssociated() );
 
     // remove connections and their signals, this is flat removal. The module container can do deep removal
-    disconnectAll();
+    disconnect();
 
     // clean up list
     // this should delete the connector since nobody else *should* have another shared_ptr to them
@@ -302,6 +303,11 @@ const WBoolFlag& WModule::isReadyOrCrashed() const
     return m_isReadyOrCrashed;
 }
 
+const WBoolFlag& WModule::isRunning() const
+{
+    return m_isRunning;
+}
+
 void WModule::notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > /*here*/,
                                            boost::shared_ptr< WModuleConnector > /*there*/ )
 {
@@ -366,6 +372,7 @@ void WModule::threadMain()
         WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
 
         // call main thread function
+        m_isRunning( true );
         moduleMain();
     }
     catch( const WException& e )
@@ -392,6 +399,8 @@ void WModule::threadMain()
         // hopefully, all waiting threads use isReadyOrCrashed to wait.
         m_isCrashed( true );
     }
+
+    m_isRunning( false );
 }
 
 wlog::WStreamedLogger WModule::infoLog() const

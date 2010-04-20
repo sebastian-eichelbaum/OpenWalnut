@@ -44,6 +44,7 @@
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
 #include "../events/WModuleReadyEvent.h"
+#include "../events/WModuleDeleteEvent.h"
 #include "../events/WEventTypes.h"
 #include "../guiElements/WQtApplyModulePushButton.h"
 #include "../WMainWindow.h"
@@ -199,6 +200,35 @@ bool WQtDatasetBrowser::event( QEvent* event )
         return true;
     }
 
+    // a module tree item should be deleted
+    if ( event->type() == WQT_MODULE_REMOVE_EVENT )
+    {
+        WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemoveEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
+            return true;
+        }
+
+        // grab the module reference and print some info
+        boost::shared_ptr< WModule > module = e->getTreeItem()->getModule();
+        WLogger::getLogger()->addLogMessage( "Removing module \"" + module->getName() + "\" from Tree.", "DatasetBrowser", LL_DEBUG );
+
+        // remove it from the tree and free last ref count
+        m_moduleTreeWidget->deleteItem( e->getTreeItem() );
+
+        // ref count != 1?
+        if ( module.use_count() != 1 )
+        {
+            wlog::warn( "DatasetBrowser" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
+                                              "Module reference is held by someone else.";
+        }
+
+        return true;
+    }
+
     // a module changed its state to "ready" -> activate it in dataset browser
     if ( event->type() == WQT_READY_EVENT )
     {
@@ -209,6 +239,8 @@ bool WQtDatasetBrowser::event( QEvent* event )
             // this should never happen, since the type is set to WQT_Ready_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
+
+            return true;
         }
 
         WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
@@ -640,17 +672,17 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelect
 
 void WQtDatasetBrowser::deleteModuleTreeItem()
 {
+    // TODO(ebaum): test whether the item is a module/dataset
     if ( m_moduleTreeWidget->selectedItems().count() > 0 )
     {
-        boost::shared_ptr< WModule > module = dynamic_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule();
-        m_moduleTreeWidget->deleteItem( m_moduleTreeWidget->selectedItems().at( 0 ) ) ;
-
-        // instruct the kernel to remove module
-        WKernel::getRunningKernel()->getRootContainer()->remove( module );
-
-        // DEBUG:
-        int count = module.use_count();
-        std::cout << "COUNT DMTI " << count << std::endl;
+        if ( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
+             ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
+        {
+            // instead of deleting the tree item directly -> inform the tree item and let it do the job:
+            static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->deleteSelf();
+            // select another item
+            m_moduleTreeWidget->setCurrentItem( m_moduleTreeWidget->topLevelItem( 0 ) );
+        }
     }
 }
 
