@@ -28,6 +28,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <utility>
 
 #include "WModule.h"
 #include "exceptions/WModuleUninitialized.h"

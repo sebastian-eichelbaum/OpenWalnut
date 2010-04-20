@@ -371,7 +371,6 @@ private:
      * Access to the above module subscriptions map.
      */
     ModuleSubscriptionsAccessType m_moduleSubscriptionsAccess;
-
 };
 
 #endif  // WMODULECONTAINER_H

@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtToolBar.h"
+#include <list>
 
+#include "WQtToolBar.h"
 
 WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
     : QToolBar( title, parent )
