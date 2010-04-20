@@ -31,6 +31,7 @@
 
 #include "../common/WLogger.h"
 #include "../modules/applyMask/WMApplyMask.h"
+#include "../modules/arbitraryRois/WMArbitraryRois.h"
 #include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/clusterSlicer/WMClusterSlicer.h"
@@ -47,22 +48,22 @@
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
+#include "../modules/geometryGlyphs/WMGeometryGlyphs.h"
 #include "../modules/hud/WMHud.h"
+#include "../modules/lic/WMLIC.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
+#include "../modules/meshReader/WMMeshReader.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/surfaceParticles/WMSurfaceParticles.h"
 #include "../modules/template/WMTemplate.h"
-#include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
-#include "../modules/writeNIfTI/WMWriteNIfTI.h"
 #include "../modules/vectorPlot/WMVectorPlot.h"
-#include "../modules/geometryGlyphs/WMGeometryGlyphs.h"
-#include "../modules/arbitraryRois/WMArbitraryRois.h"
-#include "../modules/meshReader/WMMeshReader.h"
-#include "WModuleFactory.h"
+#include "../modules/voxelizer/WMVoxelizer.h"
+#include "../modules/writeNIfTI/WMWriteNIfTI.h"
+#include "combiner/WApplyPrototypeCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
-#include "combiner/WApplyPrototypeCombiner.h"
+#include "WModuleFactory.h"
 
 // factory instance as singleton
 boost::shared_ptr< WModuleFactory > WModuleFactory::m_instance = boost::shared_ptr< WModuleFactory >();
@@ -116,6 +117,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMLIC() ) );
 
     lock.unlock();
 

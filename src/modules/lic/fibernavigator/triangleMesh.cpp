@@ -20,6 +20,8 @@ TriangleMesh::TriangleMesh ( boost::shared_ptr< WTriangleMesh2 > mesh, boost::sh
     m_triangleTensorsCalculated = false;
 
     defaultColor = WColor( 0.78, 0.78, 0.78, 1.0 );
+    resizeVerts( mesh->vertSize() );
+    resizeTriangles( mesh->triangleSize() );
     // copy vertices
     for( size_t i = 0; i < mesh->vertSize(); ++i )
     {
@@ -596,10 +598,10 @@ Triangle TriangleMesh::getTriangle(const int triNum)
     return triangles[triNum];
 }
 
-//wxColour TriangleMesh::getTriangleColor(const int triNum)
-//{
-//    return triangleColor[triNum];
-//}
+WColor TriangleMesh::getTriangleColor(const int triNum)
+{
+    return triangleColor[triNum];
+}
 
 std::vector<unsigned int> TriangleMesh::getStar(const int vertNum)
 {

@@ -19,6 +19,7 @@
 #include "FMatrix.h"
 
 #include "FtQLiAlgorithm.h"
+#include "../../../common/math/WVector3D.h"
 
 #ifdef OUTLINE
 #define inline
@@ -58,6 +59,17 @@ inline FTensor::FTensor(unsigned char dim, unsigned char order, bool clear)
   FArray::resize(size);
   if (clear)
     FArray::clear();
+}
+
+inline FTensor::FTensor( const wmath::WVector3D& vec )
+    : FArray()
+{
+  this->dimension = 3;
+  this->order = 1;
+  FArray::resize(3);
+  comp[0] = vec[0];
+  comp[1] = vec[1];
+  comp[2] = vec[2];
 }
 
 //---------------------------------------------------------------------------

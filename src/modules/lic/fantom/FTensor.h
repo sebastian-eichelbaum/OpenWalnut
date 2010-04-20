@@ -16,6 +16,7 @@
 #include "FArray.h"
 #include "FMultiIndex.h"
 
+#include "../../../common/math/WVector3D.h"
 #include <vector>
 
 class FRefTensor;
@@ -59,6 +60,8 @@ public:
    *clear: boolean to indicate that the constructor must return a zero tensor
    */
   FTensor(unsigned char dimension, unsigned char order, bool clear=false);
+
+  FTensor( const wmath::WVector3D& vec );
 
   /**
    *\par Description:
