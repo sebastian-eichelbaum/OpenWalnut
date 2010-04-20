@@ -29,11 +29,11 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetVector.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
-#include "../../dataHandler/WDataSetVector.h"
 
 /**
  * Computes a Line Intregrated Convolution from a vector field onto a triangle mesh.
@@ -43,7 +43,6 @@
 class WMLIC: public WModule
 {
 public:
-
     /**
      * Constructs a new LIC module
      */
