@@ -54,7 +54,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
     m_glWidget->setFixedSize( 150, 150 );
     m_glWidget->initialize();
 
-    setMinimumSize( 160, 200 );
+    setMinimumSize( 160, 230 );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
 
     m_scene = new WGEScene();

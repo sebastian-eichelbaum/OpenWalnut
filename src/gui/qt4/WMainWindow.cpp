@@ -371,6 +371,10 @@ void WMainWindow::setupCompatiblesToolBar()
         WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
         if( useToolBarBreak )
         {
+            // Blank toolbar for nicer layout in case of toolbar break
+            // This can be done nicer very probably.
+            WQtToolBar* blankToolBar = new WQtToolBar( "Blank Toolbar", this );
+            addToolBar( Qt::TopToolBarArea, blankToolBar );
             addToolBarBreak( Qt::TopToolBarArea );
         }
     }
