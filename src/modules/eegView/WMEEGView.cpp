@@ -319,7 +319,6 @@ void WMEEGView::moduleMain()
                 if( !openCustomWidget() )
                 {
                     // Shut down module if widget could not be opened.
-                    m_FinishRequested = true;
                     m_shutdownFlag.set( true );
                 }
             }

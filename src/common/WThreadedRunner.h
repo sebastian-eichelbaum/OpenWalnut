@@ -99,11 +99,6 @@ protected:
     boost::thread m_thread;
 
     /**
-     * True if thread should end execution. NOTE: do not use this. Use m_shutdownFlag instead.
-     */
-    bool m_FinishRequested;
-
-    /**
      * Give remaining execution timeslice to another thread.
      */
     void yield() const;

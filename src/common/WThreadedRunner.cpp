@@ -33,7 +33,6 @@ WThreadedRunner::WThreadedRunner():
     m_shutdownFlag( new WConditionOneShot, false )
 {
     // initialize members
-    m_FinishRequested = false;
 }
 
 WThreadedRunner::~WThreadedRunner()
@@ -69,7 +68,6 @@ void WThreadedRunner::requestStop()
     notifyStop();
 
     // then signal it
-    m_FinishRequested = true;
     m_shutdownFlag( true );
 }
 
