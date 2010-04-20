@@ -24,8 +24,8 @@
 
 #include <string>
 
+#include "../common/WAssert.h"
 #include "WSubject.h"
-
 #include "WPersonalInformation.h"
 
 WPersonalInformation WPersonalInformation::createDummyInformation()
@@ -65,7 +65,7 @@ uint64_t WPersonalInformation::getSubjectID() const
 
 void WPersonalInformation::setSubjectID( uint64_t subjectID )
 {
-    assert( subjectID != WSubject::SUBJECT_UNKNOWN && "zero is reserved for dummies" );
+    WAssert( subjectID != WSubject::SUBJECT_UNKNOWN, "ID zero is reserved for dummies." );
     m_subjectID = subjectID;
 }
 
@@ -81,7 +81,7 @@ std::string WPersonalInformation::getCompleteName() const
 
 void WPersonalInformation::setLastName( std::string lastName )
 {
-    assert( m_subjectID != WSubject::SUBJECT_UNKNOWN && "SubjectID is still zero. This is reserved for empty dummies. Set it first." );
+    WAssert( m_subjectID != WSubject::SUBJECT_UNKNOWN, "SubjectID is still zero. This is reserved for empty dummies. Set it first." );
     m_lastName = lastName;
 }
 
