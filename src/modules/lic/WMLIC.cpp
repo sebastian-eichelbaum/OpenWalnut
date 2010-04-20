@@ -25,7 +25,6 @@
 #include <string>
 
 #include "../../kernel/WKernel.h"
-
 #include "WMLIC.h"
 
 WMLIC::WMLIC():
