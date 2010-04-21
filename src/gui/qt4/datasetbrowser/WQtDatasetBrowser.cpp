@@ -397,14 +397,17 @@ void WQtDatasetBrowser::selectTreeItem()
         switch ( m_moduleTreeWidget->selectedItems().at( 0 )->type() )
         {
             case SUBJECT:
+            case MODULEHEADER:
+                // Here we just take a prototype module with no output connectors
+                // to get the modules with no input connector.
+                module = WModuleFactory::getModuleFactory()->getPrototypeByName( "HUD" );
+                createCompatibleButtons( module );
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
                 createCompatibleButtons( module );
-                break;
-            case MODULEHEADER:
                 break;
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();

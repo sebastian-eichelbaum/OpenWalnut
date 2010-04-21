@@ -39,7 +39,7 @@ WRoiProjectFileIO::~WRoiProjectFileIO()
     // cleanup
 }
 
-bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )
+bool WRoiProjectFileIO::parse( std::string /* line */, unsigned int /* lineNumber */ )
 {
     // read something
     return false;

@@ -616,7 +616,9 @@ EXCLUDE                = src/dataHandler/io/nifti \
                          src/dataHandler/io/biosig \
                          src/dataHandler/io/biosigWin \
                          src/dataHandler/io/libeep \
-                         src/common/platformDependent/visualStudio/inttypes.h
+                         src/common/platformDependent/visualStudio/inttypes.h \
+                         src/modules/lic/fibernavigator \
+                         src/modules/lic/fantom
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded

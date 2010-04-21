@@ -371,6 +371,10 @@ void WMainWindow::setupCompatiblesToolBar()
         WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
         if( useToolBarBreak )
         {
+            // Blank toolbar for nicer layout in case of toolbar break
+            // This can be done nicer very probably.
+            WQtToolBar* blankToolBar = new WQtToolBar( "Blank Toolbar", this );
+            addToolBar( Qt::TopToolBarArea, blankToolBar );
             addToolBarBreak( Qt::TopToolBarArea );
         }
     }
@@ -393,6 +397,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     QFileDialog fd;
     fd.setWindowTitle( "Save Project as" );
     fd.setFileMode( QFileDialog::AnyFile );
+    fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
     filters << "Project File (*.owproj)"

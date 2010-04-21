@@ -133,8 +133,7 @@ void WMMarchingCubes::moduleMain()
             // set appropriate constraints for properties
             m_isoValueProp->setMin( m_dataSet->getMin() );
             m_isoValueProp->setMax( m_dataSet->getMax() );
-            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ) );
-            m_moduleState.wait(); // need this to avoid double executing because "set" fires the conditionset
+            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
         }
 
         // update ISO surface
@@ -163,6 +162,8 @@ void WMMarchingCubes::moduleMain()
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
         m_moduleState.wait();
     }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
 }
 
 void WMMarchingCubes::connectors()
@@ -400,7 +401,7 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < 10; ++i )
+    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
     {
         state->addUniform( m_typeUniforms[i] );
         state->addUniform( m_thresholdUniforms[i] );
@@ -564,7 +565,7 @@ void WMMarchingCubes::updateGraphics()
             osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
 
             // reset all uniforms
-            for ( int i = 0; i < 10; ++i )
+            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -599,6 +600,10 @@ void WMMarchingCubes::updateGraphics()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
+                if( c == m_maxNumberOfTextures )
+                {
+                    break;
+                }
             }
         }
     }

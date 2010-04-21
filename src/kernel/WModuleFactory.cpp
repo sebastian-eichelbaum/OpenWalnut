@@ -46,6 +46,7 @@
 #include "../modules/fiberCulling/WMFiberCulling.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
+#include "../modules/fiberTransform/WMFiberTransform.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
@@ -58,6 +59,7 @@
 #include "../modules/vectorPlot/WMVectorPlot.h"
 #include "../modules/geometryGlyphs/WMGeometryGlyphs.h"
 #include "../modules/arbitraryRois/WMArbitraryRois.h"
+#include "../modules/meshReader/WMMeshReader.h"
 #include "WModuleFactory.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -114,6 +116,8 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
 
     lock.unlock();
 

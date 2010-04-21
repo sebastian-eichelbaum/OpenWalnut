@@ -61,6 +61,26 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
+    /**
+     * Interpolates the vector field at the given position
+     *
+     * \param pos position to interpolate
+     * \param success if the position was inside the grid
+     *
+     * \return Vector beeing the interpolate.
+     */
+    wmath::WVector3D interpolate( const wmath::WPosition &pos, bool *success );
+
+    /**
+     * Get the vector on the given position in value set.
+     * \note currently only implmented for WVector3D
+     *
+     * \param index the position where to get the vector from
+     *
+     * \return the vector
+     */
+    wmath::WVector3D getVectorAt( size_t index ) const;
+
 protected:
 
     /**

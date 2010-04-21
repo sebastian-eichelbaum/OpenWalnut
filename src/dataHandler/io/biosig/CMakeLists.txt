@@ -3,11 +3,11 @@
 # third party software!
 
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-	SET( CMAKE_CXX_FLAGS "/EHsc /DWIN32")
-	SET( CMAKE_C_FLAGS "/TC /DWIN32")
+  SET( CMAKE_CXX_FLAGS "/EHsc /DWIN32")
+  SET( CMAKE_C_FLAGS "/TC /DWIN32")
 ELSE()
-	SET( CMAKE_CXX_FLAGS "-pedantic -Wno-write-strings -Wno-deprecated -Wformat=0")
-	SET( CMAKE_C_FLAGS "-w")
+  SET( CMAKE_CXX_FLAGS "-pedantic -Wno-write-strings -Wno-deprecated -Wformat=0")
+  SET( CMAKE_C_FLAGS "-w")
 ENDIF()
 
 FILE( GLOB BIOSIG_SRC "*.c" "*.cpp" "*.h" "XMLParser/*.cpp" "XMLParser/*.h" )
@@ -15,5 +15,5 @@ FILE( GLOB BIOSIG_SRC "*.c" "*.cpp" "*.h" "XMLParser/*.cpp" "XMLParser/*.h" )
 ADD_LIBRARY( biosig ${BIOSIG_SRC} )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
-    TARGET_LINK_LIBRARIES( biosig ws2_32 )
+  TARGET_LINK_LIBRARIES( biosig ws2_32 )
 ENDIF()

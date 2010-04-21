@@ -57,13 +57,15 @@ class WPickHandler: public osgGA::GUIEventHandler
 public:
 
     /**
-    * Constructor that initalizes members with sensible defaults.
-    */
+     * Constructor that initalizes members with sensible defaults.
+     */
     WPickHandler();
 
     /**
-    * Constructor that initalizes members with sensible defaults and sets the name of the viewer
-    */
+     * Constructor that initalizes members with sensible defaults and sets the name of the viewer
+     *
+     * \param viewerName name of the viewer
+     */
     explicit WPickHandler( std::string viewerName );
 
     /**

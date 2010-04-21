@@ -85,9 +85,9 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_matrix( wmath::WMatrix<double>( mat ) ),
       m_matrixInverse( 3, 3 )
 {
-    assert( mat.getNbRows() == 4 && mat.getNbCols() == 4 );
+    WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Transformation matrix has wrong dimensions." );
     // only affine transformations are allowed
-    assert( mat( 3, 0 ) == 0.0 && mat( 3, 1 ) == 0.0 && mat( 3, 2 ) == 0.0 );
+    WAssert( mat( 3, 0 ) == 0.0 && mat( 3, 1 ) == 0.0 && mat( 3, 2 ) == 0.0, "Transf. matrix has to have no projection part." );
 
     m_origin = WPosition( mat( 0, 3 ) / mat( 3, 3 ), mat( 1, 3 ) / mat( 3, 3 ), mat( 2, 3 ) / mat( 3, 3 ) );
 
@@ -251,13 +251,13 @@ int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) c
         case 2 : nbAxisPos = m_nbPosZ;
                  offsetAxis = m_offsetZ;
                  break;
-        default : assert( 1 == 0 && "invalid axis selected, must be between 0 and 2, including 0 and 2" );
+        default : WAssert( false, "Invalid axis selected, must be between 0 and 2, including 0 and 2." );
     }
     if( result < 0 || result > offsetAxis * ( nbAxisPos - 1 ) )
     {
         return -1;
     }
-    assert( offsetAxis != 0.0 );
+    WAssert( offsetAxis != 0.0, "The offset in axis direction has to be non-zero for all grids." );
     int integerFactor = std::floor( result / offsetAxis );
     double remainder = result - integerFactor * offsetAxis;
     double x = integerFactor + std::floor( remainder / ( offsetAxis * 0.5 ) );
