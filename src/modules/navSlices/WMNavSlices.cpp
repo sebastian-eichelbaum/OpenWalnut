@@ -157,7 +157,6 @@ void WMNavSlices::moduleMain()
     m_viewer = ge->getViewerByName( "main" );
     WAssert( m_viewer, "Requested viewer not found." );
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
-    WAssert( false, "Requested viewer not found." );
 
     m_viewer = ge->getViewerByName( "axial" );
     if( m_viewer )
