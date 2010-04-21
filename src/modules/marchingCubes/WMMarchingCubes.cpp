@@ -433,7 +433,7 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     m_moduleNode->insert( m_surfaceGeode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
-    m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( boost::shared_dynamic_cast< WMMarchingCubes >( shared_from_this() ) ) );
+    m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
 
     //osgDB::writeNodeFile( *m_surfaceGeode, "/tmp/saved.osg" ); //for debugging
 }

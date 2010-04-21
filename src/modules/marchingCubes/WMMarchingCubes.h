@@ -211,7 +211,7 @@ public:
      * Constructor of the callback adapter.
      * \param module A function of this module will be called
      */
-    explicit SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module );
+    explicit SurfaceNodeCallback( WMMarchingCubes* module );
 
     /**
      * Function that is called by the osg and that call the function in the module.
@@ -221,10 +221,10 @@ public:
     virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
 private:
-    boost::shared_ptr< WMMarchingCubes > m_module; //!< Pointer to the module to which the function that is called belongs to.
+    WMMarchingCubes* m_module; //!< Pointer to the module to which the function that is called belongs to.
 };
 
-inline SurfaceNodeCallback::SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module )
+inline SurfaceNodeCallback::SurfaceNodeCallback( WMMarchingCubes* module )
     : m_module( module )
 {
 }
