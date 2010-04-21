@@ -25,15 +25,15 @@
 #include <iostream>
 
 #include "WConditionOneShot.h"
+#include "WCondition.h"
 #include "WLogger.h"
 
 #include "WThreadedRunner.h"
 
 WThreadedRunner::WThreadedRunner():
-    m_shutdownFlag( new WConditionOneShot, false )
+    m_shutdownFlag( new WConditionOneShot(), false )
 {
     // initialize members
-    m_FinishRequested = false;
 }
 
 WThreadedRunner::~WThreadedRunner()
@@ -62,14 +62,12 @@ void WThreadedRunner::wait( bool requestFinish )
     m_thread.join();
 }
 
-
 void WThreadedRunner::requestStop()
 {
     // first notify
     notifyStop();
 
     // then signal it
-    m_FinishRequested = true;
     m_shutdownFlag( true );
 }
 

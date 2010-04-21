@@ -22,51 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTTREEWIDGET_H
-#define WQTTREEWIDGET_H
+#include "WEventTypes.h"
 
-#include <QtGui/QTreeWidget>
+#include "WModuleDeleteEvent.h"
 
-/**
- * tree widget for the dataset browser
- */
-class WQtTreeWidget  : public QTreeWidget
+WModuleDeleteEvent::WModuleDeleteEvent( WQtTreeItem* treeItem )
+    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_REMOVE_EVENT ) ),
+    m_item( treeItem )
 {
-    Q_OBJECT
+    // initialize members
+}
 
-public:
-    /**
-     * default constructor
-     * \param parent the parent widget of this widget, i.e. the widget that manages this widget
-     */
-    explicit WQtTreeWidget( QWidget* parent = 0 );
+WModuleDeleteEvent::~WModuleDeleteEvent()
+{
+    // cleanup
+}
 
-    /**
-     * destructor
-     */
-    virtual ~WQtTreeWidget();
+WQtTreeItem* WModuleDeleteEvent::getTreeItem()
+{
+    return m_item;
+}
 
-   /**
-    * Deletes an entry from the tree
-    * \param item The given item will be removed from the tree
-    */
-    void deleteItem( QTreeWidgetItem* item );
-
-public slots:
-    /**
-     * change order of items, move currently selected item down
-     */
-    void moveTreeItemDown();
-
-    /**
-     * change order of items, move currently selected item up
-     */
-    void moveTreeItemUp();
-
-    //void keyPressEvent(QKeyEvent *e);
-
-protected:
-private:
-};
-
-#endif  // WQTTREEWIDGET_H

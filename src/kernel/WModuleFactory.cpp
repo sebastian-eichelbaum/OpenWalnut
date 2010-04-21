@@ -47,6 +47,7 @@
 #include "../modules/fiberCulling/WMFiberCulling.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
+#include "../modules/fiberTransform/WMFiberTransform.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
 #include "../modules/geometryGlyphs/WMGeometryGlyphs.h"
 #include "../modules/hud/WMHud.h"
@@ -117,6 +118,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMLIC() ) );
 
     lock.unlock();
@@ -263,12 +265,12 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         return compatibles;
     }
 
-    if ( cons.size() > 1 )
-    {
-        wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << module->getName() <<  " module (more than 1 output connector). Using "
-                                      << ( *cons.begin() )->getCanonicalName()
-                                      << " for compatibility check.";
-    }
+    // if ( cons.size() > 1 )
+    // {
+    //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << module->getName() <<  " module (more than 1 output connector). Using "
+    //                                   << ( *cons.begin() )->getCanonicalName()
+    //                                   << " for compatibility check.";
+    // }
 
     // go through every prototype
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end(); ++listIter )
@@ -281,12 +283,12 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         {
             continue;
         }
-        if ( pcons.size() > 1 )
-        {
-            wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << ( *listIter )->getName()
-                                          << " module (more than 1 input connector). Using "
-                                          << ( *pcons.begin() )->getCanonicalName() << " for compatibility check.";
-        }
+        // if ( pcons.size() > 1 )
+        // {
+        //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << ( *listIter )->getName()
+        //                                   << " module (more than 1 input connector). Using "
+        //                                   << ( *pcons.begin() )->getCanonicalName() << " for compatibility check.";
+        // }
 
         // check whether the outputs are compatible with the inputs of the prototypes
         if( ( *cons.begin() )->connectable( *pcons.begin() )  &&  ( *pcons.begin() )->connectable( *cons.begin() ) )

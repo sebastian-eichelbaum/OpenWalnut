@@ -50,7 +50,7 @@ public:
      * \param module The represented module
      * \param type the type used for the treeitem. Used to identify the items.
      */
-    WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module );
+    WQtTreeItem( QTreeWidgetItem* parent, WTreeItemType type, boost::shared_ptr< WModule > module );
 
     /**
      * Destructor.
@@ -62,7 +62,7 @@ public:
      *
      * \return the pointer to the module associated with this item.
      */
-    boost::shared_ptr< WModule >getModule();
+    boost::shared_ptr< WModule > getModule();
 
     /**
      * Returns the name used for this tree item.
@@ -70,6 +70,11 @@ public:
      * \return the name.
      */
     std::string getName();
+
+    /**
+     * Initiates the item to delete itself from the tree. It also removes the underlying module to be deleted from the module graph.
+     */
+    virtual void deleteSelf();
 
 public slots:
 
@@ -101,6 +106,16 @@ protected:
      * \param progress the current progress as string.
      */
     void updateTooltip( std::string progress );
+
+    /**
+     * True if the treeitem and the module gets deleted currently.
+     */
+    bool m_deleteInProgress;
+
+    /**
+     * True if no delete event has been posted yet.
+     */
+    bool m_needPostDeleteEvent;
 
 private:
 

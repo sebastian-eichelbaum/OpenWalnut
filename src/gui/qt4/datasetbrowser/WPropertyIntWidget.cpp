@@ -42,7 +42,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_layout( &m_parameterWidgets )
 {
     // initialize members
-    m_edit.resize( m_edit.minimumSizeHint().width() , m_edit.size().height() );
+    m_edit.resize( m_edit.minimumSizeHint().width(), m_edit.size().height() );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
 
     // layout both against each other
@@ -112,10 +112,11 @@ void WPropertyIntWidget::update()
     int length = 6; // use fixed length to have a uniform look among several widgets
 
     // resize the text widget
-    m_edit.setMaxLength( length );
+//     m_edit.setMaxLength( length );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-    m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-    m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
+//     m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
+//     m_edit.resize( m_edit.minimumSizeHint().width() * length / 4, m_edit.size().height() );
+
 
     // set the initial values
     m_edit.setText( QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() ) );

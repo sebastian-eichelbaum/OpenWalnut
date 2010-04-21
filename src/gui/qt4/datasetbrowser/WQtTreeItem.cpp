@@ -25,17 +25,27 @@
 #include <set>
 #include <string>
 
+#include <QtGui/QApplication>
+
+#include "../../../kernel/WKernel.h"
+
 #include "../../../common/WProgressCombiner.h"
 #include "../../../common/WProgress.h"
 
 #include "../../../kernel/WModuleInputConnector.h"
 #include "../../../kernel/WModuleOutputConnector.h"
 
+#include "../events/WModuleDeleteEvent.h"
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
+
 #include "WTreeItemTypes.h"
 #include "WQtTreeItem.h"
 
 WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
-    QTreeWidgetItem( parent, type )
+    QTreeWidgetItem( parent, type ),
+    m_deleteInProgress( false ),
+    m_needPostDeleteEvent( true )
 {
     m_module = module;
     m_name = module->getName();
@@ -148,7 +158,33 @@ void WQtTreeItem::updateState()
         setText( 0, m_name.c_str() );
     }
 
+    // if the user requested it to be deleted: disable and color it
+    if ( m_deleteInProgress )
+    {
+        setForeground( 0, QBrush( QColor::fromRgb( 255, 0, 0 ) ) );
+        setDisabled( true );
+    }
+
+    // is finished?
+    if ( m_deleteInProgress && !m_module->isRunning().get() && m_needPostDeleteEvent )
+    {
+        m_needPostDeleteEvent = false;  // this ensures the event is only posted once
+        QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getDatasetBrowser(), new WModuleDeleteEvent( this ) );
+    }
+
     // update tooltip
     updateTooltip( progress );
+}
+
+void WQtTreeItem::deleteSelf()
+{
+    // instruct the kernel to remove module
+    WKernel::getRunningKernel()->getRootContainer()->remove( m_module );
+
+    // update tree item state
+    m_deleteInProgress = true;
+
+    // instruct the module to finish
+    m_module->requestStop();
 }
 

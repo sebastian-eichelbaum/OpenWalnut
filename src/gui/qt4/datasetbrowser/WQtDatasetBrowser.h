@@ -176,7 +176,7 @@ protected:
     WMainWindow* m_mainWindow;
 
 private:
-    WQtTreeWidget* m_treeWidget; //!< pointer to the tree widget
+    WQtTreeWidget* m_moduleTreeWidget; //!< pointer to the tree widget
 
     WQtTreeWidget* m_roiTreeWidget; //!< pointer to the tree widget
 
@@ -248,10 +248,14 @@ private slots:
     void moveTreeItemUp();
 
     /**
-     * delete a tree item
+     * delete a ROI tree item
      */
-    void deleteTreeItem();
+    void deleteROITreeItem();
 
+    /**
+     * delete a module tree item
+     */
+    void deleteModuleTreeItem();
 
 signals:
     /**
