@@ -672,7 +672,6 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelect
 
 void WQtDatasetBrowser::deleteModuleTreeItem()
 {
-    // TODO(ebaum): test whether the item is a module/dataset
     if ( m_moduleTreeWidget->selectedItems().count() > 0 )
     {
         if ( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
