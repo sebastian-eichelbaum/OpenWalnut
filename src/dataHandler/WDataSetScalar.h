@@ -129,4 +129,15 @@ private:
     double m_minimum; //!< Smallest scalar of data set.
 };
 
+template< typename T > T WDataSetScalar::getValueAt( int x, int y, int z )
+{
+    boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+    T v = vs->getScalar( id );
+    return v;
+}
+
 #endif  // WDATASETSCALAR_H
