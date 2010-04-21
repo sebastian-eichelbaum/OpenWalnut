@@ -114,6 +114,8 @@ void WMBoundingBox::moduleMain()
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
         m_moduleState.wait();
     }
+
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_bBoxNode );
 }
 
 void WMBoundingBox::connectors()
