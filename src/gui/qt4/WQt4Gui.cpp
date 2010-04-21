@@ -142,6 +142,7 @@ int WQt4Gui::run()
 
     // create the window
     m_mainWindow = new WMainWindow();
+    m_mainWindow->setupGUI();
     m_mainWindow->show();
 
     // connect out loader signal with kernel

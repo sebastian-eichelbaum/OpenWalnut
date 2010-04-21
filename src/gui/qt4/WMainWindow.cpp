@@ -69,7 +69,6 @@ WMainWindow::WMainWindow() :
     m_iconManager(),
     m_fibLoaded( false )
 {
-    setupGUI();
 }
 
 void WMainWindow::setupGUI()

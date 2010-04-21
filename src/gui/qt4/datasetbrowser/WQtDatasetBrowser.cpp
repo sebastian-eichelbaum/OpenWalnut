@@ -74,8 +74,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget->setMinimumHeight( 250 );
 
     // create context menu for tree items
-    // Use this Icon? WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ); This somehow crashes OW.
-    QAction* deleteModuleAction = new QAction( "Remove Module", m_moduleTreeWidget );
+    QAction* deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
     connect( deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( deleteModuleAction );
 
