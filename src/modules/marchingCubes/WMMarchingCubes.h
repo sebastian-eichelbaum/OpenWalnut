@@ -91,12 +91,6 @@ public:
     virtual const char** getXPMIcon() const;
 
     /**
-     * Activate the rendering of the computed surface.
-     * This converts the surface to a WTriangleMesh2 and calls renderMesh afterwards
-     */
-    void renderSurface();
-
-    /**
      *  updates textures and shader parameters
      */
     void updateGraphics();
@@ -126,9 +120,8 @@ private:
 
     /**
      * Prepares and commits everything for rendering with the OSG
-     * \param mesh The mesh that will be rendered.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    void renderMesh();
 
     /**
      * Store the mesh in legacy vtk file format.
@@ -195,10 +188,12 @@ private:
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
+    std::vector< osg::ref_ptr<osg::Uniform> > m_minUniforms; //!< minimum value per texture
+    std::vector< osg::ref_ptr<osg::Uniform> > m_maxUniforms; //!< maximu value per texture
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
     std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms; //!< uniforms for color maps per texture in shader
 
-    static const int m_maxNumberOfTextures = 10; //!< We support only 10 textures because hardware has may have unknown limits.
+    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 };
 
 /**

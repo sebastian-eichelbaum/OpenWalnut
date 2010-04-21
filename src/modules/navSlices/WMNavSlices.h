@@ -301,6 +301,9 @@ private:
      */
     std::vector< osg::ref_ptr<osg::Uniform> > m_thresholdUniforms;
 
+    std::vector< osg::ref_ptr<osg::Uniform> > m_minUniforms; //!< minimum value per texture
+    std::vector< osg::ref_ptr<osg::Uniform> > m_maxUniforms; //!< maximu value per texture
+
     /**
      * vector of color maps per texture
      */
@@ -320,7 +323,7 @@ private:
      */
     static bool m_navsliceRunning;
 
-    static const int m_maxNumberOfTextures = 10; //!< We support only 10 textures because hardware has may have unknown limits.
+    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 
     /**
      * Node callback to handle updates properly

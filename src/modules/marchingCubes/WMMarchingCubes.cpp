@@ -144,9 +144,6 @@ void WMMarchingCubes::moduleMain()
 
         generateSurfacePre( m_isoValueProp->get() );
 
-        // TODO(wiebel): MC remove this from here
-        //    renderMesh( load( "/tmp/isosurfaceTestMesh.vtk" ) );
-
         ++*progress;
         debugLog() << "Rendering surface ...";
 
@@ -154,7 +151,9 @@ void WMMarchingCubes::moduleMain()
         m_shaderUseLighting = true;
         m_shaderUseTransparency = true;
 
-        renderSurface();
+        renderMesh();
+        m_output->updateData( m_triMesh );
+
         debugLog() << "Done!";
         progress->finish();
 
@@ -273,13 +272,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
     }
 }
 
-void WMMarchingCubes::renderSurface()
-{
-    renderMesh( m_triMesh );
-    m_output->updateData( m_triMesh );
-}
-
-void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
+void WMMarchingCubes::renderMesh()
 {
 //    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
     m_moduleNode->remove( m_surfaceGeode );
@@ -288,13 +281,13 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
 
     m_surfaceGeode->setName( "iso surface" );
 
-    surfaceGeometry->setVertexArray( mesh->getVertexArray() );
+    surfaceGeometry->setVertexArray( m_triMesh->getVertexArray() );
 
     osg::DrawElementsUInt* surfaceElement;
 
     surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
 
-    std::vector< size_t >tris = mesh->getTriangles();
+    std::vector< size_t >tris = m_triMesh->getTriangles();
     surfaceElement->reserve( tris.size() );
 
     for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
@@ -305,7 +298,7 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
 
     // ------------------------------------------------
     // normals
-    surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
+    surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
@@ -337,14 +330,6 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
 
     // ------------------------------------------------
     // Shader stuff
-
-    osg::Vec3Array* texCoords = new osg::Vec3Array;
-    for( size_t i = 0; i < mesh->vertSize(); ++i )
-    {
-        osg::Vec3 vertPos = mesh->getVertex( i );
-        texCoords->push_back( wge::wv3D2ov3( m_grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
-    }
-    surfaceGeometry->setTexCoordArray( 0, texCoords );
 
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
@@ -379,6 +364,28 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold8", 0.0f ) ) );
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold9", 0.0f ) ) );
 
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min0", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min1", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min2", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min3", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min4", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min5", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min6", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min7", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min8", 0.0f ) ) );
+    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min9", 0.0f ) ) );
+
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max0", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max1", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max2", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max3", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max4", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max5", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max6", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max7", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max8", 0.0f ) ) );
+    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max9", 0.0f ) ) );
+
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 2 ) ) );
@@ -405,13 +412,12 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     {
         state->addUniform( m_typeUniforms[i] );
         state->addUniform( m_thresholdUniforms[i] );
+        state->addUniform( m_minUniforms[i] );
+        state->addUniform( m_maxUniforms[i] );
         state->addUniform( m_alphaUniforms[i] );
         state->addUniform( m_samplerUniforms[i] );
         state->addUniform( m_cmapUniforms[i] );
     }
-
-    // TODO(wiebel): used? Not used? Replace by new Property please
-    // state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) ) );
 
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
     if( m_shaderUseTransparency )
@@ -434,8 +440,6 @@ void WMMarchingCubes::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
     m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
-
-    //osgDB::writeNodeFile( *m_surfaceGeode, "/tmp/saved.osg" ); //for debugging
 }
 
 // TODO(wiebel): move this somewhere, where more classes can use it
@@ -555,6 +559,7 @@ void WMMarchingCubes::updateGraphics()
 
     if ( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
     {
+        bool localTextureChangedFlag = m_textureChanged;
         m_textureChanged = false;
 
         // grab a list of data textures
@@ -586,16 +591,35 @@ void WMMarchingCubes::updateGraphics()
             int c = 0;
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
+                if( localTextureChangedFlag )
+                {
+                    osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
+                    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+                    {
+                        osg::Vec3 vertPos = m_triMesh->getVertex( i );
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
+                    }
+                    surfaceGeometry->setTexCoordArray( c, texCoords );
+                }
+
                 osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms
-                float t = ( *iter )->getThreshold() / 255.0;
+                float t = ( *iter )->getThreshold();
                 float a = ( *iter )->getAlpha();
                 int cmap = ( *iter )->getSelectedColormap();
 
                 m_typeUniforms[c]->set( ( *iter )->getDataType() );
                 m_thresholdUniforms[c]->set( t );
+                {
+                    float minValue = ( *iter )->getMinValue();
+                    float maxValue = ( *iter )->getMaxValue();
+                    m_minUniforms[c]->set( minValue );
+                    m_maxUniforms[c]->set( maxValue );
+                }
                 m_alphaUniforms[c]->set( a );
                 m_cmapUniforms[c]->set( cmap );
 
