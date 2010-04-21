@@ -51,7 +51,7 @@ WQtTextureSorter::WQtTextureSorter( QWidget* parent )
     : QWidget( parent )
 {
     m_textureListWidget = new QListWidget( this );
-    m_textureListWidget->setToolTip( "List of available textures. <b>Sorting Does not work yet.</b>" );
+    m_textureListWidget->setToolTip( "List of available textures. Only the upper <b>eight</b> textures will be applied." );
 
     m_layout = new QVBoxLayout();
 
