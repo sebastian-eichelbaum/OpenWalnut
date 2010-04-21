@@ -31,6 +31,7 @@
 #include <QtCore/QList>
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
+#include <QtGui/QMenu>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
@@ -62,6 +63,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     m_panel = new QWidget( this );
     m_moduleTreeWidget = new WQtTreeWidget( m_panel );
+    m_moduleTreeWidget->setContextMenuPolicy( Qt::ActionsContextMenu );
 
     m_moduleTreeWidget->setHeaderLabel( QString( "Dataset Browser" ) );
     m_moduleTreeWidget->setDragEnabled( true );
@@ -69,6 +71,11 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget->setDropIndicatorShown( true );
     m_moduleTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_moduleTreeWidget->setMinimumHeight( 250 );
+
+    // create context menu for tree items
+    QAction* deleteModuleAction = new QAction( "Remove Module", m_moduleTreeWidget );
+    connect( deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
+    m_moduleTreeWidget->addAction( deleteModuleAction );
 
     m_textureSorter = new WQtTextureSorter( m_panel );
     m_textureSorter->setToolTip( "Reorder the textures." );
@@ -80,7 +87,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_layout = new QVBoxLayout();
     m_layout->addWidget( m_moduleTreeWidget );
     m_layout->addWidget( m_tabWidget2 );
-
 
     m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
 
