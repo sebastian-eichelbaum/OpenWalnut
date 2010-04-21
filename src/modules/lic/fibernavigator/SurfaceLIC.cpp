@@ -9,6 +9,7 @@
 
 #include "SurfaceLIC.h"
 #include "../fantom/FTensor.h"
+#include "../../../common/WLogger.h"
 
 SurfaceLIC::SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh2 > mesh )
     : m_vectors( vectors )
@@ -32,6 +33,15 @@ SurfaceLIC::~SurfaceLIC()
 {
     // TODO Auto-generated destructor stub
     delete m_mesh;
+}
+
+void SurfaceLIC::updateMeshColor( boost::shared_ptr< WTriangleMesh2 > mesh ) const
+{
+    WAssert( static_cast< int >( mesh->triangleSize() ) == m_mesh->getNumTriangles(), "Meshes have not same number of triangles" );
+    for( int i = 0; i < m_mesh->getNumTriangles(); ++i )
+    {
+        mesh->setTriangleColor( i, m_mesh->getTriangleColor( i ) );
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -70,6 +80,7 @@ void SurfaceLIC::execute()
         streamline = new MyLICStreamline(m_vectors, m_mesh);
         streamline->setParams(&hit_texture, min_length, threshold);
 
+        wlog::debug( "SurfaceLIC" ) << "start calculating lic";
 //        m_dh->printDebug(_T("start calculating lic"), 1);
 
         // iterate over all texture points
@@ -88,6 +99,7 @@ void SurfaceLIC::execute()
             {
                 calculatePixelLuminance(FIndex(modulo * j + i));
             }
+        wlog::debug( "SurfaceLIC" ) << "lic done";
         //m_dh->printDebug(_T("lic done"), 1);
 
     } catch (FException& e)

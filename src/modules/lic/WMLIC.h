@@ -29,11 +29,11 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetVector.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
-#include "../../dataHandler/WDataSetVector.h"
 
 /**
  * Computes a Line Intregrated Convolution from a vector field onto a triangle mesh.
@@ -43,7 +43,6 @@
 class WMLIC: public WModule
 {
 public:
-
     /**
      * Constructs a new LIC module
      */
@@ -91,6 +90,12 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Generates an OSG geode for the mesh
+     *
+     * \param mesh the mesh which represents the LIC
+     */
+    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
 
 private:
     boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshIC; //!< The InputConnector for the mesh on which to paint
@@ -98,8 +103,11 @@ private:
 
     boost::shared_ptr< WTriangleMesh2 > m_inMesh; //!< The mesh given from the input connector
     boost::shared_ptr< WDataSetVector > m_inVector; //!< The vector field used to compute the LIC given from the input connector
+//    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_meshOC; //!< OutputConnector for the LIC'ed mesh
 
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_meshOC; //!< OutputConnector for the LIC'ed mesh
+    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
+    osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
+    osg::ref_ptr< WShader > m_shader; //!< The shader used for the iso surface in m_geode
 };
 
 #endif  // WMLIC_H

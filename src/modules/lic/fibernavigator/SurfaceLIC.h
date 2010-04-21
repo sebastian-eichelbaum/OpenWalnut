@@ -22,6 +22,12 @@ public:
     virtual ~SurfaceLIC();
     virtual void execute();
     std::vector< std::vector<float> > testLines;
+    /**
+     * Converts old mesh into new WTriangleMesh2
+     *
+     * \return reference to the mesh
+     */
+    void updateMeshColor( boost::shared_ptr< WTriangleMesh2 > mesh ) const;
 
 private:
 

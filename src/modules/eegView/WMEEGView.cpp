@@ -294,8 +294,8 @@ void WMEEGView::moduleMain()
                 wmath::WPosition position = m_sourceCalculator->calculate( event );
 
                 m_roi = WKernel::getRunningKernel()->getRoiManager()->addRoi( new WROIBox(
-                            position - wmath::WVector3D( 10.0, 10.0, 10.0 ),
-                            position + wmath::WVector3D( 10.0, 10.0, 10.0 ) ) );
+                            position - wmath::WVector3D( 5.0, 5.0, 5.0 ),
+                            position + wmath::WVector3D( 5.0, 5.0, 5.0 ) ) );
             }
             else
             {
@@ -319,7 +319,6 @@ void WMEEGView::moduleMain()
                 if( !openCustomWidget() )
                 {
                     // Shut down module if widget could not be opened.
-                    m_FinishRequested = true;
                     m_shutdownFlag.set( true );
                 }
             }

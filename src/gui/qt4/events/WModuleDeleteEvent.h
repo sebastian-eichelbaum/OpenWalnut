@@ -22,51 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTTREEWIDGET_H
-#define WQTTREEWIDGET_H
+#ifndef WMODULEDELETEEVENT_H
+#define WMODULEDELETEEVENT_H
 
-#include <QtGui/QTreeWidget>
+#include <QtCore/QEvent>
+
+#include "../datasetbrowser/WQtTreeItem.h"
 
 /**
- * tree widget for the dataset browser
+ * Event signalling a module item should be deleted.
  */
-class WQtTreeWidget  : public QTreeWidget
+class WModuleDeleteEvent: public QEvent
 {
-    Q_OBJECT
-
 public:
-    /**
-     * default constructor
-     * \param parent the parent widget of this widget, i.e. the widget that manages this widget
-     */
-    explicit WQtTreeWidget( QWidget* parent = 0 );
 
     /**
-     * destructor
+     * Creates a new event instance denoting that the specified module got deleted in the root container.
+     *
+     * \param treeItem the tree item that switched its state.
      */
-    virtual ~WQtTreeWidget();
-
-   /**
-    * Deletes an entry from the tree
-    * \param item The given item will be removed from the tree
-    */
-    void deleteItem( QTreeWidgetItem* item );
-
-public slots:
-    /**
-     * change order of items, move currently selected item down
-     */
-    void moveTreeItemDown();
+    explicit WModuleDeleteEvent( WQtTreeItem* treeItem );
 
     /**
-     * change order of items, move currently selected item up
+     * Destructor.
      */
-    void moveTreeItemUp();
+    virtual ~WModuleDeleteEvent();
 
-    //void keyPressEvent(QKeyEvent *e);
+    /**
+     * Getter for the tree item that got outdated.
+     *
+     * \return the tree item
+     */
+    WQtTreeItem* getTreeItem();
 
 protected:
+
+    /**
+     * The tree item sent this event.
+     */
+    WQtTreeItem* m_item;
 private:
 };
 
-#endif  // WQTTREEWIDGET_H
+#endif  // WMODULEDELETEEVENT_H
+

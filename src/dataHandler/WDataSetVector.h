@@ -69,7 +69,7 @@ public:
      *
      * \return Vector beeing the interpolate.
      */
-    wmath::WVector3D interpolate( const wmath::WPosition &pos, bool *success );
+    wmath::WVector3D interpolate( const wmath::WPosition &pos, bool *success ) const;
 
     /**
      * Get the vector on the given position in value set.

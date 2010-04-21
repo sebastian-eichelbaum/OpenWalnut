@@ -31,7 +31,7 @@
 
 #include "../WThreadedRunner.h"
 
-/** 
+/**
  * Class implementing a simple worker thread, since proper testing of WThreadedRunner itself is not usable.
  */
 class WThreadedRunnerImpl: public WThreadedRunner
@@ -45,7 +45,7 @@ protected:
     virtual void threadMain()
     {
         // Since the modules run in a separate thread: such loops are possible
-        while ( !m_FinishRequested )
+        while ( !m_shutdownFlag() )
         {
             // do fancy stuff
             sleep( 1 );

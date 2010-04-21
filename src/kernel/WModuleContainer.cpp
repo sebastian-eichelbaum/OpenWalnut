@@ -28,6 +28,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <utility>
 
 #include "WModule.h"
 #include "exceptions/WModuleUninitialized.h"
@@ -51,7 +52,8 @@ WModuleContainer::WModuleContainer( std::string name, std::string description ):
     m_moduleAccess( m_modules.getAccessObject() ),
     m_name( name ),
     m_description( description ),
-    m_crashIfModuleCrashes( true )
+    m_crashIfModuleCrashes( true ),
+    m_moduleSubscriptionsAccess( m_moduleSubscriptions.getAccessObject() )
 {
     WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + getName() + ")", LL_INFO );
     // initialize members
@@ -110,17 +112,21 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
             LL_INFO );
 
     // now module->isUsable() is true
-    // -> so run it
+
+    // Connect the error handler and all default handlers:
+    m_moduleSubscriptionsAccess->beginWrite();
 
     // connect the containers signal handler explicitly
     t_ModuleErrorSignalHandlerType func = boost::bind( &WModuleContainer::moduleError, this, _1, _2 );
-    module->subscribeSignal( WM_ERROR, func );
+    boost::signals2::connection signalCon = module->subscribeSignal( WM_ERROR, func );
+    m_moduleSubscriptionsAccess->get().insert( ModuleSubscription( module, signalCon ) );
 
     // connect default ready/error notifiers
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
     for ( std::list< t_ModuleErrorSignalHandlerType >::iterator iter = m_errorNotifiers.begin(); iter != m_errorNotifiers.end(); ++iter)
     {
-        module->subscribeSignal( WM_ERROR, ( *iter ) );
+        signalCon = module->subscribeSignal( WM_ERROR, ( *iter ) );
+        m_moduleSubscriptionsAccess->get().insert( ModuleSubscription( module, signalCon ) );
     }
     slock = boost::shared_lock<boost::shared_mutex>( m_associatedNotifiersLock );
     for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_associatedNotifiers.begin(); iter != m_associatedNotifiers.end(); ++iter)
@@ -131,9 +137,11 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     slock = boost::shared_lock<boost::shared_mutex>( m_readyNotifiersLock );
     for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_readyNotifiers.begin(); iter != m_readyNotifiers.end(); ++iter)
     {
-        module->subscribeSignal( WM_READY, ( *iter ) );
+        signalCon = module->subscribeSignal( WM_READY, ( *iter ) );
+        m_moduleSubscriptionsAccess->get().insert( ModuleSubscription( module, signalCon ) );
     }
     slock.unlock();
+    m_moduleSubscriptionsAccess->endWrite();
 
     // add the modules progress to local progress combiner
     m_progress->addSubProgress( module->getRootProgressCombiner() );
@@ -147,6 +155,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 {
+    // simple flat removal.
+
     WLogger::getLogger()->addLogMessage( "Removing module \"" + module->getName() + "\" from container." , "ModuleContainer (" + getName() + ")",
             LL_DEBUG );
 
@@ -155,10 +165,25 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
         return;
     }
 
-    // stop module
-    WLogger::getLogger()->addLogMessage( "Waiting for module \"" + module->getName() + "\" to finish." , "ModuleContainer (" + getName() + ")",
-            LL_DEBUG );
-    module->wait( true );
+    // remove connections inside this container
+    module->disconnect();
+
+    // remove progress combiner
+    m_progress->removeSubProgress( module->getRootProgressCombiner() );
+
+    // remove signal subscriptions to this containers default notifiers
+    m_moduleSubscriptionsAccess->beginWrite();
+
+    // find all subscriptions for this module
+    std::pair< ModuleSubscriptionsIterator, ModuleSubscriptionsIterator > subscriptions = m_moduleSubscriptionsAccess->get().equal_range( module );
+    for( ModuleSubscriptionsIterator it = subscriptions.first; it != subscriptions.second; ++it )
+    {
+        // disconnect subscription.
+        ( *it ).second.disconnect();
+    }
+    // erase them
+    m_moduleSubscriptionsAccess->get().erase( subscriptions.first, subscriptions.second );
+    m_moduleSubscriptionsAccess->endWrite();
 
     // get write lock
     m_moduleAccess->beginWrite();
@@ -166,10 +191,6 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     m_moduleAccess->endWrite();
 
     module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
-
-    // TODO(ebaum): remove signal subscriptions
-    // TODO(ebaum): remove progress from combiner
-    // TODO(ebaum): flat or deep removal? What to do with associated modules?
 }
 
 WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
@@ -222,6 +243,7 @@ void WModuleContainer::stop()
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + ( *listIter )->getName() + "\" to finish." ,
                 "ModuleContainer (" + getName() + ")", LL_INFO );
         ( *listIter )->wait( true );
+        ( *listIter )->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );   // remove last refs to this container inside the module
     }
     m_moduleAccess->endRead();
 

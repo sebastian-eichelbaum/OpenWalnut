@@ -184,6 +184,13 @@ public:
     void setTriangleColor( size_t index, WColor color );
 
     /**
+     * Return triangle colors
+     *
+     * \return OSG Vec4 Array of triangle colors
+     */
+    osg::ref_ptr< osg::Vec4Array > getTriangleColors() const;
+
+    /**
      * getter
      *
      * \return pointer to the vertex array

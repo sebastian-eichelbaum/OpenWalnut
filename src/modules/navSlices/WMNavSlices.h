@@ -320,6 +320,8 @@ private:
      */
     static bool m_navsliceRunning;
 
+    static const int m_maxNumberOfTextures = 10; //!< We support only 10 textures because hardware has may have unknown limits.
+
     /**
      * Node callback to handle updates properly
      */

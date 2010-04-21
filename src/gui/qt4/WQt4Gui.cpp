@@ -51,6 +51,8 @@
 #include "events/WModuleCrashEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
 
+WMainWindow* WQt4Gui::m_mainWindow = NULL;
+
 WQt4Gui::WQt4Gui( int argc, char** argv )
     : WGUI( argc, argv )
 {
@@ -102,6 +104,11 @@ bool WQt4Gui::parseOptions()
 void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
 {
     QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent( module, exception.what() ) );
+}
+
+WMainWindow* WQt4Gui::getMainWindow()
+{
+    return m_mainWindow;
 }
 
 int WQt4Gui::run()

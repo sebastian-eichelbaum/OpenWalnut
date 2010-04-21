@@ -92,6 +92,25 @@ public:
     double interpolate( const wmath::WPosition& pos, bool* success );
 
     /**
+     * Get the value stored at a certain grid position of the data set
+     * \param x index in x direction
+     * \param y index in y direction
+     * \param z index in z direction
+     */
+    template< typename T > T getValueAt( int x, int y, int z );
+
+    /**
+     * Get the value stored at a certain grid position of the data set
+     * \param x index in x direction
+     * \param y index in y direction
+     * \param z index in z direction
+     *
+     * \return the double value at the given cell.
+     */
+    double getValueAt( int x, int y, int z );
+
+
+    /**
      * Returns a prototype instantiated with the true type of the deriving class.
      *
      * \return the prototype.

@@ -157,6 +157,12 @@ public:
      */
     WMatrix operator*( const WMatrix& rhs ) const;
 
+    /**
+     * Multiplication with a vector.
+     * \param rhs The right hand side of the multiplication
+     */
+    WValue< T > operator*( const WValue< T >& rhs ) const;
+
 protected:
 private:
     size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).
@@ -176,6 +182,21 @@ template< typename T > WMatrix< T > WMatrix< T >::operator*( const WMatrix< T >&
             {
                 result( r, c ) += ( *this )( r, i ) * rhs( i, c );
             }
+        }
+    }
+    return result;
+}
+
+template< typename T > WValue< T > WMatrix< T >::operator*( const WValue< T >& rhs ) const
+{
+    assert( rhs.size() == getNbCols() );
+    WValue< T > result( getNbRows() );
+
+    for( size_t r = 0; r < getNbRows(); ++r)
+    {
+        for( size_t i = 0; i < getNbCols(); ++i )
+        {
+            result[r] += ( *this )( r, i ) * rhs[i];
         }
     }
     return result;

@@ -41,7 +41,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     m_layout( &m_parameterWidgets )
 {
     // initialize members
-    m_edit.resize( m_edit.minimumSizeHint().width() , m_edit.size().height() );
+    m_edit.resize( m_edit.minimumSizeHint().width() *.8 , m_edit.size().height() );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
 
     // layout both against each other
@@ -128,8 +128,8 @@ void WPropertyDoubleWidget::update()
     // resize the text widget
     //m_edit.setMaxLength( length );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-    m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-    m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
+//     m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
+//     m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
 
     // set the initial values
     m_edit.setText( QString( toString( m_doubleProperty->get() ).c_str() ) );

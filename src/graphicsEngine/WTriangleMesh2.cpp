@@ -396,8 +396,9 @@ void WTriangleMesh2::doLoopSubD()
 
     delete[] newVertexPositions;
 
-    ( *m_vertNormals ).resize( ( *m_verts ).size() );
-    ( *m_vertColors ).resize( ( *m_verts ).size() );
+    m_vertNormals->resize( m_verts->size() );
+    m_vertColors->resize( m_verts->size() );
+    m_triangleColors->resize( m_triangles.size() / 3 );
 
     m_meshDirty = true;
 }
@@ -716,4 +717,9 @@ boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > tm_utils::
     }
 
     return result;
+}
+
+osg::ref_ptr< osg::Vec4Array > WTriangleMesh2::getTriangleColors() const
+{
+    return m_triangleColors;
 }

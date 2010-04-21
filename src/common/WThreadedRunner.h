@@ -75,6 +75,11 @@ public:
      */
     void wait( bool requestFinish = false );
 
+    /**
+     * This method's purpose is to request a stop without waiting for it.
+     */
+    virtual void requestStop();
+
 protected:
 
     /**
@@ -89,19 +94,9 @@ protected:
     virtual void notifyStop();
 
     /**
-     * This method's purpose is to request a stop without waiting for it.
-     */
-    virtual void requestStop();
-
-    /**
      * Thread instance.
      */
     boost::thread m_thread;
-
-    /**
-     * True if thread should end execution. NOTE: do not use this. Use m_shutdownFlag instead.
-     */
-    bool m_FinishRequested;
 
     /**
      * Give remaining execution timeslice to another thread.

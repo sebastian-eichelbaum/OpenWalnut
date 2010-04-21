@@ -197,6 +197,8 @@ private:
     std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
     std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms; //!< uniforms for color maps per texture in shader
+
+    static const int m_maxNumberOfTextures = 10; //!< We support only 10 textures because hardware has may have unknown limits.
 };
 
 /**

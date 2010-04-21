@@ -205,7 +205,12 @@ protected:
     /**
      * The Module this connector belongs to
      */
-    boost::shared_ptr< WModule > m_module;
+    boost::weak_ptr< WModule > m_module;
+
+    /**
+     * The name of the module owning this connector.
+     */
+    std::string m_moduleName;
 
     /**
      * Gets called whenever a connector gets connected to the specified input.

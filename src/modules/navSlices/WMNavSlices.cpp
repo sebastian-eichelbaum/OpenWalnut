@@ -159,16 +159,22 @@ void WMNavSlices::moduleMain()
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
 
     m_viewer = ge->getViewerByName( "axial" );
-    WAssert( m_viewer, "Requested viewer not found." );
-    m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
 
     m_viewer = ge->getViewerByName( "sagittal" );
-    WAssert( m_viewer, "Requested viewer not found." );
-    m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
 
     m_viewer = ge->getViewerByName( "coronal" );
-    WAssert( m_viewer, "Requested viewer not found." );
-    m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
 
     m_viewer = ge->getViewerByName( "main" );
 
@@ -793,7 +799,7 @@ void WMNavSlices::updateTextures()
         if ( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < 10; ++i )
+            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -827,12 +833,11 @@ void WMNavSlices::updateTextures()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
+                if( c == m_maxNumberOfTextures )
+                {
+                    break;
+                }
             }
-
-            // TODO(schurade): used? Not used? Replace by new Property please
-            // rootState->addUniform( osg::ref_ptr<osg::Uniform>(
-            //            new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) )
-            // );
         }
     }
 
@@ -905,7 +910,7 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < 10; ++i )
+    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
