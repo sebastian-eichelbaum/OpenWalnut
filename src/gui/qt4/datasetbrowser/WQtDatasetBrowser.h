@@ -198,6 +198,11 @@ private:
 
     std::vector< std::string > m_moduleWhiteList; //!< Stores a list of modules allowed to be shown.
 
+    /**
+     * The action to remove a module from the tree.
+     */
+    QAction* m_deleteModuleAction;
+
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget

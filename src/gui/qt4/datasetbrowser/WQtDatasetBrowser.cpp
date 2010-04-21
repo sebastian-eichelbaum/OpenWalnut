@@ -74,9 +74,9 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget->setMinimumHeight( 250 );
 
     // create context menu for tree items
-    QAction* deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
-    connect( deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
-    m_moduleTreeWidget->addAction( deleteModuleAction );
+    m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
+    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( m_deleteModuleTreeItem() ) );
+    m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
     m_textureSorter = new WQtTextureSorter( m_panel );
     m_textureSorter->setToolTip( "Reorder the textures." );
@@ -410,20 +410,39 @@ void WQtDatasetBrowser::selectTreeItem()
                 // Here we just take a prototype module with no output connectors
                 // to get the modules with no input connector.
                 module = WModuleFactory::getModuleFactory()->getPrototypeByName( "HUD" );
+
+                // deletion of headers and subjects is not allowed
+                m_deleteModuleAction->setEnabled( false );
                 createCompatibleButtons( module );
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
+                // crashed modules should not provide any props
                 if ( module->isCrashed()() )
                 {
                     return;
                 }
+
+                // enable the delete action as it might be disabled before.
+                m_deleteModuleAction->setEnabled( true );
+
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
                 createCompatibleButtons( module );
                 break;
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
+                // NOTE: this hack prevents the navigation slices to be removed as they are buggy and crash OpenWalnut if they get removed
+                if ( module->getName() == "Navigation Slices" )
+                {
+                    m_deleteModuleAction->setEnabled( false );
+                }
+                else
+                {
+                    m_deleteModuleAction->setEnabled( true );
+                }
+
+                // crashed modules should not provide any props
                 if ( module->isCrashed()() )
                 {
                     return;
