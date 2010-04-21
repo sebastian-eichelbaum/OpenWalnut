@@ -243,7 +243,7 @@ void WModuleContainer::stop()
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + ( *listIter )->getName() + "\" to finish." ,
                 "ModuleContainer (" + getName() + ")", LL_INFO );
         ( *listIter )->wait( true );
-        ( *listIter )->cleanup();
+        ( *listIter )->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );   // remove last refs to this container inside the module
     }
     m_moduleAccess->endRead();
 

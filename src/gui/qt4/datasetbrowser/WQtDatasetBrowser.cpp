@@ -280,6 +280,8 @@ bool WQtDatasetBrowser::event( QEvent* event )
 
             ++it;
         }
+
+        return true;
     }
 
     return QDockWidget::event( event );

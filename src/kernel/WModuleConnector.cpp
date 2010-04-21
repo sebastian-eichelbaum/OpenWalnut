@@ -104,7 +104,7 @@ unsigned int WModuleConnector::isConnected()
 
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
-    boost::shared_ptr< WModule > module = m_module;//.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+    boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
     boost::shared_ptr< WModuleContainer > container = module->getAssociatedContainer();
     std::string containerName = container.get() ? container->getName() : "Unknown";
     WLogger::getLogger()->addLogMessage( "Connecting " + con->getCanonicalName() + " with " + getCanonicalName(),
@@ -205,7 +205,7 @@ boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_
 const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
 {
     // the module instance knows that
-    boost::shared_ptr< WModule > module = m_module;//.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+    boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
     return module->getSignalHandler( signal );
 }
 

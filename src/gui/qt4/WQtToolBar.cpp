@@ -60,6 +60,8 @@ QAction* WQtToolBar::addWidget( QWidget* widget )
 
 void WQtToolBar::clearButtons()
 {
+    clear();
+
     // iterate all items and delete them
     for ( std::list< QWidget* >::iterator it = m_widgets.begin(); it != m_widgets.end(); ++it )
     {
@@ -68,7 +70,6 @@ void WQtToolBar::clearButtons()
 
     // clear the lists
     m_widgets.clear();
-    clear();
 
     // The following prevents the bar from changing size when it has no real buttons.
     QPushButton* dummyButton = new QPushButton;

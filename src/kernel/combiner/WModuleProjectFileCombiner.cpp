@@ -400,7 +400,7 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
                   iciter != ( *citer )->m_connected.end(); ++iciter )
             {
                 // as the module is a weak_ptr -> lock and get access to it
-                boost::shared_ptr< WModule > theOtherModule = ( *iciter )->m_module;//.lock();
+                boost::shared_ptr< WModule > theOtherModule = ( *iciter )->m_module.lock();
                 output << "CONNECTION:(" << moduleToIDMap[ ( *iter ) ] << "," << ( *citer )->getName() << ")->(" <<
                                             moduleToIDMap[ theOtherModule ] << "," << ( *iciter )->getName() << ")" << std::endl;
             }
