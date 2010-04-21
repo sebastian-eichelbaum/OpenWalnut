@@ -184,7 +184,7 @@ protected:
     /**
      * Threshold value for this data.
      */
-    WPropInt m_threshold;
+    WPropDouble m_threshold;
 
     /**
      * Opacity value for this data.
