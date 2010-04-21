@@ -166,7 +166,7 @@ void WQtTreeItem::updateState()
     }
 
     // is finished?
-    if ( !m_module->isRunning().get() && m_needPostDeleteEvent )
+    if ( m_deleteInProgress && !m_module->isRunning().get() && m_needPostDeleteEvent )
     {
         m_needPostDeleteEvent = false;  // this ensures the event is only posted once
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getDatasetBrowser(), new WModuleDeleteEvent( this ) );
