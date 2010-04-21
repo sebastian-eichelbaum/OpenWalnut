@@ -34,6 +34,7 @@
 #include "projOpen.xpm"
 #include "projSave.xpm"
 #include "quit.xpm"
+#include "remove.xpm"
 
 #include "axial.xpm"
 #include "cor.xpm"
@@ -42,5 +43,8 @@
 #include "box.xpm"
 #include "question.xpm"
 #include "o.xpm"
+
+#include "moduleBusy.xpm"
+#include "moduleCrashed.xpm"
 
 #endif  // WICONS_H

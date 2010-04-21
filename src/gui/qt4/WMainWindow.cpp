@@ -80,6 +80,9 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
+    m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
+    m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
+    m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
 
     if( objectName().isEmpty() )
     {

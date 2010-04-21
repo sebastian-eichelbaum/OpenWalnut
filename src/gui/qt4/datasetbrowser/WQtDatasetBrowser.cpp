@@ -49,6 +49,7 @@
 #include "../events/WEventTypes.h"
 #include "../guiElements/WQtApplyModulePushButton.h"
 #include "../WMainWindow.h"
+#include "../WQt4Gui.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtTextureSorter.h"
@@ -413,12 +414,20 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
+                if ( module->isCrashed()() )
+                {
+                    return;
+                }
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
                 createCompatibleButtons( module );
                 break;
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
+                if ( module->isCrashed()() )
+                {
+                    return;
+                }
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
                 createCompatibleButtons( module );
