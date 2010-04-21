@@ -1,5 +1,5 @@
 /* XPM */
-static char * moduleCrashed_xpm[] = {
+const char * moduleCrashed_xpm[] = {
 "32 32 506 2",
 "  	c None",
 ". 	c #BD0100",

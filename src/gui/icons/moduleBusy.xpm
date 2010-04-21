@@ -1,5 +1,5 @@
 /* XPM */
-static char * moduleBusy_xpm[] = {
+const char * moduleBusy_xpm[] = {
 "32 32 307 2",
 "  	c None",
 ". 	c #6497CA",

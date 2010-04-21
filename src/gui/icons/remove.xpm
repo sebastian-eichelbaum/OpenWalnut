@@ -1,5 +1,5 @@
 /* XPM */
-static char * remove_xpm[] = {
+const char * remove_xpm[] = {
 "32 32 230 2",
 "  	c None",
 ". 	c #B55959",
