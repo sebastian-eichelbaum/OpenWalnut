@@ -134,13 +134,5 @@ double WDataSetSingle::getValueAt( size_t id )
             WAssert( false, "Unknow data type in dataset." );
     }
 
-    return 0.0;
-}
-
-double WDataSetSingle::getValueAt( int x, int y, int z )
-{
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
-
-    return getValueAt( id );
+    return 0.0; // should not be reached. Just there to quiet compiler.
 }

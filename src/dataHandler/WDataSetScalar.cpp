@@ -151,9 +151,28 @@ double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
     double result = 0;
     for( size_t i = 0; i < 8; ++i )
     {
-        result += h[i] * getValueAt( vertexIds[i] );
+        result += h[i] * WDataSetSingle::getValueAt( vertexIds[i] );
     }
 
     *success = true;
     return result;
+}
+
+template< typename T > T WDataSetScalar::getValueAt( int x, int y, int z )
+{
+    boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+    T v = vs->getScalar( id );
+    return v;
+}
+
+double WDataSetScalar::getValueAt( int x, int y, int z )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+    return WDataSetSingle::getValueAt( id );
 }

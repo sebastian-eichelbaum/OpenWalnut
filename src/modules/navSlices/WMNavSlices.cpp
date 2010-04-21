@@ -159,16 +159,22 @@ void WMNavSlices::moduleMain()
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
 
     m_viewer = ge->getViewerByName( "axial" );
-    WAssert( m_viewer, "Requested viewer not found." );
-    m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
 
     m_viewer = ge->getViewerByName( "sagittal" );
-    WAssert( m_viewer, "Requested viewer not found." );
-    m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
 
     m_viewer = ge->getViewerByName( "coronal" );
-    WAssert( m_viewer, "Requested viewer not found." );
-    m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
 
     m_viewer = ge->getViewerByName( "main" );
 
