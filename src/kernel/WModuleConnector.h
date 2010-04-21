@@ -208,6 +208,11 @@ protected:
     boost::shared_ptr< WModule > m_module;
 
     /**
+     * The name of the module owning this connector.
+     */
+    std::string m_moduleName;
+
+    /**
      * Gets called whenever a connector gets connected to the specified input.
      *
      * \param here the connector of THIS module that got connected to "there"
