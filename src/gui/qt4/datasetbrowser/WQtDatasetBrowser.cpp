@@ -76,6 +76,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     // create context menu for tree items
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
+    m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
@@ -128,8 +129,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
-    QShortcut* shortcutDeleteModules = new QShortcut( QKeySequence( Qt::Key_Backspace ), m_moduleTreeWidget );
-    connect( shortcutDeleteModules, SIGNAL( activated() ), this, SLOT( deleteModuleTreeItem() ) );
 }
 
 WQtDatasetBrowser::~WQtDatasetBrowser()
