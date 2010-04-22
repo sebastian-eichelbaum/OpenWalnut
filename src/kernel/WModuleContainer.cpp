@@ -191,6 +191,23 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     m_moduleAccess->endWrite();
 
     module->setAssociatedContainer( boost::shared_ptr< WModuleContainer >() );
+
+    // tell all interested about removal
+    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_removedNotifiersLock );
+    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_removedNotifiers.begin(); iter != m_removedNotifiers.end(); ++iter)
+    {
+        // call associated notifier
+        ( *iter )( module );
+    }
+    slock.unlock();
+}
+
+void WModuleContainer::removeDeep( boost::shared_ptr< WModule > module )
+{
+    WLogger::getLogger()->addLogMessage( "Deep removal of modules is not yet implemented.", "ModuleContainer (" + getName() + ")", LL_WARNING );
+
+    // at least, remove the module itself
+    remove( module );
 }
 
 WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
@@ -276,6 +293,11 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGeneric
         case WM_READY:
             lock = boost::unique_lock<boost::shared_mutex>( m_readyNotifiersLock );
             m_readyNotifiers.push_back( notifier );
+            lock.unlock();
+            break;
+        case WM_REMOVED:
+            lock = boost::unique_lock<boost::shared_mutex>( m_removedNotifiersLock );
+            m_removedNotifiers.push_back( notifier );
             lock.unlock();
             break;
         default:

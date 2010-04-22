@@ -100,12 +100,15 @@ void WApplyPrototypeCombiner::apply()
     // NOTE: here, we assume the src module already to be in the container. If not, connect will fail with an exception -> so no need for a
     // separate exception here
 
-    // wait
-    m_srcModule->isReadyOrCrashed().wait();
-    if ( m_srcModule->isCrashed()() )
+    // wait for the source module if there is any
+    if ( m_srcModule )  // specifying a NULL source module causes the combiner to only add the target
     {
-        wlog::error( "Prototype Combiner" ) << "The source module \"" << m_srcModule->getName() << "\" has crashed. Abort.";
-        return;
+        m_srcModule->isReadyOrCrashed().wait();
+        if ( m_srcModule->isCrashed()() )
+        {
+            wlog::error( "Prototype Combiner" ) << "The source module \"" << m_srcModule->getName() << "\" has crashed. Abort.";
+            return;
+        }
     }
 
     targetModule->isReadyOrCrashed().wait();
@@ -122,6 +125,9 @@ void WApplyPrototypeCombiner::apply()
     }
 
     // and connect them finally:
-    targetModule->getInputConnector( m_targetConnector )->connect( m_srcModule->getOutputConnector( m_srcConnector ) );
+    if ( m_srcModule )
+    {
+        targetModule->getInputConnector( m_targetConnector )->connect( m_srcModule->getOutputConnector( m_srcConnector ) );
+    }
 }
 

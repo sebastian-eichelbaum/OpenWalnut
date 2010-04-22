@@ -24,22 +24,22 @@
 
 #include "WEventTypes.h"
 
-#include "WModuleDeleteEvent.h"
+#include "WModuleRemovedEvent.h"
 
-WModuleDeleteEvent::WModuleDeleteEvent( WQtTreeItem* treeItem )
-    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_DELETE_EVENT ) ),
-    m_item( treeItem )
+WModuleRemovedEvent::WModuleRemovedEvent( boost::shared_ptr< WModule > module )
+    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_REMOVE_EVENT ) ),
+    m_module( module )
 {
     // initialize members
 }
 
-WModuleDeleteEvent::~WModuleDeleteEvent()
+WModuleRemovedEvent::~WModuleRemovedEvent()
 {
     // cleanup
 }
 
-WQtTreeItem* WModuleDeleteEvent::getTreeItem()
+boost::shared_ptr< WModule > WModuleRemovedEvent::getModule()
 {
-    return m_item;
+    return m_module;
 }
 

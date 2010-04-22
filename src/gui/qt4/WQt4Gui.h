@@ -109,6 +109,13 @@ public:
     virtual void slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
 
     /**
+     * Slot gets called whenever a module has been removed from the root container.
+     *
+     * \param module the module
+     */
+    virtual void slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
+
+    /**
      * getter functions for the signales proved by the gui
      */
     boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();

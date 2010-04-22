@@ -46,6 +46,7 @@
 #include "../events/WRoiRemoveEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WModuleDeleteEvent.h"
+#include "../events/WModuleRemovedEvent.h"
 #include "../events/WEventTypes.h"
 #include "../guiElements/WQtApplyModulePushButton.h"
 #include "../WMainWindow.h"
@@ -75,7 +76,8 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     // create context menu for tree items
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
-    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( m_deleteModuleTreeItem() ) );
+    m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
+    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
     m_textureSorter = new WQtTextureSorter( m_panel );
@@ -127,8 +129,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
-    QShortcut* shortcutDeleteModules = new QShortcut( QKeySequence( Qt::Key_Backspace ), m_moduleTreeWidget );
-    connect( shortcutDeleteModules, SIGNAL( activated() ), this, SLOT( deleteModuleTreeItem() ) );
 }
 
 WQtDatasetBrowser::~WQtDatasetBrowser()
@@ -138,10 +138,14 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 
 void WQtDatasetBrowser::connectSlots()
 {
-    connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    // connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
-    connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
+    connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
+    //connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeRoiTreeItem() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
 }
 
 
@@ -208,20 +212,21 @@ bool WQtDatasetBrowser::event( QEvent* event )
     }
 
     // a module tree item should be deleted
-    if ( event->type() == WQT_MODULE_REMOVE_EVENT )
+    if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );     // NOLINT
         if ( !e )
         {
             // this should never happen, since the type is set to WQT_Ready_EVENT.
-            WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemoveEvent although its type claims it. Ignoring event.",
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleDeleteEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
         }
 
         // grab the module reference and print some info
         boost::shared_ptr< WModule > module = e->getTreeItem()->getModule();
-        WLogger::getLogger()->addLogMessage( "Removing module \"" + module->getName() + "\" from Tree.", "DatasetBrowser", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Deleting module \"" + module->getName() + "\" from Tree.",
+                                             "DatasetBrowser", LL_DEBUG );
 
         // remove it from the tree and free last ref count
         m_moduleTreeWidget->deleteItem( e->getTreeItem() );
@@ -232,6 +237,56 @@ bool WQtDatasetBrowser::event( QEvent* event )
             wlog::warn( "DatasetBrowser" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
                                               "Module reference is held by someone else.";
         }
+
+        return true;
+    }
+
+    // a module was removed from the container
+    if ( event->type() == WQT_MODULE_REMOVE_EVENT )
+    {
+        WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
+            return true;
+        }
+
+        // iterate tree items and find proper one
+        QTreeWidgetItemIterator it( m_moduleTreeWidget );
+        while ( *it )
+        {
+            WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
+            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >();
+            if ( item )
+            {
+                module = item->getModule();
+            }
+
+            // if the pointer is NULL the item was none of the above
+            if ( !module.get() )
+            {
+                ++it;
+                continue;
+            }
+
+            // we found it
+            if ( e->getModule() == module )
+            {
+                item->gotRemoved();
+            }
+
+            ++it;
+        }
+
+        // be nice and print some info
+        WLogger::getLogger()->addLogMessage( "Removing module \"" + e->getModule()->getName() + "\" from Tree.", "DatasetBrowser", LL_DEBUG );
+
+        // stop the module
+        e->getModule()->requestStop();
+        WLogger::getLogger()->addLogMessage( "Waiting for module \"" + e->getModule()->getName() + "\" to finish before deleting.",
+                                             "DatasetBrowser", LL_DEBUG );
 
         return true;
     }
@@ -395,6 +450,7 @@ void WQtDatasetBrowser::selectTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
+    // the WQtToolbar also deletes the buttons!
     m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule > module;
@@ -407,13 +463,9 @@ void WQtDatasetBrowser::selectTreeItem()
         {
             case SUBJECT:
             case MODULEHEADER:
-                // Here we just take a prototype module with no output connectors
-                // to get the modules with no input connector.
-                module = WModuleFactory::getModuleFactory()->getPrototypeByName( "HUD" );
-
                 // deletion of headers and subjects is not allowed
                 m_deleteModuleAction->setEnabled( false );
-                createCompatibleButtons( module );
+                createCompatibleButtons( module );  // module is NULL at this point
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
@@ -590,6 +642,7 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, bo
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
+    // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
     std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
     for ( std::vector< boost::shared_ptr< WApplyPrototypeCombiner > >::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
@@ -716,8 +769,11 @@ void WQtDatasetBrowser::deleteModuleTreeItem()
         if ( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
              ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
         {
-            // instead of deleting the tree item directly -> inform the tree item and let it do the job:
-            static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->deleteSelf();
+            // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
+            // This method deep removes the module ( it also removes depending modules )
+            WKernel::getRunningKernel()->getRootContainer()->removeDeep(
+                static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()
+            );
             // select another item
             m_moduleTreeWidget->setCurrentItem( m_moduleTreeWidget->topLevelItem( 0 ) );
         }
