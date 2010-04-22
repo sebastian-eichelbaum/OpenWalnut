@@ -324,7 +324,7 @@ std::vector< size_t > WGridRegular3D::getCellVertexIds( size_t cellId ) const
     size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );
-    size_t minVertexIdX = minVertexIdY % ( m_nbPosX - 1 );
+    size_t minVertexIdX = remainderXY % ( m_nbPosX - 1 );
 
     size_t minVertexId = minVertexIdX + minVertexIdY * m_nbPosX + minVertexIdZ * m_nbPosX * m_nbPosY;
 
