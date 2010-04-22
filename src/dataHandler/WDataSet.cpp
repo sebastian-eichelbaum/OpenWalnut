@@ -24,13 +24,13 @@
 
 #include <string>
 
-#include "exceptions/WDHException.h"
-
-#include "WDataTexture3D.h"
 #include "../common/WAssert.h"
-#include "../common/WTransferable.h"
 #include "../common/WCondition.h"
+#include "../common/WTransferable.h"
+#include "exceptions/WDHException.h"
 #include "WDataSet.h"
+#include "WDataSetVector.h"
+#include "WDataTexture3D.h"
 
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSet::m_prototype = boost::shared_ptr< WPrototyped >();
@@ -94,3 +94,7 @@ boost::shared_ptr< WCondition > WDataSet::getChangeCondition()
     return boost::shared_ptr< WCondition >();
 }
 
+boost::shared_ptr< WDataSetVector > WDataSet::isVectorDataSet()
+{
+    return boost::shared_ptr< WDataSetVector >();
+}

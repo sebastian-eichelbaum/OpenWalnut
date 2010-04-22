@@ -52,8 +52,7 @@ FTensor TensorField::getInterpolatedVector(float x, float y, float z)
     WAssert( grid->encloses( pos ), "Grid does not enclose position to interpolate" );
     std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
 
-    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
-
+//    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 //    double xMult = localPos[0] / grid->getOffsetX();
 //    double yMult = localPos[1] / grid->getOffsetY();
 //    double zMult = localPos[2] / grid->getOffsetZ();
@@ -69,6 +68,16 @@ FTensor TensorField::getInterpolatedVector(float x, float y, float z)
     FTensor tx1yz1  = FTensor( m_vectors->getVectorAt( vertexIds[5] ) );
     FTensor txy1z1  = FTensor( m_vectors->getVectorAt( vertexIds[6] ) );
     FTensor tx1y1z1 = FTensor( m_vectors->getVectorAt( vertexIds[7] ) );
+
+//    std::cout << pos << "::" << grid->getCellId( pos ) << " ";
+//    std::cout << txyz    << "::" << vertexIds[0] << " ";
+//    std::cout << tx1yz   << "::" << vertexIds[1] << " ";
+//    std::cout << txy1z   << "::" << vertexIds[2] << " ";
+//    std::cout << tx1y1z  << "::" << vertexIds[3] << " ";
+//    std::cout << txyz1   << "::" << vertexIds[4] << " ";
+//    std::cout << tx1yz1  << "::" << vertexIds[5] << " ";
+//    std::cout << txy1z1  << "::" << vertexIds[6] << " ";
+//    std::cout << tx1y1z1 << "::" << vertexIds[7] << std::endl;
 
     FMatrix matxyz = createMatrix(txyz, txyz);
     FMatrix matx1yz = createMatrix(tx1yz, tx1yz);

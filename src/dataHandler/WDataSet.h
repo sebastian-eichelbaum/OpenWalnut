@@ -27,11 +27,13 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "../common/WTransferable.h"
 
 class WDataTexture3D;
 class WCondition;
+class WDataSetVector;
 
 /**
  * Base class for all data set types. This class has a number of subclasses
@@ -40,7 +42,7 @@ class WCondition;
  * steps) respectively.
  * \ingroup dataHandler
  */
-class WDataSet: public WTransferable
+class WDataSet: public WTransferable, public boost::enable_shared_from_this< WDataSet >
 {
 public:
     /**
@@ -75,6 +77,8 @@ public:
      */
     // TODO(schurade): pure virtual? Are WDataSet instances useful?
     virtual bool isTexture() const;
+
+    virtual boost::shared_ptr< WDataSetVector > isVectorDataSet();
 
     /**
      * Returns the texture- representation of the dataset. May throw an exception if no texture is available.

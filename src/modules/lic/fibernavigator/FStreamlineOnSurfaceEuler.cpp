@@ -68,6 +68,7 @@ FStreamlineOnSurfaceEuler::FStreamlineOnSurfaceEuler( boost::shared_ptr< WDataSe
             Vector center( m_mesh->getTriangleCenter(i) );
 
             FTensor t = m_tensorField->getInterpolatedVector(center.x, center.y, center.z);
+//            std::cout << "interpolat: " << t << std::endl;
             cell_vectors[i] = FArray(t).normalize();
         }
 //        m_dh->printDebug(_T("done"), 1);

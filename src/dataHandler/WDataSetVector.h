@@ -81,6 +81,8 @@ public:
      */
     wmath::WVector3D getVectorAt( size_t index ) const;
 
+    boost::shared_ptr< WDataSetVector > isVectorDataSet();
+
 protected:
 
     /**
@@ -90,5 +92,10 @@ protected:
 
 private:
 };
+
+inline boost::shared_ptr< WDataSetVector > WDataSetVector::isVectorDataSet()
+{
+    return boost::shared_static_cast< WDataSetVector >( shared_from_this() );
+}
 
 #endif  // WDATASETVECTOR_H
