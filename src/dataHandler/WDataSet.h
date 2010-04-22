@@ -78,6 +78,11 @@ public:
     // TODO(schurade): pure virtual? Are WDataSet instances useful?
     virtual bool isTexture() const;
 
+    /**
+     * Checks if this dataset is a vector dataset.
+     *
+     * \return Returns a nonempty shared_ptr to it if it is a vector dataset, otherwise the pointer is empty!
+     */
     virtual boost::shared_ptr< WDataSetVector > isVectorDataSet();
 
     /**
