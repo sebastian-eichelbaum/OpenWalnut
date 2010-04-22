@@ -218,7 +218,7 @@ void WMFiberDisplay::properties()
     m_tubeThickness = m_properties->addProperty( "Tube Thickness", "Adjusts the thickness of the tubes.", 50.,
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
-    m_tubeThickness->setMax( 1000 );
+    m_tubeThickness->setMax( 300 );
     m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
     m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WKernel::getAppPathObject() );
 }
