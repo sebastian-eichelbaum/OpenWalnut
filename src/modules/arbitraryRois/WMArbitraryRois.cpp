@@ -43,6 +43,7 @@
 #include "../marchingCubes/WMarchingCubesAlgorithm.h"
 
 #include "WMArbitraryRois.h"
+#include "arbitraryROI.xpm"
 
 WMArbitraryRois::WMArbitraryRois():
     WModule(),
@@ -63,6 +64,11 @@ boost::shared_ptr< WModule > WMArbitraryRois::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMArbitraryRois() );
+}
+
+const char** WMArbitraryRois::getXPMIcon() const
+{
+    return arbitraryROI_xpm;
 }
 
 const std::string WMArbitraryRois::getName() const
