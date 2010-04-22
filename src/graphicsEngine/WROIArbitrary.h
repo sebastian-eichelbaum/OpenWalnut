@@ -34,10 +34,11 @@
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 
-#include "../dataHandler/WDataSetScalar.h"
 #include "WTriangleMesh2.h"
 
 #include "WROI.h"
+
+class WDataSetScalar;
 
 /**
  * A box representing a region of interest.

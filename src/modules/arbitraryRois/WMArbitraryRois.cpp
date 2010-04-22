@@ -33,10 +33,12 @@
 #include <osg/PolygonMode>
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/WAssert.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../kernel/WKernel.h"
 
 #include "../../graphicsEngine/WROIArbitrary.h"
+#include "../../graphicsEngine/WROIBox.h"
 
 #include "../marchingCubes/WMarchingCubesAlgorithm.h"
 
