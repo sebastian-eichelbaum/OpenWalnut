@@ -187,15 +187,11 @@ void WQtTreeItem::updateState()
     updateTooltip( progress );
 }
 
-void WQtTreeItem::deleteSelf()
+void WQtTreeItem::gotRemoved()
 {
-    // instruct the kernel to remove module
-    WKernel::getRunningKernel()->getRootContainer()->remove( m_module );
+    // this ensures a visual feedback to the user while waiting for the module to finish.
 
     // update tree item state
     m_deleteInProgress = true;
-
-    // instruct the module to finish
-    m_module->requestStop();
 }
 

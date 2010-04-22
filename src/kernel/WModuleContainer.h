@@ -118,6 +118,14 @@ public:
     virtual void remove( boost::shared_ptr< WModule > module );
 
     /**
+     * As \ref remove, it removes the module from the container. In contrast to \ref remove, it also removes all the depending modules from the
+     * container.
+     *
+     * \param module the module which should be removed including all depending modules
+     */
+    virtual void removeDeep( boost::shared_ptr< WModule > module );
+
+    /**
      * Stops all modules inside this container. Note that this function could take some time, since it waits until the last module
      * has quit.
      */
@@ -301,6 +309,16 @@ protected:
      * The notifiers connected to added modules by default and fired whenever the module got associated.
      */
     std::list< t_ModuleGenericSignalHandlerType > m_associatedNotifiers;
+
+    /**
+     * Lock for remove-notifiers set.
+     */
+    boost::shared_mutex m_removedNotifiersLock;
+
+    /**
+     * The notifiers connected to added modules by default and fired whenever the module got removed again.
+     */
+    std::list< t_ModuleGenericSignalHandlerType > m_removedNotifiers;
 
     /**
      * Set of all threads that currently depend upon this container.

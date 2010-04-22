@@ -22,42 +22,50 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEVENTTYPES_H
-#define WEVENTTYPES_H
+#ifndef WMODULEREMOVEDEVENT_H
+#define WMODULEREMOVEDEVENT_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <QtCore/QEvent>
 
+#include "../../../kernel/WModule.h"
+
 /**
- * This header contains every custom event ID used in QT's event mechanism. Please note, that since Qt4.4 there is
- * QEvent::registerEventType which can handle this job better than this header. But as we use an older Qt Version we need to do it
- * this way.
+ * Event signalling a module was removed from the kernel root container.
  */
+class WModuleRemovedEvent: public QEvent
+{
+public:
 
-// when a module got associated
-#define WQT_ASSOC_EVENT QEvent::User + 1
+    /**
+     * Creates a new event instance denoting that the specified module got removed from the root container.
+     *
+     * \param module the module
+     */
+    explicit WModuleRemovedEvent( boost::shared_ptr< WModule > module );
 
-// when a module signals its ready state
-#define WQT_READY_EVENT QEvent::User + 2
+    /**
+     * Destructor.
+     */
+    virtual ~WModuleRemovedEvent();
 
-// when a roi got associated
-#define WQT_ROI_ASSOC_EVENT QEvent::User + 3
+    /**
+     * Getter for the module that got removed.
+     *
+     * \return the module.
+     */
+    boost::shared_ptr< WModule > getModule();
 
-// when a module crashes
-#define WQT_CRASH_EVENT QEvent::User + 4
+protected:
 
-// when a subject signals a newly registered data set
-#define WQT_UPDATE_TEXTURE_SORTER_EVENT QEvent::User + 5
+    /**
+     * The module that got removed.
+     */
+    boost::shared_ptr< WModule > m_module;
 
-// when a property changes
-#define WQT_PROPERTY_CHANGED_EVENT QEvent::User + 6
+private:
+};
 
-// when a roi got removed
-#define WQT_ROI_REMOVE_EVENT QEvent::User + 7
+#endif  // WMODULEREMOVEDEVENT_H
 
-// when a module got removed from the root container
-#define WQT_MODULE_REMOVE_EVENT QEvent::User + 8
-
-// when a module should be deleted finally.
-#define WQT_MODULE_DELETE_EVENT QEvent::User + 9
-
-#endif  // WEVENTTYPES_H
