@@ -108,7 +108,7 @@ private:
     boost::shared_ptr< WDataSetVector > searchVectorDS() const;
 
     boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshIC; //!< The InputConnector for the mesh on which to paint
-    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_vectorIC; //!< The InputConnector for the vectors that are used to build the streamlines
+//    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_vectorIC; //!< The InputConnector for the vectors that are used to build the streamlines
 
     boost::shared_ptr< WTriangleMesh2 > m_inMesh; //!< The mesh given from the input connector
     boost::shared_ptr< WDataSetVector > m_inVector; //!< The vector field used to compute the LIC given from the input connector
