@@ -138,10 +138,14 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 
 void WQtDatasetBrowser::connectSlots()
 {
-    connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    // connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
-    connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
+    connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
+    //connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeRoiTreeItem() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
 }
 
 
