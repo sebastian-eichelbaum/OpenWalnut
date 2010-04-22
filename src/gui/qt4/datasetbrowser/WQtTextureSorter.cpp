@@ -96,7 +96,7 @@ void WQtTextureSorter::update()
     }
 
 
-    DatasetAccess ta = textures.getAccessObject();
+    DatasetAccess ta = m_textures.getAccessObject();
     ta->beginRead();
 
     if( ta->get().empty() )
@@ -165,7 +165,7 @@ void WQtTextureSorter::moveItemDown()
 {
     unsigned int index =  m_textureListWidget->currentIndex().row();
 
-    DatasetAccess ta = textures.getAccessObject();
+    DatasetAccess ta = m_textures.getAccessObject();
     ta->beginRead();
 
     if( index < ta->get().size() - 1 )
@@ -203,7 +203,7 @@ void WQtTextureSorter::moveItemUp()
 
         if( ci )
         {
-            DatasetAccess ta = textures.getAccessObject();
+            DatasetAccess ta = m_textures.getAccessObject();
             ta->beginWrite();
 
             m_textureListWidget->insertItem( index - 1, ci );
@@ -222,7 +222,7 @@ void WQtTextureSorter::moveItemUp()
 
 bool WQtTextureSorter::isLess( boost::shared_ptr< WDataSet > lhs, boost::shared_ptr< WDataSet > rhs )
 {
-    DatasetAccess ta = textures.getAccessObject();
+    DatasetAccess ta = m_textures.getAccessObject();
     ta->beginRead();
 
     DatasetContainerType::iterator itLHS = std::find( ta->get().begin(), ta->get().end(), lhs );

@@ -75,7 +75,7 @@ private:
     typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType; //!< Short for container we want to access b< WSharedSequenceContainer
     typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType; //!< The SharedContainer
     typedef DatasetSharedContainerType::WSharedAccess DatasetAccess; //!< Shorthand for the access handler.
-    DatasetSharedContainerType textures; //!< Local list of of the textures to sort.
+    DatasetSharedContainerType m_textures; //!< Local list of of the textures to sort.
 
     /**
      * This function returns whether the dataset lhs is above rhs in the texture sorter.
