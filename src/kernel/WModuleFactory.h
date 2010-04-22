@@ -120,9 +120,14 @@ public:
      *
      * \param module the module to find the compatibles for.
      *
+     * \note as the default parameter denotes, providing a NULL pointer (or calling the method without a parameter) returns the list of modules
+     * which are compatible to every other module. In other words, it returns all modules without input connectors.
+     *
      * \return set of compatible combiners.
      */
-    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
+    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes(
+            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >()
+    );
 
     /**
      * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is

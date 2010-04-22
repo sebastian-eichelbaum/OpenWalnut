@@ -43,7 +43,10 @@ class WApplyPrototypeCombiner: public WModuleCombiner
 public:
 
     /**
-     * Creates a combiner which sets up the specified modules and prototype combination.
+     * Creates a combiner which sets up the specified modules and prototype combination. Specifying a NULL pointer to the srcModule parameter
+     * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
+     * input which must be connected.
+     *
      *
      * \param target            the target container
      * \param srcModule         the module whose output should be connected with the prototypes input
@@ -57,7 +60,9 @@ public:
 
     /**
      * Creates a combiner which sets up the specified modules and prototype combination. This constructor automatically uses the kernel's root
-     * container as target container.
+     * container as target container. Specifying a NULL pointer to the srcModule parameter
+     * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
+     * input which must be connected.
      *
      * \param srcModule         the module whose output should be connected with the prototypes input
      * \param srcConnector      the output connector of the module

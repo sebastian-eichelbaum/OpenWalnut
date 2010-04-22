@@ -460,13 +460,9 @@ void WQtDatasetBrowser::selectTreeItem()
         {
             case SUBJECT:
             case MODULEHEADER:
-                // Here we just take a prototype module with no output connectors
-                // to get the modules with no input connector.
-                module = WModuleFactory::getModuleFactory()->getPrototypeByName( "HUD" );
-
                 // deletion of headers and subjects is not allowed
                 m_deleteModuleAction->setEnabled( false );
-                createCompatibleButtons( module );
+                createCompatibleButtons( module );  // module is NULL at this point
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
@@ -643,6 +639,7 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, bo
 void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
+    // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
     std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
     for ( std::vector< boost::shared_ptr< WApplyPrototypeCombiner > >::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )

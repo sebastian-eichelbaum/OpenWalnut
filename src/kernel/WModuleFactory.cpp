@@ -244,9 +244,6 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
     // for this a read lock is sufficient
     boost::shared_lock< boost::shared_mutex > slock = boost::shared_lock< boost::shared_mutex >( m_prototypesLock );
 
-    // get offered outputs
-    std::set<boost::shared_ptr<WModuleOutputConnector> > cons = module->getOutputConnectors();
-
     // First, add all modules with no input connector.
     for( std::set< boost::shared_ptr< WModule > >::iterator listIter = m_prototypes.begin(); listIter != m_prototypes.end(); ++listIter )
     {
@@ -254,9 +251,19 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
         if(  pcons.size() == 0  )
         {
+            // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
             compatibles.push_back( boost::shared_ptr< WApplyPrototypeCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
         }
     }
+
+    // if NULL was specified, only return all modules without any inputs
+    if ( !module )
+    {
+        return compatibles;
+    }
+
+    // get offered outputs
+    std::set<boost::shared_ptr<WModuleOutputConnector> > cons = module->getOutputConnectors();
 
     // return early if we have no output connector, because the modules with no input connector
     // are already added at this point.
@@ -265,6 +272,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         return compatibles;
     }
 
+    // This warning was annoying
     // if ( cons.size() > 1 )
     // {
     //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << module->getName() <<  " module (more than 1 output connector). Using "
@@ -283,6 +291,8 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         {
             continue;
         }
+
+        // This warning was annoying
         // if ( pcons.size() > 1 )
         // {
         //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << ( *listIter )->getName()
