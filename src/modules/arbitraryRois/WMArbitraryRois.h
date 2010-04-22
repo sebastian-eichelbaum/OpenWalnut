@@ -103,6 +103,10 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
 
 private:
     /**

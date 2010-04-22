@@ -161,6 +161,11 @@ void WMArbitraryRois::initSelectionRoi()
 
 void WMArbitraryRois::createCutDataset()
 {
+    if( !m_active->get() )
+    {
+        return;
+    }
+
     boost::shared_ptr< WValueSetBase > newValueSet;
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
@@ -321,6 +326,11 @@ void WMArbitraryRois::renderMesh()
 
 void WMArbitraryRois::finalizeRoi()
 {
+    if( !m_active->get() )
+    {
+        return;
+    }
+
     if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
     {
         wlog::warn( "WMArbitraryRois" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
@@ -336,4 +346,21 @@ void WMArbitraryRois::finalizeRoi()
     {
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
     }
+}
+
+void WMArbitraryRois::activate()
+{
+    if( m_selectionRoi )
+    {
+        if( m_active->get() )
+        {
+            m_selectionRoi->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_selectionRoi->setNodeMask( 0x0 );
+        }
+    }
+
+    WModule::activate();
 }
