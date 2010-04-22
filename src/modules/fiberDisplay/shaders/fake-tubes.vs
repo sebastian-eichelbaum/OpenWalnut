@@ -3,9 +3,12 @@ varying vec3 tangentR3;
 varying float s_param;
 varying vec4 myColor;
 uniform float u_thickness;
+varying vec4 VaryingTexCoord0;
 
 void main()
 {
+    VaryingTexCoord0 = gl_Vertex;
+    
 	gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex; //< make clipping planes work
 
 	vec3 tangent;
