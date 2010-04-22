@@ -237,13 +237,14 @@ void WMFiberDisplay::toggleTubes()
     {
         if ( m_useTubesProp->get( true ) )
         {
+            updateTexture();
             m_useTextureProp->get( true );
             m_tubeDrawable->setUseTubes( true );
             m_shaderTubes->apply( m_osgNode );
-            osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) );
             rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) ) );
             m_uniformTubeThickness = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "u_thickness", static_cast<float>( m_tubeThickness->get() ) ) );
             rootState->addUniform( m_uniformTubeThickness );
+            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_useTextureProp->get() ) ) );
         }
         else if ( m_useTextureProp->get( true ) && !m_useTubesProp->get( true ) )
         {
