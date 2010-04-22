@@ -193,7 +193,6 @@ void WMLIC::moduleMain()
             debugLog() << "Start rendering LIC";
             renderMesh( m_inMesh );
             debugLog() << "Rendering done";
-
         }
     }
 }
