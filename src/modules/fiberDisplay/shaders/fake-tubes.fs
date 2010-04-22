@@ -11,10 +11,13 @@ uniform int dimX, dimY, dimZ;
 uniform sampler3D tex;
 uniform int type;
 uniform float threshold;
+uniform float minVal;
+uniform float maxVal;
 uniform int cMap;
 
 
 #include "colorMaps.fs"
+#include "utils.fs"
 
 float lookupTex()
 {
@@ -28,10 +31,12 @@ float lookupTex()
 
     if ( col1.r < threshold )
     {
-        discard;
+         discard;
     }
     else
+    {
         return col1.r;
+    }
 }
 /*
  * simple fragment shader that does rendering of tubes with diffuse illumination
@@ -40,15 +45,17 @@ void main()
 {
 
 	vec3 color;
-	
+
 	if ( useTexture )
 	{
+            threshold = scaleZeroOne( threshold, minVal, maxVal );// make the threshold lie between 0 and 1
 	    float value = lookupTex();
-	    colorMap(color, value, cMap );
+	    colorMap(color.rgb, value, cMap );
 	}
-	    
-	else	    
-		color = abs(normalize(myColor.rgb));
+	else
+        {
+            color = abs(normalize(myColor.rgb));
+        }
 
 	vec3 view = vec3(0., 0., -1.);
 	float view_dot_normal = sqrt(1. - s_param * s_param) + .1;

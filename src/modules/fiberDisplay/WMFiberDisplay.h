@@ -179,7 +179,9 @@ private:
     /**
      * threshold for texture
      */
-    osg::ref_ptr<osg::Uniform>m_uniformThreshold;
+    osg::ref_ptr<osg::Uniform> m_uniformThreshold;
+    osg::ref_ptr<osg::Uniform> m_uniformMinValue; //!< Minimum value of texture used for fibers
+    osg::ref_ptr<osg::Uniform> m_uniformMaxValue; //!< Maximum value of texture used for fibers
 
     /**
      * color map for the  texture
