@@ -36,7 +36,6 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
 #include "WMFiberDisplay.h"
 #include "fiberdisplay.xpm"
