@@ -160,8 +160,8 @@ private:
      * \param dz second element offset perpendicular to the filter
      */
     template< typename T >
-    void filterField1D( std::vector<T>&newVals, const std::vector<T>&vals, boost::shared_ptr<WGridRegular3D> grid,
-                                                     boost::shared_ptr< WProgress > prog, int Nx, int Ny, int Nz, int dx, int dy, int dz );
+    void filterField1D( std::vector<T>&newVals, const std::vector<T>&vals,
+                                                     boost::shared_ptr< WProgress > prog, size_t Nx, size_t Ny, size_t Nz, size_t dx, size_t dy, size_t dz );
 
 
     /**
@@ -178,8 +178,8 @@ private:
      * \param dz second element offset perpendicular to the filter
      */
     template< typename T >
-    void filterField1D( std::vector<double>&newVals, boost::shared_ptr< WValueSet< T > > vals, boost::shared_ptr<WGridRegular3D> grid,
-                                                     boost::shared_ptr< WProgress > prog, int Nx, int Ny, int Nz, int dx, int dy, int dz );
+    void filterField1D( std::vector<double>&newVals, boost::shared_ptr< WValueSet< T > > vals,
+                                                     boost::shared_ptr< WProgress > prog, size_t Nx, size_t Ny, size_t Nz, size_t dx, size_t dy, size_t dz );
     /**
      * Run the filter iteratively over the field. The number of iterations is determined by m_iterations.
      *
