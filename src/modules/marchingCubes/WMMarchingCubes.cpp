@@ -364,28 +364,6 @@ void WMMarchingCubes::renderMesh()
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold8", 0.0f ) ) );
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold9", 0.0f ) ) );
 
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min0", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min1", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min2", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min3", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min4", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min5", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min6", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min7", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min8", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min9", 0.0f ) ) );
-
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max0", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max1", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max2", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max3", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max4", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max5", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max6", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max7", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max8", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max9", 0.0f ) ) );
-
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 2 ) ) );
@@ -412,8 +390,6 @@ void WMMarchingCubes::renderMesh()
     {
         state->addUniform( m_typeUniforms[i] );
         state->addUniform( m_thresholdUniforms[i] );
-        state->addUniform( m_minUniforms[i] );
-        state->addUniform( m_maxUniforms[i] );
         state->addUniform( m_alphaUniforms[i] );
         state->addUniform( m_samplerUniforms[i] );
         state->addUniform( m_cmapUniforms[i] );
@@ -608,18 +584,14 @@ void WMMarchingCubes::updateGraphics()
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms
-                float t = ( *iter )->getThreshold();
+                float minValue = ( *iter )->getMinValue();
+                float maxValue = ( *iter )->getMaxValue();
+                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
                 float a = ( *iter )->getAlpha();
                 int cmap = ( *iter )->getSelectedColormap();
 
                 m_typeUniforms[c]->set( ( *iter )->getDataType() );
                 m_thresholdUniforms[c]->set( t );
-                {
-                    float minValue = ( *iter )->getMinValue();
-                    float maxValue = ( *iter )->getMaxValue();
-                    m_minUniforms[c]->set( minValue );
-                    m_maxUniforms[c]->set( maxValue );
-                }
                 m_alphaUniforms[c]->set( a );
                 m_cmapUniforms[c]->set( cmap );
 

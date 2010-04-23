@@ -315,13 +315,11 @@ void WMFiberDisplay::updateTexture()
 
 
         m_uniformType->set( tex[0]->getDataType() );
-        m_uniformThreshold->set( static_cast<float>( tex[0]->getThreshold() ) );
-        {
-            float minValue = tex[0]->getMinValue();
-            float maxValue = tex[0]->getMaxValue();
-            m_uniformMaxValue->set( minValue );
-            m_uniformMaxValue->set( maxValue );
-        }
+        float minValue = tex[0]->getMinValue();
+        float maxValue = tex[0]->getMaxValue();
+        float thresh = ( tex[0]->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
+
+        m_uniformThreshold->set( thresh );
         m_uniformsColorMap->set( tex[0]->getSelectedColormap() );
 
         m_uniformDimX->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsX() ) );
@@ -335,8 +333,6 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
     m_uniformSampler = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex", 0 ) );
     m_uniformType = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type", 0 ) );
     m_uniformThreshold = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold", 0.0f ) );
-    m_uniformMinValue = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "minVal", 0.0f ) );
-    m_uniformMaxValue = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "maxVal", 0.0f ) );
     m_uniformsColorMap = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cMap", 0 ) );
 
     m_uniformDimX = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "dimX", 1 ) );
@@ -346,8 +342,6 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
     rootState->addUniform( m_uniformSampler );
     rootState->addUniform( m_uniformType );
     rootState->addUniform( m_uniformThreshold );
-    rootState->addUniform( m_uniformMinValue );
-    rootState->addUniform( m_uniformMaxValue );
     rootState->addUniform( m_uniformsColorMap );
 
     rootState->addUniform( m_uniformDimX );

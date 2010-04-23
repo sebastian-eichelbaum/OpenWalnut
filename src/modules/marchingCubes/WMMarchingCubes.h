@@ -188,8 +188,6 @@ private:
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
-    std::vector< osg::ref_ptr<osg::Uniform> > m_minUniforms; //!< minimum value per texture
-    std::vector< osg::ref_ptr<osg::Uniform> > m_maxUniforms; //!< maximu value per texture
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
     std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms; //!< uniforms for color maps per texture in shader
 

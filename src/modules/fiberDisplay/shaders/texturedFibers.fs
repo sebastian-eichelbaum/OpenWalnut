@@ -7,8 +7,6 @@ uniform int dimX, dimY, dimZ;
 uniform sampler3D tex;
 uniform int type;
 uniform float threshold;
-uniform float minVal;
-uniform float maxVal;
 uniform int cMap;
 
 
@@ -40,8 +38,6 @@ float lookupTex()
 void main()
 {
     vec4 color = vec4( 1.0 );
-
-    threshold = scaleZeroOne( threshold, minVal, maxVal );// make the threshold lie between 0 and 1
 
     float value = lookupTex();
 

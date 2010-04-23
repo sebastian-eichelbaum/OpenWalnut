@@ -11,13 +11,10 @@ uniform int dimX, dimY, dimZ;
 uniform sampler3D tex;
 uniform int type;
 uniform float threshold;
-uniform float minVal;
-uniform float maxVal;
 uniform int cMap;
 
 
 #include "colorMaps.fs"
-#include "utils.fs"
 
 float lookupTex()
 {
@@ -48,7 +45,6 @@ void main()
 
 	if ( useTexture )
 	{
-            threshold = scaleZeroOne( threshold, minVal, maxVal );// make the threshold lie between 0 and 1
 	    float value = lookupTex();
 	    colorMap(color.rgb, value, cMap );
 	}

@@ -826,7 +826,7 @@ void WMNavSlices::updateTextures()
                 // set threshold/opacity as uniforms
                 float minValue = ( *iter )->getMinValue();
                 float maxValue = ( *iter )->getMaxValue();
-                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue );
+                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
                 float a = ( *iter )->getAlpha();
                 int cmap = ( *iter )->getSelectedColormap();
 

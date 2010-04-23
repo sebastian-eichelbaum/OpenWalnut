@@ -25,24 +25,6 @@ uniform float threshold5;
 uniform float threshold6;
 uniform float threshold7;
 
-uniform float min0;
-uniform float min1;
-uniform float min2;
-uniform float min3;
-uniform float min4;
-uniform float min5;
-uniform float min6;
-uniform float min7;
-
-uniform float max0;
-uniform float max1;
-uniform float max2;
-uniform float max3;
-uniform float max4;
-uniform float max5;
-uniform float max6;
-uniform float max7;
-
 uniform int type0;
 uniform int type1;
 uniform int type2;
@@ -76,7 +58,6 @@ uniform int opacity;
 
 
 #include "colorMaps.fs"
-#include "utils.fs"
 #include "lighting.fs"
 
 void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha, in int cmap)
@@ -113,15 +94,6 @@ void main()
 
     if( useTexture )
     {
-        threshold0 = scaleZeroOne( threshold0, min0, max0 );
-        threshold1 = scaleZeroOne( threshold1, min1, max1 );
-        threshold2 = scaleZeroOne( threshold2, min2, max2 );
-        threshold3 = scaleZeroOne( threshold3, min3, max3 );
-        threshold4 = scaleZeroOne( threshold4, min4, max4 );
-        threshold5 = scaleZeroOne( threshold5, min5, max5 );
-        threshold6 = scaleZeroOne( threshold6, min6, max6 );
-        threshold7 = scaleZeroOne( threshold7, min7, max7 );
-
         if ( type7 > 0 ) lookupTex(col, type7, tex7, threshold7, VaryingTexCoord7.xyz, alpha7, useCmap7);
         if ( type6 > 0 ) lookupTex(col, type6, tex6, threshold6, VaryingTexCoord6.xyz, alpha6, useCmap6);
         if ( type5 > 0 ) lookupTex(col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5);
