@@ -120,6 +120,8 @@ ELSE()
     ELSE()
         # SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
         SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
+        ## The following allows us to prevent cyclic dependencies even on linux
+        SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined" CACHE STRING "" FORCE )
     ENDIF()
     SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
