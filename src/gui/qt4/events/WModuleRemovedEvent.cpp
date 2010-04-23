@@ -22,29 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include "WEventTypes.h"
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
-#include "remove.xpm"
+#include "WModuleRemovedEvent.h"
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+WModuleRemovedEvent::WModuleRemovedEvent( boost::shared_ptr< WModule > module )
+    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_REMOVE_EVENT ) ),
+    m_module( module )
+{
+    // initialize members
+}
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+WModuleRemovedEvent::~WModuleRemovedEvent()
+{
+    // cleanup
+}
 
-#include "moduleBusy.xpm"
-#include "moduleCrashed.xpm"
+boost::shared_ptr< WModule > WModuleRemovedEvent::getModule()
+{
+    return m_module;
+}
 
-#endif  // WICONS_H

@@ -15,8 +15,6 @@ uniform sampler3D tex4;
 uniform sampler3D tex5;
 uniform sampler3D tex6;
 uniform sampler3D tex7;
-uniform sampler3D tex8;
-uniform sampler3D tex9;
 
 uniform float threshold0;
 uniform float threshold1;
@@ -26,8 +24,6 @@ uniform float threshold4;
 uniform float threshold5;
 uniform float threshold6;
 uniform float threshold7;
-uniform float threshold8;
-uniform float threshold9;
 
 uniform int type0;
 uniform int type1;
@@ -37,8 +33,6 @@ uniform int type4;
 uniform int type5;
 uniform int type6;
 uniform int type7;
-uniform int type8;
-uniform int type9;
 
 uniform float alpha0;
 uniform float alpha1;
@@ -48,8 +42,6 @@ uniform float alpha4;
 uniform float alpha5;
 uniform float alpha6;
 uniform float alpha7;
-uniform float alpha8;
-uniform float alpha9;
 
 uniform int useCmap0;
 uniform int useCmap1;
@@ -59,9 +51,6 @@ uniform int useCmap4;
 uniform int useCmap5;
 uniform int useCmap6;
 uniform int useCmap7;
-uniform int useCmap8;
-uniform int useCmap9;
-
 
 uniform bool highlighted;
 
@@ -69,20 +58,22 @@ uniform bool highlighted;
 #include "colorMaps.fs"
 
 
-void lookupTex(inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha, in int cmap)
+void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha, in int cmap)
 {
     vec3 col1 = vec3(0.0);
 
     col1 = clamp( texture3D(tex, v).rgb, 0.0, 1.0);
 
-    if ( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0) return;
+    if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0) return;
 
-    if ( cmap != 0 )
+    if( cmap != 0 )
     {
-        if (threshold < 1.0)
+        if(threshold < 1.0)
+        {
             col1.r = (col1.r - threshold) / (1.0 - threshold);
+        }
 
-        colorMap(col1, col1.r, cmap);
+        colorMap( col1, col1.r, cmap );
     }
 
     col.rgb = mix( col.rgb, col1.rgb, alpha);
@@ -92,8 +83,6 @@ void main()
 {
     vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if ( type9 > 0 ) lookupTex(col, type9, tex9, threshold9, VaryingTexCoord7.xyz, alpha9, useCmap9);
-    if ( type8 > 0 ) lookupTex(col, type8, tex8, threshold8, VaryingTexCoord7.xyz, alpha8, useCmap8);
     if ( type7 > 0 ) lookupTex(col, type7, tex7, threshold7, VaryingTexCoord7.xyz, alpha7, useCmap7);
     if ( type6 > 0 ) lookupTex(col, type6, tex6, threshold6, VaryingTexCoord6.xyz, alpha6, useCmap6);
     if ( type5 > 0 ) lookupTex(col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5);
@@ -105,34 +94,16 @@ void main()
 
     col = clamp(col, 0.0, 1.0);
 
-//     col.a = sqrt( col.r * col.r + col.g * col.g + col.b * col.b);
-
     if ( ( col.r + col.g + col.b ) < 0.01 )
     {
-        float upperOuter = 10;
-        float upperInner = 1;
-        float lowerInner = .0;
         if( highlighted )
         {
-            //colorize the slice and mark the border of the first texture
-            if ( ( VaryingTexCoord0.x > upperInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
-                              || (VaryingTexCoord0.y > upperInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
-                              || (VaryingTexCoord0.z > upperInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
-                              || (VaryingTexCoord0.x < lowerInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
-                              || (VaryingTexCoord0.y < lowerInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
-                              || (VaryingTexCoord0.z < lowerInner && VaryingTexCoord0.x < upperOuter && VaryingTexCoord0.y < upperOuter  && VaryingTexCoord0.z < upperOuter )
-                                  )
-                {
-                    col = vec4(.75, .75, 1, 1);
-                }
-                else
-                {
-                    col = vec4(.7, .7, 1, 1);
-                }
-                }
+            // higlight picked slice in the areas where ther are zero (very small) values
+            col = vec4(.7, .7, 1, 1);
+        }
         else
         {
-             discard;
+            discard;
         }
     }
 

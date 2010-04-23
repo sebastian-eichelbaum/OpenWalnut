@@ -32,6 +32,8 @@
 #include <osg/MatrixTransform>
 #include <osg/NodeCallback>
 
+#include "../common/WCondition.h"
+
 /**
  * Class to wrap around the osg Group node and providing a thread safe add/removal mechanism. Please be sure to use
  * addUpdateCallback() to set your own update callbacks instead of setUpdateCallback, as this class already has set a callback,
@@ -65,7 +67,7 @@ public:
     void insert( osg::ref_ptr< osg::Node > node );
 
     /**
-     * Removes the specified node from this group in a thread safe manner. See insert() for more details.
+     * Removes the specified node from this group in a thread safe manner. It returns if the node has been removed.
      *
      * \param node the node to remove
      */
@@ -126,6 +128,11 @@ protected:
      * Flag denoting whether the m_childRemovalQueue should be considered during the next update of the node.
      */
     bool m_removalQueueDirty;
+
+    /**
+     * Condition which fires when the node is removed.
+     */
+    boost::shared_ptr< WCondition > m_removedCondition;
 
 private:
 };

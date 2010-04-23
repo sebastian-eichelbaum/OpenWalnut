@@ -33,7 +33,8 @@
 WGEGroupNode::WGEGroupNode():
     osg::MatrixTransform(),
     m_insertionQueueDirty( false ),
-    m_removalQueueDirty( false )
+    m_removalQueueDirty( false ),
+    m_removedCondition( new WCondition() )
 {
     setDataVariance( osg::Object::DYNAMIC );
 
@@ -65,6 +66,12 @@ void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
     m_childRemovalQueue.insert( node );
     m_removalQueueDirty = true;
     lock.unlock();
+
+    // wait until the job is done
+    if ( getNumParents() )
+    {
+        m_removedCondition->wait();
+    }
 }
 
 void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
@@ -115,6 +122,10 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
         // all children added -> clear
         rootNode->m_removalQueueDirty = false;
         rootNode->m_childRemovalQueue.clear();
+
+        // inform all waiting thread that their removal requests have been processed.
+        rootNode->m_removedCondition->notify();
+
         lock.unlock();
     }
 

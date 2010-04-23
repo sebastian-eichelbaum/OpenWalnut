@@ -136,9 +136,19 @@ void WQtTreeItem::updateState()
     if ( m_module->isCrashed()() )
     {
         setText( 0, ( m_name + " (problem occurred)" ).c_str() );
+
+        // strike out the name of the module to show the crash visually.
+        QFont curFont = font( 0 );
+        curFont.setStrikeOut( true );
+        setFont( 0, curFont );
+        setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleCrashed" ) );
+
+        // this ensures that crashed modules can be deleted
+        setDisabled( false );
     }
     else if ( p->isPending() )
     {
+        setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
         std::ostringstream title;
         if ( p->isDetermined() )
         {
@@ -155,6 +165,7 @@ void WQtTreeItem::updateState()
     }
     else
     {
+        setIcon( 0, QIcon() );
         setText( 0, m_name.c_str() );
     }
 
@@ -176,15 +187,11 @@ void WQtTreeItem::updateState()
     updateTooltip( progress );
 }
 
-void WQtTreeItem::deleteSelf()
+void WQtTreeItem::gotRemoved()
 {
-    // instruct the kernel to remove module
-    WKernel::getRunningKernel()->getRootContainer()->remove( m_module );
+    // this ensures a visual feedback to the user while waiting for the module to finish.
 
     // update tree item state
     m_deleteInProgress = true;
-
-    // instruct the module to finish
-    m_module->requestStop();
 }
 

@@ -91,12 +91,6 @@ public:
     virtual const char** getXPMIcon() const;
 
     /**
-     * Activate the rendering of the computed surface.
-     * This converts the surface to a WTriangleMesh2 and calls renderMesh afterwards
-     */
-    void renderSurface();
-
-    /**
      *  updates textures and shader parameters
      */
     void updateGraphics();
@@ -126,9 +120,8 @@ private:
 
     /**
      * Prepares and commits everything for rendering with the OSG
-     * \param mesh The mesh that will be rendered.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    void renderMesh();
 
     /**
      * Store the mesh in legacy vtk file format.
@@ -198,7 +191,7 @@ private:
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
     std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms; //!< uniforms for color maps per texture in shader
 
-    static const int m_maxNumberOfTextures = 10; //!< We support only 10 textures because hardware has may have unknown limits.
+    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 };
 
 /**
@@ -211,7 +204,7 @@ public:
      * Constructor of the callback adapter.
      * \param module A function of this module will be called
      */
-    explicit SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module );
+    explicit SurfaceNodeCallback( WMMarchingCubes* module );
 
     /**
      * Function that is called by the osg and that call the function in the module.
@@ -221,10 +214,10 @@ public:
     virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
 private:
-    boost::shared_ptr< WMMarchingCubes > m_module; //!< Pointer to the module to which the function that is called belongs to.
+    WMMarchingCubes* m_module; //!< Pointer to the module to which the function that is called belongs to.
 };
 
-inline SurfaceNodeCallback::SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module )
+inline SurfaceNodeCallback::SurfaceNodeCallback( WMMarchingCubes* module )
     : m_module( module )
 {
 }

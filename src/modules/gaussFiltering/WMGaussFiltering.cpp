@@ -124,24 +124,80 @@ std::vector<double> WMGaussFiltering::filterField( boost::shared_ptr< WValueSet<
     size_t nY = grid->getNbCoordsY();
     size_t nZ = grid->getNbCoordsZ();
 
-    std::vector<double> newVals( vals->elementsPerValue() * nX * nY * nZ, 0. );
-
-    for( size_t z = 1; z < nZ - 1; z++ )
+    if ( m_mode->get(true) )
     {
-        ++*prog;
-        for( size_t y = 1; y < nY - 1; y++ )
+        std::vector<double> newVals( vals->elementsPerValue() * nX * nY * nZ, 0. );
+
+        for( size_t z = 1; z < nZ - 1; z++ )
         {
-            for( size_t x = 1; x < nX - 1; x++ )
+            ++*prog;
+            for( size_t y = 1; y < nY - 1; y++ )
             {
-                for ( size_t offset = 0; offset < vals->elementsPerValue(); ++offset )
+                for( size_t x = 1; x < nX - 1; x++ )
                 {
-                    newVals[getId( nX, nY, nZ, x, y, z, offset, vals->elementsPerValue() )] = filterAtPosition( vals, nX, nY, nZ, x, y, z, offset );
+                    for ( size_t offset = 0; offset < vals->elementsPerValue(); ++offset )
+                    {
+                        newVals[getId( nX, nY, nZ, x, y, z, offset, vals->elementsPerValue() )] =
+                            filterAtPosition( vals, nX, nY, nZ, x, y, z, offset );
+                    }
                 }
             }
         }
+        return newVals;
     }
+    else
+    {
+        std::vector<double> newVals1( vals->elementsPerValue() * nX * nY * nZ, 0. );
+        std::vector<double> newVals2( vals->elementsPerValue() * nX * nY * nZ, 0. );
 
-    return newVals;
+        filterField1D( &newVals1, vals,     prog, nX, nY, nZ, 1, nX, nX*nY ); // run in X direction
+        filterField1D( &newVals2, newVals1, prog, nY, nX, nZ, nX, 1, nX*nY ); // run in Y direction
+        filterField1D( &newVals1, newVals2, prog, nZ, nX, nY, nX*nY, 1, nX ); // run in Z direction
+
+        return newVals1;
+    }
+}
+
+template< typename T >
+void WMGaussFiltering::filterField1D( std::vector<double>* newVals,
+                                      boost::shared_ptr< WValueSet< T > > vals,
+                                      boost::shared_ptr< WProgress > prog,
+                                      size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
+{
+    for ( size_t z = 1; z < nZ - 1; ++z )
+    {
+        ++*prog;
+        for ( size_t y = 1; y < nY - 1; ++y )
+        {
+            for ( size_t x = 1; x < nX - 1; ++x )
+            {
+                size_t id = x*dx + y*dy + z*dz;
+                ( *newVals )[ id ] =
+                    0.25 * ( vals->getScalar( id - dx ) + 2. * vals->getScalar( id ) + vals->getScalar( id + dx ) );
+            }
+        }
+    }
+}
+
+template< typename T >
+void WMGaussFiltering::filterField1D( std::vector<T>* newVals,
+                                      const std::vector<T>& vals,
+                                      boost::shared_ptr< WProgress > prog,
+                                      size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
+{
+    for ( size_t z = 1; z < nZ - 1; ++z )
+    {
+        ++*prog;
+        for ( size_t y = 1; y < nY - 1; ++y )
+        {
+            for ( size_t x = 1; x < nX - 1; ++x )
+            {
+                size_t id = x*dx + y*dy + z*dz;
+                ( *newVals )[ id ] =
+                    0.25 * ( vals[ id - dx ] + 2. * vals[ id ] + vals[  id + dx ] );
+            }
+            }
+    }
 }
 
 template< typename T >
@@ -152,8 +208,18 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
     WAssert( grid, "Grid is not of type WGridRegular3D." );
 
     // use a custom progress combiner
-    boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >(
+    boost::shared_ptr< WProgress > prog;
+
+    if ( m_mode->get() )
+    {
+    prog = boost::shared_ptr< WProgress >(
         new WProgress( "Gauss Filter Iteration", iterations * grid->getNbCoordsZ() ) );
+    }
+    else
+    {
+    prog = boost::shared_ptr< WProgress >(
+        new WProgress( "Gauss Filter Iteration", 3 * iterations * grid->getNbCoordsZ() ) );
+    }
     m_progress->addSubProgress( prog );
 
     // iterate filter, apply at least once
@@ -224,6 +290,11 @@ void WMGaussFiltering::moduleMain()
             // a changed number of iteration also requires recalculation
             iterations = m_iterations->get( true );
             dataChanged = ( iterations >= 1 );
+        }
+
+        if ( m_mode->changed() )
+        {
+            dataChanged = true;
         }
 
         if ( dataChanged )
@@ -316,4 +387,6 @@ void WMGaussFiltering::properties()
     m_iterations      = m_properties->addProperty( "Iterations",         "How often should the filter be applied.", 1, m_propCondition );
     m_iterations->setMin( 0 );
     m_iterations->setMax( 100 );
+
+    m_mode            = m_properties->addProperty( "Mode", "", false, m_propCondition );
 }

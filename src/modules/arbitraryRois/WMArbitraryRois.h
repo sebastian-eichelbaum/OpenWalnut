@@ -31,15 +31,15 @@
 #include <osg/Geode>
 
 #include "../../graphicsEngine/WROI.h"
-#include "../../graphicsEngine/WROIBox.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/WDataSetScalar.h"
 
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+class WROIBox;
+class WDataSetScalar;
 
 /** 
  * Someone should add some documentation here.
@@ -86,6 +86,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**
@@ -103,6 +108,10 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
 
 private:
     /**

@@ -54,7 +54,10 @@
 // when a roi got removed
 #define WQT_ROI_REMOVE_EVENT QEvent::User + 7
 
-// when a module got deleted
+// when a module got removed from the root container
 #define WQT_MODULE_REMOVE_EVENT QEvent::User + 8
+
+// when a module should be deleted finally.
+#define WQT_MODULE_DELETE_EVENT QEvent::User + 9
 
 #endif  // WEVENTTYPES_H

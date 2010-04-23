@@ -81,6 +81,13 @@ public:
      */
     wmath::WVector3D getVectorAt( size_t index ) const;
 
+    /**
+     * Overwrites the isVectorDataSet check.
+     *
+     * \return Non empty reference to the dataset if it is a vector dataset, empty if not.
+     */
+    boost::shared_ptr< WDataSetVector > isVectorDataSet();
+
 protected:
 
     /**
@@ -90,5 +97,10 @@ protected:
 
 private:
 };
+
+inline boost::shared_ptr< WDataSetVector > WDataSetVector::isVectorDataSet()
+{
+    return boost::shared_static_cast< WDataSetVector >( shared_from_this() );
+}
 
 #endif  // WDATASETVECTOR_H

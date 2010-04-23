@@ -41,6 +41,7 @@
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
@@ -823,7 +824,9 @@ void WMNavSlices::updateTextures()
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms
-                float t = ( *iter )->getThreshold() / 255.0;
+                float minValue = ( *iter )->getMinValue();
+                float maxValue = ( *iter )->getMaxValue();
+                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
                 float a = ( *iter )->getAlpha();
                 int cmap = ( *iter )->getSelectedColormap();
 

@@ -26,16 +26,16 @@
 #include <string>
 #include <vector>
 
-#include "WRMBranch.h"
+#include "../../dataHandler/WDataSetScalar.h"
 
-#include "WROIManagerFibers.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../graphicsEngine/WROIArbitrary.h"
 
+#include "WRMBranch.h"
+#include "WROIManagerFibers.h"
+
 #include "WRMROIRepresentation.h"
-
-
 
 WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch  ) :
     m_roi( roi ),

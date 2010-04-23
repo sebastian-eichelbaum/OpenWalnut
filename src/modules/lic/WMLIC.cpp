@@ -27,6 +27,10 @@
 
 #include <osg/LightModel>
 
+#include "../../common/WSharedSequenceContainer.h"
+#include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "fibernavigator/SurfaceLIC.h"
@@ -65,17 +69,24 @@ void WMLIC::connectors()
             new WModuleInputData< WTriangleMesh2 >( shared_from_this(),
                 "inMesh", "The triangle mesh used for painting the LIC" )
             );
-    m_vectorIC = boost::shared_ptr< WModuleInputData < WDataSetVector > >(
-            new WModuleInputData< WDataSetVector >( shared_from_this(),
-                "inVectorDS", "The vectors used for computing the Streamlines used for the LIC" )
-            );
+// TODO(math): reenable the connector when selecting of two input in GUI is possible.
+// The reason for disabling is just that you can choose the lic on a surface without project files due to its two inputs
+// Alternatively the vector dataset is choosen from first subject dataset containing evec in its file name, see moduleMain
+// for more informations.
+//
+//    m_vectorIC = boost::shared_ptr< WModuleInputData < WDataSetVector > >(
+//            new WModuleInputData< WDataSetVector >( shared_from_this(),
+//                "inVectorDS", "The vectors used for computing the Streamlines used for the LIC" )
+//            );
+
+// TODO(math): ATM we are unsure about providing an output. Caution the input mesh is modified!
 //    m_meshOC = boost::shared_ptr< WModuleOutputData < WTriangleMesh2 > >(
 //            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(),
 //                "outMesh", "The LIC" )
 //            );
 
     addConnector( m_meshIC );
-    addConnector( m_vectorIC );
+//    addConnector( m_vectorIC );
 //    addConnector( m_meshOC );
     WModule::connectors();
 }
@@ -145,7 +156,7 @@ void WMLIC::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_meshIC->getDataChangedCondition() );
-    m_moduleState.add( m_vectorIC->getDataChangedCondition() );
+//    m_moduleState.add( m_vectorIC->getDataChangedCondition() );
 
     ready();
 
@@ -159,22 +170,79 @@ void WMLIC::moduleMain()
         }
 
         boost::shared_ptr< WTriangleMesh2 > newMesh = m_meshIC->getData();
-        boost::shared_ptr< WDataSetVector > newVector = m_vectorIC->getData();
-        bool dataChanged = ( m_inMesh != newMesh ) || ( m_inVector != newVector );
-        bool dataValid   = ( newMesh.get() && newVector.get() );
+// TODO(math): if the vector input is available again please enable this again too
+//        boost::shared_ptr< WDataSetVector > newVector = m_vectorIC->getData();
+//        bool dataChanged = ( m_inMesh != newMesh ) || ( m_inVector != newVector );
+//        bool dataValid   = ( newMesh.get() && newVector.get() );
+
+        bool dataChanged = ( m_inMesh != newMesh );
+        bool dataValid   = newMesh.get();
 
         if ( dataChanged && dataValid )
         {
             debugLog() << "Received Data.";
             m_inMesh = newMesh;
-            m_inVector = newVector;
+//            m_inVector = newVector;
+            WAssert( m_inVector = searchVectorDS(), "There was no vector dataset loaded, please load it first!" );
             m_inMesh->doLoopSubD();
             m_inMesh->doLoopSubD();
             SurfaceLIC lic( m_inVector, m_inMesh );
             lic.execute();
             lic.updateMeshColor( m_inMesh );
 //            m_meshOC.updateData( m_inMesh );
+            debugLog() << "Start rendering LIC";
             renderMesh( m_inMesh );
+            debugLog() << "Rendering done";
         }
     }
+}
+
+boost::shared_ptr< WDataSetVector > WMLIC::searchVectorDS() const
+{
+    boost::shared_ptr< WDataSetVector > result;
+    boost::shared_ptr< WSubject > subject;
+    try
+    {
+        subject =  WDataHandler::getDefaultSubject();
+    }
+    catch( WDHNoSuchSubject )
+    {
+        return result;
+    }
+    if( !subject )
+    {
+        return result;
+    }
+
+    WSubject::DatasetAccess da = subject->getAccessObject();
+    da->beginRead();
+
+    for( std::vector< boost::shared_ptr< WDataSet > >::iterator it = da->get().begin(); it != da->get().end(); ++it )
+    {
+        if( ( *it )->isVectorDataSet() )
+        {
+            da->endRead();
+            return ( *it )->isVectorDataSet();
+        }
+    }
+    da->endRead();
+
+    return result;
+}
+
+void WMLIC::activate()
+{
+    if( m_moduleNode )
+    {
+        if ( m_active->get() )
+        {
+            m_moduleNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_moduleNode->setNodeMask( 0x0 );
+        }
+    }
+
+    WModule::activate();
 }

@@ -22,29 +22,50 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#ifndef WMODULEREMOVEDEVENT_H
+#define WMODULEREMOVEDEVENT_H
+
+#include <boost/shared_ptr.hpp>
+
+#include <QtCore/QEvent>
+
+#include "../../../kernel/WModule.h"
 
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * Event signalling a module was removed from the kernel root container.
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
-#include "remove.xpm"
+class WModuleRemovedEvent: public QEvent
+{
+public:
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
+    /**
+     * Creates a new event instance denoting that the specified module got removed from the root container.
+     *
+     * \param module the module
+     */
+    explicit WModuleRemovedEvent( boost::shared_ptr< WModule > module );
 
-#include "box.xpm"
-#include "question.xpm"
-#include "o.xpm"
+    /**
+     * Destructor.
+     */
+    virtual ~WModuleRemovedEvent();
 
-#include "moduleBusy.xpm"
-#include "moduleCrashed.xpm"
+    /**
+     * Getter for the module that got removed.
+     *
+     * \return the module.
+     */
+    boost::shared_ptr< WModule > getModule();
 
-#endif  // WICONS_H
+protected:
+
+    /**
+     * The module that got removed.
+     */
+    boost::shared_ptr< WModule > m_module;
+
+private:
+};
+
+#endif  // WMODULEREMOVEDEVENT_H
+

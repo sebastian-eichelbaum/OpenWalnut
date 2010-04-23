@@ -27,7 +27,7 @@
 #include "WModuleDeleteEvent.h"
 
 WModuleDeleteEvent::WModuleDeleteEvent( WQtTreeItem* treeItem )
-    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_REMOVE_EVENT ) ),
+    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_DELETE_EVENT ) ),
     m_item( treeItem )
 {
     // initialize members

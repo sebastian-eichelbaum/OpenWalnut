@@ -33,14 +33,17 @@
 #include <osg/PolygonMode>
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/WAssert.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../kernel/WKernel.h"
 
 #include "../../graphicsEngine/WROIArbitrary.h"
+#include "../../graphicsEngine/WROIBox.h"
 
 #include "../marchingCubes/WMarchingCubesAlgorithm.h"
 
 #include "WMArbitraryRois.h"
+#include "arbitraryROI.xpm"
 
 WMArbitraryRois::WMArbitraryRois():
     WModule(),
@@ -61,6 +64,11 @@ boost::shared_ptr< WModule > WMArbitraryRois::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMArbitraryRois() );
+}
+
+const char** WMArbitraryRois::getXPMIcon() const
+{
+    return arbitraryROI_xpm;
 }
 
 const std::string WMArbitraryRois::getName() const
@@ -159,6 +167,11 @@ void WMArbitraryRois::initSelectionRoi()
 
 void WMArbitraryRois::createCutDataset()
 {
+    if( !m_active->get() )
+    {
+        return;
+    }
+
     boost::shared_ptr< WValueSetBase > newValueSet;
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
@@ -319,6 +332,11 @@ void WMArbitraryRois::renderMesh()
 
 void WMArbitraryRois::finalizeRoi()
 {
+    if( !m_active->get() )
+    {
+        return;
+    }
+
     if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
     {
         wlog::warn( "WMArbitraryRois" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
@@ -334,4 +352,21 @@ void WMArbitraryRois::finalizeRoi()
     {
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
     }
+}
+
+void WMArbitraryRois::activate()
+{
+    if( m_selectionRoi )
+    {
+        if( m_active->get() )
+        {
+            m_selectionRoi->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_selectionRoi->setNodeMask( 0x0 );
+        }
+    }
+
+    WModule::activate();
 }

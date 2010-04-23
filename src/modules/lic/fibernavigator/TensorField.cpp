@@ -52,11 +52,6 @@ FTensor TensorField::getInterpolatedVector(float x, float y, float z)
     WAssert( grid->encloses( pos ), "Grid does not enclose position to interpolate" );
     std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
 
-    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
-
-//    double xMult = localPos[0] / grid->getOffsetX();
-//    double yMult = localPos[1] / grid->getOffsetY();
-//    double zMult = localPos[2] / grid->getOffsetZ();
     float xMult = x - (int)x;
     float yMult = y - (int)y;
     float zMult = z - (int)z;

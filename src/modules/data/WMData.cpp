@@ -29,6 +29,7 @@
 #include "../../common/WIOTools.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
@@ -134,7 +135,7 @@ void WMData::properties()
                                                   true,
                                                   propertyCallback );
     m_threshold = m_properties->addProperty( "Threshold", "Values below this threshold will not be "
-                                              "shown in colormaps.", 0, propertyCallback );
+                                              "shown in colormaps.", 0., propertyCallback );
     m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
                                             " values from several data sets.", 100, propertyCallback );
     m_opacity->setMax( 100 );
@@ -245,6 +246,13 @@ void WMData::moduleMain()
 
         WLoaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+
+        if( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet ) )
+        {
+            m_threshold->setMin( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
+            m_threshold->setMax( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMax() );
+            m_threshold->set( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
+        }
 
         boost::shared_ptr< WDataSetSingle > dss;
         dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );

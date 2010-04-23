@@ -31,11 +31,15 @@
 #include <osg/LightModel>
 
 #include "../common/WProgressCombiner.h"
-#include "../modules/marchingCubes/WMarchingCubesAlgorithm.h"
-#include "WROIArbitrary.h"
-#include "WGraphicsEngine.h"
-#include "WGEUtils.h"
 
+#include "../dataHandler/WDataSetScalar.h"
+
+#include "../modules/marchingCubes/WMarchingCubesAlgorithm.h"
+
+#include "WGraphicsEngine.h"
+//#include "WGEUtils.h"
+
+#include "WROIArbitrary.h"
 
 WROIArbitrary::WROIArbitrary( boost::shared_ptr< const WDataSetScalar > dataSet, boost::shared_ptr< WTriangleMesh2 > triMesh, float threshold ) :
     WROI(),

@@ -32,6 +32,9 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
@@ -43,7 +46,9 @@ WMFiberDisplay::WMFiberDisplay()
       m_noData( new WCondition, true ),
       m_osgNode( osg::ref_ptr< osg::Group >() )
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "fake-tubes" ) );
+    m_shaderTubes = osg::ref_ptr< WShader > ( new WShader( "fake-tubes" ) );
+    m_shaderTexturedFibers = osg::ref_ptr< WShader > ( new WShader( "texturedFibers" ) );
+    m_textureChanged = true;
 }
 
 WMFiberDisplay::~WMFiberDisplay()
@@ -65,6 +70,11 @@ void WMFiberDisplay::moduleMain()
     // additional fire-condition: "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
+
+    // now, to watch changing/new textures use WSubject's change condition
+    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
+            boost::bind( &WMFiberDisplay::notifyTextureChange, this )
+    );
 
     ready();
 
@@ -135,11 +145,6 @@ void WMFiberDisplay::update()
         }
     }
 
-    if ( WKernel::getRunningKernel()->getRoiManager()->isDirty() )
-    {
-        //m_tubeDrawable->dirtyDisplayList();
-    }
-
     slock.unlock();
 }
 
@@ -170,6 +175,9 @@ void WMFiberDisplay::create()
     m_osgNode = osgNodeNew;
 
     activate();
+
+    osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
+    initUniforms( rootState );
 }
 
 void WMFiberDisplay::connectors()
@@ -206,36 +214,56 @@ void WMFiberDisplay::properties()
     m_coloring = m_properties->addProperty( "Global or Local Coloring", "Switches the coloring between global and local.", true );
 
     m_useTubesProp = m_properties->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
+    m_useTextureProp = m_properties->addProperty( "Use Texture", "Texture fibers with the texture on top of the list.", false );
     m_tubeThickness = m_properties->addProperty( "Tube Thickness", "Adjusts the thickness of the tubes.", 50.,
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
-    m_tubeThickness->setMax( 1000 );
+    m_tubeThickness->setMax( 300 );
     m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
     m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WKernel::getAppPathObject() );
 }
 
 void WMFiberDisplay::toggleTubes()
 {
-    if( m_useTubesProp->changed() )
+    osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
+
+    if ( m_textureChanged )
+    {
+        m_textureChanged = false;
+        updateTexture();
+    }
+
+    if( m_useTubesProp->changed() || m_useTextureProp->changed() )
     {
         if ( m_useTubesProp->get( true ) )
         {
+            updateTexture();
+            m_useTextureProp->get( true );
             m_tubeDrawable->setUseTubes( true );
-            m_tubeDrawable->dirtyDisplayList();
-            m_shader->apply( m_osgNode );
-            osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) );
-            osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
+            m_shaderTubes->apply( m_osgNode );
             rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) ) );
-
             m_uniformTubeThickness = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "u_thickness", static_cast<float>( m_tubeThickness->get() ) ) );
             rootState->addUniform( m_uniformTubeThickness );
+            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_useTextureProp->get() ) ) );
+        }
+        else if ( m_useTextureProp->get( true ) && !m_useTubesProp->get( true ) )
+        {
+            m_tubeDrawable->setUseTubes( false );
+            updateTexture();
+            m_shaderTubes->deactivate( m_osgNode );
+            m_shaderTexturedFibers->apply( m_osgNode );
         }
         else
         {
             m_tubeDrawable->setUseTubes( false );
-            m_tubeDrawable->dirtyDisplayList();
-            m_shader->deactivate( m_osgNode );
+            m_shaderTubes->deactivate( m_osgNode );
+            m_shaderTexturedFibers->deactivate( m_osgNode );
         }
+    }
+
+    if  ( !m_useTextureProp->get( true ) && !m_useTubesProp->get( true ) )
+    {
+        rootState->setTextureMode( 0, GL_TEXTURE_3D, osg::StateAttribute::OFF );
     }
 }
 
@@ -260,4 +288,68 @@ void WMFiberDisplay::saveSelected()
 {
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
     m_dataset->saveSelected( m_saveFileName->getAsString(), active );
+}
+
+void WMFiberDisplay::updateTexture()
+{
+    osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
+
+    // grab a list of data textures
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures();
+
+    if ( tex.size() > 0 )
+    {
+        osg::ref_ptr<osg::Texture3D> texture3D = tex[0]->getTexture();
+
+        if ( tex[0]->isInterpolated() )
+        {
+            texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+            texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+        }
+        else
+        {
+            texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+            texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+        }
+        rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+
+
+        m_uniformType->set( tex[0]->getDataType() );
+        float minValue = tex[0]->getMinValue();
+        float maxValue = tex[0]->getMaxValue();
+        float thresh = ( tex[0]->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
+
+        m_uniformThreshold->set( thresh );
+        m_uniformsColorMap->set( tex[0]->getSelectedColormap() );
+
+        m_uniformDimX->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsX() ) );
+        m_uniformDimY->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsY() ) );
+        m_uniformDimZ->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsZ() ) );
+    }
+}
+
+void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
+{
+    m_uniformSampler = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex", 0 ) );
+    m_uniformType = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type", 0 ) );
+    m_uniformThreshold = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold", 0.0f ) );
+    m_uniformsColorMap = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cMap", 0 ) );
+
+    m_uniformDimX = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "dimX", 1 ) );
+    m_uniformDimY = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "dimY", 1 ) );
+    m_uniformDimZ = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "dimZ", 1 ) );
+
+    rootState->addUniform( m_uniformSampler );
+    rootState->addUniform( m_uniformType );
+    rootState->addUniform( m_uniformThreshold );
+    rootState->addUniform( m_uniformsColorMap );
+
+    rootState->addUniform( m_uniformDimX );
+    rootState->addUniform( m_uniformDimY );
+    rootState->addUniform( m_uniformDimZ );
+}
+
+void WMFiberDisplay::notifyTextureChange()
+{
+    m_textureChanged = true;
 }

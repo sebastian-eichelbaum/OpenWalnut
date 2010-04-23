@@ -72,9 +72,9 @@ public:
     std::string getName();
 
     /**
-     * Initiates the item to delete itself from the tree. It also removes the underlying module to be deleted from the module graph.
+     * Gets called by the GUI whenever the module was removed from the root container and should now be deleted.
      */
-    virtual void deleteSelf();
+    virtual void gotRemoved();
 
 public slots:
 
