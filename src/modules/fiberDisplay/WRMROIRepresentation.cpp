@@ -117,20 +117,14 @@ void WRMROIRepresentation::recalculate()
     {
         osg::ref_ptr<WROIArbitrary>roi = osg::dynamic_pointer_cast<WROIArbitrary>( m_roi );
 
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( roi->getDataSet()->getGrid() );
-
-        boost::shared_ptr< WValueSet< float > > vals;
-        vals =  boost::shared_dynamic_cast< WValueSet< float > >( roi->getDataSet()->getValueSet() );
-
         float threshold = static_cast<float>( roi->getThreshold() );
 
-        size_t nx = grid->getNbCoordsX();
-        size_t ny = grid->getNbCoordsY();
-        //size_t nz = grid->getNbCoordsZ();
+        size_t nx = roi->getCoordDimensions()[0];
+        size_t ny = roi->getCoordDimensions()[1];
 
-        double dx = grid->getOffsetX();
-        double dy = grid->getOffsetY();
-        double dz = grid->getOffsetZ();
+        double dx = roi->getCoordOffsets()[0];
+        double dy = roi->getCoordOffsets()[1];
+        double dz = roi->getCoordOffsets()[2];
 
         for ( size_t i = 0; i < m_currentArray->size()/3; ++i )
         {
@@ -143,7 +137,7 @@ void WRMROIRepresentation::recalculate()
             size_t z = static_cast<size_t>( ( *m_currentArray )[i * 3 + 2] / dz );
             int index = x + y * nx + z * nx * ny;
 
-            if ( static_cast<float>( vals->getScalar( index ) ) - threshold > 0.1 )
+            if ( static_cast<float>( roi->getValue( index ) ) - threshold > 0.1 )
             {
                 ( *m_currentBitfield )[getLineForPoint( i )] = 1;
             }

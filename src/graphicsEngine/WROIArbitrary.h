@@ -27,10 +27,12 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <boost/thread.hpp>
 
 #include "../common/math/WPosition.h"
+#include "../common/math/WMatrix.h"
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 
@@ -48,11 +50,21 @@ class WROIArbitrary : public WROI
 public:
     /**
      * constructor
-     * \param dataSet
+     * \param nbCoordsX number of vertices in X direction
+     * \param nbCoordsY number of vertices in Y direction
+     * \param nbCoordsZ number of vertices in Z direction
+     * \param mat the matrix transforming the vertices from canonical space
+     * \param vals the values at the vertices
      * \param triMesh
      * \param threshold
+     * \param maxThreshold The maximum of the values.
      */
-    WROIArbitrary( boost::shared_ptr< const WDataSetScalar > dataSet, boost::shared_ptr< WTriangleMesh2 > triMesh, float threshold );
+    WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                   const wmath::WMatrix< double >& mat,
+                   const std::vector< float >& vals,
+                   boost::shared_ptr< WTriangleMesh2 > triMesh,
+                   float threshold,
+                   float maxThreshold );
 
     /**
      * destructor
@@ -76,9 +88,20 @@ public:
     double getMaxThreshold();
 
     /**
-     * getter
+     * Get the number of vertices in the three coordinate directions
      */
-    boost::shared_ptr< const WDataSetScalar > getDataSet();
+    std::vector< size_t > getCoordDimensions();
+
+    /**
+     * Get the vertex offsets in the three coordinate directions
+     */
+    std::vector< double > getCoordOffsets();
+
+    /**
+     * Get the i-th value of the data defining the ROI
+     * \param i the index of the value
+     */
+    float getValue( size_t i );
 
     /**
      *  updates the graphics
@@ -88,11 +111,13 @@ public:
 
 protected:
 private:
-    boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
 
+    std::vector< size_t > m_nbCoordsVec; //!< The data's number of vertices in X, Y and Z direction.
+    wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the vertices.
+    const std::vector< float > m_vals; //!< The data at the vertices.
     boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
-
-    double m_threshold; //!< the threshold
+    float m_threshold; //!< the threshold
+    float m_maxThreshold; //!< the threshold
 
     /**
      * Node callback to handle updates properly

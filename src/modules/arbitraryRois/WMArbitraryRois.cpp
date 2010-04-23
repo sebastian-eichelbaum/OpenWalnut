@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../graphicsEngine/WROIBox.h"
 
-#include "../marchingCubes/WMarchingCubesAlgorithm.h"
+#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "WMArbitraryRois.h"
 #include "arbitraryROI.xpm"
@@ -228,11 +228,13 @@ void WMArbitraryRois::createCutDataset()
         default:
             WAssert( false, "Unknown data type in MarchingCubes module" );
     }
-    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
-    m_newDataSet = boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_dataSet->getGrid() ) );
-    boost::shared_ptr< WGridRegular3D > newGrid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_newDataSet ).getGrid() );
+    m_newValueSet = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
     WMarchingCubesAlgorithm mcAlgo;
-    m_triMesh = mcAlgo.generateSurface( newGrid, boost::shared_dynamic_cast< WValueSet< float > >( newValueSet ), threshold, m_progress );
+    m_triMesh = mcAlgo.generateSurface( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
+                                        grid->getTransformationMatrix(),
+                                        m_newValueSet->rawDataVectorPointer(),
+                                        threshold,
+                                        m_progress );
 }
 
 template< typename T > std::vector< float > WMArbitraryRois::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
@@ -342,7 +344,14 @@ void WMArbitraryRois::finalizeRoi()
         wlog::warn( "WMArbitraryRois" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
         return;
     }
-    osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIArbitrary( m_newDataSet, m_triMesh, m_threshold->get() ) );
+
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIArbitrary(  grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
+                                                                            grid->getTransformationMatrix(),
+                                                                            *m_newValueSet->rawDataVectorPointer(),
+                                                                            m_triMesh,
+                                                                            m_threshold->get(),
+                                                                            m_dataSet->getMax() ) );
 
     if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
     {

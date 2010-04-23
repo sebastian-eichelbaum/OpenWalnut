@@ -35,8 +35,6 @@
 #ifndef MARCHINGCUBESCASETABLES_H
 #define MARCHINGCUBESCASETABLES_H
 
-#include "WMMarchingCubes.h"
-
 namespace wMarchingCubesCaseTables
 {
 const unsigned int edgeTable[256] =
