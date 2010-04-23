@@ -112,7 +112,7 @@ void main()
     col = clamp(col, 0.0, 1.0);
 
     // opacity of the surface
-    col.a = opacity * .01;
+    col.a = float(opacity) * .01;
 
     gl_FragColor = col;
 }
