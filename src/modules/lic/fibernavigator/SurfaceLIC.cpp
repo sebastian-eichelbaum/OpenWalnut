@@ -61,6 +61,11 @@ void SurfaceLIC::execute()
 
         // setup all the textures
         // create a random input texture of luminance values
+#ifdef _MSC_VER
+#define srand48 srand
+#define drand48 rand
+#endif
+
 #ifdef __WXMSW__
         srand(time(0));
 #else
