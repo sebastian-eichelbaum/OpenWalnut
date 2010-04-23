@@ -11,3 +11,4 @@ ENDIF()
 FILE( GLOB LIBEEP_SRC "libavr/*.c" "libcnt/*.c" "libeep/*.c" )
 
 ADD_LIBRARY( libeep ${LIBEEP_SRC} )
+TARGET_LINK_LIBRARIES( libeep m )
