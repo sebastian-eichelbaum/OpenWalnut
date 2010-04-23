@@ -61,19 +61,14 @@ void SurfaceLIC::execute()
 
         // setup all the textures
         // create a random input texture of luminance values
-#ifdef _MSC_VER
-#define srand48 srand
-#define drand48 rand
-#endif
-
-#ifdef __WXMSW__
+#ifdef _WIN32
         srand(time(0));
 #else
         srand48(time(0));
 #endif
         for (int i = 0; i < m_mesh->getNumTriangles(); ++i)
         {
-#ifdef __WXMSW__
+#ifdef _WIN32
             input_texture[i] = (float) rand()/ (RAND_MAX + 1);
 #else
             input_texture[i] = (float) drand48();
