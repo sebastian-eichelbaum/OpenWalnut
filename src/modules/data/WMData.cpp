@@ -251,6 +251,7 @@ void WMData::moduleMain()
         {
             m_threshold->setMin( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
             m_threshold->setMax( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMax() );
+            m_threshold->set( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
         }
 
         boost::shared_ptr< WDataSetSingle > dss;
