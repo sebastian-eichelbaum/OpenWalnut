@@ -301,9 +301,6 @@ private:
      */
     std::vector< osg::ref_ptr<osg::Uniform> > m_thresholdUniforms;
 
-    std::vector< osg::ref_ptr<osg::Uniform> > m_minUniforms; //!< minimum value per texture
-    std::vector< osg::ref_ptr<osg::Uniform> > m_maxUniforms; //!< maximu value per texture
-
     /**
      * vector of color maps per texture
      */

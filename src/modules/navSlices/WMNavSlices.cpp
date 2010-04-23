@@ -824,18 +824,14 @@ void WMNavSlices::updateTextures()
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms
-                float t = ( *iter )->getThreshold();
+                float minValue = ( *iter )->getMinValue();
+                float maxValue = ( *iter )->getMaxValue();
+                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue );
                 float a = ( *iter )->getAlpha();
                 int cmap = ( *iter )->getSelectedColormap();
 
                 m_typeUniforms[c]->set( ( *iter )->getDataType() );
                 m_thresholdUniforms[c]->set( t );
-                {
-                    float minValue = ( *iter )->getMinValue();
-                    float maxValue = ( *iter )->getMaxValue();
-                    m_minUniforms[c]->set( minValue );
-                    m_maxUniforms[c]->set( maxValue );
-                }
                 m_alphaUniforms[c]->set( a );
                 m_cmapUniforms[c]->set( cmap );
 
@@ -895,28 +891,6 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold8", 0.0f ) ) );
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold9", 0.0f ) ) );
 
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min0", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min1", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min2", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min3", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min4", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min5", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min6", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min7", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min8", 0.0f ) ) );
-    m_minUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "min9", 0.0f ) ) );
-
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max0", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max1", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max2", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max3", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max4", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max5", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max6", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max7", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max8", 0.0f ) ) );
-    m_maxUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "max9", 0.0f ) ) );
-
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 2 ) ) );
@@ -943,8 +917,6 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
-        rootState->addUniform( m_minUniforms[i] );
-        rootState->addUniform( m_maxUniforms[i] );
         rootState->addUniform( m_alphaUniforms[i] );
         rootState->addUniform( m_samplerUniforms[i] );
         rootState->addUniform( m_cmapUniforms[i] );
