@@ -149,17 +149,19 @@ std::vector<double> WMGaussFiltering::filterField( boost::shared_ptr< WValueSet<
         std::vector<double> newVals1( vals->elementsPerValue() * nX * nY * nZ, 0. );
         std::vector<double> newVals2( vals->elementsPerValue() * nX * nY * nZ, 0. );
 
-        filterField1D( newVals1, vals,     prog, nX, nY, nZ, 1, nX, nX*nY ); // run in X direction
-        filterField1D( newVals2, newVals1, prog, nY, nX, nZ, nX, 1, nX*nY ); // run in Y direction
-        filterField1D( newVals1, newVals2, prog, nZ, nX, nY, nX*nY, 1, nX ); // run in Z direction
+        filterField1D( &newVals1, vals,     prog, nX, nY, nZ, 1, nX, nX*nY ); // run in X direction
+        filterField1D( &newVals2, newVals1, prog, nY, nX, nZ, nX, 1, nX*nY ); // run in Y direction
+        filterField1D( &newVals1, newVals2, prog, nZ, nX, nY, nX*nY, 1, nX ); // run in Z direction
 
         return newVals1;
     }
 }
 
 template< typename T >
-void WMGaussFiltering::filterField1D( std::vector<double>&newVals, boost::shared_ptr< WValueSet< T > > vals,
-                                                     boost::shared_ptr< WProgress > prog, size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
+void WMGaussFiltering::filterField1D( std::vector<double>* newVals,
+                                      boost::shared_ptr< WValueSet< T > > vals,
+                                      boost::shared_ptr< WProgress > prog,
+                                      size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
 {
     for ( size_t z = 1; z < nZ - 1; ++z )
     {
@@ -169,7 +171,7 @@ void WMGaussFiltering::filterField1D( std::vector<double>&newVals, boost::shared
             for ( size_t x = 1; x < nX - 1; ++x )
             {
                 size_t id = x*dx + y*dy + z*dz;
-                newVals[ id ] =
+                ( *newVals )[ id ] =
                     0.25 * ( vals->getScalar( id - dx ) + 2. * vals->getScalar( id ) + vals->getScalar( id + dx ) );
             }
         }
@@ -177,8 +179,10 @@ void WMGaussFiltering::filterField1D( std::vector<double>&newVals, boost::shared
 }
 
 template< typename T >
-void WMGaussFiltering::filterField1D( std::vector<T>&newVals, const std::vector<T>& vals,
-                                                     boost::shared_ptr< WProgress > prog, size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
+void WMGaussFiltering::filterField1D( std::vector<T>* newVals,
+                                      const std::vector<T>& vals,
+                                      boost::shared_ptr< WProgress > prog,
+                                      size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
 {
     for ( size_t z = 1; z < nZ - 1; ++z )
     {
@@ -188,7 +192,7 @@ void WMGaussFiltering::filterField1D( std::vector<T>&newVals, const std::vector<
             for ( size_t x = 1; x < nX - 1; ++x )
             {
                 size_t id = x*dx + y*dy + z*dz;
-                newVals[ id ] =
+                ( *newVals )[ id ] =
                     0.25 * ( vals[ id - dx ] + 2. * vals[ id ] + vals[  id + dx ] );
             }
             }

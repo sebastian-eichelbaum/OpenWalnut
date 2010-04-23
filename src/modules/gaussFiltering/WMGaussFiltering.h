@@ -150,7 +150,6 @@ private:
      * Run the 1D Gaussian filter over the field
      * \param newVals result of the filtering
      * \param vals the values to work on
-     * \param grid the grid for the dataset
      * \param prog the progess used for this filter iteration
      * \param Nx dimension along the filter
      * \param Ny first dimension perpendicular to the filter
@@ -160,15 +159,16 @@ private:
      * \param dz second element offset perpendicular to the filter
      */
     template< typename T >
-    void filterField1D( std::vector<T>&newVals, const std::vector<T>&vals,
-                                                     boost::shared_ptr< WProgress > prog, size_t Nx, size_t Ny, size_t Nz, size_t dx, size_t dy, size_t dz );
+    void filterField1D( std::vector<T>* newVals,
+                        const std::vector<T>&vals,
+                        boost::shared_ptr< WProgress > prog,
+                        size_t Nx, size_t Ny, size_t Nz, size_t dx, size_t dy, size_t dz );
 
 
     /**
      * Run the 1D Gaussian filter over the field
      * \param newVals result of the filtering
      * \param vals the values to work on
-     * \param grid the grid for the dataset
      * \param prog the progess used for this filter iteration
      * \param Nx dimension along the filter
      * \param Ny first dimension perpendicular to the filter
@@ -178,8 +178,10 @@ private:
      * \param dz second element offset perpendicular to the filter
      */
     template< typename T >
-    void filterField1D( std::vector<double>&newVals, boost::shared_ptr< WValueSet< T > > vals,
-                                                     boost::shared_ptr< WProgress > prog, size_t Nx, size_t Ny, size_t Nz, size_t dx, size_t dy, size_t dz );
+    void filterField1D( std::vector<double>* newVals,
+                        boost::shared_ptr< WValueSet< T > > vals,
+                        boost::shared_ptr< WProgress > prog,
+                        size_t Nx, size_t Ny, size_t Nz, size_t dx, size_t dy, size_t dz );
     /**
      * Run the filter iteratively over the field. The number of iterations is determined by m_iterations.
      *
