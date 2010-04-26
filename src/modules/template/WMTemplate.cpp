@@ -22,6 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// How to create your own module in OpenWalnut? Here are the steps to take:
+//   * copy the template module directory
+//   * think about a name for your module
+//   * rename the files from WMTemplate.cpp and WMTemplate.h to WMYourModuleName.cpp and WMYourModuleName.h
+//   * rename the class inside these files to WMYourModuleName
+//   * change WMYourModuleName::getName() to a unique name, like "Your Module Name"
+//   * add a new prototype of your module to src/kernel/WModuleFactory.cpp -> search for m_prototypes.insert
+//     * analogously to the other modules, add yours
+//     * Note: this step will be automated in some time
+//   * run CMake and compile
+//   * read the documentation in this module and modify it to your needs
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+// Some rules to the inclusion of headers:
+//  * Ordering:
+//    * C Headers
+//    * C++ Standard headers
+//    * External Lib headers (like OSG or Boost headers)
+//    * headers of other classes inside OpenWalnut
+//    * your own header file
+
 #include <string>
 
 #include <osg/ShapeDrawable>
@@ -33,8 +61,8 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
 
-#include "WMTemplate.h"
 #include "template.xpm"
+#include "WMTemplate.h"
 
 WMTemplate::WMTemplate():
     WModule()
