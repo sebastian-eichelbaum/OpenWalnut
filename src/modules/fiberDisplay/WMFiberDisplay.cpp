@@ -40,6 +40,8 @@
 #include "WMFiberDisplay.h"
 #include "fiberdisplay.xpm"
 
+bool WMFiberDisplay::m_fiberDisplayRunning = false;
+
 WMFiberDisplay::WMFiberDisplay()
     : WModule(),
       m_noData( new WCondition, true ),
@@ -56,7 +58,13 @@ WMFiberDisplay::~WMFiberDisplay()
 
 boost::shared_ptr< WModule > WMFiberDisplay::factory() const
 {
+    m_fiberDisplayRunning = true;
     return boost::shared_ptr< WModule >( new WMFiberDisplay() );
+}
+
+bool WMFiberDisplay::isRunning()
+{
+    return m_fiberDisplayRunning;
 }
 
 const char** WMFiberDisplay::getXPMIcon() const

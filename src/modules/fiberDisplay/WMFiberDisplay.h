@@ -80,6 +80,13 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
+    /**
+     * Checks whether the fiber display is already running.
+     *
+     * \return true if running.
+     */
+    static bool isRunning();
+
 protected:
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -194,6 +201,11 @@ private:
     osg::ref_ptr<osg::Uniform> m_uniformDimX; //!< x dimension of the dataset for calculating the texture coord in the shader
     osg::ref_ptr<osg::Uniform> m_uniformDimY; //!< y dimension of the dataset for calculating the texture coord in the shader
     osg::ref_ptr<osg::Uniform> m_uniformDimZ; //!< z dimension of the dataset for calculating the texture coord in the shader
+
+    /**
+     * To avoid multiple instances of the fiber display.
+     */
+    static bool m_fiberDisplayRunning;
 
     /**
      * switches between fiber display and tube representation
