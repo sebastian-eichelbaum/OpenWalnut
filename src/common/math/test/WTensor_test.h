@@ -37,45 +37,6 @@
 class WTensorTest : public CxxTest::TestSuite
 {
 public:
-
-    /**
-     * Test getDimension().
-     */
-    void testGetDimension()
-    {
-        wmath::WTensor< 1, 1 > w11;
-        TS_ASSERT_EQUALS( w11.getDimension(), 1 );
-        wmath::WTensor< 2, 4 > w24;
-        TS_ASSERT_EQUALS( w24.getDimension(), 4 );
-        wmath::WTensor< 3, 5 > w35;
-        TS_ASSERT_EQUALS( w35.getDimension(), 5 );
-        wmath::WTensor< 4, 3 > w43;
-        TS_ASSERT_EQUALS( w43.getDimension(), 3 );
-        wmath::WTensor< 5, 1 > w51;
-        TS_ASSERT_EQUALS( w51.getDimension(), 1 );
-        wmath::WTensor< 6, 2 > w62;
-        TS_ASSERT_EQUALS( w62.getDimension(), 2 );
-    }
-
-    /**
-     * Test getOrder().
-     */
-    void testGetOrder()
-    {
-        wmath::WTensor< 1, 1 > w11;
-        TS_ASSERT_EQUALS( w11.getOrder(), 1 );
-        wmath::WTensor< 2, 4 > w24;
-        TS_ASSERT_EQUALS( w24.getOrder(), 2 );
-        wmath::WTensor< 3, 5 > w35;
-        TS_ASSERT_EQUALS( w35.getOrder(), 3 );
-        wmath::WTensor< 4, 3 > w43;
-        TS_ASSERT_EQUALS( w43.getOrder(), 4 );
-        wmath::WTensor< 5, 1 > w51;
-        TS_ASSERT_EQUALS( w51.getOrder(), 5 );
-        wmath::WTensor< 6, 2 > w62;
-        TS_ASSERT_EQUALS( w62.getOrder(), 6 );
-    }
-
     /**
      * Test access operator ().
      */
@@ -139,6 +100,9 @@ public:
     void testStandardConstructor()
     {
         // create lots of tensors
+        // these should all compile
+        wmath::WTensor< 0, 0 > t00d;
+        wmath::WTensor< 0, 3 > t03d;
         wmath::WTensor< 1, 1 > t11d;
         wmath::WTensor< 1, 2 > t12d;
         wmath::WTensor< 1, 3 > t13d;
@@ -202,6 +166,94 @@ public:
             TS_ASSERT_EQUALS( m( 0, 0, 1, 1, 0, 1 ), 4.0 );
             TS_ASSERT_EQUALS( m( 1, 1, 0, 0, 0, 0 ), 0.56 );
             TS_ASSERT_EQUALS( m( 0, 0, 0, 1, 0, 0 ), 0.0 );
+        }
+    }
+
+    /**
+     * Test if all the WTensorSym->WTensor copy operators and copy constructors compile.
+     */
+    void testCopyFromTensorSym()
+    {
+        // order = 3
+        {
+            wmath::WTensorSym< 3, 3 > s;
+            s( 2, 1, 0 ) = 2.0;
+
+            // copy construct t from s
+            wmath::WTensor< 3, 3 > t( s );
+            TS_ASSERT_EQUALS( t( 1, 2, 0 ), 2.0 );
+
+            wmath::WTensor< 3, 3 > w;
+            w( 0, 0, 0 ) = 3.0;
+
+            // copy from s
+            w = s;
+            TS_ASSERT_EQUALS( w( 0, 0, 0 ), 0.0 );
+            TS_ASSERT_EQUALS( w( 0, 2, 1 ), 2.0 );
+        }
+        // order = 1
+        {
+            wmath::WTensorSym< 1, 3 > s;
+            s( 2 ) = 2.0;
+
+            // copy construct t from s
+            wmath::WTensor< 1, 3 > t( s );
+            TS_ASSERT_EQUALS( t( 2 ), 2.0 );
+
+            wmath::WTensor< 1, 3 > w;
+            w( 0 ) = 3.0;
+
+            // copy from s
+            w = s;
+            TS_ASSERT_EQUALS( w( 0 ), 0.0 );
+            TS_ASSERT_EQUALS( w( 2 ), 2.0 );
+        }
+        // order = 0
+        {
+            wmath::WTensorSym< 0, 3 > s;
+            s() = 2.0;
+
+            // copy construct t from s
+            wmath::WTensor< 0, 3 > t( s );
+            TS_ASSERT_EQUALS( t(), 2.0 );
+
+            wmath::WTensor< 0, 3 > w;
+            w() = 3.0;
+
+            // copy from s
+            w = s;
+            TS_ASSERT_EQUALS( w(), 2.0 );
+        }
+    }
+
+    /**
+     * Test casts to Data_T, WValue or WMatrix, depending on the order of the Tensor.
+     */
+    void testCastToVariousTypes()
+    {
+        // make sure these casts compile
+        // we don't actually want to thoroughly test functionality here
+        // more sophisticated tests can be found in WTensorFuncTest
+        // cast to Data_T
+        {
+            wmath::WTensor< 0, 0, double > t;
+            t() = 3.0;
+            double d = t;
+            TS_ASSERT_EQUALS( d, 3.0 );
+        }
+        // cast to WValue
+        {
+            wmath::WTensor< 1, 2, int > t;
+            t( 0 ) = 3.0;
+            wmath::WValue< int > v = t;
+            TS_ASSERT_EQUALS( v[ 0 ], 3.0 );
+        }
+        // cast to WMatrix
+        {
+            wmath::WTensor< 2, 3, float > t;
+            t( 0, 1 ) = 3.0;
+            wmath::WMatrix< float > m = t;
+            TS_ASSERT_EQUALS( m( 0, 1 ), 3.0 );
         }
     }
 };
