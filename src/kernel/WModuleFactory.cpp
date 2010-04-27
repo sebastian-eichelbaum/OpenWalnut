@@ -61,6 +61,7 @@
 #include "../modules/vectorPlot/WMVectorPlot.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
+#include "../modules/superquadricGlyphs/WMSuperquadricGlyphs.h"
 #include "combiner/WApplyPrototypeCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -120,6 +121,7 @@ void WModuleFactory::load()
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
     m_prototypes.insert( boost::shared_ptr< WModule >( new WMLIC() ) );
+    m_prototypes.insert( boost::shared_ptr< WModule >( new WMSuperquadricGlyphs() ) );
 
     lock.unlock();
 
