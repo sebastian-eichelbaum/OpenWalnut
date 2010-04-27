@@ -35,6 +35,7 @@
 #include "../../kernel/WKernel.h"
 #include "fibernavigator/SurfaceLIC.h"
 #include "WMLIC.h"
+#include "lic.xpm"
 
 WMLIC::WMLIC()
     : WModule(),
@@ -51,6 +52,11 @@ WMLIC::~WMLIC()
 boost::shared_ptr< WModule > WMLIC::factory() const
 {
     return boost::shared_ptr< WModule >( new WMLIC() );
+}
+
+const char** WMLIC::getXPMIcon() const
+{
+    return lic_xpm;
 }
 
 const std::string WMLIC::getName() const
