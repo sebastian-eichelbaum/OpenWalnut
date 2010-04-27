@@ -186,12 +186,18 @@ void WMLIC::moduleMain()
 
         if ( dataChanged && dataValid )
         {
+            boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "LIC", 5 ) );
+            m_progress->addSubProgress( progress );
+
             debugLog() << "Received Data.";
             m_inMesh = newMesh;
 //            m_inVector = newVector;
             WAssert( m_inVector = searchVectorDS(), "There was no vector dataset loaded, please load it first!" );
+            ++*progress;
             m_inMesh->doLoopSubD();
+            ++*progress;
             m_inMesh->doLoopSubD();
+            ++*progress;
             SurfaceLIC lic( m_inVector, m_inMesh );
             lic.execute();
             lic.updateMeshColor( m_inMesh );
@@ -199,6 +205,8 @@ void WMLIC::moduleMain()
             debugLog() << "Start rendering LIC";
             renderMesh( m_inMesh );
             debugLog() << "Rendering done";
+            ++*progress;
+            progress->finish();
         }
     }
 }
