@@ -106,7 +106,7 @@ public:
      */
     T& operator()( size_t i, size_t j )
     {
-        assert( j < m_nbCols && i * m_nbCols < this->size() );
+        WAssert( j < m_nbCols && i * m_nbCols < this->size(), "Index out of bounds." );
         return (*this)[i * m_nbCols + j];
     }
 
@@ -118,7 +118,7 @@ public:
      */
     const T& operator()( size_t i, size_t j ) const
     {
-        assert( j < m_nbCols && i * m_nbCols < this->size() );
+        WAssert( j < m_nbCols && i * m_nbCols < this->size(), "Index out of bounds." );
         return (*this)[i * m_nbCols + j];
     }
 
@@ -171,7 +171,7 @@ private:
 
 template< typename T > WMatrix< T > WMatrix< T >::operator*( const WMatrix< T >& rhs ) const
 {
-    assert( rhs.getNbRows() == getNbCols() );
+    WAssert( rhs.getNbRows() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
     WMatrix< T > result( getNbRows(), rhs.getNbCols() );
 
     for( size_t r = 0; r < getNbRows(); ++r)
@@ -189,7 +189,7 @@ template< typename T > WMatrix< T > WMatrix< T >::operator*( const WMatrix< T >&
 
 template< typename T > WValue< T > WMatrix< T >::operator*( const WValue< T >& rhs ) const
 {
-    assert( rhs.size() == getNbCols() );
+    WAssert( rhs.size() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
     WValue< T > result( getNbRows() );
 
     for( size_t r = 0; r < getNbRows(); ++r)
