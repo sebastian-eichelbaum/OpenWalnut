@@ -30,6 +30,8 @@
 #include <osg/Node>
 #include <osg/Uniform>
 
+#include "../../graphicsEngine/WShader.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"

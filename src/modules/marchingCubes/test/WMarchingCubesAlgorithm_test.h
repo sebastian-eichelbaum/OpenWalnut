@@ -137,9 +137,6 @@ public:
         data.push_back( 6 );
         data.push_back( 7 );
 
-        boost::shared_ptr< WValueSet< unsigned char > > vals;
-        vals = boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, data, W_DT_UNSIGNED_CHAR ) );
-
         WPointXYZId expected;
         expected.newID = 0;
         expected.x = 1;
@@ -147,7 +144,7 @@ public:
         expected.z = 0;
 
         // This is the edge between grid pos 3 and 1 which are cell verts 2 and 3
-        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 2 );
+        WPointXYZId result = mc.calculateIntersection( &data, 0, 0, 0, 2 );
 
         double delta = 1e-9;
         TS_ASSERT_DELTA( expected.x, result.x, delta );
@@ -178,9 +175,6 @@ public:
         data.push_back( 6 );
         data.push_back( 7 );
 
-        boost::shared_ptr< WValueSet< float > > vals;
-        vals = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( 0, 1, data, W_DT_FLOAT ) );
-
         WPointXYZId expected;
         expected.newID = 0;
         expected.x = 1;
@@ -188,7 +182,7 @@ public:
         expected.z = 0;
 
         // This is the edge between grid pos 3 and 1 which are cell verts 2 and 3
-        WPointXYZId result = mc.calculateIntersection( vals, 0, 0, 0, 2 );
+        WPointXYZId result = mc.calculateIntersection( &data, 0, 0, 0, 2 );
 
         double delta = 1e-9;
         TS_ASSERT_DELTA( expected.x, result.x, delta );

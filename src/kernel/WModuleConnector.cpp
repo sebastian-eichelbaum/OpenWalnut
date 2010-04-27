@@ -28,7 +28,13 @@
 #include <sstream>
 #include <set>
 
-#include <boost/exception.hpp>
+#include <boost/version.hpp>
+#if ( BOOST_VERSION >= 104200 ) // exception.hpp is deprecated in Boost 1.42
+    #include <boost/exception/all.hpp>
+#else
+    #include <boost/exception.hpp>
+#endif
+
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/connection.hpp>
 

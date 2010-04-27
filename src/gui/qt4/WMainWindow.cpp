@@ -244,7 +244,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
 
-            // if it already is running: add it
+            // if it not already is running: add it
             if ( !WMNavSlices::isRunning() )
             {
                 autoAdd( module, "Navigation Slices" );
@@ -253,7 +253,12 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         else if ( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {
             // it is a fiber dataset -> add the FiberDisplay module
-            autoAdd( module, "Fiber Display" );
+
+            // if it not already is running: add it
+            if ( !WMFiberDisplay::isRunning() )
+            {
+                autoAdd( module, "Fiber Display" );
+            }
         }
         else if ( dataModule->getDataSet()->isA< WEEG2 >() )
         {

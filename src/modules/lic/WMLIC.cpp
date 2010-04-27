@@ -35,6 +35,7 @@
 #include "../../kernel/WKernel.h"
 #include "fibernavigator/SurfaceLIC.h"
 #include "WMLIC.h"
+#include "lic.xpm"
 
 WMLIC::WMLIC()
     : WModule(),
@@ -51,6 +52,11 @@ WMLIC::~WMLIC()
 boost::shared_ptr< WModule > WMLIC::factory() const
 {
     return boost::shared_ptr< WModule >( new WMLIC() );
+}
+
+const char** WMLIC::getXPMIcon() const
+{
+    return lic_xpm;
 }
 
 const std::string WMLIC::getName() const
@@ -180,12 +186,18 @@ void WMLIC::moduleMain()
 
         if ( dataChanged && dataValid )
         {
+            boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "LIC", 5 ) );
+            m_progress->addSubProgress( progress );
+
             debugLog() << "Received Data.";
             m_inMesh = newMesh;
 //            m_inVector = newVector;
             WAssert( m_inVector = searchVectorDS(), "There was no vector dataset loaded, please load it first!" );
+            ++*progress;
             m_inMesh->doLoopSubD();
+            ++*progress;
             m_inMesh->doLoopSubD();
+            ++*progress;
             SurfaceLIC lic( m_inVector, m_inMesh );
             lic.execute();
             lic.updateMeshColor( m_inMesh );
@@ -193,6 +205,8 @@ void WMLIC::moduleMain()
             debugLog() << "Start rendering LIC";
             renderMesh( m_inMesh );
             debugLog() << "Rendering done";
+            ++*progress;
+            progress->finish();
         }
     }
 }

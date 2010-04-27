@@ -27,9 +27,9 @@
 
 #include <vector>
 #include <map>
+#include "../../common/math/WMatrix.h"
 #include "../../common/WProgressCombiner.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../WTriangleMesh2.h"
 #include "marchingCubesCaseTables.h"
 
 /**
@@ -90,30 +90,39 @@ friend class WMarchingCubesAlgorithmTest;
 
 public:
     /**
+     * Constructor needed for matrix initalization.
+     */
+     WMarchingCubesAlgorithm();
+
+    /**
      * Generate the triangles for the surface on the given dataSet (inGrid, vals).
-     * \param inGrid The grid of the data set
-     * \param vals the value set of the data set
+     * \param nbCoordsX number of vertices in X direction
+     * \param nbCoordsY number of vertices in Y direction
+     * \param nbCoordsZ number of vertices in Z direction
+     * \param mat the matrix transforming the vertices from canonical space
+     * \param vals the values at the vertices
      * \param isoValue The surface will run through all positions with this value.
      * \param mainProgress progress combiner used to report our progress to
      */
     template< typename T >
-    boost::shared_ptr< WTriangleMesh2 > generateSurface( boost::shared_ptr< WGridRegular3D > inGrid,
-                                                 boost::shared_ptr< WValueSet< T > > vals,
-                                                 double isoValue,
-                                                 boost::shared_ptr< WProgressCombiner > mainProgress );
+    boost::shared_ptr< WTriangleMesh2 > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                                                          const wmath::WMatrix< double >& mat,
+                                                          const std::vector< T >* vals,
+                                                          double isoValue,
+                                                          boost::shared_ptr< WProgressCombiner > mainProgress );
 
 protected:
 private:
     /**
      * Calculates the intersection point id of the isosurface with an
      * edge.
-     * \param vals the value set that determines the values at the vertices
+     * \param vals the values at the vertices
      * \param nX id of cell in x direction
      * \param nY id of cell in y direction
      * \param nZ id of cell in z direction
      * \param nEdgeNo id of the edge the point that will be interpolates lies on
      */
-    template< typename T > WPointXYZId calculateIntersection( boost::shared_ptr< WValueSet< T > > vals,
+    template< typename T > WPointXYZId calculateIntersection( const std::vector< T >* vals,
                                                               unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo );
 
     /**
@@ -160,27 +169,28 @@ private:
 
     double m_tIsoLevel;  //!< The isovalue.
 
-    boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for transformation matrix.
+    wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the triangle vertices.
 
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 };
 
-template< typename T > boost::shared_ptr< WTriangleMesh2 > WMarchingCubesAlgorithm::generateSurface( boost::shared_ptr< WGridRegular3D > inGrid,
-                                                              boost::shared_ptr< WValueSet< T > > vals,
-                                                                      double isoValue,
-                                                                      boost::shared_ptr< WProgressCombiner > mainProgress )
+template<typename T> boost::shared_ptr<WTriangleMesh2> WMarchingCubesAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                                                                                                 const wmath::WMatrix< double >& mat,
+                                                                                                 const std::vector< T >* vals,
+                                                                                                 double isoValue,
+                                                                                                 boost::shared_ptr< WProgressCombiner > mainProgress )
 {
     WAssert( vals, "No value set provided." );
 
     m_idToVertices.clear();
     m_trivecTriangles.clear();
 
-    m_grid = inGrid;
+    m_nCellsX = nbCoordsX - 1;
+    m_nCellsY = nbCoordsY - 1;
+    m_nCellsZ = nbCoordsZ - 1;
 
-    m_nCellsX = m_grid->getNbCoordsX() - 1;
-    m_nCellsY = m_grid->getNbCoordsY() - 1;
-    m_nCellsZ = m_grid->getNbCoordsZ() - 1;
+    m_matrix = mat;
 
     m_tIsoLevel = isoValue;
 
@@ -203,21 +213,21 @@ template< typename T > boost::shared_ptr< WTriangleMesh2 > WMarchingCubesAlgorit
                 // Calculate table lookup index from those
                 // vertices which are below the isolevel.
                 unsigned int tableIndex = 0;
-                if( vals->getScalar( z * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
+                if( ( *vals )[ z * nPointsInSlice + y * nX + x ] < m_tIsoLevel )
                     tableIndex |= 1;
-                if( vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
+                if( ( *vals )[ z * nPointsInSlice + ( y + 1 ) * nX + x ] < m_tIsoLevel )
                     tableIndex |= 2;
-                if( vals->getScalar( z * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( ( *vals )[ z * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ] < m_tIsoLevel )
                     tableIndex |= 4;
-                if( vals->getScalar( z * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( ( *vals )[ z * nPointsInSlice + y * nX + ( x + 1 ) ] < m_tIsoLevel )
                     tableIndex |= 8;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + x ) < m_tIsoLevel )
+                if( ( *vals )[ ( z + 1 ) * nPointsInSlice + y * nX + x ] < m_tIsoLevel )
                     tableIndex |= 16;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + x ) < m_tIsoLevel )
+                if( ( *vals )[ ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + x ] < m_tIsoLevel )
                     tableIndex |= 32;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( ( *vals )[ ( z + 1 ) * nPointsInSlice + ( y + 1 ) * nX + ( x + 1 ) ] < m_tIsoLevel )
                     tableIndex |= 64;
-                if( vals->getScalar( ( z + 1 ) * nPointsInSlice + y * nX + ( x + 1 ) ) < m_tIsoLevel )
+                if( ( *vals )[ ( z + 1 ) * nPointsInSlice + y * nX + ( x + 1 ) ] < m_tIsoLevel )
                     tableIndex |= 128;
 
                 // Now create a triangulation of the isosurface in this
@@ -359,9 +369,9 @@ template< typename T > boost::shared_ptr< WTriangleMesh2 > WMarchingCubesAlgorit
     return triMesh;
 }
 
-template< typename T > WPointXYZId WMarchingCubesAlgorithm::calculateIntersection( boost::shared_ptr< WValueSet< T > > vals,
-                                                                           unsigned int nX, unsigned int nY, unsigned int nZ,
-                                                                           unsigned int nEdgeNo )
+template< typename T > WPointXYZId WMarchingCubesAlgorithm::calculateIntersection( const std::vector< T >* vals,
+                                                                                   unsigned int nX, unsigned int nY, unsigned int nZ,
+                                                                                   unsigned int nEdgeNo )
 {
     double x1;
     double y1;
@@ -451,8 +461,8 @@ template< typename T > WPointXYZId WMarchingCubesAlgorithm::calculateIntersectio
     z2 = v2z;
 
     unsigned int nPointsInSlice = ( m_nCellsX + 1 ) * ( m_nCellsY + 1 );
-    double val1 = vals->getScalar( v1z * nPointsInSlice + v1y * ( m_nCellsX + 1 ) + v1x );
-    double val2 = vals->getScalar( v2z * nPointsInSlice + v2y * ( m_nCellsX + 1 ) + v2x );
+    double val1 = ( *vals )[ v1z * nPointsInSlice + v1y * ( m_nCellsX + 1 ) + v1x ];
+    double val2 = ( *vals )[ v2z * nPointsInSlice + v2y * ( m_nCellsX + 1 ) + v2x ];
 
     WPointXYZId intersection = interpolate( x1, y1, z1, x2, y2, z2, val1, val2 );
     intersection.newID = 0;

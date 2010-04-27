@@ -314,6 +314,18 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
     // handle the pick information on the slice views
     if ( pickInfo.getViewerName() != "main" && pickInfo.getViewerName() != "" )
     {
+        osg::ref_ptr< osg::Viewport > port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getCamera()->getViewport();
+        float axialWidgetWidth = port->width();
+        float axialWidgetHeight = port->height();
+
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getCamera()->getViewport();
+        float sagittalWidgetWidth = port->width();
+        float sagittalWidgetHeight = port->height();
+
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getCamera()->getViewport();
+        float coronalWidgetWidth = port->width();
+        float coronalWidgetHeight = port->height();
+
         // this uses fixed windows size of 150x150 pixel
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
@@ -324,21 +336,24 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         float yPos;
         float width;
         float height;
+        float left, top;
         // z slice
         if ( pickInfo.getViewerName() == "axial" )
         {
             width = m_bb.second[0] - m_bb.first[0];
             height = m_bb.second[1] - m_bb.first[1];
+            left = m_bb.first[0];
+            top = m_bb.first[1];
 
             if ( width > height )
             {
-                xPos = ( x / 150 ) * width;
-                yPos = ( y / 150 ) * width - ( width - height ) / 2;
+                xPos = ( x / axialWidgetWidth ) * width + left;
+                yPos = ( y / axialWidgetHeight ) * width - ( width - height ) / 2 + top;
             }
             else
             {
-                xPos = ( x / 150 ) * height - ( height - width ) / 2;
-                yPos = ( y / 150 ) * height;
+                xPos = ( x / axialWidgetWidth ) * height - ( height - width ) / 2 + left;
+                yPos = ( y / axialWidgetHeight ) * height + top;
             }
             xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
             xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;
@@ -354,18 +369,20 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         {
             width = m_bb.second[1] - m_bb.first[1];
             height = m_bb.second[2] - m_bb.first[2];
+            left = m_bb.first[1];
+            top = m_bb.first[2];
 
             if ( width > height )
             {
-                xPos = ( x / 150 ) * width;
-                yPos = ( y / 150 ) * width - ( width - height ) / 2;
+                xPos = ( x / sagittalWidgetWidth ) * width + left;
+                yPos = ( y / sagittalWidgetHeight ) * width - ( width - height ) / 2 + top;
             }
             else
             {
-                xPos = ( x / 150 ) * height - ( height - width ) / 2;
-                yPos = ( y / 150 ) * height;
+                xPos = ( x / sagittalWidgetWidth ) * height - ( height - width ) / 2 + left;
+                yPos = ( y / sagittalWidgetHeight ) * height + top;
             }
-            xPos = m_bb.second[1] - xPos;
+            xPos = m_bb.second[1] - xPos + left;
             xPos = xPos < m_bb.first[1] ? m_bb.first[1] : xPos;
             xPos = xPos > m_bb.second[1] ? m_bb.second[1] : xPos;
             yPos = yPos < m_bb.first[2] ? m_bb.first[2] : yPos;
@@ -380,16 +397,18 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         {
             width = m_bb.second[0] - m_bb.first[0];
             height = m_bb.second[2] - m_bb.first[2];
+            left = m_bb.first[0];
+            top = m_bb.first[2];
 
             if ( width > height )
             {
-                xPos = ( x / 150 ) * width;
-                yPos = ( y / 150 ) * width - ( width - height ) / 2;
+                xPos = ( x / coronalWidgetWidth ) * width + left;
+                yPos = ( y / coronalWidgetHeight ) * width - ( width - height ) / 2 + top;
             }
             else
             {
-                xPos = ( x / 150 ) * height - ( height - width ) / 2;
-                yPos = ( y / 150 ) * height;
+                xPos = ( x / coronalWidgetWidth ) * height - ( height - width ) / 2 + left;
+                yPos = ( y / coronalWidgetHeight ) * height + top;
             }
             xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
             xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;

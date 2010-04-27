@@ -31,9 +31,11 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Node>
+#include <osgText/Text>
 
 #include "../../kernel/WModule.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WPickInfo.h"
 
 /**
  * This module implements several onscreen status displays

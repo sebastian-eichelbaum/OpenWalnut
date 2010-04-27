@@ -33,6 +33,7 @@
 
 #include "../../dataHandler/WEEG2.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../gui/WCustomWidget.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../fiberDisplay/WRMROIRepresentation.h"

@@ -52,7 +52,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 
-#include "WMarchingCubesAlgorithm.h"
+#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "WMMarchingCubes.h"
 
 
@@ -232,7 +232,11 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< unsigned char > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
+            m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                                m_grid->getTransformationMatrix(),
+                                                vals->rawDataVectorPointer(),
+                                                isoValue,
+                                                m_progress );
             break;
         }
         case W_DT_INT16:
@@ -240,7 +244,11 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int16_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
+            m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                                m_grid->getTransformationMatrix(),
+                                                vals->rawDataVectorPointer(),
+                                                isoValue,
+                                                m_progress );
             break;
         }
         case W_DT_SIGNED_INT:
@@ -248,7 +256,11 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int32_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
+            m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                                m_grid->getTransformationMatrix(),
+                                                vals->rawDataVectorPointer(),
+                                                isoValue,
+                                                m_progress );
             break;
         }
         case W_DT_FLOAT:
@@ -256,7 +268,11 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< float > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
+            m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                                m_grid->getTransformationMatrix(),
+                                                vals->rawDataVectorPointer(),
+                                                isoValue,
+                                                m_progress );
             break;
         }
         case W_DT_DOUBLE:
@@ -264,7 +280,11 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< double > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            m_triMesh = mcAlgo.generateSurface( m_grid, vals, isoValue, m_progress );
+            m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                                m_grid->getTransformationMatrix(),
+                                                vals->rawDataVectorPointer(),
+                                                isoValue,
+                                                m_progress );
             break;
         }
         default:

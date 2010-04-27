@@ -41,7 +41,7 @@
 class WROIBox;
 class WDataSetScalar;
 
-/** 
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".
@@ -156,7 +156,7 @@ private:
 
     boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
 
-    boost::shared_ptr< const WDataSetScalar > m_newDataSet; //!< pointer to the created cut dataSet
+    boost::shared_ptr< WValueSet< float > > m_newValueSet; //!< pointer to the created cut valueSet
 
     osg::ref_ptr< WROIBox > m_selectionRoi; //!< stores a pointer to the cutting tool roi
 

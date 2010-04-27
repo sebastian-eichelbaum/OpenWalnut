@@ -29,15 +29,20 @@
 #include <map>
 #include <algorithm>
 
+#include <boost/static_assert.hpp>
+
 #include "WCompileTimeFunctions.h"
+#include "WMatrix.h"
+#include "WValue.h"
 #include "../WAssert.h"
 
 // TODO(reichenbach): Remove vectors (because of the enum dataSize).
-// TODO(reichenbach): Write TensorBase< 0,...> and remove WTensor<0,...> specialization.
-// TODO(reichenbach): Cast WTensorBaseSym to WTensorBase
-// TODO(reichenbach): Check type safety.
-// TODO(reichenbach): Add casts to WVector3D, WValue and WMatrix.
-// TODO(reichenbach): Add lots of operators.
+// TODO(reichenbach): Add casts to WVector3D, WValue and WMatrix. <-- cast to value or const value?
+
+// forward declaration of the test classes
+class WTensorFuncTest;
+class WTensorBaseTest;
+class WTensorBaseSymTest;
 
 namespace wmath
 {
@@ -45,8 +50,75 @@ namespace wmath
 template< std::size_t order, std::size_t dim, typename Data_T >
 class WTensorBaseSym;
 
-// ############################# class WTensorBase<> #################################
+// ############################ utility functions ####################################
 
+/**
+ * Iterate a position in a multidimensional grid.
+ *
+ * This essentially creates a linear order on all positions in a tensor, where a position
+ * is any valid allocation of indices.
+ *
+ * Example: for a tensor of order 2 and dimension 3, all possible positions are:
+ *
+ * ( 0, 0 ), ( 0, 1 ), ( 0, 2 ), ( 1, 0 ), ( 1, 1 ), ( 1, 2 ), ( 2, 0 ), ( 2, 1 ), ( 2, 2 )
+ *
+ * \param pos The position to be iterated.
+ */
+template< std::size_t order, std::size_t dim >
+inline void positionIterateOneStep( std::vector< std::size_t >& pos ) // NOLINT, need a reference here
+{
+    WAssert( pos.size() >= order, "" );
+
+    for( std::size_t k = order - 1; k > 0; --k )
+    {
+        if( pos[ k ] == dim - 1)
+        {
+            pos[ k ] = 0;
+        }
+        else
+        {
+            ++( pos[ k ] );
+            return;
+        }
+    }
+    ++( pos[ 0 ] );
+}
+
+/**
+ * Iterate a sorted position in a multidimensional grid.
+ *
+ * This essentially creates a linear order on all sorted positions in a tensor, where a sorted position
+ * is any valid allocation of indices where those indices are in ascending order.
+ *
+ * Example: for a tensor of order 2 and dimension 3, all possible sorted positions are:
+ *
+ * ( 0, 0 ), ( 0, 1 ), ( 0, 2 ), ( 1, 1 ), ( 1, 2 ), ( 2, 2 )
+ *
+ * The number of sorted positions of a tensor matches the number of elements that need to be stored
+ * by the symmetric tensor of the same order and dimension.
+ *
+ * \param pos The sorted(!) position to be iterated.
+ */
+template< std::size_t order, std::size_t dim >
+inline void positionIterateSortedOneStep( std::vector< std::size_t >& pos ) // NOLINT, need a reference here
+{
+    WAssert( pos.size() >= order, "" );
+
+    for( int k = order - 1; k > -1; --k )
+    {
+        if( pos[ k ] != dim - 1 )
+        {
+            ++( pos[ k ] );
+            for( std::size_t i = k + 1; i < order; ++i )
+            {
+                pos[ i ] = pos[ k ];
+            }
+            return;
+        }
+    }
+}
+
+// ############################# class WTensorBase<> #################################
 /**
  * Normal tensor base class.
  *
@@ -55,17 +127,66 @@ class WTensorBaseSym;
  *
  * \note The type Data_T may not throw exceptions on construction, destruction or
  * during any assignment operator.
+ * \note The dimension may not be 0.
  *
  * \see WTensor
  */
 template< std::size_t order, std::size_t dim, typename Data_T >
 class WTensorBase
 {
+    /**
+     * For dim == 0, create an artificial compiler error.
+     */
+    BOOST_STATIC_ASSERT( dim != 0 );
+
     // Make the appropriate tensor of order + 1 a friend, so it has access to the getPos() member.
     friend class WTensorBase< order + 1, dim, Data_T >;
 
+    // make the test class a friend
+    friend class ::WTensorBaseTest;
+
+    // make the func test class a friend
+    friend class ::WTensorFuncTest;
+
 public:
-    friend class WTensor_test;
+    /**
+     * Standard constructor.
+     *
+     * All elements are set to Data_T().
+     */
+    WTensorBase();
+
+    /**
+     * Copy constructor.
+     *
+     * \param t The tensor to copy from.
+     */
+    WTensorBase( WTensorBase const& t ); // NOLINT
+
+    /**
+     * Copy construct a WTensorBase from a WTensorBaseSym.
+     *
+     * \param t The symmetric tensor to copy from.
+     */
+    explicit WTensorBase( WTensorBaseSym< order, dim, Data_T > const& t );
+
+    /**
+     * Copy operator.
+     *
+     * \param t The tensor to copy from.
+     *
+     * \return *this.
+     */
+    WTensorBase const& operator = ( WTensorBase const& t );
+
+    /**
+     * Copy operator.
+     *
+     * \param t The symmetric tensor to copy from.
+     *
+     * \return *this.
+     */
+    WTensorBase const& operator = ( WTensorBaseSym< order, dim, Data_T > const& t );
 
     /**
      * Get the dimension of this tensor.
@@ -108,10 +229,10 @@ public:
      *
      * \return A reference to the element.
      *
-     * \note No bounds checking is performed.
+     * \note The array must have a length of at least order.
      */
     template< typename Index_T >
-    Data_T& operator[] ( Index_T const* const indices );
+    Data_T& operator[] ( Index_T indices[] );
 
     /**
      * Get the element at a specific position.
@@ -120,10 +241,10 @@ public:
      *
      * \return A reference to the element.
      *
-     * \note No bounds checking is performed.
+     * \note The array must have a length of at least order.
      */
     template< typename Index_T >
-    Data_T const& operator[] ( Index_T const* const indices ) const;
+    Data_T const& operator[] ( Index_T indices[] ) const;
 
     /**
      * Compare this WTensorBase to another one.
@@ -132,7 +253,7 @@ public:
      *
      * \return True, iff this tensors' elements are equal to another tensors' elements.
      */
-    bool operator == ( WTensorBase const& other );
+    bool operator == ( WTensorBase const& other ) const;
 
     /**
      * Compare this WTensorBase to another one.
@@ -141,32 +262,9 @@ public:
      *
      * \return True, iff this tensors' elements are not equal to another tensors' elements.
      */
-    bool operator != ( WTensorBase const& other );
+    bool operator != ( WTensorBase const& other ) const;
 
-protected:
-    /**
-     * Standard constructor.
-     *
-     * All elements are set to Data_T().
-     */
-    WTensorBase();
-
-    /**
-     * Copy constructor.
-     *
-     * \param t The tensor to copy from.
-     */
-    explicit WTensorBase( WTensorBase const& t );
-
-    /**
-     * Copy operator.
-     *
-     * \param t The tensor to copy from.
-     *
-     * \return *this.
-     */
-    WTensorBase const& operator = ( WTensorBase const& t );
-
+private:
     /**
      * Calculate the position of the element in the data vector. The function
      * is build recursively at compile-time.
@@ -176,19 +274,7 @@ protected:
      * \return The position of the element.
      */
     template< typename Index_T >
-    static inline std::size_t getPos( Index_T const* const pos );
-
-    /**
-     * Get the reference to an element in the data vector.
-     *
-     * \param pos An array of indices.
-     *
-     * \return The position of the element.
-     */
-    template< typename Index_T >
-    inline Data_T const& getAt( Index_T const* const pos ) const;
-
-private:
+    static inline std::size_t getPos( Index_T pos[] );
 
     /**
      * Stores all elements.
@@ -207,52 +293,6 @@ private:
     };
 };
 
-/**
- * Specialization for order = 0. This is only used for recursive
- * definitions of the dataSize member and the getPos() function. There cannot
- * be any instances of this class.
- */
-template< std::size_t dim, typename Data_T >
-class WTensorBase< 0, dim, Data_T >
-{
-protected:
-    friend class WTensorBase< 1, dim, Data_T >;
-
-    /**
-     * Calculate the position of the element in the data vector. This
-     * is essentially the standard case of the recursion.
-     *
-     * \return 0.
-     */
-    template< typename PIndex_T >
-    static inline std::size_t getPos( PIndex_T /* pos */ )
-    {
-        return 0;
-    }
-
-private:
-
-    /**
-     * Private constructor.
-     */
-    WTensorBase();
-
-    /**
-     * Private copy contructor.
-     */
-    WTensorBase( WTensorBase& );
-
-    /**
-     * Private copy operator.
-     */
-    WTensorBase& operator = ( WTensorBase& );
-
-    /**
-     * Private destructor.
-     */
-    ~WTensorBase();
-};
-
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorBase< order, dim, Data_T >::WTensorBase()
     : m_data( dataSize, Data_T() )
@@ -266,9 +306,30 @@ WTensorBase< order, dim, Data_T >::WTensorBase( WTensorBase const& t )
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
+WTensorBase< order, dim, Data_T >::WTensorBase( WTensorBaseSym< order, dim, Data_T > const& t )
+    : m_data( dataSize )
+{
+    *this = t;
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorBase< order, dim, Data_T > const& WTensorBase< order, dim, Data_T >::operator = ( WTensorBase const& t )
 {
     m_data = t.m_data;
+    return *this;
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensorBase< order, dim, Data_T > const& WTensorBase< order, dim, Data_T >::operator = ( WTensorBaseSym< order, dim, Data_T > const& t )
+{
+    std::vector< std::size_t > pos( order, 0 );
+
+    for( std::size_t k = 0; k < dataSize; ++k )
+    {
+        ( *this )[ pos ] = t[ pos ];
+        positionIterateOneStep< order, dim >( pos );
+    }
+
     return *this;
 }
 
@@ -286,21 +347,9 @@ std::size_t WTensorBase< order, dim, Data_T >::getOrder() const
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
-std::size_t WTensorBase< order, dim, Data_T >::getPos( Index_T const* const pos )
+std::size_t WTensorBase< order, dim, Data_T >::getPos( Index_T pos[] )
 {
-    return WTensorBase< order - 1, dim, Data_T >::getPos( pos ) * dim + pos[ order - 1 ];
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-template< typename Index_T >
-Data_T const& WTensorBase< order, dim, Data_T >::getAt( Index_T const* const pos ) const
-{
-    for( std::size_t k = 0; k < order; ++k )
-    {
-        WAssert( static_cast< std::size_t >( pos[ k ] ) < dim, "" );
-    }
-    std::size_t p = getPos( pos );
-    return m_data[ p ];
+    return WTensorBase< order - 1, dim, Data_T >::getPos( pos ) * dim + static_cast< std::size_t >( pos[ order - 1 ] );
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
@@ -315,34 +364,234 @@ template< typename Index_T >
 Data_T const& WTensorBase< order, dim, Data_T >::operator[] ( std::vector< Index_T > const& indices ) const
 {
     WAssert( indices.size() >= order, "" );
-    return getAt( &indices[ 0 ] );
+    return operator[] ( &indices[ 0 ] );
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
-Data_T& WTensorBase< order, dim, Data_T >::operator[] ( Index_T const* const indices )
+Data_T& WTensorBase< order, dim, Data_T >::operator[] ( Index_T indices[] )
 {
     return const_cast< Data_T& >( static_cast< WTensorBase const& >( *this ).operator[] ( indices ) );
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
-Data_T const& WTensorBase< order, dim, Data_T >::operator[] ( Index_T const* const indices ) const
+Data_T const& WTensorBase< order, dim, Data_T >::operator[] ( Index_T indices[] ) const
 {
-    return getAt( indices );
+    for( std::size_t k = 0; k < order; ++k )
+    {
+        WAssert( static_cast< std::size_t >( indices[ k ] ) < dim, "" );
+    }
+    std::size_t p = getPos( indices );
+    return m_data[ p ];
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
-bool WTensorBase< order, dim, Data_T >::operator == ( WTensorBase const& other )
+bool WTensorBase< order, dim, Data_T >::operator == ( WTensorBase const& other ) const
 {
     return m_data == other.m_data;
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
-bool WTensorBase< order, dim, Data_T >::operator != ( WTensorBase const& other )
+bool WTensorBase< order, dim, Data_T >::operator != ( WTensorBase const& other ) const
 {
     return m_data != other.m_data;
 }
+
+// ######################### WTensorBase for order == 0 ##########################
+
+/**
+ * Specialization for order = 0. This essentially encapsulates a scalar. The purpose of
+ * this specialization is compatibility for generic tensor functions.
+ */
+template< std::size_t dim, typename Data_T >
+class WTensorBase< 0, dim, Data_T >
+{
+    // Make the appropriate tensor of order + 1 a friend, so it has access to the getPos() member.
+    friend class WTensorBase< 1, dim, Data_T >;
+
+    // make the test class a friend
+    friend class ::WTensorBaseTest;
+
+    // make the func test class a friend
+    friend class ::WTensorFuncTest;
+
+public:
+    // implementations are inline as they are trivial
+    /**
+     * Standard constructor.
+     *
+     * All elements are set to Data_T().
+     */
+    WTensorBase()
+        : m_data( Data_T() )
+    {
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * \param t The tensor to copy from.
+     */
+    WTensorBase( WTensorBase const& t ) // NOLINT
+        : m_data( t.m_data )
+    {
+    }
+
+    /**
+     * Copy construct a WTensorBase from a WTensorBaseSym.
+     *
+     * \param t The symmetric tensor to copy from.
+     */
+    explicit WTensorBase( WTensorBaseSym< 0, dim, Data_T > const& t )
+        : m_data()
+    {
+        m_data = t.operator[]< std::size_t >( NULL );
+    }
+
+    /**
+     * Copy operator.
+     *
+     * \param t The tensor to copy from.
+     *
+     * \return *this.
+     */
+    WTensorBase const& operator = ( WTensorBase const& t )
+    {
+        m_data = t.m_data;
+        return *this;
+    }
+
+    /**
+     * Copy operator.
+     *
+     * \param t The symmetric tensor to copy from.
+     *
+     * \return *this.
+     */
+    WTensorBase const& operator = ( WTensorBaseSym< 0, dim, Data_T > const& t )
+    {
+        m_data = t.operator[]< std::size_t >( NULL );
+        return *this;
+    }
+
+    /**
+     * Get the dimension of this tensor.
+     *
+     * \return The dimension of this tensor.
+     */
+    std::size_t getDimension() const
+    {
+        return dim;
+    }
+
+    /**
+     * Get the order of this tensor.
+     *
+     * \return The order of this tensor.
+     */
+    std::size_t getOrder() const
+    {
+        return 0;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T& operator[] ( std::vector< Index_T > const& /* indices */ )
+    {
+        return m_data;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T const& operator[] ( std::vector< Index_T > const& /* indices */ ) const
+    {
+        return m_data;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T& operator[] ( Index_T[] /* indices */ )
+    {
+        return m_data;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T const& operator[] ( Index_T[] /* indices */ ) const
+    {
+        return m_data;
+    }
+
+    /**
+     * Compare this WTensorBase to another one.
+     *
+     * \param other The WBensorBase to compare to.
+     *
+     * \return True, iff this tensors' elements are equal to another tensors' elements.
+     */
+    bool operator == ( WTensorBase const& other ) const
+    {
+        return m_data == other.m_data;
+    }
+
+    /**
+     * Compare this WTensorBase to another one.
+     *
+     * \param other The WBensorBase to compare to.
+     *
+     * \return True, iff this tensors' elements are not equal to another tensors' elements.
+     */
+    bool operator != ( WTensorBase const& other ) const
+    {
+        return m_data != other.m_data;
+    }
+
+private:
+    /**
+     * Calculate the position of the element in the data vector. This
+     * is essentially the standard case of the recursion.
+     *
+     * \return 0.
+     */
+    template< typename Index_T >
+    static inline std::size_t getPos( Index_T[] /* pos */ )
+    {
+        return 0;
+    }
+
+    /**
+     * Stores the value.
+     */
+    Data_T m_data;
+
+    /**
+     * Declare a compile-time constant as enum and not as static constant.
+     */
+    enum
+    {
+        /**
+         * The number of elements to store.
+         */
+        dataSize = 1
+    };
+};
 
 // ################################# class WTensorBaseSym<> #####################################
 
@@ -354,13 +603,48 @@ bool WTensorBase< order, dim, Data_T >::operator != ( WTensorBase const& other )
  *
  * \note The type Data_T may not throw exceptions on construction, destruction or
  * during any assignment operator.
+ * \note The dimension may not be 0.
  *
  * \see WTensorSym
  */
 template< std::size_t order, std::size_t dim, typename Data_T >
 class WTensorBaseSym
 {
+    /**
+     * For dim == 0, create an artificial compiler error.
+     */
+    BOOST_STATIC_ASSERT( dim != 0 );
+
+    // make the test class a friend
+    friend class ::WTensorBaseSymTest;
+
+    // make the func test class a friend
+    friend class ::WTensorFuncTest;
+
 public:
+    /**
+     * Standard constructor.
+     *
+     * All elements are set to Data_T().
+     */
+    WTensorBaseSym();
+
+    /**
+     * Copy constructor.
+     *
+     * \param t The tensor to copy from.
+     */
+    WTensorBaseSym( WTensorBaseSym const& t ); // NOLINT
+
+    /**
+     * Copy operator.
+     *
+     * \param t The tensor to copy from.
+     *
+     * \return *this.
+     */
+    WTensorBaseSym const& operator = ( WTensorBaseSym const& t );
+
     /**
      * Get the dimension of this tensor.
      *
@@ -405,7 +689,7 @@ public:
      * \note No bounds checking is performed.
      */
     template< typename Index_T >
-    Data_T& operator[] ( Index_T const* const indices );
+    Data_T& operator[] ( Index_T indices[] );
 
     /**
      * Get the element at a specific position.
@@ -417,7 +701,7 @@ public:
      * \note No bounds checking is performed.
      */
     template< typename Index_T >
-    Data_T const& operator[] ( Index_T const* const indices ) const;
+    Data_T const& operator[] ( Index_T indices[] ) const;
 
     /**
      * Compare this WTensorBaseSym to another one.
@@ -426,7 +710,7 @@ public:
      *
      * \return True, iff this tensors' elements are equal to another tensors' elements.
      */
-    bool operator == ( WTensorBaseSym const& other );
+    bool operator == ( WTensorBaseSym const& other ) const;
 
     /**
      * Compare this WTensorBaseSym to another one.
@@ -435,50 +719,7 @@ public:
      *
      * \return True, iff this tensors' elements are not equal to another tensors' elements.
      */
-    bool operator != ( WTensorBaseSym const& other );
-
-protected:
-
-    /**
-     * Standard constructor.
-     *
-     * All elements are set to Data_T().
-     */
-    WTensorBaseSym();
-
-    /**
-     * Copy constructor.
-     *
-     * \param t The tensor to copy from.
-     */
-    explicit WTensorBaseSym( WTensorBaseSym const& t );
-
-    /**
-     * Copy operator.
-     *
-     * \param t The tensor to copy from.
-     *
-     * \return *this.
-     */
-    WTensorBaseSym const& operator = ( WTensorBaseSym const& t );
-
-    /**
-     * Get the reference to an element in the data vector.
-     *
-     * \param pos An array of indices.
-     *
-     * \return The position of the element.
-     */
-    template< typename Index_T >
-    inline Data_T const& getAt( Index_T const* const pos ) const;
-
-    /**
-     * Cast this WTensorBaseSym to WTensorBase, so one can cast
-     * a WTensorSym to WTensor.
-     *
-     * \return A WTensor.
-     */
-    //operator WTensorBase< order, dim, Data_T > () const;
+    bool operator != ( WTensorBaseSym const& other ) const;
 
 private:
     /**
@@ -500,7 +741,7 @@ private:
     /**
      * A class that maps symmetric tensor indices to vector positions.
      */
-    class PositionIndexer : public WTensorBase< order, dim, std::size_t >
+    class PositionIndexer
     {
     public:
         /**
@@ -516,9 +757,7 @@ private:
          * \return The position that corresponds to the indices.
          */
         template< typename Index_T >
-        inline std::size_t getAt( Index_T const* const pos ) const;
-
-        using WTensorBase< order, dim, std::size_t >::getPos;
+        inline std::size_t operator[] ( Index_T pos[] ) const;
 
         /**
          * Declare a compile-time constant as enum and not as static constant.
@@ -533,209 +772,68 @@ private:
 
     private:
         /**
-         * A utility class that encapsulates a position (a set of indices of a tensor).
+         * Maps the indices to a vector element position.
          */
-        class Position : public std::vector< std::size_t >
-        {
-        public:
-            /**
-             * Initialize as first position (0,0,0,...0).
-             */
-            Position();
-
-            /**
-             * Copy operator.
-             *
-             * \param p The position to copy.
-             */
-            Position( Position const& p ); // NOLINT not explicit because of std::map
-
-            /**
-             * Increment position.
-             *
-             * \return *this.
-             */
-            Position& operator++ ();
-
-            /**
-             * Sorted increment position.
-             *
-             * \return *this.
-             */
-            Position& incrSym();
-
-            /**
-             * Get sorted position.
-             *
-             * \return A vector of sorted indices.
-             */
-            Position operator() ();
-
-            /**
-             * Determine if two Positions are equal.
-             *
-             * \param other The position to compare to.
-             *
-             * \return True, iff the two positions are equal.
-             */
-            bool operator == ( Position const& other );
-
-            /**
-             * Strict weak ordering.
-             *
-             * \param other The position to compare to.
-             *
-             * \return True, iff this position is smaller than the other.
-             */
-            bool operator< ( Position const& other );
-
-            /**
-             * Set all indices to 0.
-             */
-            void clear();
-        };
+        WTensorBase< order, dim, std::size_t > m_positions;
     };
 
     /**
-     * A static tensor that maps tensor indices to vector positions.
+     * A static PositionIndexer that maps tensor indices to vector positions.
      */
     static PositionIndexer const m_indexer;
 };
 
-
+// initialize the indexer object as a static object
 template< std::size_t order, std::size_t dim, typename Data_T >
 typename WTensorBaseSym< order, dim, Data_T >::PositionIndexer const WTensorBaseSym< order, dim, Data_T >::m_indexer;
-
-// ######################## impl of WTensorBaseSym::PositionIndexer::Position #####################################
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::Position()
-    : std::vector< std::size_t >( order, 0 )
-{
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::Position( Position const& p )
-    : std::vector< std::size_t >( p )
-{
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-typename WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position& WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::incrSym()
-{
-    for( int k = order - 1; k > -1; --k )
-    {
-        if( at( k ) != dim - 1 )
-        {
-            ++( at( k ) );
-            for( std::size_t i = k + 1; i < order; ++i )
-            {
-                at( i ) = at( k );
-            }
-            return *this;
-        }
-    }
-    return *this;
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-typename WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position&
-                        WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::operator++ ()
-{
-    for( std::size_t k = order - 1; k > 0; --k )
-    {
-        if( at( k ) == dim - 1)
-        {
-            at( k ) = 0;
-        }
-        else
-        {
-            ++( at( k ) );
-            return *this;
-        }
-    }
-    ++( at( 0 ) );
-    return *this;
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-typename WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position
-                        WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::operator() ()
-{
-    Position res( *this );
-    std::sort( res.begin(), res.end() );
-    return res;
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-bool WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::operator == ( Position const& other )
-{
-    for( std::size_t k = 0; k < order; ++k )
-    {
-        if( at( k ) != other[ k ] )
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-bool WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::operator < ( Position const& other )
-{
-    for( std::size_t k = 0; k < order; ++k )
-    {
-        if( at( k ) > other[ k ] )
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-void WTensorBaseSym< order, dim, Data_T >::PositionIndexer::Position::clear()
-{
-    for( std::size_t k = 0; k < order; ++k )
-    {
-        at( k ) = 0;
-    }
-}
 
 // ######################## impl of WTensorBaseSym::PositionIndexer #####################################
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorBaseSym< order, dim, Data_T >::PositionIndexer::PositionIndexer()
 {
-    std::size_t n = 0;
-    std::map< Position, std::size_t > m;
+    // the map uses lexical ordering of vectors
+    std::map< std::vector< std::size_t >, std::size_t > m;
 
-    Position p;
+    // fill the map with all possible combinations of indices, where
+    // every combination of indices appears in ascending order of indices
+    std::vector< std::size_t > pos( order, 0 );
     for( std::size_t k = 0; k < dataSize; ++k )
     {
-        m[ p ] = n;
+        // enumerate the position
+        m[ pos ] = k;
 
-        p.incrSym();
-        ++n;
+        // get the next sorted combination
+        positionIterateSortedOneStep< order, dim >( pos );
     }
 
-    p.clear();
+    // now iterate all possible sets of indices
+    pos = std::vector< std::size_t >( order, 0 );
+    std::vector< std::size_t > _p( order, 0 );
     for( std::size_t k = 0; k < WPower< dim, order >::value; ++k )
     {
-        Position _p( p() );
+        _p = pos;
 
-        ( WTensorBase< order, dim, std::size_t >::operator[] ( p ) ) = m[ _p ];
+        // sort the indices in _p
+        std::sort( _p.begin(), _p.end() );
+
+        // now map the arbitrary ordered indices to the position of the ordered set in m (and thus in m_data)
+        m_positions[ pos ] = m[ _p ];
+
+        // the map should already know the sorted position,
+        // it should never be added by std::map::operator [] at this point
         WAssert( m.size() == dataSize, "" );
 
-        ++p;
+        // get the next position
+        positionIterateOneStep< order, dim >( pos );
     }
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
-std::size_t WTensorBaseSym< order, dim, Data_T >::PositionIndexer::getAt( Index_T const* const pos ) const
+std::size_t WTensorBaseSym< order, dim, Data_T >::PositionIndexer::operator[] ( Index_T pos[] ) const
 {
-    return this->operator[] ( pos );
+    return m_positions[ pos ];
 }
 
 // ######################## impl of WTensorBaseSym #####################################
@@ -773,15 +871,6 @@ std::size_t WTensorBaseSym< order, dim, Data_T >::getOrder() const
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
-Data_T const& WTensorBaseSym< order, dim, Data_T >::getAt( Index_T const* const pos ) const
-{
-    std::size_t p = m_indexer.getAt( pos );
-    WAssert( p < m_data.size(), "" );
-    return m_data[ p ];
-}
-
-template< std::size_t order, std::size_t dim, typename Data_T >
-template< typename Index_T >
 Data_T& WTensorBaseSym< order, dim, Data_T >::operator[] ( std::vector< Index_T > const& indices )
 {
     return const_cast< Data_T& >( static_cast< WTensorBaseSym const& >( *this ).operator[] ( indices ) );
@@ -792,70 +881,197 @@ template< typename Index_T >
 Data_T const& WTensorBaseSym< order, dim, Data_T >::operator[] ( std::vector< Index_T > const& indices ) const
 {
     WAssert( indices.size() >= order, "" );
-    return getAt( &indices[ 0 ] );
+    return operator[] ( &indices[ 0 ] );
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
-Data_T& WTensorBaseSym< order, dim, Data_T >::operator[] ( Index_T const* const indices )
+Data_T& WTensorBaseSym< order, dim, Data_T >::operator[] ( Index_T indices[] )
 {
     return const_cast< Data_T& >( static_cast< WTensorBaseSym const& >( *this ).operator[] ( indices ) );
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 template< typename Index_T >
-Data_T const& WTensorBaseSym< order, dim, Data_T >::operator[] ( Index_T const* const indices ) const
+Data_T const& WTensorBaseSym< order, dim, Data_T >::operator[] ( Index_T indices[] ) const
 {
-    return getAt( indices );
+    std::size_t p = m_indexer[ indices ];
+    WAssert( p < m_data.size(), "" );
+    return m_data[ p ];
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
-bool WTensorBaseSym< order, dim, Data_T >::operator == ( WTensorBaseSym const& other )
+bool WTensorBaseSym< order, dim, Data_T >::operator == ( WTensorBaseSym const& other ) const
 {
     return m_data == other.m_data;
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
-bool WTensorBaseSym< order, dim, Data_T >::operator != ( WTensorBaseSym const& other )
+bool WTensorBaseSym< order, dim, Data_T >::operator != ( WTensorBaseSym const& other ) const
 {
     return m_data != other.m_data;
 }
 
-//template< std::size_t order, std::size_t dim, typename Data_T >
-//WTensorBaseSym< order, dim, Data_T >::operator WTensorBase< order, dim, Data_T > () const
-//{
-//    WTensorBase< order, dim, Data_T > t;
-//
-//    std::size_t pos[ order ]; // NOLINT because we want a constant size array for efficiency
-//    for( std::size_t k = 0; k < order; ++k )
-//    {
-//        pos[ k ] = 0;
-//    }
-//
-//    for( std::size_t k = 0; k < t.m_data.size(); ++k )
-//    {
-//        const_cast< Data_T& >( t.getAt( pos ) ) = getAt( pos );
-//        ++pos[ 0 ];
-//        for( std::size_t i = 0; i < order - 1; ++i )
-//        {
-//            if( pos[ i ] < dim )
-//            {
-//                break;
-//            }
-//            else
-//            {
-//                pos[ i ] = 0;
-//                ++pos[ i + 1 ];
-//            }
-//        }
-//    }
-//}
+// ######################### WTensorBaseSym for order == 0 ##########################
+
+/**
+ * Specialization for order = 0. This essentially encapsulates a scalar. The purpose of
+ * this specialization is compatibility for generic tensor functions.
+ */
+template< std::size_t dim, typename Data_T >
+class WTensorBaseSym< 0, dim, Data_T >
+{
+    // make the test class a friend
+    friend class ::WTensorBaseSymTest;
+
+    // make the func test class a friend
+    friend class ::WTensorFuncTest;
+
+public:
+    // implementations are inline as they are trivial
+    /**
+     * Standard constructor.
+     *
+     * All elements are set to Data_T().
+     */
+    WTensorBaseSym()
+        : m_data( Data_T() )
+    {
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * \param t The tensor to copy from.
+     */
+    WTensorBaseSym( WTensorBaseSym const& t ) // NOLINT
+        : m_data( t.m_data )
+    {
+    }
+
+    /**
+     * Copy operator.
+     *
+     * \param t The tensor to copy from.
+     *
+     * \return *this.
+     */
+    WTensorBaseSym const& operator = ( WTensorBaseSym const& t )
+    {
+        m_data = t.m_data;
+        return *this;
+    }
+
+    /**
+     * Get the dimension of this tensor.
+     *
+     * \return The dimension of this tensor.
+     */
+    std::size_t getDimension() const
+    {
+        return dim;
+    }
+
+    /**
+     * Get the order of this tensor.
+     *
+     * \return The order of this tensor.
+     */
+    std::size_t getOrder() const
+    {
+        return 0;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T& operator[] ( std::vector< Index_T > const& /* indices */ )
+    {
+        return m_data;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T const& operator[] ( std::vector< Index_T > const& /* indices */ ) const
+    {
+        return m_data;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T& operator[] ( Index_T[] /* indices */ )
+    {
+        return m_data;
+    }
+
+    /**
+     * Get the value of this scalar.
+     *
+     * \return A reference to the element.
+     */
+    template< typename Index_T >
+    Data_T const& operator[] ( Index_T[] /* indices */ ) const
+    {
+        return m_data;
+    }
+
+    /**
+     * Compare this WTensorBase to another one.
+     *
+     * \param other The WBensorBase to compare to.
+     *
+     * \return True, iff this tensors' elements are equal to another tensors' elements.
+     */
+    bool operator == ( WTensorBaseSym const& other ) const
+    {
+        return m_data == other.m_data;
+    }
+
+    /**
+     * Compare this WTensorBase to another one.
+     *
+     * \param other The WBensorBase to compare to.
+     *
+     * \return True, iff this tensors' elements are not equal to another tensors' elements.
+     */
+    bool operator != ( WTensorBaseSym const& other ) const
+    {
+        return m_data != other.m_data;
+    }
+
+private:
+    /**
+     * Stores the value.
+     */
+    Data_T m_data;
+
+    /**
+     * Declare a compile-time constant as enum and not as static constant.
+     */
+    enum
+    {
+        /**
+         * The number of elements to store.
+         */
+        dataSize = 1
+    };
+};
 
 // ################################### class WTensorFunc<> ######################################
 
 /**
- * Implements the correct operator () depending on the order of the Tensor (up to 6)
- * or no operator () for orders larger than 6.
+ * Implements functions that should only be defined for certain values of order.
  */
 //next line is nolint because brainlint cannot find the declaration of TensorBase_T
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T > //NOLINT
@@ -914,7 +1130,7 @@ Data_T const& WTensorFunc< TensorBase_T, 6, dim, Data_T >::operator() ( std::siz
                                                                         std::size_t i3, std::size_t i4, std::size_t i5 ) const
 {
     std::size_t p[] = { i0, i1, i2, i3, i4, i5 };
-    return TensorBase_T< 6, dim, Data_T >::getAt( p );
+    return TensorBase_T< 6, dim, Data_T >::operator[] ( p );
 }
 
 
@@ -966,7 +1182,7 @@ Data_T const& WTensorFunc< TensorBase_T, 5, dim, Data_T >::operator() ( std::siz
                                                                         std::size_t i3, std::size_t i4 ) const
 {
     std::size_t p[] = { i0, i1, i2, i3, i4 };
-    return TensorBase_T< 5, dim, Data_T >::getAt( p );
+    return TensorBase_T< 5, dim, Data_T >::operator[] ( p );
 }
 
 
@@ -1014,7 +1230,7 @@ template< template< std::size_t, std::size_t, typename > class TensorBase_T, std
 Data_T const& WTensorFunc< TensorBase_T, 4, dim, Data_T >::operator() ( std::size_t i0, std::size_t i1, std::size_t i2, std::size_t i3 ) const
 {
     std::size_t p[] = { i0, i1, i2, i3 };
-    return TensorBase_T< 4, dim, Data_T >::getAt( p );
+    return TensorBase_T< 4, dim, Data_T >::operator[] ( p );
 }
 
 
@@ -1059,13 +1275,13 @@ template< template< std::size_t, std::size_t, typename > class TensorBase_T, std
 Data_T const& WTensorFunc< TensorBase_T, 3, dim, Data_T >::operator() ( std::size_t i0, std::size_t i1, std::size_t i2 ) const
 {
     std::size_t p[] = { i0, i1, i2 };
-    return TensorBase_T< 3, dim, Data_T >::getAt( p );
+    return TensorBase_T< 3, dim, Data_T >::operator[] ( p );
 }
 
 
 
 /**
- * Implements the operator () for an order of 2 as well as matrix multiplication.
+ * Implements the operator () for an order of 2 as well as matrix multiplication and casts to WMatrix.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 2, dim, Data_T > : public TensorBase_T< 2, dim, Data_T >
@@ -1092,22 +1308,9 @@ public:
     Data_T const& operator() ( std::size_t i0, std::size_t i1 ) const;
 
     /**
-     * Multiply with another matrix.
-     *
-     * \param other The matrix to multiply with.
-     *
-     * \return The product.
+     * Cast this 2nd-order tensor into a WMatrix.
      */
-    WTensorFunc operator * ( WTensorFunc const& other ) const;
-
-    /**
-     * Multiply with a vector.
-     *
-     * \param other The vector to multiply with.
-     *
-     * \return The product.
-     */
-    WTensorFunc< TensorBase_T, 1, dim, Data_T > operator * ( WTensorFunc< TensorBase_T, 1, dim, Data_T > const& other ) const;
+    operator WMatrix< Data_T >() const;
 };
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
@@ -1120,43 +1323,25 @@ template< template< std::size_t, std::size_t, typename > class TensorBase_T, std
 Data_T const& WTensorFunc< TensorBase_T, 2, dim, Data_T >::operator() ( std::size_t i0, std::size_t i1 ) const
 {
     std::size_t p[] = { i0, i1 };
-    return TensorBase_T< 2, dim, Data_T >::getAt( p );
+    return TensorBase_T< 2, dim, Data_T >::operator[] ( p );
 }
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
-WTensorFunc< TensorBase_T, 2, dim, Data_T > WTensorFunc< TensorBase_T, 2, dim, Data_T >::operator * ( WTensorFunc const& other ) const
+WTensorFunc< TensorBase_T, 2, dim, Data_T >::operator WMatrix< Data_T > () const
 {
-    WTensorFunc res;
+    WMatrix< Data_T > m( dim, dim );
     for( std::size_t i = 0; i < dim; ++i )
     {
         for( std::size_t j = 0; j < dim; ++j )
         {
-            for( std::size_t k = 0; k < dim; ++k )
-            {
-                res( i, j ) += this->operator() ( i, k ) * other( k, j );
-            }
+            m( i, j ) = this->operator() ( i, j );
         }
     }
-    return res;
-}
-
-template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
-WTensorFunc< TensorBase_T, 1, dim, Data_T > WTensorFunc< TensorBase_T, 2, dim, Data_T >::operator *
-                                                          ( WTensorFunc< TensorBase_T, 1, dim, Data_T > const& other ) const
-{
-    WTensorFunc< TensorBase_T, 1, dim, Data_T > res;
-    for( std::size_t i = 0; i < dim; ++i )
-    {
-        for( std::size_t j = 0; j < dim; ++j )
-        {
-            res( i ) += this->operator() ( i, j ) * other( j );
-        }
-    }
-    return res;
+    return m;
 }
 
 /**
- * Implements the operator () for an order of 1.
+ * Implements the operator () for an order of 1 as well as a cast to WValue.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 1, dim, Data_T > : public TensorBase_T< 1, dim, Data_T >
@@ -1179,6 +1364,11 @@ public:
      * \return A reference to the element.
      */
     Data_T const& operator() ( std::size_t i0 ) const;
+
+    /**
+     * Cast this tensor to a WValue.
+     */
+    operator WValue< Data_T > () const;
 };
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
@@ -1191,7 +1381,65 @@ template< template< std::size_t, std::size_t, typename > class TensorBase_T, std
 Data_T const& WTensorFunc< TensorBase_T, 1, dim, Data_T >::operator() ( std::size_t i0 ) const
 {
     std::size_t p[] = { i0 };
-    return TensorBase_T< 1, dim, Data_T >::getAt( p );
+    return TensorBase_T< 1, dim, Data_T >::operator[] ( p );
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
+WTensorFunc< TensorBase_T, 1, dim, Data_T >::operator WValue< Data_T > () const
+{
+    WValue< Data_T > v( dim );
+
+    for( std::size_t k = 0; k < dim; ++k )
+    {
+        v[ k ] = this->operator() ( k );
+    }
+
+    return v;
+}
+
+/**
+ * Implements the operator () for an order of 0 and a cast to Data_T.
+ */
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
+class WTensorFunc< TensorBase_T, 0, dim, Data_T > : public TensorBase_T< 0, dim, Data_T >
+{
+public:
+    /**
+     * Access operator.
+     *
+     * \return A reference to the element.
+     */
+    Data_T& operator() ();
+
+    /**
+     * Access operator.
+     *
+     * \return A reference to the element.
+     */
+    Data_T const& operator() () const;
+
+    /**
+     * Cast this tensor to a Data_T.
+     */
+    operator Data_T() const;
+};
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
+Data_T& WTensorFunc< TensorBase_T, 0, dim, Data_T >::operator() ()
+{
+    return const_cast< Data_T& >( static_cast< WTensorFunc const& >( *this ).operator() () );
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
+Data_T const& WTensorFunc< TensorBase_T, 0, dim, Data_T >::operator() () const
+{
+    return TensorBase_T< 0, dim, Data_T >::template operator[]< std::size_t >( NULL );
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
+WTensorFunc< TensorBase_T, 0, dim, Data_T >::operator Data_T() const
+{
+    return TensorBase_T< 0, dim, Data_T >::template operator[]< std::size_t >( NULL );
 }
 
 } // namespace wmath

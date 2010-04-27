@@ -36,10 +36,11 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
 #include "WMFiberDisplay.h"
 #include "fiberdisplay.xpm"
+
+bool WMFiberDisplay::m_fiberDisplayRunning = false;
 
 WMFiberDisplay::WMFiberDisplay()
     : WModule(),
@@ -57,7 +58,13 @@ WMFiberDisplay::~WMFiberDisplay()
 
 boost::shared_ptr< WModule > WMFiberDisplay::factory() const
 {
+    m_fiberDisplayRunning = true;
     return boost::shared_ptr< WModule >( new WMFiberDisplay() );
+}
+
+bool WMFiberDisplay::isRunning()
+{
+    return m_fiberDisplayRunning;
 }
 
 const char** WMFiberDisplay::getXPMIcon() const

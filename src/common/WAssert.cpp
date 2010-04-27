@@ -32,7 +32,7 @@ void wAssertFailed( std::string const& expression, std::string const& file, std:
 {
 #ifdef WASSERT_AS_CASSERT
     std::cerr << "Assertion failed: " << expression << " (in file " << file << " at line " << line << ")";
-    if( msg.length() > 0 )
+    if( !msg.empty() )
     {
         std::cerr << ", Message: " << msg;
     }
@@ -40,7 +40,7 @@ void wAssertFailed( std::string const& expression, std::string const& file, std:
     abort();
 #else
     std::string s = "Assertion failed: " + expression + " (in file " + file + " at line " + boost::lexical_cast< std::string >( line ) + ")";
-    if( msg.length() > 0 )
+    if( !msg.empty() )
     {
         s += ", Message: " + msg;
     }

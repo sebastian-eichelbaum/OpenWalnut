@@ -59,8 +59,8 @@ WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec )
 
 WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
 {
-    assert( mat.getNbRows() );
-    assert( mat.getNbCols() );
+    WAssert( mat.getNbRows(), "Zero rows found." );
+    WAssert( mat.getNbCols(), "Zero columns found." );
     double det = mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) +
                 mat( 0, 1 ) * mat( 1, 2 ) * mat( 2, 0 ) +
                 mat( 0, 2 ) * mat( 1, 0 ) * mat( 2, 1 ) -
@@ -87,8 +87,8 @@ WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
 
 WMatrix<double> invertMatrix4x4( WMatrix<double> mat )
 {
-    assert( mat.getNbRows() );
-    assert( mat.getNbCols() );
+    WAssert( mat.getNbRows(), "Zero rows found." );
+    WAssert( mat.getNbCols(), "Zero columns found." );
     double det =
         mat( 0, 0 ) * mat( 1, 1 ) * mat( 2, 2 ) * mat( 3, 3 ) +
         mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 3 ) * mat( 3, 1 ) +

@@ -27,10 +27,12 @@
 
 #include <vector>
 
+#include "WTensor.h"
 #include "WTensorSym.h"
 
 namespace wmath
 {
+// TODO(reichenbach): needs to be tested!
 /**
  * Compute all eigenvalues as well as the corresponding eigenvectors of a
  * symmetric real Matrix.

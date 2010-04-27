@@ -32,21 +32,30 @@
 
 #include "../common/WProgressCombiner.h"
 
-#include "../dataHandler/WDataSetScalar.h"
-
-#include "../modules/marchingCubes/WMarchingCubesAlgorithm.h"
+#include "algorithms/WMarchingCubesAlgorithm.h"
 
 #include "WGraphicsEngine.h"
 //#include "WGEUtils.h"
 
 #include "WROIArbitrary.h"
 
-WROIArbitrary::WROIArbitrary( boost::shared_ptr< const WDataSetScalar > dataSet, boost::shared_ptr< WTriangleMesh2 > triMesh, float threshold ) :
+WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                              const wmath::WMatrix< double >& mat,
+                              const std::vector< float >& vals,
+                              boost::shared_ptr< WTriangleMesh2 > triMesh,
+                              float threshold,
+                              float maxThreshold ) :
     WROI(),
-    m_dataSet( dataSet ),
+    m_nbCoordsVec( 3 ),
+    m_matrix( mat ),
+    m_vals( vals ),
     m_triMesh( triMesh ),
-    m_threshold( threshold )
+    m_threshold( threshold ),
+    m_maxThreshold( maxThreshold )
 {
+    m_nbCoordsVec[0] = nbCoordsX;
+    m_nbCoordsVec[1] = nbCoordsY;
+    m_nbCoordsVec[2] = nbCoordsZ;
     updateGFX();
     m_isModified = true;
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
@@ -75,23 +84,39 @@ double WROIArbitrary::getThreshold()
 
 double WROIArbitrary::getMaxThreshold()
 {
-    return m_dataSet->getMax();
+    return m_maxThreshold;
 }
 
-boost::shared_ptr< const WDataSetScalar > WROIArbitrary::getDataSet()
+std::vector< size_t > WROIArbitrary::getCoordDimensions()
 {
-    return m_dataSet;
+    return m_nbCoordsVec;
+}
+
+std::vector< double > WROIArbitrary::getCoordOffsets()
+{
+    std::vector< double > vec( 3 );
+    vec[0] = m_matrix( 0, 0 );
+    vec[1] = m_matrix( 1, 1 );
+    vec[2] = m_matrix( 2, 2 );
+    return vec;
+}
+
+float WROIArbitrary::getValue( size_t i )
+{
+    return m_vals[i];
 }
 
 void WROIArbitrary::updateGFX()
 {
     if ( m_isModified )
     {
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_dataSet ).getGrid() );
-        boost::shared_ptr< WValueSet< float > > vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
         boost::shared_ptr< WProgressCombiner > progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
         WMarchingCubesAlgorithm mcAlgo;
-        m_triMesh = mcAlgo.generateSurface( grid, vals, m_threshold, progress );
+        m_triMesh = mcAlgo.generateSurface( m_nbCoordsVec[0], m_nbCoordsVec[1], m_nbCoordsVec[2],
+                                            m_matrix,
+                                            &m_vals,
+                                            m_threshold,
+                                            progress );
 
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         setName( "roi" );
