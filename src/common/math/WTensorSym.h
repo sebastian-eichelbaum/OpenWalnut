@@ -28,7 +28,7 @@
 #include <vector>
 #include <iostream>
 
-#include "WTensor.h"
+#include "WTensorBase.h"
 
 namespace wmath
 {
@@ -41,11 +41,11 @@ namespace wmath
  * For example, t(i,j) = t(j,i) for a tensor of order 2, and t(i,j,k) = t(j,i,k) = t(i,k,j)
  * = t(j,k,i) = t(k,i,j) = t(k,j,i) for a tensor of order 3.
  *
- * The first template parameter is the order of the tensor. 
+ * The first template parameter is the order of the tensor.
  * The second template parameter is the dimension of the tensor, i.e. the number of components
  * in each direction.
  * The third template parameter is the datatype of the components, which is double by default.
- * 
+ *
  * \note The dimension may never be 0.
  * \note The type Data_T may not throw exceptions on construction, destruction or
  * during any assignment operator.
@@ -63,152 +63,15 @@ namespace wmath
  * dimension 3, only 6 values (instead of 9) need to be stored. However, there is additional
  * memory overhead per class (i.e. per allocation of the template parameters), which is of
  * constant size and thus does not depend on the number of instances.
- * 
+ *
  * Usage and operators are the same as with WTensor. Note that changes to an
  * element t(i,j,k,...) also change every element whose indices are a permutation of i,j,k... .
- * \see WTensor 
+ * \see WTensor
  */
 template< std::size_t order, std::size_t dim, typename Data_T = double >
 class WTensorSym : public WTensorFunc< WTensorBaseSym, order, dim, Data_T >
 {
 };
-
-//template< std::size_t order, typename Data_T >
-//WTensorSym< order, Data_T >::operator WTensor< order, T > () const
-//{
-//    return WTensor< order, T >( *this );
-//}
-
-/**
- * Disallow instantiation of a symmetric tensor that has a dimension of 0.
- */
-template< std::size_t order, typename Data_T >
-class WTensorSym< order, 0, Data_T >
-{
-};
-
-// ###################### special case WTensorSym< T, 0 > ##############################
-
-/**
- * The order 0 version of WTensorSym. This essentialy encapsulates a scalar.
- */
-template< std::size_t dim, typename Data_T >
-class WTensorSym< 0, dim, Data_T >
-{
-public:
-    /**
-     * Standard constructor.
-     */
-    WTensorSym();
-
-    /**
-     * Get the dimension of this tensor.
-     *
-     * \return The dimension of this tensor.
-     */
-    std::size_t getDimension() const;
-
-    /**
-     * Get the order of this tensor.
-     *
-     * \return The order of this tensor.
-     */
-    std::size_t getOrder() const;
-
-    /**
-     * Access via std::vector of indices. Only for compatibility.
-     *
-     * \param indices A std::vector of indices.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    template< typename Index_T >
-    Data_T& operator[] ( std::vector< Index_T > const& indices );
-
-    /**
-     * Access via std::vector of indices. Only for compatibility.
-     *
-     * \param indices A std::vector of indices.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    template< typename Index_T >
-    Data_T const& operator[] ( std::vector< Index_T > const& indices ) const;
-
-    /**
-     * Access operator.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    Data_T& operator() ();
-
-    /**
-     * Access operator.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    Data_T const& operator() () const;
-
-//    operator WTensor< 0, dim, Data_T > () const;
-
-private:
-    /**
-     * The data element.
-     */
-    Data_T m_data;
-};
-
-template< std::size_t dim, typename Data_T >
-WTensorSym< 0, dim, Data_T >::WTensorSym()
-    : m_data( Data_T() )
-{
-}
-
-template< std::size_t dim, typename Data_T >
-std::size_t WTensorSym< 0, dim, Data_T >::getDimension() const
-{
-    return 0;
-}
-
-template< std::size_t dim, typename Data_T >
-std::size_t WTensorSym< 0, dim, Data_T >::getOrder() const
-{
-    return 0;
-}
-
-template< std::size_t dim, typename Data_T >
-template< typename Index_T >
-Data_T& WTensorSym< 0, dim, Data_T >::operator[] ( std::vector< Index_T > const& indices )
-{
-    return m_data;
-}
-
-template< std::size_t dim, typename Data_T >
-template< typename Index_T >
-Data_T const& WTensorSym< 0, dim, Data_T >::operator[] ( std::vector< Index_T > const& indices ) const
-{
-    return m_data;
-}
-
-template< std::size_t dim, typename Data_T >
-Data_T& WTensorSym< 0, dim, Data_T >::operator() ()
-{
-    return m_data;
-}
-
-template< std::size_t dim, typename Data_T >
-Data_T const& WTensorSym< 0, dim, Data_T >::operator() () const
-{
-    return m_data;
-}
-
-//template< std::size_t dim, typename Data_T >
-//WTensorSym< 0, dim, Data_T >::operator WTensor< 0, dim, Data_T > () const
-//{
-//    WTensor< 0, dim, Data_T > t;
-//    t() = m_data;
-//    return t;
-//}
 
 }  // namespace wmath
 

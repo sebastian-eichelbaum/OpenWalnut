@@ -28,17 +28,16 @@
 #include <vector>
 #include <iostream>
 
-#include "WTensorBase.h"
+#include "WTensorSym.h"
 
 namespace wmath
 {
 // ############################# class WTensor<> #############################################
-
 /**
  * Implements a tensor that has the same number of components in every
  * direction.
  *
- * The first template parameter is the order of the tensor. 
+ * The first template parameter is the order of the tensor.
  * The second template parameter is the dimension of the tensor, i.e. the number of components
  * in each direction.
  * The third template parameter is the datatype of the components, which is double by default.
@@ -75,38 +74,10 @@ namespace wmath
  *     v( 2 ) = ...;
  *
  *     std::vector< int > i( 1, 2 );
- *     v[ i ] = ...; 
+ *     v[ i ] = ...;
  */
 template< std::size_t order, std::size_t dim, typename Data_T = double >
 class WTensor : public WTensorFunc< WTensorBase, order, dim, Data_T >
-{
-};
-
-/**
- * Specialization for dim = 0. This essentially prohibits
- * instantiation of a 0-dimensional tensor.
- */
-template< std::size_t order, typename Data_T >
-class WTensor< order, 0, Data_T >
-{
-};
-
-/**
- * Specialization for dim = 0 and order = 0. This essentially prohibits
- * instantiation of a 0-dimensional tensor.
- */
-template< typename Data_T >
-class WTensor< 0, 0, Data_T >
-{
-};
-
-// ###################### special case WTensor<> of order 0 ##############################
-
-/**
- * The order 0 version of WTensor. This essentialy encapsulates a scalar.
- */
-template< std::size_t dim, typename Data_T >
-class WTensor< 0, dim, Data_T >
 {
 public:
     /**
@@ -115,100 +86,38 @@ public:
     WTensor();
 
     /**
-     * Get the dimension of this tensor.
+     * Construct a Tensor from a symmetric tensor.
      *
-     * \return The dimension of this tensor.
+     * \param t A symmetric tensor.
      */
-    std::size_t getDimension() const;
+    WTensor( WTensorSym< order, dim, Data_T > const& t );
 
     /**
-     * Get the order of this tensor.
+     * Copy from a symmetric tensor.
      *
-     * \return The order of this tensor.
+     * \param t A symmetric tensor.
      */
-    std::size_t getOrder() const;
-
-    /**
-     * Access via std::vector of indices. Only for compatibility.
-     *
-     * \param indices A std::vector of indices.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    template< typename Index_T >
-    Data_T& operator[] ( std::vector< Index_T > const& indices );
-
-    /**
-     * Access via std::vector of indices. Only for compatibility.
-     *
-     * \param indices A std::vector of indices.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    template< typename Index_T >
-    Data_T const& operator[] ( std::vector< Index_T > const& indices ) const;
-
-    /**
-     * Access operator.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    Data_T& operator() ();
-
-    /**
-     * Access operator.
-     *
-     * \return A reference to the value of this tensor.
-     */
-    Data_T const& operator() () const;
-
-private:
-    /**
-     * The data element.
-     */
-    Data_T m_data;
+    WTensor const& operator = ( WTensorSym< order, dim, Data_T > const& t );
 };
 
-template< std::size_t dim, typename Data_T >
-WTensor< 0, dim, Data_T >::WTensor()
-    : m_data( Data_T() )
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensor< order, dim, Data_T >::WTensor()
+    : WTensorFunc< WTensorBase, order, dim, Data_T >()
 {
 }
 
-template< std::size_t dim, typename Data_T >
-std::size_t WTensor< 0, dim, Data_T >::getDimension() const
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensor< order, dim, Data_T >::WTensor( WTensorSym< order, dim, Data_T > const& t )
+    : WTensorFunc< WTensorBase, order, dim, Data_T >()
 {
-    return 0;
+    WTensorBase< order, dim, Data_T >::operator = ( t );
 }
 
-template< std::size_t dim, typename Data_T >
-std::size_t WTensor< 0, dim, Data_T >::getOrder() const
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensor< order, dim, Data_T > const& WTensor< order, dim, Data_T >::operator = ( WTensorSym< order, dim, Data_T > const& t )
 {
-    return 0;
-}
-
-template< std::size_t dim, typename Data_T > template< typename Index_T >
-Data_T& WTensor< 0, dim, Data_T >::operator[] ( std::vector< Index_T > const& indices )
-{
-    return m_data;
-}
-
-template< std::size_t dim, typename Data_T > template< typename Index_T >
-Data_T const& WTensor< 0, dim, Data_T >::operator[] ( std::vector< Index_T > const& indices ) const
-{
-    return m_data;
-}
-
-template< std::size_t dim, typename Data_T >
-Data_T& WTensor< 0, dim, Data_T >::operator() ()
-{
-    return m_data;
-}
-
-template< std::size_t dim, typename Data_T >
-Data_T const& WTensor< 0, dim, Data_T >::operator() () const
-{
-    return m_data;
+    WTensorBase< order, dim, Data_T >::operator = ( t );
+    return *this;
 }
 
 // ######################## stream output operators #################################
