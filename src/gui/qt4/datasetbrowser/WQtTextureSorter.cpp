@@ -101,7 +101,7 @@ void WQtTextureSorter::update()
 
     if( ta->get().empty() )
     {
-        ta->endRead();
+        ta->endRead(); // end for the begin needed for the if condition
 
         DatasetAccess da = subject->getAccessObject();
         da->beginRead();
@@ -121,8 +121,9 @@ void WQtTextureSorter::update()
     }
     else
     {
-        ta->endRead();
+        ta->endRead(); // end for the begin needed for the if condition
 
+        // insert the new datasets into the texture sorter.
         DatasetAccess da = subject->getAccessObject();
         da->beginRead();
         for( DatasetContainerType::iterator it = da->get().begin(); it != da->get().end(); ++it )
@@ -144,6 +145,26 @@ void WQtTextureSorter::update()
             }
         }
         da->endRead();
+
+        // remove deregistered datasets from the texture sorter.
+        ta->beginRead();
+        for( DatasetContainerType::iterator it = ta->get().begin(); it != ta->get().end(); ++it )
+        {
+            ta->endRead();
+            da->beginRead();
+            DatasetContainerType::iterator fIt = std::find( da->get().begin(), da->get().end(), *it );
+            if( fIt == da->get().end() )
+            {
+                ta->beginWrite();
+                ta->get().erase( it );
+                ta->endWrite();
+                ta->beginRead();
+                break;
+            }
+            da->endRead();
+            ta->beginRead();
+        }
+        ta->endRead();
     }
 
     int index =  m_textureListWidget->currentIndex().row();

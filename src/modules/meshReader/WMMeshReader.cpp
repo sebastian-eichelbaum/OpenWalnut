@@ -94,6 +94,11 @@ void WMMeshReader::moduleMain()
     {
         m_moduleState.wait();
 
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         m_triMesh = read();
         m_output->updateData( m_triMesh );
     }
