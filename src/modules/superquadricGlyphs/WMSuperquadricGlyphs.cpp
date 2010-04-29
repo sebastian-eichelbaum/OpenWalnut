@@ -27,7 +27,6 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
 #include <osg/StateSet>
 #include <osg/StateAttribute>
 #include <osg/PolygonMode>
@@ -35,14 +34,14 @@
 
 #include "../../kernel/WKernel.h"
 
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WVector3D.h"
+#include "../../graphicsEngine/WGEUtils.h"
 
 #include "WMSuperquadricGlyphs.h"
 
 WMSuperquadricGlyphs::WMSuperquadricGlyphs():
     WModule()
 {
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "gpuSuperQuadrics" ) );
 }
 
 WMSuperquadricGlyphs::~WMSuperquadricGlyphs()
@@ -85,9 +84,9 @@ void WMSuperquadricGlyphs::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // The slice positions. These get update externally
-    m_xPos           = m_properties->addProperty( "X Pos of the slice", "Slice X position.", 80, m_propCondition);
-    m_yPos           = m_properties->addProperty( "Y Pos of the slice", "Slice Y position.", 100, m_propCondition);
-    m_zPos           = m_properties->addProperty( "Z Pos of the slice", "Slice Z position.", 80, m_propCondition);
+    m_xPos           = m_properties->addProperty( "X Pos of the slice", "Slice X position.", 80, m_propCondition );
+    m_yPos           = m_properties->addProperty( "Y Pos of the slice", "Slice Y position.", 100, m_propCondition );
+    m_zPos           = m_properties->addProperty( "Z Pos of the slice", "Slice Z position.", 80, m_propCondition );
     m_xPos->setHidden( true );
     m_yPos->setHidden( true );
     m_zPos->setHidden( true );
@@ -99,9 +98,29 @@ void WMSuperquadricGlyphs::properties()
     m_zPos->setMax( 160 );
 
     // Flags denoting whether the glyphs should be shown on the specific slice
-    m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true, m_propCondition);
+    m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true, m_propCondition );
     m_showonY        = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true, m_propCondition );
-    m_showonZ        = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true, m_propCondition);
+    m_showonZ        = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true, m_propCondition );
+
+    // Thresholding for filtering glyphs
+    m_evThreshold = m_properties->addProperty( "Eigenvalue Threshold",
+                                               "Clip Glyphs whose smallest eigenvalue is below the given threshold.", 0.0001 );
+    m_evThreshold->setMin( 0.0 );
+    m_evThreshold->setMax( 1.0 );
+    m_faThreshold = m_properties->addProperty( "FA Threshold",
+                                               "Clip Glyphs whose fractional anisotropy is below the given threshold.", 0.0001 );
+    m_faThreshold->setMin( 0.0 );
+    m_faThreshold->setMax( 1.0 );
+
+    m_gamma = m_properties->addProperty( "Gamma", "Sharpness Parameter of the SuperQuadrics.", 0.1 );
+    m_gamma->setMin( 0.0 );
+    m_gamma->setMax( 10.0 );
+
+    m_scaling = m_properties->addProperty( "Scaling", "Scaling of Glyphs.", 1.0 );
+    m_scaling->setMin( 0.0 );
+    m_scaling->setMax( 100.0 );
+
+    m_unifyEV = m_properties->addProperty( "Unify Eigenvalues", "Unify the eigenvalues?.", false );
 }
 
 void WMSuperquadricGlyphs::moduleMain()
@@ -137,7 +156,13 @@ void WMSuperquadricGlyphs::moduleMain()
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
-        // TODO(ebaum): check order here
+        // TODO(ebaum): as long as we do not have a proper second order tensor field:
+        if ( ( newDataSet->getValueSet()->order() != 1 ) && ( newDataSet->getValueSet()->dimension() != 6 ) )
+        {
+            warnLog() << "Received data with order=" <<  newDataSet->getValueSet()->order() <<
+                         " and dimension=" << newDataSet->getValueSet()->dimension() << " not compatible with this module. Ignoring!";
+            dataValid = false;
+        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Handle changes
@@ -147,6 +172,7 @@ void WMSuperquadricGlyphs::moduleMain()
         {
             // The data is different. Copy it to our internal data variable:
             debugLog() << "Received Data.";
+
             m_dataSet = newDataSet;
 
             // create a new geode containing the glyphs proxy geometry
@@ -156,26 +182,109 @@ void WMSuperquadricGlyphs::moduleMain()
             osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
             newRootNode->addDrawable( geometry );
 
+            // get ValueSet
+            boost::shared_ptr< WValueSetBase > valueSet = m_dataSet->getValueSet();
+            size_t valueSetSize = valueSet->size();
+            // get grid
+            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+            WAssert( grid, "Dataset does not have a regular 3D grid." );
+
+            // also provide progress information
+            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry",  valueSetSize ) );
+            m_progress->addSubProgress( progress1 );
+
             // as we use quads -> four verts per qlyph
             // NOTE: the vertices are only the position of the glyph. The shader actually spans them up according to the proper bbox
             osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
-            osg::ref_ptr< osg::DrawElementsUInt > glyphs = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS );
+            vertices->reserve( valueSetSize * 4 );
+            osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array;
+            texcoords0->reserve( valueSetSize * 4 );
+            osg::ref_ptr< osg::Vec3Array > texcoords1 = new osg::Vec3Array;
+            texcoords1->reserve( valueSetSize * 4 );
+            osg::ref_ptr< osg::Vec3Array > texcoords2 = new osg::Vec3Array;
+            texcoords2->reserve( valueSetSize * 4 );
+            osg::ref_ptr< osg::DrawElementsUInt > glyphs = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
+            glyphs->reserve( valueSetSize * 4 );
 
-            // for each glyph, create the vertices and texture coordinates (used to transfer tensor values)
-            vertices->push_back( osg::Vec3( 0, 0, 0) );
-            glyphs->push_back( 0 );
-            vertices->push_back( osg::Vec3(10, 0, 0) );
-            glyphs->push_back( 1 );
-            vertices->push_back( osg::Vec3(10,10, 0) );
-            glyphs->push_back( 2 );
-            vertices->push_back( osg::Vec3( 0,10, 0) );
-            glyphs->push_back( 3 );
+            debugLog() << "Grid Size: " << grid->getNbCoordsX() << "x" << grid->getNbCoordsY() << "x" << grid->getNbCoordsZ() << " (" << valueSetSize << ")";
 
+            // iterate over each tensor in the field
+            size_t vid = 0;
+            for ( size_t i = 0; i < valueSetSize; ++i )
+            {
+                size_t x = i % grid->getNbCoordsX();
+                size_t y = ( i / grid->getNbCoordsX() ) % grid->getNbCoordsY();
+                size_t z = i / ( grid->getNbCoordsX() * grid->getNbCoordsY() );
+
+                if ( x != 80 )
+                    continue;
+                if ( y != 100 )
+                    continue;
+                if ( ( z != 80 ) && ( z != 159 ) )
+                    continue;
+
+                // get position in space
+                osg::Vec3 p = wge::osgVec3( grid->getPosition( x, y, z ) );
+
+                for ( size_t qidx = 0; qidx < 4; ++qidx )
+                {
+                    // for each glyph, create the vertices and texture coordinates (used to transfer tensor values)
+                    vertices->push_back( p );
+                    glyphs->push_back( vid * 4 + qidx );
+
+                    // each tensor consists of 6 components
+                    // we abuse texture coordinates to transfer them to the GPU
+                    texcoords1->push_back( osg::Vec3( valueSet->getScalarDouble( i * 6 + 0 ),
+                                                      valueSet->getScalarDouble( i * 6 + 1 ),
+                                                      valueSet->getScalarDouble( i * 6 + 2 ) ) );
+                    texcoords2->push_back( osg::Vec3( valueSet->getScalarDouble( i * 6 + 3 ),
+                                                      valueSet->getScalarDouble( i * 6 + 4 ),
+                                                      valueSet->getScalarDouble( i * 6 + 5 ) ) );
+                }
+
+                // as the vertex is simply the center of the glyph -> use tex coords to store the orientation of each vertex
+                texcoords0->push_back( osg::Vec3( -1.0, -1.0, 0.0 ) );
+                texcoords0->push_back( osg::Vec3(  1.0, -1.0, 0.0 ) );
+                texcoords0->push_back( osg::Vec3(  1.0,  1.0, 0.0 ) );
+                texcoords0->push_back( osg::Vec3( -1.0,  1.0, 0.0 ) );
+
+                ++vid;
+                ++*progress1;
+            }
+            progress1->finish();
+
+            // add arrays
             geometry->setVertexArray( vertices );
+            geometry->setUseVertexBufferObjects( true );
+            geometry->setTexCoordArray( 0, texcoords0 );
+            geometry->setTexCoordArray( 1, texcoords1 );
+            geometry->setTexCoordArray( 2, texcoords2 );
             geometry->addPrimitiveSet( glyphs );
 
+            // update stateset
+            osg::ref_ptr< osg::StateSet > sset = newRootNode->getOrCreateStateSet();
+            sset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
+            // add shader
+            m_shader->apply( newRootNode );
 
+            // set uniform callbacks and uniforms
+            osg::ref_ptr< osg::Uniform > evThreshold = new osg::Uniform( "u_evThreshold", static_cast< float >( m_evThreshold->get() ) );
+            evThreshold->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > faThreshold = new osg::Uniform( "u_faThreshold", static_cast< float >( m_faThreshold->get() ) );
+            faThreshold->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > unifyEV = new osg::Uniform( "u_unifyEV", m_unifyEV->get() );
+            unifyEV->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > scaling = new osg::Uniform( "u_scaling", static_cast< float >( m_scaling->get() ) );
+            scaling->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > gamma = new osg::Uniform( "u_gamma", static_cast< float >( m_gamma->get() ) );
+            gamma->setUpdateCallback( new SafeUniformCallback( this ) );
+
+            sset->addUniform( evThreshold );
+            sset->addUniform( faThreshold );
+            sset->addUniform( unifyEV );
+            sset->addUniform( scaling );
+            sset->addUniform( gamma );
 
             // remove old node
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_outputGeode );
@@ -213,5 +322,30 @@ void WMSuperquadricGlyphs::activate()
 
     // Always call WModule's activate!
     WModule::activate();
+}
+
+void WMSuperquadricGlyphs::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
+{
+    // update some uniforms:
+    if ( m_module->m_evThreshold->changed()  && ( uniform->getName() == "u_evThreshold" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_evThreshold->get( true ) ) );
+    }
+    if ( m_module->m_faThreshold->changed()  && ( uniform->getName() == "u_faThreshold" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_faThreshold->get( true ) ) );
+    }
+    if ( m_module->m_gamma->changed()  && ( uniform->getName() == "u_gamma" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_gamma->get( true ) ) );
+    }
+    if ( m_module->m_scaling->changed()  && ( uniform->getName() == "u_scaling" ) )
+    {
+        uniform->set( static_cast< float >( m_module->m_scaling->get( true ) ) );
+    }
+    if ( m_module->m_unifyEV->changed()  && ( uniform->getName() == "u_unifyEV" ) )
+    {
+        uniform->set( m_module->m_unifyEV->get( true ) );
+    }
 }
 

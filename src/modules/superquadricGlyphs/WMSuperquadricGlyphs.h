@@ -38,6 +38,7 @@
 #include "../../dataHandler/WDataSetSingle.h"
 
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WShader.h"
 
 /**
  * Rendering of GPU bases Superquadric Glyphs. These glyphs are completely raytraced on the GPU.
@@ -120,6 +121,11 @@ private:
     boost::shared_ptr< const WDataSetSingle > m_dataSet;
 
     /**
+     * the shader actually doing the glyph raytracing
+     */
+    osg::ref_ptr< WShader > m_shader;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -135,6 +141,61 @@ private:
     WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
 
     WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
+
+    /**
+     * The eigenvalue threshold to filter glyphs
+     */
+    WPropDouble   m_evThreshold;
+
+    /**
+     * The FA threshold to filter glyphs
+     */
+    WPropDouble   m_faThreshold;
+
+    /**
+     * Sharpness of the glyphs
+     */
+    WPropDouble   m_gamma;
+
+    /**
+     * Scaling of the glyphs
+     */
+    WPropDouble   m_scaling;
+
+    /**
+     * True if the EV should be normalized
+     */
+    WPropBool     m_unifyEV;
+
+    /**
+     * Class handling uniform update during render traversal
+     */
+    class SafeUniformCallback: public osg::Uniform::Callback
+    {
+    public:
+
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit SafeUniformCallback( WMSuperquadricGlyphs* module ): m_module( module )
+        {
+        };
+
+        /**
+         * The callback. Called every render traversal for the uniform.
+         *
+         * \param uniform the uniform for which this callback is.
+         * \param nv the visitor.
+         */
+        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
+
+        /**
+         * Pointer used to access members of the module to modify the node.
+         */
+        WMSuperquadricGlyphs* m_module;
+    };
 };
 
 #endif  // WMSUPERQUADRICGLYPHS_H
