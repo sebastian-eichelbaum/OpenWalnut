@@ -29,12 +29,11 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-
-#include "../../graphicsEngine/WShader.h"
-
 #include "WTubeDrawable.h"
 
 /**
@@ -125,6 +124,11 @@ protected:
     void notifyTextureChange();
 
 private:
+    /**
+     * Updates the output with the current selection and generates a WFiberCluster out of it.
+     */
+    void updateOutput() const;
+
     WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
     WPropBool m_customColoring; //!< Enable/Disable custom colors
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
@@ -132,6 +136,7 @@ private:
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
     WPropBool m_save; //!< this should be a button
     WPropFilename m_saveFileName; //!< the filename for saving
+    WPropTrigger m_updateOC; //!< updates the output connector
 
     WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
 
@@ -139,6 +144,11 @@ private:
      * Input connector for a fiber dataset.
      */
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
+
+    /**
+     * Output connector for the fiber cluster dataset.
+     */
+    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_clusterOC;
 
     /**
      * Pointer to the fiber data set

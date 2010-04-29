@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -37,8 +38,8 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "WMFiberDisplay.h"
 #include "fiberdisplay.xpm"
+#include "WMFiberDisplay.h"
 
 bool WMFiberDisplay::m_fiberDisplayRunning = false;
 
@@ -194,7 +195,13 @@ void WMFiberDisplay::connectors()
 
     m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
 
+    typedef WModuleOutputData< WFiberCluster > ClusterOutputData; // just an alias
+
+    m_clusterOC = shared_ptr< ClusterOutputData >( new ClusterOutputData( shared_from_this(), "clusterOut", "FiberCluster of current selection" ) );
+
     addConnector( m_fiberInput );
+    addConnector( m_clusterOC );
+
     WModule::connectors();  // call WModules initialization
 }
 
@@ -228,6 +235,10 @@ void WMFiberDisplay::properties()
     m_tubeThickness->setMax( 300 );
     m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
     m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WKernel::getAppPathObject() );
+    m_updateOC = m_properties->addProperty( "Update Output",
+                                            "Updates the output with the currently selected fibers",
+                                            WPVBaseTypes::PV_TRIGGER_READY,
+                                            boost::bind( &WMFiberDisplay::updateOutput, this ) );
 }
 
 void WMFiberDisplay::toggleTubes()
@@ -295,6 +306,35 @@ void WMFiberDisplay::saveSelected()
 {
     boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
     m_dataset->saveSelected( m_saveFileName->getAsString(), active );
+}
+
+void WMFiberDisplay::updateOutput() const
+{
+    std::vector< wmath::WFiber > fibs;
+    std::list< size_t > indices;
+    boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
+    for( size_t i = 0; i < active->size(); ++i ) // std::vector< bool >::const_iterator cit = active->begin(); cit != active->end(); ++cit, ++index )
+    {
+        if( ( *active )[i] )
+        {
+            size_t length = ( * m_dataset->getLineLengths() )[ i ];
+            wmath::WFiber f;
+            f.reserve( 3 * length );
+            for( size_t p = 0; p < length; ++p )
+            {
+                f.push_back( m_dataset->getPosition( i, p ) );
+            }
+            indices.push_back( fibs.size() );
+            fibs.push_back( f );
+            // construct index'th fiber and put index into fiberCluster
+            std::cout << "size: " << fibs.size() << " :: " << fibs.back().size() << std::endl;
+        }
+    }
+    boost::shared_ptr< WFiberCluster > result( new WFiberCluster );
+    result->setDataSetReference( boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( boost::shared_ptr< std::vector< wmath::WFiber > >( new std::vector< wmath::WFiber >( fibs ) ) ) ) ); // NOLINT
+    result->setIndices( indices );
+    m_clusterOC->updateData( result );
+    m_updateOC->set( WPVBaseTypes::PV_TRIGGER_READY, false );
 }
 
 void WMFiberDisplay::updateTexture()
