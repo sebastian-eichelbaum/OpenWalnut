@@ -94,6 +94,8 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
 
     m_roiTreeWidget = new WQtTreeWidget();
+    m_roiTreeWidget->setToolTip( "Regions of intrest (ROIs) for selecting fiber  clusters. Branches are combined using logic <b>or</b>, "
+"inside the branches the ROIs are combined using logic <b>and</b>." );
     m_roiTreeWidget->setHeaderLabel( QString( "ROIs" ) );
     m_roiTreeWidget->setHeaderHidden( true );
     m_roiTreeWidget->setDragEnabled( true );
