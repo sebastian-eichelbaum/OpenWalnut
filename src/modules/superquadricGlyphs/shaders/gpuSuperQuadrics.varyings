@@ -33,7 +33,7 @@
 // w component:             unused
 // (4 varying floats)
 varying vec4 v_lightDir;
-varying float v_det;
+
 // camera direction vector
 // USAGE:
 // x,y,z components:        the direction vector
@@ -54,19 +54,6 @@ varying vec4 v_viewDir;
 // w component:             is !=0 when the glyph has to be dropped
 // (4 varying floats)
 varying vec4 v_alphaBeta;
-
-// bounding box parameter
-// USAGE:
-//  value:                  the positive z value of the boundingbox
-
-// (1 varying floats)
-varying float v_bboxMaxZ;
-
-// spheric certainity
-varying float v_cs;
-
-// t parameter
-varying float v_scaleT;
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // 2: uniforms

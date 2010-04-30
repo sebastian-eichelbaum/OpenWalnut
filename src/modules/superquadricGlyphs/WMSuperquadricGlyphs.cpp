@@ -216,7 +216,7 @@ void WMSuperquadricGlyphs::moduleMain()
                 size_t y = ( i / grid->getNbCoordsX() ) % grid->getNbCoordsY();
                 size_t z = i / ( grid->getNbCoordsX() * grid->getNbCoordsY() );
 
-                if ( ( x > 40 ) )
+                if ( ( x != 80 ) )
                     continue;
                 if ( y != 100 )
                     continue;
@@ -235,11 +235,11 @@ void WMSuperquadricGlyphs::moduleMain()
                     // each tensor consists of 6 components
                     // we abuse texture coordinates to transfer them to the GPU
                     texcoords1->push_back( osg::Vec3( valueSet->getScalarDouble( i * 6 + 0 ),
-                                                      valueSet->getScalarDouble( i * 6 + 1 ),
-                                                      valueSet->getScalarDouble( i * 6 + 2 ) ) );
-                    texcoords2->push_back( osg::Vec3( valueSet->getScalarDouble( i * 6 + 3 ),
-                                                      valueSet->getScalarDouble( i * 6 + 4 ),
+                                                      valueSet->getScalarDouble( i * 6 + 3 ),
                                                       valueSet->getScalarDouble( i * 6 + 5 ) ) );
+                    texcoords2->push_back( osg::Vec3( valueSet->getScalarDouble( i * 6 + 1 ),
+                                                      valueSet->getScalarDouble( i * 6 + 2 ),
+                                                      valueSet->getScalarDouble( i * 6 + 4 ) ) );
                 }
 
                 // as the vertex is simply the center of the glyph -> use tex coords to store the orientation of each vertex

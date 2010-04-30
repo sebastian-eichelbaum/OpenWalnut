@@ -18,10 +18,10 @@
 // tollerance value for float comparisons
 float zeroTollerance=0.01;
 
-//#define RenderMode_Box
+#define RenderMode_Box
 //#define RenderMode_BoundedBox
 //#define RenderMode_Superquadric
-#define RenderMode_Ellipsoid
+//#define RenderMode_Ellipsoid
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // GPU Super Quadrics -- fragment shader -- sPow
@@ -265,12 +265,16 @@ bool findBBoxIntersection(vec3 viewDir, vec3 planePoint, out float bboxT, out ve
 /////////////////////////////////////////////////////////////////////////////////////////////
 void main(void)
 {
+
+gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
+//return;
+
   // filter out glyphs whose anisotropy is smaller than the threshold or where the eigenvalues
   // are below the threshold (alphaBeta.w is != if this is the case)
-  /*if( v_alphaBeta.w > 0.0 )
+  if( v_alphaBeta.w > 0.0 )
   {
-    discard;
-  }*/
+    //discard;
+  }
  
   /////////////////////////////////////////////////////////////////////////////////////////////
   // 1: try to find a goot start value for newton iteration
@@ -308,6 +312,8 @@ void main(void)
   // use bounding box intersection to find good start value
   if (!findBBoxIntersection(v_viewDir.xyz, v_planePoint.xyz, lastT, grad))
   {
+      gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );
+    return;
     discard;
   }
 
@@ -412,7 +418,7 @@ void main(void)
 
   if (hit)
   {
-    //gl_FragDepth = gl_FragCoord.z - 1.0/ v_scaleT * lastT;
+    //gl_FragDepth = gl_FragCoord.z - 1.0/3.5 * lastT;
 
     // draw shaded pixel
         gl_FragColor = blinnPhongIllumination(
@@ -442,7 +448,7 @@ void main(void)
   }
   else // no hit: discard
     // want to see the bounding box? uncomment this line
-    //gl_FragColor=vec4(0.5, 0.5, 0.5, 1.0);
-    discard;
+    gl_FragColor=vec4(0.5, 0.5, 0.5, 1.0);
+    //discard;
 }
 

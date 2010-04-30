@@ -36,27 +36,31 @@ void main()
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // get tensor data
-    vec3 diag    = vec3( gl_TexCoord[1].x, gl_TexCoord[1].z, gl_TexCoord[2].z );
-    vec3 offdiag = vec3( gl_TexCoord[1].y, gl_TexCoord[2].x, gl_TexCoord[2].y );
+    vec3 diag    = vec3( gl_TexCoord[1].x, gl_TexCoord[1].y, gl_TexCoord[1].z );
+    vec3 offdiag = vec3( gl_TexCoord[2].x, gl_TexCoord[2].y, gl_TexCoord[2].z );
     //vec3 diag    = vec3( gl_TexCoord[1].x, gl_TexCoord[1].y, gl_TexCoord[1].z );
     //vec3 offdiag = vec3( gl_TexCoord[2].x, gl_TexCoord[2].y, gl_TexCoord[2].z );
     
     // calculate eigenvectors, and rotation matrix
     vec3 evals = getEigenvalues( diag, offdiag );
-    evals = vec3( 1.0, 0.5, 0.5 );
+    evals = vec3( 1.0, 0.5, 0.2 );
 
     // first eigenvector
     vec3 ABCx = diag - evals.x;
     vec3 ev0 = getEigenvector( ABCx, offdiag );
-    ev0 = vec3( 0.0, 1.0, 0.0 );
+    ev0 = normalize( vec3( 0.0, 1.0, 0.0 ) );
 
     // second eigenvector
     vec3 ABCy = diag - evals.y;
     vec3 ev1 = getEigenvector( ABCy, offdiag );
-    ev1 = vec3( 0.0, 0.0, 1.0 );
+    ev1 = normalize( vec3( 0.0, 0.0, 1.0 ) );
+
+/*ev1 -= dot( ev0, ev1 ) * ev0;
+ev1 = normalize( ev1 );
+*/
 
     // third eigenvector
-    //vec3 ABCz = diag - evals.z;
+    vec3 ABCz = diag - evals.z;
     //vec3 ev2 = getEigenvector( ABCz, offdiag );
     vec3 ev2 = cross( ev0.xyz, ev1.xyz ); // as they are orthogonal
 
@@ -67,7 +71,7 @@ void main()
 
     // throw away glyphs whose FA is below threshold and whose eigenvalues are below threshold
     v_alphaBeta.w = 0.0;
-    if ( ( FA < u_faThreshold ) || ( evals.z  < u_evThreshold ) )
+    if ( FA < u_faThreshold )
     {
         v_alphaBeta.w = 1.0;
     }
@@ -80,7 +84,7 @@ void main()
     float evalSum =    evals.x + evals.y + evals.z;
     float cl =       ( evals.x - evals.y ) / evalSum;
     float cp = 2.0 * ( evals.y - evals.z ) / evalSum;
-        v_cs = 3.0 * ( evals.z )           / evalSum;
+    float cs = 3.0 * ( evals.z )           / evalSum;
 
     // by default we use ellipsoids
     float kmAlpha=1.0;
@@ -112,22 +116,24 @@ void main()
     // 4: bounding box calculations
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-
     // some scaling
     float Sscaling = u_scaling;
-    if ( u_unifyEV )
-        Sscaling*=evals.x;
+
+    if ( evals.z < u_evThreshold ) 
+    {
+        v_alphaBeta.w = 1.0;
+    }
 
     // also scale them to let the maximum value be 1
     // HINT: eigenvalues are allready sorted, the largest eigenvalue is in evals.x
-    evals.z = ( evals.x / evals.z ) / Sscaling;
-    evals.y = ( evals.x / evals.y ) / Sscaling;
-    evals.x = 1.0 / Sscaling;
-
+    evals.z = ( evals.z / evals.x );
+    evals.y = ( evals.y / evals.x );
+    evals.x = 1.0;
+    
     // and some precalculations for the scaling values
-    float dimX = 1.0 / evals.z;
-    float dimY = 1.0 / evals.y;
-    float dimZ = 1.0 / evals.x;
+    float dimX = evals.x;
+    float dimY = evals.y;
+    float dimZ = evals.z;
 
     // an untransformed superquadric is bounded by a unit cube. The Eigenvalues are the radii of the ellipse/quadric and therefore deform the
     // unit cube. This new bounding cube is the defined by its eight vertices:
@@ -176,7 +182,7 @@ void main()
                              abs( leftVertices[3].y ) ) ) )
                     );
 
-       v_bboxMaxZ = max(
+    float bboxMaxZ = max(
                         max( abs( rightVertices[0].z ), 
                         max( abs( rightVertices[1].z ),
                         max( abs( rightVertices[2].z ),
@@ -191,7 +197,7 @@ void main()
     // the original center translated
     bboxMaxX -= abs( glyphTransform[3].x );
     bboxMaxY -= abs( glyphTransform[3].y );
-    v_bboxMaxZ -= abs( glyphTransform[3].z );
+    bboxMaxZ -= abs( glyphTransform[3].z );
     
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 4: now span the quad according to bounding box, so that the fragment shader can render
@@ -206,7 +212,6 @@ void main()
     // just to be sure to have propper clipping - we only clip complete glyphs at their center
     gl_ClipVertex = ( gl_ModelViewMatrix * gl_Vertex );// + p1;
 
-
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 5: Transform light and plane as well as ray back to glyph space
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -220,38 +225,32 @@ void main()
     v_lightDir.xyz = normalize( ( inverseWorldTransform * gl_LightSource[0].position ).xyz );
 
     // the viewing direction for this vertex:
-    v_viewDir.xyz = ( inverseWorldTransform * vec4( 0.0, 0.0, 1.0, 0.0 ) ).xyz;
+    v_viewDir.xyz = normalize( ( inverseWorldTransform * vec4( 0.0, 0.0, 1.0, 0.0 ) ).xyz ); 
 
 
+    mat4 raytracerSystem = mat4( vec4( 1.0, 0.0, 0.0, 0.0 ),
+                                 vec4( 0.0, 1.0, 0.0, 0.0 ),
+                                 vec4( 0.0, 0.0, 1.0, 0.0 ),
+                                 vec4( 0.0, 0.0, 0.0, 1.0 ) ); 
 
-
-
-
+    //glyphTransform
 
     // scale texture coordinates to maintain size
-    v_planePoint = vec4( gl_TexCoord[0].x * bboxMaxX, gl_TexCoord[0].y * bboxMaxY, 0.0, 1.0 );
+    v_planePoint = vec4( bboxMaxX * gl_TexCoord[0].x, bboxMaxY * gl_TexCoord[0].y, 1.0, 1.0 );
 
     // apply transformation to quadric -> apply inverse transformation to ray
-    v_planePoint = transpose(  1.0/determinant( glyphTransform ) * glyphTransform ) * v_planePoint;
+    v_planePoint = inverseWorldTransform * v_planePoint;
 
     // apply scaling to the ray (eigenvalues used)
-    v_planePoint.x *= evals.z;
-    v_planePoint.y *= evals.y;
-    v_planePoint.z *= evals.x;
-
-    // this is the magic value, that describes the length of viewdir in the depth-buffer space
-    // as it is aligned to the z-axis at the moment, it is the same everywhere
-    v_scaleT = .50333333333333333333;
-
-
-
-
-
-
-    // the plane point on the projection plane of the raytracer
-    vec4 v_planePoint2 = vec4( gl_TexCoord[0].x, gl_TexCoord[0].y, 0.0, 1.0 );
-    v_planePoint2 = transpose( glyphSystem ) * v_planePoint;
+    /*v_planePoint.x *= bboxMaxX;
+    v_planePoint.y *= bboxMaxY;
+    v_planePoint.z *= bboxMaxZ;*/
     
-    //v_planePoint = v_planePoint2;
+    // the original center translated
+    v_planePoint.x -= ( glyphTransform[3].x );
+    v_planePoint.y -= ( glyphTransform[3].y );
+    v_planePoint.z -= ( glyphTransform[3].z );
+    
+//v_planePoint *= determinant( glyphTransform );
 }
 
