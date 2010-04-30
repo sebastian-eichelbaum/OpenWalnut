@@ -216,7 +216,7 @@ void WMSuperquadricGlyphs::moduleMain()
                 size_t y = ( i / grid->getNbCoordsX() ) % grid->getNbCoordsY();
                 size_t z = i / ( grid->getNbCoordsX() * grid->getNbCoordsY() );
 
-                if ( x != 80 )
+                if ( ( x > 40 ) )
                     continue;
                 if ( y != 100 )
                     continue;

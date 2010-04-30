@@ -48,12 +48,12 @@ void main()
     // first eigenvector
     vec3 ABCx = diag - evals.x;
     vec3 ev0 = getEigenvector( ABCx, offdiag );
-    ev0 = vec3( 1.0, 0.0, 0.0 );
+    ev0 = vec3( 0.0, 1.0, 0.0 );
 
     // second eigenvector
     vec3 ABCy = diag - evals.y;
     vec3 ev1 = getEigenvector( ABCy, offdiag );
-    ev1 = vec3( 0.0, 1.0, 0.0 );
+    ev1 = vec3( 0.0, 0.0, 1.0 );
 
     // third eigenvector
     //vec3 ABCz = diag - evals.z;
@@ -142,9 +142,9 @@ void main()
                                vec4(-dimX, -dimY, -dimZ, 1.0 ) );
 
     // rotationmatrix describing the coordinate system rotation corresponding to the eigenvectors
-    mat4 glyphSystem = mat4( ( ev2.xyz ), 0.0,
+    mat4 glyphSystem = mat4( ( ev0.xyz ), 0.0,
                              ( ev1.xyz ), 0.0,
-                             ( ev0.xyz ), 0.0,
+                             ( ev2.xyz ), 0.0,
                              0.0, 0.0, 0.0, 1.0 ); 
     mat4 glyphTransform = gl_ModelViewMatrix * glyphSystem;
 
@@ -208,30 +208,31 @@ void main()
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    // 5: some lighting and transformation precalculations
+    // 5: Transform light and plane as well as ray back to glyph space
     /////////////////////////////////////////////////////////////////////////////////////////////
 
+    // NOTE: as each glyph has ben transformed using the modelview matrix "mv" and the glyphSystem matrix "g": the inverse transformation
+    // ( transfer a vector from camera space back to glyph space) is (mv * g)^-1 = g^-1 * mv^-1
+
+    mat4 inverseWorldTransform = transpose( glyphSystem ) * gl_ModelViewMatrixInverse;
+
     // calculate light direction once per quadric
-    v_lightDir.xyz = normalize( ( ( gl_LightSource[0].position ) * glyphTransform ).xyz );
+    v_lightDir.xyz = normalize( ( inverseWorldTransform * gl_LightSource[0].position ).xyz );
 
-    // the viewing direction for this vertex
-    // We need to apply the inverse transformation -> since glyphSystem is a rotation matrix -> the inverse is its transposed
-    v_viewDir.xyz = ( vec4( 0.0, 0.0, 1.0, 0.0 ) * glyphTransform ).xyz;
-    //float z = ( gl_ProjectionMatrix * vec4( 0.0, 0.0, 1.0, 1.0 ) ).z;
-    /*v_viewDir.x *= evals.z;
-    v_viewDir.y *= evals.y;
-    v_viewDir.z *= evals.x;*/
+    // the viewing direction for this vertex:
+    v_viewDir.xyz = ( inverseWorldTransform * vec4( 0.0, 0.0, 1.0, 0.0 ) ).xyz;
 
-    // build the ray
+
+
+
+
+
 
     // scale texture coordinates to maintain size
-    gl_TexCoord[0].x *= bboxMaxX;
-    gl_TexCoord[0].y *= bboxMaxY;
- 
-    v_planePoint = vec4( gl_TexCoord[0].x, gl_TexCoord[0].y, 0.0, 1.0 );
+    v_planePoint = vec4( gl_TexCoord[0].x * bboxMaxX, gl_TexCoord[0].y * bboxMaxY, 0.0, 1.0 );
 
     // apply transformation to quadric -> apply inverse transformation to ray
-    v_planePoint = v_planePoint *  glyphTransform;
+    v_planePoint = transpose(  1.0/determinant( glyphTransform ) * glyphTransform ) * v_planePoint;
 
     // apply scaling to the ray (eigenvalues used)
     v_planePoint.x *= evals.z;
@@ -241,5 +242,16 @@ void main()
     // this is the magic value, that describes the length of viewdir in the depth-buffer space
     // as it is aligned to the z-axis at the moment, it is the same everywhere
     v_scaleT = .50333333333333333333;
+
+
+
+
+
+
+    // the plane point on the projection plane of the raytracer
+    vec4 v_planePoint2 = vec4( gl_TexCoord[0].x, gl_TexCoord[0].y, 0.0, 1.0 );
+    v_planePoint2 = transpose( glyphSystem ) * v_planePoint;
+    
+    //v_planePoint = v_planePoint2;
 }
 

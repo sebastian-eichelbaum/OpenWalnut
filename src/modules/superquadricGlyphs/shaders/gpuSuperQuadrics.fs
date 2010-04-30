@@ -10,6 +10,8 @@
 
 #version 120
 
+#include "shadingTools.fs"
+
 // commonly used variables
 #include "gpuSuperQuadrics.varyings"
 
@@ -18,9 +20,9 @@ float zeroTollerance=0.01;
 
 //#define RenderMode_Box
 //#define RenderMode_BoundedBox
-#define RenderMode_Superquadric
-//#define RenderMode_Ellipsoid
-//#define RenderMode_BoundedBox
+//#define RenderMode_Superquadric
+#define RenderMode_Ellipsoid
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 // GPU Super Quadrics -- fragment shader -- sPow
 //
@@ -258,30 +260,6 @@ bool findBBoxIntersection(vec3 viewDir, vec3 planePoint, out float bboxT, out ve
   return false;
 }
 
-
-// Taken from Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1
-vec4 blinnPhongIllumination( vec3 ambient, vec3 diffuse, vec3 specular, float shininess, 
-							 vec3 lightColor, vec3 ambientLight, 
-							 vec3 normalDir, vec3 viewDir, vec3 lightDir )
-{
-  vec3 H =  normalize( lightDir + viewDir );
-  
-  // compute ambient term
-  vec3 ambientV = ambient * ambientLight;
-
-  // compute diffuse term
-  float diffuseLight = max(dot(lightDir, normalDir), 0.);
-  vec3 diffuseV = diffuse * diffuseLight;
-
-  // compute specular term
-  float specularLight = pow(max(dot(H, normalDir), 0.), shininess);
-  if( diffuseLight <= 0.) specularLight = 0.;
-  vec3 specularV = specular * specularLight;
-
-  return vec4(ambientV + (diffuseV + specularV)*lightColor, 1.);
-}
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 // GPU Super Quadrics -- fragment shader -- main
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -293,16 +271,7 @@ void main(void)
   {
     discard;
   }*/
-
-  //gl_FragColor = gl_Color;
-   // gl_FragColor=vec4 ( vec3( v_alphaBeta.w ), 1.0 );
-   gl_FragColor=vec4 ( vec3( 0.0 ), 1.0 );
-   gl_FragColor = ( (v_planePoint ));
-  //  gl_FragColor=vec4 ( vec3( 0.0, 0.0, 0.0 ), 1.0 );
-//   return;
-
-  // filter out glyphs whose eigenvalues are below threshold
-  
+ 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // 1: try to find a goot start value for newton iteration
   /////////////////////////////////////////////////////////////////////////////////////////////
@@ -339,9 +308,7 @@ void main(void)
   // use bounding box intersection to find good start value
   if (!findBBoxIntersection(v_viewDir.xyz, v_planePoint.xyz, lastT, grad))
   {
-    //discard;
-    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );
-    return;
+    discard;
   }
 
 #ifdef RenderMode_Superquadric // Superquadric based rendermode
@@ -399,10 +366,8 @@ void main(void)
   // no solution
   if(discriminant <= -0.0)
   {
-    gl_FragColor= vec4( 1.0, 1.0, 1.0, 1.0 );
-    return;
-//	  discard;
-}
+    discard;
+  }
 
   // there will be a solution
   hit=true; 
@@ -458,7 +423,7 @@ void main(void)
            30.0,                                  // shininess
 
            // light color properties
-	  			 gl_LightSource[0].diffuse.rgb,         // light color
+	  	   gl_LightSource[0].diffuse.rgb,         // light color
            gl_LightSource[0].ambient.rgb,         // ambient light
 
            // directions
@@ -477,7 +442,7 @@ void main(void)
   }
   else // no hit: discard
     // want to see the bounding box? uncomment this line
-    //gl_FragColor=vec4(1.25, 0.0, 0.0, 1.0);
+    //gl_FragColor=vec4(0.5, 0.5, 0.5, 1.0);
     discard;
 }
 

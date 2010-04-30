@@ -33,7 +33,7 @@
 // w component:             unused
 // (4 varying floats)
 varying vec4 v_lightDir;
-
+varying float v_det;
 // camera direction vector
 // USAGE:
 // x,y,z components:        the direction vector
