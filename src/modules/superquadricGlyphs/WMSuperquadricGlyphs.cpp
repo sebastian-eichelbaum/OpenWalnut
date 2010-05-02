@@ -123,6 +123,8 @@ void WMSuperquadricGlyphs::properties()
     m_unifyEV = m_properties->addProperty( "Unify Eigenvalues", "Unify the eigenvalues?.", false );
 }
 
+
+
 void WMSuperquadricGlyphs::moduleMain()
 {
     // use the m_input "data changed" flag
@@ -226,29 +228,188 @@ void WMSuperquadricGlyphs::moduleMain()
                 // get position in space
                 osg::Vec3 p = wge::osgVec3( grid->getPosition( x, y, z ) );
 
-                for ( size_t qidx = 0; qidx < 4; ++qidx )
-                {
-                    // for each glyph, create the vertices and texture coordinates (used to transfer tensor values)
-                    vertices->push_back( p );
-                    glyphs->push_back( vid * 4 + qidx );
+                // the diag and offdiag elements
+                osg::Vec3 diag = osg::Vec3( valueSet->getScalarDouble( i * 6 + 0 ),
+                                            valueSet->getScalarDouble( i * 6 + 3 ),
+                                            valueSet->getScalarDouble( i * 6 + 5 ) );
+                osg::Vec3 offdiag = osg::Vec3( valueSet->getScalarDouble( i * 6 + 1 ),
+                                               valueSet->getScalarDouble( i * 6 + 2 ),
+                                               valueSet->getScalarDouble( i * 6 + 4 ) );
 
-                    // each tensor consists of 6 components
-                    // we abuse texture coordinates to transfer them to the GPU
-                    texcoords1->push_back( osg::Vec3( valueSet->getScalarDouble( i * 6 + 0 ),
-                                                      valueSet->getScalarDouble( i * 6 + 3 ),
-                                                      valueSet->getScalarDouble( i * 6 + 5 ) ) );
-                    texcoords2->push_back( osg::Vec3( valueSet->getScalarDouble( i * 6 + 1 ),
-                                                      valueSet->getScalarDouble( i * 6 + 2 ),
-                                                      valueSet->getScalarDouble( i * 6 + 4 ) ) );
-                }
-
-                // as the vertex is simply the center of the glyph -> use tex coords to store the orientation of each vertex
-                texcoords0->push_back( osg::Vec3( -1.0, -1.0, 0.0 ) );
-                texcoords0->push_back( osg::Vec3(  1.0, -1.0, 0.0 ) );
-                texcoords0->push_back( osg::Vec3(  1.0,  1.0, 0.0 ) );
-                texcoords0->push_back( osg::Vec3( -1.0,  1.0, 0.0 ) );
-
+                // Front Face
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
                 ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0, -1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0,  1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0,  1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                // Back Face
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0, -1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0, -1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0,  1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0,  1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                // Top Face
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0,  1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0,  1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0,  1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0,  1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                // Bottom Face
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0,  -1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  1.0,  -1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0,  -1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                // Left Face
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  -1.0, 1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3(  -1.0, 1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( -1.0, -1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                // Right Face
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( 1.0, -1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( 1.0, 1.0, -1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
+                vertices->push_back( p );
+                texcoords0->push_back( osg::Vec3( 1.0, -1.0, 1.0 ) );
+                texcoords1->push_back( diag );
+                texcoords2->push_back( offdiag );
+                glyphs->push_back( vid );
+                ++vid;
+
                 ++*progress1;
             }
             progress1->finish();

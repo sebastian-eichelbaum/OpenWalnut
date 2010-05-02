@@ -18,9 +18,9 @@
 // tollerance value for float comparisons
 float zeroTollerance=0.01;
 
-#define RenderMode_Box
+//#define RenderMode_Box
 //#define RenderMode_BoundedBox
-//#define RenderMode_Superquadric
+#define RenderMode_Superquadric
 //#define RenderMode_Ellipsoid
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +266,9 @@ bool findBBoxIntersection(vec3 viewDir, vec3 planePoint, out float bboxT, out ve
 void main(void)
 {
 
-gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
+gl_FragColor = abs(( vec4( v_planePoint.x, v_planePoint.y, v_planePoint.z, 1.0 ) ));
+
+//gl_FragColor = abs( vec4( v_planePoint.y, v_planePoint.y, v_planePoint.y, 1.0 ) );
 //return;
 
   // filter out glyphs whose anisotropy is smaller than the threshold or where the eigenvalues
@@ -312,8 +314,6 @@ gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
   // use bounding box intersection to find good start value
   if (!findBBoxIntersection(v_viewDir.xyz, v_planePoint.xyz, lastT, grad))
   {
-      gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );
-    return;
     discard;
   }
 
@@ -370,7 +370,7 @@ gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
   float discriminant = (B * B) - (4.0 * A * C);
   
   // no solution
-  if(discriminant <= -0.0)
+  if( discriminant <= 0.0 )
   {
     discard;
   }
@@ -379,7 +379,7 @@ gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
   hit=true; 
 
   // use solution formula
-  float twoAinv=1./(2.*A);
+  float twoAinv = 1.0 / ( 2.0 * A );
   float root=sqrt( discriminant );
   float t1=(-B + root)*twoAinv;
   float t2=(-B - root)*twoAinv;
@@ -388,9 +388,13 @@ gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
   // both t will be < 0 so take the larger t
   float firsthit;
   if(t1 > t2)
+  {
     firsthit = t1;
+  }
   else
+  {
     firsthit = t2;
+  }
   
   // on a sphere surface the normal is allways the vector from the middle point (in our case (0,0,0))
   // to the surface point
@@ -435,8 +439,9 @@ gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
            // directions
            normalize(grad),                       // normal
            v_viewDir.xyz,                           // viewdir
-           v_lightDir.xyz);                         // light direction
+           -v_lightDir.xyz);                         // light direction
 
+gl_FragColor = vec4(vec3(abs(lastT)), 1.0);
 #ifdef RenderMode_BoundedBox
 
     // add the silhouette
@@ -444,11 +449,11 @@ gl_FragColor = vec4( abs( v_planePoint.xyz ), 1.0 );
       gl_FragColor=vec4(0.0, 0.0, 0.0, 0.0);
 
 #endif
-
   }
+
   else // no hit: discard
     // want to see the bounding box? uncomment this line
     gl_FragColor=vec4(0.5, 0.5, 0.5, 1.0);
-    //discard;
+//    discard;
 }
 
