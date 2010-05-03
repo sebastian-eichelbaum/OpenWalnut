@@ -120,6 +120,10 @@ ELSE()
     ELSE()
         # SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
         SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
+    ENDIF()
+
+    # Darwin's ld isn't GNU and doesn't like the following
+    IF( NOT CMAKE_SYSTEM_NAME MATCHES "Darwin" )
         ## The following allows us to prevent cyclic dependencies even on linux
         SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined" CACHE STRING "" FORCE )
     ENDIF()
