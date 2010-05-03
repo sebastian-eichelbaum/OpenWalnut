@@ -241,6 +241,23 @@ void WQtTextureSorter::moveItemUp()
     sort();
 }
 
+void WQtTextureSorter::selectTexture( boost::shared_ptr< WDataSet > dataSet )
+{
+    DatasetAccess ta = m_textures.getAccessObject();
+    ta->beginRead();
+    size_t i = 0;
+    for( ; i < ta->get().size(); ++i )
+    {
+        if( ta->get()[i] == dataSet )
+        {
+            break;
+        }
+    }
+    ta->endRead();
+    QListWidgetItem* ci = m_textureListWidget->item( i );
+    m_textureListWidget->setCurrentItem( ci );
+}
+
 bool WQtTextureSorter::isLess( boost::shared_ptr< WDataSet > lhs, boost::shared_ptr< WDataSet > rhs )
 {
     DatasetAccess ta = m_textures.getAccessObject();

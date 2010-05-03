@@ -483,6 +483,23 @@ void WQtDatasetBrowser::selectTreeItem()
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
                 createCompatibleButtons( module );
+
+                {
+                    boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
+
+                    // if the selcted module contains a texture, select the corresponding texture in the texture sorter.
+                    if( dataModule )
+                    {
+                        if( dataModule->getDataSet() )
+                        {
+                            if( dataModule->getDataSet()->isTexture() )
+                            {
+                                m_textureSorter->selectTexture( dataModule->getDataSet() );
+                            }
+                        }
+                    }
+                }
+
                 break;
             case MODULE:
                 module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
