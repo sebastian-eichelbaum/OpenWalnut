@@ -18,8 +18,6 @@
 // tollerance value for float comparisons
 float zeroTollerance=0.01;
 
-//#define RenderMode_Box
-//#define RenderMode_BoundedBox
 #define RenderMode_Superquadric
 //#define RenderMode_Ellipsoid
 
@@ -127,155 +125,17 @@ float superquadric(vec3 viewDir, vec3 planePoint, float t)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// GPU Super Quadrics -- fragment shader -- findBBoxIntersection
-//
-// This function tries to find an intersection from the given ray with the bounding box
-// of the glyph.
-//
-// Parameters:
-// viewDir:     viewing direction vector
-// planePoint:  point on projection plane
-// bboxT:       the ray parameter if intersection was found
-//
-// Returns:
-//              true if there has been an intersection
-/////////////////////////////////////////////////////////////////////////////////////////////
-bool findBBoxIntersection(vec3 viewDir, vec3 planePoint, out float bboxT, out vec3 normal
-#ifdef RenderMode_BoundedBox  // just add this parameter if we want a bounding box silhouette
-, out float silhouette
-#endif
-    )
-{
-
-  bboxT=0.0;
-
-  float bbPlaneDistance;
-  vec3 bbPlanePoint;
-  
-  // initialize to avoid compiler warning
-  normal=vec3(1.0, 0.0, 0.0);
-
-  // x plane
-  if (viewDir.x>0.0)
-  {
-    // find the t on which the ray has the value x=1
-    bbPlaneDistance=(1.0 - planePoint.x)/viewDir.x;
-    // get the point coordinates
-    bbPlanePoint=(planePoint + (bbPlaneDistance*viewDir)).xyz;
-    bboxT=bbPlaneDistance;
-
-    // normal for this plane
-    normal=vec3(1.0, 0.0, 0.0);
-
-    // check if the point is also in the y and z borders
-    if ((abs(bbPlanePoint.y)<=1.0) && (abs(bbPlanePoint.z)<=1.0))
-    {
-#ifdef RenderMode_BoundedBox
-      // the most nearest border is used for silhouette rendering
-      silhouette=max(abs(bbPlanePoint.y), abs(bbPlanePoint.z));
-#endif
-      return true;
-    }
-  }
-  else if (viewDir.x<0.0)
-  {
-    bbPlaneDistance=(-1.0 - planePoint.x)/viewDir.x;
-    bbPlanePoint=(planePoint + (bbPlaneDistance*viewDir)).xyz;
-    bboxT=bbPlaneDistance;
-    normal=vec3(-1.0, 0.0, 0.0);
-    
-    if ((abs(bbPlanePoint.y)<=1.0) && (abs(bbPlanePoint.z)<=1.0))
-    {
-#ifdef RenderMode_BoundedBox
-      silhouette=max(abs(bbPlanePoint.y), abs(bbPlanePoint.z));
-#endif
-      return true;
-    }
-  }
-
-  // y plane
-  if (viewDir.y>0.0)
-  {
-    bbPlaneDistance=(1.0 - planePoint.y)/viewDir.y;
-    bbPlanePoint=(planePoint + (bbPlaneDistance*viewDir)).xyz;
-    bboxT=bbPlaneDistance;
-    normal=vec3(0.0, 1.0, 0.0);
-
-    if ((abs(bbPlanePoint.x)<=1.0) && (abs(bbPlanePoint.z)<=1.0))
-    {
-#ifdef RenderMode_BoundedBox
-      silhouette=max(abs(bbPlanePoint.x), abs(bbPlanePoint.z));
-#endif
-      return true;
-    }
-  }
-  else if (viewDir.y<0.0)
-  {
-    bbPlaneDistance=(-1.0 - planePoint.y)/viewDir.y;
-    bbPlanePoint=(planePoint + (bbPlaneDistance*viewDir)).xyz;
-    bboxT=bbPlaneDistance;
-    normal=vec3(0.0, -1.0, 0.0);
-
-    if ((abs(bbPlanePoint.x)<=1.0) && (abs(bbPlanePoint.z)<=1.0))
-    {
-#ifdef RenderMode_BoundedBox
-      silhouette=max(abs(bbPlanePoint.x), abs(bbPlanePoint.z));
-#endif
-      return true;
-    }
-  }
-
-  // z plane
-  if (viewDir.z>0.0)
-  {
-    bbPlaneDistance=(1.0 - planePoint.z)/viewDir.z;
-    bbPlanePoint=(planePoint + (bbPlaneDistance*viewDir)).xyz;
-    bboxT=bbPlaneDistance;
-    normal=vec3(0.0, 0.0, 1.0);
-
-    if ((abs(bbPlanePoint.x)<=1.0) && (abs(bbPlanePoint.y)<=1.0))
-    {
-#ifdef RenderMode_BoundedBox
-      silhouette=max(abs(bbPlanePoint.x), abs(bbPlanePoint.y));
-#endif
-      return true;
-    }
-  }
-  else if (viewDir.z<0.0)
-  {
-    bbPlaneDistance=(-1.0 - planePoint.z)/viewDir.z;
-    bbPlanePoint=(planePoint + (bbPlaneDistance*viewDir)).xyz;
-    bboxT=bbPlaneDistance;
-    normal=vec3(0.0, 0.0, -1.0);
-
-    if ((abs(bbPlanePoint.x)<=1.0) && (abs(bbPlanePoint.y)<=1.0))
-    {
-#ifdef RenderMode_BoundedBox
-      silhouette=max(abs(bbPlanePoint.x), abs(bbPlanePoint.y));
-#endif
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////
 // GPU Super Quadrics -- fragment shader -- main
 /////////////////////////////////////////////////////////////////////////////////////////////
 void main(void)
 {
-
-gl_FragColor = abs(( vec4( v_planePoint.x, v_planePoint.y, v_planePoint.z, 1.0 ) ));
-
-//gl_FragColor = abs( vec4( v_planePoint.y, v_planePoint.y, v_planePoint.y, 1.0 ) );
+gl_FragColor = vec4(vec3(abs(v_depth)), 1.0);
 //return;
-
   // filter out glyphs whose anisotropy is smaller than the threshold or where the eigenvalues
   // are below the threshold (alphaBeta.w is != if this is the case)
   if( v_alphaBeta.w > 0.0 )
   {
-    //discard;
+    discard;
   }
  
   /////////////////////////////////////////////////////////////////////////////////////////////
@@ -294,28 +154,6 @@ gl_FragColor = abs(( vec4( v_planePoint.x, v_planePoint.y, v_planePoint.z, 1.0 )
   // got a hit?
   bool hit=false;
   vec3 hitPoint=vec3(0.0, 0.0, 0.0);
-
-#ifdef RenderMode_BoundedBox // Render Box with silhouette
-
-  // the bounded box needs the "distance to the border" value
-  float silhouette=0.0;
-
-  // use bounding box intersection to find good start value
-  if (!findBBoxIntersection(v_viewDir.xyz, v_planePoint.xyz, lastT, grad, silhouette))
-    discard;
-
-  // findBBoxIntersection allready did the job
-  hit=true;
-
-#else
- 
-  // the following glyphs will not need the silhouette
-
-  // use bounding box intersection to find good start value
-  if (!findBBoxIntersection(v_viewDir.xyz, v_planePoint.xyz, lastT, grad))
-  {
-    discard;
-  }
 
 #ifdef RenderMode_Superquadric // Superquadric based rendermode
 
@@ -384,37 +222,15 @@ gl_FragColor = abs(( vec4( v_planePoint.x, v_planePoint.y, v_planePoint.z, 1.0 )
   float t1=(-B + root)*twoAinv;
   float t2=(-B - root)*twoAinv;
 
-  // get the nearer solution
-  // both t will be < 0 so take the larger t
-  float firsthit;
-  if(t1 > t2)
-  {
-    firsthit = t1;
-  }
-  else
-  {
-    firsthit = t2;
-  }
+  lastT = min( t1, t2 );
+  if ( lastT < 0.0 )
+      discard;
   
   // on a sphere surface the normal is allways the vector from the middle point (in our case (0,0,0))
   // to the surface point
-  grad = v_planePoint.xyz + v_viewDir.xyz * firsthit;
+  grad = -( v_planePoint.xyz + v_viewDir.xyz * lastT );
 
 #endif
-
-#ifdef RenderMode_Box // Render a box 
-
-  /////////////////////////////////////////////////////////////////////////////////////////////
-  // 2: solve ray - plane intersections to determine intersections with the cube
-  /////////////////////////////////////////////////////////////////////////////////////////////
-
-  // findBBoxIntersection allready did the job
-  hit=true;
-
-#endif
-
-#endif  // #ifdef RenderMode_BoundedBox
-
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // 3: draw or discard the pixel
@@ -422,8 +238,7 @@ gl_FragColor = abs(( vec4( v_planePoint.x, v_planePoint.y, v_planePoint.z, 1.0 )
 
   if (hit)
   {
-    //gl_FragDepth = gl_FragCoord.z - 1.0/3.5 * lastT;
-
+   
     // draw shaded pixel
         gl_FragColor = blinnPhongIllumination(
            // material properties
@@ -437,23 +252,14 @@ gl_FragColor = abs(( vec4( v_planePoint.x, v_planePoint.y, v_planePoint.z, 1.0 )
            gl_LightSource[0].ambient.rgb,         // ambient light
 
            // directions
-           normalize(grad),                       // normal
+           normalize( grad ),                       // normal
            v_viewDir.xyz,                           // viewdir
-           -v_lightDir.xyz);                         // light direction
-
-gl_FragColor = vec4(vec3(abs(lastT)), 1.0);
-#ifdef RenderMode_BoundedBox
-
-    // add the silhouette
-    if (silhouette>0.9)
-      gl_FragColor=vec4(0.0, 0.0, 0.0, 0.0);
-
-#endif
+           v_lightDir.xyz);                         // light direction
   }
 
   else // no hit: discard
     // want to see the bounding box? uncomment this line
-    gl_FragColor=vec4(0.5, 0.5, 0.5, 1.0);
-//    discard;
+    // gl_FragColor=vec4(0.5, 0.5, 1., 1.0);
+    discard;
 }
 

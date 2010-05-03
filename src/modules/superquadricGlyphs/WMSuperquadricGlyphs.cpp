@@ -104,11 +104,11 @@ void WMSuperquadricGlyphs::properties()
 
     // Thresholding for filtering glyphs
     m_evThreshold = m_properties->addProperty( "Eigenvalue Threshold",
-                                               "Clip Glyphs whose smallest eigenvalue is below the given threshold.", 0.0001 );
+                                               "Clip Glyphs whose smallest eigenvalue is below the given threshold.", 0.01 );
     m_evThreshold->setMin( 0.0 );
     m_evThreshold->setMax( 1.0 );
     m_faThreshold = m_properties->addProperty( "FA Threshold",
-                                               "Clip Glyphs whose fractional anisotropy is below the given threshold.", 0.0001 );
+                                               "Clip Glyphs whose fractional anisotropy is below the given threshold.", 0.01 );
     m_faThreshold->setMin( 0.0 );
     m_faThreshold->setMax( 1.0 );
 
@@ -116,14 +116,12 @@ void WMSuperquadricGlyphs::properties()
     m_gamma->setMin( 0.0 );
     m_gamma->setMax( 10.0 );
 
-    m_scaling = m_properties->addProperty( "Scaling", "Scaling of Glyphs.", 1.0 );
+    m_scaling = m_properties->addProperty( "Scaling", "Scaling of Glyphs.", 0.5 );
     m_scaling->setMin( 0.0 );
-    m_scaling->setMax( 100.0 );
+    m_scaling->setMax( 2.0 );
 
     m_unifyEV = m_properties->addProperty( "Unify Eigenvalues", "Unify the eigenvalues?.", false );
 }
-
-
 
 void WMSuperquadricGlyphs::moduleMain()
 {
@@ -220,11 +218,14 @@ void WMSuperquadricGlyphs::moduleMain()
 
                 if ( ( x != 80 ) )
                     continue;
-                if ( y != 100 )
+/*
+                if ( ( x != 80 ) && ( x != 0 ) && ( x != 159 ) )
                     continue;
-                if ( ( z != 80 ) && ( z != 159 ) )
+                if ( ( y != 100 ) && ( y != 0 ) && ( y != 199 ) )
                     continue;
-
+                if ( ( z != 80 ) && ( z != 0 ) && ( z != 159 ) )
+                    continue;
+*/
                 // get position in space
                 osg::Vec3 p = wge::osgVec3( grid->getPosition( x, y, z ) );
 

@@ -41,17 +41,17 @@ void main()
     
     // calculate eigenvectors, and rotation matrix
     vec3 evals = getEigenvalues( diag, offdiag );
-    evals = vec3( 1.0, 1.0, 1.0 );
+    //evals = vec3( 1.0, 0.2, 0.2 );
 
     // first eigenvector
     vec3 ABCx = diag - evals.x;
     vec3 ev0 = getEigenvector( ABCx, offdiag );
-    ev0 = normalize( vec3( 1.0, 0.0, 0.0 ) );
+//    ev0 = normalize( vec3( 1.0, 0.0, 0.0 ) );
 
     // second eigenvector
     vec3 ABCy = diag - evals.y;
     vec3 ev1 = getEigenvector( ABCy, offdiag );
-    ev1 = normalize( vec3( 0.0, 1.0, 0.0 ) );
+//    ev1 = normalize( vec3( 0.0, 1.0, 0.0 ) );
 
 /*ev1 -= dot( ev0, ev1 ) * ev0;
 ev1 = normalize( ev1 );
@@ -69,11 +69,11 @@ ev1 = normalize( ev1 );
 
     // throw away glyphs whose FA is below threshold and whose eigenvalues are below threshold
     v_alphaBeta.w = 0.0;
-    if ( FA < u_faThreshold )
+    if ( FA <= u_faThreshold )
     {
         v_alphaBeta.w = 1.0;
     }
-    if ( evals.z < u_evThreshold ) 
+    if ( evals.z <= 0.0 )
     {
         v_alphaBeta.w = 1.0;
     }
@@ -114,10 +114,13 @@ ev1 = normalize( ev1 );
     v_alphaBeta.y = 2.0 / kmBeta;
     v_alphaBeta.z = kmAlpha / kmBeta;
 
-
-    evals.z = ( evals.x / evals.z );
-    evals.y = ( evals.x / evals.y );
+    evals.z = ( evals.z / evals.x );
+    evals.y = ( evals.y / evals.x );
     evals.x = 1.0;
+    if ( evals.z <= u_evThreshold ) 
+    {
+        v_alphaBeta.w = 1.0;
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 4: now span the quad according to bounding box, so that the fragment shader can render
@@ -130,31 +133,38 @@ ev1 = normalize( ev1 );
                              ( ev2.xyz ), 0.0,
                              0.0, 0.0, 0.0, 1.0 ); 
 
+    float dimX = u_scaling * evals.x;
+    float dimY = u_scaling * evals.y;
+    float dimZ = u_scaling * evals.z;
+
     // calculate propper bounding volume for this quadric (scale)
-    vec4 coord = vec4( evals.x * gl_MultiTexCoord0.x,
-                       evals.y * gl_MultiTexCoord0.y, 
-                       evals.z * gl_MultiTexCoord0.z,
-                       0.0 ); 
+    mat4 glyphScale = mat4( dimX, 0.0, 0.0, 0.0,
+                            0.0, dimY, 0.0, 0.0,
+                            0.0, 0.0, dimZ, 0.0,
+                            0.0, 0.0, 0.0, 1.0
+                          );
+    mat4 glyphScaleInverse = mat4( 1.0 /dimX, 0.0, 0.0, 0.0,
+                                   0.0, 1.0 / dimY, 0.0, 0.0,
+                                   0.0, 0.0, 1.0 / dimZ, 0.0,
+                                   0.0, 0.0, 0.0, 1.0
+                                 );
 
-    gl_Position = gl_ModelViewProjectionMatrix * glyphSystem * ( gl_Vertex + coord );
+    gl_TexCoord[0].w = 0.0;
+    gl_Position = gl_ModelViewProjectionMatrix * ( gl_Vertex + glyphSystem * glyphScale * gl_TexCoord[0] );
   
-    // just to be sure to have propper clipping
-    gl_ClipVertex = gl_ModelViewMatrix * coord;
-
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 5: Transform light and plane as well as ray back to glyph space
     /////////////////////////////////////////////////////////////////////////////////////////////
 
+    mat4 glyphToWorld = glyphScaleInverse * transpose( glyphSystem ) * gl_ModelViewMatrixInverse;
+
     // calculate light direction once per quadric
-    v_lightDir.xyz = normalize( ( gl_ModelViewMatrixInverse * gl_LightSource[0].position ).xyz );
+    v_lightDir.xyz = normalize( ( glyphToWorld * gl_LightSource[0].position ).xyz );
 
     // the viewing direction for this vertex:
-    v_viewDir.xyz  = ( gl_ModelViewMatrixInverse * vec4( 0.0, 0.0, 1.0, 0.0 ) ).xyz; 
+    v_viewDir = ( glyphToWorld * vec4( 0.0, 0.0, 1.0, 0.0 ) );
+    v_viewDir.w = 1.0;
 
-    v_planePoint = vec4( gl_MultiTexCoord0.x,
-                         gl_MultiTexCoord0.y,
-                         gl_MultiTexCoord0.z,
-                         0.0 );
-    //v_planePoint = coord;
+    v_planePoint.xyz = gl_TexCoord[0].xyz;
 }
 
