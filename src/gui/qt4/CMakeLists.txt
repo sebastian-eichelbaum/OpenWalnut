@@ -12,6 +12,7 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 # add here all classes that inherit from QObject 
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
+	WQtConfigWidget.h
     WQtNavGLWidget.h
     guiElements/WQtPushButton.h
     guiElements/WQtApplyModulePushButton.h

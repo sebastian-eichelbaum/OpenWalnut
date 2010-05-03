@@ -137,12 +137,21 @@ public:
      */
     static void initializeModule( boost::shared_ptr< WModule > module );
 
+    typedef std::set< boost::shared_ptr< WModule > > WModulePrototypeSet;
+
+    /**
+    * Getter method for registered Prototypes
+    *
+    * \return set of availible Prototypes
+    */
+    const WModulePrototypeSet getAvailiblePrototypes();
+
 protected:
 
     /**
      * The module prototypes available.
      */
-    std::set< boost::shared_ptr< WModule > > m_prototypes;
+    WModulePrototypeSet m_prototypes;
 
     /**
      * The lock for the prototypes set.

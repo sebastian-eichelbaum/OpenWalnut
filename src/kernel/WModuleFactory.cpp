@@ -320,3 +320,8 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
     return compatibles;
 }
 
+const WModuleFactory::WModulePrototypeSet WModuleFactory::getAvailiblePrototypes()
+{
+    return m_prototypes;
+}
+

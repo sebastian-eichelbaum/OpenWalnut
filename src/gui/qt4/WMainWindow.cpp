@@ -94,6 +94,7 @@ void WMainWindow::setupGUI()
     m_menuBar = new QMenuBar( this );
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
     fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load", this, SLOT( openLoadDialog() ), QKeySequence( "Ctrl+L" ) );
+    fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ), QKeySequence( "Ctrl+C" ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( "Ctrl+Q" ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
@@ -152,6 +153,19 @@ void WMainWindow::setupGUI()
         {
             bgColor.setRGB( r, g, b );
             m_mainGLWidget->setBgColor( bgColor );
+
+            if ( m_navAxial )
+            {
+                m_navAxial->getGLWidget()->setBgColor( bgColor );
+            }
+            if ( m_navCoronal )
+            {
+                m_navCoronal->getGLWidget()->setBgColor( bgColor );
+            }
+            if ( m_navSagittal )
+            {
+                m_navSagittal->getGLWidget()->setBgColor( bgColor );
+            }
         }
     }
 
@@ -748,4 +762,13 @@ void WMainWindow::newRoi()
 void WMainWindow::setFibersLoaded()
 {
     m_fibLoaded = true;
+}
+
+void WMainWindow::openConfigDialog()
+{
+//    boost::shared_ptr< WQtConfigWidget > configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
+//    WQtConfigWidget *configWidget = new WQtConfigWidget;
+    m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
+
+    m_configWidget->initAndShow();
 }

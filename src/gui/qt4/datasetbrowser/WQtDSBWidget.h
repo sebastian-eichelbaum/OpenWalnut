@@ -159,7 +159,7 @@ public:
      *
      * \param widget the widget
      */
-    void addGroup( WQtDSBWidget* widget );
+    void addGroup( WQtDSBWidget* widget, bool asScrollArea = false );
 
     /**
      * helper function to add a spacer at the end

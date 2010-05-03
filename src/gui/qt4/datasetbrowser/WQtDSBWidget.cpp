@@ -25,6 +25,7 @@
 #include <string>
 
 #include <QtGui/QGroupBox>
+#include <QtGui/QScrollArea>
 
 #include "WQtDSBWidget.h"
 
@@ -91,19 +92,36 @@ WPropertyTriggerWidget* WQtDSBWidget::addProp( WPropTrigger property )
     return new WPropertyTriggerWidget( property, &m_controlLayout, this );
 }
 
-void WQtDSBWidget::addGroup( WQtDSBWidget* widget )
+void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
 {
     ++m_numberOfWidgets;
 
     // TODO(ebaum): extend it to collapse the group
     QGroupBox* group = new QGroupBox( widget->getName() , this );
-    QGridLayout* grid = new QGridLayout();
+
+    QScrollArea *scrollArea;
+    QGridLayout *grid = new QGridLayout();
     grid->addWidget( widget, 0, 0 );
+
     group->setLayout( grid );
+    if ( asScrollArea )
+    {
+        scrollArea = new QScrollArea();
+        scrollArea->setWidget( group );
+        group->show();
+    }
 
     // create a new group box
     int row = m_controlLayout.rowCount();
-    m_controlLayout.addWidget( group, row, 0, 1, 2 );
+
+    if ( asScrollArea )
+    {
+        m_controlLayout.addWidget( scrollArea, row, 0, 1, 2 );
+    }
+    else
+    {
+        m_controlLayout.addWidget( group, row, 0, 1, 2 );
+    }
 }
 
 void WQtDSBWidget::addSpacer()
