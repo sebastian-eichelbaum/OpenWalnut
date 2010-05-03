@@ -37,6 +37,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "WMSuperquadricGlyphs.h"
+#include "superquadricglyphs.xpm"
 
 WMSuperquadricGlyphs::WMSuperquadricGlyphs():
     WModule()
@@ -54,6 +55,11 @@ boost::shared_ptr< WModule > WMSuperquadricGlyphs::factory() const
 {
     // create prototype
     return boost::shared_ptr< WModule >( new WMSuperquadricGlyphs() );
+}
+
+const char** WMSuperquadricGlyphs::getXPMIcon() const
+{
+    return superquadricglyphs_xpm;
 }
 
 const std::string WMSuperquadricGlyphs::getName() const
