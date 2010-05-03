@@ -254,8 +254,18 @@ void WQtTextureSorter::selectTexture( boost::shared_ptr< WDataSet > dataSet )
         }
     }
     ta->endRead();
-    QListWidgetItem* ci = m_textureListWidget->item( i );
-    m_textureListWidget->setCurrentItem( ci );
+
+    if( i < ta->get().size() )
+    {
+        // select appropriate texture if the data set has a corresponding texture
+        QListWidgetItem* ci = m_textureListWidget->item( i );
+        m_textureListWidget->setCurrentItem( ci );
+    }
+    else
+    {
+        // unselect all if the dataset has no corresponding texture
+        m_textureListWidget->clearSelection();
+    }
 }
 
 bool WQtTextureSorter::isLess( boost::shared_ptr< WDataSet > lhs, boost::shared_ptr< WDataSet > rhs )

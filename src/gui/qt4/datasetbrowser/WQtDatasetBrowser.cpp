@@ -492,10 +492,7 @@ void WQtDatasetBrowser::selectTreeItem()
                     {
                         if( dataModule->getDataSet() )
                         {
-                            if( dataModule->getDataSet()->isTexture() )
-                            {
-                                m_textureSorter->selectTexture( dataModule->getDataSet() );
-                            }
+                            m_textureSorter->selectTexture( dataModule->getDataSet() );
                         }
                     }
                 }
