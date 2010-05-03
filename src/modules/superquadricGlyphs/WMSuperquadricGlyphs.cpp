@@ -58,7 +58,7 @@ boost::shared_ptr< WModule > WMSuperquadricGlyphs::factory() const
 
 const std::string WMSuperquadricGlyphs::getName() const
 {
-    return "SuperquadricGlyphs";
+    return "Superquadric Glyphs";
 }
 
 const std::string WMSuperquadricGlyphs::getDescription() const
