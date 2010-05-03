@@ -206,7 +206,8 @@ void WMSuperquadricGlyphs::moduleMain()
             osg::ref_ptr< osg::DrawElementsUInt > glyphs = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
             glyphs->reserve( valueSetSize * 4 );
 
-            debugLog() << "Grid Size: " << grid->getNbCoordsX() << "x" << grid->getNbCoordsY() << "x" << grid->getNbCoordsZ() << " (" << valueSetSize << ")";
+            debugLog() << "Grid Size: " << grid->getNbCoordsX() << "x" << grid->getNbCoordsY() << "x" << grid->getNbCoordsZ() <<
+                          " (" << valueSetSize << ")";
 
             // iterate over each tensor in the field
             size_t vid = 0;
@@ -218,14 +219,7 @@ void WMSuperquadricGlyphs::moduleMain()
 
                 if ( ( x != 80 ) )
                     continue;
-/*
-                if ( ( x != 80 ) && ( x != 0 ) && ( x != 159 ) )
-                    continue;
-                if ( ( y != 100 ) && ( y != 0 ) && ( y != 199 ) )
-                    continue;
-                if ( ( z != 80 ) && ( z != 0 ) && ( z != 159 ) )
-                    continue;
-*/
+
                 // get position in space
                 osg::Vec3 p = wge::osgVec3( grid->getPosition( x, y, z ) );
 

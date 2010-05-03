@@ -1,12 +1,26 @@
-///////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
 //
-///// /////  ////       Project  :   FAnToM
-//   //  // //  //      Module   :   Fge (Rendering and Viewer Components)
-//   //  // /////       File     :   $RCSfile: $
-//   //  // //          Language :   C++
-//    /////  ////       Date     :   $Date: $
-         //             Author   :   $Author: ebaum $
-//////////              Revision :   $Revision: 9259 $
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #version 120
 
@@ -46,16 +60,12 @@ void main()
     // first eigenvector
     vec3 ABCx = diag - evals.x;
     vec3 ev0 = getEigenvector( ABCx, offdiag );
-//    ev0 = normalize( vec3( 1.0, 0.0, 0.0 ) );
+    //ev0 = normalize( vec3( 1.0, 0.0, 0.0 ) );
 
     // second eigenvector
     vec3 ABCy = diag - evals.y;
     vec3 ev1 = getEigenvector( ABCy, offdiag );
-//    ev1 = normalize( vec3( 0.0, 1.0, 0.0 ) );
-
-/*ev1 -= dot( ev0, ev1 ) * ev0;
-ev1 = normalize( ev1 );
-*/
+    //ev1 = normalize( vec3( 0.0, 1.0, 0.0 ) );
 
     // third eigenvector
     vec3 ABCz = diag - evals.z;
@@ -89,19 +99,19 @@ ev1 = normalize( ev1 );
     float cs = 3.0 * ( evals.z )           / evalSum;
 
     // by default we use ellipsoids
-    float kmAlpha=1.0;
-    float kmBeta=1.0;
+    float kmAlpha = 1.0;
+    float kmBeta = 1.0;
 
     // the above values define the shape of the glyph
-    if (cl>=cp)
+    if ( cl>=cp )
     {
-        kmAlpha= pow( 1.0 - cp, u_gamma );
-        kmBeta = pow( 1.0 - cl, u_gamma );
+        kmAlpha = pow( 1.0 - cp, u_gamma );
+        kmBeta  = pow( 1.0 - cl, u_gamma );
     }
     else
     {
-        kmAlpha= pow( 1.0 - cl, u_gamma );
-        kmBeta = pow( 1.0 - cp, u_gamma );
+        kmAlpha = pow( 1.0 - cl, u_gamma );
+        kmBeta  = pow( 1.0 - cp, u_gamma );
     }
 
     // limit the alpha/beta range to [0.2,1.0]
@@ -128,9 +138,9 @@ ev1 = normalize( ev1 );
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // rotation-matrix describing the coordinate system rotation corresponding to the eigenvectors
-    mat4 glyphSystem = mat4( ( ev0.xyz ), 0.0,
-                             ( ev1.xyz ), 0.0,
-                             ( ev2.xyz ), 0.0,
+    mat4 glyphSystem = mat4( ev0.xyz, 0.0,
+                             ev1.xyz, 0.0,
+                             ev2.xyz, 0.0,
                              0.0, 0.0, 0.0, 1.0 ); 
 
     float dimX = u_scaling * evals.x;
@@ -141,13 +151,11 @@ ev1 = normalize( ev1 );
     mat4 glyphScale = mat4( dimX, 0.0, 0.0, 0.0,
                             0.0, dimY, 0.0, 0.0,
                             0.0, 0.0, dimZ, 0.0,
-                            0.0, 0.0, 0.0, 1.0
-                          );
-    mat4 glyphScaleInverse = mat4( 1.0 /dimX, 0.0, 0.0, 0.0,
+                            0.0, 0.0, 0.0,  1.0 );
+    mat4 glyphScaleInverse = mat4( 1.0 / dimX, 0.0, 0.0, 0.0,
                                    0.0, 1.0 / dimY, 0.0, 0.0,
                                    0.0, 0.0, 1.0 / dimZ, 0.0,
-                                   0.0, 0.0, 0.0, 1.0
-                                 );
+                                   0.0, 0.0, 0.0, 1.0 );
 
     gl_TexCoord[0].w = 0.0;
     gl_Position = gl_ModelViewProjectionMatrix * ( gl_Vertex + glyphSystem * glyphScale * gl_TexCoord[0] );
