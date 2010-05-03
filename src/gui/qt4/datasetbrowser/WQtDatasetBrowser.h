@@ -217,6 +217,12 @@ private slots:
     void selectRoiTreeItem();
 
     /**
+     * Will be called to select the data module for the given dataset.
+     * \param dataSet the module for this dataset will be selected.
+     */
+    void selectDataModule( boost::shared_ptr< WDataSet > dataSet );
+
+    /**
      * function that builds the property tab
      *
      * \param props the properties.
@@ -261,15 +267,6 @@ private slots:
      * delete a module tree item
      */
     void deleteModuleTreeItem();
-
-signals:
-    /**
-     * notifies the outside world of changes in the dsb
-     *
-     * \param name the name of the event
-     * \param value bool
-     */
-    void dataSetBrowserEvent( QString name, bool value );
 };
 
 #endif  // WQTDATASETBROWSER_H

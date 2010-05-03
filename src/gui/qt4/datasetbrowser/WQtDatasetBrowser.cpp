@@ -80,7 +80,7 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
-    m_textureSorter = new WQtTextureSorter( m_panel );
+    m_textureSorter = new WQtTextureSorter( this );
     m_textureSorter->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
@@ -137,7 +137,6 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 {
 }
 
-
 void WQtDatasetBrowser::connectSlots()
 {
     // connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
@@ -148,8 +147,10 @@ void WQtDatasetBrowser::connectSlots()
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
-}
 
+    connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
+             this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+}
 
 WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 {
@@ -334,12 +335,6 @@ bool WQtDatasetBrowser::event( QEvent* event )
                 // activate it
                 item->setDisabled( false );
                 selectTreeItem();
-
-                // if the type number is 1 (dataset item) emit change event
-                if ( item->type() == 1 )
-                {
-                    emit dataSetBrowserEvent( QString( "dataSetAdded" ), true );
-                }
             }
 
             ++it;
@@ -487,7 +482,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 {
                     boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
 
-                    // if the selcted module contains a texture, select the corresponding texture in the texture sorter.
+                    // if the selected module contains a texture, select the corresponding texture in the texture sorter.
                     if( dataModule )
                     {
                         if( dataModule->getDataSet() )
@@ -561,6 +556,31 @@ void WQtDatasetBrowser::selectRoiTreeItem()
     }
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
     buildPropTab( props, boost::shared_ptr< WProperties >() );
+}
+
+void WQtDatasetBrowser::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
+{
+    m_moduleTreeWidget->clearSelection();
+
+    QTreeWidgetItemIterator it( m_moduleTreeWidget );
+    while( *it )
+    {
+        if( dynamic_cast< WQtDatasetTreeItem* >( *it ) )
+        {
+            boost::shared_ptr< WMData > dataModule;
+            dataModule = boost::shared_dynamic_cast< WMData >( ( dynamic_cast< WQtDatasetTreeItem* >( *it ) )->getModule() );
+            if( dataModule )
+            {
+                if( dataModule->getDataSet() == dataSet )
+                {
+                    ( *it )->setSelected( true );
+                }
+            }
+        }
+        ++it;
+    }
+
+    selectTreeItem();
 }
 
 WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WProperties > props )
