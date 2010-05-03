@@ -87,6 +87,10 @@ void WMVoxelizer::moduleMain()
             continue;
         }
 
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 4 ) );
+        m_progress->addSubProgress( progress );
+
+        ++*progress;
         // full update
         if( m_antialiased->changed() ||
             m_drawVoxels->changed() ||
@@ -101,15 +105,22 @@ void WMVoxelizer::moduleMain()
             update();
         }
 
+        ++*progress;
+
         if( m_drawfibers->changed() )
         {
             updateFibers();
         }
 
+        ++*progress;
+
         if( m_drawCenterLine->changed() )
         {
             updateCenterLine();
         }
+
+        ++*progress;
+        progress->finish();
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
