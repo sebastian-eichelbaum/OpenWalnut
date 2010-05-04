@@ -93,9 +93,6 @@ void WMSuperquadricGlyphs::properties()
     m_xPos           = m_properties->addProperty( "X Pos of the slice", "Slice X position.", 80, m_propCondition );
     m_yPos           = m_properties->addProperty( "Y Pos of the slice", "Slice Y position.", 100, m_propCondition );
     m_zPos           = m_properties->addProperty( "Z Pos of the slice", "Slice Z position.", 80, m_propCondition );
-/*    m_xPos->setHidden( true );
-    m_yPos->setHidden( true );
-    m_zPos->setHidden( true );*/
     m_xPos->setMin( 0 );
     m_xPos->setMax( 159 );
     m_yPos->setMin( 0 );
@@ -118,7 +115,7 @@ void WMSuperquadricGlyphs::properties()
     m_faThreshold->setMin( 0.0 );
     m_faThreshold->setMax( 1.0 );
 
-    m_gamma = m_properties->addProperty( "Gamma", "Sharpness Parameter of the SuperQuadrics.", 0.1 );
+    m_gamma = m_properties->addProperty( "Gamma", "Sharpness Parameter of the SuperQuadrics.", 10.0 );
     m_gamma->setMin( 0.0 );
     m_gamma->setMax( 10.0 );
 
@@ -127,6 +124,147 @@ void WMSuperquadricGlyphs::properties()
     m_scaling->setMax( 2.0 );
 
     m_unifyEV = m_properties->addProperty( "Unify Eigenvalues", "Unify the eigenvalues?.", false );
+}
+
+inline void WMSuperquadricGlyphs::addGlyph( osg::Vec3 position, size_t i,
+                                                                         osg::ref_ptr< osg::Vec3Array > vertices,
+                                                                         osg::ref_ptr< osg::Vec3Array > orientation,
+                                                                         osg::ref_ptr< osg::Vec3Array > diags,
+                                                                         osg::ref_ptr< osg::Vec3Array > offdiags )
+{
+    // the diag and offdiag elements
+    osg::Vec3 diag = osg::Vec3( m_dataSetValueSet->getScalarDouble( i * 6 + 0 ),
+                                m_dataSetValueSet->getScalarDouble( i * 6 + 3 ),
+                                m_dataSetValueSet->getScalarDouble( i * 6 + 5 ) );
+    osg::Vec3 offdiag = osg::Vec3( m_dataSetValueSet->getScalarDouble( i * 6 + 1 ),
+                                   m_dataSetValueSet->getScalarDouble( i * 6 + 2 ),
+                                   m_dataSetValueSet->getScalarDouble( i * 6 + 4 ) );
+
+    // Front Face
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0, -1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0,  1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0,  1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    // Back Face
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0, -1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0, -1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0,  1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0,  1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    // Top Face
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0,  1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0,  1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0,  1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0,  1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    // Bottom Face
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0,  -1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  1.0,  -1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0,  -1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    // Left Face
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  -1.0, 1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3(  -1.0, 1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( -1.0, -1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    // Right Face
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( 1.0, -1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( 1.0, 1.0, -1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
+
+    vertices->push_back( position );
+    orientation->push_back( osg::Vec3( 1.0, -1.0, 1.0 ) );
+    diags->push_back( diag );
+    offdiags->push_back( offdiag );
 }
 
 void WMSuperquadricGlyphs::moduleMain()
@@ -181,7 +319,16 @@ void WMSuperquadricGlyphs::moduleMain()
             // The data is different. Copy it to our internal data variable:
             debugLog() << "Received Data.";
 
+            // get pointers for the new data
             m_dataSet = newDataSet;
+            m_dataSetGrid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+            WAssert( m_dataSetGrid, "Dataset does not have a regular 3D grid." );
+            size_t maxX = m_dataSetGrid->getNbCoordsX();
+            size_t maxY = m_dataSetGrid->getNbCoordsY();
+            size_t maxZ = m_dataSetGrid->getNbCoordsZ();
+            m_dataSetValueSet = m_dataSet->getValueSet();
+            size_t valueSetSize = m_dataSetValueSet->size();
+            size_t nbGlyphs = ( maxY * maxZ ) + ( maxX * maxZ ) + ( maxX * maxY );
 
             // create a new geode containing the glyphs proxy geometry
             osg::ref_ptr< osg::Geode > newRootNode = new osg::Geode();
@@ -190,237 +337,96 @@ void WMSuperquadricGlyphs::moduleMain()
             osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
             newRootNode->addDrawable( geometry );
 
-            // get ValueSet
-            boost::shared_ptr< WValueSetBase > valueSet = m_dataSet->getValueSet();
-            size_t valueSetSize = valueSet->size();
-            // get grid
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-            WAssert( grid, "Dataset does not have a regular 3D grid." );
-
-            // also provide progress information
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry",  valueSetSize ) );
-            m_progress->addSubProgress( progress1 );
-
-            // as we use quads -> four verts per qlyph
+            // as we use quads -> four verts per quad, 6 quad per qlyph
             // NOTE: the vertices are only the position of the glyph. The shader actually spans them up according to the proper bbox
             osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
-            vertices->reserve( valueSetSize * 4 );
+            vertices->reserve( nbGlyphs * 6 * 4 );
             osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array;
-            texcoords0->reserve( valueSetSize * 4 );
+            texcoords0->reserve( nbGlyphs * 6 * 4 );
             osg::ref_ptr< osg::Vec3Array > texcoords1 = new osg::Vec3Array;
-            texcoords1->reserve( valueSetSize * 4 );
+            texcoords1->reserve( nbGlyphs * 6 * 4 );
             osg::ref_ptr< osg::Vec3Array > texcoords2 = new osg::Vec3Array;
-            texcoords2->reserve( valueSetSize * 4 );
-            osg::ref_ptr< osg::DrawElementsUInt > glyphs = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-            glyphs->reserve( valueSetSize * 4 );
+            texcoords2->reserve( nbGlyphs * 6 * 4 );
 
-            debugLog() << "Grid Size: " << grid->getNbCoordsX() << "x" << grid->getNbCoordsY() << "x" << grid->getNbCoordsZ() <<
-                          " (" << valueSetSize << ")";
+            debugLog() << "Grid Size: " << maxX << "x" << maxY << "x" << maxZ << " (" << valueSetSize << ")";
+            debugLog() << "Creating " << nbGlyphs << " glyphs.";
 
-            // iterate over each tensor in the field
-            size_t vid = 0;
-            for ( size_t i = 0; i < valueSetSize; ++i )
+            // also provide progress information
+            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry", 3 ) );
+            m_progress->addSubProgress( progress1 );
+
+            // NOTE: the following code is surely ugly but it should be faster
+
+            // to speed up calculations, implement WGridRegular3D::getPosition
+            osg::Vec3d origin = wge::osgVec3( m_dataSetGrid->getOrigin() );
+            osg::Vec3d dirX = wge::osgVec3( m_dataSetGrid->getDirectionX() );
+            osg::Vec3d dirY = wge::osgVec3( m_dataSetGrid->getDirectionY() );
+            osg::Vec3d dirZ = wge::osgVec3( m_dataSetGrid->getDirectionZ() );
+            // NOTE: this line is from WGridRegular3D.cpp
+            //return m_origin + iX * m_directionX + iY * m_directionY + iZ * m_directionZ;
+
+            // x = const -> handle xPos property
+            size_t fixedX = m_xPos->get( true );
+            osg::Vec3 posAlongZ = origin + dirX * fixedX;
+            for ( size_t z = 0; z < maxZ; ++z )
             {
-                size_t x = i % grid->getNbCoordsX();
-                size_t y = ( i / grid->getNbCoordsX() ) % grid->getNbCoordsY();
-                size_t z = i / ( grid->getNbCoordsX() * grid->getNbCoordsY() );
+                // Calculate the current position along the z direction
+                posAlongZ += dirZ;
+                osg::Vec3 posAlongY = posAlongZ;
+                size_t zPre = fixedX + z * maxX * maxY;
 
-                size_t xP = m_xPos->get( true );
-                size_t yP = m_yPos->get( true );
-                size_t zP = m_zPos->get( true );
-
-                if ( !( ( x == xP ) ||
-                        ( y == yP ) ||
-                        ( z == zP ) ) )
-                    continue;
-
-                // get position in space
-                osg::Vec3 p = wge::osgVec3( grid->getPosition( x, y, z ) );
-
-                // the diag and offdiag elements
-                osg::Vec3 diag = osg::Vec3( valueSet->getScalarDouble( i * 6 + 0 ),
-                                            valueSet->getScalarDouble( i * 6 + 3 ),
-                                            valueSet->getScalarDouble( i * 6 + 5 ) );
-                osg::Vec3 offdiag = osg::Vec3( valueSet->getScalarDouble( i * 6 + 1 ),
-                                               valueSet->getScalarDouble( i * 6 + 2 ),
-                                               valueSet->getScalarDouble( i * 6 + 4 ) );
-
-                // Front Face
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0, -1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0,  1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0,  1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                // Back Face
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0, -1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0, -1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0,  1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0,  1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                // Top Face
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0,  1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0,  1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0,  1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0,  1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                // Bottom Face
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0,  -1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  1.0,  -1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0,  -1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                // Left Face
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0, -1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  -1.0, 1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3(  -1.0, 1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( -1.0, -1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                // Right Face
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( 1.0, -1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( 1.0, 1.0, -1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                vertices->push_back( p );
-                texcoords0->push_back( osg::Vec3( 1.0, -1.0, 1.0 ) );
-                texcoords1->push_back( diag );
-                texcoords2->push_back( offdiag );
-                glyphs->push_back( vid );
-                ++vid;
-
-                ++*progress1;
+                for ( size_t y = 0; y < maxY; ++y )
+                {
+                    posAlongY += dirY;
+                    // add glyph
+                    addGlyph( posAlongY, zPre + y * maxX, vertices, texcoords0, texcoords1, texcoords2 );
+                }
             }
+            ++( *progress1 );
+
+            // y = const -> handle yPos property
+            size_t fixedY = m_yPos->get( true );
+            size_t fixedYOffset = fixedY * maxX;
+            posAlongZ = origin + dirY * fixedY;
+            for ( size_t z = 0; z < maxZ; ++z )
+            {
+                // Calculate the current position along the z direction
+                posAlongZ += dirZ;
+                osg::Vec3 posAlongX = posAlongZ;
+
+                // Calculate current offset for value index
+                size_t zPre = fixedYOffset + ( z * maxX * maxY );
+
+                for ( size_t x = 0; x < maxX; ++x )
+                {
+                    posAlongX += dirX;
+                    // add glyph
+                    addGlyph( posAlongX, zPre + x, vertices, texcoords0, texcoords1, texcoords2 );
+                }
+            }
+            ++( *progress1 );
+
+            // z = const -> handle zPos property
+            size_t fixedZ = m_zPos->get( true );
+            size_t fixedZOffset = fixedZ * maxX * maxY;
+            osg::Vec3 posAlongY = origin + dirZ * fixedZ;
+            for ( size_t y = 0; y < maxY; ++y )
+            {
+                // Calculate the current position along the y direction
+                posAlongY += dirY;
+                osg::Vec3 posAlongX = posAlongY;
+
+                // Calculate current offset for value index
+                size_t yPre = fixedZOffset + ( y * maxX );
+
+                for ( size_t x = 0; x < maxX; ++x )
+                {
+                    posAlongX += dirX;
+                    // add glyph
+                    addGlyph( posAlongX, yPre + x, vertices, texcoords0, texcoords1, texcoords2 );
+                }
+            }
+            ++( *progress1 );
             progress1->finish();
 
             // add arrays
@@ -429,7 +435,8 @@ void WMSuperquadricGlyphs::moduleMain()
             geometry->setTexCoordArray( 0, texcoords0 );
             geometry->setTexCoordArray( 1, texcoords1 );
             geometry->setTexCoordArray( 2, texcoords2 );
-            geometry->addPrimitiveSet( glyphs );
+            osg::ref_ptr< osg::DrawArrays > da = new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, nbGlyphs * 6 * 4 );
+            geometry->addPrimitiveSet( da );
 
             // update stateset
             osg::ref_ptr< osg::StateSet > sset = newRootNode->getOrCreateStateSet();

@@ -296,6 +296,11 @@ void WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from, boo
     // note for some odd reason property variables get initialized with the changed variable set, this causes odd behavior...
     // so ew initializ them and do a get( true ) to reset that
     // first clear the to Properties
+
+
+    //TODO(ebaum): not thread-safe. Replace with WSharedObject and use AccessObjects correctly ;-)
+
+
     to->getAccessObject()->get().clear();
 
     WProperties::PropertyAccessType accesObject = from->getAccessObject();

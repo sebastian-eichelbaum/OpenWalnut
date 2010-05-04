@@ -126,6 +126,16 @@ private:
     boost::shared_ptr< const WDataSetSingle > m_dataSet;
 
     /**
+     * The current tensor dataset's grid.
+     */
+    boost::shared_ptr< WGridRegular3D > m_dataSetGrid;
+
+    /**
+     * The current tensor dataset's valueset.
+     */
+    boost::shared_ptr< WValueSetBase > m_dataSetValueSet;
+
+    /**
      * the shader actually doing the glyph raytracing
      */
     osg::ref_ptr< WShader > m_shader;
@@ -171,6 +181,20 @@ private:
      * True if the EV should be normalized
      */
     WPropBool     m_unifyEV;
+
+    /**
+     * Adds a glyph to the vertex array. It takes several parameters to speed up index calculations.
+     *
+     * \param position the position in world
+     * \param i the value set index ( should by calculated by x,y,z)
+     * \param vertices the vertex array
+     * \param orientation the tex coord array storing the orientation
+     * \param diags the diag element array
+     * \param offdiags the off diag element array
+     */
+    inline void addGlyph( osg::Vec3 position, size_t i, osg::ref_ptr< osg::Vec3Array > vertices, osg::ref_ptr< osg::Vec3Array > orientation,
+                                                                                                 osg::ref_ptr< osg::Vec3Array > diags,
+                                                                                                 osg::ref_ptr< osg::Vec3Array > offdiags );
 
     /**
      * Class handling uniform update during render traversal

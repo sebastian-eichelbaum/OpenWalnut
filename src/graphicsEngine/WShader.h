@@ -119,6 +119,11 @@ protected:
     bool m_reload;
 
     /**
+     * True if the shaders have been loaded successfully previously.
+     */
+    bool m_shaderLoaded;
+
+    /**
      * Flag denoting whether a shader should be deactivated.
      */
     bool m_deactivated;
