@@ -49,7 +49,6 @@
 #include "../modules/fiberSelection/WMFiberSelection.h"
 #include "../modules/fiberTransform/WMFiberTransform.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
-#include "../modules/geometryGlyphs/WMGeometryGlyphs.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/lic/WMLIC.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
@@ -118,7 +117,6 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMGeometryGlyphs() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
