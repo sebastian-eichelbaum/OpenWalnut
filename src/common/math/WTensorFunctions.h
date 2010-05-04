@@ -37,12 +37,11 @@
 
 namespace wmath
 {
-// TODO(reichenbach): needs to be tested!
 /**
  * Compute all eigenvalues as well as the corresponding eigenvectors of a
  * symmetric real Matrix.
  *
- * \pre Data_T must be castable to double.
+ * \note Data_T must be castable to double.
  *
  * \param[in] mat A real symmetric matrix.
  * \param[out] eigenValues A pointer to a vector of eigenvalues.
@@ -55,6 +54,7 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
 {
     WTensorSym< 2, 3, Data_T > in( mat );
     WTensor< 2, 3, Data_T > ev;
+    ev( 0, 0 ) = ev( 1, 1 ) = ev( 2, 2 ) = 1.0;
 
     int iter = 50;
     Data_T evp[ 3 ];
@@ -81,7 +81,7 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
                 eigenValues->at( i ) = in( i, i );
                 for( int j = 0; j < 3; ++j )
                 {
-                    eigenVectors->at( i )[ j ] = static_cast< double >( ev( i, j ) );
+                    eigenVectors->at( i )[ j ] = static_cast< double >( ev( j, i ) );
                 }
             }
             return;
@@ -148,6 +148,15 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
     }
     WAssert( iter >= 0, "Jacobi eigenvector iteration did not converge." );
 }
+
+/**
+ * Calculate eigenvectors via the characteristic polynomial. This is essentially the same
+ * function as in the gpu glyph shaders. This is for 3 dimensions only.
+ *
+ * \param m The symmetric matrix to calculate the eigenvalues from.
+ * \return A std::vector of 3 eigenvalues in descending order.
+ */
+std::vector< double > getEigenvaluesCardano( WTensorSym< 2, 3 > const& m );
 
 /**
  * Multiply tensors of order 2. This is essentially a matrix-matrix multiplication.
