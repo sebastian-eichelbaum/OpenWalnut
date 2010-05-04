@@ -87,15 +87,16 @@ WQtConfigWidget::~WQtConfigWidget()
 
 void WQtConfigWidget::getAvailibleModuleNames()
 {
-    WModuleFactory::WModulePrototypeSet prototypes = WModuleFactory::getModuleFactory()->getAvailiblePrototypes();
-    WModuleFactory::WModulePrototypeSet::iterator itr;
+    WModuleFactory::PrototypeSharedContainerType::WSharedAccess pa = WModuleFactory::getModuleFactory()->getAvailablePrototypes();
     m_moduleNames.clear();
-    for ( itr = prototypes.begin(); itr != prototypes.end(); ++itr )
+
+    pa->beginRead();
+    for ( WModuleFactory::PrototypeContainerConstIteratorType itr = pa->get().begin(); itr != pa->get().end(); ++itr )
     {
         m_moduleNames.push_back( ( *itr )->getName() );
     }
+    pa->endRead();
 }
-
 
 void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > properties, std::string groupName, bool fromConfig )
 {

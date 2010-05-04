@@ -192,12 +192,12 @@ public:
     /**
     * A set of constraints applied on this property.
     */
-    constraintContainer m_constraints;
+    constraintContainer m_constraints;  //TODO(ebaum): not thread-safe and PUBLIC!!!??. Replace with WSharedObject
 
     /**
     * The iterator used to go through the set
     */
-    typedef typename constraintContainer::const_iterator constraintIterator;
+    typedef typename constraintContainer::const_iterator constraintIterator; //TODO(ebaum): not thread-safe. Replace with WSharedObject
 
     /**
      * Alias for min constraints. It is an alias for convenience.
@@ -230,8 +230,9 @@ public:
     * Returns all the current constraints of a WPropertyVariable for copy purpose
     *
     * \return the condition.
+    *
     */
-    constraintContainer getConstraints();
+    constraintContainer getConstraints(); //TODO(ebaum): not thread-safe. Replace with WSharedObject
 
     /**
      * Gets the condition, which gets notified whenever the list of constraints changes. It is notified AFTER the write lock has been released so
@@ -372,7 +373,7 @@ private:
 template< typename T >
 typename WPropertyVariable<T>::constraintContainer WPropertyVariable<T>::getConstraints()
 {
-        return m_constraints;
+        return m_constraints;          //TODO(ebaum): not thread-safe. replace with WSharedObject
 }
 
 template < typename T >

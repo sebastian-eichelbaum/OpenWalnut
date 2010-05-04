@@ -51,5 +51,18 @@ protected:
 private:
 };
 
+template < typename T >
+WSharedAssociativeContainer< T >::WSharedAssociativeContainer():
+    WSharedObject< T >()
+{
+    // init members
+}
+
+template < typename T >
+WSharedAssociativeContainer< T >::~WSharedAssociativeContainer()
+{
+    // clean up
+}
+
 #endif  // WSHAREDASSOCIATIVECONTAINER_H
 

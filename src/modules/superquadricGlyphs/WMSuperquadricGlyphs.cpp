@@ -93,15 +93,15 @@ void WMSuperquadricGlyphs::properties()
     m_xPos           = m_properties->addProperty( "X Pos of the slice", "Slice X position.", 80, m_propCondition );
     m_yPos           = m_properties->addProperty( "Y Pos of the slice", "Slice Y position.", 100, m_propCondition );
     m_zPos           = m_properties->addProperty( "Z Pos of the slice", "Slice Z position.", 80, m_propCondition );
-    m_xPos->setHidden( true );
+/*    m_xPos->setHidden( true );
     m_yPos->setHidden( true );
-    m_zPos->setHidden( true );
+    m_zPos->setHidden( true );*/
     m_xPos->setMin( 0 );
-    m_xPos->setMax( 160 );
+    m_xPos->setMax( 159 );
     m_yPos->setMin( 0 );
-    m_yPos->setMax( 200 );
+    m_yPos->setMax( 199 );
     m_zPos->setMin( 0 );
-    m_zPos->setMax( 160 );
+    m_zPos->setMax( 159 );
 
     // Flags denoting whether the glyphs should be shown on the specific slice
     m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true, m_propCondition );
@@ -170,11 +170,13 @@ void WMSuperquadricGlyphs::moduleMain()
             dataValid = false;
         }
 
+        bool posChanged = m_xPos->changed() || m_yPos->changed() || m_zPos->changed();
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Handle changes
 
         // data changes
-        if ( dataChanged && dataValid )
+        if ( ( dataChanged || posChanged ) && dataValid  )
         {
             // The data is different. Copy it to our internal data variable:
             debugLog() << "Received Data.";
@@ -223,7 +225,13 @@ void WMSuperquadricGlyphs::moduleMain()
                 size_t y = ( i / grid->getNbCoordsX() ) % grid->getNbCoordsY();
                 size_t z = i / ( grid->getNbCoordsX() * grid->getNbCoordsY() );
 
-                if ( ( x != 80 ) )
+                size_t xP = m_xPos->get( true );
+                size_t yP = m_yPos->get( true );
+                size_t zP = m_zPos->get( true );
+
+                if ( !( ( x == xP ) ||
+                        ( y == yP ) ||
+                        ( z == zP ) ) )
                     continue;
 
                 // get position in space
