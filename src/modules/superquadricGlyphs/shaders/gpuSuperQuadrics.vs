@@ -55,7 +55,7 @@ void main()
     
     // calculate eigenvectors, and rotation matrix
     vec3 evals = getEigenvalues( diag, offdiag );
-    //evals = vec3( 1.0, 0.2, 0.2 );
+    //evals = vec3( 1.0, 1.0, 1.0 );
 
     // first eigenvector
     vec3 ABCx = diag - evals.x;

@@ -30,6 +30,7 @@
 #include <osg/Node>
 #include <osg/Geode>
 #include <osg/Uniform>
+#include <osg/MatrixTransform>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -111,9 +112,29 @@ protected:
 private:
 
     /**
+     * Initializes the needed geodes, transformations and vertex arrays. This needs to be done once for each new dataset.
+     */
+    void initOSG();
+
+    /**
      * The Geode containing all the glyphs. In fact it only contains a quad per glyph on which the raytracing is done.
      */
-    osg::ref_ptr< osg::Geode > m_outputGeode;
+    osg::ref_ptr< WGEGroupNode > m_output;
+
+    /**
+     * The transformation node moving the X slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< osg::MatrixTransform > m_xSlice;
+
+    /**
+     * The transformation node moving the Y slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< osg::MatrixTransform > m_ySlice;
+
+    /**
+     * The transformation node moving the Z slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< osg::MatrixTransform > m_zSlice;
 
     /**
      * The input dataset. It contains the second order tensor data needed here.
@@ -134,6 +155,36 @@ private:
      * The current tensor dataset's valueset.
      */
     boost::shared_ptr< WValueSetBase > m_dataSetValueSet;
+
+    /**
+     * Number of cells in X direction. Stored as a member to avoid permanent gird look ups.
+     */
+    size_t m_maxX;
+
+    /**
+     * Number of cells in Y direction. Stored as a member to avoid permanent gird look ups.
+     */
+    size_t m_maxY;
+
+    /**
+     * Number of cells in Z direction. Stored as a member to avoid permanent gird look ups.
+     */
+    size_t m_maxZ;
+
+    /**
+     * Number of glyphs on X Plane.
+     */
+    size_t m_nbGlyphsX;
+
+    /**
+     * Number of glyphs on Y Plane.
+     */
+    size_t m_nbGlyphsY;
+
+    /**
+     * Number of glyphs on Z Plane.
+     */
+    size_t m_nbGlyphsZ;
 
     /**
      * the shader actually doing the glyph raytracing
@@ -183,18 +234,22 @@ private:
     WPropBool     m_unifyEV;
 
     /**
-     * Adds a glyph to the vertex array. It takes several parameters to speed up index calculations.
+     * Adds a cube to the vertex array.
      *
      * \param position the position in world
-     * \param i the value set index ( should by calculated by x,y,z)
      * \param vertices the vertex array
      * \param orientation the tex coord array storing the orientation
-     * \param diags the diag element array
-     * \param offdiags the off diag element array
      */
-    inline void addGlyph( osg::Vec3 position, size_t i, osg::ref_ptr< osg::Vec3Array > vertices, osg::ref_ptr< osg::Vec3Array > orientation,
-                                                                                                 osg::ref_ptr< osg::Vec3Array > diags,
-                                                                                                 osg::ref_ptr< osg::Vec3Array > offdiags );
+    inline void addGlyph( osg::Vec3 position, osg::ref_ptr< osg::Vec3Array > vertices, osg::ref_ptr< osg::Vec3Array > orientation );
+
+    /**
+     * Adds a tensor to two arrays. 6*4 times per glyph.
+     *
+     * \param idx the idx of the tensor in the valueset
+     * \param diag the diagonal array
+     * \param offdiag the off-diagonal array
+     */
+    inline void addTensor( size_t idx, osg::Vec3Array* diag, osg::Vec3Array* offdiag );
 
     /**
      * Class handling uniform update during render traversal
@@ -225,6 +280,144 @@ private:
          */
         WMSuperquadricGlyphs* m_module;
     };
+
+
+    /**
+     * Node callback to handle updates in the glyph tensor data
+     */
+    class GlyphGeometryNodeCallback : public osg::Drawable::UpdateCallback
+    {
+    public: // NOLINT
+
+        /**
+         * Constructor.
+         *
+         * \param geo the geometry object to handle
+         */
+        explicit GlyphGeometryNodeCallback( osg::Geometry* geo ):
+            osg::Drawable::UpdateCallback(),
+            m_geometry( geo )
+        {
+        }
+
+        /**
+         * This operator gets called by OSG every update cycle.
+         *
+         * \param d the osg drawable
+         * \param nv the node visitor
+         */
+        virtual void update( osg::NodeVisitor* nv, osg::Drawable* d );
+
+        /**
+         * Updates the tensor data in the glyph slice.
+         *
+         * \param diag the diagonal elements as texture coords
+         * \param offdiag the off diagonal elements as texture coords
+         */
+        void setNewTensorData( osg::ref_ptr< osg::Vec3Array > diag, osg::ref_ptr< osg::Vec3Array > offdiag );
+
+        /**
+         * The geometry node to handle here
+         */
+        osg::Geometry* m_geometry;
+
+        /**
+         * Dirty flag. If true, the m_tensorDiag and m_tensorOffDiag get set
+         */
+        bool m_dirty;
+
+        /**
+         * Diagonal tensor elements in texture coordinate array.
+         */
+        osg::ref_ptr< osg::Vec3Array > m_tensorDiag;
+
+        /**
+         * Off-diagonal tensor elements in texture coordinate array.
+         */
+        osg::ref_ptr< osg::Vec3Array > m_tensorOffDiag;
+    };
+
+    /**
+     * The update callback of m_xSlice glphs.
+     */
+    osg::ref_ptr< GlyphGeometryNodeCallback > m_xSliceGlyphCallback;
+
+    /**
+     * The update callback of m_ySlice glphs.
+     */
+    osg::ref_ptr< GlyphGeometryNodeCallback > m_ySliceGlyphCallback;
+
+    /**
+     * The update callback of m_zSlice glphs.
+     */
+    osg::ref_ptr< GlyphGeometryNodeCallback > m_zSliceGlyphCallback;
+
+    /**
+     * Node callback to handle updates in the slice position properly
+     */
+    class SliceNodeCallback : public osg::NodeCallback
+    {
+    public: // NOLINT
+
+        /**
+         * Constructor.
+         *
+         * \param mt the transform node.
+         * \param axe the axe to translate along
+         * \param property the property containing the value
+         */
+        SliceNodeCallback( osg::MatrixTransform* mt, osg::Vec3 axe, WPropInt property ):
+            osg::NodeCallback(),
+            m_axe( axe ),
+            m_pos( property ),
+            m_oldPos( -1 ),
+            m_slice( mt )
+        {
+        }
+
+        /**
+         * This operator gets called by OSG every update cycle.
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+
+        /**
+         * The axis to transform along.
+         */
+        osg::Vec3 m_axe;
+
+        /**
+         * The position
+         */
+        WPropInt m_pos;
+
+        /**
+         * Cache the old position for proper update
+         */
+        int m_oldPos;
+
+        /**
+         * The transform node to handle here
+         */
+        osg::MatrixTransform* m_slice;
+    };
+
+    /**
+     * The update callback of m_xSlice.
+     */
+    osg::ref_ptr< SliceNodeCallback > m_xSliceCallback;
+
+    /**
+     * The update callback of m_ySlice.
+     */
+    osg::ref_ptr< SliceNodeCallback > m_ySliceCallback;
+
+    /**
+     * The update callback of m_zSlice.
+     */
+    osg::ref_ptr< SliceNodeCallback > m_zSliceCallback;
 };
 
 #endif  // WMSUPERQUADRICGLYPHS_H
