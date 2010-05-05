@@ -89,7 +89,7 @@ void WMainWindow::setupGUI()
     }
     resize( 946, 632 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
-    setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
+    setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
     m_menuBar = new QMenuBar( this );
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
