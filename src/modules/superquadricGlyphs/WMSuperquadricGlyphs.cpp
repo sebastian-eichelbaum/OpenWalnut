@@ -91,9 +91,9 @@ void WMSuperquadricGlyphs::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // The slice positions. These get update externally
-    m_xPos           = m_properties->addProperty( "X Pos of the slice", "Slice X position.", 80, m_propCondition );
-    m_yPos           = m_properties->addProperty( "Y Pos of the slice", "Slice Y position.", 100, m_propCondition );
-    m_zPos           = m_properties->addProperty( "Z Pos of the slice", "Slice Z position.", 80, m_propCondition );
+    m_xPos           = m_properties->addProperty( "Sagittal Position", "Slice X position.", 80, m_propCondition );
+    m_yPos           = m_properties->addProperty( "Coronal Position", "Slice Y position.", 100, m_propCondition );
+    m_zPos           = m_properties->addProperty( "Axial Position", "Slice Z position.", 80, m_propCondition );
     m_xPos->setMin( 0 );
     m_xPos->setMax( 159 );
     m_yPos->setMin( 0 );
@@ -344,6 +344,10 @@ void WMSuperquadricGlyphs::initOSG()
     m_zSlice->addUpdateCallback( m_zSliceCallback );
     m_zSlice->addChild( geode );
 
+    m_xSlice->setNodeMask( m_showonX->get( true ) ? 0xFFFFFFFF : 0x0 );
+    m_ySlice->setNodeMask( m_showonY->get( true ) ? 0xFFFFFFFF : 0x0 );
+    m_zSlice->setNodeMask( m_showonZ->get( true ) ? 0xFFFFFFFF : 0x0 );
+
     // add the transformation nodes to the output group
     m_output->insert( m_xSlice );
     m_output->insert( m_ySlice );
@@ -476,6 +480,19 @@ void WMSuperquadricGlyphs::moduleMain()
             // new data -> update OSG Stuff
             initOSG();
             progress1->finish();
+        }
+
+        if ( dataValid && m_showonX->changed() )
+        {
+            m_xSlice->setNodeMask( m_showonX->get( true ) ? 0xFFFFFFFF : 0x0 );
+        }
+        if ( dataValid && m_showonY->changed() )
+        {
+            m_ySlice->setNodeMask( m_showonY->get( true ) ? 0xFFFFFFFF : 0x0 );
+        }
+        if ( dataValid && m_showonZ->changed() )
+        {
+            m_zSlice->setNodeMask( m_showonZ->get( true ) ? 0xFFFFFFFF : 0x0 );
         }
 
         if ( dataValid && m_xPos->changed() )
