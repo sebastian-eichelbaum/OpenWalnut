@@ -36,6 +36,7 @@
 /**
  * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
  * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
+ *
  * \ingroup modules
  */
 class WMTemplate: public WModule
