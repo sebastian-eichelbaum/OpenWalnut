@@ -42,6 +42,8 @@
 #include "WFlag.h"
 #include "WPropertyBase.h"
 
+#include "WSharedAssociativeContainer.h"
+
 #include "constraints/WPropertyConstraintTypes.h"
 #include "constraints/WPropertyConstraintMin.h"
 #include "constraints/WPropertyConstraintMax.h"
@@ -185,19 +187,29 @@ public:
     };
 
     /**
-    * The Container datatype to copy the constraints
-    */
-    typedef std::set< boost::shared_ptr< PropertyConstraint > > constraintContainer;
+     * For shortening: a type defining a shared set of WModule pointers.
+     */
+    typedef std::set< boost::shared_ptr< PropertyConstraint > > ConstraintContainerType;
 
     /**
-    * A set of constraints applied on this property.
-    */
-    constraintContainer m_constraints;  //TODO(ebaum): not thread-safe and PUBLIC!!!??. Replace with WSharedObject
+     * Const iterator for the prototype set.
+     */
+    typedef typename ConstraintContainerType::const_iterator ConstraintContainerConstIteratorType;
 
     /**
-    * The iterator used to go through the set
-    */
-    typedef typename constraintContainer::const_iterator constraintIterator; //TODO(ebaum): not thread-safe. Replace with WSharedObject
+     * Iterator for the prototype set.
+     */
+    typedef typename ConstraintContainerType::iterator ConstraintContainerIteratorType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedAssociativeContainer< ConstraintContainerType > ConstraintSharedContainerType;
+
+    /**
+     * Alias for the proper access object
+     */
+    typedef typename ConstraintSharedContainerType::WSharedAccess ConstraintAccess;
 
     /**
      * Alias for min constraints. It is an alias for convenience.
@@ -227,12 +239,11 @@ public:
     boost::shared_ptr< PropertyConstraint > addConstraint( PROPERTYCONSTRAINT_TYPE constraint );
 
     /**
-    * Returns all the current constraints of a WPropertyVariable for copy purpose
+    * Returns all the current constraints of a WPropertyVariable. They can be iterated using the provided access object.
     *
-    * \return the condition.
-    *
+    * \return the constraint access object
     */
-    constraintContainer getConstraints(); //TODO(ebaum): not thread-safe. Replace with WSharedObject
+    ConstraintAccess getConstraints();
 
     /**
      * Gets the condition, which gets notified whenever the list of constraints changes. It is notified AFTER the write lock has been released so
@@ -340,12 +351,6 @@ protected:
      */
     virtual void updateType();
 
-
-    /**
-     * boost mutex object for thread safety of updating of m_propertyConstraints.
-     */
-    boost::shared_mutex m_constraintsLock;
-
     /**
      * Cleans m_constraints from all existing constrains of the specified type.
      *
@@ -367,14 +372,18 @@ protected:
      */
     boost::shared_ptr< WCondition > m_constraintsChanged;
 
+    /**
+     * A set of constraints applied on this property.
+     */
+    ConstraintSharedContainerType m_constraints;
+
+    /**
+     * The access object of this constrains list.
+     */
+    ConstraintAccess m_constraintsAccess;
+
 private:
 };
-
-template< typename T >
-typename WPropertyVariable<T>::constraintContainer WPropertyVariable<T>::getConstraints()
-{
-        return m_constraints;          //TODO(ebaum): not thread-safe. replace with WSharedObject
-}
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):
@@ -446,7 +455,9 @@ WPropertyVariable< T >::~WPropertyVariable()
     m_updateCondition->remove( WFlag< T >::getValueChangeCondition() );
 
     m_notifierConnection.disconnect();
-    m_constraints.clear();
+    m_constraintsAccess->beginWrite();
+    m_constraintsAccess->get().clear();
+    m_constraintsAccess->endWrite();
 }
 
 template < typename T >
@@ -459,15 +470,15 @@ void WPropertyVariable< T >::propertyChangeNotifier()
 template < typename T >
 bool WPropertyVariable< T >::accept( T newValue )
 {
-    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+    m_constraintsAccess->beginRead();
 
     // iterate through the set
     bool acceptable = WFlag< T >::accept( newValue );
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    for ( ConstraintContainerConstIteratorType it = m_constraintsAccess->get().begin(); it !=  m_constraintsAccess->get().end(); ++it )
     {
         acceptable &= ( *it )->accept( boost::shared_static_cast< WPropertyVariable< T > >( shared_from_this() ), newValue );
     }
-    lock.unlock();
+    m_constraintsAccess->endRead();
 
     return acceptable;
 }
@@ -513,9 +524,10 @@ bool WPropertyVariable< T >::ensureValidity( T newValidValue, bool suppressNotif
 template < typename T >
 void WPropertyVariable< T >::addConstraint( boost::shared_ptr< PropertyConstraint > constraint )
 {
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
-    m_constraints.insert( constraint );
-    lock.unlock();
+    m_constraintsAccess->beginWrite();
+    m_constraintsAccess->get().insert( constraint );
+    m_constraintsAccess->endWrite();
+
     m_constraintsChanged->notify();
 }
 
@@ -557,10 +569,10 @@ template < typename T >
 boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin( T min )
 {
     boost::shared_ptr< WPropertyConstraintMin< T > > c = minConstraint( min );
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    m_constraintsAccess->beginWrite();
     removeConstraints( PC_MIN, false );
-    m_constraints.insert( c );
-    lock.unlock();
+    m_constraintsAccess->get().insert( c );
+    m_constraintsAccess->endWrite();
     m_constraintsChanged->notify();
     return c;
 }
@@ -569,10 +581,10 @@ template < typename T >
 boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax( T max )
 {
     boost::shared_ptr< WPropertyConstraintMax< T > > c = maxConstraint( max );
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+    m_constraintsAccess->beginWrite();
     removeConstraints( PC_MAX, false );
-    m_constraints.insert( c );
-    lock.unlock();
+    m_constraintsAccess->get().insert( c );
+    m_constraintsAccess->endWrite();
     m_constraintsChanged->notify();
     return c;
 }
@@ -582,17 +594,17 @@ boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
 WPropertyVariable< T >::getFirstConstraint( PROPERTYCONSTRAINT_TYPE type )
 {
     // lock
-    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+    m_constraintsAccess->beginRead();
 
     // search first appearance of a constraint of the specified type
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    for ( ConstraintContainerConstIteratorType it = m_constraintsAccess->get().begin(); it != m_constraintsAccess->get().end(); ++it )
     {
         if ( ( *it )->getType() == type )
         {
             return ( *it );
         }
     }
-    lock.unlock();
+    m_constraintsAccess->endRead();
 
     return boost::shared_ptr< PropertyConstraint >();
 }
@@ -601,18 +613,18 @@ template < typename T >
 int WPropertyVariable< T >::countConstraint( PROPERTYCONSTRAINT_TYPE type )
 {
     // lock
-    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+    m_constraintsAccess->beginRead();
 
     int i = 0;
     // search first appearance of a constraint of the specified type
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    for ( ConstraintContainerConstIteratorType it =  m_constraintsAccess->get().begin(); it !=  m_constraintsAccess->get().end(); ++it )
     {
         if ( ( *it )->getType() == type )
         {
             i++;
         }
     }
-    lock.unlock();
+    m_constraintsAccess->endRead();
 
     return i;
 }
@@ -647,21 +659,26 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::getMax(
     return boost::shared_static_cast< WPropertyConstraintMax< T > >( c );
 }
 
+template< typename T >
+typename WPropertyVariable<T>::ConstraintAccess WPropertyVariable<T>::getConstraints()
+{
+        return m_constraintsAccess;
+}
+
 template < typename T >
 void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type, bool useLock )
 {
     // lock the constraints set
-    boost::unique_lock< boost::shared_mutex > lock;
     if ( useLock )
     {
-        lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+        m_constraintsAccess->beginWrite();
     }
 
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); )
+    for ( ConstraintContainerConstIteratorType it = m_constraintsAccess->get().begin(); it != m_constraintsAccess->get().end(); )
     {
         if ( ( *it )->getType() == type )
         {
-            m_constraints.erase( it++ );
+            m_constraintsAccess->get().erase( it++ );
         }
         else
         {
@@ -672,7 +689,7 @@ void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type, bo
     // only notify and unlock if locked earlier.
     if ( useLock )
     {
-        lock.unlock();
+        m_constraintsAccess->endWrite();
         m_constraintsChanged->notify();
     }
 }
