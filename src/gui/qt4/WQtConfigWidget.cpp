@@ -315,6 +315,8 @@ void WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from, boo
     // NOTE: property variables are initialized with the change flag = true. This is simply the case because nobody handled the new property
     // after initialization. The purpose of the change flag is to detect whether someone has taken care about it. This is why the get( true )
     // call is issued here (reset the change flag).
+    //
+
 /*
     to->getAccessObject()->get().clear();
     WProperties::PropertyAccessType accesObject = from->getAccessObject();

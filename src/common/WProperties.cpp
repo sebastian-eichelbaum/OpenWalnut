@@ -197,6 +197,13 @@ WPropGroup WProperties::addPropertyGroup( std::string name, std::string descript
     return p;
 }
 
+void WProperties::clear()
+{
+    m_propAccess->beginWrite();
+    m_propAccess->get().clear();
+    m_propAccess->endWrite();
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
 // template< typename T>
