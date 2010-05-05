@@ -47,7 +47,7 @@
 * This also creates a gui from all registered components and makes it possible to apply the changes
 * made in the gui directly to the main program
 */
-class WQtConfigWidget : public QWidget, WThreadedRunner
+class WQtConfigWidget : public QWidget, public WThreadedRunner
 {
     Q_OBJECT
 
@@ -207,7 +207,6 @@ private:
     /**
     * the static gui elements every config editor has got
     */
-    QWidget *m_window;
     QTabWidget *m_tabWidget;
     QPushButton *m_cancelButton;
     QPushButton *m_okButton;

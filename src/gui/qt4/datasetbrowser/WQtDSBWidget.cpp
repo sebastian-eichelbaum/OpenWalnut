@@ -32,11 +32,15 @@
 WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
     : QWidget( parent ),
     m_name( name.c_str() ),
-    m_controlLayout(),
-    m_pageLayout(),
+//    m_controlLayout(),
+//    m_pageLayout(),
     m_numberOfWidgets( 0 )
 {
-    m_pageLayout.addLayout( &m_controlLayout );
+    // note: never do layouts as none pointers
+    // on destruction of a widget it will try to delete them which will cause crashes
+    m_pageLayout = new QVBoxLayout();
+    m_controlLayout = new QGridLayout();
+    m_pageLayout->addLayout( m_controlLayout );
 }
 
 WQtDSBWidget::~WQtDSBWidget()
@@ -47,49 +51,49 @@ WPropertyBoolWidget* WQtDSBWidget::addProp( WPropBool property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertyBoolWidget( property, &m_controlLayout, this );
+    return new WPropertyBoolWidget( property, m_controlLayout, this );
 }
 
 WPropertyIntWidget* WQtDSBWidget::addProp( WPropInt property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertyIntWidget( property, &m_controlLayout, this );
+    return new WPropertyIntWidget( property, m_controlLayout, this );
 }
 
 WPropertyDoubleWidget* WQtDSBWidget::addProp( WPropDouble property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertyDoubleWidget( property, &m_controlLayout, this );
+    return new WPropertyDoubleWidget( property, m_controlLayout, this );
 }
 
 WPropertyStringWidget* WQtDSBWidget::addProp( WPropString property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertyStringWidget( property, &m_controlLayout, this );
+    return new WPropertyStringWidget( property, m_controlLayout, this );
 }
 
 WPropertyColorWidget* WQtDSBWidget::addProp( WPropColor property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertyColorWidget( property, &m_controlLayout, this );
+    return new WPropertyColorWidget( property, m_controlLayout, this );
 }
 
 WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertyFilenameWidget( property, &m_controlLayout, this );
+    return new WPropertyFilenameWidget( property, m_controlLayout, this );
 }
 
 WPropertyTriggerWidget* WQtDSBWidget::addProp( WPropTrigger property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertyTriggerWidget( property, &m_controlLayout, this );
+    return new WPropertyTriggerWidget( property, m_controlLayout, this );
 }
 
 void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
@@ -112,22 +116,22 @@ void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
     }
 
     // create a new group box
-    int row = m_controlLayout.rowCount();
+    int row = m_controlLayout->rowCount();
 
     if ( asScrollArea )
     {
-        m_controlLayout.addWidget( scrollArea, row, 0, 1, 2 );
+        m_controlLayout->addWidget( scrollArea, row, 0, 1, 2 );
     }
     else
     {
-        m_controlLayout.addWidget( group, row, 0, 1, 2 );
+        m_controlLayout->addWidget( group, row, 0, 1, 2 );
     }
 }
 
 void WQtDSBWidget::addSpacer()
 {
-    m_pageLayout.addStretch();
-    setLayout( &m_pageLayout );
+    m_pageLayout->addStretch();
+    setLayout( m_pageLayout );
 }
 
 QString WQtDSBWidget::getName()
