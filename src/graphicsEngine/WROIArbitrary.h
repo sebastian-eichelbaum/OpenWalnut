@@ -33,6 +33,7 @@
 
 #include "../common/math/WPosition.h"
 #include "../common/math/WMatrix.h"
+#include "../common/WColor.h"
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 
@@ -58,13 +59,15 @@ public:
      * \param triMesh
      * \param threshold
      * \param maxThreshold The maximum of the values.
+     * \param color the color to use for the ROI.
      */
     WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                    const wmath::WMatrix< double >& mat,
                    const std::vector< float >& vals,
                    boost::shared_ptr< WTriangleMesh2 > triMesh,
                    float threshold,
-                   float maxThreshold );
+                   float maxThreshold,
+                   WColor color );
 
     /**
      * destructor
@@ -108,7 +111,6 @@ public:
      */
     virtual void updateGFX();
 
-
 protected:
 private:
 
@@ -118,6 +120,11 @@ private:
     boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
     float m_threshold; //!< the threshold
     float m_maxThreshold; //!< the threshold
+
+    /**
+     * The ROI color
+     */
+    WColor m_color;
 
     /**
      * Node callback to handle updates properly
