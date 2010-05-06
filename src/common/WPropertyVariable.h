@@ -304,6 +304,23 @@ public:
     PropertyConstraintMax getMax();
 
     /**
+     * This replaces all existing constraints of a certain type by a new specified constraint.
+     *
+     * \param constraint the new constraint
+     * \param type the type of constraints to replace
+     */
+    void replaceConstraint( boost::shared_ptr< PropertyConstraint > constraint, PROPERTYCONSTRAINT_TYPE type );
+
+    /**
+     * This replaces all existing constraints of a certain type by a new specified constraint.
+     *
+     * \param constraint the new constraint
+     * \param type the type of constraints to replace
+     * \return the constraint created
+     */
+    boost::shared_ptr< PropertyConstraint > replaceConstraint( PROPERTYCONSTRAINT_TYPE constraint, PROPERTYCONSTRAINT_TYPE type );
+
+    /**
      * Method searching the first appearance of a constrained with the specified type.
      *
      * \param type the type of the searched constraint
@@ -389,7 +406,9 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints(),
+        m_constraintsAccess( m_constraints.getAccessObject() )
 {
     updateType();
 
@@ -402,7 +421,9 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition ):
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints(),
+        m_constraintsAccess( m_constraints.getAccessObject() )
 {
     updateType();
 
@@ -416,7 +437,9 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints(),
+        m_constraintsAccess( m_constraints.getAccessObject() )
 {
     updateType();
 
@@ -434,7 +457,9 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints(),
+        m_constraintsAccess( m_constraints.getAccessObject() )
 {
     updateType();
 
@@ -569,11 +594,7 @@ template < typename T >
 boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin( T min )
 {
     boost::shared_ptr< WPropertyConstraintMin< T > > c = minConstraint( min );
-    m_constraintsAccess->beginWrite();
-    removeConstraints( PC_MIN, false );
-    m_constraintsAccess->get().insert( c );
-    m_constraintsAccess->endWrite();
-    m_constraintsChanged->notify();
+    replaceConstraint( c, PC_MIN );
     return c;
 }
 
@@ -581,11 +602,26 @@ template < typename T >
 boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax( T max )
 {
     boost::shared_ptr< WPropertyConstraintMax< T > > c = maxConstraint( max );
+    replaceConstraint( c, PC_MAX );
+    return c;
+}
+
+template < typename T >
+void WPropertyVariable< T >::replaceConstraint( boost::shared_ptr< PropertyConstraint > constraint, PROPERTYCONSTRAINT_TYPE type )
+{
     m_constraintsAccess->beginWrite();
-    removeConstraints( PC_MAX, false );
-    m_constraintsAccess->get().insert( c );
+    removeConstraints( type, false );
+    m_constraintsAccess->get().insert( constraint );
     m_constraintsAccess->endWrite();
     m_constraintsChanged->notify();
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
+WPropertyVariable< T >::replaceConstraint( PROPERTYCONSTRAINT_TYPE constraint, PROPERTYCONSTRAINT_TYPE type )
+{
+    boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > c = PropertyConstraint::create( constraint );
+    replaceConstraint( c, type );
     return c;
 }
 
