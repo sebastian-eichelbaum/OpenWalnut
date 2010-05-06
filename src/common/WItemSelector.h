@@ -38,7 +38,7 @@ class WItemSelection;
  * can't be edited after the instantiation of the class to keep the interface clean, easily usable and consistent among multiple threads. So
  * please DO NOT extend it to provide methods for changing it!
  *
- * \NOTE the protected constructor avoids instance creation of classes not the WItemSelection. This is restrictive but needed. Nobody can create
+ * \note the protected constructor avoids instance creation of classes not the WItemSelection. This is restrictive but needed. Nobody can create
  * instances of it, changing the underlying WItemSelection and using it as selector for another ItemSelection instance.
  */
 class WItemSelector
