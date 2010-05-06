@@ -40,11 +40,9 @@
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/exceptions/WDHNoSuchSubject.h"
-
-#include "WQtTextureSorter.h"
-
 #include "../../../kernel/WModuleFactory.h"
 
+#include "WQtTextureSorter.h"
 
 
 WQtTextureSorter::WQtTextureSorter( QWidget* parent )
@@ -70,11 +68,29 @@ WQtTextureSorter::WQtTextureSorter( QWidget* parent )
     m_layout->addWidget( m_textureListWidget );
     m_layout->addLayout( buttonLayout );
 
+    connect( m_textureListWidget, SIGNAL( itemClicked( QListWidgetItem* ) ), this, SLOT( handleTextureClicked() ) );
+
     setLayout( m_layout );
 }
 
 WQtTextureSorter::~WQtTextureSorter()
 {
+}
+
+void WQtTextureSorter::handleTextureClicked()
+{
+    unsigned int index =  m_textureListWidget->currentIndex().row();
+
+    DatasetAccess ta = m_textures.getAccessObject();
+    ta->beginRead();
+
+    QListWidgetItem* ci = m_textureListWidget->item( index );
+    WAssert( ci, "Problem in source code." );
+    boost::shared_ptr< WDataSet > dataSet = ta->get()[index];
+
+    ta->endRead();
+
+    emit textureSelectionChanged( dataSet );
 }
 
 // TODO(wiebel): have a second look on this begin/end read/write mess.
@@ -239,6 +255,33 @@ void WQtTextureSorter::moveItemUp()
         }
     }
     sort();
+}
+
+void WQtTextureSorter::selectTexture( boost::shared_ptr< WDataSet > dataSet )
+{
+    DatasetAccess ta = m_textures.getAccessObject();
+    ta->beginRead();
+    size_t i = 0;
+    for( ; i < ta->get().size(); ++i )
+    {
+        if( ta->get()[i] == dataSet )
+        {
+            break;
+        }
+    }
+    ta->endRead();
+
+    if( i < ta->get().size() )
+    {
+        // select appropriate texture if the data set has a corresponding texture
+        QListWidgetItem* ci = m_textureListWidget->item( i );
+        m_textureListWidget->setCurrentItem( ci );
+    }
+    else
+    {
+        // unselect all if the dataset has no corresponding texture
+        m_textureListWidget->clearSelection();
+    }
 }
 
 bool WQtTextureSorter::isLess( boost::shared_ptr< WDataSet > lhs, boost::shared_ptr< WDataSet > rhs )

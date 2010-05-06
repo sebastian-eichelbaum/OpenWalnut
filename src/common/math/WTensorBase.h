@@ -1281,7 +1281,7 @@ Data_T const& WTensorFunc< TensorBase_T, 3, dim, Data_T >::operator() ( std::siz
 
 
 /**
- * Implements the operator () for an order of 2 as well as matrix multiplication and casts to WMatrix.
+ * Implements the operator () for an order of 2 as well as casts to WMatrix.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 2, dim, Data_T > : public TensorBase_T< 2, dim, Data_T >

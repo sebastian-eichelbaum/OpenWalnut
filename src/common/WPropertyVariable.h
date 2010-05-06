@@ -185,6 +185,21 @@ public:
     };
 
     /**
+    * The Container datatype to copy the constraints
+    */
+    typedef std::set< boost::shared_ptr< PropertyConstraint > > constraintContainer;
+
+    /**
+    * A set of constraints applied on this property.
+    */
+    constraintContainer m_constraints;  //TODO(ebaum): not thread-safe and PUBLIC!!!??. Replace with WSharedObject
+
+    /**
+    * The iterator used to go through the set
+    */
+    typedef typename constraintContainer::const_iterator constraintIterator; //TODO(ebaum): not thread-safe. Replace with WSharedObject
+
+    /**
      * Alias for min constraints. It is an alias for convenience.
      */
     typedef boost::shared_ptr< WPropertyConstraintMin< T > > PropertyConstraintMin;
@@ -210,6 +225,14 @@ public:
      * \return the constraint created and added.
      */
     boost::shared_ptr< PropertyConstraint > addConstraint( PROPERTYCONSTRAINT_TYPE constraint );
+
+    /**
+    * Returns all the current constraints of a WPropertyVariable for copy purpose
+    *
+    * \return the condition.
+    *
+    */
+    constraintContainer getConstraints(); //TODO(ebaum): not thread-safe. Replace with WSharedObject
 
     /**
      * Gets the condition, which gets notified whenever the list of constraints changes. It is notified AFTER the write lock has been released so
@@ -317,15 +340,6 @@ protected:
      */
     virtual void updateType();
 
-    /**
-     * A set of constraints applied on this property.
-     */
-    std::set< boost::shared_ptr< PropertyConstraint > > m_constraints;
-
-    /**
-     * The iterator used to go through the set
-     */
-    typedef typename std::set< boost::shared_ptr< PropertyConstraint > >::const_iterator constraintIterator;
 
     /**
      * boost mutex object for thread safety of updating of m_propertyConstraints.
@@ -355,6 +369,12 @@ protected:
 
 private:
 };
+
+template< typename T >
+typename WPropertyVariable<T>::constraintContainer WPropertyVariable<T>::getConstraints()
+{
+        return m_constraints;          //TODO(ebaum): not thread-safe. replace with WSharedObject
+}
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):

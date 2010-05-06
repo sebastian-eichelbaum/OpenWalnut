@@ -33,6 +33,7 @@
 #include <boost/thread.hpp>
 
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning. Every one knowing the factory also knows this
+#include "../common/WSharedAssociativeContainer.h"
 #include "combiner/WApplyPrototypeCombiner.h"
 #include "WModule.h"
 
@@ -43,6 +44,31 @@ class WModuleFactory
 {
 friend class WModuleFactoryTest;
 public:
+
+    /**
+     * For shortening: a type defining a shared set of WModule pointers.
+     */
+    typedef std::set< boost::shared_ptr< WModule > > PrototypeContainerType;
+
+    /**
+     * Const iterator for the prototype set.
+     */
+    typedef std::set< boost::shared_ptr< WModule > >::const_iterator PrototypeContainerConstIteratorType;
+
+    /**
+     * Iterator for the prototype set.
+     */
+    typedef std::set< boost::shared_ptr< WModule > >::iterator PrototypeContainerIteratorType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedAssociativeContainer< PrototypeContainerType > PrototypeSharedContainerType;
+
+    /**
+     * Alias for the proper access object
+     */
+    typedef PrototypeSharedContainerType::WSharedAccess PrototypeAccess;
 
     /**
      * Default constructor.
@@ -137,19 +163,27 @@ public:
      */
     static void initializeModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * Get access to all the prototypes.
+     *
+     * \return the access object to thread safe iterate.
+     */
+    const PrototypeSharedContainerType::WSharedAccess getAvailablePrototypes() const;
+
 protected:
 
     /**
      * The module prototypes available.
      */
-    std::set< boost::shared_ptr< WModule > > m_prototypes;
+    PrototypeSharedContainerType m_prototypes;
 
     /**
      * The lock for the prototypes set.
      */
-    boost::shared_mutex m_prototypesLock;
+    PrototypeSharedContainerType::WSharedAccess m_prototypeAccess;
 
 private:
+
     /**
      * Singleton instance of WModuleFactory.
      */

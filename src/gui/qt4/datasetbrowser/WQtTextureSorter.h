@@ -65,6 +65,18 @@ public:
      */
     virtual void update();
 
+    /**
+     * select a certain texture in the texture sorter
+     * \param dataSet this data set will be selected after calling this method
+     */
+    void selectTexture( boost::shared_ptr< WDataSet > dataSet );
+
+signals:
+    /**
+     * Indicates that a texture has been clicked and return the dataset
+     */
+    void textureSelectionChanged( boost::shared_ptr< WDataSet > dataSet );
+
 private:
     QListWidget* m_textureListWidget; //!< pointer to the tree widget
     QVBoxLayout* m_layout; //!< Layout of the widget
@@ -90,6 +102,11 @@ private:
     void sort();
 
 private slots:
+    /**
+     * Handles a click to a texture in the list
+     */
+    void handleTextureClicked();
+
     /**
      * change order of items, move currently selected item down
      */

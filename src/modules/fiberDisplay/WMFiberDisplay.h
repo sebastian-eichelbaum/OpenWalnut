@@ -38,6 +38,8 @@
 
 /**
  * Test module for drawing fibers
+ *
+ * \ingroup modules
  */
 class WMFiberDisplay : public WModule, public osg::Referenced
 {

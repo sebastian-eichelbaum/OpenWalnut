@@ -41,6 +41,7 @@
 #include <QtGui/QCloseEvent>
 
 #include "WQtNavGLWidget.h"
+#include "WQtConfigWidget.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtToolBar.h"
@@ -206,6 +207,10 @@ public slots:
      */
     void setFibersLoaded();
 
+    /**
+    * gets called when menu option or toolbar button load is activated
+    */
+    void openConfigDialog();
 private:
     /**
      * Sets up the permanent tool bar.
@@ -234,6 +239,8 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
+
+    boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
     bool m_fibLoaded; //!< Indicates whether a fiber data set is already loaded.
 

@@ -23,113 +23,43 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
-#include <cmath>
-
-#include "../WAssert.h"
-#include "../WLimits.h"
 
 #include "WTensorFunctions.h"
 
 namespace wmath
 {
-template< typename Data_T >
-void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
-                          std::vector< Data_T >* eigenValues,
-                          std::vector< WTensor< 1, 3, Data_T > >* eigenVectors )
+std::vector< double > getEigenvaluesCardano( WTensorSym< 2, 3 > const& m )
 {
-    WTensorSym< 2, 3, Data_T > in = WTensorSym< 2, 3, Data_T >( mat );
-    WTensor< 2, 3, Data_T > ev;
+    // this is copied from the gpu glyph shader
+    // src/graphicsEngine/shaders/tensorTools.fs
+    // originally implemented by Mario Hlawitschka
+    const double M_SQRT3 = 1.73205080756887729352744634151;
+    double de = m( 1, 2 ) * m( 1, 0 );
+    double dd = m( 1, 2 ) * m( 1, 2 );
+    double ee = m( 1, 0 ) * m( 1, 0 );
+    double ff = m( 2, 0 ) * m( 2, 0 );
+    double m0 = m( 0, 0 ) + m( 1, 1 ) + m( 2, 2 );
+    double c1 = m( 0, 0 ) * m( 1, 1 ) + m( 0, 0 ) * m( 2, 2 ) + m( 1, 1 ) * m( 2, 2 )
+             - ( dd + ee + ff );
+    double c0 = m( 2, 2 ) * dd + m( 0, 0 ) * ee + m( 1, 1 ) * ff - m( 0, 0 ) * m( 1, 1 ) * m( 2, 2 ) - 2. * m( 2, 0 ) * de;
 
-    int iter = 50;
-    Data_T evp[ 3 ];
-    Data_T evq[ 3 ];
+    double p, sqrt_p, q, c, s, phi;
+    p = m0 * m0 - 3. * c1;
+    q = m0 * ( p - ( 3. / 2. ) * c1 ) - ( 27. / 2. ) * c0;
+    sqrt_p = sqrt( fabs( p ) );
 
-    while( iter >= 0 )
-    {
-        int p = 1;
-        int q = 0;
+    phi = 27. * ( 0.25 * c1 * c1 * ( p - c1 ) + c0 * ( q + 27. / 4. * c0 ) );
+    phi = ( 1. / 3. ) * atan2( sqrt( fabs( phi ) ), q );
 
-        for( int i = 0; i < 2; ++i )
-        {
-            if( fabs( in( 2, i ) ) > fabs( in( p, q ) ) )
-            {
-                p = 2;
-                q = i;
-            }
-        }
+    c = sqrt_p * cos( phi );
+    s = ( 1. / M_SQRT3 ) * sqrt_p * sin( phi );
 
-        if( fabs( in( p, q ) ) == 0.0 )
-        {
-            for( int i = 0; i < 3; ++i )
-            {
-                eigenValues->at( i ) = in( i, i );
-                for( int j = 0; j < 3; ++j )
-                {
-                    eigenVectors->at( i )( j ) = ev( i, j );
-                }
-            }
-            return;
-        }
-
-        Data_T r = in( q, q ) - in( p, p );
-        Data_T o = r / ( 2.0 * in( p, q ) );
-
-        Data_T t;
-        Data_T signofo = ( o < 0.0 ? -1.0 : 1.0 );
-        if( o * o > wlimits::MAX_DOUBLE )
-        {
-            t = signofo / ( 2.0 * fabs( o ) );
-        }
-        else
-        {
-            t = signofo / ( fabs( o ) + sqrt( o * o + 1.0 ) );
-        }
-
-        Data_T c;
-
-        if( t * t < wlimits::DBL_EPS )
-        {
-            c = 1.0;
-        }
-        else
-        {
-            c = 1.0 / sqrt( t * t + 1.0 );
-        }
-
-        Data_T s = c * t;
-
-        int k = 0;
-        while( k == q || k == p )
-        {
-            ++k;
-        }
-        WAssert( k < 3, "" );
-
-        Data_T u = ( 1.0 - c ) / s;
-
-        Data_T x = in( k, p );
-        Data_T y = in( k, q );
-        in( p, k ) = in( k, p ) = x - s * ( y + u * x );
-        in( q, k ) = in( k, q ) = y + s * ( x - u * y );
-        x = in( p, p );
-        y = in( q, q );
-        in( p, p ) = x - t * in( p, q );
-        in( q, q ) = y + t * in( p, q );
-        in( q, p ) = in( p, q ) = 0.0;
-
-        for( int l = 0; l < 3; ++l )
-        {
-            evp[ l ] = ev( l, p );
-            evq[ l ] = ev( l, q );
-        }
-        for( int l = 0; l < 3; ++l )
-        {
-            ev( l, p ) = c * evp[ l ] - s * evq[ l ];
-            ev( l, q ) = s * evp[ l ] + c * evq[ l ];
-        }
-
-        --iter;
-    }
-    WAssert( iter >= 0, "Jacobi eigenvector iteration did not converge." );
+    std::vector< double > w( 3 );
+    // fix: swapped w[ 2 ] and w[ 1 ]
+    w[ 2 ] = ( 1. / 3. ) * ( m0 - c );
+    w[ 1 ] = w[ 2 ] + s;
+    w[ 0 ] = w[ 2 ] + c;
+    w[ 2 ] -= s;
+    return w;
 }
 }  // namespace wmath

@@ -117,7 +117,14 @@ boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
     boost::shared_ptr< WSubject > result;
     try
     {
-        result = m_subjectAccess->get().at( subjectID );
+        if ( subjectID < m_subjectAccess->get().size() )
+        {
+            result = m_subjectAccess->get().at( subjectID );
+        }
+        else
+        {
+            result = boost::shared_ptr< WSubject >();
+        }
     }
     catch( const std::out_of_range& e )
     {

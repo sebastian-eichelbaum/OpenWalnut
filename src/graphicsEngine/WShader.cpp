@@ -47,6 +47,7 @@ WShader::WShader( std::string name ):
     m_shaderPath( WGraphicsEngine::getGraphicsEngine()->getShaderPath() ),
     m_name( name ),
     m_reload( true ),
+    m_shaderLoaded( false ),
     m_deactivated( false )
 {
     // create shader
@@ -75,7 +76,7 @@ void WShader::apply( osg::ref_ptr< osg::Node > node )
     osg::StateSet* rootState = node->getOrCreateStateSet();
     rootState->setAttributeAndModes( this, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
     m_deactivated = false;
-    m_reload = true;
+    m_reload = !m_shaderLoaded;
     // add a custom callback which actually sets and updated the shader.
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
@@ -150,9 +151,13 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
                 m_shader->m_geometryShader->setShaderSource( source );
                 m_shader->addShader( m_shader->m_geometryShader );
             }
+
+            m_shader->m_shaderLoaded = true;
         }
         catch( const std::exception& e )
         {
+            m_shader->m_shaderLoaded = false;
+
             WLogger::getLogger()->addLogMessage( "Problem loading shader.", "WShader", LL_ERROR );
 
             // clean up the mess

@@ -44,14 +44,16 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
                               const std::vector< float >& vals,
                               boost::shared_ptr< WTriangleMesh2 > triMesh,
                               float threshold,
-                              float maxThreshold ) :
+                              float maxThreshold,
+                              WColor color ) :
     WROI(),
     m_nbCoordsVec( 3 ),
     m_matrix( mat ),
     m_vals( vals ),
     m_triMesh( triMesh ),
     m_threshold( threshold ),
-    m_maxThreshold( maxThreshold )
+    m_maxThreshold( maxThreshold ),
+    m_color( color )
 {
     m_nbCoordsVec[0] = nbCoordsX;
     m_nbCoordsVec[1] = nbCoordsY;
@@ -131,7 +133,7 @@ void WROIArbitrary::updateGFX()
         // ------------------------------------------------
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
-        colors->push_back( osg::Vec4( 1.0f, .2f, 0.2f, 1.0f ) );
+        colors->push_back( osg::Vec4( m_color.getRed(), m_color.getGreen(), m_color.getBlue(), m_color.getAlpha() ) );
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 

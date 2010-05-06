@@ -351,7 +351,7 @@ void WMArbitraryRois::finalizeRoi()
                                                                             *m_newValueSet->rawDataVectorPointer(),
                                                                             m_triMesh,
                                                                             m_threshold->get(),
-                                                                            m_dataSet->getMax() ) );
+                                                                            m_dataSet->getMax(), m_surfaceColor->get( true ) ) );
 
     if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
     {
