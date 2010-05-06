@@ -49,7 +49,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * \param grid The grid of the input dataset.
      * \param values The input tensors.
      * \param progr The progress object.
@@ -79,7 +79,7 @@ private:
 
     /**
      * Calculate the largest eigenvector and the FA at grid position i.
-     * \param i A position in the input datasets' grid. 
+     * \param i A position in the input datasets' grid.
      */
     void eigen( size_t i );
 
@@ -91,19 +91,6 @@ private:
      * \param i The position on the input grid.
      */
     void calcFA( double const t0, double const t1, double const t2, size_t const i );
-
-    /**
-     * Computes eigenvalues and eigenvectors of a real symmetric matrix.
-     * The eigenvalues overwrite the diagonal elements of the input matrix
-     * (however not in any particular order). The corresponding eigenvectors
-     * are stored in the columns of the matrix vectorsMat. 
-     * 
-     * \param inmat A real symmetric matrix.
-     * \param eigen_vectors Stores the eigenvectors.
-     *
-     * TODO(reichenbach) increase numerical stability? "On the Coding of Jacobi's Method for Computing Eigenvalues and Eigenvectors of Real Symmetric Matrices"
-     */
-    void jacobi( wmath::WMatrix< double >* inmat, wmath::WMatrix< double >* eigen_vectors );
 
     /**
      * The input grid.
@@ -122,7 +109,7 @@ private:
     boost::shared_ptr< WProgress > m_progress;
 
     /**
-     * An index indicating in what part of the grid this thread should look for seed points. 
+     * An index indicating in what part of the grid this thread should look for seed points.
      */
     uint32_t m_index;
 
