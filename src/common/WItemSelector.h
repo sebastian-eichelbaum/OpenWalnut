@@ -97,7 +97,7 @@ public:
      *
      * \return the output stream extended by the information of this selector
      */
-    std::ostream& operator<<( std::ostream& out );
+    std::ostream& operator<<( std::ostream& out ) const;
 
     /**
      * Gives the count of elements in the set of selectable items. This is \ref size + number of unselected items.
@@ -112,6 +112,13 @@ public:
      * \return the number of selected items.
      */
     virtual size_t size() const;
+
+    /**
+     * True if the selection is empty.
+     *
+     * \return true if nothing is selected.
+     */
+    virtual bool empty() const;
 
     /**
      * Gets the item with the given index from the WItemSelection. This index does not equal the index of the same item for \ref at. This method

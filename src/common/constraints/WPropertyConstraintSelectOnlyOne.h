@@ -22,50 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCONSTRAINTMIN_H
-#define WPROPERTYCONSTRAINTMIN_H
+#ifndef WPROPERTYCONSTRAINTSELECTONLYONE_H
+#define WPROPERTYCONSTRAINTSELECTONLYONE_H
 
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
-template < typename T >
+template< typename T >
 class WPropertyVariable;
 
 /**
- * This class allows constraining properties using a minimum value and the corresponding >= operator.
+ * This class allows constraining selection properties to not allow selection of multiple items.
  */
-template< typename T >
-class WPropertyConstraintMin: public WPropertyVariable< T >::PropertyConstraint
+template < typename T >
+class WPropertyConstraintSelectOnlyOne: public WPropertyVariable< T >::PropertyConstraint
 {
 public:
     /**
      * Constructor.
-     *
-     * \param min the minimum value which the new property value should have.
      */
-    explicit WPropertyConstraintMin( T min );
+    explicit WPropertyConstraintSelectOnlyOne();
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyConstraintMin();
+    virtual ~WPropertyConstraintSelectOnlyOne();
 
     /**
-     * Checks whether the specified new value is larger or equal to the specified min value.
+     * Checks whether the specified value is a directory or not.
      *
      * \param property the property whose new value should be set.
      * \param value the new value to check
      *
-     * \return true if value >= m_min
+     * \return true if the file/path is a directory
      */
     virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
-
-    /**
-     * Returns the current min value.
-     *
-     * \return the min value.
-     */
-    T getMin();
 
     /**
      * Allows simple identification of the real constraint type.
@@ -75,41 +66,29 @@ public:
     virtual PROPERTYCONSTRAINT_TYPE getType();
 
 private:
-
-    /**
-     * The minimal value the property should have
-     */
-    T m_min;
 };
 
 template < typename T >
-WPropertyConstraintMin< T >::WPropertyConstraintMin( T min ):
-    m_min( min )
+WPropertyConstraintSelectOnlyOne< T >::WPropertyConstraintSelectOnlyOne()
 {
 }
 
 template < typename T >
-WPropertyConstraintMin< T >::~WPropertyConstraintMin()
+WPropertyConstraintSelectOnlyOne< T >::~WPropertyConstraintSelectOnlyOne()
 {
 }
 
 template < typename T >
-bool WPropertyConstraintMin< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintSelectOnlyOne< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
 {
-    return value >= m_min;
+    return ( value.size() <= 1 );
 }
 
 template < typename T >
-T WPropertyConstraintMin< T >::getMin()
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintSelectOnlyOne< T >::getType()
 {
-    return m_min;
+    return PC_SELECTONLYONE;
 }
 
-template < typename T >
-PROPERTYCONSTRAINT_TYPE WPropertyConstraintMin< T >::getType()
-{
-    return PC_MIN;
-}
-
-#endif  // WPROPERTYCONSTRAINTMIN_H
+#endif  // WPROPERTYCONSTRAINTSELECTONLYONE_H
 

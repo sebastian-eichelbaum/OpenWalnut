@@ -31,6 +31,7 @@
 #include "../../common/WCondition.h"
 #include "../../common/WProgress.h"
 #include "../../common/WPropertyTypes.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
@@ -38,7 +39,6 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "WMFiberTransform.h"
-
 
 WMFiberTransform::WMFiberTransform()
     : WModule(),
@@ -76,7 +76,7 @@ void WMFiberTransform::properties()
     m_savePath = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     m_run      = m_properties->addProperty( "Run", "Do the transformation", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
-    m_savePath->addConstraint( PC_NOTEMPTY );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
 }
 
 void WMFiberTransform::moduleMain()

@@ -60,6 +60,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
+#include "../../common/WPropertyHelper.h"
 
 #include "template.xpm"
 #include "WMTemplate.h"
@@ -188,16 +189,16 @@ void WMTemplate::properties()
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_aTrigger       = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.",
-                                                  WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-    m_enableFeature  = m_properties->addProperty( "Enable Feature",           "Description.", true );
-    m_anInteger      = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
-    m_anIntegerClone = m_properties->addProperty( "CLONE!Number of Shape Rows",
-                                                  "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
-    m_aDouble        = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
-    m_aString        = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile          = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
-    m_aColor         = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    m_aTrigger         = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
+                                                    m_propCondition );
+    m_enableFeature    = m_properties->addProperty( "Enable Feature",           "Description.", true );
+    m_anInteger        = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
+    m_anIntegerClone   = m_properties->addProperty( "CLONE!Number of Shape Rows",
+                                                    "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
+    m_aDouble          = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
+    m_aString          = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
+    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
+    m_aColor           = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all
@@ -213,6 +214,21 @@ void WMTemplate::properties()
     // m_anIntegerClone has a special purpose in this example. It shows that you can simply update properties from within your module whilst the
     // GUI updates itself. You can, for example, set constraints or simply modify values depending on input data, most probably useful to set
     // nice default values or min/max constraints.
+
+    // All these above properties are not that usable for selections. Assume the following situation. Your module allows two different kinds of
+    // algorithms to run on some data and you want the user to select which one should do the work. This might be done integer properties but it
+    // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
+    m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_possibleSelections->addItem( "Select", "Description" );
+    m_possibleSelections->addItem( "Me", "Description" );
+    m_possibleSelections->addItem( "Please", "Description" );
+
+    // This list of alternatives is NOT the actual property value. It is the list on which so called "WItemSelector" instances work. These
+    // selectors are the actual property. After you created the first selector instance from the list, it can't be modified anymore. This ensures
+    // that it is consistent among multiple threads and selection instances. The following two lines create two selectors as initial value and
+    // create the property:
+    m_aSingleSelection = m_properties->addProperty( "Select one",  "Description.", m_possibleSelections->getSelectorFirst(), m_propCondition );
+    m_aMultiSelection  = m_properties->addProperty( "Select some", "Description.", m_possibleSelections->getSelectorAll(), m_propCondition );
 
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
@@ -235,11 +251,11 @@ void WMTemplate::properties()
 
     // The properties offer another nice feature: property constraints. You can enforce your properties to be in a special range, to not be
     // empty, to contain a valid directory name and so on. This is done with the class WPropertyVariable< T >::WPropertyConstraint. There are
-    // several predefined you can use directly: WPropertyConstraintTypes.h. The constants defined there can be supplied to
-    // WPropertyVariable< T >::PropertyConstraint::create( ... ). As an example, we want the property m_aFile to only contain existing
-    // directories;
-    m_aFile->addConstraint( PC_PATHEXISTS );
-    m_aFile->addConstraint( PC_ISDIRECTORY );
+    // several predefined you can use directly: WPropertyConstraintTypes.h. The constants defined there can be used as namespace in
+    // WPropertyHelper. As an example, we want the property m_aFile to only contain existing directories:
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_aFile );
+    WPropertyHelper::PC_ISDIRECTORY::addTo( m_aFile );
+
     // Thats it. To set minimum and maximum value for a property the convenience methods setMin and setMax are defined. setMin and setMax are
     // allowed for all property types with defined <= and >= operator.
     m_anInteger->setMin( 1 );
@@ -247,9 +263,16 @@ void WMTemplate::properties()
     m_aDouble->setMin( 5.0 );
     m_aDouble->setMax( 50.0 );
 
+    // we also want to constraint the both selection properties. One should not allow selecting multiple elements. But both require at least one
+    // element to be selected:
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aMultiSelection );
+
     // The most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
     // to define the allowed values for your constraint. Take a look at the StringLength class in this module's code on how to do it.
     m_aString->addConstraint( boost::shared_ptr< StringLength >( new StringLength ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aString );
 
     // One last thing to mention is the active property. This property is available in all modules and represents the activation state of the
     // module. Int the GUI this is simply a checkbox beneath the module. The active property should be taken into account in ALL modules.

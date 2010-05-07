@@ -42,6 +42,7 @@
 #include "WFlag.h"
 #include "WPropertyBase.h"
 
+#include "WCondition.h"
 #include "WSharedAssociativeContainer.h"
 
 #include "constraints/WPropertyConstraintTypes.h"
@@ -50,8 +51,8 @@
 #include "constraints/WPropertyConstraintNotEmpty.h"
 #include "constraints/WPropertyConstraintPathExists.h"
 #include "constraints/WPropertyConstraintIsDirectory.h"
+#include "constraints/WPropertyConstraintSelectOnlyOne.h"
 
-#include "WCondition.h"
 
 /**
  * A named property class with a concrete type.
@@ -230,19 +231,10 @@ public:
     void addConstraint( boost::shared_ptr< PropertyConstraint > constraint );
 
     /**
-     * Add a new constraint. It creates one for your with the specified type.
+     * Returns all the current constraints of a WPropertyVariable. They can be iterated using the provided access object.
      *
-     * \param constraint the type of constraint.
-     *
-     * \return the constraint created and added.
+     * \return the constraint access object
      */
-    boost::shared_ptr< PropertyConstraint > addConstraint( PROPERTYCONSTRAINT_TYPE constraint );
-
-    /**
-    * Returns all the current constraints of a WPropertyVariable. They can be iterated using the provided access object.
-    *
-    * \return the constraint access object
-    */
     ConstraintAccess getConstraints();
 
     /**
@@ -559,15 +551,6 @@ void WPropertyVariable< T >::addConstraint( boost::shared_ptr< PropertyConstrain
 }
 
 template < typename T >
-boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
-WPropertyVariable< T >::addConstraint( PROPERTYCONSTRAINT_TYPE constraint )
-{
-    boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > c = PropertyConstraint::create( constraint );
-    addConstraint( c );
-    return c;
-}
-
-template < typename T >
 boost::shared_ptr< WCondition > WPropertyVariable< T >::getContraintsChangedCondition()
 {
     return m_constraintsChanged;
@@ -746,39 +729,6 @@ template < typename T >
 PROPERTYCONSTRAINT_TYPE WPropertyVariable< T >::PropertyConstraint::getType()
 {
     return PC_UNKNOWN;
-}
-
-template < typename T >
-boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
-WPropertyVariable< T >::PropertyConstraint::create( PROPERTYCONSTRAINT_TYPE type )
-{
-    typename WPropertyVariable< T >::PropertyConstraint* c = NULL;
-
-    // simply create a new instance for all those constraints.
-    switch( type )
-    {
-        case PC_MIN:        // min and max constraints can't be created this way since they need a construction parameter
-            WLogger::getLogger()->addLogMessage( "Minimum property constraints can't be created this way. Use setMin() instead.",
-                    "PropertyConstraint::create", LL_WARNING );
-            break;
-        case PC_MAX:
-            WLogger::getLogger()->addLogMessage( "Maximum property constraints can't be created this way. Use setMax() instead.",
-                    "PropertyConstraint::create", LL_WARNING );
-            break;
-        case PC_NOTEMPTY:
-            c = new WPropertyConstraintNotEmpty< T >();
-            break;
-        case PC_PATHEXISTS:
-            c = new WPropertyConstraintPathExists< T >();
-            break;
-        case PC_ISDIRECTORY:
-            c = new WPropertyConstraintIsDirectory< T >();
-            break;
-        default:
-            WLogger::getLogger()->addLogMessage( "The property constraint is unknown.", "PropertyConstraint::create", LL_WARNING );
-            break;
-    }
-    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( c );
 }
 
 #endif  // WPROPERTYVARIABLE_H

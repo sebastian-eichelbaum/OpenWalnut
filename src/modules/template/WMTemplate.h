@@ -29,6 +29,9 @@
 
 #include <osg/Geode>
 
+#include "../../common/WItemSelection.h"
+#include "../../common/WItemSelector.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -196,6 +199,21 @@ private:
      * A property simply providing some text to the outside world.
      */
     WPropString   m_aStringOutput;
+
+    /**
+     * A property allowing the user to select ONE item of some list
+     */
+    WPropSelection m_aSingleSelection;
+
+    /**
+     * A property allowing the user to select multiple elements of a list.
+     */
+    WPropSelection m_aMultiSelection;
+
+    /**
+     * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
+     */
+    boost::shared_ptr< WItemSelection > m_possibleSelections;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in

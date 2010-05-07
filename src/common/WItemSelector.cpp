@@ -63,7 +63,7 @@ WItemSelector WItemSelector::newSelector( const std::string asString ) const
     return newSelector( l );
 }
 
-std::ostream& WItemSelector::operator<<( std::ostream& out )
+std::ostream& WItemSelector::operator<<( std::ostream& out ) const
 {
     for ( WItemSelector::IndexList::const_iterator iter = m_selected.begin(); iter != m_selected.end(); ++iter )
     {
@@ -78,8 +78,7 @@ std::ostream& WItemSelector::operator<<( std::ostream& out )
 
 std::ostream& operator<<( std::ostream& out, const WItemSelector& other )
 {
-    out << other;
-    return out;
+    return other.operator<<( out );
 }
 
 bool WItemSelector::operator==( const WItemSelector& other ) const
@@ -105,5 +104,10 @@ WItemSelection::Item WItemSelector::atAll( size_t index ) const
 WItemSelection::Item WItemSelector::at( size_t index ) const
 {
     return m_selection->at( m_selected.at( index ) );
+}
+
+bool WItemSelector::empty() const
+{
+    return ( size() == 0 );
 }
 

@@ -34,6 +34,8 @@
 #include "exceptions/WPropertyUnknown.h"
 #include "exceptions/WPropertyNotUnique.h"
 
+#include "WPropertyHelper.h"
+
 #include "WProperties.h"
 
 WProperties::WProperties( std::string name, std::string description ):
@@ -239,7 +241,7 @@ WPropString WProperties::addProperty( std::string name, std::string description,
 WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -304,7 +306,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                          boost::shared_ptr< WCondition > condition, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -373,7 +375,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -448,7 +450,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
