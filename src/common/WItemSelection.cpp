@@ -95,3 +95,13 @@ WItemSelector WItemSelection::getSelector( size_t item )
     return WItemSelector( shared_from_this(), l );
 }
 
+size_t WItemSelection::size() const
+{
+    return m_items.size();
+}
+
+WItemSelection::Item WItemSelection::at( size_t index ) const
+{
+    return m_items.at( index );
+}
+

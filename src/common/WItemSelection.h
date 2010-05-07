@@ -44,6 +44,10 @@ class WItemSelector;
 class WItemSelection: public boost::enable_shared_from_this< WItemSelection >
 {
 public:
+    /**
+     * For shortening, it is the type of an item
+     */
+    typedef std::pair< std::string, std::string > Item;
 
     /**
      * Default constructor.
@@ -95,12 +99,24 @@ public:
      */
     virtual WItemSelector getSelector( size_t item );
 
-protected:
+    /**
+     * The number of selectable items.
+     *
+     * \return the number of items.
+     */
+    virtual size_t size() const;
 
     /**
-     * For shortening, it is the type of an item
+     * Gets the item with the given index. This is not the same index as the element has in the corresponding WItemSelector!
+     * This method is especially useful to iterate the through all items.
+     *
+     * \param index the index
+     *
+     * \return the item
      */
-    typedef std::pair< std::string, std::string > Item;
+    virtual Item at( size_t index ) const;
+
+protected:
 
     /**
      * List of items.

@@ -22,6 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
+#include <boost/lexical_cast.hpp>
+
+#include "WStringUtils.h"
 #include "WItemSelection.h"
 
 #include "WItemSelector.h"
@@ -38,16 +44,66 @@ WItemSelector::~WItemSelector()
     // cleanup
 }
 
-WItemSelector WItemSelector::newSelector( IndexList selected )
+WItemSelector WItemSelector::newSelector( IndexList selected ) const
 {
     return WItemSelector( m_selection, selected );
 }
 
-std::ostream& operator<<( std::ostream& out, const WItemSelector& c )
+WItemSelector WItemSelector::newSelector( const std::string asString ) const
 {
+    std::vector<std::string> tokens;
+    tokens = string_utils::tokenize( asString, ";" );
+
+    IndexList l;
+    for ( size_t i = 0; i < tokens.size(); ++i )
+    {
+        l.push_back( boost::lexical_cast< size_t >( tokens[i] ) );
+    }
+
+    return newSelector( l );
 }
 
-std::istream& operator>>( std::istream& in, WItemSelector& c )
+std::ostream& WItemSelector::operator<<( std::ostream& out )
 {
+    for ( WItemSelector::IndexList::const_iterator iter = m_selected.begin(); iter != m_selected.end(); ++iter )
+    {
+        out << ( *iter );
+        if ( ( iter + 1 ) != m_selected.end() )
+        {
+            out << ";";
+        }
+    }
+    return out;
+}
+
+std::ostream& operator<<( std::ostream& out, const WItemSelector& other )
+{
+    out << other;
+    return out;
+}
+
+bool WItemSelector::operator==( const WItemSelector& other ) const
+{
+    return ( ( m_selection == other.m_selection ) && ( m_selected == m_selected ) );
+}
+
+size_t WItemSelector::sizeAll() const
+{
+    return m_selection->size();
+}
+
+size_t WItemSelector::size() const
+{
+    return m_selected.size();
+}
+
+WItemSelection::Item WItemSelector::atAll( size_t index ) const
+{
+    return m_selection->at( index );
+}
+
+WItemSelection::Item WItemSelector::at( size_t index ) const
+{
+    return m_selection->at( m_selected.at( index ) );
 }
 

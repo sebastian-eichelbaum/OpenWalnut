@@ -513,7 +513,9 @@ bool WPropertyVariable< T >::setAsString( std::string value )
 {
     try
     {
-        set( boost::lexical_cast< T >( value ) );
+        // use the helper class which can handle different kinds of properties for us
+        PROPERTY_TYPE_HELPER::WCreateFromString< T > h = PROPERTY_TYPE_HELPER::WCreateFromString< T >();
+        set( h.create( WFlag< T >::get(), value ) );
     }
     catch( const boost::bad_lexical_cast &e )
     {
