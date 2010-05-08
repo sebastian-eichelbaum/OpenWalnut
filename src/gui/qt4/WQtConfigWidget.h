@@ -77,6 +77,8 @@ protected:
     /**
     * catch the closing event of the small x in the right upper corner to react on the closing
     * of the dialog
+    *
+    * \param event event to catch
     */
     void closeEvent( QCloseEvent *event );
 
@@ -205,13 +207,33 @@ private:
     boost::shared_ptr< WPropertyBase > findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name );
 
     /**
-    * the static gui elements every config editor has got
+    * the tab widget
     */
     QTabWidget *m_tabWidget;
+
+    /**
+    * the cancel button
+    */
     QPushButton *m_cancelButton;
+
+    /**
+    * the ok button
+    */
     QPushButton *m_okButton;
+
+    /**
+    * the preview button
+    */
     QPushButton *m_previewButton;
+
+    /**
+    * the default reset button
+    */
     QPushButton *m_resetDefaultButton;
+
+    /**
+    * the backup reset button
+    */
     QPushButton *m_resetBackupButton;
 
     /**
@@ -229,6 +251,9 @@ private:
     */
     boost::shared_ptr< WProperties > m_properties;
 
+    /**
+    * map to associate WProperties to line numbers
+    */
     typedef std::map< boost::shared_ptr< WProperties >, std::vector< size_t > > LinePropertySet;
 
     /**

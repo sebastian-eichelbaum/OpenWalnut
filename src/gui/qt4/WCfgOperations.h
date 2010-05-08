@@ -129,7 +129,7 @@ public:
     /**
     * determine if a string is a bool var ("yes", "no")
     *
-    * \param string line
+    * \param line line
     *
     * \result is bool var
     */

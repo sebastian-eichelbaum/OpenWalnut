@@ -240,6 +240,9 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
 
+    /**
+    * shared pointer for the configuration widget
+    */
     boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
     bool m_fibLoaded; //!< Indicates whether a fiber data set is already loaded.
