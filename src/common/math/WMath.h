@@ -27,6 +27,10 @@
 
 #include <cmath>
 
+#if defined ( _MSC_VER )
+#include "float.h"
+#endif
+
 /**
  * Classes and functions of math module of OpenWalnut.
  */
