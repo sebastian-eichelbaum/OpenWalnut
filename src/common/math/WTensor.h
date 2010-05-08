@@ -102,13 +102,13 @@ public:
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensor< order, dim, Data_T >::WTensor()
-    : WTensorFunc< WTensorBase, order, dim, Data_T >()
+    : WTensorFunc< wmath::WTensorBase, order, dim, Data_T >()
 {
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensor< order, dim, Data_T >::WTensor( WTensorSym< order, dim, Data_T > const& t )
-    : WTensorFunc< WTensorBase, order, dim, Data_T >()
+    : WTensorFunc< wmath::WTensorBase, order, dim, Data_T >()
 {
     WTensorBase< order, dim, Data_T >::operator = ( t );
 }

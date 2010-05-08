@@ -766,8 +766,6 @@ void WMainWindow::setFibersLoaded()
 
 void WMainWindow::openConfigDialog()
 {
-//    boost::shared_ptr< WQtConfigWidget > configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
-//    WQtConfigWidget *configWidget = new WQtConfigWidget;
     m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
 
     m_configWidget->initAndShow();

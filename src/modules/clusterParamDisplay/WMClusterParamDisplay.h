@@ -42,6 +42,8 @@
 
 /**
  * Displays certains parameters of a cluster or bundle.
+ *
+ * \ingroup modules
  */
 class WMClusterParamDisplay: public WModuleContainer
 {

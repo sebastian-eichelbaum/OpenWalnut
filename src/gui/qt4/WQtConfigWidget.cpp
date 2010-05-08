@@ -29,6 +29,8 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 
+#include <boost/filesystem/path.hpp>
+
 #include "WCfgOperations.h"
 #include "../../kernel/WModuleFactory.h"
 #include "../../common/WConditionOneShot.h"
@@ -38,11 +40,9 @@
 WQtConfigWidget::WQtConfigWidget() :
         QWidget()
 {
-    m_window = new QWidget();
+    this->setWindowTitle( "walnut.cfg Editor" );
 
-    m_window->setWindowTitle( "walnut.cfg Editor" );
-
-    QVBoxLayout *verticalLayout = new QVBoxLayout( m_window );
+    QVBoxLayout *verticalLayout = new QVBoxLayout( this );
     m_tabWidget = new QTabWidget();
     verticalLayout->addWidget( m_tabWidget );
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
@@ -79,13 +79,9 @@ WQtConfigWidget::WQtConfigWidget() :
 
 WQtConfigWidget::~WQtConfigWidget()
 {
-    if ( m_window )
-    {
-        m_window->close();
-    }
 }
 
-void WQtConfigWidget::getAvailibleModuleNames()
+void WQtConfigWidget::getAvailableModuleNames()
 {
     WModuleFactory::PrototypeSharedContainerType::WSharedAccess pa = WModuleFactory::getModuleFactory()->getAvailablePrototypes();
     m_moduleNames.clear();
@@ -209,18 +205,37 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
 
 void WQtConfigWidget::registerComponents()
 {
-    getAvailibleModuleNames();
+    getAvailableModuleNames();
 
-    // Register config propertys
-    registeredSections.push_back( "general" );
-    registeredSections.push_back( "qt4gui" );
-    registeredSections.push_back( "ge" );
-    registeredSections.push_back( "modules" );
+    //////////////////////////////////////////////////////////////////////////
+    //  Tutorial on how to add properties to the config editor              //
+    //////////////////////////////////////////////////////////////////////////
+    //  1. Make sure the section you use is registered at the beginning     //
+    //  2. Add your Properties to m_defaultProperties with a short          //
+    //     description and default value                                    //
+    //     Note: You can also groups to show the properties in different    //
+    //     ways like the background color group                             //
+    //  3. every property that isn't represented in the config file needs   //
+    //     to be added to m_skipPropertyWrite                               //
+    //  4. to react on changes in groups like the color group, add an if    //
+    //     section to updatePropertyGroups() and call them in the           //
+    //     initialization and at the condition change if clause in the      //
+    //     threadMain()                                                     //
+    //  5. to make changes directly to openWalnut you need to make sure     //
+    //     that there is an appropriate interface and call it from within   //
+    //     setWalnutFromProperties()                                        //
+    //////////////////////////////////////////////////////////////////////////
+
+    // Register config properties
+    m_registeredSections.push_back( "general" );
+    m_registeredSections.push_back( "qt4gui" );
+    m_registeredSections.push_back( "ge" );
+    m_registeredSections.push_back( "modules" );
 
     m_skipPropertyWrite.clear();
 
-    // to set and get propertys use the get() and set() methods of WFlag
-    // copy propertys through getAccessObject()
+    // to set and get properties use the get() and set() methods of WFlag
+    // copy properties through getAccessObject()
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -294,7 +309,7 @@ void WQtConfigWidget::registerComponents()
 void WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
 {
     // note for some odd reason property variables get initialized with the changed variable set, this causes odd behavior...
-    // so ew initializ them and do a get( true ) to reset that
+    // so we initialize them and do a get( true ) to reset that
     // first clear the to Properties
 
 
@@ -486,7 +501,7 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
 
 void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, size_t lineNumber )
 {
-    linePropertySet::iterator lPSitr;
+    LinePropertySet::iterator lPSitr;
     lPSitr = m_lineAssociationList.find( var );
     if ( lPSitr != m_lineAssociationList.end() )
     {
@@ -688,7 +703,7 @@ void WQtConfigWidget::saveToConfig()
     propertyInLine.resize( m_configLines.size() );
 
     // first transform into another representation
-    linePropertySet::iterator itr;
+    LinePropertySet::iterator itr;
     size_t i;
     for ( itr = m_lineAssociationList.begin(); itr != m_lineAssociationList.end(); ++itr )
     {
@@ -828,6 +843,9 @@ void WQtConfigWidget::saveToConfig()
                 // m_lineAssociationList[ curProp ].size() - 1 = is the last index of the linelist
                 // so if the last index, which must be at least 1 (because the line has to be associated at least once here),
                 // is the same as the current line number, we are at the last line of the property
+
+                // TODO(ledig): use this information to count the comments for a property
+                // and therefore reduce them to a special count so the cfg file won't explode of comments
                 if ( m_lineAssociationList[ curProp ][ m_lineAssociationList[ curProp ].size() - 1 ] == cLine )
                 {
                     isLastLineOfProperty = true;
@@ -950,13 +968,13 @@ void WQtConfigWidget::saveToConfig()
 
             size_t j, k;
             bool allSectionsWritten = true;
-            for ( j = 0; j < registeredSections.size(); ++j )
+            for ( j = 0; j < m_registeredSections.size(); ++j )
             {
                 // check if all registered sections are written
                 bool sectionWritten = false;
                 for ( k = 0; k < sectionsWriten.size(); ++k )
                 {
-                    if ( registeredSections[j] == sectionsWriten[k] )
+                    if ( m_registeredSections[j] == sectionsWriten[k] )
                     {
                         sectionWritten = true;
                         break;
@@ -981,9 +999,9 @@ void WQtConfigWidget::saveToConfig()
                         }
                     }
 
-                    if ( currentSectionWriten )
+                    if ( currentSectionWriten || current_section == std::string( "" ) )
                     {
-                        m_configLines.push_back( "[" + registeredSections[j] + "]" );
+                        m_configLines.push_back( "[" + m_registeredSections[j] + "]" );
                         propertyInLine.push_back( noVar );
                     }
                     m_configLines.push_back( "[]" );
@@ -1003,18 +1021,23 @@ void WQtConfigWidget::saveToConfig()
 
 void WQtConfigWidget::loadConfigFile()
 {
-    m_configLines = WCfgOperations::readCfg( "walnut.cfg" );
+    namespace fs = boost::filesystem;
+    if ( fs::exists( fs::path( std::string( "walnut.cfg" ) ) ) )
+    {
+        m_configLines = WCfgOperations::readCfg( "walnut.cfg" );
+    }
     // copy all default properties into the loaded properties
     copyProperties( m_defaultProperties, m_loadedProperties );
     // parse the config file
     createLineAssociation();
     // update the loaded properties
     updateGui( m_loadedProperties );
-    // copy all loaded properties into the current propertys where we create the gui from
+    // copy all loaded properties into the current properties where we create the gui from
     copyProperties( m_loadedProperties, m_properties );
 
     m_configState.setResetable( true, true );
     m_configState.add( m_propCondition );
+    m_configState.add( m_shutdownFlag.getCondition() );
 }
 
 void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
@@ -1095,11 +1118,11 @@ WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperti
 void WQtConfigWidget::createGuiFromProperties( boost::shared_ptr< WProperties > from )
 {
     // iterate over all sections
-    for ( size_t i = 0; i < registeredSections.size(); ++i )
+    for ( size_t i = 0; i < m_registeredSections.size(); ++i )
     {
         // iterate over all properties and use those which are in this section
 
-        m_tabWidget->addTab( createTabForSection( from, registeredSections[i] ), QString::fromStdString( registeredSections[i] ) );
+        m_tabWidget->addTab( createTabForSection( from, m_registeredSections[i] ), QString::fromStdString( m_registeredSections[i] ) );
     }
 }
 
@@ -1111,9 +1134,7 @@ void WQtConfigWidget::initAndShow()
 
     createGuiFromProperties( m_properties );
 
-    //m_shutdownFlag.set( false );
-
-    m_window->show();
+    this->show();
 
     run();
 }
@@ -1242,7 +1263,7 @@ void WQtConfigWidget::save()
     // and use every trigger that can be executed
     saveToConfig();
     setWalnutFromProperties();
-    m_window->hide();
+    this->hide();
     requestStop();
 }
 
@@ -1259,7 +1280,7 @@ void WQtConfigWidget::cancel()
     }
 
     // and hide the window
-    m_window->hide();
+    this->hide();
 
     requestStop();
 }

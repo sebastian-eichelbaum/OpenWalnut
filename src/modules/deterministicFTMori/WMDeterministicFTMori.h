@@ -42,12 +42,13 @@
 
 /**
  * This module implements the simple fiber tracking algorithm by Mori et al.
- * 
- * S. Mori, B. Crain, V. Chacko, and P. van Zijl, 
+ *
+ * S. Mori, B. Crain, V. Chacko, and P. van Zijl,
  * "Three-dimensional tracking of axonal projections in the brain by magnetic resonance imaging",
  * Annals of Neurology 45, pp. 265-269, 1999
- * 
+ *
  * \class WMDeterministicFTMori
+ * \ingroup modules
  */
 class WMDeterministicFTMori: public WModule
 {
@@ -114,7 +115,7 @@ private:
      * Computes the largest eigenvector as well as the fractional anisotropy (FA)
      * for every position in the input dataset. The calculation is spread over
      * multiple threads.
-     * 
+     *
      * \see WEigenThread
      */
     void doEigen();
@@ -122,9 +123,9 @@ private:
     /**
      * Calculate fibers using the fiber tracking algorithm by Mori et al.
      * The calculation is spread over multiple threads.
-     * 
+     *
      * \see WMoriThread
-     * 
+     *
      * \param minFA The fractional anisotropy threshold.
      * \param minPoints Minimum number of points per fiber.
      * \param minCos The minimum cosine of the angle between two adjacent segments of a fiber.

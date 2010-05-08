@@ -189,12 +189,12 @@ private:
     /**
      * Layout used for each "widget combination".
      */
-    QGridLayout m_controlLayout;
+    QGridLayout *m_controlLayout;
 
     /**
      * Layout used for the whole widget.
      */
-    QVBoxLayout m_pageLayout;
+    QVBoxLayout *m_pageLayout;
 
     /**
      * The number of widgets inside this one.
