@@ -24,6 +24,7 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WPropertyColorWidget.h
     datasetbrowser/WPropertyFilenameWidget.h
     datasetbrowser/WPropertyTriggerWidget.h
+    datasetbrowser/WPropertySelectionWidget.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h
     datasetbrowser/WQtLineEdit.h

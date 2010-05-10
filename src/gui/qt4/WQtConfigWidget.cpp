@@ -317,15 +317,21 @@ void WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from, boo
     // call is issued here (reset the change flag).
     //
 
-/*
-    to->getAccessObject()->get().clear();
-    WProperties::PropertyAccessType accesObject = from->getAccessObject();
+    // lock both
+    WProperties::PropertyAccessType toAccess = to->getAccessObject();
+    WProperties::PropertyAccessType fromAccess = from->getAccessObject();
 
-    WProperties::PropertyIterator iter;
-    for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )
+    toAccess->beginWrite();
+    fromAccess->beginRead();
+
+    // clear target
+    toAccess->get().clear();
+
+    WProperties::PropertyConstIterator iter;
+    for ( iter = fromAccess->get().begin(); iter != fromAccess->get().end(); ++iter )
     {
-        // so far we only need those 5 types
-        switch( (*iter)->getType() )
+/*        // so far we only need those 5 types
+        switch( ( *iter )->getType() )
         {
         case PV_GROUP:
             {
@@ -440,8 +446,11 @@ void WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from, boo
                 // just do nothing so no compiler warning
                 break;
             }
-        }
-    }*/
+        }*/
+    }
+
+    fromAccess->beginRead();
+    toAccess->endWrite();
 }
 
 void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
@@ -522,6 +531,7 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
 
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
 
+    // TODO(ledig): not thread-safe, btw. WProperties::findProperty already does the job of searching recursively
     WProperties::PropertyIterator iter;
     for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )
     {

@@ -37,6 +37,7 @@
 #include "WPropertyColorWidget.h"
 #include "WPropertyFilenameWidget.h"
 #include "WPropertyTriggerWidget.h"
+#include "WPropertySelectionWidget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -125,7 +126,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    //WPropertySelectionWidget* addProp( WPropSelection property );
+    WPropertySelectionWidget* addProp( WPropSelection property );
 
     /**
      * Adds a new position property to the DSB.
