@@ -322,6 +322,9 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
     WProperties::PropertyAccessType accesObject2 = to->getAccessObject();
 
+    accesObject->beginRead();
+    accesObject2->beginRead();
+
     WProperties::PropertyIterator iter;
     WProperties::PropertyIterator iter2;
     for ( iter = accesObject->get().begin(), iter2 = accesObject2->get().begin();
@@ -337,38 +340,16 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
                 copyPropertiesContents( ( *iter )->toPropGroup(), ( *iter2 )->toPropGroup() );
                 break;
             }
-        case PV_INT:
-            {
-                ( *iter2 )->toPropInt()->set( ( *iter )->toPropInt()->get( true ), true );
-                break;
-            }
-        case PV_DOUBLE:
-            {
-                ( *iter2 )->toPropDouble()->set( ( *iter )->toPropDouble()->get( true ), true );
-                break;
-            }
-        case PV_BOOL:
-            {
-                ( *iter2 )->toPropBool()->set( ( *iter )->toPropBool()->get( true ), true );
-                break;
-            }
-        case PV_STRING:
-            {
-                ( *iter2 )->toPropString()->set( ( *iter )->toPropString()->get( true ), true );
-                break;
-            }
-        case PV_COLOR:
-            {
-                ( *iter2 )->toPropColor()->set( ( *iter )->toPropColor()->get( true ), true );
-                break;
-            }
         default:
             {
-                // just do nothing so no compiler warning
+                ( *iter )->set( *iter2 );
                 break;
             }
         }
     }
+
+    accesObject2->endRead();
+    accesObject->endRead();
 }
 
 void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, size_t lineNumber )
@@ -390,10 +371,11 @@ void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, s
 boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name )
 {
     WProperties::PropertyAccessType accesObject = searchIn->getAccessObject();
+    accesObject->beginRead();
 
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
 
-    // TODO(ledig): not thread-safe, btw. WProperties::findProperty already does the job of searching recursively
+    // TODO(ledig): WProperties::findProperty already does the job of searching recursively. Better use this.
     WProperties::PropertyIterator iter;
     for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )
     {
@@ -411,6 +393,8 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
             }
         }
     }
+
+    accesObject->endRead();
     return result;
 }
 
@@ -616,13 +600,16 @@ void WQtConfigWidget::saveToConfig()
                         propertyStack.push_back( m_properties );
 
                         WProperties::PropertyIterator iter;
-                        iter = propertyStack.back()->getAccessObject()->get().begin();
+                        WProperties::PropertyAccessType accessObject = propertyStack.back()->getAccessObject();
+                        accessObject->beginRead();
+
+                        iter = accessObject->get().begin();
                         iteratorStack.push_back( iter );
 
                         while ( !propertyStack.empty() )
                         {
                             // check if at the end of group, if so pop and continue
-                            if ( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
+                            if ( iteratorStack.back() == accessObject->get().end() )
                             {
                                 propertyStack.pop_back();
                                 iteratorStack.pop_back();
@@ -634,8 +621,7 @@ void WQtConfigWidget::saveToConfig()
                             {
                                 propertyStack.push_back( ( *iteratorStack.back() )->toPropGroup() );
                                 ++iteratorStack.back();
-                                iter = propertyStack.back()->getAccessObject()->get().begin();
-                                iteratorStack.push_back( iter );
+                                iteratorStack.push_back( accessObject->get().begin() );
                                 continue;
                             }
                             else
@@ -681,6 +667,8 @@ void WQtConfigWidget::saveToConfig()
                         } // LOOP over properties
 
                         sectionsWriten.push_back( current_section );
+
+                        accessObject->endRead();
                     } // IF switch from none-empty section
 
                     std::string sn = WCfgOperations::getSectionName( m_configLines[cLine] );
@@ -918,6 +906,7 @@ void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
 WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperties > from, std::string sectionName )
 {
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
+    accesObject->beginRead();
 
     std::string name = std::string( "" );
     if ( from->getType() == PV_GROUP )
@@ -978,6 +967,8 @@ WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperti
             }
         }
     }
+
+    accesObject->endRead();
 
     tab->addSpacer();
     return tab;
