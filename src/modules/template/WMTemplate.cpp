@@ -296,8 +296,10 @@ void WMTemplate::properties()
     // Later on, we will use this property to provide the number of run cycles to the user.
     // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
     // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
-    std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, html formatted strings, colors and " ) +
+    std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, " ) +
+                          std::string( "<font color=\"#00f\" size=15>html</font> formatted strings, colors and " ) +
                           std::string( "so on using <font color=\"#ff0000\">properties</font>! Isn't it <b>amazing</b>?" );
+
     m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
