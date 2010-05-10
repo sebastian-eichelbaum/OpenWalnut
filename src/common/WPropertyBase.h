@@ -166,6 +166,16 @@ public:
      */
     virtual boost::shared_ptr< WCondition > getUpdateCondition() const;
 
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \param value the new value.
+     *
+     * \return true if the value has been accepted.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value ) = 0;
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // Helpers for easy conversion to the possible types
     /////////////////////////////////////////////////////////////////////////////////////////////

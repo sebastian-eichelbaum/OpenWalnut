@@ -88,6 +88,11 @@ std::string WProperties::getAsString()
     return "";
 }
 
+bool WProperties::set( boost::shared_ptr< WPropertyBase > /*value*/ )
+{
+    return true;
+}
+
 bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
 {
     return ( prop1->getName() == prop2->getName() );

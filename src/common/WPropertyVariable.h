@@ -374,6 +374,29 @@ public:
      */
     virtual std::string getAsString();
 
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \param value the new value.
+     *
+     * \return true if the value has been accepted.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value );
+
+    /**
+     * Sets the new value for this flag. Also notifies waiting threads. After setting a value, changed() will be true.
+     *
+     * \param value the new value
+     * \param suppressNotification true to avoid a firing condition. This is useful for resetting values.
+     *
+     * \return true if the value has been set successfully.
+     *
+     * \note set( get() ) == true
+     * \note this is defined here to help the compiler to disambiguate between WFlag::set and the WPropertyBase::set.
+     */
+    virtual bool set( T value, bool suppressNotification = false );
+
 protected:
 
     /**
@@ -558,7 +581,7 @@ bool WPropertyVariable< T >::setAsString( std::string value )
     {
         // use the helper class which can handle different kinds of properties for us
         PROPERTY_TYPE_HELPER::WCreateFromString< T > h = PROPERTY_TYPE_HELPER::WCreateFromString< T >();
-        set( h.create( WFlag< T >::get(), value ) );
+        WFlag< T >::set( h.create( WFlag< T >::get(), value ) );
     }
     catch( const boost::bad_lexical_cast &e )
     {
@@ -576,6 +599,27 @@ std::string WPropertyVariable< T >::getAsString()
     // try catch( const boost::bad_lexical_cast &e ) ? No if this happens something is wrong with the value
 
     return val;
+}
+
+template < typename T >
+bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value )
+{
+    // try to cast the given property to a WPropertyVariable of right type:
+    boost::shared_ptr< WPropertyVariable< T > > v = boost::shared_dynamic_cast< WPropertyVariable< T > >( value );
+    if ( v )
+    {
+        return WFlag< T >::set( v->get() );
+    }
+    else
+    {
+        return false;
+    }
+}
+
+template < typename T >
+bool WPropertyVariable< T >::set( T value, bool suppressNotification )
+{
+    return WFlag< T >::set( value, suppressNotification );
 }
 
 template < typename T >

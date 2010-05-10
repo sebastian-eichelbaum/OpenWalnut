@@ -297,7 +297,7 @@ void WMTemplate::properties()
     // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
     // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
     std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, html formatted strings, colors and " ) +
-                          std::string( "so on using <font color=\"#f00\">properties</font>! Isn't it <b>amazing</b>?" );
+                          std::string( "so on using <font color=\"#ff0000\">properties</font>! Isn't it <b>amazing</b>?" );
     m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
@@ -305,13 +305,12 @@ void WMTemplate::properties()
     // parameter.
     //
     // Some more examples. Please note: Although every property type can be used as information property, not everything is really useful.
+    m_infoProperties->addProperty( m_aStringOutput );   // we can also re-add properties
     m_aTriggerOutput = m_infoProperties->addProperty( "A Trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
     m_aDoubleOutput = m_infoProperties->addProperty( "Some Double", "a Double. Nice isn't it?", 3.1415 );
     m_aColorOutput = m_infoProperties->addProperty( "A Color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
     m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WKernel::getAppPathObject() );
     m_aSelectionOutput = m_infoProperties->addProperty( "A Selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
-    // We can add info another property here too:
-    m_infoProperties->addProperty( m_aStringOutput );
 }
 
 void WMTemplate::moduleMain()
@@ -329,7 +328,7 @@ void WMTemplate::moduleMain()
     // useful whenever your module needs to do long operations to initialize. No other module can connect to your module before it signals its
     // ready state. You can assume the code before ready() to be some kind of initialization code.
     debugLog() << "Doing time consuming operations";
-    sleep( 0 );
+    sleep( 2 );
 
     // Your module can use an moduleState variable to wait for certain events. Most commonly, these events are new data on input connectors or
     // changed properties. You can decide which events the moduleState should handle. Therefore, use m_moduleState.add( ... ) to insert every

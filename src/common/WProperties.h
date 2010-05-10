@@ -263,6 +263,18 @@ public:
      */
     virtual std::string getAsString();
 
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \note for WProperties, this actually does nothing an.
+     *
+     * \param value the new value.
+     *
+     * \return true, always.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value );
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
     // NOTE: these methods use the type of the initial parameter to automatically use the proper type.
