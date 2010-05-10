@@ -100,7 +100,7 @@ WPropertySelectionWidget* WQtDSBWidget::addProp( WPropSelection property )
 {
     ++m_numberOfWidgets;
 
-    return new WPropertySelectionWidget( property, &m_controlLayout, this );
+    return new WPropertySelectionWidget( property, m_controlLayout, this );
 }
 
 void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
