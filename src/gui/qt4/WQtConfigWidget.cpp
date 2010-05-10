@@ -38,11 +38,9 @@
 WQtConfigWidget::WQtConfigWidget() :
         QWidget()
 {
-    m_window = new QWidget();
+    this->setWindowTitle( "walnut.cfg Editor" );
 
-    m_window->setWindowTitle( "walnut.cfg Editor" );
-
-    QVBoxLayout *verticalLayout = new QVBoxLayout( m_window );
+    QVBoxLayout *verticalLayout = new QVBoxLayout( this );
     m_tabWidget = new QTabWidget();
     verticalLayout->addWidget( m_tabWidget );
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
@@ -79,10 +77,6 @@ WQtConfigWidget::WQtConfigWidget() :
 
 WQtConfigWidget::~WQtConfigWidget()
 {
-    if ( m_window )
-    {
-        m_window->close();
-    }
 }
 
 void WQtConfigWidget::getAvailableModuleNames()
@@ -342,7 +336,9 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
             }
         default:
             {
+                // copy value
                 ( *iter )->set( *iter2 );
+
                 break;
             }
         }
@@ -860,7 +856,7 @@ void WQtConfigWidget::saveToConfig()
                         }
                     }
 
-                    if ( currentSectionWriten )
+                    if ( currentSectionWriten || current_section == std::string( "" ) )
                     {
                         m_configLines.push_back( "[" + m_registeredSections[j] + "]" );
                         propertyInLine.push_back( noVar );
@@ -882,14 +878,18 @@ void WQtConfigWidget::saveToConfig()
 
 void WQtConfigWidget::loadConfigFile()
 {
-    m_configLines = WCfgOperations::readCfg( "walnut.cfg" );
+    namespace fs = boost::filesystem;
+    if ( fs::exists( fs::path( std::string( "walnut.cfg" ) ) ) )
+    {
+        m_configLines = WCfgOperations::readCfg( "walnut.cfg" );
+    }
     // copy all default properties into the loaded properties
     m_loadedProperties = copyProperties( m_defaultProperties );
     // parse the config file
     createLineAssociation();
     // update the loaded properties
     updateGui( m_loadedProperties );
-    // copy all loaded properties into the current propertys where we create the gui from
+    // copy all loaded properties into the current properties where we create the gui from
     m_properties = copyProperties( m_loadedProperties );
 
     m_configState.setResetable( true, true );
@@ -993,9 +993,7 @@ void WQtConfigWidget::initAndShow()
 
     createGuiFromProperties( m_properties );
 
-    //m_shutdownFlag.set( false );
-
-    m_window->show();
+    this->show();
 
     run();
 }
@@ -1124,7 +1122,7 @@ void WQtConfigWidget::save()
     // and use every trigger that can be executed
     saveToConfig();
     setWalnutFromProperties();
-    m_window->hide();
+    this->hide();
     requestStop();
 }
 
@@ -1141,7 +1139,7 @@ void WQtConfigWidget::cancel()
     }
 
     // and hide the window
-    m_window->hide();
+    this->hide();
 
     requestStop();
 }

@@ -32,7 +32,7 @@
 #include "../WDataSetScalar.h"
 
 /**
- * TODO(wiebel): Document this!
+ * Tests for the data set type containing only scalars.
  */
 class WDataSetScalarTest : public CxxTest::TestSuite
 {

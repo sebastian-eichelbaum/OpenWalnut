@@ -42,8 +42,7 @@
 #include "WMWriteNIfTI.h"
 
 WMWriteNIfTI::WMWriteNIfTI() :
-    WModule(),
-    m_write( new WCondition() )
+    WModule()
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -88,7 +87,6 @@ void WMWriteNIfTI::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
-    m_moduleState.add( m_write );
 
     // signal ready state
     ready();
@@ -115,8 +113,8 @@ void WMWriteNIfTI::moduleMain()
 
 void WMWriteNIfTI::connectors()
 {
-    // initialize connectors
-    m_input = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle > (
+    // this module works for scalar data sets only so far
+    m_input = boost::shared_ptr< WModuleInputData< WDataSetScalar > >( new WModuleInputData< WDataSetScalar > (
                     shared_from_this(), "in", "The dataset to filter" ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -129,7 +127,10 @@ void WMWriteNIfTI::connectors()
 void WMWriteNIfTI::properties()
 {
     m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
-                                             WKernel::getAppPathObject(), m_write );
+                                             WKernel::getAppPathObject() );
+    m_saveTriggerProp = m_properties->addProperty( "Do Save",  "Press!",
+                                                  WPVBaseTypes::PV_TRIGGER_READY );
+    m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
 }
 
 template< typename T > void WMWriteNIfTI::castData( void*& returnData )
@@ -148,6 +149,8 @@ template< typename T > void WMWriteNIfTI::castData( void*& returnData )
 
 void WMWriteNIfTI::writeToFile()
 {
+    m_saveTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
     infoLog() << "Writing Data to " << m_filename->get().file_string();
     nifti_image *outField = nifti_simple_init_nim();
 
@@ -162,7 +165,6 @@ void WMWriteNIfTI::writeToFile()
     WAssert( grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() == nbValues,
              "Overall size incompatible with size in axis directions." );
 
-    // TODO(wiebel): only able to handle scalars now.
     outField->nt = 1;
     outField->nvox = nbValues;
 

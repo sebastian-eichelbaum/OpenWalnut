@@ -27,8 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <cmath>
-
 #include "iso_surface.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
@@ -46,6 +44,7 @@
 #include "../../common/WPreferences.h"
 #include "../../common/math/WVector3D.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
+#include "../../common/math/WMath.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataTexture3D.h"
@@ -438,20 +437,6 @@ void WMMarchingCubes::renderMesh()
     m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
 }
 
-// TODO(wiebel): move this somewhere, where more classes can use it
-int myIsfinite( double number )
-{
-#if defined( __linux__ ) || defined( __APPLE__ )
-    // C99 defines isfinite() as a macro.
-    return std::isfinite(number);
-#elif defined( _WIN32 )
-    // Microsoft Visual C++ and Borland C++ Builder use _finite().
-    return _finite(number);
-#else
-    WAssert( false, "isfinite not provided on this platform or platform not known." );
-#endif
-}
-
 void WMMarchingCubes::notifyTextureChange()
 {
     m_textureChanged = true;
@@ -499,7 +484,7 @@ bool WMMarchingCubes::save() const
     for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         point = m_triMesh->getVertexAsPosition( i );
-        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+        if( !( wmath::myIsfinite( point[0] ) && wmath::myIsfinite( point[1] ) && wmath::myIsfinite( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
             return false;
