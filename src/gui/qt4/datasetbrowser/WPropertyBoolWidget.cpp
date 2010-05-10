@@ -70,7 +70,7 @@ void WPropertyBoolWidget::update()
     // simply set the new state
     m_checkbox.setChecked( m_boolProperty->get() );
     m_button.setChecked( m_boolProperty->get() );
-    m_asText.setText( m_boolProperty->get() ? QString( "Yes" ) : QString( "No") );
+    m_asText.setText( m_boolProperty->get() ? QString( "Yes" ) : QString( "No" ) );
 }
 
 QPushButton* WPropertyBoolWidget::getButton()

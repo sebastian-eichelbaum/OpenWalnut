@@ -121,7 +121,7 @@ public:
      *
      * \param from the instance to copy.
      */
-    WPropertyVariable( const WPropertyVariable< T >& from );
+    explicit WPropertyVariable( const WPropertyVariable< T >& from );
 
     /**
      * Destructor.

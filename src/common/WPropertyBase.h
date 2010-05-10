@@ -58,7 +58,7 @@ public:
      *
      * \param from the instance to copy.
      */
-    WPropertyBase( const WPropertyBase& from );
+    explicit WPropertyBase( const WPropertyBase& from );
 
     /**
      * Destructor.

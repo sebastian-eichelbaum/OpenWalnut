@@ -62,7 +62,7 @@ public:
      *
      * \param from the instance to copy.
      */
-    WFlag( const WFlag& from );
+    explicit WFlag( const WFlag& from );
 
     /**
      * Destructor. It deletes the instance of WCondition specified on construction.

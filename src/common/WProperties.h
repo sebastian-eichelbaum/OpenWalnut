@@ -95,7 +95,7 @@ public:
      *
      * \param from the instance to copy.
      */
-    WProperties( const WProperties& from );
+    explicit WProperties( const WProperties& from );
 
     /**
      * destructor
