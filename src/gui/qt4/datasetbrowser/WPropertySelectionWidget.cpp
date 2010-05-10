@@ -44,8 +44,6 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
     m_update( false )
 {
     // initialize members
-    m_parameterWidgets.setLayout( &m_layout );
-
     m_combo = NULL;
     m_list = NULL;
 
@@ -100,6 +98,26 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
 
         // connect
         connect( m_list, SIGNAL( itemSelectionChanged() ), this, SLOT( listSelectionChanged() ) );
+    }
+
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    // In this case -> use some disabled lists/combos here
+    if ( m_property->getPurpose() == PV_PURPOSE_INFORMATION )
+    {
+        m_informationWidgets.setLayout( &m_layout );
+
+        if ( m_list )
+        {
+            m_list->setEnabled( false );
+        }
+        else
+        {
+            m_combo->setEnabled( false );
+        }
+    }
+    else
+    {
+        m_parameterWidgets.setLayout( &m_layout );
     }
 
     // set the initial values

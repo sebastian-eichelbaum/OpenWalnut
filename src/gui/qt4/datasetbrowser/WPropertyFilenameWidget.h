@@ -76,6 +76,16 @@ protected:
      */
     QHBoxLayout m_layout;
 
+    /**
+     * Used to show the property as text.
+     */
+    QLabel m_asText;
+
+    /**
+     * The layout used for the pure output (information properties)
+     */
+    QHBoxLayout m_infoLayout;
+
 private:
 
 public slots:

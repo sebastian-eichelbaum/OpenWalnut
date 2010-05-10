@@ -87,6 +87,7 @@ protected:
      * called when changed programmatically.
      */
     bool m_update;
+
 private:
 
 public slots:

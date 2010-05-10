@@ -191,16 +191,6 @@ private:
     WPropTrigger  m_aTrigger;
 
     /**
-     * A property simply providing a integer value to the outside world.
-     */
-    WPropInt      m_aIntegerOutput;
-
-    /**
-     * A property simply providing some text to the outside world.
-     */
-    WPropString   m_aStringOutput;
-
-    /**
      * A property allowing the user to select ONE item of some list
      */
     WPropSelection m_aSingleSelection;
@@ -209,6 +199,43 @@ private:
      * A property allowing the user to select multiple elements of a list.
      */
     WPropSelection m_aMultiSelection;
+
+    // Outputs -> demonstrate the use of information properties:
+
+    /**
+     * A property simply providing a integer value to the outside world.
+     */
+    WPropInt      m_aIntegerOutput;
+
+    /**
+     * A property simply providing a double value to the outside world.
+     */
+    WPropDouble    m_aDoubleOutput;
+
+    /**
+     * A property simply providing some text to the outside world.
+     */
+    WPropString   m_aStringOutput;
+
+    /**
+     * A Property used to show some color to the user.
+     */
+    WPropColor    m_aColorOutput;
+
+    /**
+     * A Property used to show some filename to the user.
+     */
+    WPropFilename m_aFilenameOutput;
+
+    /**
+     * A Property used to show some trigger to the user.
+     */
+    WPropTrigger m_aTriggerOutput;
+
+    /**
+     * A Property used to show some selection to the user.
+     */
+    WPropSelection m_aSelectionOutput;
 
     /**
      * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.

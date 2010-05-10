@@ -39,7 +39,9 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_intProperty( property ),
     m_slider( Qt::Horizontal, &m_parameterWidgets ),
     m_edit( &m_parameterWidgets ),
-    m_layout( &m_parameterWidgets )
+    m_layout( &m_parameterWidgets ),
+    m_asText( &m_informationWidgets ),
+    m_infoLayout( &m_informationWidgets )
 {
     // initialize members
     m_edit.resize( m_edit.minimumSizeHint().width(), m_edit.size().height() );
@@ -48,8 +50,11 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
-
     m_parameterWidgets.setLayout( &m_layout );
+
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    m_infoLayout.addWidget( &m_asText );
+    m_informationWidgets.setLayout( &m_infoLayout );
 
     update();
 
@@ -112,15 +117,18 @@ void WPropertyIntWidget::update()
     int length = 6; // use fixed length to have a uniform look among several widgets
 
     // resize the text widget
-//     m_edit.setMaxLength( length );
+    // m_edit.setMaxLength( length );
     m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-//     m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
-//     m_edit.resize( m_edit.minimumSizeHint().width() * length / 4, m_edit.size().height() );
-
+    // m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
+    // m_edit.resize( m_edit.minimumSizeHint().width() * length / 4, m_edit.size().height() );
 
     // set the initial values
-    m_edit.setText( QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() ) );
+    QString valStr = QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() );
+    m_edit.setText( valStr );
     m_slider.setValue( m_intProperty->get() );
+
+    // do not forget to update the label
+    m_asText.setText( valStr );
 }
 
 void WPropertyIntWidget::sliderChanged( int value )

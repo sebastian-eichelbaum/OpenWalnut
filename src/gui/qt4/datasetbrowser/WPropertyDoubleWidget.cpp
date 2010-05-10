@@ -38,7 +38,9 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     m_doubleProperty( property ),
     m_slider( Qt::Horizontal, &m_parameterWidgets ),
     m_edit( &m_parameterWidgets ),
-    m_layout( &m_parameterWidgets )
+    m_layout( &m_parameterWidgets ),
+    m_asText( &m_informationWidgets ),
+    m_infoLayout( &m_informationWidgets )
 {
     // initialize members
     m_edit.resize( m_edit.minimumSizeHint().width() *.8 , m_edit.size().height() );
@@ -49,6 +51,10 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     m_layout.addWidget( &m_edit );
 
     m_parameterWidgets.setLayout( &m_layout );
+
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    m_infoLayout.addWidget( &m_asText );
+    m_informationWidgets.setLayout( &m_infoLayout );
 
     update();
 
@@ -132,8 +138,12 @@ void WPropertyDoubleWidget::update()
 //     m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
 
     // set the initial values
-    m_edit.setText( QString( toString( m_doubleProperty->get() ).c_str() ) );
+    QString valStr = QString( toString( m_doubleProperty->get() ).c_str() );
+    m_edit.setText( valStr );
     m_slider.setValue( toPercent( m_doubleProperty->get() ) );
+
+    // do not forget to update the label
+    m_asText.setText( valStr );
 }
 
 int WPropertyDoubleWidget::toPercent( double value )

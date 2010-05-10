@@ -297,12 +297,21 @@ void WMTemplate::properties()
     // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
     // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
     std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, html formatted strings, colors and " ) +
-                          std::string( "so on using properties! Isn't it <b>amazing</b>?" );
+                          std::string( "so on using <font color=\"#f00\">properties</font>! Isn't it <b>amazing</b>?" );
     m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
     // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
     // parameter.
+    //
+    // Some more examples. Please note: Although every property type can be used as information property, not everything is really useful.
+    m_aTriggerOutput = m_infoProperties->addProperty( "A Trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
+    m_aDoubleOutput = m_infoProperties->addProperty( "Some Double", "a Double. Nice isn't it?", 3.1415 );
+    m_aColorOutput = m_infoProperties->addProperty( "A Color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
+    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WKernel::getAppPathObject() );
+    m_aSelectionOutput = m_infoProperties->addProperty( "A Selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
+    // We can add info another property here too:
+    m_infoProperties->addProperty( m_aStringOutput );
 }
 
 void WMTemplate::moduleMain()
@@ -320,7 +329,7 @@ void WMTemplate::moduleMain()
     // useful whenever your module needs to do long operations to initialize. No other module can connect to your module before it signals its
     // ready state. You can assume the code before ready() to be some kind of initialization code.
     debugLog() << "Doing time consuming operations";
-    sleep( 5 );
+    sleep( 0 );
 
     // Your module can use an moduleState variable to wait for certain events. Most commonly, these events are new data on input connectors or
     // changed properties. You can decide which events the moduleState should handle. Therefore, use m_moduleState.add( ... ) to insert every
@@ -352,7 +361,7 @@ void WMTemplate::moduleMain()
         // modified but the module can modify it. This is useful to provide statistics, counts, times or even a "hello world" string to the user
         // as an information or status report. Please do not abuse these information properties as progress indicators. A short overview on how
         // to make progress indicators is provided some lines below. Here, we simply increase the value.
-        m_aIntegerOutput->set( m_aIntegerOutput->get() +1 );
+        m_aIntegerOutput->set( m_aIntegerOutput->get() + 1 );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.
@@ -529,6 +538,9 @@ void WMTemplate::moduleMain()
             // Now that the trigger has the state "triggered", a time consuming operation can be done here.
             debugLog() << "User triggered an important and time consuming operation.";
 
+            // Update the output property
+            m_aTriggerOutput->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED );
+
             // Do something here. As above, do not forget to inform the user about your progress.
             int steps = 10;
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing something important", steps ) );
@@ -546,6 +558,9 @@ void WMTemplate::moduleMain()
             // To avoid the moduleMain- loop to awake every time we reset the trigger, provide a second parameter to the set() method. It denotes
             // whether the change notification should be fired or not. In our case, we avoid this by providing false to the second parameter.
             m_aTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
+            // Also update the information property.
+            m_aTriggerOutput->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
 
         // This checks the selections.

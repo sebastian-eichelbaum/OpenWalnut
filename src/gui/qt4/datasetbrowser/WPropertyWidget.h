@@ -114,6 +114,11 @@ protected:
     QWidget m_parameterWidgets;
 
     /**
+     * The widget containing a layout and provides the widgets for showing information properties.
+     */
+    QWidget m_informationWidgets;
+
+    /**
      * Flag denoting whether the widget is set to an invalid value.
      */
     bool m_invalid;
