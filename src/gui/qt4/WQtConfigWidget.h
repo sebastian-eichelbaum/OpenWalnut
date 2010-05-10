@@ -98,7 +98,7 @@ private:
 
     /**
     * determine if to WPropertieVariable have the same value
-    * \note also subgroups ar searched and if the property name doesn't exist in either of both groups 
+    * \note also subgroups ar searched and if the property name doesn't exist in either of both groups
     * and their subgroups the function returns false
     *
     * \param prop1 first property group
@@ -120,7 +120,7 @@ private:
     * so the other representations show the same content
     *
     * \param properties the list on which the change should occur
-    * \param groupName the name of the group ( this should be added manually inside the function for every group added, so tutorial 
+    * \param groupName the name of the group ( this should be added manually inside the function for every group added, so tutorial
     * inside of registerComponents() )
     * \param fromConfig do we update from the m_loadedProperties or from the m_properties
     */
@@ -152,9 +152,9 @@ private:
     * see implementation for details
     *
     * \param from source property group
-    * \param to target property group
+    * \return cloned property group
     */
-    void copyProperties( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to );
+    boost::shared_ptr< WProperties > copyProperties( boost::shared_ptr< WProperties > from );
 
     /**
     * recursive copy of the values of property groups
@@ -184,12 +184,12 @@ private:
     void createGuiFromProperties( boost::shared_ptr< WProperties > from );
 
     /**
-    * applies changes to the main program from changed properties 
+    * applies changes to the main program from changed properties
     *
     * \note if you want to add the effect of a property to the main program implement it in here
     * see tutorial and example for details
     *
-    * \result have any properties been set different from the loaded properties and therefore have changes been made to the 
+    * \result have any properties been set different from the loaded properties and therefore have changes been made to the
     * main program
     */
     bool setWalnutFromProperties();

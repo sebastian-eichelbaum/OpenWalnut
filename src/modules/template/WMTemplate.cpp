@@ -615,6 +615,13 @@ bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPV
     return ( value.length() <= 10 ) && ( value.length() >= 5 );
 }
 
+boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint > WMTemplate::StringLength::clone()
+{
+    // If you write your own constraints, you NEED to provide a clone function. It creates a new copied instance of the constraints with the
+    // correct runtime type.
+    return boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint >( new WMTemplate::StringLength( *this ) );
+}
+
 void WMTemplate::activate()
 {
     // This method gets called, whenever the m_active property changes. Your module should always handle this. For more details, see the

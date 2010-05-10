@@ -76,6 +76,13 @@ public:
      */
     virtual PROPERTYCONSTRAINT_TYPE getType();
 
+    /**
+     * Method to clone the constraint and create a new one with the correct dynamic type.
+     *
+     * \return the constraint.
+     */
+    virtual boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > clone();
+
 private:
 
     /**
@@ -111,6 +118,12 @@ template < typename T >
 PROPERTYCONSTRAINT_TYPE WPropertyConstraintMax< T >::getType()
 {
     return PC_MAX;
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > WPropertyConstraintMax< T >::clone()
+{
+    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( new WPropertyConstraintMax< T >( *this ) );
 }
 
 #endif  // WPROPERTYCONSTRAINTMAX_H

@@ -310,147 +310,9 @@ void WQtConfigWidget::registerComponents()
     m_defaultProperties->addProperty( "modules.MC.isoValue", "Marching Cubes isoValue", 100.0, m_propCondition );
 }
 
-void WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
+boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from )
 {
-    // NOTE: property variables are initialized with the change flag = true. This is simply the case because nobody handled the new property
-    // after initialization. The purpose of the change flag is to detect whether someone has taken care about it. This is why the get( true )
-    // call is issued here (reset the change flag).
-    //
-
-    // lock both
-    WProperties::PropertyAccessType toAccess = to->getAccessObject();
-    WProperties::PropertyAccessType fromAccess = from->getAccessObject();
-
-    toAccess->beginWrite();
-    fromAccess->beginRead();
-
-    // clear target
-    toAccess->get().clear();
-
-    WProperties::PropertyConstIterator iter;
-    for ( iter = fromAccess->get().begin(); iter != fromAccess->get().end(); ++iter )
-    {
-/*        // so far we only need those 5 types
-        switch( ( *iter )->getType() )
-        {
-        case PV_GROUP:
-            {
-                // recurse all groups
-                WPropGroup group = to->addPropertyGroup( ( *iter )->getName(), ( *iter )->getDescription() );
-                copyProperties( ( *iter )->toPropGroup(), group );
-                break;
-            }
-        case PV_INT:
-            {
-                WPropInt propInt = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropInt()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propInt->get( true );
-                WPVInt::constraintContainer constraints = ( *iter )->toPropInt()->getConstraints();
-                WPVInt::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    switch ( (*iter2)->getType() )
-                    {
-                    case PC_MIN:
-                        {
-                            propInt->setMin( ( *iter )->toPropInt()->getMin()->getMin() );
-                            break;
-                        }
-                    case PC_MAX:
-                        {
-                            propInt->setMax( ( *iter )->toPropInt()->getMax()->getMax() );
-                            break;
-                        }
-                    default:
-                        {
-                            propInt->addConstraint( *iter2 );
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-        case PV_DOUBLE:
-            {
-                WPropDouble propDouble = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropDouble()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propDouble->get( true );
-                WPVDouble::constraintContainer constraints = ( *iter )->toPropDouble()->getConstraints();
-                WPVDouble::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    // again we need a nasty hack because setting a constraint which is min and max will result in a multi set of min and maxes
-                    // which will result in odd behavior
-                    switch ( ( *iter2 )->getType() )
-                    {
-                    case PC_MIN:
-                        {
-                            propDouble->setMin( ( *iter )->toPropDouble()->getMin()->getMin() );
-                            break;
-                        }
-                    case PC_MAX:
-                        {
-                            propDouble->setMax( ( *iter )->toPropDouble()->getMax()->getMax() );
-                            break;
-                        }
-                    default:
-                        {
-                            propDouble->addConstraint( *iter2 );
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-        case PV_BOOL:
-            {
-                WPropBool propBool = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropBool()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propBool->get( true );
-                WPVBool::constraintContainer constraints = ( *iter )->toPropBool()->getConstraints();
-                WPVBool::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    propBool->addConstraint( *iter2 );
-                }
-                break;
-            }
-        case PV_STRING:
-            {
-                WPropString propString = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropString()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propString->get( true );
-                WPVString::constraintContainer constraints = ( *iter )->toPropString()->getConstraints();
-                WPVString::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    propString->addConstraint( *iter2 );
-                }
-                break;
-            }
-        case PV_COLOR:
-            {
-                WPropColor propColor = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropColor()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propColor->get( true );
-                WPVColor::constraintContainer constraints = ( *iter )->toPropColor()->getConstraints();
-                WPVColor::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    propColor->addConstraint( *iter2 );
-                }
-                break;
-            }
-        default:
-            {
-                // just do nothing so no compiler warning
-                break;
-            }
-        }*/
-    }
-
-    fromAccess->beginRead();
-    toAccess->endWrite();
+    return boost::shared_static_cast< WProperties >( from->clone() );
 }
 
 void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
@@ -1034,13 +896,13 @@ void WQtConfigWidget::loadConfigFile()
 {
     m_configLines = WCfgOperations::readCfg( "walnut.cfg" );
     // copy all default properties into the loaded properties
-    copyProperties( m_defaultProperties, m_loadedProperties );
+    m_loadedProperties = copyProperties( m_defaultProperties );
     // parse the config file
     createLineAssociation();
     // update the loaded properties
     updateGui( m_loadedProperties );
     // copy all loaded properties into the current propertys where we create the gui from
-    copyProperties( m_loadedProperties, m_properties );
+    m_properties = copyProperties( m_loadedProperties );
 
     m_configState.setResetable( true, true );
     m_configState.add( m_propCondition );

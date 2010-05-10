@@ -116,9 +116,28 @@ public:
                        PropertyChangeNotifierType notifier );
 
     /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     *
+     * \param from the instance to copy.
+     */
+    WPropertyVariable( const WPropertyVariable< T >& from );
+
+    /**
      * Destructor.
      */
     virtual ~WPropertyVariable();
+
+    /**
+     * This method clones a property and returns the clone. It does a deep copy and, in contrast to a copy constructor, creates property with the
+     * correct type without explicitly requiring the user to specify it. It creates a NEW change condition and change signal. This means, alls
+     * subscribed signal handlers are NOT copied.
+     *
+     * \note this simply ensures the copy constructor of the runtime type is issued.
+     *
+     * \return the deep clone of this property.
+     */
+    virtual boost::shared_ptr< WPropertyBase > clone();
 
     /**
      * Determines whether the specified value is acceptable.
@@ -185,6 +204,13 @@ public:
          * \return NULL if the type is unknown or an constraint instance
          */
         static boost::shared_ptr< PropertyConstraint > create( PROPERTYCONSTRAINT_TYPE type );
+
+        /**
+         * Method to clone the constraint and create a new one with the correct dynamic type.
+         *
+         * \return the constraint.
+         */
+        virtual boost::shared_ptr< PropertyConstraint > clone() = 0;
     };
 
     /**
@@ -440,7 +466,7 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
-    WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
     signal_PropertyChange.connect( notifier );
 }
 
@@ -460,8 +486,27 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
-    WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
     signal_PropertyChange.connect( notifier );
+}
+
+template < typename T >
+WPropertyVariable< T >::WPropertyVariable( const WPropertyVariable< T >& from ):
+    WFlag< T >( from ),
+    WPropertyBase( from ),
+    m_constraintsChanged( new WCondition() ),
+    m_constraints(),
+    m_constraintsAccess( m_constraints.getAccessObject() )
+{
+    // copy the constraints
+    from.m_constraintsAccess->beginRead();
+    // we need to make a deep copy here.
+    for ( ConstraintContainerIteratorType iter = from.m_constraintsAccess->get().begin(); iter != from.m_constraintsAccess->get().end(); ++iter )
+    {
+        // clone them to keep dynamic type
+        m_constraintsAccess->get().insert( ( *iter )->clone() );
+    }
+    from.m_constraintsAccess->endRead();
 }
 
 template < typename T >
@@ -475,6 +520,12 @@ WPropertyVariable< T >::~WPropertyVariable()
     m_constraintsAccess->beginWrite();
     m_constraintsAccess->get().clear();
     m_constraintsAccess->endWrite();
+}
+
+template < typename T >
+boost::shared_ptr< WPropertyBase > WPropertyVariable< T >::clone()
+{
+    return boost::shared_ptr< WPropertyBase >( new WPropertyVariable< T >( *this ) );
 }
 
 template < typename T >

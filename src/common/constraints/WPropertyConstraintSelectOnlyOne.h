@@ -65,6 +65,13 @@ public:
      */
     virtual PROPERTYCONSTRAINT_TYPE getType();
 
+    /**
+     * Method to clone the constraint and create a new one with the correct dynamic type.
+     *
+     * \return the constraint.
+     */
+    virtual boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > clone();
+
 private:
 };
 
@@ -88,6 +95,12 @@ template < typename T >
 PROPERTYCONSTRAINT_TYPE WPropertyConstraintSelectOnlyOne< T >::getType()
 {
     return PC_SELECTONLYONE;
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > WPropertyConstraintSelectOnlyOne< T >::clone()
+{
+    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( new WPropertyConstraintSelectOnlyOne< T >( *this ) );
 }
 
 #endif  // WPROPERTYCONSTRAINTSELECTONLYONE_H

@@ -49,6 +49,28 @@ WProperties::~WProperties()
 {
 }
 
+WProperties::WProperties( const WProperties& from ):
+    WPropertyBase( from ),
+    m_properties(),
+    m_propAccess( m_properties.getAccessObject() )
+{
+    // copy the properties inside
+    from.m_propAccess->beginRead();
+    // we need to make a deep copy here.
+    for ( PropertyIterator iter = from.m_propAccess->get().begin(); iter != from.m_propAccess->get().end(); ++iter )
+    {
+        // clone them to keep dynamic type
+        m_propAccess->get().push_back( ( *iter )->clone() );
+    }
+    from.m_propAccess->endRead();
+}
+
+boost::shared_ptr< WPropertyBase > WProperties::clone()
+{
+    // class copy constructor.
+    return boost::shared_ptr< WProperties >( new WProperties( *this ) );
+}
+
 PROPERTY_TYPE WProperties::getType() const
 {
     return PV_GROUP;

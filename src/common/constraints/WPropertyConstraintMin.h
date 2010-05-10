@@ -74,6 +74,13 @@ public:
      */
     virtual PROPERTYCONSTRAINT_TYPE getType();
 
+    /**
+     * Method to clone the constraint and create a new one with the correct dynamic type.
+     *
+     * \return the constraint.
+     */
+    virtual boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > clone();
+
 private:
 
     /**
@@ -109,6 +116,12 @@ template < typename T >
 PROPERTYCONSTRAINT_TYPE WPropertyConstraintMin< T >::getType()
 {
     return PC_MIN;
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > WPropertyConstraintMin< T >::clone()
+{
+    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( new WPropertyConstraintMin< T >( *this ) );
 }
 
 #endif  // WPROPERTYCONSTRAINTMIN_H

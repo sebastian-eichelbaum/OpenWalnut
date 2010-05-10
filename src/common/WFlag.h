@@ -57,6 +57,14 @@ public:
     WFlag( boost::shared_ptr< WCondition > condition, T initial );
 
     /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     *
+     * \param from the instance to copy.
+     */
+    WFlag( const WFlag& from );
+
+    /**
      * Destructor. It deletes the instance of WCondition specified on construction.
      */
     virtual ~WFlag();
@@ -186,6 +194,15 @@ WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, T initial ):
     m_valueChangeCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_flag( initial ),
     m_changed( true )
+{
+}
+
+template < typename T >
+WFlag< T >::WFlag( const WFlag& from ):
+    m_condition( boost::shared_ptr< WCondition >( new WCondition() ) ),
+    m_valueChangeCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
+    m_flag( from.m_flag ),
+    m_changed( from.m_changed )
 {
 }
 
