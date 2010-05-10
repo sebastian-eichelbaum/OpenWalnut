@@ -159,6 +159,7 @@ public:
      * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.
      *
      * \param widget the widget
+     * \param asScrollArea true if the group should be embedded into a scroll area
      */
     void addGroup( WQtDSBWidget* widget, bool asScrollArea = false );
 

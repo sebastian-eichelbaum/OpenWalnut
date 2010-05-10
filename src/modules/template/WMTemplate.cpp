@@ -219,16 +219,18 @@ void WMTemplate::properties()
     // algorithms to run on some data and you want the user to select which one should do the work. This might be done integer properties but it
     // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_possibleSelections->addItem( "Select", "Description" );
-    m_possibleSelections->addItem( "Me", "Description" );
-    m_possibleSelections->addItem( "Please", "Description" );
+    m_possibleSelections->addItem( "Beer", "Cold and fresh." );
+    m_possibleSelections->addItem( "Steaks", "Medium please" );
+    m_possibleSelections->addItem( "Sausages", "With Sauerkraut" );
 
     // This list of alternatives is NOT the actual property value. It is the list on which so called "WItemSelector" instances work. These
     // selectors are the actual property. After you created the first selector instance from the list, it can't be modified anymore. This ensures
     // that it is consistent among multiple threads and selection instances. The following two lines create two selectors as initial value and
     // create the property:
-    m_aSingleSelection = m_properties->addProperty( "Select one",  "Description.", m_possibleSelections->getSelectorFirst(), m_propCondition );
-    m_aMultiSelection  = m_properties->addProperty( "Select some", "Description.", m_possibleSelections->getSelectorAll(), m_propCondition );
+    m_aSingleSelection = m_properties->addProperty( "I like most",  "Do you like the most?", m_possibleSelections->getSelectorFirst(),
+                                                    m_propCondition );
+    m_aMultiSelection  = m_properties->addProperty( "I like", "What do you like.", m_possibleSelections->getSelectorAll(),
+                                                    m_propCondition );
 
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
@@ -544,6 +546,22 @@ void WMTemplate::moduleMain()
             // To avoid the moduleMain- loop to awake every time we reset the trigger, provide a second parameter to the set() method. It denotes
             // whether the change notification should be fired or not. In our case, we avoid this by providing false to the second parameter.
             m_aTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+        }
+
+        // This checks the selections.
+        if ( m_aMultiSelection->changed() ||  m_aSingleSelection->changed() )
+        {
+            // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
+            // is trivial:
+            WItemSelector s = m_aSingleSelection->get( true );
+            infoLog() << "The user likes " << s.at( 0 ).first << " the most.";
+
+            // The multi property allows the selection of several items. So, iteration needs to be done here:
+            s = m_aMultiSelection->get( true );
+            for ( size_t i = 0; i < s.size(); ++i )
+            {
+                infoLog() << "The user likes " << s.at( i ).first;
+            }
         }
     }
 

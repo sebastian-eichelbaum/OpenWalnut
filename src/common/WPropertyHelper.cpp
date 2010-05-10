@@ -38,7 +38,6 @@ namespace WPropertyHelper
 
     namespace PC_NOTEMPTY
     {
-
         void addTo( WPropSelection prop )
         {
             prop->addConstraint( boost::shared_ptr< WPropertyConstraintNotEmpty< WPVBaseTypes::PV_SELECTION > >(

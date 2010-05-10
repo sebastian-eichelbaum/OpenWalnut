@@ -276,7 +276,6 @@ namespace PROPERTY_TYPE_HELPER
         /**
          * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
          *
-         * \param old the old value
          * \param str the new value as string
          *
          * \return the new instance
@@ -286,7 +285,6 @@ namespace PROPERTY_TYPE_HELPER
             return boost::lexical_cast< T >( str );
         }
     };
-
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.

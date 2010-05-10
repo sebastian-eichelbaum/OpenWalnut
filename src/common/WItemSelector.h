@@ -140,6 +140,16 @@ public:
      */
     virtual WItemSelection::Item at( size_t index ) const;
 
+    /**
+     * Helps to get the index of an selected item in the WItemSelection. This is somehow similar to \ref at, but does not return the item but the
+     * index to it.
+     *
+     * \param index the index in the selection (not the item index in WItemSelection)
+     *
+     * \return the index in WItemSelection.
+     */
+    virtual size_t getItemIndexOfSelected( size_t index ) const;
+
 protected:
 
     /**

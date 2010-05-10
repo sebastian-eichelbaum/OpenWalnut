@@ -28,7 +28,7 @@
 #include <string>
 
 #include <QtGui/QComboBox>
-#include <QtGui/QListView>
+#include <QtGui/QListWidget>
 #include <QtGui/QHBoxLayout>
 
 #include "WPropertyWidget.h"
@@ -70,22 +70,38 @@ protected:
     /**
      * The list holding all items
      */
-    QListView m_list;
+    QListWidget* m_list;
 
     /**
      * The combobox holding all items.
      */
-    QComboBox m_combo;
+    QComboBox* m_combo;
 
     /**
      * Layout used to position the label and the checkbox
      */
     QHBoxLayout m_layout;
 
+    /**
+     * True if a selection update is currently in progress. This is needed as QT does not provide a signal for selection changes which is NOT
+     * called when changed programmatically.
+     */
+    bool m_update;
 private:
 
 public slots:
 
+    /**
+     * Called whenever the selection in m_list has changed.
+     */
+    void listSelectionChanged();
+
+    /**
+     * Selection of the combobox has changed.
+     *
+     * \param index the new index
+     */
+    void comboSelectionChanged( int index );
 };
 
 #endif  // WPROPERTYSELECTIONWIDGET_H

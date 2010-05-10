@@ -83,7 +83,7 @@ std::ostream& operator<<( std::ostream& out, const WItemSelector& other )
 
 bool WItemSelector::operator==( const WItemSelector& other ) const
 {
-    return ( ( m_selection == other.m_selection ) && ( m_selected == m_selected ) );
+    return ( ( m_selection == other.m_selection ) && ( m_selected == other.m_selected ) );
 }
 
 size_t WItemSelector::sizeAll() const
@@ -103,7 +103,12 @@ WItemSelection::Item WItemSelector::atAll( size_t index ) const
 
 WItemSelection::Item WItemSelector::at( size_t index ) const
 {
-    return m_selection->at( m_selected.at( index ) );
+    return m_selection->at( getItemIndexOfSelected( index ) );
+}
+
+size_t WItemSelector::getItemIndexOfSelected( size_t index ) const
+{
+    return m_selected.at( index );
 }
 
 bool WItemSelector::empty() const
