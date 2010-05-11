@@ -29,6 +29,8 @@
 
 #include "WCondition.h"
 #include "WSharedObjectTicket.h"
+#include "WSharedObjectTicketRead.h"
+#include "WSharedObjectTicketWrite.h"
 
 /**
  * Wrapper around an object/type for thread safe sharing of objects among multiple threads. The advantage of this class over WFlag

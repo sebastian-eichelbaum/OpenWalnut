@@ -22,23 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSHAREDOBJECTTICKET_H
-#define WSHAREDOBJECTTICKET_H
+#ifndef WSHAREDOBJECTTICKETREAD_H
+#define WSHAREDOBJECTTICKETREAD_H
 
 #include <boost/shared_ptr.hpp>
 
 #include "WCondition.h"
-
-// The shared object class
-template < typename T >
-class WSharedObject;
+#include "WSharedObjectTicket.h"
 
 /**
  * Class which represents granted access to a locked object. It contains a reference to the object and a lock. The lock is freed after the ticket
- * has been destroyed.
+ * has been destroyed.  This class especially implements the shared (read) lock.
  */
 template < typename Data >
-class WSharedObjectTicket
+class WSharedObjectTicketRead: public WSharedObjectTicket< Data >
 {
 // the shared object class needs protected access to create new instances
 friend class WSharedObject< Data >;
@@ -47,63 +44,41 @@ public:
     /**
      * Destroys the ticket and releases the lock.
      */
-    virtual ~WSharedObjectTicket()
+    virtual ~WSharedObjectTicketRead()
     {
-        // NOTE: the derived destructor already unlocks.
-        if ( m_condition )
-        {
-            m_condition->notify();
-        }
-    };
-
-    /**
-     * Returns the protected data. As long as you own the ticket, you are allowed to use it.
-     *
-     * \return the data
-     */
-    Data& get() const
-    {
-        return m_data;
+        unlock();
     };
 
 protected:
 
     /**
-     * Create a new instance. It is protected to avoid someone to create them. It locks the mutex.
+     * Create a new instance. It is protected to avoid someone to create them. It locks the mutex for read.
      *
      * \param data the data to protect
      * \param mutex the mutex used to lock
      * \param condition a condition that should be fired upon unlock. Can be NULL.
      */
-    WSharedObjectTicket( Data& data, boost::shared_ptr< boost::shared_mutex > mutex, boost::shared_ptr< WCondition > condition ): // NOLINT
-        m_data( data ),
-        m_mutex( mutex ),
-        m_condition( condition )
+    WSharedObjectTicketRead( Data& data, boost::shared_ptr< boost::shared_mutex > mutex, boost::shared_ptr< WCondition > condition ): // NOLINT
+        WSharedObjectTicket< Data >( data, mutex, condition ),
+        m_lock( boost::shared_lock< boost::shared_mutex >( *mutex ) )
     {
     };
 
     /**
-     * The data to which access is allowed by the ticket
+     * The lock.
      */
-    Data& m_data;
-
-    /**
-     * The mutex used for locking.
-     */
-    boost::shared_ptr< boost::shared_mutex > m_mutex;
-
-    /**
-     * A condition which gets notified after unlocking. Especially useful to notify waiting threads about a change in the object.
-     */
-    boost::shared_ptr< WCondition > m_condition;
+    boost::shared_lock< boost::shared_mutex > m_lock;
 
     /**
      * Unlocks the mutex.
      */
-    virtual void unlock() = 0;
+    virtual void unlock()
+    {
+        m_lock.unlock();
+    }
 
 private:
 };
 
-#endif  // WSHAREDOBJECTTICKET_H
+#endif  // WSHAREDOBJECTTICKETREAD_H
 

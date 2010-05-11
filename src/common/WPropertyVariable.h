@@ -44,6 +44,8 @@
 
 #include "WCondition.h"
 #include "WSharedAssociativeContainer.h"
+#include "WSharedObjectTicketRead.h"
+#include "WSharedObjectTicketWrite.h"
 
 #include "constraints/WPropertyConstraintTypes.h"
 #include "constraints/WPropertyConstraintMin.h"
