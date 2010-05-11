@@ -717,6 +717,7 @@ WPropertyVariable< T >::getFirstConstraint( PROPERTYCONSTRAINT_TYPE type )
     {
         if ( ( *it )->getType() == type )
         {
+            m_constraintsAccess->endRead();
             return ( *it );
         }
     }
