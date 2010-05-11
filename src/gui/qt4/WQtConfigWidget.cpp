@@ -378,6 +378,7 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
         if ( ( *iter )->getName() == name )
         {
             result = ( *iter )->toPropGroup();
+            accesObject->endRead();
             return result;
         }
         if ( ( *iter )->getType() == PV_GROUP )
@@ -385,6 +386,7 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
             boost::shared_ptr< WPropertyBase > tmp = findPropertyRecursive( ( *iter )->toPropGroup(), name );
             if ( tmp )
             {
+                accesObject->endRead();
                 return tmp->toPropGroup();
             }
         }
