@@ -165,8 +165,9 @@ private:
     *
     * \param from source property group
     * \param to target property group
+    * \param lock true if locking should be used. For recursive calls, this needs to be false.
     */
-    void copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to );
+    void copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to, bool lock = true );
 
     /**
     * create a tab widget for a give section
@@ -201,10 +202,11 @@ private:
     *
     * \param searchIn property group to search in
     * \param name name of the property to find
+    * \param lock use locking. This is needed for recursive calls.
     *
     * \result the property if found otherwise an empty shared_ptr
     */
-    boost::shared_ptr< WPropertyBase > findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name );
+    boost::shared_ptr< WPropertyBase > findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name, bool lock = true );
 
     /**
     * the tab widget

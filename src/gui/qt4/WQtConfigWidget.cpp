@@ -123,7 +123,6 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
             b->set( static_cast< double >( color.getBlue() ), true );
         }
     }
-
     size_t i;
     if ( groupName == "modules.whiteListGroup" )
     {
@@ -309,15 +308,19 @@ boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_
     return boost::shared_static_cast< WProperties >( from->clone() );
 }
 
-void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
+void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to, bool lock )
 {
     // we assume from and to got the same structure
     // this is needed to keep the pointers, only set the values
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
     WProperties::PropertyAccessType accesObject2 = to->getAccessObject();
 
-    accesObject->beginRead();
-    accesObject2->beginRead();
+    // in recursive calls, this avoids concurrent locks (even if concurrent read locks are allowed).
+    if ( lock )
+    {
+        accesObject->beginRead();
+        accesObject2->beginRead();
+    }
 
     WProperties::PropertyIterator iter;
     WProperties::PropertyIterator iter2;
@@ -344,8 +347,11 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
         }
     }
 
-    accesObject2->endRead();
-    accesObject->endRead();
+    if ( lock )
+    {
+        accesObject2->endRead();
+        accesObject->endRead();
+    }
 }
 
 void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, size_t lineNumber )
@@ -364,10 +370,15 @@ void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, s
     }
 }
 
-boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name )
+boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name, bool lock )
 {
     WProperties::PropertyAccessType accesObject = searchIn->getAccessObject();
-    accesObject->beginRead();
+
+    // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+    if ( lock )
+    {
+        accesObject->beginRead();
+    }
 
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
 
@@ -378,7 +389,11 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
         if ( ( *iter )->getName() == name )
         {
             result = ( *iter )->toPropGroup();
-            accesObject->endRead();
+            // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+            if ( lock )
+            {
+                accesObject->endRead();
+            }
             return result;
         }
         if ( ( *iter )->getType() == PV_GROUP )
@@ -386,13 +401,21 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
             boost::shared_ptr< WPropertyBase > tmp = findPropertyRecursive( ( *iter )->toPropGroup(), name );
             if ( tmp )
             {
-                accesObject->endRead();
+                // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+                if ( lock )
+                {
+                    accesObject->endRead();
+                }
                 return tmp->toPropGroup();
             }
         }
     }
 
-    accesObject->endRead();
+     // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+    if ( lock )
+    {
+        accesObject->endRead();
+    }
     return result;
 }
 
