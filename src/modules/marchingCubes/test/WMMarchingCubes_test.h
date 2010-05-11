@@ -72,22 +72,6 @@ public:
     }
 
     /**
-     * Test renderSurface
-     */
-    void testRenderSurface()
-    {
-        // TODO(wiebel): MC need to test this for #116
-    }
-
-    /**
-     * Test renderMesh
-     */
-    void testRenderMesh()
-    {
-        // TODO(wiebel): MC need to test this for #116
-    }
-
-    /**
      * Test rejection of surfaces with zero triangles or vertices for save
      */
     void testSaveZero()
