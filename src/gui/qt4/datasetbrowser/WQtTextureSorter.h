@@ -74,6 +74,7 @@ public:
 signals:
     /**
      * Indicates that a texture has been clicked and return the dataset
+     * \param dataSet The dataSet that changed.
      */
     void textureSelectionChanged( boost::shared_ptr< WDataSet > dataSet );
 

@@ -54,6 +54,7 @@
 #include "../modules/marchingCubes/WMMarchingCubes.h"
 #include "../modules/meshReader/WMMeshReader.h"
 #include "../modules/navSlices/WMNavSlices.h"
+#include "../modules/scalarSegmentation/WMScalarSegmentation.h"
 #include "../modules/surfaceParticles/WMSurfaceParticles.h"
 #include "../modules/template/WMTemplate.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
@@ -115,6 +116,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMScalarSegmentation() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );

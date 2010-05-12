@@ -122,7 +122,7 @@ void WMData::properties()
 {
     // properties
 
-    m_dataName = m_properties->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
+    m_dataName = m_infoProperties->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
 
     // use this callback for the other properties
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );

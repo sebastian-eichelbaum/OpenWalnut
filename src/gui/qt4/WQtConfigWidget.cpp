@@ -84,12 +84,13 @@ void WQtConfigWidget::getAvailableModuleNames()
     WModuleFactory::PrototypeSharedContainerType::WSharedAccess pa = WModuleFactory::getModuleFactory()->getAvailablePrototypes();
     m_moduleNames.clear();
 
-    pa->beginRead();
+    // Temporarily disabled since locking causes several problems here :-/
+    // pa->beginRead();
     for ( WModuleFactory::PrototypeContainerConstIteratorType itr = pa->get().begin(); itr != pa->get().end(); ++itr )
     {
         m_moduleNames.push_back( ( *itr )->getName() );
     }
-    pa->endRead();
+    // pa->endRead();
 }
 
 void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > properties, std::string groupName, bool fromConfig )
@@ -123,7 +124,6 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
             b->set( static_cast< double >( color.getBlue() ), true );
         }
     }
-
     size_t i;
     if ( groupName == "modules.whiteListGroup" )
     {
@@ -309,15 +309,20 @@ boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_
     return boost::shared_static_cast< WProperties >( from->clone() );
 }
 
-void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
+void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to, bool lock )
 {
     // we assume from and to got the same structure
     // this is needed to keep the pointers, only set the values
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
     WProperties::PropertyAccessType accesObject2 = to->getAccessObject();
 
-    accesObject->beginRead();
-    accesObject2->beginRead();
+    // in recursive calls, this avoids concurrent locks (even if concurrent read locks are allowed).
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject->beginRead();
+        // accesObject2->beginRead();
+    }
 
     WProperties::PropertyIterator iter;
     WProperties::PropertyIterator iter2;
@@ -344,8 +349,12 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
         }
     }
 
-    accesObject2->endRead();
-    accesObject->endRead();
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject2->endRead();
+        // accesObject->endRead();
+    }
 }
 
 void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, size_t lineNumber )
@@ -364,10 +373,16 @@ void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, s
     }
 }
 
-boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name )
+boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name, bool lock )
 {
     WProperties::PropertyAccessType accesObject = searchIn->getAccessObject();
-    accesObject->beginRead();
+
+    // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject->beginRead();
+    }
 
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
 
@@ -378,6 +393,12 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
         if ( ( *iter )->getName() == name )
         {
             result = ( *iter )->toPropGroup();
+            // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+            if ( lock )
+            {
+                // Temporarily disabled since locking causes several problems here :-/
+                // accesObject->endRead();
+            }
             return result;
         }
         if ( ( *iter )->getType() == PV_GROUP )
@@ -385,12 +406,23 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
             boost::shared_ptr< WPropertyBase > tmp = findPropertyRecursive( ( *iter )->toPropGroup(), name );
             if ( tmp )
             {
+                // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+                if ( lock )
+                {
+                    // Temporarily disabled since locking causes several problems here :-/
+                    // accesObject->endRead();
+                }
                 return tmp->toPropGroup();
             }
         }
     }
 
-    accesObject->endRead();
+     // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject->endRead();
+    }
     return result;
 }
 
@@ -597,7 +629,8 @@ void WQtConfigWidget::saveToConfig()
 
                         WProperties::PropertyIterator iter;
                         WProperties::PropertyAccessType accessObject = propertyStack.back()->getAccessObject();
-                        accessObject->beginRead();
+                        // Temporarily disabled since locking causes several problems here :-/
+                        // accessObject->beginRead();
 
                         iter = accessObject->get().begin();
                         iteratorStack.push_back( iter );
@@ -664,7 +697,8 @@ void WQtConfigWidget::saveToConfig()
 
                         sectionsWriten.push_back( current_section );
 
-                        accessObject->endRead();
+                        // Temporarily disabled since locking causes several problems here :-/
+                        // accessObject->endRead();
                     } // IF switch from none-empty section
 
                     std::string sn = WCfgOperations::getSectionName( m_configLines[cLine] );
@@ -906,7 +940,8 @@ void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
 WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperties > from, std::string sectionName )
 {
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
-    accesObject->beginRead();
+    // Temporarily disabled since locking causes several problems here :-/
+    // accesObject->beginRead();
 
     std::string name = std::string( "" );
     if ( from->getType() == PV_GROUP )
@@ -968,7 +1003,8 @@ WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperti
         }
     }
 
-    accesObject->endRead();
+    // Temporarily disabled since locking causes several problems here :-/
+    // accesObject->endRead();
 
     tab->addSpacer();
     return tab;

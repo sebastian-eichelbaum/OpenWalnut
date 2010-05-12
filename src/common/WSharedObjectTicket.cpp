@@ -22,25 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETMULTIPLE_TEST_H
-#define WDATASETMULTIPLE_TEST_H
+#include "WSharedObject.h"
 
-#include <cxxtest/TestSuite.h>
+#include "WSharedObjectTicket.h"
 
-#include "../WDataSetMultiple.h"
-
-/**
- * TODO(math): Document this!
- */
-class WDataSetMultipleTest : public CxxTest::TestSuite
-{
-public:
-    /**
-     * TODO(math): Document this!
-     */
-    void testSomething( void )
-    {
-    }
-};
-
-#endif  // WDATASETMULTIPLE_TEST_H

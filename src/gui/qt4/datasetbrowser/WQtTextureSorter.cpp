@@ -189,7 +189,16 @@ void WQtTextureSorter::update()
     ta->beginRead();
     for( DatasetContainerType::iterator it = ta->get().begin(); it != ta->get().end(); ++it )
     {
-        std::string name = string_utils::tokenize( ( *it )->getFileName().c_str(), "/" ).back();
+        std::vector< std::string > names =  string_utils::tokenize( ( *it )->getFileName().c_str(), "/" );
+        std::string name;
+        if( names.size() )
+        {
+            name = names.back();
+        }
+        else
+        {
+            name = "No name given.";
+        }
         m_textureListWidget->addItem( name.c_str() );
     }
     ta->endRead();
