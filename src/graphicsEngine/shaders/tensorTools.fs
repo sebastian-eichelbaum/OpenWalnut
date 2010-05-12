@@ -79,10 +79,10 @@ vec3 getEigenvaluesCardano( in vec3 diag, in vec3 offdiag )
   s = (1./M_SQRT3)*sqrt_p*sin(phi);
 
   vec3 w;
-  w[1] = (1./3.)*(m-c);
-  w[2] = w[1] + s;
-  w[0] = w[1] + c;
-  w[1] -= s;
+  w[2] = (1./3.)*(m-c);
+  w[1] = w[2] + s;
+  w[0] = w[2] + c;
+  w[2] -= s;
   return w;
 }
 
