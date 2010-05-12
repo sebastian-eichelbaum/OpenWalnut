@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 /**
- * Interface class for the concept "Prototype". The requirements are a zero-param constructor.
+ * Interface class for the concept "Prototype". The requirements are a zero-parameter constructor.
  */
 class WPrototyped
 {

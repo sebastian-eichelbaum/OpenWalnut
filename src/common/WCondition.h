@@ -61,7 +61,7 @@ public:
     /**
      * Type used for signalling condition changes.
      */
-    typedef boost::function<void ( void )> t_ConditionNotifierType;
+    typedef boost::function0< void > t_ConditionNotifierType;
 
     /**
      * Subscribes a specified function to be notified on condition change.
@@ -71,13 +71,6 @@ public:
      * \return the connection.
      */
     boost::signals2::connection subscribeSignal( t_ConditionNotifierType notifier );
-
-    /**
-     * Disconnects a specified function from the signal.
-     *
-     * \param notifier the notifier function
-     */
-    void unsubscribeSignal( t_ConditionNotifierType notifier );
 
 protected:
 

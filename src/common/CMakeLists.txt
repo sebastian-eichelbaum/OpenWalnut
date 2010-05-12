@@ -15,10 +15,8 @@ TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} )
 IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
                                "common"
-                               "WSegmentationFault.cpp"
-                               "WTransferable.cpp"
-                               "WConditionSet.cpp"
-                               "WPrototyped.cpp"
+                               "WSegmentationFault.cpp" # can't test seg-faults ;-)
+                               "WTransferable.cpp"  # its an empty class
                                "WLimits.cpp" # there are only some definitions
                              )
 ENDIF( OW_COMPILE_TESTS )
