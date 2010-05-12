@@ -22,25 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMGAUSSFILTERING_TEST_H
-#define WMGAUSSFILTERING_TEST_H
+#include "WSharedObject.h"
 
-#include <cxxtest/TestSuite.h>
+#include "WSharedObjectTicketRead.h"
 
-#include "../WGaussFiltering.h"
-
-/**
- * TODO(wiebel): Document this!
- */
-class WGaussFilteringTest : public CxxTest::TestSuite
-{
-public:
-    /**
-     * TODO(wiebel): Document this!
-     */
-    void testSomething( void )
-    {
-    }
-};
-
-#endif  // WMGAUSSFILTERING_TEST_H

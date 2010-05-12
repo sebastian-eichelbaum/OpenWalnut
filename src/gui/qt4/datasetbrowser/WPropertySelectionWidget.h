@@ -22,21 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYTRIGGERWIDGET_H
-#define WPROPERTYTRIGGERWIDGET_H
+#ifndef WPROPERTYSELECTIONWIDGET_H
+#define WPROPERTYSELECTIONWIDGET_H
 
 #include <string>
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QPushButton>
+#include <QtGui/QComboBox>
+#include <QtGui/QListWidget>
 #include <QtGui/QHBoxLayout>
 
 #include "WPropertyWidget.h"
 
 /**
- * Implements a property widget for WPropTrigger.
+ * Implements a property widget for WPropSelection.
  */
-class WPropertyTriggerWidget: public WPropertyWidget
+class WPropertySelectionWidget: public WPropertyWidget
 {
     Q_OBJECT
 public:
@@ -48,19 +48,12 @@ public:
      * \param parent the parent widget.
      * \param propertyGrid the grid used to layout the labels and property widgets
      */
-    WPropertyTriggerWidget( WPropTrigger property, QGridLayout* propertyGrid, QWidget* parent = 0 );
+    WPropertySelectionWidget( WPropSelection property, QGridLayout* propertyGrid, QWidget* parent = 0 );
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyTriggerWidget();
-
-    /**
-     * Returns the QT PushButton widget used. It always returns a valid pointer.
-     *
-     * \return the button
-     */
-    virtual QPushButton* getButton();
+    virtual ~WPropertySelectionWidget();
 
 protected:
 
@@ -70,14 +63,19 @@ protected:
     virtual void update();
 
     /**
-     * The boolean property represented by this widget.
+     * The integer property represented by this widget.
      */
-    WPropTrigger m_triggerProperty;
+    WPropSelection m_selectionProperty;
 
     /**
-     * If asButton is set to true: use this button instead of the m_checkbox
+     * The list holding all items
      */
-    QPushButton m_button;
+    QListWidget* m_list;
+
+    /**
+     * The combobox holding all items.
+     */
+    QComboBox* m_combo;
 
     /**
      * Layout used to position the label and the checkbox
@@ -85,24 +83,27 @@ protected:
     QHBoxLayout m_layout;
 
     /**
-     * Used to show the property as text.
+     * True if a selection update is currently in progress. This is needed as QT does not provide a signal for selection changes which is NOT
+     * called when changed programmatically.
      */
-    QLabel m_asText;
-
-    /**
-     * The layout used for the pure output (information properties)
-     */
-    QHBoxLayout m_infoLayout;
+    bool m_update;
 
 private:
 
 public slots:
 
     /**
-     * called whenever the user modifies the widget
+     * Called whenever the selection in m_list has changed.
      */
-    void changed();
+    void listSelectionChanged();
+
+    /**
+     * Selection of the combobox has changed.
+     *
+     * \param index the new index
+     */
+    void comboSelectionChanged( int index );
 };
 
-#endif  // WPROPERTYTRIGGERWIDGET_H
+#endif  // WPROPERTYSELECTIONWIDGET_H
 

@@ -77,6 +77,8 @@ protected:
     /**
     * catch the closing event of the small x in the right upper corner to react on the closing
     * of the dialog
+    *
+    * \param event event to catch
     */
     void closeEvent( QCloseEvent *event );
 
@@ -98,7 +100,7 @@ private:
 
     /**
     * determine if to WPropertieVariable have the same value
-    * \note also subgroups ar searched and if the property name doesn't exist in either of both groups 
+    * \note also subgroups ar searched and if the property name doesn't exist in either of both groups
     * and their subgroups the function returns false
     *
     * \param prop1 first property group
@@ -120,7 +122,7 @@ private:
     * so the other representations show the same content
     *
     * \param properties the list on which the change should occur
-    * \param groupName the name of the group ( this should be added manually inside the function for every group added, so tutorial 
+    * \param groupName the name of the group ( this should be added manually inside the function for every group added, so tutorial
     * inside of registerComponents() )
     * \param fromConfig do we update from the m_loadedProperties or from the m_properties
     */
@@ -152,9 +154,9 @@ private:
     * see implementation for details
     *
     * \param from source property group
-    * \param to target property group
+    * \return cloned property group
     */
-    void copyProperties( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to );
+    boost::shared_ptr< WProperties > copyProperties( boost::shared_ptr< WProperties > from );
 
     /**
     * recursive copy of the values of property groups
@@ -163,8 +165,9 @@ private:
     *
     * \param from source property group
     * \param to target property group
+    * \param lock true if locking should be used. For recursive calls, this needs to be false.
     */
-    void copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to );
+    void copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to, bool lock = true );
 
     /**
     * create a tab widget for a give section
@@ -184,12 +187,12 @@ private:
     void createGuiFromProperties( boost::shared_ptr< WProperties > from );
 
     /**
-    * applies changes to the main program from changed properties 
+    * applies changes to the main program from changed properties
     *
     * \note if you want to add the effect of a property to the main program implement it in here
     * see tutorial and example for details
     *
-    * \result have any properties been set different from the loaded properties and therefore have changes been made to the 
+    * \result have any properties been set different from the loaded properties and therefore have changes been made to the
     * main program
     */
     bool setWalnutFromProperties();
@@ -199,19 +202,40 @@ private:
     *
     * \param searchIn property group to search in
     * \param name name of the property to find
+    * \param lock use locking. This is needed for recursive calls.
     *
     * \result the property if found otherwise an empty shared_ptr
     */
-    boost::shared_ptr< WPropertyBase > findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name );
+    boost::shared_ptr< WPropertyBase > findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name, bool lock = true );
 
     /**
-    * the static gui elements every config editor has got
+    * the tab widget
     */
     QTabWidget *m_tabWidget;
+
+    /**
+    * the cancel button
+    */
     QPushButton *m_cancelButton;
+
+    /**
+    * the ok button
+    */
     QPushButton *m_okButton;
+
+    /**
+    * the preview button
+    */
     QPushButton *m_previewButton;
+
+    /**
+    * the default reset button
+    */
     QPushButton *m_resetDefaultButton;
+
+    /**
+    * the backup reset button
+    */
     QPushButton *m_resetBackupButton;
 
     /**
@@ -229,6 +253,9 @@ private:
     */
     boost::shared_ptr< WProperties > m_properties;
 
+    /**
+    * map to associate WProperties to line numbers
+    */
     typedef std::map< boost::shared_ptr< WProperties >, std::vector< size_t > > LinePropertySet;
 
     /**

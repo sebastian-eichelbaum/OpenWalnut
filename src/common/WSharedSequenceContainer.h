@@ -102,39 +102,34 @@ WSharedSequenceContainer< T, S >::~WSharedSequenceContainer()
 template < typename T, typename S >
 void WSharedSequenceContainer< T, S >::push_back( const T& x )
 {
-    typename WSharedObject< S >::WSharedAccess a = WSharedObject< S >::getAccessObject();
-    a->beginWrite();
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().push_back( x );
-    a->endWrite();
 }
 
 template < typename T, typename S >
 void WSharedSequenceContainer< T, S >::pop_back()
 {
-    typename WSharedObject< S >::WSharedAccess a = WSharedObject< S >::getAccessObject();
-    a->beginWrite();
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().pop_back();
-    a->endWrite();
 }
 
 template < typename T, typename S >
 void WSharedSequenceContainer< T, S >::clear()
 {
-    typename WSharedObject< S >::WSharedAccess a = WSharedObject< S >::getAccessObject();
-    a->beginWrite();
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().clear();
-    a->endWrite();
 }
 
 template < typename T, typename S >
 size_t WSharedSequenceContainer< T, S >::size()
 {
-    typename WSharedObject< S >::WSharedAccess a = WSharedObject< S >::getAccessObject();
-    a->beginRead();
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
     size_t size = a->get().size();
-    a->endRead();
     return size;
-    // NOTE: the lock in access object a is freed automatically
 }
 
 #endif  // WSHAREDSEQUENCECONTAINER_H

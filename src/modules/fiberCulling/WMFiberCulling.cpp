@@ -32,6 +32,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
@@ -132,7 +133,7 @@ void WMFiberCulling::properties()
     m_savePath         = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     m_run              = m_properties->addProperty( "Run", "Go go go with those parameters", false, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
-    m_savePath->addConstraint( PC_NOTEMPTY );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
 }
 
 void WMFiberCulling::cullOutFibers()

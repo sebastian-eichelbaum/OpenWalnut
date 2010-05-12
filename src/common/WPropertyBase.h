@@ -53,9 +53,28 @@ public:
     WPropertyBase( std::string name, std::string description );
 
     /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     *
+     * \param from the instance to copy.
+     */
+    explicit WPropertyBase( const WPropertyBase& from );
+
+    /**
      * Destructor.
      */
     virtual ~WPropertyBase();
+
+    /**
+     * This method clones a property and returns the clone. It does a deep copy and, in contrast to a copy constructor, creates property with the
+     * correct type without explicitly requiring the user to specify it. It creates a NEW change condition and change signal. This means, alls
+     * subscribed signal handlers are NOT copied.
+     *
+     * \note this simply ensures the copy constructor of the runtime type is issued.
+     *
+     * \return the deep clone of this property.
+     */
+    virtual boost::shared_ptr< WPropertyBase > clone() = 0;
 
     /**
      * Gets the name of the class.
@@ -146,6 +165,16 @@ public:
      * \return a condition notified whenever something changes.
      */
     virtual boost::shared_ptr< WCondition > getUpdateCondition() const;
+
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \param value the new value.
+     *
+     * \return true if the value has been accepted.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value ) = 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // Helpers for easy conversion to the possible types

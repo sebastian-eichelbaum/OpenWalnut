@@ -22,5 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include "constraints/WPropertyConstraintMin.h"
+#include "constraints/WPropertyConstraintMax.h"
+#include "constraints/WPropertyConstraintNotEmpty.h"
+#include "constraints/WPropertyConstraintPathExists.h"
+#include "constraints/WPropertyConstraintIsDirectory.h"
+#include "constraints/WPropertyConstraintSelectOnlyOne.h"
+
 #include "WPropertyVariable.h"
 

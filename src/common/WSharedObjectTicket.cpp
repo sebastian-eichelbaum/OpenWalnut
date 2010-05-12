@@ -22,25 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDISTANCEMAP_TEST_H
-#define WMDISTANCEMAP_TEST_H
+#include "WSharedObject.h"
 
-#include <cxxtest/TestSuite.h>
+#include "WSharedObjectTicket.h"
 
-#include "../WMDistanceMap.h"
-
-/**
- * Tests for Module "Distance Map"
- */
-class WMDistanceMapTest : public CxxTest::TestSuite
-{
-public:
-    /**
-     * TODO(wiebel):implement some tests and document them
-     */
-    void testSomething( void )
-    {
-    }
-};
-
-#endif  // WMDISTANCEMAP_TEST_H

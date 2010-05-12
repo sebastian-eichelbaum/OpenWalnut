@@ -37,6 +37,7 @@
 #include "WPropertyColorWidget.h"
 #include "WPropertyFilenameWidget.h"
 #include "WPropertyTriggerWidget.h"
+#include "WPropertySelectionWidget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -125,7 +126,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    //WPropertySelectionWidget* addProp( WPropSelection property );
+    WPropertySelectionWidget* addProp( WPropSelection property );
 
     /**
      * Adds a new position property to the DSB.
@@ -158,6 +159,7 @@ public:
      * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.
      *
      * \param widget the widget
+     * \param asScrollArea true if the group should be embedded into a scroll area
      */
     void addGroup( WQtDSBWidget* widget, bool asScrollArea = false );
 

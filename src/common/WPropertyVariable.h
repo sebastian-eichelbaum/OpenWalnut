@@ -42,14 +42,19 @@
 #include "WFlag.h"
 #include "WPropertyBase.h"
 
+#include "WCondition.h"
+#include "WSharedAssociativeContainer.h"
+#include "WSharedObjectTicketRead.h"
+#include "WSharedObjectTicketWrite.h"
+
 #include "constraints/WPropertyConstraintTypes.h"
 #include "constraints/WPropertyConstraintMin.h"
 #include "constraints/WPropertyConstraintMax.h"
 #include "constraints/WPropertyConstraintNotEmpty.h"
 #include "constraints/WPropertyConstraintPathExists.h"
 #include "constraints/WPropertyConstraintIsDirectory.h"
+#include "constraints/WPropertyConstraintSelectOnlyOne.h"
 
-#include "WCondition.h"
 
 /**
  * A named property class with a concrete type.
@@ -113,9 +118,28 @@ public:
                        PropertyChangeNotifierType notifier );
 
     /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     *
+     * \param from the instance to copy.
+     */
+    explicit WPropertyVariable( const WPropertyVariable< T >& from );
+
+    /**
      * Destructor.
      */
     virtual ~WPropertyVariable();
+
+    /**
+     * This method clones a property and returns the clone. It does a deep copy and, in contrast to a copy constructor, creates property with the
+     * correct type without explicitly requiring the user to specify it. It creates a NEW change condition and change signal. This means, alls
+     * subscribed signal handlers are NOT copied.
+     *
+     * \note this simply ensures the copy constructor of the runtime type is issued.
+     *
+     * \return the deep clone of this property.
+     */
+    virtual boost::shared_ptr< WPropertyBase > clone();
 
     /**
      * Determines whether the specified value is acceptable.
@@ -182,22 +206,44 @@ public:
          * \return NULL if the type is unknown or an constraint instance
          */
         static boost::shared_ptr< PropertyConstraint > create( PROPERTYCONSTRAINT_TYPE type );
+
+        /**
+         * Method to clone the constraint and create a new one with the correct dynamic type.
+         *
+         * \return the constraint.
+         */
+        virtual boost::shared_ptr< PropertyConstraint > clone() = 0;
     };
 
     /**
-    * The Container datatype to copy the constraints
-    */
-    typedef std::set< boost::shared_ptr< PropertyConstraint > > constraintContainer;
+     * For shortening: a type defining a shared set of WModule pointers.
+     */
+    typedef std::set< boost::shared_ptr< PropertyConstraint > > ConstraintContainerType;
 
     /**
-    * A set of constraints applied on this property.
-    */
-    constraintContainer m_constraints;  //TODO(ebaum): not thread-safe and PUBLIC!!!??. Replace with WSharedObject
+     * Const iterator for the prototype set.
+     */
+    typedef typename ConstraintContainerType::const_iterator ConstraintContainerConstIteratorType;
 
     /**
-    * The iterator used to go through the set
-    */
-    typedef typename constraintContainer::const_iterator constraintIterator; //TODO(ebaum): not thread-safe. Replace with WSharedObject
+     * Iterator for the prototype set.
+     */
+    typedef typename ConstraintContainerType::iterator ConstraintContainerIteratorType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedAssociativeContainer< ConstraintContainerType > ConstraintSharedContainerType;
+
+    /**
+     * Alias for proper accessing the object. Read ticket.
+     */
+    typedef typename ConstraintSharedContainerType::ReadTicket ReadTicket;
+
+    /**
+     * Alias for proper accessing the object. Write ticket.
+     */
+    typedef typename ConstraintSharedContainerType::WriteTicket WriteTicket;
 
     /**
      * Alias for min constraints. It is an alias for convenience.
@@ -218,21 +264,11 @@ public:
     void addConstraint( boost::shared_ptr< PropertyConstraint > constraint );
 
     /**
-     * Add a new constraint. It creates one for your with the specified type.
+     * Returns all the current constraints of a WPropertyVariable. They can be iterated using the provided access object.
      *
-     * \param constraint the type of constraint.
-     *
-     * \return the constraint created and added.
+     * \return the constraint access object
      */
-    boost::shared_ptr< PropertyConstraint > addConstraint( PROPERTYCONSTRAINT_TYPE constraint );
-
-    /**
-    * Returns all the current constraints of a WPropertyVariable for copy purpose
-    *
-    * \return the condition.
-    *
-    */
-    constraintContainer getConstraints(); //TODO(ebaum): not thread-safe. Replace with WSharedObject
+    ConstraintSharedContainerType getConstraints();
 
     /**
      * Gets the condition, which gets notified whenever the list of constraints changes. It is notified AFTER the write lock has been released so
@@ -293,6 +329,23 @@ public:
     PropertyConstraintMax getMax();
 
     /**
+     * This replaces all existing constraints of a certain type by a new specified constraint.
+     *
+     * \param constraint the new constraint
+     * \param type the type of constraints to replace
+     */
+    void replaceConstraint( boost::shared_ptr< PropertyConstraint > constraint, PROPERTYCONSTRAINT_TYPE type );
+
+    /**
+     * This replaces all existing constraints of a certain type by a new specified constraint.
+     *
+     * \param constraint the new constraint
+     * \param type the type of constraints to replace
+     * \return the constraint created
+     */
+    boost::shared_ptr< PropertyConstraint > replaceConstraint( PROPERTYCONSTRAINT_TYPE constraint, PROPERTYCONSTRAINT_TYPE type );
+
+    /**
      * Method searching the first appearance of a constrained with the specified type.
      *
      * \param type the type of the searched constraint
@@ -328,6 +381,29 @@ public:
      */
     virtual std::string getAsString();
 
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \param value the new value.
+     *
+     * \return true if the value has been accepted.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value );
+
+    /**
+     * Sets the new value for this flag. Also notifies waiting threads. After setting a value, changed() will be true.
+     *
+     * \param value the new value
+     * \param suppressNotification true to avoid a firing condition. This is useful for resetting values.
+     *
+     * \return true if the value has been set successfully.
+     *
+     * \note set( get() ) == true
+     * \note this is defined here to help the compiler to disambiguate between WFlag::set and the WPropertyBase::set.
+     */
+    virtual bool set( T value, bool suppressNotification = false );
+
 protected:
 
     /**
@@ -340,21 +416,15 @@ protected:
      */
     virtual void updateType();
 
-
-    /**
-     * boost mutex object for thread safety of updating of m_propertyConstraints.
-     */
-    boost::shared_mutex m_constraintsLock;
-
     /**
      * Cleans m_constraints from all existing constrains of the specified type.
      *
      * \param type the type to remove.
-     * \param useLock true if a lock should be used and if m_constraintsChanged should be notified. Set this to false to use remove lock from inside
-     * another operation already using the lock and notifying.
-     *
+     * \param ticket the write ticket if already existent.
      */
-    void removeConstraints( PROPERTYCONSTRAINT_TYPE type, bool useLock = true );
+    void removeConstraints( PROPERTYCONSTRAINT_TYPE type,
+                            typename WPropertyVariable< T >::ConstraintSharedContainerType::WriteTicket ticket
+                            = ConstraintSharedContainerType::WriteTicket() );
 
     /**
      * This method gets called by WFlag whenever the value of the property changes. It re-emits the signal with a this pointer
@@ -367,20 +437,20 @@ protected:
      */
     boost::shared_ptr< WCondition > m_constraintsChanged;
 
+    /**
+     * A set of constraints applied on this property.
+     */
+    ConstraintSharedContainerType m_constraints;
+
 private:
 };
-
-template< typename T >
-typename WPropertyVariable<T>::constraintContainer WPropertyVariable<T>::getConstraints()
-{
-        return m_constraints;          //TODO(ebaum): not thread-safe. replace with WSharedObject
-}
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints()
 {
     updateType();
 
@@ -393,7 +463,8 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition ):
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints()
 {
     updateType();
 
@@ -407,7 +478,8 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints()
 {
     updateType();
 
@@ -416,7 +488,7 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
-    WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
     signal_PropertyChange.connect( notifier );
 }
 
@@ -425,7 +497,8 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description ),
-        m_constraintsChanged( new WCondition() )
+        m_constraintsChanged( new WCondition() ),
+        m_constraints()
 {
     updateType();
 
@@ -434,8 +507,29 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
-    WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    m_notifierConnection = WFlag< T >::getCondition()->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
     signal_PropertyChange.connect( notifier );
+}
+
+template < typename T >
+WPropertyVariable< T >::WPropertyVariable( const WPropertyVariable< T >& from ):
+    WFlag< T >( from ),
+    WPropertyBase( from ),
+    m_constraintsChanged( new WCondition() ),
+    m_constraints()
+{
+    // copy the constraints
+
+    // lock, unlocked if l looses focus
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::ReadTicket l =
+        const_cast< WPropertyVariable< T >& >( from ).m_constraints.getReadTicket();
+
+    // we need to make a deep copy here.
+    for ( ConstraintContainerIteratorType iter = l->get().begin(); iter != l->get().end(); ++iter )
+    {
+        // clone them to keep dynamic type
+        l->get().insert( ( *iter )->clone() );
+    }
 }
 
 template < typename T >
@@ -446,7 +540,16 @@ WPropertyVariable< T >::~WPropertyVariable()
     m_updateCondition->remove( WFlag< T >::getValueChangeCondition() );
 
     m_notifierConnection.disconnect();
-    m_constraints.clear();
+
+    // lock, unlocked if l looses focus
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::WriteTicket l = m_constraints.getWriteTicket();
+    l->get().clear();
+}
+
+template < typename T >
+boost::shared_ptr< WPropertyBase > WPropertyVariable< T >::clone()
+{
+    return boost::shared_ptr< WPropertyBase >( new WPropertyVariable< T >( *this ) );
 }
 
 template < typename T >
@@ -459,15 +562,15 @@ void WPropertyVariable< T >::propertyChangeNotifier()
 template < typename T >
 bool WPropertyVariable< T >::accept( T newValue )
 {
-    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+    // lock, lock vanishes if l looses focus
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::ReadTicket l = m_constraints.getReadTicket();
 
     // iterate through the set
     bool acceptable = WFlag< T >::accept( newValue );
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    for ( ConstraintContainerConstIteratorType it = l->get().begin(); it !=  l->get().end(); ++it )
     {
         acceptable &= ( *it )->accept( boost::shared_static_cast< WPropertyVariable< T > >( shared_from_this() ), newValue );
     }
-    lock.unlock();
 
     return acceptable;
 }
@@ -477,7 +580,9 @@ bool WPropertyVariable< T >::setAsString( std::string value )
 {
     try
     {
-        set( boost::lexical_cast< T >( value ) );
+        // use the helper class which can handle different kinds of properties for us
+        PROPERTY_TYPE_HELPER::WCreateFromString< T > h = PROPERTY_TYPE_HELPER::WCreateFromString< T >();
+        WFlag< T >::set( h.create( WFlag< T >::get(), value ) );
     }
     catch( const boost::bad_lexical_cast &e )
     {
@@ -498,6 +603,27 @@ std::string WPropertyVariable< T >::getAsString()
 }
 
 template < typename T >
+bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value )
+{
+    // try to cast the given property to a WPropertyVariable of right type:
+    boost::shared_ptr< WPropertyVariable< T > > v = boost::shared_dynamic_cast< WPropertyVariable< T > >( value );
+    if ( v )
+    {
+        return WFlag< T >::set( v->get() );
+    }
+    else
+    {
+        return false;
+    }
+}
+
+template < typename T >
+bool WPropertyVariable< T >::set( T value, bool suppressNotification )
+{
+    return WFlag< T >::set( value, suppressNotification );
+}
+
+template < typename T >
 bool WPropertyVariable< T >::ensureValidity( T newValidValue, bool suppressNotification )
 {
     if ( !accept( WFlag< T >::get() ) )
@@ -513,19 +639,14 @@ bool WPropertyVariable< T >::ensureValidity( T newValidValue, bool suppressNotif
 template < typename T >
 void WPropertyVariable< T >::addConstraint( boost::shared_ptr< PropertyConstraint > constraint )
 {
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
-    m_constraints.insert( constraint );
-    lock.unlock();
-    m_constraintsChanged->notify();
-}
+    // lock, unlocked if l looses focus
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::WriteTicket l = m_constraints.getWriteTicket();
+    l->get().insert( constraint );
 
-template < typename T >
-boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
-WPropertyVariable< T >::addConstraint( PROPERTYCONSTRAINT_TYPE constraint )
-{
-    boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > c = PropertyConstraint::create( constraint );
-    addConstraint( c );
-    return c;
+    // unlock by hand
+    l.reset();
+
+    m_constraintsChanged->notify();
 }
 
 template < typename T >
@@ -557,11 +678,7 @@ template < typename T >
 boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin( T min )
 {
     boost::shared_ptr< WPropertyConstraintMin< T > > c = minConstraint( min );
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
-    removeConstraints( PC_MIN, false );
-    m_constraints.insert( c );
-    lock.unlock();
-    m_constraintsChanged->notify();
+    replaceConstraint( c, PC_MIN );
     return c;
 }
 
@@ -569,11 +686,31 @@ template < typename T >
 boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax( T max )
 {
     boost::shared_ptr< WPropertyConstraintMax< T > > c = maxConstraint( max );
-    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
-    removeConstraints( PC_MAX, false );
-    m_constraints.insert( c );
-    lock.unlock();
+    replaceConstraint( c, PC_MAX );
+    return c;
+}
+
+template < typename T >
+void WPropertyVariable< T >::replaceConstraint( boost::shared_ptr< PropertyConstraint > constraint, PROPERTYCONSTRAINT_TYPE type )
+{
+    // lock, unlocked if l looses focus
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::WriteTicket l = m_constraints.getWriteTicket();
+
+    removeConstraints( type, l );
+    l->get().insert( constraint );
+
+    // unlock by hand
+    l.reset();
+
     m_constraintsChanged->notify();
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
+WPropertyVariable< T >::replaceConstraint( PROPERTYCONSTRAINT_TYPE constraint, PROPERTYCONSTRAINT_TYPE type )
+{
+    boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > c = PropertyConstraint::create( constraint );
+    replaceConstraint( c, type );
     return c;
 }
 
@@ -581,18 +718,17 @@ template < typename T >
 boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
 WPropertyVariable< T >::getFirstConstraint( PROPERTYCONSTRAINT_TYPE type )
 {
-    // lock
-    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+    // lock, unlocked if l looses focus
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::ReadTicket l = m_constraints.getReadTicket();
 
     // search first appearance of a constraint of the specified type
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    for ( ConstraintContainerConstIteratorType it = l->get().begin(); it != l->get().end(); ++it )
     {
         if ( ( *it )->getType() == type )
         {
             return ( *it );
         }
     }
-    lock.unlock();
 
     return boost::shared_ptr< PropertyConstraint >();
 }
@@ -600,19 +736,18 @@ WPropertyVariable< T >::getFirstConstraint( PROPERTYCONSTRAINT_TYPE type )
 template < typename T >
 int WPropertyVariable< T >::countConstraint( PROPERTYCONSTRAINT_TYPE type )
 {
-    // lock
-    boost::shared_lock< boost::shared_mutex > lock = boost::shared_lock< boost::shared_mutex >( m_constraintsLock );
+    // lock, unlocked if l looses focus
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::ReadTicket l = m_constraints.getReadTicket();
 
     int i = 0;
     // search first appearance of a constraint of the specified type
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); ++it )
+    for ( ConstraintContainerConstIteratorType it =  l->get().begin(); it != l->get().end(); ++it )
     {
         if ( ( *it )->getType() == type )
         {
             i++;
         }
     }
-    lock.unlock();
 
     return i;
 }
@@ -647,21 +782,32 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::getMax(
     return boost::shared_static_cast< WPropertyConstraintMax< T > >( c );
 }
 
-template < typename T >
-void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type, bool useLock )
+template< typename T >
+typename WPropertyVariable<T>::ConstraintSharedContainerType WPropertyVariable<T>::getConstraints()
 {
+    return m_constraints;
+}
+
+template < typename T >
+void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type,
+                                                typename WPropertyVariable< T >::ConstraintSharedContainerType::WriteTicket ticket )
+{
+    typename WPropertyVariable< T >::ConstraintSharedContainerType::WriteTicket l = ticket;
+
+    bool useLock = !ticket;
+
     // lock the constraints set
-    boost::unique_lock< boost::shared_mutex > lock;
     if ( useLock )
     {
-        lock = boost::unique_lock< boost::shared_mutex >( m_constraintsLock );
+        // lock, unlocked if l looses focus
+        l = m_constraints.getWriteTicket();
     }
 
-    for ( constraintIterator it = m_constraints.begin(); it != m_constraints.end(); )
+    for ( ConstraintContainerConstIteratorType it = l->get().begin(); it != l->get().end(); )
     {
         if ( ( *it )->getType() == type )
         {
-            m_constraints.erase( it++ );
+            l->get().erase( it++ );
         }
         else
         {
@@ -672,7 +818,9 @@ void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type, bo
     // only notify and unlock if locked earlier.
     if ( useLock )
     {
-        lock.unlock();
+        // unlock by hand
+        l.reset();
+
         m_constraintsChanged->notify();
     }
 }
@@ -691,39 +839,6 @@ template < typename T >
 PROPERTYCONSTRAINT_TYPE WPropertyVariable< T >::PropertyConstraint::getType()
 {
     return PC_UNKNOWN;
-}
-
-template < typename T >
-boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >
-WPropertyVariable< T >::PropertyConstraint::create( PROPERTYCONSTRAINT_TYPE type )
-{
-    typename WPropertyVariable< T >::PropertyConstraint* c = NULL;
-
-    // simply create a new instance for all those constraints.
-    switch( type )
-    {
-        case PC_MIN:        // min and max constraints can't be created this way since they need a construction parameter
-            WLogger::getLogger()->addLogMessage( "Minimum property constraints can't be created this way. Use setMin() instead.",
-                    "PropertyConstraint::create", LL_WARNING );
-            break;
-        case PC_MAX:
-            WLogger::getLogger()->addLogMessage( "Maximum property constraints can't be created this way. Use setMax() instead.",
-                    "PropertyConstraint::create", LL_WARNING );
-            break;
-        case PC_NOTEMPTY:
-            c = new WPropertyConstraintNotEmpty< T >();
-            break;
-        case PC_PATHEXISTS:
-            c = new WPropertyConstraintPathExists< T >();
-            break;
-        case PC_ISDIRECTORY:
-            c = new WPropertyConstraintIsDirectory< T >();
-            break;
-        default:
-            WLogger::getLogger()->addLogMessage( "The property constraint is unknown.", "PropertyConstraint::create", LL_WARNING );
-            break;
-    }
-    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( c );
 }
 
 #endif  // WPROPERTYVARIABLE_H

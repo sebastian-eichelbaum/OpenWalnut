@@ -212,8 +212,16 @@ void WModuleProjectFileCombiner::apply()
         }
         else
         {
-            // set the property here
-            prop->setAsString( ( *iter ).second );
+            if ( prop->getPurpose() != PV_PURPOSE_INFORMATION )
+            {
+                // set the property here
+                prop->setAsString( ( *iter ).second );
+            }
+            else
+            {
+                wlog::error( "Project Loader" ) << "The module \"" << m->getName() << "\" has a property named \"" <<
+                         ( *iter ).first.second << "\" which is an INFORMATION property. Skipping.";
+            }
         }
     }
 
@@ -315,6 +323,11 @@ void printProperties( std::ostream& output, boost::shared_ptr< WProperties > pro
     // iterate of them and print them to output
     for ( WProperties::PropertyConstIterator iter = a->get().begin(); iter != a->get().end(); ++iter )
     {
+        // information properties do not get written
+        if ( ( *iter )->getPurpose () == PV_PURPOSE_INFORMATION )
+        {
+            continue;
+        }
         if ( ( *iter )->getType() != PV_GROUP )
         {
             output << indent + "    " << "PROPERTY:(" << module << "," << prefix + ( *iter )->getName() << ")="

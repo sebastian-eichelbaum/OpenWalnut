@@ -25,16 +25,38 @@
 #ifndef WMATH_H
 #define WMATH_H
 
+#if defined ( _MSC_VER )
+#include <float.h>
+#endif
+
+#include <cmath>
+
 #include "WPosition.h"
 #include "WVector3D.h"
 #include "WPlane.h"
 #include "WLine.h"
 
 /**
- * All helper functions of math module of OpenWalnut.
+ * Classes and functions of math module of OpenWalnut.
  */
 namespace wmath
 {
+    /**
+     * Tests whether the number stored in the parameter is finite.
+     * \param number the number to be tested
+     */
+    inline int myIsfinite( double number )
+    {
+#if defined( __linux__ ) || defined( __APPLE__ )
+        // C99 defines isfinite() as a macro.
+        return std::isfinite(number);
+#elif defined( _WIN32 )
+        // Microsoft Visual C++ and Borland C++ Builder use _finite().
+        return _finite(number);
+#else
+        WAssert( false, "isfinite not provided on this platform or platform not known." );
+#endif
+    }
     /**
      * Checks if the triangle intersects with the given plane. If you are interessted in the points of
      * intersection if any \see intersection().

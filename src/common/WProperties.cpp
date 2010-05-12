@@ -34,6 +34,8 @@
 #include "exceptions/WPropertyUnknown.h"
 #include "exceptions/WPropertyNotUnique.h"
 
+#include "WPropertyHelper.h"
+
 #include "WProperties.h"
 
 WProperties::WProperties( std::string name, std::string description ):
@@ -45,6 +47,28 @@ WProperties::WProperties( std::string name, std::string description ):
 
 WProperties::~WProperties()
 {
+}
+
+WProperties::WProperties( const WProperties& from ):
+    WPropertyBase( from ),
+    m_properties(),
+    m_propAccess( m_properties.getAccessObject() )
+{
+    // copy the properties inside
+    from.m_propAccess->beginRead();
+    // we need to make a deep copy here.
+    for ( PropertyIterator iter = from.m_propAccess->get().begin(); iter != from.m_propAccess->get().end(); ++iter )
+    {
+        // clone them to keep dynamic type
+        m_propAccess->get().push_back( ( *iter )->clone() );
+    }
+    from.m_propAccess->endRead();
+}
+
+boost::shared_ptr< WPropertyBase > WProperties::clone()
+{
+    // class copy constructor.
+    return boost::shared_ptr< WProperties >( new WProperties( *this ) );
 }
 
 PROPERTY_TYPE WProperties::getType() const
@@ -62,6 +86,11 @@ std::string WProperties::getAsString()
 {
     // groups can't be set in any way. -> ignore it.
     return "";
+}
+
+bool WProperties::set( boost::shared_ptr< WPropertyBase > /*value*/ )
+{
+    return true;
 }
 
 bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
@@ -197,6 +226,13 @@ WPropGroup WProperties::addPropertyGroup( std::string name, std::string descript
     return p;
 }
 
+void WProperties::clear()
+{
+    m_propAccess->beginWrite();
+    m_propAccess->get().clear();
+    m_propAccess->endWrite();
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
 // template< typename T>
@@ -232,7 +268,7 @@ WPropString WProperties::addProperty( std::string name, std::string description,
 WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -297,7 +333,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                          boost::shared_ptr< WCondition > condition, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -366,7 +402,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -441,7 +477,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 

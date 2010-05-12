@@ -38,6 +38,7 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     m_label( this ),
     m_useLabel( m_propertyGrid ),
     m_parameterWidgets(),       // parent gets set by the QStackWidget
+    m_informationWidgets(),       // parent gets set by the QStackWidget
     m_invalid( false )
 {
     if ( m_useLabel )
@@ -54,7 +55,15 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         m_propertyGrid->addWidget( this, row, 1 );
     }
 
+    // add both widgets to the stacked widget, it then uses the first as default.
     addWidget( &m_parameterWidgets );
+    addWidget( &m_informationWidgets );
+
+    // if the purpose of the property is INFORMTION -> activate the information widget
+    if ( m_property->getPurpose() == PV_PURPOSE_INFORMATION )
+    {
+        setCurrentIndex( 1 );
+    }
 
     // setup the update callback
     m_connection = m_property->getUpdateCondition()->subscribeSignal( boost::bind( &WPropertyWidget::propertyChangeNotifier, this ) );

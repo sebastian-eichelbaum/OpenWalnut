@@ -38,13 +38,19 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     WPropertyWidget( property, propertyGrid, parent ),
     m_colorProperty( property ),
     m_button( &m_parameterWidgets ),
-    m_layout()
+    m_layout(),
+    m_asText( &m_informationWidgets ),
+    m_infoLayout( &m_informationWidgets )
 {
     // initialize members
     m_parameterWidgets.setLayout( &m_layout );
 
     // layout both against each other
     m_layout.addWidget( &m_button );
+
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    m_infoLayout.addWidget( &m_asText );
+    m_informationWidgets.setLayout( &m_infoLayout );
 
     // set the initial values
     update();
@@ -61,6 +67,13 @@ WPropertyColorWidget::~WPropertyColorWidget()
 void WPropertyColorWidget::update()
 {
     m_button.setPalette( QPalette( toQColor( m_colorProperty->get() ) ) );
+
+    // if this is a info property -> set background of label and some text
+    m_asText.setText( QString::fromStdString( m_colorProperty->getAsString() ) );
+    QPalette pal = QPalette();
+    pal.setColor( QPalette::Background, toQColor( m_colorProperty->get() ) );
+    m_asText.setAutoFillBackground( true );
+    m_asText.setPalette( pal );
 }
 
 QColor WPropertyColorWidget::toQColor( WColor color )

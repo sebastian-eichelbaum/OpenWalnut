@@ -66,6 +66,13 @@ public:
      */
     virtual PROPERTYCONSTRAINT_TYPE getType();
 
+    /**
+     * Method to clone the constraint and create a new one with the correct dynamic type.
+     *
+     * \return the constraint.
+     */
+    virtual boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > clone();
+
 private:
 };
 
@@ -89,6 +96,12 @@ template < typename T >
 PROPERTYCONSTRAINT_TYPE WPropertyConstraintNotEmpty< T >::getType()
 {
     return PC_NOTEMPTY;
+}
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > WPropertyConstraintNotEmpty< T >::clone()
+{
+    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( new WPropertyConstraintNotEmpty< T >( *this ) );
 }
 
 #endif  // WPROPERTYCONSTRAINTNOTEMPTY_H

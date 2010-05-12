@@ -39,7 +39,9 @@ WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridL
     WPropertyWidget( property, propertyGrid, parent ),
     m_fnProperty( property ),
     m_button( &m_parameterWidgets ),
-    m_layout( &m_parameterWidgets )
+    m_layout( &m_parameterWidgets ),
+    m_asText( &m_informationWidgets ),
+    m_infoLayout( &m_informationWidgets )
 {
     // initialize members
     m_parameterWidgets.setLayout( &m_layout );
@@ -49,6 +51,10 @@ WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridL
 
     // this prevents the button from resizing when a long path is selected
     m_button.setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
+
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    m_infoLayout.addWidget( &m_asText );
+    m_informationWidgets.setLayout( &m_infoLayout );
 
     // set the initial values
     update();
@@ -64,7 +70,9 @@ WPropertyFilenameWidget::~WPropertyFilenameWidget()
 
 void WPropertyFilenameWidget::update()
 {
-    m_button.setText( QString::fromStdString( m_fnProperty->get().file_string() ) );
+    QString val = QString::fromStdString( m_fnProperty->get().file_string() );
+    m_button.setText( val );
+    m_asText.setText( val );
 }
 
 void WPropertyFilenameWidget::buttonReleased()

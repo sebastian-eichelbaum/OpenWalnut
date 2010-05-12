@@ -34,10 +34,12 @@
 #include "WPropertyVariable.h"
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
+    boost::enable_shared_from_this< WPropertyBase >(),
     m_name( name ),
     m_description( description ),
     m_hidden( false ),
     m_purpose( PV_PURPOSE_PARAMETER ),
+    signal_PropertyChange(),
     m_updateCondition( new WConditionSet() )
 {
     // check name validity
@@ -46,6 +48,18 @@ WPropertyBase::WPropertyBase( std::string name, std::string description ):
         throw WPropertyNameMalformed( "Property name \"" + name +
                                       "\" is malformed. Do not use slashes (\"/\") or empty strings in property names." );
     }
+}
+
+WPropertyBase::WPropertyBase( const WPropertyBase& from ):
+    boost::enable_shared_from_this< WPropertyBase >(),
+    m_name( from.m_name ),
+    m_description( from.m_description ),
+    m_hidden( from.m_hidden ),
+    m_type( from.m_type ),
+    m_purpose( from.m_purpose ),
+    signal_PropertyChange(),                    // create a new and empty signal
+    m_updateCondition( new WConditionSet() )    // create a new condition set. Do not copy it.
+{
 }
 
 WPropertyBase::~WPropertyBase()

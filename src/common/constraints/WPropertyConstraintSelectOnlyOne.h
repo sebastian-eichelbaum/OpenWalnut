@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCONSTRAINTISDIRECTORY_H
-#define WPROPERTYCONSTRAINTISDIRECTORY_H
+#ifndef WPROPERTYCONSTRAINTSELECTONLYONE_H
+#define WPROPERTYCONSTRAINTSELECTONLYONE_H
 
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
@@ -32,21 +32,21 @@ template< typename T >
 class WPropertyVariable;
 
 /**
- * This class allows constraining properties to be existing filenames. This is especially useful for WPropFilename.
+ * This class allows constraining selection properties to not allow selection of multiple items.
  */
 template < typename T >
-class WPropertyConstraintIsDirectory: public WPropertyVariable< T >::PropertyConstraint
+class WPropertyConstraintSelectOnlyOne: public WPropertyVariable< T >::PropertyConstraint
 {
 public:
     /**
      * Constructor.
      */
-    WPropertyConstraintIsDirectory();
+    explicit WPropertyConstraintSelectOnlyOne();
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyConstraintIsDirectory();
+    virtual ~WPropertyConstraintSelectOnlyOne();
 
     /**
      * Checks whether the specified value is a directory or not.
@@ -76,33 +76,32 @@ private:
 };
 
 template < typename T >
-WPropertyConstraintIsDirectory< T >::WPropertyConstraintIsDirectory()
+WPropertyConstraintSelectOnlyOne< T >::WPropertyConstraintSelectOnlyOne()
 {
 }
 
 template < typename T >
-WPropertyConstraintIsDirectory< T >::~WPropertyConstraintIsDirectory()
+WPropertyConstraintSelectOnlyOne< T >::~WPropertyConstraintSelectOnlyOne()
 {
 }
 
 template < typename T >
-bool WPropertyConstraintIsDirectory< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintSelectOnlyOne< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
 {
-    return boost::filesystem::is_directory( value );
+    return ( value.size() <= 1 );
 }
 
 template < typename T >
-PROPERTYCONSTRAINT_TYPE WPropertyConstraintIsDirectory< T >::getType()
+PROPERTYCONSTRAINT_TYPE WPropertyConstraintSelectOnlyOne< T >::getType()
 {
-    return PC_ISDIRECTORY;
+    return PC_SELECTONLYONE;
 }
 
 template < typename T >
-boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > WPropertyConstraintIsDirectory< T >::clone()
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > WPropertyConstraintSelectOnlyOne< T >::clone()
 {
-    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( new WPropertyConstraintIsDirectory< T >( *this ) );
+    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( new WPropertyConstraintSelectOnlyOne< T >( *this ) );
 }
 
-
-#endif  // WPROPERTYCONSTRAINTISDIRECTORY_H
+#endif  // WPROPERTYCONSTRAINTSELECTONLYONE_H
 

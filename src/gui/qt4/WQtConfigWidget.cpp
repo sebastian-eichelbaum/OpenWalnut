@@ -29,8 +29,6 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 
-#include <boost/filesystem/path.hpp>
-
 #include "WCfgOperations.h"
 #include "../../kernel/WModuleFactory.h"
 #include "../../common/WConditionOneShot.h"
@@ -86,12 +84,13 @@ void WQtConfigWidget::getAvailableModuleNames()
     WModuleFactory::PrototypeSharedContainerType::WSharedAccess pa = WModuleFactory::getModuleFactory()->getAvailablePrototypes();
     m_moduleNames.clear();
 
-    pa->beginRead();
+    // Temporarily disabled since locking causes several problems here :-/
+    // pa->beginRead();
     for ( WModuleFactory::PrototypeContainerConstIteratorType itr = pa->get().begin(); itr != pa->get().end(); ++itr )
     {
         m_moduleNames.push_back( ( *itr )->getName() );
     }
-    pa->endRead();
+    // pa->endRead();
 }
 
 void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > properties, std::string groupName, bool fromConfig )
@@ -125,7 +124,6 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
             b->set( static_cast< double >( color.getBlue() ), true );
         }
     }
-
     size_t i;
     if ( groupName == "modules.whiteListGroup" )
     {
@@ -306,149 +304,25 @@ void WQtConfigWidget::registerComponents()
     m_defaultProperties->addProperty( "modules.MC.isoValue", "Marching Cubes isoValue", 100.0, m_propCondition );
 }
 
-void WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
+boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from )
 {
-    // note for some odd reason property variables get initialized with the changed variable set, this causes odd behavior...
-    // so we initialize them and do a get( true ) to reset that
-    // first clear the to Properties
-
-
-    //TODO(ebaum): not thread-safe. Replace with WSharedObject and use AccessObjects correctly ;-)
-
-
-    to->getAccessObject()->get().clear();
-
-    WProperties::PropertyAccessType accesObject = from->getAccessObject();
-
-    WProperties::PropertyIterator iter;
-    for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )
-    {
-        // so far we only need those 5 types
-        switch( (*iter)->getType() )
-        {
-        case PV_GROUP:
-            {
-                // recurse all groups
-                WPropGroup group = to->addPropertyGroup( ( *iter )->getName(), ( *iter )->getDescription() );
-                copyProperties( ( *iter )->toPropGroup(), group );
-                break;
-            }
-        case PV_INT:
-            {
-                WPropInt propInt = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropInt()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propInt->get( true );
-                WPVInt::constraintContainer constraints = ( *iter )->toPropInt()->getConstraints();
-                WPVInt::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    switch ( (*iter2)->getType() )
-                    {
-                    case PC_MIN:
-                        {
-                            propInt->setMin( ( *iter )->toPropInt()->getMin()->getMin() );
-                            break;
-                        }
-                    case PC_MAX:
-                        {
-                            propInt->setMax( ( *iter )->toPropInt()->getMax()->getMax() );
-                            break;
-                        }
-                    default:
-                        {
-                            propInt->addConstraint( *iter2 );
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-        case PV_DOUBLE:
-            {
-                WPropDouble propDouble = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropDouble()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propDouble->get( true );
-                WPVDouble::constraintContainer constraints = ( *iter )->toPropDouble()->getConstraints();
-                WPVDouble::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    // again we need a nasty hack because setting a constraint which is min and max will result in a multi set of min and maxes
-                    // which will result in odd behavior
-                    switch ( ( *iter2 )->getType() )
-                    {
-                    case PC_MIN:
-                        {
-                            propDouble->setMin( ( *iter )->toPropDouble()->getMin()->getMin() );
-                            break;
-                        }
-                    case PC_MAX:
-                        {
-                            propDouble->setMax( ( *iter )->toPropDouble()->getMax()->getMax() );
-                            break;
-                        }
-                    default:
-                        {
-                            propDouble->addConstraint( *iter2 );
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-        case PV_BOOL:
-            {
-                WPropBool propBool = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropBool()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propBool->get( true );
-                WPVBool::constraintContainer constraints = ( *iter )->toPropBool()->getConstraints();
-                WPVBool::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    propBool->addConstraint( *iter2 );
-                }
-                break;
-            }
-        case PV_STRING:
-            {
-                WPropString propString = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropString()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propString->get( true );
-                WPVString::constraintContainer constraints = ( *iter )->toPropString()->getConstraints();
-                WPVString::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    propString->addConstraint( *iter2 );
-                }
-                break;
-            }
-        case PV_COLOR:
-            {
-                WPropColor propColor = to->addProperty( ( *iter )->getName(), ( *iter )->getDescription(), ( *iter )->toPropColor()->get(),
-                    m_propCondition, ( *iter )->isHidden() );
-                propColor->get( true );
-                WPVColor::constraintContainer constraints = ( *iter )->toPropColor()->getConstraints();
-                WPVColor::constraintIterator iter2;
-                for ( iter2 = constraints.begin(); iter2 != constraints.end(); ++iter2 )
-                {
-                    propColor->addConstraint( *iter2 );
-                }
-                break;
-            }
-        default:
-            {
-                // just do nothing so no compiler warning
-                break;
-            }
-        }
-    }
+    return boost::shared_static_cast< WProperties >( from->clone() );
 }
 
-void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to )
+void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to, bool lock )
 {
     // we assume from and to got the same structure
     // this is needed to keep the pointers, only set the values
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
     WProperties::PropertyAccessType accesObject2 = to->getAccessObject();
+
+    // in recursive calls, this avoids concurrent locks (even if concurrent read locks are allowed).
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject->beginRead();
+        // accesObject2->beginRead();
+    }
 
     WProperties::PropertyIterator iter;
     WProperties::PropertyIterator iter2;
@@ -465,37 +339,21 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
                 copyPropertiesContents( ( *iter )->toPropGroup(), ( *iter2 )->toPropGroup() );
                 break;
             }
-        case PV_INT:
-            {
-                ( *iter2 )->toPropInt()->set( ( *iter )->toPropInt()->get( true ), true );
-                break;
-            }
-        case PV_DOUBLE:
-            {
-                ( *iter2 )->toPropDouble()->set( ( *iter )->toPropDouble()->get( true ), true );
-                break;
-            }
-        case PV_BOOL:
-            {
-                ( *iter2 )->toPropBool()->set( ( *iter )->toPropBool()->get( true ), true );
-                break;
-            }
-        case PV_STRING:
-            {
-                ( *iter2 )->toPropString()->set( ( *iter )->toPropString()->get( true ), true );
-                break;
-            }
-        case PV_COLOR:
-            {
-                ( *iter2 )->toPropColor()->set( ( *iter )->toPropColor()->get( true ), true );
-                break;
-            }
         default:
             {
-                // just do nothing so no compiler warning
+                // copy value
+                ( *iter )->set( *iter2 );
+
                 break;
             }
         }
+    }
+
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject2->endRead();
+        // accesObject->endRead();
     }
 }
 
@@ -515,18 +373,32 @@ void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, s
     }
 }
 
-boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name )
+boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost::shared_ptr< WProperties > searchIn, std::string name, bool lock )
 {
     WProperties::PropertyAccessType accesObject = searchIn->getAccessObject();
 
+    // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject->beginRead();
+    }
+
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
 
+    // TODO(ledig): WProperties::findProperty already does the job of searching recursively. Better use this.
     WProperties::PropertyIterator iter;
     for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )
     {
         if ( ( *iter )->getName() == name )
         {
             result = ( *iter )->toPropGroup();
+            // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+            if ( lock )
+            {
+                // Temporarily disabled since locking causes several problems here :-/
+                // accesObject->endRead();
+            }
             return result;
         }
         if ( ( *iter )->getType() == PV_GROUP )
@@ -534,9 +406,22 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
             boost::shared_ptr< WPropertyBase > tmp = findPropertyRecursive( ( *iter )->toPropGroup(), name );
             if ( tmp )
             {
+                // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+                if ( lock )
+                {
+                    // Temporarily disabled since locking causes several problems here :-/
+                    // accesObject->endRead();
+                }
                 return tmp->toPropGroup();
             }
         }
+    }
+
+     // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
+    if ( lock )
+    {
+        // Temporarily disabled since locking causes several problems here :-/
+        // accesObject->endRead();
     }
     return result;
 }
@@ -743,13 +628,17 @@ void WQtConfigWidget::saveToConfig()
                         propertyStack.push_back( m_properties );
 
                         WProperties::PropertyIterator iter;
-                        iter = propertyStack.back()->getAccessObject()->get().begin();
+                        WProperties::PropertyAccessType accessObject = propertyStack.back()->getAccessObject();
+                        // Temporarily disabled since locking causes several problems here :-/
+                        // accessObject->beginRead();
+
+                        iter = accessObject->get().begin();
                         iteratorStack.push_back( iter );
 
                         while ( !propertyStack.empty() )
                         {
                             // check if at the end of group, if so pop and continue
-                            if ( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
+                            if ( iteratorStack.back() == accessObject->get().end() )
                             {
                                 propertyStack.pop_back();
                                 iteratorStack.pop_back();
@@ -761,8 +650,7 @@ void WQtConfigWidget::saveToConfig()
                             {
                                 propertyStack.push_back( ( *iteratorStack.back() )->toPropGroup() );
                                 ++iteratorStack.back();
-                                iter = propertyStack.back()->getAccessObject()->get().begin();
-                                iteratorStack.push_back( iter );
+                                iteratorStack.push_back( accessObject->get().begin() );
                                 continue;
                             }
                             else
@@ -808,6 +696,9 @@ void WQtConfigWidget::saveToConfig()
                         } // LOOP over properties
 
                         sectionsWriten.push_back( current_section );
+
+                        // Temporarily disabled since locking causes several problems here :-/
+                        // accessObject->endRead();
                     } // IF switch from none-empty section
 
                     std::string sn = WCfgOperations::getSectionName( m_configLines[cLine] );
@@ -1027,17 +918,16 @@ void WQtConfigWidget::loadConfigFile()
         m_configLines = WCfgOperations::readCfg( "walnut.cfg" );
     }
     // copy all default properties into the loaded properties
-    copyProperties( m_defaultProperties, m_loadedProperties );
+    m_loadedProperties = copyProperties( m_defaultProperties );
     // parse the config file
     createLineAssociation();
     // update the loaded properties
     updateGui( m_loadedProperties );
     // copy all loaded properties into the current properties where we create the gui from
-    copyProperties( m_loadedProperties, m_properties );
+    m_properties = copyProperties( m_loadedProperties );
 
     m_configState.setResetable( true, true );
     m_configState.add( m_propCondition );
-    m_configState.add( m_shutdownFlag.getCondition() );
 }
 
 void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
@@ -1050,6 +940,8 @@ void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
 WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperties > from, std::string sectionName )
 {
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
+    // Temporarily disabled since locking causes several problems here :-/
+    // accesObject->beginRead();
 
     std::string name = std::string( "" );
     if ( from->getType() == PV_GROUP )
@@ -1110,6 +1002,9 @@ WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperti
             }
         }
     }
+
+    // Temporarily disabled since locking causes several problems here :-/
+    // accesObject->endRead();
 
     tab->addSpacer();
     return tab;

@@ -33,34 +33,30 @@ $header = <<EOF
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include <osg/Geode>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "../dataHandler/WDataSetScalar.h"
 
-/** 
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. \"$creator\".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+/**
+ * TODO(\"$creator\"): Document this.
  *
  * \\ingroup modules
  */
-class WM#name#: public WModule
+class WM#name# : public WModule
 {
 public:
-
     /**
-     *
+     * Default constructor for constructing a module instance.
      */
     WM#name#();
 
     /**
-     *
+     * Deconstruct this module instance.
      */
     virtual ~WM#name#();
 
@@ -85,7 +81,6 @@ public:
     virtual boost::shared_ptr< WModule > factory() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -101,10 +96,11 @@ protected:
      */
     virtual void properties();
 
-
 private:
-};
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input; //!< TODO(\"$creator\"): Document this!
 
+    boost::shared_ptr< WDataSetScalar > m_dataSet; //!< TODO(\"$creator\"): Document this!
+};
 #endif  // WM#NAME#_H
 EOF
 ;
@@ -140,8 +136,8 @@ $impl = <<EOF
 
 #include "WM#name#.h"
 
-WM#name#::WM#name#():
-    WModule()
+WM#name#::WM#name#()
+    : WModule()
 {
 }
 
@@ -152,29 +148,24 @@ WM#name#::~WM#name#()
 
 boost::shared_ptr< WModule > WM#name#::factory() const
 {
-    // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WM#name#() );
 }
 
 const std::string WM#name#::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
+    // ToDo(\"$creator\"): Don't use CamleCase here!
     return "#name#";
 }
 
 const std::string WM#name#::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. "
-    "Probably the best person would be the modules's creator, i.e. \\\"$creator\\\"";
+    // ToDo(\"$creator\"): Document this!
+    return "";
 }
 
 void WM#name#::connectors()
 {
-    // Put the code for your connectors here. See "src/modules/template/" for an extensively documented example.
 
-    // call WModules initialization
     WModule::connectors();
 }
 
@@ -185,8 +176,6 @@ void WM#name#::properties()
 
 void WM#name#::moduleMain()
 {
-    // Put the code for your module's main functionality here.
-    // See "src/modules/template/" for an extensively documented example.
 }
 EOF
 ;

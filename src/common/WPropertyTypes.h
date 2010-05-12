@@ -32,8 +32,10 @@
 #include <utility>
 
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "math/WPosition.h"
+#include "WItemSelector.h"
 #include "WColor.h"
 
 template < typename T >
@@ -93,8 +95,7 @@ namespace WPVBaseTypes
     typedef bool                                            PV_BOOL;        //!< base type used for every WPVBool
     typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
     typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
-    typedef void*                                           PV_SELECTION;   //!< base type used for every WPVSelection
-    // typedef std::list< std::pair< std::string, bool > >     PV_SELECTION;   //!< base type used for every WPVSelection
+    typedef WItemSelector                                   PV_SELECTION;   //!< base type used for every WPVSelection
     typedef wmath::WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
 
@@ -264,6 +265,28 @@ namespace PROPERTY_TYPE_HELPER
     };
 
     /**
+     * Class helping to create a new instance of the property content from an old one. This might be needed by some types (some need to have a
+     * predecessor for creation).
+     * You only need to specialize this class for types not allowing the direct use of boost::lexical_cast.
+     */
+    template< typename T >
+    class WCreateFromString
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        T create( const T& /*old*/, const std::string str )
+        {
+            return boost::lexical_cast< T >( str );
+        }
+    };
+
+    /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
@@ -368,6 +391,28 @@ namespace PROPERTY_TYPE_HELPER
         PROPERTY_TYPE getType()
         {
             return PV_SELECTION;
+        }
+    };
+
+    /**
+     * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
+     * serializable content which needs to be acquired from its predecessor instance.
+     */
+    template<>
+    class WCreateFromString< WPVBaseTypes::PV_SELECTION >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param old the old value
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_SELECTION  create( const WPVBaseTypes::PV_SELECTION& old, const std::string str )
+        {
+            return old.newSelector( str );
         }
     };
 

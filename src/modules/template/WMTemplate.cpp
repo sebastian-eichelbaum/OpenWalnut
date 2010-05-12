@@ -60,6 +60,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
+#include "../../common/WPropertyHelper.h"
 
 #include "template.xpm"
 #include "WMTemplate.h"
@@ -188,16 +189,16 @@ void WMTemplate::properties()
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_aTrigger       = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.",
-                                                  WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-    m_enableFeature  = m_properties->addProperty( "Enable Feature",           "Description.", true );
-    m_anInteger      = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
-    m_anIntegerClone = m_properties->addProperty( "CLONE!Number of Shape Rows",
-                                                  "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
-    m_aDouble        = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
-    m_aString        = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile          = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
-    m_aColor         = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    m_aTrigger         = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
+                                                    m_propCondition );
+    m_enableFeature    = m_properties->addProperty( "Enable Feature",           "Description.", true );
+    m_anInteger        = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
+    m_anIntegerClone   = m_properties->addProperty( "CLONE!Number of Shape Rows",
+                                                    "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
+    m_aDouble          = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
+    m_aString          = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
+    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
+    m_aColor           = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all
@@ -213,6 +214,23 @@ void WMTemplate::properties()
     // m_anIntegerClone has a special purpose in this example. It shows that you can simply update properties from within your module whilst the
     // GUI updates itself. You can, for example, set constraints or simply modify values depending on input data, most probably useful to set
     // nice default values or min/max constraints.
+
+    // All these above properties are not that usable for selections. Assume the following situation. Your module allows two different kinds of
+    // algorithms to run on some data and you want the user to select which one should do the work. This might be done integer properties but it
+    // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
+    m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_possibleSelections->addItem( "Beer", "Cold and fresh." );
+    m_possibleSelections->addItem( "Steaks", "Medium please" );
+    m_possibleSelections->addItem( "Sausages", "With Sauerkraut" );
+
+    // This list of alternatives is NOT the actual property value. It is the list on which so called "WItemSelector" instances work. These
+    // selectors are the actual property. After you created the first selector instance from the list, it can't be modified anymore. This ensures
+    // that it is consistent among multiple threads and selection instances. The following two lines create two selectors as initial value and
+    // create the property:
+    m_aSingleSelection = m_properties->addProperty( "I like most",  "Do you like the most?", m_possibleSelections->getSelectorFirst(),
+                                                    m_propCondition );
+    m_aMultiSelection  = m_properties->addProperty( "I like", "What do you like.", m_possibleSelections->getSelectorAll(),
+                                                    m_propCondition );
 
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
@@ -235,11 +253,11 @@ void WMTemplate::properties()
 
     // The properties offer another nice feature: property constraints. You can enforce your properties to be in a special range, to not be
     // empty, to contain a valid directory name and so on. This is done with the class WPropertyVariable< T >::WPropertyConstraint. There are
-    // several predefined you can use directly: WPropertyConstraintTypes.h. The constants defined there can be supplied to
-    // WPropertyVariable< T >::PropertyConstraint::create( ... ). As an example, we want the property m_aFile to only contain existing
-    // directories;
-    m_aFile->addConstraint( PC_PATHEXISTS );
-    m_aFile->addConstraint( PC_ISDIRECTORY );
+    // several predefined you can use directly: WPropertyConstraintTypes.h. The constants defined there can be used as namespace in
+    // WPropertyHelper. As an example, we want the property m_aFile to only contain existing directories:
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_aFile );
+    WPropertyHelper::PC_ISDIRECTORY::addTo( m_aFile );
+
     // Thats it. To set minimum and maximum value for a property the convenience methods setMin and setMax are defined. setMin and setMax are
     // allowed for all property types with defined <= and >= operator.
     m_anInteger->setMin( 1 );
@@ -247,9 +265,16 @@ void WMTemplate::properties()
     m_aDouble->setMin( 5.0 );
     m_aDouble->setMax( 50.0 );
 
+    // we also want to constraint the both selection properties. One should not allow selecting multiple elements. But both require at least one
+    // element to be selected:
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aMultiSelection );
+
     // The most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
     // to define the allowed values for your constraint. Take a look at the StringLength class in this module's code on how to do it.
     m_aString->addConstraint( boost::shared_ptr< StringLength >( new StringLength ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aString );
 
     // One last thing to mention is the active property. This property is available in all modules and represents the activation state of the
     // module. Int the GUI this is simply a checkbox beneath the module. The active property should be taken into account in ALL modules.
@@ -271,13 +296,23 @@ void WMTemplate::properties()
     // Later on, we will use this property to provide the number of run cycles to the user.
     // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
     // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
-    std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, html formatted strings, colors and " ) +
-                          std::string( "so on using properties! Isn't it <b>amazing</b>?" );
+    std::string message = std::string( "Hey you! Besides all these parameters, you also can print values, " ) +
+                          std::string( "<font color=\"#00f\" size=15>html</font> formatted strings, colors and " ) +
+                          std::string( "so on using <font color=\"#ff0000\">properties</font>! Isn't it <b>amazing</b>?" );
+
     m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
     // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
     // parameter.
+    //
+    // Some more examples. Please note: Although every property type can be used as information property, not everything is really useful.
+    m_infoProperties->addProperty( m_aStringOutput );   // we can also re-add properties
+    m_aTriggerOutput = m_infoProperties->addProperty( "A Trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
+    m_aDoubleOutput = m_infoProperties->addProperty( "Some Double", "a Double. Nice isn't it?", 3.1415 );
+    m_aColorOutput = m_infoProperties->addProperty( "A Color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
+    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WKernel::getAppPathObject() );
+    m_aSelectionOutput = m_infoProperties->addProperty( "A Selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
 }
 
 void WMTemplate::moduleMain()
@@ -295,7 +330,7 @@ void WMTemplate::moduleMain()
     // useful whenever your module needs to do long operations to initialize. No other module can connect to your module before it signals its
     // ready state. You can assume the code before ready() to be some kind of initialization code.
     debugLog() << "Doing time consuming operations";
-    sleep( 5 );
+    sleep( 2 );
 
     // Your module can use an moduleState variable to wait for certain events. Most commonly, these events are new data on input connectors or
     // changed properties. You can decide which events the moduleState should handle. Therefore, use m_moduleState.add( ... ) to insert every
@@ -327,7 +362,7 @@ void WMTemplate::moduleMain()
         // modified but the module can modify it. This is useful to provide statistics, counts, times or even a "hello world" string to the user
         // as an information or status report. Please do not abuse these information properties as progress indicators. A short overview on how
         // to make progress indicators is provided some lines below. Here, we simply increase the value.
-        m_aIntegerOutput->set( m_aIntegerOutput->get() +1 );
+        m_aIntegerOutput->set( m_aIntegerOutput->get() + 1 );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.
@@ -504,6 +539,9 @@ void WMTemplate::moduleMain()
             // Now that the trigger has the state "triggered", a time consuming operation can be done here.
             debugLog() << "User triggered an important and time consuming operation.";
 
+            // Update the output property
+            m_aTriggerOutput->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED );
+
             // Do something here. As above, do not forget to inform the user about your progress.
             int steps = 10;
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing something important", steps ) );
@@ -521,6 +559,25 @@ void WMTemplate::moduleMain()
             // To avoid the moduleMain- loop to awake every time we reset the trigger, provide a second parameter to the set() method. It denotes
             // whether the change notification should be fired or not. In our case, we avoid this by providing false to the second parameter.
             m_aTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
+            // Also update the information property.
+            m_aTriggerOutput->set( WPVBaseTypes::PV_TRIGGER_READY );
+        }
+
+        // This checks the selections.
+        if ( m_aMultiSelection->changed() ||  m_aSingleSelection->changed() )
+        {
+            // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
+            // is trivial:
+            WItemSelector s = m_aSingleSelection->get( true );
+            infoLog() << "The user likes " << s.at( 0 ).first << " the most.";
+
+            // The multi property allows the selection of several items. So, iteration needs to be done here:
+            s = m_aMultiSelection->get( true );
+            for ( size_t i = 0; i < s.size(); ++i )
+            {
+                infoLog() << "The user likes " << s.at( i ).first;
+            }
         }
     }
 
@@ -557,6 +614,13 @@ bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPV
 
     // simple example: just accept string which are at least 5 chars long and at most 10.
     return ( value.length() <= 10 ) && ( value.length() >= 5 );
+}
+
+boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint > WMTemplate::StringLength::clone()
+{
+    // If you write your own constraints, you NEED to provide a clone function. It creates a new copied instance of the constraints with the
+    // correct runtime type.
+    return boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint >( new WMTemplate::StringLength( *this ) );
 }
 
 void WMTemplate::activate()

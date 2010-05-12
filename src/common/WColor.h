@@ -152,7 +152,7 @@ private:
 std::ostream& operator<<( std::ostream& out, const WColor& c );
 
 /**
- * Write a color in string representation to the given input stream.
+ * Read a color in string representation from the given input stream.
  */
 std::istream& operator>>( std::istream& in, WColor& c );
 

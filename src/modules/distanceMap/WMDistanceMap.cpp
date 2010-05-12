@@ -195,10 +195,6 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *dataSet ).getGrid() );
     WAssert( grid, "Works only for data on regular 3D grids."  );
 
-    // TODO(wiebel): we should be able to do all this without the value vector.
-    const std::vector< float >* source = valueSet->rawDataVectorPointer();
-
-
     int b, r, c, bb, rr, r0, b0, c0;
     int i, istart, iend;
     int nbands, nrows, ncols, npixels;
@@ -226,10 +222,14 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     bool* bitmask = new bool[npixels];
     for( int i = 0; i < npixels; ++i)
     {
-        if (source->at(i) < 0.01)
+        if( valueSet->getScalar(i) < 0.01 )
+        {
             bitmask[i] = true;
+        }
         else
+        {
             bitmask[i] = false;
+        }
     }
 
     dmax = 999999999.0;

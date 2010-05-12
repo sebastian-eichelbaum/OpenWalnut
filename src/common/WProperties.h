@@ -34,7 +34,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread.hpp>
 
-#include "WSharedObject.h"
+#include "WSharedSequenceContainer.h"
 #include "WPropertyBase.h"
 #include "WPropertyTypes.h"
 #include "WPropertyVariable.h"
@@ -60,7 +60,7 @@ public:
     /**
      * The alias for a shared container.
      */
-    typedef WSharedObject< PropertyContainerType > PropertySharedContainerType;
+    typedef WSharedSequenceContainer< boost::shared_ptr< WPropertyBase >, PropertyContainerType > PropertySharedContainerType;
 
     /**
      * The access type
@@ -88,9 +88,30 @@ public:
     WProperties( std::string name = "unnamed group", std::string description = "an unnamed group of properties" );
 
     /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     *
+     * \note the properties inside this list are also copied deep
+     *
+     * \param from the instance to copy.
+     */
+    explicit WProperties( const WProperties& from );
+
+    /**
      * destructor
      */
     virtual ~WProperties();
+
+    /**
+     * This method clones a property and returns the clone. It does a deep copy and, in contrast to a copy constructor, creates property with the
+     * correct type without explicitly requiring the user to specify it. It creates a NEW change condition and change signal. This means, alls
+     * subscribed signal handlers are NOT copied.
+     *
+     * \note this simply ensures the copy constructor of the runtime type is issued.
+     *
+     * \return the deep clone of this property.
+     */
+    virtual boost::shared_ptr< WPropertyBase > clone();
 
     /**
      * Simply insert the specified property to the list.
@@ -131,6 +152,11 @@ public:
      * \return the access control object.
      */
     PropertySharedContainerType::WSharedAccess getAccessObject();
+
+    /**
+     * Removes all properties from the list.
+     */
+    virtual void clear();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
@@ -236,6 +262,18 @@ public:
      * \return the value as a string.
      */
     virtual std::string getAsString();
+
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \note for WProperties, this actually does nothing an.
+     *
+     * \param value the new value.
+     *
+     * \return true, always.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties

@@ -36,13 +36,22 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
     WPropertyWidget( property, propertyGrid, parent ),
     m_stringProperty( property ),
     m_edit( &m_parameterWidgets ),
-    m_layout( &m_parameterWidgets )
+    m_layout( &m_parameterWidgets ),
+    m_asText( &m_informationWidgets ),
+    m_infoLayout( &m_informationWidgets )
 {
     // initialize members
     m_parameterWidgets.setLayout( &m_layout );
 
     // layout
     m_layout.addWidget( &m_edit );
+
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    m_infoLayout.addWidget( &m_asText );
+    m_informationWidgets.setLayout( &m_infoLayout );
+    m_asText.setWordWrap( true );
+    // To have word warp work correctly -> set size policy
+    m_asText.setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
 
     // set the initial values
     update();
@@ -59,7 +68,9 @@ WPropertyStringWidget::~WPropertyStringWidget()
 
 void WPropertyStringWidget::update()
 {
-    m_edit.setText( QString( m_stringProperty->get().c_str() ) );
+    QString val = QString( m_stringProperty->get().c_str() );
+    m_edit.setText( val );
+    m_asText.setText( val );
 }
 
 void WPropertyStringWidget::editChanged()
