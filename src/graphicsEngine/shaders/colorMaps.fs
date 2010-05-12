@@ -1,6 +1,6 @@
 uniform int useColorMap;
 
-vec3 defaultColorMap( in float value )
+vec3 blueGreenPurpleColorMap( in float value )
 {
     value *= 5.0;
     vec3 color;
@@ -21,7 +21,8 @@ vec3 defaultColorMap( in float value )
     return color;
 }
 
-vec3 colorMap1 ( in float value )
+
+vec3 rainbowColorMap ( in float value )
 {
     float i = floor(6.*value);
     float f = 6.*value - i;
@@ -43,7 +44,7 @@ vec3 colorMap1 ( in float value )
         return vec3(1., 0., q);
 }
 
-vec3 colorMap2( in float value )
+vec3 hotIronColorMap( in float value )
 {
     vec4 color8  = vec4(255./255., 255./255., 204./255., 1.);
     vec4 color7  = vec4(255./255., 237./255., 160./255., 1.);
@@ -86,14 +87,14 @@ vec3 colorMap2( in float value )
     }
 }
 
-vec3 colorMap3( in float value )
+vec3 redYellowColorMap( in float value )
 {
     vec4 color0 = vec4(1., 0., 0., 1.);
     vec4 color1 = vec4(1., 1., 0., 1.);
     return ( color1*value + color0*(1.-value)).rgb;
 }
 
-vec3 colorMap4( in float value )
+vec3 blueLightBlueColorMap( in float value )
 {
     vec4 color0 = vec4(0., 0., 1., 1.);
     vec4 color1 = vec4(0.78, 1., 1., 1.);
@@ -169,13 +170,13 @@ void colorMap( inout vec3 col, in float value, int cmap )
 {
 
     if ( cmap == 1 )
-        col = colorMap1( value );
+        col = rainbowColorMap( value );
     else if ( cmap == 2 )
-        col = colorMap2( value );
+        col = hotIronColorMap( value );
     else if ( cmap == 3 )
-        col = colorMap3( value );
+        col = redYellowColorMap( value );
     else if ( cmap == 4 )
-        col = colorMap4( value );
+        col = blueLightBlueColorMap( value );
     else
-        col = defaultColorMap( value );
+        col = blueGreenPurpleColorMap( value );
 }

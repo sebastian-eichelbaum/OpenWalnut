@@ -231,13 +231,18 @@ void WMNavSlices::moduleMain()
 void WMNavSlices::create()
 {
     m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+    m_rootNode->setDataVariance( osg::Object::DYNAMIC );
     m_slicesNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+    m_slicesNode->setDataVariance( osg::Object::DYNAMIC );
 
     m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_xSliceNode->setDataVariance( osg::Object::DYNAMIC );
     m_xSliceNode->setName( "Sagittal Slice" );
     m_ySliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_ySliceNode->setDataVariance( osg::Object::DYNAMIC );
     m_ySliceNode->setName( "Coronal Slice" );
     m_zSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_zSliceNode->setDataVariance( osg::Object::DYNAMIC );
     m_zSliceNode->setName( "Axial Slice" );
 
     m_xSliceNode->addDrawable( createGeometry( 0 ) );
@@ -247,6 +252,9 @@ void WMNavSlices::create()
     m_xCrossNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
     m_yCrossNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
     m_zCrossNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_xCrossNode->setDataVariance( osg::Object::DYNAMIC );
+    m_yCrossNode->setDataVariance( osg::Object::DYNAMIC );
+    m_zCrossNode->setDataVariance( osg::Object::DYNAMIC );
     m_xCrossNode->addDrawable( createCrossGeometry( 0 ) );
     m_yCrossNode->addDrawable( createCrossGeometry( 1 ) );
     m_zCrossNode->addDrawable( createCrossGeometry( 2 ) );
