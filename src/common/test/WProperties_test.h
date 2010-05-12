@@ -193,7 +193,6 @@ public:
         /////////////
         // get
     }
-
 };
 
 #endif  // WPROPERTIES_TEST_H

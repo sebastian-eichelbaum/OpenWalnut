@@ -41,7 +41,7 @@ public:
      * \param parent The parent widget that manages this widget.
      * \param module The module that will be represented by the item.
      */
-    explicit WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
+    WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
     /**
      * destructor
@@ -49,6 +49,16 @@ public:
     virtual ~WQtDatasetTreeItem();
 
 protected:
+
+    /**
+     * The property containing the name of the module.
+     */
+    WPropString m_nameProp;
+
+    /**
+     * Called when the name property changes.
+     */
+    void nameChanged();
 
 private:
 };
