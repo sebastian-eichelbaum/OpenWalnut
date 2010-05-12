@@ -223,7 +223,6 @@ public:
 
         delete cs;
     }
-
 };
 
 #endif  // WCONDITIONSET_TEST_H

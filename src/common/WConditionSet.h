@@ -25,7 +25,8 @@
 #ifndef WCONDITIONSET_H
 #define WCONDITIONSET_H
 
-#include <set>
+#include <map>
+#include <utility>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>

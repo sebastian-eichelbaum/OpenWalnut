@@ -25,6 +25,8 @@
 #ifndef WPROTOTYPED_TEST_H
 #define WPROTOTYPED_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WPrototyped.h"
@@ -114,7 +116,6 @@ public:
         TS_ASSERT( !a.isA< SomePrototypeClass2 >() );
         TS_ASSERT( !b.isA< SomePrototypeClass1 >() );
     }
-
 };
 
 #endif  // WPROTOTYPED_TEST_H
