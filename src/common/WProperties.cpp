@@ -131,14 +131,6 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     m_propAccess->endWrite();
 }
 
-/**
- * Helping function to find a property inside a specific group. It does not recursively find properties nested inside other property groups.
- *
- * \param props the group to search in
- * \param name the name of the property inside THIS group.
- *
- * \return the property if found, else NULL.
- */
 boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
 {
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
