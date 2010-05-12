@@ -28,22 +28,41 @@
 
 #include "WQtDatasetTreeItem.h"
 
+namespace
+{
+    std::string getNameFromPath( std::string path )
+    {
+        std::string name;
+
+        // remove the path up to the file name
+        if ( path != "" )
+        {
+            name = string_utils::tokenize( path, "/" ).back();
+        }
+        else
+        {
+            name = "";
+        }
+
+        return name;
+    }
+}
+
 WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module )
     : WQtTreeItem( parent, DATASET, module )
 {
     // replace the name by the filename
     boost::shared_ptr< WPropertyBase > p = module->getInformationProperties()->findProperty( "Name" );
-    m_name = "Dataset";
-    if ( p.get() )
+
+    m_name = "";
+
+    while( m_name == "" )
     {
         m_name = p->toPropString()->get();
     }
 
     // remove the path up to the file name
-    if ( m_name != "" )
-    {
-        m_name = string_utils::tokenize( m_name, "/" ).back();
-    }
+    m_name = getNameFromPath( m_name );
 
     setText( 0, m_name.c_str() );
 }
