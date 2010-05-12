@@ -60,7 +60,7 @@ WProperties::WProperties( const WProperties& from ):
     for ( PropertyIterator iter = from.m_propAccess->get().begin(); iter != from.m_propAccess->get().end(); ++iter )
     {
         // clone them to keep dynamic type
-        m_propAccess->get().push_back( ( *iter )->clone() );
+        addProperty( ( *iter )->clone() );
     }
     from.m_propAccess->endRead();
 }

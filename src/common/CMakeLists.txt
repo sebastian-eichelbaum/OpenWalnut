@@ -17,6 +17,7 @@ IF( OW_COMPILE_TESTS )
                                "common"
                                "WSegmentationFault.cpp" # can't test seg-faults ;-)
                                "WTransferable.cpp"  # its an empty class
+                               "WPropertyBase.cpp" # its an abstract class. Its small functionality is tested in WPropertyVariable_test.h
                                "WLimits.cpp" # there are only some definitions
                              )
 ENDIF( OW_COMPILE_TESTS )
