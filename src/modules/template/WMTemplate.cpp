@@ -216,7 +216,7 @@ void WMTemplate::properties()
     // nice default values or min/max constraints.
 
     // All these above properties are not that usable for selections. Assume the following situation. Your module allows two different kinds of
-    // algorithms to run on some data and you want the user to select which one should do the work. This might be done withinteger properties but it
+    // algorithms to run on some data and you want the user to select which one should do the work. This might be done with integer properties but it
     // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_possibleSelections->addItem( "Beer", "Cold and fresh." );
