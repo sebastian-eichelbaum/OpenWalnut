@@ -469,7 +469,9 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
-    m_notifierConnection = m_updateCondition->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    m_notifierConnection = WFlag< T >::getValueChangeCondition()->subscribeSignal(
+            boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this )
+    );
     signal_PropertyChange.connect( notifier );
 }
 
@@ -487,7 +489,9 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
-    m_notifierConnection = m_updateCondition->subscribeSignal( boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this ) );
+    m_notifierConnection = WFlag< T >::getValueChangeCondition()->subscribeSignal(
+            boost::bind( &WPropertyVariable< T >::propertyChangeNotifier, this )
+    );
     signal_PropertyChange.connect( notifier );
 }
 
