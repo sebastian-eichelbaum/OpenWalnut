@@ -36,6 +36,8 @@ class WSharedObject;
 /**
  * Class which represents granted access to a locked object. It contains a reference to the object and a lock. The lock is freed after the ticket
  * has been destroyed.
+ *
+ * \note This class does not provide any member to actually get the contained value/instance. This is done in read and write tickets.
  */
 template < typename Data >
 class WSharedObjectTicket
@@ -54,16 +56,6 @@ public:
         {
             m_condition->notify();
         }
-    };
-
-    /**
-     * Returns the protected data. As long as you own the ticket, you are allowed to use it.
-     *
-     * \return the data
-     */
-    Data& get() const
-    {
-        return m_data;
     };
 
     /**

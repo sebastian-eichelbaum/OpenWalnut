@@ -50,6 +50,18 @@ public:
         unlock();
     };
 
+    /**
+     * Returns the protected data. As long as you own the ticket, you are allowed to use it.
+     *
+     * \note making it const enforces const correctness for contained types!
+     *
+     * \return the data (const!)
+     */
+    const Data& get() const
+    {
+        return WSharedObjectTicket< Data >::m_data;
+    };
+
 protected:
 
     /**
