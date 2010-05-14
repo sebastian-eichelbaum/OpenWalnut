@@ -142,6 +142,13 @@ public:
     virtual bool accept( T newValue );
 
     /**
+     * Tests whether a flag is currently valid. It is equal to accept( get() );
+     *
+     * \return true if current value is valid.
+     */
+    virtual bool isValid();
+
+    /**
      * True whenever the value inside this flag has changed since the last reset. It stays true until get( true ) is called.
      *
      * \return true when the value has changed and not yet been reseted.
@@ -290,6 +297,12 @@ bool WFlag< T >::accept( T /* newValue */ )
 {
     // please implement this method in your class to modify the behaviour.
     return true;
+}
+
+template < typename T >
+bool WFlag< T >::isValid()
+{
+    return accept( get() );
 }
 
 template < typename T >

@@ -66,6 +66,15 @@ public:
         return m_data;
     };
 
+    /**
+     * If called, the unlock will NOT fire the condition. This is useful in some situations if you find out "hey there actually was nothing
+     * changed".
+     */
+    void suppressUnlockCondition()
+    {
+        m_condition = boost::shared_ptr< WCondition >();
+    }
+
 protected:
 
     /**

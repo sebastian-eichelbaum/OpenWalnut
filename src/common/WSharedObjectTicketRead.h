@@ -46,6 +46,7 @@ public:
      */
     virtual ~WSharedObjectTicketRead()
     {
+        // explicitly unlock to ensure the WSharedObjectTicket destructor can call the update callback AFTER the lock has been released
         unlock();
     };
 
