@@ -36,6 +36,17 @@ template < typename T >
 class WSharedAssociativeContainer: public WSharedObject< T >
 {
 public:
+    // Some helpful typedefs
+
+    /**
+     * A typedef for the correct const iterator useful to traverse this sequence container.
+     */
+    typedef typename T::const_iterator   ConstIterator;
+
+    /**
+     * A typedef for the correct iterator to traverse this sequence container.
+     */
+    typedef typename T::iterator         Iterator;
 
     /**
      * Default constructor.
