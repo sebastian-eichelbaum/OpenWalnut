@@ -222,7 +222,7 @@ public:
         // add another min value. Is the first one removed?
         p->setMin( 5 );
         p->setMax( 20 );
-        p->m_constraints.getReadTicket()->get().size();
+        p->m_constraints->getReadTicket()->get().size();
 
         // try to set a valid value, which was invalid previously
         TS_ASSERT( p->set( 9 ) );
@@ -277,7 +277,7 @@ public:
         WPropertyVariable< int >::PropertyConstraintMin cmin =
             boost::shared_ptr< WPropertyConstraintMin< int > >( new  WPropertyConstraintMin< int >( 10 ) );
         p->addConstraint( cmin );
-        TS_ASSERT( p->m_constraints.getReadTicket()->get().size() == 1 );
+        TS_ASSERT( p->m_constraints->getReadTicket()->get().size() == 1 );
         TS_ASSERT( m_testTemporary1 );    // the update condition has to be fired on constraint updates
 
         ////////////////////////////////////
