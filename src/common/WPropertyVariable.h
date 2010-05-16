@@ -507,7 +507,7 @@ WPropertyVariable< T >::WPropertyVariable( const WPropertyVariable< T >& from ):
     typename WPropertyVariable< T >::ConstraintContainerType::WriteTicket w = m_constraints->getWriteTicket();
 
     // we need to make a deep copy here.
-    for ( typename ConstraintContainerType::Iterator iter = l->get().begin(); iter != l->get().end(); ++iter )
+    for ( typename ConstraintContainerType::ConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
         // clone them to keep dynamic type
         w->get().insert( ( *iter )->clone() );
