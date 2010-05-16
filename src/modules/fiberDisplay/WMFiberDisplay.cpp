@@ -303,7 +303,6 @@ void WMFiberDisplay::adjustTubes()
         {
             m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
         }
-
     }
 }
 
