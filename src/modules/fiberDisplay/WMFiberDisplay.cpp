@@ -233,6 +233,7 @@ void WMFiberDisplay::properties()
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 300 );
+
     m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
     m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WKernel::getAppPathObject() );
     m_updateOC = m_properties->addProperty( "Update Output Conn.",
@@ -296,9 +297,13 @@ void WMFiberDisplay::toggleColoring()
 
 void WMFiberDisplay::adjustTubes()
 {
-    if ( m_tubeThickness->changed() && m_useTubesProp->get( true ) )
+    if ( m_tubeThickness.get() && m_useTubesProp.get() )
     {
-        m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
+        if ( m_tubeThickness->changed() && m_useTubesProp->get( true ) )
+        {
+            m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
+        }
+
     }
 }
 
