@@ -170,8 +170,8 @@ public:
     {
       WMatrix result( m_nbCols, getNbRows() );
 
-      for ( uint i = 0; i < getNbRows(); i++ )
-        for ( uint j = 0; j < m_nbCols; j++ )
+      for ( std::size_t i = 0; i < getNbRows(); i++ )
+        for ( std::size_t j = 0; j < m_nbCols; j++ )
           result( j, i ) = (*this)( i, j);
       return result;
     }

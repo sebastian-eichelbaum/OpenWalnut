@@ -111,16 +111,16 @@ public:
     void testGetWValue( void )
     {
         int8_t a[6] = { 1, 2, 3, 4, 5, 6 };
-        uint dim = 2;
+        std::size_t dim = 2;
 
         const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
         WValueSet< int8_t > set( 1, dim, v, W_DT_INT8 );
 
         // testing for valid dimension and values of the returned WValue
-        for ( uint idx = 0; idx < v.size()/dim; idx++ )
+        for ( std::size_t idx = 0; idx < v.size()/dim; idx++ )
         {
           wmath::WValue< int8_t > currentWValue( dim );
-          for ( uint i = 0; i < dim; i++ ) currentWValue[ i ] = v[ idx*dim + i ];
+          for ( std::size_t i = 0; i < dim; i++ ) currentWValue[ i ] = v[ idx*dim + i ];
           TS_ASSERT_EQUALS( set.getWValue( idx ), currentWValue );
           TS_ASSERT_EQUALS( set.getWValue( idx ).size(), dim );
         }
