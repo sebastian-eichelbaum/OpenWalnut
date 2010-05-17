@@ -330,8 +330,6 @@ void WMFiberDisplay::updateOutput() const
             }
             indices.push_back( fibs.size() );
             fibs.push_back( f );
-            // construct index'th fiber and put index into fiberCluster
-            std::cout << "size: " << fibs.size() << " :: " << fibs.back().size() << std::endl;
         }
     }
     boost::shared_ptr< WFiberCluster > result( new WFiberCluster );
