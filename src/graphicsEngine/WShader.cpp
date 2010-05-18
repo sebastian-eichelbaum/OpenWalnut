@@ -76,7 +76,8 @@ void WShader::apply( osg::ref_ptr< osg::Node > node )
     osg::StateSet* rootState = node->getOrCreateStateSet();
     rootState->setAttributeAndModes( this, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
     m_deactivated = false;
-    m_reload = true; // !m_shaderLoaded;
+    m_reload = !m_shaderLoaded;
+
     // add a custom callback which actually sets and updated the shader.
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
@@ -89,10 +90,11 @@ void WShader::deactivate( osg::ref_ptr< osg::Node > node )
     rootState->setAttributeAndModes( this, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
 
     m_deactivated = true;
+    m_shaderLoaded = false;
+
     // add a custom callback which actually sets and updated the shader.
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
-
 
 void WShader::reload()
 {
