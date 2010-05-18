@@ -163,6 +163,19 @@ public:
      */
     WValue< T > operator*( const WValue< T >& rhs ) const;
 
+    /**
+     * Returns the transposed matrix.
+     */
+    WMatrix transposed() const
+    {
+      WMatrix result( m_nbCols, getNbRows() );
+
+      for ( std::size_t i = 0; i < getNbRows(); i++ )
+        for ( std::size_t j = 0; j < m_nbCols; j++ )
+          result( j, i ) = (*this)( i, j);
+      return result;
+    }
+
 protected:
 private:
     size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).

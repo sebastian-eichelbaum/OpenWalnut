@@ -36,6 +36,8 @@ class WSharedObject;
 /**
  * Class which represents granted access to a locked object. It contains a reference to the object and a lock. The lock is freed after the ticket
  * has been destroyed.
+ *
+ * \note This class does not provide any member to actually get the contained value/instance. This is done in read and write tickets.
  */
 template < typename Data >
 class WSharedObjectTicket
@@ -57,14 +59,13 @@ public:
     };
 
     /**
-     * Returns the protected data. As long as you own the ticket, you are allowed to use it.
-     *
-     * \return the data
+     * If called, the unlock will NOT fire the condition. This is useful in some situations if you find out "hey there actually was nothing
+     * changed".
      */
-    Data& get() const
+    void suppressUnlockCondition()
     {
-        return m_data;
-    };
+        m_condition = boost::shared_ptr< WCondition >();
+    }
 
 protected:
 

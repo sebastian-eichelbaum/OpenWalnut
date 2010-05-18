@@ -25,7 +25,8 @@
 #ifndef WCONDITIONSET_H
 #define WCONDITIONSET_H
 
-#include <set>
+#include <map>
+#include <utility>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
@@ -39,6 +40,7 @@
  */
 class WConditionSet: public WCondition
 {
+friend class WConditionSetTest;
 public:
 
     /**
@@ -110,9 +112,20 @@ protected:
     bool m_autoReset;
 
     /**
+     * We need to keep track of the connections a condition has made since boost::function objects do not provide a == operator and can therefore
+     * not easily be removed from a signals by signal.desconnect( functor ).
+     */
+    typedef std::map< boost::shared_ptr< WCondition >, boost::signals2::connection > ConditionConnectionMap;
+
+    /**
      * Set of conditions to be waited for.
      */
-    std::set< boost::shared_ptr< WCondition > > m_conditionSet;
+    ConditionConnectionMap m_conditionSet;
+
+    /**
+     * Each condition has a connection.
+     */
+    typedef std::pair< boost::shared_ptr< WCondition >, boost::signals2::connection > ConditionConnectionPair;
 
     /**
      * Lock used for thread-safe writing to the condition set.
@@ -128,6 +141,11 @@ protected:
      * Flag denoting whether one condition fired in the past. Just useful when m_resetable is true.
      */
     mutable bool m_fired;
+
+    /**
+     * The notifier which gets called by all conditions if they fire
+     */
+    WCondition::t_ConditionNotifierType m_notifier;
 
 private:
 };

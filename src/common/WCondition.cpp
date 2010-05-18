@@ -50,8 +50,3 @@ boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType
     return signal_ConditionFired.connect( notifier );
 }
 
-void WCondition::unsubscribeSignal( t_ConditionNotifierType notifier )
-{
-    signal_ConditionFired.disconnect( &notifier );
-}
-

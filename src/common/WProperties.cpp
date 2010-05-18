@@ -60,9 +60,12 @@ WProperties::WProperties( const WProperties& from ):
     for ( PropertyIterator iter = from.m_propAccess->get().begin(); iter != from.m_propAccess->get().end(); ++iter )
     {
         // clone them to keep dynamic type
-        m_propAccess->get().push_back( ( *iter )->clone() );
+        addProperty( ( *iter )->clone() );
     }
     from.m_propAccess->endRead();
+
+    // add the change condition of the prop list
+    m_updateCondition->add( m_properties.getChangeCondition() );
 }
 
 boost::shared_ptr< WPropertyBase > WProperties::clone()
@@ -131,14 +134,6 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     m_propAccess->endWrite();
 }
 
-/**
- * Helping function to find a property inside a specific group. It does not recursively find properties nested inside other property groups.
- *
- * \param props the group to search in
- * \param name the name of the property inside THIS group.
- *
- * \return the property if found, else NULL.
- */
 boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
 {
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();

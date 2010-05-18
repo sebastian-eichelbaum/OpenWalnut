@@ -117,6 +117,16 @@ public:
      */
     wmath::WVector3D getVector3D( size_t index ) const;
 
+
+    /**
+     * Get the i'th WValue with the dimension of WValueSet
+     *
+     * \param index the index number of the WValue
+     *
+     * \return a WValue with the dimension WValueSet
+     */
+    wmath::WValue< T > getWValue( size_t index ) const;
+
     /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.
      */
@@ -146,8 +156,25 @@ private:
 template< typename T > wmath::WVector3D WValueSet< T >::getVector3D( size_t index ) const
 {
     WAssert( m_order == 1 && m_dimension == 3, "WValueSet<T>::getVector3D only implemented for order==1, dim==3 value sets" );
+    WAssert( ( index + 1 ) * 3 <= m_data.size(), "index in WValueSet<T>::getVector3D too big" );
     size_t offset = index * 3;
     return wmath::WVector3D( m_data[ offset ], m_data[ offset + 1 ], m_data[ offset + 2 ] );
+}
+
+template< typename T > wmath::WValue< T > WValueSet< T >::getWValue( size_t index ) const
+{
+    WAssert( m_order == 1, "WValueSet<T>::getWValue only implemented for order==1 value sets" );
+    WAssert( ( index + 1 ) * m_dimension <= m_data.size(), "index in WValueSet<T>::getWValue too big" );
+
+    size_t offset = index * m_dimension;
+
+    wmath::WValue< T > result( m_dimension );
+
+    // copying values
+    for ( std::size_t i = 0; i < m_dimension; i++ )
+      result[i] = m_data[ offset+i ];
+
+    return result;
 }
 
 #endif  // WVALUESET_H

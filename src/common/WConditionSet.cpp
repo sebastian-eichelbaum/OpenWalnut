@@ -28,7 +28,8 @@ WConditionSet::WConditionSet():
     WCondition(),
     m_resetable( false ),
     m_autoReset( false ),
-    m_fired( false )
+    m_fired( false ),
+    m_notifier( boost::bind( &WConditionSet::conditionFired, this ) )
 {
 }
 
@@ -42,19 +43,30 @@ void WConditionSet::add( boost::shared_ptr< WCondition > condition )
 {
     // get write lock
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_conditionSetLock );
-    m_conditionSet.insert( condition );
-    lock.unlock();
 
-    condition->subscribeSignal( boost::bind( &WConditionSet::conditionFired, this ) );
+    if ( !m_conditionSet.count( condition ) )
+    {
+        // create a new pair, the condition and its connection object.
+        // this is needed since remove needs the connection to disconnect the notifier again
+        m_conditionSet.insert( ConditionConnectionPair( condition, condition->subscribeSignal( m_notifier ) ) );
+    }
+
+    lock.unlock();
 }
 
 void WConditionSet::remove( boost::shared_ptr< WCondition > condition )
 {
-    condition->unsubscribeSignal( boost::bind( &WConditionSet::conditionFired, this ) );
-
     // get write lock
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_conditionSetLock );
-    m_conditionSet.erase( condition );
+
+    // get the element
+    ConditionConnectionMap::iterator it = m_conditionSet.find( condition );
+    if ( it != m_conditionSet.end() )
+    {
+        ( *it ).second.disconnect();
+        m_conditionSet.erase( it );
+    }
+
     lock.unlock();
 }
 

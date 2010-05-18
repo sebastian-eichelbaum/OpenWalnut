@@ -48,6 +48,7 @@
  */
 class WProperties: public WPropertyBase
 {
+friend class WPropertiesTest;
 public:
 
     // the following typedefs are for convenience.
