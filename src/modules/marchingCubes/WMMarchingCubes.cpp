@@ -347,6 +347,9 @@ void WMMarchingCubes::renderMesh()
         state->setAttribute( material );
     }
 
+    surfaceGeometry->setUseDisplayList( false );
+    surfaceGeometry->setUseVertexBufferObjects( true );
+
     // ------------------------------------------------
     // Shader stuff
 
