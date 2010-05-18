@@ -50,20 +50,20 @@
 #include "../modules/fiberTransform/WMFiberTransform.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
 #include "../modules/hud/WMHud.h"
-#include "../modules/lic/WMLIC.h"
 #include "../modules/joinTreeTester/WMJoinTreeTester.h"
+#include "../modules/lic/WMLIC.h"
 #include "../modules/lineGuidedSlice/WMLineGuidedSlice.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
 #include "../modules/meshReader/WMMeshReader.h"
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/scalarSegmentation/WMScalarSegmentation.h"
+#include "../modules/superquadricGlyphs/WMSuperquadricGlyphs.h"
 #include "../modules/surfaceParticles/WMSurfaceParticles.h"
 #include "../modules/template/WMTemplate.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
 #include "../modules/vectorPlot/WMVectorPlot.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
-#include "../modules/superquadricGlyphs/WMSuperquadricGlyphs.h"
 #include "combiner/WApplyPrototypeCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -93,40 +93,41 @@ void WModuleFactory::load()
     m_prototypeAccess->beginWrite();
 
     // currently the prototypes are added by hand. This will be done automatically later.
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTemplate() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDeterministicFTMori() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberCulling() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMCoordinateSystem() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMApplyMask() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMCoordinateSystem() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDeterministicFTMori() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberCulling() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMHud() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTriangleMeshRenderer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMLineGuidedSlice() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMScalarSegmentation() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMLIC() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMJoinTreeTester() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMLIC() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMLineGuidedSlice() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMScalarSegmentation() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSuperquadricGlyphs() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTemplate() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTriangleMeshRenderer() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
 
     m_prototypeAccess->endWrite();
 
