@@ -139,8 +139,6 @@ void WMFiberDisplay::moduleMain()
 
 void WMFiberDisplay::update()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
     if( m_noData.changed() )
     {
         if( m_osgNode && m_noData.get( true ) )
@@ -152,8 +150,6 @@ void WMFiberDisplay::update()
             m_osgNode->setNodeMask( 0xFFFFFFFF );
         }
     }
-
-    slock.unlock();
 }
 
 void WMFiberDisplay::create()
