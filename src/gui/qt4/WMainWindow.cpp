@@ -700,9 +700,14 @@ bool WMainWindow::event( QEvent* event )
         if ( e1 )
         {
             QString title = "Problem in module: " + QString::fromStdString( e1->getModule()->getName() );
-            QString message = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
-                              "<br/><b>Message:  </b>" + QString::fromStdString( e1->getMessage() );
-            QMessageBox::critical( this, title, message );
+            QString description = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() );
+
+            QString message = QString::fromStdString( e1->getMessage() );
+            QMessageBox msgBox;
+            msgBox.setText( description );
+            msgBox.setInformativeText( message  );
+            msgBox.setStandardButtons( QMessageBox::Ok );
+            msgBox.exec();
         }
     }
 
