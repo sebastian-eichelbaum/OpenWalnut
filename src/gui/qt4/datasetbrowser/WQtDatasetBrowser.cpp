@@ -67,8 +67,8 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget = new WQtTreeWidget( m_panel );
     m_moduleTreeWidget->setContextMenuPolicy( Qt::ActionsContextMenu );
 
-    m_moduleTreeWidget->setHeaderLabel( QString( "Dataset Browser" ) );
-    m_moduleTreeWidget->setDragEnabled( true );
+    m_moduleTreeWidget->setHeaderLabel( QString( "Module Tree" ) );
+    m_moduleTreeWidget->setDragEnabled( false );
     m_moduleTreeWidget->viewport()->setAcceptDrops( true );
     m_moduleTreeWidget->setDropIndicatorShown( true );
     m_moduleTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
@@ -114,8 +114,8 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     this->setWidget( m_panel );
 
     m_tiModules = new WQtModuleHeaderTreeItem( m_moduleTreeWidget );
-    m_tiModules->setText( 0, QString( "Modules" ) );
-    m_tiModules->setToolTip( 0, "Data independent modules and modules for which not parent module could be detected." );
+    m_tiModules->setText( 0, QString( "Subject-independent Modules" ) );
+    m_tiModules->setToolTip( 0, "Subject-independent modules and modules for which no parent module could be detected." );
     m_tiRois = new WQtRoiHeaderTreeItem( m_roiTreeWidget );
     m_tiRois->setText( 0, QString( "ROIs" ) );
 
@@ -157,6 +157,10 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 {
     WQtSubjectTreeItem* subject = new WQtSubjectTreeItem( m_moduleTreeWidget );
     subject->setText( 0, QString( name.c_str() ) );
+    subject->setToolTip( 0, QString( ( std::string( "" )
+                                       + "All data and modules that are children of this tree item belong to the subject \""
+                                       + name
+                                       + "\"." ).c_str() ) );
 
     return subject;
 }
