@@ -245,7 +245,7 @@ int FStreamlineOnSurfaceEuler::integrate(const FPosition& start, const FIndex& c
                         m_mesh->getPosition(p[l], id[l]);
                     FArray mean = 1. / 3. * (p[0] + p[1] + p[2]);
 
-                    nextPos += .05 * (mean - nextPos);
+                    nextPos += 0.05 * (mean - nextPos);
                 }
 
                 steps.push_back(nextPos);
@@ -741,10 +741,10 @@ bool FStreamlineOnSurfaceEuler::walkThroughCell(const FArray& entry, const FInde
         std::cout << ", u=" << u << std::endl;
 #endif
 
-        if (u < .01)
-            u = .01;
-        else if (u > .98)
-            u = .98;
+        if (u < 0.01)
+            u = 0.01;
+        else if (u > 0.98)
+            u = 0.98;
         exit = (1. - u) * vertices[id0] + u * vertices[id1];
 
         exit_edge[0] = verts[id0][0] - verts[id1][0];
