@@ -366,7 +366,7 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item;
-    if( m_moduleTreeWidget->selectedItems().size() )
+    if( m_moduleTreeWidget->selectedItems().size() && module->getName() != "Navigation Slices" )
     {
         item = new WQtModuleTreeItem( m_moduleTreeWidget->selectedItems().at( 0 ), module );
     }
@@ -374,7 +374,6 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
     {
         item = m_tiModules->addModuleItem( module );
     }
-    // m_moduleTreeWidget->selectedItems().at( 0 )->addChild( item );
     m_moduleTreeWidget->setCurrentItem( item );
     item->setDisabled( true );
     return item;
