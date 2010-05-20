@@ -173,6 +173,11 @@ public slots:
     void openAboutDialog();
 
     /**
+     * Gets called when a menu entry that has no functionality yet is activated.
+     */
+    void openNotImplementedDialog();
+
+    /**
      * gets called when the button new roi is pressed
      */
     void newRoi();
