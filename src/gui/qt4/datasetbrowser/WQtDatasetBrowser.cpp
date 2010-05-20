@@ -756,16 +756,6 @@ int WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     return m_tabWidget->addTab( sa, content->getName() );
 }
 
-void WQtDatasetBrowser::moveTreeItemDown()
-{
-    m_moduleTreeWidget->moveTreeItemDown();
-}
-
-void WQtDatasetBrowser::moveTreeItemUp()
-{
-    m_moduleTreeWidget->moveTreeItemUp();
-}
-
 int WQtDatasetBrowser::getFirstSubject()
 {
     int c = 0;
