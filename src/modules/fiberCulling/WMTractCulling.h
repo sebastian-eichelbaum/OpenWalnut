@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERCULLING_H
-#define WMFIBERCULLING_H
+#ifndef WMTRACTCULLING_H
+#define WMTRACTCULLING_H
 
 #include <string>
 #include <vector>
@@ -43,19 +43,19 @@
  *
  * \ingroup modules
  */
-class WMFiberCulling : public WModule
+class WMTractCulling : public WModule
 {
-friend class WMFiberCullingTest;
+friend class WMTractCullingTest;
 public:
     /**
-     * Constructs FiberCulling module.
+     * Constructs TractCulling module.
      */
-    WMFiberCulling();
+    WMTractCulling();
 
     /**
-     * Destructs this FiberCulling module.
+     * Destructs this TractCulling module.
      */
-    virtual ~WMFiberCulling();
+    virtual ~WMTractCulling();
 
     /**
      * Gives back the name of this module.
@@ -105,7 +105,7 @@ protected:
      *
      * \note This might take a while with 70,000 tracts approx 2h.
      */
-    virtual void cullOutFibers();
+    virtual void cullOutTracts();
 
     /**
      * Generates new data set out of the tracts which are not marked "unused"
@@ -125,7 +125,7 @@ protected:
      */
     boost::filesystem::path saveFileName( std::string dataFileName ) const;
 
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_fiberInput; //!< Input connector for a tract dataset.
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_tractInput; //!< Input connector for a tract dataset.
     boost::shared_ptr< WDataSetFiberVector >                 m_dataset; //!< Pointer to the tract data set in WDataSetFiberVector format
     boost::shared_ptr< WDataSetFibers >                      m_rawDataset; //!< Pointer to the tract data set in WDataSetFibers format
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled tracts
@@ -143,14 +143,14 @@ protected:
 private:
 };
 
-inline const std::string WMFiberCulling::getName() const
+inline const std::string WMTractCulling::getName() const
 {
-    return std::string( "Fiber Culling" );
+    return std::string( "Tract Culling" );
 }
 
-inline const std::string WMFiberCulling::getDescription() const
+inline const std::string WMTractCulling::getDescription() const
 {
     return std::string( "Removes or culls out tracts from a WDataSetFiberVector" );
 }
 
-#endif  // WMFIBERCULLING_H
+#endif  // WMTRACTCULLING_H
