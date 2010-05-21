@@ -38,30 +38,30 @@
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../kernel/WKernel.h"
-#include "tractCulling.xpm"
-#include "WMTractCulling.h"
+#include "detTractCulling.xpm"
+#include "WMDetTractCulling.h"
 
-WMTractCulling::WMTractCulling()
+WMDetTractCulling::WMDetTractCulling()
     : WModule(),
       m_recompute( new WCondition() )
 {
 }
 
-WMTractCulling::~WMTractCulling()
+WMDetTractCulling::~WMDetTractCulling()
 {
 }
 
-boost::shared_ptr< WModule > WMTractCulling::factory() const
+boost::shared_ptr< WModule > WMDetTractCulling::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMTractCulling() );
+    return boost::shared_ptr< WModule >( new WMDetTractCulling() );
 }
 
-const char** WMTractCulling::getXPMIcon() const
+const char** WMDetTractCulling::getXPMIcon() const
 {
-    return tractCulling_xpm;
+    return detTractCulling_xpm;
 }
 
-void WMTractCulling::moduleMain()
+void WMDetTractCulling::moduleMain()
 {
     // when conditions are fireing while wait() is not reached: wait terminates
     // and behaves as if the appropriate conditions have had fired. But it is
@@ -110,7 +110,7 @@ void WMTractCulling::moduleMain()
     }
 }
 
-void WMTractCulling::connectors()
+void WMDetTractCulling::connectors()
 {
     typedef WModuleInputData< WDataSetFibers > TractInputData;  // just an alias
     m_tractInput = boost::shared_ptr< TractInputData >( new TractInputData( shared_from_this(), "tractInput", "A loaded tract dataset." ) );
@@ -123,7 +123,7 @@ void WMTractCulling::connectors()
     WModule::connectors();  // call WModules initialization
 }
 
-void WMTractCulling::properties()
+void WMDetTractCulling::properties()
 {
     m_dSt_culling_t    = m_properties->addProperty( "Min tract distance", "If below, the shorter tract is culled out", 6.5 );
     m_proximity_t      = m_properties->addProperty( "Min point distance", "Min distance of points of two tracts which should be considered", 1.0 );
@@ -140,7 +140,7 @@ void WMTractCulling::properties()
     m_numTracts->setMax( wlimits::MAX_INT32_T );
 }
 
-void WMTractCulling::cullOutTracts()
+void WMDetTractCulling::cullOutTracts()
 {
     // store the parameters from GUI incase they may change during computation
     double proximity_t      = m_proximity_t->get();
@@ -199,7 +199,7 @@ void WMTractCulling::cullOutTracts()
     saveGainedTracts( unusedTracts );
 }
 
-void WMTractCulling::saveGainedTracts( const std::vector< bool >& unusedTracts )
+void WMDetTractCulling::saveGainedTracts( const std::vector< bool >& unusedTracts )
 {
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing tracts", unusedTracts.size() ) );
     m_progress->addSubProgress( eraseProgress );
@@ -219,7 +219,7 @@ void WMTractCulling::saveGainedTracts( const std::vector< bool >& unusedTracts )
     saveProgress->finish();
 }
 
-boost::filesystem::path WMTractCulling::saveFileName( std::string dataFileName ) const
+boost::filesystem::path WMDetTractCulling::saveFileName( std::string dataFileName ) const
 {
     std::stringstream newExtension;
     newExtension << std::fixed << std::setprecision( 2 );

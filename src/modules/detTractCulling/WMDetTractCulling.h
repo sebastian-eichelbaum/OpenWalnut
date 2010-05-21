@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTRACTCULLING_H
-#define WMTRACTCULLING_H
+#ifndef WMDETTRACTCULLING_H
+#define WMDETTRACTCULLING_H
 
 #include <string>
 #include <vector>
@@ -37,25 +37,25 @@
 #include "../../kernel/WModuleInputData.h"
 
 /**
- * Implements a preprocessing step for the deterministic tract clustering ala
- * Zhang http://dx.doi.org/10.1109/TVCG.2008.52 .
+ * Removes deterministic tracts and therefore implements a preprocessing step
+ * for the deterministic tract clustering ala Zhang http://dx.doi.org/10.1109/TVCG.2008.52 .
  * It removes tracts which are considered to be not much useful for this special clustering approach.
  *
  * \ingroup modules
  */
-class WMTractCulling : public WModule
+class WMDetTractCulling : public WModule
 {
-friend class WMTractCullingTest;
+friend class WMDetTractCullingTest;
 public:
     /**
-     * Constructs TractCulling module.
+     * Constructs deterministic tract culling module.
      */
-    WMTractCulling();
+    WMDetTractCulling();
 
     /**
-     * Destructs this TractCulling module.
+     * Destructs this DetTractCulling module.
      */
-    virtual ~WMTractCulling();
+    virtual ~WMDetTractCulling();
 
     /**
      * Gives back the name of this module.
@@ -143,14 +143,14 @@ protected:
 private:
 };
 
-inline const std::string WMTractCulling::getName() const
+inline const std::string WMDetTractCulling::getName() const
 {
     return std::string( "Tract Culling" );
 }
 
-inline const std::string WMTractCulling::getDescription() const
+inline const std::string WMDetTractCulling::getDescription() const
 {
     return std::string( "Removes or culls out tracts from a WDataSetFiberVector" );
 }
 
-#endif  // WMTRACTCULLING_H
+#endif  // WMDETTRACTCULLING_H

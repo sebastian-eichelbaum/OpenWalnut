@@ -22,17 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTRACTCULLING_TEST_H
-#define WMTRACTCULLING_TEST_H
+#ifndef WMDETTRACTCULLING_TEST_H
+#define WMDETTRACTCULLING_TEST_H
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WMTractCulling.h"
+#include "../WMDetTractCulling.h"
 
 /**
  * TODO(math): Document this!
  */
-class WMTractCullingTest : public CxxTest::TestSuite
+class WMDetTractCullingTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -43,4 +43,4 @@ public:
     }
 };
 
-#endif  // WMTRACTCULLING_TEST_H
+#endif  // WMDETTRACTCULLING_TEST_H

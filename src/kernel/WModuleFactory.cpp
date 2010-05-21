@@ -44,7 +44,7 @@
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/eegView/WMEEGView.h"
 #include "../modules/fiberClustering/WMFiberClustering.h"
-#include "../modules/fiberCulling/WMTractCulling.h"
+#include "../modules/detTractCulling/WMDetTractCulling.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
 #include "../modules/fiberTransform/WMFiberTransform.h"
@@ -107,7 +107,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTractCulling() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDetTractCulling() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
