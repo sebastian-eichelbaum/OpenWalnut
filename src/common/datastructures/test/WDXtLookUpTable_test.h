@@ -55,7 +55,7 @@ public:
     void testAccessOn3x3Matrix( void )
     {
         WDXtLookUpTable t( 3 );
-        double mydata[] = { 1.6, .2, 7.7 }; // NOLINT
+        double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         t.setData( data );
         TS_ASSERT_EQUALS( t( 1, 2 ), 7.7 );
@@ -70,7 +70,7 @@ public:
     void testSetDataWithInvalidLengthForDimension( void )
     {
         WDXtLookUpTable t( 4 );
-        double mydata[] = { 1.6, .2, 7.7 }; // NOLINT
+        double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         TS_ASSERT_THROWS_EQUALS( t.setData( data ), WOutOfBounds &e, std::string( e.what() ), "Data vector length: 3 doesn't fit to dimension: 4" );
     }
@@ -81,7 +81,7 @@ public:
     void testInvalidAccessOnMainDiagonal( void )
     {
         WDXtLookUpTable t( 4 );
-        double mydata[] = { 1.6, .2, 7.7 }; // NOLINT
+        double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         TS_ASSERT_THROWS_EQUALS( t( 0, 0 ), WOutOfBounds &e, std::string( e.what() ),
                 "Invalid Element Access ( 0, 0 ). Main Diagonal Elements are forbidden in this table." );

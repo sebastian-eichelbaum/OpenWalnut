@@ -18,7 +18,7 @@ void main()
 
     col = clamp(col, 0.0, 1.0);
 
-    col.a = opacity * .01;
+    col.a = opacity * 0.01;
 
     gl_FragColor = col;
 }

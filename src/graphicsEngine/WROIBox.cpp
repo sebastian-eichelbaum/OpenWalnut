@@ -165,7 +165,7 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     // colors
     osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
 
-    colors->push_back( osg::Vec4( .0f, .0f, 1.f, 0.5f ) );
+    colors->push_back( osg::Vec4( 0.0f, 0.0f, 1.0f, 0.5f ) );
     m_surfaceGeometry->setColorArray( colors );
     m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -289,7 +289,7 @@ void WROIBox::updateGFX()
             if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
             {
                 osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-                colors->push_back( osg::Vec4( .0f, 1.0f, .0f, 0.4f ) );
+                colors->push_back( osg::Vec4( 0.0f, 1.0f, 0.0f, 0.4f ) );
                 m_surfaceGeometry->setColorArray( colors );
             }
         }
