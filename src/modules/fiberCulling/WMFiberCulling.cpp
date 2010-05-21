@@ -127,6 +127,9 @@ void WMFiberCulling::properties()
     m_run              = m_properties->addProperty( "Run", "Go go go with those parameters", false, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
     WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
+    m_numRemovedTracts = m_infoProperties->addProperty( "#Tracts removed", "Number of tracts beeing culled out", 0 );
+    m_numRemovedTracts->setMin( 0 );
+    m_numRemovedTracts->setMax( wlimits::MAX_INT32_T );
     m_numTracts = m_infoProperties->addProperty( "#Tracts", "Number of tracts beeing processed", 0 );
     m_numTracts->setMin( 0 );
     m_numTracts->setMax( wlimits::MAX_INT32_T );
@@ -134,20 +137,18 @@ void WMFiberCulling::properties()
 
 void WMFiberCulling::cullOutFibers()
 {
-    // get parameter from GUI (properties)
+    // store the parameters from GUI incase they may change during computation
     double proximity_t      = m_proximity_t->get();
     double dSt_culling_t    = m_dSt_culling_t->get();
-    bool   saveCulledCurves = m_saveCulledCurves->get();
-    boost::filesystem::path savePath = m_savePath->get();
 
     size_t numTracts = m_dataset->size();
 
-    boost::shared_ptr< WProgress > sortProcess( new WProgress( "Sorting tracts", numTracts ) );
-    // TODO(math): implement sort progress in WDataSetFiberVector
-    m_dataset->sortDescLength();  // biggest first, this is for speed up
-    sortProcess->finish();
+    boost::shared_ptr< WProgress > sortProgress( new WProgress( "Sorting tracts", numTracts ) );
+    m_progress->addSubProgress( sortProgress );
+    m_dataset->sortDescLength();  // biggest first, this is for speed up, incrementing progress not possible (std::sort is used)
+    sortProgress->finish();
 
-    std::vector< bool > unusedFibers( numTracts, false );
+    std::vector< bool > unusedTracts( numTracts, false );
 
     boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dSt; // NOLINT
     const double proxSquare = proximity_t * proximity_t;
@@ -158,14 +159,14 @@ void WMFiberCulling::cullOutFibers()
 
     for( size_t q = 0; q < numTracts && !m_shutdownFlag(); ++q )  // loop over all tracts
     {
-        if( unusedFibers[q] )
+        if( unusedTracts[q] )
         {
             ++*progress;
             continue;
         }
         for( size_t r = q + 1; r < numTracts && !m_shutdownFlag(); ++r )
         {
-            if( unusedFibers[r] )
+            if( unusedTracts[r] )
             {
                 continue;
             }
@@ -174,12 +175,12 @@ void WMFiberCulling::cullOutFibers()
             {
                 if( (*m_dataset)[q].size() < (*m_dataset)[r].size() )
                 {
-                    unusedFibers[q] = true;
+                    unusedTracts[q] = true;
                     break;
                 }
                 else
                 {
-                    unusedFibers[r] = true;
+                    unusedTracts[r] = true;
                 }
             }
         }
@@ -190,22 +191,27 @@ void WMFiberCulling::cullOutFibers()
         return; // abort requested
     }
     progress->finish();
+    saveGainedTracts( unusedTracts );
+}
 
-    boost::shared_ptr< const WDataSetFiberVector > result =  m_dataset->generateDataSetOutOfUsedFibers( unusedFibers );
-    infoLog() << "Start: WDataSetFibers <= WDataSetFiberVector";
+void WMFiberCulling::saveGainedTracts( const std::vector< bool >& unusedTracts )
+{
+    boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing tracts", unusedTracts.size() ) );
+    m_progress->addSubProgress( eraseProgress );
+    boost::shared_ptr< const WDataSetFiberVector > result =  m_dataset->generateDataSetOutOfUsedFibers( unusedTracts );
     m_output->updateData( result->toWDataSetFibers() );
-    infoLog() << "Stop:  WDataSetFibers <= WDataSetFiberVector";
+    eraseProgress->finish();
 
-    infoLog() << "Erasing done.";
-    infoLog() << "Culled out " << numTracts - m_output->getData()->size() << " fibers";
-    infoLog() << "There are " << m_output->getData()->size() << " fibers left.";
+    m_numRemovedTracts->set( unusedTracts.size() - m_output->getData()->size() );
 
-    if( saveCulledCurves )
+    boost::shared_ptr< WProgress > saveProgress( new WProgress( "Saving tracts", unusedTracts.size() ) );
+    m_progress->addSubProgress( saveProgress );
+    if( m_saveCulledCurves->get() )
     {
-        WWriterFiberVTK w( savePath, true );
+        WWriterFiberVTK w( m_savePath->get(), true );
         w.writeFibs( result );
     }
-    infoLog() << "Clulling done.";
+    saveProgress->finish();
 }
 
 boost::filesystem::path WMFiberCulling::saveFileName( std::string dataFileName ) const

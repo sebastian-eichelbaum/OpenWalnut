@@ -26,6 +26,7 @@
 #define WMFIBERCULLING_H
 
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -107,6 +108,14 @@ protected:
     virtual void cullOutFibers();
 
     /**
+     * Generates new data set out of the tracts which are not marked "unused"
+     * and saves it in the file as given via the savePath property.
+     *
+     * \param unusedTracts Vector of bool marking tracts not to use with true.
+     */
+    virtual void saveGainedTracts( const std::vector< bool >& unusedTracts );
+
+    /**
      * Generates the file name for saving the culled tracts out of some
      * culling parameters: the proximity threshold and the dSt distance.
      *
@@ -128,7 +137,8 @@ protected:
     WPropBool     m_saveCulledCurves; //!<  If true, remaining tracts are saved to a file
     WPropFilename m_savePath; //!< Path where remaining tracts should be stored
     WPropBool     m_run; //!< Indicates if the algorithm should start
-    WPropInt      m_numTracts; //!< Stores the number of tracts which are processed in this module
+    WPropInt      m_numTracts; //!< Displays the number of tracts which are processed
+    WPropInt      m_numRemovedTracts; //!< Displays the number of tracts which were removed
 
 private:
 };
