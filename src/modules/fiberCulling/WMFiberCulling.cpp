@@ -29,17 +29,17 @@
 
 #include <boost/filesystem.hpp>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
 #include "../../common/WPropertyHelper.h"
-#include "../../common/datastructures/WFiber.h"
+#include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
-#include "WMFiberCulling.h"
 #include "fiberCulling.xpm"
+#include "WMFiberCulling.h"
 
 WMFiberCulling::WMFiberCulling()
     : WModule(),
@@ -85,6 +85,7 @@ void WMFiberCulling::moduleMain()
             assert( m_rawDataset );
             infoLog() << "Start: WDataSetFibers => WDataSetFiberVector";
             m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
+            m_numTracts->set( static_cast< int32_t >( m_dataset->size() ) );
             infoLog() << "Stop:  WDataSetFibers => WDataSetFiberVector";
         }
 
@@ -97,19 +98,11 @@ void WMFiberCulling::moduleMain()
         if( m_run->changed() )
         {
             m_run->get( true ); // eat change
-            update();
+            cullOutFibers();
         }
 
         m_moduleState.wait();
     }
-}
-
-void WMFiberCulling::update()
-{
-    infoLog() << "Proximity threshold: " << m_proximity_t->get();
-    infoLog() << "Culling threshold: " << m_dSt_culling_t->get();
-    cullOutFibers();
-    infoLog() << "Clulling done.";
 }
 
 void WMFiberCulling::connectors()
@@ -134,6 +127,9 @@ void WMFiberCulling::properties()
     m_run              = m_properties->addProperty( "Run", "Go go go with those parameters", false, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
     WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
+    m_numTracts = m_infoProperties->addProperty( "#Tracts", "Number of tracts beeing processed", 0 );
+    m_numTracts->setMin( 0 );
+    m_numTracts->setMax( wlimits::MAX_INT32_T );
 }
 
 void WMFiberCulling::cullOutFibers()
@@ -144,29 +140,30 @@ void WMFiberCulling::cullOutFibers()
     bool   saveCulledCurves = m_saveCulledCurves->get();
     boost::filesystem::path savePath = m_savePath->get();
 
-    size_t numFibers = m_dataset->size();
-    infoLog() << "Recoginzed " << numFibers << " fibers";
+    size_t numTracts = m_dataset->size();
 
+    boost::shared_ptr< WProgress > sortProcess( new WProgress( "Sorting tracts", numTracts ) );
+    // TODO(math): implement sort progress in WDataSetFiberVector
     m_dataset->sortDescLength();  // biggest first, this is for speed up
-    infoLog() << "Sorted fibers done.";
+    sortProcess->finish();
 
-    std::vector< bool > unusedFibers( numFibers, false );
+    std::vector< bool > unusedFibers( numTracts, false );
 
     boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dSt; // NOLINT
     const double proxSquare = proximity_t * proximity_t;
     dSt = boost::bind( wmath::WFiber::distDST, proxSquare, _1, _2 );
 
-    boost::shared_ptr< WProgress > progress( new WProgress( "Fiber culling", numFibers ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Fiber culling", numTracts ) );
     m_progress->addSubProgress( progress );
 
-    for( size_t q = 0; q < numFibers; ++q )  // loop over all streamlines
+    for( size_t q = 0; q < numTracts && !m_shutdownFlag(); ++q )  // loop over all tracts
     {
         if( unusedFibers[q] )
         {
             ++*progress;
             continue;
         }
-        for( size_t r = q + 1;  r < numFibers; ++r )
+        for( size_t r = q + 1; r < numTracts && !m_shutdownFlag(); ++r )
         {
             if( unusedFibers[r] )
             {
@@ -188,6 +185,10 @@ void WMFiberCulling::cullOutFibers()
         }
         ++*progress;
     }
+    if( m_shutdownFlag() )
+    {
+        return; // abort requested
+    }
     progress->finish();
 
     boost::shared_ptr< const WDataSetFiberVector > result =  m_dataset->generateDataSetOutOfUsedFibers( unusedFibers );
@@ -196,7 +197,7 @@ void WMFiberCulling::cullOutFibers()
     infoLog() << "Stop:  WDataSetFibers <= WDataSetFiberVector";
 
     infoLog() << "Erasing done.";
-    infoLog() << "Culled out " << numFibers - m_output->getData()->size() << " fibers";
+    infoLog() << "Culled out " << numTracts - m_output->getData()->size() << " fibers";
     infoLog() << "There are " << m_output->getData()->size() << " fibers left.";
 
     if( saveCulledCurves )
@@ -204,6 +205,7 @@ void WMFiberCulling::cullOutFibers()
         WWriterFiberVTK w( savePath, true );
         w.writeFibs( result );
     }
+    infoLog() << "Clulling done.";
 }
 
 boost::filesystem::path WMFiberCulling::saveFileName( std::string dataFileName ) const
