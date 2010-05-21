@@ -136,7 +136,7 @@ protected:
     WPropDouble   m_proximity_t; //!< Minimum distance of points of two tracts which should be considered
     WPropBool     m_saveCulledCurves; //!<  If true, remaining tracts are saved to a file
     WPropFilename m_savePath; //!< Path where remaining tracts should be stored
-    WPropBool     m_run; //!< Indicates if the algorithm should start
+    WPropTrigger  m_run; //!< Trigger button for starting the long time consuming culling operation
     WPropInt      m_numTracts; //!< Displays the number of tracts which are processed
     WPropInt      m_numRemovedTracts; //!< Displays the number of tracts which were removed
 

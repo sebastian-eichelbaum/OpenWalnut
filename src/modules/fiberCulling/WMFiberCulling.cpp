@@ -79,14 +79,17 @@ void WMFiberCulling::moduleMain()
             m_moduleState.wait();
             continue;
         }
+
         if( m_rawDataset != m_fiberInput->getData() ) // in case data has changed
         {
             m_rawDataset = m_fiberInput->getData();
             assert( m_rawDataset );
-            infoLog() << "Start: WDataSetFibers => WDataSetFiberVector";
+
+            boost::shared_ptr< WProgress > convertProgress( new WProgress( "Converting tracts", 1 ) );
+            m_progress->addSubProgress( convertProgress );
             m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
             m_numTracts->set( static_cast< int32_t >( m_dataset->size() ) );
-            infoLog() << "Stop:  WDataSetFibers => WDataSetFiberVector";
+            convertProgress->finish();
         }
 
         assert( m_savePath );
@@ -95,10 +98,12 @@ void WMFiberCulling::moduleMain()
             m_savePath->set( saveFileName( m_dataset->getFileName() ) );
         }
 
-        if( m_run->changed() )
+        if( m_run->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            m_run->get( true ); // eat change
+            infoLog() << "Start processing tracts";
             cullOutFibers();
+            infoLog() << "Processing finished";
+            m_run->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
 
         m_moduleState.wait();
@@ -124,7 +129,7 @@ void WMFiberCulling::properties()
     m_proximity_t      = m_properties->addProperty( "Min point distance", "Min distance of points of two fibers which should be considered", 1.0 );
     m_saveCulledCurves = m_properties->addProperty( "Save result", "If true the remaining fibers are save to a file", false );
     m_savePath         = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
-    m_run              = m_properties->addProperty( "Run", "Go go go with those parameters", false, m_recompute );
+    m_run              = m_properties->addProperty( "Start culling", "Start", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
     WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
     m_numRemovedTracts = m_infoProperties->addProperty( "#Tracts removed", "Number of tracts beeing culled out", 0 );
