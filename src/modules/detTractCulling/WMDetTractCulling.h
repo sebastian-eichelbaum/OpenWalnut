@@ -145,12 +145,12 @@ private:
 
 inline const std::string WMDetTractCulling::getName() const
 {
-    return std::string( "Tract Culling" );
+    return std::string( "Deterministic Tract Culling" );
 }
 
 inline const std::string WMDetTractCulling::getDescription() const
 {
-    return std::string( "Removes or culls out tracts from a WDataSetFiberVector" );
+    return std::string( "Removes deterministic tracts from a WDataSetFiberVector" );
 }
 
 #endif  // WMDETTRACTCULLING_H
