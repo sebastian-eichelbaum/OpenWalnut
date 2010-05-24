@@ -366,7 +366,9 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item;
-    if( m_moduleTreeWidget->selectedItems().size() && module->getName() != "Navigation Slices" )
+    if( m_moduleTreeWidget->selectedItems().size()
+        && module->getName() != "Navigation Slices"
+        && module->getName() != "Fiber Display" )
     {
         item = new WQtModuleTreeItem( m_moduleTreeWidget->selectedItems().at( 0 ), module );
     }
