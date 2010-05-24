@@ -22,17 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERCULLING_TEST_H
-#define WMFIBERCULLING_TEST_H
+#ifndef WMDETTRACTCULLING_TEST_H
+#define WMDETTRACTCULLING_TEST_H
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WMFiberCulling.h"
+#include "../WMDetTractCulling.h"
 
 /**
  * TODO(math): Document this!
  */
-class WMFiberCullingTest : public CxxTest::TestSuite
+class WMDetTractCullingTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -43,4 +43,4 @@ public:
     }
 };
 
-#endif  // WMFIBERCULLING_TEST_H
+#endif  // WMDETTRACTCULLING_TEST_H
