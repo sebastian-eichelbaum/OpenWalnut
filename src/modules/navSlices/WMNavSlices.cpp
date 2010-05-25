@@ -135,6 +135,10 @@ void WMNavSlices::properties()
     m_axialPos->setHidden();
     m_coronalPos->setHidden();
     m_sagittalPos->setHidden();
+
+    // Print some nice output: the current nav slice position
+    m_currentPosition = m_infoProperties->addProperty( "Position", "Current position of the navigation slices.",
+            wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -754,6 +758,9 @@ void WMNavSlices::updateGeometry()
          || m_axialPos->changed()
         )
     {
+        // update the information property
+        m_currentPosition->set( wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
+
         // if the texture got changed we want to rearange the scene Matrix for the SliceViewports to be centered
         updateViewportMatrix();
 
