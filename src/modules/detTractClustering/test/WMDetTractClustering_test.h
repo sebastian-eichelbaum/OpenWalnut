@@ -22,12 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERCLUSTERING_TEST_H
-#define WMFIBERCLUSTERING_TEST_H
+#ifndef WMDETTRACTCLUSTERING_TEST_H
+#define WMDETTRACTCLUSTERING_TEST_H
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WMFiberClustering.h"
+#include "../WMDetTractClustering.h"
 
 /**
  * TODO(math): Document this!
@@ -43,4 +43,4 @@ public:
     }
 };
 
-#endif  // WMFIBERCLUSTERING_TEST_H
+#endif  // WMDETTRACTCLUSTERING_TEST_H

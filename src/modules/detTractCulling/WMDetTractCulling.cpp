@@ -124,7 +124,6 @@ void WMDetTractCulling::properties()
     m_saveCulledCurves = m_properties->addProperty( "Save result", "If true the remaining tracts are save to a file", false );
     m_savePath         = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     m_run              = m_properties->addProperty( "Start culling", "Start", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
-    m_run->get( true ); // reset so no initial run occurs
     WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
     m_numRemovedTracts = m_infoProperties->addProperty( "#Tracts removed", "Number of tracts beeing culled out", 0 );
     m_numRemovedTracts->setMin( 0 );
@@ -170,7 +169,7 @@ void WMDetTractCulling::cullOutTracts()
                 continue;
             }
             double dst = dSt( (*m_dataset)[q], (*m_dataset)[r] );
-            if( dst < dSt_culling_t )  // cullout small fibs nearby long fibs
+            if( dst < dSt_culling_t )  // cullout small tracts nearby long tracts
             {
                 if( (*m_dataset)[q].size() < (*m_dataset)[r].size() )
                 {
@@ -218,6 +217,6 @@ boost::filesystem::path WMDetTractCulling::saveFileName( std::string dataFileNam
     std::stringstream newExtension;
     newExtension << std::fixed << std::setprecision( 2 );
     newExtension << ".pt-" << m_proximity_t->get() << ".dst-" << m_dSt_culling_t->get() << ".fib";
-    boost::filesystem::path fibFileName( dataFileName );
-    return fibFileName.replace_extension( newExtension.str() );
+    boost::filesystem::path tractFileName( dataFileName );
+    return tractFileName.replace_extension( newExtension.str() );
 }
