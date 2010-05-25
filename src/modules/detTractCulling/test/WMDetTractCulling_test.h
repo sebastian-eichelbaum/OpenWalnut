@@ -25,6 +25,8 @@
 #ifndef WMDETTRACTCULLING_TEST_H
 #define WMDETTRACTCULLING_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WMDetTractCulling.h"
