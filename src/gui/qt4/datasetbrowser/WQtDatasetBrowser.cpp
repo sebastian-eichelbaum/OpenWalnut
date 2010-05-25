@@ -366,7 +366,9 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item;
-    if( m_moduleTreeWidget->selectedItems().size() && module->getName() != "Navigation Slices" )
+    if( m_moduleTreeWidget->selectedItems().size()
+        && module->getName() != "Navigation Slices"
+        && module->getName() != "Fiber Display" )
     {
         item = new WQtModuleTreeItem( m_moduleTreeWidget->selectedItems().at( 0 ), module );
     }
@@ -754,16 +756,6 @@ int WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     sa->setWidgetResizable( true );
 
     return m_tabWidget->addTab( sa, content->getName() );
-}
-
-void WQtDatasetBrowser::moveTreeItemDown()
-{
-    m_moduleTreeWidget->moveTreeItemDown();
-}
-
-void WQtDatasetBrowser::moveTreeItemUp()
-{
-    m_moduleTreeWidget->moveTreeItemUp();
 }
 
 int WQtDatasetBrowser::getFirstSubject()

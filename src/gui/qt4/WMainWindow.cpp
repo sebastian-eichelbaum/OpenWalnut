@@ -97,8 +97,17 @@ void WMainWindow::setupGUI()
     fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ), QKeySequence( "Ctrl+C" ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( "Ctrl+Q" ) );
 
+    QMenu* viewMenu = m_menuBar->addMenu( "View" );
+    viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ), QKeySequence( "L" ) );
+    viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ), QKeySequence( "R" ) );
+    viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "S" ) );
+    viewMenu->addAction( "Inferior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "I" ) );
+    viewMenu->addAction( "Anterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "A" ) );
+    viewMenu->addAction( "Posterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "P" ) );
+
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ), QKeySequence( "F1" ) );
+
     setMenuBar( m_menuBar );
 
     m_centralwidget = new QWidget( this );
@@ -585,6 +594,13 @@ void WMainWindow::openAboutDialog()
                         "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
                         "\n"
                         "Thank you for using OpenWalnut." );
+}
+
+void WMainWindow::openNotImplementedDialog()
+{
+    QMessageBox::information( this, "Not yet implemented!",
+                              "This functionality is planned for future versions of OpenWalnut. "
+                              "It is not yet implemented." );
 }
 
 boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
