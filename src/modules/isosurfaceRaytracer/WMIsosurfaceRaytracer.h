@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDIRECTVOLUMERENDERING_H
-#define WMDIRECTVOLUMERENDERING_H
+#ifndef WMISOSURFACERAYTRACER_H
+#define WMISOSURFACERAYTRACER_H
 
 #include <string>
 
@@ -37,23 +37,23 @@
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * This module build the base for DirectVolumeRendering in OpenWalnut. It uses shader based raytracing and will be able to have multi dimensional
- * transfer functions.
+ * This module builds the base for fast raytracing of isosurfacesin OpenWalnut. It uses shader based raytracing.
+ *
  * \ingroup modules
  */
-class WMDirectVolumeRendering: public WModule
+class WMIsosurfaceRaytracer: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMDirectVolumeRendering();
+    WMIsosurfaceRaytracer();
 
     /**
      * Destructor.
      */
-    virtual ~WMDirectVolumeRendering();
+    virtual ~WMIsosurfaceRaytracer();
 
     /**
      * Gives back the name of this module.
@@ -120,11 +120,6 @@ private:
     boost::shared_ptr< WDataSetScalar > m_dataSet;
 
     /**
-     * If this property is true, as special shader is used which emulates isosurfaces using the m_isoValue property.
-     */
-    WPropBool m_isoSurface;
-
-    /**
      * The Isovalue used in the case m_isoSurface is true.
      */
     WPropInt m_isoValue;
@@ -172,7 +167,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUpdateCallback( WMDirectVolumeRendering* module ): m_module( module ), m_initialUpdate( true )
+        explicit SafeUpdateCallback( WMIsosurfaceRaytracer* module ): m_module( module ), m_initialUpdate( true )
         {
         };
 
@@ -187,7 +182,7 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMDirectVolumeRendering* m_module;
+        WMIsosurfaceRaytracer* m_module;
 
         /**
          * Denotes whether the update callback is called the first time.
@@ -207,7 +202,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUniformCallback( WMDirectVolumeRendering* module ): m_module( module )
+        explicit SafeUniformCallback( WMIsosurfaceRaytracer* module ): m_module( module )
         {
         };
 
@@ -222,9 +217,9 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMDirectVolumeRendering* m_module;
+        WMIsosurfaceRaytracer* m_module;
     };
 };
 
-#endif  // WMDIRECTVOLUMERENDERING_H
+#endif  // WMISOSURFACERAYTRACER_H
 

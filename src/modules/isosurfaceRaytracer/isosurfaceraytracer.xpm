@@ -1,5 +1,5 @@
 /* XPM */
-static const char * directvolumerendering_xpm[] = {
+static const char * isosurfaceraytracer_xpm[] = {
 "32 32 224 2",
 "  	c None",
 ". 	c #0000FF",

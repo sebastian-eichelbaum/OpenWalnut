@@ -39,7 +39,7 @@
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
-#include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
+#include "../modules/isosurfaceRaytracer/WMIsosurfaceRaytracer.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/eegView/WMEEGView.h"
@@ -102,7 +102,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDeterministicFTMori() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMIsosurfaceRaytracer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
