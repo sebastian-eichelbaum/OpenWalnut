@@ -25,6 +25,7 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WPropertyFilenameWidget.h
     datasetbrowser/WPropertyTriggerWidget.h
     datasetbrowser/WPropertySelectionWidget.h
+    datasetbrowser/WPropertyPositionWidget.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h
     datasetbrowser/WQtLineEdit.h
