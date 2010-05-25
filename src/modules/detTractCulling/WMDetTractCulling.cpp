@@ -63,10 +63,7 @@ const char** WMDetTractCulling::getXPMIcon() const
 
 void WMDetTractCulling::moduleMain()
 {
-    // when conditions are fireing while wait() is not reached: wait terminates
-    // and behaves as if the appropriate conditions have had fired. But it is
-    // not detectable how many times a condition has fired.
-    m_moduleState.setResetable();
+    m_moduleState.setResetable( true, true ); // remember actions when actually not waiting for actions
     m_moduleState.add( m_tractInput->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
@@ -83,8 +80,6 @@ void WMDetTractCulling::moduleMain()
         if( m_rawDataset != m_tractInput->getData() ) // in case data has changed
         {
             m_rawDataset = m_tractInput->getData();
-            assert( m_rawDataset );
-
             boost::shared_ptr< WProgress > convertProgress( new WProgress( "Converting tracts", 1 ) );
             m_progress->addSubProgress( convertProgress );
             m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
@@ -92,7 +87,6 @@ void WMDetTractCulling::moduleMain()
             convertProgress->finish();
         }
 
-        assert( m_savePath );
         if( m_savePath->get().string() == "/no/such/file" )
         {
             m_savePath->set( saveFileName( m_dataset->getFileName() ) );
