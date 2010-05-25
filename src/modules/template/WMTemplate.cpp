@@ -354,10 +354,11 @@ void WMTemplate::moduleMain()
     // Most probably, your module will be a module providing some kind of visual output. In this case, the WGEManagedGroupNode is very handy.
     // It allows you to insert several nodes and transform them as the WGEGroupNode (from which WGEManagedGroupNode is derived from) is also
     // an osg::MatrixTransform. The transformation feature comes in handy if you want to transform your whole geometry according to a dataset
-    // coordinate system for example.
-    // But first, create the node and add it to the main scene. If you insert something into the scene, you HAVE TO remove it after your module
+    // coordinate system for example. Another nice feature in WGEManagedGroupNode is that it can handle the m_active flag for you. Read the
+    // documentation of WMTemplate::activate for more details.
+    // First, create the node and add it to the main scene. If you insert something into the scene, you HAVE TO remove it after your module
     // has finished!
-    m_rootNode = new WGEGroupNode();
+    m_rootNode = new WGEManagedGroupNode( m_active );
     // Set a new callback for this node which basically transforms the geometry according to m_aPosition. Update callbacks are the thread safe
     // way to manipulate an OSG node while it is inside the scene. This module contains several of these callbacks as an example. The one used
     // here is to translate the root node coordinate system in space according to m_aPosition:
@@ -664,24 +665,18 @@ boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstra
 
 void WMTemplate::activate()
 {
-    // This method gets called, whenever the m_active property changes. Your module should always handle this. For more details, see the
-    // documentation in properties(). The most simple way is to activate or deactivate your OSG root node in this function according to
-    // m_active's value. At the moment, we are not 100% sure whether deactivating a node, which is currently used, is thread-safe and complies to
-    // OSG's requirements. Activating an inactive node is not the problem, as OSG does not traverse these nodes (and therefore could possibly
-    // produce issues), but deactivating an active node, which might be traversed at the same time, COULD cause problems. We'll see in the future
-    // whether this is problematic or not.
-
-    if ( m_rootNode )   // always ensure the root node exists
+    // This method gets called, whenever the m_active property changes. Your module should always handle this if you do not use the
+    // WGEManagedGroupNode for your scene. The user can (de-)activate modules in his GUI and you can handle this case here:
+    if ( m_active->get() )
     {
-        if ( m_active->get() )
-        {
-            m_rootNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_rootNode->setNodeMask( 0x0 );
-        }
+        debugLog() << "Activate.";
     }
+    else
+    {
+        debugLog() << "Deactivate.";
+    }
+
+    // The simpler way is by using WGEManagedGroupNode which deactivates itself according to m_active. See moduleMain for details.
 
     // Always call WModule's activate!
     WModule::activate();

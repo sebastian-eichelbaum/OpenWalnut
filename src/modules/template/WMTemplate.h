@@ -32,7 +32,7 @@
 #include "../../common/WItemSelection.h"
 #include "../../common/WItemSelector.h"
 
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -103,7 +103,7 @@ protected:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-    osg::ref_ptr< WGEGroupNode > m_rootNode;
+    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
 
     /**
      * The geometry rendered by this module.
