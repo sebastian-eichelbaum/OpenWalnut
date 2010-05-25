@@ -176,11 +176,11 @@ private:
     WPropTrigger m_run; //!< Button to initiate clustering with the given properties
 
     // information properties
-    WPropInt     m_numTracts; //!< Show the number of used tracts (from input)
-    WPropInt     m_numUsedTracts; //!< Number of tracts shown
+    WPropInt     m_numTracts; //!< Number of tracts given from input
+    WPropInt     m_numUsedTracts; //!< Number of tracts used for rendering
     WPropInt     m_numClusters; //!< Number of clusters computed
-    WPropInt     m_numValidClusters; //!< Number of clusters used
-    WPropString  m_clusterSizes; //!< Sizes of the valid clusters
+    WPropInt     m_numValidClusters; //!< Number of clusters used for rendering
+    WPropString  m_clusterSizes; //!< Sizes of the clusters
 
     boost::shared_ptr< WDataSetFiberVector >                m_tracts; //!< Reference to the WDataSetFiberVector object
     boost::shared_ptr< WDataSetFibers >                     m_rawTracts; //!< Reference to the WDataSetFibers object
