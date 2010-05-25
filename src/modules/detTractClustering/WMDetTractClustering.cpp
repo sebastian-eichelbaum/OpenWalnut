@@ -35,6 +35,7 @@
 
 #include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/WAssert.h"
 #include "../../common/WColor.h"
 #include "../../common/WIOTools.h"
 #include "../../common/WLogger.h"
@@ -83,51 +84,36 @@ void WMDetTractClustering::moduleMain()
 
     while ( !m_shutdownFlag() )
     {
+        m_moduleState.wait();
+
         if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
         {
-            m_moduleState.wait();
             continue;
         }
         if( m_rawTracts != m_tractInput->getData() ) // in case data has changed
         {
             m_rawTracts = m_tractInput->getData();
+            boost::shared_ptr< WProgress > convertProgress( new WProgress( "Converting tracts", 1 ) );
+            m_progress->addSubProgress( convertProgress );
             m_tracts = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawTracts ) );
+            m_numTracts->set( static_cast< int32_t >( m_tracts->size() ) );
+            convertProgress->finish();
         }
 
-        if( m_run->changed() )
+        if( m_run->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            m_run->get( true );
+            infoLog() << "Start processing tracts";
             update();
+            infoLog() << "Processing finished";
+            m_run->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
+
         if( m_clusterOutputID->changed() )
         {
             m_clusterOutputID->get( true );
             updateOutput();
         }
-
-        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
-}
-
-void WMDetTractClustering::activate()
-{
-    if( m_osgNode )
-    {
-        if ( m_active->get() )
-        {
-            m_osgNode->setNodeMask( 0xFFFFFFFF );
-            if( m_invisibleTracts->get() )
-            {
-                m_osgNode->setNodeMask( 0x0 );
-            }
-        }
-        else
-        {
-            m_osgNode->setNodeMask( 0x0 );
-        }
-    }
-
-    WModule::activate();
 }
 
 void WMDetTractClustering::properties()
@@ -136,15 +122,29 @@ void WMDetTractClustering::properties()
     m_proximity_t     = m_properties->addProperty( "Min point distance", "Min distance of points of two tracts which should be considered", 0.0 );
     m_minClusterSize  = m_properties->addProperty( "Min cluster size", "Minium of tracts per cluster", 10 );
     m_clusterOutputID = m_properties->addProperty( "Output cluster ID", "This cluster ID will be connected to the output.", 0, m_update );
-    m_invisibleTracts = m_properties->addProperty( "Invisible tracts", "Trigger tract display", false,
-                                                   boost::bind( &WMDetTractClustering::activate, this ) );
     m_run             = m_properties->addProperty( "Start clustering", "Start", WPVBaseTypes::PV_TRIGGER_READY, m_update );
+
+    // information properties
+    m_numTracts = m_infoProperties->addProperty( "#Tracts:", "Number of tracts beeing processed", 0 );
+    m_numTracts->setMin( 0 );
+    m_numTracts->setMax( wlimits::MAX_INT32_T );
+    m_numUsedTracts = m_infoProperties->addProperty( "#Tracts used:", "Number of tracts beeing finally used in the clustering", 0 );
+    m_numUsedTracts->setMin( 0 );
+    m_numUsedTracts->setMax( wlimits::MAX_INT32_T );
+    m_numClusters = m_infoProperties->addProperty( "#Clusters:", "Number of clusters beeing computed", 0 );
+    m_numClusters->setMin( 0 );
+    m_numClusters->setMax( wlimits::MAX_INT32_T );
+    m_numValidClusters = m_infoProperties->addProperty( "#Clusters used:", "Number of clusters beeing bigger than the given threshold", 0 );
+    m_numValidClusters->setMin( 0 );
+    m_numValidClusters->setMax( wlimits::MAX_INT32_T );
+    m_clusterSizes = m_infoProperties->addProperty( "Cluster Sizes:", "Size of each valid cluster", std::string() );
 }
 
 void WMDetTractClustering::updateOutput()
 {
     if( m_clusters.empty() )
     {
+        warnLog() << "There are no clusters for the output, leave output connecter untouched";
         return;
     }
 
@@ -158,23 +158,36 @@ void WMDetTractClustering::updateOutput()
 
 void WMDetTractClustering::update()
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
-
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
         debugLog() << "Consider old table as invalid.";
         m_dLtTable.reset( new WDXtLookUpTable( m_tracts->size() ) );
     }
 
-    infoLog() << "Proximity threshold: " << m_proximity_t->get();
-    infoLog() << "Maximum inter cluster distance threshold: " << m_maxDistance_t->get();
-
     cluster();
-    m_osgNode = paint();
-    if( m_invisibleTracts->get() ) // check if the node mask should be set to 0x0
+
+    boost::shared_ptr< WProgress > saveProgress( new WProgress( "Saving tracts", 1 ) );
+    m_progress->addSubProgress( saveProgress );
+    if( !wiotools::fileExists( lookUpTableFileName() ) )
     {
-        activate();
+        WWriterLookUpTableVTK w( lookUpTableFileName(), true );
+        try
+        {
+            w.writeTable( m_dLtTable->getData(), m_lastTractsSize );
+        }
+        catch( const WDHIOFailure& e )
+        {
+            errorLog() << "Could not write dlt file. check permissions! " << e.what();
+        }
     }
+    saveProgress->finish();
+
+    // reset min max of the slider for the cluster ID
+    m_clusterOutputID->setMin( 0 );
+    m_clusterOutputID->setMax( m_clusters.size() - 1 );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
+    m_osgNode = paint();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
 
     // TODO(math): For reasons of simplicity (no multiple input connectors possible) just forward one cluster to the voxelizer
@@ -184,24 +197,21 @@ void WMDetTractClustering::update()
         m_clusters[ i ].generateCenterLine();
     }
 
-    m_clusterOutputID->setMin( 0 );
-    m_clusterOutputID->setMax( m_clusters.size() - 1 );
-
-    // reset min max of the slider for the cluster ID
     updateOutput();
 }
 
 bool WMDetTractClustering::dLtTableExists()
 {
+    boost::shared_ptr< WProgress > readProgress( new WProgress( "Try to read dLt table", 1 ) );
+    m_progress->addSubProgress( readProgress );
+
     std::string dLtFileName = lookUpTableFileName();
 
-    // TODO(math): replace this hard coded path when properties are available
     if( wiotools::fileExists( dLtFileName ) )
     {
         try
         {
             debugLog() << "trying to read table from: " << dLtFileName;
-            // TODO(math): replace this hard coded path when properties are available
             WReaderLookUpTableVTK r( dLtFileName );
             boost::shared_ptr< std::vector< double > > data( new std::vector< double >() );
             r.readTable( data );
@@ -212,7 +222,7 @@ bool WMDetTractClustering::dLtTableExists()
             data->pop_back();
 
             m_dLtTable->setData( *data );
-
+            readProgress->finish();
             return true;
         }
         catch( const WDHException& e )
@@ -220,6 +230,7 @@ bool WMDetTractClustering::dLtTableExists()
             debugLog() << e.what() << std::endl;
         }
     }
+    readProgress->finish();
     return false;
 }
 
@@ -229,9 +240,11 @@ void WMDetTractClustering::cluster()
     double maxDistance_t = m_maxDistance_t->get();
     size_t minClusterSize = m_minClusterSize->get();
 
-    infoLog() << "Start clustering with " << m_tracts->size() << " tracts.";
-    m_clusters.clear();  // remove evtl. old clustering
     size_t numTracts = m_tracts->size();
+
+    infoLog() << "Start clustering with " << numTracts << " tracts.";
+
+    m_clusters.clear();  // remove evtl. old clustering
 
     m_clusterIDs = std::vector< size_t >( numTracts, 0 );
 
@@ -269,6 +282,9 @@ void WMDetTractClustering::cluster()
     progress->finish();
     m_dLtTableExists = true;
 
+    boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing clusters", 1 ) );
+    m_progress->addSubProgress( eraseProgress );
+
     // remove empty clusters
     WFiberCluster emptyCluster;
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
@@ -284,24 +300,12 @@ void WMDetTractClustering::cluster()
             ++numSmallClusters;
         }
     }
-    infoLog() << "Found " << m_clusters.size() << " clusters where " << numSmallClusters << " clusters are smaller than: " << minClusterSize;
+    m_numClusters->set( static_cast< int32_t >( m_clusters.size() ) );
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
-    infoLog() << "Using " << m_clusters.size() << " clusters.";
+    m_numValidClusters->set( static_cast< int32_t >( m_clusters.size() ) );
 
     m_lastTractsSize = m_tracts->size();
-
-    if( !wiotools::fileExists( lookUpTableFileName() ) )
-    {
-        WWriterLookUpTableVTK w( lookUpTableFileName(), true );
-        try
-        {
-            w.writeTable( m_dLtTable->getData(), m_lastTractsSize );
-        }
-        catch( const WDHIOFailure& e )
-        {
-            errorLog() << "Could write dlt file. check permissions! " << e.what();
-        }
-    }
+    eraseProgress->finish();
 }
 
 osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberCluster &cluster, const WColor& color ) const
@@ -334,26 +338,25 @@ osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberClus
 }
 
 
-osg::ref_ptr< WGEGroupNode > WMDetTractClustering::paint() const
+osg::ref_ptr< WGEManagedGroupNode > WMDetTractClustering::paint() const
 {
     // get different colors via HSV color model for each cluster
     double hue = 0.0;
     double hue_increment = 1.0 / m_clusters.size();
     WColor color;
 
-    infoLog() << "cluster: " << m_clusters.size();
-    osg::ref_ptr< WGEGroupNode > result = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-    size_t numTracts = 0;
+    osg::ref_ptr< WGEManagedGroupNode > result = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
+    size_t numUsedTracts = 0;
     std::stringstream clusterLog;
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
         color.setHSV( hue, 1.0, 0.75 );
         result->insert( genTractGeode( m_clusters[i], color ).get() );
         clusterLog << m_clusters[i].size() << " ";
-        numTracts += m_clusters[i].size();
+        numUsedTracts += m_clusters[i].size();
     }
-    debugLog() << "Clusters of sizes: " << clusterLog.str();
-    debugLog() << "Painted: " << numTracts << " tracts out of: " << m_tracts->size();
+    m_clusterSizes->set( std::string( clusterLog.str() ) );
+    m_numUsedTracts->set( static_cast< int32_t >( numUsedTracts ) );
     result->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     return result;
 }
@@ -369,7 +372,7 @@ void WMDetTractClustering::meld( size_t qClusterID, size_t rClusterID )
     WFiberCluster& qCluster = m_clusters[ qClusterID ];
     WFiberCluster& rCluster = m_clusters[ rClusterID ];
 
-    assert( !qCluster.empty() && !rCluster.empty() );
+    WAssert( !qCluster.empty() && !rCluster.empty(), "At least one cluster was empty while trying to merge!" );
 
     // second update m_clusterIDs array
     std::list< size_t >::const_iterator cit = rCluster.getIndices().begin();
@@ -382,7 +385,7 @@ void WMDetTractClustering::meld( size_t qClusterID, size_t rClusterID )
     // and at last merge them
     qCluster.merge( rCluster );
 
-    assert( rCluster.empty() );
+    WAssert( rCluster.empty(), "The right cluster was no empty after melting!" );
 }
 
 void WMDetTractClustering::connectors()

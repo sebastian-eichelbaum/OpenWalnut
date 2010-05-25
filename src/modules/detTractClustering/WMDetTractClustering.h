@@ -36,7 +36,7 @@
 #include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
@@ -105,15 +105,11 @@ protected:
     virtual void properties();
 
     /**
-     * Reclusters the scene.
+     * Runs the clustering to update all data.
+     *
+     * \note This is very time consuming.
      */
     void update();
-
-    /**
-     * En/Disables the OSG node.
-     * \note This does not use an update callback as recommended by OSG, we just don't know if its necessary.
-     */
-    virtual void activate();
 
 private:
     /**
@@ -135,7 +131,7 @@ private:
      *
      * \return The OSG group node with all clusters
      */
-    osg::ref_ptr< WGEGroupNode > paint() const;
+    osg::ref_ptr< WGEManagedGroupNode > paint() const;
 
     /**
      * Checks if the look up table exists. This is done via the original file
@@ -164,7 +160,7 @@ private:
     std::string lookUpTableFileName() const;
 
     /**
-     * Updates the output with new cluster.
+     * Updates the output connector with new cluster. This member function is used by update() and as well from the moduleMain loop.
      */
     void updateOutput();
 
@@ -177,8 +173,14 @@ private:
     WPropDouble  m_maxDistance_t; //!< Maximum distance of two tracts in one cluster.
     WPropInt     m_minClusterSize; //!< All clusters up to this size will be discarded
     WPropInt     m_clusterOutputID; //!< Specifies which cluster should be connected to the Output
-    WPropBool    m_invisibleTracts; //!< If true the tracts of all clusters are not shown
-    WPropTrigger m_run; //!< "Button" to initiate clustering with the given properties
+    WPropTrigger m_run; //!< Button to initiate clustering with the given properties
+
+    // information properties
+    WPropInt     m_numTracts; //!< Show the number of used tracts (from input)
+    WPropInt     m_numUsedTracts; //!< Number of tracts shown
+    WPropInt     m_numClusters; //!< Number of clusters computed
+    WPropInt     m_numValidClusters; //!< Number of clusters used
+    WPropString  m_clusterSizes; //!< Sizes of the valid clusters
 
     boost::shared_ptr< WDataSetFiberVector >                m_tracts; //!< Reference to the WDataSetFiberVector object
     boost::shared_ptr< WDataSetFibers >                     m_rawTracts; //!< Reference to the WDataSetFibers object
@@ -188,14 +190,10 @@ private:
 
     boost::shared_ptr< WCondition > m_update; //!< Used for register properties indicating a rerun of the moduleMain loop
 
-    /**
-     * OSG node for this module. All other OSG nodes of this module should be
-     * placed as child to this node.
-     */
-    osg::ref_ptr< WGEGroupNode > m_osgNode;
+    osg::ref_ptr< WGEManagedGroupNode > m_osgNode; //!< OSG node for this module.
 
     /**
-     * Inidcates if a given output ID is valid!
+     * Validates the output cluster ID!
      */
     class OutputIDBound: public WPropertyVariable< WPVBaseTypes::PV_INT >::PropertyConstraint
     {
@@ -207,8 +205,7 @@ private:
         explicit OutputIDBound( const std::vector< WFiberCluster >& clusters );
 
         /**
-         * You need to overwrite this method. It decides whether the specified new value should be accepted or not.
-         * We don't use the setMin setMax since the boundaries may change during runtime!
+         * Decides whether the specified new value should be accepted or not.
          *
          * \param property the property thats going to be changed.
          * \param value the new value
@@ -217,7 +214,7 @@ private:
          */
         virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >  property, WPVBaseTypes::PV_INT value );
     private:
-        const std::vector< WFiberCluster >& m_clusters; //!< Accept need to look into the cluster array for max size constraint
+        const std::vector< WFiberCluster >& m_clusters; //!< accept() need to look into the cluster array for max size constraint
     };
 };
 
