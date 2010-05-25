@@ -22,36 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERCULLING_H
-#define WMFIBERCULLING_H
+#ifndef WMDETTRACTCULLING_H
+#define WMDETTRACTCULLING_H
 
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WFlag.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/WFlag.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
 /**
- * Test module for culling fibers
+ * Removes deterministic tracts and therefore implements a preprocessing step
+ * for the deterministic tract clustering ala Zhang http://dx.doi.org/10.1109/TVCG.2008.52 .
+ * It removes tracts which are considered to be not much useful for this special clustering approach.
+ *
  * \ingroup modules
  */
-class WMFiberCulling : public WModule
+class WMDetTractCulling : public WModule
 {
-friend class WMFiberCullingTest;
+friend class WMDetTractCullingTest;
 public:
     /**
-     * Constructs new FiberTestModule
+     * Constructs deterministic tract culling module.
      */
-    WMFiberCulling();
+    WMDetTractCulling();
 
     /**
-     * Destructs this FiberTestModule
+     * Destructs this DetTractCulling module.
      */
-    virtual ~WMFiberCulling();
+    virtual ~WMDetTractCulling();
 
     /**
      * Gives back the name of this module.
@@ -95,53 +99,58 @@ protected:
     virtual void moduleMain();
 
     /**
-     * ReCulls the scene.
-     *
-     * \problem This might take a while with e.g. 70,000 fibers approx 2h
-     */
-    void update();
-
-    /**
-     * Detect and removes fibers that have a short distance in terms of the
+     * Detect and removes tracts that have a short distance in terms of the
      * dSt metric and are below the threshold given via the member
      * m_dSt_culling_t.
+     *
+     * \note This might take a while with 70,000 tracts approx 2h.
      */
-    virtual void cullOutFibers();
+    virtual void cullOutTracts();
 
     /**
-     * Generates the file name for saving the culled fibers out of some
+     * Generates new data set out of the tracts which are not marked "unused"
+     * and saves it in the file as given via the savePath property.
+     *
+     * \param unusedTracts Vector of bool marking tracts not to use with true.
+     */
+    virtual void saveGainedTracts( const std::vector< bool >& unusedTracts );
+
+    /**
+     * Generates the file name for saving the culled tracts out of some
      * culling parameters: the proximity threshold and the dSt distance.
      *
      * \param dataFileName The file name from which the data is loaded so only the extension will change
      *
-     * \return Path in which to store the culled fibers.
+     * \return Path in which to store the culled tracts.
      */
     boost::filesystem::path saveFileName( std::string dataFileName ) const;
 
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_fiberInput; //!< Input connector for a fiber dataset.
-    boost::shared_ptr< WDataSetFiberVector >                 m_dataset; //!< Pointer to the fiber data set in WDataSetFiberVector format
-    boost::shared_ptr< WDataSetFibers >                      m_rawDataset; //!< Pointer to the fiber data set in WDataSetFibers format
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled fibers
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_tractInput; //!< Input connector for a tract dataset.
+    boost::shared_ptr< WDataSetFiberVector >                 m_dataset; //!< Pointer to the tract data set in WDataSetFiberVector format
+    boost::shared_ptr< WDataSetFibers >                      m_rawDataset; //!< Pointer to the tract data set in WDataSetFibers format
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled tracts
 
     boost::shared_ptr< WCondition > m_recompute; //!< A condition which indicates complete recomputation
 
-    WPropDouble   m_dSt_culling_t; //!< Minimum distance of two different fibers. If below, the shorter fiber is culled out
-    WPropDouble   m_proximity_t; //!< Minimum distance of points of two fibers which should be considered
-    WPropBool     m_saveCulledCurves; //!<  If true, remaining fibers are saved to a file
-    WPropFilename m_savePath; //!< Path where remaining fibers should be stored
-    WPropBool     m_run; //!< Indicates if the algorithm should start
+    WPropDouble   m_dSt_culling_t; //!< Minimum distance of two different tracts. If below, the shorter tract is culled out
+    WPropDouble   m_proximity_t; //!< Minimum distance of points of two tracts which should be considered
+    WPropBool     m_saveCulledCurves; //!<  If true, remaining tracts are saved to a file
+    WPropFilename m_savePath; //!< Path where remaining tracts should be stored
+    WPropTrigger  m_run; //!< Trigger button for starting the long time consuming culling operation
+    WPropInt      m_numTracts; //!< Displays the number of tracts which are processed
+    WPropInt      m_numRemovedTracts; //!< Displays the number of tracts which were removed
 
 private:
 };
 
-inline const std::string WMFiberCulling::getName() const
+inline const std::string WMDetTractCulling::getName() const
 {
-    return std::string( "Fiber Culling" );
+    return std::string( "Deterministic Tract Culling" );
 }
 
-inline const std::string WMFiberCulling::getDescription() const
+inline const std::string WMDetTractCulling::getDescription() const
 {
-    return std::string( "Removes or culls out fibers from a WDataSetFiberVector" );
+    return std::string( "Removes deterministic tracts from a WDataSetFiberVector" );
 }
 
-#endif  // WMFIBERCULLING_H
+#endif  // WMDETTRACTCULLING_H

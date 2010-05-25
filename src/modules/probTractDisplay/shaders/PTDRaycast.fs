@@ -29,6 +29,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "DVRRaycast.varyings"
+#include "lighting.fs"
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -104,6 +105,90 @@ float pointDistance( vec3 p1, vec3 p2 )
     return length( p1 - p2 );
 }
 
+void computeLight( inout vec4 col, in vec3 curPoint )
+{
+    vec3 pos = curPoint;
+    pos.x = curPoint.x - 1.0;
+    float fx1 = texture3D( tex0, pos ).r;
+    pos.x = curPoint.x + 1.0;
+    float fx2 = texture3D( tex0, pos ).r;
+    pos.x = curPoint.x;
+    pos.y = curPoint.y - 1.0;
+    float fy1 = texture3D( tex0, pos ).r;
+    pos.y = curPoint.y + 1.0;
+    float fy2 = texture3D( tex0, pos ).r;
+    pos.y = curPoint.y;
+    pos.z = curPoint.z - 1.0;
+    float fz1 = texture3D( tex0, pos ).r;
+    pos.z = curPoint.z + 1.0;
+    float fz2 = texture3D( tex0, pos ).r;
+    pos.z = curPoint.z;
+    vec3 normal;
+    normal.x = ( fx1 - fx2 ) / 2.0;
+    normal.y = ( fy1 - fy2 ) / 2.0;
+    normal.z = ( fz1 - fz2 ) / 2.0;
+
+    vec4 ambient = vec4(0.0);
+    vec4 diffuse = vec4(0.0);
+    vec4 specular = vec4(0.0);
+
+    calculateLighting(-normal, gl_FrontMaterial.shininess, ambient, diffuse, specular);
+
+    col = col + (ambient * col / 2.0) + (diffuse * col) + (specular * col / 2.0);
+
+    col = clamp(col, 0.0, 1.0);
+}
+
+bool computeColor( in vec3 curPoint, in float isovalue, inout vec4 colorSoFar )
+{
+    if( abs( isovalue - u_isovalue0 ) >= 0.1 &&  abs( isovalue - u_isovalue1 ) >= 0.1 &&
+        abs( isovalue - u_isovalue2 ) >= 0.1 &&  abs( isovalue - u_isovalue3 ) >= 0.1 )
+    {
+        return false;
+    }
+    // we need to know the depth value of the current point inside the cube
+    // Therefore, the complete standard pipeline is reproduced here:
+
+    // 1: transfer to world space and right after it, to eye space
+    vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
+
+    // 2: scale to screen space and [0,1]
+    // -> x and y is not needed
+    curPointProjected.z /= curPointProjected.w;
+    curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
+
+    // 3: set depth value
+    gl_FragDepth = curPointProjected.z;
+
+    // 4: get alpha and color for the corresponding isolevel
+    vec4 color;
+    if( abs( isovalue - u_isovalue0 ) < 0.1 ) {
+        color   = u_alpha0 * u_isocolor0;
+        color.a = u_alpha0;
+    }
+    else if( abs( isovalue - u_isovalue1 ) < 0.1 ) {
+        color   = u_alpha1 * u_isocolor1;
+        color.a = u_alpha1;
+    }
+    else if( abs( isovalue - u_isovalue2 ) < 0.1 ) {
+        color   = u_alpha2 * u_isocolor2;
+        color.a = u_alpha2;
+    }
+    else if( abs( isovalue - u_isovalue3 ) < 0.1 ) {
+        color   = u_alpha3 * u_isocolor3;
+        color.a = u_alpha3;
+    }
+    else {
+        return false;
+    }
+
+    computeLight( color, curPoint );
+
+    // 5: set color
+    colorSoFar = (1.0 - colorSoFar.a) * color + colorSoFar;
+    return true;
+}
+
 /**
  * Main entry point of the fragment shader.
  */
@@ -111,17 +196,12 @@ void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
     gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-    gl_FragDepth = gl_FragCoord.z; 
+    gl_FragDepth = gl_FragCoord.z;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
     float totalDistance = 0.0;
     vec3 rayEnd = findRayEnd( totalDistance );
-
-    bool iso0found = false;
-    bool iso1found = false;
-    bool iso2found = false;
-    bool iso3found = false;
 
     // Isosurface Mode
     if ( u_isosurface )
@@ -135,127 +215,27 @@ void main()
         // the step counter
         int i = 0;
         float stepDistance = totalDistance / float( u_steps );
-
         vec4 colorSoFar = vec4( 0.0, 0.0, 0.0, 0.0 );
+        bool hit = false;
 
-        while ( i < u_steps ) // we do not need to ch
+        while ( i < u_steps && colorSoFar.a < 0.95 ) // we do not need to ch
         {
             // get current value
             value = texture3D( tex0, curPoint ).r;
 
-            // is it the isovalue?
-            if ( abs( value - u_isovalue0 ) < 0.1 && !iso0found )
-            {
-                // we need to know the depth value of the current point inside the cube
-                // Therefore, the complete standard pipeline is reproduced here:
+            hit = computeColor( curPoint, value, colorSoFar ) || hit;
 
-                // 1: transfer to world space and right after it, to eye space
-                vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
-
-                // 2: scale to screen space and [0,1]
-                // -> x and y is not needed
-                curPointProjected.z /= curPointProjected.w;
-                curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
-
-                // 3: set depth value
-                gl_FragDepth = curPointProjected.z;
-
-                // 4: set color
-                vec4 color = u_isocolor0
-                color.a = u_alpha0;
-
-                colorSoFar += color;
-                iso0found = true;
-                break;
-            }
-            else if ( abs( value - u_isovalue1 ) < 0.1 && !iso1found )
-            {
-                // we need to know the depth value of the current point inside the cube
-                // Therefore, the complete standard pipeline is reproduced here:
-
-                // 1: transfer to world space and right after it, to eye space
-                vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
-
-                // 2: scale to screen space and [0,1]
-                // -> x and y is not needed
-                curPointProjected.z /= curPointProjected.w;
-                curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
-
-                // 3: set depth value
-                gl_FragDepth = curPointProjected.z;
-
-                // 4: set color
-                vec4 color = u_isocolor1
-                color.a = u_alpha1;
-
-                colorSoFar += color;
-                iso1found = true;
-                break;
-            }
-            else if ( abs( value - u_isovalue2 ) < 0.1 && !iso2found )
-            {
-                // we need to know the depth value of the current point inside the cube
-                // Therefore, the complete standard pipeline is reproduced here:
-
-                // 1: transfer to world space and right after it, to eye space
-                vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
-
-                // 2: scale to screen space and [0,1]
-                // -> x and y is not needed
-                curPointProjected.z /= curPointProjected.w;
-                curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
-
-                // 3: set depth value
-                gl_FragDepth = curPointProjected.z;
-
-                // 4: set color
-                vec4 color = u_isocolor2
-                color.a = u_alpha2;
-
-                colorSoFar += color;
-                iso2found = true;
-                break;
-            }
-            else if ( abs( value - u_isovalue3 ) < 0.1 && !iso3found )
-            {
-                // we need to know the depth value of the current point inside the cube
-                // Therefore, the complete standard pipeline is reproduced here:
-
-                // 1: transfer to world space and right after it, to eye space
-                vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
-
-                // 2: scale to screen space and [0,1]
-                // -> x and y is not needed
-                curPointProjected.z /= curPointProjected.w;
-                curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
-
-                // 3: set depth value
-                gl_FragDepth = curPointProjected.z;
-
-                // 4: set color
-                vec4 color = u_isocolor3
-                color.a = u_alpha3;
-
-                colorSoFar += color;
-                iso3found = true;
-                break;
-            }
-            else
-            {
-                // no it is not the iso value
-                // -> continue along the ray
-                curPoint += stepDistance * v_ray;
-            }
+            curPoint += stepDistance * v_ray;
 
             // do not miss to count the steps already done
             i++;
         }
+        gl_FragColor = colorSoFar;
 
         // the ray did never hit the surface --> discard the pixel
-        if ( i == u_steps )
+        if ( !hit )
         {
             discard;
         }
     }
 }
-

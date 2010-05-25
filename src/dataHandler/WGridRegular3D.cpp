@@ -409,9 +409,26 @@ bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 
 std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
 {
-    WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
-    return std::make_pair( getOrigin(),
+    WAssert( isNotRotatedOrSheared(),
+             "The getBoundingBox() function is only feasible for grids that are only translated or scaled so far." );
+    std::pair< wmath::WPosition, wmath::WPosition > bb =  std::make_pair( getOrigin(),
                            getOrigin() + getDirectionX() * ( getNbCoordsX() - 1 )
                            + getDirectionY() * ( getNbCoordsY() - 1 )
                            + getDirectionZ() * ( getNbCoordsZ() - 1 )  );
+
+    // As scaling with negative can mean a switch of the coordinate directions
+    // we nee to check for the right ordering in the bounding box. For
+    // each coordinate where the minimum position has a larger value than
+    // the maximum position we need to exchange their values.
+    for( size_t i = 0; i < 3; i++ )
+    {
+        if( bb.first[i] > bb.second[i] )
+        {
+            double tmp = bb.first[i];
+            bb.first[i] = bb.second[i];
+            bb.second[i] = tmp;
+        }
+    }
+
+    return bb;
 }

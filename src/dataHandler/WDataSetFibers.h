@@ -61,10 +61,10 @@ public:
     /**
      * Constructs a new set of fibers, usage of WFiber here is for backward compatibility and should be removed
      *
-     * \param vertices
-     * \param lineStartIndexes
-     * \param lineLengths
-     * \param verticesReverse
+     * \param vertices the vertices of the fibers, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
+     * \param lineStartIndexes the index in which the fiber start (index of the 3D-vertex, not the index of the float in the vertices vector)
+     * \param lineLengths how many vertices belong to a fiber
+     * \param verticesReverse stores for each vertex the index of the corresponding fiber
      */
     WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
                     boost::shared_ptr< std::vector< size_t > > lineStartIndexes,

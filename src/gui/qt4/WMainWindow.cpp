@@ -97,8 +97,17 @@ void WMainWindow::setupGUI()
     fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ), QKeySequence( "Ctrl+C" ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( "Ctrl+Q" ) );
 
+    QMenu* viewMenu = m_menuBar->addMenu( "View" );
+    viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ), QKeySequence( "L" ) );
+    viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ), QKeySequence( "R" ) );
+    viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "S" ) );
+    viewMenu->addAction( "Inferior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "I" ) );
+    viewMenu->addAction( "Anterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "A" ) );
+    viewMenu->addAction( "Posterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "P" ) );
+
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ), QKeySequence( "F1" ) );
+
     setMenuBar( m_menuBar );
 
     m_centralwidget = new QWidget( this );
@@ -587,6 +596,13 @@ void WMainWindow::openAboutDialog()
                         "Thank you for using OpenWalnut." );
 }
 
+void WMainWindow::openNotImplementedDialog()
+{
+    QMessageBox::information( this, "Not yet implemented!",
+                              "This functionality is planned for future versions of OpenWalnut. "
+                              "It is not yet implemented." );
+}
+
 boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
 {
     return &m_loaderSignal;
@@ -700,9 +716,14 @@ bool WMainWindow::event( QEvent* event )
         if ( e1 )
         {
             QString title = "Problem in module: " + QString::fromStdString( e1->getModule()->getName() );
-            QString message = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
-                              "<br/><b>Message:  </b>" + QString::fromStdString( e1->getMessage() );
-            QMessageBox::critical( this, title, message );
+            QString description = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() );
+
+            QString message = QString::fromStdString( e1->getMessage() );
+            QMessageBox msgBox;
+            msgBox.setText( description );
+            msgBox.setInformativeText( message  );
+            msgBox.setStandardButtons( QMessageBox::Ok );
+            msgBox.exec();
         }
     }
 

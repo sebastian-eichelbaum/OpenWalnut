@@ -67,8 +67,8 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget = new WQtTreeWidget( m_panel );
     m_moduleTreeWidget->setContextMenuPolicy( Qt::ActionsContextMenu );
 
-    m_moduleTreeWidget->setHeaderLabel( QString( "Dataset Browser" ) );
-    m_moduleTreeWidget->setDragEnabled( true );
+    m_moduleTreeWidget->setHeaderLabel( QString( "Module Tree" ) );
+    m_moduleTreeWidget->setDragEnabled( false );
     m_moduleTreeWidget->viewport()->setAcceptDrops( true );
     m_moduleTreeWidget->setDropIndicatorShown( true );
     m_moduleTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
@@ -114,7 +114,8 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     this->setWidget( m_panel );
 
     m_tiModules = new WQtModuleHeaderTreeItem( m_moduleTreeWidget );
-    m_tiModules->setText( 0, QString( "Modules" ) );
+    m_tiModules->setText( 0, QString( "Subject-independent Modules" ) );
+    m_tiModules->setToolTip( 0, "Subject-independent modules and modules for which no parent module could be detected." );
     m_tiRois = new WQtRoiHeaderTreeItem( m_roiTreeWidget );
     m_tiRois->setText( 0, QString( "ROIs" ) );
 
@@ -139,8 +140,8 @@ WQtDatasetBrowser::~WQtDatasetBrowser()
 
 void WQtDatasetBrowser::connectSlots()
 {
-    // connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
-    connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
+    connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
+    // connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
     //connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
@@ -156,6 +157,10 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 {
     WQtSubjectTreeItem* subject = new WQtSubjectTreeItem( m_moduleTreeWidget );
     subject->setText( 0, QString( name.c_str() ) );
+    subject->setToolTip( 0, QString( ( std::string( "" )
+                                       + "All data and modules that are children of this tree item belong to the subject \""
+                                       + name
+                                       + "\"." ).c_str() ) );
 
     return subject;
 }
@@ -191,7 +196,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         }
         return true;
     }
-    if ( event->type() == WQT_ROI_ASSOC_EVENT)
+    if ( event->type() == WQT_ROI_ASSOC_EVENT )
     {
         WRoiAssocEvent* e2 = dynamic_cast< WRoiAssocEvent* >( event );     // NOLINT
         if ( e2 )
@@ -360,7 +365,17 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
 WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > module )
 {
     m_tiModules->setExpanded( true );
-    WQtModuleTreeItem* item = m_tiModules->addModuleItem( module );
+    WQtModuleTreeItem* item;
+    if( m_moduleTreeWidget->selectedItems().size()
+        && module->getName() != "Navigation Slices"
+        && module->getName() != "Fiber Display" )
+    {
+        item = new WQtModuleTreeItem( m_moduleTreeWidget->selectedItems().at( 0 ), module );
+    }
+    else
+    {
+        item = m_tiModules->addModuleItem( module );
+    }
     m_moduleTreeWidget->setCurrentItem( item );
     item->setDisabled( true );
     return item;
@@ -456,6 +471,16 @@ void WQtDatasetBrowser::selectTreeItem()
 
     if ( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
+        // disable delete action for tree items that have children.
+        if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
+        {
+            m_deleteModuleAction->setEnabled( false );
+        }
+        else
+        {
+            m_deleteModuleAction->setEnabled( true );
+        }
+
         switch ( m_moduleTreeWidget->selectedItems().at( 0 )->type() )
         {
             case SUBJECT:
@@ -471,9 +496,6 @@ void WQtDatasetBrowser::selectTreeItem()
                 {
                     return;
                 }
-
-                // enable the delete action as it might be disabled before.
-                m_deleteModuleAction->setEnabled( true );
 
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
@@ -734,16 +756,6 @@ int WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     sa->setWidgetResizable( true );
 
     return m_tabWidget->addTab( sa, content->getName() );
-}
-
-void WQtDatasetBrowser::moveTreeItemDown()
-{
-    m_moduleTreeWidget->moveTreeItemDown();
-}
-
-void WQtDatasetBrowser::moveTreeItemUp()
-{
-    m_moduleTreeWidget->moveTreeItemUp();
 }
 
 int WQtDatasetBrowser::getFirstSubject()

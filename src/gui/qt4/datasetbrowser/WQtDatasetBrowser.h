@@ -247,17 +247,6 @@ private slots:
      */
     void changeRoiTreeItem();
 
-
-    /**
-     * change order of items, move currently selected item down
-     */
-    void moveTreeItemDown();
-
-    /**
-     * change order of items, move currently selected item up
-     */
-    void moveTreeItemUp();
-
     /**
      * delete a ROI tree item
      */
