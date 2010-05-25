@@ -202,6 +202,11 @@ private:
     WPropBool m_showSagittal;
 
     /**
+     * The current position as information property.
+     */
+    WPropPosition m_currentPosition;
+
+    /**
      * initial create method
      */
     void create();
