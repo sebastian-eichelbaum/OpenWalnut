@@ -118,7 +118,7 @@ void WMainWindow::setupGUI()
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
-    // This QAction stuff is quite ugly and complicated some times ... there is no nice constructor which takes name, slot keysequence and so on
+    // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
 
