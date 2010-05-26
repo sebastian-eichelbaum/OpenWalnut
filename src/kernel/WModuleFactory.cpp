@@ -39,11 +39,11 @@
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
-#include "../modules/directVolumeRendering/WMDirectVolumeRendering.h"
+#include "../modules/isosurfaceRaytracer/WMIsosurfaceRaytracer.h"
 #include "../modules/distanceMap/WMDistanceMap.h"
 #include "../modules/distanceMap/WMDistanceMapIsosurface.h"
 #include "../modules/eegView/WMEEGView.h"
-#include "../modules/fiberClustering/WMFiberClustering.h"
+#include "../modules/detTractClustering/WMDetTractClustering.h"
 #include "../modules/detTractCulling/WMDetTractCulling.h"
 #include "../modules/fiberDisplay/WMFiberDisplay.h"
 #include "../modules/fiberSelection/WMFiberSelection.h"
@@ -64,6 +64,7 @@
 #include "../modules/vectorPlot/WMVectorPlot.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
+#include "../modules/splineSurface/WMSplineSurface.h"
 #include "combiner/WApplyPrototypeCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -103,11 +104,11 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDeterministicFTMori() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDirectVolumeRendering() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMIsosurfaceRaytracer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberClustering() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDetTractClustering() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDetTractCulling() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
@@ -128,6 +129,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSplineSurface() ) );
 
     m_prototypeAccess->endWrite();
 

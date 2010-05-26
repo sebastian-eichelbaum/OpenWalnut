@@ -1,5 +1,5 @@
 /* XPM */
-static const char * fiberClustering_xpm[] = {
+static const char * detTractClustering_xpm[] = {
 "32 32 3 1",
 " 	c None",
 ".	c #76B2FF",

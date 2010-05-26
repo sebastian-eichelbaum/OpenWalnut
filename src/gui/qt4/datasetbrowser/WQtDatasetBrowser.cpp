@@ -645,8 +645,7 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
                         tab->addProp( ( *iter )->toPropColor() );
                         break;
                     case PV_POSITION:
-                        WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "DatasetBrowser",
-                                LL_WARNING );
+                        tab->addProp( ( *iter )->toPropPosition() );
                         break;
                     case PV_TRIGGER:
                         tab->addProp( ( *iter )->toPropTrigger() );

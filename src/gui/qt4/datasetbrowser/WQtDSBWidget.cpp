@@ -96,6 +96,13 @@ WPropertyTriggerWidget* WQtDSBWidget::addProp( WPropTrigger property )
     return new WPropertyTriggerWidget( property, m_controlLayout, this );
 }
 
+WPropertyPositionWidget* WQtDSBWidget::addProp( WPropPosition property )
+{
+    ++m_numberOfWidgets;
+
+    return new WPropertyPositionWidget( property, m_controlLayout, this );
+}
+
 WPropertySelectionWidget* WQtDSBWidget::addProp( WPropSelection property )
 {
     ++m_numberOfWidgets;

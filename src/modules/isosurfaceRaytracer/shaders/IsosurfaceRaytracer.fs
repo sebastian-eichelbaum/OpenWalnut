@@ -28,7 +28,7 @@
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
-#include "DVRRaycast.varyings"
+#include "IsosurfaceRaytracer.varyings"
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -39,9 +39,6 @@ uniform sampler3D tex0;
 
 // The isovalue to use.
 uniform float u_isovalue;
-
-// Should the shader create some kind of isosurface instead of a volume rendering?
-uniform bool u_isosurface;
 
 // True if only the simple depth value should be used for coloring
 uniform bool u_depthCueingOnly;
@@ -106,86 +103,82 @@ void main()
     float totalDistance = 0.0;
     vec3 rayEnd = findRayEnd( totalDistance );
 
-    // Isosurface Mode
-    if ( u_isosurface )
+    // the point along the ray in cube coordinates
+    vec3 curPoint = v_rayStart;
+
+    // the current value inside the data
+    float value;
+
+    // the step counter
+    int i = 0;
+    float stepDistance = totalDistance / float( u_steps );
+    while ( i < u_steps ) // we do not need to ch
     {
-        // the point along the ray in cube coordinates
-        vec3 curPoint = v_rayStart;
+        // get current value
+        value = texture3D( tex0, curPoint ).r;
 
-        // the current value inside the data
-        float value;
-
-        // the step counter
-        int i = 0;
-        float stepDistance = totalDistance / float( u_steps );
-        while ( i < u_steps ) // we do not need to ch
+        // is it the isovalue?
+        if ( abs( value - u_isovalue ) < 0.1 )
         {
-            // get current value
-            value = texture3D( tex0, curPoint ).r;
+            // we need to know the depth value of the current point inside the cube
+            // Therefore, the complete standard pipeline is reproduced here:
+            
+            // 1: transfer to world space and right after it, to eye space
+            vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
+            
+            // 2: scale to screen space and [0,1]
+            // -> x and y is not needed
+            // curPointProjected.x /= curPointProjected.w;
+            // curPointProjected.x  = curPointProjected.x * 0.5 + 0.5 ;
+            // curPointProjected.y /= curPointProjected.w;
+            // curPointProjected.y  = curPointProjected.y * 0.5 + 0.5 ;
+            curPointProjected.z /= curPointProjected.w;
+            curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
 
-            // is it the isovalue?
-            if ( abs( value - u_isovalue ) < 0.1 )
+            // 3: set depth value
+            gl_FragDepth = curPointProjected.z;
+
+            // 4: set color
+            vec4 color;
+            if ( u_depthCueingOnly )
             {
-                // we need to know the depth value of the current point inside the cube
-                // Therefore, the complete standard pipeline is reproduced here:
-                
-                // 1: transfer to world space and right after it, to eye space
-                vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
-                
-                // 2: scale to screen space and [0,1]
-                // -> x and y is not needed
-                // curPointProjected.x /= curPointProjected.w;
-                // curPointProjected.x  = curPointProjected.x * 0.5 + 0.5 ;
-                // curPointProjected.y /= curPointProjected.w;
-                // curPointProjected.y  = curPointProjected.y * 0.5 + 0.5 ;
-                curPointProjected.z /= curPointProjected.w;
-                curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
-
-                // 3: set depth value
-                gl_FragDepth = curPointProjected.z;
-
-                // 4: set color
-                vec4 color;
-                if ( u_depthCueingOnly )
-                {
-                    float d = 1.0 - curPointProjected.z;
-                    color = gl_Color * 1.5 * d * d;
-                }
-                else
-                {
-                    // NOTE: these are a lot of weird experiments ;-)
-                    float d = 1.0 - curPointProjected.z;
-                    d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
- 
-                    float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
-                    w = ( w + 0.5 );
-                    if ( w > 0.8 ) w = 0.8;
-
-                    float d2 = w*d*d*d*d*d;
-                    color = gl_Color * 11.0 * d2;
-                }
-
-                color.a = u_alpha;
-                gl_FragColor = color;
-
-                break;
+                float d = 1.0 - curPointProjected.z;
+                color = gl_Color * 1.5 * d * d;
             }
             else
             {
-                // no it is not the iso value
-                // -> continue along the ray
-                curPoint += stepDistance * v_ray;
+                // NOTE: these are a lot of weird experiments ;-)
+                float d = 1.0 - curPointProjected.z;
+                d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
+
+                float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
+                w = ( w + 0.5 );
+                if ( w > 0.8 ) w = 0.8;
+
+                float d2 = w*d*d*d*d*d;
+                color = gl_Color * 11.0 * d2;
             }
 
-            // do not miss to count the steps already done
-            i++;
+            color.a = u_alpha;
+            gl_FragColor = color;
+
+            break;
+        }
+        else
+        {
+            // no it is not the iso value
+            // -> continue along the ray
+            curPoint += stepDistance * v_ray;
         }
 
-        // the ray did never hit the surface --> discard the pixel
-        if ( i == u_steps )
-        {
-            discard;
-        }
+        // do not miss to count the steps already done
+        i++;
+    }
+
+    // the ray did never hit the surface --> discard the pixel
+    if ( i == u_steps )
+    {
+        discard;
     }
 }
 

@@ -98,7 +98,7 @@ private:
     boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_fibers;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > > m_paramDS;  //!< Input connector for the parameter dataset
 
-    boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
+    boost::shared_ptr< WModule > m_detTractClustering; //!< Submodule doing clustering of the fibers and center line generation
     boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster
     boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
     boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
@@ -107,8 +107,6 @@ private:
 
     WPropDouble m_isoValue; //!< ISO Value for selecting the volume
     WPropBool   m_drawISOSurface; //!< En/Disable the display of the ISO Surface
-    // TODO(math): when project files can handle forwarded properties => forward this again, not wrapping
-    WPropBool   m_go; //!< wrapper for clustering go property so project files can make use of it
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H

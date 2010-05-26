@@ -39,48 +39,48 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
 
-#include "WMDirectVolumeRendering.h"
-#include "directvolumerendering.xpm"
+#include "WMIsosurfaceRaytracer.h"
+#include "isosurfaceraytracer.xpm"
 
-WMDirectVolumeRendering::WMDirectVolumeRendering():
+WMIsosurfaceRaytracer::WMIsosurfaceRaytracer():
     WModule(),
     m_rootNode( new osg::Node() )
 {
     // Initialize members
 }
 
-WMDirectVolumeRendering::~WMDirectVolumeRendering()
+WMIsosurfaceRaytracer::~WMIsosurfaceRaytracer()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
+boost::shared_ptr< WModule > WMIsosurfaceRaytracer::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMDirectVolumeRendering() );
+    return boost::shared_ptr< WModule >( new WMIsosurfaceRaytracer() );
 }
 
-const char** WMDirectVolumeRendering::getXPMIcon() const
+const char** WMIsosurfaceRaytracer::getXPMIcon() const
 {
-    return directvolumerendering_xpm;
+    return isosurfaceraytracer_xpm;
 }
 
-const std::string WMDirectVolumeRendering::getName() const
+const std::string WMIsosurfaceRaytracer::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "Direct Volume Rendering";
+    return "Isosurface Raytracer";
 }
 
-const std::string WMDirectVolumeRendering::getDescription() const
+const std::string WMIsosurfaceRaytracer::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "This module shows a direct volume rendering of the specified scalar dataset.";
+    return "This module shows a fast raytraced isosurface of the specified scalar dataset.";
 }
 
-void WMDirectVolumeRendering::connectors()
+void WMIsosurfaceRaytracer::connectors()
 {
     // DVR needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
-        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The scalar dataset shown using DVR." )
+        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The scalar dataset shown using isosurface." )
     );
 
     // As properties, every connector needs to be added to the list of connectors.
@@ -90,13 +90,11 @@ void WMDirectVolumeRendering::connectors()
     WModule::connectors();
 }
 
-void WMDirectVolumeRendering::properties()
+void WMIsosurfaceRaytracer::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_isoSurface    = m_properties->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the "
-                                                                      "transfer function.", true );
     m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
                                                                       50 );
     m_isoColor      = m_properties->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
@@ -112,9 +110,9 @@ void WMDirectVolumeRendering::properties()
     m_useSimpleDepthColoring = m_properties->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
 }
 
-void WMDirectVolumeRendering::moduleMain()
+void WMIsosurfaceRaytracer::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "DVRRaycast" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "IsosurfaceRaytracer" ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -200,9 +198,6 @@ void WMDirectVolumeRendering::moduleMain()
             osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
             isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
 
-            osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() );
-            isosurface->setUpdateCallback( new SafeUniformCallback( this ) );
-
             osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
             steps->setUpdateCallback( new SafeUniformCallback( this ) );
 
@@ -213,7 +208,6 @@ void WMDirectVolumeRendering::moduleMain()
             depthCueingOnly->setUpdateCallback( new SafeUniformCallback( this ) );
 
             rootState->addUniform( isovalue );
-            rootState->addUniform( isosurface );
             rootState->addUniform( steps );
             rootState->addUniform( alpha );
             rootState->addUniform( depthCueingOnly );
@@ -232,22 +226,18 @@ void WMDirectVolumeRendering::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-void WMDirectVolumeRendering::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMIsosurfaceRaytracer::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // currently, there is nothing to update
     traverse( node, nv );
 }
 
-void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
+void WMIsosurfaceRaytracer::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
     if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
     {
         uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_isoSurface->changed() && ( uniform->getName() == "u_isosurface" ) )
-    {
-        uniform->set( m_module->m_isoSurface->get( true ) );
     }
     if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
     {
@@ -263,7 +253,7 @@ void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uni
     }
 }
 
-void WMDirectVolumeRendering::activate()
+void WMIsosurfaceRaytracer::activate()
 {
     // Activate/Deactivate the DVR
     if ( m_rootNode )

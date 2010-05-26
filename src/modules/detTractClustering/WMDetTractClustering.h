@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERCLUSTERING_H
-#define WMFIBERCLUSTERING_H
+#ifndef WMDETTRACTCLUSTERING_H
+#define WMDETTRACTCLUSTERING_H
 
 #include <string>
 #include <vector>
@@ -33,30 +33,33 @@
 #include <osg/Geode>
 
 #include "../../common/datastructures/WDXtLookUpTable.h"
+#include "../../common/datastructures/WFiber.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../common/datastructures/WFiber.h"
 
 /**
- * Test module for Clustering fibers
+ * Clusters deterministic tractograms ala Zhang: http://dx.doi.org/10.1109/TVCG.2008.52 .
+ * In detail this modules decomposes all tracts into groups which should represent anatomical
+ * meaning full white matter fiber bundles.
+ *
  * \ingroup modules
  */
-class WMFiberClustering : public WModule
+class WMDetTractClustering : public WModule
 {
-friend class WMFiberClusteringTest;
+friend class WMDetTractClusteringTest;
 public:
     /**
-     * Constructs new FiberTestModule
+     * Constructs new clustering module instance.
      */
-    WMFiberClustering();
+    WMDetTractClustering();
 
     /**
-     * Destructs this FiberTestModule
+     * Destructs this clustering instance.
      */
-    virtual ~WMFiberClustering();
+    virtual ~WMDetTractClustering();
 
     /**
      * Gives back the name of this module.
@@ -85,12 +88,6 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
-    /**
-     * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -108,18 +105,15 @@ protected:
     virtual void properties();
 
     /**
-     * Reclusters the scene.
+     * Runs the clustering to update all data.
+     *
+     * \note This is very time consuming.
      */
     void update();
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
     /**
-     * Group fibers into WFiberCluster.
+     * Group tracts into a WFiberCluster.
      */
     void cluster();
 
@@ -127,21 +121,21 @@ private:
      * Generates an osg geode for the given cluster with the given color
      *
      * \param cluster The WFiberCluster which should be drawn
-     * \param color The color of alle fibers of the given cluster
+     * \param color The color of all tracts of the given cluster
      * \return geode containing the graphical representation of the cluster
      */
-    osg::ref_ptr< osg::Geode > genFiberGeode( const WFiberCluster &cluster, const WColor& color ) const;
+    osg::ref_ptr< osg::Geode > genTractGeode( const WFiberCluster &cluster, const WColor& color ) const;
 
     /**
-     * Choose colors and build and commit new FgePrimitve.
+     * Choose colors and build and commit new OSG node.
      *
-     * \return The OSG group node with all clusters:w
+     * \return The OSG group node with all clusters
      */
-    osg::ref_ptr< WGEGroupNode > paint() const;
+    osg::ref_ptr< WGEManagedGroupNode > paint() const;
 
     /**
      * Checks if the look up table exists. This is done via the original file
-     * name containing the fibers but different suffix.
+     * name containing the tracts but different suffix.
      *
      * \return True if it look up table detection was successfull.
      */
@@ -159,52 +153,47 @@ private:
      * Computes from the file name inside the given WDataSetFiberVector the
      * corresponding file name for the lookup table. This has the same
      * basename but the extension is now '.dlt' not '.fib' and resides
-     * in the same directory as the fib file.
+     * in the same directory as the tract file.
      *
-     * \return fib file name where the extension is changed to ".dlt"
+     * \return Tract file name where the extension is changed to ".dlt"
      */
     std::string lookUpTableFileName() const;
 
     /**
-     * Updates the output with new cluster.
+     * Updates the output connector with new cluster. This member function is used by update() and as well from the moduleMain loop.
      */
     void updateOutput();
 
-    size_t                       m_lastFibsSize; //!< Last known number of fibers
+    size_t                       m_lastTractsSize; //!< Last known number of tracts
     bool                         m_dLtTableExists; //!< Flag whether there is already a dLt look up table or not.
-    std::vector< size_t >        m_clusterIDs; //!< Stores the cluster id of every fiber so it is fast to get the cluster of a given fiber.
+    std::vector< size_t >        m_clusterIDs; //!< Stores the cluster id of every tract so it is fast to get the cluster of a given tract.
     std::vector< WFiberCluster > m_clusters; //!< Stores all WFiberClusters
 
+    WPropDouble  m_proximity_t; //!< Minimum distance of points of two tracts which should be considered
+    WPropDouble  m_maxDistance_t; //!< Maximum distance of two tracts in one cluster.
+    WPropInt     m_minClusterSize; //!< All clusters up to this size will be discarded
+    WPropInt     m_clusterOutputID; //!< Specifies which cluster should be connected to the Output
+    WPropTrigger m_run; //!< Button to initiate clustering with the given properties
 
-    /**
-     * Proximity threshold, which defines the minimum distance which should be
-     * considered in the calculation of the mean-minimum-distance of two fibers.
-     */
-    WPropDouble m_proximity_t;
-    WPropDouble m_maxDistance_t; //!< Maximum distance of two fibers in one cluster.
-    WPropInt    m_minClusterSize; //!< All clusters up to this size will be discarded
-    WPropInt    m_clusterOutputID; //!< Specifies which cluster should be connected to the Output
-    WPropBool   m_invisibleFibers; //!< If true the fibers of all clusters are not shown
-    WPropBool   m_run; //!< "Button" to initiate clustering with the given properties
-    // bool m_separatePrimitives; //!< If true each cluster has its own OSG node
+    // information properties
+    WPropInt     m_numTracts; //!< Number of tracts given from input
+    WPropInt     m_numUsedTracts; //!< Number of tracts used for rendering
+    WPropInt     m_numClusters; //!< Number of clusters computed
+    WPropInt     m_numValidClusters; //!< Number of clusters used for rendering
+    WPropString  m_clusterSizes; //!< Sizes of the clusters
 
-    boost::shared_ptr< WDataSetFiberVector >                m_fibs; //!< Reference to the WDataSetFiberVector object
-    boost::shared_ptr< WDataSetFibers >                     m_rawFibs; //!< Reference to the WDataSetFibers object
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput; //!< Input connector for a fiber dataset.
+    boost::shared_ptr< WDataSetFiberVector >                m_tracts; //!< Reference to the WDataSetFiberVector object
+    boost::shared_ptr< WDataSetFibers >                     m_rawTracts; //!< Reference to the WDataSetFibers object
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractInput; //!< Input connector for a tract dataset.
     boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_output; //!< Output connector for the first cluster.
     boost::shared_ptr< WDXtLookUpTable >                    m_dLtTable; //!< Distance matrix lookUpTable
 
-    boost::shared_ptr< WCondition > m_update; //!< Fires to indicate a full update (reclustering, repainting, etc...)
-    boost::shared_ptr< WCondition > m_updateOutput; //!< Fires to indicate an update of output data only
+    boost::shared_ptr< WCondition > m_update; //!< Used for register properties indicating a rerun of the moduleMain loop
+
+    osg::ref_ptr< WGEManagedGroupNode > m_osgNode; //!< OSG node for this module.
 
     /**
-     * OSG node for this module. All other OSG nodes of this module should be
-     * placed as child to this node.
-     */
-    osg::ref_ptr< WGEGroupNode > m_osgNode;
-
-    /**
-     * Inidcates if a given output ID is valid!
+     * Validates the output cluster ID!
      */
     class OutputIDBound: public WPropertyVariable< WPVBaseTypes::PV_INT >::PropertyConstraint
     {
@@ -216,8 +205,7 @@ private:
         explicit OutputIDBound( const std::vector< WFiberCluster >& clusters );
 
         /**
-         * You need to overwrite this method. It decides whether the specified new value should be accepted or not.
-         * We don't use the setMin setMax since the boundaries may change during runtime!
+         * Decides whether the specified new value should be accepted or not.
          *
          * \param property the property thats going to be changed.
          * \param value the new value
@@ -226,18 +214,18 @@ private:
          */
         virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >  property, WPVBaseTypes::PV_INT value );
     private:
-        const std::vector< WFiberCluster >& m_clusters; //!< Accept need to look into the cluster array for max size constraint
+        const std::vector< WFiberCluster >& m_clusters; //!< accept() need to look into the cluster array for max size constraint
     };
 };
 
-inline const std::string WMFiberClustering::getName() const
+inline const std::string WMDetTractClustering::getName() const
 {
-    return std::string( "Fiber Clustering" );
+    return std::string( "Deterministic Tract Clustering" );
 }
 
-inline const std::string WMFiberClustering::getDescription() const
+inline const std::string WMDetTractClustering::getDescription() const
 {
-    return std::string( "Clusters fibers from a WDataSetFiberVector" );
+    return std::string( "Clusters deterministic tractograms from a WDataSetFiberVector" );
 }
 
-#endif  // WMFIBERCLUSTERING_H
+#endif  // WMDETTRACTCLUSTERING_H

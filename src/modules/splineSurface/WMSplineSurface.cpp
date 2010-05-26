@@ -82,7 +82,7 @@ const char** WMSplineSurface::getXPMIcon() const
 
 const std::string WMSplineSurface::getName() const
 {
-    return "spline surface";
+    return "Spline Surface";
 }
 
 const std::string WMSplineSurface::getDescription() const
@@ -211,11 +211,11 @@ void WMSplineSurface::renderMesh()
 
     {
         osg::ref_ptr< osg::Material > material = new osg::Material();
-        material->setDiffuse( osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
-        material->setSpecular( osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-        material->setAmbient( osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
-        material->setEmission( osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-        material->setShininess( osg::Material::FRONT, 25.0 );
+        material->setDiffuse( osg::Material::FRONT_AND_BACK, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+        material->setSpecular( osg::Material::FRONT_AND_BACK, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+        material->setAmbient( osg::Material::FRONT_AND_BACK, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
+        material->setEmission( osg::Material::FRONT_AND_BACK, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+        material->setShininess( osg::Material::FRONT_AND_BACK, 25.0 );
         state->setAttribute( material );
     }
 
