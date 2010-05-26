@@ -65,7 +65,8 @@ WProperties::WProperties( const WProperties& from ):
     from.m_propAccess->endRead();
 
     // add the change condition of the prop list
-    m_updateCondition->add( m_properties.getChangeCondition() );
+    //m_updateCondition->add( m_properties.getChangeCondition() );
+    m_updateCondition = from.m_updateCondition;
 }
 
 boost::shared_ptr< WPropertyBase > WProperties::clone()
