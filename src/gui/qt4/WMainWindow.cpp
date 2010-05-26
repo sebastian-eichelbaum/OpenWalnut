@@ -110,10 +110,22 @@ void WMainWindow::setupGUI()
     fileMenu->addSeparator();
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
 
+    // This QAction stuff is quite ugly and complicated some times ... there is no nice constructor which takes name, slot keysequence and so on
+    // directly -> set shortcuts, and some further properties using QAction's interface
+    QMenu* viewMenu = m_menuBar->addMenu( "View" );
+    QAction* dsbTrigger = new QAction( "Dataset Browser", this );
+    QList< QKeySequence > dsbShortcut;
+    dsbShortcut.append( QKeySequence( Qt::Key_F9 ) );
+    dsbTrigger->setShortcuts( dsbShortcut );
+    dsbTrigger->setCheckable( true );
+    dsbTrigger->setChecked( true );
+    connect( dsbTrigger, SIGNAL( triggered() ), this, SLOT( showHideDatasetBrowser() ) );
+    viewMenu->addAction( dsbTrigger );
+    viewMenu->addSeparator();
+
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
-    QMenu* viewMenu = m_menuBar->addMenu( "View" );
     viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ),      QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
     viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ),     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
     viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
@@ -809,3 +821,9 @@ void WMainWindow::openConfigDialog()
 
     m_configWidget->initAndShow();
 }
+
+void WMainWindow::showHideDatasetBrowser()
+{
+    m_datasetBrowser->setVisible( !m_datasetBrowser->isVisible() );
+}
+
