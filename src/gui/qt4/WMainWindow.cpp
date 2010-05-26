@@ -91,22 +91,40 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
+    // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
+    // QKeySequence::StandardKey defaults and avoid ambiguities like Ctrl-C for the configure dialog is not the best choice as Ctrl-C, for the
+    // most users is the Copy shortcut.
+
     m_menuBar = new QMenuBar( this );
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
-    fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load", this, SLOT( openLoadDialog() ), QKeySequence( "Ctrl+L" ) );
-    fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ), QKeySequence( "Ctrl+C" ) );
-    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( "Ctrl+Q" ) );
+    fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load Dataset", this, SLOT( openLoadDialog() ), QKeySequence(  QKeySequence::Open ) );
+    fileMenu->addSeparator();
+    fileMenu->addAction( "Load Project", this, SLOT( projectLoad() ) );
+    QMenu* saveMenu = fileMenu->addMenu( "Save" );
+    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
+    saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
+    saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
+    saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
+    fileMenu->addSeparator();
+    fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ) );
+    fileMenu->addSeparator();
+    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
 
+    // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
+    // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
+    // statistics ).
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
-    viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ), QKeySequence( "L" ) );
-    viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ), QKeySequence( "R" ) );
-    viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "S" ) );
-    viewMenu->addAction( "Inferior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "I" ) );
-    viewMenu->addAction( "Anterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "A" ) );
-    viewMenu->addAction( "Posterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( "P" ) );
+    viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ),      QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
+    viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ),     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    viewMenu->addAction( "Inferior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    viewMenu->addAction( "Anterior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    viewMenu->addAction( "Posterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
-    helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ), QKeySequence( "F1" ) );
+    helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ),
+                         QKeySequence( QKeySequence::HelpContents )
+    );
 
     setMenuBar( m_menuBar );
 
