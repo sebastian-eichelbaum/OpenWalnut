@@ -217,11 +217,6 @@ public slots:
      */
     void openConfigDialog();
 
-    /**
-     * Called when the user en/disables the dataset browser by shortcut/menu
-     */
-    void showHideDatasetBrowser();
-
 private:
     /**
      * Sets up the permanent tool bar.

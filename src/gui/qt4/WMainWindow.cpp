@@ -91,6 +91,12 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
+    // the dataset browser instance is needed for the menu
+    m_datasetBrowser = new WQtDatasetBrowser( this );
+    m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
+    m_datasetBrowser->addSubject( "Default Subject" );
+
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
     // QKeySequence::StandardKey defaults and avoid ambiguities like Ctrl-C for the configure dialog is not the best choice as Ctrl-C, for the
     // most users is the Copy shortcut.
@@ -115,13 +121,11 @@ void WMainWindow::setupGUI()
     // This QAction stuff is quite ugly and complicated some times ... there is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
-    QAction* dsbTrigger = new QAction( "Dataset Browser", this );
+
+    QAction* dsbTrigger = m_datasetBrowser->toggleViewAction();
     QList< QKeySequence > dsbShortcut;
     dsbShortcut.append( QKeySequence( Qt::Key_F9 ) );
     dsbTrigger->setShortcuts( dsbShortcut );
-    dsbTrigger->setCheckable( true );
-    dsbTrigger->setChecked( true );
-    connect( dsbTrigger, SIGNAL( triggered() ), this, SLOT( showHideDatasetBrowser() ) );
     viewMenu->addAction( dsbTrigger );
     viewMenu->addSeparator();
 
@@ -213,11 +217,6 @@ void WMainWindow::setupGUI()
     setupPermanentToolBar();
 
     setupCompatiblesToolBar();
-
-    m_datasetBrowser = new WQtDatasetBrowser( this );
-    m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
-    m_datasetBrowser->addSubject( "Default Subject" );
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -822,10 +821,5 @@ void WMainWindow::openConfigDialog()
     m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
 
     m_configWidget->initAndShow();
-}
-
-void WMainWindow::showHideDatasetBrowser()
-{
-    m_datasetBrowser->setVisible( !m_datasetBrowser->isVisible() );
 }
 
