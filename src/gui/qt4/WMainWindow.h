@@ -213,9 +213,15 @@ public slots:
     void setFibersLoaded();
 
     /**
-    * gets called when menu option or toolbar button load is activated
-    */
+     * Gets called when menu option or toolbar button load is activated
+     */
     void openConfigDialog();
+
+    /**
+     * Called when the user en/disables the dataset browser by shortcut/menu
+     */
+    void showHideDatasetBrowser();
+
 private:
     /**
      * Sets up the permanent tool bar.
