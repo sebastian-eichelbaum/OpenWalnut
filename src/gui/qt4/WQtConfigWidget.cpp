@@ -928,6 +928,7 @@ void WQtConfigWidget::loadConfigFile()
 
     m_configState.setResetable( true, true );
     m_configState.add( m_propCondition );
+    m_configState.add( m_shutdownFlag );
 }
 
 void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
