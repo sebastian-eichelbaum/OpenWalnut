@@ -51,10 +51,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../lic/fantom/FTensor.h"
-#include "../lic/fantom/FBSplineSurface.h"
+#include "WBSplineSurface.h"
 
 #include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../common/math/WTensorSym.h"
 
 class WSurface
 {
@@ -69,7 +69,7 @@ public:
 
 private:
 
-    FTensor getCovarianceMatrix( std::vector< std::vector< double > > points );
+    wmath::WTensorSym< 2, 3, double > getCovarianceMatrix( std::vector< std::vector< double > > points );
     void getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > > &givenPoints, std::vector< std::vector< double > > &deBoorPoints, int numRows, int numCols ); // NOLINT
 
     boost::shared_ptr< WTriangleMesh2 > m_tMesh;
