@@ -108,7 +108,9 @@ void WMainWindow::setupGUI()
     fileMenu->addSeparator();
     fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ) );
     fileMenu->addSeparator();
-    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
+    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
+    //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
+    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
     // This QAction stuff is quite ugly and complicated some times ... there is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
