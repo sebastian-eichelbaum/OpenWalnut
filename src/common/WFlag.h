@@ -59,6 +59,9 @@ public:
     /**
      * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
      * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     * The conditions you can grab using getValueChangeConditon and getCondition are not the same as in the original! This is because
+     * the class corresponds to the observer/observable pattern. You won't expect a clone to fire a condition if a original flag is changed
+     * (which after cloning is completely decoupled from the clone).
      *
      * \param from the instance to copy.
      */
