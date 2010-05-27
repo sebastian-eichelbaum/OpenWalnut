@@ -28,9 +28,9 @@
 
 WBSpline::WBSpline( int order, std::vector< std::vector< double > > deBoorPoints )
 {
-    this->deBoorPoints = deBoorPoints;
-    int n = this->deBoorPoints.size();
-    int k = this->order = order;
+    this->m_deBoorPoints = deBoorPoints;
+    int n = this->m_deBoorPoints.size();
+    int k = this->m_order = order;
 
     //define a normalized knotVector
     for( int i = 0; i < (n + k); i++)
@@ -43,15 +43,15 @@ WBSpline::WBSpline( int order, std::vector< std::vector< double > > deBoorPoints
         if( i >= n)
             tempKnot = n;
 
-        knots.push_back( tempKnot );
+        m_knots.push_back( tempKnot );
     }
 }
 
 WBSpline::WBSpline( int order, std::vector< std::vector< double > > deBoorPoints, std::vector<double> knots )
 {
-    this->order = order;
-    this->deBoorPoints = deBoorPoints;
-    this->knots = knots;
+    this->m_order = order;
+    this->m_deBoorPoints = deBoorPoints;
+    this->m_knots = knots;
 }
 
 WBSpline::~WBSpline()
@@ -63,21 +63,21 @@ wmath::WVector3D WBSpline::f( double _t )
     wmath::WVector3D result;
     unsigned int r = 0, i;
 
-    if( _t < knots[0])
+    if( _t < m_knots[0] )
     {
-        _t = knots[0];
+        _t = m_knots[0];
     }
 
-    if( _t > knots[ knots.size() - 1])
+    if( _t > m_knots[m_knots.size() - 1] )
     {
-        _t = knots[ knots.size() - 1];
+        _t = m_knots[m_knots.size() - 1];
     }
 
-    t = _t; // set current paramter _t as class variable
+    m_t = _t; // set current paramter _t as class variable
 
-    for(i = 0; i < knots.size(); i++) // -1 ?
+    for( i = 0; i < m_knots.size(); i++ ) // -1 ?
     {
-        if(knots[i] > _t)
+        if( m_knots[i] > _t )
         {
             break;
         }
@@ -85,11 +85,11 @@ wmath::WVector3D WBSpline::f( double _t )
 
     r = i - 1;
 
-    if( _t == knots[ knots.size() - 1])
+    if( _t == m_knots[m_knots.size() - 1])
     {
-        for(i = (knots.size() - 1); i > 0; i--)
+        for(i = ( m_knots.size() - 1); i > 0; i-- )
         {
-            if( knots[i] < _t )
+            if( m_knots[i] < _t )
             {
                 break;
             }
@@ -97,52 +97,52 @@ wmath::WVector3D WBSpline::f( double _t )
         r = i;
     }
 
-    result = controlPoint_i_j( r, order - 1 );
+    result = controlPoint_i_j( r, m_order - 1 );
 
     return result;
 }
 
 std::vector< std::vector< double > > WBSpline::getDeBoorPoints()
 {
-    return deBoorPoints;
+    return m_deBoorPoints;
 }
 
 std::vector<double> WBSpline::getKnots()
 {
-    return this->knots;
+    return this->m_knots;
 }
 
 int WBSpline::getOrder()
 {
-    return this->order;
+    return this->m_order;
 }
 
 void WBSpline::setDeBoorPoints( std::vector< std::vector< double > > deBoorPoints )
 {
-    this->deBoorPoints = deBoorPoints;
+    this->m_deBoorPoints = deBoorPoints;
 }
 
 void WBSpline::setKnots( std::vector<double> knots )
 {
-    this->knots = knots;
+    this->m_knots = knots;
 }
 
 void WBSpline::setOrder( int order )
 {
-    this->order = order;
+    this->m_order = order;
 }
 
 void WBSpline::samplePoints( std::vector< std::vector< double > > *points, double resolution )
 {
     double deltaT = resolution;
-    double currentT = knots[0];
+    double currentT = m_knots[0];
 
-    int steps = static_cast< int >( ( knots[knots.size() - 1] - knots[0] ) / deltaT + 1 );
+    int steps = static_cast< int >( ( m_knots[m_knots.size() - 1] - m_knots[0] ) / deltaT + 1 );
 
     for( int step = 0; step < steps; step++ )
     {
         std::vector< double > dummy;
-        currentT = knots[0] + step * deltaT;
+        currentT = m_knots[0] + step * deltaT;
         wmath::WVector3D samplePoint = f( currentT );
         dummy.push_back( samplePoint[0] );
         dummy.push_back( samplePoint[1] );
@@ -153,7 +153,7 @@ void WBSpline::samplePoints( std::vector< std::vector< double > > *points, doubl
 
 double WBSpline::getAlpha_i_j( int _i, int _j )
 {
-    double result = ( t - knots[_i] ) / ( knots[_i + order - _j] - knots[_i] );
+    double result = ( m_t - m_knots[_i] ) / ( m_knots[_i + m_order - _j] - m_knots[_i] );
     return result;
 }
 
@@ -163,9 +163,9 @@ wmath::WVector3D WBSpline::controlPoint_i_j( int _i, int _j )
 
     if( _j == 0)
     {
-        result[0] = deBoorPoints[_i][0];
-        result[1] = deBoorPoints[_i][1];
-        result[2] = deBoorPoints[_i][2];
+        result[0] = m_deBoorPoints[_i][0];
+        result[1] = m_deBoorPoints[_i][1];
+        result[2] = m_deBoorPoints[_i][2];
         return result;
     }
     double bufferedAlpha = getAlpha_i_j( _i, _j );

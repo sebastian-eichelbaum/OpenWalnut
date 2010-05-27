@@ -190,17 +190,17 @@ private:
      */
     wmath::WVector3D f( double t, double u );
 
-    int order1; //!< order for the spline in the first direction.
-    int order2; //!< order for the spline in the second direction.
-    int numDeBoorPoints1; //!< number of de Boor points for the spline in the first direction.
-    int numDeBoorPoints2; //!< number of de Boor points for the spline in the second direction.
-    int numSamplePointsT; //!< The number of sample points in the first direction that were used for the last call to samplePoints().
-    int numSamplePointsU; //!< The number of sample points in the second direction that were used for the last call to samplePoints().
+    int m_order1; //!< order for the spline in the first direction.
+    int m_order2; //!< order for the spline in the second direction.
+    int m_numDeBoorPoints1; //!< number of de Boor points for the spline in the first direction.
+    int m_numDeBoorPoints2; //!< number of de Boor points for the spline in the second direction.
+    int m_numSamplePointsT; //!< The number of sample points in the first direction that were used for the last call to samplePoints().
+    int m_numSamplePointsU; //!< The number of sample points in the second direction that were used for the last call to samplePoints().
 
-    std::vector<std::vector< double > > deBoorPoints; //!< The de Boor points of the splines.
+    std::vector<std::vector< double > > m_deBoorPoints; //!< The de Boor points of the splines.
 
-    std::vector<double> knots1; //!< The knots of the spline in the first direction.
-    std::vector<double> knots2; //!< The knots of the spline in the second direction.
+    std::vector<double> m_knots1; //!< The knots of the spline in the first direction.
+    std::vector<double> m_knots2; //!< The knots of the spline in the second direction.
 };
 
 #endif  // WBSPLINESURFACE_H

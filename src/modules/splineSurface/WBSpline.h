@@ -104,10 +104,10 @@ public:
     wmath::WVector3D f( double t );
 
 private:
-    int order; //!< The order of the spline.
-    std::vector<std::vector< double > > deBoorPoints; //!< The de Boor points of the spline.
-    std::vector<double> knots; //!< The knots of the spline.
-    double t; //!< The parameter value of the last spline evaluation i.e. the last call to f().
+    int m_order; //!< The order of the spline.
+    std::vector<std::vector< double > > m_deBoorPoints; //!< The de Boor points of the spline.
+    std::vector<double> m_knots; //!< The knots of the spline.
+    double m_t; //!< The parameter value of the last spline evaluation i.e. the last call to f().
 
     /**
      * Compute the alpha of the de Boor algorithm for the given parameters
