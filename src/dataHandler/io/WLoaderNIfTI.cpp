@@ -25,16 +25,19 @@
 #include <stdint.h>
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
 #include "WLoaderNIfTI.h"
+#include "../../common/WIOTools.h"
 #include "../WDataSet.h"
 #include "../WSubject.h"
 #include "../WDataSetSingle.h"
 #include "../WDataSetVector.h"
 #include "../WDataSetScalar.h"
+#include "../WDataSetRawHARDI.h"
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
 #include "../WValueSetBase.h"
@@ -167,6 +170,58 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
     else if( vDim == 1 )
     {
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetScalar( newValueSet, newGrid ) );
+    }
+    else if( vDim > 20 && header->dim[ 5 ] == 1 ) // hardi data, order 1
+    {
+        std::string gradientFileName = m_fileName;
+        using wiotools::getSuffix;
+        std::string suffix = getSuffix( m_fileName );
+
+        if( suffix == ".gz" )
+        {
+            WAssert( gradientFileName.length() > 3, "" );
+            gradientFileName.resize( gradientFileName.length() - 3 );
+            suffix = getSuffix( gradientFileName );
+        }
+        WAssert( suffix == ".nii", "Input file is not a nifti file." );
+
+        WAssert( gradientFileName.length() > 4, "" );
+        gradientFileName.resize( gradientFileName.length() - 4 );
+        gradientFileName += ".bvec";
+
+        // check if the file exists
+        std::ifstream i( gradientFileName.c_str() );
+        if( i.bad() || !i.is_open() )
+        {
+            if( i.is_open() )
+            {
+                i.close();
+            }
+            // cannot find the appropriate gradient vectors, build a dataSetSingle instead of hardi
+            newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
+        }
+        else
+        {
+            // read gradients, there should be 3 * vDim values in the file
+            typedef std::vector< wmath::WVector3D > GradVec;
+            boost::shared_ptr< GradVec > newGradients = boost::shared_ptr< GradVec >( new GradVec( vDim ) );
+
+            // the file should contain the x-coordinates in line 0, y-coordinates in line 1,
+            // z-coordinates in line 2
+            for( unsigned int j = 0; j < 3; ++j )
+            {
+                for( unsigned int k = 0; k < vDim; ++k )
+                {
+                    i >> newGradients->operator[] ( k )[ j ];
+                }
+            }
+            bool success = !i.eof();
+            i.close();
+
+            WAssert( success, "Gradient file did not contain enough gradients." );
+
+            newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients ) );
+        }
     }
     else
     {
