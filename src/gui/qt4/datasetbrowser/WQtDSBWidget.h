@@ -203,16 +203,6 @@ private:
      * The number of widgets inside this one.
      */
     unsigned int m_numberOfWidgets;
-
-public slots:
-
-    /**
-     * Called whenever a group toggle button has been checked.
-     *
-     * \param checked true if checked
-     * \param widget the widget handled by the button
-     */
-    void groupTitleToggled( bool checked, QWidget* widget );
 };
 
 #endif  // WQTDSBWIDGET_H
