@@ -83,7 +83,7 @@ public:
      *
      * \return measures per voxel
      */
-    uint getMeasures() const;
+    std::size_t getMeasures() const;
 
 protected:
 
