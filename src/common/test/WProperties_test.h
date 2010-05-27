@@ -278,14 +278,14 @@ public:
 
         // the first should not fire, but the condition of the clone
         TS_ASSERT( m_testTemporary1 == false );
-        //TS_ASSERT( m_testTemporary2 == true );
+        TS_ASSERT( m_testTemporary2 == true );
 
         // the same thing but vice versa
         m_testTemporary1 = false;
         m_testTemporary2 = false;
         orig->addProperty( "1", "test1", false );
         // this time, the first should fire but not the second
-        //TS_ASSERT( m_testTemporary2 == false );
+        TS_ASSERT( m_testTemporary2 == false );
         TS_ASSERT( m_testTemporary1 == true );
 
         /////////////////////

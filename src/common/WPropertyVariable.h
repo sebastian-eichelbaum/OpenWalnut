@@ -439,7 +439,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 }
 
@@ -453,7 +452,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 }
 
@@ -468,7 +466,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
@@ -489,7 +486,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
@@ -531,7 +527,6 @@ WPropertyVariable< T >::~WPropertyVariable()
 {
     // clean up
     m_updateCondition->remove( m_constraints->getChangeCondition() );
-    m_updateCondition->remove( WFlag< T >::getCondition() );
     m_updateCondition->remove( WFlag< T >::getValueChangeCondition() );
 
     m_notifierConnection.disconnect();
