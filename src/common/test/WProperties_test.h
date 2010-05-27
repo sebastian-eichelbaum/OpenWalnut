@@ -259,7 +259,7 @@ public:
         // Conditions
 
         // is there a new condition? This has to be the case, this mainly situated in WPropertyBase
-        //TS_ASSERT( orig->getUpdateCondition() != clone->getUpdateCondition() );
+        TS_ASSERT( orig->getUpdateCondition() != clone->getUpdateCondition() );
 
         // update of property list does not modify the original
         clone->addProperty( "1", "test1", 1.0 );
