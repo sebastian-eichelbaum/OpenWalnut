@@ -172,10 +172,6 @@ void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
     m_controlLayout->addWidget( box, row, 0, 1, 2 );
 }
 
-void WQtDSBWidget::groupTitleToggled( bool checked, QWidget* widget )
-{
-}
-
 void WQtDSBWidget::addSpacer()
 {
     m_pageLayout->addStretch();

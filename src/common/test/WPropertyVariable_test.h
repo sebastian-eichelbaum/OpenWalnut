@@ -152,7 +152,7 @@ public:
         m_testTemporary1 = false;
         m_testTemporary2 = false;
         clone->set( 4 );
-        //TS_ASSERT( !m_testTemporary1 );
+        TS_ASSERT( !m_testTemporary1 );
         TS_ASSERT( m_testTemporary2 );
 
         // and test vice versa
@@ -160,7 +160,7 @@ public:
         m_testTemporary2 = false;
         p->set( 2 );
         TS_ASSERT( m_testTemporary1 );
-        //TS_ASSERT( !m_testTemporary2 );
+        TS_ASSERT( !m_testTemporary2 );
 
         // do the same for constraints
         m_testTemporary1 = false;

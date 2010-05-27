@@ -121,6 +121,9 @@ public:
     /**
      * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
      * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     * The conditions you can grab using getValueChangeConditon and getCondition are not the same as in the original! This is because
+     * the class corresponds to the observer/observable pattern. You won't expect a clone to fire a condition if a original variable is changed
+     * (which after cloning is completely decoupled from the clone).
      *
      * \param from the instance to copy.
      */
@@ -439,7 +442,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 }
 
@@ -453,7 +455,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 }
 
@@ -468,7 +469,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
@@ -489,7 +489,6 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
 
     // set constraint and change condition to update condition set of WPropertyBase
     m_updateCondition->add( m_constraints->getChangeCondition() );
-    m_updateCondition->add( WFlag< T >::getCondition() );
     m_updateCondition->add( WFlag< T >::getValueChangeCondition() );
 
     // set custom notifier
@@ -531,7 +530,6 @@ WPropertyVariable< T >::~WPropertyVariable()
 {
     // clean up
     m_updateCondition->remove( m_constraints->getChangeCondition() );
-    m_updateCondition->remove( WFlag< T >::getCondition() );
     m_updateCondition->remove( WFlag< T >::getValueChangeCondition() );
 
     m_notifierConnection.disconnect();

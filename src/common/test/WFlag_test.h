@@ -202,9 +202,9 @@ public:
         TS_ASSERT( flag->get() != flagClone->get() );
 
         // the conditions need to be different
-        // (ledig) really? because thats what the clone is for which (eichelbaum) changed in the config editor and therefor crashed the whole thing
-        //TS_ASSERT( flag->getCondition() != flagClone->getCondition() );
-        //TS_ASSERT( flag->getValueChangeCondition() != flagClone->getValueChangeCondition() );
+        // This is because the flag is another one and you won't expect to wake up if someone changes a Flag you do not know
+        TS_ASSERT( flag->getCondition() != flagClone->getCondition() );
+        TS_ASSERT( flag->getValueChangeCondition() != flagClone->getValueChangeCondition() );
     }
 };
 

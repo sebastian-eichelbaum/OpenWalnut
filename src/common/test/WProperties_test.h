@@ -259,7 +259,7 @@ public:
         // Conditions
 
         // is there a new condition? This has to be the case, this mainly situated in WPropertyBase
-        //TS_ASSERT( orig->getUpdateCondition() != clone->getUpdateCondition() );
+        TS_ASSERT( orig->getUpdateCondition() != clone->getUpdateCondition() );
 
         // update of property list does not modify the original
         clone->addProperty( "1", "test1", 1.0 );
@@ -278,14 +278,14 @@ public:
 
         // the first should not fire, but the condition of the clone
         TS_ASSERT( m_testTemporary1 == false );
-        //TS_ASSERT( m_testTemporary2 == true );
+        TS_ASSERT( m_testTemporary2 == true );
 
         // the same thing but vice versa
         m_testTemporary1 = false;
         m_testTemporary2 = false;
         orig->addProperty( "1", "test1", false );
         // this time, the first should fire but not the second
-        //TS_ASSERT( m_testTemporary2 == false );
+        TS_ASSERT( m_testTemporary2 == false );
         TS_ASSERT( m_testTemporary1 == true );
 
         /////////////////////
