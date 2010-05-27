@@ -509,8 +509,8 @@ float WDataTexture3D::getMinMaxScale()
 
 float WDataTexture3D::scaleInterval( float value ) const
 {
-    return value;
-    //return ( value - m_minValue ) / m_scale;
+    //return value;
+    return ( value - m_minValue ) / m_scale;
 }
 
 bool WDataTexture3D::isInterpolated()
