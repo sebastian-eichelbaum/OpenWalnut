@@ -51,13 +51,14 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
     // Lists are used if the selection of multiple elements is allowed
     if ( m_selectionProperty->countConstraint( PC_SELECTONLYONE ) != 0 )
     {
+        // TODO(all): how to show the icon inside a combobox?
         m_combo = new QComboBox( &m_parameterWidgets );
 
         // add all items from the selection set:
         WItemSelector s = m_selectionProperty->get();
         for ( size_t i = 0; i < s.sizeAll(); ++i )
         {
-            m_combo->addItem( QString::fromStdString( s.atAll( i ).first ) );
+            m_combo->addItem( QString::fromStdString( s.atAll( i ).name ) );
         }
 
         // layout
@@ -79,9 +80,23 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
             QWidget* widget = new QWidget( m_list );
             QGridLayout* layoutWidget = new QGridLayout();
 
+            int column = 0;
+            // if there is an icon -> show it
+            if ( s.atAll( i ).icon )
+            {
+                QLabel* icon = new QLabel();
+                QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
+                icon->setSizePolicy( sizePolicy );
+                icon->setPixmap( QPixmap( s.atAll( i ).icon ) );
+                layoutWidget->addWidget( icon, 0, 0, 2, 1 );
+
+                ++column;
+            }
+
             // Add Name and Description
-            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( s.atAll( i ).first )+ "</b>" ), 0, 0 );
-            layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).second ) ), 1, 0 );
+            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( s.atAll( i ).name )+ "</b>" ), 0, column );
+            layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).description ) ), 1, column );
+
             layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
             widget->setLayout( layoutWidget );
 
