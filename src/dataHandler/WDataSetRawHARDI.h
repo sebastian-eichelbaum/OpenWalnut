@@ -40,13 +40,13 @@ public:
 
     /**
      * Constructs an instance out of:
-     *  - an appropriate value set with a vector of measure values for each voxel, 
+     *  - an appropriate value set with a vector of measure values for each voxel,
      *  - a grid and
      *  - the gradients used during the measurement of the different values.
      *
      * \param newValueSet the vector value set to use
      * \param newGrid the grid which maps world space to the value set
-     * \param newGradients the Gradients of the 
+     * \param newGradients the Gradients of the
      */
     WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
                       boost::shared_ptr< WGrid > newGrid,
@@ -70,9 +70,11 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
     /**
-     * Returns the gradient for the \param index.
+     * Returns the gradient for the index.
      *
      * \return gradient of measurement
+     *
+     * \param index
      */
     const wmath::WVector3D& getGradient( size_t index ) const;
 
