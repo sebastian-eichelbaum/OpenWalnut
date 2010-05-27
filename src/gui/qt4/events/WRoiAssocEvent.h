@@ -47,7 +47,7 @@ public:
     /**
      * destructor
      */
-    ~WRoiAssocEvent();
+    virtual ~WRoiAssocEvent();
 
     /**
      * Getter for the roi that got associated.

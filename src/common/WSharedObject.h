@@ -79,7 +79,7 @@ public:
         /**
          * Desctructor.
          */
-        ~WSharedObjectAccess();
+        virtual ~WSharedObjectAccess();
 
         /**
          * Gets the contained, and protected object.
