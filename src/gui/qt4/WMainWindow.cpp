@@ -818,6 +818,11 @@ void WMainWindow::setFibersLoaded()
 
 void WMainWindow::openConfigDialog()
 {
+    if ( m_configWidget.get() )
+    {
+        m_configWidget->wait( true );
+    }
+
     m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
 
     m_configWidget->initAndShow();

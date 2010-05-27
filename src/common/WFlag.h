@@ -206,8 +206,8 @@ WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, T initial ):
 
 template < typename T >
 WFlag< T >::WFlag( const WFlag& from ):
-    m_condition( boost::shared_ptr< WCondition >( new WCondition() ) ),
-    m_valueChangeCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
+    m_condition( from.m_condition ),
+    m_valueChangeCondition( from.m_valueChangeCondition ),
     m_flag( from.m_flag ),
     m_changed( from.m_changed )
 {

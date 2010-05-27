@@ -61,6 +61,26 @@ void WCfgOperations::writeCfg( const std::string fileName, const std::vector< st
     std::stringstream mendl;
     mendl << std::endl;
 
+    if ( !ofs )
+    {
+        std::cout << "A problem occurred while writing " << fileName << std::endl;
+        std::cout << "File might be write protected, you may have no writing rights or disc is full" << std::endl;
+        std::cout << "File would look like: " << std::endl << std::endl;
+
+        for ( size_t i = 0; i < lines.size(); ++i )
+        {
+            std::cout << lines[i];
+
+            // if there is no newline character add it
+            if ( (lines[i]).find( mendl.str() ) == std::string::npos )
+            {
+                std::cout << std::endl;
+            }
+        }
+        std::cout << std::endl;
+        return;
+    }
+
     for ( size_t i = 0; i < lines.size(); ++i )
     {
         ofs << lines[i];
@@ -338,10 +358,10 @@ std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties >
             size_t dotPos = result.find( '.' );
             if ( dotPos != std::string::npos )
             {
-                digitsAfterDot = result.length() - dotPos + 1;
+                digitsAfterDot = result.length() - ( dotPos + 1 );
                 if ( digitsAfterDot > 2 )
                 {
-                    result.erase( dotPos + 3, result.length() - dotPos - 2 );
+                    result.erase( dotPos + 3, result.length() - dotPos - 3 );
                 }
             }
             // also remove the last zeros if they are not directly after the dot

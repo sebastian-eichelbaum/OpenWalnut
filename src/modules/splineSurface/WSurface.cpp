@@ -24,9 +24,13 @@
 
 #include <fstream>
 #include <vector>
+#include <map>
 
 #include "math.h"
-#include "../lic/fantom/FMatrix.h"
+
+#include "../../common/math/WMatrix.h"
+#include "../../common/math/WLinearAlgebraFunctions.h"
+#include "../../common/math/WTensorFunctions.h"
 
 #include "WSurface.h"
 
@@ -46,9 +50,9 @@ WSurface::~WSurface()
 {
 }
 
-FTensor WSurface::getCovarianceMatrix( std::vector< std::vector< double > > points )
+wmath::WTensorSym< 2, 3, double > WSurface::getCovarianceMatrix( std::vector< std::vector< double > > points )
 {
-    FTensor result( 3, 2, true );
+    wmath::WTensorSym< 2, 3, double > result;
     m_xAverage = m_yAverage = m_zAverage = 0;
 
     std::vector< std::vector< double > >::iterator pointsIt;
@@ -127,14 +131,14 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > 
             for ( givenPointsIt = givenPoints.begin(); givenPointsIt != givenPoints.end(); givenPointsIt++ )
             {
                 std::vector< double > dmy1 = *givenPointsIt;
-                FArray dmyArray( dmy1 );
+                wmath::WVector3D dmyArray( dmy1[0], dmy1[1], dmy1[2] );
                 dmyArray[1] = 0;
-                FArray thisPoint( x, 0, z );
+                wmath::WVector3D thisPoint( x, 0, z );
 
                 double xi; //greek alphabet
 
-                if ( thisPoint.distance( dmyArray ) < m_radius )
-                    xi = 1 - thisPoint.distance( dmyArray ) / m_radius;
+                if ( ( thisPoint - dmyArray ).norm() < m_radius )
+                    xi = 1 - ( thisPoint - dmyArray ).norm() / m_radius;
                 else
                     xi = 0;
 
@@ -178,34 +182,40 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     std::vector< std::vector< double > > deBoorPoints;
     m_splinePoints.clear();
 
-    FTensor myTensor = getCovarianceMatrix( givenPoints );
+    wmath::WTensorSym< 2, 3, double > myTensor = getCovarianceMatrix( givenPoints );
 
-    FArray eigenValues( 3 );
-    FArray eigenVectors[3];
-    eigenVectors[0] = FArray( 3 );
-    eigenVectors[1] = FArray( 3 );
-    eigenVectors[2] = FArray( 3 );
+    std::vector< double > eigenValues( 3 );
+    std::vector< wmath::WVector3D > eigenVectors( 3 );
 
-    myTensor.getEigenSystem( eigenValues, eigenVectors );
+    wmath::jacobiEigenvector3D( myTensor, &eigenValues, &eigenVectors );
 
     eigenVectors[0].normalize();
     eigenVectors[1].normalize();
     eigenVectors[2].normalize();
 
-    FTensor::sortEigenvectors( eigenValues, eigenVectors );
+    // This sorts the entries automatically :-)
+    std::map< double, wmath::WVector3D > sortedEigenSystem;
+    for( size_t i = 0; i < 3 ; ++i )
+    {
+        sortedEigenSystem[eigenValues[i]] = eigenVectors[i];
+    }
 
-    FMatrix transMatrix = FMatrix( 3, 3 );
-    transMatrix( 0, 0 ) = eigenVectors[1][0];
-    transMatrix( 0, 1 ) = eigenVectors[1][1];
-    transMatrix( 0, 2 ) = eigenVectors[1][2];
+    wmath::WMatrix< double > transMatrix = wmath::WMatrix< double >( 3, 3 );
 
-    transMatrix( 1, 0 ) = eigenVectors[2][0];
-    transMatrix( 1, 1 ) = eigenVectors[2][1];
-    transMatrix( 1, 2 ) = eigenVectors[2][2];
+    std::map< double, wmath::WVector3D >::iterator sortedSystemIter = sortedEigenSystem.begin();
+    transMatrix( 1, 0 ) =( *sortedSystemIter ).second[0];
+    transMatrix( 1, 1 ) =( *sortedSystemIter ).second[1];
+    transMatrix( 1, 2 ) =( *sortedSystemIter ).second[2];
 
-    transMatrix( 2, 0 ) = eigenVectors[0][0];
-    transMatrix( 2, 1 ) = eigenVectors[0][1];
-    transMatrix( 2, 2 ) = eigenVectors[0][2];
+    ++sortedSystemIter;
+    transMatrix( 0, 0 ) =( *sortedSystemIter ).second[0];
+    transMatrix( 0, 1 ) =( *sortedSystemIter ).second[1];
+    transMatrix( 0, 2 ) =( *sortedSystemIter ).second[2];
+
+    ++sortedSystemIter;
+    transMatrix( 2, 0 ) =( *sortedSystemIter ).second[0];
+    transMatrix( 2, 1 ) =( *sortedSystemIter ).second[1];
+    transMatrix( 2, 2 ) =( *sortedSystemIter ).second[2];
 
     std::vector< std::vector< double > >::iterator pointsIt;
 
@@ -216,9 +226,9 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
         ( *pointsIt )[1] -= m_yAverage;
         ( *pointsIt )[2] -= m_zAverage;
 
-        FArray dmy( *pointsIt );
+        wmath::WVector3D dmy( ( *pointsIt )[0], ( *pointsIt )[1], ( *pointsIt )[2]  );
 
-        F::FVector result = transMatrix * dmy;
+        wmath::WVector3D result = transMatrix * dmy;
         ( *pointsIt )[0] = result[0];
         ( *pointsIt )[1] = result[1];
         ( *pointsIt )[2] = result[2];
@@ -228,12 +238,12 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     getSplineSurfaceDeBoorPoints( givenPoints, deBoorPoints, m_numDeBoorRows, m_numDeBoorCols );
 
     //translate and orientate de Boor points back
-    transMatrix.invert();
+    transMatrix = wmath::invertMatrix3x3( transMatrix );
     for ( pointsIt = deBoorPoints.begin(); pointsIt != deBoorPoints.end(); pointsIt++ )
     {
-        FArray dmy( *pointsIt );
+        wmath::WVector3D dmy( ( *pointsIt )[0], ( *pointsIt )[1], ( *pointsIt )[2]  );
 
-        F::FVector result = transMatrix * dmy;
+        wmath::WVector3D result = transMatrix * dmy;
         ( *pointsIt )[0] = result[0];
         ( *pointsIt )[1] = result[1];
         ( *pointsIt )[2] = result[2];
@@ -243,9 +253,9 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
         ( *pointsIt )[2] += m_zAverage;
     }
 
-    FBSplineSurface splineSurface( m_order, m_order, deBoorPoints, m_numDeBoorCols, m_numDeBoorRows );
+    WBSplineSurface splineSurface( m_order, m_order, deBoorPoints, m_numDeBoorCols, m_numDeBoorRows );
 
-    splineSurface.samplePoints( m_splinePoints, m_sampleRateT, m_sampleRateU );
+    splineSurface.samplePoints( &m_splinePoints, m_sampleRateT, m_sampleRateU );
 
     std::vector< double > positions;
 

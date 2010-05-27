@@ -342,7 +342,7 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
         default:
             {
                 // copy value
-                ( *iter )->set( *iter2 );
+                ( *iter2 )->set( *iter );
 
                 break;
             }
@@ -638,7 +638,7 @@ void WQtConfigWidget::saveToConfig()
                         while ( !propertyStack.empty() )
                         {
                             // check if at the end of group, if so pop and continue
-                            if ( iteratorStack.back() == accessObject->get().end() )
+                            if ( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
                             {
                                 propertyStack.pop_back();
                                 iteratorStack.pop_back();
@@ -650,7 +650,7 @@ void WQtConfigWidget::saveToConfig()
                             {
                                 propertyStack.push_back( ( *iteratorStack.back() )->toPropGroup() );
                                 ++iteratorStack.back();
-                                iteratorStack.push_back( accessObject->get().begin() );
+                                iteratorStack.push_back( propertyStack.back()->getAccessObject()->get().begin() );
                                 continue;
                             }
                             else
@@ -685,9 +685,9 @@ void WQtConfigWidget::saveToConfig()
                                     // has the same section name as the section we just left and its value does not equal the default value
                                     if ( !skip && !written )
                                     {
+                                        propertyWriten.push_back( propName );
                                         propName = propName.erase( 0, propName.find( '.' ) + 1 );
                                         configOut.push_back( propName + " = " + WCfgOperations::getPropValAsString( prop ) );
-                                        propertyWriten.push_back( propName );
                                     }
                                 }
                             } // END property is not a group
@@ -928,6 +928,7 @@ void WQtConfigWidget::loadConfigFile()
 
     m_configState.setResetable( true, true );
     m_configState.add( m_propCondition );
+    m_configState.add( m_shutdownFlag.getCondition() );
 }
 
 void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
