@@ -49,6 +49,7 @@
 #include "../modules/fiberSelection/WMFiberSelection.h"
 #include "../modules/fiberTransform/WMFiberTransform.h"
 #include "../modules/gaussFiltering/WMGaussFiltering.h"
+#include "../modules/HARDIExtractor/WMHARDIExtractor.h"
 #include "../modules/hud/WMHud.h"
 #include "../modules/lic/WMLIC.h"
 #include "../modules/marchingCubes/WMMarchingCubes.h"
@@ -114,6 +115,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMHARDIExtractor() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMHud() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMLIC() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );

@@ -1,0 +1,150 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+#ifndef WMHARDIEXTRACTOR_H
+#define WMHARDIEXTRACTOR_H
+
+#include <string>
+
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetRawHARDI.h"
+#include "../../dataHandler/WValueSet.h"
+
+/**
+ * This module extracts single images fram a HARDI dataset.
+ *
+ * \ingroup modules
+ */
+class WMHARDIExtractor: public WModule
+{
+public:
+
+    /**
+     * Standard constructor.
+     */
+    WMHARDIExtractor();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WMHARDIExtractor();
+
+    /**
+     * Gives back the name of this module.
+     * \return the module's name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gives back a description of this module.
+     * \return description to module.
+     */
+    virtual const std::string getDescription() const;
+
+    /**
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
+     *
+     * \return the prototype used to create every module in OpenWalnut.
+     */
+    virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Return an icon for this module.
+     *
+     * \return the icon
+     */
+    virtual const char** getXPMIcon() const;
+
+protected:
+
+    /**
+     * Entry point after loading the module. Runs in separate thread.
+     */
+    virtual void moduleMain();
+
+    /**
+     * Initialize the connectors this module is using.
+     */
+    virtual void connectors();
+
+    /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+private:
+
+    /**
+     * Extract the ith image from the HARDI dataset. If there is no
+     * ith image, an invalid pointer will be returned.
+     *
+     * \param i The number of the image to be extracted.
+     * \return A pointer to extracted image as a scalar dataset or an invalid pointer, if no ith image exists.
+     */
+    boost::shared_ptr< WDataSetScalar > extract( std::size_t i ) const;
+
+    /**
+     * Create a name for the extracted image.
+     *
+     * \param i The number of the image.
+     * \return The name.
+     */
+    const std::string makeImageName( std::size_t i );
+
+    /**
+     * A property that allows selecting the number of the desired image.
+     */
+    WPropInt m_selectedImage;
+
+    /**
+     * An input connector that accepts HARDI datasets.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetRawHARDI > > m_input;
+
+    /**
+     * An output connector for the output scalar dsataset.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
+
+    /**
+     * This is a pointer to the dataset the module is currently working on.
+     */
+    boost::shared_ptr< WDataSetRawHARDI > m_dataSet;
+
+    /**
+     * This is a pointer to the current output.
+     */
+    boost::shared_ptr< WDataSetScalar > m_outData;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+};
+
+#endif  // WMHARDIEXTRACTOR_H
