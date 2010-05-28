@@ -27,6 +27,7 @@
 
 #include <QtGui/QPalette>
 #include <QtGui/QListWidgetItem>
+#include <QtGui/QPushButton>
 
 #include <boost/lexical_cast.hpp>
 
@@ -94,7 +95,7 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
         }
 
         // layout
-        m_layout.addWidget( m_combo );
+        m_layout.addWidget( m_combo, 0, 0 );
 
         // connect
         connect( m_combo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( comboSelectionChanged( int ) ) );
@@ -145,7 +146,12 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
         }
 
         // layout
-        m_layout.addWidget( m_list );
+        m_layout.addWidget( m_list, 0, 0 );
+
+        // add a select-all button
+        QPushButton* selAllButton = new QPushButton( "Select All", this );
+        connect( selAllButton, SIGNAL( released() ), m_list, SLOT( selectAll() ) );
+        m_layout.addWidget( selAllButton, 1, 0 );
 
         // connect
         connect( m_list, SIGNAL( itemSelectionChanged() ), this, SLOT( listSelectionChanged() ) );
