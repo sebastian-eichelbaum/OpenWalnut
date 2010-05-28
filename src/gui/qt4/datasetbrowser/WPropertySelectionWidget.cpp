@@ -37,6 +37,28 @@
 
 #include "WPropertySelectionWidget.h"
 
+/**
+ * This function ensure a maximum icon site by scaling large pixmaps. Pixmaps smaller than the maximum size are not scaled.
+ *
+ * \param pix the pixmap to scale if needed.
+ *
+ * \return the maybe scaled pixmap.
+ */
+QPixmap ensureSize( QPixmap pix )
+{
+    // maximum size
+    int maxW = 32;
+    int maxH = 32;
+
+    if ( ( pix.width() > maxW ) || ( pix.height() > maxH ) )
+    {
+        return pix.scaled( maxW, maxH, Qt::KeepAspectRatio );
+    }
+
+    // no scaling needed
+    return pix;
+}
+
 WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_selectionProperty( property ),
@@ -59,6 +81,16 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
         for ( size_t i = 0; i < s.sizeAll(); ++i )
         {
             m_combo->addItem( QString::fromStdString( s.atAll( i ).name ) );
+            // if there is an icon -> show it
+            if ( s.atAll( i ).icon )
+            {
+                // scale the pixmap to a maximum size if larger
+                QPixmap pix = ensureSize( QPixmap( s.atAll( i ).icon ) );
+
+                // set icon
+                m_combo->setItemIcon( i, QIcon( pix ) );
+                m_combo->setIconSize( QSize( pix.width(), pix.height() ) );
+            }
         }
 
         // layout
@@ -87,7 +119,7 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
                 QLabel* icon = new QLabel();
                 QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
                 icon->setSizePolicy( sizePolicy );
-                icon->setPixmap( QPixmap( s.atAll( i ).icon ) );
+                icon->setPixmap( ensureSize( QPixmap( s.atAll( i ).icon ) ) );
                 layoutWidget->addWidget( icon, 0, 0, 2, 1 );
 
                 ++column;
