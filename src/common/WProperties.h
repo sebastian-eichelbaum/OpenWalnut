@@ -125,6 +125,13 @@ public:
     void addProperty( boost::shared_ptr< WPropertyBase > prop );
 
     /**
+     * Simply remove the specified property from the list. If the given property is not in the list, nothing happens.
+     *
+     * \param prop the property to remove.
+     */
+    void removeProperty( boost::shared_ptr< WPropertyBase > prop );
+
+    /**
      * Helper function that finds a property by its name. Use this method to find out whether the property exists or not, since
      * findProperty throws an exception.
      *
