@@ -26,8 +26,6 @@
 
 #include <osg/Array>
 
-#include <GL/glu.h>
-
 #include "../common/math/WPosition.h"
 #include "WGEUtils.h"
 
@@ -45,30 +43,5 @@ osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPos
 
 osg::Vec3 wge::unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera )
 {
-    double* modelView;
-    double* projection;
-    double dviewport[4];
-
-    modelView = camera->getViewMatrix().ptr();
-    projection = camera->getProjectionMatrix().ptr();
-    dviewport[0] = camera->getViewport()->x();
-    dviewport[1] = camera->getViewport()->y();
-    dviewport[2] = camera->getViewport()->width();
-    dviewport[3] = camera->getViewport()->height();
-
-    double x, y, z;
-    GLint viewport[4];
-    viewport[0] = static_cast< GLint >( dviewport[0] );
-    viewport[1] = static_cast< GLint >( dviewport[1] );
-    viewport[2] = static_cast< GLint >( dviewport[2] );
-    viewport[3] = static_cast< GLint >( dviewport[3] );
-
-    gluUnProject( screen[0], screen[1], screen[2], modelView, projection, viewport, &x, &y, &z );
-
-    osg::Vec3 world;
-    world[0] = x;
-    world[1] = y;
-    world[2] = z;
-
-    return world;
+    return screen * osg::Matrix::inverse( camera->getViewMatrix() * camera->getProjectionMatrix() * camera->getViewport()->computeWindowMatrix() );
 }
