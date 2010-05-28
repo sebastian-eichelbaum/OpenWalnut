@@ -145,3 +145,8 @@ wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
 
     return wmath::WVector3D( 0, 0, 0 );
 }
+
+bool WDataSetVector::isTexture() const
+{
+    return false;
+}

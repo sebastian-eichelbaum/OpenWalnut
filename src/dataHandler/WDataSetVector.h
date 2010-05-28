@@ -82,6 +82,13 @@ public:
     wmath::WVector3D getVectorAt( size_t index ) const;
 
     /**
+     * Determines whether this dataset can be used as a texture.
+     *
+     * \return true if usable as texture.
+     */
+    virtual bool isTexture() const;
+
+    /**
      * Overwrites the isVectorDataSet check.
      *
      * \return Non empty reference to the dataset if it is a vector dataset, empty if not.
