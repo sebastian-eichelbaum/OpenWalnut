@@ -127,7 +127,11 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
 
             // Add Name and Description
             layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( s.atAll( i ).name )+ "</b>" ), 0, column );
-            layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).description ) ), 1, column );
+            // if there is no description -> no widget added to save space
+            if ( !s.atAll( i ).description.empty() )
+            {
+                layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).description ) ), 1, column );
+            }
 
             layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
             widget->setLayout( layoutWidget );
