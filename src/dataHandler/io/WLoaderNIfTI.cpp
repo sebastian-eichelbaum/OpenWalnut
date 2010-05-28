@@ -84,7 +84,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 {
     nifti_image* header = nifti_image_read( m_fileName.c_str(), 0 );
 
-    WAssert( header, "Error durring file access to NIfTI file. This probably means that the file is corrupted." );
+    WAssert( header, "Error during file access to NIfTI file. This probably means that the file is corrupted." );
 
     WAssert( header->ndim >= 3,
              "The NIfTI file contains data that has less than the three spatial dimension. OpenWalnut is not able to handle this." );
