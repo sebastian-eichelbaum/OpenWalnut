@@ -83,22 +83,30 @@ wmath::WMatrix< double > WLoaderNIfTI::convertMatrix( const mat44& in )
 boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 {
     nifti_image* header = nifti_image_read( m_fileName.c_str(), 0 );
+
+    WAssert( header->ndim >= 3,
+             "The NIfTI file contains data that has less than the three spatial dimension. OpenWalnut is not able to handle this." );
     int columns = header->dim[1];
     int rows = header->dim[2];
     int frames = header->dim[3];
 
     boost::shared_ptr< WValueSetBase > newValueSet;
-    boost::shared_ptr<WGrid> newGrid;
+    boost::shared_ptr< WGrid > newGrid;
 
     nifti_image* filedata = nifti_image_read( m_fileName.c_str(), 1 );
 
-    unsigned int vDim = header->dim[4];
+    unsigned int vDim;
+    if( header->ndim >= 4 )
+    {
+        vDim = header->dim[4];
+    }
+    else
+    {
+        vDim = 1;
+    }
+
     unsigned int order = ( ( vDim == 1 ) ? 0 : 1 );  // TODO(all): Does recognize vectors and scalars only so far.
     unsigned int countVoxels = columns * rows * frames;
-
-#ifdef DEBUG
-    //nifti_image_infodump( header );
-#endif
 
     switch( header->datatype )
     {
