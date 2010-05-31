@@ -32,7 +32,6 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
-#include "WRasterAlgorithm.h"
 
 /**
  * Base class for all rasterization algorithms. The interface will be as
