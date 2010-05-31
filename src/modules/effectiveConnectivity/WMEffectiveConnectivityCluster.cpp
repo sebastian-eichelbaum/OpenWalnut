@@ -63,6 +63,7 @@
 
 WMEffectiveConnectivityCluster::WMEffectiveConnectivityCluster():
     WModuleContainer( "Effective Connectivity Cluster", "This module is able to visualize effective connectivity cluster." ),
+    m_labelActive( false ),
     m_rootNode( new WGEGroupNode() )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -102,6 +103,9 @@ void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModule
 {
     if ( !output )
     {
+        m_labelActive = false;
+        m_propCondition->notify();
+
         // if the connector gets reset -> ignore this case
         return;
     }
@@ -115,11 +119,13 @@ void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModule
 
     // grab data
     boost::shared_ptr< WFiberCluster > fibs = o->getData();
-    boost::shared_ptr< wmath::WFiber > lline = fibs->getCenterLine();
+    boost::shared_ptr< wmath::WFiber > lline = fibs->getLongestLine();
 
     // the first and the last point of the longest line are required:
     m_labelPos2 = ( *lline )[ lline->size() - 2 ];
     m_labelPos1 = ( *lline )[ 1 ];
+
+    m_labelActive = true;
 
     m_propCondition->notify();
 }
@@ -168,13 +174,19 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
     // set/forward some props
     props = m_voxelizer->getProperties();
-    props->getProperty( "CenterLine" )->toPropBool()->set( true );
+    props->getProperty( "Center Line" )->toPropBool()->set( true );
     props->getProperty( "active" )->toPropBool()->set( false );
     props->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
     props->getProperty( "Display Voxels" )->toPropBool()->set( false );
     props->getProperty( "Lighting" )->toPropBool()->set( false );
 
+    // set longest line based parameterization
     props->getProperty( "Voxels per Unit" )->toPropInt()->set( 2 );
+    WItemSelector::IndexList idx;
+    idx.push_back( 1 );
+    props->getProperty( "Parameterization" )->toPropSelection()->set( props->getProperty( "Parameterization"
+                )->toPropSelection()->get().newSelector( idx ) );
+
     m_properties->addProperty( props->getProperty( "Voxels per Unit" ) );
 
     //////////////////////////////////////////////////////////////////////
@@ -237,7 +249,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
     // Connect voxelizer output with the animation
     m_animation->getInputConnector( "in" )->connect( m_gauss->getOutputConnector( "out" ) );
-    m_animation->getInputConnector( "traces" )->connect( m_voxelizer->getOutputConnector( "fiberIntegrationOutput" ) );
+    m_animation->getInputConnector( "traces" )->connect( m_voxelizer->getOutputConnector( "parameterizationOutput" ) );
 
     // Connect inputs
     m_fiberInput->forward( m_fiberSelection->getInputConnector( "fibers" ) );
@@ -263,7 +275,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     // Now wait for data
-    bool first = true;
+    bool lastLabelActiveState = m_labelActive;
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -275,8 +287,12 @@ void WMEffectiveConnectivityCluster::moduleMain()
         }
 
         // has one of the properties changed?
-        if ( m_voi1Name->changed() || m_voi2Name->changed() || m_labelCharacterSize->changed() || first )
+        if ( m_labelActive && (
+                    ( lastLabelActiveState != m_labelActive ) || m_voi1Name->changed() || m_voi2Name->changed() || m_labelCharacterSize->changed() )
+           )
         {
+            lastLabelActiveState = true;
+
             osg::ref_ptr< WGEBorderLayout > layouter = new WGEBorderLayout();
 
             std::string voi1 = m_voi1Name->get( true );
@@ -303,7 +319,11 @@ void WMEffectiveConnectivityCluster::moduleMain()
             m_rootNode->insert( layouter );
         }
 
-        first = false;
+        // remove labels if no dataset is connected anymore
+        if ( !m_labelActive )
+        {
+            m_rootNode->clear();
+        }
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove

@@ -166,6 +166,11 @@ private:
     WPropInt m_labelCharacterSize;
 
     /**
+     * True if the labels should be drawn.
+     */
+    bool m_labelActive;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

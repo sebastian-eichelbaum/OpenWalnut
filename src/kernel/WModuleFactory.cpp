@@ -131,6 +131,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMAtlasSurfaces() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEffectiveConnectivity() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEffectiveConnectivityCluster() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSurfaceBars() ) );
 
     m_prototypeAccess->endWrite();
 
