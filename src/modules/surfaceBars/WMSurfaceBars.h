@@ -35,9 +35,12 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "../../graphicsEngine/WShader.h"
 
 /**
- * This module is a raytracing based isosurface using special methods for animating particle flow on its surface.
+ * This module is a ray-tracing based isosurface using special methods for animating particle flow on its surface. The modules needs a scalar
+ * dataset as input and renders an isosurface on it. This isosurface is furthermore used to show an animation of moving bars on it. The module
+ * needs a corresponding scalar dataset which contains the parameterization of the track on which the bars should move.
  * \ingroup modules
  */
 class WMSurfaceBars: public WModule

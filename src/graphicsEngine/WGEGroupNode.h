@@ -73,6 +73,11 @@ public:
      */
     void remove( osg::ref_ptr< osg::Node > node );
 
+    /**
+     * Removes all children from this node.
+     */
+    void clear();
+
 protected:
 
     /**
@@ -128,6 +133,11 @@ protected:
      * Flag denoting whether the m_childRemovalQueue should be considered during the next update of the node.
      */
     bool m_removalQueueDirty;
+
+    /**
+     * True whenever all child nodes should be removed.
+     */
+    bool m_removeAll;
 
     /**
      * Condition which fires when the node is removed.
