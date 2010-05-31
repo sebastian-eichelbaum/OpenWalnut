@@ -89,28 +89,6 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
     // write lock the insertion list
     boost::unique_lock<boost::shared_mutex> lock;
 
-    if ( rootNode->m_insertionQueueDirty )
-    {
-        lock = boost::unique_lock<boost::shared_mutex>( rootNode->m_childInsertionQueueLock );
-
-        // insert all children which requested it
-        for ( std::set< osg::ref_ptr< osg::Node > >::iterator iter = rootNode->m_childInsertionQueue.begin();
-              iter != rootNode->m_childInsertionQueue.end();
-              ++iter )
-        {
-            rootNode->addChild( ( *iter ) );
-        }
-
-        rootNode->dirtyBound();
-
-        // all children added -> clear
-        rootNode->m_insertionQueueDirty = false;
-        rootNode->m_childInsertionQueue.clear();
-        lock.unlock();
-    }
-
-    // same game for removal request list
-
     // write lock the removal list
     if ( rootNode->m_removalQueueDirty )
     {
@@ -139,6 +117,27 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
         // inform all waiting thread that their removal requests have been processed.
         rootNode->m_removedCondition->notify();
 
+        lock.unlock();
+    }
+
+    // same game for insertion request list
+    if ( rootNode->m_insertionQueueDirty )
+    {
+        lock = boost::unique_lock<boost::shared_mutex>( rootNode->m_childInsertionQueueLock );
+
+        // insert all children which requested it
+        for ( std::set< osg::ref_ptr< osg::Node > >::iterator iter = rootNode->m_childInsertionQueue.begin();
+              iter != rootNode->m_childInsertionQueue.end();
+              ++iter )
+        {
+            rootNode->addChild( ( *iter ) );
+        }
+
+        rootNode->dirtyBound();
+
+        // all children added -> clear
+        rootNode->m_insertionQueueDirty = false;
+        rootNode->m_childInsertionQueue.clear();
         lock.unlock();
     }
 
