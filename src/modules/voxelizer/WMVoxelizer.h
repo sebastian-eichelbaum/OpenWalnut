@@ -170,6 +170,13 @@ private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< Output connector for a voxelized cluster
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+
+    /**
+     * Output providing integration cues to other algorithms. It provides a scalar field which gets filled with the current integrated length of
+     * a fiber during volumization.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_integrationOutput;
+
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
     osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module

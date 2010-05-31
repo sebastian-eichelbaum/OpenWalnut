@@ -48,6 +48,9 @@
 #include "WBresenhamDBL.h"
 #include "WMVoxelizer.h"
 #include "WRasterAlgorithm.h"
+#include "WDirectionParameterization.h"
+#include "WIntegrationParameterization.h"
+#include "WCenterlineParameterization.h"
 #include "voxelizer.xpm"
 
 WMVoxelizer::WMVoxelizer()
@@ -70,7 +73,6 @@ const char** WMVoxelizer::getXPMIcon() const
     return voxelizer_xpm;
 }
 
-
 void WMVoxelizer::moduleMain()
 {
     m_moduleState.setResetable();
@@ -83,6 +85,12 @@ void WMVoxelizer::moduleMain()
     {
         if ( !m_input->getData() ) // ok, the output has not yet sent data
         {
+            m_moduleState.wait();
+            continue;
+        }
+        if ( m_input->getData()->size() == 0 )
+        {
+            infoLog() << "Got empty fiber dataset. Ignoring.";
             m_moduleState.wait();
             continue;
         }
@@ -209,7 +217,7 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
-                                                                  bb.first, 1, 1, 1 ) );
+                                                                  bb.first, 1.0/nbVoxelsPerUnit, 1.0/nbVoxelsPerUnit, 1.0/nbVoxelsPerUnit ) );
     return grid;
 }
 
@@ -287,13 +295,21 @@ void WMVoxelizer::update()
         rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased ) );
     }
     debugLog() << "Using: " << m_rasterAlgo->get() << " as rasterization Algo.";
+
+    boost::shared_ptr< WRasterParameterization > dirParam = boost::shared_ptr< WRasterParameterization >( new WDirectionParameterization( grid ) );
+    boost::shared_ptr< WRasterParameterization > integrationParam = boost::shared_ptr< WRasterParameterization >(
+        new WCenterlineParameterization( grid, m_clusters->getCenterLine() )
+        //new WIntegrationParameterization( grid )
+    );
+    rasterAlgo->addParameterizationAlgorithm( dirParam );
+    rasterAlgo->addParameterizationAlgorithm( integrationParam );
     raster( rasterAlgo );
 
     // update both outputs
     boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
-    boost::shared_ptr< WDataSetSingle > outputDataSetDir = rasterAlgo->generateVectorDataSet();
-    m_dirOutput->updateData( outputDataSetDir );
+    boost::shared_ptr< WDataSetSingle > outputDataSetIntegration = integrationParam->getDataSet();
+    m_integrationOutput->updateData( outputDataSetIntegration );
 
     if( m_drawVoxels->get() )
     {
@@ -323,6 +339,8 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
     {
         algo->raster( fibs.at( *cit ) );
     }
+    algo->finished();
+
     // TODO(math): This is just a line for testing purposes
 //    wmath::WLine l;
 //    l.push_back( wmath::WPosition( 73, 38, 29 ) );
@@ -340,12 +358,12 @@ void WMVoxelizer::connectors()
     m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
 
-    m_dirOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelDirectionOutput", "The voxelized direction dataset." ) );
-    addConnector( m_dirOutput );
+    m_integrationOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "fiberIntegrationOutput",
+                                                                                               "The voxelized integrated fiber length." ) );
+    addConnector( m_integrationOutput );
 
     WModule::connectors();  // call WModules initialization
 }
-
 
 std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
 {
