@@ -33,7 +33,6 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
-#include "WRasterAlgorithm.h"           // TODO(math): why do you need to include WRasterAlgorithm.h in WRasterAlgorithm.h?
 #include "WRasterParameterization.h"
 
 /**

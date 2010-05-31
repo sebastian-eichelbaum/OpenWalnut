@@ -308,8 +308,6 @@ void WMVoxelizer::update()
     // update both outputs
     boost::shared_ptr< WDataSetSingle > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
-    boost::shared_ptr< WDataSetSingle > outputDataSetDir = dirParam->getDataSet();
-    m_dirOutput->updateData( outputDataSetDir );
     boost::shared_ptr< WDataSetSingle > outputDataSetIntegration = integrationParam->getDataSet();
     m_integrationOutput->updateData( outputDataSetIntegration );
 
@@ -360,9 +358,6 @@ void WMVoxelizer::connectors()
     m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
 
-    m_dirOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelDirectionOutput", "The voxelized direction dataset." ) );
-    addConnector( m_dirOutput );
-
     m_integrationOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "fiberIntegrationOutput",
                                                                                                "The voxelized integrated fiber length." ) );
     addConnector( m_integrationOutput );
@@ -370,8 +365,7 @@ void WMVoxelizer::connectors()
     WModule::connectors();  // call WModules initialization
 }
 
-
-std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster )
+std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
 {
     const WDataSetFiberVector& fibs = *cluster.getDataSetReference();
 
@@ -387,7 +381,6 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
         const wmath::WFiber& fiber = fibs[*cit];
-
         for( size_t i = 0; i < fiber.size(); ++i )
         {
             for( int x = 0; x < 3; ++x )
@@ -397,7 +390,6 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
             }
         }
     }
-
     return std::make_pair( fll, bur );
 }
 
