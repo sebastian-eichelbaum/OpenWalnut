@@ -25,8 +25,8 @@
 #version 120
 #extension GL_EXT_gpu_shader4 : enable
 
-#include "TextureUtils.glsl"
-#include "TransformationTools.glsl"
+#include "textureTools.fs"
+#include "transformationTools.fs"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Varyings
