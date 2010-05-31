@@ -293,7 +293,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         boost::shared_ptr< WMData > dataModule = boost::shared_static_cast< WMData >( module );
 
         // grab data and identify type
-        if ( dataModule->getDataSet()->isA< WDataSetSingle >() )
+        if ( dataModule->getDataSet()->isA< WDataSetSingle >() && dataModule->getDataSet()->isTexture() )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
