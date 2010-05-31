@@ -32,6 +32,7 @@
 
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "WBresenhamDBL.h"
@@ -168,14 +169,14 @@ protected:
 
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< Output connector for a voxelized cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< Output connector for a voxelized cluster
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
 
     /**
-     * Output providing integration cues to other algorithms. It provides a scalar field which gets filled with the current integrated length of
-     * a fiber during volumization.
+     * Output providing parameterization to other algorithms. It provides a scalar field which gets filled with the parameterization of the
+     * fibers, i.e. current integrated length.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_integrationOutput;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_parameterizationOutput;
 
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
@@ -195,6 +196,16 @@ private:
     WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
     WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
     WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
+
+    /**
+     * The available parameterization algorithms.
+     */
+    boost::shared_ptr< WItemSelection > m_paramAlgoSelections;
+
+    /**
+     * The actually selected parameterization algorithm.
+     */
+    WPropSelection m_parameterAlgo;
 
     /**
      * Node callback to hide unhide bounding box

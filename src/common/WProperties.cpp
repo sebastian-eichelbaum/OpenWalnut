@@ -26,6 +26,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
@@ -131,6 +132,13 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     // INFORMATION properties are allowed inside PARAMETER groups -> do not set the properties purpose.
 
     m_propAccess->get().push_back( prop );
+    m_propAccess->endWrite();
+}
+
+void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
+{
+    m_propAccess->beginWrite();
+    m_propAccess->get().erase( std::remove( m_propAccess->get().begin(), m_propAccess->get().end(), prop ), m_propAccess->get().end() );
     m_propAccess->endWrite();
 }
 

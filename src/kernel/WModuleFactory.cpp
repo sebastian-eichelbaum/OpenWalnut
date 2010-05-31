@@ -260,7 +260,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
             ++listIter )
     {
         // get connectors of this prototype
-        std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
+        WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
         if(  pcons.size() == 0  )
         {
             // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
@@ -275,7 +275,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
     }
 
     // get offered outputs
-    std::set<boost::shared_ptr<WModuleOutputConnector> > cons = module->getOutputConnectors();
+    WModule::OutputConnectorList cons = module->getOutputConnectors();
 
     // return early if we have no output connector, because the modules with no input connector
     // are already added at this point.
@@ -297,7 +297,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
             ++listIter )
     {
         // get connectors of this prototype
-        std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
+        WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
 
         // ensure we have 1 connector
         if( pcons.size() == 0 )

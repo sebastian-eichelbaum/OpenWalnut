@@ -67,7 +67,7 @@ public:
      *
      * \return the dataset.
      */
-    virtual boost::shared_ptr< WDataSetSingle > getDataSet();
+    virtual boost::shared_ptr< WDataSetScalar > getDataSet();
 
     /**
      * Gets called for each new line getting rasterized. Here, it is used to reset the internal length integrator
