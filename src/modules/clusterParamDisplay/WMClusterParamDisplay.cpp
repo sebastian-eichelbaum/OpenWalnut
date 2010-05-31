@@ -102,7 +102,7 @@ void WMClusterParamDisplay::moduleMain()
 void WMClusterParamDisplay::initSubModules()
 {
     // instantiation
-    m_detTractClustering = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Deterministic Tract Clustering" ) );
+    m_detTractClustering = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Deterministic Tract Clustering" ) ); // NOLINT
     add( m_detTractClustering );
     m_detTractClustering->isReady().wait();
 

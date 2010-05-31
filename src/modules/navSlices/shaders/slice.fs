@@ -71,6 +71,7 @@ void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshol
         if(threshold < 1.0)
         {
             col1.r = (col1.r - threshold) / (1.0 - threshold);
+            if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0) return;
         }
 
         colorMap( col1, col1.r, cmap );

@@ -90,7 +90,10 @@ void main()
     vec4 specular = vec4(0.0);
 
     if ( useLighting )
-        calculateLighting(-normal, gl_FrontMaterial.shininess, ambient, diffuse, specular);
+    {
+        calculateLighting( -normal, gl_FrontMaterial.shininess, ambient, diffuse, specular );
+        calculateLighting(  normal, gl_FrontMaterial.shininess, ambient, diffuse, specular );
+    }
 
     if( useTexture )
     {

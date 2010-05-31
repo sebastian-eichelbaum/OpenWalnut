@@ -118,7 +118,7 @@ public:
     /**
      * Clears and destroys mesh.
      */
-    ~WTriangleMesh();
+    virtual ~WTriangleMesh();
 
     /**
      * Gets the name of this prototype.

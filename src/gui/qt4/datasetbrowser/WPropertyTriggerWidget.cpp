@@ -42,7 +42,6 @@ WPropertyTriggerWidget::WPropertyTriggerWidget( WPropTrigger property, QGridLayo
     m_layout.addWidget( &m_button );
     m_button.setText( QString::fromStdString( property->getDescription() ) );
 
-    m_layout.setContentsMargins( 1, 1, 1, 1 );
     m_parameterWidgets.setLayout( &m_layout );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )

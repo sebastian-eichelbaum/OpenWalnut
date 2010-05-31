@@ -62,7 +62,7 @@ public:
     /**
      * destructor
      */
-    ~WTriangleMesh2();
+    virtual ~WTriangleMesh2();
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.

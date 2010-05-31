@@ -42,11 +42,12 @@ WItemSelection::~WItemSelection()
     // cleanup
 }
 
-void WItemSelection::addItem( std::string name, std::string description )
+void WItemSelection::addItem( std::string name, std::string description, const char** icon )
 {
     if ( m_modifyable )
     {
-        m_items.push_back( Item( name, description ) );
+        Item i = { name, description, icon };   // NOLINT  <-- initialize the struct this way is far more comfortable
+        m_items.push_back( i );
     }
     else
     {

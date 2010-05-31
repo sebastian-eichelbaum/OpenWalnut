@@ -34,6 +34,7 @@
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../dataHandler/exceptions/WDHIOFailure.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
@@ -124,7 +125,7 @@ void WMDetTractCulling::properties()
     m_saveCulledCurves = m_properties->addProperty( "Save result", "If true the remaining tracts are save to a file", false );
     m_savePath         = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     m_run              = m_properties->addProperty( "Start culling", "Start", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
-    WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
     m_numRemovedTracts = m_infoProperties->addProperty( "#Tracts removed", "Number of tracts beeing culled out", 0 );
     m_numRemovedTracts->setMin( 0 );
     m_numRemovedTracts->setMax( wlimits::MAX_INT32_T );
@@ -206,8 +207,15 @@ void WMDetTractCulling::saveGainedTracts( const std::vector< bool >& unusedTract
     m_progress->addSubProgress( saveProgress );
     if( m_saveCulledCurves->get() )
     {
-        WWriterFiberVTK w( m_savePath->get(), true );
-        w.writeFibs( result );
+        try
+        {
+            WWriterFiberVTK w( m_savePath->get(), true );
+            w.writeFibs( result );
+        }
+        catch( const WDHIOFailure& e )
+        {
+            errorLog() << "While writing tracts to file: " << e.what();
+        }
     }
     saveProgress->finish();
 }

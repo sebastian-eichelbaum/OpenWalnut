@@ -64,6 +64,9 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "template.xpm"
+#include "icons/bier.xpm"
+#include "icons/wurst.xpm"
+#include "icons/steak.xpm"
 #include "WMTemplate.h"
 
 WMTemplate::WMTemplate():
@@ -222,9 +225,9 @@ void WMTemplate::properties()
     // algorithms to run on some data and you want the user to select which one should do the work. This might be done with integer properties but it
     // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_possibleSelections->addItem( "Beer", "Cold and fresh." );
-    m_possibleSelections->addItem( "Steaks", "Medium please" );
-    m_possibleSelections->addItem( "Sausages", "With Sauerkraut" );
+    m_possibleSelections->addItem( "Beer", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
+    m_possibleSelections->addItem( "Steaks", "Medium please",  template_steak_xpm );
+    m_possibleSelections->addItem( "Sausages", "With Sauerkraut", template_wurst_xpm );
 
     // This list of alternatives is NOT the actual property value. It is the list on which so called "WItemSelector" instances work. These
     // selectors are the actual property. After you created the first selector instance from the list, it can't be modified anymore. This ensures
@@ -586,13 +589,13 @@ void WMTemplate::moduleMain()
             // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
             // is trivial:
             WItemSelector s = m_aSingleSelection->get( true );
-            infoLog() << "The user likes " << s.at( 0 ).first << " the most.";
+            infoLog() << "The user likes " << s.at( 0 ).name << " the most.";
 
             // The multi property allows the selection of several items. So, iteration needs to be done here:
             s = m_aMultiSelection->get( true );
             for ( size_t i = 0; i < s.size(); ++i )
             {
-                infoLog() << "The user likes " << s.at( i ).first;
+                infoLog() << "The user likes " << s.at( i ).name;
             }
         }
     }

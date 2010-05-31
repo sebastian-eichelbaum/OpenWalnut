@@ -165,14 +165,21 @@ void WMDeterministicFTMori::doEigen()
 
     size_t num_positions = m_dataSet->getGrid()->size();
 
-    m_eigenVectors = boost::shared_ptr< std::vector< wmath::WVector3D > >( new std::vector< wmath::WVector3D >() );
-    m_FA = boost::shared_ptr< std::vector< double > >( new std::vector< double >() );
-
     if( m_dataSet->getValueSet()->getDataType() != W_DT_FLOAT )
     {
+        m_eigenVectors = boost::shared_ptr< std::vector< wmath::WVector3D > >();
         warnLog() << "This module needs float type tensors. Input ignored.";
         return;
     }
+    else if( m_dataSet->getValueSet()->dimension() != 6 || m_dataSet->getValueSet()->order() != 1 )
+    {
+        m_eigenVectors = boost::shared_ptr< std::vector< wmath::WVector3D > >();
+        warnLog() << "This module needs symmetric tensors. Input ignored.";
+        return;
+    }
+
+    m_eigenVectors = boost::shared_ptr< std::vector< wmath::WVector3D > >( new std::vector< wmath::WVector3D >() );
+    m_FA = boost::shared_ptr< std::vector< double > >( new std::vector< double >() );
 
     boost::shared_ptr< WValueSet< float > > values = boost::shared_dynamic_cast< WValueSet< float > >( m_dataSet->getValueSet() );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
@@ -215,6 +222,11 @@ void WMDeterministicFTMori::doEigen()
 
 void WMDeterministicFTMori::doMori( double const minFA, unsigned int const minPoints, double minCos )
 {
+    if( !m_eigenVectors )
+    {
+        return;
+    }
+
     WAssert( m_dataSet->getGrid(), "" );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
 

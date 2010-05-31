@@ -213,9 +213,10 @@ public slots:
     void setFibersLoaded();
 
     /**
-    * gets called when menu option or toolbar button load is activated
-    */
+     * Gets called when menu option or toolbar button load is activated
+     */
     void openConfigDialog();
+
 private:
     /**
      * Sets up the permanent tool bar.

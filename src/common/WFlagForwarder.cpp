@@ -22,50 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WConditionOneShot.h"
-
-WConditionOneShot::WConditionOneShot()
-    : WCondition()
-{
-    // initialize members
-    m_lock = boost::unique_lock<boost::shared_mutex>( m_mutex );
-}
-
-WConditionOneShot::~WConditionOneShot()
-{
-    // win crashes here sometimes
-#ifndef _MSC_VER
-    // cleanup
-    try
-    {
-        m_lock.unlock();
-    }
-    catch( const boost::lock_error &e )
-    {
-        // ignore this particular error since it is thrown when the lock is not locked anymore
-    }
-#endif
-}
-
-void WConditionOneShot::wait() const
-{
-    // now we wait until the write lock is released and we can get a read lock
-    boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_mutex );
-    slock.unlock();
-}
-
-void WConditionOneShot::notify()
-{
-    try
-    {
-        m_lock.unlock();
-    }
-    catch( const boost::lock_error &e )
-    {
-        // ignore this particular error since it is thrown when the lock is not locked anymore
-        // because the notify was called multiple times
-    }
-
-    WCondition::notify();
-}
+#include "WFlagForwarder.h"
 

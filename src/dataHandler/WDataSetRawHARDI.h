@@ -22,37 +22,45 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETVECTOR_H
-#define WDATASETVECTOR_H
+#ifndef WDATASETRAWHARDI_H
+#define WDATASETRAWHARDI_H
+
+#include <vector>
 
 #include "WDataSetSingle.h"
+#include "../common/math/WVector3D.h"
 
 /**
- * This data set type contains vectors as values.
+ * This data set type contains raw HARDI and its gradients.
  * \ingroup dataHandler
  */
-class WDataSetVector : public WDataSetSingle
+class WDataSetRawHARDI : public WDataSetSingle
 {
 public:
 
     /**
-     * Constructs an instance out of an appropriate value set and a grid.
+     * Constructs an instance out of:
+     *  - an appropriate value set with a vector of measure values for each voxel,
+     *  - a grid and
+     *  - the gradients used during the measurement of the different values.
      *
      * \param newValueSet the vector value set to use
      * \param newGrid the grid which maps world space to the value set
+     * \param newGradients the Gradients of the
      */
-    WDataSetVector( boost::shared_ptr< WValueSetBase > newValueSet,
-                    boost::shared_ptr< WGrid > newGrid );
+    WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
+                      boost::shared_ptr< WGrid > newGrid,
+                      boost::shared_ptr< std::vector< wmath::WVector3D > > newGradients );
 
     /**
      * Construct an empty and unusable instance. This is needed for the prototype mechanism.
      */
-    WDataSetVector();
+    WDataSetRawHARDI();
 
     /**
      * Destroys this DataSet instance
      */
-    virtual ~WDataSetVector();
+    virtual ~WDataSetRawHARDI();
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.
@@ -62,38 +70,20 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
     /**
-     * Interpolates the vector field at the given position
+     * Returns the gradient for the index.
      *
-     * \param pos position to interpolate
-     * \param success if the position was inside the grid
+     * \return gradient of measurement
      *
-     * \return Vector beeing the interpolate.
+     * \param index
      */
-    wmath::WVector3D interpolate( const wmath::WPosition &pos, bool *success ) const;
+    const wmath::WVector3D& getGradient( size_t index ) const;
 
     /**
-     * Get the vector on the given position in value set.
-     * \note currently only implmented for WVector3D
+     * Returns the count of measures per voxel, which is equal to the count of the used gradients.
      *
-     * \param index the position where to get the vector from
-     *
-     * \return the vector
+     * \return measures per voxel
      */
-    wmath::WVector3D getVectorAt( size_t index ) const;
-
-    /**
-     * Determines whether this dataset can be used as a texture.
-     *
-     * \return true if usable as texture.
-     */
-    virtual bool isTexture() const;
-
-    /**
-     * Overwrites the isVectorDataSet check.
-     *
-     * \return Non empty reference to the dataset if it is a vector dataset, empty if not.
-     */
-    boost::shared_ptr< WDataSetVector > isVectorDataSet();
+    std::size_t getMeasures() const;
 
 protected:
 
@@ -103,11 +93,7 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
+    boost::shared_ptr< std::vector< wmath::WVector3D > > m_gradients; //!< Gradients of measurements
 };
 
-inline boost::shared_ptr< WDataSetVector > WDataSetVector::isVectorDataSet()
-{
-    return boost::shared_static_cast< WDataSetVector >( shared_from_this() );
-}
-
-#endif  // WDATASETVECTOR_H
+#endif  // WDATASETRAWHARDI_H

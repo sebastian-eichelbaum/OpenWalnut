@@ -37,6 +37,28 @@
 
 #include "WPropertySelectionWidget.h"
 
+/**
+ * This function ensure a maximum icon site by scaling large pixmaps. Pixmaps smaller than the maximum size are not scaled.
+ *
+ * \param pix the pixmap to scale if needed.
+ *
+ * \return the maybe scaled pixmap.
+ */
+QPixmap ensureSize( QPixmap pix )
+{
+    // maximum size
+    int maxW = 32;
+    int maxH = 32;
+
+    if ( ( pix.width() > maxW ) || ( pix.height() > maxH ) )
+    {
+        return pix.scaled( maxW, maxH, Qt::KeepAspectRatio );
+    }
+
+    // no scaling needed
+    return pix;
+}
+
 WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_selectionProperty( property ),
@@ -51,13 +73,24 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
     // Lists are used if the selection of multiple elements is allowed
     if ( m_selectionProperty->countConstraint( PC_SELECTONLYONE ) != 0 )
     {
+        // TODO(all): how to show the icon inside a combobox?
         m_combo = new QComboBox( &m_parameterWidgets );
 
         // add all items from the selection set:
         WItemSelector s = m_selectionProperty->get();
         for ( size_t i = 0; i < s.sizeAll(); ++i )
         {
-            m_combo->addItem( QString::fromStdString( s.atAll( i ).first ) );
+            m_combo->addItem( QString::fromStdString( s.atAll( i ).name ) );
+            // if there is an icon -> show it
+            if ( s.atAll( i ).icon )
+            {
+                // scale the pixmap to a maximum size if larger
+                QPixmap pix = ensureSize( QPixmap( s.atAll( i ).icon ) );
+
+                // set icon
+                m_combo->setItemIcon( i, QIcon( pix ) );
+                m_combo->setIconSize( QSize( pix.width(), pix.height() ) );
+            }
         }
 
         // layout
@@ -79,9 +112,27 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
             QWidget* widget = new QWidget( m_list );
             QGridLayout* layoutWidget = new QGridLayout();
 
+            int column = 0;
+            // if there is an icon -> show it
+            if ( s.atAll( i ).icon )
+            {
+                QLabel* icon = new QLabel();
+                QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
+                icon->setSizePolicy( sizePolicy );
+                icon->setPixmap( ensureSize( QPixmap( s.atAll( i ).icon ) ) );
+                layoutWidget->addWidget( icon, 0, 0, 2, 1 );
+
+                ++column;
+            }
+
             // Add Name and Description
-            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( s.atAll( i ).first )+ "</b>" ), 0, 0 );
-            layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).second ) ), 1, 0 );
+            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( s.atAll( i ).name )+ "</b>" ), 0, column );
+            // if there is no description -> no widget added to save space
+            if ( !s.atAll( i ).description.empty() )
+            {
+                layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).description ) ), 1, column );
+            }
+
             layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
             widget->setLayout( layoutWidget );
 
