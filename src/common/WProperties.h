@@ -34,7 +34,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread.hpp>
 
-#include "WSharedObject.h"
+#include "WSharedSequenceContainer.h"
 #include "WPropertyBase.h"
 #include "WPropertyTypes.h"
 #include "WPropertyVariable.h"
@@ -48,6 +48,7 @@
  */
 class WProperties: public WPropertyBase
 {
+friend class WPropertiesTest;
 public:
 
     // the following typedefs are for convenience.
@@ -60,7 +61,7 @@ public:
     /**
      * The alias for a shared container.
      */
-    typedef WSharedObject< PropertyContainerType > PropertySharedContainerType;
+    typedef WSharedSequenceContainer< boost::shared_ptr< WPropertyBase >, PropertyContainerType > PropertySharedContainerType;
 
     /**
      * The access type
@@ -88,9 +89,33 @@ public:
     WProperties( std::string name = "unnamed group", std::string description = "an unnamed group of properties" );
 
     /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     * The conditions you can grab using getValueChangeConditon and getCondition are not the same as in the original! This is because
+     * the class corresponds to the observer/observable pattern. You won't expect a clone to fire a condition if a original flag is changed
+     * (which after cloning is completely decoupled from the clone).
+     *
+     * \note the properties inside this list are also copied deep
+     *
+     * \param from the instance to copy.
+     */
+    explicit WProperties( const WProperties& from );
+
+    /**
      * destructor
      */
     virtual ~WProperties();
+
+    /**
+     * This method clones a property and returns the clone. It does a deep copy and, in contrast to a copy constructor, creates property with the
+     * correct type without explicitly requiring the user to specify it. It creates a NEW change condition and change signal. This means, alls
+     * subscribed signal handlers are NOT copied.
+     *
+     * \note this simply ensures the copy constructor of the runtime type is issued.
+     *
+     * \return the deep clone of this property.
+     */
+    virtual boost::shared_ptr< WPropertyBase > clone();
 
     /**
      * Simply insert the specified property to the list.
@@ -131,6 +156,11 @@ public:
      * \return the access control object.
      */
     PropertySharedContainerType::WSharedAccess getAccessObject();
+
+    /**
+     * Removes all properties from the list.
+     */
+    virtual void clear();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
@@ -236,6 +266,18 @@ public:
      * \return the value as a string.
      */
     virtual std::string getAsString();
+
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \note for WProperties, this actually does nothing an.
+     *
+     * \param value the new value.
+     *
+     * \return true, always.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Convenience methods to create and add properties
@@ -364,6 +406,19 @@ public:
      */
     WPropColor         addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&  initial, bool hide = false );
 
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger       addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&  initial, bool hide = false );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // convenience methods for
@@ -502,6 +557,22 @@ public:
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                 boost::shared_ptr< WCondition > condition, bool hide = false );
 
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param condition use this external condition for notification.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger   addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                boost::shared_ptr< WCondition > condition, bool hide = false );
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // convenience methods for
     // template< typename T>
@@ -638,6 +709,23 @@ public:
      */
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&  initial,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger   addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&  initial,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // convenience methods for
     // template< typename T>
@@ -792,6 +880,37 @@ public:
     WPropColor     addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                 boost::shared_ptr< WCondition > condition,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+    /**
+     * Create and add a new property of the template type. For more details see appropriate constructor ow WPropertyVariable.
+     *
+     * \see WPropertyVariable
+     *
+     * \param name  the property name
+     * \param description the property description
+     * \param initial the initial value
+     * \param notifier use this notifier for change callbacks.
+     * \param condition use this external condition for notification
+     * \param hide set to true to set the hide flag directly.
+     *
+     * \return the newly created property variable instance.
+     */
+    WPropTrigger   addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                boost::shared_ptr< WCondition > condition,
+                                WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
+
+protected:
+
+   /**
+    * Helping function to find a property inside a specific group. It does not recursively find properties nested inside other property groups.
+    *
+    * \param props the group to search in. This is not a shared pointer since it is not needed. It simply can't happen that it is freed during
+    * findProperty as it is contained in this or a nested properties instance.
+    * \param name the name of the property inside THIS group.
+    *
+    * \return the property if found, else NULL.
+    */
+    boost::shared_ptr< WPropertyBase > findProperty( WProperties* props, std::string name );
 
 private:
 

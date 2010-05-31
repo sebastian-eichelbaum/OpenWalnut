@@ -133,7 +133,6 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     state.setVertexPointer( 3, GL_FLOAT , 0, &( *verts )[0] );
     state.setColorPointer( 3 , GL_FLOAT , 0, &( *colors )[0] );
     state.setNormalPointer( GL_FLOAT , 0, &( *tangents )[0] );
-
     for ( size_t i = 0; i < active->size(); ++i )
     {
         if ( (*active)[i] )

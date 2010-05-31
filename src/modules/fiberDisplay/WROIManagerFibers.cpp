@@ -28,6 +28,7 @@
 #include "../../common/WAssert.h"
 #include "WUpdateThread.h"
 #include "WROIManagerFibers.h"
+#include "../../graphicsEngine/WROIBox.h"
 
 WROIManagerFibers::WROIManagerFibers()
 {
@@ -39,7 +40,7 @@ WROIManagerFibers::~WROIManagerFibers()
 {
 }
 
-void WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi )
+boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi )
 {
     // create new branch
     boost::shared_ptr< WRMBranch > newBranch = boost::shared_ptr< WRMBranch >( new WRMBranch( shared_from_this() ) );
@@ -52,14 +53,16 @@ void WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi )
     // add bit fields
     newBranch->addBitField( m_fibers.get()->size() );
 
-    for ( std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > >::iterator iter = m_notifiers.begin(); iter
-            != m_notifiers.end(); ++iter )
+    for ( std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > >::iterator iter = m_addNotifiers.begin();
+            iter != m_addNotifiers.end(); ++iter )
     {
         ( *iter )( rroi );
     }
+
+    return rroi;
 }
 
-void WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi )
+boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi )
 {
     // find branch
     boost::shared_ptr< WRMBranch > branch;
@@ -77,11 +80,13 @@ void WROIManagerFibers::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI 
     // add roi to branch
     branch->addRoi( rroi );
 
-    for ( std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > >::iterator iter = m_notifiers.begin(); iter
-            != m_notifiers.end(); ++iter )
+    for ( std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > >::iterator iter = m_addNotifiers.begin();
+            iter != m_addNotifiers.end(); ++iter )
     {
         ( *iter )( rroi );
     }
+
+    return rroi;
 }
 
 void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
@@ -103,6 +108,12 @@ void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
 
     m_recalcLock = false;
     setDirty();
+
+    for ( std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > >::iterator iter = m_removeNotifiers.begin();
+            iter != m_removeNotifiers.end(); ++iter )
+    {
+        ( *iter )( roi );
+    }
 }
 
 void WROIManagerFibers::removeBranch( boost::shared_ptr< WRMROIRepresentation > roi )
@@ -286,11 +297,19 @@ bool WROIManagerFibers::isDirty()
     return m_dirty;
 }
 
-void WROIManagerFibers::addDefaultNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier )
+void WROIManagerFibers::addAddNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
-    m_notifiers.push_back( notifier );
+    m_addNotifiers.push_back( notifier );
+    lock.unlock();
+}
+
+void WROIManagerFibers::addRemoveNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier )
+{
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
+    m_removeNotifiers.push_back( notifier );
     lock.unlock();
 }
 
@@ -328,4 +347,14 @@ void WROIManagerFibers::updateBundleColor( boost::shared_ptr<WRMBranch> branch, 
             }
         }
     }
+}
+
+void WROIManagerFibers::setSelectedRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+{
+    m_selectedRoi = roi;
+}
+
+boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::getSelectedRoi()
+{
+    return m_selectedRoi;
 }

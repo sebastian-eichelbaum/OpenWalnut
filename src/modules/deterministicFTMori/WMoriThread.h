@@ -59,13 +59,13 @@ public:
         /**
          * Destructor.
          */
-        ~WFiberAccumulator();
+        virtual ~WFiberAccumulator();
 
         /**
          * Add a fiber to the dataset.
          *
          * \param in The fiber to add, stored as a vector of Positions.
-         * 
+         *
          * This function is threadsafe.
          */
         void add( std::vector< wmath::WVector3D > const& in );
@@ -73,7 +73,7 @@ public:
         /**
          * Return the dataset that has been accumulated to this point
          * and start a new dataset.
-         * 
+         *
          * \return A shared_ptr pointing to the WDataSetFibers that has been accumulated.
          *
          * The returned shared_ptr is the sole owner of the WDataSetFibers.
@@ -118,7 +118,7 @@ public:
      * \param grid The regular 3D grid of the input dataset.
      * \param eigenVectors A vector storing the eigenvector that belongs to the eigenvalue of largest magnitude for every grid position.
      * \param fa A vector that stores the fractional anisotropy for every grid position.
-     * \param minFA The minimum fractional anisotropy threshold needed by the tracking algorithm. 
+     * \param minFA The minimum fractional anisotropy threshold needed by the tracking algorithm.
      * \param minPoints The minimum length of a fiber.
      * \param minCos The minimum cosine of the angle of bends between adjacent fiber segments.
      * \param progr A progress object.
@@ -152,7 +152,7 @@ private:
      * Track a fiber starting at a seed point in a voxel given by coords.
      *
      * \param coords The coordinates of the starting voxel.
-     * \param points Stores the points of the tracked fiber. 
+     * \param points Stores the points of the tracked fiber.
      */
     void trackFiber( wmath::WValue< size_t > const& coords, std::vector< wmath::WVector3D >& points ) const;
 
@@ -160,7 +160,7 @@ private:
      * Test the fractional anisotropy of the voxel at coords against the threshold.
      *
      * \param coords The coordinates of the voxel.
-     * \return true, iff the fractional anisotropy at the voxel is larger then the threshold. 
+     * \return true, iff the fractional anisotropy at the voxel is larger then the threshold.
      */
     bool testFA( wmath::WValue< size_t >const & coords ) const;
 
@@ -180,7 +180,7 @@ private:
      * \param dir Determines whether to add the generated points to the end or at the beginning of the points vector.
      * \param coords The coordinates of the current voxel.
      * \param points Stores the points of the currently tracked fiber.
-     * \param iter The maximum recursion depth. 
+     * \param iter The maximum recursion depth.
      */
     void trackFiberRec( wmath::WVector3D const& pos,
                         wmath::WVector3D const& eigen,
@@ -191,7 +191,7 @@ private:
 
     /**
      * Clamp a vector to the voxel at position coords.
-     * 
+     *
      * \param v The vector to clamp.
      * \param coords The coordinates of the voxel.
      *
@@ -226,13 +226,13 @@ private:
      * \param pos The current position.
      * \param coord The coordinate of the current voxel.
      * \param eigen The direction.
-     * 
+     *
      * \return The distance to the boundary of the voxel (in one dimension/axis/component).
      */
     double distanceToBorder( double const& pos, size_t const& coord, double const& eigen ) const;
 
     /**
-     * A shared pointer to the grid. 
+     * A shared pointer to the grid.
      */
     boost::shared_ptr< WGridRegular3D > m_grid;
 

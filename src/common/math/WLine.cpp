@@ -104,7 +104,7 @@ void WLine::resample( size_t numPoints )
         // std::cout << "this size: " << size() << " new size: " << newLine.size() << std::endl;
         this->WMixinVector< wmath::WPosition >::operator=( newLine );
     }
-    assert( size() == numPoints && "Resampling of a line has failed! Is your line of length 0 or even the new sample rate??" );
+    WAssert( size() == numPoints, "Resampling of a line has failed! Is your line of length 0 or even the new sample rate??" );
 }
 
 int WLine::equalsDelta( const wmath::WLine& other, double delta ) const
@@ -116,7 +116,7 @@ int WLine::equalsDelta( const wmath::WLine& other, double delta ) const
     {
         for( int x = 0; x < 3; ++x )
         {
-            assert( at( diffPos ).size() == 3 && other.at( diffPos ).size() == 3 );
+            WAssert( at( diffPos ).size() == 3 && other.at( diffPos ).size() == 3, "Wrong dimension of positions." );
             sameLines = sameLines && ( std::abs( at( diffPos )[x] - other.at( diffPos )[x] ) <= delta );
             if( !sameLines )
             {

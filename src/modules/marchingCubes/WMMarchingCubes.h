@@ -43,52 +43,6 @@
 #include "../../graphicsEngine/WGEGroupNode.h"
 
 /**
- * A point consisting of its coordinates and ID
- */
-struct WPointXYZId
-{
-    unsigned int newID; //!< ID of the point
-    double x; //!< x coordinates of the point.
-    double y; //!< y coordinates of the point.
-    double z; //!< z coordinates of the point.
-};
-
-typedef std::map< unsigned int, WPointXYZId > ID2WPointXYZId;
-
-/**
- * Encapsulated ids representing a triangle.
- */
-struct WMCTriangle
-{
-    unsigned int pointID[3]; //!< The IDs of the vertices of the triangle.
-};
-
-typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
-
-// -------------------------------------------------------
-//
-// Numbering of edges (0..B) and vertices (0..7) per cube.
-//
-//      5--5--6
-//     /|    /|
-//    4 |   6 |    A=10
-//   /  9  /  A
-//  4--7--7   |
-//  |   | |   |
-//  |   1-|1--2
-//  8  /  B  /
-//  | 0   | 2      B=11
-//  |/    |/
-//  0--3--3
-//
-//  |  /
-//  z y
-//  |/
-//  0--x--
-//
-// -------------------------------------------------------
-
-/**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
  * given on regular grids with axis-aligned cells.
  * \ingroup modules
@@ -137,29 +91,9 @@ public:
     virtual const char** getXPMIcon() const;
 
     /**
-     * Transform the positions to the correct coordiante system given by the grid.
-     * \param positions A data structure holding the positions.
-     */
-    void transformPositions( ID2WPointXYZId* positions );
-
-    /**
-     * Generate the triangles for the surface on the given dataSet (inGrid, vals).
-     * \param inGrid The grid of the data set
-     * \param vals the value set of the data set
-     * \param isoValue The surface will run through all positions with this value.
-     */
-    template< typename T > void generateSurface( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals, double isoValue );
-
-    /**
-     * Activate the rendering of the computed surface.
-     * This converts the surface to a WTriangleMesh2 and calls renderMesh afterwards
-     */
-    void renderSurface();
-
-    /**
      *  updates textures and shader parameters
      */
-    void updateTextures();
+    void updateGraphics();
 
 protected:
     /**
@@ -186,60 +120,13 @@ private:
 
     /**
      * Prepares and commits everything for rendering with the OSG
-     * \param mesh The mesh that will be rendered.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
-
-    /**
-     * Calculates the intersection point id of the isosurface with an
-     * edge.
-     * \param vals the value set that determines the values at the vertices
-     * \param nX id of cell in x direction
-     * \param nY id of cell in y direction
-     * \param nZ id of cell in z direction
-     * \param nEdgeNo id of the edge the point that will be interpolates lies on
-     */
-    template< typename T > WPointXYZId calculateIntersection( boost::shared_ptr< WValueSet< T > > vals,
-                                                              unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo );
-
-    /**
-     * Interpolates between two grid points to produce the point at which
-     * the isosurface intersects an edge.
-     * \param fX1 x coordinate of first position
-     * \param fY1 y coordinate of first position
-     * \param fZ1 z coordinate of first position
-     * \param fX2 x coordinate of second position
-     * \param fY2 y coordinate of first position
-     * \param fZ2 z coordinate of first position
-     * \param tVal1 scalar value at first position
-     * \param tVal2 scalar value at second position
-     */
-    WPointXYZId interpolate( double fX1, double fY1, double fZ1, double fX2, double fY2, double fZ2, double tVal1, double tVal2 );
-
-    /**
-     * Returns the edge ID.
-     * \param nX ID of desired cell along x axis
-     * \param nY ID of desired cell along y axis
-     * \param nZ ID of desired cell along z axis
-     * \param nEdgeNo id of edge inside cell
-     * \return The id of the edge in the large array.
-     */
-    int getEdgeID( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo );
-
-    /**
-     * Returns the ID of the vertex given by by the IDs along the axis
-     * \param nX ID of desired vertex along x axis
-     * \param nY ID of desired vertex along y axis
-     * \param nZ ID of desired vertex along z axis
-     */
-    unsigned int getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ );
+    void renderMesh();
 
     /**
      * Store the mesh in legacy vtk file format.
-     * \param fileName the file where the triMesh will be written to
-     * \param triMesh this mesh will be stored.
      */
-    bool save( std::string fileName, const WTriangleMesh2& triMesh ) const;
+    bool save() const;
 
     /**
      * Load meshes saved with WMMarchingCubes::save
@@ -254,10 +141,17 @@ private:
      */
     void generateSurfacePre( double isoValue );
 
+    WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
+    WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
 
     WPropDouble m_isoValueProp; //!< Property holding the iso value
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
+    WPropColor m_surfaceColor; //!< Property determining the color for the surface if no textures are displayed
+
+    WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
+    WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
+    WPropFilename m_meshFile; //!< The mesh will be written to this file.
 
     /**
      * True when textures haven changed.
@@ -278,24 +172,8 @@ private:
     static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
     static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.
 
-
-    unsigned int m_nCellsX;  //!< No. of cells in x direction.
-    unsigned int m_nCellsY;  //!< No. of cells in y direction.
-    unsigned int m_nCellsZ;  //!< No. of cells in z direction.
-
-    double m_fCellLengthX;  //!< Cell length in x direction.
-    double m_fCellLengthY;  //!< Cell length in y direction.
-    double m_fCellLengthZ;  //!< Cell length in z direction.
-
-    double m_tIsoLevel;  //!< The isovalue.
-
-    ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
-    WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
-
-
     boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
     boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for the dimensions of the texture.
-
 
     bool m_shaderUseLighting; //!< shall the shader use lighting?
     bool m_shaderUseTransparency; //!< shall the shader use transparency?
@@ -314,6 +192,8 @@ private:
     std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
     std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms; //!< uniforms for color maps per texture in shader
+
+    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 };
 
 /**
@@ -326,7 +206,7 @@ public:
      * Constructor of the callback adapter.
      * \param module A function of this module will be called
      */
-    explicit SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module );
+    explicit SurfaceNodeCallback( WMMarchingCubes* module );
 
     /**
      * Function that is called by the osg and that call the function in the module.
@@ -336,10 +216,10 @@ public:
     virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
 private:
-    boost::shared_ptr< WMMarchingCubes > m_module; //!< Pointer to the module to which the function that is called belongs to.
+    WMMarchingCubes* m_module; //!< Pointer to the module to which the function that is called belongs to.
 };
 
-inline SurfaceNodeCallback::SurfaceNodeCallback( boost::shared_ptr< WMMarchingCubes > module )
+inline SurfaceNodeCallback::SurfaceNodeCallback( WMMarchingCubes* module )
     : m_module( module )
 {
 }
@@ -348,7 +228,7 @@ inline void SurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* 
 {
     if ( m_module )
     {
-        m_module->updateTextures();
+        m_module->updateGraphics();
     }
     traverse( node, nv );
 }

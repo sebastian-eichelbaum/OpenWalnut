@@ -29,16 +29,17 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-
-#include "../../graphicsEngine/WShader.h"
-
 #include "WTubeDrawable.h"
 
 /**
  * Test module for drawing fibers
+ *
+ * \ingroup modules
  */
 class WMFiberDisplay : public WModule, public osg::Referenced
 {
@@ -80,6 +81,13 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
+    /**
+     * Checks whether the fiber display is already running.
+     *
+     * \return true if running.
+     */
+    static bool isRunning();
+
 protected:
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -112,11 +120,25 @@ protected:
      */
     void create();
 
+    /**
+     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
+     */
+    void notifyTextureChange();
+
 private:
+    /**
+     * Updates the output with the current selection and generates a WFiberCluster out of it.
+     */
+    void updateOutput() const;
+
     WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
     WPropBool m_customColoring; //!< Enable/Disable custom colors
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
+    WPropBool m_useTextureProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
+    WPropBool m_save; //!< this should be a button
+    WPropFilename m_saveFileName; //!< the filename for saving
+    WPropTrigger m_updateOC; //!< updates the output connector
 
     WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
 
@@ -124,6 +146,11 @@ private:
      * Input connector for a fiber dataset.
      */
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
+
+    /**
+     * Output connector for the fiber cluster dataset.
+     */
+    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_clusterOC;
 
     /**
      * Pointer to the fiber data set
@@ -147,11 +174,50 @@ private:
     boost::shared_mutex m_updateLock;
 
     /**
-     * the shader object for this module
+     * the shader object for rendering tubes
      */
-    osg::ref_ptr< WShader >m_shader;
+    osg::ref_ptr< WShader >m_shaderTubes;
+
+    /**
+     * the shader object for rendering textured lines
+     */
+    osg::ref_ptr< WShader >m_shaderTexturedFibers;
 
     osg::ref_ptr<osg::Uniform> m_uniformTubeThickness; //!< tube thickness
+
+    /**
+     * True when textures have changed.
+     */
+    bool m_textureChanged;
+
+    /**
+     * uniform for type of texture
+     */
+    osg::ref_ptr<osg::Uniform> m_uniformType;
+
+    /**
+     * threshold for texture
+     */
+    osg::ref_ptr<osg::Uniform> m_uniformThreshold;
+
+    /**
+     * color map for the  texture
+     */
+    osg::ref_ptr<osg::Uniform> m_uniformsColorMap;
+
+    /**
+     * vector of samplers
+     */
+    osg::ref_ptr<osg::Uniform> m_uniformSampler;
+
+    osg::ref_ptr<osg::Uniform> m_uniformDimX; //!< x dimension of the dataset for calculating the texture coord in the shader
+    osg::ref_ptr<osg::Uniform> m_uniformDimY; //!< y dimension of the dataset for calculating the texture coord in the shader
+    osg::ref_ptr<osg::Uniform> m_uniformDimZ; //!< z dimension of the dataset for calculating the texture coord in the shader
+
+    /**
+     * To avoid multiple instances of the fiber display.
+     */
+    static bool m_fiberDisplayRunning;
 
     /**
      * switches between fiber display and tube representation
@@ -167,6 +233,22 @@ private:
      * changes tube parameters
      */
     void adjustTubes();
+
+    /**
+     * saves the currently selected (active field from roi manager) fibers to a file
+     */
+    void saveSelected();
+
+    /**
+     * creates and initializes the uniform parameters for the shader
+     * \param rootState The uniforms will be applied to this state.
+     */
+    void initUniforms( osg::StateSet* rootState );
+
+    /**
+     *  updates textures and shader parameters
+     */
+    void updateTexture();
 
     /**
      * Node callback to handle updates properly

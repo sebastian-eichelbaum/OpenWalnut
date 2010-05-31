@@ -27,9 +27,14 @@
 #include <string>
 #include <vector>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
+
 #include "WLogger.h"
 #include "exceptions/WPropertyUnknown.h"
 #include "exceptions/WPropertyNotUnique.h"
+
+#include "WPropertyHelper.h"
 
 #include "WProperties.h"
 
@@ -42,6 +47,31 @@ WProperties::WProperties( std::string name, std::string description ):
 
 WProperties::~WProperties()
 {
+}
+
+WProperties::WProperties( const WProperties& from ):
+    WPropertyBase( from ),
+    m_properties(),
+    m_propAccess( m_properties.getAccessObject() )
+{
+    // copy the properties inside
+    from.m_propAccess->beginRead();
+    // we need to make a deep copy here.
+    for ( PropertyIterator iter = from.m_propAccess->get().begin(); iter != from.m_propAccess->get().end(); ++iter )
+    {
+        // clone them to keep dynamic type
+        addProperty( ( *iter )->clone() );
+    }
+    from.m_propAccess->endRead();
+
+    // add the change condition of the prop list
+    m_updateCondition->add( m_properties.getChangeCondition() );
+}
+
+boost::shared_ptr< WPropertyBase > WProperties::clone()
+{
+    // class copy constructor.
+    return boost::shared_ptr< WProperties >( new WProperties( *this ) );
 }
 
 PROPERTY_TYPE WProperties::getType() const
@@ -61,6 +91,11 @@ std::string WProperties::getAsString()
     return "";
 }
 
+bool WProperties::set( boost::shared_ptr< WPropertyBase > /*value*/ )
+{
+    return true;
+}
+
 bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
 {
     return ( prop1->getName() == prop2->getName() );
@@ -69,6 +104,8 @@ bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, b
 void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
     m_propAccess->beginWrite();
+
+    // NOTE: WPropertyBase already prohibits invalid property names -> no check needed here
 
     // check uniqueness:
     if ( std::count_if( m_propAccess->get().begin(), m_propAccess->get().end(),
@@ -86,18 +123,24 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
         }
     }
 
+    // PV_PURPOSE_INFORMATION groups do not allow PV_PURPOSE_PARAMETER properties but vice versa.
+    if ( getPurpose() == PV_PURPOSE_INFORMATION )
+    {
+        prop->setPurpose( PV_PURPOSE_INFORMATION );
+    }
+    // INFORMATION properties are allowed inside PARAMETER groups -> do not set the properties purpose.
+
     m_propAccess->get().push_back( prop );
     m_propAccess->endWrite();
 }
 
-boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
+boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
 {
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
-
-    m_propAccess->beginRead();
+    props->m_propAccess->beginRead();
 
     // iterate over the items
-    for ( PropertyContainerType::const_iterator it = m_propAccess->get().begin(); it != m_propAccess->get().end(); ++it )
+    for ( PropertyContainerType::const_iterator it = props->m_propAccess->get().begin(); it != props->m_propAccess->get().end(); ++it )
     {
         if ( ( *it )->getName() == name )
         {
@@ -105,7 +148,46 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
             break;
         }
     }
-    m_propAccess->endRead();
+
+    // done.
+    props->m_propAccess->endRead();
+
+    return result;
+}
+
+boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
+{
+    boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
+
+    // tokenize the name -> contains any paths?
+    typedef boost::tokenizer<boost::char_separator< char > > tokenizer;
+    boost::char_separator< char > sep( "/" );   // separate by /
+    tokenizer tok( name, sep );
+
+    // iterate along the path
+    WProperties* curProps = this;       // the group currently in while traversing the path
+    for ( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
+    {
+        // was the last token not a group?
+        if ( result && ( result->getType() != PV_GROUP ) )
+        {
+            // no it wasn't. This means that one token inside the path is no group, but it needs to be one
+            return boost::shared_ptr< WPropertyBase >();
+        }
+
+        // get the properties along the path
+        result = findProperty( curProps, boost::lexical_cast< std::string >( *it ) );
+        if ( !result )
+        {
+            // not found? Return NULL.
+            return boost::shared_ptr< WPropertyBase >();
+        }
+        else if ( result && ( result->getType() == PV_GROUP ) )
+        {
+            // it is a group. Go down
+            curProps = result->toPropGroup().get();
+        }
+    }
 
     return result;
 }
@@ -137,6 +219,13 @@ WPropGroup WProperties::addPropertyGroup( std::string name, std::string descript
     p->setHidden( hide );
     addProperty( p );
     return p;
+}
+
+void WProperties::clear()
+{
+    m_propAccess->beginWrite();
+    m_propAccess->get().clear();
+    m_propAccess->endWrite();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +263,7 @@ WPropString WProperties::addProperty( std::string name, std::string description,
 WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -191,6 +280,11 @@ WPropPosition WProperties::addProperty( std::string name, std::string descriptio
 WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, hide );
+}
+
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, hide );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -234,7 +328,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                          boost::shared_ptr< WCondition > condition, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -254,6 +348,12 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
                                      boost::shared_ptr< WCondition > condition, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, hide );
+}
+
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       boost::shared_ptr< WCondition > condition, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, hide );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +397,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -319,6 +419,11 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, notifier, hide );
 }
 
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, notifier, hide );
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // convenience methods for
@@ -367,7 +472,7 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
-    p->addConstraint( WPVFilename::PropertyConstraint::create( PC_NOTEMPTY ) );
+    WPropertyHelper::PC_NOTEMPTY::addTo( p );
     return p;
 }
 
@@ -390,5 +495,12 @@ WPropColor WProperties::addProperty( std::string name, std::string description, 
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
     return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, notifier, hide );
+}
+
+WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
+                                       boost::shared_ptr< WCondition > condition,
+                                       WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
+{
+    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, notifier, hide );
 }
 

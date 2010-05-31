@@ -53,9 +53,28 @@ public:
     WPropertyBase( std::string name, std::string description );
 
     /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     *
+     * \param from the instance to copy.
+     */
+    explicit WPropertyBase( const WPropertyBase& from );
+
+    /**
      * Destructor.
      */
     virtual ~WPropertyBase();
+
+    /**
+     * This method clones a property and returns the clone. It does a deep copy and, in contrast to a copy constructor, creates property with the
+     * correct type without explicitly requiring the user to specify it. It creates a NEW change condition and change signal. This means, alls
+     * subscribed signal handlers are NOT copied.
+     *
+     * \note this simply ensures the copy constructor of the runtime type is issued.
+     *
+     * \return the deep clone of this property.
+     */
+    virtual boost::shared_ptr< WPropertyBase > clone() = 0;
 
     /**
      * Gets the name of the class.
@@ -93,6 +112,27 @@ public:
     virtual PROPERTY_TYPE getType() const;
 
     /**
+     * Gets the purpose of a property. See PROPERTY_PURPOSE for more details. For short: it helps the GUI and others to understand what a module
+     * (or whomever created this property) intents with this property. Typically this value is PV_PURPOSE_PARAMETER, meaning that it is used to
+     * tune the behaviour of a module.
+     *
+     * \note always assume this to be a hint. It does not actually prevent someone from writing or interpreting a parameter property as an
+     * information property.
+     *
+     * \see PROPERTY_PURPOSE
+     * \return the purpose.
+     */
+    virtual PROPERTY_PURPOSE getPurpose() const;
+
+    /**
+     * Sets the purpose of the property. See \ref getPurpose for more details. You generally should avoid setting this value after
+     * initialization.
+     *
+     * \param purpose the purpose to set.
+     */
+    virtual void setPurpose( PROPERTY_PURPOSE purpose );
+
+    /**
      * This methods allows properties to be set by a string value. This is especially useful when a property is only available as string and the
      * real type of the property is unknown. This is a shortcut for casting the property and then setting the lexically casted value.
      *
@@ -125,6 +165,16 @@ public:
      * \return a condition notified whenever something changes.
      */
     virtual boost::shared_ptr< WCondition > getUpdateCondition() const;
+
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \param value the new value.
+     *
+     * \return true if the value has been accepted.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value ) = 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // Helpers for easy conversion to the possible types
@@ -189,6 +239,13 @@ public:
     /**
      * Helper converts this instance to its native type.
      *
+     * \return the property as trigger property
+     */
+    WPropTrigger toPropTrigger();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
      * \return the property as group
      */
     WPropGroup toPropGroup();
@@ -227,6 +284,11 @@ protected:
      * Type of the PropertyVariable instance
      */
     PROPERTY_TYPE m_type;
+
+    /**
+     * The purpose of this property. PropertyBase always initializes it with PV_PURPOSE_PARAMETER.
+     */
+    PROPERTY_PURPOSE m_purpose;
 
     /**
      * Calculates the type of the property. This has to be done by the implementing class.

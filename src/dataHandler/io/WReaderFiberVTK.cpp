@@ -23,8 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include <stdint.h>
-
-#include <cassert>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -32,6 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WIOTools.h"
+#include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStringUtils.h"
 #include "../WDataSetFibers.h"
@@ -137,7 +136,7 @@ void WReaderFiberVTK::readPoints()
     m_pointFiberMapping->reserve( numPoints );
 
     line = getLine( "also eat the remaining newline after points declaration" );
-    assert( std::string( "" ) == line );
+    WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
 }
 
 void WReaderFiberVTK::readLines()
@@ -182,7 +181,7 @@ void WReaderFiberVTK::readLines()
     delete[] lineData;
 
     line = getLine( "also eat the remaining newline after lines declaration" );
-    assert( std::string( "" ) == line );
+    WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
 }
 
 std::string WReaderFiberVTK::getLine( const std::string& desc )

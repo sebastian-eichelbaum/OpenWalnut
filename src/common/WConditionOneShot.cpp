@@ -56,8 +56,15 @@ void WConditionOneShot::wait() const
 
 void WConditionOneShot::notify()
 {
-    // release the write lock to allow waiting threads to achieve read lock
-    m_lock.unlock();
+    try
+    {
+        m_lock.unlock();
+    }
+    catch( const boost::lock_error &e )
+    {
+        // ignore this particular error since it is thrown when the lock is not locked anymore
+        // because the notify was called multiple times
+    }
 
     WCondition::notify();
 }

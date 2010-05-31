@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
 
 #include "WKdTree.h"
@@ -32,6 +33,7 @@
 WKdTree::WKdTree( int size, float *pointArray ) :
     m_size( size ), m_pointArray( pointArray )
 {
+    WAssert( size > 2, "The current kD-tree implementation works only with at least 3 vertices." );
     m_tree.clear();
     m_tree.resize( size );
 

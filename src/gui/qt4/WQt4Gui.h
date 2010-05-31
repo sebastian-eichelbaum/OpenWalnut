@@ -94,6 +94,12 @@ public:
      */
     virtual void slotAddRoiToBrowser( boost::shared_ptr< WRMROIRepresentation > roi );
 
+    /**
+     * Slot gets called whenever a roi is removed.
+     *
+     * \param roi the roi to be removed
+     */
+    virtual void slotRemoveRoiFromBrowser( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
      * Slot gets called whenever a module switches its state to "ready".
@@ -101,6 +107,13 @@ public:
      * \param module the module.
      */
     virtual void slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
+
+    /**
+     * Slot gets called whenever a module has been removed from the root container.
+     *
+     * \param module the module
+     */
+    virtual void slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
 
     /**
      * getter functions for the signales proved by the gui
@@ -125,6 +138,13 @@ public:
      */
     virtual void closeCustomWidget( std::string title );
 
+    /**
+     * Returns the current main window instance or NULL if not existent.
+     *
+     * \return the main window instance.
+     */
+    static WMainWindow* getMainWindow();
+
 protected:
 
     /**
@@ -140,7 +160,7 @@ private:
     /**
      * Main window containing all needed widgets.
      */
-    WMainWindow* m_mainWindow;
+    static WMainWindow* m_mainWindow;
 
     /**
      * Graphics Engine instance.

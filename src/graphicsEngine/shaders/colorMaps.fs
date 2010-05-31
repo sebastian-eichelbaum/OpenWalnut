@@ -1,6 +1,6 @@
 uniform int useColorMap;
 
-vec3 defaultColorMap( in float value )
+vec3 blueGreenPurpleColorMap( in float value )
 {
     value *= 5.0;
     vec3 color;
@@ -21,7 +21,8 @@ vec3 defaultColorMap( in float value )
     return color;
 }
 
-vec3 colorMap1 ( in float value )
+
+vec3 rainbowColorMap ( in float value )
 {
     float i = floor(6.*value);
     float f = 6.*value - i;
@@ -43,7 +44,7 @@ vec3 colorMap1 ( in float value )
         return vec3(1., 0., q);
 }
 
-vec3 colorMap2( in float value )
+vec3 hotIronColorMap( in float value )
 {
     vec4 color8  = vec4(255./255., 255./255., 204./255., 1.);
     vec4 color7  = vec4(255./255., 237./255., 160./255., 1.);
@@ -86,18 +87,63 @@ vec3 colorMap2( in float value )
     }
 }
 
-vec3 colorMap3( in float value )
+vec3 redYellowColorMap( in float value )
 {
     vec4 color0 = vec4(1., 0., 0., 1.);
     vec4 color1 = vec4(1., 1., 0., 1.);
     return ( color1*value + color0*(1.-value)).rgb;
 }
 
-vec3 colorMap4( in float value )
+vec3 blueLightBlueColorMap( in float value )
 {
     vec4 color0 = vec4(0., 0., 1., 1.);
     vec4 color1 = vec4(0.78, 1., 1., 1.);
     return ( color1*value + color0*(1.-value)).rgb;
+}
+
+vec3 negative2positive( in float value )
+{
+    float val = value * 2 - 1.0;
+
+    vec3 zeroColor = vec3( 1., 1., 1. );
+    vec3 negColor = vec3( 1., 1., 0. );
+    vec3 posColor= vec3( 0., 1., 1. );
+    if ( val < -0.5 )
+    {
+        return ( zeroColor + negColor * val );
+    }
+    else if ( val > 0.5 )
+    {
+        return ( zeroColor - posColor * val );
+    }
+    else return vec3( 0.0, 0.0, 0.0 );
+}
+
+vec3 atlasColorMap ( in float value )
+{
+    int val = (int)( value * 255 );
+    float r = 0.0;
+    float g = 0.0;
+    float b = 0.0;
+
+    if ( ( val & 1 ) == 1 )
+        r = 0.4;
+    if ( ( val & 2 ) == 2 )
+        g = 0.4;
+    if ( ( val & 4 ) == 4 )
+        b = 0.4;
+    if ( ( val & 8 ) == 8 )
+        b += 0.3;
+    if ( ( val & 16 ) == 16 )
+        r += 0.3;
+    if ( ( val & 32 ) == 32 )
+        g += 0.3;
+    if ( ( val & 64 ) == 64 )
+        r += 0.3;
+    if ( ( val & 128 ) == 128 )
+        b += 0.3;
+
+    return vec3( r, g, b );
 }
 
 vec3 colorMap5( in float value )
@@ -169,13 +215,14 @@ void colorMap( inout vec3 col, in float value, int cmap )
 {
 
     if ( cmap == 1 )
-        col = colorMap1( value );
+        col = rainbowColorMap( value );
     else if ( cmap == 2 )
-        col = colorMap2( value );
+        col = hotIronColorMap( value );
     else if ( cmap == 3 )
-        col = colorMap3( value );
+        //col = redYellowColorMap( value );
+        col = negative2positive( value );
     else if ( cmap == 4 )
-        col = colorMap4( value );
+        col = atlasColorMap( value );
     else
-        col = defaultColorMap( value );
+        col = blueGreenPurpleColorMap( value );
 }

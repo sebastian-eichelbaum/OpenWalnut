@@ -95,6 +95,10 @@ void WMVoxelizer::moduleMain()
             continue;
         }
 
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 4 ) );
+        m_progress->addSubProgress( progress );
+
+        ++*progress;
         // full update
         if( m_antialiased->changed() ||
             m_drawVoxels->changed() ||
@@ -109,15 +113,22 @@ void WMVoxelizer::moduleMain()
             update();
         }
 
+        ++*progress;
+
         if( m_drawfibers->changed() )
         {
             updateFibers();
         }
 
+        ++*progress;
+
         if( m_drawCenterLine->changed() )
         {
             updateCenterLine();
         }
+
+        ++*progress;
+        progress->finish();
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
@@ -127,11 +138,11 @@ void WMVoxelizer::properties()
 {
     m_antialiased     = m_properties->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
     m_drawfibers      = m_properties->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
-    m_drawBoundingBox = m_properties->addProperty( "Bounding BoxEnable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
-    m_drawCenterLine  = m_properties->addProperty( "CenterLine", "Enable/Disable display of the CenterLine", true );
+    m_drawBoundingBox = m_properties->addProperty( "Bounding Box Enable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
+    m_drawCenterLine  = m_properties->addProperty( "Center Line", "Enable/Disable display of the center line", true );
     m_lighting        = m_properties->addProperty( "Lighting", "Enable/Disable lighting.", true );
     m_drawVoxels      = m_properties->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
-    m_rasterAlgo      = m_properties->addProperty( "RasterAlgo", "Specifies the algorithm you may want to use for voxelization.",
+    m_rasterAlgo      = m_properties->addProperty( "Raster Algo", "Specifies the algorithm you may want to use for voxelization.",
                                                     std::string( "WBresenham" ), m_fullUpdate );
     m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
                                                                        "is useful to increase the resolution of the grid", 1, m_fullUpdate );

@@ -29,10 +29,12 @@
 WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent, bool asButton ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_boolProperty( property ),
-    m_checkbox( this ),
-    m_button( this ),
-    m_layout(),
-    m_asButton( asButton )
+    m_checkbox( &m_parameterWidgets ),
+    m_button( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets ),
+    m_asButton( asButton ),
+    m_asText( &m_informationWidgets ),
+    m_infoLayout( &m_informationWidgets )
 {
     // initialize members
     m_button.setCheckable( true );
@@ -47,7 +49,11 @@ WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* prope
     {
         m_layout.setContentsMargins( 1, 1, 1, 1 );
     }
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
+
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    m_infoLayout.addWidget( &m_asText );
+    m_informationWidgets.setLayout( &m_infoLayout );
 
     // connect the modification signal of m_checkbox with our callback
     connect( &m_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( changed() ) );
@@ -64,6 +70,7 @@ void WPropertyBoolWidget::update()
     // simply set the new state
     m_checkbox.setChecked( m_boolProperty->get() );
     m_button.setChecked( m_boolProperty->get() );
+    m_asText.setText( m_boolProperty->get() ? QString( "Yes" ) : QString( "No" ) );
 }
 
 QPushButton* WPropertyBoolWidget::getButton()

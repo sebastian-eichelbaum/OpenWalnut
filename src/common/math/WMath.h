@@ -25,18 +25,33 @@
 #ifndef WMATH_H
 #define WMATH_H
 
+#include <cmath>
+
+#if defined ( _MSC_VER )
+#include "float.h"
+#endif
+
 /**
- * All classes and functions of math module of OpenWalnut.
+ * Classes and functions of math module of OpenWalnut.
  */
 namespace wmath
 {
-// wiebel:
-//   There is no code here yet, because I created this file only
-//   to have a good place to specify the documentation for the
-//   namespace. There are already classes belonging to this
-//   namespace in other files.
-//
-//   Please remove this comment if it is not appropriate anymore.
+/**
+ * Tests whether the number stored in the parameter is finite.
+ * \param number the number to be tested
+ */
+inline int myIsfinite( double number )
+{
+#if defined( __linux__ ) || defined( __APPLE__ )
+    // C99 defines isfinite() as a macro.
+    return std::isfinite(number);
+#elif defined( _WIN32 )
+    // Microsoft Visual C++ and Borland C++ Builder use _finite().
+    return _finite(number);
+#else
+    WAssert( false, "isfinite not provided on this platform or platform not known." );
+#endif
+}
 }
 
 #endif  // WMATH_H

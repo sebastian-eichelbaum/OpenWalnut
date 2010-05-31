@@ -73,8 +73,10 @@ public:
      * adds a page to the context widget
      *
      * \param content A widget with controls
+     *
+     * \return the index of the new tab
      */
-    void addTabWidgetContent( WQtDSBWidget* content );
+    int addTabWidgetContent( WQtDSBWidget* content );
 
     /**
      * adds a subject entry to the tree widget
@@ -109,6 +111,13 @@ public:
      * \param roi pointer to the roi representation object
      */
     void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+
+    /**
+     * Removes a roi entry from the dataset browser
+     *
+     * \param roi pointer to the roi representation object
+     */
+    void removeRoi( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
      * helper funtion to connect all qt widgets with their functions
@@ -167,7 +176,7 @@ protected:
     WMainWindow* m_mainWindow;
 
 private:
-    WQtTreeWidget* m_treeWidget; //!< pointer to the tree widget
+    WQtTreeWidget* m_moduleTreeWidget; //!< pointer to the tree widget
 
     WQtTreeWidget* m_roiTreeWidget; //!< pointer to the tree widget
 
@@ -189,6 +198,11 @@ private:
 
     std::vector< std::string > m_moduleWhiteList; //!< Stores a list of modules allowed to be shown.
 
+    /**
+     * The action to remove a module from the tree.
+     */
+    QAction* m_deleteModuleAction;
+
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
@@ -203,11 +217,18 @@ private slots:
     void selectRoiTreeItem();
 
     /**
+     * Will be called to select the data module for the given dataset.
+     * \param dataSet the module for this dataset will be selected.
+     */
+    void selectDataModule( boost::shared_ptr< WDataSet > dataSet );
+
+    /**
      * function that builds the property tab
      *
      * \param props the properties.
+     * \param infoProps the information properties shown on a separate tab
      */
-    void buildPropTab( boost::shared_ptr< WProperties > props );
+    void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps );
 
     /**
      * Method builds a widgets containing all properties in props. It recursively calls itself to build group widgets for WPropGroup properties.
@@ -226,31 +247,15 @@ private slots:
      */
     void changeRoiTreeItem();
 
+    /**
+     * delete a ROI tree item
+     */
+    void deleteROITreeItem();
 
     /**
-     * change order of items, move currently selected item down
+     * delete a module tree item
      */
-    void moveTreeItemDown();
-
-    /**
-     * change order of items, move currently selected item up
-     */
-    void moveTreeItemUp();
-
-    /**
-     * delete a tree item
-     */
-    void deleteTreeItem();
-
-
-signals:
-    /**
-     * notifies the outside world of changes in the dsb
-     *
-     * \param name the name of the event
-     * \param value bool
-     */
-    void dataSetBrowserEvent( QString name, bool value );
+    void deleteModuleTreeItem();
 };
 
 #endif  // WQTDATASETBROWSER_H

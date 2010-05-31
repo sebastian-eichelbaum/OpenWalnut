@@ -33,7 +33,7 @@
 #include "../WFlag.h"
 #include "../WConditionOneShot.h"
 
-/** 
+/**
  * Helper class.
  */
 class Callable
@@ -70,12 +70,24 @@ public:
     };
 };
 
-/** 
+/**
  * Test WFlag
  */
 class WFlagTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * A temporary holder for some value.
+     */
+    bool m_testTemporary;
+
+    /**
+     * Helper function which simply sets the value above to true. It is used to test some conditions here.
+     */
+    void setTemporary()
+    {
+        m_testTemporary = true;
+    }
 
     /**
      * An instantiation should never throw an exception, as well as tear down.
@@ -88,7 +100,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( delete flag );
     }
 
-    /** 
+    /**
      * Test whether notification is working.
      */
     void testWaitNotify()
@@ -111,6 +123,88 @@ public:
         thread.join();
 
         TS_ASSERT( ( *t.flag )() );
+    }
+
+    /**
+     * Test whether change condition is fired.
+     */
+    void testChangeCondition()
+    {
+        m_testTemporary = false;
+
+        // create a condition
+        WConditionOneShot* c = new WConditionOneShot();
+        c->subscribeSignal( boost::bind( &WFlagTest::setTemporary, this ) );
+
+        // use own condition here
+        WFlag< bool >* flag = new WFlag< bool >( c, false );
+
+        // change value
+        flag->set( !flag->get( true ) );
+
+        // condition fired?
+        // Remember: the condition calls the above member function when fired
+        TS_ASSERT( m_testTemporary );
+
+        // setting with the suppression flag enabled should not fire the condition:
+        m_testTemporary = false;
+        // change value
+        flag->set( !flag->get( true ), true );
+        TS_ASSERT( !m_testTemporary );
+
+        // setting without a change of value should also not call the condition
+        flag->set( flag->get( true ) );
+        TS_ASSERT( !m_testTemporary );
+    }
+
+    /**
+     * Test whether change flag is set and reset.
+     */
+    void testChangeFlagAndReset()
+    {
+        // create a flag
+        WFlag< bool >* flag = new WFlag< bool >( new WConditionOneShot(), false );
+
+        // after creation, the change flag always is true
+        TS_ASSERT( flag->changed() );
+
+        // getting the value does not change the flag
+        bool v = flag->get();
+        TS_ASSERT( !v );
+        TS_ASSERT( flag->changed() );
+
+        // getting the value with the argument "true" should reset the change flag
+        v = flag->get( true );
+        TS_ASSERT( !flag->changed() );
+
+        delete flag;
+    }
+
+    /**
+     * Test whether copy construction/cloning is working.
+     */
+    void testCopyConstruction()
+    {
+        // create a flag
+        WFlag< bool >* flag = new WFlag< bool >( new WConditionOneShot(), false );
+
+        // clone
+        WFlag< bool >* flagClone = new WFlag< bool >( *flag );
+
+        // check that value, flag and so on are the same
+        TS_ASSERT( flag->get() == flagClone->get() );
+        TS_ASSERT( flag->changed() == flagClone->changed() );
+
+        // the first should not influence the clone
+        flag->get( true );
+        TS_ASSERT( flag->changed() != flagClone->changed() );
+        flagClone->set( !flagClone->get( true ) );
+        TS_ASSERT( flag->get() != flagClone->get() );
+
+        // the conditions need to be different
+        // This is because the flag is another one and you won't expect to wake up if someone changes a Flag you do not know
+        TS_ASSERT( flag->getCondition() != flagClone->getCondition() );
+        TS_ASSERT( flag->getValueChangeCondition() != flagClone->getValueChangeCondition() );
     }
 };
 

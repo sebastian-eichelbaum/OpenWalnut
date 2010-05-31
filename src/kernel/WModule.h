@@ -124,6 +124,13 @@ public:
     boost::shared_ptr< WProperties > getProperties() const;
 
     /**
+     * Return a pointer to the information properties object of the module. The module intends these properties to not be modified.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getInformationProperties() const;
+
+    /**
      * Determines whether the module instance is properly initialized.
      *
      * \return true if properly initialized.
@@ -165,6 +172,13 @@ public:
      * \return isReady || isCrashed.
      */
     const WBoolFlag& isReadyOrCrashed() const;
+
+    /**
+     * Returns a flag denoting whether the thread currently is running or nor. It is also useful to get a callback whenever a module stops.
+     *
+     * \return the flag
+     */
+    const WBoolFlag& isRunning() const;
 
      /**
       * The container this module is associated with.
@@ -225,6 +239,12 @@ public:
      */
     virtual MODULE_TYPE getType() const;
 
+    /**
+     * Completely disconnects all connected connectors of this module. This is useful to isolate a module (for deletion, removal from a container
+     * and so on.)
+     */
+    void disconnect();
+
 protected:
 
     /**
@@ -271,9 +291,9 @@ protected:
     void initialize();
 
     /**
-     * Removes connectors and cleans up.
+     * Called whenever the module should shutdown.
      */
-    void cleanup();
+    virtual void cleanup();
 
     /**
      * Adds the specified connector to the list of inputs.
@@ -293,11 +313,6 @@ protected:
      * Removes all connectors properly. It disconnects the connectors and cleans the connectors list.
      */
     void removeConnectors();
-
-    /**
-     * Completely disconnects all connected connectors of this module.
-     */
-    void disconnectAll();
 
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -392,6 +407,13 @@ protected:
     boost::shared_ptr< WProperties > m_properties;
 
     /**
+     * The property object for the module containing only module whose purpose is "PV_PURPOSE_INFORMNATION". It is useful to define some property
+     * to only be of informational nature. The GUI does not modify them. As it is a WProperties instance, you can use it the same way as
+     * m_properties.
+     */
+    boost::shared_ptr< WProperties > m_infoProperties;
+
+    /**
      * Progress indicator used as parent for all progress' of this module.
      */
     boost::shared_ptr< WProgressCombiner > m_progress;
@@ -425,6 +447,11 @@ protected:
      * It is true whenever m_isReady or m_isCrashed is true. This is mostly useful for functions which need to wait for a module to get ready.
      */
     WBoolFlag m_isReadyOrCrashed;
+
+    /**
+     * True if the module currently is running.
+     */
+    WBoolFlag m_isRunning;
 
     /**
      * Progress indicator for the "ready" state.

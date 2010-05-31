@@ -28,7 +28,13 @@
 #include <sstream>
 #include <set>
 
-#include <boost/exception.hpp>
+#include <boost/version.hpp>
+#if ( BOOST_VERSION >= 104200 ) // exception.hpp is deprecated in Boost 1.42
+    #include <boost/exception/all.hpp>
+#else
+    #include <boost/exception.hpp>
+#endif
+
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/connection.hpp>
 
@@ -43,11 +49,12 @@
 
 #include "WModuleConnector.h"
 
-WModuleConnector::WModuleConnector( boost::shared_ptr<WModule> module, std::string name, std::string description ):
+WModuleConnector::WModuleConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
     boost::enable_shared_from_this<WModuleConnector>()
 {
     // initialize members
     m_module = module;
+    m_moduleName = module->getName();
 
     m_name = name;
     m_description = description;
@@ -103,10 +110,11 @@ unsigned int WModuleConnector::isConnected()
 
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
-    boost::shared_ptr< WModuleContainer > container = m_module->getAssociatedContainer();
+    boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+    boost::shared_ptr< WModuleContainer > container = module->getAssociatedContainer();
     std::string containerName = container.get() ? container->getName() : "Unknown";
-    WLogger::getLogger()->addLogMessage( "Connecting " + con->getCanonicalName() + " with " + getCanonicalName()
-            , "ModuleContainer (" + containerName + ")", LL_INFO );
+    WLogger::getLogger()->addLogMessage( "Connecting " + con->getCanonicalName() + " with " + getCanonicalName(),
+                                         "ModuleContainer (" + containerName + ")", LL_INFO );
 
     // are both partners compatible to each other?
     if ( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
@@ -203,7 +211,8 @@ boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_
 const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
 {
     // the module instance knows that
-    return m_module->getSignalHandler( signal );
+    boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+    return module->getSignalHandler( signal );
 }
 
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
@@ -291,7 +300,7 @@ const std::string WModuleConnector::getName() const
 const std::string WModuleConnector::getCanonicalName() const
 {
     std::ostringstream s;
-    s << m_module->getName() << ":" << getName();
+    s << m_moduleName << ":" << getName();
 
     return s.str();
 }

@@ -80,6 +80,37 @@ public:
     double getMin() const;
 
     /**
+     * Interpolate the value fo the valueset at the given position.
+     * If interpolation fails, the success parameter will be false
+     * and the value returned zero.
+     *
+     * \param pos The position for wich we would like to get a value.
+     * \param success indicates whether the interpolation was successful
+     *
+     * \return Scalar value for that given position
+     */
+    double interpolate( const wmath::WPosition& pos, bool* success );
+
+    /**
+     * Get the value stored at a certain grid position of the data set
+     * \param x index in x direction
+     * \param y index in y direction
+     * \param z index in z direction
+     */
+    template< typename T > T getValueAt( int x, int y, int z ) const;
+
+    /**
+     * Get the value stored at a certain grid position of the data set
+     * \param x index in x direction
+     * \param y index in y direction
+     * \param z index in z direction
+     *
+     * \return the double value at the given cell.
+     */
+    double getValueAt( int x, int y, int z );
+
+
+    /**
      * Returns a prototype instantiated with the true type of the deriving class.
      *
      * \return the prototype.
@@ -97,5 +128,16 @@ private:
     double m_maximum; //!< Largest scalar of data set.
     double m_minimum; //!< Smallest scalar of data set.
 };
+
+template< typename T > T WDataSetScalar::getValueAt( int x, int y, int z ) const
+{
+    boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+    T v = vs->getScalar( id );
+    return v;
+}
 
 #endif  // WDATASETSCALAR_H

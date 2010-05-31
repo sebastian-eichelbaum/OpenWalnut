@@ -28,6 +28,7 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WKernel.h"
 #include "WMCoordinateSystem.h"
 #include "coordinateSystem.xpm"
@@ -280,7 +281,7 @@ void WMCoordinateSystem::findBoundingBox()
 
     if ( dsl.size() > 0 )
     {
-        boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( dsl[0] );
+        boost::shared_ptr< WDataSetScalar > ds = boost::shared_dynamic_cast< WDataSetScalar >( dsl[0] );
 
         if ( ds->getValueSet()->getDataType() != 2 )
         {

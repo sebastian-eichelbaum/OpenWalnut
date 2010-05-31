@@ -106,7 +106,7 @@ public:
      */
     T& operator()( size_t i, size_t j )
     {
-        assert( j < m_nbCols && i * m_nbCols < this->size() );
+        WAssert( j < m_nbCols && i * m_nbCols < this->size(), "Index out of bounds." );
         return (*this)[i * m_nbCols + j];
     }
 
@@ -118,7 +118,7 @@ public:
      */
     const T& operator()( size_t i, size_t j ) const
     {
-        assert( j < m_nbCols && i * m_nbCols < this->size() );
+        WAssert( j < m_nbCols && i * m_nbCols < this->size(), "Index out of bounds." );
         return (*this)[i * m_nbCols + j];
     }
 
@@ -157,6 +157,25 @@ public:
      */
     WMatrix operator*( const WMatrix& rhs ) const;
 
+    /**
+     * Multiplication with a vector.
+     * \param rhs The right hand side of the multiplication
+     */
+    WValue< T > operator*( const WValue< T >& rhs ) const;
+
+    /**
+     * Returns the transposed matrix.
+     */
+    WMatrix transposed() const
+    {
+      WMatrix result( m_nbCols, getNbRows() );
+
+      for ( std::size_t i = 0; i < getNbRows(); i++ )
+        for ( std::size_t j = 0; j < m_nbCols; j++ )
+          result( j, i ) = (*this)( i, j);
+      return result;
+    }
+
 protected:
 private:
     size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).
@@ -165,7 +184,7 @@ private:
 
 template< typename T > WMatrix< T > WMatrix< T >::operator*( const WMatrix< T >& rhs ) const
 {
-    assert( rhs.getNbRows() == getNbCols() );
+    WAssert( rhs.getNbRows() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
     WMatrix< T > result( getNbRows(), rhs.getNbCols() );
 
     for( size_t r = 0; r < getNbRows(); ++r)
@@ -176,6 +195,21 @@ template< typename T > WMatrix< T > WMatrix< T >::operator*( const WMatrix< T >&
             {
                 result( r, c ) += ( *this )( r, i ) * rhs( i, c );
             }
+        }
+    }
+    return result;
+}
+
+template< typename T > WValue< T > WMatrix< T >::operator*( const WValue< T >& rhs ) const
+{
+    WAssert( rhs.size() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
+    WValue< T > result( getNbRows() );
+
+    for( size_t r = 0; r < getNbRows(); ++r)
+    {
+        for( size_t i = 0; i < getNbCols(); ++i )
+        {
+            result[r] += ( *this )( r, i ) * rhs[i];
         }
     }
     return result;

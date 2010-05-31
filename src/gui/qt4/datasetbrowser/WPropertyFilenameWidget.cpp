@@ -38,17 +38,20 @@
 WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_fnProperty( property ),
-    m_button( this ),
-    m_layout()
+    m_button( &m_parameterWidgets ),
+    m_layout( &m_parameterWidgets ),
+    m_asText( &m_informationWidgets ),
+    m_infoLayout( &m_informationWidgets )
 {
     // initialize members
-    setLayout( &m_layout );
+    m_parameterWidgets.setLayout( &m_layout );
 
     // layout both against each other
     m_layout.addWidget( &m_button );
 
-    // this prevents the button from resizing when a long path is selected
-    m_button.setSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred );
+    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
+    m_infoLayout.addWidget( &m_asText );
+    m_informationWidgets.setLayout( &m_infoLayout );
 
     // set the initial values
     update();
@@ -64,7 +67,9 @@ WPropertyFilenameWidget::~WPropertyFilenameWidget()
 
 void WPropertyFilenameWidget::update()
 {
-    m_button.setText( QString::fromStdString( m_fnProperty->get().file_string() ) );
+    QString val = QString::fromStdString( m_fnProperty->get().filename() );
+    m_button.setText( val );
+    m_asText.setText( val );
 }
 
 void WPropertyFilenameWidget::buttonReleased()
@@ -99,6 +104,6 @@ void WPropertyFilenameWidget::buttonReleased()
     invalidate( !m_fnProperty->set( boost::filesystem::path( path.toStdString() ) ) ); // NOTE: set automatically checks the validity of the value
 
     // set button
-    m_button.setText( path );
+    m_button.setText( QString::fromStdString( m_fnProperty->get().filename() ) );
 }
 

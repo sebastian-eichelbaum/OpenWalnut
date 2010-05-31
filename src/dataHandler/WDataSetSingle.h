@@ -75,25 +75,7 @@ public:
     boost::shared_ptr< WGrid > getGrid() const;
 
     /**
-     * Get the value stored at a certain grid position of the data set
-     * \param x index in x direction
-     * \param y index in y direction
-     * \param z index in z direction
-     */
-    template< typename T > T getValueAt( int x, int y, int z );
-
-    /**
-     * Get the value stored at a certain grid position of the data set
-     * \param x index in x direction
-     * \param y index in y direction
-     * \param z index in z direction
-     *
-     * \return the double value at the given cell.
-     */
-    double getValueAt( int x, int y, int z );
-
-    /**
-     * Get the value stored at a certain grid position of the data set
+     * Get the value stored at position of the value set. This is the grid position only for scalar data sets.
      *
      * \param id The id'th value in the data set
      *
@@ -102,16 +84,7 @@ public:
     template< typename T > T getValueAt( size_t id );
 
     /**
-     * Interpolate the value fo the valueset at the given position
-     *
-     * \param pos The position for wich we would like to get a value.
-     *
-     * \return Scalar value for that given position
-     */
-    double interpolate( wmath::WPosition pos );
-
-    /**
-     * Get the value stored at a certain grid position of the data set in type double.
+     *  Get the value stored at position of the value set. This is the grid position only for scalar data sets.
      *
      * \param id The id'th value in the data set
      *
@@ -161,33 +134,22 @@ protected:
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
 
-private:
-    /**
-     * Stores the reference of the WValueSet of this DataSetSingle instance.
-     */
-    boost::shared_ptr< WValueSetBase > m_valueSet;
-
     /**
      * Stores the reference of the WGrid of this DataSetSingle instance.
      */
     boost::shared_ptr< WGrid > m_grid;
 
     /**
+     * Stores the reference of the WValueSet of this DataSetSingle instance.
+     */
+    boost::shared_ptr< WValueSetBase > m_valueSet;
+
+private:
+    /**
      * The 3D texture representing this dataset.
      */
     boost::shared_ptr< WDataTexture3D > m_texture3D;
 };
-
-template< typename T > T WDataSetSingle::getValueAt( int x, int y, int z )
-{
-    boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-
-    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
-
-    T v = vs->getScalar( id );
-    return v;
-}
 
 template< typename T > T WDataSetSingle::getValueAt( size_t id )
 {

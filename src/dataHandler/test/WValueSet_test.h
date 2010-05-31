@@ -104,6 +104,35 @@ public:
         TS_ASSERT_EQUALS( b[0], 0.0 );
         TS_ASSERT_EQUALS( b[1], 3.1415 );
     }
+
+    /**
+     * This function should return the i-th WValue with of the used dimension (prerequisite the ValueSet has order 1)
+     */
+    void testGetWValue( void )
+    {
+        int8_t a[6] = { 1, 2, 3, 4, 5, 6 };
+        std::size_t dim = 2;
+
+        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        WValueSet< int8_t > set( 1, dim, v, W_DT_INT8 );
+
+        // testing for valid dimension and values of the returned WValue
+        for ( std::size_t idx = 0; idx < v.size()/dim; idx++ )
+        {
+          wmath::WValue< int8_t > currentWValue( dim );
+          for ( std::size_t i = 0; i < dim; i++ ) currentWValue[ i ] = v[ idx*dim + i ];
+          TS_ASSERT_EQUALS( set.getWValue( idx ), currentWValue );
+          TS_ASSERT_EQUALS( set.getWValue( idx ).size(), dim );
+        }
+
+        // catch wrong indices?
+        TS_ASSERT_THROWS_ANYTHING( set.getWValue( v.size() ) );
+        TS_ASSERT_THROWS_ANYTHING( set.getWValue( v.size()*2 ) );
+
+        // catch wrong order?
+        WValueSet< int8_t > set2( 2, dim, v, W_DT_INT8 );
+        TS_ASSERT_THROWS_ANYTHING( set2.getWValue( 0 ) );
+    }
 };
 
 #endif  // WVALUESET_TEST_H

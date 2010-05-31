@@ -24,31 +24,64 @@
 
 #include <string>
 
+#include <QtGui/QApplication>
+
 #include "WTreeItemTypes.h"
+#include "../events/WEventTypes.h"
+#include "../events/WPropertyChangedEvent.h"
 
 #include "WQtDatasetTreeItem.h"
+
+namespace
+{
+    std::string getNameFromPath( std::string path )
+    {
+        std::string name;
+
+        // remove the path up to the file name
+        if ( path != "" )
+        {
+            name = string_utils::tokenize( path, "/" ).back();
+        }
+        else
+        {
+            name = "";
+        }
+
+        return name;
+    }
+}
 
 WQtDatasetTreeItem::WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module )
     : WQtTreeItem( parent, DATASET, module )
 {
+    // the update mechanism of WQtTreeItem sets the item text by using m_name. So we need to set the name only in m_name
+    m_name = "unnamed";
+
     // replace the name by the filename
-    boost::shared_ptr< WPropertyBase > p = module->getProperties()->findProperty( "Name" );
-    m_name = "Dataset";
-    if ( p.get() )
+    boost::shared_ptr< WPropertyBase > p = module->getInformationProperties()->findProperty( "Name" );
+
+    // always ensure that findProperty really found something
+    if ( p )
     {
-        m_name = p->toPropString()->get();
+        m_nameProp = p->toPropString();
     }
 
-    // remove the path up to the file name
-    if ( m_name != "" )
+    // was it a string prop?
+    if ( m_nameProp )
     {
-        m_name = string_utils::tokenize( m_name, "/" ).back();
+        m_nameProp->getUpdateCondition()->subscribeSignal( boost::bind( &WQtDatasetTreeItem::nameChanged, this ) );
+        m_name = getNameFromPath( m_nameProp->get() );
     }
-
-    setText( 0, m_name.c_str() );
 }
 
 WQtDatasetTreeItem::~WQtDatasetTreeItem()
 {
+}
+
+void WQtDatasetTreeItem::nameChanged()
+{
+    // luckily, the update mechanism of WQtTreeItem regularily sets the name using m_name. So we do not even need to post some kind of event.
+    m_name = getNameFromPath( m_nameProp->get() );
 }
 

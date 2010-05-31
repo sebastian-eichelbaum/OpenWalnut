@@ -41,6 +41,7 @@
 #include <QtGui/QCloseEvent>
 
 #include "WQtNavGLWidget.h"
+#include "WQtConfigWidget.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtToolBar.h"
@@ -49,6 +50,7 @@
 #include "datasetbrowser/WQtDatasetBrowser.h"
 
 #include "../../kernel/WModule.h"
+#include "../../common/WProjectFileIO.h"
 
 // forward declarations
 class QMenuBar;
@@ -152,6 +154,13 @@ protected:
      */
     virtual bool event( QEvent* event );
 
+    /**
+     * Called for each project save request.
+     *
+     * \param writer the list of writers to use.
+     */
+    virtual void projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
+
 public slots:
     /**
      * gets called when menu option or toolbar button load is activated
@@ -162,6 +171,11 @@ public slots:
      * gets called when menu entry "About OpenWalnut" is activated
      */
     void openAboutDialog();
+
+    /**
+     * Gets called when a menu entry that has no functionality yet is activated.
+     */
+    void openNotImplementedDialog();
 
     /**
      * gets called when the button new roi is pressed
@@ -176,12 +190,32 @@ public slots:
     /**
      * Gets called whenever the user presses the project save button.
      */
-    void projectSave();
+    void projectSaveAll();
+
+    /**
+     * Gets called by the save menu to only save the camera settings
+     */
+    void projectSaveCameraOnly();
+
+    /**
+     * Gets called by the save menu to only save the ROI settings
+     */
+    void projectSaveROIOnly();
+
+    /**
+     * Gets called by the save menu to only save the Module settings
+     */
+    void projectSaveModuleOnly();
 
     /**
      * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.
      */
     void setFibersLoaded();
+
+    /**
+     * Gets called when menu option or toolbar button load is activated
+     */
+    void openConfigDialog();
 
 private:
     /**
@@ -211,6 +245,11 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
+
+    /**
+    * shared pointer for the configuration widget
+    */
+    boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
     bool m_fibLoaded; //!< Indicates whether a fiber data set is already loaded.
 

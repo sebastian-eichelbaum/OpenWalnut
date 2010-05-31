@@ -88,7 +88,8 @@ void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
     m_datasetAccess->beginWrite();
 
     // iterate and find, remove
-    remove( m_datasetAccess->get().begin(), m_datasetAccess->get().end(), dataset );
+    DatasetContainerType::iterator fIt = std::find( m_datasetAccess->get().begin(), m_datasetAccess->get().end(), dataset );
+    m_datasetAccess->get().erase( fIt );
 
     // also deregister condition
     boost::shared_ptr< WCondition > c = dataset->getChangeCondition();

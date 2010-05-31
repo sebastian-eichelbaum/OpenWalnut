@@ -32,8 +32,10 @@
 #include <utility>
 
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "math/WPosition.h"
+#include "WItemSelector.h"
 #include "WColor.h"
 
 template < typename T >
@@ -53,22 +55,36 @@ class WProperties;
  */
 typedef enum
 {
-    PV_UNKNOWN,        // type not know
-    PV_GROUP,          // the group property
-    PV_INT,            // integer value
-    PV_DOUBLE,         // floating point value
-    PV_BOOL,           // boolean
-    PV_STRING,         // a string
-    PV_PATH,           // a Boost Path object denoting a filename/path
-    PV_SELECTION,      // a list of strings, selectable
-    PV_POSITION,       // a position property
-    PV_COLOR           // a color property
+    PV_UNKNOWN,        //!< type not known
+    PV_GROUP,          //!< the group property
+    PV_INT,            //!< integer value
+    PV_DOUBLE,         //!< floating point value
+    PV_BOOL,           //!< boolean
+    PV_STRING,         //!< a string
+    PV_PATH,           //!< a Boost Path object denoting a filename/path
+    PV_SELECTION,      //!< a list of strings, selectable
+    PV_POSITION,       //!< a position property
+    PV_COLOR,          //!< a color property
+    PV_TRIGGER         //!< for triggering an event
 }
 PROPERTY_TYPE;
 
 /**
+ * Enum of all possible purpose of a property. The purpose describes which meaning a property has for the creator of it. A PP_PARAMETER is a
+ * property which is meant to be modified to adopt the behaviour of the module (or whomever has created it). A PP_INFORMATION is only an output
+ * from the creator who wants to inform the outside world about values, states or whatever.
+ */
+typedef enum
+{
+    PV_PURPOSE_INFORMATION,     //!< information property not meant to be modified from someone (except the creating object)
+    PV_PURPOSE_PARAMETER        //!< a parameter meant to be modified by others to manipulate the behaviour of the module (or whomever created
+                                //!< the property)
+}
+PROPERTY_PURPOSE;
+
+/**
  * Namespace containing all base types of the WPropertyVariables. Use these types instead of issuing int32_t, double, bool, ...
- * directly.
+ * directly. It also contains some user defined types including the needed operators.
  *
  * \note You can use only types which overwrite the << and >> operators!
  */
@@ -79,10 +95,39 @@ namespace WPVBaseTypes
     typedef bool                                            PV_BOOL;        //!< base type used for every WPVBool
     typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
     typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
-    typedef void*                                           PV_SELECTION;   //!< base type used for every WPVSelection
-    // typedef std::list< std::pair< std::string, bool > >     PV_SELECTION;   //!< base type used for every WPVSelection
+    typedef WItemSelector                                   PV_SELECTION;   //!< base type used for every WPVSelection
     typedef wmath::WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
+
+    /**
+     * Enum denoting the possible trigger states. It is used for trigger properties.
+     */
+    typedef enum
+    {
+        PV_TRIGGER_READY = 0,                                               //!< Trigger property: is ready to be triggered (again)
+        PV_TRIGGER_TRIGGERED                                                //!< Trigger property: got triggered
+    }
+                                                            PV_TRIGGER;     //!< base type used for every WPVTrigger
+
+    /**
+     * Write a PV_TRIGGER in string representation to the given output stream.
+     *
+     * \param out the output stream to print the value to
+     * \param c the trigger value to output
+     *
+     * \return the output stream extended by the trigger value.
+     */
+    std::ostream& operator<<( std::ostream& out, const PV_TRIGGER& c );
+
+    /**
+     * Write a PV_TRIGGER in string representation to the given input stream.
+     *
+     * \param in the input stream to read the value from
+     * \param c  set the value red to this
+     *
+     * \return the input stream.
+     */
+    std::istream& operator>>( std::istream& in, PV_TRIGGER& c );
 }
 
 /**
@@ -137,6 +182,11 @@ typedef WPropertyVariable< WPVBaseTypes::PV_POSITION > WPVPosition;
 typedef WPropertyVariable< WPVBaseTypes::PV_COLOR > WPVColor;
 
 /**
+ * Trigger properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_TRIGGER > WPVTrigger;
+
+/**
  * Some convenience type alias for a even more easy usage of WPropertyVariable.
  * These typdefs define some pointer alias.
  */
@@ -187,6 +237,11 @@ typedef boost::shared_ptr< WPVColor > WPropColor;
 typedef boost::shared_ptr< WPVGroup > WPropGroup;
 
 /**
+ * Alias for the trigger properties.
+ */
+typedef boost::shared_ptr< WPVTrigger > WPropTrigger;
+
+/**
  * This namespace contains several helper classes which translate their template type to an enum.
  */
 namespace PROPERTY_TYPE_HELPER
@@ -206,6 +261,28 @@ namespace PROPERTY_TYPE_HELPER
         PROPERTY_TYPE getType()
         {
             return PV_UNKNOWN;
+        }
+    };
+
+    /**
+     * Class helping to create a new instance of the property content from an old one. This might be needed by some types (some need to have a
+     * predecessor for creation).
+     * You only need to specialize this class for types not allowing the direct use of boost::lexical_cast.
+     */
+    template< typename T >
+    class WCreateFromString
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        T create( const T& /*old*/, const std::string str )
+        {
+            return boost::lexical_cast< T >( str );
         }
     };
 
@@ -318,6 +395,28 @@ namespace PROPERTY_TYPE_HELPER
     };
 
     /**
+     * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
+     * serializable content which needs to be acquired from its predecessor instance.
+     */
+    template<>
+    class WCreateFromString< WPVBaseTypes::PV_SELECTION >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param old the old value
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_SELECTION  create( const WPVBaseTypes::PV_SELECTION& old, const std::string str )
+        {
+            return old.newSelector( str );
+        }
+    };
+
+    /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
@@ -350,6 +449,24 @@ namespace PROPERTY_TYPE_HELPER
         PROPERTY_TYPE getType()
         {
             return PV_COLOR;
+        }
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_TRIGGER >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_TRIGGER;
         }
     };
 }

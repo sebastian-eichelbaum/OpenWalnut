@@ -85,9 +85,9 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_matrix( wmath::WMatrix<double>( mat ) ),
       m_matrixInverse( 3, 3 )
 {
-    assert( mat.getNbRows() == 4 && mat.getNbCols() == 4 );
+    WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Transformation matrix has wrong dimensions." );
     // only affine transformations are allowed
-    assert( mat( 3, 0 ) == 0.0 && mat( 3, 1 ) == 0.0 && mat( 3, 2 ) == 0.0 );
+    WAssert( mat( 3, 0 ) == 0.0 && mat( 3, 1 ) == 0.0 && mat( 3, 2 ) == 0.0, "Transf. matrix has to have no projection part." );
 
     m_origin = WPosition( mat( 0, 3 ) / mat( 3, 3 ), mat( 1, 3 ) / mat( 3, 3 ), mat( 2, 3 ) / mat( 3, 3 ) );
 
@@ -251,13 +251,13 @@ int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) c
         case 2 : nbAxisPos = m_nbPosZ;
                  offsetAxis = m_offsetZ;
                  break;
-        default : assert( 1 == 0 && "invalid axis selected, must be between 0 and 2, including 0 and 2" );
+        default : WAssert( false, "Invalid axis selected, must be between 0 and 2, including 0 and 2." );
     }
     if( result < 0 || result > offsetAxis * ( nbAxisPos - 1 ) )
     {
         return -1;
     }
-    assert( offsetAxis != 0.0 );
+    WAssert( offsetAxis != 0.0, "The offset in axis direction has to be non-zero for all grids." );
     int integerFactor = std::floor( result / offsetAxis );
     double remainder = result - integerFactor * offsetAxis;
     double x = integerFactor + std::floor( remainder / ( offsetAxis * 0.5 ) );
@@ -324,7 +324,7 @@ std::vector< size_t > WGridRegular3D::getCellVertexIds( size_t cellId ) const
     size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );
-    size_t minVertexIdX = minVertexIdY % ( m_nbPosX - 1 );
+    size_t minVertexIdX = remainderXY % ( m_nbPosX - 1 );
 
     size_t minVertexId = minVertexIdX + minVertexIdY * m_nbPosX + minVertexIdZ * m_nbPosX * m_nbPosY;
 
@@ -409,9 +409,26 @@ bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 
 std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
 {
-    WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
-    return std::make_pair( getOrigin(),
+    WAssert( isNotRotatedOrSheared(),
+             "The getBoundingBox() function is only feasible for grids that are only translated or scaled so far." );
+    std::pair< wmath::WPosition, wmath::WPosition > bb =  std::make_pair( getOrigin(),
                            getOrigin() + getDirectionX() * ( getNbCoordsX() - 1 )
                            + getDirectionY() * ( getNbCoordsY() - 1 )
                            + getDirectionZ() * ( getNbCoordsZ() - 1 )  );
+
+    // As scaling with negative can mean a switch of the coordinate directions
+    // we nee to check for the right ordering in the bounding box. For
+    // each coordinate where the minimum position has a larger value than
+    // the maximum position we need to exchange their values.
+    for( size_t i = 0; i < 3; i++ )
+    {
+        if( bb.first[i] > bb.second[i] )
+        {
+            double tmp = bb.first[i];
+            bb.first[i] = bb.second[i];
+            bb.second[i] = tmp;
+        }
+    }
+
+    return bb;
 }

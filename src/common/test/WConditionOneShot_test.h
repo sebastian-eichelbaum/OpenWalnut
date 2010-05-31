@@ -32,7 +32,7 @@
 
 #include "../WConditionOneShot.h"
 
-/** 
+/**
  * Helper class.
  */
 class Callable
@@ -62,7 +62,7 @@ public:
     };
 };
 
-/** 
+/**
  * Test WConditionOneShot
  */
 class WConditionOneShotTest : public CxxTest::TestSuite
@@ -80,7 +80,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( delete c );
     }
 
-    /** 
+    /**
      * Test whether notification is working.
      */
     void testWaitNotify()
@@ -100,6 +100,9 @@ public:
         c.wait();
 
         TS_ASSERT( t.flag );
+
+        // notifying twice should not cause exceptions (boost::lock_error)
+        TS_ASSERT_THROWS_NOTHING( c.notify() );
     }
 };
 

@@ -94,7 +94,7 @@ void WLogger::setLogFileName( std::string fileName )
 
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
-    if ( m_LogLevel > level || m_FinishRequested )
+    if ( m_LogLevel > level || m_shutdownFlag() )
     {
         return;
     }
@@ -158,7 +158,7 @@ void WLogger::threadMain()
   // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
 #ifndef DEBUG
     // Since the modules run in a separate thread: such loops are possible
-    while ( !m_FinishRequested )
+    while ( !m_shutdownFlag() )
     {
         processQueue();
         // do fancy stuff

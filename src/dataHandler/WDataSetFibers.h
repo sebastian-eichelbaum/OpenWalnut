@@ -34,6 +34,23 @@
 
 #include "WDataSet.h"
 
+/**
+ * converts an integer into a byte array and back
+ */
+union converterByteINT32
+{
+        unsigned char b[4]; //!< the bytes
+        int i; //!< the int
+};
+
+/**
+ * converts a float into a byte array and back
+ */
+union converterByteFloat
+{
+        unsigned char b[4]; //!< the bytes
+        float f; //!< the float
+};
 
 /**
  * Represents a simple set of WFibers.
@@ -44,10 +61,10 @@ public:
     /**
      * Constructs a new set of fibers, usage of WFiber here is for backward compatibility and should be removed
      *
-     * \param vertices
-     * \param lineStartIndexes
-     * \param lineLengths
-     * \param verticesReverse
+     * \param vertices the vertices of the fibers, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
+     * \param lineStartIndexes the index in which the fiber start (index of the 3D-vertex, not the index of the float in the vertices vector)
+     * \param lineLengths how many vertices belong to a fiber
+     * \param verticesReverse stores for each vertex the index of the corresponding fiber
      */
     WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
                     boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
@@ -147,6 +164,13 @@ public:
      */
     wmath::WPosition getTangent( size_t fiber, size_t vertex ) const;
 
+    /**
+     * saves the selected fiber bundles to a file
+     *
+     *\param filename
+     * \param active bitfield of the fiber selection
+     */
+    void saveSelected( std::string filename, boost::shared_ptr< std::vector< bool > > active ) const;
 protected:
 
     /**

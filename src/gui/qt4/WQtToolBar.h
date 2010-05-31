@@ -25,6 +25,8 @@
 #ifndef WQTTOOLBAR_H
 #define WQTTOOLBAR_H
 
+#include <list>
+
 #include <QtGui/QToolBar>
 
 #include "guiElements/WQtPushButton.h"
@@ -56,11 +58,26 @@ public:
     WQtPushButton* addPushButton( QString name, QIcon icon, QString label = 0 );
 
     /**
+     * Add a widget to the toolbar. This also stores the reference and removes it if clearButtons is called.
+     *
+     * \param widget the widget to add
+     *
+     * \return the corresponding action object
+     */
+    QAction* addWidget( QWidget* widget );
+
+    /**
      * Removes all buttons,
      */
     void clearButtons();
 
 protected:
+
+    /**
+     * The list of widgets in this toolbar.
+     */
+    std::list< QWidget* > m_widgets;
+
 private:
 };
 

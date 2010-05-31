@@ -69,7 +69,6 @@ WMainWindow::WMainWindow() :
     m_iconManager(),
     m_fibLoaded( false )
 {
-    setupGUI();
 }
 
 void WMainWindow::setupGUI()
@@ -80,6 +79,9 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
+    m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
+    m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
+    m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -87,15 +89,61 @@ void WMainWindow::setupGUI()
     }
     resize( 946, 632 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
-    setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut", 0, QApplication::UnicodeUTF8 ) );
+    setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
-    m_menuBar = new QMenuBar( 0 );
+    // the dataset browser instance is needed for the menu
+    m_datasetBrowser = new WQtDatasetBrowser( this );
+    m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
+    m_datasetBrowser->addSubject( "Default Subject" );
+
+    // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
+    // QKeySequence::StandardKey defaults and avoid ambiguities like Ctrl-C for the configure dialog is not the best choice as Ctrl-C, for the
+    // most users is the Copy shortcut.
+
+    m_menuBar = new QMenuBar( this );
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
-    fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load", this, SLOT( openLoadDialog() ), QKeySequence( "Ctrl+L" ) );
-    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( "Ctrl+Q" ) );
+    fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load Dataset", this, SLOT( openLoadDialog() ), QKeySequence(  QKeySequence::Open ) );
+    fileMenu->addSeparator();
+    fileMenu->addAction( "Load Project", this, SLOT( projectLoad() ) );
+    QMenu* saveMenu = fileMenu->addMenu( "Save" );
+    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
+    saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
+    saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
+    saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
+    fileMenu->addSeparator();
+    fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ) );
+    fileMenu->addSeparator();
+    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
+    //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
+    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
+
+    // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
+    // directly -> set shortcuts, and some further properties using QAction's interface
+    QMenu* viewMenu = m_menuBar->addMenu( "View" );
+
+    QAction* dsbTrigger = m_datasetBrowser->toggleViewAction();
+    QList< QKeySequence > dsbShortcut;
+    dsbShortcut.append( QKeySequence( Qt::Key_F9 ) );
+    dsbTrigger->setShortcuts( dsbShortcut );
+    viewMenu->addAction( dsbTrigger );
+    viewMenu->addSeparator();
+
+    // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
+    // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
+    // statistics ).
+    viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ),      QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
+    viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ),     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    viewMenu->addAction( "Inferior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    viewMenu->addAction( "Anterior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    viewMenu->addAction( "Posterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
-    helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ), QKeySequence( "F1" ) );
+    helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ),
+                         QKeySequence( QKeySequence::HelpContents )
+    );
+
     setMenuBar( m_menuBar );
 
     m_centralwidget = new QWidget( this );
@@ -150,17 +198,25 @@ void WMainWindow::setupGUI()
         {
             bgColor.setRGB( r, g, b );
             m_mainGLWidget->setBgColor( bgColor );
+
+            if ( m_navAxial )
+            {
+                m_navAxial->getGLWidget()->setBgColor( bgColor );
+            }
+            if ( m_navCoronal )
+            {
+                m_navCoronal->getGLWidget()->setBgColor( bgColor );
+            }
+            if ( m_navSagittal )
+            {
+                m_navSagittal->getGLWidget()->setBgColor( bgColor );
+            }
         }
     }
 
     setupPermanentToolBar();
 
     setupCompatiblesToolBar();
-
-    m_datasetBrowser = new WQtDatasetBrowser( this );
-    m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
-    m_datasetBrowser->addSubject( "Default Subject" );
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -178,10 +234,19 @@ void WMainWindow::setupPermanentToolBar()
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
+    // setup save button
+    QMenu* saveMenu = new QMenu( "Save Project", projectSaveButton );
+    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ) );
+    saveMenu->addAction( "Save Modules", this, SLOT( projectSaveModuleOnly() ) );
+    saveMenu->addAction( "Save Camera", this, SLOT( projectSaveCameraOnly() ) );
+    saveMenu->addAction( "Save ROIs", this, SLOT( projectSaveROIOnly() ) );
+    projectSaveButton->setPopupMode( QToolButton::MenuButtonPopup );
+    projectSaveButton->setMenu( saveMenu );
+
     connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
     connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
-    connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSave() ) );
+    connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
 
     loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
@@ -228,12 +293,12 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         boost::shared_ptr< WMData > dataModule = boost::shared_static_cast< WMData >( module );
 
         // grab data and identify type
-        if ( dataModule->getDataSet()->isA< WDataSetSingle >() )
+        if ( dataModule->getDataSet()->isA< WDataSetSingle >() && dataModule->getDataSet()->isTexture() )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
 
-            // if it already is running: add it
+            // if it not already is running: add it
             if ( !WMNavSlices::isRunning() )
             {
                 autoAdd( module, "Navigation Slices" );
@@ -242,7 +307,12 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         else if ( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {
             // it is a fiber dataset -> add the FiberDisplay module
-            autoAdd( module, "Fiber Display" );
+
+            // if it not already is running: add it
+            if ( !WMFiberDisplay::isRunning() )
+            {
+                autoAdd( module, "Fiber Display" );
+            }
         }
         else if ( dataModule->getDataSet()->isA< WEEG2 >() )
         {
@@ -362,6 +432,10 @@ void WMainWindow::setupCompatiblesToolBar()
         WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
         if( useToolBarBreak )
         {
+            // Blank toolbar for nicer layout in case of toolbar break
+            // This can be done nicer very probably.
+            WQtToolBar* blankToolBar = new WQtToolBar( "Blank Toolbar", this );
+            addToolBar( Qt::TopToolBarArea, blankToolBar );
             addToolBarBreak( Qt::TopToolBarArea );
         }
     }
@@ -379,11 +453,12 @@ WQtToolBar* WMainWindow::getCompatiblesToolBar()
     return m_compatiblesToolBar;
 }
 
-void WMainWindow::projectSave()
+void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
     QFileDialog fd;
     fd.setWindowTitle( "Save Project as" );
     fd.setFileMode( QFileDialog::AnyFile );
+    fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
     filters << "Project File (*.owproj)"
@@ -406,7 +481,14 @@ void WMainWindow::projectSave()
         try
         {
             // This call is synchronous.
-            proj->save();
+            if ( writer.empty() )
+            {
+                proj->save();
+            }
+            else
+            {
+                proj->save( writer );
+            }
         }
         catch( const std::exception& e )
         {
@@ -416,6 +498,34 @@ void WMainWindow::projectSave()
             QMessageBox::critical( this, title, message );
         }
     }
+}
+
+void WMainWindow::projectSaveAll()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    // an empty list equals "all"
+    projectSave( w );
+}
+
+void WMainWindow::projectSaveCameraOnly()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    w.push_back( WProjectFile::getCameraWriter() );
+    projectSave( w );
+}
+
+void WMainWindow::projectSaveROIOnly()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    w.push_back( WProjectFile::getROIWriter() );
+    projectSave( w );
+}
+
+void WMainWindow::projectSaveModuleOnly()
+{
+    std::vector< boost::shared_ptr< WProjectFileIO > > w;
+    w.push_back( WProjectFile::getModuleWriter() );
+    projectSave( w );
 }
 
 void WMainWindow::projectLoad()
@@ -515,6 +625,13 @@ void WMainWindow::openAboutDialog()
                         "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
                         "\n"
                         "Thank you for using OpenWalnut." );
+}
+
+void WMainWindow::openNotImplementedDialog()
+{
+    QMessageBox::information( this, "Not yet implemented!",
+                              "This functionality is planned for future versions of OpenWalnut. "
+                              "It is not yet implemented." );
 }
 
 boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
@@ -630,9 +747,14 @@ bool WMainWindow::event( QEvent* event )
         if ( e1 )
         {
             QString title = "Problem in module: " + QString::fromStdString( e1->getModule()->getName() );
-            QString message = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() ) +
-                              "<br/><b>Message:  </b>" + QString::fromStdString( e1->getMessage() );
-            QMessageBox::critical( this, title, message );
+            QString description = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() );
+
+            QString message = QString::fromStdString( e1->getMessage() );
+            QMessageBox msgBox;
+            msgBox.setText( description );
+            msgBox.setInformativeText( message  );
+            msgBox.setStandardButtons( QMessageBox::Ok );
+            msgBox.exec();
         }
     }
 
@@ -693,3 +815,16 @@ void WMainWindow::setFibersLoaded()
 {
     m_fibLoaded = true;
 }
+
+void WMainWindow::openConfigDialog()
+{
+    if ( m_configWidget.get() )
+    {
+        m_configWidget->wait( true );
+    }
+
+    m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
+
+    m_configWidget->initAndShow();
+}
+

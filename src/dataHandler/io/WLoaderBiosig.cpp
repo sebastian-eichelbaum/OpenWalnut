@@ -31,6 +31,7 @@
 #include "WLoaderBiosig.h"
 #include "../WEEG.h"
 #include "../WSubject.h"
+#include "../../common/WAssert.h"
 #include "../../common/WException.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStringUtils.h"
@@ -71,7 +72,7 @@ void WLoaderBiosig::fillSegmentRowBased( std::vector<std::vector<double> >* segm
 
 boost::shared_ptr< WDataSet > WLoaderBiosig::load()
 {
-    assert( m_fileName.substr( m_fileName.size() - 4 ) == ".edf" && "We expect only EDF so far." );
+    WAssert( m_fileName.substr( m_fileName.size() - 4 ) == ".edf", "We expect only EDF for the biosig loader so far." );
 
 #ifdef _MSC_VER
     hd =  biosig_sopen( m_fileName.c_str(), "r", 0 );

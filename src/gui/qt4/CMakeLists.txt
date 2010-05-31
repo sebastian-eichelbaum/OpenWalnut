@@ -12,6 +12,7 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 # add here all classes that inherit from QObject 
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
+	WQtConfigWidget.h
     WQtNavGLWidget.h
     guiElements/WQtPushButton.h
     guiElements/WQtApplyModulePushButton.h
@@ -22,6 +23,9 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WPropertyStringWidget.h
     datasetbrowser/WPropertyColorWidget.h
     datasetbrowser/WPropertyFilenameWidget.h
+    datasetbrowser/WPropertyTriggerWidget.h
+    datasetbrowser/WPropertySelectionWidget.h
+    datasetbrowser/WPropertyPositionWidget.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h
     datasetbrowser/WQtLineEdit.h

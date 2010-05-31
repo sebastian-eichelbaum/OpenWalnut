@@ -112,7 +112,6 @@ void WMHud::init()
     // Anything under this node will be viewed using this projection matrix
     // and positioned with this model view matrix.
     //root->addChild(HUDProjectionMatrix);
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_rootNode->addChild( HUDModelViewMatrix );
     // Add the Geometry node to contain HUD geometry as a child of the
     // HUD model view matrix.
@@ -172,7 +171,12 @@ void WMHud::init()
 
     m_osgPickText = osg::ref_ptr< osgText::Text >( new osgText::Text() );
 
-    HUDGeode->addDrawable( m_osgPickText );
+    //HUDGeode->addDrawable( m_osgPickText );
+    // this obviously caused a crash
+    // reason:
+    // the font is added to the scene, altough we got no costum updatecallback
+    // osg already starts drawing the node
+    // when setting the font, a variable is cleared which osg is already using -> crash
 
     m_osgPickText->setCharacterSize( 14 );
     m_osgPickText->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
@@ -184,6 +188,10 @@ void WMHud::init()
 
     m_rootNode->setUserData( this );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
+
+    HUDGeode->addDrawable( m_osgPickText );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     if ( m_active->get() )
     {
@@ -197,7 +205,8 @@ void WMHud::init()
     // connect updateGFX with picking
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     WAssert( viewer, "Requested viewer (main) not found." );
-    viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+    if (viewer->getPickHandler() )
+        viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 
 void WMHud::updatePickText( WPickInfo pickInfo )

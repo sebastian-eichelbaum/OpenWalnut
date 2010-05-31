@@ -65,6 +65,19 @@ public:
      */
     virtual void update();
 
+    /**
+     * select a certain texture in the texture sorter
+     * \param dataSet this data set will be selected after calling this method
+     */
+    void selectTexture( boost::shared_ptr< WDataSet > dataSet );
+
+signals:
+    /**
+     * Indicates that a texture has been clicked and return the dataset
+     * \param dataSet The dataSet that changed.
+     */
+    void textureSelectionChanged( boost::shared_ptr< WDataSet > dataSet );
+
 private:
     QListWidget* m_textureListWidget; //!< pointer to the tree widget
     QVBoxLayout* m_layout; //!< Layout of the widget
@@ -75,7 +88,7 @@ private:
     typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType; //!< Short for container we want to access b< WSharedSequenceContainer
     typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType; //!< The SharedContainer
     typedef DatasetSharedContainerType::WSharedAccess DatasetAccess; //!< Shorthand for the access handler.
-    DatasetSharedContainerType textures; //!< Local list of of the textures to sort.
+    DatasetSharedContainerType m_textures; //!< Local list of of the textures to sort.
 
     /**
      * This function returns whether the dataset lhs is above rhs in the texture sorter.
@@ -90,6 +103,11 @@ private:
     void sort();
 
 private slots:
+    /**
+     * Handles a click to a texture in the list
+     */
+    void handleTextureClicked();
+
     /**
      * change order of items, move currently selected item down
      */

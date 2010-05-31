@@ -56,16 +56,18 @@ public:
      * adds a new master ROI
      *
      * \param newRoi
+     * \return ROI representation which can be used to remove the ROI
      */
-    void addRoi( osg::ref_ptr< WROI > newRoi );
+    boost::shared_ptr< WRMROIRepresentation > addRoi( osg::ref_ptr< WROI > newRoi );
 
     /**
      * adds a new ROI below a master ROI
      *
      * \param newRoi
      * \param parentRoi
+     * \return ROI representation which can be used to remove the ROI
      */
-    void addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi );
+    boost::shared_ptr< WRMROIRepresentation > addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi );
 
     /**
      * removes a roi
@@ -135,11 +137,18 @@ public:
     bool isDirty();
 
     /**
-     * Add a specified notifier to the list of default notifiers which get connected to each added module.
+     * Add a specified notifier to the list of default notifiers which get connected to each added roi.
      *
      * \param notifier  the notifier function
      */
-    virtual void addDefaultNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier );
+    virtual void addAddNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier );
+
+    /**
+     * Add a specified notifier to the list of default notifiers which get connected to each removed roi.
+     *
+     * \param notifier  the notifier function
+     */
+    virtual void addRemoveNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier );
 
     /**
      * updates the bit fields
@@ -164,6 +173,17 @@ public:
      */
     void updateBundleColor( boost::shared_ptr<WRMBranch> branch, WColor color );
 
+    /**
+     * setter
+     * \param roi
+     */
+    void setSelectedRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+
+    /**
+     * getter
+     */
+    boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
+
 protected:
 private:
     bool m_dirty; //!< dirty flag
@@ -172,9 +192,9 @@ private:
 
     boost::shared_ptr< const WDataSetFibers >m_fibers; //!< registered fiber dataset
 
-    boost::shared_ptr< std::vector< bool > >m_bitField; //!< bit field of acteivated fibers
+    boost::shared_ptr< std::vector< bool > >m_bitField; //!< bit field of activated fibers
 
-    boost::shared_ptr< std::vector< bool > >m_bitField2; //!< bit field of acteivated fibers
+    boost::shared_ptr< std::vector< bool > >m_bitField2; //!< bit field of activated fibers
 
     std::list< boost::shared_ptr< WRMBranch > > m_branches; //!< list of branches in the logical tree structure
 
@@ -195,7 +215,12 @@ private:
     /**
      * The notifiers connected to added rois by default.
      */
-    std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > > m_notifiers;
+    std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > > m_addNotifiers;
+
+    /**
+     * The notifiers connected to removed rois by default.
+     */
+    std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > > m_removeNotifiers;
 
     /**
      * lock to prevent concurrent threads trying to update the branch
@@ -208,6 +233,8 @@ private:
     bool m_recalcLock;
 
     boost::shared_ptr< std::vector< float > >m_customColors; //!< vector to store custom colors
+
+    boost::shared_ptr< WRMROIRepresentation > m_selectedRoi; //!< stores a pointer to the currently selected roi
 };
 
 #endif  // WROIMANAGERFIBERS_H

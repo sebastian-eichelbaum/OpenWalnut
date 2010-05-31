@@ -27,11 +27,13 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning. Every one knowing the factory also knows this
+#include "../common/WSharedAssociativeContainer.h"
 #include "combiner/WApplyPrototypeCombiner.h"
 #include "WModule.h"
 
@@ -42,6 +44,31 @@ class WModuleFactory
 {
 friend class WModuleFactoryTest;
 public:
+
+    /**
+     * For shortening: a type defining a shared set of WModule pointers.
+     */
+    typedef std::set< boost::shared_ptr< WModule > > PrototypeContainerType;
+
+    /**
+     * Const iterator for the prototype set.
+     */
+    typedef std::set< boost::shared_ptr< WModule > >::const_iterator PrototypeContainerConstIteratorType;
+
+    /**
+     * Iterator for the prototype set.
+     */
+    typedef std::set< boost::shared_ptr< WModule > >::iterator PrototypeContainerIteratorType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedAssociativeContainer< PrototypeContainerType > PrototypeSharedContainerType;
+
+    /**
+     * Alias for the proper access object
+     */
+    typedef PrototypeSharedContainerType::WSharedAccess PrototypeAccess;
 
     /**
      * Default constructor.
@@ -119,9 +146,14 @@ public:
      *
      * \param module the module to find the compatibles for.
      *
+     * \note as the default parameter denotes, providing a NULL pointer (or calling the method without a parameter) returns the list of modules
+     * which are compatible to every other module. In other words, it returns all modules without input connectors.
+     *
      * \return set of compatible combiners.
      */
-    std::set< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes( boost::shared_ptr< WModule > module );
+    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes(
+            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >()
+    );
 
     /**
      * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is
@@ -131,19 +163,27 @@ public:
      */
     static void initializeModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * Get access to all the prototypes.
+     *
+     * \return the access object to thread safe iterate.
+     */
+    const PrototypeSharedContainerType::WSharedAccess getAvailablePrototypes() const;
+
 protected:
 
     /**
      * The module prototypes available.
      */
-    std::set< boost::shared_ptr< WModule > > m_prototypes;
+    PrototypeSharedContainerType m_prototypes;
 
     /**
      * The lock for the prototypes set.
      */
-    boost::shared_mutex m_prototypesLock;
+    PrototypeSharedContainerType::WSharedAccess m_prototypeAccess;
 
 private:
+
     /**
      * Singleton instance of WModuleFactory.
      */

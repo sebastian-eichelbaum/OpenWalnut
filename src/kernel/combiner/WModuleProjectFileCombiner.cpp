@@ -212,8 +212,16 @@ void WModuleProjectFileCombiner::apply()
         }
         else
         {
-            // set the property here
-            prop->setAsString( ( *iter ).second );
+            if ( prop->getPurpose() != PV_PURPOSE_INFORMATION )
+            {
+                // set the property here
+                prop->setAsString( ( *iter ).second );
+            }
+            else
+            {
+                wlog::error( "Project Loader" ) << "The module \"" << m->getName() << "\" has a property named \"" <<
+                         ( *iter ).first.second << "\" which is an INFORMATION property. Skipping.";
+            }
         }
     }
 
@@ -315,6 +323,11 @@ void printProperties( std::ostream& output, boost::shared_ptr< WProperties > pro
     // iterate of them and print them to output
     for ( WProperties::PropertyConstIterator iter = a->get().begin(); iter != a->get().end(); ++iter )
     {
+        // information properties do not get written
+        if ( ( *iter )->getPurpose () == PV_PURPOSE_INFORMATION )
+        {
+            continue;
+        }
         if ( ( *iter )->getType() != PV_GROUP )
         {
             output << indent + "    " << "PROPERTY:(" << module << "," << prefix + ( *iter )->getName() << ")="
@@ -349,7 +362,10 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
     // get a write access to avoid others to modify the container while project file is written.
     container->beginWrite();
 
-    output << "// Modules and Properties" << std::endl <<std::endl;
+    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              "// Modules and Properties" << std::endl <<
+              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              std::endl;
 
     // iterate all modules:
     unsigned int i = 0;
@@ -377,7 +393,11 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
     }
 
     // finally, process all connections for each module
-    output << "// Connections" << std::endl;
+    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              "// Connections" << std::endl <<
+              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              std::endl;
+
 
     // iterate over all modules
     for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
@@ -392,8 +412,10 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
             for ( std::set<boost::shared_ptr<WModuleConnector> >::const_iterator iciter = ( *citer )->m_connected.begin();
                   iciter != ( *citer )->m_connected.end(); ++iciter )
             {
+                // as the module is a weak_ptr -> lock and get access to it
+                boost::shared_ptr< WModule > theOtherModule = ( *iciter )->m_module.lock();
                 output << "CONNECTION:(" << moduleToIDMap[ ( *iter ) ] << "," << ( *citer )->getName() << ")->(" <<
-                                            moduleToIDMap[ ( *iciter )->m_module ] << "," << ( *iciter )->getName() << ")" << std::endl;
+                                            moduleToIDMap[ theOtherModule ] << "," << ( *iciter )->getName() << ")" << std::endl;
             }
             lock.unlock();
         }

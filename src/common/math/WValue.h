@@ -25,10 +25,10 @@
 #ifndef WVALUE_H
 #define WVALUE_H
 
-#include <cassert>
 #include <cmath>
 #include <vector>
 
+#include "../WAssert.h"
 #include "../WStringUtils.h"
 
 namespace wmath
@@ -78,7 +78,7 @@ public:
      */
     T& operator[]( size_t i )
     {
-        assert( i <  m_components.size() );
+        WAssert( i <  m_components.size(), "Index out of bounds." );
         return m_components[i];
     }
 
@@ -89,7 +89,7 @@ public:
      */
     const T& operator[]( size_t i ) const
     {
-        assert( i <  m_components.size() );
+        WAssert( i <  m_components.size(), "Index out of bounds." );
         return m_components[i];
     }
 
@@ -127,7 +127,7 @@ public:
      */
     WValue& operator+=( const WValue& rhs )
     {
-        assert( m_components.size() == rhs.m_components.size() );
+        WAssert( m_components.size() == rhs.m_components.size(), "Incompatible sizes of lhs and rhs of operator." );
         for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] += rhs.m_components[i];
         return *this;
@@ -139,7 +139,7 @@ public:
      */
     WValue& operator-=( const WValue& rhs )
     {
-        assert( m_components.size() == rhs.m_components.size() );
+        WAssert( m_components.size() == rhs.m_components.size(), "Incompatible sizes of lhs and rhs of operator." );
         for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] -= rhs.m_components[i];
         return *this;
@@ -163,7 +163,7 @@ public:
      */
     WValue& operator*=( const WValue& rhs )
     {
-        assert( m_components.size() == rhs.m_components.size() );
+        WAssert( m_components.size() == rhs.m_components.size(), "Incompatible sizes of lhs and rhs of operator." );
         for( unsigned int i = 0; i < m_components.size(); ++i )
             m_components[i] *= rhs.m_components[i];
         return *this;
@@ -187,7 +187,7 @@ public:
      */
     const WValue operator+( const WValue& summand2 ) const
     {
-        assert( m_components.size() == summand2.m_components.size() );
+        WAssert( m_components.size() == summand2.m_components.size(), "Incompatible sizes of summands." );
         WValue result( *this );
         result += summand2;
         return result;
@@ -199,7 +199,7 @@ public:
      */
     const WValue operator-( const WValue& subtrahend ) const
     {
-        assert( m_components.size() == subtrahend.m_components.size() );
+        WAssert( m_components.size() == subtrahend.m_components.size(), "Incompatible sizes of subtrahend and minuend." );
         WValue result( *this );
         result -= subtrahend;
         return result;
@@ -211,7 +211,7 @@ public:
      */
     const WValue operator*( const WValue& factor2 ) const
     {
-        assert( m_components.size() == factor2.m_components.size() );
+        WAssert( m_components.size() == factor2.m_components.size(), "Incompatible sizes of factors." );
         WValue result( *this );
         result *= factor2;
         return result;
@@ -257,7 +257,7 @@ public:
         double currentNorm = norm();
         for( unsigned int i = 0; i < m_components.size(); ++i )
         {
-            assert( currentNorm > 0.0 );
+            WAssert( currentNorm > 0.0, "Norm is non-positive!" );
             m_components[i] /= currentNorm;
         }
     }

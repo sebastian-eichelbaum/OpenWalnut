@@ -28,6 +28,9 @@
 #include <boost/thread.hpp>
 
 #include "WCondition.h"
+#include "WSharedObjectTicket.h"
+#include "WSharedObjectTicketRead.h"
+#include "WSharedObjectTicketWrite.h"
 
 /**
  * Wrapper around an object/type for thread safe sharing of objects among multiple threads. The advantage of this class over WFlag
@@ -76,7 +79,7 @@ public:
         /**
          * Desctructor.
          */
-        ~WSharedObjectAccess();
+        virtual ~WSharedObjectAccess();
 
         /**
          * Gets the contained, and protected object.
@@ -150,6 +153,32 @@ public:
      * \return the access object which allows thread safe access to the object.
      */
     WSharedAccess getAccessObject();
+
+    /**
+     * Type for read tickets.
+     */
+    typedef boost::shared_ptr< WSharedObjectTicketRead< T > > ReadTicket;
+
+    /**
+     * Type for write tickets.
+     */
+    typedef boost::shared_ptr< WSharedObjectTicketWrite< T > > WriteTicket;
+
+    /**
+     * Returns a ticket to get read access to the contained data. After the ticket is freed, the read lock vanishes.
+     *
+     * \return the read ticket
+     */
+    ReadTicket getReadTicket();
+
+    /**
+     * Returns a ticket to get write access to the contained data. After the ticket is freed, the write lock vanishes.
+     *
+     * \param suppressNotify true if no notification should be send after unlocking.
+     *
+     * \return the ticket
+     */
+    WriteTicket getWriteTicket( bool suppressNotify = false );
 
     /**
      * This condition fires whenever the encapsulated object changed. This is fired automatically by endWrite().
@@ -263,6 +292,31 @@ template < typename T >
 boost::shared_ptr< WCondition > WSharedObject< T >::getChangeCondition()
 {
     return m_changeCondition;
+}
+
+template < typename T >
+typename WSharedObject< T >::ReadTicket WSharedObject< T >::getReadTicket()
+{
+    return boost::shared_ptr< WSharedObjectTicketRead< T > >(
+            new WSharedObjectTicketRead< T >( m_object, m_lock, boost::shared_ptr< WCondition >() )
+    );
+}
+
+template < typename T >
+typename WSharedObject< T >::WriteTicket WSharedObject< T >::getWriteTicket( bool suppressNotify )
+{
+    if ( suppressNotify )
+    {
+        return boost::shared_ptr< WSharedObjectTicketWrite< T > >(
+                new WSharedObjectTicketWrite< T >( m_object, m_lock, boost::shared_ptr< WCondition >() )
+        );
+    }
+    else
+    {
+        return boost::shared_ptr< WSharedObjectTicketWrite< T > >(
+                new WSharedObjectTicketWrite< T >( m_object, m_lock, m_changeCondition )
+        );
+    }
 }
 
 #endif  // WSHAREDOBJECT_H

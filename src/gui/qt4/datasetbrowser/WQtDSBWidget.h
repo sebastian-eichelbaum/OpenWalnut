@@ -36,6 +36,9 @@
 #include "WPropertyDoubleWidget.h"
 #include "WPropertyColorWidget.h"
 #include "WPropertyFilenameWidget.h"
+#include "WPropertyTriggerWidget.h"
+#include "WPropertySelectionWidget.h"
+#include "WPropertyPositionWidget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -58,6 +61,13 @@ public:
      * destructor
      */
     virtual ~WQtDSBWidget();
+
+    /**
+     * True if there are no widgets inside.
+     *
+     * \return true if number of widgets is 0.
+     */
+    bool isEmpty() const;
 
     /**
      * helper function to add a generic button
@@ -117,7 +127,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    //WPropertySelectionWidget* addProp( WPropSelection property );
+    WPropertySelectionWidget* addProp( WPropSelection property );
 
     /**
      * Adds a new position property to the DSB.
@@ -126,7 +136,7 @@ public:
      *
      * \return the widget that has been added.
      */
-    //WPropertyPositionWidget* addProp( WPropPosition property );
+    WPropertyPositionWidget* addProp( WPropPosition property );
 
     /**
      * Adds a new color property to the DSB.
@@ -138,11 +148,21 @@ public:
     WPropertyColorWidget* addProp( WPropColor property );
 
     /**
+     * Adds a new trigger property to the DSB.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    WPropertyTriggerWidget* addProp( WPropTrigger property );
+
+    /**
      * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.
      *
      * \param widget the widget
+     * \param asScrollArea true if the group should be embedded into a scroll area
      */
-    void addGroup( WQtDSBWidget* widget );
+    void addGroup( WQtDSBWidget* widget, bool asScrollArea = false );
 
     /**
      * helper function to add a spacer at the end
@@ -172,12 +192,17 @@ private:
     /**
      * Layout used for each "widget combination".
      */
-    QGridLayout m_controlLayout;
+    QGridLayout *m_controlLayout;
 
     /**
      * Layout used for the whole widget.
      */
-    QVBoxLayout m_pageLayout;
+    QVBoxLayout *m_pageLayout;
+
+    /**
+     * The number of widgets inside this one.
+     */
+    unsigned int m_numberOfWidgets;
 };
 
 #endif  // WQTDSBWIDGET_H

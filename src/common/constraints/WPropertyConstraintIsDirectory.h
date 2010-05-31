@@ -41,7 +41,7 @@ public:
     /**
      * Constructor.
      */
-    explicit WPropertyConstraintIsDirectory();
+    WPropertyConstraintIsDirectory();
 
     /**
      * Destructor.
@@ -64,6 +64,13 @@ public:
      * \return the type
      */
     virtual PROPERTYCONSTRAINT_TYPE getType();
+
+    /**
+     * Method to clone the constraint and create a new one with the correct dynamic type.
+     *
+     * \return the constraint.
+     */
+    virtual boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > clone();
 
 private:
 };
@@ -89,6 +96,13 @@ PROPERTYCONSTRAINT_TYPE WPropertyConstraintIsDirectory< T >::getType()
 {
     return PC_ISDIRECTORY;
 }
+
+template < typename T >
+boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > WPropertyConstraintIsDirectory< T >::clone()
+{
+    return boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint >( new WPropertyConstraintIsDirectory< T >( *this ) );
+}
+
 
 #endif  // WPROPERTYCONSTRAINTISDIRECTORY_H
 

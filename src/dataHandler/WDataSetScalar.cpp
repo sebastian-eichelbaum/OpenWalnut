@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "../common/WAssert.h"
 #include "../common/WLimits.h"
 #include "WDataSetSingle.h"
@@ -99,3 +102,62 @@ boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
     return m_prototype;
 }
 
+double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+
+    WAssert( grid, "This data set has a grid whose type is not yet supported for interpolation." );
+    WAssert( grid->isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
+    WAssert( ( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ),
+             "Only implemented for scalar values so far." );
+
+    *success = grid->encloses( pos );
+
+    if( !*success )
+    {
+        return 0;
+    }
+
+    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
+
+    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+
+    double lambdaX = localPos[0] / grid->getOffsetX();
+    double lambdaY = localPos[1] / grid->getOffsetY();
+    double lambdaZ = localPos[2] / grid->getOffsetZ();
+    std::vector< double > h( 8 );
+//         lZ     lY
+//         |      /
+//         | 6___/_7
+//         |/:    /|
+//         4_:___5 |
+//         | :...|.|
+//         |.2   | 3
+//         |_____|/ ____lX
+//        0      1
+    h[0] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+    h[1] = (     lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+    h[2] = ( 1 - lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+    h[3] = (     lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+    h[4] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+    h[5] = (     lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+    h[6] = ( 1 - lambdaX ) * (     lambdaY ) * (     lambdaZ );
+    h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
+
+    double result = 0;
+    for( size_t i = 0; i < 8; ++i )
+    {
+        result += h[i] * WDataSetSingle::getValueAt( vertexIds[i] );
+    }
+
+    *success = true;
+    return result;
+}
+
+double WDataSetScalar::getValueAt( int x, int y, int z )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+
+    return WDataSetSingle::getValueAt( id );
+}

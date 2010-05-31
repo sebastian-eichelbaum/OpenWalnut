@@ -38,33 +38,38 @@ WColor::WColor( float red, float green, float blue, float alpha )
     m_alpha( alpha )
 {
     // check if the given values are correct in range
-    assert( m_green <= 1.0 && m_green >= 0.0 && "WColor comopnent out of range" );
-    assert( m_blue <= 1.0 && m_blue >= 0.0 && "WColor comopnent out of range" );
-    assert( m_red <= 1.0 && m_red >= 0.0 && "WColor comopnent out of range" );
-    assert( m_alpha <= 1.0 && m_alpha >= 0.0 && "WColor comopnent out of range" );
+// TODO(lmath): reenable asserts to WAsserts as soon as LIC module doesn't procude invalid colors
+//    assert( m_green <= 1.0 && m_green >= 0.0 && "WColor comopnent out of range" );
+//    assert( m_blue <= 1.0 && m_blue >= 0.0 && "WColor comopnent out of range" );
+//    assert( m_red <= 1.0 && m_red >= 0.0 && "WColor comopnent out of range" );
+//    assert( m_alpha <= 1.0 && m_alpha >= 0.0 && "WColor comopnent out of range" );
 }
 
 void WColor::setGreen( float green )
 {
-    assert( green <= 1.0 && green >= 0.0 );
+// TODO(lmath): reenable asserts to WAsserts as soon as LIC module doesn't procude invalid colors
+//    assert( green <= 1.0 && green >= 0.0 );
     m_green = green;
 }
 
 void WColor::setBlue( float blue )
 {
-    assert( blue <= 1.0 && blue >= 0.0 );
+// TODO(lmath): reenable asserts to WAsserts as soon as LIC module doesn't procude invalid colors
+//    assert( blue <= 1.0 && blue >= 0.0 );
     m_blue = blue;
 }
 
 void WColor::setRed( float red )
 {
-    assert( red <= 1.0 && red >= 0.0 );
+// TODO(lmath): reenable asserts to WAsserts as soon as LIC module doesn't procude invalid colors
+//    assert( red <= 1.0 && red >= 0.0 );
     m_red = red;
 }
 
 void WColor::setAlpha( float alpha )
 {
-    assert( alpha <= 1.0 && alpha >= 0.0 );
+// TODO(lmath): reenable asserts to WAsserts as soon as LIC module doesn't procude invalid colors
+//    assert( alpha <= 1.0 && alpha >= 0.0 );
     m_alpha = alpha;
 }
 

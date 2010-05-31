@@ -35,6 +35,7 @@
 #include "../../dataHandler/WDataSet.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WPickInfo.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.h"
@@ -128,6 +129,11 @@ private:
     void updateGeometry();
 
     /**
+    * updates the matrix for each slice View, so the slices are drawn centered
+    */
+    void updateViewportMatrix();
+
+    /**
      *  updates textures and shader parameters
      */
     void updateTextures();
@@ -136,6 +142,14 @@ private:
      * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
      */
     void notifyTextureChange();
+
+    /**
+     * Computes the bounding box from the loaded textures an sets min/max of the slice positions
+     */
+    void setMaxMinFromBoundingBox();
+
+
+    std::pair< wmath::WPosition, wmath::WPosition > m_bb; //!< bounding box of textures.
 
     /**
      * True when textures have changed.
@@ -188,6 +202,11 @@ private:
     WPropBool m_showSagittal;
 
     /**
+     * The current position as information property.
+     */
+    WPropPosition m_currentPosition;
+
+    /**
      * initial create method
      */
     void create();
@@ -203,6 +222,12 @@ private:
      * \param slice ID of the slice to be drawn. 0=y, 1=x, 2=z
      */
     osg::ref_ptr<osg::Geometry> createGeometry( int slice );
+
+    /**
+    * creates the geometry for the cross
+    * \param slice ID of the slice to be drawn. 0=y, 1=x, 2=z
+    */
+    osg::ref_ptr<osg::Geometry> createCrossGeometry( int slice );
 
     /**
      * creates and initializes the uniform parameters for the shader
@@ -223,6 +248,11 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
+    * the root node for the slices
+    */
+    osg::ref_ptr< WGEGroupNode > m_slicesNode;
+
+    /**
      * nodes for each slice, to be reused in other widgets
      */
     osg::ref_ptr<osg::Geode> m_xSliceNode;
@@ -236,6 +266,21 @@ private:
      * nodes for each slice, to be reused in other widgets
      */
     osg::ref_ptr<osg::Geode> m_zSliceNode;
+
+    /**
+    * nodes for each cross, to be reused in other widgets
+    */
+    osg::ref_ptr<osg::Geode> m_xCrossNode;
+
+    /**
+    * nodes for each cross, to be reused in other widgets
+    */
+    osg::ref_ptr<osg::Geode> m_yCrossNode;
+
+    /**
+    * nodes for each cross, to be reused in other widgets
+    */
+    osg::ref_ptr<osg::Geode> m_zCrossNode;
 
     /**
      * the shader object for this module
@@ -281,6 +326,8 @@ private:
      */
     static bool m_navsliceRunning;
 
+    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
+
     /**
      * Node callback to handle updates properly
      */
@@ -299,8 +346,8 @@ private:
 
             if ( module )
             {
-                module->updateGeometry();
-                module->updateTextures();
+                module->updateGeometry(); // Keep this order. The update routines depend on it.
+                module->updateTextures(); // Keep this order. The update routines depend on it.
             }
             traverse( node, nv );
         }

@@ -25,6 +25,9 @@
 #ifndef WLIMITS_H
 #define WLIMITS_H
 
+#include <stdint.h> // since <cstdint> is part of c++0x upcoming standard
+
+#include <cstddef>
 #include <limits>
 
 /**
@@ -59,15 +62,13 @@ namespace wlimits
      */
     const unsigned int MAX_RECORDING_SAMPLING_FREQUENCY = 20000;
 
-    /**
-     * Maximum double value
-     */
-    const double MAX_DOUBLE = std::numeric_limits< double >::max();
+    const double MAX_DOUBLE = std::numeric_limits< double >::max(); //!< Maximum double value
 
-    /**
-     * Minimum double value
-     */
-    const double MIN_DOUBLE = std::numeric_limits< double >::min();
+    const size_t MAX_SIZE_T = std::numeric_limits< size_t >::max(); //!< Maximum size value
+
+    const int32_t MAX_INT32_T = std::numeric_limits< int32_t >::max(); //!< Maximum int32_t value
+
+    const double MIN_DOUBLE = std::numeric_limits< double >::min(); //!< Minimum double value
 
     /**
      * Smallest double such: 1.0 + DBL_EPS == 1.0 is still true.

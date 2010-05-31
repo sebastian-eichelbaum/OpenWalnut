@@ -46,9 +46,13 @@
 #include "WQt4Gui.h"
 #include "events/WModuleAssocEvent.h"
 #include "events/WRoiAssocEvent.h"
+#include "events/WRoiRemoveEvent.h"
 #include "events/WModuleReadyEvent.h"
+#include "events/WModuleRemovedEvent.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
+
+WMainWindow* WQt4Gui::m_mainWindow = NULL;
 
 WQt4Gui::WQt4Gui( int argc, char** argv )
     : WGUI( argc, argv )
@@ -103,6 +107,11 @@ void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException
     QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent( module, exception.what() ) );
 }
 
+WMainWindow* WQt4Gui::getMainWindow()
+{
+    return m_mainWindow;
+}
+
 int WQt4Gui::run()
 {
     bool parsingSuccessful = parseOptions();
@@ -134,6 +143,7 @@ int WQt4Gui::run()
 
     // create the window
     m_mainWindow = new WMainWindow();
+    m_mainWindow->setupGUI();
     m_mainWindow->show();
 
     // connect out loader signal with kernel
@@ -147,12 +157,25 @@ int WQt4Gui::run()
     WDataHandler::getDefaultSubject()->getListChangeCondition()->subscribeSignal( newDatasetSignal );
 
     // bind the GUI's slot with the ready signal
+
+    // Assoc Event
     t_ModuleGenericSignalHandlerType assocSignal = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToBrowser, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ASSOCIATED, assocSignal );
+
+    // Ready Event
     t_ModuleGenericSignalHandlerType readySignal = boost::bind( &WQt4Gui::slotActivateDatasetOrModuleInBrowser, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_READY, readySignal );
-    boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > assocRoiSignal = boost::bind( &WQt4Gui::slotAddRoiToBrowser, this, _1 );
-    m_kernel->getRoiManager()->addDefaultNotifier( assocRoiSignal );
+
+    // Remove Event
+    t_ModuleGenericSignalHandlerType removedSignal = boost::bind( &WQt4Gui::slotRemoveDatasetOrModuleInBrowser, this, _1 );
+    m_kernel->getRootContainer()->addDefaultNotifier( WM_REMOVED, removedSignal );
+
+    boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > assocRoiSignal =
+            boost::bind( &WQt4Gui::slotAddRoiToBrowser, this, _1 );
+    m_kernel->getRoiManager()->addAddNotifier( assocRoiSignal );
+    boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > removeRoiSignal =
+            boost::bind( &WQt4Gui::slotRemoveRoiFromBrowser, this, _1 );
+    m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
     // now we are initialized
     m_isInitialized( true );
@@ -243,11 +266,22 @@ void WQt4Gui::slotAddRoiToBrowser( boost::shared_ptr< WRMROIRepresentation > roi
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WRoiAssocEvent( roi ) );
 }
 
+void WQt4Gui::slotRemoveRoiFromBrowser( boost::shared_ptr< WRMROIRepresentation > roi )
+{
+    QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WRoiRemoveEvent( roi ) );
+}
+
 void WQt4Gui::slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleReadyEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
+}
+
+void WQt4Gui::slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module )
+{
+    // create a new event for this and insert it into event queue
+    QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleRemovedEvent( module ) );
 }
 
 boost::shared_ptr< WModule > WQt4Gui::getSelectedModule()

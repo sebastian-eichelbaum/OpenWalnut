@@ -177,14 +177,19 @@ protected:
     WPropBool m_interpolation;
 
     /**
-     * which color map to use?
+     * A list of color map selection types
      */
-    WPropInt m_colorMap;
+    boost::shared_ptr< WItemSelection > m_colorMapSelectionsList;
+
+    /**
+     * Selection property for color map
+     */
+    WPropSelection m_colorMapSelection;
 
     /**
      * Threshold value for this data.
      */
-    WPropInt m_threshold;
+    WPropDouble m_threshold;
 
     /**
      * Opacity value for this data.

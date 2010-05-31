@@ -26,15 +26,16 @@
 #include <string>
 #include <vector>
 
-#include "WRMBranch.h"
+#include "../../dataHandler/WDataSetScalar.h"
 
-#include "WROIManagerFibers.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../graphicsEngine/WROIBox.h"
+#include "../../graphicsEngine/WROIArbitrary.h"
+
+#include "WRMBranch.h"
+#include "WROIManagerFibers.h"
 
 #include "WRMROIRepresentation.h"
-
-
 
 WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch  ) :
     m_roi( roi ),
@@ -44,8 +45,17 @@ WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::sha
     setDirty();
     m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
     m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMROIRepresentation::slotToggleNot, this ) );
+    m_threshold = m_properties->addProperty( "Threshold", "description", 0., boost::bind( &WRMROIRepresentation::slotChangeThreshold, this ) );
+    m_threshold->setHidden( true );
     m_isActive = m_properties->addProperty( "active", "description", true, boost::bind( &WRMROIRepresentation::slotToggleNot, this ) );
     m_isActive->setHidden( true );
+
+    if ( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get() )
+    {
+        m_threshold->set( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get()->getThreshold() );
+        m_threshold->setHidden( false );
+        m_threshold->setMax( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get()->getMaxThreshold() );
+    }
 }
 
 WRMROIRepresentation::~WRMROIRepresentation()
@@ -76,10 +86,6 @@ void WRMROIRepresentation::addBitField( size_t size )
 
 void WRMROIRepresentation::recalculate()
 {
-//    boost::shared_lock<boost::shared_mutex> slock;
-//    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
-    //std::cout << "roi recalc" << std::endl;
     m_currentBitfield = m_bitField;
     size_t size = m_currentBitfield->size();
     m_currentBitfield->clear();
@@ -89,30 +95,55 @@ void WRMROIRepresentation::recalculate()
     m_currentReverse = m_branch->getRoiManager()->getDataSet()->getVerticesReverse();
     m_kdTree = m_branch->getRoiManager()->getKdTree();
 
-    m_boxMin.resize( 3 );
-    m_boxMax.resize( 3 );
+    if ( osg::dynamic_pointer_cast<WROIBox>( m_roi ).get() )
+    {
+        //std::cout << "roi recalc" << std::endl;
+        m_boxMin.resize( 3 );
+        m_boxMax.resize( 3 );
 
-    osg::ref_ptr<WROIBox> box = osg::static_pointer_cast<WROIBox>( m_roi );
+        osg::ref_ptr<WROIBox> box = osg::dynamic_pointer_cast<WROIBox>( m_roi );
 
-    m_boxMin[0] = box->getMinPos()[0];
-    m_boxMax[0] = box->getMaxPos()[0];
-    m_boxMin[1] = box->getMinPos()[1];
-    m_boxMax[1] = box->getMaxPos()[1];
-    m_boxMin[2] = box->getMinPos()[2];
-    m_boxMax[2] = box->getMaxPos()[2];
+        m_boxMin[0] = box->getMinPos()[0];
+        m_boxMax[0] = box->getMaxPos()[0];
+        m_boxMin[1] = box->getMinPos()[1];
+        m_boxMax[1] = box->getMaxPos()[1];
+        m_boxMin[2] = box->getMinPos()[2];
+        m_boxMax[2] = box->getMaxPos()[2];
 
-    boxTest( 0, m_currentArray->size() / 3 - 1, 0 );
+        boxTest( 0, m_currentArray->size() / 3 - 1, 0 );
+    }
 
-//    int counter = 0;
-//    for (int i = 0 ; i < m_currentBitfield->size() ; ++i)
-//    {
-//        if ( m_currentBitfield->at(i) )
-//            ++counter;
-//    }
-//    std::cout << "active fibers:" << counter << std::endl;
+    if ( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get() )
+    {
+        osg::ref_ptr<WROIArbitrary>roi = osg::dynamic_pointer_cast<WROIArbitrary>( m_roi );
+
+        float threshold = static_cast<float>( roi->getThreshold() );
+
+        size_t nx = roi->getCoordDimensions()[0];
+        size_t ny = roi->getCoordDimensions()[1];
+
+        double dx = roi->getCoordOffsets()[0];
+        double dy = roi->getCoordOffsets()[1];
+        double dz = roi->getCoordOffsets()[2];
+
+        for ( size_t i = 0; i < m_currentArray->size()/3; ++i )
+        {
+            //int x = wxMin( nx - 1, wxMax(0, (int)m_pointArray[i * 3 ])) / dx;
+            //int y = wxMin( ny - 1, wxMax(0, (int)m_pointArray[i * 3 + 1])) / dy;
+            //int z = wxMin( nz - 1, wxMax(0, (int)m_pointArray[i * 3 + 2])) / dz;
+
+            size_t x = static_cast<size_t>( ( *m_currentArray )[i * 3 ] / dx );
+            size_t y = static_cast<size_t>( ( *m_currentArray )[i * 3 + 1] / dy );
+            size_t z = static_cast<size_t>( ( *m_currentArray )[i * 3 + 2] / dz );
+            int index = x + y * nx + z * nx * ny;
+
+            if ( static_cast<float>( roi->getValue( index ) ) - threshold > 0.1 )
+            {
+                ( *m_currentBitfield )[getLineForPoint( i )] = 1;
+            }
+        }
+    }
     m_dirty = false;
-
-    //slock.unlock();
 }
 
 void WRMROIRepresentation::boxTest( int left, int right, int axis )
@@ -125,22 +156,22 @@ void WRMROIRepresentation::boxTest( int left, int right, int axis )
     int axis1 = ( axis + 1 ) % 3;
     int pointIndex = m_kdTree->m_tree[root] * 3;
 
-    if ( m_currentArray->at( pointIndex + axis ) < m_boxMin[axis] )
+    if ( ( *m_currentArray )[pointIndex + axis]  < m_boxMin[axis] )
     {
         boxTest( root + 1, right, axis1 );
     }
-    else if ( m_currentArray->at( pointIndex + axis ) > m_boxMax[axis] )
+    else if ( ( *m_currentArray )[pointIndex + axis] > m_boxMax[axis] )
     {
         boxTest( left, root - 1, axis1 );
     }
     else
     {
         int axis2 = ( axis + 2 ) % 3;
-        if ( m_currentArray->at( pointIndex + axis1 ) <= m_boxMax[axis1] && m_currentArray->at( pointIndex + axis1 )
-                >= m_boxMin[axis1] && m_currentArray->at( pointIndex + axis2 ) <= m_boxMax[axis2]
-                && m_currentArray->at( pointIndex + axis2 ) >= m_boxMin[axis2] )
+        if ( ( *m_currentArray )[pointIndex + axis1] <= m_boxMax[axis1] && ( *m_currentArray )[pointIndex + axis1]
+                >= m_boxMin[axis1] && ( *m_currentArray )[pointIndex + axis2] <= m_boxMax[axis2]
+                && ( *m_currentArray )[pointIndex + axis2] >= m_boxMin[axis2] )
         {
-            m_currentBitfield->at( getLineForPoint( m_kdTree->m_tree[root] ) ) = 1;
+            ( *m_currentBitfield )[getLineForPoint( m_kdTree->m_tree[root] )] = 1;
         }
         boxTest( left, root - 1, axis1 );
         boxTest( root + 1, right, axis1 );
@@ -149,7 +180,7 @@ void WRMROIRepresentation::boxTest( int left, int right, int axis )
 
 size_t WRMROIRepresentation::getLineForPoint( size_t point )
 {
-    return m_currentReverse->at( point );
+    return ( *m_currentReverse )[point];
 }
 
 bool WRMROIRepresentation::isDirty()
@@ -176,10 +207,18 @@ void WRMROIRepresentation::slotToggleNot()
     {
         m_roi->setNodeMask( 0x0 );
     }
-
-
     setDirty();
 }
+
+void WRMROIRepresentation::slotChangeThreshold()
+{
+    if ( osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get() )
+    {
+        osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get()->setThreshold( m_threshold->get() );
+        setDirty();
+    }
+}
+
 
 boost::shared_ptr< WProperties > WRMROIRepresentation::getProperties()
 {

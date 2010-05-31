@@ -38,44 +38,10 @@ WQtTreeWidget::~WQtTreeWidget()
 {
 }
 
-void WQtTreeWidget::moveTreeItemDown()
+void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
 {
-    QTreeWidgetItem *parent = currentItem()->parent();
-    int index;
-
-    if ( parent )
-    {
-        index = parent->indexOfChild( currentItem() );
-        if ( index < parent->childCount() - 1 )
-        {
-            WQtSubjectTreeItem* subject = reinterpret_cast<WQtSubjectTreeItem*>( topLevelItem( 1 ) );
-            WQtDatasetTreeItem* ci =  reinterpret_cast<WQtDatasetTreeItem*>( parent->takeChild( index ) );
-            subject->insertChild( index + 1, ci );
-            clearSelection();
-            setCurrentItem( ci );
-            ci->setSelected( true );
-        }
-    }
-}
-
-void WQtTreeWidget::moveTreeItemUp()
-{
-    QTreeWidgetItem *parent = currentItem()->parent();
-    int index;
-
-    if ( parent )
-    {
-        index = parent->indexOfChild( currentItem() );
-        if ( index > 0 )
-        {
-            WQtSubjectTreeItem* subject = reinterpret_cast<WQtSubjectTreeItem*>( topLevelItem( 1 ) );
-            WQtDatasetTreeItem* ci =  reinterpret_cast<WQtDatasetTreeItem*>( parent->takeChild( index ) );
-            subject->insertChild( index - 1, ci );
-            clearSelection();
-            setCurrentItem( ci );
-            ci->setSelected( true );
-        }
-    }
+//     takeTopLevelItem ( indexOfTopLevelItem( item  ) );
+    delete item;
 }
 
 //void WQtTreeWidget::keyPressEvent(QKeyEvent *e)

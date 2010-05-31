@@ -27,6 +27,7 @@
 
 #include <list>
 #include <set>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -107,11 +108,22 @@ public:
     virtual void add( boost::shared_ptr< WModule > module, bool run = true );
 
     /**
-     * Remove the given module from this container if it is associated with it. TODO(ebaum): deep removal? flat removal?
+     * Remove the given module from this container if it is associated with it. It only provides flat removal. It does not remove depending
+     * modules. Please be aware that this method does NOT stop the module. It just removes it from the container. If you release the shared
+     * pointer after removing from the container, the instance gets freed although it still might run. To also wait for the module to quit, use
+     * module->wait( true ).
      *
      * \param module the module to remove.
      */
     virtual void remove( boost::shared_ptr< WModule > module );
+
+    /**
+     * As \ref remove, it removes the module from the container. In contrast to \ref remove, it also removes all the depending modules from the
+     * container.
+     *
+     * \param module the module which should be removed including all depending modules
+     */
+    virtual void removeDeep( boost::shared_ptr< WModule > module );
 
     /**
      * Stops all modules inside this container. Note that this function could take some time, since it waits until the last module
@@ -299,6 +311,16 @@ protected:
     std::list< t_ModuleGenericSignalHandlerType > m_associatedNotifiers;
 
     /**
+     * Lock for remove-notifiers set.
+     */
+    boost::shared_mutex m_removedNotifiersLock;
+
+    /**
+     * The notifiers connected to added modules by default and fired whenever the module got removed again.
+     */
+    std::list< t_ModuleGenericSignalHandlerType > m_removedNotifiers;
+
+    /**
      * Set of all threads that currently depend upon this container.
      */
     std::set< boost::shared_ptr< WThreadedRunner > > m_pendingThreads;
@@ -325,6 +347,48 @@ protected:
     bool m_crashIfModuleCrashes;
 
 private:
+
+    // the following typedefs are for convenience; to help accessing the container in a thread safe way.
+
+    /**
+     * A type for mapping a module to all its subscriptions
+     */
+    typedef std::pair< boost::shared_ptr< WModule >, boost::signals2::connection > ModuleSubscription;
+
+    /**
+     * For shortening: a type defining a shared vector of subscriptions a module made to a notifier during add().
+     */
+    typedef std::multimap< boost::shared_ptr< WModule >, boost::signals2::connection > ModuleSubscriptionsType;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedObject< ModuleSubscriptionsType > ModuleSubscriptionsSharedType;
+
+    /**
+     * The access type
+     */
+    typedef ModuleSubscriptionsSharedType::WSharedAccess ModuleSubscriptionsAccessType;
+
+    /**
+     * The const iterator type of the container.
+     */
+    typedef ModuleSubscriptionsType::const_iterator ModuleSubscriptionsConstIterator;
+
+    /**
+     * The iterator type of the container.
+     */
+    typedef ModuleSubscriptionsType::iterator ModuleSubscriptionsIterator;
+
+    /**
+     * The module's signal subscriptions.
+     */
+    ModuleSubscriptionsSharedType m_moduleSubscriptions;
+
+    /**
+     * Access to the above module subscriptions map.
+     */
+    ModuleSubscriptionsAccessType m_moduleSubscriptionsAccess;
 };
 
 #endif  // WMODULECONTAINER_H

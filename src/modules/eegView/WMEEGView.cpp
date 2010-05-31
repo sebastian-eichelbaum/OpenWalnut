@@ -35,7 +35,9 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
+#include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
 #include "WElectrodePositionCallback.h"
 #include "WHeadSurfaceCallback.h"
@@ -50,7 +52,8 @@
 WMEEGView::WMEEGView()
     : WModule(),
       m_dataChanged( new WCondition, true ),
-      m_wasActive( false )
+      m_wasActive( false ),
+      m_currentEventTime( -1.0 )
 {
 }
 
@@ -172,7 +175,7 @@ void WMEEGView::moduleMain()
 
     // create WFlag for the event
     m_event = boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > >( new WFlag< boost::shared_ptr< WEEGEvent > >(
-            new WCondition, boost::shared_ptr< WEEGEvent >() ) );
+            m_propCondition, boost::shared_ptr< WEEGEvent >() ) );
 
     {
         // create color map
@@ -275,6 +278,33 @@ void WMEEGView::moduleMain()
             }
         }
 
+        // event position changed?
+        boost::shared_ptr< WEEGEvent > event = m_event->get();
+        if( event && event->getTime() != m_currentEventTime )
+        {
+            debugLog() << "New event position: " << event->getTime();
+
+            if( boost::shared_ptr< WRMROIRepresentation > roi = m_roi.lock() )
+            {
+                WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
+            }
+
+            if( WKernel::getRunningKernel()->getRoiManager()->getBitField() && m_sourceCalculator )
+            {
+                wmath::WPosition position = m_sourceCalculator->calculate( event );
+
+                m_roi = WKernel::getRunningKernel()->getRoiManager()->addRoi( new WROIBox(
+                            position - wmath::WVector3D( 5.0, 5.0, 5.0 ),
+                            position + wmath::WVector3D( 5.0, 5.0, 5.0 ) ) );
+            }
+            else
+            {
+                m_roi.reset();
+            }
+
+            m_currentEventTime = event->getTime();
+        }
+
         // "active" property changed?
         bool isActive = m_active->get();
         if( isActive != m_wasActive )
@@ -289,7 +319,6 @@ void WMEEGView::moduleMain()
                 if( !openCustomWidget() )
                 {
                     // Shut down module if widget could not be opened.
-                    m_FinishRequested = true;
                     m_shutdownFlag.set( true );
                 }
             }
@@ -537,6 +566,9 @@ void WMEEGView::redraw()
 
             m_widget->getViewer()->getView()->addEventHandler( m_handler );
         }
+
+        // create new source calculator
+        m_sourceCalculator = boost::shared_ptr< WEEGSourceCalculator >( new WEEGSourceCalculator( m_eeg ) );
     }
     else
     {
@@ -547,6 +579,8 @@ void WMEEGView::redraw()
         m_electrodesNode = NULL;
         m_headSurfaceNode = NULL;
         m_labelsNode = NULL;
+
+        m_sourceCalculator.reset();
     }
 }
 

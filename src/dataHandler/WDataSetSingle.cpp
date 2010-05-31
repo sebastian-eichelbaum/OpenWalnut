@@ -28,6 +28,7 @@
 #include "WDataTexture3D.h"
 #include "WValueSet.h"
 #include "WGrid.h"
+#include "../common/WAssert.h"
 #include "../common/WPrototyped.h"
 #include "../common/WException.h"
 
@@ -40,9 +41,10 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
                                 boost::shared_ptr< WGrid > newGrid )
     : WDataSet()
 {
-    assert( newValueSet );
-    assert( newGrid );
-    assert( newValueSet->size() == newGrid->size() );
+    WAssert( newValueSet, "Need a value set for new data set." );
+    WAssert( newGrid, "Need a grid for new data set." );
+    WAssert( newValueSet->size() == newGrid->size(),
+             "Number of grid position unequal number of values in value set." );
 
     m_valueSet = newValueSet;
     m_grid = newGrid;
@@ -51,8 +53,8 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
 
 WDataSetSingle::WDataSetSingle()
     : WDataSet(),
-    m_valueSet(),
     m_grid(),
+    m_valueSet(),
     m_texture3D()
 {
     // default constructor used by the prototype mechanism
@@ -129,70 +131,8 @@ double WDataSetSingle::getValueAt( size_t id )
             return static_cast< double >( boost::shared_dynamic_cast< WValueSet< double > >( getValueSet() )->getScalar( id ) );
         }
         default:
-            assert( false && "Unknow data type in dataset." );
+            WAssert( false, "Unknow data type in dataset." );
     }
 
-    return 0.0;
-}
-
-double WDataSetSingle::getValueAt( int x, int y, int z )
-{
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
-
-    return getValueAt( id );
-}
-
-double WDataSetSingle::interpolate( wmath::WPosition pos )
-{
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-
-    // TODO(wiebel): change this to eassert.
-    if( !grid )
-    {
-        throw WException( std::string(  "This data set has a grid whose type is not yet supported for interpolation." ) );
-    }
-    // TODO(wiebel): change this to eassert.
-    if( grid->getTransformationMatrix() != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
-    {
-        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
-    }
-    // TODO(wiebel): change this to eassert.
-    if( !( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ) )
-    {
-        throw WException( std::string( "Only implemented for scalar values so far." ) );
-    }
-
-    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
-
-    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
-
-    double lambdaX = localPos[0] / grid->getOffsetX();
-    double lambdaY = localPos[1] / grid->getOffsetY();
-    double lambdaZ = localPos[2] / grid->getOffsetZ();
-    std::vector< double > h( 8 );
-//         lZ     lY
-//         |      /
-//         | 6___/_7
-//         |/:    /|
-//         4_:___5 |
-//         | :...|.|
-//         |.2   | 3
-//         |_____|/ ____lX
-//        0      1
-    h[0] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
-    h[1] = (     lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
-    h[2] = ( 1 - lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
-    h[3] = (     lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
-    h[4] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
-    h[5] = (     lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
-    h[6] = ( 1 - lambdaX ) * (     lambdaY ) * (     lambdaZ );
-    h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
-
-    double result = 0;
-    for( size_t i = 0; i < 8; ++i )
-    {
-        result += h[i] * getValueAt( vertexIds[i] );
-    }
-    return result;
+    return 0.0; // should not be reached. Just there to quiet compiler.
 }

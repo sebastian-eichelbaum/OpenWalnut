@@ -34,12 +34,14 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Group>
+#include <osg/LineWidth>
 
 #include "../../common/WAssert.h"
 #include "../../common/math/WVector3D.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
@@ -133,6 +135,10 @@ void WMNavSlices::properties()
     m_axialPos->setHidden();
     m_coronalPos->setHidden();
     m_sagittalPos->setHidden();
+
+    // Print some nice output: the current nav slice position
+    m_currentPosition = m_infoProperties->addProperty( "Position", "Current position of the navigation slices.",
+            wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -157,6 +163,26 @@ void WMNavSlices::moduleMain()
     WAssert( m_viewer, "Requested viewer not found." );
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
 
+    m_viewer = ge->getViewerByName( "axial" );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
+
+    m_viewer = ge->getViewerByName( "sagittal" );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
+
+    m_viewer = ge->getViewerByName( "coronal" );
+    if( m_viewer )
+    {
+        m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
+    }
+
+    m_viewer = ge->getViewerByName( "main" );
+
     // signal ready state
     ready();
 
@@ -164,6 +190,11 @@ void WMNavSlices::moduleMain()
     boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
             boost::bind( &WMNavSlices::notifyTextureChange, this )
     );
+
+    setMaxMinFromBoundingBox();
+    m_sagittalPos->set( 0.5 * ( m_bb.first[0] + m_bb.second[0] ) );
+    m_coronalPos->set( 0.5 * (  m_bb.first[1] + m_bb.second[1] ) );
+    m_axialPos->set( 0.5 * (  m_bb.first[2] + m_bb.second[2] ) );
 
     create();
 
@@ -178,21 +209,24 @@ void WMNavSlices::moduleMain()
     if( viewer )
     {
         viewer->getScene()->remove( m_zSliceNode );
+        viewer->getScene()->remove( m_zCrossNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
     if( viewer )
     {
-        viewer->getScene()->remove( m_ySliceNode );
+        viewer->getScene()->remove( m_xSliceNode );
+        viewer->getScene()->remove( m_xCrossNode );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
     if( viewer )
     {
-        viewer->getScene()->remove( m_xSliceNode );
+        viewer->getScene()->remove( m_ySliceNode );
+        viewer->getScene()->remove( m_yCrossNode );
     }
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_slicesNode );
 
     // deregister from WSubject's change condition
     con.disconnect();
@@ -201,70 +235,205 @@ void WMNavSlices::moduleMain()
 void WMNavSlices::create()
 {
     m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+    m_rootNode->setDataVariance( osg::Object::DYNAMIC );
+    m_slicesNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+    m_slicesNode->setDataVariance( osg::Object::DYNAMIC );
 
     m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_xSliceNode->setDataVariance( osg::Object::DYNAMIC );
     m_xSliceNode->setName( "Sagittal Slice" );
     m_ySliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_ySliceNode->setDataVariance( osg::Object::DYNAMIC );
     m_ySliceNode->setName( "Coronal Slice" );
     m_zSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_zSliceNode->setDataVariance( osg::Object::DYNAMIC );
     m_zSliceNode->setName( "Axial Slice" );
 
     m_xSliceNode->addDrawable( createGeometry( 0 ) );
     m_ySliceNode->addDrawable( createGeometry( 1 ) );
     m_zSliceNode->addDrawable( createGeometry( 2 ) );
 
-    m_rootNode->insert( m_xSliceNode );
-    m_rootNode->insert( m_ySliceNode );
-    m_rootNode->insert( m_zSliceNode );
+    m_xCrossNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_yCrossNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_zCrossNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    m_xCrossNode->setDataVariance( osg::Object::DYNAMIC );
+    m_yCrossNode->setDataVariance( osg::Object::DYNAMIC );
+    m_zCrossNode->setDataVariance( osg::Object::DYNAMIC );
+    m_xCrossNode->addDrawable( createCrossGeometry( 0 ) );
+    m_yCrossNode->addDrawable( createCrossGeometry( 1 ) );
+    m_zCrossNode->addDrawable( createCrossGeometry( 2 ) );
 
-    m_shader->apply( m_rootNode );
+    m_rootNode->insert( m_xCrossNode );
+    m_rootNode->insert( m_yCrossNode );
+    m_rootNode->insert( m_zCrossNode );
+
+    m_rootNode->insert( m_slicesNode );
+
+    m_slicesNode->insert( m_xSliceNode );
+    m_slicesNode->insert( m_ySliceNode );
+    m_slicesNode->insert( m_zSliceNode );
+
+    m_shader->apply( m_slicesNode );
     m_shader->apply( m_xSliceNode );
     m_shader->apply( m_ySliceNode );
     m_shader->apply( m_zSliceNode );
 
-    osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
+    osg::StateSet* rootState = m_slicesNode->getOrCreateStateSet();
     initUniforms( rootState );
 
     rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     m_rootNode->setUserData( this );
+    m_slicesNode->setUserData( this );
     m_xSliceNode->setUserData( this );
     m_ySliceNode->setUserData( this );
     m_zSliceNode->setUserData( this );
-    m_rootNode->addUpdateCallback( new sliceNodeCallback );
+    m_xCrossNode->setUserData( this );
+    m_yCrossNode->setUserData( this );
+    m_zCrossNode->setUserData( this );
+    m_slicesNode->addUpdateCallback( new sliceNodeCallback );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_slicesNode );
 
     // Please, please always check for NULL
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
     if( viewer )
     {
         viewer->getScene()->insert( m_zSliceNode );
+        viewer->getScene()->insert( m_zCrossNode );
+        viewer->setCameraManipulator( 0 );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
     if( viewer )
     {
         viewer->getScene()->insert( m_xSliceNode );
+        viewer->getScene()->insert( m_xCrossNode );
+        viewer->setCameraManipulator( 0 );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
     if( viewer )
     {
         viewer->getScene()->insert( m_ySliceNode );
-    }
-}
-
-namespace //anonymous name space
-{
-    osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
-    {
-        return osg::Vec3( v[0], v[1], v[2] );
+        viewer->getScene()->insert( m_yCrossNode );
+        viewer->setCameraManipulator( 0 );
     }
 }
 
 void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
 {
+    // handle the pick information on the slice views
+    if ( pickInfo.getViewerName() != "main" && pickInfo.getViewerName() != "" )
+    {
+        osg::ref_ptr< osg::Viewport > port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getCamera()->getViewport();
+        float axialWidgetWidth = port->width();
+        float axialWidgetHeight = port->height();
+
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getCamera()->getViewport();
+        float sagittalWidgetWidth = port->width();
+        float sagittalWidgetHeight = port->height();
+
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getCamera()->getViewport();
+        float coronalWidgetWidth = port->width();
+        float coronalWidgetHeight = port->height();
+
+        // this uses fixed windows size of 150x150 pixel
+        boost::unique_lock< boost::shared_mutex > lock;
+        lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
+        float x = pickInfo.getPickPixelPosition().first;
+        float y = pickInfo.getPickPixelPosition().second;
+        float xPos;
+        float yPos;
+        float width;
+        float height;
+        float left, top;
+        // z slice
+        if ( pickInfo.getViewerName() == "axial" )
+        {
+            width = m_bb.second[0] - m_bb.first[0];
+            height = m_bb.second[1] - m_bb.first[1];
+            left = m_bb.first[0];
+            top = m_bb.first[1];
+
+            if ( width > height )
+            {
+                xPos = ( x / axialWidgetWidth ) * width + left;
+                yPos = ( y / axialWidgetHeight ) * width - ( width - height ) / 2 + top;
+            }
+            else
+            {
+                xPos = ( x / axialWidgetWidth ) * height - ( height - width ) / 2 + left;
+                yPos = ( y / axialWidgetHeight ) * height + top;
+            }
+            xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
+            xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;
+            yPos = yPos < m_bb.first[1] ? m_bb.first[1] : yPos;
+            yPos = yPos > m_bb.second[1] ? m_bb.second[1] : yPos;
+
+            m_sagittalPos->set( xPos );
+            m_coronalPos->set( yPos );
+        }
+
+        // x slice
+        if ( pickInfo.getViewerName() == "sagittal" )
+        {
+            width = m_bb.second[1] - m_bb.first[1];
+            height = m_bb.second[2] - m_bb.first[2];
+            left = m_bb.first[1];
+            top = m_bb.first[2];
+
+            if ( width > height )
+            {
+                xPos = ( x / sagittalWidgetWidth ) * width + left;
+                yPos = ( y / sagittalWidgetHeight ) * width - ( width - height ) / 2 + top;
+            }
+            else
+            {
+                xPos = ( x / sagittalWidgetWidth ) * height - ( height - width ) / 2 + left;
+                yPos = ( y / sagittalWidgetHeight ) * height + top;
+            }
+            xPos = m_bb.second[1] - xPos + left;
+            xPos = xPos < m_bb.first[1] ? m_bb.first[1] : xPos;
+            xPos = xPos > m_bb.second[1] ? m_bb.second[1] : xPos;
+            yPos = yPos < m_bb.first[2] ? m_bb.first[2] : yPos;
+            yPos = yPos > m_bb.second[2] ? m_bb.second[2] : yPos;
+
+            m_coronalPos->set( xPos );
+            m_axialPos->set( yPos );
+        }
+
+        // y slice
+        if ( pickInfo.getViewerName() == "coronal" )
+        {
+            width = m_bb.second[0] - m_bb.first[0];
+            height = m_bb.second[2] - m_bb.first[2];
+            left = m_bb.first[0];
+            top = m_bb.first[2];
+
+            if ( width > height )
+            {
+                xPos = ( x / coronalWidgetWidth ) * width + left;
+                yPos = ( y / coronalWidgetHeight ) * width - ( width - height ) / 2 + top;
+            }
+            else
+            {
+                xPos = ( x / coronalWidgetWidth ) * height - ( height - width ) / 2 + left;
+                yPos = ( y / coronalWidgetHeight ) * height + top;
+            }
+            xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
+            xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;
+            yPos = yPos < m_bb.first[2] ? m_bb.first[2] : yPos;
+            yPos = yPos > m_bb.second[2] ? m_bb.second[2] : yPos;
+
+            m_sagittalPos->set( xPos );
+            m_axialPos->set( yPos );
+        }
+
+        return;
+    }
+
     if ( pickInfo.getName() == "Axial Slice"
          ||  pickInfo.getName() == "Coronal Slice"
          ||  pickInfo.getName() == "Sagittal Slice" )
@@ -284,7 +453,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
             osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
 
             osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
-            float diff = wv3D2ov3( normal ) * moveDirWorld;
+            float diff = wge::wv3D2ov3( normal ) * moveDirWorld;
 
             // recognize also small values.
             if( diff < 0 && diff > -1 )
@@ -336,14 +505,44 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
     }
 }
 
+void WMNavSlices::setMaxMinFromBoundingBox()
+{
+    // grab a list of data textures
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+
+    if ( tex.size() > 0 )
+    {
+        std::pair< wmath::WPosition, wmath::WPosition > bb = tex[0]->getGrid()->getBoundingBox();
+
+        for( size_t i = 1; i < tex.size(); ++i )
+        {
+            std::pair< wmath::WPosition, wmath::WPosition > bbTmp = tex[i]->getGrid()->getBoundingBox();
+            bb.first[0] = bb.first[0] < bbTmp.first[0] ? bb.first[0] : bbTmp.first[0];
+            bb.first[1] = bb.first[1] < bbTmp.first[1] ? bb.first[1] : bbTmp.first[1];
+            bb.first[2] = bb.first[2] < bbTmp.first[2] ? bb.first[2] : bbTmp.first[2];
+            bb.second[0] = bb.second[0] > bbTmp.second[0] ? bb.second[0] : bbTmp.second[0];
+            bb.second[1] = bb.second[1] > bbTmp.second[1] ? bb.second[1] : bbTmp.second[1];
+            bb.second[2] = bb.second[2] > bbTmp.second[2] ? bb.second[2] : bbTmp.second[2];
+        }
+
+        m_bb = bb;
+
+        m_sagittalPos->setMin( bb.first[0] );
+        m_sagittalPos->setMax( bb.second[0] );
+        m_coronalPos->setMin( bb.first[1] );
+        m_coronalPos->setMax( bb.second[1] );
+        m_axialPos->setMin( bb.first[2] );
+        m_axialPos->setMax( bb.second[2] );
+    }
+}
+
 osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 {
     const size_t nbVerts = 4;
-    float maxDim = 255.0;
 
-    float xSlice = static_cast< float >( m_sagittalPos->get() );
-    float ySlice = static_cast< float >( m_coronalPos->get() );
-    float zSlice = static_cast< float >( m_axialPos->get() );
+    float xSlice = static_cast< float >( m_sagittalPos->get( true ) );
+    float ySlice = static_cast< float >( m_coronalPos->get( true ) );
+    float zSlice = static_cast< float >( m_axialPos->get( true ) );
 
     float xPos = xSlice + 0.5f;
     float yPos = ySlice + 0.5f;
@@ -356,20 +555,23 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
+
     if ( tex.size() > 0 )
     {
+        setMaxMinFromBoundingBox();
+
         switch ( slice )
         {
             case 0:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( xPos, 0,      0      ) );
-                vertices.push_back( wmath::WPosition( xPos, 0,      maxDim ) );
-                vertices.push_back( wmath::WPosition( xPos, maxDim, maxDim ) );
-                vertices.push_back( wmath::WPosition( xPos, maxDim, 0      ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.first[1],  m_bb.first[2]   ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.first[1],  m_bb.second[2]  ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.second[1], m_bb.second[2]  ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.second[1], m_bb.first[2]   ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
                 }
 
                 sliceGeometry->setVertexArray( sliceVertices );
@@ -382,23 +584,24 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
                 }
+
                 break;
             }
             case 1:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( 0,      yPos, 0      ) );
-                vertices.push_back( wmath::WPosition( maxDim, yPos, 0      ) );
-                vertices.push_back( wmath::WPosition( maxDim, yPos, maxDim ) );
-                vertices.push_back( wmath::WPosition( 0,      yPos, maxDim ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],  yPos, m_bb.first[2]  ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0], yPos, m_bb.first[2]  ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0], yPos, m_bb.second[2] ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],  yPos, m_bb.second[2] ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
                 }
                 sliceGeometry->setVertexArray( sliceVertices );
 
@@ -410,7 +613,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -420,13 +623,13 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             case 2:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition(      0,      0, zPos      ) );
-                vertices.push_back( wmath::WPosition(      0, maxDim, zPos      ) );
-                vertices.push_back( wmath::WPosition( maxDim, maxDim, zPos      ) );
-                vertices.push_back( wmath::WPosition( maxDim,      0, zPos      ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],  m_bb.first[1],  zPos ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],  m_bb.second[1], zPos ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0], m_bb.second[1], zPos ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0], m_bb.first[1],  zPos ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
                 }
 
                 sliceGeometry->setVertexArray( sliceVertices );
@@ -440,7 +643,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -462,21 +665,127 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     return sliceGeometry;
 }
 
+osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
+{
+    float xSlice = static_cast< float >( m_sagittalPos->get( true ) );
+    float ySlice = static_cast< float >( m_coronalPos->get( true ) );
+    float zSlice = static_cast< float >( m_axialPos->get( true ) );
+
+    float xPos = xSlice + 0.5f;
+    float yPos = ySlice + 0.5f;
+    float zPos = zSlice + 0.5f;
+
+    osg::ref_ptr<osg::Geometry> geometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
+
+    osg::Vec3Array* crossVertices = new osg::Vec3Array;
+    osg::Vec3Array* colorArray = new osg::Vec3Array;
+
+    float minx = m_bb.first[0];
+    float miny = m_bb.first[1];
+    float minz = m_bb.first[2];
+    float maxx = m_bb.second[0];
+    float maxy = m_bb.second[1];
+    float maxz = m_bb.second[2];
+
+    std::vector< wmath::WPosition > vertices;
+
+    switch ( slice )
+    {
+    case 0:
+        {
+            vertices.push_back( wmath::WPosition( xPos - 0.5f, miny, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos - 0.5f, maxy, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos - 0.5f, yPos, minz ) );
+            vertices.push_back( wmath::WPosition( xPos - 0.5f, yPos, maxz ) );
+            break;
+        }
+    case 1:
+        {
+            vertices.push_back( wmath::WPosition( minx, yPos - 0.5f, zPos ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos - 0.5f, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos - 0.5f, minz ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos - 0.5f, maxz ) );
+            break;
+        }
+    case 2:
+        {
+            vertices.push_back( wmath::WPosition( minx, yPos, zPos + 0.5f ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos, zPos + 0.5f ) );
+            vertices.push_back( wmath::WPosition( xPos, miny, zPos + 0.5f ) );
+            vertices.push_back( wmath::WPosition( xPos, maxy, zPos + 0.5f ) );
+            break;
+        }
+    }
+
+    for( size_t i = 0; i < 4; ++i )
+    {
+        crossVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+    }
+
+    colorArray->push_back( osg::Vec3( 1.0f, 0.0f, 0.0f ) );
+
+    geometry->setColorArray( colorArray );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    geometry->setVertexArray( crossVertices );
+
+    unsigned int rawIndexData[] = { 0, 1, 2, 3 }; // NOLINT
+    std::vector< unsigned int > indexData( rawIndexData, rawIndexData + sizeof( rawIndexData ) / sizeof( unsigned int ) );
+    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, indexData.begin(), indexData.end() );
+
+    geometry->addPrimitiveSet( lines );
+
+    // disable light for this geode as lines can't be lit properly
+    osg::StateSet* state = geometry->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+    state->setMode( GL_BLEND, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    osg::LineWidth* linewidth = new osg::LineWidth();
+    linewidth->setWidth( 1.1f );
+    state->setAttributeAndModes( linewidth, osg::StateAttribute::ON );
+
+    return geometry;
+}
+
 void WMNavSlices::updateGeometry()
 {
     boost::shared_lock<boost::shared_mutex> slock;
     slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
 
-    osg::ref_ptr<osg::Geometry> xSliceGeometry = createGeometry( 0 );
-    osg::ref_ptr<osg::Geometry> ySliceGeometry = createGeometry( 1 );
-    osg::ref_ptr<osg::Geometry> zSliceGeometry = createGeometry( 2 );
+    if ( m_textureChanged // Depends on call order of update routines in callback.
+         || m_sagittalPos->changed()
+         || m_coronalPos->changed()
+         || m_axialPos->changed()
+        )
+    {
+        // update the information property
+        m_currentPosition->set( wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 
-    osg::ref_ptr<osg::Drawable> oldx = osg::ref_ptr<osg::Drawable>( m_xSliceNode->getDrawable( 0 ) );
-    m_xSliceNode->replaceDrawable( oldx, xSliceGeometry );
-    osg::ref_ptr<osg::Drawable> oldy = osg::ref_ptr<osg::Drawable>( m_ySliceNode->getDrawable( 0 ) );
-    m_ySliceNode->replaceDrawable( oldy, ySliceGeometry );
-    osg::ref_ptr<osg::Drawable> oldz = osg::ref_ptr<osg::Drawable>( m_zSliceNode->getDrawable( 0 ) );
-    m_zSliceNode->replaceDrawable( oldz, zSliceGeometry );
+        // if the texture got changed we want to rearange the scene Matrix for the SliceViewports to be centered
+        updateViewportMatrix();
+
+        osg::ref_ptr<osg::Geometry> xSliceGeometry = createGeometry( 0 );
+        osg::ref_ptr<osg::Geometry> ySliceGeometry = createGeometry( 1 );
+        osg::ref_ptr<osg::Geometry> zSliceGeometry = createGeometry( 2 );
+
+        osg::ref_ptr<osg::Drawable> oldx = osg::ref_ptr<osg::Drawable>( m_xSliceNode->getDrawable( 0 ) );
+        m_xSliceNode->replaceDrawable( oldx, xSliceGeometry );
+        osg::ref_ptr<osg::Drawable> oldy = osg::ref_ptr<osg::Drawable>( m_ySliceNode->getDrawable( 0 ) );
+        m_ySliceNode->replaceDrawable( oldy, ySliceGeometry );
+        osg::ref_ptr<osg::Drawable> oldz = osg::ref_ptr<osg::Drawable>( m_zSliceNode->getDrawable( 0 ) );
+        m_zSliceNode->replaceDrawable( oldz, zSliceGeometry );
+
+        osg::ref_ptr<osg::Geometry> xCrossGeometry = createCrossGeometry( 0 );
+        osg::ref_ptr<osg::Geometry> yCrossGeometry = createCrossGeometry( 1 );
+        osg::ref_ptr<osg::Geometry> zCrossGeometry = createCrossGeometry( 2 );
+
+        osg::ref_ptr<osg::Drawable> oldcx = osg::ref_ptr<osg::Drawable>( m_xCrossNode->getDrawable( 0 ) );
+        m_xCrossNode->replaceDrawable( oldcx, xCrossGeometry );
+        osg::ref_ptr<osg::Drawable> oldcy = osg::ref_ptr<osg::Drawable>( m_yCrossNode->getDrawable( 0 ) );
+        m_yCrossNode->replaceDrawable( oldcy, yCrossGeometry );
+        osg::ref_ptr<osg::Drawable> oldcz = osg::ref_ptr<osg::Drawable>( m_zCrossNode->getDrawable( 0 ) );
+        m_zCrossNode->replaceDrawable( oldcz, zCrossGeometry );
+    }
 
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
     bool noSlices = ( tex.size() == 0 ) || !m_active->get();
@@ -514,7 +823,7 @@ void WMNavSlices::updateGeometry()
 
 void WMNavSlices::updateTextures()
 {
-    osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
+    osg::StateSet* rootState = m_slicesNode->getOrCreateStateSet();
     if ( m_textureChanged )
     {
         m_textureChanged = false;
@@ -525,7 +834,7 @@ void WMNavSlices::updateTextures()
         if ( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < 10; ++i )
+            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -549,7 +858,9 @@ void WMNavSlices::updateTextures()
                 rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms
-                float t = ( *iter )->getThreshold() / 255.0;
+                float minValue = ( *iter )->getMinValue();
+                float maxValue = ( *iter )->getMaxValue();
+                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
                 float a = ( *iter )->getAlpha();
                 int cmap = ( *iter )->getSelectedColormap();
 
@@ -559,12 +870,11 @@ void WMNavSlices::updateTextures()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
+                if( c == m_maxNumberOfTextures )
+                {
+                    break;
+                }
             }
-
-            // TODO(schurade): used? Not used? Replace by new Property please
-            // rootState->addUniform( osg::ref_ptr<osg::Uniform>(
-            //            new osg::Uniform( "useTexture", m_properties->getValue< bool >( "Use Texture" ) ) )
-            // );
         }
     }
 
@@ -637,7 +947,7 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < 10; ++i )
+    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
@@ -656,3 +966,133 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
 
     slock.unlock();
 }
+
+void WMNavSlices::updateViewportMatrix()
+{
+    setMaxMinFromBoundingBox();
+    double aspectR;
+    double top, left, width, height;
+    double scale;
+    boost::shared_ptr< WGEViewer > viewer;
+    osg::ref_ptr< WGEGroupNode > currentScene;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    if( viewer )
+    {
+        currentScene = viewer->getScene();
+        aspectR = viewer->getCamera()->getViewport()->aspectRatio();
+
+        left = m_bb.first[0];
+        top = m_bb.first[1];
+        width = m_bb.second[0] - m_bb.first[0];
+        height = m_bb.second[1] - m_bb.first[1];
+        if ( width > height )
+        {
+            double windowWidht = 240 * aspectR;
+            scale = windowWidht / width;
+        }
+        else
+        {
+            double windowHeight = 240;
+            scale = windowHeight / height;
+        }
+
+
+        // 1. translate to center
+        // 2. rotate around center
+        // 3. scale to maximum
+
+        // 4. translate to camera center
+        // this is necessary because of some reason, which i couldn't determine,
+        // the viewmatrix of the camera is:
+        // 1 0  0 -80
+        // 0 0 -1 -80
+        // 0 1  0 -250
+
+        osg::Matrix sm;
+        osg::Matrix rm;
+        osg::Matrix tm;
+        osg::Matrix tm2;
+
+        tm.makeTranslate( osg::Vec3( -left - width / 2, -top - height / 2, 0.0 ) );
+        rm.makeRotate( 90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
+        sm.makeScale( scale, scale, scale );
+        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
+
+        tm *= rm;
+        tm *= sm;
+        tm *= tm2;
+
+        currentScene->setMatrix( tm );
+    }
+
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    if( viewer )
+    {
+        currentScene = viewer->getScene();
+        aspectR = viewer->getCamera()->getViewport()->aspectRatio();
+
+        left = m_bb.first[1];
+        top = m_bb.first[2];
+        width = m_bb.second[1] - m_bb.first[1];
+        height = m_bb.second[2] - m_bb.first[2];
+        if ( width > height )
+        {
+            double windowWidht = 240 * aspectR;
+            scale = windowWidht / width;
+        }
+        else
+        {
+            double windowHeight = 240;
+            scale = windowHeight / height;
+        }
+
+        osg::Matrix rm;
+        osg::Matrix sm;
+        osg::Matrix tm;
+        osg::Matrix tm2;
+        tm.makeTranslate( osg::Vec3( 0.0, -left - width / 2, -top - height / 2 ) );
+        rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
+        sm.makeScale( scale, scale, scale );
+        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
+
+        tm *= rm;
+        tm *= sm;
+        tm *= tm2;
+
+        currentScene->setMatrix( tm );
+    }
+
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    if( viewer )
+    {
+        currentScene = viewer->getScene();
+        aspectR = viewer->getCamera()->getViewport()->aspectRatio();
+
+        left = m_bb.first[0];
+        top = m_bb.first[2];
+        width = m_bb.second[0] - m_bb.first[0];
+        height = m_bb.second[2] - m_bb.first[2];
+        if ( width > height )
+        {
+            double windowWidht = 240 * aspectR;
+            scale = windowWidht / width;
+        }
+        else
+        {
+            double windowHeight = 240;
+            scale = windowHeight / height;
+        }
+
+        osg::Matrix sm;
+        osg::Matrix tm;
+        osg::Matrix tm2;
+        tm.makeTranslate( osg::Vec3( -left - width / 2, 0.0, -top - height / 2 ) );
+        sm.makeScale( scale, scale, scale );
+        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
+        tm *= sm;
+        tm *= tm2;
+
+        currentScene->setMatrix( tm );
+    }
+}
+

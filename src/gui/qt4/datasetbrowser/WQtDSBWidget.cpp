@@ -25,16 +25,23 @@
 #include <string>
 
 #include <QtGui/QGroupBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QScrollArea>
 
 #include "WQtDSBWidget.h"
 
 WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
     : QWidget( parent ),
     m_name( name.c_str() ),
-    m_controlLayout(),
-    m_pageLayout()
+//    m_controlLayout(),
+//    m_pageLayout(),
+    m_numberOfWidgets( 0 )
 {
-    m_pageLayout.addLayout( &m_controlLayout );
+    // note: never do layouts as none pointers
+    // on destruction of a widget it will try to delete them which will cause crashes
+    m_pageLayout = new QVBoxLayout();
+    m_controlLayout = new QGridLayout();
+    m_pageLayout->addLayout( m_controlLayout );
 }
 
 WQtDSBWidget::~WQtDSBWidget()
@@ -43,51 +50,132 @@ WQtDSBWidget::~WQtDSBWidget()
 
 WPropertyBoolWidget* WQtDSBWidget::addProp( WPropBool property )
 {
-    return new WPropertyBoolWidget( property, &m_controlLayout, this );
+    ++m_numberOfWidgets;
+
+    return new WPropertyBoolWidget( property, m_controlLayout, this );
 }
 
 WPropertyIntWidget* WQtDSBWidget::addProp( WPropInt property )
 {
-    return new WPropertyIntWidget( property, &m_controlLayout, this );
+    ++m_numberOfWidgets;
+
+    return new WPropertyIntWidget( property, m_controlLayout, this );
 }
 
 WPropertyDoubleWidget* WQtDSBWidget::addProp( WPropDouble property )
 {
-    return new WPropertyDoubleWidget( property, &m_controlLayout, this );
+    ++m_numberOfWidgets;
+
+    return new WPropertyDoubleWidget( property, m_controlLayout, this );
 }
 
 WPropertyStringWidget* WQtDSBWidget::addProp( WPropString property )
 {
-    return new WPropertyStringWidget( property, &m_controlLayout, this );
+    ++m_numberOfWidgets;
+
+    return new WPropertyStringWidget( property, m_controlLayout, this );
 }
 
 WPropertyColorWidget* WQtDSBWidget::addProp( WPropColor property )
 {
-    return new WPropertyColorWidget( property, &m_controlLayout, this );
+    ++m_numberOfWidgets;
+
+    return new WPropertyColorWidget( property, m_controlLayout, this );
 }
 
 WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
 {
-    return new WPropertyFilenameWidget( property, &m_controlLayout, this );
+    ++m_numberOfWidgets;
+
+    return new WPropertyFilenameWidget( property, m_controlLayout, this );
 }
 
-void WQtDSBWidget::addGroup( WQtDSBWidget* widget )
+WPropertyTriggerWidget* WQtDSBWidget::addProp( WPropTrigger property )
 {
-    // TODO(ebaum): extend it to collapse the group
-    QGroupBox* group = new QGroupBox( widget->getName() , this );
+    ++m_numberOfWidgets;
+
+    return new WPropertyTriggerWidget( property, m_controlLayout, this );
+}
+
+WPropertyPositionWidget* WQtDSBWidget::addProp( WPropPosition property )
+{
+    ++m_numberOfWidgets;
+
+    return new WPropertyPositionWidget( property, m_controlLayout, this );
+}
+
+WPropertySelectionWidget* WQtDSBWidget::addProp( WPropSelection property )
+{
+    ++m_numberOfWidgets;
+
+    return new WPropertySelectionWidget( property, m_controlLayout, this );
+}
+
+void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
+{
+    ++m_numberOfWidgets;
+
+    // create a scrollbox and group box containing the widget
+    QWidget* group = new QWidget( this );
+
+    QScrollArea* scrollArea;
     QGridLayout* grid = new QGridLayout();
     grid->addWidget( widget, 0, 0 );
-    group->setLayout( grid );
 
-    // create a new group box
-    int row = m_controlLayout.rowCount();
-    m_controlLayout.addWidget( group, row, 0, 1, 2 );
+    group->setLayout( grid );
+    if ( asScrollArea )
+    {
+        scrollArea = new QScrollArea();
+        scrollArea->setWidget( group );
+        group->show();
+    }
+
+    // encapsulate it into an collapsable widget
+    QFrame* box = new QFrame( this );
+    box->setFrameShape( QFrame::StyledPanel );
+    box->setFrameShadow( QFrame::Raised );
+    QGridLayout* boxLayout = new QGridLayout( box );
+
+    // create a button as title
+    QPushButton* boxTitle = new QPushButton( this );
+    boxLayout->addWidget( boxTitle, 0, 0 );
+
+    // set the button up
+    QSizePolicy sizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+    sizePolicy.setHeightForWidth( boxTitle->sizePolicy().hasHeightForWidth() );
+    boxTitle->setSizePolicy( sizePolicy );
+    boxTitle->setCheckable( true );
+    boxTitle->setChecked( true );
+    boxTitle->setFlat( true );
+    QFont font;
+    font.setBold( true );
+    boxTitle->setFont( font );
+    boxTitle->setText( widget->getName() );
+
+    // toggle should cause the body widget to appear/disappear
+    connect( boxTitle, SIGNAL( toggled( bool ) ), group, SLOT( setVisible( bool ) ) );
+
+    // create a body widget
+    if ( asScrollArea )
+    {
+        boxLayout->addWidget( scrollArea, 1, 0 );
+    }
+    else
+    {
+        boxLayout->addWidget( group, 1, 0 );
+    }
+
+    // insert into layout
+    int row = m_controlLayout->rowCount();
+    m_controlLayout->addWidget( box, row, 0, 1, 2 );
 }
 
 void WQtDSBWidget::addSpacer()
 {
-    m_pageLayout.addStretch();
-    setLayout( &m_pageLayout );
+    m_pageLayout->addStretch();
+    setLayout( m_pageLayout );
 }
 
 QString WQtDSBWidget::getName()
@@ -100,3 +188,7 @@ void WQtDSBWidget::setName( QString name )
     m_name = name;
 }
 
+bool WQtDSBWidget::isEmpty() const
+{
+    return !m_numberOfWidgets;
+}

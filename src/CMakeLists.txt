@@ -118,7 +118,14 @@ ELSE()
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
         SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
     ELSE()
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
+        # SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
+        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
+    ENDIF()
+
+    # Darwin's ld isn't GNU and doesn't like the following
+    IF( NOT CMAKE_SYSTEM_NAME MATCHES "Darwin" )
+        ## The following allows us to prevent cyclic dependencies even on linux
+        SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined" CACHE STRING "" FORCE )
     ENDIF()
     SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
@@ -133,7 +140,7 @@ ADD_SUBDIRECTORY( kernel )
 ADD_SUBDIRECTORY( common )
 ADD_SUBDIRECTORY( modules )
 ADD_EXECUTABLE( walnut-bin OpenWalnut.cpp )
-TARGET_LINK_LIBRARIES( walnut-bin kernel dataHandler gui guiqt4 common ${Boost_LIBRARIES} )
+TARGET_LINK_LIBRARIES( walnut-bin kernel dataHandler gui guiqt4 common ge ${Boost_LIBRARIES} )
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
@@ -215,7 +222,7 @@ ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
 # Set dirs to exclude from stylecheck
-SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/dataHandler/io/libeep/avr/;/dataHandler/io/libeep/cnt/;/dataHandler/io/libeep/eep/;/common/platformDependent/visualStudio/" )
+SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/dataHandler/io/libeep/avr/;/dataHandler/io/libeep/cnt/;/dataHandler/io/libeep/eep/;/common/platformDependent/visualStudio/;/modules/lic/fibernavigator/;/modules/lic/fantom/" )
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
     FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )

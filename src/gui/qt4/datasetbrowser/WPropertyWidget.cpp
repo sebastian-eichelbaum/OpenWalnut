@@ -32,11 +32,13 @@
 #include "WPropertyWidget.h"
 
 WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, QGridLayout* propertyGrid, QWidget* parent ):
-    QWidget( parent ),
+    QStackedWidget( parent ),
     m_property( property ),
     m_propertyGrid( propertyGrid ),
     m_label( this ),
     m_useLabel( m_propertyGrid ),
+    m_parameterWidgets(),       // parent gets set by the QStackWidget
+    m_informationWidgets(),       // parent gets set by the QStackWidget
     m_invalid( false )
 {
     if ( m_useLabel )
@@ -51,6 +53,16 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         int row = m_propertyGrid->rowCount();
         m_propertyGrid->addWidget( &m_label, row, 0 );
         m_propertyGrid->addWidget( this, row, 1 );
+    }
+
+    // add both widgets to the stacked widget, it then uses the first as default.
+    addWidget( &m_parameterWidgets );
+    addWidget( &m_informationWidgets );
+
+    // if the purpose of the property is INFORMTION -> activate the information widget
+    if ( m_property->getPurpose() == PV_PURPOSE_INFORMATION )
+    {
+        setCurrentIndex( 1 );
     }
 
     // setup the update callback
