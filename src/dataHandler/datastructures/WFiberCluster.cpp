@@ -64,9 +64,18 @@ WFiberCluster::WFiberCluster( const WFiberCluster& other )
     m_centerLineCreationLock( new boost::shared_mutex() ),  // do not copy the mutex as both instances of WFiberCluster can be modifed at the
                                                             // same time
     m_longestLineCreationLock( new boost::shared_mutex() ),
-    m_centerLine(  boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_centerLine.get() ) ) ),
-    m_longestLine(  boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_longestLine.get() ) ) )
+    m_centerLine(),     // << we can't ensure that the centerline and longest line are initialized yet, but we want a deep copy
+    m_longestLine()
 {
+    // copy them only if they exist
+    if ( other.m_centerLine )
+    {
+        m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_centerLine.get() ) );
+    }
+    if ( other.m_longestLine )
+    {
+        m_longestLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_longestLine.get() ) );
+    }
 }
 
 WFiberCluster::~WFiberCluster()
@@ -83,6 +92,8 @@ void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
         m_memberIndices.push_back( *cit );
     }
     // make sure that those indices aren't occuring anywhere else
+    other.m_centerLine.reset();     // they are not valid anymore
+    other.m_longestLine.reset();
     other.clear();
 }
 
