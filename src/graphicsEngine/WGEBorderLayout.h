@@ -87,9 +87,9 @@ protected:
         /**
          * Constructor.
          *
-         * \param module just set the creating module as pointer for later reference.
+         * \param layout just set the creating layout as pointer for later reference.
          */
-        SafeUpdateCallback( osg::ref_ptr< WGEBorderLayout > layout ): m_layouter( layout )
+        explicit SafeUpdateCallback( osg::ref_ptr< WGEBorderLayout > layout ): m_layouter( layout )
         {
         };
 

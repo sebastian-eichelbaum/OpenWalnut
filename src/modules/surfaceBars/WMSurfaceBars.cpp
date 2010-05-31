@@ -351,7 +351,6 @@ void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg:
     {
         uniform->set( static_cast< float >( m_module->m_saturation->get( true ) ) / 100.0f );
     }
-
 }
 
 void WMSurfaceBars::activate()

@@ -54,7 +54,7 @@ WGEBorderLayout::WGEBorderLayout():
     addUpdateCallback( new SafeUpdateCallback( this ) );
 
     // ensure it is drawn the last
-    getOrCreateStateSet()->setRenderBinDetails( 11, "RenderBin");
+    getOrCreateStateSet()->setRenderBinDetails( 11, "RenderBin" );
     getOrCreateStateSet()->setDataVariance( osg::Object::DYNAMIC );
     getOrCreateStateSet()->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
     getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );

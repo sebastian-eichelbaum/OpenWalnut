@@ -178,7 +178,6 @@ private:
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
     osg::ref_ptr< WGEGroupNode > m_rootNode;
-
 };
 
 #endif  // WMEFFECTIVECONNECTIVITYCLUSTER_H
