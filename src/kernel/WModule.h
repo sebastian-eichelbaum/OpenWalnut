@@ -83,11 +83,21 @@ public:
     virtual ~WModule();
 
     /**
+     * The type for the list of input connectors.
+     */
+    typedef std::vector< boost::shared_ptr< WModuleInputConnector > > InputConnectorList;
+
+    /**
+     * The type for the list of output connectors.
+     */
+    typedef std::vector< boost::shared_ptr< WModuleOutputConnector > > OutputConnectorList;
+
+    /**
      * Gives back input connectors.
      *
      * \return the input connectors.
      */
-    const std::set< boost::shared_ptr< WModuleInputConnector > >& getInputConnectors() const;
+    const InputConnectorList& getInputConnectors() const;
 
     /**
      * Finds the named connector for the module.
@@ -104,7 +114,7 @@ public:
      *
      * \return the output connectors.
      */
-    const std::set< boost::shared_ptr< WModuleOutputConnector > >& getOutputConnectors() const;
+    const OutputConnectorList& getOutputConnectors() const;
 
     /**
      * Finds the named connector for the module.
@@ -470,14 +480,13 @@ protected:
 
     /**
      * Set of input connectors associated with this module.
-     * NOTE: we need a thread safe list implementation!
      */
-    std::set<boost::shared_ptr< WModuleInputConnector > > m_inputConnectors;
+    InputConnectorList m_inputConnectors;
 
     /**
      * Set of output connectors associated with this module.
      */
-    std::set<boost::shared_ptr< WModuleOutputConnector > > m_outputConnectors;
+    OutputConnectorList m_outputConnectors;
 
     /**
      * True whenever the module should be active

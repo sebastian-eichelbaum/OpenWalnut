@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
 #include "WRasterParameterization.h"
@@ -73,7 +73,7 @@ public:
      * \return Dataset where all voxels which are hit by the rastered lines are
      * non zero.
      */
-    boost::shared_ptr< WDataSetSingle > generateDataSet() const;
+    boost::shared_ptr< WDataSetScalar > generateDataSet() const;
 
     /**
      * This method allows the user of the raster algorithm to add arbitrary parameterizations. Each parameterization creates a new volume dataset

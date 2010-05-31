@@ -42,14 +42,37 @@ boost::shared_ptr< WPrototyped > WFiberCluster::m_prototype = boost::shared_ptr<
 // \endcond
 
 WFiberCluster::WFiberCluster()
-    : WTransferable()
+    : WTransferable(),
+    m_centerLineCreationLock( new boost::shared_mutex() ),
+    m_longestLineCreationLock( new boost::shared_mutex() )
 {
 }
 
 WFiberCluster::WFiberCluster( size_t index )
-    : WTransferable()
+    : WTransferable(),
+    m_centerLineCreationLock( new boost::shared_mutex() ),
+    m_longestLineCreationLock( new boost::shared_mutex() )
 {
     m_memberIndices.push_back( index );
+}
+
+WFiberCluster::WFiberCluster( const WFiberCluster& other )
+    : WTransferable( other ),
+    m_memberIndices( other.m_memberIndices ),
+    m_fibs( other.m_fibs ),
+    m_color( other.m_color ),
+    m_centerLineCreationLock( new boost::shared_mutex() ),  // do not copy the mutex as both instances of WFiberCluster can be modifed at the
+                                                            // same time
+    m_longestLineCreationLock( new boost::shared_mutex() ),
+    m_centerLine(  boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_centerLine.get() ) ) ),
+    m_longestLine(  boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_longestLine.get() ) ) )
+{
+}
+
+WFiberCluster::~WFiberCluster()
+{
+    delete m_centerLineCreationLock;
+    delete m_longestLineCreationLock;
 }
 
 void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
@@ -89,8 +112,17 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
 }
 // \endcond
 
-void WFiberCluster::generateCenterLine()
+void WFiberCluster::generateCenterLine() const
 {
+    // ensure nobody changes the mutable m_centerline
+    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( *m_centerLineCreationLock );
+    // has the line been calculated while we waited?
+    if ( m_centerLine )
+    {
+        lock.unlock();
+        return;
+    }
+
     // make copies of the fibers
     boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector() );
     size_t avgFiberSize = 0;
@@ -120,6 +152,46 @@ void WFiberCluster::generateCenterLine()
         avgPosition /= fibs->size();
         m_centerLine->push_back( avgPosition );
     }
+
+    lock.unlock();
+}
+
+void WFiberCluster::generateLongestLine() const
+{
+    // ensure nobody changes the mutable m_longestline
+    boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( *m_longestLineCreationLock );
+    // has the line been calculated while we waited?
+    if ( m_longestLine )
+    {
+        lock.unlock();
+        return;
+    }
+
+    m_longestLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber() );
+
+    // empty datasets can be ignored
+    if ( m_fibs->size() == 0 )
+    {
+        return;
+    }
+
+    size_t longest = 0;
+    size_t longestID = 0;
+    for( size_t cit = 0; cit < m_fibs->size(); ++cit )
+    {
+        if ( m_fibs->at( cit ).size() > longest )
+        {
+            longest = m_fibs->at( cit ).size();
+            longestID = cit;
+        }
+    }
+
+    for ( wmath::WFiber::const_iterator cit = m_fibs->at( longestID ).begin(); cit != m_fibs->at( longestID ).end(); ++cit )
+    {
+        m_longestLine->push_back( *cit );
+    }
+
+    lock.unlock();
 }
 
 void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const
@@ -160,5 +232,19 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
 
 boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine() const
 {
+    if ( !m_centerLine )
+    {
+        generateCenterLine();
+    }
     return m_centerLine;
 }
+
+boost::shared_ptr< wmath::WFiber > WFiberCluster::getLongestLine() const
+{
+    if ( !m_longestLine )
+    {
+        generateLongestLine();
+    }
+    return m_longestLine;
+}
+

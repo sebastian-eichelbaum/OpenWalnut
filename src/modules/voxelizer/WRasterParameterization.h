@@ -29,7 +29,7 @@
 #include "../../common/math/WValue.h"
 #include "../../common/math/WLine.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 
 /**
  * This class is the base for all specific parameterization algorithms. Derive from it to write your own class, which is able to create a new
@@ -71,7 +71,7 @@ public:
      *
      * \return the dataset.
      */
-    virtual boost::shared_ptr< WDataSetSingle > getDataSet() = 0;
+    virtual boost::shared_ptr< WDataSetScalar > getDataSet() = 0;
 
     /**
      * Gets called for each new line getting rasterized.

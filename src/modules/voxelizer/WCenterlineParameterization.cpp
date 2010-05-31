@@ -44,10 +44,10 @@ WCenterlineParameterization::~WCenterlineParameterization()
     // cleanup
 }
 
-boost::shared_ptr< WDataSetSingle > WCenterlineParameterization::getDataSet()
+boost::shared_ptr< WDataSetScalar > WCenterlineParameterization::getDataSet()
 {
     boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_paramFinalValues, W_DT_DOUBLE ) );
-    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
+    return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_grid ) );
 }
 
 namespace

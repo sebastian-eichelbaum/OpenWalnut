@@ -403,8 +403,8 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
     for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
     {
         // iterate over all outputs
-        const std::set< boost::shared_ptr< WModuleOutputConnector > >& outs = ( *iter )->getOutputConnectors();
-        for ( std::set< boost::shared_ptr< WModuleOutputConnector > >::const_iterator citer = outs.begin(); citer != outs.end(); ++citer )
+        const WModule::OutputConnectorList& outs = ( *iter )->getOutputConnectors();
+        for ( WModule::OutputConnectorList::const_iterator citer = outs.begin(); citer != outs.end(); ++citer )
         {
             // iterate over all connections:
             // TODO(ebaum): iterating over a protected member variable? Thats ugly. This should be adopted to WSharedAccess
