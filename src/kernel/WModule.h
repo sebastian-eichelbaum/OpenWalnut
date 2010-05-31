@@ -25,7 +25,7 @@
 #ifndef WMODULE_H
 #define WMODULE_H
 
-#include <set>
+#include <vector>
 #include <string>
 #include <typeinfo>
 
