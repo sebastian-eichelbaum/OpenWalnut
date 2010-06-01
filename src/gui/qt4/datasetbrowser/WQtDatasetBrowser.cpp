@@ -611,12 +611,12 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
 
     if ( props.get() )
     {
-        WProperties::PropertyAccessType propAccess = props->getAccessObject();
-        propAccess->beginRead();
+        // read lock, gets unlocked upon destruction (out of scope)
+        WProperties::PropertySharedContainerType::ReadTicket propAccess = props->getProperties();
 
         tab->setName( QString::fromStdString( props->getName() ) );
 
-        // iterate all properties. This Locks the properties set -> use endIteration to unlock
+        // iterate all properties.
         for ( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
             if ( !( *iter )->isHidden() )
@@ -659,7 +659,6 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
                 }
             }
         }
-        propAccess->endRead();
     }
 
     tab->addSpacer();
