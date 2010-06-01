@@ -28,6 +28,8 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataTexture3D.h"
+#include "../../common/WPropertyHelper.h"
 
 #include "imageExtractor.xpm"
 #include "WMImageExtractor.h"
@@ -81,6 +83,31 @@ void WMImageExtractor::properties()
     m_selectedImage = m_properties->addProperty( "Image", "The image to be extracted.", 1, m_propCondition );
     m_selectedImage->setMin( 1 );
     m_selectedImage->setMax( 1 );
+
+    // these are taken from WMData
+    m_interpolation = m_properties->addProperty( "Interpolation",
+                                                  "If active, the boundaries of single voxels"
+                                                  " will not be visible in colormaps. The transition between"
+                                                  " them will be smooth by using interpolation then.",
+                                                  true,
+                                                  m_propCondition );
+    m_threshold = m_properties->addProperty( "Threshold", "Values below this threshold will not be "
+                                              "shown in colormaps.", 0., m_propCondition );
+    m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
+                                            " values from several data sets.", 100, m_propCondition );
+    m_opacity->setMax( 100 );
+    m_opacity->setMin( 0 );
+
+    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_colorMapSelectionsList->addItem( "Grayscale", "" );
+    m_colorMapSelectionsList->addItem( "Rainbow", "" );
+    m_colorMapSelectionsList->addItem( "Hot iron", "" );
+    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
+    m_colorMapSelectionsList->addItem( "Blue-Lightblue", "" );
+    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
+
+    m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
 }
 
 void WMImageExtractor::moduleMain()
@@ -122,6 +149,7 @@ void WMImageExtractor::moduleMain()
 
             std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
             m_outData = extract( i );
+            setOutputProps();
 
             if( m_outData )
             {
@@ -299,4 +327,15 @@ const std::string WMImageExtractor::makeImageName( std::size_t i )
 
     s << m_dataSet->getFileName() << " (" << i << " of " << m_dataSet->getValueSet()->dimension() << ")";
     return s.str();
+}
+
+void WMImageExtractor::setOutputProps()
+{
+    if( m_outData )
+    {
+        m_outData->getTexture()->setThreshold( m_threshold->get() );
+        m_outData->getTexture()->setOpacity( m_opacity->get() );
+        m_outData->getTexture()->setInterpolation( m_interpolation->get() );
+        m_outData->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
+    }
 }

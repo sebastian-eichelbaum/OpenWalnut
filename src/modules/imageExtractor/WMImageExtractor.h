@@ -118,9 +118,40 @@ private:
     const std::string makeImageName( std::size_t i );
 
     /**
+     * Write property values to output dataset.
+     */
+    void setOutputProps();
+
+    /**
      * A property that allows selecting the number of the desired image.
      */
     WPropInt m_selectedImage;
+
+    // the following 5 members are taken from WMData
+    /**
+     * Interpolation?
+     */
+    WPropBool m_interpolation;
+
+    /**
+     * A list of color map selection types
+     */
+    boost::shared_ptr< WItemSelection > m_colorMapSelectionsList;
+
+    /**
+     * Selection property for color map
+     */
+    WPropSelection m_colorMapSelection;
+
+    /**
+     * Threshold value for this data.
+     */
+    WPropDouble m_threshold;
+
+    /**
+     * Opacity value for this data.
+     */
+    WPropInt m_opacity;
 
     /**
      * An input connector that accepts order 1 datasets.
