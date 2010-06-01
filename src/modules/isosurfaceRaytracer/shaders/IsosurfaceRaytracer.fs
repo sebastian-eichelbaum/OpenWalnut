@@ -140,24 +140,27 @@ void main()
 
             // 4: set color
             vec4 color;
-            if ( u_depthCueingOnly )
-            {
-                float d = 1.0 - curPointProjected.z;
-                color = gl_Color * 1.5 * d * d;
-            }
-            else
-            {
-                // NOTE: these are a lot of weird experiments ;-)
-                float d = 1.0 - curPointProjected.z;
-                d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
 
-                float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
-                w = ( w + 0.5 );
-                if ( w > 0.8 ) w = 0.8;
+#ifdef CORTEX
+            // NOTE: these are a lot of weird experiments ;-)
+            float d = 1.0 - curPointProjected.z;
+            d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
 
-                float d2 = w*d*d*d*d*d;
-                color = gl_Color * 11.0 * d2;
-            }
+            float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
+            w = ( w + 0.5 );
+            if ( w > 0.8 ) w = 0.8;
+
+            float d2 = w*d*d*d*d*d;
+            color = gl_Color * 11.0 * d2;
+#endif
+#ifdef DEPTHONLY
+            float d = 1.0 - curPointProjected.z;
+            color = gl_Color * 1.5 * d * d;
+#endif
+#ifdef PHONG
+#endif
+#ifdef PHONGWITHDEPTH
+#endif
 
             color.a = u_alpha;
             gl_FragColor = color;
