@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "shadingTools.fs"
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
@@ -39,9 +41,6 @@ uniform sampler3D tex0;
 
 // The isovalue to use.
 uniform float u_isovalue;
-
-// True if only the simple depth value should be used for coloring
-uniform bool u_depthCueingOnly;
 
 // The number of steps to use.
 uniform int u_steps;
@@ -158,6 +157,37 @@ void main()
             color = gl_Color * 1.5 * d * d;
 #endif
 #ifdef PHONG
+            // find a proper normal for a headlight
+            float s = 0.005;
+            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+
+            vec3 dir = vec3( 0.0 );//v_ray;
+            dir += vec3( valueXP, 0.0, 0.0 );
+            dir -= vec3( valueXM, 0.0, 0.0 );
+            dir += vec3( 0.0, valueYP, 0.0 );
+            dir -= vec3( 0.0, valueYM, 0.0 );
+            dir += vec3( 0.0, 0.0, valueZP );
+            dir -= vec3( 0.0, 0.0, valueZP );
+
+            // Phong:
+            float light = blinnPhongIlluminationIntensity( 
+                    0.3,                                // material ambient
+                    1.0,                                // material diffuse
+                    1.3,                                // material specular
+                    10.0,                               // shinines
+                    1.0,                                // light diffuse
+                    0.75,                               // light ambient
+                    normalize( -dir ),                  // normal
+                    normalize( v_ray ),                 // view direction
+                    normalize( v_lightSource )          // light source position
+            );
+            
+            color = light * gl_Color;
 #endif
 #ifdef PHONGWITHDEPTH
 #endif

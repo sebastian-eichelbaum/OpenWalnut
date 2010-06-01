@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "transformationTools.fs"
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +67,12 @@ void main()
     // Therefore use two points, as we transform a vector
     vec4 camLookAt = vec4( 0.0, 0.0, -1.0, 1.0 );
     vec4 camPos    = vec4( 0.0, 0.0, 0.0, 1.0 );
-    v_ray = ( gl_ModelViewMatrixInverse * ( camLookAt - camPos ) ).xyz;
+    v_ray = worldToLocal( camLookAt, camPos ).xyz;
+
+    // also get the coordinates of the light
+    vec4 lpos = gl_LightSource[0].position;
+//    lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
+    v_lightSource = worldToLocal( lpos ).xyz;
 
     // Simply project the vertex
     gl_Position = ftransform();
