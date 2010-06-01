@@ -166,6 +166,7 @@ public:
     /**
      * Get access to all the prototypes.
      *
+     * \deprecated do not use this anymore. Use \ref getPrototypes instead.
      * \return the access object to thread safe iterate.
      */
     const PrototypeSharedContainerType::WSharedAccess getAvailablePrototypes() const;

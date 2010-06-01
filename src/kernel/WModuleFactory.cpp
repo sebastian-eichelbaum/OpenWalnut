@@ -328,6 +328,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
 
 const WModuleFactory::PrototypeSharedContainerType::WSharedAccess WModuleFactory::getAvailablePrototypes() const
 {
+    // TODO(ebaum): deprecated. Clean up if not needed anymore.
     return m_prototypeAccess;
 }
 

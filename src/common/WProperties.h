@@ -64,11 +64,6 @@ public:
     typedef WSharedSequenceContainer< boost::shared_ptr< WPropertyBase >, PropertyContainerType > PropertySharedContainerType;
 
     /**
-     * The access type
-     */
-    typedef PropertySharedContainerType::WSharedAccess PropertyAccessType;
-
-    /**
      * The const iterator type of the container.
      */
     typedef PropertyContainerType::const_iterator PropertyConstIterator;
@@ -77,6 +72,11 @@ public:
      * The iterator type of the container.
      */
     typedef PropertyContainerType::iterator PropertyIterator;
+
+    /**
+     * The access type
+     */
+    typedef PropertySharedContainerType::WSharedAccess PropertyAccessType;
 
     /**
      * Constructor. Creates an empty list of properties.
@@ -149,6 +149,21 @@ public:
     boost::shared_ptr< WPropertyBase > getProperty( std::string name );
 
     /**
+     * Returns a read ticket for read-access to the list of properties.
+     *
+     * \return the read ticket.
+     */
+    PropertySharedContainerType::ReadTicket getProperties() const;
+
+    /**
+     * Returns the access object usable to iterate/modify the property list in a thread safe manner.
+     *
+     * \deprecated the method should not be used anymore.
+     * \return the access control object.
+     */
+    PropertySharedContainerType::WSharedAccess getAccessObject();
+
+    /**
      * Searches the property with a given name. It does not throw any exception. It simply returns NULL if it can't be found.
      *
      * \param name the name of the property to search
@@ -156,13 +171,6 @@ public:
      * \return the property or NULL if not found.
      */
     boost::shared_ptr< WPropertyBase > findProperty( std::string name );
-
-    /**
-     * Returns the access object usable to iterate/modify the property list in a thread safe manner.
-     *
-     * \return the access control object.
-     */
-    PropertySharedContainerType::WSharedAccess getAccessObject();
 
     /**
      * Removes all properties from the list.
@@ -925,11 +933,6 @@ private:
      * The set of proerties. This uses the operators ==,<,> WProperty to determine equalness.
      */
     PropertySharedContainerType m_properties;
-
-    /**
-     * Access to the above property list.
-     */
-    PropertySharedContainerType::WSharedAccess m_propAccess;
 
     /**
      * Compares the names of two properties and returns true if they are equal.
