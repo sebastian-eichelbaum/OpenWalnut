@@ -26,6 +26,7 @@
 #include <sys/prctl.h>
 #endif
 
+#include <algorithm>
 #include <set>
 #include <string>
 #include <sstream>
@@ -95,23 +96,29 @@ WModule::~WModule()
 
 void WModule::addConnector( boost::shared_ptr< WModuleInputConnector > con )
 {
-    m_inputConnectors.insert( con );
+    if ( std::count( m_inputConnectors.begin(), m_inputConnectors.end(), con ) == 0 )
+    {
+        m_inputConnectors.push_back( con );
+    }
 }
 
 void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
 {
-    m_outputConnectors.insert( con );
+    if ( std::count( m_outputConnectors.begin(), m_outputConnectors.end(), con ) == 0 )
+    {
+        m_outputConnectors.push_back( con );
+    }
 }
 
 void WModule::disconnect()
 {
     // remove connections and their signals
-    for( std::set<boost::shared_ptr< WModuleInputConnector > >::iterator listIter = m_inputConnectors.begin();
+    for( InputConnectorList::iterator listIter = m_inputConnectors.begin();
          listIter != m_inputConnectors.end(); ++listIter )
     {
         ( *listIter )->disconnectAll();
     }
-    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::iterator listIter = m_outputConnectors.begin();
+    for( OutputConnectorList::iterator listIter = m_outputConnectors.begin();
          listIter != m_outputConnectors.end(); ++listIter )
     {
         ( *listIter )->disconnectAll();
@@ -184,12 +191,12 @@ MODULE_TYPE WModule::getType() const
     return MODULE_ARBITRARY;
 }
 
-const std::set<boost::shared_ptr< WModuleInputConnector > >& WModule::getInputConnectors() const
+const WModule::InputConnectorList& WModule::getInputConnectors() const
 {
     return m_inputConnectors;
 }
 
-const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutputConnectors() const
+const WModule::OutputConnectorList& WModule::getOutputConnectors() const
 {
     return m_outputConnectors;
 }
@@ -197,7 +204,7 @@ const std::set<boost::shared_ptr< WModuleOutputConnector > >& WModule::getOutput
 boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name )
 {
     // simply search
-    for( std::set<boost::shared_ptr< WModuleInputConnector > >::const_iterator listIter = m_inputConnectors.begin();
+    for( InputConnectorList::const_iterator listIter = m_inputConnectors.begin();
          listIter != m_inputConnectors.end(); ++listIter )
     {
         // try the canonical name
@@ -213,7 +220,7 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
 boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name )
 {
     // simply search
-    for( std::set<boost::shared_ptr< WModuleOutputConnector > >::const_iterator listIter = m_outputConnectors.begin();
+    for( OutputConnectorList::const_iterator listIter = m_outputConnectors.begin();
          listIter != m_outputConnectors.end(); ++listIter )
     {
         // try the canonical name

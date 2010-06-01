@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
@@ -45,11 +46,19 @@ WBresenham::~WBresenham()
 
 void WBresenham::raster( const wmath::WLine& line )
 {
+    // lock the parameterization list for reading
+    boost::shared_lock< boost::shared_mutex > lock =  boost::shared_lock< boost::shared_mutex >( m_parameterizationsLock );
+
+    newLine( line );
+
     assert( line.size() > 1 );
     for( size_t i = 1; i < line.size(); ++i )
     {
+        newSegment( line[i-1], line[i] );
         rasterSegment( line[i-1], line[i] );
     }
+
+    lock.unlock();
 }
 
 void WBresenham::rasterSegment( const wmath::WPosition& start, const wmath::WPosition& end )
@@ -171,13 +180,6 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
     return result;
 }
 
-void WBresenham::setFiberVector( size_t idx, const wmath::WPosition& vec )
-{
-    m_dirValues[ ( 3 * idx )     ] = vec[0];
-    m_dirValues[ ( 3 * idx ) + 1 ] = vec[1];
-    m_dirValues[ ( 3 * idx ) + 2 ] = vec[2];
-}
-
 void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, const wmath::WPosition& start, const wmath::WPosition& end )
 {
     size_t nbX  = m_grid->getNbCoordsX();
@@ -188,18 +190,16 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     size_t idx = x + y * nbX + z * nbXY;
     std::vector< double > distances;
 
-    // set the current direction to the voxel
-    wmath::WPosition fibTangente = end - start;
-    setFiberVector( idx, fibTangente );
-
     if( m_antialiased )
     {
         distances = computeDistances( idx, start, end );
         m_values[ idx ] = filter( distances[0] );
+        parameterizeVoxel( voxel, idx, axis, m_values[ idx ], start, end );
     }
     else
     {
         m_values[ idx ] = 1.0;
+        parameterizeVoxel( voxel, idx, axis, m_values[ idx ], start, end );
         return;
     }
 
@@ -223,49 +223,44 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     {
         return;
     }
+
     assert( distances.size() == 7 );
     switch( axis )
     {
         case 0 :
-                m_values[ idx + nbX ] = filter( distances[3] );
-                setFiberVector( idx + nbX, fibTangente );
+                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
+                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
+                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
+                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
 
-                m_values[ idx - nbX ] = filter( distances[4] );
-                setFiberVector( idx - nbX, fibTangente );
-
-                m_values[ idx + nbXY ] = filter( distances[5] );
-                setFiberVector( idx + nbXY, fibTangente );
-
-                m_values[ idx - nbXY ] = filter( distances[6] );
-                setFiberVector( idx - nbXY, fibTangente );
+                parameterizeVoxel( voxel, idx + nbX, axis, m_values[ idx + nbX ], start, end );
+                parameterizeVoxel( voxel, idx - nbX, axis, m_values[ idx - nbX ], start, end );
+                parameterizeVoxel( voxel, idx + nbXY, axis, m_values[ idx + nbXY ], start, end );
+                parameterizeVoxel( voxel, idx - nbXY, axis, m_values[ idx - nbXY ], start, end );
 
                 break;
         case 1 :
-                m_values[ idx + 1 ] = filter( distances[1] );
-                setFiberVector( idx + 1, fibTangente );
+                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
+                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
+                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
+                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
 
-                m_values[ idx - 1 ] = filter( distances[2] );
-                setFiberVector( idx - 1, fibTangente );
-
-                m_values[ idx + nbXY ] = filter( distances[5] );
-                setFiberVector( idx + nbXY, fibTangente );
-
-                m_values[ idx - nbXY ] = filter( distances[6] );
-                setFiberVector( idx - nbXY, fibTangente );
+                parameterizeVoxel( voxel, idx + 1, axis, m_values[ idx + 1 ], start, end );
+                parameterizeVoxel( voxel, idx - 1, axis, m_values[ idx - 1 ], start, end );
+                parameterizeVoxel( voxel, idx + nbXY, axis, m_values[ idx + nbXY ], start, end );
+                parameterizeVoxel( voxel, idx - nbXY, axis, m_values[ idx - nbXY ], start, end );
 
                 break;
         case 2 :
-                m_values[ idx + 1 ] = filter( distances[1] );
-                setFiberVector( idx + 1, fibTangente );
+                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
+                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
+                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
+                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
 
-                m_values[ idx - 1 ] = filter( distances[2] );
-                setFiberVector( idx - 1, fibTangente );
-
-                m_values[ idx + nbX ] = filter( distances[3] );
-                setFiberVector( idx + nbX, fibTangente );
-
-                m_values[ idx - nbX ] = filter( distances[4] );
-                setFiberVector( idx - nbX, fibTangente );
+                parameterizeVoxel( voxel, idx + 1, axis, m_values[ idx + 1 ], start, end );
+                parameterizeVoxel( voxel, idx - 1, axis, m_values[ idx - 1 ], start, end );
+                parameterizeVoxel( voxel, idx + nbX, axis, m_values[ idx + nbX ], start, end );
+                parameterizeVoxel( voxel, idx - nbX, axis, m_values[ idx - nbX ], start, end );
 
                 break;
         default : assert( 0 && "Invalid axis selected for marking a voxel" );

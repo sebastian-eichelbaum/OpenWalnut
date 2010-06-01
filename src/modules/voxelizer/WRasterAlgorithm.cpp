@@ -27,14 +27,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WLogger.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "WRasterAlgorithm.h"
 
 WRasterAlgorithm::WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid )
     : m_grid( grid ),
-      m_values( grid->size(), 0.0 ),
-      m_dirValues( 3 * grid->size(), 0.0 )
+      m_values( grid->size(), 0.0 )
 {
     // NOTE: I assume the Voxelizer class is only used by the WMVoxelizer module, hence the
     // source is "Voxelizer".
@@ -45,15 +44,59 @@ WRasterAlgorithm::~WRasterAlgorithm()
 {
 }
 
-boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateDataSet() const
+boost::shared_ptr< WDataSetScalar > WRasterAlgorithm::generateDataSet() const
 {
     boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_values, W_DT_DOUBLE ) );
-    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
+    return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_grid ) );
 }
 
-boost::shared_ptr< WDataSetSingle > WRasterAlgorithm::generateVectorDataSet() const
+void WRasterAlgorithm::addParameterizationAlgorithm( boost::shared_ptr< WRasterParameterization > algorithm )
 {
-    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 1, 3, m_dirValues, W_DT_DOUBLE ) );
-    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_grid ) );
+    boost::unique_lock< boost::shared_mutex > lock =  boost::unique_lock< boost::shared_mutex >( m_parameterizationsLock );
+    m_parameterizations.push_back( algorithm );
+    lock.unlock();
+}
+
+void WRasterAlgorithm::newLine( const wmath::WLine& line )
+{
+    // NOTE: the list already is locked (in raster method, hopefully)
+    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    {
+        m_parameterizations[ i ]->newLine( line );
+    }
+}
+
+void WRasterAlgorithm::newSegment( const wmath::WPosition& start, const wmath::WPosition& end )
+{
+    // NOTE: the list already is locked (in raster method, hopefully)
+    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    {
+        m_parameterizations[ i ]->newSegment( start, end );
+    }
+}
+
+void WRasterAlgorithm::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+                                    const wmath::WPosition& start,
+                                    const wmath::WPosition& end )
+{
+    // NOTE: the list already is locked (in raster method, hopefully)
+    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    {
+        m_parameterizations[ i ]->parameterizeVoxel( voxel, voxelIdx, axis, value, start, end );
+    }
+}
+
+void WRasterAlgorithm::finished()
+{
+    // lock the parameterization list for reading
+    boost::shared_lock< boost::shared_mutex > lock =  boost::shared_lock< boost::shared_mutex >( m_parameterizationsLock );
+
+    // NOTE: the list already is locked (in raster method, hopefully)
+    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    {
+        m_parameterizations[ i ]->finished();
+    }
+
+    lock.unlock();
 }
 

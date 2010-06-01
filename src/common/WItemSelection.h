@@ -133,14 +133,14 @@ public:
      *
      * \return the item
      */
-    virtual Item at( size_t index ) const;
+    virtual Item& at( size_t index ) const;
 
 protected:
 
     /**
      * List of items.
      */
-    std::vector< Item > m_items;
+    std::vector< Item* > m_items;
 
     /**
      * True if the selection can be modified.

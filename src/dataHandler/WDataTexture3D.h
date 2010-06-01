@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 #include <osg/Texture3D>
 
@@ -237,6 +238,11 @@ protected:
      * Creates a 3D texture for the data set.
      */
     void createTexture();
+
+    /**
+     * The lock for securing createTexture.
+     */
+    boost::shared_mutex m_creationLock;
 
     /**
      * Alpha value. Used for blending in/out textures.

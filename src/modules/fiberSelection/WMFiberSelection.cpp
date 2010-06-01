@@ -134,6 +134,29 @@ void WMFiberSelection::properties()
     m_voi2Threshold = m_properties->addProperty( "VOI2 Threshold", "The threshold uses for determining whether a fiber is inside the second VOI"
                                                                     "dataset or not.", 5.0, m_propCondition );
     m_cutFibers     = m_properties->addProperty( "Cut Fibers",     "Cut the fibers after they gone through both VOI.", true, m_propCondition );
+
+    m_preferShortestPath = m_properties->addProperty( "Prefer Shortest Path", "Determines whether the fibers should be cut on the entry and "
+                            "exit of a VOI. This should prevent the fibers from going deep into the VOI's.", false, m_propCondition );
+}
+
+/**
+ * Namespace for the FibTrace structure.
+ */
+namespace
+{
+    /**
+     * This structure stores some tracing information along the fiber. It is defined in this file scope as local types can't be used as template
+     * parameters. (but it is needed in a list)
+     */
+    typedef struct
+    {
+        size_t idx;         //!< current index
+        bool which;         //!< true if isInside is true for VOI1, for VOI2 it is false
+        // size_t lastIdx;     //!< the last index , idx-1 <- not needed
+        bool isInside;      //!< true if idx is inside a VOI
+        bool wasInside;     //!< true if idx-1 was inside a VOI
+    }
+    FibTrace;
 }
 
 void WMFiberSelection::moduleMain()
@@ -165,7 +188,7 @@ void WMFiberSelection::moduleMain()
 
         bool dataChanged = ( m_fibers != newFibers ) || ( m_voi1 != newVoi1 ) ||( m_voi2 != newVoi2 );
         bool dataValid =   ( newFibers && newVoi1 && newVoi2 );
-        bool propChanged = ( m_cutFibers->changed() || m_voi1Threshold->changed() || m_voi2Threshold->changed() );
+        bool propChanged = ( m_cutFibers->changed() || m_voi1Threshold->changed() || m_voi2Threshold->changed() || m_preferShortestPath->changed() );
 
         if ( ( propChanged || dataChanged ) && dataValid )
         {
@@ -180,10 +203,7 @@ void WMFiberSelection::moduleMain()
             double voi1Threshold = m_voi1Threshold->get( true );
             double voi2Threshold = m_voi2Threshold->get( true );
             bool   cutFibers     = m_cutFibers->get( true );
-
-            // now the fibers get iterated. While doing this, the fibers get checked whether they belong to the VOI1 and VOI2 or not.
-            // a bitlist is used to actually store this information
-            std::vector< bool > bitlist( m_fibers->size(), false );
+            bool   preferShortestPath = m_preferShortestPath->get( true );
 
             // get the fiber definitions
             boost::shared_ptr< std::vector< size_t > > fibStart = m_fibers->getLineStartIndexes();
@@ -197,12 +217,15 @@ void WMFiberSelection::moduleMain()
 
             // the list of fibers
             std::vector< boost::tuple< size_t, size_t, size_t > > matches;  // a match contains the fiber ID, the start vertex ID and the stop ID
-            // this is especially useful since fibers do not always end in the VOI
 
             // progress indication
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Checking fibers against ",
                                                                                                       fibStart->size() ) );
             m_progress->addSubProgress( progress1 );
+
+            // there are several scenarios possible, how the VOIs can be. They can intersect each other, one being inside the other or they might
+            // be spatial distinct. To handle all those scenarios, the fiber segments get interpreted as some kind of ray and a list of all hit
+            // points with one of the VOIs is stored in a list and can be handled afterwards in several ways.
 
             // for each fiber:
             debugLog() << "Iterating over all fibers.";
@@ -210,21 +233,19 @@ void WMFiberSelection::moduleMain()
             {
                 ++*progress1;
 
-                // true if the current fiber is inside voi1/voi2
-                bool inVoi1 = false;
-                bool inVoi2 = false;
-
                 // the start vertex index
                 size_t sidx = fibStart->at( fidx ) * 3;
 
                 // the length of the fiber
                 size_t len = fibLen->at( fidx );
 
-                // iterate along the fiber
-                size_t fibVoi1Vertex = 0;
-                bool firstVertexInVoi1 = true;
-                size_t fibVoi2Vertex = 0;
-                bool firstVertexInVoi2 = true;
+                // trace information for both VOI
+                FibTrace current1 = { 0, true, false, false };  // NOLINT
+                FibTrace current2 = { 0, false, false, false }; // NOLINT
+                std::vector< FibTrace > hits1;
+                std::vector< FibTrace > hits2;
+
+                // walk along the fiber
                 for ( size_t k = 0; k < len; ++k )
                 {
                     float x = fibVerts->at( ( 3 * k ) + sidx );
@@ -244,29 +265,61 @@ void WMFiberSelection::moduleMain()
                     double value1 = m_voi1->getValueAt( voxel1 );
                     double value2 = m_voi2->getValueAt( voxel2 );
 
-                    // found?
-                    inVoi1 = inVoi1 || ( value1 >= voi1Threshold );
-                    inVoi2 = inVoi2 || ( value2 >= voi2Threshold );
+                    // update trace structs for both VOI
+                    current1.idx = k;
+                    current1.wasInside = current1.isInside;
+                    current1.isInside = ( value1 >= voi1Threshold );
+                    current2.idx = k;
+                    current2.wasInside = current2.isInside;
+                    current2.isInside = ( value2 >= voi2Threshold );
 
-                    // is this the first vertex entering voi1/2?
-                    if ( inVoi1 && firstVertexInVoi1 )
+                    // VOI1 hit?
+                    if ( current1.wasInside ^ current1.isInside )
                     {
-                        firstVertexInVoi1 = false;
-                        fibVoi1Vertex = k;
+                        hits1.push_back( current1 );
                     }
-                    if ( inVoi2 && firstVertexInVoi2 )
+                    // VOI2 Hit?
+                    if ( current2.wasInside ^ current2.isInside )
                     {
-                        firstVertexInVoi2 = false;
-                        fibVoi2Vertex = k;
+                        hits2.push_back( current2 );
                     }
+                }
 
-                    // if the fiber was found in both VOI the loop can be stopped
-                    if ( inVoi1 && inVoi2 )
+                // Now, a list of all intersections of the current fiber "fidx" with the VOI's is available. There are three possibilities. One
+                // VOI is inside the other, the VOI's intersect each other or the VOI's are spatially distinct.
+
+                // If one VOI completely inside another, ignore the fiber since it does not really make sense. So we only need to handle the
+                // other two cases
+
+                if ( !preferShortestPath )
+                {
+                    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // Strategy 1: Always use the longest path
+                    //  - this is a good strategy for both remaining cases
+                    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    // always use the longest fiber path
+                    if ( ( hits1.size() >= 1 ) && ( hits2.size() >= 1 ) )
                     {
                         debugLog() << "Fiber " << fidx << " inside VOI1 and VOI2.";
-                        matches.push_back( boost::make_tuple( fidx, std::min( fibVoi1Vertex, fibVoi2Vertex ),
-                                                                    std::max( fibVoi1Vertex, fibVoi2Vertex ) ) );
-                        break;
+                        matches.push_back( boost::make_tuple( fidx, std::min( hits1[ 0 ].idx,                hits2[ 0 ].idx ),
+                                                                    std::max( hits1[ hits1.size() - 1 ].idx, hits2[ hits2.size() - 1 ].idx ) ) );
+                    }
+                }
+                else
+                {
+                    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // Strategy 2: Find the shortest path between the exit-hit of VOI1 and entry-hit of VOI2
+                    //  - this should create fibers if very similar length
+                    //  - might be problematic with overlapping VOI's
+                    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    // always use the longest fiber path
+                    if ( ( hits1.size() >= 1 ) && ( hits2.size() >= 1 ) )
+                    {
+                        debugLog() << "Fiber " << fidx << " inside VOI1 and VOI2.";
+                        matches.push_back( boost::make_tuple( fidx, std::min( hits1[ 0 ].idx,                hits2[ hits2.size() - 1 ].idx ),
+                                                                    std::max( hits1[ hits1.size() - 1 ].idx, hits2[ 0 ].idx ) ) );
                     }
                 }
             }
@@ -357,7 +410,7 @@ void WMFiberSelection::moduleMain()
                     new WDataSetFiberVector( newFibers )
             );
             newFiberCluster->setDataSetReference( newFiberVector );
-
+            newFiberCluster->generateCenterLine();
             progress1->finish();
 
             // finally -> update the output

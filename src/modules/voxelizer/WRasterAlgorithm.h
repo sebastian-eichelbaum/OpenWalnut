@@ -28,11 +28,12 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
-#include "WRasterAlgorithm.h"
+#include "WRasterParameterization.h"
 
 /**
  * Base class for all rasterization algorithms. The interface will be as
@@ -72,17 +73,32 @@ public:
      * \return Dataset where all voxels which are hit by the rastered lines are
      * non zero.
      */
-    boost::shared_ptr< WDataSetSingle > generateDataSet() const;
+    boost::shared_ptr< WDataSetScalar > generateDataSet() const;
 
     /**
-     * Computes a dataset out of our voxel values and the previously given grid. It contains a vector at each position representing the direction
-     * of the fiber at this point.
+     * This method allows the user of the raster algorithm to add arbitrary parameterizations. Each parameterization creates a new volume dataset
+     * parameterizing the voxelized line somehow.
      *
-     * \return Dataset where all voxels which are hit by the rastered lines contain non-zero vectors.
+     * \param algorithm the algorithm
      */
-    boost::shared_ptr< WDataSetSingle > generateVectorDataSet() const;
+    void addParameterizationAlgorithm( boost::shared_ptr< WRasterParameterization > algorithm );
+
+    /**
+     * Called whenever all lines have been rasterized.
+     */
+    virtual void finished();
 
 protected:
+
+    /**
+     * All the parameterization algorithms to apply while rasterizing a line.
+     */
+    std::vector< boost::shared_ptr< WRasterParameterization > > m_parameterizations;
+
+    /**
+     * The mutex used to lock access to m_parameterizations.
+     */
+    boost::shared_mutex m_parameterizationsLock;
 
     /**
      * The grid is used for the following purposes:
@@ -100,9 +116,35 @@ protected:
     std::vector< double > m_values;
 
     /**
-     * Stores the direction of the fiber at each voxel.
+     * This method allows all registered parameterization algorithms to update. This basically simply calls all parameterizeVoxel methods in
+     * m_parameterizations vector.
+     *
+     * \param voxel the voxel to parameterize
+     * \param voxelIdx the voxel index in the common grid calculated using "voxel" (this is for convenience)
+     * \param axis  Along which axis the traversal takes place. Since when walking in e.g. X-direction there are not supporting voxels in the
+     * \param value the new voxel value
+     * \param start Start point of the line segement (used to computed the distance)
+     * \param end   End point of the line segement (used to computed the distance)
      */
-    std::vector< double > m_dirValues;
+    virtual void parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+                                    const wmath::WPosition& start,
+                                    const wmath::WPosition& end );
+
+    /**
+     * Distribute a new line getting rasterized to all parameterize algorithms.
+     *
+     * \param line the new line.
+     */
+    virtual void newLine( const wmath::WLine& line );
+
+    /**
+     * Distribute a new segment of a line to all parameterization algorithms.
+     * Gets called for each new line segment getting rasterized, as one segment can have multiple voxels.
+     *
+     * \param start start point of the new line segment
+     * \param end end point of the new line segment
+     */
+    virtual void newSegment( const wmath::WPosition& start, const wmath::WPosition& end );
 
 private:
 };

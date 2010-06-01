@@ -174,6 +174,12 @@ ELSE()
   )
 ENDIF()
 
+#---------- walnut.cfg file -------------
+IF( NOT EXISTS ${PROJECT_BINARY_DIR}/bin/walnut.cfg )
+  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi ${PROJECT_BINARY_DIR}/bin/walnut.cfg COPYONLY )
+  MESSAGE( STATUS "Copied ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi to ${PROJECT_BINARY_DIR}/bin/walnut.cfg" )
+ENDIF()
+
 # Special targets:
 #-------------------------------------------------------------------------------------------------------------
 # Creates API via Doxygen
