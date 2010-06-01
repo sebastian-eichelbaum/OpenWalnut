@@ -124,28 +124,6 @@ void WSubject::clear()
     m_listChangeCondition->notify();
 }
 
-// TODO(all): rethink this
-//  wiebel: I deactivated this as we want to resort thes list ... so we have to rethinks this.
-// boost::shared_ptr< WDataSet > WSubject::getDataSetByID( size_t datasetID )
-// {
-//     m_datasetAccess->beginRead();
-
-//     // search it
-//     boost::shared_ptr< WDataSet > result;
-//     try
-//     {
-//         result = m_datasetAccess->get().at( datasetID );
-//     }
-//     catch( const std::out_of_range& e )
-//     {
-//         throw WDHNoSuchDataSet();
-//     }
-
-//     m_datasetAccess->endRead();
-
-//     return result;
-// }
-
 std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bool onlyActive )
 {
     std::vector< boost::shared_ptr< WDataTexture3D > > tex;
