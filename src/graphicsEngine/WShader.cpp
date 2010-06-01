@@ -185,8 +185,7 @@ std::string WShader::processShader( const std::string filename, bool optional, i
         // for the shader (not the included one, for which level != 0)
 
         // apply defines
-        std::map< std::string, float >::const_iterator mi = m_defines.begin();
-        while ( mi != m_defines.end() )
+        for ( std::map< std::string, float >::const_iterator mi = m_defines.begin(); mi != m_defines.end(); ++mi )
         {
             output << "#define " << mi->first << " " << boost::lexical_cast< std::string, float >( mi->second ) << std::endl;
         }
@@ -263,11 +262,19 @@ void WShader::setDefine( std::string key, float value )
     if ( key.length() > 0 )
     {
         m_defines[key] = value;
+        m_reload = true;
     }
 }
 
 void WShader::eraseDefine( std::string key )
 {
     m_defines.erase( key );
+    m_reload = true;
+}
+
+void WShader::eraseAllDefines()
+{
+    m_defines.clear();
+    m_reload = true;
 }
 
