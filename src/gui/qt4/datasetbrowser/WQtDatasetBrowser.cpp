@@ -87,8 +87,19 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_tabWidget2 = new QTabWidget( m_panel );
     m_tabWidget->setMinimumHeight( 220 );
 
+    // should the Tree, Texture Sorter and the ROI Display be combined in one tab widget?
+    bool combineThem = false;
+    WPreferences::getPreference( "qt4gui.combineTreeAndRoiAndTextureSorter", &combineThem );
+
     m_layout = new QVBoxLayout();
-    m_layout->addWidget( m_moduleTreeWidget );
+    if ( !combineThem )
+    {
+        m_layout->addWidget( m_moduleTreeWidget );
+    }
+    else
+    {
+        m_tabWidget2->addTab( m_moduleTreeWidget, QString( "Modules" ) );
+    }
     m_layout->addWidget( m_tabWidget2 );
 
     m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
