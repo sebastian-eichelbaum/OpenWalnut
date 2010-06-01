@@ -142,20 +142,6 @@ public:
     };
 
     /**
-     * Use a shared_ptr since the shared and unique locks from boost are non-copyable.
-     */
-    typedef boost::shared_ptr< WSharedObjectAccess > WSharedAccess;
-
-    /**
-     * This method distributes access objects. These objects are able to read/write lock the object and grant access to it, in
-     * a thread-safe manner.
-     *
-     * \deprecated do not use this anymore. Use \ref getReadTicket and \ref getWriteTicket instead
-     * \return the access object which allows thread safe access to the object.
-     */
-    WSharedAccess getAccessObject();
-
-    /**
      * Type for read tickets.
      */
     typedef boost::shared_ptr< WSharedObjectTicketRead< T > > ReadTicket;
@@ -180,6 +166,20 @@ public:
      * \return the ticket
      */
     WriteTicket getWriteTicket( bool suppressNotify = false ) const;
+
+    /**
+     * Use a shared_ptr since the shared and unique locks from boost are non-copyable.
+     */
+    typedef boost::shared_ptr< WSharedObjectAccess > WSharedAccess;
+
+    /**
+     * This method distributes access objects. These objects are able to read/write lock the object and grant access to it, in
+     * a thread-safe manner.
+     *
+     * \deprecated do not use this anymore. Use getReadTicket and getWriteTicket instead
+     * \return the access object which allows thread safe access to the object.
+     */
+    WSharedAccess getAccessObject();
 
     /**
      * This condition fires whenever the encapsulated object changed. This is fired automatically by endWrite().

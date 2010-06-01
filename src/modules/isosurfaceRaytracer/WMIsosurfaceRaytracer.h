@@ -139,13 +139,17 @@ private:
      */
     WPropInt m_alpha;
 
+    /**
+     * Types of shading supported.
+     */
     enum
     {
         Cortex = 0,
         Depth,
         Phong,
         PhongDepth
-    } SHADING_ALGORITHMS;
+    }
+    SHADING_ALGORITHMS;
 
     /**
      * The available shading algorithms.

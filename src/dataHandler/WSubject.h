@@ -70,6 +70,16 @@ public:
     typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType;
 
     /**
+     * The dataset iterator.
+     */
+    typedef DatasetContainerType::iterator DatasetIterator;
+
+    /**
+     * The dataset const iterator.
+     */
+    typedef DatasetContainerType::const_iterator DatasetConstIterator;
+
+    /**
      * Alias for the proper access object
      */
     typedef DatasetSharedContainerType::WSharedAccess DatasetAccess;
@@ -125,6 +135,13 @@ public:
     void clear();
 
     /**
+     * Returns read-access to the dataset list. As long as the returned ticket exists, the list of datasets can't be changed by others.
+     *
+     * \return the read ticket.
+     */
+    DatasetSharedContainerType::ReadTicket getDatasets() const;
+
+    /**
      * This gives a list of data textures from all supporting datasets in this subject.
      *
      * \param onlyActive true whenever only textures should be returned where isGloballyActive() == true.
@@ -135,6 +152,7 @@ public:
     /**
      * Gets an access object which allows thread save iteration over the datasets.
      *
+     * \deprecated do not use this anymore. Use getDatasets instead.
      * \return the access object.
      */
     DatasetAccess getAccessObject();
@@ -159,11 +177,6 @@ protected:
      * A container for all WDataSet.
      */
     DatasetSharedContainerType m_datasets;
-
-    /**
-     * The access object used for thread safe access.
-     */
-    DatasetSharedContainerType::WSharedAccess m_datasetAccess;
 
     /**
      * This condition set fires whenever one dataset gets dirty or the list of datasets changes.

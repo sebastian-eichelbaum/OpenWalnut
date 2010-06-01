@@ -78,7 +78,7 @@ public:
      * defines are a better choice when compared with a lot of branches (if-statements).
      *
      * \param key The name of the define
-     * \param value The value of the define. If this is not specified, the define can be used as simple #ifdef switch.
+     * \param value The value of the define. If this is not specified, the define can be used as simple ifdef switch.
      */
     void setDefine( std::string key, float value = 1.0 );
 

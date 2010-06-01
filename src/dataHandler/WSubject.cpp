@@ -37,7 +37,6 @@
 
 WSubject::WSubject():
     m_datasets(),
-    m_datasetAccess( m_datasets.getAccessObject() ),
     m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_listChangeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_personalInfo( WPersonalInformation::createDummyInformation() )
@@ -46,7 +45,6 @@ WSubject::WSubject():
 
 WSubject::WSubject( WPersonalInformation personInfo ):
     m_datasets(),
-    m_datasetAccess( m_datasets.getAccessObject() ),
     m_changeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_listChangeCondition( boost::shared_ptr< WConditionSet >( new WConditionSet() ) ),
     m_personalInfo( personInfo )
@@ -85,11 +83,11 @@ void WSubject::addDataSet( boost::shared_ptr< WDataSet > dataset )
 
 void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
 {
-    m_datasetAccess->beginWrite();
+    DatasetSharedContainerType::WriteTicket l = m_datasets.getWriteTicket();
 
     // iterate and find, remove
-    DatasetContainerType::iterator fIt = std::find( m_datasetAccess->get().begin(), m_datasetAccess->get().end(), dataset );
-    m_datasetAccess->get().erase( fIt );
+    DatasetIterator fIt = std::find( l->get().begin(), l->get().end(), dataset );
+    l->get().erase( fIt );
 
     // also deregister condition
     boost::shared_ptr< WCondition > c = dataset->getChangeCondition();
@@ -97,7 +95,9 @@ void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
     {
         m_changeCondition->remove( c );
     }
-    m_datasetAccess->endWrite();
+
+    // unlock if some callback notified below wants to access the list
+    l.reset();
 
     m_changeCondition->notify();
     m_listChangeCondition->notify();
@@ -105,33 +105,40 @@ void WSubject::removeDataSet( boost::shared_ptr< WDataSet > dataset )
 
 void WSubject::clear()
 {
-    m_datasetAccess->beginWrite();
+    DatasetSharedContainerType::WriteTicket l = m_datasets.getWriteTicket();
 
     // iterate and find, remove
-    for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
+    for ( DatasetIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
-        // also deregister condition
+        // also de-register condition
         boost::shared_ptr< WCondition > c = ( *iter )->getChangeCondition();
         if ( c.get() )
         {
             m_changeCondition->remove( c );
         }
     }
-    m_datasetAccess->get().clear();
+    l->get().clear();
 
-    m_datasetAccess->endWrite();
+    // unlock if some callback notified below wants to access the list
+    l.reset();
 
     m_listChangeCondition->notify();
+}
+
+WSubject::DatasetSharedContainerType::ReadTicket WSubject::getDatasets() const
+{
+    return m_datasets.getReadTicket();
 }
 
 std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bool onlyActive )
 {
     std::vector< boost::shared_ptr< WDataTexture3D > > tex;
 
-    // iterate the list and find all textures
-    m_datasetAccess->beginRead();
+    // Read lock the list, the lock is freed upon destruction of the ticket (if it goes out of scope for example).
+    DatasetSharedContainerType::ReadTicket l = m_datasets.getReadTicket();
 
-    for ( DatasetContainerType::iterator iter = m_datasetAccess->get().begin(); iter != m_datasetAccess->get().end(); ++iter )
+    // iterate the list and find all textures
+    for ( DatasetConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
         // is it a texture?
         if ( ( *iter )->isTexture() && ( !onlyActive || ( *iter )->getTexture()->isGloballyActive() ) )
@@ -140,12 +147,12 @@ std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bo
         }
     }
 
-    m_datasetAccess->endRead();
     return tex;
 }
 
 WSubject::DatasetAccess WSubject::getAccessObject()
 {
+    // TODO(ebaum): clean up if it is not used anymore
     return m_datasets.getAccessObject();
 }
 
