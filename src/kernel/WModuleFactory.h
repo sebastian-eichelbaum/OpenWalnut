@@ -66,11 +66,6 @@ public:
     typedef WSharedAssociativeContainer< PrototypeContainerType > PrototypeSharedContainerType;
 
     /**
-     * Alias for the proper access object
-     */
-    typedef PrototypeSharedContainerType::WSharedAccess PrototypeAccess;
-
-    /**
      * Default constructor.
      */
     WModuleFactory();
@@ -132,6 +127,13 @@ public:
     const boost::shared_ptr< WModule > getPrototypeByInstance( boost::shared_ptr< WModule > instance );
 
     /**
+     * This method gives read access to the list of all prototypes.
+     *
+     * \return the read ticket for the prototype list
+     */
+    PrototypeSharedContainerType::ReadTicket getPrototypes() const;
+
+    /**
      * Checks whether the first instance can be casted to the second one.
      *
      * \param module the module to check.
@@ -163,25 +165,12 @@ public:
      */
     static void initializeModule( boost::shared_ptr< WModule > module );
 
-    /**
-     * Get access to all the prototypes.
-     *
-     * \deprecated do not use this anymore. Use \ref getPrototypes instead.
-     * \return the access object to thread safe iterate.
-     */
-    const PrototypeSharedContainerType::WSharedAccess getAvailablePrototypes() const;
-
 protected:
 
     /**
      * The module prototypes available.
      */
     PrototypeSharedContainerType m_prototypes;
-
-    /**
-     * The lock for the prototypes set.
-     */
-    PrototypeSharedContainerType::WSharedAccess m_prototypeAccess;
 
 private:
 

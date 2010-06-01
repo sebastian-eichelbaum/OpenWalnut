@@ -81,16 +81,14 @@ WQtConfigWidget::~WQtConfigWidget()
 
 void WQtConfigWidget::getAvailableModuleNames()
 {
-    WModuleFactory::PrototypeSharedContainerType::WSharedAccess pa = WModuleFactory::getModuleFactory()->getAvailablePrototypes();
     m_moduleNames.clear();
 
-    // Temporarily disabled since locking causes several problems here :-/
-    // pa->beginRead();
+    // read all prototypes
+    WModuleFactory::PrototypeSharedContainerType::ReadTicket pa = WModuleFactory::getModuleFactory()->getPrototypes();
     for ( WModuleFactory::PrototypeContainerConstIteratorType itr = pa->get().begin(); itr != pa->get().end(); ++itr )
     {
         m_moduleNames.push_back( ( *itr )->getName() );
     }
-    // pa->endRead();
 }
 
 void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > properties, std::string groupName, bool fromConfig )
