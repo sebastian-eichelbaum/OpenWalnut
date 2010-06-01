@@ -34,9 +34,10 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../common/datastructures/WFiber.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
@@ -44,11 +45,13 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "../../modules/fiberDisplay/WMFiberDisplay.h"
+#include "voxelizer.xpm"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
+#include "WCenterlineParameterization.h"
+#include "WIntegrationParameterization.h"
 #include "WMVoxelizer.h"
 #include "WRasterAlgorithm.h"
-#include "voxelizer.xpm"
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
@@ -92,6 +95,12 @@ void WMVoxelizer::moduleMain()
             m_drawfibers->get( true );
             continue;
         }
+        if ( m_input->getData()->size() == 0 )
+        {
+            infoLog() << "Got empty fiber dataset. Ignoring.";
+            m_moduleState.wait();
+            continue;
+        }
 
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 4 ) );
         m_progress->addSubProgress( progress );
@@ -102,7 +111,8 @@ void WMVoxelizer::moduleMain()
             m_drawVoxels->changed() ||
             m_rasterAlgo->changed() ||
             m_voxelsPerUnit->changed() ||
-            m_clusters != m_input->getData() )
+            m_clusters != m_input->getData() ||
+            m_parameterAlgo->changed() )
         {
             m_drawVoxels->get( true );
             m_rasterAlgo->get( true );
@@ -132,6 +142,12 @@ void WMVoxelizer::moduleMain()
 
 void WMVoxelizer::properties()
 {
+    m_paramAlgoSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_paramAlgoSelections->addItem( "No Parameterization", "Disable parameterization." );          // NOTE: you can add XPM images here.
+    m_paramAlgoSelections->addItem( "By Longest Line", "Use the longest line and parameterize the bundle along it." );
+    m_paramAlgoSelections->addItem( "By Centerline", "Use the centerline and parameterize the bundle along it." );
+    m_paramAlgoSelections->addItem( "By Integration", "Integrate along the voxelized line." );
+
     m_antialiased     = m_properties->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
     m_drawfibers      = m_properties->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
     m_drawBoundingBox = m_properties->addProperty( "BoundingBox", "Enable/Disable drawing of a clusters BoundingBox.", true );
@@ -142,6 +158,10 @@ void WMVoxelizer::properties()
                                                     std::string( "WBresenham" ), m_fullUpdate );
     m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
                                                                        "is useful to increase the resolution of the grid", 1, m_fullUpdate );
+    m_parameterAlgo   = m_properties->addProperty( "Parameterization", "Select the parameterization algorithm.",
+                                                   m_paramAlgoSelections->getSelectorFirst(), m_fullUpdate );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_parameterAlgo );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_parameterAlgo );
     m_fiberTransparency = m_properties->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
     m_fiberTransparency->setMin( 0.0 );
     m_fiberTransparency->setMax( 1.0 );
@@ -223,7 +243,7 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
-                                                                  bb.first, 1. / nbVoxelsPerUnit, 1. / nbVoxelsPerUnit, 1. / nbVoxelsPerUnit ) );
+                                                                  bb.first, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit ) );
     return grid;
 }
 
@@ -250,7 +270,7 @@ void WMVoxelizer::updateCenterLine()
         boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
         if( centerLine )
         {
-            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.f );
+            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.0f );
         }
         else
         {
@@ -301,13 +321,50 @@ void WMVoxelizer::update()
         rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased->get() ) );
     }
     debugLog() << "Using: " << m_rasterAlgo->get() << " as rasterization Algo.";
+
+    // decide which param algo to use:
+    size_t algo = m_parameterAlgo->get( true ).getItemIndexOfSelected( 0 );
+    boost::shared_ptr< WRasterParameterization > paramAlgo;
+    if ( algo == 0 )
+    {
+        debugLog() << "No parameterization algorithm selected.";
+    }
+    else if ( algo == 1 )
+    {
+        debugLog() << "Parameterization algorithm: by longest line.";
+        paramAlgo = boost::shared_ptr< WRasterParameterization >(
+            new WCenterlineParameterization( grid, m_clusters->getLongestLine() )
+        );
+    }
+    else if ( algo == 2 )
+    {
+        debugLog() << "Parameterization algorithm: by centerline.";
+        paramAlgo = boost::shared_ptr< WRasterParameterization >(
+            new WCenterlineParameterization( grid, m_clusters->getCenterLine() )
+        );
+    }
+    else if ( algo == 3 )
+    {
+        debugLog() << "Parameterization algorithm: by integration.";
+        paramAlgo = boost::shared_ptr< WRasterParameterization >(
+            new WIntegrationParameterization( grid )
+        );
+    }
+    if ( paramAlgo )
+    {
+        rasterAlgo->addParameterizationAlgorithm( paramAlgo );
+    }
+
     raster( rasterAlgo );
 
     // update both outputs
     boost::shared_ptr< WDataSetScalar > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
-    boost::shared_ptr< WDataSetSingle > outputDataSetDir = rasterAlgo->generateVectorDataSet();
-    m_dirOutput->updateData( outputDataSetDir );
+    if ( paramAlgo )
+    {
+        boost::shared_ptr< WDataSetScalar > outputDataSetIntegration = paramAlgo->getDataSet();
+        m_parameterizationOutput->updateData( outputDataSetIntegration );
+    }
 
     if( m_drawVoxels->get() )
     {
@@ -337,6 +394,8 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
     {
         algo->raster( fibs.at( *cit ) );
     }
+    algo->finished();
+
     // TODO(math): This is just a line for testing purposes
 //    wmath::WLine l;
 //    l.push_back( wmath::WPosition( 73, 38, 29 ) );
@@ -354,15 +413,12 @@ void WMVoxelizer::connectors()
     m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
     addConnector( m_output );
 
-    typedef WModuleOutputData< WDataSetSingle > OutputDirType; // just an alias
-    m_dirOutput = boost::shared_ptr< OutputDirType >( new OutputDirType( shared_from_this(),
-                                                                         "voxelDirectionOutput",
-                                                                         "The voxelized direction dataset." ) );
-    addConnector( m_dirOutput );
+    m_parameterizationOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "parameterizationOutput",
+                                                                                               "The parameter field for the voxelized fibers." ) );
+    addConnector( m_parameterizationOutput );
 
     WModule::connectors();  // call WModules initialization
 }
-
 
 std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
 {

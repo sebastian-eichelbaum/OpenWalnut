@@ -367,9 +367,9 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     // crashed module has set some data on its output and some other module needs it. -> so we ignore the case of crashed modules here.
 
     // get offered outputs
-    std::set<boost::shared_ptr<WModuleInputConnector> > ins = m->getInputConnectors();
+    WModule::InputConnectorList ins = m->getInputConnectors();
     // get offered inputs
-    std::set<boost::shared_ptr<WModuleOutputConnector> > outs = applyOn->getOutputConnectors();
+    WModule::OutputConnectorList outs = applyOn->getOutputConnectors();
 
     // TODO(ebaum): search best matching instead of simply connecting both
     if ( !ins.empty() && !outs.empty() )

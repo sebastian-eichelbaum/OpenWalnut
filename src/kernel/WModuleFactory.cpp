@@ -35,7 +35,6 @@
 #include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/clusterSlicer/WMClusterSlicer.h"
-#include "../modules/connectomeView/WMConnectomeView.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
@@ -58,7 +57,6 @@
 #include "../modules/navSlices/WMNavSlices.h"
 #include "../modules/scalarSegmentation/WMScalarSegmentation.h"
 #include "../modules/superquadricGlyphs/WMSuperquadricGlyphs.h"
-#include "../modules/surfaceParticles/WMSurfaceParticles.h"
 #include "../modules/template/WMTemplate.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
 #include "../modules/vectorPlot/WMVectorPlot.h"
@@ -100,7 +98,6 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMConnectomeView() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMCoordinateSystem() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
@@ -124,7 +121,6 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMScalarSegmentation() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSuperquadricGlyphs() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSurfaceParticles() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTemplate() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTriangleMeshRenderer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
@@ -261,7 +257,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
             ++listIter )
     {
         // get connectors of this prototype
-        std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
+        WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
         if(  pcons.size() == 0  )
         {
             // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
@@ -276,7 +272,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
     }
 
     // get offered outputs
-    std::set<boost::shared_ptr<WModuleOutputConnector> > cons = module->getOutputConnectors();
+    WModule::OutputConnectorList cons = module->getOutputConnectors();
 
     // return early if we have no output connector, because the modules with no input connector
     // are already added at this point.
@@ -298,7 +294,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
             ++listIter )
     {
         // get connectors of this prototype
-        std::set<boost::shared_ptr<WModuleInputConnector> > pcons = ( *listIter )->getInputConnectors();
+        WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
 
         // ensure we have 1 connector
         if( pcons.size() == 0 )

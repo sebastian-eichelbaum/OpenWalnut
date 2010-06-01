@@ -141,6 +141,34 @@ public:
     }
 
     /**
+     * Test the removeProperty() method
+     */
+    void testRemove( void )
+    {
+        WException::disableBacktrace(); // in tests, turn of backtrace globally
+
+        boost::shared_ptr< WProperties > p = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+
+        // add some new properties
+        boost::shared_ptr< WPropertyBase > p1 = p->addProperty( "1", "test1", true );
+        boost::shared_ptr< WPropertyBase > p2 = p->addProperty( "2", "test2", 1 );
+        boost::shared_ptr< WPropertyBase > p3 = p->addProperty( "3", "test3", 1.0 );
+
+        // this should have created 3 props
+        // NOTE: we can use the propAccess directly here since there is no multi--threading in this test
+        TS_ASSERT( p->m_propAccess->get().size() == 3 );
+
+        // remove a property
+        TS_ASSERT_THROWS_NOTHING( p->removeProperty( p2 ) );
+        TS_ASSERT( p->m_propAccess->get().size() == 2 );
+
+        // remove a prop which is not in the list
+        TS_ASSERT_THROWS_NOTHING( p->removeProperty( p2 ) );
+        TS_ASSERT( p->m_propAccess->get().size() == 2 );
+    }
+
+
+    /**
      * Test the features to find and get properties.
      */
     void testGetAndExistsAndFind( void )

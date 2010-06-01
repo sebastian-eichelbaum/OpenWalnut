@@ -169,7 +169,12 @@ protected:
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< Output connector for a voxelized cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+
+    /**
+     * Output providing parameterization to other algorithms. It provides a scalar field which gets filled with the parameterization of the
+     * fibers, i.e. current integrated length.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_parameterizationOutput;
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
     osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module
@@ -190,6 +195,15 @@ private:
     WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
     WPropDouble m_fiberTransparency; //!< Trancparency of the fibers
     WPropColor m_explicitFiberColor; //!< If set not to 0.2 0.2 0.2 all fiber having this color
+    /**
+     * The available parameterization algorithms.
+     */
+    boost::shared_ptr< WItemSelection > m_paramAlgoSelections;
+
+    /**
+     * The actually selected parameterization algorithm.
+     */
+    WPropSelection m_parameterAlgo;
 
     /**
      * Node callback to hide unhide bounding box
