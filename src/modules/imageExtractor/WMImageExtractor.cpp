@@ -122,7 +122,12 @@ void WMImageExtractor::moduleMain()
 
             std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
             m_outData = extract( i );
-            m_outData->setFileName( makeImageName( i ) );
+
+            if( m_outData )
+            {
+                m_outData->setFileName( makeImageName( i ) );
+            }
+
             m_output->updateData( m_outData );
 
             if( m_outData )
@@ -291,6 +296,7 @@ const std::string WMImageExtractor::makeImageName( std::size_t i )
     std::stringstream s;
     WAssert( m_dataSet, "" );
     WAssert( m_dataSet->getValueSet(), "" );
-    s << i << "_of_" << m_dataSet->getValueSet()->dimension() << "_" << m_dataSet->getFileName();
+
+    s << m_dataSet->getFileName() << " (" << i << " of " << m_dataSet->getValueSet()->dimension() << ")";
     return s.str();
 }
