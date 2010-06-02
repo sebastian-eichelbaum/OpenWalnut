@@ -56,6 +56,10 @@
 #include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../common/math/WTensorSym.h"
 
+/**
+ * Helper class, that constructs a triangle mesh representation of a spline surface from a given
+ * number of input points
+ */
 class WSurface
 {
 public:
@@ -104,6 +108,10 @@ private:
 
     boost::shared_ptr< WTriangleMesh2 > m_tMesh; //!< the triangle mesh of the surface
 
+    // // TODO(schurade): comments need to be fixed
+    // i know people want real comments and want to know what each parameter does and what it means in the
+    // grand scheme of things and the universe, but the fantom code where this is from, isn't commented either,
+    // so we can only guess, be happy that it does what it does
     double m_radius; //!< param for the algo
     double m_my; //!< param for the algo
     int m_numDeBoorRows; //!< param for the algo
