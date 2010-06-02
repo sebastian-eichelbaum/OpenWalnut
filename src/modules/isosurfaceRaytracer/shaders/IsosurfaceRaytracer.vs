@@ -71,7 +71,7 @@ void main()
 
     // also get the coordinates of the light
     vec4 lpos = gl_LightSource[0].position;
-//    lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
+    lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
     v_lightSource = worldToLocal( lpos ).xyz;
 
     // Simply project the vertex

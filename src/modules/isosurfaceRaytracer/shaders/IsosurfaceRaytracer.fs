@@ -158,7 +158,7 @@ void main()
 #endif
 #ifdef PHONG
             // find a proper normal for a headlight
-            float s = 0.005;
+            float s = 0.01;
             float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
             float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
             float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
@@ -166,18 +166,11 @@ void main()
             float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
             float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
-            vec3 dir = vec3( 0.0 );//v_ray;
-            dir += vec3( valueXP, 0.0, 0.0 );
-            dir -= vec3( valueXM, 0.0, 0.0 );
-            dir += vec3( 0.0, valueYP, 0.0 );
-            dir -= vec3( 0.0, valueYM, 0.0 );
-            dir += vec3( 0.0, 0.0, valueZP );
-            dir -= vec3( 0.0, 0.0, valueZP );
-
+            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ) ;//v_ray;
             // Phong:
             float light = blinnPhongIlluminationIntensity( 
-                    0.3,                                // material ambient
-                    1.0,                                // material diffuse
+                    0.1,                                // material ambient
+                    0.75,                               // material diffuse
                     1.3,                                // material specular
                     10.0,                               // shinines
                     1.0,                                // light diffuse
@@ -190,6 +183,32 @@ void main()
             color = light * gl_Color;
 #endif
 #ifdef PHONGWITHDEPTH
+            float d = 1.0 - curPointProjected.z;
+
+            // find a proper normal for a headlight
+            float s = 0.01;
+            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+
+            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ) ;//v_ray;
+            // Phong:
+            float light = blinnPhongIlluminationIntensity( 
+                    0.1,                                // material ambient
+                    d * d,                              // material diffuse
+                    1.3,                                // material specular
+                    10.0,                               // shinines
+                    1.0,                                // light diffuse
+                    0.3,                                // light ambient
+                    normalize( -dir ),                  // normal
+                    normalize( v_ray ),                 // view direction
+                    normalize( v_lightSource )          // light source position
+            );
+            
+            color = light * gl_Color;
 #endif
 
             color.a = u_alpha;
