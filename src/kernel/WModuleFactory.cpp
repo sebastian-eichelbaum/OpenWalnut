@@ -198,7 +198,7 @@ const boost::shared_ptr< WModule > WModuleFactory::isPrototypeAvailable( std::st
 
     // find first and only prototype (ensured during load())
     boost::shared_ptr< WModule > ret = boost::shared_ptr< WModule >();
-    for( std::set< boost::shared_ptr< WModule > >::iterator listIter = l->get().begin(); listIter != l->get().end();
+    for( std::set< boost::shared_ptr< WModule > >::const_iterator listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
         if ( ( *listIter )->getName() == name )
