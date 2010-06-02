@@ -42,7 +42,6 @@ WSurface::WSurface()
     m_numDeBoorCols = 12;
     m_order = 4;
     m_sampleRateT = m_sampleRateU = 0.5;
-    m_numPoints = 0;
     m_tMesh = boost::shared_ptr< WTriangleMesh2 >( new WTriangleMesh2( 0, 0 ) );
 }
 

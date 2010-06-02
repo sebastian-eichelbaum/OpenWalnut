@@ -62,34 +62,63 @@ public:
     WSurface();
     ~WSurface();
 
+    /**
+     * runs the algo and constructs a spine surface from the given input points
+     *
+     * \return a triangle mesh of the constructed spline surface
+     */
     boost::shared_ptr< WTriangleMesh2 > execute();
 
+    /**
+     * getter for the spline points
+     *
+     * \return points
+     */
     std::vector< std::vector< double > > getSplinePoints();
+
+    /**
+     * sets the sample rate for the splines
+     *
+     * \param r the new sample rate
+     */
     void setSetSampleRate( float r );
 
 private:
-
+    /**
+     * calculates the covariance matrix for a given number of points inspace
+     *
+     * \param points vector of points
+     * \return the matrix
+     */
     wmath::WTensorSym< 2, 3, double > getCovarianceMatrix( std::vector< std::vector< double > > points );
+
+    /**
+     * calculates numRows*numCols deBoor points from given input points
+     *
+     * \param givenPoints the input points
+     * \param deBoorPoints reference to the output vector
+     * \param numRows
+     * \param numCols
+     */
     void getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > > &givenPoints, std::vector< std::vector< double > > &deBoorPoints, int numRows, int numCols ); // NOLINT
 
-    boost::shared_ptr< WTriangleMesh2 > m_tMesh;
+    boost::shared_ptr< WTriangleMesh2 > m_tMesh; //!< the triangle mesh of the surface
 
-    double m_radius;
-    double m_my;
-    int m_numDeBoorRows;
-    int m_numDeBoorCols;
-    int m_order;
-    double m_sampleRateT;
-    double m_sampleRateU;
-    double m_xAverage;
-    double m_yAverage;
-    double m_zAverage;
+    double m_radius; //!< param for the algo
+    double m_my; //!< param for the algo
+    int m_numDeBoorRows; //!< param for the algo
+    int m_numDeBoorCols; //!< param for the algo
+    int m_order; //!< param for the algo
+    double m_sampleRateT; //!< param for the algo
+    double m_sampleRateU; //!< param for the algo
+    double m_xAverage; //!< param for the algo
+    double m_yAverage; //!< param for the algo
+    double m_zAverage; //!< param for the algo
 
-    std::vector< std::vector< double > > m_splinePoints;
+    std::vector< std::vector< double > > m_splinePoints; //!< stores the input points
 
-    int m_renderpointsPerCol;
-    int m_renderpointsPerRow;
-    int m_numPoints;
+    int m_renderpointsPerCol; //!< resolution of the output mesh
+    int m_renderpointsPerRow; //!< resolution of the output mesh
 };
 
 #endif  // WSURFACE_H
