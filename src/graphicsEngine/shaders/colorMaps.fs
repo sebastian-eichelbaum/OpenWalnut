@@ -121,7 +121,7 @@ vec3 negative2positive( in float value )
 
 vec3 atlasColorMap ( in float value )
 {
-    int val = (int)( value * 255 );
+    int val = int( value * 255 );
     float r = 0.0;
     float g = 0.0;
     float b = 0.0;
