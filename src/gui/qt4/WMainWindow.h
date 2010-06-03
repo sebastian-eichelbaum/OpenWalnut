@@ -248,7 +248,11 @@ private:
      */
     boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
-    bool m_fibLoaded; //!< Indicates whether a fiber data set is already loaded.
+    /**
+     * Used to ensure that only one fiber dataset can be loaded since the
+     * ROIManager is not known to work with more than one fiber dataset
+     */
+    bool m_fibLoaded; // TODO(all): remove this when its possible to display more than one fiber dataset
 
     /**
      * All registered WQtCustomDockWidgets.
