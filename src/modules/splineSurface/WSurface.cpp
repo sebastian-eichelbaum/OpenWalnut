@@ -22,27 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
 #include <fstream>
-#include <vector>
 #include <map>
+#include <vector>
 
-#include "math.h"
-
-#include "../../common/math/WMatrix.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
+#include "../../common/math/WMatrix.h"
 #include "../../common/math/WTensorFunctions.h"
-
 #include "WSurface.h"
 
 WSurface::WSurface()
+    : m_tMesh( new WTriangleMesh2( 0, 0 ) ),
+      m_radius( 30.0 ),
+      m_my( 8.0 ),
+      m_numDeBoorRows( 12 ),
+      m_numDeBoorCols( 12 ),
+      m_order( 4 ),
+      m_sampleRateT( 0.5 ),
+      m_sampleRateU( 0.5 ),
+      m_xAverage( 0.0 ),
+      m_yAverage( 0.0 ),
+      m_zAverage( 0.0 )
 {
-    m_radius = 30.0;
-    m_my = 8.0;
-    m_numDeBoorRows = 12;
-    m_numDeBoorCols = 12;
-    m_order = 4;
-    m_sampleRateT = m_sampleRateU = 0.5;
-    m_tMesh = boost::shared_ptr< WTriangleMesh2 >( new WTriangleMesh2( 0, 0 ) );
 }
 
 WSurface::~WSurface()
@@ -55,7 +57,7 @@ wmath::WTensorSym< 2, 3, double > WSurface::getCovarianceMatrix( std::vector< st
     m_xAverage = m_yAverage = m_zAverage = 0;
 
     std::vector< std::vector< double > >::iterator pointsIt;
-    for ( pointsIt = points.begin(); pointsIt != points.end(); pointsIt++ )
+    for( pointsIt = points.begin(); pointsIt != points.end(); ++pointsIt )
     {
         std::vector< double > dmy = *pointsIt;
         m_xAverage += dmy[0];
@@ -67,7 +69,7 @@ wmath::WTensorSym< 2, 3, double > WSurface::getCovarianceMatrix( std::vector< st
     m_yAverage /= points.size();
     m_zAverage /= points.size();
 
-    for ( pointsIt = points.begin(); pointsIt != points.end(); pointsIt++ )
+    for( pointsIt = points.begin(); pointsIt != points.end(); ++pointsIt )
     {
         std::vector< double > dmy = *pointsIt;
 
@@ -97,17 +99,25 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > 
 
     std::vector< std::vector< double > >::iterator givenPointsIt;
 
-    for ( givenPointsIt = givenPoints.begin(); givenPointsIt != givenPoints.end(); givenPointsIt++ )
+    for( givenPointsIt = givenPoints.begin(); givenPointsIt != givenPoints.end(); ++givenPointsIt )
     {
         std::vector< double > dmy = *givenPointsIt;
-        if ( dmy[0] < xMin )
+        if( dmy[0] < xMin )
+        {
             xMin = dmy[0];
-        if ( dmy[0] > xMax )
+        }
+        if( dmy[0] > xMax )
+        {
             xMax = dmy[0];
-        if ( dmy[2] < zMin )
+        }
+        if( dmy[2] < zMin )
+        {
             zMin = dmy[2];
-        if ( dmy[2] > zMax )
+        }
+        if( dmy[2] > zMax )
+        {
             zMax = dmy[2];
+        }
     }
 
     double dX = ( xMax - xMin ) / ( numCols - 1 );
@@ -115,8 +125,8 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > 
 
     deBoorPoints.reserve( numRows * numCols );
 
-    for ( int row = 0; row < numRows; ++row )
-        for ( int col = 0; col < numCols; ++col )
+    for( int row = 0; row < numRows; ++row )
+        for( int col = 0; col < numCols; ++col )
         {
             std::vector< double > dmy;
             double x = xMin + dX * col;
@@ -127,7 +137,7 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > 
             double numerator = 0, denominator = 0;
 
             //<local shepard with franke-little-weights>
-            for ( givenPointsIt = givenPoints.begin(); givenPointsIt != givenPoints.end(); givenPointsIt++ )
+            for( givenPointsIt = givenPoints.begin(); givenPointsIt != givenPoints.end(); ++givenPointsIt )
             {
                 std::vector< double > dmy1 = *givenPointsIt;
                 wmath::WVector3D dmyArray( dmy1[0], dmy1[1], dmy1[2] );
@@ -136,18 +146,26 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > 
 
                 double xi; //greek alphabet
 
-                if ( ( thisPoint - dmyArray ).norm() < m_radius )
+                if( ( thisPoint - dmyArray ).norm() < m_radius )
+                {
                     xi = 1 - ( thisPoint - dmyArray ).norm() / m_radius;
+                }
                 else
+                {
                     xi = 0;
+                }
 
                 numerator += ( pow( xi, m_my ) * dmy1[1] );
                 denominator += ( pow( xi, m_my ) );
             }
-            if ( denominator == 0 )
+            if( denominator == 0 )
+            {
                 y = 0;
+            }
             else
+            {
                 y = numerator / denominator;
+            }
             //</local shepard with franke-little-weights>
             dmy.push_back( y );
             dmy.push_back( z );
@@ -161,9 +179,9 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
 {
     std::vector< std::vector< double > > givenPoints;
 
-    for ( int y = 0; y < 11; ++y )
+    for( int y = 0; y < 11; ++y )
     {
-        for ( int z = 0; z < 11; ++z )
+        for( int z = 0; z < 11; ++z )
         {
             std::vector< double > p( 3 );
             float pi = 3.14159265;
@@ -219,7 +237,7 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     std::vector< std::vector< double > >::iterator pointsIt;
 
     //translate and orientate given points to origin
-    for ( pointsIt = givenPoints.begin(); pointsIt != givenPoints.end(); pointsIt++ )
+    for( pointsIt = givenPoints.begin(); pointsIt != givenPoints.end(); ++pointsIt )
     {
         ( *pointsIt )[0] -= m_xAverage;
         ( *pointsIt )[1] -= m_yAverage;
@@ -238,7 +256,7 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
 
     //translate and orientate de Boor points back
     transMatrix = wmath::invertMatrix3x3( transMatrix );
-    for ( pointsIt = deBoorPoints.begin(); pointsIt != deBoorPoints.end(); pointsIt++ )
+    for( pointsIt = deBoorPoints.begin(); pointsIt != deBoorPoints.end(); ++pointsIt )
     {
         wmath::WVector3D dmy( ( *pointsIt )[0], ( *pointsIt )[1], ( *pointsIt )[2]  );
 
@@ -264,14 +282,14 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     boost::shared_ptr< WTriangleMesh2 > newMesh = boost::shared_ptr< WTriangleMesh2 >( new WTriangleMesh2( m_splinePoints.size(), 2
             * m_renderpointsPerCol * m_renderpointsPerRow ) );
 
-    for ( std::vector< std::vector< double > >::iterator posIt = m_splinePoints.begin(); posIt != m_splinePoints.end(); posIt++ )
+    for( std::vector< std::vector< double > >::iterator posIt = m_splinePoints.begin(); posIt != m_splinePoints.end(); ++posIt )
     {
         newMesh->addVertex( ( *posIt )[0], ( *posIt )[1], ( *posIt )[2] );
     }
 
-    for ( int z = 0; z < m_renderpointsPerCol - 1; z++ )
+    for( int z = 0; z < m_renderpointsPerCol - 1; ++z )
     {
-        for ( int x = 0; x < m_renderpointsPerRow - 1; x++ )
+        for( int x = 0; x < m_renderpointsPerRow - 1; ++x )
         {
             int p0 = z * m_renderpointsPerCol + x;
             int p1 = z * m_renderpointsPerCol + x + 1;

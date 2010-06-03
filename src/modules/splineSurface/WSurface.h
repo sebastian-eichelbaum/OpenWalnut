@@ -27,61 +27,43 @@
 
 #include <vector>
 
-//---------------------------------------------------------------------------
-//
-// Project: OpenWalnut ( http://www.openwalnut.org )
-//
-// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
-// For more information see http://www.openwalnut.org/copying
-//
-// This file is part of OpenWalnut.
-//
-// OpenWalnut is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// OpenWalnut is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
-//
-//---------------------------------------------------------------------------
-
+#include "../../common/math/WTensorSym.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "WBSplineSurface.h"
 
-#include "../../graphicsEngine/WTriangleMesh2.h"
-#include "../../common/math/WTensorSym.h"
-
 /**
- * Helper class, that constructs a triangle mesh representation of a spline surface from a given
- * number of input points
+ * Constructs a triangle mesh representation of a spline surface from a given
+ * number of input points.
  */
 class WSurface
 {
 public:
+    /**
+     * Constructs new WSurface.
+     */
     WSurface();
+
+    /**
+     * Destructs this WSurface.
+     */
     ~WSurface();
 
     /**
-     * runs the algo and constructs a spine surface from the given input points
+     * Runs the algo and constructs a spine surface from the given input points
      *
      * \return a triangle mesh of the constructed spline surface
      */
     boost::shared_ptr< WTriangleMesh2 > execute();
 
     /**
-     * getter for the spline points
+     * Returns a copy of the spline point vector.
      *
      * \return points
      */
     std::vector< std::vector< double > > getSplinePoints();
 
     /**
-     * sets the sample rate for the splines
+     * SEts the sample rate for the splines.
      *
      * \param r the new sample rate
      */
@@ -89,7 +71,7 @@ public:
 
 private:
     /**
-     * calculates the covariance matrix for a given number of points inspace
+     * Calculates the covariance matrix for a given number of points inspace.
      *
      * \param points vector of points
      * \return the matrix
@@ -97,7 +79,7 @@ private:
     wmath::WTensorSym< 2, 3, double > getCovarianceMatrix( std::vector< std::vector< double > > points );
 
     /**
-     * calculates numRows*numCols deBoor points from given input points
+     * Calculates numRows*numCols deBoor points from given input points.
      *
      * \param givenPoints the input points
      * \param deBoorPoints reference to the output vector
@@ -106,7 +88,7 @@ private:
      */
     void getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > > &givenPoints, std::vector< std::vector< double > > &deBoorPoints, int numRows, int numCols ); // NOLINT
 
-    boost::shared_ptr< WTriangleMesh2 > m_tMesh; //!< the triangle mesh of the surface
+    boost::shared_ptr< WTriangleMesh2 > m_tMesh; //!< Triangle mesh of the surface
 
     // // TODO(schurade): comments need to be fixed
     // i know people want real comments and want to know what each parameter does and what it means in the
