@@ -30,35 +30,32 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
+#include <QtGui/QCloseEvent>
 #include <QtGui/QIcon>
 #include <QtGui/QMainWindow>
 #include <QtGui/QSlider>
 #include <QtGui/QWidget>
-#include <QtGui/QCloseEvent>
 
-#include "WQtNavGLWidget.h"
-#include "WQtConfigWidget.h"
-#include "ribbonMenu/WQtRibbonMenu.h"
-#include "WQtCustomDockWidget.h"
-#include "WQtToolBar.h"
-
-#include "WIconManager.h"
-#include "datasetbrowser/WQtDatasetBrowser.h"
-
-#include "../../kernel/WModule.h"
 #include "../../common/WProjectFileIO.h"
+#include "../../kernel/WModule.h"
+#include "datasetbrowser/WQtDatasetBrowser.h"
+#include "ribbonMenu/WQtRibbonMenu.h"
+#include "WIconManager.h"
+#include "WQtConfigWidget.h"
+#include "WQtCustomDockWidget.h"
+#include "WQtNavGLWidget.h"
+#include "WQtToolBar.h"
 
 // forward declarations
 class QMenuBar;
 class WQtGLWidget;
 
 /**
- * This class contains the main window and the layout
- * of the widgets within the window.
+ * This class contains the main window and the layout of the widgets within the window.
  * \ingroup gui
  */
 class WMainWindow : public QMainWindow
@@ -247,8 +244,8 @@ private:
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
 
     /**
-    * shared pointer for the configuration widget
-    */
+     * shared pointer for the configuration widget
+     */
     boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
     bool m_fibLoaded; //!< Indicates whether a fiber data set is already loaded.

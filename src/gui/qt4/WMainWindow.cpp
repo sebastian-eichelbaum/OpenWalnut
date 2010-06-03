@@ -23,46 +23,44 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <boost/thread.hpp>
 
 #include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QSlider>
-#include <QtGui/QShortcut>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenuBar>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
+#include <QtGui/QMessageBox>
+#include <QtGui/QShortcut>
+#include <QtGui/QSlider>
+#include <QtGui/QVBoxLayout>
 
-#include "WMainWindow.h"
-#include "WOpenCustomDockWidgetEvent.h"
-#include "WQtGLWidget.h"
-#include "WQtNavGLWidget.h"
-#include "WQtCustomDockWidget.h"
-#include "events/WModuleReadyEvent.h"
-#include "events/WModuleCrashEvent.h"
-#include "events/WEventTypes.h"
-#include "datasetbrowser/WPropertyBoolWidget.h"
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WEEG2.h"
+#include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WProjectFile.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
-
-#include "../../dataHandler/WEEG2.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WDataSetFibers.h"
-
-#include "../../graphicsEngine/WROIBox.h"
-
 #include "../icons/WIcons.h"
+#include "datasetbrowser/WPropertyBoolWidget.h"
+#include "events/WEventTypes.h"
+#include "events/WModuleCrashEvent.h"
+#include "events/WModuleReadyEvent.h"
+#include "WOpenCustomDockWidgetEvent.h"
+#include "WQtCustomDockWidget.h"
+#include "WQtGLWidget.h"
+#include "WQtNavGLWidget.h"
+
+#include "WMainWindow.h"
 
 WMainWindow::WMainWindow() :
     QMainWindow(),
