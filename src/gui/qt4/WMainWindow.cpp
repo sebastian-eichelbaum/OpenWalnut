@@ -55,7 +55,7 @@
 #include "events/WEventTypes.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
-#include "WOpenCustomDockWidgetEvent.h"
+#include "events/WOpenCustomDockWidgetEvent.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"

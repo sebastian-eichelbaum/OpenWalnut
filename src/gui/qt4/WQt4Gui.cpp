@@ -46,10 +46,11 @@
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
+#include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WRoiAssocEvent.h"
 #include "events/WRoiRemoveEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
-#include "WOpenCustomDockWidgetEvent.h"
+
 #include "WQt4Gui.h"
 
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
@@ -128,7 +129,7 @@ int WQt4Gui::run()
     }
 
     WLogger::getLogger()->run();
-    WLogger::getLogger()->addLogMessage( "Bringing up GUI", "GUI", LL_INFO );
+    wlog::info( "GUI" ) << "Bringing up GUI";
 
     QApplication appl( m_argc, m_argv, true );
 
