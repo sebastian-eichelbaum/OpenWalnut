@@ -820,7 +820,11 @@ QAction* WQtDatasetBrowser::toggleViewAction() const
 {
     QAction* result = QDockWidget::toggleViewAction();
     QList< QKeySequence > shortcut;
+#if defined( __APPLE__ )
+    shortcut.append( QKeySequence( Qt::CTRL + Qt::Key_F9 ) ); // In Mac OS X F9 is already taken by window managment
+#else
     shortcut.append( QKeySequence( Qt::Key_F9 ) );
+#endif
     result->setShortcuts( shortcut );
     return result;
 }
