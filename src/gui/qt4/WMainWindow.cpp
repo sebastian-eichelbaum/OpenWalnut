@@ -140,10 +140,6 @@ void WMainWindow::setupGUI()
 
     setMenuBar( m_menuBar );
 
-    m_centralwidget = new QWidget( this );
-    m_centralwidget->setObjectName( QString::fromUtf8( "centralwidget" ) );
-    setCentralWidget( m_centralwidget );
-
     m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
     m_mainGLWidget->initialize();
     setCentralWidget( m_mainGLWidget.get() );
