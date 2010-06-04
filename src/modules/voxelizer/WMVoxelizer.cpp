@@ -44,7 +44,6 @@
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "../../modules/fiberDisplay/WMFiberDisplay.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
 #include "WMVoxelizer.h"
