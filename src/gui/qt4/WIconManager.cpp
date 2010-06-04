@@ -25,8 +25,9 @@
 #include <cassert>
 #include <string>
 
-#include "WIconManager.h"
+#include "../../common/WAssert.h"
 #include "../../kernel/WModuleFactory.h"
+#include "WIconManager.h"
 
 void WIconManager::addIcon( std::string name, const char* const xpm[] )
 {
@@ -48,7 +49,9 @@ QIcon WIconManager::getIcon( const std::string name )
         icon =  QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
     }
     else
-        assert( 0 && "No icon with the given name found." );
+    {
+        WAssert( 0, "Found no icon named: " + name );
+    }
 
     return icon;
 }

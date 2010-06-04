@@ -29,32 +29,30 @@
 #include <vector>
 
 #include <QtCore/QList>
+#include <QtGui/QMenu>
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
-#include <QtGui/QMenu>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
-
 #include "../../../dataHandler/WDataSet.h"
-
-#include "../../../kernel/WModuleFactory.h"
 #include "../../../kernel/WKernel.h"
+#include "../../../kernel/WModuleFactory.h"
 #include "../../../modules/data/WMData.h"
+#include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
+#include "../events/WModuleDeleteEvent.h"
+#include "../events/WModuleReadyEvent.h"
+#include "../events/WModuleRemovedEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
-#include "../events/WModuleReadyEvent.h"
-#include "../events/WModuleDeleteEvent.h"
-#include "../events/WModuleRemovedEvent.h"
-#include "../events/WEventTypes.h"
 #include "../guiElements/WQtApplyModulePushButton.h"
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
+#include "WQtBranchTreeItem.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtTextureSorter.h"
-#include "WQtBranchTreeItem.h"
 
 #include "WQtDatasetBrowser.h"
 
@@ -816,6 +814,15 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelect
         }
     }
     return roi;
+}
+
+QAction* WQtDatasetBrowser::toggleViewAction() const
+{
+    QAction* result = QDockWidget::toggleViewAction();
+    QList< QKeySequence > shortcut;
+    shortcut.append( QKeySequence( Qt::Key_F9 ) );
+    result->setShortcuts( shortcut );
+    return result;
 }
 
 void WQtDatasetBrowser::deleteModuleTreeItem()

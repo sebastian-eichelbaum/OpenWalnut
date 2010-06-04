@@ -120,11 +120,7 @@ void WMainWindow::setupGUI()
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
 
-    QAction* dsbTrigger = m_datasetBrowser->toggleViewAction();
-    QList< QKeySequence > dsbShortcut;
-    dsbShortcut.append( QKeySequence( Qt::Key_F9 ) );
-    dsbTrigger->setShortcuts( dsbShortcut );
-    viewMenu->addAction( dsbTrigger );
+    viewMenu->addAction( m_datasetBrowser->toggleViewAction() );
     viewMenu->addSeparator();
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
