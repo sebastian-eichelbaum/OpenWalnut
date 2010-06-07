@@ -22,53 +22,56 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
 #include <iostream>
+#include <string>
 
 #include <QtGui/QKeyEvent>
 
-#include "WQtGLWidget.h"
-
+#include "../../common/WConditionOneShot.h"
+#include "../../common/WFlag.h"
+#include "../../common/WLogger.h"
 #include "../../graphicsEngine/WGE2DManipulator.h"
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../common/WFlag.h"
-#include "../../common/WLogger.h"
-#include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
 
+#include "WQtGLWidget.h"
 
+// Ensure a WindowData data type for every supported platform
 #if defined( WIN32 ) && !defined( __CYGWIN__ )
-#include <osgViewer/api/Win32/GraphicsWindowWin32>
-typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
+    #include <osgViewer/api/Win32/GraphicsWindowWin32>
+    typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
 #elif defined( __APPLE__ )
-#   if defined( __LP64__ )  // assume Cocoa on 64bit
-#   include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
-    struct WindowData
-        : public osgViewer::GraphicsWindowCocoa::WindowData
+    #if defined( __LP64__ )  // assume Cocoa on 64bit
+        #include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
+        typedef osgViewer::GraphicsWindowCocoa::WindowData WindowDataAPPLE;
+    #else // assume Carbon on 32bit
+        #include <osgViewer/api/Carbon/GraphicsWindowCarbon>
+        typedef osgViewer::GraphicsWindowCarbon::WindowData WindowDataAPPLE;
+    #endif
+    /**
+     * Define the WindowData struct also for Mac OS.
+     */
+    struct WindowData : public WindowDataAPPLE
     {
+        /**
+         * Default constructor.
+         *
+         * \param view The window id
+         */
         explicit WindowData( ::WId view )
-            : osgViewer::GraphicsWindowCocoa::WindowData( 0 )
+        #if defined( __LP64__ )
+            : WindowDataAPPLE( 0 )
+        #else
+            : WindowDataAPPLE( HIViewGetWindow( static_cast< HIViewRef >( view ) ) )
+        #endif
         {
         }
     };
-#   else // assume Carbon on 32bit
-#   include <osgViewer/api/Carbon/GraphicsWindowCarbon>
-    struct WindowData
-        : public osgViewer::GraphicsWindowCarbon::WindowData
-    {
-        explicit WindowData( ::WId view )
-            : osgViewer::GraphicsWindowCarbon::WindowData(
-                HIViewGetWindow( static_cast<HIViewRef>( view ) ) )
-        {
-        }
-    };
-#   endif
 #else  // all other unix
-#include <osgViewer/api/X11/GraphicsWindowX11>
-typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
+    #include <osgViewer/api/X11/GraphicsWindowX11>
+    typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
 #endif
-
 
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
 #ifdef _WIN32
@@ -134,46 +137,28 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
     switch ( manipulator )
     {
         case DRIVE:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"drive\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
+            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"drive\".";
             m_Viewer->setCameraManipulator( new( osgGA::DriveManipulator ) );
             break;
         case FLIGHT:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"flight\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
+            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"flight\".";
             m_Viewer->setCameraManipulator( new( osgGA::FlightManipulator ) );
             break;
         case TERRAIN:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"terrain\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
+            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"terrain\".";
             m_Viewer->setCameraManipulator( new( osgGA::TerrainManipulator ) );
             break;
         case UFO:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"ufo\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
+            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"ufo\".";
             m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
             break;
         case TWO_D:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
+            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"WGE2D\".";
             m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
             break;
         case TRACKBALL:
         default:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGETrackball\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
+            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"WGETrackball\".";
             m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
             break;
     }
@@ -209,6 +194,7 @@ void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
     // m_Viewer->paint();
 }
 
+// See header file for more information on this platform specific code
 #ifndef WIN32
 void WQtGLWidget::destroyEvent( bool /*destroyWindow*/, bool /*destroySubWindows*/ )
 {
@@ -224,7 +210,6 @@ void WQtGLWidget::closeEvent( QCloseEvent* event )
 
     event->accept();
 }
-
 
 void WQtGLWidget::resizeEvent( QResizeEvent* event )
 {

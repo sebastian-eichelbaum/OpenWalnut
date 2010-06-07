@@ -27,20 +27,20 @@
 
 #include <string>
 
-#include <QtOpenGL/QGLWidget>
 #include <QtGui/QWidget>
+#include <QtOpenGL/QGLWidget>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include "../../graphicsEngine/WGECamera.h"
 #include "../../common/WFlag.h"
+#include "../../graphicsEngine/WGECamera.h"
 
 class WGEViewer;
 class WColor;
 
 /**
- * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
+ * A widget containing an OpenGL display area. This initializes OpenGL context and adds a view to the
  * engine.
  * \ingroup gui
  */
@@ -58,11 +58,8 @@ public:
      * \param nameOfViewer Name of the Viewer
      * \param parent Parent widget.
      * \param projectionMode decides whether the widget uses perspective or othographic projection
-     *
-     * \return
      */
-    explicit WQtGLWidget( std::string nameOfViewer, QWidget* parent = 0,
-        WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
+    explicit WQtGLWidget( std::string nameOfViewer, QWidget* parent = 0, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
      * Destructor.
@@ -75,8 +72,8 @@ public:
     virtual void initialize();
 
     /**
-     * returns the recommended size for the widget to allow
-     * parent widgets to give it a proper initial layout
+     * Returns the recommended size for the widget to allow parent widgets to give it a proper initial layout.
+     * \return QSize of this widget
      */
     QSize sizeHint() const;
 
@@ -134,9 +131,9 @@ protected:
     std::string m_nameOfViewer;
 
 
-    //  The GraphincsWindowWin32 implementation already takes care of message handling.
-    //  We don't want to relay these on Windows, it will just cause duplicate messages
-    //  with further problems downstream (i.e. not being able to throw the trackball
+// The GraphincsWindowWin32 implementation already takes care of message handling.
+// We don't want to relay these on Windows, it will just cause duplicate messages
+// with further problems downstream (i.e. not being able to throw the trackball
 #ifndef WIN32
     /**
      * Event handler for double clicks.

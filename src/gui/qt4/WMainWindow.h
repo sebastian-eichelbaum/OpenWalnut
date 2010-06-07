@@ -229,8 +229,6 @@ private:
 
     QMenuBar* m_menuBar; //!< The main menu bar of the GUI.
 
-    QWidget* m_centralwidget; //!< the central widget of the docking facility. This can not be moved.
-
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
     WQtToolBar* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selected in the dataset browser
