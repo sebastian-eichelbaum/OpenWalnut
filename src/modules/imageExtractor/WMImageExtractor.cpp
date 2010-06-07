@@ -151,10 +151,19 @@ void WMImageExtractor::moduleMain()
                 }
 
                 std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
+
+                boost::shared_ptr< WDataSetScalar > oldOut = m_outData;
                 m_outData = extract( i );
 
                 if( m_outData )
                 {
+                    if( m_outData != oldOut )
+                    {
+                        m_threshold->setMin( m_outData->getMin() );
+                        m_threshold->setMax( m_outData->getMax() );
+                        m_threshold->set( m_outData->getMin() );
+                    }
+
                     setOutputProps();
                     m_outData->setFileName( makeImageName( i ) );
                     WDataHandler::registerDataSet( m_outData );
