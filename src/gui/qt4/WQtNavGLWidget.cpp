@@ -51,7 +51,6 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
     m_layout = new QVBoxLayout();
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
-    //m_glWidget->setFixedSize( 150, 150 );
     m_glWidget->initialize();
 
     setMinimumSize( 160, 240 );
