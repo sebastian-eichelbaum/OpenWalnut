@@ -99,7 +99,7 @@ void WQtNavGLWidget::setSliderProperty( WPropInt prop )
     m_propWidget = new WPropertyIntWidget( prop, NULL, parentWidget() );
     m_layout->addWidget( m_propWidget );
 
-    m_layout->setStretch( 0, 2 );
-    m_layout->setStretch( 1, 0 );
+    m_layout->setStretchFactor( m_glWidget.get(), 1 );
+    m_layout->setStretchFactor( m_propWidget, 0 );
 }
 
