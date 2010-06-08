@@ -219,7 +219,7 @@ void WMainWindow::setupPermanentToolBar()
     m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
 
 
-    WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
@@ -233,17 +233,17 @@ void WMainWindow::setupPermanentToolBar()
     projectSaveButton->setPopupMode( QToolButton::MenuButtonPopup );
     projectSaveButton->setMenu( saveMenu );
 
-    connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( m_loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
     connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
 
-    loadButton->setToolTip( "Load Data" );
+    m_loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
 
-    m_permanentToolBar->addWidget( loadButton );
+    m_permanentToolBar->addWidget( m_loadButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( projectLoadButton );
     m_permanentToolBar->addWidget( projectSaveButton );
@@ -600,6 +600,9 @@ void WMainWindow::openLoadDialog()
     {
         m_loaderSignal( stdFileNames );
     }
+
+    // walkaround that a button keeps his down state after invoking a dialog
+    m_loadButton->setDown( false );
 }
 
 void WMainWindow::openAboutDialog()

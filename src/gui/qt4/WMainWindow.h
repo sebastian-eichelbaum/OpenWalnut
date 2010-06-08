@@ -233,6 +233,8 @@ private:
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
+    WQtPushButton* m_loadButton; //!< the load Data Button
+
     WQtToolBar* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selected in the dataset browser
 
     WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
