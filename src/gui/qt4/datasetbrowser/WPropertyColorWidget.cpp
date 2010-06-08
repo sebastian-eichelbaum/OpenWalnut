@@ -69,7 +69,7 @@ void WPropertyColorWidget::update()
     std::stringstream buttonColorStr;
     QColor bgColor = toQColor( m_colorProperty->get() );
 
-    buttonColorStr << "* { background-color: rgb(" 
+    buttonColorStr << "* { background-color: rgb("
                    << bgColor.red() << ","
                    << bgColor.green() << ","
                    << bgColor.blue() << ") }";
