@@ -186,7 +186,8 @@ void WMAtlasSurfaces::createSurfaces()
                     m_regionMeshes.push_back( triMesh );
                     m_regionMeshIds.push_back( i );
 
-                    m_possibleSelections->addItem( m_labels[i].second, m_labels[i].first );
+                    std::string label = boost::lexical_cast<std::string>( i ) + std::string( " " ) + m_labels[i].second;
+                    m_possibleSelections->addItem( label, "" );
                 }
                 ++*pro;
             }
@@ -287,7 +288,8 @@ void WMAtlasSurfaces::createOSGNode()
         osg::ref_ptr< osg::Geode > outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
         size_t id = m_regionMeshIds[i];
-        outputGeode->setName( m_labels[id].second );
+        std::string label = boost::lexical_cast<std::string>( id ) + std::string( " " ) + m_labels[id].second;
+        outputGeode->setName( label );
 
         surfaceGeometry->setUseDisplayList( false );
         surfaceGeometry->setUseVertexBufferObjects( true );
