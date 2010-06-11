@@ -91,7 +91,7 @@ public:
      *
      * \param boundingBox
      */
-    void setBoundingBox( std::pair< wmath::WPosition, wmath::WPosition > boundingBox);
+    void setBoundingBox( std::pair< wmath::WPosition, wmath::WPosition > boundingBox );
 
     /**
      * setter for coordinate system mode
