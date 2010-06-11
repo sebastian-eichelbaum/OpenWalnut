@@ -74,14 +74,13 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     m_localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_localColors->resize( m_vertices->size() );
 
-
     WCreateColorArraysThread* t1 = new WCreateColorArraysThread( 0, m_lineLengths->size()/4, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
     WCreateColorArraysThread* t2 = new WCreateColorArraysThread( m_lineLengths->size()/4+1, m_lineLengths->size()/2, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
     WCreateColorArraysThread* t3 = new WCreateColorArraysThread( m_lineLengths->size()/2+1, m_lineLengths->size()/4*3, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
-    WCreateColorArraysThread* t4 = new WCreateColorArraysThread( m_lineLengths->size()/4*3+1, m_lineLengths->size(), m_vertices,
+    WCreateColorArraysThread* t4 = new WCreateColorArraysThread( m_lineLengths->size()/4*3+1, m_lineLengths->size()-1, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
     t1->run();
     t2->run();
