@@ -53,6 +53,10 @@ class WRulerOrtho : public WRuler
 public:
     /**
      * standard constructor
+     * \param coordConverter
+     * \param origin
+     * \param mode
+     * \param showNumbers
      */
     WRulerOrtho( boost::shared_ptr<WCoordConverter>coordConverter, osg::Vec3 origin, scaleMode mode, bool showNumbers = true );
 
