@@ -83,27 +83,23 @@ private:
      *
      * \param givenPoints the input points
      * \param deBoorPoints reference to the output vector
-     * \param numRows
-     * \param numCols
+     * \param numRows number of points in first direction of spline surface
+     * \param numCols number of points in second direction of spline surface
      */
     void getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > > &givenPoints, std::vector< std::vector< double > > &deBoorPoints, int numRows, int numCols ); // NOLINT
 
     boost::shared_ptr< WTriangleMesh2 > m_tMesh; //!< Triangle mesh of the surface
 
-    // // TODO(schurade): comments need to be fixed
-    // i know people want real comments and want to know what each parameter does and what it means in the
-    // grand scheme of things and the universe, but the fantom code where this is from, isn't commented either,
-    // so we can only guess, be happy that it does what it does
     double m_radius; //!< param for the algo
-    double m_my; //!< param for the algo
-    int m_numDeBoorRows; //!< param for the algo
-    int m_numDeBoorCols; //!< param for the algo
-    int m_order; //!< param for the algo
-    double m_sampleRateT; //!< param for the algo
-    double m_sampleRateU; //!< param for the algo
-    double m_xAverage; //!< param for the algo
-    double m_yAverage; //!< param for the algo
-    double m_zAverage; //!< param for the algo
+    double m_mu; //!< parameter of local shepard with franke-little-weights
+    int m_numDeBoorRows; //!< number of of rows for deBoor grid
+    int m_numDeBoorCols; //!< number of of columns for deBoor grid
+    int m_order; //!< order the splines
+    double m_sampleRateT; //!< sampling rate of spline in first direction
+    double m_sampleRateU; //!< sampling rate of spline in second direction
+    double m_xAverage; //!< global mean of x values for covariance matrix
+    double m_yAverage; //!< global mean of y values for covariance matrix
+    double m_zAverage; //!< global mean of z values for covariance matrix
 
     std::vector< std::vector< double > > m_splinePoints; //!< stores the input points
 

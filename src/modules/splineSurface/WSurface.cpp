@@ -35,7 +35,7 @@
 WSurface::WSurface()
     : m_tMesh( new WTriangleMesh2( 0, 0 ) ),
       m_radius( 30.0 ),
-      m_my( 8.0 ),
+      m_mu( 8.0 ),
       m_numDeBoorRows( 12 ),
       m_numDeBoorCols( 12 ),
       m_order( 4 ),
@@ -155,8 +155,8 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > 
                     xi = 0;
                 }
 
-                numerator += ( pow( xi, m_my ) * dmy1[1] );
-                denominator += ( pow( xi, m_my ) );
+                numerator += ( pow( xi, m_mu ) * dmy1[1] );
+                denominator += ( pow( xi, m_mu ) );
             }
             if( denominator == 0 )
             {
