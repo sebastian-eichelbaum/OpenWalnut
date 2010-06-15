@@ -284,14 +284,6 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         return compatibles;
     }
 
-    // This warning was annoying
-    // if ( cons.size() > 1 )
-    // {
-    //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << module->getName() <<  " module (more than 1 output connector). Using "
-    //                                   << ( *cons.begin() )->getCanonicalName()
-    //                                   << " for compatibility check.";
-    // }
-
     // go through every prototype
     for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
@@ -305,21 +297,23 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
             continue;
         }
 
-        // This warning was annoying
-        // if ( pcons.size() > 1 )
-        // {
-        //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << ( *listIter )->getName()
-        //                                   << " module (more than 1 input connector). Using "
-        //                                   << ( *pcons.begin() )->getCanonicalName() << " for compatibility check.";
-        // }
-
-        // check whether the outputs are compatible with the inputs of the prototypes
-        if( ( *cons.begin() )->connectable( *pcons.begin() )  &&  ( *pcons.begin() )->connectable( *cons.begin() ) )
+        // iterate connector list, first find all matches of the output connectors with all inputs
+        for ( WModule::OutputConnectorList::const_iterator outIter = cons.begin(); outIter != cons.end(); ++outIter )
         {
-            // it is compatible -> add to list
-            compatibles.push_back( boost::shared_ptr< WApplyPrototypeCombiner >(
-                new WApplyPrototypeCombiner( module, ( *cons.begin() )->getName(), *listIter, ( *pcons.begin() )->getName() ) )
-            );
+            // now go through each input iterator of the current prototype
+            for ( WModule::InputConnectorList::const_iterator inIter = pcons.begin(); inIter != pcons.end(); ++inIter )
+            {
+                // compatible?
+                if ( ( *outIter )->connectable( *inIter ) &&  ( *inIter )->connectable( *outIter ) )
+                {
+                    // create a apply-prototype combiner
+                    compatibles.push_back( boost::shared_ptr< WApplyPrototypeCombiner >(
+                        new WApplyPrototypeCombiner( module, ( *outIter )->getName(), *listIter, ( *inIter )->getName() ) )
+                    );
+
+                    // wlog::debug( "ModuleFactory" ) << ( *outIter )->getCanonicalName() << " -> " << ( *inIter )->getCanonicalName();
+                }
+            }
         }
     }
 
