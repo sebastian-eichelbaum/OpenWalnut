@@ -711,21 +711,53 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
     std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
+    boost::shared_ptr< WModule > currentModule; // always save the current module to identify consecutive applycombiners with equal target
+    WQtApplyModulePushButton* currentButton;
+
+    // each combiner can now be added to an existing group or
     for ( std::vector< boost::shared_ptr< WApplyPrototypeCombiner > >::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
     {
-        if( !m_moduleWhiteList.empty() )
+        // ensure that only modules in the whitelist cause buttons to be created
+        /*if( !m_moduleWhiteList.empty() )
         {
             const std::string tmpName = ( *iter )->getTargetPrototype()->getName();
             if( std::find( m_moduleWhiteList.begin(), m_moduleWhiteList.end(), tmpName ) == m_moduleWhiteList.end() )
             {
                 continue; // do nothing for modules that are not in white list
             }
-        }
+        }*/
 
-        WQtApplyModulePushButton* button = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
-                                                                         *iter, m_showToolBarText
-        );
-        m_mainWindow->getCompatiblesToolBar()->addWidget( button );
+        // This combiner does not belong to the previous group --> create a new toolbutton
+        if ( currentModule != ( *iter )->getTargetPrototype() )
+        {
+            // it is different from the previous one -> create a new button and add it
+
+            currentModule = ( *iter )->getTargetPrototype();
+
+            currentButton = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
+                                                                             *iter, m_showToolBarText
+            );
+            m_mainWindow->getCompatiblesToolBar()->addWidget( currentButton );
+
+        }
+        else
+        {
+            // the previous element also targeted the same module -> add item to the menu of the buttons
+            QMenu* menu = currentButton->menu();
+            if ( !menu )
+            {
+                menu = new QMenu( currentButton );
+                currentButton->setMenu( menu );
+            }
+
+            // setting this property here ensures that buttons without menu do not provide this little menu arrow
+            currentButton->setPopupMode( QToolButton::MenuButtonPopup );
+
+            // add an action item for this combiner
+            std::string name = ( *iter )->getSrcModule()->getName() + ":" + ( *iter )->getSrcConnector() + " -> " +
+                               ( *iter )->getTargetPrototype()->getName() + ":" + ( *iter )->getTargetConnector();
+            menu->addAction( name.c_str() );
+        }
     }
 }
 

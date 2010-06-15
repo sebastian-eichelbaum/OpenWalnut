@@ -30,14 +30,15 @@
 #include <boost/shared_ptr.hpp>
 
 #include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
 #include "../WIconManager.h"
 #include "../../../kernel/combiner/WApplyPrototypeCombiner.h"
 
 /**
- * Implements a QPushButton with a boost signal for convenience.
+ * Implements a Button which applies the specified combiner if pressed.
  */
-class WQtApplyModulePushButton : public QPushButton
+class WQtApplyModulePushButton : public QToolButton
 {
     Q_OBJECT
 

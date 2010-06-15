@@ -28,11 +28,13 @@
 
 WQtApplyModulePushButton::WQtApplyModulePushButton( QWidget* parent, WIconManager* iconManager,
                                                     boost::shared_ptr< WApplyPrototypeCombiner > combiner, bool useText ):
-    QPushButton( parent ),
+    QToolButton( parent ),
     m_combiner( combiner )
 {
     setIcon( iconManager->getIcon( combiner->getTargetPrototype()->getName().c_str() ) );
+    setAutoRaise( false );
 
+    // nice tooltip
     std::string tooltip = combiner->getSrcModule()->getName() + ":" + combiner->getSrcConnector() + "->" +
                           combiner->getTargetPrototype()->getName() + ":" + combiner->getTargetConnector();
     setToolTip( tooltip.c_str() );
