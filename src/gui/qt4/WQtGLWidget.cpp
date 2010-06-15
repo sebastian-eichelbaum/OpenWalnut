@@ -38,44 +38,8 @@
 #include "../../kernel/WKernel.h"
 
 
-#if defined( WIN32 ) && !defined( __CYGWIN__ )
-#include <osgViewer/api/Win32/GraphicsWindowWin32>
-typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
-#elif defined( __APPLE__ )
-#   if defined( __LP64__ )  // assume Cocoa on 64bit
-#   include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
-    struct WindowData
-        : public osgViewer::GraphicsWindowCocoa::WindowData
-    {
-        explicit WindowData( ::WId view )
-            : osgViewer::GraphicsWindowCocoa::WindowData( 0 )
-        {
-        }
-    };
-#   else // assume Carbon on 32bit
-#   include <osgViewer/api/Carbon/GraphicsWindowCarbon>
-    struct WindowData
-        : public osgViewer::GraphicsWindowCarbon::WindowData
-    {
-        explicit WindowData( ::WId view )
-            : osgViewer::GraphicsWindowCarbon::WindowData(
-                HIViewGetWindow( static_cast<HIViewRef>( view ) ) )
-        {
-        }
-    };
-#   endif
-#else  // all other unix
-#include <osgViewer/api/X11/GraphicsWindowX11>
-typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
-#endif
-
-
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
-#ifdef _WIN32
-    : QWidget( parent ),
-#else
     : QGLWidget( parent ),
-#endif
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize(),
       m_isInitialized( new WConditionOneShot(), false ),
@@ -90,6 +54,9 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     setAttribute( Qt::WA_PaintOnScreen );
     setAttribute( Qt::WA_NoSystemBackground );
     setFocusPolicy( Qt::ClickFocus );
+
+    connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
+    m_Timer.start( 10 );
 }
 
 WQtGLWidget::~WQtGLWidget()
@@ -108,12 +75,9 @@ void WQtGLWidget::initialize()
         return;
     }
 
-    // initialize OpenGL context and OpenSceneGraph
-    osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
-
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
-        m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
+        m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
 
     m_isInitialized( true );
 }
@@ -195,28 +159,6 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
     return m_Viewer;
 }
 
-void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
-{
-    // maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
-    if ( !m_firstPaint )
-    {
-        WLogger::getLogger()->addLogMessage( "Painted the first time.",
-                                             "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                             LL_DEBUG );
-        m_firstPaint = true;
-    }
-
-    // m_Viewer->paint();
-}
-
-#ifndef WIN32
-void WQtGLWidget::destroyEvent( bool /*destroyWindow*/, bool /*destroySubWindows*/ )
-{
-    // forward events
-    //m_Viewer->close();
-}
-
-
 void WQtGLWidget::closeEvent( QCloseEvent* event )
 {
     // forward events
@@ -226,9 +168,14 @@ void WQtGLWidget::closeEvent( QCloseEvent* event )
 }
 
 
-void WQtGLWidget::resizeEvent( QResizeEvent* event )
+void WQtGLWidget::paintGL()
 {
-    m_Viewer->resize( event->size().width(), event->size().height() );
+    m_Viewer->paint();
+}
+
+void WQtGLWidget::resizeGL( int width, int height )
+{
+    m_Viewer->resize( width, height );
 }
 
 int WQtGLWidget::translateButton( QMouseEvent* event )
@@ -241,8 +188,6 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
             return 2;
         case( Qt::RightButton ):
             return 3;
-        case( Qt::NoButton ):
-            return 0;
         default:
             return 0;
     }
@@ -346,4 +291,3 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
     }
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
-#endif

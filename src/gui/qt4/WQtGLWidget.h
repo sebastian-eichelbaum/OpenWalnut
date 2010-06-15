@@ -27,8 +27,9 @@
 
 #include <string>
 
-#include <QtOpenGL/QGLWidget>
+#include <QtCore/QTimer>
 #include <QtGui/QWidget>
+#include <QtOpenGL/QGLWidget>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
@@ -45,11 +46,7 @@ class WColor;
  * \ingroup gui
  */
 class WQtGLWidget
-#ifdef _WIN32
-    : public QWidget
-#else
     : public QGLWidget
-#endif
 {
 public:
     /**
@@ -134,10 +131,6 @@ protected:
     std::string m_nameOfViewer;
 
 
-    //  The GraphincsWindowWin32 implementation already takes care of message handling.
-    //  We don't want to relay these on Windows, it will just cause duplicate messages
-    //  with further problems downstream (i.e. not being able to throw the trackball
-#ifndef WIN32
     /**
      * Event handler for double clicks.
      *
@@ -153,19 +146,17 @@ protected:
     virtual void closeEvent( QCloseEvent* event );
 
     /**
-     * Event handler for destroy events (called after close).
-     *
-     * \param destroyWindow flag indicatinng whether to destroy window
-     * \param destroySubWindows flag indicatinng whether to destroy sub windows
+     * QT Callback for handling repaints.
      */
-    virtual void destroyEvent( bool destroyWindow = true, bool destroySubWindows = true );
+    virtual void paintGL();
 
     /**
      * Event handler for  resize events.
      *
-     * \param event the event description.
+     * \param width the new width.
+     * \param height the new height.
      */
-    virtual void resizeEvent( QResizeEvent* event );
+    virtual void resizeGL( int width, int height );
 
     /**
      * Event handler for key press.
@@ -208,14 +199,6 @@ protected:
      * \param event the event description.
      */
     virtual void wheelEvent( QWheelEvent* event );
-#endif
-
-    /**
-     * QT Callback for handling repaints.
-     *
-     * \param event event descriptor.
-     */
-    virtual void paintEvent( QPaintEvent* event );
 
     /**
      * Simply translate the mouse button from an event to an int.
@@ -237,6 +220,11 @@ protected:
     WGECamera::ProjectionMode m_initialProjectionMode;
 
 private:
+    /**
+     * Timer for periodic repaints.
+     */
+    QTimer m_Timer;
+
     /**
      * Holds the recommended size for the widget
      */
