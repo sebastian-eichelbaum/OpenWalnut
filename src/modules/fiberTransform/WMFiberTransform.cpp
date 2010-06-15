@@ -39,6 +39,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "WMFiberTransform.h"
+#include "fiberTransform.xpm"
 
 WMFiberTransform::WMFiberTransform()
     : WModule(),
@@ -51,6 +52,11 @@ boost::shared_ptr< WModule > WMFiberTransform::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMFiberTransform() );
+}
+
+const char** WMFiberTransform::getXPMIcon() const
+{
+    return fiberTransform_xpm;
 }
 
 void WMFiberTransform::connectors()
@@ -81,9 +87,6 @@ void WMFiberTransform::properties()
 
 void WMFiberTransform::moduleMain()
 {
-    // Put the code for your module's main functionality here.
-    // See "src/modules/template/" for an extensively documented example.
-
     // When conditions are firing while wait() is not reached: wait terminates
     // and behaves as if the appropriate conditions have had fired. But it is
     // not detectable how many times a condition has fired.
