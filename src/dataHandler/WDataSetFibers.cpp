@@ -57,16 +57,6 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     m_verticesReverse( verticesReverse )
 
 {
-    // TODO(schurade): replace this with a permanent solution
-    for ( size_t i = 0; i < m_vertices->size(); ++i )
-    {
-        m_vertices->at( i ) = 160 - m_vertices->at( i );
-        ++i;
-        m_vertices->at( i ) = 200 - m_vertices->at( i );
-        ++i;
-        //m_pointArray[i] = m_dh->frames - m_pointArray[i];
-    }
-
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_tangents->resize( m_vertices->size() );
     m_globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
