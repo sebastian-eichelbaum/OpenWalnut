@@ -595,10 +595,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             case 1:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( m_bb.first[0],  yPos, m_bb.first[2]  ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0], yPos, m_bb.first[2]  ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0], yPos, m_bb.second[2] ) );
-                vertices.push_back( wmath::WPosition( m_bb.first[0],  yPos, m_bb.second[2] ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],   yPos, m_bb.first[2]  ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],   yPos, m_bb.second[2] ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.second[2] ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.first[2]  ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
@@ -717,7 +717,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
         }
     }
 
-    for( size_t i = 0; i < 4; ++i )
+    for( size_t i = 0; i < vertices.size(); ++i )
     {
         crossVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
     }
@@ -996,31 +996,20 @@ void WMNavSlices::updateViewportMatrix()
             scale = windowHeight / height;
         }
 
-
         // 1. translate to center
         // 2. rotate around center
         // 3. scale to maximum
-
-        // 4. translate to camera center
-        // this is necessary because of some reason, which i couldn't determine,
-        // the viewmatrix of the camera is:
-        // 1 0  0 -80
-        // 0 0 -1 -80
-        // 0 1  0 -250
-
         osg::Matrix sm;
         osg::Matrix rm;
         osg::Matrix tm;
-        osg::Matrix tm2;
 
-        tm.makeTranslate( osg::Vec3( -left - width / 2, -top - height / 2, 0.0 ) );
-        rm.makeRotate( 90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
+        tm.makeTranslate( osg::Vec3(
+          -0.5 * ( m_bb.first[ 0 ] + m_bb.second[ 0 ] ),
+          -0.5 * ( m_bb.first[ 1 ] + m_bb.second[ 1 ] ),
+          -m_bb.second[ 2 ] - 0.5 ) );
         sm.makeScale( scale, scale, scale );
-        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
 
-        tm *= rm;
         tm *= sm;
-        tm *= tm2;
 
         currentScene->setMatrix( tm );
     }
@@ -1037,27 +1026,31 @@ void WMNavSlices::updateViewportMatrix()
         height = m_bb.second[2] - m_bb.first[2];
         if ( width > height )
         {
-            double windowWidht = 240 * aspectR;
-            scale = windowWidht / width;
+            double windowWidht = 240;
+            scale = windowWidht / height;
         }
         else
         {
-            double windowHeight = 240;
-            scale = windowHeight / height;
+            double windowHeight = 240 / aspectR;
+            scale = windowHeight / width;
         }
 
         osg::Matrix rm;
+        osg::Matrix rm2;
         osg::Matrix sm;
         osg::Matrix tm;
-        osg::Matrix tm2;
-        tm.makeTranslate( osg::Vec3( 0.0, -left - width / 2, -top - height / 2 ) );
-        rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
+
+        tm.makeTranslate( osg::Vec3(
+          m_bb.second[ 0 ] +0.5,
+          -0.5 * ( m_bb.first[ 1 ] + m_bb.second[ 1 ] ),
+          -0.5 * ( m_bb.first[ 2 ] + m_bb.second[ 2 ] ) ) );
+        rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 1.0, 0.0 );
+        rm2.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
         sm.makeScale( scale, scale, scale );
-        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
 
         tm *= rm;
+        tm *= rm2;
         tm *= sm;
-        tm *= tm2;
 
         currentScene->setMatrix( tm );
     }
@@ -1084,13 +1077,18 @@ void WMNavSlices::updateViewportMatrix()
         }
 
         osg::Matrix sm;
+        osg::Matrix rm;
         osg::Matrix tm;
-        osg::Matrix tm2;
-        tm.makeTranslate( osg::Vec3( -left - width / 2, 0.0, -top - height / 2 ) );
+
+        tm.makeTranslate( osg::Vec3(
+          -0.5 * ( m_bb.first[ 0 ] + m_bb.second[ 0 ] ),
+          m_bb.second[ 1 ] + 0.5,
+          -0.5 * ( m_bb.first[ 2 ] + m_bb.second[ 2 ] ) ) );
+        rm.makeRotate( -90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
         sm.makeScale( scale, scale, scale );
-        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
+
+        tm *= rm;
         tm *= sm;
-        tm *= tm2;
 
         currentScene->setMatrix( tm );
     }
