@@ -43,8 +43,7 @@
 
 WMFiberTransform::WMFiberTransform()
     : WModule(),
-      m_recompute( new WCondition() ),
-      m_transformationMatrix( 3, 3 )
+      m_recompute( new WCondition() )
 {
 }
 
@@ -83,6 +82,19 @@ void WMFiberTransform::properties()
     m_run      = m_properties->addProperty( "Run", "Do the transformation", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
     WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
+
+    m_translationProp = m_properties->addProperty( "Translation",
+                                                   "Translation part of the transformation. You need to press enter to make the values effective.",
+                                                   wmath::WPosition( 0.0, 0.0, 0.0 ) );
+    m_matrix0Prop = m_properties->addProperty( "M Row 0",
+                                               "Row 0 of matrix part of the transformation. You need to press enter to make the values effective.",
+                                               wmath::WPosition( 1.0, 0.0, 0.0 ) );
+    m_matrix1Prop = m_properties->addProperty( "M Row 1",
+                                               "Row 1 of matrix part of the transformation. You need to press enter to make the values effective.",
+                                               wmath::WPosition( 0.0, 1.0, 0.0 ) );
+    m_matrix2Prop = m_properties->addProperty( "M Row 2",
+                                               "Row 2 of matrix part of the transformation. You need to press enter to make the values effective.",
+                                               wmath::WPosition( 0.0, 0.0, 1.0 ) );
 }
 
 void WMFiberTransform::moduleMain()
@@ -94,22 +106,7 @@ void WMFiberTransform::moduleMain()
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
-    // set the transformation matrix and vector
-    m_transformationMatrix( 0, 0 ) =  0.0;
-    m_transformationMatrix( 0, 1 ) = -1.0;
-    m_transformationMatrix( 0, 2 ) =  0.0;
 
-    m_transformationMatrix( 1, 0 ) =  1.0;
-    m_transformationMatrix( 1, 1 ) =  0.0;
-    m_transformationMatrix( 1, 2 ) =  0.0;
-
-    m_transformationMatrix( 2, 0 ) =  0.0;
-    m_transformationMatrix( 2, 1 ) =  0.0;
-    m_transformationMatrix( 2, 2 ) =  1.0;
-
-    m_transformationVector[0] =  85.0;
-    m_transformationVector[1] = -80.0;
-    m_transformationVector[2] = -50.0;
 
     ready();
 
@@ -148,6 +145,20 @@ void WMFiberTransform::update()
     bool   save = m_save->get();
     boost::filesystem::path savePath = m_savePath->get();
 
+    // set the transformation matrix
+    wmath::WMatrix< double > transformationMatrix( 3, 3 ); //!< matrix which is multiplied with each point to linear transform it.
+    transformationMatrix( 0, 0 ) = m_matrix0Prop->get()[0];
+    transformationMatrix( 0, 1 ) = m_matrix0Prop->get()[1];
+    transformationMatrix( 0, 2 ) = m_matrix0Prop->get()[2];
+
+    transformationMatrix( 1, 0 ) = m_matrix1Prop->get()[0];
+    transformationMatrix( 1, 1 ) = m_matrix1Prop->get()[1];
+    transformationMatrix( 1, 2 ) = m_matrix1Prop->get()[2];
+
+    transformationMatrix( 2, 0 ) = m_matrix2Prop->get()[0];
+    transformationMatrix( 2, 1 ) = m_matrix2Prop->get()[1];
+    transformationMatrix( 2, 2 ) = m_matrix2Prop->get()[2];
+
     boost::shared_ptr< WProgress > progress( new WProgress( "Transforming", 4 + save ) );
     m_progress->addSubProgress( progress );
 
@@ -162,7 +173,7 @@ void WMFiberTransform::update()
         wmath::WFiber& fiber = (*dataset)[fiberID];
         for( std::size_t positionID = 0; positionID < fiber.size(); ++positionID )
         {
-            fiber[positionID] = m_transformationMatrix * fiber[positionID] + m_transformationVector;
+            fiber[positionID] = transformationMatrix * fiber[positionID] + m_translationProp->get();
         }
     }
     ++*progress;
