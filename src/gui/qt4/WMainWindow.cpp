@@ -574,7 +574,7 @@ void WMainWindow::openLoadDialog()
     }
 
     //
-    // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
+    // WE KNOW THAT THIS IS KIND OF A HACK. It is only provided to prevent naive users from having trouble.
     //
     bool allowOnlyOneFiberDataSet = false;
     bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
