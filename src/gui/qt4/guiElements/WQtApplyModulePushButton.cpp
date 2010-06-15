@@ -32,7 +32,10 @@ WQtApplyModulePushButton::WQtApplyModulePushButton( QWidget* parent, WIconManage
     m_combiner( combiner )
 {
     setIcon( iconManager->getIcon( combiner->getTargetPrototype()->getName().c_str() ) );
-    setToolTip( combiner->getTargetPrototype()->getName().c_str() );
+
+    std::string tooltip = combiner->getSrcModule()->getName() + ":" + combiner->getSrcConnector() + "->" +
+                          combiner->getTargetPrototype()->getName() + ":" + combiner->getTargetConnector();
+    setToolTip( tooltip.c_str() );
 
     if ( useText )
     {
