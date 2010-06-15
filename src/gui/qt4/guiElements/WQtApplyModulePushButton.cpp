@@ -35,8 +35,14 @@ WQtApplyModulePushButton::WQtApplyModulePushButton( QWidget* parent, WIconManage
     setAutoRaise( false );
 
     // nice tooltip
-    std::string tooltip = combiner->getSrcModule()->getName() + ":" + combiner->getSrcConnector() + "->" +
-                          combiner->getTargetPrototype()->getName() + ":" + combiner->getTargetConnector();
+    std::string from = "";
+
+    // might be null ( for example if a module should be added that does not require an input)
+    if ( combiner->getSrcModule() )
+    {
+        from = combiner->getSrcModule()->getName() + ":" + combiner->getSrcConnector() + " -> ";
+    }
+    std::string tooltip = from + combiner->getTargetPrototype()->getName() + ":" + combiner->getTargetConnector();
     setToolTip( tooltip.c_str() );
 
     if ( useText )
