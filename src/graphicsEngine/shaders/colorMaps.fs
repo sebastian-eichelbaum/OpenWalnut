@@ -143,6 +143,14 @@ vec3 atlasColorMap ( in float value )
     if ( ( val & 128 ) == 128 )
         b += 0.3;
 
+    r *= 1.5;
+    g *= 1.5;
+    b *= 1.5;
+
+    clamp( r, 0., 1.);
+    clamp( g, 0., 1.);
+    clamp( b, 0., 1.);
+
     return vec3( r, g, b );
 }
 

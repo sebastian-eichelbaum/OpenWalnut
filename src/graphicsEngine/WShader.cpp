@@ -206,6 +206,8 @@ std::string WShader::processShader( const std::string filename, bool optional, i
 
     // this is the proper regular expression for includes. This also excludes commented includes
     static const boost::regex re( "^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*" );
+    // this is an expression for the #version statement
+    static const boost::regex ver( "^[ ]*#[ ]*version[ ]+[123456789][0123456789]+.*$" );
 
     // the input stream
     std::string fn = ( boost::filesystem::path( m_shaderPath ) / filename ).file_string();
@@ -217,7 +219,7 @@ std::string WShader::processShader( const std::string filename, bool optional, i
             return "";
         }
 
-        // file does not exists. Do not throw an exception to avoid OSG crash
+        // file does not exist. Do not throw an exception to avoid OSG crash
         if ( level == 0 )
         {
             WLogger::getLogger()->addLogMessage( "Can't open shader file \"" + fn + "\".",
@@ -235,14 +237,30 @@ std::string WShader::processShader( const std::string filename, bool optional, i
     }
 
     // go through each line and process includes
-    std::string line;       // the current line
-    boost::smatch matches;  // the list of matches
+    std::string line;               // the current line
+    boost::smatch matches;          // the list of matches
+    std::string versionLine;        // the version
+    bool foundVersion = false;
 
     while ( std::getline( input, line ) )
     {
         if ( boost::regex_search( line, matches, re ) )
         {
             output << processShader( matches[1], false, level + 1 );
+        }
+        else if( boost::regex_match( line, ver ) ) // look for the #version statement
+        {
+            // there already was a version statement in this file
+            // this does not track multiple version statements through included files
+            if( foundVersion )
+            {
+                WLogger::getLogger()->addLogMessage( "Multiple version statements in shader file \"" + fn + "\".",
+                        "WShader (" + filename + ")", LL_ERROR
+                );
+                return "";
+            }
+            versionLine = line;
+            foundVersion = true;
         }
         else
         {
@@ -254,7 +272,16 @@ std::string WShader::processShader( const std::string filename, bool optional, i
 
     input.close();
 
-    return output.str();
+    // no version statement found
+    if( !foundVersion )
+    {
+        return output.str();
+    }
+
+    // the ATI compiler needs the version statement to be the first statement in the shader
+    std::stringstream vs;
+    vs << versionLine.c_str() << std::endl << output.str();
+    return vs.str();
 }
 
 void WShader::setDefine( std::string key, float value )

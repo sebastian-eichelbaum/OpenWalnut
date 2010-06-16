@@ -126,12 +126,12 @@ void WMainWindow::setupGUI()
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
-    viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ),      QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
-    viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ),     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
-    viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
-    viewMenu->addAction( "Inferior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
-    viewMenu->addAction( "Anterior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
-    viewMenu->addAction( "Posterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    viewMenu->addAction( "Left", this, SLOT( setPresetViewLeft() ),           QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
+    viewMenu->addAction( "Right", this, SLOT( setPresetViewRight() ),         QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    viewMenu->addAction( "Superior", this, SLOT( setPresetViewSuperior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    viewMenu->addAction( "Inferior", this, SLOT( setPresetViewInferior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    viewMenu->addAction( "Anterior", this, SLOT( setPresetViewAnterior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ),
@@ -219,7 +219,7 @@ void WMainWindow::setupPermanentToolBar()
     m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
 
 
-    WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
@@ -233,17 +233,17 @@ void WMainWindow::setupPermanentToolBar()
     projectSaveButton->setPopupMode( QToolButton::MenuButtonPopup );
     projectSaveButton->setMenu( saveMenu );
 
-    connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( m_loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
     connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
 
-    loadButton->setToolTip( "Load Data" );
+    m_loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
 
-    m_permanentToolBar->addWidget( loadButton );
+    m_permanentToolBar->addWidget( m_loadButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( projectLoadButton );
     m_permanentToolBar->addWidget( projectSaveButton );
@@ -574,7 +574,7 @@ void WMainWindow::openLoadDialog()
     }
 
     //
-    // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
+    // WE KNOW THAT THIS IS KIND OF A HACK. It is only provided to prevent naive users from having trouble.
     //
     bool allowOnlyOneFiberDataSet = false;
     bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
@@ -600,6 +600,9 @@ void WMainWindow::openLoadDialog()
     {
         m_loaderSignal( stdFileNames );
     }
+
+    // walkaround that a button keeps his down state after invoking a dialog
+    m_loadButton->setDown( false );
 }
 
 void WMainWindow::openAboutDialog()
@@ -615,6 +618,76 @@ void WMainWindow::openAboutDialog()
                         "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
                         "\n"
                         "Thank you for using OpenWalnut." );
+}
+
+void WMainWindow::setPresetViewLeft()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr< WGEGroupNode > currentScene;
+    currentScene = viewer->getScene();
+    osg::Matrix rm;
+    osg::Matrix tm;
+    tm.makeTranslate( osg::Vec3( -79.0, -99.0, -79.0 ) );
+    rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
+    tm *= rm;
+    viewer->reset();
+    currentScene->setMatrix( tm );
+}
+
+void WMainWindow::setPresetViewRight()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr< WGEGroupNode > currentScene;
+    currentScene = viewer->getScene();
+    osg::Matrix rm;
+    rm.makeRotate( 90.0 * ( 3.141 / 180 ), 0.0, 0.0, -1.0 );
+    currentScene->setMatrix( rm );
+}
+
+void WMainWindow::setPresetViewSuperior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr< WGEGroupNode > currentScene;
+    currentScene = viewer->getScene();
+    osg::Matrix rm;
+    rm.makeRotate( 90.0 * ( 3.141 / 180 ), 1.0, 0.0, 0.0 );
+    currentScene->setMatrix( rm );
+}
+
+void WMainWindow::setPresetViewInferior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr< WGEGroupNode > currentScene;
+    currentScene = viewer->getScene();
+    osg::Matrix rm;
+    rm.makeRotate( 90.0 * ( 3.141 / 180 ), -1.0, 0.0, 0.0 );
+    currentScene->setMatrix( rm );
+}
+
+void WMainWindow::setPresetViewAnterior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr< WGEGroupNode > currentScene;
+    currentScene = viewer->getScene();
+    osg::Matrix rm;
+    rm.makeRotate( 3.141, 0.0, 0.0, 1.0 );
+    currentScene->setMatrix( rm );
+}
+
+void WMainWindow::setPresetViewPosterior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr< WGEGroupNode > currentScene;
+    currentScene = viewer->getScene();
+    osg::Matrix rm;
+//    rm.makeRotate( 90.0 * ( 3.141 / 180 ), 0.0, 0.0, 0.0 );
+    currentScene->setMatrix( rm );
 }
 
 void WMainWindow::openNotImplementedDialog()

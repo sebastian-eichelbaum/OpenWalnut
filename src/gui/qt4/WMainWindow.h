@@ -170,6 +170,36 @@ public slots:
     void openAboutDialog();
 
     /**
+     * Sets the left preset view of the main viewer.
+     */
+    void setPresetViewLeft();
+
+    /**
+     * Sets the right preset view of the main viewer.
+     */
+    void setPresetViewRight();
+
+    /**
+     * Sets the superior preset view of the main viewer.
+     */
+    void setPresetViewSuperior();
+
+    /**
+     * Sets the inferior preset view of the main viewer.
+     */
+    void setPresetViewInferior();
+
+    /**
+     * Sets the anterior preset view of the main viewer.
+     */
+    void setPresetViewAnterior();
+
+    /**
+     * Sets the posterior preset view of the main viewer.
+     */
+    void setPresetViewPosterior();
+
+    /**
      * Gets called when a menu entry that has no functionality yet is activated.
      */
     void openNotImplementedDialog();
@@ -230,6 +260,8 @@ private:
     QMenuBar* m_menuBar; //!< The main menu bar of the GUI.
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
+
+    WQtPushButton* m_loadButton; //!< the load Data Button
 
     WQtToolBar* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selected in the dataset browser
 

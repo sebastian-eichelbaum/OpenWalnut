@@ -22,63 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 #include <string>
+#include <iostream>
 
 #include <QtGui/QKeyEvent>
 
-#include "../../common/WConditionOneShot.h"
-#include "../../common/WFlag.h"
-#include "../../common/WLogger.h"
+#include "WQtGLWidget.h"
+
 #include "../../graphicsEngine/WGE2DManipulator.h"
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "../../common/WFlag.h"
+#include "../../common/WLogger.h"
+#include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
 
-#include "WQtGLWidget.h"
-
-// Ensure a WindowData data type for every supported platform
-#if defined( WIN32 ) && !defined( __CYGWIN__ )
-    #include <osgViewer/api/Win32/GraphicsWindowWin32>
-    typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
-#elif defined( __APPLE__ )
-    #if defined( __LP64__ )  // assume Cocoa on 64bit
-        #include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
-        typedef osgViewer::GraphicsWindowCocoa::WindowData WindowDataAPPLE;
-    #else // assume Carbon on 32bit
-        #include <osgViewer/api/Carbon/GraphicsWindowCarbon>
-        typedef osgViewer::GraphicsWindowCarbon::WindowData WindowDataAPPLE;
-    #endif
-    /**
-     * Define the WindowData struct also for Mac OS.
-     */
-    struct WindowData : public WindowDataAPPLE
-    {
-        /**
-         * Default constructor.
-         *
-         * \param view The window id
-         */
-        explicit WindowData( ::WId view )
-        #if defined( __LP64__ )
-            : WindowDataAPPLE( 0 )
-        #else
-            : WindowDataAPPLE( HIViewGetWindow( static_cast< HIViewRef >( view ) ) )
-        #endif
-        {
-        }
-    };
-#else  // all other unix
-    #include <osgViewer/api/X11/GraphicsWindowX11>
-    typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
-#endif
 
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
-#ifdef _WIN32
-    : QWidget( parent ),
-#else
     : QGLWidget( parent ),
-#endif
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize(),
       m_isInitialized( new WConditionOneShot(), false ),
@@ -93,6 +54,9 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     setAttribute( Qt::WA_PaintOnScreen );
     setAttribute( Qt::WA_NoSystemBackground );
     setFocusPolicy( Qt::ClickFocus );
+
+    connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
+    m_Timer.start( 10 );
 }
 
 WQtGLWidget::~WQtGLWidget()
@@ -111,12 +75,9 @@ void WQtGLWidget::initialize()
         return;
     }
 
-    // initialize OpenGL context and OpenSceneGraph
-    osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
-
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
-        m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
+        m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
 
     m_isInitialized( true );
 }
@@ -137,28 +98,46 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
     switch ( manipulator )
     {
         case DRIVE:
-            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"drive\".";
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"drive\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
             m_Viewer->setCameraManipulator( new( osgGA::DriveManipulator ) );
             break;
         case FLIGHT:
-            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"flight\".";
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"flight\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
             m_Viewer->setCameraManipulator( new( osgGA::FlightManipulator ) );
             break;
         case TERRAIN:
-            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"terrain\".";
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"terrain\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
             m_Viewer->setCameraManipulator( new( osgGA::TerrainManipulator ) );
             break;
         case UFO:
-            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"ufo\".";
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"ufo\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
             m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
             break;
         case TWO_D:
-            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"WGE2D\".";
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
             m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
             break;
         case TRACKBALL:
         default:
-            wlog::debug( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "Switched to OSG manipulator \"WGETrackball\".";
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGETrackball\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
             m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
             break;
     }
@@ -180,29 +159,6 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
     return m_Viewer;
 }
 
-void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
-{
-    // maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
-    if ( !m_firstPaint )
-    {
-        WLogger::getLogger()->addLogMessage( "Painted the first time.",
-                                             "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                             LL_DEBUG );
-        m_firstPaint = true;
-    }
-
-    // m_Viewer->paint();
-}
-
-// See header file for more information on this platform specific code
-#ifndef WIN32
-void WQtGLWidget::destroyEvent( bool /*destroyWindow*/, bool /*destroySubWindows*/ )
-{
-    // forward events
-    //m_Viewer->close();
-}
-
-
 void WQtGLWidget::closeEvent( QCloseEvent* event )
 {
     // forward events
@@ -211,9 +167,15 @@ void WQtGLWidget::closeEvent( QCloseEvent* event )
     event->accept();
 }
 
-void WQtGLWidget::resizeEvent( QResizeEvent* event )
+
+void WQtGLWidget::paintGL()
 {
-    m_Viewer->resize( event->size().width(), event->size().height() );
+    m_Viewer->paint();
+}
+
+void WQtGLWidget::resizeGL( int width, int height )
+{
+    m_Viewer->resize( width, height );
 }
 
 int WQtGLWidget::translateButton( QMouseEvent* event )
@@ -226,8 +188,6 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
             return 2;
         case( Qt::RightButton ):
             return 3;
-        case( Qt::NoButton ):
-            return 0;
         default:
             return 0;
     }
@@ -331,4 +291,3 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
     }
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
-#endif
