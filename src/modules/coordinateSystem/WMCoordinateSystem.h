@@ -200,7 +200,6 @@ private:
      */
     void propertyChanged();
 
-
     /**
      * the shader object for this module
      */
