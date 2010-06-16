@@ -58,6 +58,11 @@ QAction* WQtToolBar::addWidget( QWidget* widget )
     return QToolBar::addWidget( widget );
 }
 
+void WQtToolBar::addAction( QAction* action )
+{
+    QToolBar::addAction( action );
+}
+
 void WQtToolBar::clearButtons()
 {
     clear();

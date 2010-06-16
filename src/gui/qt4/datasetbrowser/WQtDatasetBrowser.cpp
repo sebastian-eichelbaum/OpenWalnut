@@ -132,10 +132,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     connectSlots();
 
-    // preset for toolbar text.
-    m_showToolBarText = true;
-    WPreferences::getPreference( "qt4gui.toolBarIconText", &m_showToolBarText );
-
     // These modules will be allowed to be shown.
     std::string moduleWhiteList;
     WPreferences::getPreference( "modules.whiteList", &moduleWhiteList );
@@ -713,10 +709,20 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
 
     for ( WModuleFactory::CompatiblesList::const_iterator groups = comps.begin(); groups != comps.end(); ++groups )
     {
-        WQtApplyModulePushButton* currentButton = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
+        // create a new action for this group
+        QAction* group = new QAction( m_mainWindow->getCompatiblesToolBar() );
+
+        // set some stuff ( icon, tooltip etc. )
+        group->setIcon( m_mainWindow->getIconManager()->getIcon( ( *groups ).first->getName().c_str() ) );
+        group->setIconText( ( *groups ).first->getName().c_str() );
+        group->setText( ( *groups ).first->getName().c_str() );
+
+
+        /*WQtApplyModulePushButton* currentButton = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
                                                                                 *( *groups ).second.begin(), m_showToolBarText
         );
-        m_mainWindow->getCompatiblesToolBar()->addWidget( currentButton );
+        m_mainWindow->getCompatiblesToolBar()->addWidget( currentButton );*/
+        m_mainWindow->getCompatiblesToolBar()->addAction( group );
     }
 
     /*

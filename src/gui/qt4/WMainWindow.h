@@ -119,6 +119,21 @@ public:
      */
     void closeCustomDockWidget( std::string title );
 
+    /**
+     * This method returns the default style for ALL toolbars.
+     *
+     * \return the toolbar style
+     */
+    Qt::ToolButtonStyle getToolbarStyle() const;
+
+    /**
+     * This method returns the default style for the compatibles toolbar. It allows modification of the style for especially for the compatibles
+     * toolbar.
+     *
+     * \return the toolbar style for the compatibles toolbar
+     */
+    Qt::ToolButtonStyle getCompatiblesToolbarStyle() const;
+
 protected:
 
     /**

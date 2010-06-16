@@ -223,6 +223,10 @@ void WMainWindow::setupPermanentToolBar()
 {
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
 
+    // Set the style of the toolbar
+    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
+    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
+
     m_iconManager.addIcon( std::string( "ROI" ), box_xpm );
     m_iconManager.addIcon( std::string( "axial" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal" ), cor_xpm );
@@ -420,11 +424,42 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     }
 }
 
+Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
+{
+    // this sets the toolbar style
+    int toolBarStyle = 0;
+    WPreferences::getPreference( "qt4gui.toolBarStyle", &toolBarStyle );
+    if ( ( toolBarStyle < 0 ) || ( toolBarStyle > 3 ) ) // ensure a valid value
+    {
+        toolBarStyle = 0;
+    }
+
+    // cast and return
+    return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
+}
+
+Qt::ToolButtonStyle WMainWindow::getCompatiblesToolbarStyle() const
+{
+    // this sets the toolbar style
+    int compToolBarStyle = getToolbarStyle(); // this defaults to the global toolbar style
+    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
+    if ( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
+    {
+        compToolBarStyle = 0;
+    }
+
+    // cast and return
+    return static_cast< Qt::ToolButtonStyle >( compToolBarStyle );
+}
+
 void WMainWindow::setupCompatiblesToolBar()
 {
     m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
 
     m_compatiblesToolBar = new WQtToolBar( "Compatible Modules Toolbar", this );
+
+    // this sets the toolbar style
+    m_compatiblesToolBar->setToolButtonStyle( getCompatiblesToolbarStyle() );
 
     // optional toolbar break
     {
