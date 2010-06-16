@@ -28,95 +28,17 @@
 
 #include "exceptions/WGEInitFailed.h"
 
-WGEGraphicsWindow::WGEGraphicsWindow( osg::ref_ptr<osg::Referenced> wdata,
-                                      int x,
+WGEGraphicsWindow::WGEGraphicsWindow( int x,
                                       int y,
                                       int width,
                                       int height )
+    : m_GraphicsWindow( new osgViewer::GraphicsWindowEmbedded( x, y, width, height ) )
 {
-    m_WindowData = wdata;
-
-    // initialize context
-    try
-    {
-        createContext( x, y, width, height );
-    }
-    catch( ... )
-    {
-        // use our own exceptions
-        throw WGEInitFailed( "Initialization of OpenGL graphics context failed." );
-    }
 }
 
 WGEGraphicsWindow::~WGEGraphicsWindow()
 {
     // cleanup
-}
-
-osg::ref_ptr<osgViewer::GraphicsWindow> WGEGraphicsWindow::getGraphicsWindow()
-{
-    return m_GraphicsWindow;
-}
-
-void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
-{
-    // Create traits for graphics contest request
-    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
-    osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
-
-    // ensure correct $DISPLAY variable
-    traits->readDISPLAY();
-    if ( traits->displayNum < 0 )
-    {
-        traits->displayNum = 0;
-    }
-
-    // set a lot of values
-    traits->windowName = "OpenWalnut";
-    traits->screenNum = 0;      // XXX is this a good idea?
-    traits->x = x;
-    traits->y = y;
-    traits->width = width;
-    traits->height = height;
-    traits->alpha = ds->getMinimumNumAlphaBits();
-    traits->stencil = ds->getMinimumNumStencilBits();
-    // traits->windowDecoration = false;
-    traits->doubleBuffer = true;
-    traits->sharedContext = 0;
-    traits->sampleBuffers = ds->getMultiSamples();
-    traits->samples = ds->getNumMultiSamples();
-    traits->inheritedWindowData = m_WindowData;
-
-    // Stereo
-    // TODO(ebaum): Stereo Mode: test whether it works
-    if ( ds->getStereo() )
-    {
-        switch( ds->getStereoMode() )
-        {
-            case( osg::DisplaySettings::QUAD_BUFFER ):
-                traits->quadBufferStereo = true;
-                break;
-            case( osg::DisplaySettings::VERTICAL_INTERLACE ):
-            case( osg::DisplaySettings::CHECKERBOARD ):
-            case( osg::DisplaySettings::HORIZONTAL_INTERLACE ):
-                traits->stencil = 8;
-                break;
-            default:
-                break;
-        }
-    }
-
-    // finally create graphics context and window
-    m_GraphicsContext = osg::GraphicsContext::createGraphicsContext( traits.get() );
-
-    m_GraphicsWindow = osg::ref_ptr<osgViewer::GraphicsWindow>(
-            static_cast<osgViewer::GraphicsWindow*>( m_GraphicsContext.get() ) );
-
-    // get around dearranged traits on X11 (MTCompositeViewer only)
-    traits->x = x;
-    traits->y = x;
-    traits->width = width;
-    traits->height = height;
 }
 
 void WGEGraphicsWindow::resize( int width, int height )

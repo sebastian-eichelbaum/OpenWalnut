@@ -39,26 +39,18 @@ public:
     /**
      * Default constructor.
      *
-     * \param wdata the WindowData instance for the widget to use as render widget
      * \param x X coordinate of widget where to create the context.
      * \param y Y coordinate of widget where to create the context.
      * \param width Width of the widget.
      * \param height Height of the Widget.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEGraphicsWindow( osg::ref_ptr<osg::Referenced> wdata, int x, int y, int width, int height );
+    WGEGraphicsWindow( int x, int y, int width, int height );
 
     /**
      * Destructor.
      */
     virtual ~WGEGraphicsWindow();
-
-    /**
-     * Getter for m_GraphicsWindow.
-     *
-     * \return the OSG GraphicsWindow instance.
-     */
-    osg::ref_ptr<osgViewer::GraphicsWindow> getGraphicsWindow();
 
     /**
      * Event types for the keyEvent() handler.
@@ -111,29 +103,9 @@ public:
 protected:
 
     /**
-     * Creates a new OpenGL context in the calling thread. Needs to be called before any other OpenGL operation.
-     *
-     * \param x X coordinate of widget where to create the context.
-     * \param y Y coordinate of widget where to create the context.
-     * \param width Width of the widget.
-     * \param height Height of the Widget.
-     */
-    void createContext( int x, int y, int width, int height );
-
-    /**
      * OpenSceneGraph render window.
      */
     osg::ref_ptr<osgViewer::GraphicsWindow> m_GraphicsWindow;
-
-    /**
-     * OpenSceneGraph render context.
-     */
-    osg::ref_ptr<osg::GraphicsContext> m_GraphicsContext;
-
-    /**
-     * Widget window data.
-     */
-    osg::ref_ptr<osg::Referenced> m_WindowData;
 private:
 };
 

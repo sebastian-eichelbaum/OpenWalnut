@@ -62,6 +62,7 @@
 #include "../modules/vectorPlot/WMVectorPlot.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
+#include "../modules/writeTracts/WMWriteTracts.h"
 #include "../modules/splineSurface/WMSplineSurface.h"
 #include "../modules/atlasSurfaces/WMAtlasSurfaces.h"
 #include "combiner/WApplyPrototypeCombiner.h"
@@ -125,6 +126,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteTracts() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSplineSurface() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMAtlasSurfaces() ) );
 

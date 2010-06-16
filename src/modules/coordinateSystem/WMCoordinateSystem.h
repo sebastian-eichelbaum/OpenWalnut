@@ -30,13 +30,14 @@
 #include <osg/Geode>
 #include <osg/Node>
 
-#include "WRulerOrtho.h"
-
 #include "../../dataHandler/WDataSet.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleConnector.h"
 #include "../../kernel/WModuleInputData.h"
+
+#include "WCoordConverter.h"
+#include "WRulerOrtho.h"
 
 /**
  * class that implements the various coordinate systems as overlays within the 3D view
@@ -54,6 +55,11 @@ public:
      * destructor
      */
     virtual ~WMCoordinateSystem();
+
+    /**
+     * Initialize the connectors this module is using.
+     */
+    virtual void connectors();
 
     /**
      * callback for updating the geometry
@@ -95,24 +101,54 @@ protected:
     virtual void moduleMain();
 
 private:
+    WPropPosition m_crosshair; //!< position of the navigation slizes
+    WPropPosition m_flt; //!< lower boundary of the dataset
+    WPropPosition m_brb; //!< upper boundary of the dataset
 
-    WPropBool m_dataSetAddedProp; //!< TODO(schurade): document this.
+    WPropPosition m_ac; //!< anterior commisure
+    WPropPosition m_pc; //!< posterior commisure
+    WPropPosition m_ihp; //!< inter hemispherical point
 
-    WPropInt m_axialPosProp; //!< Axial slice position.
-    WPropInt m_coronalPosProp; //!< Coronal slice position.
-    WPropInt m_sagittalPosProp; //!< Sagittal slice position.
+    WPropBool m_showNumbersOnRulers; //!< show/hide numbers on rulers
 
-    WPropDouble m_fltXProp; //!< Front left top corner X comp.
-    WPropDouble m_fltYProp; //!< Front left top corner Y comp.
-    WPropDouble m_fltZProp; //!< Front left top corner Z comp.
+    WPropBool m_showAxial; //!< show rulers ont he axial slize
+    WPropBool m_showCoronal; //!< show rulers ont he coronal slize
+    WPropBool m_showSagittal; //!< show rulers ont he sagittal slize
 
-    WPropDouble m_brbXProp; //!< Back right bottom corner X comp.
-    WPropDouble m_brbYProp; //!< Back right bottom corner Y comp.
-    WPropDouble m_brbZProp; //!< Back right bottom corner Z comp.
+    WPropBool m_showGridAxial; //!< show grid on the axial slize
+    WPropBool m_showGridCoronal;  //!< show grid on the coronal slize
+    WPropBool m_showGridSagittal;  //!< show grid on the sagittal slize
 
-    WPropDouble m_zeroXProp; //!< Zero point X comp.
-    WPropDouble m_zeroYProp; //!< Zero point Y comp.
-    WPropDouble m_zeroZProp; //!< Zero point Z comp.
+    WPropTrigger m_acTrigger; //!< button to reset the ac point
+    WPropTrigger m_pcTrigger; //!< button to reset the pc point
+    WPropTrigger m_ihpTrigger; //!< button to reset the ihp point;
+
+    WPropSelection m_csSelection; //!< selection for coordinate system mode
+    boost::shared_ptr< WItemSelection > m_possibleSelections;  //!< selection for coordinate system mode
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
+
+    /**
+     * the root node for this module
+     */
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
+
+    /**
+     * node for the bounding box
+     */
+    osg::ref_ptr< osg::Group > m_rulerNode;
+
+    bool m_dirty; //!< flag true if something happenend that requires redrawing of gfx
+
+    float m_drawOffset; //!< offset from slices to draw geometry on
+
+    boost::shared_ptr<WCoordConverter>m_coordConverter; //!< stores pointer
 
     /**
      * initialize the properties for this module
@@ -130,40 +166,44 @@ private:
     void createGeometry();
 
     /**
-     * helper funktion to create the actual geometry
-     */
-    osg::ref_ptr<osg::Geometry> createGeometryNode();
-
-    /**
      * helper function that finds the bounding box of the topmost dataset in the datasetbrowser
      */
     void findBoundingBox();
 
-    /**
-     * the root node for this module
-     */
-    osg::ref_ptr< WGEGroupNode > m_rootNode;
+
+    void initTalairachConverter(); //!< creates and initializes a talairach converter object
+
+    void addRulersSagittal(); //!< helper function to create rulers
+    void addRulersAxial(); //!< helper function to create rulers
+    void addRulersCoronal(); //!< helper function to create rulers
 
     /**
-     * node for the bounding box
+     * helper function to create a grid overlay on the sagittal slize
+     * \param position
      */
-    osg::ref_ptr<osg::Geode> m_boxNode;
+    void addSagittalGrid( float position );
 
     /**
-     * node for the bounding box
+     * helper function to create a grid overlay on the coronal slize
+     * \param position
      */
-    osg::ref_ptr< osg::Group > m_rulerNode;
+    void addCoronalGrid( float position );
 
+    /**
+     * helper function to create a grid overlay on the axial slize
+     * \param position
+     */
+    void addAxialGrid( float position );
+
+    /**
+     * Callback to listen for property changes
+     */
+    void propertyChanged();
 
     /**
      * the shader object for this module
      */
     // boost::shared_ptr< WShader >m_shader;
-
-    /**
-     * lock to prevent concurrent threads trying to update the osg node
-     */
-    boost::shared_mutex m_updateLock;
 
     /**
      * Node callback to handle updates properly

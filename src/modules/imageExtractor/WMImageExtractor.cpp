@@ -80,9 +80,9 @@ void WMImageExtractor::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_selectedImage = m_properties->addProperty( "Image", "The image to be extracted.", 1, m_propCondition );
-    m_selectedImage->setMin( 1 );
-    m_selectedImage->setMax( 1 );
+    m_selectedImage = m_properties->addProperty( "Image", "The image to be extracted.", 0, m_propCondition );
+    m_selectedImage->setMin( 0 );
+    m_selectedImage->setMax( 0 );
 
     // these are taken from WMData
     m_interpolation = m_properties->addProperty( "Interpolation",
@@ -131,37 +131,62 @@ void WMImageExtractor::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
-        if( dataChanged && dataValid )
-        {
-            m_dataSet = newDataSet;
-            WAssert( m_dataSet, "" );
-            WAssert( m_dataSet->getValueSet(), "" );
-            m_selectedImage->setMax( m_dataSet->getValueSet()->dimension() );
-            m_selectedImage->ensureValidity( 1 );
-        }
-
         if( dataValid )
+        {
+            if( dataChanged || m_selectedImage->changed() )
+            {
+                m_dataSet = newDataSet;
+                WAssert( m_dataSet, "" );
+                WAssert( m_dataSet->getValueSet(), "" );
+
+                if( dataChanged )
+                {
+                    m_selectedImage->setMax( m_dataSet->getValueSet()->dimension() - 1 );
+                    m_selectedImage->ensureValidity( 0 );
+                }
+
+                if( m_outData )
+                {
+                    WDataHandler::deregisterDataSet( m_outData );
+                }
+
+                std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
+
+                boost::shared_ptr< WDataSetScalar > oldOut = m_outData;
+                m_outData = extract( i );
+
+                if( m_outData )
+                {
+                    if( m_outData != oldOut )
+                    {
+                        m_threshold->setMin( m_outData->getMin() );
+                        m_threshold->setMax( m_outData->getMax() );
+                        m_threshold->set( m_outData->getMin() );
+                    }
+
+                    setOutputProps();
+                    m_outData->setFileName( makeImageName( i ) );
+                    WDataHandler::registerDataSet( m_outData );
+                }
+
+                m_output->updateData( m_outData );
+            }
+            else
+            {
+                if( m_outData )
+                {
+                    setOutputProps();
+                }
+            }
+        }
+        else // case !dataValid
         {
             if( m_outData )
             {
                 WDataHandler::deregisterDataSet( m_outData );
             }
-
-            std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
-            m_outData = extract( i );
-            setOutputProps();
-
-            if( m_outData )
-            {
-                m_outData->setFileName( makeImageName( i ) );
-            }
-
+            m_outData = boost::shared_ptr< WDataSetScalar >();
             m_output->updateData( m_outData );
-
-            if( m_outData )
-            {
-                WDataHandler::registerDataSet( m_outData );
-            }
         }
     }
 
@@ -181,7 +206,7 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
     WAssert( m_dataSet->getValueSet(), "" );
     WAssert( m_dataSet->getGrid(), "" );
 
-    if( m_dataSet->getValueSet()->order() != 1 || i > m_dataSet->getValueSet()->dimension() )
+    if( m_dataSet->getValueSet()->order() > 1 || i >= m_dataSet->getValueSet()->dimension() )
     {
         return boost::shared_ptr< WDataSetScalar >();
     }

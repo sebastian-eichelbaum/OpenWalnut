@@ -103,7 +103,7 @@ vec3 blueLightBlueColorMap( in float value )
 
 vec3 negative2positive( in float value )
 {
-    float val = value * 2 - 1.0;
+    float val = value * 2.0 - 1.0;
 
     vec3 zeroColor = vec3( 1., 1., 1. );
     vec3 negColor = vec3( 1., 1., 0. );
@@ -119,29 +119,46 @@ vec3 negative2positive( in float value )
     else return vec3( 0.0, 0.0, 0.0 );
 }
 
+// TODO(math): Remove this function and replace its calls with bitwise operations as soon as there 
+// on all platforms available. Currently Mac OS 10.6.4. doesn't support GLSL 1.30 which introduces
+// those operations.
+// e.g. replace: isBitSet( val, 5 ) with ( val & 32 ) == 1
+bool isBitSet( in float value, in float bitpos )
+{
+    return ( abs( mod( floor( value / pow( 2.0, bitpos ) ), 2.0 ) - 1.0 ) ) < 0.001;
+}
+
 vec3 atlasColorMap ( in float value )
 {
-    int val = int( value * 255 );
+    float val = floor( value * 255.0 );
     float r = 0.0;
     float g = 0.0;
     float b = 0.0;
 
-    if ( ( val & 1 ) == 1 )
+    if ( isBitSet( val, 0.0 ) )
         r = 0.4;
-    if ( ( val & 2 ) == 2 )
+    if ( isBitSet( val, 1.0 ) )
         g = 0.4;
-    if ( ( val & 4 ) == 4 )
+    if ( isBitSet( val, 2.0 ) )
         b = 0.4;
-    if ( ( val & 8 ) == 8 )
+    if ( isBitSet( val, 3.0 ) )
         b += 0.3;
-    if ( ( val & 16 ) == 16 )
+    if ( isBitSet( val, 4.0 ) )
         r += 0.3;
-    if ( ( val & 32 ) == 32 )
+    if ( isBitSet( val, 5.0 ) )
         g += 0.3;
-    if ( ( val & 64 ) == 64 )
+    if ( isBitSet( val, 6.0 ) )
         r += 0.3;
-    if ( ( val & 128 ) == 128 )
+    if ( isBitSet( val, 7.0 ) )
         b += 0.3;
+
+    r *= 1.5;
+    g *= 1.5;
+    b *= 1.5;
+
+    clamp( r, 0., 1.);
+    clamp( g, 0., 1.);
+    clamp( b, 0., 1.);
 
     return vec3( r, g, b );
 }

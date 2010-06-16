@@ -145,7 +145,7 @@ void WMData::properties()
     m_colorMapSelectionsList->addItem( "Rainbow", "" );
     m_colorMapSelectionsList->addItem( "Hot iron", "" );
     m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Lightblue", "" );
+    m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
 
     m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
