@@ -41,9 +41,7 @@
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : QGLWidget( parent ),
       m_nameOfViewer( nameOfViewer ),
-      m_recommendedSize(),
-      m_isInitialized( new WConditionOneShot(), false ),
-      m_firstPaint( false )
+      m_recommendedSize()
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
@@ -55,36 +53,18 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     setAttribute( Qt::WA_NoSystemBackground );
     setFocusPolicy( Qt::ClickFocus );
 
+    // create viewer
+    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
+        m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
+
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
     m_Timer.start( 10 );
 }
 
 WQtGLWidget::~WQtGLWidget()
 {
-    // cleanup
-    if ( m_isInitialized() )
-    {
-        m_Viewer.reset();
-    }
-}
-
-void WQtGLWidget::initialize()
-{
-    if ( m_isInitialized() )
-    {
-        return;
-    }
-
-    // create viewer
-    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
-        m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
-
-    m_isInitialized( true );
-}
-
-const WBoolFlag& WQtGLWidget::isInitialized() const
-{
-    return m_isInitialized;
+    WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_nameOfViewer );
+    m_Viewer.reset();
 }
 
 QSize WQtGLWidget::sizeHint() const
@@ -145,7 +125,6 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
 
 void WQtGLWidget::setBgColor( WColor bgColor )
 {
-    assert( m_Viewer );
     m_Viewer->setBgColor( bgColor );
 }
 
@@ -158,15 +137,6 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
 {
     return m_Viewer;
 }
-
-void WQtGLWidget::closeEvent( QCloseEvent* event )
-{
-    // forward events
-    WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_nameOfViewer );
-
-    event->accept();
-}
-
 
 void WQtGLWidget::paintGL()
 {

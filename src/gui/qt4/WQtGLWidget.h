@@ -35,7 +35,6 @@
 #include <boost/signals2/signal.hpp>
 
 #include "../../graphicsEngine/WGECamera.h"
-#include "../../common/WFlag.h"
 
 class WGEViewer;
 class WColor;
@@ -65,11 +64,6 @@ public:
      * Destructor.
      */
     virtual ~WQtGLWidget();
-
-    /**
-     * Since the widget is not visible during construction, the OSG thread may cause errors, so we use a post constructor.
-     */
-    virtual void initialize();
 
     /**
      * returns the recommended size for the widget to allow
@@ -112,13 +106,6 @@ public:
      */
     boost::shared_ptr< WGEViewer > getViewer() const;
 
-    /**
-     * Determines whether the widget is properly initialized.
-     *
-     * \return flag - initialized.
-     */
-    const WBoolFlag& isInitialized() const;
-
 protected:
     /**
      * The viewer to the scene.
@@ -137,13 +124,6 @@ protected:
      * \param event the event description.
      */
     virtual void mouseDoubleClickEvent( QMouseEvent* event );
-
-    /**
-     * Event handler for close events.
-     *
-     * \param event the event description.
-     */
-    virtual void closeEvent( QCloseEvent* event );
 
     /**
      * QT Callback for handling repaints.
@@ -229,11 +209,6 @@ private:
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
-
-    /**
-     * True when initialized.
-     */
-    WBoolFlag m_isInitialized;
 
     /**
      * True when the widget got drawn the very first time.

@@ -141,7 +141,6 @@ void WMainWindow::setupGUI()
     setMenuBar( m_menuBar );
 
     m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    m_mainGLWidget->initialize();
     setCentralWidget( m_mainGLWidget.get() );
 
     // initially 3 navigation views

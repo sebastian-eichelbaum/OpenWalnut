@@ -51,7 +51,6 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
     m_layout = new QVBoxLayout();
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
-    m_glWidget->initialize();
 
     setMinimumSize( 160, 240 );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
@@ -74,14 +73,6 @@ WQtNavGLWidget::~WQtNavGLWidget()
     {
         delete m_propWidget;
     }
-}
-
-void WQtNavGLWidget::closeEvent( QCloseEvent* event )
-{
-    // forward events
-    m_glWidget->close();
-
-    event->accept();
 }
 
 void WQtNavGLWidget::setSliderTitle( std::string title )

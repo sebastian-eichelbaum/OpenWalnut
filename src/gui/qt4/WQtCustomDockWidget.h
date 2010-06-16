@@ -76,13 +76,6 @@ public:
     bool decreaseUseCount();
 
 protected:
-    /**
-     * Event handler for close events
-     *
-     * \param event the event description.
-     */
-    virtual void closeEvent( QCloseEvent* event );
-
 private:
     /**
      * the included GL widget
