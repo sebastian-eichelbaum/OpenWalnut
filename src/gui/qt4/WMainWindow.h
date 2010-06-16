@@ -123,6 +123,13 @@ public:
     Qt::ToolButtonStyle getToolbarStyle() const;
 
     /**
+     * Returns the preferred position of toolbars.
+     *
+     * \return QT Position for the toolbars used as default for all toolbars.
+     */
+    static Qt::ToolBarArea getToolbarPos();
+
+    /**
      * This method removes the old compatibles toolbar and sets the specified one.
      *
      * \param toolbar the toolbar to set. If NULL, the toolbar gets reset.

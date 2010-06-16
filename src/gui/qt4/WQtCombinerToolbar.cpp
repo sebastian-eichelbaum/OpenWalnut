@@ -83,11 +83,49 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::Com
 
     // The following makes the bar having button size from the beginning.
     QPushButton* dummyButton = new QPushButton;
-    dummyButton->setFixedWidth( 0 );
+
+    if ( ( parent->getToolbarPos() ==  Qt::TopToolBarArea ) || ( ( parent->getToolbarPos() ==  Qt::BottomToolBarArea ) ) )
+    {
+        dummyButton->setFixedWidth( 0 );
+        dummyButton->setFixedHeight( 32 );
+    }
+    else
+    {
+        dummyButton->setFixedWidth( 48 );   // well this size must be more than 32 as there might be these little submenu arrows besides the icon
+        dummyButton->setFixedHeight( 0 );
+    }
+
     addWidget( dummyButton );
 }
 
 WQtCombinerToolbar::~WQtCombinerToolbar()
 {
+}
+
+Qt::ToolBarArea WQtCombinerToolbar::getCompatiblesToolbarPos()
+{
+    int compatiblesToolbarPos = -1;
+    WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos );
+    Qt::ToolBarArea pos = Qt::TopToolBarArea;
+    switch ( compatiblesToolbarPos )
+    {
+        case 0:
+            pos = Qt::TopToolBarArea;
+            break;
+        case 1:
+            pos = Qt::BottomToolBarArea;
+            break;
+        case 2:
+            pos = Qt::LeftToolBarArea;
+            break;
+        case 3:
+            pos = Qt::RightToolBarArea;
+            break;
+        default:
+            pos = WMainWindow::getToolbarPos();
+            break;
+    }
+
+    return pos;
 }
 

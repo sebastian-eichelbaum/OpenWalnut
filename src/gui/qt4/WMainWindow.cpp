@@ -266,7 +266,7 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 
-    addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+    addToolBar( WMainWindow::getToolbarPos(), m_permanentToolBar );
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
@@ -438,26 +438,8 @@ Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
     return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
 }
 
-void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
+Qt::ToolBarArea WMainWindow::getToolbarPos()
 {
-    delete m_currentCompatiblesToolbar;
-    m_currentCompatiblesToolbar = toolbar;
-
-    // optional toolbar break
-    {
-        bool useToolBarBreak = true;
-        WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
-        if( useToolBarBreak )
-        {
-            // Blank toolbar for nicer layout in case of toolbar break
-            // This can be done nicer very probably.
-            //WQtToolBar* blankToolBar = new WQtToolBar( "Blank Toolbar", this );
-            //addToolBar( Qt::TopToolBarArea, blankToolBar );
-            addToolBarBreak( Qt::TopToolBarArea );
-        }
-    }
-
-    // and the position of the toolbar
     int compatiblesToolbarPos = 0;
     WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos );
     Qt::ToolBarArea pos = Qt::TopToolBarArea;
@@ -479,7 +461,37 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
             pos = Qt::TopToolBarArea;
             break;
     }
-    addToolBar( pos, m_currentCompatiblesToolbar );
+
+    return pos;
+}
+
+void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
+{
+    if ( m_currentCompatiblesToolbar )
+    {
+        delete m_currentCompatiblesToolbar;
+    }
+    m_currentCompatiblesToolbar = toolbar;
+
+    if ( !toolbar )
+    {
+        // ok, reset the toolbar
+        // So create a dummy to permanently reserve the space
+        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this, WModuleFactory::CompatiblesList() );
+    }
+
+    // optional toolbar break
+    {
+        bool useToolBarBreak = true;
+        WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
+        if( useToolBarBreak )
+        {
+            addToolBarBreak( m_currentCompatiblesToolbar->getCompatiblesToolbarPos() );
+        }
+    }
+
+    // and the position of the toolbar
+    addToolBar( m_currentCompatiblesToolbar->getCompatiblesToolbarPos(), m_currentCompatiblesToolbar );
 }
 
 WQtDatasetBrowser* WMainWindow::getDatasetBrowser()

@@ -269,8 +269,12 @@ void WQtConfigWidget::registerComponents()
     tbs->setMax( 3 );
     ctbs->setMin( 0 );
     ctbs->setMax( 3 );
+    WPropInt tbpos = m_defaultProperties->addProperty( "qt4gui.toolBarPos", "The position of the toolbar in OpenWalnut", 0,
+                                                       m_propCondition );
     WPropInt ctbpos = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarPos", "The position of the compatibles toolbar in OpenWalnut", 0,
                                                         m_propCondition );
+    tbpos->setMin( 0 );
+    tbpos->setMax( 3 );
     ctbpos->setMin( 0 );
     ctbpos->setMax( 3 );
 

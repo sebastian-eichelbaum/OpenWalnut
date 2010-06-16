@@ -51,6 +51,13 @@ public:
      */
     virtual ~WQtCombinerToolbar();
 
+    /**
+     * Returns the preferred position of compatibles toolbars. This overrides WMainWindow::getToolbarPos().
+     *
+     * \return QT Position for the compatibles toolbars
+     */
+    static Qt::ToolBarArea getCompatiblesToolbarPos();
+
 protected:
 
 private:
