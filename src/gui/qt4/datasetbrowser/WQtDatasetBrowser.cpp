@@ -48,7 +48,7 @@
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WModuleRemovedEvent.h"
 #include "../events/WEventTypes.h"
-#include "../guiElements/WQtApplyModulePushButton.h"
+#include "../guiElements/WQtApplyModuleAction.h"
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "WQtNumberEdit.h"
@@ -707,95 +707,33 @@ void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >mod
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
     WModuleFactory::CompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
+    // create an action for each group:
     for ( WModuleFactory::CompatiblesList::const_iterator groups = comps.begin(); groups != comps.end(); ++groups )
     {
         // create a new action for this group
-        QAction* group = new QAction( m_mainWindow->getCompatiblesToolBar() );
-
-        // set some stuff ( icon, tooltip etc. )
-        group->setIcon( m_mainWindow->getIconManager()->getIcon( ( *groups ).first->getName().c_str() ) );
-        group->setIconText( ( *groups ).first->getName().c_str() );
-        group->setText( ( *groups ).first->getName().c_str() );
-
-
-        /*WQtApplyModulePushButton* currentButton = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
-                                                                                *( *groups ).second.begin(), m_showToolBarText
-        );
-        m_mainWindow->getCompatiblesToolBar()->addWidget( currentButton );*/
+        WQtApplyModuleAction* group = new WQtApplyModuleAction( m_mainWindow->getCompatiblesToolBar(),
+                                                                m_mainWindow->getIconManager(),
+                                                                *( *groups ).second.begin() );
         m_mainWindow->getCompatiblesToolBar()->addAction( group );
+
+        // only add a sub menu if there are more than 1 items in the group
+        if ( ( *groups ).second.size() > 1 )
+        {
+            QMenu* groupMenu = new QMenu( m_mainWindow->getCompatiblesToolBar() );
+            // iterate all the children
+            for ( WModuleFactory::CompatibleCombiners::const_iterator combiner = ( *groups ).second.begin();
+                                                                      combiner != ( *groups ).second.end(); ++combiner )
+            {
+                WQtApplyModuleAction* a = new WQtApplyModuleAction( m_mainWindow->getCompatiblesToolBar(),
+                                                                    m_mainWindow->getIconManager(),
+                                                                    ( *combiner ),
+                                                                    true );
+                a->setIconVisibleInMenu( true );
+                groupMenu->addAction( a );
+            }
+            group->setMenu( groupMenu );
+        }
     }
-
-    /*
-    boost::shared_ptr< WModule > currentModule; // always save the current module to identify consecutive applycombiners with equal target
-
-    typedef std::vector< std::vector< QAction* > > ActionList;
-    ActionList actions;
-
-    // each combiner can now be added to an existing group or
-    for ( std::vector< boost::shared_ptr< WApplyPrototypeCombiner > >::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
-    {
-
-        // This combiner does not belong to the previous group --> create a new toolbutton
-        if ( currentModule != ( *iter )->getTargetPrototype() )
-        {
-            // it is different from the previous one -> create a new button and add it
-
-            currentModule = ( *iter )->getTargetPrototype();
-
-            currentButton = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
-                                                                             *iter, m_showToolBarText
-            );
-            m_mainWindow->getCompatiblesToolBar()->addWidget( currentButton );
-
-        }
-        else
-        {
-
-        }
-*/
-
-        // ensure that only modules in the whitelist cause buttons to be created
-        /*if( !m_moduleWhiteList.empty() )
-        {
-            const std::string tmpName = ( *iter )->getTargetPrototype()->getName();
-            if( std::find( m_moduleWhiteList.begin(), m_moduleWhiteList.end(), tmpName ) == m_moduleWhiteList.end() )
-            {
-                continue; // do nothing for modules that are not in white list
-            }
-        }*/
-
-        // This combiner does not belong to the previous group --> create a new toolbutton
-        /*if ( currentModule != ( *iter )->getTargetPrototype() )
-        {
-            // it is different from the previous one -> create a new button and add it
-
-            currentModule = ( *iter )->getTargetPrototype();
-
-            currentButton = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
-                                                                             *iter, m_showToolBarText
-            );
-            m_mainWindow->getCompatiblesToolBar()->addWidget( currentButton );
-
-        }
-        else
-        {
-            // the previous element also targeted the same module -> add item to the menu of the buttons
-            QMenu* menu = currentButton->menu();
-            if ( !menu )
-            {
-                menu = new QMenu( currentButton );
-                currentButton->setMenu( menu );
-            }
-
-            // setting this property here ensures that buttons without menu do not provide this little menu arrow
-            currentButton->setPopupMode( QToolButton::MenuButtonPopup );
-
-            // add an action item for this combiner
-            std::string name = ( *iter )->getSrcModule()->getName() + ":" + ( *iter )->getSrcConnector() + " -> " +
-                               ( *iter )->getTargetPrototype()->getName() + ":" + ( *iter )->getTargetConnector();
-            menu->addAction( name.c_str() );
-        }*/
-//    }
 }
 
 void WQtDatasetBrowser::changeTreeItem()

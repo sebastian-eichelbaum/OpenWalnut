@@ -232,7 +232,7 @@ void WMainWindow::setupPermanentToolBar()
     m_iconManager.addIcon( std::string( "coronal" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
 
-
+    // TODO(all): this should be QActions to allow the toolbar style to work properly
     WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );

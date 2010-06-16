@@ -27,6 +27,7 @@
 
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -144,9 +145,14 @@ public:
     static bool isA( boost::shared_ptr< WModule > module );
 
     /**
+     * A list of all combiners. Used in CompatiblesGroup.
+     */
+    typedef std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > CompatibleCombiners;
+
+    /**
      * A group of compatibles connections to and from a specified module.
      */
-    typedef std::pair< boost::shared_ptr< WModule >, std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > > CompatiblesGroup;
+    typedef std::pair< boost::shared_ptr< WModule >, CompatibleCombiners > CompatiblesGroup;
 
     /**
      * A type used for defining lists of properties. It basically is a list of lists, each containing several ApplyPrototypeCombiner instances.
