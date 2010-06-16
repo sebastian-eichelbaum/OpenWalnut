@@ -102,9 +102,9 @@ public:
         wmath::WVector3D testPoint( 12, 43, -12 );
         wmath::WVector3D result = m_tc->ACPC2Talairach( testPoint );
 
-        TS_ASSERT_DELTA( result[0], 5.0, 0.05 );
-        TS_ASSERT_DELTA( result[1], 15.85, 0.05 );
-        TS_ASSERT_DELTA( result[2], -2.15, 0.05 );
+        TS_ASSERT_DELTA( result[0], 12.0, 0.05 );
+        TS_ASSERT_DELTA( result[1], 49.6, 0.05 );
+        TS_ASSERT_DELTA( result[2], -3.8, 0.05 );
     }
 
     /**
@@ -115,9 +115,9 @@ public:
         wmath::WVector3D testPoint( 10.5, 46.41, -12.29 );
         wmath::WVector3D result = m_tc->Talairach2ACPC( testPoint );
 
-        TS_ASSERT_DELTA( result[0], 25., 0.05 );
-        TS_ASSERT_DELTA( result[1], 126., 0.05 );
-        TS_ASSERT_DELTA( result[2], -68.35, 0.05 );
+        TS_ASSERT_DELTA( result[0], 10.5, 0.05 );
+        TS_ASSERT_DELTA( result[1], 40.25, 0.05 );
+        TS_ASSERT_DELTA( result[2], -38.35, 0.05 );
     }
 
 
