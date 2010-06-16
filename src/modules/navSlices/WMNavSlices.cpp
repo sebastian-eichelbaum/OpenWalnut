@@ -1041,11 +1041,11 @@ void WMNavSlices::updateViewportMatrix()
         osg::Matrix tm;
 
         tm.makeTranslate( osg::Vec3(
-          -m_bb.second[ 0 ] + m_bb.first[ 0 ] - 0.5,
+          m_bb.second[ 0 ] - m_bb.first[ 0 ] + 0.5,
           -0.5 * ( m_bb.first[ 1 ] + m_bb.second[ 1 ] ),
           -0.5 * ( m_bb.first[ 2 ] + m_bb.second[ 2 ] ) ) );
-        rm.makeRotate( -90.0 * 3.141 / 180, 0.0, 1.0, 0.0 );
-        rm2.makeRotate( -90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
+        rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 1.0, 0.0 );
+        rm2.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
         sm.makeScale( scale, scale, scale );
 
         tm *= rm;
