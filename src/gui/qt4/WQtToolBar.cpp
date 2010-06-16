@@ -24,6 +24,8 @@
 
 #include <list>
 
+#include <QtGui/QAction>
+
 #include "WQtToolBar.h"
 
 WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )

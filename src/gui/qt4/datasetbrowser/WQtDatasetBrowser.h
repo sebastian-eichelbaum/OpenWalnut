@@ -37,6 +37,7 @@
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
 #include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../WQtCombinerToolbar.h"
 #include "WQtDSBWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
 #include "WQtModuleTreeItem.h"
@@ -167,8 +168,10 @@ protected:
      * selected dataset
      *
      * \param module pointer to the currently selected module
+     *
+     * \return the new toolbar instance
      */
-    void createCompatibleButtons( boost::shared_ptr< WModule >module );
+    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
 
     /**
      * Reference to the main window of the application.

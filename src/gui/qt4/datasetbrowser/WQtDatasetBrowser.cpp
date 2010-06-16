@@ -469,12 +469,12 @@ void WQtDatasetBrowser::selectTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    // the WQtToolbar also deletes the buttons!
-    m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
     boost::shared_ptr< WProperties > infoProps;
+
+    WQtCombinerToolbar* newToolbar = NULL;
 
     if ( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
@@ -494,7 +494,7 @@ void WQtDatasetBrowser::selectTreeItem()
             case MODULEHEADER:
                 // deletion of headers and subjects is not allowed
                 m_deleteModuleAction->setEnabled( false );
-                createCompatibleButtons( module );  // module is NULL at this point
+                newToolbar = createCompatibleButtons( module );  // module is NULL at this point
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
@@ -506,7 +506,7 @@ void WQtDatasetBrowser::selectTreeItem()
 
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
-                createCompatibleButtons( module );
+                newToolbar = createCompatibleButtons( module );
 
                 {
                     boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
@@ -541,7 +541,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 }
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
-                createCompatibleButtons( module );
+                newToolbar = createCompatibleButtons( module );
                 break;
             case ROIHEADER:
             case ROIBRANCH:
@@ -551,6 +551,11 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
         }
     }
+
+    // set the new toolbar
+    // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
+    m_mainWindow->setCompatiblesToolbar( newToolbar );
+
     buildPropTab( props, infoProps );
 }
 
@@ -558,7 +563,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    m_mainWindow->getCompatiblesToolBar()->clearButtons();
+    m_mainWindow->setCompatiblesToolbar();
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
@@ -701,39 +706,12 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, bo
     }
 }
 
-void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
+WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
     WModuleFactory::CompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
-
-    // create an action for each group:
-    for ( WModuleFactory::CompatiblesList::const_iterator groups = comps.begin(); groups != comps.end(); ++groups )
-    {
-        // create a new action for this group
-        WQtApplyModuleAction* group = new WQtApplyModuleAction( m_mainWindow->getCompatiblesToolBar(),
-                                                                m_mainWindow->getIconManager(),
-                                                                *( *groups ).second.begin() );
-        m_mainWindow->getCompatiblesToolBar()->addAction( group );
-
-        // only add a sub menu if there are more than 1 items in the group
-        if ( ( *groups ).second.size() > 1 )
-        {
-            QMenu* groupMenu = new QMenu( m_mainWindow->getCompatiblesToolBar() );
-            // iterate all the children
-            for ( WModuleFactory::CompatibleCombiners::const_iterator combiner = ( *groups ).second.begin();
-                                                                      combiner != ( *groups ).second.end(); ++combiner )
-            {
-                WQtApplyModuleAction* a = new WQtApplyModuleAction( m_mainWindow->getCompatiblesToolBar(),
-                                                                    m_mainWindow->getIconManager(),
-                                                                    ( *combiner ),
-                                                                    true );
-                a->setIconVisibleInMenu( true );
-                groupMenu->addAction( a );
-            }
-            group->setMenu( groupMenu );
-        }
-    }
+    return new WQtCombinerToolbar( m_mainWindow, comps );
 }
 
 void WQtDatasetBrowser::changeTreeItem()

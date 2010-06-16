@@ -22,48 +22,61 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyBoolWidget.h"
+#include <QtGui/QApplication>
+
+#include "../events/WEventTypes.h"
+#include "../events/WPropertyChangedEvent.h"
+
+#include "WQtPropertyBoolAction.h"
 
 #include "../../../common/WPropertyVariable.h"
 
-WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent ):
-    WPropertyWidget( property, propertyGrid, parent ),
-    m_boolProperty( property ),
-    m_checkbox( &m_parameterWidgets ),
-    m_layout( &m_parameterWidgets ),
-    m_asText( &m_informationWidgets ),
-    m_infoLayout( &m_informationWidgets )
+WQtPropertyBoolAction::WQtPropertyBoolAction( WPropBool property, QWidget* parent ):
+    QAction( parent ),
+    m_boolProperty( property )
 {
+    setCheckable( true );
+
     // initialize members
     update();
 
-    // layout both against each other
-    m_layout.addWidget( static_cast< QWidget* >( &m_checkbox ) );
-    m_parameterWidgets.setLayout( &m_layout );
-
-    // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
-    m_infoLayout.addWidget( &m_asText );
-    m_informationWidgets.setLayout( &m_infoLayout );
+    m_connection = property->getUpdateCondition()->subscribeSignal( boost::bind( &WQtPropertyBoolAction::propertyChangeNotifier, this ) );
 
     // connect the modification signal of m_checkbox with our callback
-    connect( &m_checkbox, SIGNAL( toggled( bool ) ), this, SLOT( checkboxChanged() ) );
+    connect( this, SIGNAL( toggled( bool ) ), this, SLOT( changed() ) );
 }
 
-WPropertyBoolWidget::~WPropertyBoolWidget()
+WQtPropertyBoolAction::~WQtPropertyBoolAction()
 {
     // cleanup
 }
 
-void WPropertyBoolWidget::update()
+void WQtPropertyBoolAction::update()
 {
     // simply set the new state
-    m_checkbox.setChecked( m_boolProperty->get() );
-    m_asText.setText( m_boolProperty->get() ? QString( "Yes" ) : QString( "No" ) );
+    setChecked( m_boolProperty->get() );
 }
 
-void WPropertyBoolWidget::checkboxChanged()
+void WQtPropertyBoolAction::changed()
 {
-    invalidate( !m_boolProperty->set( m_checkbox.isChecked() ) );
-    m_checkbox.setChecked( m_boolProperty->get() );
+    m_boolProperty->set( isChecked() );
+    setChecked( m_boolProperty->get() );
+}
+
+void WQtPropertyBoolAction::propertyChangeNotifier()
+{
+    QCoreApplication::postEvent( this, new WPropertyChangedEvent() );
+}
+
+bool WQtPropertyBoolAction::event( QEvent* event )
+{
+    // a property changed
+    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
+    {
+        update();
+        return true;
+    }
+
+    return QAction::event( event );
 }
 

@@ -269,6 +269,10 @@ void WQtConfigWidget::registerComponents()
     tbs->setMax( 3 );
     ctbs->setMin( 0 );
     ctbs->setMax( 3 );
+    WPropInt ctbpos = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarPos", "The position of the compatibles toolbar in OpenWalnut", 0,
+                                                        m_propCondition );
+    ctbpos->setMin( 0 );
+    ctbpos->setMax( 3 );
 
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );
     m_skipPropertyWrite.push_back( "modules.whiteListGroup" );

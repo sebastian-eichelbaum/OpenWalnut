@@ -22,38 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYBOOLWIDGET_H
-#define WPROPERTYBOOLWIDGET_H
+#ifndef WQTPROPERTYBOOLACTION_H
+#define WQTPROPERTYBOOLACTION_H
 
-#include <string>
-
-#include <QtGui/QCheckBox>
 #include <QtGui/QAction>
-#include <QtGui/QHBoxLayout>
 
-#include "WPropertyWidget.h"
+#include "../../../common/WPropertyVariable.h"
 
 /**
- * Implements a property widget for WPropBool.
+ * Implements a property action for WPropBool.
  */
-class WPropertyBoolWidget: public WPropertyWidget
+class WQtPropertyBoolAction: public QAction
 {
     Q_OBJECT
 public:
 
     /**
-     * Constructor. Creates a new widget appropriate for the specified property.
+     * Constructor. Creates a new action appropriate for the specified property.
      *
      * \param property the property to handle
      * \param parent the parent widget.
-     * \param propertyGrid the grid used to layout the labels and property widgets
      */
-    WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent = 0 );
+    WQtPropertyBoolAction( WPropBool property, QWidget* parent = 0 );
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyBoolWidget();
+    virtual ~WQtPropertyBoolAction();
 
 protected:
 
@@ -67,36 +62,38 @@ protected:
      */
     WPropBool m_boolProperty;
 
-    /**
-     * The checkbox - represents the boolean value.
-     */
-    QCheckBox m_checkbox;
 
     /**
-     * Layout used to position the label and the checkbox
+     * Callback for WPropertyBase::getChangeCondition. It emits an event to ensure all updates are done in gui thread.
      */
-    QHBoxLayout m_layout;
+    virtual void propertyChangeNotifier();
 
     /**
-     * Used to show the property as text.
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes property change events.
+     *
+     * \note QT Doc says: use event() for custom events.
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
      */
-    QLabel m_asText;
+    virtual bool event( QEvent* event );
 
     /**
-     * The layout used for the pure output (information properties)
+     * The connection for propertyChangeNotifier().
      */
-    QHBoxLayout m_infoLayout;
+    boost::signals2::connection m_connection;
 
 private:
 
 public slots:
 
     /**
-     * called whenever the user modifies the checkbox
+     * called whenever the user modifies the action
      */
-    void checkboxChanged();
+    void changed();
 
 };
 
-#endif  // WPROPERTYBOOLWIDGET_H
+#endif  // WQTPROPERTYBOOLACTION_H
 

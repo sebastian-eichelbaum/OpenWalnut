@@ -37,6 +37,13 @@ toolBarIconText = no # show text next to module's icon
 toolBarStyle = 0
 compatiblesToolBarStyle = 0 # this pref allows the compatibles toolbar to have a different style
 
+# Position of the compatibles toolbar
+# 0 -> top
+# 1 -> bottom
+# 2 -> left
+# 3 -> right
+compatiblesToolBarPos = 0 # position of the compatibles toolbar
+
 ####################################################################
 # Dataset Browser
 

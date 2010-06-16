@@ -48,6 +48,7 @@
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WEventTypes.h"
+#include "guiElements/WQtPropertyBoolAction.h"
 #include "datasetbrowser/WPropertyBoolWidget.h"
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
@@ -66,6 +67,7 @@
 
 WMainWindow::WMainWindow() :
     QMainWindow(),
+    m_currentCompatiblesToolbar( NULL ),
     m_iconManager(),
     m_fibLoaded( false )
 {
@@ -82,6 +84,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
     m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
+    m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
 
     if( objectName().isEmpty() )
     {
@@ -215,8 +218,6 @@ void WMainWindow::setupGUI()
     }
 
     setupPermanentToolBar();
-
-    setupCompatiblesToolBar();
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -263,7 +264,6 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( projectSaveButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( roiButton );
-
     m_permanentToolBar->addSeparator();
 
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
@@ -337,11 +337,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
-            button->setToolTip( "Toggle Axial Slice" );
-            button->getButton()->setMaximumSize( 24, 24 );
-            button->getButton()->setIcon( m_iconManager.getIcon( "axial" ) );
-            m_permanentToolBar->addWidget( button );
+            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
+            a->setToolTip( "Toggle Axial Slice" );
+            a->setText( "Toggle Axial Slice" );
+            a->setIcon( m_iconManager.getIcon( "axial" ) );
+            m_permanentToolBar->addAction( a );
         }
 
         prop = module->getProperties()->findProperty( "showCoronal" );
@@ -353,11 +353,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
-            button->setToolTip( "Toggle Coronal Slice" );
-            button->getButton()->setMaximumSize( 24, 24 );
-            button->getButton()->setIcon( m_iconManager.getIcon( "coronal" ) );
-            m_permanentToolBar->addWidget( button );
+            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
+            a->setToolTip( "Toggle Coronal Slice" );
+            a->setText( "Toggle Coronal Slice" );
+            a->setIcon( m_iconManager.getIcon( "coronal" ) );
+            m_permanentToolBar->addAction( a );
         }
 
         prop = module->getProperties()->findProperty( "showSagittal" );
@@ -369,11 +369,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
-            button->setToolTip( "Toggle Sagittal Slice" );
-            button->getButton()->setMaximumSize( 24, 24 );
-            button->getButton()->setIcon( m_iconManager.getIcon( "sagittal" ) );
-            m_permanentToolBar->addWidget( button );
+            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
+            a->setToolTip( "Toggle Saggital Slice" );
+            a->setText( "Toggle Saggital Slice" );
+            a->setIcon( m_iconManager.getIcon( "sagittal" ) );
+            m_permanentToolBar->addAction( a );
         }
 
         // now setup the nav widget sliders
@@ -438,28 +438,10 @@ Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
     return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
 }
 
-Qt::ToolButtonStyle WMainWindow::getCompatiblesToolbarStyle() const
+void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
 {
-    // this sets the toolbar style
-    int compToolBarStyle = getToolbarStyle(); // this defaults to the global toolbar style
-    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
-    if ( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
-    {
-        compToolBarStyle = 0;
-    }
-
-    // cast and return
-    return static_cast< Qt::ToolButtonStyle >( compToolBarStyle );
-}
-
-void WMainWindow::setupCompatiblesToolBar()
-{
-    m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
-
-    m_compatiblesToolBar = new WQtToolBar( "Compatible Modules Toolbar", this );
-
-    // this sets the toolbar style
-    m_compatiblesToolBar->setToolButtonStyle( getCompatiblesToolbarStyle() );
+    delete m_currentCompatiblesToolbar;
+    m_currentCompatiblesToolbar = toolbar;
 
     // optional toolbar break
     {
@@ -469,23 +451,40 @@ void WMainWindow::setupCompatiblesToolBar()
         {
             // Blank toolbar for nicer layout in case of toolbar break
             // This can be done nicer very probably.
-            WQtToolBar* blankToolBar = new WQtToolBar( "Blank Toolbar", this );
-            addToolBar( Qt::TopToolBarArea, blankToolBar );
+            //WQtToolBar* blankToolBar = new WQtToolBar( "Blank Toolbar", this );
+            //addToolBar( Qt::TopToolBarArea, blankToolBar );
             addToolBarBreak( Qt::TopToolBarArea );
         }
     }
 
-    addToolBar( Qt::TopToolBarArea, m_compatiblesToolBar );
+    // and the position of the toolbar
+    int compatiblesToolbarPos = 0;
+    WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos );
+    Qt::ToolBarArea pos = Qt::TopToolBarArea;
+    switch ( compatiblesToolbarPos )
+    {
+        case 0:
+            pos = Qt::TopToolBarArea;
+            break;
+        case 1:
+            pos = Qt::BottomToolBarArea;
+            break;
+        case 2:
+            pos = Qt::LeftToolBarArea;
+            break;
+        case 3:
+            pos = Qt::RightToolBarArea;
+            break;
+        default:
+            pos = Qt::TopToolBarArea;
+            break;
+    }
+    addToolBar( pos, m_currentCompatiblesToolbar );
 }
 
 WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 {
     return m_datasetBrowser;
-}
-
-WQtToolBar* WMainWindow::getCompatiblesToolBar()
-{
-    return m_compatiblesToolBar;
 }
 
 void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )

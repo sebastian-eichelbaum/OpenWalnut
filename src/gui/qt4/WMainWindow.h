@@ -45,6 +45,7 @@
 #include "ribbonMenu/WQtRibbonMenu.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtToolBar.h"
+#include "WQtCombinerToolbar.h"
 
 #include "WIconManager.h"
 #include "datasetbrowser/WQtDatasetBrowser.h"
@@ -87,11 +88,6 @@ public:
     WQtRibbonMenu* getRibbonMenu();
 
     /**
-     *  returns a pointer to the tool bar showing the compatible modules
-     */
-    WQtToolBar* getCompatiblesToolBar();
-
-    /**
      * Return icon manager
      */
     WIconManager* getIconManager();
@@ -127,12 +123,11 @@ public:
     Qt::ToolButtonStyle getToolbarStyle() const;
 
     /**
-     * This method returns the default style for the compatibles toolbar. It allows modification of the style for especially for the compatibles
-     * toolbar.
+     * This method removes the old compatibles toolbar and sets the specified one.
      *
-     * \return the toolbar style for the compatibles toolbar
+     * \param toolbar the toolbar to set. If NULL, the toolbar gets reset.
      */
-    Qt::ToolButtonStyle getCompatiblesToolbarStyle() const;
+    void setCompatiblesToolbar( WQtCombinerToolbar* toolbar = NULL );
 
 protected:
 
@@ -239,9 +234,9 @@ private:
     void setupPermanentToolBar();
 
     /**
-     * Sets up the initial state of the tool bar showing the compatible modules
+     * The currently set compatibles toolbar
      */
-    void setupCompatiblesToolBar();
+    WQtCombinerToolbar* m_currentCompatiblesToolbar;
 
     WIconManager m_iconManager; //!< manager to provide icons in the gui thread
 
@@ -250,8 +245,6 @@ private:
     QWidget* m_centralwidget; //!< the central widget of the docking facility. This can not be moved.
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
-
-    WQtToolBar* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selected in the dataset browser
 
     WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
 
