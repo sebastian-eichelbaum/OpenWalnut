@@ -103,7 +103,7 @@ vec3 blueLightBlueColorMap( in float value )
 
 vec3 negative2positive( in float value )
 {
-    float val = value * 2 - 1.0;
+    float val = value * 2.0 - 1.0;
 
     vec3 zeroColor = vec3( 1., 1., 1. );
     vec3 negColor = vec3( 1., 1., 0. );
