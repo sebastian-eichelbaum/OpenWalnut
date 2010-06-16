@@ -277,6 +277,7 @@ void WQtConfigWidget::registerComponents()
     tbpos->setMax( 3 );
     ctbpos->setMin( 0 );
     ctbpos->setMax( 3 );
+    m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
 
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );
     m_skipPropertyWrite.push_back( "modules.whiteListGroup" );

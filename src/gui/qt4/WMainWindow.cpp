@@ -105,7 +105,14 @@ void WMainWindow::setupGUI()
     // most users is the Copy shortcut.
 
     m_menuBar = new QMenuBar( this );
+
+    // hide menu?
+    bool hideMenu = false;
+    WPreferences::getPreference( "qt4gui.hideMenuBar", &hideMenu );
+    m_menuBar->setVisible( !hideMenu );
+
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
+
     fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load Dataset", this, SLOT( openLoadDialog() ), QKeySequence(  QKeySequence::Open ) );
     fileMenu->addSeparator();
     fileMenu->addAction( "Load Project", this, SLOT( projectLoad() ) );
@@ -131,6 +138,7 @@ void WMainWindow::setupGUI()
     dsbTrigger->setShortcuts( dsbShortcut );
     viewMenu->addAction( dsbTrigger );
     viewMenu->addSeparator();
+    this->addAction( dsbTrigger );  // this enables the action even if the menu bar is invisible
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for

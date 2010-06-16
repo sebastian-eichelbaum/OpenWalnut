@@ -95,7 +95,6 @@ public slots:
      * called whenever the user modifies the checkbox
      */
     void checkboxChanged();
-
 };
 
 #endif  // WPROPERTYBOOLWIDGET_H

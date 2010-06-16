@@ -43,6 +43,11 @@ compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolB
 
 # combineTreeAndRoiAndTextureSorter = yes # should the module tree, ROI tree and the Texture Sorter be combined in ONE Tab widget?
 
+####################################################################
+# Other GUI settings
+
+# hideMenuBar = yes # hide the menu bar
+
 [ge] ## Settings for the graphics engine
 # bgColor.r = .9 # background color (red part)
 # bgColor.g = .9 # background color (green part)

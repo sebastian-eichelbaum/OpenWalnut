@@ -92,7 +92,6 @@ public slots:
      * called whenever the user modifies the action
      */
     void changed();
-
 };
 
 #endif  // WQTPROPERTYBOOLACTION_H
