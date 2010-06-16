@@ -25,7 +25,7 @@
 #ifndef WGEGROUPNODE_H
 #define WGEGROUPNODE_H
 
-#include <set>
+#include <stack>
 
 #include <boost/thread.hpp>
 
@@ -105,44 +105,30 @@ protected:
     osg::ref_ptr< SafeUpdaterCallback > m_nodeUpdater;
 
     /**
-     * Queue of childs that need to be added during the next update cycle.
+     * A pair denoting an operation on this group. The boolean denotes deletion (false) or insertion (true).
      */
-    std::set< osg::ref_ptr< osg::Node > > m_childInsertionQueue;
+    typedef std::pair< bool, osg::ref_ptr< osg::Node > > ChildOperation;
 
     /**
-     * Queue of childs that need to be removed during the next update cycle.
+     * Queue of childs that need to be added/removed during the next update cycle. It is a pair per operation, where the bool is denoting removal
+     * or insertion.
      */
-    std::set< osg::ref_ptr< osg::Node > > m_childRemovalQueue;
+    std::stack< ChildOperation > m_childOperationQueue;
 
     /**
-     * Lock used for inserting childs into the child insertion queue.
+     * Lock used for inserting and removing childs into the child insertion/removal queue.
      */
-    boost::shared_mutex m_childInsertionQueueLock;
+    boost::shared_mutex m_childOperationQueueLock;
 
     /**
-     * Lock used for inserting childs into the child removal queue.
+     * Flag denoting whether the m_childOperationQueue should be considered during the next update of the node.
      */
-    boost::shared_mutex m_childRemovalQueueLock;
-
-    /**
-     * Flag denoting whether the m_childInsertionQueue should be considered during the next update of the node.
-     */
-    bool m_insertionQueueDirty;
-
-    /**
-     * Flag denoting whether the m_childRemovalQueue should be considered during the next update of the node.
-     */
-    bool m_removalQueueDirty;
+    bool m_childOperationQueueDirty;
 
     /**
      * True whenever all child nodes should be removed.
      */
     bool m_removeAll;
-
-    /**
-     * Condition which fires when the node is removed.
-     */
-    boost::shared_ptr< WCondition > m_removedCondition;
 
 private:
 };
