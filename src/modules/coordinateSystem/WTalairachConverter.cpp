@@ -81,13 +81,21 @@ wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D poi
     double y = point[1];
     double z = point[2];
 
-    double X1 = ( m_pp - m_pc ).norm();
-    double X2 = ( m_ac - m_pc ).norm();
-    double X3 = ( m_ap - m_ac ).norm();
-    double Y1 = ( m_ac - m_rp ).norm();
-    double Y2 = ( m_lp - m_ac ).norm();
-    double Z1 = ( m_ac - m_ip ).norm();
-    double Z2 = ( m_sp - m_ac ).norm();
+//    double X1 = ( m_pp - m_pc ).norm();
+//    double X2 = ( m_ac - m_pc ).norm();
+//    double X3 = ( m_ap - m_ac ).norm();
+//    double Y1 = ( m_ac - m_rp ).norm();
+//    double Y2 = ( m_lp - m_ac ).norm();
+//    double Z1 = ( m_ac - m_ip ).norm();
+//    double Z2 = ( m_sp - m_ac ).norm();
+
+    double X1 = fabs( m_pp[0] - m_pc[0] );
+    double X2 = fabs( m_ac[0] - m_pc[0] );
+    double X3 = fabs( m_ap[0] - m_ac[0] );
+    double Y1 = fabs( m_ac[1] - m_rp[1] );
+    double Y2 = fabs( m_lp[1] - m_ac[1] );
+    double Z1 = fabs( m_ac[2] - m_ip[2] );
+    double Z2 = fabs( m_sp[2] - m_ac[2] );
 
     double X1T = 79.0;
     double X2T = 23.0;
@@ -142,13 +150,22 @@ wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D poi
     double yt = point[1];
     double zt = point[2];
 
-    double X1 = ( m_pp - m_pc ).norm();
-    double X2 = ( m_ac - m_pc ).norm();
-    double X3 = ( m_ap - m_ac ).norm();
-    double Y1 = ( m_ac - m_rp ).norm();
-    double Y2 = ( m_lp - m_ac ).norm();
-    double Z1 = ( m_ac - m_ip ).norm();
-    double Z2 = ( m_sp - m_ac ).norm();
+//    double X1 = ( m_pp - m_pc ).norm();
+//    double X2 = ( m_ac - m_pc ).norm();
+//    double X3 = ( m_ap - m_ac ).norm();
+//    double Y1 = ( m_ac - m_rp ).norm();
+//    double Y2 = ( m_lp - m_ac ).norm();
+//    double Z1 = ( m_ac - m_ip ).norm();
+//    double Z2 = ( m_sp - m_ac ).norm();
+
+    double X1 = fabs( m_pp[0] - m_pc[0] );
+    double X2 = fabs( m_ac[0] - m_pc[0] );
+    double X3 = fabs( m_ap[0] - m_ac[0] );
+    double Y1 = fabs( m_ac[1] - m_rp[1] );
+    double Y2 = fabs( m_lp[1] - m_ac[1] );
+    double Z1 = fabs( m_ac[2] - m_ip[2] );
+    double Z2 = fabs( m_sp[2] - m_ac[2] );
+
 
     double X1T = 79.0;
     double X2T = 23.0;

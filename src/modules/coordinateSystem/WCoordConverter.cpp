@@ -35,8 +35,7 @@ WCoordConverter::WCoordConverter( WMatrix<double> rotMat, WVector3D origin, WVec
     m_rotMat( rotMat ),
     m_origin( origin ),
     m_scale( scale ),
-    m_coordinateSystemMode( CS_WORLD ),
-    m_acc( wmath::WVector3D( 0.0, 0.0, 0.0 ) )
+    m_coordinateSystemMode( CS_WORLD )
 {
 }
 
@@ -159,22 +158,16 @@ WVector3D WCoordConverter::w2c( WVector3D in )
 
 WVector3D WCoordConverter::c2w( WVector3D in )
 {
-    return WVector3D( in[1], in[0], in[2] );
+    return WVector3D( m_boundingBox.second[0] - in[1], in[0] , in[2] );
 }
 
 
 WVector3D WCoordConverter::w2t( WVector3D in )
 {
-    return m_talairachConverter->ACPC2Talairach( w2c( in ) - m_acc );
+    return m_talairachConverter->Canonical2Talairach( w2c( in ) );
 }
 
 WVector3D WCoordConverter::t2w( WVector3D in )
 {
-    return c2w( m_talairachConverter->ACPC2Canonical( m_talairachConverter->Talairach2ACPC( in ) ) ) + c2w( m_acc );
-}
-
-
-void WCoordConverter::setACC( WVector3D acc )
-{
-    m_acc = acc;
+    return c2w( m_talairachConverter->ACPC2Canonical( m_talairachConverter->Talairach2ACPC( in ) ) );
 }

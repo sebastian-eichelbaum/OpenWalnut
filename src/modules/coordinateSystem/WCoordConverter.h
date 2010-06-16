@@ -157,12 +157,6 @@ public:
     WVector3D t2w( WVector3D in );
 
     /**
-     * setter for m_acc
-     * \param acc
-     */
-    void setACC( WVector3D acc );
-
-    /**
      * setter for the talairach converter pointer
      * \param tc
      */
@@ -188,8 +182,6 @@ private:
     coordinateSystemMode m_coordinateSystemMode; //!< the currently selected coordinate system mode
 
     boost::shared_ptr<WTalairachConverter>m_talairachConverter; //!< pointer to talairach convert for easy access
-
-    wmath::WVector3D m_acc; //!< anterior commisure in the canonical coordiante system
 };
 
 #endif  // WCOORDCONVERTER_H

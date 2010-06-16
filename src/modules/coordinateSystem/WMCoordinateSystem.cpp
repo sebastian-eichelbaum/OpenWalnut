@@ -450,24 +450,18 @@ void WMCoordinateSystem::initTalairachConverter()
     wmath::WVector3D ac_c( m_coordConverter->w2c( m_ac->get() ) );
     wmath::WVector3D pc_c( m_coordConverter->w2c( m_pc->get() ) );
     wmath::WVector3D ihp_c( m_coordConverter->w2c( m_ihp->get() ) );
-
-    m_coordConverter->setACC( ac_c );
-
-    wmath::WVector3D ac( 0.0, 0.0, 0.0 );
-    wmath::WVector3D pc( pc_c - ac_c );
-    wmath::WVector3D ihp( ihp_c - ac_c );
-
-    boost::shared_ptr< WTalairachConverter > talairachConverter = boost::shared_ptr< WTalairachConverter >( new WTalairachConverter( ac, pc, ihp ) );
+    boost::shared_ptr< WTalairachConverter > talairachConverter =
+        boost::shared_ptr< WTalairachConverter >( new WTalairachConverter( ac_c, pc_c, ihp_c ) );
 
     wmath::WVector3D flt_c( m_coordConverter->w2c( m_flt->get() ) );
     wmath::WVector3D brb_c( m_coordConverter->w2c( m_brb->get() ) );
 
-    wmath::WVector3D ap( flt_c[0] - ac_c[0], 0., 0. );
-    wmath::WVector3D pp( brb_c[0] - ac_c[0], 0., 0. );
-    wmath::WVector3D lp( 0., flt_c[1] - ac_c[1], 0. );
-    wmath::WVector3D rp( 0., brb_c[1] - ac_c[1], 0. );
-    wmath::WVector3D sp( 0., 0., flt_c[2] - ac_c[2] );
-    wmath::WVector3D ip( 0., 0., brb_c[2] - ac_c[2] );
+    wmath::WVector3D ap( flt_c[0], 0., 0. );
+    wmath::WVector3D pp( brb_c[0], 0., 0. );
+    wmath::WVector3D lp( 0., flt_c[1], 0. );
+    wmath::WVector3D rp( 0., brb_c[1], 0. );
+    wmath::WVector3D sp( 0., 0., flt_c[2] );
+    wmath::WVector3D ip( 0., 0., brb_c[2] );
 
     talairachConverter->setAp( ap );
     talairachConverter->setPp( pp );
