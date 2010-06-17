@@ -3,10 +3,10 @@
 
 [modules]
 ## use this to specify the default module to add during load.
-## It is a comma seperated list. If this is not specified the default empty is assumed.
+## It is a comma seperated list. If this is not specified the default empty is assumed. Be sure to NOT add "" around the list.
 ## An example could be
-# default="HUD"
-#whiteList ="Isosurface,Bounding Box, Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI" # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
+# default=HUD
+#whiteList =Isosurface,Bounding Box, Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
 
 [qt4gui]
 ####################################################################

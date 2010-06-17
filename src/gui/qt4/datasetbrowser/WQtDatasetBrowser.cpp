@@ -49,6 +49,7 @@
 #include "../guiElements/WQtApplyModuleAction.h"
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
+#include "../WQtCombinerActionList.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
@@ -77,6 +78,13 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
+
+    m_connectWithPrototypeAction = new QAction( "Connect with Prototype", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
+    m_connectWithModuleAction = new QAction( "Connect with Module", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_connectWithModuleAction );
+    m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_disconnectAction );
 
     m_textureSorter = new WQtTextureSorter( this );
     m_textureSorter->setToolTip( "Reorder the textures." );
@@ -704,6 +712,19 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
     WModuleFactory::CompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+
+    // build the prototype menu
+    QMenu* m = new QMenu( m_moduleTreeWidget );
+    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), comps ) );
+    delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
+    m_connectWithPrototypeAction->setMenu( m );
+
+    // build the module menu
+    // TODO(ebaum): do
+
+    // build the disconnect menu
+    // TODO(ebaum): do
+
     return new WQtCombinerToolbar( m_mainWindow, comps );
 }
 

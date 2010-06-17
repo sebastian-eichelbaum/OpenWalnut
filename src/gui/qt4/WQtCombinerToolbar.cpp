@@ -23,18 +23,17 @@
 //---------------------------------------------------------------------------
 
 #include <list>
-#include <string>
-#include <vector>
 
 #include <QtGui/QAction>
-#include <QtGui/QMenu>
 #include <QtGui/QPushButton>
+#include <QtGui/QMenu>
 
 #include "../../common/WPreferences.h"
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
 #include "guiElements/WQtApplyModuleAction.h"
+#include "WQtCombinerActionList.h"
 
 #include "WQtCombinerToolbar.h"
 
@@ -51,47 +50,12 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::Com
     {
         compToolBarStyle = 0;
     }
-    // These modules will be allowed to be shown.
-    std::string moduleWhiteListString;
-    WPreferences::getPreference( "modules.whiteList", &moduleWhiteListString );
-    std::vector< std::string > moduleWhiteList = string_utils::tokenize( moduleWhiteListString, "," );
-
 
     // cast and set
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
 
-    // create an action for each group:
-    for ( WModuleFactory::CompatiblesList::const_iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
-    {
-        if( moduleWhiteList.size()
-            && std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() )
-        {
-            continue;
-        }
-        // create a new action for this group
-        WQtApplyModuleAction* group = new WQtApplyModuleAction( this,
-                                                                parent->getIconManager(),
-                                                                *( *groups ).second.begin() );
-        addAction( group );
-
-        // only add a sub menu if there are more than 1 items in the group
-        if ( ( *groups ).second.size() > 1 )
-        {
-            QMenu* groupMenu = new QMenu( this );
-            // iterate all the children
-            for ( WModuleFactory::CompatibleCombiners::const_iterator combiner = ( *groups ).second.begin();
-                                                                      combiner != ( *groups ).second.end(); ++combiner )
-            {
-                WQtApplyModuleAction* a = new WQtApplyModuleAction( this,
-                                                                    parent->getIconManager(),
-                                                                    ( *combiner ),
-                                                                    true );
-                a->setIconVisibleInMenu( true );
-                groupMenu->addAction( a );
-            }
-            group->setMenu( groupMenu );
-        }
-    }
+    // create the list of actions possible
+    addActions( WQtCombinerActionList( this, parent->getIconManager(), compatibles ) );
 
     // The following makes the bar having button size from the beginning.
     QPushButton* dummyButton = new QPushButton;
