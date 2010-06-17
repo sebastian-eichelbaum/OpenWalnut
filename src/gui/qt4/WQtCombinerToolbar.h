@@ -27,7 +27,7 @@
 
 #include <QtGui/QToolBar>
 
-#include "../../kernel/WModuleFactory.h"
+#include "../../kernel/WModuleCombinerTypes.h"
 
 class WMainWindow;
 
@@ -44,7 +44,7 @@ public:
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      * \param compatibles the list of combiners
      */
-    explicit WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::CompatiblesList compatibles );
+    explicit WQtCombinerToolbar( WMainWindow* parent, WCompatiblesList compatibles );
 
     /**
      * destructor

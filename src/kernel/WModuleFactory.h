@@ -35,7 +35,7 @@
 
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning. Every one knowing the factory also knows this
 #include "../common/WSharedAssociativeContainer.h"
-#include "combiner/WApplyPrototypeCombiner.h"
+#include "WModuleCombinerTypes.h"
 #include "WModule.h"
 
 /**
@@ -145,24 +145,6 @@ public:
     static bool isA( boost::shared_ptr< WModule > module );
 
     /**
-     * A list of all combiners. Used in CompatiblesGroup.
-     */
-    typedef std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > CompatibleCombiners;
-
-    /**
-     * A group of compatibles connections to and from a specified module.
-     */
-    typedef std::pair< boost::shared_ptr< WModule >, CompatibleCombiners > CompatiblesGroup;
-
-    /**
-     * A type used for defining lists of properties. It basically is a list of lists, each containing several ApplyPrototypeCombiner instances.
-     * The Idea is to group combiners by the module they target. The reason why this is a list of pairs is that the first item always is the
-     * prototype pointer to the target, as not every ApplyPrototypeCombiner Instance necessarily has the prototype as target (as source for
-     * example)
-     */
-    typedef std::vector< CompatiblesGroup > CompatiblesList;
-
-    /**
      * Returns a set of module combiners with module combinations compatible with the specified one.
      *
      * \param module the module to find the compatibles for.
@@ -172,7 +154,9 @@ public:
      *
      * \return set of compatible combiners.
      */
-    CompatiblesList getCompatiblePrototypes( boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >() );
+    WCompatiblesList getCompatiblePrototypes(
+            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >()
+    );
 
     /**
      * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is

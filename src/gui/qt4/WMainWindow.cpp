@@ -47,6 +47,9 @@
 #include "../../dataHandler/WEEG2.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleCombiner.h"
+#include "../../kernel/WModuleCombinerTypes.h"
 #include "../../kernel/WProjectFile.h"
 #include "../../modules/data/WMData.h"
 #include "../../modules/navSlices/WMNavSlices.h"
@@ -501,7 +504,7 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     {
         // ok, reset the toolbar
         // So create a dummy to permanently reserve the space
-        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this, WModuleFactory::CompatiblesList() );
+        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this, WCompatiblesList() );
     }
 
     // optional toolbar break

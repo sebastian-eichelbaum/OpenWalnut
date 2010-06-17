@@ -31,6 +31,7 @@
 #include <utility>
 
 #include "WModule.h"
+#include "WModuleCombiner.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "exceptions/WModuleAlreadyAssociated.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
@@ -370,7 +371,7 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     // get offered inputs
     WModule::OutputConnectorList outs = applyOn->getOutputConnectors();
 
-    // TODO(ebaum): search best matching instead of simply connecting both
+    // connect the first connectors. For a more sophisticated way of connecting modules, use ModuleCombiners.
     if ( !ins.empty() && !outs.empty() )
     {
         ( *ins.begin() )->connect( ( *outs.begin() ) );
@@ -436,5 +437,20 @@ void WModuleContainer::setCrashIfModuleCrashes( bool crashIfCrashed )
 WModuleContainer::ModuleSharedContainerType::ReadTicket WModuleContainer::getModules() const
 {
     return m_modules.getReadTicket();
+}
+
+WCompatiblesList WModuleContainer::getPossibleConnections( boost::shared_ptr< WModule > module )
+{
+    WCompatiblesList complist;
+
+    // read lock the container
+    ModuleSharedContainerType::ReadTicket lock = m_modules.getReadTicket();
+
+    // handle each module
+    for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
+    {
+    }
+
+    return complist;
 }
 

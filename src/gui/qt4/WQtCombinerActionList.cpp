@@ -30,12 +30,14 @@
 #include "QtGui/QMenu"
 
 #include "../../common/WPreferences.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleCombiner.h"
 #include "guiElements/WQtApplyModuleAction.h"
 #include "WMainWindow.h"
 
 #include "WQtCombinerActionList.h"
 
-WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WModuleFactory::CompatiblesList compatibles ):
+WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCompatiblesList compatibles ):
     QList< QAction* >()
 {
     // These modules will be allowed to be shown.
@@ -44,7 +46,7 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     std::vector< std::string > moduleWhiteList = string_utils::tokenize( moduleWhiteListString, "," );
 
     // create an action for each group:
-    for ( WModuleFactory::CompatiblesList::const_iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
+    for ( WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
         // check current prototype against whitelist
         if( moduleWhiteList.size()
@@ -55,6 +57,7 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
 
         // create a new action for this group
         WQtApplyModuleAction* group = new WQtApplyModuleAction( parent, icons, *( *groups ).second.begin() );
+        group->setIconVisibleInMenu( true );
         push_back( group );
 
         // only add a sub menu if there are more than 1 items in the group
@@ -62,8 +65,8 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
         {
             QMenu* groupMenu = new QMenu( parent );
             // iterate all the children
-            for ( WModuleFactory::CompatibleCombiners::const_iterator combiner = ( *groups ).second.begin();
-                                                                      combiner != ( *groups ).second.end(); ++combiner )
+            for ( WCompatibleCombiners::iterator combiner = ( *groups ).second.begin();
+                                                                       combiner != ( *groups ).second.end(); ++combiner )
             {
                 WQtApplyModuleAction* a = new WQtApplyModuleAction( parent, icons, ( *combiner ), true );
                 a->setIconVisibleInMenu( true );

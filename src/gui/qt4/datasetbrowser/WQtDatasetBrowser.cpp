@@ -37,6 +37,9 @@
 #include "../../../common/WPreferences.h"
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../kernel/WKernel.h"
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleCombiner.h"
+#include "../../../kernel/WModuleCombinerTypes.h"
 #include "../../../kernel/WModuleFactory.h"
 #include "../../../modules/data/WMData.h"
 #include "../events/WEventTypes.h"
@@ -711,7 +714,7 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
-    WModuleFactory::CompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
     // build the prototype menu
     QMenu* m = new QMenu( m_moduleTreeWidget );

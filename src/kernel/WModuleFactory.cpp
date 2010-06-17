@@ -29,6 +29,8 @@
 #include <typeinfo>
 #include <vector>
 
+#include "WModule.h"
+#include "WModuleCombiner.h"
 #include "../common/WLogger.h"
 #include "../modules/applyMask/WMApplyMask.h"
 #include "../modules/arbitraryRois/WMArbitraryRois.h"
@@ -244,20 +246,20 @@ WModuleFactory::PrototypeSharedContainerType::ReadTicket WModuleFactory::getProt
  *
  * \return true if lhs < rhs
  */
-bool compatiblesSort( WModuleFactory::CompatiblesGroup lhs, WModuleFactory::CompatiblesGroup rhs )
+bool compatiblesSort( WCompatiblesGroup lhs, WCompatiblesGroup rhs )
 {
     return ( lhs.first->getName() < rhs.first->getName() );
 }
 
-WModuleFactory::CompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
+WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
 {
-    CompatiblesList compatibles;
+    WCompatiblesList compatibles;
 
     // for this a read lock is sufficient, gets unlocked if it looses scope
     PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
 
     // First, add all modules with no input connector.
-    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
+    for( PrototypeContainerIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
         // get connectors of this prototype
@@ -265,13 +267,13 @@ WModuleFactory::CompatiblesList WModuleFactory::getCompatiblePrototypes( boost::
         if(  pcons.size() == 0  )
         {
             // the modules which match every time need their own groups
-            std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > lComp;
+            std::vector< boost::shared_ptr< WModuleCombiner > > lComp;
 
             // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
-            lComp.push_back( boost::shared_ptr< WApplyPrototypeCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
+            lComp.push_back( boost::shared_ptr< WModuleCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
 
             // add this list
-            compatibles.push_back( CompatiblesGroup( ( *listIter ), lComp ) );
+            compatibles.push_back( WCompatiblesGroup( ( *listIter ), lComp ) );
         }
     }
 
@@ -292,7 +294,7 @@ WModuleFactory::CompatiblesList WModuleFactory::getCompatiblePrototypes( boost::
     }
 
     // go through every prototype
-    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
+    for( PrototypeContainerIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
         // get connectors of this prototype
@@ -305,7 +307,7 @@ WModuleFactory::CompatiblesList WModuleFactory::getCompatiblePrototypes( boost::
         }
 
         // this list contains all connections for the current module
-        std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > lComp;
+        std::vector< boost::shared_ptr< WModuleCombiner > > lComp;
 
         // iterate connector list, first find all matches of the output connectors with all inputs
         for ( WModule::OutputConnectorList::const_iterator outIter = cons.begin(); outIter != cons.end(); ++outIter )
@@ -317,7 +319,7 @@ WModuleFactory::CompatiblesList WModuleFactory::getCompatiblePrototypes( boost::
                 if ( ( *outIter )->connectable( *inIter ) &&  ( *inIter )->connectable( *outIter ) )
                 {
                     // create a apply-prototype combiner
-                    lComp.push_back( boost::shared_ptr< WApplyPrototypeCombiner >(
+                    lComp.push_back( boost::shared_ptr< WModuleCombiner >(
                         new WApplyPrototypeCombiner( module, ( *outIter )->getName(), *listIter, ( *inIter )->getName() ) )
                     );
 
@@ -329,7 +331,7 @@ WModuleFactory::CompatiblesList WModuleFactory::getCompatiblePrototypes( boost::
         // add the group
         if ( lComp.size() != 0 )
         {
-            compatibles.push_back( CompatiblesGroup( ( *listIter ), lComp ) );
+            compatibles.push_back( WCompatiblesGroup( ( *listIter ), lComp ) );
         }
     }
 

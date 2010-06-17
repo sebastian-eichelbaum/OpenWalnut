@@ -29,6 +29,8 @@
 #include <QtGui/QMenu>
 
 #include "../../common/WPreferences.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleCombiner.h"
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
@@ -37,7 +39,7 @@
 
 #include "WQtCombinerToolbar.h"
 
-WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::CompatiblesList compatibles )
+WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCompatiblesList compatibles )
     : QToolBar( "Compatible Modules", parent )
 {
     // setup toolbar

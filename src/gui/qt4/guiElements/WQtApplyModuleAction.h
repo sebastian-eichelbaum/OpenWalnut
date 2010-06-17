@@ -31,9 +31,10 @@
 
 #include <QtGui/QAction>
 
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleCombiner.h"
+
 #include "../WIconManager.h"
-#include "../../../kernel/combiner/WApplyPrototypeCombiner.h"
-#include "../../../kernel/WModuleFactory.h"
 
 /**
  * Implements a action which applies the specified combiners (of the specified group) if pressed.
@@ -52,7 +53,7 @@ public:
      * \param combiner the apply combiner which gets applied when triggered
      * \param advancedText if true a more complex text showing the used connectors is used instead of the plane target-module name
      */
-    WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WApplyPrototypeCombiner > combiner,
+    WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleCombiner > combiner,
                           bool advancedText = false );
 
     /**
@@ -65,7 +66,7 @@ protected:
     /**
      * The combiner of this action
      */
-    boost::shared_ptr< WApplyPrototypeCombiner > m_combiner;
+    boost::shared_ptr< WModuleCombiner > m_combiner;
 
 private:
 public slots:

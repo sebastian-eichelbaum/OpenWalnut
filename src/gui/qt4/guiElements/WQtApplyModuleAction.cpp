@@ -26,14 +26,14 @@
 
 #include "WQtApplyModuleAction.h"
 
-WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WApplyPrototypeCombiner > combiner,
+WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleCombiner > combiner,
                                             bool advancedText ):
     QAction( parent ),
     m_combiner( combiner )
 {
     // nice tooltip
     std::string from = "";
-
+/*
     // NOTE: all the tooltips and so on for this action are used from the first combiner in the group
 
     // might be null ( for example if a module should be added that does not require an input)
@@ -49,7 +49,7 @@ WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconM
 
     // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
     // pressed left button.
-    connect( this, SIGNAL( triggered() ), this, SLOT( applyCombiner() ) );
+    connect( this, SIGNAL( triggered() ), this, SLOT( applyCombiner() ) );*/
 }
 
 WQtApplyModuleAction::~WQtApplyModuleAction()
