@@ -33,6 +33,7 @@
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
 #include "guiElements/WQtApplyModuleAction.h"
+#include "WQtCombinerActionList.h"
 
 #include "WQtCombinerToolbar.h"
 
@@ -53,33 +54,8 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::Com
     // cast and set
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
 
-    // create an action for each group:
-    for ( WModuleFactory::CompatiblesList::const_iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
-    {
-        // create a new action for this group
-        WQtApplyModuleAction* group = new WQtApplyModuleAction( this,
-                                                                parent->getIconManager(),
-                                                                *( *groups ).second.begin() );
-        addAction( group );
-
-        // only add a sub menu if there are more than 1 items in the group
-        if ( ( *groups ).second.size() > 1 )
-        {
-            QMenu* groupMenu = new QMenu( this );
-            // iterate all the children
-            for ( WModuleFactory::CompatibleCombiners::const_iterator combiner = ( *groups ).second.begin();
-                                                                      combiner != ( *groups ).second.end(); ++combiner )
-            {
-                WQtApplyModuleAction* a = new WQtApplyModuleAction( this,
-                                                                    parent->getIconManager(),
-                                                                    ( *combiner ),
-                                                                    true );
-                a->setIconVisibleInMenu( true );
-                groupMenu->addAction( a );
-            }
-            group->setMenu( groupMenu );
-        }
-    }
+    // create the list of actions possible
+    addActions( WQtCombinerActionList( this, parent->getIconManager(), compatibles ) );
 
     // The following makes the bar having button size from the beginning.
     QPushButton* dummyButton = new QPushButton;

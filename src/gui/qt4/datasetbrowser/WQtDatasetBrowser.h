@@ -214,6 +214,21 @@ private:
      */
     QAction* m_deleteModuleAction;
 
+    /**
+     * Action which uses a compatibles list (submenu) to connect a selected item with other existing modules.
+     */
+    QAction* m_connectWithModuleAction;
+
+    /**
+     * Action which uses a compatibles list (submenu) to connect a selected item with other prototypes.
+     */
+    QAction* m_connectWithPrototypeAction;
+
+    /**
+     * Action which disconnects a connector from the module.
+     */
+    QAction* m_disconnectAction;
+
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
