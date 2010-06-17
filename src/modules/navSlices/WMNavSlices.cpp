@@ -471,7 +471,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
             }
             if ( pickInfo.getName() == "Coronal Slice" )
             {
-                m_coronalPos->set( m_coronalPos->get() + diff );
+                m_coronalPos->set( m_coronalPos->get() - diff ); // minus here because of the order of the points of the slice
             }
             if ( pickInfo.getName() == "Sagittal Slice" )
             {
