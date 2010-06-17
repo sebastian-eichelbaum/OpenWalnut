@@ -207,8 +207,6 @@ private:
 
     bool m_showToolBarText; //!< Show tool bar icons with text
 
-    std::vector< std::string > m_moduleWhiteList; //!< Stores a list of modules allowed to be shown.
-
     /**
      * The action to remove a module from the tree.
      */

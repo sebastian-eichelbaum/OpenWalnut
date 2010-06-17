@@ -130,11 +130,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     connectSlots();
 
-    // These modules will be allowed to be shown.
-    std::string moduleWhiteList;
-    WPreferences::getPreference( "modules.whiteList", &moduleWhiteList );
-    m_moduleWhiteList = string_utils::tokenize( moduleWhiteList, "," );
-
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
 }

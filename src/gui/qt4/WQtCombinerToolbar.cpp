@@ -23,10 +23,12 @@
 //---------------------------------------------------------------------------
 
 #include <list>
+#include <string>
+#include <vector>
 
 #include <QtGui/QAction>
-#include <QtGui/QPushButton>
 #include <QtGui/QMenu>
+#include <QtGui/QPushButton>
 
 #include "../../common/WPreferences.h"
 
@@ -49,6 +51,11 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::Com
     {
         compToolBarStyle = 0;
     }
+    // These modules will be allowed to be shown.
+    std::string moduleWhiteListString;
+    WPreferences::getPreference( "modules.whiteList", &moduleWhiteListString );
+    std::vector< std::string > moduleWhiteList = string_utils::tokenize( moduleWhiteListString, "," );
+
 
     // cast and set
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
@@ -56,6 +63,10 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::Com
     // create an action for each group:
     for ( WModuleFactory::CompatiblesList::const_iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
+        if( std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() )
+        {
+            continue;
+        }
         // create a new action for this group
         WQtApplyModuleAction* group = new WQtApplyModuleAction( this,
                                                                 parent->getIconManager(),
