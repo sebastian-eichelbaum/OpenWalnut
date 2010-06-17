@@ -26,6 +26,7 @@
 #define WGEGROUPNODE_H
 
 #include <queue>
+#include <utility>
 
 #include <boost/thread.hpp>
 
