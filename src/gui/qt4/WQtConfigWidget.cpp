@@ -279,6 +279,13 @@ void WQtConfigWidget::registerComponents()
     ctbpos->setMax( 3 );
     m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
 
+    WPropInt dsbWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the dataset browser.", 250, m_propCondition );
+    dsbWidth->setMin( 0 );
+    dsbWidth->setMax( 1000 );
+
+    m_defaultProperties->addProperty( "qt4gui.dsbInvisibleByDefault", "Hide the dataset browser on startup?", false, m_propCondition );
+    m_defaultProperties->addProperty( "qt4gui.dsbFloatingByDefault", "Undock the dataset browser on startup?", false, m_propCondition );
+
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );
     m_skipPropertyWrite.push_back( "modules.whiteListGroup" );
     WPropString whiteList = moduleWhiteList->addProperty( "modules.whiteList", "Modules that are whitelisted",
