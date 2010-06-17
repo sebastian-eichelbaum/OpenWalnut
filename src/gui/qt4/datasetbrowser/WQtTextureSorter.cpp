@@ -90,7 +90,6 @@ void WQtTextureSorter::handleTextureClicked()
     emit textureSelectionChanged( dataSet );
 }
 
-// TODO(wiebel): have a second look on this begin/end read/write mess.
 void WQtTextureSorter::update()
 {
     boost::shared_ptr< WSubject > subject;
