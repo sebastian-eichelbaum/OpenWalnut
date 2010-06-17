@@ -63,7 +63,8 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::Com
     // create an action for each group:
     for ( WModuleFactory::CompatiblesList::const_iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
-        if( std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() )
+        if( moduleWhiteList.size()
+            && std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() )
         {
             continue;
         }
