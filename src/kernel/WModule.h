@@ -493,6 +493,11 @@ protected:
      */
     WPropBool m_active;
 
+    /**
+     * This property holds a user specified name for the current module instance.
+     */
+    WPropString m_runtimeName;
+
 private:
 
      /**

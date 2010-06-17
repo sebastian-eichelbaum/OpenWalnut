@@ -42,6 +42,9 @@ compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolB
 # Dataset Browser
 
 # combineTreeAndRoiAndTextureSorter = yes # should the module tree, ROI tree and the Texture Sorter be combined in ONE Tab widget?
+# dsbWidth = 400  # the width of the dataset browser
+# dsbInvisibleByDefault = yes # hide the dataset browser on startup. Can be shown using F9.
+# dsbFloatingByDefault = yes  # should the dataset browser be undocked on startup?
 
 ####################################################################
 # Other GUI settings

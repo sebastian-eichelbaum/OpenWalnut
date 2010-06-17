@@ -70,6 +70,10 @@ WModule::WModule():
     m_infoProperties = boost::shared_ptr< WProperties >( new WProperties( "Informational Properties", "Module's information properties" ) );
     m_infoProperties->setPurpose( PV_PURPOSE_INFORMATION );
 
+    m_runtimeName = m_properties->addProperty( "Name", "The name of the module defined by the user. This is, by default, the module name but "
+                                                       "can be changed by the user to provide some kind of simple identification upon many modules.",
+                                                       std::string( "" ), false );
+
     m_active = m_properties->addProperty( "active", "Determines whether the module should be activated.", true, true );
     m_active->getCondition()->subscribeSignal( boost::bind( &WModule::activate, this ) );
 
@@ -159,9 +163,14 @@ void WModule::initialize()
         throw WModuleConnectorInitFailed( "Could not initialize connectors for Module " + getName() + ". Reason: already initialized." );
     }
 
+    // set the module name as default runtime name
+    m_runtimeName->set( getName() );
+
+    // initialize connectors and properties
     connectors();
     properties();
 
+    // now, the module is initialized but not necessarily usable (if not associated with a container)
     m_initialized( true );
     m_isUsable( m_initialized() && m_isAssociated() );
 }

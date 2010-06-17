@@ -88,6 +88,7 @@ void WMainWindow::setupGUI()
     {
         setObjectName( QString::fromUtf8( "MainWindow" ) );
     }
+    // TODO(all): what is this?
     resize( 946, 632 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
@@ -97,6 +98,28 @@ void WMainWindow::setupGUI()
     m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "Default Subject" );
+
+    // set the size of the dsb according to config file
+    int dsbWidth = 250;
+    if ( WPreferences::getPreference( "qt4gui.dsbWidth", &dsbWidth ) )
+    {
+        m_datasetBrowser->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+        m_datasetBrowser->setMinimumWidth( dsbWidth );
+    }
+
+    // hide the DSB by default?
+    bool dsbInvisibleByDefault = false;
+    if ( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &dsbInvisibleByDefault ) )
+    {
+        m_datasetBrowser->setVisible( !dsbInvisibleByDefault );
+    }
+
+    // undock the DSB by default?
+    bool dsbFloatingByDefault = false;
+    if ( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &dsbFloatingByDefault ) )
+    {
+        m_datasetBrowser->setFloating( dsbFloatingByDefault );
+    }
 
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
     // QKeySequence::StandardKey defaults and avoid ambiguities like Ctrl-C for the configure dialog is not the best choice as Ctrl-C, for the
