@@ -69,8 +69,10 @@ void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
 
 void WGEGroupNode::clear()
 {
-    m_removeAll = true;
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
+    m_childOperationQueue.push( ChildOperation( false, osg::ref_ptr< osg::Node >() ) ); // this encodes the remove all feature
     m_childOperationQueueDirty = true;
+    lock.unlock();
 }
 
 void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
@@ -85,26 +87,35 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
     if ( rootNode->m_childOperationQueueDirty )
     {
         lock = boost::unique_lock<boost::shared_mutex>( rootNode->m_childOperationQueueLock );
-        if ( rootNode->m_removeAll )
+        // insert/remove children which requested it
+        while ( !rootNode->m_childOperationQueue.empty() )
         {
-            rootNode->removeChild( 0, rootNode->getNumChildren() );
-        }
-        else
-        {
-            // insert all children which requested it
-            /*for ( std::set< osg::ref_ptr< osg::Node > >::iterator iter = rootNode->m_childRemovalQueue.begin();
-                  iter != rootNode->m_childRemovalQueue.end();
-                  ++iter )
+            // remove or insert or remove all?
+            if ( ( !rootNode->m_childOperationQueue.front().first ) && ( !rootNode->m_childOperationQueue.front().second ) )
             {
-                rootNode->removeChild( ( *iter ) );
-            }*/
+                // remove all
+                rootNode->removeChild( 0, rootNode->getNumChildren() );
+            }
+            else if ( rootNode->m_childOperationQueue.front().first )
+            {
+                // add specified child
+                rootNode->addChild( rootNode->m_childOperationQueue.front().second );
+            }
+            else
+            {
+                // remove specified child
+                rootNode->removeChild( rootNode->m_childOperationQueue.front().second );
+            }
+
+            // pop item
+            rootNode->m_childOperationQueue.pop();
         }
+
         rootNode->dirtyBound();
 
         // all children added/removed -> clear
         rootNode->m_childOperationQueueDirty = false;
         rootNode->m_removeAll = false;
-        //rootNode->m_childOperationQueue.clear();
 
         lock.unlock();
     }

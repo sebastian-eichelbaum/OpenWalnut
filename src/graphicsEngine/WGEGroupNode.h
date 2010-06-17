@@ -25,7 +25,7 @@
 #ifndef WGEGROUPNODE_H
 #define WGEGROUPNODE_H
 
-#include <stack>
+#include <queue>
 
 #include <boost/thread.hpp>
 
@@ -113,7 +113,7 @@ protected:
      * Queue of childs that need to be added/removed during the next update cycle. It is a pair per operation, where the bool is denoting removal
      * or insertion.
      */
-    std::stack< ChildOperation > m_childOperationQueue;
+    std::queue< ChildOperation > m_childOperationQueue;
 
     /**
      * Lock used for inserting and removing childs into the child insertion/removal queue.
