@@ -41,6 +41,8 @@ compatiblesToolBarStyle = 0 # this pref allows the compatibles toolbar to have a
 # 1 -> bottom
 # 2 -> left
 # 3 -> right
+# 4 -> hide completely
+# 5 -> inside the dataset browser ( not possible for compatiblesToolBarPos! This will be mapped to right (=3) )
 toolBarPos = 0 # default position of the toolbars
 compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolBarPos)
 

@@ -77,10 +77,11 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget->setMinimumHeight( 250 );
 
     // create context menu for tree items
-    m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
-    m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
-    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
-    m_moduleTreeWidget->addAction( m_deleteModuleAction );
+
+    // a separator to clean up the tree widget's context menu
+    QAction* separator = new QAction( m_moduleTreeWidget );
+    separator->setSeparator( true );
+    m_moduleTreeWidget->addAction( separator );
 
     m_connectWithPrototypeAction = new QAction( "Connect with Prototype", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
@@ -88,6 +89,14 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
     m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
+
+    // a separator to clean up the tree widget's context menu
+    m_moduleTreeWidget->addAction( separator );
+
+    m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
+    m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
+    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
+    m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
     m_textureSorter = new WQtTextureSorter( this );
     m_textureSorter->setToolTip( "Reorder the textures." );
@@ -162,6 +171,11 @@ void WQtDatasetBrowser::connectSlots()
 
     connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+}
+
+void WQtDatasetBrowser::addToolbar( QToolBar* tb )
+{
+    m_layout->insertWidget( 0, tb );
 }
 
 WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )

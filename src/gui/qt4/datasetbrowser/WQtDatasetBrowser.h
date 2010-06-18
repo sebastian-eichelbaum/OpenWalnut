@@ -154,6 +154,13 @@ public:
      */
     QAction* toggleViewAction() const;
 
+    /**
+     * Add the specified toolbar to the top of the dsb.
+     *
+     * \param tb the toolbar to add
+     */
+    void addToolbar( QToolBar* tb );
+
 protected:
 
     /**

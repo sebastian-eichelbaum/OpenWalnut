@@ -62,7 +62,8 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCompatiblesList co
     // The following makes the bar having button size from the beginning.
     QPushButton* dummyButton = new QPushButton;
 
-    if ( ( parent->getToolbarPos() ==  Qt::TopToolBarArea ) || ( ( parent->getToolbarPos() ==  Qt::BottomToolBarArea ) ) )
+    if ( ( parent->toQtToolBarArea( parent->getCompatiblesToolbarPos() ) ==  Qt::TopToolBarArea ) ||
+         ( parent->toQtToolBarArea( parent->getCompatiblesToolbarPos() ) ==  Qt::BottomToolBarArea ) )
     {
         dummyButton->setFixedWidth( 0 );
         dummyButton->setFixedHeight( 32 );
@@ -78,32 +79,5 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCompatiblesList co
 
 WQtCombinerToolbar::~WQtCombinerToolbar()
 {
-}
-
-Qt::ToolBarArea WQtCombinerToolbar::getCompatiblesToolbarPos()
-{
-    int compatiblesToolbarPos = -1;
-    WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos );
-    Qt::ToolBarArea pos = Qt::TopToolBarArea;
-    switch ( compatiblesToolbarPos )
-    {
-        case 0:
-            pos = Qt::TopToolBarArea;
-            break;
-        case 1:
-            pos = Qt::BottomToolBarArea;
-            break;
-        case 2:
-            pos = Qt::LeftToolBarArea;
-            break;
-        case 3:
-            pos = Qt::RightToolBarArea;
-            break;
-        default:
-            pos = WMainWindow::getToolbarPos();
-            break;
-    }
-
-    return pos;
 }
 

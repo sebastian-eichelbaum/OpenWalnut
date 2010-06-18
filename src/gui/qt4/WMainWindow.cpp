@@ -293,7 +293,21 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 
-    addToolBar( WMainWindow::getToolbarPos(), m_permanentToolBar );
+    if ( getToolbarPos() == InDSB )
+    {
+        m_datasetBrowser->addToolbar( m_permanentToolBar );
+        //m_datasetBrowser->setTitleBarWidget( m_permanentToolBar );
+    }
+    else if ( getToolbarPos() == Hide )
+    {
+        m_permanentToolBar->setVisible( false );
+        addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+    }
+    else
+    {
+        addToolBar( toQtToolBarArea( getToolbarPos() ), m_permanentToolBar );
+    }
+
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
@@ -465,31 +479,46 @@ Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
     return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
 }
 
-Qt::ToolBarArea WMainWindow::getToolbarPos()
+WMainWindow::ToolBarPosition WMainWindow::getToolbarPos()
+{
+    int toolbarPos = 0;
+    WPreferences::getPreference( "qt4gui.toolBarPos", &toolbarPos );
+    return static_cast< ToolBarPosition >( toolbarPos );
+}
+
+WMainWindow::ToolBarPosition WMainWindow::getCompatiblesToolbarPos()
 {
     int compatiblesToolbarPos = 0;
-    WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos );
-    Qt::ToolBarArea pos = Qt::TopToolBarArea;
-    switch ( compatiblesToolbarPos )
+    if ( !WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos ) )
     {
-        case 0:
-            pos = Qt::TopToolBarArea;
-            break;
-        case 1:
-            pos = Qt::BottomToolBarArea;
-            break;
-        case 2:
-            pos = Qt::LeftToolBarArea;
-            break;
-        case 3:
-            pos = Qt::RightToolBarArea;
-            break;
-        default:
-            pos = Qt::TopToolBarArea;
-            break;
+        return getToolbarPos();
     }
 
-    return pos;
+    return static_cast< ToolBarPosition >( compatiblesToolbarPos );
+}
+
+Qt::ToolBarArea WMainWindow::toQtToolBarArea( ToolBarPosition pos )
+{
+    switch ( pos )
+    {
+        case Top:
+            return Qt::TopToolBarArea;
+            break;
+        case Bottom:
+            return Qt::BottomToolBarArea;
+            break;
+        case Left:
+            return Qt::LeftToolBarArea;
+            break;
+        case Right:
+            return Qt::RightToolBarArea;
+            break;
+        case InDSB:
+            return Qt::RightToolBarArea;
+        default:
+            return Qt::NoToolBarArea;
+            break;
+      }
 }
 
 void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
@@ -499,6 +528,16 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
         delete m_currentCompatiblesToolbar;
     }
     m_currentCompatiblesToolbar = toolbar;
+
+    // hide it?
+    if ( getCompatiblesToolbarPos() == Hide )
+    {
+        if ( toolbar )
+        {
+            toolbar->setVisible( false );
+        }
+        return;
+    }
 
     if ( !toolbar )
     {
@@ -513,12 +552,12 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
         WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
         if( useToolBarBreak )
         {
-            addToolBarBreak( m_currentCompatiblesToolbar->getCompatiblesToolbarPos() );
+            addToolBarBreak( toQtToolBarArea( getCompatiblesToolbarPos() ) );
         }
     }
 
     // and the position of the toolbar
-    addToolBar( m_currentCompatiblesToolbar->getCompatiblesToolbarPos(), m_currentCompatiblesToolbar );
+    addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
 }
 
 WQtDatasetBrowser* WMainWindow::getDatasetBrowser()

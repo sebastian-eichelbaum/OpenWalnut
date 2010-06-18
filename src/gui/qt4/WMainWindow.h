@@ -120,11 +120,40 @@ public:
     Qt::ToolButtonStyle getToolbarStyle() const;
 
     /**
+     * All possible positions of the toolbars.
+     */
+    typedef enum
+    {
+        Top = 0,
+        Bottom,
+        Left,
+        Right,
+        Hide,
+        InDSB
+    }
+    ToolBarPosition;
+
+    /**
      * Returns the preferred position of toolbars.
      *
      * \return QT Position for the toolbars used as default for all toolbars.
      */
-    static Qt::ToolBarArea getToolbarPos();
+    static ToolBarPosition getToolbarPos();
+
+    /**
+     * Returns the preferred position of toolbars.
+     *
+     * \return QT Position for the toolbars used as default for the compatibles toolbars.
+     */
+    static ToolBarPosition getCompatiblesToolbarPos();
+
+    /**
+     * Converts the specified position to the appropriate qt toolbar area constant. Unknown positions (InDSB, Hide) are converted to
+     * Qt::NoToolBarArea.
+     *
+     * \param pos the position to convert.
+     */
+    static Qt::ToolBarArea toQtToolBarArea( ToolBarPosition pos );
 
     /**
      * This method removes the old compatibles toolbar and sets the specified one.
