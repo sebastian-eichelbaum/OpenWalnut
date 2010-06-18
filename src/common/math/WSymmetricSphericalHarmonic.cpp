@@ -25,6 +25,7 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "WUnitSphereCoordinates.h"
+#include "WValue.h"
 
 #include "WSymmetricSphericalHarmonic.h"
 
@@ -78,7 +79,7 @@ double WSymmetricSphericalHarmonic::getValue( const WUnitSphereCoordinates& coor
   return getValue( coordinates.getTheta(), coordinates.getPhi() );
 }
 
-const WValue<double>& WSymmetricSphericalHarmonic::getCoefficients() const
+const wmath::WValue<double>& WSymmetricSphericalHarmonic::getCoefficients() const
 {
   return m_SHCoefficients;
 }

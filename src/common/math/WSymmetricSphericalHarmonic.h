@@ -74,7 +74,7 @@ public:
     /**
      * Returns the used coefficients (stored like in the mentioned Descoteaux paper).
      */
-    const WValue<double>& getCoefficients() const;
+    const wmath::WValue<double>& getCoefficients() const;
 
     /**
      * Applies the Funk-Radon-Transformation.
