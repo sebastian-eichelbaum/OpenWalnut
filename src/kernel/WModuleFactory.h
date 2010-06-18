@@ -154,7 +154,7 @@ public:
      *
      * \return set of compatible combiners.
      */
-    WCompatiblesList getCompatiblePrototypes(
+    WCombinerTypes::WCompatiblesList getCompatiblePrototypes(
             boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >()
     );
 
@@ -166,12 +166,31 @@ public:
      */
     static void initializeModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * Checks whether the specified module is a prototype or an instantiated module.
+     *
+     * \param module the module to check
+     *
+     * \return true if it is a prototype
+     */
+    static bool isPrototype( boost::shared_ptr< WModule > module );
+
 protected:
 
     /**
      * The module prototypes available.
      */
     PrototypeSharedContainerType m_prototypes;
+
+    /**
+     * Checks whether the specified module is a prototype or an instantiated module. Use isPrototype if no ticket acquired yet.
+     *
+     * \param module the module to check
+     * \param ticket ticket which already has read lock.
+     *
+     * \return true if it is a prototype
+     */
+    bool checkPrototype( boost::shared_ptr< WModule > module, PrototypeSharedContainerType::ReadTicket ticket );
 
 private:
 

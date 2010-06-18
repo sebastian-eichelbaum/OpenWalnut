@@ -156,6 +156,18 @@ void WModuleFactory::load()
     }
 }
 
+bool WModuleFactory::isPrototype( boost::shared_ptr< WModule > module )
+{
+    // for this a read lock is sufficient, gets unlocked if it looses scope
+    PrototypeSharedContainerType::ReadTicket l = getModuleFactory()->m_prototypes.getReadTicket();
+    return getModuleFactory()->checkPrototype( module, l );
+}
+
+bool WModuleFactory::checkPrototype( boost::shared_ptr< WModule > module, PrototypeSharedContainerType::ReadTicket ticket )
+{
+    return ( ticket->get().count( module ) != 0 );
+}
+
 boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule > prototype )
 {
     wlog::debug( "ModuleFactory" ) << "Creating new instance of prototype \"" << prototype->getName() << "\".";
@@ -164,7 +176,7 @@ boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule 
     PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
 
     // ensure this one is a prototype and nothing else
-    if ( l->get().count( prototype ) == 0 )
+    if ( !checkPrototype( prototype, l ) )
     {
         throw WPrototypeUnknown( "Could not clone module \"" + prototype->getName() + "\" since it is no prototype." );
     }
@@ -238,22 +250,9 @@ WModuleFactory::PrototypeSharedContainerType::ReadTicket WModuleFactory::getProt
     return m_prototypes.getReadTicket();
 }
 
-/**
- * Sorting function for sorting the compatibles list. It uses the alphabetical order of the names.
- *
- * \param lhs the first combiner
- * \param rhs the second combiner
- *
- * \return true if lhs < rhs
- */
-bool compatiblesSort( WCompatiblesGroup lhs, WCompatiblesGroup rhs )
+WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
 {
-    return ( lhs.first->getName() < rhs.first->getName() );
-}
-
-WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
-{
-    WCompatiblesList compatibles;
+    WCombinerTypes::WCompatiblesList compatibles;
 
     // for this a read lock is sufficient, gets unlocked if it looses scope
     PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
@@ -273,7 +272,7 @@ WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WMo
             lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
 
             // add this list
-            compatibles.push_back( WCompatiblesGroup( ( *listIter ), lComp ) );
+            compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
         }
     }
 
@@ -283,55 +282,16 @@ WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WMo
         return compatibles;
     }
 
-    // get offered outputs
-    WModule::OutputConnectorList cons = module->getOutputConnectors();
-
-    // return early if we have no output connector, because the modules with no input connector
-    // are already added at this point.
-    if( cons.size() == 0 )
-    {
-        return compatibles;
-    }
-
     // go through every prototype
     for( PrototypeContainerIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
-        // get connectors of this prototype
-        WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
-
-        // ensure we have 1 connector
-        if( pcons.size() == 0 )
-        {
-            continue;
-        }
-
-        // this list contains all connections for the current module
-        std::vector< boost::shared_ptr< WApplyCombiner > > lComp;
-
-        // iterate connector list, first find all matches of the output connectors with all inputs
-        for ( WModule::OutputConnectorList::const_iterator outIter = cons.begin(); outIter != cons.end(); ++outIter )
-        {
-            // now go through each input iterator of the current prototype
-            for ( WModule::InputConnectorList::const_iterator inIter = pcons.begin(); inIter != pcons.end(); ++inIter )
-            {
-                // compatible?
-                if ( ( *outIter )->connectable( *inIter ) &&  ( *inIter )->connectable( *outIter ) )
-                {
-                    // create a apply-prototype combiner
-                    lComp.push_back( boost::shared_ptr< WApplyCombiner >(
-                        new WApplyPrototypeCombiner( module, ( *outIter )->getName(), *listIter, ( *inIter )->getName() ) )
-                    );
-
-                    // wlog::debug( "ModuleFactory" ) << ( *outIter )->getCanonicalName() << " -> " << ( *inIter )->getCanonicalName();
-                }
-            }
-        }
+        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyPrototypeCombiner >( module, ( *listIter ) );
 
         // add the group
         if ( lComp.size() != 0 )
         {
-            compatibles.push_back( WCompatiblesGroup( ( *listIter ), lComp ) );
+            compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
         }
     }
 
@@ -339,7 +299,7 @@ WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WMo
     l.reset();
 
     // sort the compatibles
-    std::sort( compatibles.begin(), compatibles.end(), compatiblesSort );
+    std::sort( compatibles.begin(), compatibles.end(), WCombinerTypes::compatiblesSort );
 
     return compatibles;
 }

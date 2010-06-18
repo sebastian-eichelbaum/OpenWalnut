@@ -47,7 +47,7 @@ public:
      * \param icons the icon manager holding the right icons for all the prototypes
      * \param compatibles the list of combiners
      */
-    WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCompatiblesList compatibles );
+    WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles );
 
     /**
      * Destructor.

@@ -30,21 +30,34 @@
 class WModule;
 class WApplyCombiner;
 
-/**
- * A list of all combiners in a group.
- */
-typedef std::vector< boost::shared_ptr< WApplyCombiner > > WCompatibleCombiners;
+namespace WCombinerTypes
+{
+    /**
+     * A list of all combiners in a group.
+     */
+    typedef std::vector< boost::shared_ptr< WApplyCombiner > > WCompatibleCombiners;
 
-/**
- * A group of compatible connections to and from a specified module, which is additionally stored in the first element of the pair. This first
- * element will never be the module to which the compatible connections have been searched for.
- */
-typedef std::pair< boost::shared_ptr< WModule >, WCompatibleCombiners > WCompatiblesGroup;
+    /**
+     * A group of compatible connections to and from a specified module, which is additionally stored in the first element of the pair. This first
+     * element will never be the module to which the compatible connections have been searched for.
+     */
+    typedef std::pair< boost::shared_ptr< WModule >, WCompatibleCombiners > WCompatiblesGroup;
 
-/**
- * This is a list of compatible connection groups, which has been created for a specific module.
- */
-typedef std::vector< WCompatiblesGroup > WCompatiblesList;
+    /**
+     * This is a list of compatible connection groups, which has been created for a specific module.
+     */
+    typedef std::vector< WCompatiblesGroup > WCompatiblesList;
+
+    /**
+     * Sorting function for sorting the compatibles list. It uses the alphabetical order of the names.
+     *
+     * \param lhs the first combiner
+     * \param rhs the second combiner
+     *
+     * \return true if lhs < rhs
+     */
+    bool compatiblesSort( WCompatiblesGroup lhs, WCompatiblesGroup rhs );
+}
 
 #endif  // WMODULECOMBINERTYPES_H
 

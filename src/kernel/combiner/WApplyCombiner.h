@@ -34,6 +34,10 @@
 
 #include "../WModule.h"
 #include "../WModuleCombiner.h"
+#include "../WModuleCombinerTypes.h"
+
+#include "../WModuleInputConnector.h"
+#include "../WModuleOutputConnector.h"
 
 /**
  * Base class for all combiners which apply one connection between two connectors of two modules.
@@ -110,6 +114,52 @@ public:
      * \return the target module's input connector.
      */
     std::string getTargetConnector() const;
+
+    /**
+     * This method creates a list of possible combiners for connections between the specified modules. Both modules can be prototypes.
+     *
+     * \param module1 the first module
+     * \param module2 the second module
+     */
+    template < typename T >
+    static WCombinerTypes::WCompatibleCombiners createCombinerList( boost::shared_ptr< WModule > module1, boost::shared_ptr< WModule > module2 )
+    {
+        // this list contains all connections for the current module with the other one
+        WCombinerTypes::WCompatibleCombiners lComp;
+
+        // get offered outputs
+        WModule::OutputConnectorList cons = module1->getOutputConnectors();
+
+        // get connectors of this prototype
+        WModule::InputConnectorList pcons = module2->getInputConnectors();
+
+        // ensure we have 1 connector
+        if( ( pcons.size() == 0 ) || ( cons.size() == 0 ) )
+        {
+            return lComp;
+        }
+
+        // iterate connector list, first find all matches of the output connectors with all inputs
+        for ( WModule::OutputConnectorList::const_iterator outIter = cons.begin(); outIter != cons.end(); ++outIter )
+        {
+            // now go through each input iterator of the current prototype
+            for ( WModule::InputConnectorList::const_iterator inIter = pcons.begin(); inIter != pcons.end(); ++inIter )
+            {
+                // compatible?
+                if ( ( *outIter )->connectable( *inIter ) &&  ( *inIter )->connectable( *outIter ) )
+                {
+                    // create a apply-prototype combiner
+                    lComp.push_back( boost::shared_ptr< WApplyCombiner >(
+                        new T( module1, ( *outIter )->getName(), module2, ( *inIter )->getName() ) )
+                    );
+
+                    // wlog::debug( "ModuleFactory" ) << ( *outIter )->getCanonicalName() << " -> " << ( *inIter )->getCanonicalName();
+                }
+            }
+        }
+
+        return lComp;
+    }
 
 protected:
 

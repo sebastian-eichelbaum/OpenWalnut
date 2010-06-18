@@ -39,7 +39,7 @@
 
 #include "WQtCombinerToolbar.h"
 
-WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCompatiblesList compatibles )
+WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles )
     : QToolBar( "Compatible Modules", parent )
 {
     // setup toolbar

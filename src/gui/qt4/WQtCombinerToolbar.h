@@ -44,7 +44,7 @@ public:
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      * \param compatibles the list of combiners
      */
-    explicit WQtCombinerToolbar( WMainWindow* parent, WCompatiblesList compatibles );
+    explicit WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles );
 
     /**
      * destructor

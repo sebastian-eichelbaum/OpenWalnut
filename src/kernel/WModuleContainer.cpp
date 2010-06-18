@@ -30,20 +30,21 @@
 #include <algorithm>
 #include <utility>
 
-#include "WModule.h"
-#include "WModuleCombiner.h"
-#include "exceptions/WModuleUninitialized.h"
-#include "exceptions/WModuleAlreadyAssociated.h"
-#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
+#include "WBatchLoader.h"
 #include "WKernel.h"
+#include "WModule.h"
+#include "WModuleCombiner.h"
 #include "WModuleFactory.h"
-#include "WModuleTypes.h"
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
-#include "WBatchLoader.h"
-
+#include "WModuleTypes.h"
+#include "combiner/WApplyCombiner.h"
+#include "combiner/WApplyModuleCombiner.h"
+#include "exceptions/WModuleAlreadyAssociated.h"
+#include "exceptions/WModuleSignalSubscriptionFailed.h"
+#include "exceptions/WModuleUninitialized.h"
 #include "../modules/data/WMData.h"
 
 #include "WModuleContainer.h"
@@ -439,17 +440,28 @@ WModuleContainer::ModuleSharedContainerType::ReadTicket WModuleContainer::getMod
     return m_modules.getReadTicket();
 }
 
-WCompatiblesList WModuleContainer::getPossibleConnections( boost::shared_ptr< WModule > module )
+WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost::shared_ptr< WModule > module )
 {
-    WCompatiblesList complist;
+    WCombinerTypes::WCompatiblesList complist;
 
     // read lock the container
     ModuleSharedContainerType::ReadTicket lock = m_modules.getReadTicket();
 
+    // TODO(ebaum): do the same for inputs (module->getInputConnectors())
+
     // handle each module
     for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
     {
+        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyModuleCombiner>( module, ( *listIter ) );
+
+        if ( lComp.size() != 0 )
+        {
+            complist.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
+        }
     }
+
+    // sort the compatibles
+    std::sort( complist.begin(), complist.end(), WCombinerTypes::compatiblesSort );
 
     return complist;
 }

@@ -728,7 +728,7 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
-    WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    WCombinerTypes::WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
     // build the prototype menu
     QMenu* m = new QMenu( m_moduleTreeWidget );
@@ -737,7 +737,11 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
-    // TODO(ebaum): do
+    comps = WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module );
+    m = new QMenu( m_moduleTreeWidget );
+    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), comps ) );
+    delete( m_connectWithModuleAction->menu() ); // ensure that combiners get free'd
+    m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
     // TODO(ebaum): do

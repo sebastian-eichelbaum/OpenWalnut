@@ -263,7 +263,7 @@ public:
      *
      * \return the possible combinations of connectors.
      */
-     WCompatiblesList getPossibleConnections( boost::shared_ptr< WModule > module );
+    WCombinerTypes::WCompatiblesList getPossibleConnections( boost::shared_ptr< WModule > module );
 
 protected:
 

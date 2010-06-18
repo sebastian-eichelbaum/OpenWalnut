@@ -27,3 +27,8 @@
 
 #include "WModuleCombinerTypes.h"
 
+bool WCombinerTypes::compatiblesSort( WCombinerTypes::WCompatiblesGroup lhs, WCombinerTypes::WCompatiblesGroup rhs )
+{
+    return ( lhs.first->getName() < rhs.first->getName() );
+}
+

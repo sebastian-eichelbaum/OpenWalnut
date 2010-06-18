@@ -37,7 +37,7 @@
 
 #include "WQtCombinerActionList.h"
 
-WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCompatiblesList compatibles ):
+WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles ):
     QList< QAction* >()
 {
     // These modules will be allowed to be shown.
@@ -46,7 +46,7 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     std::vector< std::string > moduleWhiteList = string_utils::tokenize( moduleWhiteListString, "," );
 
     // create an action for each group:
-    for ( WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
+    for ( WCombinerTypes::WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
         // check current prototype against whitelist
         if( moduleWhiteList.size()
@@ -65,8 +65,8 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
         {
             QMenu* groupMenu = new QMenu( parent );
             // iterate all the children
-            for ( WCompatibleCombiners::iterator combiner = ( *groups ).second.begin();
-                                                                       combiner != ( *groups ).second.end(); ++combiner )
+            for ( WCombinerTypes::WCompatibleCombiners::iterator combiner = ( *groups ).second.begin();
+                                                                 combiner != ( *groups ).second.end(); ++combiner )
             {
                 WQtApplyModuleAction* a = new WQtApplyModuleAction( parent, icons, ( *combiner ), true );
                 a->setIconVisibleInMenu( true );
