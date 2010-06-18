@@ -95,7 +95,7 @@ void WSymmetricSphericalHarmonic::applyFunkRadonTransformation()
     lj = 2 * ( ( j == 1 ) ? 0 : ( size_t )( j+2 )/4  );
     // lj is always even!
     factor = 2.0 * wmath::piDouble * static_cast<double>( std::pow( -1, ( lj / 2 ) ) ) *
-                  static_cast<double>( wmath::oddFaculty( lj ) ) / static_cast<double>( wmath::evenFaculty( lj ) );
+                  static_cast<double>( wmath::oddFactorial( lj ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
 //     factor = (double) std::pow( -1, ( lj / 2 ) ) * (double)wmath::oddFaculty( lj ) / (double)wmath::evenFaculty( lj );
 //     std::cerr << "factor: " << factor << std::endl;
 //     m_SHCoefficients[ j ] = m_SHCoefficients[ j ] * factor;
