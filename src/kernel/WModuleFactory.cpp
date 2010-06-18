@@ -267,10 +267,10 @@ WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WMo
         if(  pcons.size() == 0  )
         {
             // the modules which match every time need their own groups
-            std::vector< boost::shared_ptr< WModuleCombiner > > lComp;
+            std::vector< boost::shared_ptr< WApplyCombiner > > lComp;
 
             // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
-            lComp.push_back( boost::shared_ptr< WModuleCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
+            lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
 
             // add this list
             compatibles.push_back( WCompatiblesGroup( ( *listIter ), lComp ) );
@@ -307,7 +307,7 @@ WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WMo
         }
 
         // this list contains all connections for the current module
-        std::vector< boost::shared_ptr< WModuleCombiner > > lComp;
+        std::vector< boost::shared_ptr< WApplyCombiner > > lComp;
 
         // iterate connector list, first find all matches of the output connectors with all inputs
         for ( WModule::OutputConnectorList::const_iterator outIter = cons.begin(); outIter != cons.end(); ++outIter )
@@ -319,7 +319,7 @@ WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WMo
                 if ( ( *outIter )->connectable( *inIter ) &&  ( *inIter )->connectable( *outIter ) )
                 {
                     // create a apply-prototype combiner
-                    lComp.push_back( boost::shared_ptr< WModuleCombiner >(
+                    lComp.push_back( boost::shared_ptr< WApplyCombiner >(
                         new WApplyPrototypeCombiner( module, ( *outIter )->getName(), *listIter, ( *inIter )->getName() ) )
                     );
 

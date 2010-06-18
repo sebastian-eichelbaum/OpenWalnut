@@ -26,14 +26,14 @@
 
 #include "WQtApplyModuleAction.h"
 
-WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleCombiner > combiner,
+WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WApplyCombiner > combiner,
                                             bool advancedText ):
     QAction( parent ),
     m_combiner( combiner )
 {
     // nice tooltip
     std::string from = "";
-/*
+
     // NOTE: all the tooltips and so on for this action are used from the first combiner in the group
 
     // might be null ( for example if a module should be added that does not require an input)
@@ -41,15 +41,15 @@ WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconM
     {
         from = m_combiner->getSrcModule()->getName() + ":" + m_combiner->getSrcConnector() + " -> ";
     }
-    std::string tooltip = from + m_combiner->getTargetPrototype()->getName() + ":" + m_combiner->getTargetConnector();
+    std::string tooltip = from + m_combiner->getTargetModule()->getName() + ":" + m_combiner->getTargetConnector();
     setToolTip( tooltip.c_str() );
-    setText( advancedText ? tooltip.c_str() : m_combiner->getTargetPrototype()->getName().c_str() );
-    setIconText( advancedText ? tooltip.c_str() : m_combiner->getTargetPrototype()->getName().c_str() );
-    setIcon( iconManager->getIcon( m_combiner->getTargetPrototype()->getName().c_str() ) );
+    setText( advancedText ? tooltip.c_str() : m_combiner->getTargetModule()->getName().c_str() );
+    setIconText( advancedText ? tooltip.c_str() : m_combiner->getTargetModule()->getName().c_str() );
+    setIcon( iconManager->getIcon( m_combiner->getTargetModule()->getName().c_str() ) );
 
     // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
     // pressed left button.
-    connect( this, SIGNAL( triggered() ), this, SLOT( applyCombiner() ) );*/
+    connect( this, SIGNAL( triggered() ), this, SLOT( applyCombiner() ) );
 }
 
 WQtApplyModuleAction::~WQtApplyModuleAction()

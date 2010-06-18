@@ -47,22 +47,16 @@
 WApplyPrototypeCombiner::WApplyPrototypeCombiner( boost::shared_ptr< WModuleContainer > target,
                                                   boost::shared_ptr< WModule > srcModule, std::string srcConnector,
                                                   boost::shared_ptr< WModule > prototype, std::string targetConnector ):
-    WModuleCombiner( target ),
-    m_srcModule( srcModule ),
-    m_srcConnector( srcConnector ),
-    m_targetPrototype( prototype ),
-    m_targetConnector( targetConnector )
+    WApplyCombiner( target, srcModule, srcConnector, prototype, targetConnector )
 {
+    // initialize
 }
 
 WApplyPrototypeCombiner::WApplyPrototypeCombiner( boost::shared_ptr< WModule > srcModule, std::string srcConnector,
                                                   boost::shared_ptr< WModule > prototype, std::string targetConnector ):
-    WModuleCombiner( WKernel::getRunningKernel()->getRootContainer() ),
-    m_srcModule( srcModule ),
-    m_srcConnector( srcConnector ),
-    m_targetPrototype( prototype ),
-    m_targetConnector( targetConnector )
+    WApplyCombiner( srcModule, srcConnector, prototype, targetConnector )
 {
+    // initialize
 }
 
 WApplyPrototypeCombiner::~WApplyPrototypeCombiner()
@@ -70,30 +64,10 @@ WApplyPrototypeCombiner::~WApplyPrototypeCombiner()
     // cleanup
 }
 
-boost::shared_ptr< WModule > WApplyPrototypeCombiner::getSrcModule() const
-{
-    return m_srcModule;
-}
-
-std::string WApplyPrototypeCombiner::getSrcConnector() const
-{
-    return m_srcConnector;
-}
-
-boost::shared_ptr< WModule > WApplyPrototypeCombiner::getTargetPrototype() const
-{
-    return m_targetPrototype;
-}
-
-std::string WApplyPrototypeCombiner::getTargetConnector() const
-{
-    return m_targetConnector;
-}
-
 void WApplyPrototypeCombiner::apply()
 {
     // create module instance
-    boost::shared_ptr< WModule > targetModule = WModuleFactory::getModuleFactory()->create( m_targetPrototype );
+    boost::shared_ptr< WModule > targetModule = WModuleFactory::getModuleFactory()->create( m_targetModule );
 
     // add the target module to the container
     m_container->add( targetModule );

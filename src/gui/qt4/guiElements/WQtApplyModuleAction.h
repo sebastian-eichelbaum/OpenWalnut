@@ -32,7 +32,7 @@
 #include <QtGui/QAction>
 
 #include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleCombiner.h"
+#include "../../../kernel/combiner/WApplyCombiner.h"
 
 #include "../WIconManager.h"
 
@@ -53,7 +53,7 @@ public:
      * \param combiner the apply combiner which gets applied when triggered
      * \param advancedText if true a more complex text showing the used connectors is used instead of the plane target-module name
      */
-    WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleCombiner > combiner,
+    WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WApplyCombiner > combiner,
                           bool advancedText = false );
 
     /**
@@ -66,7 +66,7 @@ protected:
     /**
      * The combiner of this action
      */
-    boost::shared_ptr< WModuleCombiner > m_combiner;
+    boost::shared_ptr< WApplyCombiner > m_combiner;
 
 private:
 public slots:
