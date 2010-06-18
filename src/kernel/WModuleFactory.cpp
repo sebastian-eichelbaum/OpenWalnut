@@ -67,7 +67,7 @@
 #include "../modules/writeTracts/WMWriteTracts.h"
 #include "../modules/splineSurface/WMSplineSurface.h"
 #include "../modules/atlasSurfaces/WMAtlasSurfaces.h"
-#include "combiner/WApplyPrototypeCombiner.h"
+#include "combiner/WApplyCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
 #include "WModuleFactory.h"
@@ -269,7 +269,7 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
             std::vector< boost::shared_ptr< WApplyCombiner > > lComp;
 
             // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
-            lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
+            lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( module, "", *listIter, "" ) ) );
 
             // add this list
             compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
@@ -286,7 +286,7 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
     for( PrototypeContainerIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
-        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyPrototypeCombiner >( module, ( *listIter ) );
+        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner >( module, ( *listIter ) );
 
         // add the group
         if ( lComp.size() != 0 )

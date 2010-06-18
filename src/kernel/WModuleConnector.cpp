@@ -127,13 +127,15 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     // check whether they are already connected
     if ( isConnectedTo( con ) )
     {
-        // is this worth an exception?
+        WLogger::getLogger()->addLogMessage( con->getCanonicalName() + " and " + getCanonicalName() + " are already connected.",
+                                             "ModuleContainer (" + containerName + ")", LL_INFO );
         return;
     }
 
     boost::unique_lock<boost::shared_mutex> lock;
     try
     {
+        // TODO(ebaum): really ensure that only one connection is possible for inputs...
         // add to list
         lock = boost::unique_lock<boost::shared_mutex>( m_connectionListLock );
         m_connected.insert( con );

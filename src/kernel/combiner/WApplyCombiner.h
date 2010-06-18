@@ -49,7 +49,7 @@ public:
     /**
      * Creates a combiner which sets up the specified modules and prototype combination. Specifying a NULL pointer to the srcModule parameter
      * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
-     * input which must be connected.
+     * input which must be connected. It is possible to specify prototypes here. The will get created upon apply.
      *
      *
      * \param target            the target container
@@ -66,7 +66,7 @@ public:
      * Creates a combiner which sets up the specified modules and prototype combination. This constructor automatically uses the kernel's root
      * container as target container. Specifying a NULL pointer to the srcModule parameter
      * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
-     * input which must be connected.
+     * input which must be connected. It is possible to specify prototypes here. The will get created upon apply.
      *
      * \param srcModule         the module whose output should be connected with the prototypes input
      * \param srcConnector      the output connector of the module
@@ -85,7 +85,7 @@ public:
      * Apply the internal module structure to the target container. Be aware, that this operation might take some time, as modules can be
      * connected only if they are "ready", which, at least with WMData modules, might take some time. It applies the loaded project file.
      */
-    virtual void apply() = 0;
+    virtual void apply();
 
     /**
      * Gets the source module. This module's output connector is connected with the target.

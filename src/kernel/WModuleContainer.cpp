@@ -41,7 +41,6 @@
 #include "WModuleOutputConnector.h"
 #include "WModuleTypes.h"
 #include "combiner/WApplyCombiner.h"
-#include "combiner/WApplyModuleCombiner.h"
 #include "exceptions/WModuleAlreadyAssociated.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleUninitialized.h"
@@ -79,6 +78,11 @@ boost::shared_ptr< WModule > WModuleContainer::factory() const
 
 void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
+    if ( !module )
+    {   // just ignore NULL Pointer
+        return;
+    }
+
     WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." ,
             "ModuleContainer (" + getName() + ")", LL_INFO );
 
@@ -93,6 +97,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     // already associated with this container?
     if ( module->getAssociatedContainer() == shared_from_this() )
     {
+        WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container not needed. Its already inside." ,
+            "ModuleContainer (" + getName() + ")", LL_INFO );
         return;
     }
 
@@ -444,6 +450,12 @@ WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost
 {
     WCombinerTypes::WCompatiblesList complist;
 
+    if ( !module )
+    {
+        // be nice in case of a null pointer
+        return complist;
+    }
+
     // read lock the container
     ModuleSharedContainerType::ReadTicket lock = m_modules.getReadTicket();
 
@@ -452,7 +464,7 @@ WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost
     // handle each module
     for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
     {
-        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyModuleCombiner>( module, ( *listIter ) );
+        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner>( module, ( *listIter ) );
 
         if ( lComp.size() != 0 )
         {

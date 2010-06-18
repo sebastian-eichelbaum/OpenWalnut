@@ -737,14 +737,18 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
-    comps = WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module );
+    WCombinerTypes::WCompatiblesList containerComps = WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module );
     m = new QMenu( m_moduleTreeWidget );
-    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), comps ) );
+    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), containerComps ) );
     delete( m_connectWithModuleAction->menu() ); // ensure that combiners get free'd
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
     // TODO(ebaum): do
+    m = new QMenu( m_moduleTreeWidget );
+    m->addAction( new QAction( "Not Yet Implemented.", m_moduleTreeWidget ) );
+    delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
+    m_disconnectAction->setMenu( m );
 
     return new WQtCombinerToolbar( m_mainWindow, comps );
 }

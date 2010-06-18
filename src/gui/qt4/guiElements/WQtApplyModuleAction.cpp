@@ -36,15 +36,33 @@ WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconM
 
     // NOTE: all the tooltips and so on for this action are used from the first combiner in the group
 
+    // use the name property of the modules
+    std::string srcName = "";
+    std::string targetName = m_combiner->getTargetModule()->getProperties()->getProperty( "Name" )->toPropString()->get();
+
     // might be null ( for example if a module should be added that does not require an input)
     if ( m_combiner->getSrcModule() )
     {
-        from = m_combiner->getSrcModule()->getName() + ":" + m_combiner->getSrcConnector() + " -> ";
+        srcName = m_combiner->getSrcModule()->getProperties()->getProperty( "Name" )->toPropString()->get();
+
+        // append real module name if it is different from user specified name
+        if ( srcName != m_combiner->getSrcModule()->getName() )
+        {
+            srcName+=" (" + m_combiner->getSrcModule()->getName() + ")";
+        }
     }
-    std::string tooltip = from + m_combiner->getTargetModule()->getName() + ":" + m_combiner->getTargetConnector();
+
+    // append real module name if it is different from user specified name
+    if ( targetName != m_combiner->getTargetModule()->getName() )
+    {
+        targetName+=" (" + m_combiner->getTargetModule()->getName() + ")";
+    }
+
+    from = srcName + ":" + m_combiner->getSrcConnector() + " -> ";
+    std::string tooltip = from + targetName + ":" + m_combiner->getTargetConnector();
     setToolTip( tooltip.c_str() );
-    setText( advancedText ? tooltip.c_str() : m_combiner->getTargetModule()->getName().c_str() );
-    setIconText( advancedText ? tooltip.c_str() : m_combiner->getTargetModule()->getName().c_str() );
+    setText( advancedText ? tooltip.c_str() : targetName.c_str() );
+    setIconText( advancedText ? tooltip.c_str() : targetName.c_str() );
     setIcon( iconManager->getIcon( m_combiner->getTargetModule()->getName().c_str() ) );
 
     // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
