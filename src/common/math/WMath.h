@@ -25,6 +25,7 @@
 #ifndef WMATH_H
 #define WMATH_H
 
+#include <boost/math/constants/constants.hpp>
 #include <cmath>
 
 #if defined ( _MSC_VER )
@@ -36,6 +37,13 @@
  */
 namespace wmath
 {
+//   Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
+//   ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
+  /** the pi constant in float format */
+  const float piFloat = boost::math::constants::pi<float>();
+  /** the pi constant in double format */
+  const double piDouble = boost::math::constants::pi<double>();
+  
 /**
  * Tests whether the number stored in the parameter is finite.
  * \param number the number to be tested
@@ -52,6 +60,31 @@ inline int myIsfinite( double number )
     WAssert( false, "isfinite not provided on this platform or platform not known." );
 #endif
 }
+
+/**
+ * Calculates the odd factorial. This means 1*3*5* ... * border if border is odd, or 1*3*5* ... * (border-1) if border is even.
+ * \param border the threshold for the factorial calculation.
+ */
+inline unsigned int oddFactorial( unsigned int border )
+{
+  unsigned int result = 1;
+  for ( unsigned int i = 3; i <= border; i+=2 )
+    result *= i;
+  return result;
+}
+
+/**
+ * Calculates the even factorial. This means 2*4*6 ... * \param border if border is even, or 2*4*6* ... * ( \param border - 1 ) if border is odd.
+ * \param border the threshold for the factorial calculation.
+ */
+inline unsigned int evenFactorial( unsigned int border )
+{
+  unsigned int result = 1;
+  for ( unsigned int i = 2; i <= border; i+=2 )
+    result *= i;
+  return result;
+}
+
 }
 
 #endif  // WMATH_H
