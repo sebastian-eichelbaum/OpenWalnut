@@ -274,9 +274,9 @@ void WQtConfigWidget::registerComponents()
     WPropInt ctbpos = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarPos", "The position of the compatibles toolbar in OpenWalnut", 0,
                                                         m_propCondition );
     tbpos->setMin( 0 );
-    tbpos->setMax( 3 );
+    tbpos->setMax( 5 );
     ctbpos->setMin( 0 );
-    ctbpos->setMax( 3 );
+    ctbpos->setMax( 5 );
     m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
 
     WPropInt dsbWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the dataset browser.", 250, m_propCondition );
