@@ -49,7 +49,6 @@
 #include "../events/WModuleRemovedEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
-#include "../guiElements/WQtApplyModuleAction.h"
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTAPPLYMODULEACTION_H
-#define WQTAPPLYMODULEACTION_H
+#ifndef WQTMODULEONETOONECOMBINERACTION_H
+#define WQTMODULEONETOONECOMBINERACTION_H
 
 #include <string>
 
@@ -32,14 +32,14 @@
 #include <QtGui/QAction>
 
 #include "../../../kernel/WModule.h"
-#include "../../../kernel/combiner/WApplyCombiner.h"
+#include "../../../kernel/combiner/WModuleOneToOneCombiner.h"
 
 #include "../WIconManager.h"
 
 /**
  * Implements a action which applies the specified combiners (of the specified group) if pressed.
  */
-class WQtApplyModuleAction : public QAction
+class WQtModuleOneToOneCombinerAction : public QAction
 {
     Q_OBJECT
 
@@ -53,20 +53,20 @@ public:
      * \param combiner the apply combiner which gets applied when triggered
      * \param advancedText if true a more complex text showing the used connectors is used instead of the plane target-module name
      */
-    WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WApplyCombiner > combiner,
+    WQtModuleOneToOneCombinerAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleOneToOneCombiner > combiner,
                           bool advancedText = false );
 
     /**
      * destructor
      */
-    virtual ~WQtApplyModuleAction();
+    virtual ~WQtModuleOneToOneCombinerAction();
 
 protected:
 
     /**
      * The combiner of this action
      */
-    boost::shared_ptr< WApplyCombiner > m_combiner;
+    boost::shared_ptr< WModuleOneToOneCombiner > m_combiner;
 
 private:
 public slots:
@@ -77,4 +77,4 @@ public slots:
     void applyCombiner();
 };
 
-#endif  // WQTAPPLYMODULEACTION_H
+#endif  // WQTMODULEONETOONECOMBINERACTION_H

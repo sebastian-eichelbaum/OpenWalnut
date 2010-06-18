@@ -32,7 +32,7 @@
 #include "../../common/WPreferences.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleCombiner.h"
-#include "guiElements/WQtApplyModuleAction.h"
+#include "guiElements/WQtModuleOneToOneCombinerAction.h"
 #include "WMainWindow.h"
 
 #include "WQtCombinerActionList.h"
@@ -58,8 +58,10 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
         }
 
         // create a new action for this group
-        WQtApplyModuleAction* group = new WQtApplyModuleAction( parent, icons, *( *groups ).second.begin() );
-        group->setIconVisibleInMenu( true );
+        /*WQtModuleOneToOneCombinerAction* group = new WQtModuleOneToOneCombinerAction( parent, icons,
+                boost::shared_static_cast< WModuleOneToOneCombiner >( ( *( *groups ).second.begin() ) )
+        );*/
+        /*group->setIconVisibleInMenu( true );
         push_back( group );
 
         // only add a sub menu if there are more than 1 items in the group
@@ -70,12 +72,14 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
             for ( WCombinerTypes::WCompatibleCombiners::iterator combiner = ( *groups ).second.begin();
                                                                  combiner != ( *groups ).second.end(); ++combiner )
             {
-                WQtApplyModuleAction* a = new WQtApplyModuleAction( parent, icons, ( *combiner ), true );
+                WQtModuleOneToOneCombinerAction* a = new WQtModuleOneToOneCombinerAction( parent, icons,
+                        boost::shared_static_cast< WModuleOneToOneCombiner >( *combiner ), true
+                );
                 a->setIconVisibleInMenu( true );
                 groupMenu->addAction( a );
             }
             group->setMenu( groupMenu );
-        }
+        }*/
     }
 }
 

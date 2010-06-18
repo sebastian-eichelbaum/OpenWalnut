@@ -34,7 +34,6 @@
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
-#include "guiElements/WQtApplyModuleAction.h"
 #include "WQtCombinerActionList.h"
 
 #include "WQtCombinerToolbar.h"

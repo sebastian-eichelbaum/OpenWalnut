@@ -24,9 +24,9 @@
 
 #include <string>
 
-#include "WQtApplyModuleAction.h"
+#include "WQtModuleOneToOneCombinerAction.h"
 
-WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WApplyCombiner > combiner,
+WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleOneToOneCombiner > combiner,
                                             bool advancedText ):
     QAction( parent ),
     m_combiner( combiner )
@@ -70,11 +70,11 @@ WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconM
     connect( this, SIGNAL( triggered() ), this, SLOT( applyCombiner() ) );
 }
 
-WQtApplyModuleAction::~WQtApplyModuleAction()
+WQtModuleOneToOneCombinerAction::~WQtModuleOneToOneCombinerAction()
 {
 }
 
-void WQtApplyModuleAction::applyCombiner()
+void WQtModuleOneToOneCombinerAction::applyCombiner()
 {
     m_combiner->run();
 }
