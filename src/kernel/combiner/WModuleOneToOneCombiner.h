@@ -22,71 +22,118 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WAPPLYPROTOTYPECOMBINER_H
-#define WAPPLYPROTOTYPECOMBINER_H
+#ifndef WMODULEONETOONECOMBINER_H
+#define WMODULEONETOONECOMBINER_H
 
-#include <list>
-#include <map>
 #include <string>
-#include <utility>
 
 #include <boost/shared_ptr.hpp>
 
 #include "../WModule.h"
-#include "WApplyCombiner.h"
+#include "../WModuleCombiner.h"
+#include "../WModuleCombinerTypes.h"
 
 /**
- * This class combines an existing module with an specified prototype. The connections to use must be explicitly known.
+ * Base class for all combiners which apply one connection between two connectors of two modules.
  */
-class WApplyPrototypeCombiner: public WApplyCombiner
+class WModuleOneToOneCombiner: public WModuleCombiner
 {
 public:
 
     /**
      * Creates a combiner which sets up the specified modules and prototype combination. Specifying a NULL pointer to the srcModule parameter
      * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
-     * input which must be connected.
+     * input which must be connected. It is possible to specify prototypes here. The will get created upon apply.
      *
      *
      * \param target            the target container
      * \param srcModule         the module whose output should be connected with the prototypes input
      * \param srcConnector      the output connector of the module
-     * \param prototype         the prototype to use for connecting the module with
+     * \param targetModule      the module/prototype to use for connecting the module with
      * \param targetConnector   the input connector of the prototype to connect with srcConnector.
      */
-    WApplyPrototypeCombiner( boost::shared_ptr< WModuleContainer > target,
-                             boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                             boost::shared_ptr< WModule > prototype, std::string targetConnector );
+    WModuleOneToOneCombiner( boost::shared_ptr< WModuleContainer > target,
+                    boost::shared_ptr< WModule > srcModule, std::string srcConnector,
+                    boost::shared_ptr< WModule > targetModule, std::string targetConnector );
 
     /**
      * Creates a combiner which sets up the specified modules and prototype combination. This constructor automatically uses the kernel's root
      * container as target container. Specifying a NULL pointer to the srcModule parameter
      * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
-     * input which must be connected.
+     * input which must be connected. It is possible to specify prototypes here. The will get created upon apply.
      *
      * \param srcModule         the module whose output should be connected with the prototypes input
      * \param srcConnector      the output connector of the module
-     * \param prototype         the prototype to use for connecting the module with
+     * \param targetModule      the module/prototype to use for connecting the module with
      * \param targetConnector   the input connector of the prototype to connect with srcConnector.
      */
-    WApplyPrototypeCombiner( boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                             boost::shared_ptr< WModule > prototype, std::string targetConnector );
+    WModuleOneToOneCombiner( boost::shared_ptr< WModule > srcModule, std::string srcConnector,
+                    boost::shared_ptr< WModule > targetModule, std::string targetConnector );
 
     /**
      * Destructor.
      */
-    virtual ~WApplyPrototypeCombiner();
+    virtual ~WModuleOneToOneCombiner();
 
     /**
      * Apply the internal module structure to the target container. Be aware, that this operation might take some time, as modules can be
      * connected only if they are "ready", which, at least with WMData modules, might take some time. It applies the loaded project file.
      */
-    virtual void apply();
+    virtual void apply() = 0;
+
+    /**
+     * Gets the source module. This module's output connector is connected with the target.
+     *
+     * \return the source module.
+     */
+    boost::shared_ptr< WModule > getSrcModule() const;
+
+    /**
+     * The output connector of m_srcModule to connect with m_targetConnector.
+     *
+     * \return the source module's output connector.
+     */
+    std::string getSrcConnector() const;
+
+    /**
+     * The module/prototype to connect with m_srcModule.
+     *
+     * \return the target module prototype.
+     */
+    boost::shared_ptr< WModule > getTargetModule() const;
+
+    /**
+     * The input connector the target module to connect with m_srcConnector.
+     *
+     * \return the target module's input connector.
+     */
+    std::string getTargetConnector() const;
 
 protected:
+
+    /**
+     * The source module to connect with the target
+     */
+    boost::shared_ptr< WModule > m_srcModule;
+
+    /**
+     * The output connector of m_srcModule to connect with m_targetConnector.
+     */
+    std::string m_srcConnector;
+
+    /**
+     * The module/prototype to connect with m_srcMdodule.
+     */
+    boost::shared_ptr< WModule > m_targetModule;
+
+    /**
+     * The input connector the target module to connect with m_srcConnector.
+     */
+    std::string m_targetConnector;
 
 private:
 };
 
-#endif  // WAPPLYPROTOTYPECOMBINER_H
+#endif  // WMODULEONETOONECOMBINER_H
+
 

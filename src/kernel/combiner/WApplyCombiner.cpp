@@ -28,22 +28,14 @@
 
 WApplyCombiner::WApplyCombiner( boost::shared_ptr< WModuleContainer > target,
                                 boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                                boost::shared_ptr< WModule > prototype, std::string targetConnector ):
-    WModuleCombiner( target ),
-    m_srcModule( srcModule ),
-    m_srcConnector( srcConnector ),
-    m_targetModule( prototype ),
-    m_targetConnector( targetConnector )
+                                boost::shared_ptr< WModule > targetModule, std::string targetConnector ):
+    WModuleOneToOneCombiner( target, srcModule, srcConnector, targetModule, targetConnector )
 {
 }
 
 WApplyCombiner::WApplyCombiner( boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                                boost::shared_ptr< WModule > prototype, std::string targetConnector ):
-    WModuleCombiner(),
-    m_srcModule( srcModule ),
-    m_srcConnector( srcConnector ),
-    m_targetModule( prototype ),
-    m_targetConnector( targetConnector )
+                                boost::shared_ptr< WModule > targetModule, std::string targetConnector ):
+    WModuleOneToOneCombiner( srcModule, srcConnector, targetModule, targetConnector )
 {
 }
 
@@ -51,27 +43,6 @@ WApplyCombiner::~WApplyCombiner()
 {
     // cleanup
 }
-
-boost::shared_ptr< WModule > WApplyCombiner::getSrcModule() const
-{
-    return m_srcModule;
-}
-
-std::string WApplyCombiner::getSrcConnector() const
-{
-    return m_srcConnector;
-}
-
-boost::shared_ptr< WModule > WApplyCombiner::getTargetModule() const
-{
-    return m_targetModule;
-}
-
-std::string WApplyCombiner::getTargetConnector() const
-{
-    return m_targetConnector;
-}
-
 
 void WApplyCombiner::apply()
 {

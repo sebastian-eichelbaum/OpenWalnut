@@ -39,13 +39,14 @@
 #include <boost/signals2/connection.hpp>
 
 #include "WModule.h"
+#include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
+#include "combiner/WDisconnectCombiner.h"
 #include "exceptions/WModuleConnectionFailed.h"
 #include "exceptions/WModuleConnectionInvalid.h"
+#include "exceptions/WModuleConnectorsIncompatible.h"
 #include "exceptions/WModuleDisconnectFailed.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
-#include "exceptions/WModuleConnectorsIncompatible.h"
-#include "WModuleConnectorSignals.h"
 
 #include "WModuleConnector.h"
 
@@ -217,6 +218,11 @@ const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONN
     return module->getSignalHandler( signal );
 }
 
+boost::shared_ptr< WModule > WModuleConnector::getModule() const
+{
+    return m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+}
+
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
 {
     if ( !isConnectedTo( con ) )
@@ -315,6 +321,24 @@ void WModuleConnector::setDescription( std::string desc )
 void WModuleConnector::setName( std::string name )
 {
     m_name = name;
+}
+
+WCombinerTypes::WDisconnectCombiners WModuleConnector::getPossibleDisconnections()
+{
+    WCombinerTypes::WDisconnectCombiners l;
+
+    // acquire read lock
+    boost::shared_lock<boost::shared_mutex> rlock( m_connectionListLock );
+
+    // for each connector
+    for( std::set<boost::shared_ptr<WModuleConnector> >::iterator listIter = m_connected.begin(); listIter != m_connected.end(); ++listIter )
+    {
+        // simply create the combiner
+        l.push_back( boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner( shared_from_this(), ( *listIter ) ) ) );
+    }
+    rlock.unlock();
+
+    return l;
 }
 
 void WModuleConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )

@@ -37,7 +37,8 @@
 
 #include "WQtCombinerActionList.h"
 
-WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles ):
+WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles,
+                                              bool ignoreWhiteList ):
     QList< QAction* >()
 {
     // These modules will be allowed to be shown.
@@ -49,8 +50,9 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     for ( WCombinerTypes::WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
         // check current prototype against whitelist
-        if( moduleWhiteList.size()
-            && std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() )
+        if( !ignoreWhiteList &&                 // ignore the whitelist?
+            moduleWhiteList.size() &&           // whitelist empty?
+            std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() )
         {
             continue;
         }

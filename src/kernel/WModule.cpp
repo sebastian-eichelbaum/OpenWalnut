@@ -129,6 +129,39 @@ void WModule::disconnect()
     }
 }
 
+WCombinerTypes::WDisconnectList WModule::getPossibleDisconnections()
+{
+    WCombinerTypes::WDisconnectList discons;
+
+    // iterate inputs
+    for( InputConnectorList::iterator listIter = m_inputConnectors.begin(); listIter != m_inputConnectors.end(); ++listIter )
+    {
+        // get all connections of the current connector:
+        WCombinerTypes::WDisconnectGroup g = WCombinerTypes::WDisconnectGroup( ( *listIter )->getName(),
+                                                                               ( *listIter )->getPossibleDisconnections() );
+
+        if ( g.second.size() )
+        {
+            discons.push_back( g );
+        }
+    }
+
+    // iterate outputs
+    for( OutputConnectorList::iterator listIter = m_outputConnectors.begin(); listIter != m_outputConnectors.end(); ++listIter )
+    {
+        // get all connections of the current connector:
+        WCombinerTypes::WDisconnectGroup g = WCombinerTypes::WDisconnectGroup( ( *listIter )->getName(),
+                                                                               ( *listIter )->getPossibleDisconnections() );
+
+        if ( g.second.size() )
+        {
+            discons.push_back( g );
+        }
+    }
+
+    return discons;
+}
+
 void WModule::removeConnectors()
 {
     m_initialized( false );

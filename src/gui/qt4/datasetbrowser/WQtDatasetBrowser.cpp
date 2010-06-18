@@ -733,20 +733,27 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
     // build the prototype menu
     QMenu* m = new QMenu( m_moduleTreeWidget );
     m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), comps ) );
+    m_connectWithPrototypeAction->setDisabled( !comps.size() );  // disable if no entry inside
     delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
     WCombinerTypes::WCompatiblesList containerComps = WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module );
     m = new QMenu( m_moduleTreeWidget );
-    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), containerComps ) );
-    delete( m_connectWithModuleAction->menu() ); // ensure that combiners get free'd
+    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), containerComps, true ) );
+    m_connectWithModuleAction->setDisabled( !containerComps.size() );  // disable if no entry inside
+    delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
-    // TODO(ebaum): do
+    WCombinerTypes::WDisconnectList disconnects;
+    if ( module )
+    {
+       disconnects = module->getPossibleDisconnections();
+    }
     m = new QMenu( m_moduleTreeWidget );
-    m->addAction( new QAction( "Not Yet Implemented.", m_moduleTreeWidget ) );
+    //m->addActions(  WQtCombinerActionList( m, m_mainWindow->getIconManager(), disconnects ) );
+    m_disconnectAction->setDisabled( !disconnects.size() );  // disable if no entry inside
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
     m_disconnectAction->setMenu( m );
 

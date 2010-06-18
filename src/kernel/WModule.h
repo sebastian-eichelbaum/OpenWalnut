@@ -35,6 +35,7 @@
 #include <boost/function.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 #include "WModuleTypes.h"
@@ -254,6 +255,13 @@ public:
      * and so on.)
      */
     void disconnect();
+
+    /**
+     * Gives a list of all WDisconnectCombiners possible. Please note that while the list exists, connections might change.
+     *
+     * \return the list of possible disconnect operations
+     */
+    WCombinerTypes::WDisconnectList getPossibleDisconnections();
 
 protected:
 

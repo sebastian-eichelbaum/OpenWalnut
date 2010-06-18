@@ -33,8 +33,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../WModule.h"
-#include "../WModuleCombiner.h"
 #include "../WModuleCombinerTypes.h"
+#include "WModuleOneToOneCombiner.h"
 
 #include "../WModuleInputConnector.h"
 #include "../WModuleOutputConnector.h"
@@ -42,7 +42,7 @@
 /**
  * Base class for all combiners which apply one connection between two connectors of two modules.
  */
-class WApplyCombiner: public WModuleCombiner
+class WApplyCombiner: public WModuleOneToOneCombiner
 {
 public:
 
@@ -86,34 +86,6 @@ public:
      * connected only if they are "ready", which, at least with WMData modules, might take some time. It applies the loaded project file.
      */
     virtual void apply();
-
-    /**
-     * Gets the source module. This module's output connector is connected with the target.
-     *
-     * \return the source module.
-     */
-    boost::shared_ptr< WModule > getSrcModule() const;
-
-    /**
-     * The output connector of m_srcModule to connect with m_targetConnector.
-     *
-     * \return the source module's output connector.
-     */
-    std::string getSrcConnector() const;
-
-    /**
-     * The module/prototype to connect with m_srcModule.
-     *
-     * \return the target module prototype.
-     */
-    boost::shared_ptr< WModule > getTargetModule() const;
-
-    /**
-     * The input connector the target module to connect with m_srcConnector.
-     *
-     * \return the target module's input connector.
-     */
-    std::string getTargetConnector() const;
 
     /**
      * This method creates a list of possible combiners for connections between the specified modules. Both modules can be prototypes.
@@ -162,26 +134,6 @@ public:
     }
 
 protected:
-
-    /**
-     * The source module to connect with the target
-     */
-    boost::shared_ptr< WModule > m_srcModule;
-
-    /**
-     * The output connector of m_srcModule to connect with m_targetConnector.
-     */
-    std::string m_srcConnector;
-
-    /**
-     * The module/prototype to connect with m_srcMdodule.
-     */
-    boost::shared_ptr< WModule > m_targetModule;
-
-    /**
-     * The input connector the target module to connect with m_srcConnector.
-     */
-    std::string m_targetConnector;
 
 private:
 };

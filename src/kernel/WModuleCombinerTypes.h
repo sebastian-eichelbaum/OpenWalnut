@@ -25,10 +25,13 @@
 #ifndef WMODULECOMBINERTYPES_H
 #define WMODULECOMBINERTYPES_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 class WModule;
 class WApplyCombiner;
+class WDisconnectCombiner;
 
 namespace WCombinerTypes
 {
@@ -47,6 +50,21 @@ namespace WCombinerTypes
      * This is a list of compatible connection groups, which has been created for a specific module.
      */
     typedef std::vector< WCompatiblesGroup > WCompatiblesList;
+
+    /**
+     * A list of all combiners which are each able to disconnect one connection for a fixed source connector
+     */
+    typedef std::vector< boost::shared_ptr< WDisconnectCombiner > > WDisconnectCombiners;
+
+    /**
+     * A  pair of a connector and DisconnectCombiners for each connection from/to the connector specified in the first element of the pair.
+     */
+    typedef std::pair< std::string, WDisconnectCombiners > WDisconnectGroup;
+
+    /**
+     * A list of all connectors and their possible disconnect- combiner.
+     */
+    typedef std::vector< WDisconnectGroup > WDisconnectList;
 
     /**
      * Sorting function for sorting the compatibles list. It uses the alphabetical order of the names.
