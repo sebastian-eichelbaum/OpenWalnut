@@ -29,36 +29,35 @@
 
 #include "../../common/math/WVector3D.h"
 
+namespace wmath
+{
 /**
  * This class stores coordinates on the unit sphere.
  */
-namespace wmath
-{
 class WUnitSphereCoordinates
 {
 // TODO(all): implement test
 // friend class WUnitSphereCoordinatesTest;
 public:
     /**
-     * \par Description
      * Default constructor.
      */
     WUnitSphereCoordinates();
 
     /**
-     * \par Description
-     * Constructor.
+     * Constructor for unit sphere angles.
+     * \param theta coordinate
+     * \param phi coordinate
      */
     WUnitSphereCoordinates( double theta, double phi );
 
     /**
-     * \par Description
-     * Constructor.
+     * Constructor for euclidean coordinates.
+     * \param vector euclidean coordinates
      */
     explicit WUnitSphereCoordinates( wmath::WVector3D vector );
 
     /**
-     * \par Description
      * Destructor.
      */
     virtual ~WUnitSphereCoordinates();
@@ -75,7 +74,7 @@ public:
 
     /**
      * Set theta angle.
-     * \param phi Value for theta.
+     * \param theta Value for theta.
      */
     void setTheta( double theta );
 
@@ -93,7 +92,9 @@ public:
 protected:
 
 private:
+    /** coordinate */
     double m_theta;
+    /** coordinate */
     double m_phi;
 };
 }
