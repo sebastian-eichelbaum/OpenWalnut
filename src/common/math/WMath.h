@@ -25,8 +25,9 @@
 #ifndef WMATH_H
 #define WMATH_H
 
-#include <boost/math/constants/constants.hpp>
 #include <cmath>
+
+#include <boost/math/constants/constants.hpp>
 
 #if defined ( _MSC_VER )
 #include "float.h"
@@ -43,7 +44,7 @@ namespace wmath
   const float piFloat = boost::math::constants::pi<float>();
   /** the pi constant in double format */
   const double piDouble = boost::math::constants::pi<double>();
-  
+
 /**
  * Tests whether the number stored in the parameter is finite.
  * \param number the number to be tested
@@ -84,7 +85,6 @@ inline unsigned int evenFactorial( unsigned int border )
     result *= i;
   return result;
 }
-
 }
 
 #endif  // WMATH_H
