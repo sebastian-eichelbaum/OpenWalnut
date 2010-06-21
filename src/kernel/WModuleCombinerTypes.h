@@ -26,6 +26,8 @@
 #define WMODULECOMBINERTYPES_H
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 

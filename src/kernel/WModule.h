@@ -111,6 +111,16 @@ public:
     boost::shared_ptr< WModuleInputConnector > getInputConnector( std::string name );
 
     /**
+     * Finds the named connector for the module. This is similar to getInputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found
+     */
+    boost::shared_ptr< WModuleInputConnector > findInputConnector( std::string name );
+
+    /**
      * Gives back output connectors.
      *
      * \return the output connectors.
@@ -126,6 +136,36 @@ public:
      * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
      */
     boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This is similar to getOutputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleOutputConnector > findOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector.
+     * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
+     */
+    boost::shared_ptr< WModuleConnector > getConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs. This is similar to getConnector but it does not throw an
+     * exception if the connector could not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleConnector > findConnector( std::string name );
 
     /**
      * Return a pointer to the properties object of the module.

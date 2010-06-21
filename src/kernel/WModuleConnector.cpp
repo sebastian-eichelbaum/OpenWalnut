@@ -225,10 +225,19 @@ boost::shared_ptr< WModule > WModuleConnector::getModule() const
 
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
 {
+    boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+    boost::shared_ptr< WModuleContainer > container = module->getAssociatedContainer();
+    std::string containerName = container.get() ? container->getName() : "Unknown";
+
     if ( !isConnectedTo( con ) )
     {
+        WLogger::getLogger()->addLogMessage( "Could not disconnect " + con->getCanonicalName() + " from " + getCanonicalName() + " as they are"+
+                                             " not connected.", "ModuleContainer (" + containerName + ")", LL_INFO );
         return;
     }
+
+    WLogger::getLogger()->addLogMessage( "Disconnecting " + con->getCanonicalName() + " from " + getCanonicalName(),
+                                         "ModuleContainer (" + containerName + ")", LL_INFO );
 
     // write lock
     boost::unique_lock<boost::shared_mutex> lock;

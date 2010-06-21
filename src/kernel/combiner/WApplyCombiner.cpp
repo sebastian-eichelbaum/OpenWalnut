@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "../WModuleFactory.h"
 
 #include "WApplyCombiner.h"

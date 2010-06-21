@@ -26,8 +26,9 @@
 
 #include "WQtModuleOneToOneCombinerAction.h"
 
-WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleOneToOneCombiner > combiner,
-                                            bool advancedText ):
+WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* parent, WIconManager* iconManager,
+                                                                  boost::shared_ptr< WModuleOneToOneCombiner > combiner,
+                                                                  bool advancedText ):
     QAction( parent ),
     m_combiner( combiner )
 {
@@ -48,14 +49,14 @@ WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* paren
         // append real module name if it is different from user specified name
         if ( srcName != m_combiner->getSrcModule()->getName() )
         {
-            srcName+=" (" + m_combiner->getSrcModule()->getName() + ")";
+            srcName += " (" + m_combiner->getSrcModule()->getName() + ")";
         }
     }
 
     // append real module name if it is different from user specified name
     if ( targetName != m_combiner->getTargetModule()->getName() )
     {
-        targetName+=" (" + m_combiner->getTargetModule()->getName() + ")";
+        targetName += " (" + m_combiner->getTargetModule()->getName() + ")";
     }
 
     from = srcName + ":" + m_combiner->getSrcConnector() + " -> ";

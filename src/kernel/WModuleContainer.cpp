@@ -79,7 +79,8 @@ boost::shared_ptr< WModule > WModuleContainer::factory() const
 void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
     if ( !module )
-    {   // just ignore NULL Pointer
+    {
+        // just ignore NULL Pointer
         return;
     }
 

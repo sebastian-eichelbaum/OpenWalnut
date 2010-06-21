@@ -243,7 +243,7 @@ const WModule::OutputConnectorList& WModule::getOutputConnectors() const
     return m_outputConnectors;
 }
 
-boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name )
+boost::shared_ptr< WModuleInputConnector > WModule::findInputConnector( std::string name )
 {
     // simply search
     for( InputConnectorList::const_iterator listIter = m_inputConnectors.begin();
@@ -256,10 +256,22 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
         }
     }
 
-    throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+    return boost::shared_ptr< WModuleInputConnector >();
 }
 
-boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name )
+boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::string name )
+{
+    boost::shared_ptr< WModuleInputConnector > p = findInputConnector( name );
+
+    if ( !p )
+    {
+        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+    }
+
+    return p;
+}
+
+boost::shared_ptr< WModuleOutputConnector > WModule::findOutputConnector( std::string name )
 {
     // simply search
     for( OutputConnectorList::const_iterator listIter = m_outputConnectors.begin();
@@ -272,7 +284,44 @@ boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::st
         }
     }
 
-    throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+    return boost::shared_ptr< WModuleOutputConnector >();
+}
+
+boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::string name )
+{
+    boost::shared_ptr< WModuleOutputConnector > p = findOutputConnector( name );
+
+    if ( !p )
+    {
+        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+    }
+
+    return p;
+}
+
+boost::shared_ptr< WModuleConnector > WModule::findConnector( std::string name )
+{
+    // simply search both
+    boost::shared_ptr< WModuleConnector > p = findInputConnector( name );
+    if ( p ) // found?
+    {
+        return p;
+    }
+
+    // search in output list
+    return findOutputConnector( name );
+}
+
+boost::shared_ptr< WModuleConnector > WModule::getConnector( std::string name )
+{
+    boost::shared_ptr< WModuleConnector > p = findConnector( name );
+
+    if ( !p )
+    {
+        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+    }
+
+    return p;
 }
 
 boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier )

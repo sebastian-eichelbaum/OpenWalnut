@@ -307,7 +307,6 @@ void WMainWindow::setupPermanentToolBar()
     {
         addToolBar( toQtToolBarArea( getToolbarPos() ), m_permanentToolBar );
     }
-
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )

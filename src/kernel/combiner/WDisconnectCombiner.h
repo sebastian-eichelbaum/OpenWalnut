@@ -61,7 +61,6 @@ public:
     /**
      * Creates a combiner which disconnects the specified connection. If the specified connection does not exist (anymore), nothing will happen.
      *
-     * \param target            the target container
      * \param srcModule         the module whose connector should be disconnected
      * \param srcConnector      the srcModule connector to disconnect
      * \param targetModule      the module whose connector should be disconnected from srcConnector

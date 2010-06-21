@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WDisconnectCombiner.h"
 
 WDisconnectCombiner::WDisconnectCombiner( boost::shared_ptr< WModuleContainer > target,
@@ -50,5 +52,17 @@ WDisconnectCombiner::~WDisconnectCombiner()
 
 void WDisconnectCombiner::apply()
 {
+    // get first connector
+    boost::shared_ptr< WModuleConnector > c1 = m_srcModule->findConnector( m_srcConnector );
+    boost::shared_ptr< WModuleConnector > c2 = m_targetModule->findConnector( m_targetConnector );
+
+    // check if they really existed
+    if ( !c1 || !c2 )
+    {
+        return;
+    }
+
+    // and do it
+    c1->disconnect( c2 );
 }
 

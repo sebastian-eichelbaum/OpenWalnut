@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WModuleOneToOneCombiner.h"
 
 WModuleOneToOneCombiner::WModuleOneToOneCombiner( boost::shared_ptr< WModuleContainer > target,
