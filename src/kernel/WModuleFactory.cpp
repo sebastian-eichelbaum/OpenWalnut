@@ -283,7 +283,7 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
     }
 
     // go through every prototype
-    for( PrototypeContainerIteratorType listIter = l->get().begin(); listIter != l->get().end();
+    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
         WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner >( module, ( *listIter ) );
