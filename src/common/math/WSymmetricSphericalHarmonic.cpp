@@ -29,7 +29,8 @@
 
 #include "WSymmetricSphericalHarmonic.h"
 
-using wmath::WSymmetricSphericalHarmonic;
+namespace wmath
+{
 
 WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic() :
   m_order( 0 ),
@@ -95,7 +96,7 @@ void WSymmetricSphericalHarmonic::applyFunkRadonTransformation()
   {
     lj = 2 * ( ( j == 1 ) ? 0 : ( size_t )( j+2 )/4  );
     // lj is always even!
-    factor = 2.0 * wmath::piDouble * static_cast<double>( std::pow( -1, ( lj / 2 ) ) ) *
+    factor = 2.0 * wmath::piDouble * static_cast<double>( std::pow( -1.0, ( lj / 2.0 ) ) ) *
                   static_cast<double>( wmath::oddFactorial( lj ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
 //     factor = (double) std::pow( -1, ( lj / 2 ) ) * (double)wmath::oddFaculty( lj ) / (double)wmath::evenFaculty( lj );
 //     std::cerr << "factor: " << factor << std::endl;
@@ -106,4 +107,6 @@ void WSymmetricSphericalHarmonic::applyFunkRadonTransformation()
 size_t WSymmetricSphericalHarmonic::getOrder() const
 {
   return m_order;
+}
+
 }
