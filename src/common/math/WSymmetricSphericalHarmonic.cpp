@@ -31,7 +31,6 @@
 
 namespace wmath
 {
-
 WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic() :
   m_order( 0 ),
   m_SHCoefficients( 0 )
@@ -108,5 +107,4 @@ size_t WSymmetricSphericalHarmonic::getOrder() const
 {
   return m_order;
 }
-
 }
