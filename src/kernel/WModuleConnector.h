@@ -177,7 +177,7 @@ public:
      *
      * \return the possible disconnections.
      */
-    WCombinerTypes::WDisconnectCombiners getPossibleDisconnections();
+    WCombinerTypes::WOneToOneCombiners getPossibleDisconnections();
 
 protected:
 

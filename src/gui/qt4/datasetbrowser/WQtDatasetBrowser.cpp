@@ -739,7 +739,7 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
     // build the module menu
     WCombinerTypes::WCompatiblesList containerComps = WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module );
     m = new QMenu( m_moduleTreeWidget );
-    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), containerComps, true ) );
+    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), containerComps, true, true ) );
     m_connectWithModuleAction->setDisabled( !containerComps.size() );  // disable if no entry inside
     delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
@@ -751,7 +751,7 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
        disconnects = module->getPossibleDisconnections();
     }
     m = new QMenu( m_moduleTreeWidget );
-    //m->addActions(  WQtCombinerActionList( m, m_mainWindow->getIconManager(), disconnects ) );
+    m->addActions(  WQtCombinerActionList( m, m_mainWindow->getIconManager(), disconnects ) );
     m_disconnectAction->setDisabled( !disconnects.size() );  // disable if no entry inside
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
     m_disconnectAction->setMenu( m );

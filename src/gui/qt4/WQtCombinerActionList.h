@@ -34,7 +34,7 @@
 #include "WIconManager.h"
 
 /**
- * This class represents a list of actions to apply a bunch of modules to others. It basically interprets the WCompatiblesList and
+ * This class represents a list of actions to apply a bunch of modules to others. It basically interprets the WCompatiblesList or WDisconnectList and
  * builds a list of appropriate actions. It can be used to build menus, toolbars and so on.
  */
 class WQtCombinerActionList: public QList< QAction* >
@@ -46,9 +46,18 @@ public:
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      * \param icons the icon manager holding the right icons for all the prototypes
      * \param compatibles the list of combiners
+     * \param advancedText if true, the complete connector/module name is displayed in all actions
      * \param ignoreWhiteList if true, the list won't be filtered using the whitelist
      */
-    WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles, bool ignoreWhiteList = false );
+    WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles, bool advancedText = false,
+                                                                                                               bool ignoreWhiteList = false );
+    /**
+     * This constructor creates a list of actions recursively from the specified disconnects list.
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
+     * \param icons the icon manager holding the right icons for all the prototypes
+     * \param disconnects the list of disconnections
+     */
+    WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WDisconnectList disconnects );
 
     /**
      * Destructor.

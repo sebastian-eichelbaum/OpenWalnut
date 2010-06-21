@@ -94,10 +94,10 @@ public:
      * \param module2 the second module
      */
     template < typename T >
-    static WCombinerTypes::WCompatibleCombiners createCombinerList( boost::shared_ptr< WModule > module1, boost::shared_ptr< WModule > module2 )
+    static WCombinerTypes::WOneToOneCombiners createCombinerList( boost::shared_ptr< WModule > module1, boost::shared_ptr< WModule > module2 )
     {
         // this list contains all connections for the current module with the other one
-        WCombinerTypes::WCompatibleCombiners lComp;
+        WCombinerTypes::WOneToOneCombiners lComp;
 
         // get offered outputs
         WModule::OutputConnectorList cons = module1->getOutputConnectors();

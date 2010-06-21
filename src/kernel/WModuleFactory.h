@@ -203,8 +203,7 @@ private:
 template <typename T>
 bool WModuleFactory::isA( boost::shared_ptr< WModule > module )
 {
-    // NOTE: this is RTTI. Everybody says: do not use it but nearly nobody says in which cases and why. So we ignore them and use
-    // it.
+    // NOTE: this is RTTI. Everybody says: do not use it. We ignore them.
     return ( dynamic_cast< T* >( module.get() ) );  // NOLINT
 }
 

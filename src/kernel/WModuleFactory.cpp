@@ -266,7 +266,7 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
         if(  pcons.size() == 0  )
         {
             // the modules which match every time need their own groups
-            std::vector< boost::shared_ptr< WApplyCombiner > > lComp;
+            WCombinerTypes::WOneToOneCombiners lComp;
 
             // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
             lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( module, "", *listIter, "" ) ) );
@@ -286,7 +286,7 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
     for( PrototypeContainerIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
-        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner >( module, ( *listIter ) );
+        WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner >( module, ( *listIter ) );
 
         // add the group
         if ( lComp.size() != 0 )

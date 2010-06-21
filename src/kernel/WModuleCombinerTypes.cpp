@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "WModule.h"
-#include "combiner/WApplyCombiner.h"
+#include "combiner/WModuleOneToOneCombiner.h"
 
 #include "WModuleCombinerTypes.h"
 

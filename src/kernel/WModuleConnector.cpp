@@ -323,9 +323,9 @@ void WModuleConnector::setName( std::string name )
     m_name = name;
 }
 
-WCombinerTypes::WDisconnectCombiners WModuleConnector::getPossibleDisconnections()
+WCombinerTypes::WOneToOneCombiners WModuleConnector::getPossibleDisconnections()
 {
-    WCombinerTypes::WDisconnectCombiners l;
+    WCombinerTypes::WOneToOneCombiners l;
 
     // acquire read lock
     boost::shared_lock<boost::shared_mutex> rlock( m_connectionListLock );

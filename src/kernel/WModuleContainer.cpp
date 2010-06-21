@@ -464,7 +464,7 @@ WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost
     // handle each module
     for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
     {
-        WCombinerTypes::WCompatibleCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner>( module, ( *listIter ) );
+        WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner>( module, ( *listIter ) );
 
         if ( lComp.size() != 0 )
         {
