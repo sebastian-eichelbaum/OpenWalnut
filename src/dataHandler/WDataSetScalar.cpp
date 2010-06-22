@@ -46,14 +46,17 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     double max = wlimits::MIN_DOUBLE;
     double min = wlimits::MAX_DOUBLE;
 
+    histogram.setUniformInterval(8);
     for( size_t i = 0; i < newValueSet->size(); ++i )
     {
         double tmp = newValueSet->getScalarDouble( i );
         max = max < tmp ? tmp : max;
         min = min > tmp ? tmp : min;
+        histogram.add(tmp);
     }
     m_maximum = max;
     m_minimum = min;
+    histogram.test();
 }
 
 WDataSetScalar::WDataSetScalar()
