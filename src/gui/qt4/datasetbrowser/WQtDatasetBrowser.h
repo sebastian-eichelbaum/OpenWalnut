@@ -37,6 +37,7 @@
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
 #include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../WQtCombinerToolbar.h"
 #include "WQtDSBWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
 #include "WQtModuleTreeItem.h"
@@ -153,6 +154,13 @@ public:
      */
     QAction* toggleViewAction() const;
 
+    /**
+     * Add the specified toolbar to the top of the dsb.
+     *
+     * \param tb the toolbar to add
+     */
+    void addToolbar( QToolBar* tb );
+
 protected:
 
     /**
@@ -175,8 +183,10 @@ protected:
      * selected dataset
      *
      * \param module pointer to the currently selected module
+     *
+     * \return the new toolbar instance
      */
-    void createCompatibleButtons( boost::shared_ptr< WModule >module );
+    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
 
     /**
      * Reference to the main window of the application.
@@ -204,12 +214,25 @@ private:
 
     bool m_showToolBarText; //!< Show tool bar icons with text
 
-    std::vector< std::string > m_moduleWhiteList; //!< Stores a list of modules allowed to be shown.
-
     /**
      * The action to remove a module from the tree.
      */
     QAction* m_deleteModuleAction;
+
+    /**
+     * Action which uses a compatibles list (submenu) to connect a selected item with other existing modules.
+     */
+    QAction* m_connectWithModuleAction;
+
+    /**
+     * Action which uses a compatibles list (submenu) to connect a selected item with other prototypes.
+     */
+    QAction* m_connectWithPrototypeAction;
+
+    /**
+     * Action which disconnects a connector from the module.
+     */
+    QAction* m_disconnectAction;
 
 private slots:
     /**

@@ -142,20 +142,19 @@ public:
     DatasetSharedContainerType::ReadTicket getDatasets() const;
 
     /**
+     * Returns write-access to the dataset list. As long as the returned ticket exists, the list of datasets can't be changed by others.
+     *
+     * \return the write ticket.
+     */
+    DatasetSharedContainerType::WriteTicket getDatasetsForWriting() const;
+
+    /**
      * This gives a list of data textures from all supporting datasets in this subject.
      *
      * \param onlyActive true whenever only textures should be returned where isGloballyActive() == true.
      * \return the list of textures.
      */
     std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures( bool onlyActive = false );
-
-    /**
-     * Gets an access object which allows thread save iteration over the datasets.
-     *
-     * \deprecated do not use this anymore. Use getDatasets instead.
-     * \return the access object.
-     */
-    DatasetAccess getAccessObject();
 
     /**
      * This condition fires whenever the list of datasets changes, or one dataset got marked as "dirty" (threshold, opacity, ...).

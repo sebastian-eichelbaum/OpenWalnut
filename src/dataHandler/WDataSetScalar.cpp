@@ -157,7 +157,7 @@ double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
     return result;
 }
 
-double WDataSetScalar::getValueAt( int x, int y, int z )
+double WDataSetScalar::getValueAt( int x, int y, int z ) const
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
     size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();

@@ -62,7 +62,6 @@ public:
      * Default constructor.
      *
      * \param name the name of the viewer
-     * \param wdata the WindowData instance for the widget to use as render widget
      * \param x X coordinate of widget where to create the context.
      * \param y Y coordinate of widget where to create the context.
      * \param width Width of the widget.
@@ -70,13 +69,18 @@ public:
      * \param projectionMode Projection mode of the viewer.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y, int width, int height,
+    WGEViewer( std::string name, int x, int y, int width, int height,
         WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
      * Destructor.
      */
     virtual ~WGEViewer();
+
+    /**
+     * Repaints the contents.
+     */
+    virtual void paint();
 
     /**
      * Updates size information. Also updates camera.
@@ -169,7 +173,7 @@ protected:
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
      */
-    osg::ref_ptr< osgViewer::View > m_View;
+    osg::ref_ptr< osgViewer::Viewer > m_View;
 
     /**
      * The name of the viewer.

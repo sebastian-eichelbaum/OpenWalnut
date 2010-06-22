@@ -47,18 +47,17 @@
 
 #include "WGEViewer.h"
 
-WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
+WGEViewer::WGEViewer( std::string name, int x, int y,
     int width, int height, WGECamera::ProjectionMode projectionMode )
-    : WGEGraphicsWindow( wdata, x, y, width, height ),
+    : WGEGraphicsWindow( x, y, width, height ),
       boost::enable_shared_from_this< WGEViewer >(),
       m_name( name )
 {
     try
     {
-        m_View = osg::ref_ptr<osgViewer::View>( new osgViewer::View );
-
+        m_View = new osgViewer::Viewer();
         m_View->setCamera( new WGECamera( width, height, projectionMode ) );
-        m_View->getCamera()->setGraphicsContext( m_GraphicsContext );
+        m_View->getCamera()->setGraphicsContext( m_GraphicsWindow.get() );
 
         switch( projectionMode )
         {
@@ -137,6 +136,11 @@ osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
 void WGEViewer::setBgColor( WColor bgColor )
 {
     m_View->getCamera()->setClearColor( osg::Vec4( bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 1. ) );
+}
+
+void WGEViewer::paint()
+{
+    m_View->frame();
 }
 
 void WGEViewer::resize( int width, int height )

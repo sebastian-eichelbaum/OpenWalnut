@@ -117,12 +117,22 @@ protected:
      */
     bool m_needPostDeleteEvent;
 
+    /**
+     * The property containing the name of the module.
+     */
+    WPropString m_nameProp;
+
 private:
 
     /**
      * The module represented by this tree item.
      */
     boost::shared_ptr< WModule > m_module;
+
+    /**
+     * Called when the name property changes.
+     */
+    void nameChanged();
 };
 
 #endif  // WQTTREEITEM_H

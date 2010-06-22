@@ -29,6 +29,8 @@
 #include <typeinfo>
 #include <vector>
 
+#include "WModule.h"
+#include "WModuleCombiner.h"
 #include "../common/WLogger.h"
 #include "../modules/applyMask/WMApplyMask.h"
 #include "../modules/arbitraryRois/WMArbitraryRois.h"
@@ -62,9 +64,10 @@
 #include "../modules/vectorPlot/WMVectorPlot.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
 #include "../modules/writeNIfTI/WMWriteNIfTI.h"
+#include "../modules/writeTracts/WMWriteTracts.h"
 #include "../modules/splineSurface/WMSplineSurface.h"
 #include "../modules/atlasSurfaces/WMAtlasSurfaces.h"
-#include "combiner/WApplyPrototypeCombiner.h"
+#include "combiner/WApplyCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
 #include "WModuleFactory.h"
@@ -125,6 +128,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteTracts() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSplineSurface() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMAtlasSurfaces() ) );
 
@@ -152,6 +156,18 @@ void WModuleFactory::load()
     }
 }
 
+bool WModuleFactory::isPrototype( boost::shared_ptr< WModule > module )
+{
+    // for this a read lock is sufficient, gets unlocked if it looses scope
+    PrototypeSharedContainerType::ReadTicket l = getModuleFactory()->m_prototypes.getReadTicket();
+    return getModuleFactory()->checkPrototype( module, l );
+}
+
+bool WModuleFactory::checkPrototype( boost::shared_ptr< WModule > module, PrototypeSharedContainerType::ReadTicket ticket )
+{
+    return ( ticket->get().count( module ) != 0 );
+}
+
 boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule > prototype )
 {
     wlog::debug( "ModuleFactory" ) << "Creating new instance of prototype \"" << prototype->getName() << "\".";
@@ -160,7 +176,7 @@ boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule 
     PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
 
     // ensure this one is a prototype and nothing else
-    if ( l->get().count( prototype ) == 0 )
+    if ( !checkPrototype( prototype, l ) )
     {
         throw WPrototypeUnknown( "Could not clone module \"" + prototype->getName() + "\" since it is no prototype." );
     }
@@ -234,26 +250,12 @@ WModuleFactory::PrototypeSharedContainerType::ReadTicket WModuleFactory::getProt
     return m_prototypes.getReadTicket();
 }
 
-/**
- * Sorting function for sorting the compatibles list. It uses the alphabetical order of the names.
- *
- * \param lhs the first combiner
- * \param rhs the second combiner
- *
- * \return true if lhs < rhs
- */
-bool compatiblesSort( boost::shared_ptr< WApplyPrototypeCombiner >  lhs, boost::shared_ptr< WApplyPrototypeCombiner > rhs )
+WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
 {
-    return ( lhs->getTargetPrototype()->getName() < rhs->getTargetPrototype()->getName() );
-}
-
-std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getCompatiblePrototypes( boost::shared_ptr< WModule > module )
-{
-    std::vector< boost::shared_ptr < WApplyPrototypeCombiner > > compatibles;
+    WCombinerTypes::WCompatiblesList compatibles;
 
     // for this a read lock is sufficient, gets unlocked if it looses scope
     PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
-
 
     // First, add all modules with no input connector.
     for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
@@ -263,8 +265,14 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
         if(  pcons.size() == 0  )
         {
+            // the modules which match every time need their own groups
+            WCombinerTypes::WOneToOneCombiners lComp;
+
             // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
-            compatibles.push_back( boost::shared_ptr< WApplyPrototypeCombiner >( new WApplyPrototypeCombiner( module, "", *listIter, "" ) ) );
+            lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( module, "", *listIter, "" ) ) );
+
+            // add this list
+            compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
         }
     }
 
@@ -274,52 +282,16 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
         return compatibles;
     }
 
-    // get offered outputs
-    WModule::OutputConnectorList cons = module->getOutputConnectors();
-
-    // return early if we have no output connector, because the modules with no input connector
-    // are already added at this point.
-    if( cons.size() == 0 )
-    {
-        return compatibles;
-    }
-
-    // This warning was annoying
-    // if ( cons.size() > 1 )
-    // {
-    //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << module->getName() <<  " module (more than 1 output connector). Using "
-    //                                   << ( *cons.begin() )->getCanonicalName()
-    //                                   << " for compatibility check.";
-    // }
-
     // go through every prototype
     for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
-        // get connectors of this prototype
-        WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
+        WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner >( module, ( *listIter ) );
 
-        // ensure we have 1 connector
-        if( pcons.size() == 0 )
+        // add the group
+        if ( lComp.size() != 0 )
         {
-            continue;
-        }
-
-        // This warning was annoying
-        // if ( pcons.size() > 1 )
-        // {
-        //     wlog::warn( "ModuleFactory" ) << "Can not find compatibles for " << ( *listIter )->getName()
-        //                                   << " module (more than 1 input connector). Using "
-        //                                   << ( *pcons.begin() )->getCanonicalName() << " for compatibility check.";
-        // }
-
-        // check whether the outputs are compatible with the inputs of the prototypes
-        if( ( *cons.begin() )->connectable( *pcons.begin() )  &&  ( *pcons.begin() )->connectable( *cons.begin() ) )
-        {
-            // it is compatible -> add to list
-            compatibles.push_back( boost::shared_ptr< WApplyPrototypeCombiner >(
-                new WApplyPrototypeCombiner( module, ( *cons.begin() )->getName(), *listIter, ( *pcons.begin() )->getName() ) )
-            );
+            compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
         }
     }
 
@@ -327,8 +299,7 @@ std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > WModuleFactory::getC
     l.reset();
 
     // sort the compatibles
-    std::sort( compatibles.begin(), compatibles.end(), compatiblesSort );
+    std::sort( compatibles.begin(), compatibles.end(), WCombinerTypes::compatiblesSort );
 
     return compatibles;
 }
-

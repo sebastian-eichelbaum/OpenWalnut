@@ -38,6 +38,7 @@
 
 #include "../common/WSharedObject.h"
 
+#include "WModuleCombinerTypes.h"
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
@@ -252,6 +253,17 @@ public:
      * \return the read ticket.
      */
     ModuleSharedContainerType::ReadTicket getModules() const;
+
+    /**
+     * This method creates a list of combiner instances, for each possible connection that can be made between the specified module and the
+     * module currently inside the container. It might be possible that a module which is contained in the returned list is not associated
+     * anymore if the combiner gets applied.
+     *
+     * \param module the module to which the possible connections should be returned
+     *
+     * \return the possible combinations of connectors.
+     */
+    WCombinerTypes::WCompatiblesList getPossibleConnections( boost::shared_ptr< WModule > module );
 
 protected:
 

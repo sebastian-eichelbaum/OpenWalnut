@@ -76,7 +76,7 @@ void WCreateColorArraysThread::threadMain()
     float r, g, b, rr, gg, bb;
     float x1, x2, y1, y2, z1, z2;
     float lastx, lasty, lastz;
-    for ( int i = m_left; i < m_right; ++i )
+    for ( int i = m_left; i <= m_right; ++i )
     {
         x1 = (*m_vertices)[pc];
         y1 = (*m_vertices)[pc + 1];
@@ -134,7 +134,6 @@ void WCreateColorArraysThread::threadMain()
             (*m_globalColors)[pc] = r;
             (*m_globalColors)[pc+1] = g;
             (*m_globalColors)[pc+2] = b;
-
             pc += 3;
         }
     }

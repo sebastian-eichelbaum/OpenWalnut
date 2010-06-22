@@ -130,6 +130,11 @@ WSubject::DatasetSharedContainerType::ReadTicket WSubject::getDatasets() const
     return m_datasets.getReadTicket();
 }
 
+WSubject::DatasetSharedContainerType::WriteTicket WSubject::getDatasetsForWriting() const
+{
+    return m_datasets.getWriteTicket();
+}
+
 std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bool onlyActive )
 {
     std::vector< boost::shared_ptr< WDataTexture3D > > tex;
@@ -148,12 +153,6 @@ std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bo
     }
 
     return tex;
-}
-
-WSubject::DatasetAccess WSubject::getAccessObject()
-{
-    // TODO(ebaum): clean up if it is not used anymore
-    return m_datasets.getAccessObject();
 }
 
 boost::shared_ptr< WCondition > WSubject::getChangeCondition() const

@@ -27,6 +27,7 @@
 
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -34,7 +35,7 @@
 
 #include "../modules/data/WMData.h" // this is the ONLY module with a special meaning. Every one knowing the factory also knows this
 #include "../common/WSharedAssociativeContainer.h"
-#include "combiner/WApplyPrototypeCombiner.h"
+#include "WModuleCombinerTypes.h"
 #include "WModule.h"
 
 /**
@@ -153,7 +154,7 @@ public:
      *
      * \return set of compatible combiners.
      */
-    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes(
+    WCombinerTypes::WCompatiblesList getCompatiblePrototypes(
             boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >()
     );
 
@@ -165,12 +166,31 @@ public:
      */
     static void initializeModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * Checks whether the specified module is a prototype or an instantiated module.
+     *
+     * \param module the module to check
+     *
+     * \return true if it is a prototype
+     */
+    static bool isPrototype( boost::shared_ptr< WModule > module );
+
 protected:
 
     /**
      * The module prototypes available.
      */
     PrototypeSharedContainerType m_prototypes;
+
+    /**
+     * Checks whether the specified module is a prototype or an instantiated module. Use isPrototype if no ticket acquired yet.
+     *
+     * \param module the module to check
+     * \param ticket ticket which already has read lock.
+     *
+     * \return true if it is a prototype
+     */
+    bool checkPrototype( boost::shared_ptr< WModule > module, PrototypeSharedContainerType::ReadTicket ticket );
 
 private:
 
@@ -183,8 +203,7 @@ private:
 template <typename T>
 bool WModuleFactory::isA( boost::shared_ptr< WModule > module )
 {
-    // NOTE: this is RTTI. Everybody says: do not use it but nearly nobody says in which cases and why. So we ignore them and use
-    // it.
+    // NOTE: this is RTTI. Everybody says: do not use it. We ignore them.
     return ( dynamic_cast< T* >( module.get() ) );  // NOLINT
 }
 

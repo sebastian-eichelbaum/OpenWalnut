@@ -30,19 +30,20 @@
 #include <algorithm>
 #include <utility>
 
-#include "WModule.h"
-#include "exceptions/WModuleUninitialized.h"
-#include "exceptions/WModuleAlreadyAssociated.h"
-#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
+#include "WBatchLoader.h"
 #include "WKernel.h"
+#include "WModule.h"
+#include "WModuleCombiner.h"
 #include "WModuleFactory.h"
-#include "WModuleTypes.h"
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
-#include "WBatchLoader.h"
-
+#include "WModuleTypes.h"
+#include "combiner/WApplyCombiner.h"
+#include "exceptions/WModuleAlreadyAssociated.h"
+#include "exceptions/WModuleSignalSubscriptionFailed.h"
+#include "exceptions/WModuleUninitialized.h"
 #include "../modules/data/WMData.h"
 
 #include "WModuleContainer.h"
@@ -77,6 +78,12 @@ boost::shared_ptr< WModule > WModuleContainer::factory() const
 
 void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
+    if ( !module )
+    {
+        // just ignore NULL Pointer
+        return;
+    }
+
     WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." ,
             "ModuleContainer (" + getName() + ")", LL_INFO );
 
@@ -91,6 +98,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     // already associated with this container?
     if ( module->getAssociatedContainer() == shared_from_this() )
     {
+        WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container not needed. Its already inside." ,
+            "ModuleContainer (" + getName() + ")", LL_INFO );
         return;
     }
 
@@ -370,7 +379,7 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     // get offered inputs
     WModule::OutputConnectorList outs = applyOn->getOutputConnectors();
 
-    // TODO(ebaum): search best matching instead of simply connecting both
+    // connect the first connectors. For a more sophisticated way of connecting modules, use ModuleCombiners.
     if ( !ins.empty() && !outs.empty() )
     {
         ( *ins.begin() )->connect( ( *outs.begin() ) );
@@ -436,5 +445,37 @@ void WModuleContainer::setCrashIfModuleCrashes( bool crashIfCrashed )
 WModuleContainer::ModuleSharedContainerType::ReadTicket WModuleContainer::getModules() const
 {
     return m_modules.getReadTicket();
+}
+
+WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost::shared_ptr< WModule > module )
+{
+    WCombinerTypes::WCompatiblesList complist;
+
+    if ( !module )
+    {
+        // be nice in case of a null pointer
+        return complist;
+    }
+
+    // read lock the container
+    ModuleSharedContainerType::ReadTicket lock = m_modules.getReadTicket();
+
+    // TODO(ebaum): do the same for inputs (module->getInputConnectors())
+
+    // handle each module
+    for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
+    {
+        WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner>( module, ( *listIter ) );
+
+        if ( lComp.size() != 0 )
+        {
+            complist.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
+        }
+    }
+
+    // sort the compatibles
+    std::sort( complist.begin(), complist.end(), WCombinerTypes::compatiblesSort );
+
+    return complist;
 }
 

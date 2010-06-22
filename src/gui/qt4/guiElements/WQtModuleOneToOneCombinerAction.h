@@ -22,57 +22,59 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTAPPLYMODULEPUSHBUTTON_H
-#define WQTAPPLYMODULEPUSHBUTTON_H
+#ifndef WQTMODULEONETOONECOMBINERACTION_H
+#define WQTMODULEONETOONECOMBINERACTION_H
 
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QPushButton>
+#include <QtGui/QAction>
+
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/combiner/WModuleOneToOneCombiner.h"
 
 #include "../WIconManager.h"
-#include "../../../kernel/combiner/WApplyPrototypeCombiner.h"
 
 /**
- * Implements a QPushButton with a boost signal for convenience.
+ * Implements a action which applies the specified combiners (of the specified group) if pressed.
  */
-class WQtApplyModulePushButton : public QPushButton
+class WQtModuleOneToOneCombinerAction : public QAction
 {
     Q_OBJECT
 
 public:
 
     /**
-     * Constructor creating a module application button.
+     * Constructor creating a module application action.
      *
      * \param parent the parent
      * \param iconManager the icon manager to use
-     * \param combiner the combiner that is represented by this button
-     * \param useText  true if a text should be shown.
+     * \param combiner the apply combiner which gets applied when triggered
+     * \param advancedText if true a more complex text showing the used connectors is used instead of the plane target-module name
      */
-    WQtApplyModulePushButton( QWidget* parent, WIconManager* iconManager,
-                              boost::shared_ptr< WApplyPrototypeCombiner > combiner, bool useText = true );
+    WQtModuleOneToOneCombinerAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WModuleOneToOneCombiner > combiner,
+                          bool advancedText = false );
 
     /**
      * destructor
      */
-    virtual ~WQtApplyModulePushButton();
+    virtual ~WQtModuleOneToOneCombinerAction();
 
 protected:
 
     /**
-     * The combiner used in this button.
+     * The combiner of this action
      */
-    boost::shared_ptr< WApplyPrototypeCombiner > m_combiner;
+    boost::shared_ptr< WModuleOneToOneCombiner > m_combiner;
 
 private:
 public slots:
 
     /**
-     * Slot getting called when the button got pressed. It applies the combiner.
+     * Gets called by the action if it was triggered.
      */
-    void emitPressed();
+    void applyCombiner();
 };
 
-#endif  // WQTAPPLYMODULEPUSHBUTTON_H
+#endif  // WQTMODULEONETOONECOMBINERACTION_H

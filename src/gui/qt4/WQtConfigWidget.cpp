@@ -262,7 +262,29 @@ void WQtConfigWidget::registerComponents()
     m_defaultProperties->addProperty( "qt4gui.useAutoDisplay", "use Auto Display", true, m_propCondition );
     m_defaultProperties->addProperty( "qt4gui.useToolBarBreak", "use ToolBarBreak", true, m_propCondition );
     m_defaultProperties->addProperty( "general.allowOnlyOneFiberDataSet", "allow only one FiberDataSet", false, m_propCondition );
-    m_defaultProperties->addProperty( "qt4gui.toolBarIconText", "show toolBarIconText" , true, m_propCondition );
+    WPropInt tbs = m_defaultProperties->addProperty( "qt4gui.toolBarStyle", "The style of all toolbars in OpenWalnut", 0, m_propCondition );
+    WPropInt ctbs = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarStyle", "The style of all compatibles toolbar in OpenWalnut", 0,
+                                                      m_propCondition );
+    tbs->setMin( 0 );
+    tbs->setMax( 3 );
+    ctbs->setMin( 0 );
+    ctbs->setMax( 3 );
+    WPropInt tbpos = m_defaultProperties->addProperty( "qt4gui.toolBarPos", "The position of the toolbar in OpenWalnut", 0,
+                                                       m_propCondition );
+    WPropInt ctbpos = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarPos", "The position of the compatibles toolbar in OpenWalnut", 0,
+                                                        m_propCondition );
+    tbpos->setMin( 0 );
+    tbpos->setMax( 5 );
+    ctbpos->setMin( 0 );
+    ctbpos->setMax( 5 );
+    m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
+
+    WPropInt dsbWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the dataset browser.", 250, m_propCondition );
+    dsbWidth->setMin( 0 );
+    dsbWidth->setMax( 1000 );
+
+    m_defaultProperties->addProperty( "qt4gui.dsbInvisibleByDefault", "Hide the dataset browser on startup?", false, m_propCondition );
+    m_defaultProperties->addProperty( "qt4gui.dsbFloatingByDefault", "Undock the dataset browser on startup?", false, m_propCondition );
 
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );
     m_skipPropertyWrite.push_back( "modules.whiteListGroup" );

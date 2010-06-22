@@ -35,6 +35,7 @@
 #include <boost/function.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 #include "WModuleTypes.h"
@@ -110,6 +111,16 @@ public:
     boost::shared_ptr< WModuleInputConnector > getInputConnector( std::string name );
 
     /**
+     * Finds the named connector for the module. This is similar to getInputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found
+     */
+    boost::shared_ptr< WModuleInputConnector > findInputConnector( std::string name );
+
+    /**
      * Gives back output connectors.
      *
      * \return the output connectors.
@@ -125,6 +136,36 @@ public:
      * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
      */
     boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This is similar to getOutputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleOutputConnector > findOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector.
+     * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
+     */
+    boost::shared_ptr< WModuleConnector > getConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs. This is similar to getConnector but it does not throw an
+     * exception if the connector could not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleConnector > findConnector( std::string name );
 
     /**
      * Return a pointer to the properties object of the module.
@@ -254,6 +295,13 @@ public:
      * and so on.)
      */
     void disconnect();
+
+    /**
+     * Gives a list of all WDisconnectCombiners possible. Please note that while the list exists, connections might change.
+     *
+     * \return the list of possible disconnect operations
+     */
+    WCombinerTypes::WDisconnectList getPossibleDisconnections();
 
 protected:
 
@@ -492,6 +540,11 @@ protected:
      * True whenever the module should be active
      */
     WPropBool m_active;
+
+    /**
+     * This property holds a user specified name for the current module instance.
+     */
+    WPropString m_runtimeName;
 
 private:
 
