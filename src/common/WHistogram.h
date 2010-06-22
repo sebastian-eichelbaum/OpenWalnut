@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -29,6 +29,9 @@
 #include <list>
 #include <utility>
 
+/**
+ * Used to track (later: display) the occurrence frequencies of values in a value set.
+ **/
 class WHistogram
 {
     /**
@@ -37,7 +40,15 @@ class WHistogram
     class cmp
     {
         public:
-            bool operator()( double const& p1, double const& p2) const
+            /**
+             * Compares two double values.
+             *
+             * \param p1 first value
+             * \param p2 second value
+             *
+             * \return the same bolean value as applying the less-than operator (a<b)
+             **/
+            bool operator()( double const& p1, double const& p2 ) const
             {
                 return p1 < p2;
             }
@@ -50,22 +61,27 @@ class WHistogram
     class WBar
     {
         private:
+            /**
+             * Represents this bars height.
+             **/
             unsigned int value;
             //unsigned int distance;
             //std::pair<int, int> range;
 
         public:
             /**
-             * Creates empty bar.
+             * Default constructor.
              **/
-            WBar() : value(0)
+            WBar() : value( 0 )
             {
             }
 
             /**
-             * Creates bar.
+             * Clones this WBar from another WBar.
+             *
+             * \param bar WBar which serves as the origin of the height.
              **/
-            WBar(WBar const& other) : value(other.value)
+            explicit WBar( WBar const& bar ) : value( bar.value )
             {
             }
 
@@ -80,7 +96,7 @@ class WHistogram
             /**
              * Postfix inkrement (x++) the bar by one.
              **/
-            WBar& operator++(int) // x++
+            WBar& operator++( int ) // x++
             {
                 WBar* tmp = this;
                 tmp->value++;
@@ -98,7 +114,9 @@ class WHistogram
             }
 
             /**
-             * Returns the value of the bar.
+             * To access the height of the specific bar.
+             *
+             * \return the value of the bar.
              **/
             unsigned int getValue() const
             {
@@ -107,7 +125,15 @@ class WHistogram
     };
 
     private:
+        /**
+         * Describes the uniform size of a bucket in the mapped histogram.
+         **/
         unsigned int uniformInterval;
+
+        /**
+         * Pointer used to speed up operator[]( unsigned int ) if the parameter increases by 1
+         * each call (supposed standard behaviour).
+         **/
         std::pair< std::list<std::pair< const WBar*, unsigned int > >::iterator, unsigned int > mappingPointer;
 
         /**
@@ -132,14 +158,16 @@ class WHistogram
 
     public:
         /**
-         * Creates empty histogram.
+         * Default constructor.
          **/
         WHistogram();
 
         /**
-         * Create a histogram with a given uniform intervall.
+         * Constructs a histogram with a given uniform intervall.
+         *
+         * \param interval the interval size if uniform intervals are used
          **/
-        WHistogram( unsigned int );
+        explicit WHistogram( unsigned int interval );
 
         /**
          * Destroys this Histogram instance.
@@ -148,27 +176,43 @@ class WHistogram
 
         /**
          * Add an element to one of the WBar.
+         *
+         * \param value the bar that represents value in the histogram is increased bye one
          **/
-        void add( double );
+        void add( double value );
 
         /**
-         * Set uniform interval.
+         * Set and change the uniform interval.
+         * Each time a new mapping is created.
+         *
+         * \param interval the new bucket size
          **/
-        void setUniformInterval( unsigned int );
+        void setUniformInterval( unsigned int interval );
 
         /**
-         * Seting Intervals that are not uniform.
+         * Sets intervals that are not uniform.
+         * A new mapping is created each time.
+         *
+         * \param rangeList list that represents the size of each bucket starting with the lowest
+         * value
          **/
-        void setInterval( const std::list<unsigned int>& );
+        void setInterval( const std::list<unsigned int>& rangeList );
 
         /**
          * Get the height of a bar.
+         *
+         * \param position which bars height is to be returned, starts with 0 which is the bar with
+         * the smalest values
+         *
+         * \return height of the bar i.e. size of the bucket
          **/
-        unsigned int operator[]( unsigned int );// const;
+        unsigned int operator[]( unsigned int position ); // const;
 
-        // To test the functionality
+        /**
+         * Simple output to std::cout to test functionality.
+         **/
         void test();
 };
 
-#endif // WHISTOGRAM_H
+#endif  // WHISTOGRAM_H
 

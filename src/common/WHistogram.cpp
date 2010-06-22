@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -24,18 +24,19 @@
 
 #include <iostream> // test() -> std::cout
 #include <cmath> // test() -> log()
-
-#include "../common/WAssert.h"
+#include <map>
+#include <utility>
+#include <list>
 
 #include "WHistogram.h"
 
-WHistogram::WHistogram() : uniformInterval(0)
+WHistogram::WHistogram() : uniformInterval( 0 )
 {
     mappingPointer.first = mapping.begin();
     mappingPointer.second = 0;
 }
 
-WHistogram::WHistogram( unsigned int interval ) : uniformInterval(interval)
+WHistogram::WHistogram( unsigned int interval ) : uniformInterval( interval )
 {
     mappingPointer.first = mapping.begin();
     mappingPointer.second = 0;
@@ -47,15 +48,15 @@ WHistogram::~WHistogram()
 
 void WHistogram::add( double value )
 {
-    // IF(MIN || MAX needed) : here!
+    // IF( MIN || MAX needed ) : here!
     elements[value]++;
 }
 
-void WHistogram::setUniformInterval( unsigned int value )
+void WHistogram::setUniformInterval( unsigned int interval )
 {
     // negativ ?
     //WAssert( elements.size > 0, "No elements in WHistogram." );
-    uniformInterval = value;
+    uniformInterval = interval;
     calculateMapping();
 }
 
@@ -86,6 +87,7 @@ void WHistogram::calculateMapping()
 
 unsigned int WHistogram::operator[]( unsigned int position )
 {
+    // out of range ?
     if(mappingPointer.second == 0 || mappingPointer.second > position )
     {
         mappingPointer.first = mapping.begin();
@@ -126,13 +128,13 @@ void WHistogram::setInterval( const std::list<unsigned int>& rangeList )
 void WHistogram::test()
 {
     calculateMapping();
-    /*unsigned int rangeStart= 0;
-    std::list< std:pair< WBar*, unsigned int > >::iterator iter;
-    for(iter = mapping.begin(); iter != mapping.end(); iter++ )
-    {
-        std::cout << iter->second << ": " << rangeStart << " - " << rangeStart+uniformInterval;
-        rangeStart += uniformInterval;
-    }*/
+    // unsigned int rangeStart= 0;
+    // std::list< std:pair< WBar*, unsigned int > >::iterator iter;
+    // for(iter = mapping.begin(); iter != mapping.end(); iter++ )
+    // {
+    //     std::cout << iter->second << ": " << rangeStart << " - " << rangeStart+uniformInterval;
+    //     rangeStart += uniformInterval;
+    // }
 
     std::cout << mapping.size() << std::endl;
     std::list< std::pair< const WBar*, unsigned int > >::iterator it = mapping.begin();
@@ -146,19 +148,21 @@ void WHistogram::test()
     {
         std::cout << "|";
         std::list< std::pair< const WBar*, unsigned int > >::iterator iter = mapping.begin();
-        for(unsigned int x = 0; x != mapping.size(); ++x)
+        for( unsigned int x = 0; x != mapping.size(); ++x )
         {
-            if( log((double)iter->second) > (double)(y-1)*2 )
+            if( log( static_cast<double>( iter->second ) ) > static_cast<double>( (y-1)*2 ) )
             {
                 std::cout << " #";
-            } else {
+            }
+            else
+            {
                 std::cout << "  ";
             }
             iter++;
         }
         std::cout << " |\n";
     }
-    std::cout << "-" ;
+    std::cout << "-";
     for(unsigned int i = 0; i != mapping.size(); ++i)
     {
         std::cout << "--";
