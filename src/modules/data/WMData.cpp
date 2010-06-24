@@ -121,7 +121,7 @@ void WMData::properties()
 {
     // properties
 
-    m_dataName = m_infoProperties->addProperty( "Name", "The name of the dataset.", std::string( "" ) );
+    m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
 
     // use this callback for the other properties
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
@@ -145,7 +145,7 @@ void WMData::properties()
     m_colorMapSelectionsList->addItem( "Rainbow", "" );
     m_colorMapSelectionsList->addItem( "Hot iron", "" );
     m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Lightblue", "" );
+    m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
 
     m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
@@ -220,6 +220,12 @@ void WMData::moduleMain()
 
     debugLog() << "Loading data from \"" << fileName << "\".";
     m_dataName->set( fileName );
+
+    // remove the path up to the file name and set it as a convenient name for this module instance
+    if ( fileName != "" )
+    {
+        m_runtimeName->set( string_utils::tokenize( fileName, "/" ).back() );
+    }
 
     // load it now
     std::string suffix = getSuffix( fileName );

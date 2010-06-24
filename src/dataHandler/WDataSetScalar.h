@@ -107,7 +107,7 @@ public:
      *
      * \return the double value at the given cell.
      */
-    double getValueAt( int x, int y, int z );
+    double getValueAt( int x, int y, int z ) const;
 
 
     /**

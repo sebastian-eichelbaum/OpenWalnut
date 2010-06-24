@@ -22,4 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#include "signalslib.h"
+#ifndef WQTCOMBINERTOOLBAR_H
+#define WQTCOMBINERTOOLBAR_H
+
+#include <QtGui/QToolBar>
+
+#include "../../kernel/WModuleCombinerTypes.h"
+
+class WMainWindow;
+
+/**
+ * This is a toolbar. Its main usage for now is the "compatible modules" toolbar.
+ */
+class WQtCombinerToolbar : public QToolBar
+{
+    Q_OBJECT
+
+public:
+    /**
+     * Constructs the toolbar.
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
+     * \param compatibles the list of combiners
+     */
+    explicit WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles );
+
+    /**
+     * destructor
+     */
+    virtual ~WQtCombinerToolbar();
+
+protected:
+
+private:
+};
+
+#endif  // WQTCOMBINERTOOLBAR_H

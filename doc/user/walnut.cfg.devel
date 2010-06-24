@@ -3,18 +3,55 @@
 
 [modules]
 ## use this to specify the default module to add during load.
-## It is a comma seperated list. If this is not specified the default empty is assumed.
+## It is a comma seperated list. If this is not specified the default empty is assumed. Be sure to NOT add "" around the list.
 ## An example could be
-# default="HUD"
-#whiteList ="Isosurface,Bounding Box, Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI" # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
+# default=HUD
+#whiteList =Isosurface,Bounding Box, Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
 
 [qt4gui]
+####################################################################
+# Views
+
 # hideAxial = yes # hide the axial view widget
 # hideCoronal = yes # hide the coronal view widget
 # hideSagittal = yes # hide the sagittal view widget
-toolBarIconText = no # show text next to module's icon
+
+####################################################################
+# Toolbars
+
 # useToolBarBreak = no # put compatibles toolbar in separate row
 useAutoDisplay = no # automatically add a standard module after loading a data module.
+
+# The next property controls the style of ALL toolbars in OpenWalnut.
+# 0 -> Only display the icon. This also is the default on Qt
+# 1 -> Only display the text.
+# 2 -> The text appears beside the icon.
+# 3 -> The text appears under the icon.
+toolBarStyle = 0
+compatiblesToolBarStyle = 0 # this pref allows the compatibles toolbar to have a different style (overrides toolBarStyle)
+
+# Position of the compatibles toolbar
+# 0 -> top
+# 1 -> bottom
+# 2 -> left
+# 3 -> right
+# 4 -> hide completely
+# 5 -> inside the dataset browser ( not possible for compatiblesToolBarPos! This will be mapped to right (=3) )
+toolBarPos = 0 # default position of the toolbars
+compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolBarPos)
+
+####################################################################
+# Dataset Browser
+
+# combineTreeAndRoiAndTextureSorter = yes # should the module tree, ROI tree and the Texture Sorter be combined in ONE Tab widget?
+# dsbWidth = 400  # the width of the dataset browser
+# dsbInvisibleByDefault = yes # hide the dataset browser on startup. Can be shown using F9.
+# dsbFloatingByDefault = yes  # should the dataset browser be undocked on startup?
+
+####################################################################
+# Other GUI settings
+
+# hideMenuBar = yes # hide the menu bar
 
 [ge] ## Settings for the graphics engine
 # bgColor.r = .9 # background color (red part)

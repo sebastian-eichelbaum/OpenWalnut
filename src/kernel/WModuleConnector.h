@@ -35,6 +35,7 @@
 #include <boost/bind.hpp>
 
 #include "WModule.h"
+#include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 
 /**
@@ -61,6 +62,13 @@ public:
      * Destructor.
      */
     virtual ~WModuleConnector();
+
+    /**
+     * Returns the module which owns this connector.
+     *
+     * \return the module owning the connector.
+     */
+    boost::shared_ptr< WModule > getModule() const;
 
     /**
      * Disconnects this connector if connected. If it is not connected: nothing happens.
@@ -162,6 +170,14 @@ public:
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con )=0;
+
+    /**
+     * Returns a list of possible disconnections for this connector. Please be aware that the connections might change during the life-time of
+     * the returned DisconnectCombiner instances.
+     *
+     * \return the possible disconnections.
+     */
+    WCombinerTypes::WOneToOneCombiners getPossibleDisconnections();
 
 protected:
 

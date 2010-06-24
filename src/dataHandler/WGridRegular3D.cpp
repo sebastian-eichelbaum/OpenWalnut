@@ -201,7 +201,7 @@ wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
 
 wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
-    wmath::WVector3D r( wmath::transformVector3DWithMatrix4D( m_matrixInverse, point ) );
+    wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_matrixInverse, point ) );
 
     r[0] = r[0] / m_nbPosX;
     r[1] = r[1] / m_nbPosY;
@@ -409,26 +409,29 @@ bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 
 std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
 {
-    WAssert( isNotRotatedOrSheared(),
-             "The getBoundingBox() function is only feasible for grids that are only translated or scaled so far." );
-    std::pair< wmath::WPosition, wmath::WPosition > bb =  std::make_pair( getOrigin(),
-                           getOrigin() + getDirectionX() * ( getNbCoordsX() - 1 )
-                           + getDirectionY() * ( getNbCoordsY() - 1 )
-                           + getDirectionZ() * ( getNbCoordsZ() - 1 )  );
+    // Get the transformed corner points of the regular grid
+    std::vector< wmath::WPosition > cornerPs;
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                0.0,                0.0                ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0                ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0                ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0                ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
 
-    // As scaling with negative can mean a switch of the coordinate directions
-    // we nee to check for the right ordering in the bounding box. For
-    // each coordinate where the minimum position has a larger value than
-    // the maximum position we need to exchange their values.
-    for( size_t i = 0; i < 3; i++ )
+    wmath::WPosition minBB( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
+    wmath::WPosition maxBB( wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE );
+
+    // Check the components of the corner points separately against the components of the current maxBB and minBB
+    for( size_t posId = 0; posId < cornerPs.size(); ++posId)
     {
-        if( bb.first[i] > bb.second[i] )
+        for( size_t compId = 0; compId < 3; ++compId )
         {
-            double tmp = bb.first[i];
-            bb.first[i] = bb.second[i];
-            bb.second[i] = tmp;
+            minBB[compId] = cornerPs[posId][compId] < minBB[compId] ? cornerPs[posId][compId] : minBB[compId];
+            maxBB[compId] = cornerPs[posId][compId] > maxBB[compId] ? cornerPs[posId][compId] : maxBB[compId];
         }
     }
 
-    return bb;
+    return std::make_pair( minBB, maxBB );
 }

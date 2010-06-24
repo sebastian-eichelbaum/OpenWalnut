@@ -22,16 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-// Used in vertex and fragment shader
-/////////////////////////////////////////////////////////////////////////////
+#include "WRasterParameterization.h"
 
-// The ray's starting point in texture space
-varying vec3 v_rayStart;
+WRasterParameterization::WRasterParameterization( boost::shared_ptr< WGridRegular3D > grid ):
+    m_grid( grid )
+{
+    // initialize members
+}
 
-// The ray direction in texture space
-varying vec3 v_ray;
+WRasterParameterization::~WRasterParameterization()
+{
+    // cleanup
+}
 
-// the Surface normal at this point
-varying vec3 v_normal;
+void WRasterParameterization::newLine( const wmath::WLine& /*line*/ )
+{
+    // do nothing here
+    // Overwrite in your class if you need to handle this.
+}
+
+void WRasterParameterization::newSegment( const wmath::WPosition& /*start*/, const wmath::WPosition& /*end*/ )
+{
+    // do nothing here
+    // Overwrite in your class if you need to handle this.
+}
+
+void WRasterParameterization::finished()
+{
+    // do nothing here
+    // Overwrite in your class if you need to handle this.
+}
+

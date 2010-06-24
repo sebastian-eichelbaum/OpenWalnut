@@ -283,7 +283,7 @@ void WMDetTractClustering::cluster()
     m_dLtTableExists = true;
 
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing clusters", 1 ) );
-    m_progress->addSubProgress( eraseProgress );
+//    m_progress->addSubProgress( eraseProgress );
 
     // remove empty clusters
     WFiberCluster emptyCluster;

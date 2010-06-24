@@ -38,6 +38,7 @@
 
 #include "../common/WSharedObject.h"
 
+#include "WModuleCombinerTypes.h"
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
@@ -219,6 +220,13 @@ public:
     void finishedPendingThread( boost::shared_ptr< WThreadedRunner > thread );
 
     /**
+     * Sets a flag denoting whether the container (which also is a module) should be marked as "crashed" if a nested module crashes.
+     *
+     * \param crashIfCrashed true if it also should crash.
+     */
+    void setCrashIfModuleCrashes( bool crashIfCrashed = true );
+
+    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
      *
@@ -239,18 +247,23 @@ public:
     DataModuleListType getDataModules();
 
     /**
-     * Sets a flag denoting whether the container (which also is a module) should be marked as "crashed" if a nested module crashes.
+     * Method returns a read ticket allowing read-access to the list of modules.
+     * \note If done, ensure the ticket gets destroyed.
      *
-     * \param crashIfCrashed true if it also should crash.
+     * \return the read ticket.
      */
-    void setCrashIfModuleCrashes( bool crashIfCrashed = true );
+    ModuleSharedContainerType::ReadTicket getModules() const;
 
     /**
-     * Returns the access object usable to iterate the module list in a thread safe manner. DO not modify the list.
+     * This method creates a list of combiner instances, for each possible connection that can be made between the specified module and the
+     * module currently inside the container. It might be possible that a module which is contained in the returned list is not associated
+     * anymore if the combiner gets applied.
      *
-     * \return the access control object.
+     * \param module the module to which the possible connections should be returned
+     *
+     * \return the possible combinations of connectors.
      */
-    ModuleSharedContainerType::WSharedAccess getAccessObject();
+    WCombinerTypes::WCompatiblesList getPossibleConnections( boost::shared_ptr< WModule > module );
 
 protected:
 
@@ -264,11 +277,6 @@ protected:
      * The modules associated with this container.
      */
     ModuleSharedContainerType m_modules;
-
-    /**
-     * Access to the above module set.
-     */
-    ModuleSharedContainerType::WSharedAccess m_moduleAccess;
 
     /**
      * Name of the module.
@@ -366,11 +374,6 @@ private:
     typedef WSharedObject< ModuleSubscriptionsType > ModuleSubscriptionsSharedType;
 
     /**
-     * The access type
-     */
-    typedef ModuleSubscriptionsSharedType::WSharedAccess ModuleSubscriptionsAccessType;
-
-    /**
      * The const iterator type of the container.
      */
     typedef ModuleSubscriptionsType::const_iterator ModuleSubscriptionsConstIterator;
@@ -384,11 +387,6 @@ private:
      * The module's signal subscriptions.
      */
     ModuleSubscriptionsSharedType m_moduleSubscriptions;
-
-    /**
-     * Access to the above module subscriptions map.
-     */
-    ModuleSubscriptionsAccessType m_moduleSubscriptionsAccess;
 };
 
 #endif  // WMODULECONTAINER_H

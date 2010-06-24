@@ -51,8 +51,6 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
     m_layout = new QVBoxLayout();
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
-    m_glWidget->setFixedSize( 150, 150 );
-    m_glWidget->initialize();
 
     setMinimumSize( 160, 240 );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
@@ -77,14 +75,6 @@ WQtNavGLWidget::~WQtNavGLWidget()
     }
 }
 
-void WQtNavGLWidget::closeEvent( QCloseEvent* event )
-{
-    // forward events
-    m_glWidget->close();
-
-    event->accept();
-}
-
 void WQtNavGLWidget::setSliderTitle( std::string title )
 {
     m_sliderTitle = QString( title.c_str() );
@@ -99,5 +89,8 @@ void WQtNavGLWidget::setSliderProperty( WPropInt prop )
 {
     m_propWidget = new WPropertyIntWidget( prop, NULL, parentWidget() );
     m_layout->addWidget( m_propWidget );
+
+    m_layout->setStretchFactor( m_glWidget.get(), 1 );
+    m_layout->setStretchFactor( m_propWidget, 0 );
 }
 

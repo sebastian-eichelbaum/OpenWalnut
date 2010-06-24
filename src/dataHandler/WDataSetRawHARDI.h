@@ -25,6 +25,7 @@
 #ifndef WDATASETRAWHARDI_H
 #define WDATASETRAWHARDI_H
 
+#include <string>
 #include <vector>
 
 #include "WDataSetSingle.h"
@@ -79,11 +80,25 @@ public:
     const wmath::WVector3D& getGradient( size_t index ) const;
 
     /**
-     * Returns the count of measures per voxel, which is equal to the count of the used gradients.
+     * Returns the count of measurements per voxel, which is equal to the count of the used gradients.
      *
-     * \return measures per voxel
+     * \return measurements per voxel
      */
-    std::size_t getMeasures() const;
+    std::size_t getNumberOfMeasurements() const;
+
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual const std::string getDescription() const;
 
 protected:
 

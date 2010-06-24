@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "shadingTools.fs"
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
@@ -39,9 +41,6 @@ uniform sampler3D tex0;
 
 // The isovalue to use.
 uniform float u_isovalue;
-
-// True if only the simple depth value should be used for coloring
-uniform bool u_depthCueingOnly;
 
 // The number of steps to use.
 uniform int u_steps;
@@ -140,24 +139,77 @@ void main()
 
             // 4: set color
             vec4 color;
-            if ( u_depthCueingOnly )
-            {
-                float d = 1.0 - curPointProjected.z;
-                color = gl_Color * 1.5 * d * d;
-            }
-            else
-            {
-                // NOTE: these are a lot of weird experiments ;-)
-                float d = 1.0 - curPointProjected.z;
-                d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
 
-                float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
-                w = ( w + 0.5 );
-                if ( w > 0.8 ) w = 0.8;
+#ifdef CORTEX
+            // NOTE: these are a lot of weird experiments ;-)
+            float d = 1.0 - curPointProjected.z;
+            d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
 
-                float d2 = w*d*d*d*d*d;
-                color = gl_Color * 11.0 * d2;
-            }
+            float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
+            w = ( w + 0.5 );
+            if ( w > 0.8 ) w = 0.8;
+
+            float d2 = w*d*d*d*d*d;
+            color = gl_Color * 11.0 * d2;
+#endif
+#ifdef DEPTHONLY
+            float d = 1.0 - curPointProjected.z;
+            color = gl_Color * 1.5 * d * d;
+#endif
+#ifdef PHONG
+            // find a proper normal for a headlight
+            float s = 0.01;
+            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+
+            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ) ;//v_ray;
+            // Phong:
+            float light = blinnPhongIlluminationIntensity( 
+                    0.1,                                // material ambient
+                    0.75,                               // material diffuse
+                    1.3,                                // material specular
+                    10.0,                               // shinines
+                    1.0,                                // light diffuse
+                    0.75,                               // light ambient
+                    normalize( -dir ),                  // normal
+                    normalize( v_ray ),                 // view direction
+                    normalize( v_lightSource )          // light source position
+            );
+            
+            color = light * gl_Color;
+#endif
+#ifdef PHONGWITHDEPTH
+            float d = 1.0 - curPointProjected.z;
+
+            // find a proper normal for a headlight
+            float s = 0.01;
+            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+
+            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ) ;//v_ray;
+            // Phong:
+            float light = blinnPhongIlluminationIntensity( 
+                    0.1,                                // material ambient
+                    d * d,                              // material diffuse
+                    1.3,                                // material specular
+                    10.0,                               // shinines
+                    1.0,                                // light diffuse
+                    0.3,                                // light ambient
+                    normalize( -dir ),                  // normal
+                    normalize( v_ray ),                 // view direction
+                    normalize( v_lightSource )          // light source position
+            );
+            
+            color = light * gl_Color;
+#endif
 
             color.a = u_alpha;
             gl_FragColor = color;

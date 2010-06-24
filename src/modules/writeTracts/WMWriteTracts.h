@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,41 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMCONNECTOMEVIEW_H
-#define WMCONNECTOMEVIEW_H
+#ifndef WMWRITETRACTS_H
+#define WMWRITETRACTS_H
 
-#include <map>
 #include <string>
-#include <vector>
 
-#include <osg/Node>
 #include <osg/Geode>
-#include <osg/Uniform>
-
-#include "../../dataHandler/WDataSetFibers.h"
 
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleContainer.h"
-#include "../../kernel/WModuleInputForwardData.h"
-#include "../../kernel/WModuleOutputForwardData.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
 
-/**
- * This module is able to visualize connectome data in the context of MRI data. It uses the module container class to allow the
- * module to be composed from other modules.
+/** 
+ * Someone should add some documentation here.
+ * Probably the best person would be the module's
+ * creator, i.e. "wiebel".
+ *
+ * This is only an empty template for a new module. For
+ * an example module containing many interesting concepts
+ * and extensive documentation have a look at "src/modules/template"
+ *
  * \ingroup modules
  */
-class WMConnectomeView : public WModuleContainer
+class WMWriteTracts: public WModule
 {
 public:
-    /**
-     * Standard constructor.
-     */
-    WMConnectomeView();
 
     /**
-     * Destructor.
+     *
      */
-    ~WMConnectomeView();
+    WMWriteTracts();
+
+    /**
+     *
+     */
+    virtual ~WMWriteTracts();
 
     /**
      * Gives back the name of this module.
@@ -66,15 +66,9 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description of module.
+     * \return description to module.
      */
     virtual const std::string getDescription() const;
-
-    /**
-     * Determine what to do if a property was changed.
-     */
-    //void slotPropertyChanged( std::string propertyName );
-    void slotPropertyChanged();
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -83,6 +77,11 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
 
 protected:
 
@@ -101,27 +100,11 @@ protected:
      */
     virtual void properties();
 
+
 private:
+    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
 
-    /**
-     * Test property
-     */
-    WPropInt m_test;
-
-    /**
-     * The T1 image used as context
-     */
-    boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_mrtInput;
-
-    /**
-     * The fiber dataset used.
-     */
-    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_fiberInput;
-
-    /**
-     * the current dataset
-     */
-    boost::shared_ptr< const WDataSetSingle > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
+    WPropFilename m_savePath; //!< Path where tracts should be stored
 };
 
-#endif  // WMCONNECTOMEVIEW_H
+#endif  // WMWRITETRACTS_H

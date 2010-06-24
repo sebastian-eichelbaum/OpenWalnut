@@ -26,11 +26,12 @@
 #define WOPENCUSTOMDOCKWIDGETEVENT_H
 
 #include <string>
+
 #include <QtCore/QEvent>
 
-#include "../../graphicsEngine/WGECamera.h"
-#include "../../common/WFlag.h"
-#include "../WCustomWidget.h"
+#include "../../../graphicsEngine/WGECamera.h"
+#include "../../../common/WFlag.h"
+#include "../../WCustomWidget.h"
 
 /**
  * A Qt event to open a new custom dock widget if posted to the WMainWindow.

@@ -52,6 +52,21 @@ WCreateColorArraysThread::~WCreateColorArraysThread()
 
 void WCreateColorArraysThread::threadMain()
 {
+    if ( !m_vertices || !m_tangents || !m_globalColors || !m_localColors || !m_lineStartIndexes || !m_lineLengths )
+    {
+        return;
+    }
+
+    if ( !m_vertices->size() ||
+         !m_tangents->size() ||
+         !m_globalColors->size() ||
+         !m_localColors->size() ||
+         !m_lineStartIndexes->size() ||
+         !m_lineLengths->size() )
+    {
+        return;
+    }
+
     int pc = 0;
     for ( int i = 0; i < m_left; ++i )
     {
@@ -61,7 +76,7 @@ void WCreateColorArraysThread::threadMain()
     float r, g, b, rr, gg, bb;
     float x1, x2, y1, y2, z1, z2;
     float lastx, lasty, lastz;
-    for ( int i = m_left; i < m_right; ++i )
+    for ( int i = m_left; i <= m_right; ++i )
     {
         x1 = (*m_vertices)[pc];
         y1 = (*m_vertices)[pc + 1];
@@ -119,7 +134,6 @@ void WCreateColorArraysThread::threadMain()
             (*m_globalColors)[pc] = r;
             (*m_globalColors)[pc+1] = g;
             (*m_globalColors)[pc+2] = b;
-
             pc += 3;
         }
     }

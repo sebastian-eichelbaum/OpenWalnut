@@ -22,34 +22,58 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <cmath>
 
-#include "WQtApplyModulePushButton.h"
+#include "WUnitSphereCoordinates.h"
 
-WQtApplyModulePushButton::WQtApplyModulePushButton( QWidget* parent, WIconManager* iconManager,
-                                                    boost::shared_ptr< WApplyPrototypeCombiner > combiner, bool useText ):
-    QPushButton( parent ),
-    m_combiner( combiner )
-{
-    setIcon( iconManager->getIcon( combiner->getTargetPrototype()->getName().c_str() ) );
-    setToolTip( combiner->getTargetPrototype()->getName().c_str() );
+using wmath::WUnitSphereCoordinates;
 
-    if ( useText )
-    {
-        setText( combiner->getTargetPrototype()->getName().c_str() );
-    }
-
-    // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
-    // pressed left button.
-    connect( this, SIGNAL( released() ), this, SLOT( emitPressed() ) );
-}
-
-WQtApplyModulePushButton::~WQtApplyModulePushButton()
+WUnitSphereCoordinates::WUnitSphereCoordinates() :
+    m_theta( 0.0 ),
+    m_phi( 0.0 )
 {
 }
 
-void WQtApplyModulePushButton::emitPressed()
+WUnitSphereCoordinates::WUnitSphereCoordinates( double theta, double phi ) :
+    m_theta( theta ),
+    m_phi( phi )
 {
-    m_combiner->run();
 }
 
+WUnitSphereCoordinates::WUnitSphereCoordinates( wmath::WVector3D vector )
+{
+  // normalize vector
+  vector *= vector.norm();
+  // calculate angles
+  m_theta = std::acos( vector[2] );
+  m_phi = std::atan2( vector[1], vector[0] );
+}
+
+WUnitSphereCoordinates::~WUnitSphereCoordinates()
+{
+}
+
+double WUnitSphereCoordinates::getTheta() const
+{
+  return m_theta;
+}
+
+double WUnitSphereCoordinates::getPhi() const
+{
+  return m_phi;
+}
+
+void WUnitSphereCoordinates::setTheta( double theta )
+{
+  m_theta = theta;
+}
+
+void WUnitSphereCoordinates::setPhi( double phi )
+{
+  m_phi = phi;
+}
+
+wmath::WVector3D WUnitSphereCoordinates::getEuclidean() const
+{
+  return wmath::WVector3D( std::sin( m_theta )*std::cos( m_phi ), std::sin( m_theta )*std::sin( m_phi ), std::cos( m_theta ) );
+}

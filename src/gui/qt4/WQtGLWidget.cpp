@@ -38,48 +38,10 @@
 #include "../../kernel/WKernel.h"
 
 
-#if defined( WIN32 ) && !defined( __CYGWIN__ )
-#include <osgViewer/api/Win32/GraphicsWindowWin32>
-typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
-#elif defined( __APPLE__ )
-#   if defined( __LP64__ )  // assume Cocoa on 64bit
-#   include <osgViewer/api/Cocoa/GraphicsWindowCocoa>
-    struct WindowData
-        : public osgViewer::GraphicsWindowCocoa::WindowData
-    {
-        explicit WindowData( ::WId view )
-            : osgViewer::GraphicsWindowCocoa::WindowData( 0 )
-        {
-        }
-    };
-#   else // assume Carbon on 32bit
-#   include <osgViewer/api/Carbon/GraphicsWindowCarbon>
-    struct WindowData
-        : public osgViewer::GraphicsWindowCarbon::WindowData
-    {
-        explicit WindowData( ::WId view )
-            : osgViewer::GraphicsWindowCarbon::WindowData(
-                HIViewGetWindow( static_cast<HIViewRef>( view ) ) )
-        {
-        }
-    };
-#   endif
-#else  // all other unix
-#include <osgViewer/api/X11/GraphicsWindowX11>
-typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
-#endif
-
-
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
-#ifdef _WIN32
-    : QWidget( parent ),
-#else
     : QGLWidget( parent ),
-#endif
       m_nameOfViewer( nameOfViewer ),
-      m_recommendedSize(),
-      m_isInitialized( new WConditionOneShot(), false ),
-      m_firstPaint( false )
+      m_recommendedSize()
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
@@ -90,37 +52,19 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     setAttribute( Qt::WA_PaintOnScreen );
     setAttribute( Qt::WA_NoSystemBackground );
     setFocusPolicy( Qt::ClickFocus );
+
+    // create viewer
+    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
+        m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
+
+    connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
+    m_Timer.start( 10 );
 }
 
 WQtGLWidget::~WQtGLWidget()
 {
-    // cleanup
-    if ( m_isInitialized() )
-    {
-        m_Viewer.reset();
-    }
-}
-
-void WQtGLWidget::initialize()
-{
-    if ( m_isInitialized() )
-    {
-        return;
-    }
-
-    // initialize OpenGL context and OpenSceneGraph
-    osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
-
-    // create viewer
-    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
-        m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
-
-    m_isInitialized( true );
-}
-
-const WBoolFlag& WQtGLWidget::isInitialized() const
-{
-    return m_isInitialized;
+    WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_nameOfViewer );
+    m_Viewer.reset();
 }
 
 QSize WQtGLWidget::sizeHint() const
@@ -181,7 +125,6 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
 
 void WQtGLWidget::setBgColor( WColor bgColor )
 {
-    assert( m_Viewer );
     m_Viewer->setBgColor( bgColor );
 }
 
@@ -195,40 +138,14 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
     return m_Viewer;
 }
 
-void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
+void WQtGLWidget::paintGL()
 {
-    // maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
-    if ( !m_firstPaint )
-    {
-        WLogger::getLogger()->addLogMessage( "Painted the first time.",
-                                             "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                             LL_DEBUG );
-        m_firstPaint = true;
-    }
-
-    // m_Viewer->paint();
+    m_Viewer->paint();
 }
 
-#ifndef WIN32
-void WQtGLWidget::destroyEvent( bool /*destroyWindow*/, bool /*destroySubWindows*/ )
+void WQtGLWidget::resizeGL( int width, int height )
 {
-    // forward events
-    //m_Viewer->close();
-}
-
-
-void WQtGLWidget::closeEvent( QCloseEvent* event )
-{
-    // forward events
-    WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_nameOfViewer );
-
-    event->accept();
-}
-
-
-void WQtGLWidget::resizeEvent( QResizeEvent* event )
-{
-    m_Viewer->resize( event->size().width(), event->size().height() );
+    m_Viewer->resize( width, height );
 }
 
 int WQtGLWidget::translateButton( QMouseEvent* event )
@@ -241,8 +158,6 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
             return 2;
         case( Qt::RightButton ):
             return 3;
-        case( Qt::NoButton ):
-            return 0;
         default:
             return 0;
     }
@@ -346,4 +261,3 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
     }
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
-#endif

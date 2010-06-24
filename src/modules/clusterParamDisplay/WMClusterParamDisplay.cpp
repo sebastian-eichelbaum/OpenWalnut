@@ -131,7 +131,7 @@ void WMClusterParamDisplay::initSubModules()
     m_detTractClustering->getProperties()->getProperty( "active" )->toPropBool()->set( false );
     m_voxelizer->getProperties()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
     m_voxelizer->getProperties()->getProperty( "Display Voxels" )->toPropBool()->set( false );
-    m_voxelizer->getProperties()->getProperty( "BoundingBox" )->toPropBool()->set( false );
+    m_voxelizer->getProperties()->getProperty( "Bounding Box Enable Feature" )->toPropBool()->set( false );
     m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false );
     m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3 );
     m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" )->toPropBool()->set( false );
@@ -160,7 +160,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Max cluster distance" ) );
     m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Min point distance" ) );
     m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Tracts" ) );
-    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "CenterLine" ) );
+    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Center Line" ) );
     m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Lighting" ) );
     m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
     m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Opacity %" ) );

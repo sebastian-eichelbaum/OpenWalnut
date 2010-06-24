@@ -84,19 +84,17 @@ void WMScalarSegmentation::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_propGroups.resize( 1 );
-    m_propGroups[ 0 ] = m_properties->addPropertyGroup( "Simple Threshold", "" );
-
     m_algos = boost::shared_ptr< WItemSelection >( new WItemSelection );
     m_algos->addItem( "Simple Threshold", "" );
 
     m_algoType = m_properties->addProperty( "Seg Algo", "Choose a segmentation method.", m_algos->getSelectorFirst(), m_propCondition );
 
-    m_threshold = m_properties->addProperty( "Threshold", "Threshold value for segmentation.", 0.8, m_propCondition );
+    m_propGroups.resize( 1 );
+    m_propGroups[ 0 ] = m_properties->addPropertyGroup( "Simple Threshold", "" );
+
+    m_threshold = m_propGroups[ 0 ]->addProperty( "Threshold", "Threshold value for segmentation.", 0.8, m_propCondition );
     m_threshold->setMax( 255.0 );
     m_threshold->setMin( 0.0 );
-
-    m_propGroups[ 0 ]->addProperty( m_threshold );
 }
 
 void WMScalarSegmentation::moduleMain()

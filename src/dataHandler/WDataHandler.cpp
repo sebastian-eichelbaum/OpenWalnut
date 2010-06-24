@@ -39,8 +39,7 @@
 boost::shared_ptr< WDataHandler > WDataHandler::m_instance = boost::shared_ptr< WDataHandler >();
 
 WDataHandler::WDataHandler():
-    m_subjects(),
-    m_subjectAccess( m_subjects.getAccessObject() )
+    m_subjects()
 {
     WLogger::getLogger()->addLogMessage( "Initializing Data Handler", "Data Handler", LL_INFO );
     addSubject( boost::shared_ptr< WSubject >( new WSubject( WPersonalInformation::createDummyInformation() ) ) );
@@ -63,7 +62,7 @@ void WDataHandler::addSubject( boost::shared_ptr< WSubject > subject )
 
 void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
 {
-    m_subjectAccess->beginWrite();
+    SubjectSharedContainerType::WriteTicket l = m_subjects.getWriteTicket();
 
     WLogger::getLogger()->addLogMessage( "Removing subject with ID \"" +
                                          boost::lexical_cast< std::string >( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
@@ -71,26 +70,24 @@ void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
                                          "Data Handler", LL_DEBUG );
 
     // iterate and find, remove
-    for ( SubjectContainerType::iterator iter = m_subjectAccess->get().begin(); iter != m_subjectAccess->get().end();
+    for ( SubjectContainerType::iterator iter = l->get().begin(); iter != l->get().end();
             ++iter )
     {
         if ( ( *iter ) ==  subject )
         {
-            m_subjectAccess->get().erase( iter );
+            l->get().erase( iter );
             break;
         }
     }
-
-    m_subjectAccess->endWrite();
 }
 
 void WDataHandler::clear()
 {
-    m_subjectAccess->beginWrite();
+    SubjectSharedContainerType::WriteTicket l = m_subjects.getWriteTicket();
 
     WLogger::getLogger()->addLogMessage( "Removing all subjects.", "Data Handler", LL_INFO );
 
-    for ( SubjectContainerType::const_iterator iter = m_subjectAccess->get().begin(); iter != m_subjectAccess->get().end();
+    for ( SubjectContainerType::const_iterator iter = l->get().begin(); iter != l->get().end();
             ++iter )
     {
         WLogger::getLogger()->addLogMessage( "Removing subject \"" +
@@ -100,26 +97,25 @@ void WDataHandler::clear()
         ( *iter )->clear();
     }
 
-    m_subjectAccess->get().clear();
-    m_subjectAccess->endWrite();
+    l->get().clear();
 }
 
-WDataHandler::SubjectAccess WDataHandler::getAccessObject()
+WDataHandler::SubjectSharedContainerType::ReadTicket WDataHandler::getSubjects() const
 {
-    return m_subjects.getAccessObject();
+    return m_subjects.getReadTicket();
 }
 
 boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
 {
-    m_subjectAccess->beginRead();
+    SubjectSharedContainerType::ReadTicket l = m_subjects.getReadTicket();
 
     // search it
     boost::shared_ptr< WSubject > result;
     try
     {
-        if ( subjectID < m_subjectAccess->get().size() )
+        if ( subjectID < l->get().size() )
         {
-            result = m_subjectAccess->get().at( subjectID );
+            result = l->get().at( subjectID );
         }
         else
         {
@@ -130,8 +126,6 @@ boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
     {
         throw WDHNoSuchSubject();
     }
-
-    m_subjectAccess->endRead();
 
     return result;
 }

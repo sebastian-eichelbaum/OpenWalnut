@@ -25,7 +25,7 @@
 #ifndef WMODULE_H
 #define WMODULE_H
 
-#include <set>
+#include <vector>
 #include <string>
 #include <typeinfo>
 
@@ -35,6 +35,7 @@
 #include <boost/function.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 #include "WModuleTypes.h"
@@ -83,11 +84,21 @@ public:
     virtual ~WModule();
 
     /**
+     * The type for the list of input connectors.
+     */
+    typedef std::vector< boost::shared_ptr< WModuleInputConnector > > InputConnectorList;
+
+    /**
+     * The type for the list of output connectors.
+     */
+    typedef std::vector< boost::shared_ptr< WModuleOutputConnector > > OutputConnectorList;
+
+    /**
      * Gives back input connectors.
      *
      * \return the input connectors.
      */
-    const std::set< boost::shared_ptr< WModuleInputConnector > >& getInputConnectors() const;
+    const InputConnectorList& getInputConnectors() const;
 
     /**
      * Finds the named connector for the module.
@@ -100,11 +111,21 @@ public:
     boost::shared_ptr< WModuleInputConnector > getInputConnector( std::string name );
 
     /**
+     * Finds the named connector for the module. This is similar to getInputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found
+     */
+    boost::shared_ptr< WModuleInputConnector > findInputConnector( std::string name );
+
+    /**
      * Gives back output connectors.
      *
      * \return the output connectors.
      */
-    const std::set< boost::shared_ptr< WModuleOutputConnector > >& getOutputConnectors() const;
+    const OutputConnectorList& getOutputConnectors() const;
 
     /**
      * Finds the named connector for the module.
@@ -115,6 +136,36 @@ public:
      * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
      */
     boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This is similar to getOutputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleOutputConnector > findOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector.
+     * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
+     */
+    boost::shared_ptr< WModuleConnector > getConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs. This is similar to getConnector but it does not throw an
+     * exception if the connector could not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleConnector > findConnector( std::string name );
 
     /**
      * Return a pointer to the properties object of the module.
@@ -244,6 +295,13 @@ public:
      * and so on.)
      */
     void disconnect();
+
+    /**
+     * Gives a list of all WDisconnectCombiners possible. Please note that while the list exists, connections might change.
+     *
+     * \return the list of possible disconnect operations
+     */
+    WCombinerTypes::WDisconnectList getPossibleDisconnections();
 
 protected:
 
@@ -470,19 +528,23 @@ protected:
 
     /**
      * Set of input connectors associated with this module.
-     * NOTE: we need a thread safe list implementation!
      */
-    std::set<boost::shared_ptr< WModuleInputConnector > > m_inputConnectors;
+    InputConnectorList m_inputConnectors;
 
     /**
      * Set of output connectors associated with this module.
      */
-    std::set<boost::shared_ptr< WModuleOutputConnector > > m_outputConnectors;
+    OutputConnectorList m_outputConnectors;
 
     /**
      * True whenever the module should be active
      */
     WPropBool m_active;
+
+    /**
+     * This property holds a user specified name for the current module instance.
+     */
+    WPropString m_runtimeName;
 
 private:
 

@@ -22,28 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WModule.h"
+#include "combiner/WModuleOneToOneCombiner.h"
 
-#ifndef SIGNALSLIB_H
-#define SIGNALSLIB_H
+#include "WModuleCombinerTypes.h"
 
-#if defined(signals) && defined(QOBJECTDEFS_H) && \
-  !defined( QT_MOC_CPP )
-#  undef signals
-#  define signals signals
-#endif
-
-#include <boost/signal.hpp>
-namespace boost
+bool WCombinerTypes::compatiblesSort( WCombinerTypes::WCompatiblesGroup lhs, WCombinerTypes::WCompatiblesGroup rhs )
 {
-namespace signalslib = signals;
+    return ( lhs.first->getName() < rhs.first->getName() );
 }
 
-#if defined(signals) && defined(QOBJECTDEFS_H) && \
-  !defined( QT_MOC_CPP )
-#  undef signals
-// Restore the macro definition of "signals", as it was
-// defined by Qt's <qobjectdefs.h>.
-#  define signals protected
-#endif
-
-#endif  // SIGNALSLIB_H

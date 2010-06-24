@@ -29,32 +29,33 @@
 #include <vector>
 
 #include <QtCore/QList>
+#include <QtGui/QMenu>
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
-#include <QtGui/QMenu>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
-
 #include "../../../dataHandler/WDataSet.h"
-
-#include "../../../kernel/WModuleFactory.h"
 #include "../../../kernel/WKernel.h"
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleCombiner.h"
+#include "../../../kernel/WModuleCombinerTypes.h"
+#include "../../../kernel/WModuleFactory.h"
 #include "../../../modules/data/WMData.h"
+#include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
+#include "../events/WModuleDeleteEvent.h"
+#include "../events/WModuleReadyEvent.h"
+#include "../events/WModuleRemovedEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
-#include "../events/WModuleReadyEvent.h"
-#include "../events/WModuleDeleteEvent.h"
-#include "../events/WModuleRemovedEvent.h"
-#include "../events/WEventTypes.h"
-#include "../guiElements/WQtApplyModulePushButton.h"
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
+#include "../WQtCombinerActionList.h"
+#include "WQtBranchTreeItem.h"
 #include "WQtNumberEdit.h"
 #include "WQtNumberEditDouble.h"
 #include "WQtTextureSorter.h"
-#include "WQtBranchTreeItem.h"
 
 #include "WQtDatasetBrowser.h"
 
@@ -75,6 +76,22 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget->setMinimumHeight( 250 );
 
     // create context menu for tree items
+
+    // a separator to clean up the tree widget's context menu
+    QAction* separator = new QAction( m_moduleTreeWidget );
+    separator->setSeparator( true );
+    m_moduleTreeWidget->addAction( separator );
+
+    m_connectWithPrototypeAction = new QAction( "Connect with Prototype", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
+    m_connectWithModuleAction = new QAction( "Connect with Module", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_connectWithModuleAction );
+    m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_disconnectAction );
+
+    // a separator to clean up the tree widget's context menu
+    m_moduleTreeWidget->addAction( separator );
+
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
     m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
@@ -87,8 +104,19 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_tabWidget2 = new QTabWidget( m_panel );
     m_tabWidget->setMinimumHeight( 220 );
 
+    // should the Tree, Texture Sorter and the ROI Display be combined in one tab widget?
+    bool combineThem = false;
+    WPreferences::getPreference( "qt4gui.combineTreeAndRoiAndTextureSorter", &combineThem );
+
     m_layout = new QVBoxLayout();
-    m_layout->addWidget( m_moduleTreeWidget );
+    if ( !combineThem )
+    {
+        m_layout->addWidget( m_moduleTreeWidget );
+    }
+    else
+    {
+        m_tabWidget2->addTab( m_moduleTreeWidget, QString( "Modules" ) );
+    }
     m_layout->addWidget( m_tabWidget2 );
 
     m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
@@ -121,15 +149,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     connectSlots();
 
-    // preset for toolbar text.
-    m_showToolBarText = true;
-    WPreferences::getPreference( "qt4gui.toolBarIconText", &m_showToolBarText );
-
-    // These modules will be allowed to be shown.
-    std::string moduleWhiteList;
-    WPreferences::getPreference( "modules.whiteList", &moduleWhiteList );
-    m_moduleWhiteList = string_utils::tokenize( moduleWhiteList, "," );
-
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
 }
@@ -151,6 +170,11 @@ void WQtDatasetBrowser::connectSlots()
 
     connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+}
+
+void WQtDatasetBrowser::addToolbar( QToolBar* tb )
+{
+    m_layout->insertWidget( 0, tb );
 }
 
 WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
@@ -462,12 +486,12 @@ void WQtDatasetBrowser::selectTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    // the WQtToolbar also deletes the buttons!
-    m_mainWindow->getCompatiblesToolBar()->clearButtons();
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
     boost::shared_ptr< WProperties > infoProps;
+
+    WQtCombinerToolbar* newToolbar = NULL;
 
     if ( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
@@ -487,7 +511,7 @@ void WQtDatasetBrowser::selectTreeItem()
             case MODULEHEADER:
                 // deletion of headers and subjects is not allowed
                 m_deleteModuleAction->setEnabled( false );
-                createCompatibleButtons( module );  // module is NULL at this point
+                newToolbar = createCompatibleButtons( module );  // module is NULL at this point
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
@@ -499,7 +523,7 @@ void WQtDatasetBrowser::selectTreeItem()
 
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
-                createCompatibleButtons( module );
+                newToolbar = createCompatibleButtons( module );
 
                 {
                     boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
@@ -534,7 +558,7 @@ void WQtDatasetBrowser::selectTreeItem()
                 }
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
-                createCompatibleButtons( module );
+                newToolbar = createCompatibleButtons( module );
                 break;
             case ROIHEADER:
             case ROIBRANCH:
@@ -544,6 +568,11 @@ void WQtDatasetBrowser::selectTreeItem()
                 break;
         }
     }
+
+    // set the new toolbar
+    // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
+    m_mainWindow->setCompatiblesToolbar( newToolbar );
+
     buildPropTab( props, infoProps );
 }
 
@@ -551,7 +580,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    m_mainWindow->getCompatiblesToolBar()->clearButtons();
+    m_mainWindow->setCompatiblesToolbar();
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
@@ -611,12 +640,12 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
 
     if ( props.get() )
     {
-        WProperties::PropertyAccessType propAccess = props->getAccessObject();
-        propAccess->beginRead();
+        // read lock, gets unlocked upon destruction (out of scope)
+        WProperties::PropertySharedContainerType::ReadTicket propAccess = props->getProperties();
 
         tab->setName( QString::fromStdString( props->getName() ) );
 
-        // iterate all properties. This Locks the properties set -> use endIteration to unlock
+        // iterate all properties.
         for ( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
             if ( !( *iter )->isHidden() )
@@ -659,7 +688,6 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
                 }
             }
         }
-        propAccess->endRead();
     }
 
     tab->addSpacer();
@@ -695,28 +723,40 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, bo
     }
 }
 
-void WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
+WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
-    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    WCombinerTypes::WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
 
-    for ( std::vector< boost::shared_ptr< WApplyPrototypeCombiner > >::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
+    // build the prototype menu
+    QMenu* m = new QMenu( m_moduleTreeWidget );
+    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), comps ) );
+    m_connectWithPrototypeAction->setDisabled( !comps.size() );  // disable if no entry inside
+    delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
+    m_connectWithPrototypeAction->setMenu( m );
+
+    // build the module menu
+    WCombinerTypes::WCompatiblesList containerComps = WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module );
+    m = new QMenu( m_moduleTreeWidget );
+    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), containerComps, true, true ) );
+    m_connectWithModuleAction->setDisabled( !containerComps.size() );  // disable if no entry inside
+    delete m_connectWithModuleAction->menu();
+    m_connectWithModuleAction->setMenu( m );
+
+    // build the disconnect menu
+    WCombinerTypes::WDisconnectList disconnects;
+    if ( module )
     {
-        if( !m_moduleWhiteList.empty() )
-        {
-            const std::string tmpName = ( *iter )->getTargetPrototype()->getName();
-            if( std::find( m_moduleWhiteList.begin(), m_moduleWhiteList.end(), tmpName ) == m_moduleWhiteList.end() )
-            {
-                continue; // do nothing for modules that are not in white list
-            }
-        }
-
-        WQtApplyModulePushButton* button = new WQtApplyModulePushButton( m_mainWindow->getCompatiblesToolBar(), m_mainWindow->getIconManager(),
-                                                                         *iter, m_showToolBarText
-        );
-        m_mainWindow->getCompatiblesToolBar()->addWidget( button );
+       disconnects = module->getPossibleDisconnections();
     }
+    m = new QMenu( m_moduleTreeWidget );
+    m->addActions(  WQtCombinerActionList( m, m_mainWindow->getIconManager(), disconnects ) );
+    m_disconnectAction->setDisabled( !disconnects.size() );  // disable if no entry inside
+    delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
+    m_disconnectAction->setMenu( m );
+
+    return new WQtCombinerToolbar( m_mainWindow, comps );
 }
 
 void WQtDatasetBrowser::changeTreeItem()
@@ -806,6 +846,19 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelect
         }
     }
     return roi;
+}
+
+QAction* WQtDatasetBrowser::toggleViewAction() const
+{
+    QAction* result = QDockWidget::toggleViewAction();
+    QList< QKeySequence > shortcut;
+#if defined( __APPLE__ )
+    shortcut.append( QKeySequence( Qt::CTRL + Qt::Key_F9 ) ); // In Mac OS X F9 is already taken by window managment
+#else
+    shortcut.append( QKeySequence( Qt::Key_F9 ) );
+#endif
+    result->setShortcuts( shortcut );
+    return result;
 }
 
 void WQtDatasetBrowser::deleteModuleTreeItem()

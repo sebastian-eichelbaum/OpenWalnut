@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 #include "../../common/WColor.h"
 #include "../../common/WTransferable.h"
@@ -51,9 +52,21 @@ public:
     explicit WFiberCluster( size_t index );
 
     /**
+     * Copies the specified \ref WFiberCluster Instance. The copy does not contain a valid centerline or longest line.
+     *
+     * \param other the other instance to clone.
+     */
+    WFiberCluster( const WFiberCluster& other );
+
+    /**
      * Constructs an empty cluster.
      */
     WFiberCluster();
+
+    /**
+     * Destructs. Frees used locks/mutex.
+     */
+    virtual ~WFiberCluster();
 
     /**
      * Returns true if there are no fibers in that cluster, false otherwise.
@@ -141,6 +154,33 @@ public:
      */
     bool operator!=( const WFiberCluster& other ) const;
 
+    /**
+     * Copy assignment operator which does NOT copy the mutex's!!!
+     *
+     * \param other The instance to copy.
+     *
+     * \return itself
+     */
+    WFiberCluster& operator=( const WFiberCluster& other )
+    {
+        WTransferable::operator=( other );
+        m_memberIndices = other.m_memberIndices;
+        m_fibs = other.m_fibs;
+        m_color = other.m_color;
+        m_centerLineCreationLock = new boost::shared_mutex();
+        m_longestLineCreationLock = new boost::shared_mutex();
+        // copy them only if they exist
+        if ( other.m_centerLine )
+        {
+            m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_centerLine.get() ) );
+        }
+        if ( other.m_longestLine )
+        {
+            m_longestLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_longestLine.get() ) );
+        }
+        return *this;
+    }
+
     // TODO(math): The only reason why we store here a Reference to the fiber
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
     // information. Since we don't have the possibility of multiple
@@ -152,16 +192,28 @@ public:
     // \endcond
 
     /**
-     * Returns the center line of this cluster
+     * Returns the center line of this cluster. The centerline gets calculated during the first call of this method.
      *
      * \return Reference to the center line
      */
     boost::shared_ptr< wmath::WFiber > getCenterLine() const;
 
     /**
+     * Returns the center line of this cluster. The longest line gets calculated during the first call if this method.
+     *
+     * \return Reference to the longest line
+     */
+    boost::shared_ptr< wmath::WFiber > getLongestLine() const;
+
+    /**
      * Makes the hard work to compute the center line.
      */
-    void generateCenterLine();
+    void generateCenterLine() const;
+
+    /**
+     * Makes the hard work to find the longest line.
+     */
+    void generateLongestLine() const;
 
 protected:
     // TODO(math): The only reason why we store here a Reference to the fiber
@@ -181,7 +233,7 @@ protected:
     void unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const;
 
 private:
-    void elongateCenterLine();
+    void elongateCenterLine() const;
 
     /**
      * All indices in this set are members of this cluster
@@ -202,7 +254,29 @@ private:
      */
     WColor m_color;
 
-    boost::shared_ptr< wmath::WFiber > m_centerLine; //!< Average fiber for this cluster representing the main direction and curvatur of this cluster
+    /**
+     * Lock the modification in the m_centerLine mutable. The lock is stored as pointer to avoid copy construction problems.
+     */
+    boost::shared_mutex* m_centerLineCreationLock;
+
+    /**
+     * Lock the modification in the m_longestLine mutable. The lock is stored as pointer to avoid copy construction problems.
+     */
+    boost::shared_mutex* m_longestLineCreationLock;
+
+    /**
+     * Average fiber for this cluster representing the main direction and curvature of this cluster.
+     *
+     * \note This member is mutable as it needs to be modified during a const getter.
+     */
+    mutable boost::shared_ptr< wmath::WFiber > m_centerLine;
+
+    /**
+     * The longest fiber in the dataset.
+     *
+     * \note This member is mutable as it needs to be modified during a const getter.
+     */
+    mutable boost::shared_ptr< wmath::WFiber > m_longestLine;
 };
 
 inline bool WFiberCluster::empty() const
