@@ -36,19 +36,69 @@
 
 #include "WRulerOrtho.h"
 
-WRulerOrtho::WRulerOrtho() :
-    WRuler()
+WRulerOrtho::WRulerOrtho( boost::shared_ptr<WCoordConverter>coordConverter, osg::Vec3 origin, scaleMode mode, bool showNumbers ) :
+    WRuler(),
+    m_coordConverter( coordConverter ),
+    m_origin( origin ),
+    m_scaleMode( mode ),
+    m_showNumbers( showNumbers )
 {
+    m_lb = m_coordConverter->getBoundingBox().first;
+    m_ub = m_coordConverter->getBoundingBox().second;
+
+    create();
 }
 
 WRulerOrtho::~WRulerOrtho()
 {
 }
 
+void WRulerOrtho::create()
+{
+    osg::ref_ptr< osg::Geode > rulerGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
+    osg::ref_ptr< osg::Geometry > geometry;
+
+    switch ( m_scaleMode )
+    {
+        case RULER_ALONG_X_AXIS_SCALE_Y:
+            geometry = createXY();
+            break;
+        case RULER_ALONG_X_AXIS_SCALE_Z:
+            geometry = createXZ();
+            break;
+        case RULER_ALONG_Y_AXIS_SCALE_X:
+            geometry = createYX();
+            break;
+        case RULER_ALONG_Y_AXIS_SCALE_Z:
+            geometry = createYZ();
+            break;
+        case RULER_ALONG_Z_AXIS_SCALE_X:
+            geometry = createZX();
+            break;
+        case RULER_ALONG_Z_AXIS_SCALE_Y:
+            geometry = createZY();
+            break;
+        default:
+            break;
+    }
+
+    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
+    for ( size_t i = 0; i < geometry->getVertexArray()->getNumElements(); ++i )
+    {
+        lines->push_back( i );
+    }
+    geometry->addPrimitiveSet( lines );
+
+    osg::StateSet* state = geometry->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+    rulerGeode->addDrawable( geometry );
+    this->addChild( rulerGeode );
+}
+
 void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
 {
-    osg::ref_ptr<osgText::Text> label = osg::ref_ptr<osgText::Text>( new osgText::Text() );
-    osg::ref_ptr<osg::Geode> labelGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+    osg::ref_ptr< osgText::Text > label = osg::ref_ptr< osgText::Text >( new osgText::Text() );
+    osg::ref_ptr< osg::Geode > labelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
 
     labelGeode->addDrawable( label );
 
@@ -71,274 +121,477 @@ void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
     labelXform->addChild( labelGeode );
 }
 
-void WRulerOrtho::create( osg::Vec3 start, float length, scaleMode mode )
+osg::ref_ptr< osg::Geometry > WRulerOrtho::createXY()
 {
-    osg::ref_ptr< osg::Geode > rulerGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
-
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
-
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    vertices->push_back( start );
+    int startX = static_cast< int > ( m_lb[0] + 0.5 );
 
-    int startX = static_cast< int > ( start.x() + 0.5 );
-    int startY = static_cast< int > ( start.y() + 0.5 );
-    int startZ = static_cast< int > ( start.z() + 0.5 );
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+        {
+            vertices->push_back( osg::Vec3( m_lb[0], m_origin.y(), m_origin.z() ) );
+            vertices->push_back( osg::Vec3( m_ub[0], m_origin.y(), m_origin.z() ) );
 
-    switch ( mode )
+            for ( int i = startX; i <= static_cast< int > ( m_ub[0] ); ++i )
+            {
+                float rlength = 1.0;
+                if ( m_coordConverter->numberToCsX( i ) % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( i, m_origin.y(), m_origin.z() ), numberToString( i ) );
+                    }
+                }
+                if ( m_coordConverter->numberToCsX( i ) % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                vertices->push_back( osg::Vec3( i, m_origin.y() - rlength, m_origin.z() ) );
+                vertices->push_back( osg::Vec3( i, m_origin.y() + rlength, m_origin.z() ) );
+            }
+        }
+            break;
+        case CS_TALAIRACH:
+        {
+            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+
+            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], -70, origin_t[2] ) );
+            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], +70, origin_t[2] ) );
+
+            vertices->push_back( osg::Vec3( pA[0], pA[1], m_origin.z() ) );
+            vertices->push_back( osg::Vec3( pO[0], pO[1], m_origin.z() ) );
+
+            for ( int i = -70; i <= 71; ++i )
+            {
+                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] ) );
+                float rlength = 1.0;
+                if ( i % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( tmpPoint[0], tmpPoint[1], m_origin.z() ), boost::lexical_cast< std::string >( i ) );
+                    }
+                }
+                if ( i % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0] - rlength, i, origin_t[2] ) );
+                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0] + rlength, i, origin_t[2] ) );
+
+                vertices->push_back( osg::Vec3( p1[0], p1[1], m_origin.z() ) );
+                vertices->push_back( osg::Vec3( p2[0], p2[1], m_origin.z() ) );
+            }
+        }
+    }
+    geometry->setVertexArray( vertices );
+
+    return geometry;
+}
+
+osg::ref_ptr< osg::Geometry > WRulerOrtho::createXZ()
+{
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    int startX = static_cast< int > ( m_lb[0] + 0.5 );
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+        {
+            vertices->push_back( osg::Vec3( m_lb[0], m_origin.y(), m_origin.z() ) );
+            vertices->push_back( osg::Vec3( m_ub[0], m_origin.y(), m_origin.z() ) );
+
+            for ( int i = startX; i <= static_cast< int > ( m_ub[0] ); ++i )
+            {
+                float rlength = 1.0;
+                if ( m_coordConverter->numberToCsX( i ) % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( i, m_origin.y(), m_origin.z() ), numberToString( i ) );
+                    }
+                }
+                if ( m_coordConverter->numberToCsX( i ) % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                vertices->push_back( osg::Vec3( i, m_origin.y(), m_origin.z() - rlength ) );
+                vertices->push_back( osg::Vec3( i, m_origin.y(), m_origin.z() + rlength ) );
+            }
+        }
+            break;
+        case CS_TALAIRACH:
+        {
+            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+
+            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], -70, origin_t[2] ) );
+            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], +70, origin_t[2] ) );
+
+            vertices->push_back( osg::Vec3( pA[0], m_origin.y(), pA[2] ) );
+            vertices->push_back( osg::Vec3( pO[0], m_origin.y(), pO[2] ) );
+
+            for ( int i = -70; i <= 71; ++i )
+            {
+                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] ) );
+                float rlength = 1.0;
+                if ( i % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( tmpPoint[0], m_origin.y(), tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                    }
+                }
+                if ( i % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] - rlength ) );
+                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] + rlength ) );
+
+                vertices->push_back( osg::Vec3( p1[0], m_origin.y(), p1[2] ) );
+                vertices->push_back( osg::Vec3( p2[0], m_origin.y(), p2[2] ) );
+            }
+        }
+    }
+    geometry->setVertexArray( vertices );
+    return geometry;
+}
+
+osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
+{
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    int startY = static_cast< int > ( m_lb[1] + 0.5 );
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+        {
+            vertices->push_back( osg::Vec3( m_origin.x(), m_lb[1], m_origin.z() ) );
+            vertices->push_back( osg::Vec3( m_origin.x(), m_ub[1], m_origin.z() ) );
+
+            for ( int i = startY; i <= static_cast< int > ( m_ub[0] ); ++i )
+            {
+                float rlength = 1.0;
+                if ( m_coordConverter->numberToCsY( i ) % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( m_origin.x(), i, m_origin.z() ), numberToString( i ) );
+                    }
+                }
+                if ( m_coordConverter->numberToCsY( i ) % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                vertices->push_back( osg::Vec3( m_origin.x() - rlength, i, m_origin.z() ) );
+                vertices->push_back( osg::Vec3( m_origin.x() + rlength, i, m_origin.z() ) );
+            }
+        }
+            break;
+        case CS_TALAIRACH:
+        {
+            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+
+            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( -100, origin_t[1], origin_t[2] ) );
+            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( 80, origin_t[1], origin_t[2] ) );
+
+            vertices->push_back( osg::Vec3( pA[0], pA[1], m_origin.z() ) );
+            vertices->push_back( osg::Vec3( pO[0], pO[1], m_origin.z() ) );
+
+            for ( int i = -100; i <= 81; ++i )
+            {
+                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] ) );
+                float rlength = 1.0;
+                if ( i % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( tmpPoint[0], tmpPoint[1], m_origin.z() ), boost::lexical_cast< std::string >( i ) );
+                    }
+                }
+                if ( i % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( i, origin_t[1] - rlength, origin_t[2] ) );
+                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( i, origin_t[1] + rlength, origin_t[2] ) );
+
+                vertices->push_back( osg::Vec3( p1[0], p1[1], m_origin.z() ) );
+                vertices->push_back( osg::Vec3( p2[0], p2[1], m_origin.z() ) );
+            }
+        }
+            break;
+    }
+    geometry->setVertexArray( vertices );
+
+    return geometry;
+}
+
+osg::ref_ptr< osg::Geometry > WRulerOrtho::createYZ()
+{
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    int startY = static_cast< int > ( m_lb[1] + 0.5 );
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+        {
+            vertices->push_back( osg::Vec3( m_origin.x(), m_lb[1], m_origin.z() ) );
+            vertices->push_back( osg::Vec3( m_origin.x(), m_ub[1], m_origin.z() ) );
+
+            for ( int i = startY; i <= static_cast< int > ( m_ub[1] ); ++i )
+            {
+                float rlength = 1.0;
+                if ( m_coordConverter->numberToCsY( i ) % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( m_origin.x(), i, m_origin.z() ), numberToString( i ) );
+                    }
+                }
+                if ( m_coordConverter->numberToCsY( i ) % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                vertices->push_back( osg::Vec3( m_origin.x(), i, m_origin.z() - rlength ) );
+                vertices->push_back( osg::Vec3( m_origin.x(), i, m_origin.z() + rlength ) );
+            }
+        }
+            break;
+        case CS_TALAIRACH:
+        {
+            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+
+            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( -100, origin_t[1], origin_t[2] ) );
+            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( 80, origin_t[1], origin_t[2] ) );
+
+            vertices->push_back( osg::Vec3( m_origin.x(), pA[1], pA[2] ) );
+            vertices->push_back( osg::Vec3( m_origin.x(), pO[1], pO[2] ) );
+
+            for ( int i = -100; i <= 81; ++i )
+            {
+                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( i, 0, origin_t[2] ) );
+                float rlength = 1.0;
+                if ( i % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( m_origin.x(), tmpPoint[1], tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                    }
+                }
+                if ( i % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] - rlength ) );
+                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] + rlength ) );
+
+                vertices->push_back( osg::Vec3( m_origin.x(), p1[1], p1[2] ) );
+                vertices->push_back( osg::Vec3( m_origin.x(), p2[1], p2[2] ) );
+            }
+        }
+            break;
+    }
+    geometry->setVertexArray( vertices );
+
+    return geometry;
+}
+
+osg::ref_ptr< osg::Geometry > WRulerOrtho::createZX()
+{
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    int startZ = static_cast< int > ( m_lb[2] + 0.5 );
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+        {
+            vertices->push_back( osg::Vec3( m_origin.x(), m_origin.y(), m_lb[2] ) );
+            vertices->push_back( osg::Vec3( m_origin.x(), m_origin.y(), m_ub[2] ) );
+
+            for ( int i = startZ; i <= static_cast< int > ( m_ub[2] ); ++i )
+            {
+                float rlength = 1.0;
+                if ( m_coordConverter->numberToCsZ( i ) % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( m_origin.x(), m_origin.y(), i ), numberToString( i ) );
+                    }
+                }
+                if ( m_coordConverter->numberToCsZ( i ) % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                vertices->push_back( osg::Vec3( m_origin.x() - rlength, m_origin.y(), i ) );
+                vertices->push_back( osg::Vec3( m_origin.x() + rlength, m_origin.y(), i ) );
+            }
+        }
+            break;
+        case CS_TALAIRACH:
+        {
+            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+
+            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], -50 ) );
+            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], 80 ) );
+
+            vertices->push_back( osg::Vec3( pA[0], m_origin.y(), pA[2] ) );
+            vertices->push_back( osg::Vec3( pO[0], m_origin.y(), pO[2] ) );
+
+            for ( int i = -50; i <= 81; ++i )
+            {
+                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1], i ) );
+                float rlength = 1.0;
+                if ( i % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( tmpPoint[0], m_origin.y(), tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                    }
+                }
+                if ( i % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1] - rlength, i ) );
+                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1] + rlength, i ) );
+
+                vertices->push_back( osg::Vec3( p1[0], m_origin.y(), p1[2] ) );
+                vertices->push_back( osg::Vec3( p2[0], m_origin.y(), p2[2] ) );
+            }
+        }
+            break;
+    }
+    geometry->setVertexArray( vertices );
+
+    return geometry;
+}
+
+osg::ref_ptr< osg::Geometry > WRulerOrtho::createZY()
+{
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    int startZ = static_cast< int > ( m_lb[2] + 0.5 );
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+        {
+            vertices->push_back( osg::Vec3( m_origin.x(), m_origin.y(), m_lb[2] ) );
+            vertices->push_back( osg::Vec3( m_origin.x(), m_origin.y(), m_ub[2] ) );
+
+            for ( int i = startZ; i <= static_cast< int > ( m_ub[2] ); ++i )
+            {
+                float rlength = 1.0;
+                if ( m_coordConverter->numberToCsZ( i ) % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( m_origin.x(), m_origin.y(), i ), numberToString( i ) );
+                    }
+                }
+                if ( m_coordConverter->numberToCsZ( i ) % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                vertices->push_back( osg::Vec3( m_origin.x(), m_origin.y() - rlength, i ) );
+                vertices->push_back( osg::Vec3( m_origin.x(), m_origin.y() + rlength, i ) );
+            }
+        }
+            break;
+        case CS_TALAIRACH:
+        {
+            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+
+            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], -50 ) );
+            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], 80 ) );
+
+            vertices->push_back( osg::Vec3( m_origin.x(), pA[1], pA[2] ) );
+            vertices->push_back( osg::Vec3( m_origin.x(), pO[1], pO[2] ) );
+
+            for ( int i = -50; i <= 81; ++i )
+            {
+                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], 0, i ) );
+                float rlength = 1.0;
+                if ( i % 10 == 0 )
+                {
+                    rlength += 1.0;
+                    if ( m_showNumbers )
+                    {
+                        addLabel( osg::Vec3( m_origin.x(), tmpPoint[1], tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                    }
+                }
+                if ( i % 5 == 0 )
+                {
+                    rlength += 1.0;
+                }
+                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0] - rlength, origin_t[1], i ) );
+                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0] + rlength, origin_t[1], i ) );
+
+                vertices->push_back( osg::Vec3( m_origin.x(), p1[1], p1[2] ) );
+                vertices->push_back( osg::Vec3( m_origin.x(), p2[1], p2[2] ) );
+            }
+        }
+            break;
+    }
+    geometry->setVertexArray( vertices );
+
+    return geometry;
+}
+
+std::string WRulerOrtho::numberToString( int number )
+{
+    switch ( m_scaleMode )
     {
         case RULER_ALONG_X_AXIS_SCALE_Y:
-        {
-            vertices->push_back( osg::Vec3( start.x() + length, start.y(), start.z() ) );
-
-            for ( int i = startX; i <= static_cast< int > ( start.x() + length ); ++i )
-            {
-                if ( i % 10 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( i, start.y() - 3.0, start.z() ) );
-                    vertices->push_back( osg::Vec3( i, start.y() + 3.0, start.z() ) );
-
-                    addLabel( osg::Vec3( i, start.y() - 3.0, start.z() ), boost::lexical_cast<std::string>( i ) );
-                }
-                else if ( i % 5 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( i, start.y() - 2.0, start.z() ) );
-                    vertices->push_back( osg::Vec3( i, start.y() + 2.0, start.z() ) );
-                }
-                else
-                {
-                    vertices->push_back( osg::Vec3( i, start.y() - 1.0, start.z() ) );
-                    vertices->push_back( osg::Vec3( i, start.y() + 1.0, start.z() ) );
-                }
-            }
-
-            geometry->setVertexArray( vertices );
-
-            osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-
-            lines->push_back( 0 );
-            lines->push_back( 1 );
-
-            for ( size_t i = 2; i < vertices->size(); ++i )
-            {
-                lines->push_back( i );
-            }
-
-            geometry->addPrimitiveSet( lines );
-        }
+            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsX( number ) );
             break;
-
         case RULER_ALONG_X_AXIS_SCALE_Z:
-        {
-            vertices->push_back( osg::Vec3( start.x() + length, start.y(), start.z() ) );
-
-            for ( int i = startX; i <= static_cast< int > ( start.x() + length ); ++i )
-            {
-                if ( i % 10 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( i, start.y(), start.z() - 3.0 ) );
-                    vertices->push_back( osg::Vec3( i, start.y(), start.z() + 3.0 ) );
-
-                    addLabel( osg::Vec3( i, start.y(), start.z() - 3.0 ), boost::lexical_cast<std::string>( i ) );
-                }
-                else if ( i % 5 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( i, start.y(), start.z() - 2.0 ) );
-                    vertices->push_back( osg::Vec3( i, start.y(), start.z() + 2.0 ) );
-                }
-                else
-                {
-                    vertices->push_back( osg::Vec3( i, start.y(), start.z() - 1.0 ) );
-                    vertices->push_back( osg::Vec3( i, start.y(), start.z() + 1.0 ) );
-                }
-            }
-
-            geometry->setVertexArray( vertices );
-
-            osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-
-            lines->push_back( 0 );
-            lines->push_back( 1 );
-
-            for ( size_t i = 2; i < vertices->size(); ++i )
-            {
-                lines->push_back( i );
-            }
-
-            geometry->addPrimitiveSet( lines );
-        }
+            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsX( number ) );
             break;
-
         case RULER_ALONG_Y_AXIS_SCALE_X:
-        {
-            vertices->push_back( osg::Vec3( start.x(), start.y() + length, start.z() ) );
-
-            for ( int i = startY; i <= static_cast< int > ( start.y() + length ); ++i )
-            {
-                if ( i % 10 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x() - 3.0, i, start.z() ) );
-                    vertices->push_back( osg::Vec3( start.x() + 3.0, i, start.z() ) );
-
-                    addLabel( osg::Vec3( start.x() - 3.0, i, start.z() ), boost::lexical_cast<std::string>( i ) );
-                }
-                else if ( i % 5 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x() - 2.0, i, start.z() ) );
-                    vertices->push_back( osg::Vec3( start.x() + 2.0, i, start.z() ) );
-                }
-                else
-                {
-                    vertices->push_back( osg::Vec3( start.x() - 1.0, i, start.z() ) );
-                    vertices->push_back( osg::Vec3( start.x() + 1.0, i, start.z() ) );
-                }
-            }
-
-            geometry->setVertexArray( vertices );
-
-            osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-
-            lines->push_back( 0 );
-            lines->push_back( 1 );
-
-            for ( size_t i = 2; i < vertices->size(); ++i )
-            {
-                lines->push_back( i );
-            }
-
-            geometry->addPrimitiveSet( lines );
-        }
+            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsY( number ) );
             break;
-
         case RULER_ALONG_Y_AXIS_SCALE_Z:
-        {
-            vertices->push_back( osg::Vec3( start.x(), start.y() + length, start.z() ) );
-
-            for ( int i = startY; i <= static_cast< int > ( start.y() + length ); ++i )
-            {
-                if ( i % 10 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x(), i, start.z() - 3.0 ) );
-                    vertices->push_back( osg::Vec3( start.x(), i, start.z() + 3.0 ) );
-
-                    addLabel( osg::Vec3( start.x(), i, start.z() - 3.0 ), boost::lexical_cast<std::string>( i ) );
-                }
-                else if ( i % 5 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x(), i, start.z() - 2.0 ) );
-                    vertices->push_back( osg::Vec3( start.x(), i, start.z() + 2.0 ) );
-                }
-                else
-                {
-                    vertices->push_back( osg::Vec3( start.x(), i, start.z() - 1.0 ) );
-                    vertices->push_back( osg::Vec3( start.x(), i, start.z() + 1.0 ) );
-                }
-            }
-
-            geometry->setVertexArray( vertices );
-
-            osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-
-            lines->push_back( 0 );
-            lines->push_back( 1 );
-
-            for ( size_t i = 2; i < vertices->size(); ++i )
-            {
-                lines->push_back( i );
-            }
-
-            geometry->addPrimitiveSet( lines );
-        }
+            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsY( number ) );
             break;
-
         case RULER_ALONG_Z_AXIS_SCALE_X:
-        {
-            vertices->push_back( osg::Vec3( start.x(), start.y(), start.z() + length ) );
-
-            for ( int i = startZ; i <= static_cast< int > ( start.z() + length ); ++i )
-            {
-                if ( i % 10 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x() - 3.0, start.y(), i ) );
-                    vertices->push_back( osg::Vec3( start.x() + 3.0, start.y(), i ) );
-
-                    addLabel( osg::Vec3( start.x() - 3.0, start.y(), i ), boost::lexical_cast<std::string>( i ) );
-                }
-                else if ( i % 5 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x() - 2.0, start.y(), i ) );
-                    vertices->push_back( osg::Vec3( start.x() + 2.0, start.y(), i ) );
-                }
-                else
-                {
-                    vertices->push_back( osg::Vec3( start.x() - 1.0, start.y(), i ) );
-                    vertices->push_back( osg::Vec3( start.x() + 1.0, start.y(), i ) );
-                }
-            }
-
-            geometry->setVertexArray( vertices );
-
-            osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-
-            lines->push_back( 0 );
-            lines->push_back( 1 );
-
-            for ( size_t i = 2; i < vertices->size(); ++i )
-            {
-                lines->push_back( i );
-            }
-
-            geometry->addPrimitiveSet( lines );
-        }
+            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsZ( number ) );
             break;
-
         case RULER_ALONG_Z_AXIS_SCALE_Y:
-        {
-            vertices->push_back( osg::Vec3( start.x(), start.y(), start.z() + length ) );
-
-            for ( int i = startZ; i <= static_cast< int > ( start.z() + length ); ++i )
-            {
-                if ( i % 10 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x(), start.y() - 3.0, i ) );
-                    vertices->push_back( osg::Vec3( start.x(), start.y() + 3.0, i ) );
-
-                    addLabel( osg::Vec3( start.x(), start.y() - 3.0, i ), boost::lexical_cast<std::string>( i ) );
-                }
-                else if ( i % 5 == 0 )
-                {
-                    vertices->push_back( osg::Vec3( start.x(), start.y() - 2.0, i ) );
-                    vertices->push_back( osg::Vec3( start.x(), start.y() + 2.0, i ) );
-                }
-                else
-                {
-                    vertices->push_back( osg::Vec3( start.x(), start.y() - 1.0, i ) );
-                    vertices->push_back( osg::Vec3( start.x(), start.y() + 1.0, i ) );
-                }
-            }
-
-            geometry->setVertexArray( vertices );
-
-            osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-
-            lines->push_back( 0 );
-            lines->push_back( 1 );
-
-            for ( size_t i = 2; i < vertices->size(); ++i )
-            {
-                lines->push_back( i );
-            }
-
-            geometry->addPrimitiveSet( lines );
-        }
+            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsZ( number ) );
             break;
-
         default:
             break;
     }
-
-    rulerGeode->addDrawable( geometry );
-
-    this->addChild( rulerGeode );
+    return std::string( "" );
 }
-

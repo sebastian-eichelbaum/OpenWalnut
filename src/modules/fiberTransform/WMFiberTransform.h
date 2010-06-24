@@ -73,6 +73,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -100,8 +105,10 @@ private:
     WPropFilename m_savePath; //!< Path where transformed fibers should be stored
     WPropTrigger  m_run; //!< Indicates if the algorithm should start
 
-    wmath::WMatrix< double > m_transformationMatrix; //!< matrix which is multiplied with each point to linear transform it
-    wmath::WVector3D m_transformationVector; //!< vector which is added to each point (after multiplication with the matrix) to translate it
+    WPropPosition   m_translationProp; //!< Translation part of the transformation.
+    WPropPosition   m_matrix0Prop; //!< Row 0 of matrix part of the transformation.
+    WPropPosition   m_matrix1Prop; //!< Row 1 of matrix part of the transformation.
+    WPropPosition   m_matrix2Prop; //!< Row 2 of matrix part of the transformation.
 
     /**
      * ReTransforms the scene.

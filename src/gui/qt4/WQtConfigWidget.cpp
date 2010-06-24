@@ -81,16 +81,14 @@ WQtConfigWidget::~WQtConfigWidget()
 
 void WQtConfigWidget::getAvailableModuleNames()
 {
-    WModuleFactory::PrototypeSharedContainerType::WSharedAccess pa = WModuleFactory::getModuleFactory()->getAvailablePrototypes();
     m_moduleNames.clear();
 
-    // Temporarily disabled since locking causes several problems here :-/
-    // pa->beginRead();
+    // read all prototypes
+    WModuleFactory::PrototypeSharedContainerType::ReadTicket pa = WModuleFactory::getModuleFactory()->getPrototypes();
     for ( WModuleFactory::PrototypeContainerConstIteratorType itr = pa->get().begin(); itr != pa->get().end(); ++itr )
     {
         m_moduleNames.push_back( ( *itr )->getName() );
     }
-    // pa->endRead();
 }
 
 void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > properties, std::string groupName, bool fromConfig )
@@ -264,7 +262,22 @@ void WQtConfigWidget::registerComponents()
     m_defaultProperties->addProperty( "qt4gui.useAutoDisplay", "use Auto Display", true, m_propCondition );
     m_defaultProperties->addProperty( "qt4gui.useToolBarBreak", "use ToolBarBreak", true, m_propCondition );
     m_defaultProperties->addProperty( "general.allowOnlyOneFiberDataSet", "allow only one FiberDataSet", false, m_propCondition );
-    m_defaultProperties->addProperty( "qt4gui.toolBarIconText", "show toolBarIconText" , true, m_propCondition );
+    WPropInt tbs = m_defaultProperties->addProperty( "qt4gui.toolBarStyle", "The style of all toolbars in OpenWalnut", 0, m_propCondition );
+    WPropInt ctbs = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarStyle", "The style of all compatibles toolbar in OpenWalnut", 0,
+                                                      m_propCondition );
+    tbs->setMin( 0 );
+    tbs->setMax( 3 );
+    ctbs->setMin( 0 );
+    ctbs->setMax( 3 );
+    WPropInt tbpos = m_defaultProperties->addProperty( "qt4gui.toolBarPos", "The position of the toolbar in OpenWalnut", 0,
+                                                       m_propCondition );
+    WPropInt ctbpos = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarPos", "The position of the compatibles toolbar in OpenWalnut", 0,
+                                                        m_propCondition );
+    tbpos->setMin( 0 );
+    tbpos->setMax( 3 );
+    ctbpos->setMin( 0 );
+    ctbpos->setMax( 3 );
+    m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
 
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );
     m_skipPropertyWrite.push_back( "modules.whiteListGroup" );

@@ -27,6 +27,7 @@
 
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -64,11 +65,6 @@ public:
      * The alias for a shared container.
      */
     typedef WSharedAssociativeContainer< PrototypeContainerType > PrototypeSharedContainerType;
-
-    /**
-     * Alias for the proper access object
-     */
-    typedef PrototypeSharedContainerType::WSharedAccess PrototypeAccess;
 
     /**
      * Default constructor.
@@ -132,6 +128,13 @@ public:
     const boost::shared_ptr< WModule > getPrototypeByInstance( boost::shared_ptr< WModule > instance );
 
     /**
+     * This method gives read access to the list of all prototypes.
+     *
+     * \return the read ticket for the prototype list
+     */
+    PrototypeSharedContainerType::ReadTicket getPrototypes() const;
+
+    /**
      * Checks whether the first instance can be casted to the second one.
      *
      * \param module the module to check.
@@ -140,6 +143,24 @@ public:
      */
     template <typename T>
     static bool isA( boost::shared_ptr< WModule > module );
+
+    /**
+     * A list of all combiners. Used in CompatiblesGroup.
+     */
+    typedef std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > CompatibleCombiners;
+
+    /**
+     * A group of compatibles connections to and from a specified module.
+     */
+    typedef std::pair< boost::shared_ptr< WModule >, CompatibleCombiners > CompatiblesGroup;
+
+    /**
+     * A type used for defining lists of properties. It basically is a list of lists, each containing several ApplyPrototypeCombiner instances.
+     * The Idea is to group combiners by the module they target. The reason why this is a list of pairs is that the first item always is the
+     * prototype pointer to the target, as not every ApplyPrototypeCombiner Instance necessarily has the prototype as target (as source for
+     * example)
+     */
+    typedef std::vector< CompatiblesGroup > CompatiblesList;
 
     /**
      * Returns a set of module combiners with module combinations compatible with the specified one.
@@ -151,9 +172,7 @@ public:
      *
      * \return set of compatible combiners.
      */
-    std::vector< boost::shared_ptr< WApplyPrototypeCombiner > > getCompatiblePrototypes(
-            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >()
-    );
+    CompatiblesList getCompatiblePrototypes( boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >() );
 
     /**
      * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is
@@ -163,24 +182,12 @@ public:
      */
     static void initializeModule( boost::shared_ptr< WModule > module );
 
-    /**
-     * Get access to all the prototypes.
-     *
-     * \return the access object to thread safe iterate.
-     */
-    const PrototypeSharedContainerType::WSharedAccess getAvailablePrototypes() const;
-
 protected:
 
     /**
      * The module prototypes available.
      */
     PrototypeSharedContainerType m_prototypes;
-
-    /**
-     * The lock for the prototypes set.
-     */
-    PrototypeSharedContainerType::WSharedAccess m_prototypeAccess;
 
 private:
 

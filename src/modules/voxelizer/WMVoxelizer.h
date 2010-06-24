@@ -38,7 +38,8 @@
 #include "WRasterAlgorithm.h"
 
 /**
- * TODO(math): document this
+ * Traces a given set of deterministic tracts as given by a WFiberCluster in a voxelwise manner.
+ * Every voxel which is hit by one or more tracts or tract-segements is marked with a scalar.
  * \ingroup modules
  */
 class WMVoxelizer : public WModule
@@ -46,12 +47,12 @@ class WMVoxelizer : public WModule
 friend class WMVoxelizerTest;
 public:
     /**
-     * Constructs new FiberTestModule
+     * Default Constructor.
      */
     WMVoxelizer();
 
     /**
-     * Destructs this FiberTestModule
+     * Default Destructor.
      */
     virtual ~WMVoxelizer();
 

@@ -84,6 +84,7 @@ void WMDetTractClustering::moduleMain()
 
     while ( !m_shutdownFlag() )
     {
+        infoLog() << "Waiting for new data or action";
         m_moduleState.wait();
 
         if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
@@ -194,7 +195,7 @@ void WMDetTractClustering::update()
     for( size_t i = 0; i < m_clusters.size(); ++i )
     {
         m_clusters[ i ].setDataSetReference( m_tracts );
-        m_clusters[ i ].generateCenterLine();
+        m_clusters[ i ].getCenterLine();
     }
 
     updateOutput();
@@ -280,8 +281,11 @@ void WMDetTractClustering::cluster()
         ++*progress;
     }
     progress->finish();
-    m_dLtTableExists = true;
 
+    infoLog() << "Clustering done.";
+
+    m_dLtTableExists = true;
+    return;
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing clusters", 1 ) );
     m_progress->addSubProgress( eraseProgress );
 
@@ -302,6 +306,7 @@ void WMDetTractClustering::cluster()
     }
     m_numClusters->set( static_cast< int32_t >( m_clusters.size() ) );
     m_clusters.erase( std::remove( m_clusters.begin(), m_clusters.end(), emptyCluster ), m_clusters.end() );
+    infoLog() << "Removed small clusters";
     m_numValidClusters->set( static_cast< int32_t >( m_clusters.size() ) );
 
     m_lastTractsSize = m_tracts->size();

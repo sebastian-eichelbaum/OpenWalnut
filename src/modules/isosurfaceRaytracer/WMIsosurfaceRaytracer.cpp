@@ -35,6 +35,7 @@
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WColor.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
@@ -107,7 +108,16 @@ void WMIsosurfaceRaytracer::properties()
 
     m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
-    m_useSimpleDepthColoring = m_properties->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
+    // Lighting
+    m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_shadingSelections->addItem( "Emphasize Cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
+    m_shadingSelections->addItem( "Depth Only",       "Only show the depth of the surface along the ray." );
+    m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
+    m_shadingSelections->addItem( "Phong + Depth",    "Phong lighting in combination with depth cueing." );
+    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorFirst(), m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
 }
 
 void WMIsosurfaceRaytracer::moduleMain()
@@ -133,34 +143,34 @@ void WMIsosurfaceRaytracer::moduleMain()
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
+        // quit if requested
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         // has the data changed?
         boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
-        if ( dataChanged || !m_dataSet )
-        // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
-        // cases.
+        bool dataValid   = ( newDataSet );
+
+        // are there new valid data?
+        if ( dataChanged && dataValid )
         {
             // The data is different. Copy it to our internal data variable:
             debugLog() << "Received Data.";
             m_dataSet = newDataSet;
-
-            // invalid data
-            if ( !m_dataSet )
-            {
-                debugLog() << "Invalid Data. Disabling.";
-                continue;
-            }
         }
 
-        // m_isoColor changed
-        if ( m_isoColor->changed() )
+        // m_isoColor or shading changed
+        if ( m_isoColor->changed() || m_shadingAlgo->changed() )
         {
             // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
             dataChanged = true;
         }
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataChanged )
+        if ( dataChanged && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
@@ -171,6 +181,9 @@ void WMIsosurfaceRaytracer::moduleMain()
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
                 continue;
             }
+
+            // remove the node from the graph
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 
             // get the BBox
             std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
@@ -189,6 +202,31 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // setup defines (lighting)
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            size_t shadingAlgo = m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 );
+            m_shader->eraseAllDefines();
+            switch ( shadingAlgo )
+            {
+                case Cortex:
+                    m_shader->setDefine( "CORTEX" );
+                    break;
+                case Depth:
+                    m_shader->setDefine( "DEPTHONLY" );
+                    break;
+                case Phong:
+                    m_shader->setDefine( "PHONG" );
+                    break;
+                case PhongDepth:
+                    m_shader->setDefine( "PHONGWITHDEPTH" );
+                    break;
+                default:
+                    m_shader->setDefine( "CORTEX" );
+                    break;
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -204,16 +242,11 @@ void WMIsosurfaceRaytracer::moduleMain()
             osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
             alpha->setUpdateCallback( new SafeUniformCallback( this ) );
 
-            osg::ref_ptr< osg::Uniform > depthCueingOnly = new osg::Uniform( "u_depthCueingOnly", m_useSimpleDepthColoring->get() );
-            depthCueingOnly->setUpdateCallback( new SafeUniformCallback( this ) );
-
             rootState->addUniform( isovalue );
             rootState->addUniform( steps );
             rootState->addUniform( alpha );
-            rootState->addUniform( depthCueingOnly );
 
             // update node
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
             m_rootNode = cube;
             m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             debugLog() << "Adding new rendering.";
@@ -246,10 +279,6 @@ void WMIsosurfaceRaytracer::SafeUniformCallback::operator()( osg::Uniform* unifo
     if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
     {
         uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_useSimpleDepthColoring->changed() && ( uniform->getName() == "u_depthCueingOnly" ) )
-    {
-        uniform->set( m_module->m_useSimpleDepthColoring->get( true ) );
     }
 }
 

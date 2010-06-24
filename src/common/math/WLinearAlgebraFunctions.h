@@ -28,6 +28,7 @@
 namespace wmath
 {
     class WVector3D;
+    typedef WVector3D WPosition;
     template< typename > class WMatrix;
 
     /**
@@ -40,11 +41,21 @@ namespace wmath
 
     /**
      * Applies a coordinate transformation in homogenous coordinates to a vector.
+     * This differs from transformPosition3DWithMatrix4D in that it DOES NOT incorporate the translation
      *
      * \param mat 4x4 matrix
      * \param vec vector
      */
     WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec );
+
+    /**
+     * Applies a coordinate transformation in homogenous coordinates to a position.
+     * This differs from transformVector3DWithMatrix4D in that it incorporates the translation.
+     *
+     * \param mat 4x4 matrix
+     * \param vec vector
+     */
+    WVector3D transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec );
 
     /**
      * helper routine to invert a 3x3 matrix

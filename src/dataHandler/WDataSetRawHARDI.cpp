@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
 #include <vector>
 
 #include "../common/WAssert.h"
@@ -72,7 +73,17 @@ const wmath::WVector3D& WDataSetRawHARDI::getGradient( size_t index ) const
 #endif
 }
 
-std::size_t WDataSetRawHARDI::getMeasures() const
+std::size_t WDataSetRawHARDI::getNumberOfMeasurements() const
 {
   return m_gradients->size();
+}
+
+const std::string WDataSetRawHARDI::getName() const
+{
+    return "WDataSetRawHARDI";
+}
+
+const std::string WDataSetRawHARDI::getDescription() const
+{
+    return "Contains HARDI measurements.";
 }

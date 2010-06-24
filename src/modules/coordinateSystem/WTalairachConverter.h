@@ -25,6 +25,8 @@
 #ifndef WTALAIRACHCONVERTER_H
 #define WTALAIRACHCONVERTER_H
 
+#include <boost/shared_ptr.hpp>
+
 #include "../../common/math/WVector3D.h"
 #include "../../common/math/WMatrix.h"
 
@@ -253,60 +255,19 @@ private:
      */
     void defineRotationMatrix();
 
-    /**
-     * the rotation matrix
-     */
-    wmath::WMatrix<double> m_rotMat;
+    wmath::WMatrix<double> m_rotMat; //!< the rotation matrix
+    wmath::WMatrix<double> m_rotMatInvert; //!< the inverted rotation matrix
 
-    /**
-     * the inverted rotation matrix
-     */
-    wmath::WMatrix<double> m_rotMatInvert;
+    wmath::WVector3D m_ac; //!< anterior commisure
+    wmath::WVector3D m_pc; //!< inferior commisure
+    wmath::WVector3D m_ihp; //!< inter hemispherical point
 
-    /**
-     * ac
-     */
-    wmath::WVector3D m_ac;
-
-    /**
-     * pc
-     */
-    wmath::WVector3D m_pc;
-
-    /**
-     * ihp
-     */
-    wmath::WVector3D m_ihp;
-
-    /**
-     * ap
-     */
-    wmath::WVector3D m_ap;
-
-    /**
-     * pp
-     */
-    wmath::WVector3D m_pp;
-
-    /**
-     * sp
-     */
-    wmath::WVector3D m_sp;
-
-    /**
-     * ip
-     */
-    wmath::WVector3D m_ip;
-
-    /**
-     * rp
-     */
-    wmath::WVector3D m_rp;
-
-    /**
-     * lp
-     */
-    wmath::WVector3D m_lp;
+    wmath::WVector3D m_ap; //!< anterior point
+    wmath::WVector3D m_pp; //!< posterior point
+    wmath::WVector3D m_sp; //!< superior point
+    wmath::WVector3D m_ip; //!< inferior point
+    wmath::WVector3D m_rp; //!< right point
+    wmath::WVector3D m_lp; //!< left point
 };
 
 #endif  // WTALAIRACHCONVERTER_H

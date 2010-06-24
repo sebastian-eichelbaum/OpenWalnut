@@ -22,19 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/WPropertyHelper.h"
+#include "../../dataHandler/WDataSet.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../kernel/WKernel.h"
-#include "WMCoordinateSystem.h"
+
+#include "WTalairachConverter.h"
 #include "coordinateSystem.xpm"
 
+#include "WMCoordinateSystem.h"
+
 WMCoordinateSystem::WMCoordinateSystem() :
-    WModule()
+    WModule(), m_dirty( false ), m_drawOffset( 0.02 )
 {
 }
 
@@ -52,13 +63,39 @@ const char** WMCoordinateSystem::getXPMIcon() const
     return coordinateSystem_xpm;
 }
 
+void WMCoordinateSystem::connectors()
+{
+    // initialize connectors
+    m_input = boost::shared_ptr< WModuleInputData< WDataSetScalar > >( new WModuleInputData< WDataSetScalar > ( shared_from_this(), "in",
+            "Dataset to create atlas surfaces from." ) );
+    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+    addConnector( m_input );
+
+    // call WModules initialization
+    WModule::connectors();
+}
+
 void WMCoordinateSystem::moduleMain()
 {
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_input->getDataChangedCondition() );
+
     // signal ready state
     ready();
 
-    createGeometry();
+    // loop until the module container requests the module to quit
+    while ( !m_shutdownFlag() )
+    {
+        if ( m_dataSet != m_input->getData() )
+        {
+            // acquire data from the input connector
+            m_dataSet = m_input->getData();
 
+            findBoundingBox();
+            createGeometry();
+            m_dirty = true;
+        }
+    }
     // Since the modules run in a separate thread: wait
     waitForStop();
 
@@ -79,342 +116,75 @@ const std::string WMCoordinateSystem::getDescription() const
 
 void WMCoordinateSystem::properties()
 {
-    m_dataSetAddedProp = m_properties->addProperty( "dataSetAdded", "", false, true );
+    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMCoordinateSystem::propertyChanged, this );
 
-    m_axialPosProp = m_properties->addProperty( "axialPos", "", 80 );
-    m_coronalPosProp = m_properties->addProperty( "coronalPos", "", 100 );
-    m_sagittalPosProp = m_properties->addProperty( "sagittalPos", "", 80 );
+    m_showAxial = m_properties->addProperty( "show rulers on axial", "Does exactly what it says", true, propertyCallback );
+    m_showCoronal = m_properties->addProperty( "show rulers on coronal", "Does exactly what it says", false, propertyCallback );
+    m_showSagittal = m_properties->addProperty( "show rulers on sagittal", "Does exactly what it says", false, propertyCallback );
 
+    m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_possibleSelections->addItem( "world", "" ); // NOTE: you can add XPM images here.
+    m_possibleSelections->addItem( "canonical", "" );
+    m_possibleSelections->addItem( "talairach", "" );
+
+    m_csSelection = m_properties->addProperty( "Select coordinate system", "", m_possibleSelections->getSelectorFirst(), propertyCallback );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_csSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_csSelection );
+
+    m_showGridAxial = m_properties->addProperty( "show grid on axial", "Does exactly what it says", false, propertyCallback );
+    m_showGridCoronal = m_properties->addProperty( "show grid on coronal", "Does exactly what it says", false, propertyCallback );
+    m_showGridSagittal = m_properties->addProperty( "show grid on sagittal", "Does exactly what it says", false, propertyCallback );
+
+    m_showNumbersOnRulers = m_properties->addProperty( "show numbers on rulers", "Does exactly what it says", true, propertyCallback );
+
+    wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    m_crosshair = m_properties->addProperty( "crosshair", "Description.", ch );
     // initialize the properties with a certain standard set
     // those properties will be updatet as soon as the first dataset is looaded
-    m_zeroXProp = m_properties->addProperty( "zeroX", "", 80.0 );
-    m_zeroYProp = m_properties->addProperty( "zeroY", "", 100.0 );
-    m_zeroZProp = m_properties->addProperty( "zeroZ", "", 80.0 );
+    m_flt = m_infoProperties->addProperty( "front left top", "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
+    m_brb = m_infoProperties->addProperty( "bottom right back", "Description.", wmath::WPosition( 160.0, 200.0, 160.0 ) );
 
-    m_fltXProp = m_properties->addProperty( "fltX", "", 0.0 );
-    m_fltYProp = m_properties->addProperty( "fltY", "", 0.0 );
-    m_fltZProp = m_properties->addProperty( "fltZ", "", 0.0 );
+    m_ac = m_infoProperties->addProperty( "anterior commisure", "Description.", wmath::WPosition( 80.0, 119.0, 80.0 ) );
+    m_pc = m_infoProperties->addProperty( "posterior commisure", "Description.", wmath::WPosition( 80.0, 80.0, 80.0 ) );
+    m_ihp = m_infoProperties->addProperty( "interhemispherical point", "Description.", wmath::WPosition( 80.0, 119.0, 110.0 ) );
 
-    m_brbXProp = m_properties->addProperty( "brbX", "", 160.0 );
-    m_brbYProp = m_properties->addProperty( "brbY", "", 200.0 );
-    m_brbZProp = m_properties->addProperty( "brbZ", "", 160.0 );
+    m_acTrigger = m_properties->addProperty( "Set AC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
+    m_pcTrigger = m_properties->addProperty( "Set PC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
+    m_ihpTrigger = m_properties->addProperty( "Set IHP", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
 }
 
-void WMCoordinateSystem::createGeometry()
+void WMCoordinateSystem::propertyChanged()
 {
-    m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
-
-    m_boxNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
-    m_boxNode->addDrawable( createGeometryNode() );
-
-    m_rootNode->insert( m_boxNode );
-
-    // this is done during the first call of updateGeometry()
-
-    //float zeroZ = m_properties->getValue<float>( "axialPos" );
-    //float zeroY = m_properties->getValue<float>( "coronalPos" );
-    //float zeroX = m_properties->getValue<float>( "sagittalPos" );
-
-    //float fltX = m_properties->getValue<float>( "fltX" );
-    //float fltY = m_properties->getValue<float>( "fltY" );
-    //float fltZ = m_properties->getValue<float>( "fltZ" );
-
-    //float brbX = m_properties->getValue<float>( "brbX" );
-    //float brbY = m_properties->getValue<float>( "brbY" );
-    //float brbZ = m_properties->getValue<float>( "brbZ" );
-
-    //osg::ref_ptr<WRulerOrtho>ruler1 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
-    //ruler1->create( osg::Vec3( fltX, zeroY, fltZ ), brbX, RULER_ALONG_X_AXIS_SCALE_Y );
-
-    //osg::ref_ptr<WRulerOrtho>ruler2 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
-    //ruler2->create( osg::Vec3( zeroX, fltY, fltZ ), brbY, RULER_ALONG_Y_AXIS_SCALE_X );
-
-    //ruler1->setName( std::string( "ruler1" ) );
-    //ruler2->setName( std::string( "ruler2" ) );
-    //m_rootNode->insert( ruler1 );
-    //m_rootNode->insert( ruler2 );
-
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-
-    // osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
-
-    m_rootNode->setUserData( this );
-    m_rootNode->addUpdateCallback( new coordinateNodeCallback );
-
-    if ( m_active->get() )
+    if ( m_csSelection->changed() )
     {
-        m_rootNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_rootNode->setNodeMask( 0x0 );
-    }
-}
-
-void WMCoordinateSystem::updateGeometry()
-{
-    if ( !m_dataSetAddedProp->get() || !WKernel::getRunningKernel()->getGui()->isInitialized()() )
-    {
-        return;
+        WItemSelector s = m_csSelection->get( true );
+        infoLog() << "Selected " << s.at( 0 ).name << " coordinate system.";
+        m_coordConverter->setCoordinateSystemMode( static_cast< coordinateSystemMode > ( s.getItemIndexOfSelected( 0 ) ) );
     }
 
-    boost::shared_lock< boost::shared_mutex > slock;
-    slock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
-    // *******************************************************************************************************
-    m_dataSetAddedProp->set( false );
-
-    findBoundingBox();
-
-    //float zeroZ = m_axialPosProp->get();
-    float zeroY = m_coronalPosProp->get();
-    float zeroX = m_sagittalPosProp->get();
-
-    float fltX = m_fltXProp->get();
-    float fltY = m_fltYProp->get();
-    float fltZ = m_fltZProp->get();
-
-    float brbX = m_brbXProp->get();
-    float brbY = m_brbYProp->get();
-    //float brbZ = m_brbZProp->get();
-
-
-    osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_boxNode->getDrawable( 0 ) );
-    m_boxNode->replaceDrawable( old, createGeometryNode() );
-
-    for ( size_t i = 0; i < m_rootNode->getNumChildren(); ++i)
+    if ( m_acTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
     {
-        if ( m_rootNode->getChild( i )->getName() == "ruler1" )
-        {
-            m_rootNode->removeChild( i, 1 );
-        }
-        if ( m_rootNode->getChild( i )->getName() == "ruler2" )
-        {
-            m_rootNode->removeChild( i, 1 );
-        }
+        m_acTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
+        m_ac->set( m_crosshair->get() );
+        initTalairachConverter();
+        infoLog() << "Set new AC point.";
     }
-    osg::ref_ptr<WRulerOrtho>ruler1 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
-    ruler1->create( osg::Vec3( fltX, zeroY, fltZ ), brbX - fltX, RULER_ALONG_X_AXIS_SCALE_Y );
-
-    osg::ref_ptr<WRulerOrtho>ruler2 = osg::ref_ptr<WRulerOrtho>( new WRulerOrtho() );
-    ruler2->create( osg::Vec3( zeroX, fltY, fltZ ), brbY - fltY, RULER_ALONG_Y_AXIS_SCALE_X );
-
-    ruler1->setName( std::string( "ruler1" ) );
-    ruler2->setName( std::string( "ruler2" ) );
-    m_rootNode->addChild( ruler1 );
-    m_rootNode->addChild( ruler2 );
-    // *******************************************************************************************************
-    slock.unlock();
-}
-
-osg::ref_ptr<osg::Geometry> WMCoordinateSystem::createGeometryNode()
-{
-    float zeroZ = m_axialPosProp->get();
-    float zeroY = m_coronalPosProp->get();
-    float zeroX = m_sagittalPosProp->get();
-
-    float fltX = m_fltXProp->get();
-    float fltY = m_fltYProp->get();
-    float fltZ = m_fltZProp->get();
-
-    float brbX = m_brbXProp->get();
-    float brbY = m_brbYProp->get();
-    float brbZ = m_brbZProp->get();
-
-
-    osg::ref_ptr<osg::Geometry> geometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
-
-
-    osg::Vec3Array* vertices = new osg::Vec3Array;
-
-    vertices->push_back( osg::Vec3( zeroX, zeroY, zeroZ ) );
-
-    vertices->push_back( osg::Vec3( fltX, fltY, fltZ ) );
-    vertices->push_back( osg::Vec3( fltX, brbY, fltZ ) );
-    vertices->push_back( osg::Vec3( fltX, brbY, brbZ ) );
-    vertices->push_back( osg::Vec3( fltX, fltY, brbZ ) );
-
-    vertices->push_back( osg::Vec3( brbX, fltY, fltZ ) );
-    vertices->push_back( osg::Vec3( brbX, brbY, fltZ ) );
-    vertices->push_back( osg::Vec3( brbX, brbY, brbZ ) );
-    vertices->push_back( osg::Vec3( brbX, fltY, brbZ ) );
-
-    vertices->push_back( osg::Vec3( zeroX, zeroY, fltZ ) );
-    vertices->push_back( osg::Vec3( zeroX, zeroY, brbZ ) );
-    vertices->push_back( osg::Vec3( zeroX, fltY, zeroZ ) );
-    vertices->push_back( osg::Vec3( zeroX, brbY, zeroZ ) );
-    vertices->push_back( osg::Vec3( fltX, zeroY, zeroZ ) );
-    vertices->push_back( osg::Vec3( brbX, zeroY, zeroZ ) );
-
-    geometry->setVertexArray( vertices );
-
-    // TODO(schurade): Hi, here is math, I really don't now what this is for, so maybe you can give "data" and "rawData" a better
-    // name? Thanks.
-    unsigned int rawData[] = { 1, 2, 2, 3, 3, 4, 4, 1,
-                               5, 6, 6, 7, 7, 8, 8, 5,
-                               1, 5, 2, 6, 3, 7, 4, 8,
-                               9, 10, 11, 12, 13, 14 }; // NOLINT
-    std::vector< unsigned int > data( rawData, rawData + sizeof( rawData ) / sizeof( unsigned int ) );
-    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, data.begin(), data.end() );
-
-    geometry->addPrimitiveSet( lines );
-
-    // disable light for this geode as lines can't be lit properly
-    osg::StateSet* state = geometry->getOrCreateStateSet();
-    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
-
-    return geometry;
-}
-
-void WMCoordinateSystem::findBoundingBox()
-{
-    // TODO(schurade): getDataSetList is obsolete.
-    // Use
-    //
-    // std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true )
-    // for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
-    // {
-        // std::pair< wmath::WPosition, wmath::WPosition > bb = ( *iter )->getGrid()->getBoundingBox();
-        // ...
-    // }
-
-    std::vector< boost::shared_ptr< WDataSet > > dsl; // = WKernel::getRunningKernel()->getGui()->getDataSetList( 0, true );
-
-    if ( dsl.size() > 0 )
+    if ( m_pcTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
     {
-        boost::shared_ptr< WDataSetScalar > ds = boost::shared_dynamic_cast< WDataSetScalar >( dsl[0] );
-
-        if ( ds->getValueSet()->getDataType() != 2 )
-        {
-            return;
-        }
-
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
-
-        for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
-        {
-            int count = 0;
-            for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
-            {
-                for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
-                {
-                    unsigned char v = ds->getValueAt< unsigned char > ( x, y, z );
-                    if ( v > 0 )
-                    {
-                        ++count;
-                    }
-                }
-            }
-            if ( count > 5 )
-            {
-                m_fltXProp->set( static_cast<float>( x ) );
-                break;
-            }
-        }
-        for ( int x = grid->getNbCoordsX() - 1; x > -1; --x )
-        {
-            int count = 0;
-            for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
-            {
-                for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
-                {
-                    unsigned char v = ds->getValueAt< unsigned char > ( x, y, z );
-                    if ( v > 0 )
-                    {
-                        ++count;
-                    }
-                }
-            }
-            if ( count > 5 )
-            {
-                m_brbXProp->set( static_cast<float>( x ) );
-                break;
-            }
-        }
-
-        for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
-        {
-            int count = 0;
-            for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
-            {
-                for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
-                {
-                    unsigned char v = ds->getValueAt< unsigned char > ( x, y, z );
-                    if ( v > 0 )
-                    {
-                        ++count;
-                    }
-                }
-            }
-            if ( count > 5 )
-            {
-                m_fltYProp->set( static_cast<float>( y ) );
-                break;
-            }
-        }
-        for ( int y = grid->getNbCoordsY() - 1; y > -1; --y )
-        {
-            int count = 0;
-            for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
-            {
-                for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
-                {
-                    unsigned char v = ds->getValueAt< unsigned char > ( x, y, z );
-                    if ( v > 0 )
-                    {
-                        ++count;
-                    }
-                }
-            }
-            if ( count > 5 )
-            {
-                m_brbYProp->set( static_cast<float>( y ) );
-                break;
-            }
-        }
-
-
-
-        for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
-        {
-            int count = 0;
-            for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
-            {
-                for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
-                {
-                    unsigned char v = ds->getValueAt< unsigned char > ( x, y, z );
-                    if ( v > 0 )
-                    {
-                        ++count;
-                    }
-                }
-            }
-            if ( count > 5 )
-            {
-                m_fltZProp->set( static_cast<float>( z ) );
-                break;
-            }
-        }
-        for ( int z = grid->getNbCoordsZ() - 1; z > -1; --z )
-        {
-            int count = 0;
-            for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
-            {
-                for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
-                {
-                    unsigned char v = ds->getValueAt< unsigned char > ( x, y, z );
-                    if ( v > 0 )
-                    {
-                        ++count;
-                    }
-                }
-            }
-            if ( count > 5 )
-            {
-                m_brbZProp->set( static_cast<float>( z ) );
-                break;
-            }
-        }
+        m_pcTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
+        m_pc->set( m_crosshair->get() );
+        initTalairachConverter();
+        infoLog() << "Set new PC point.";
     }
+    if ( m_ihpTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+    {
+        m_ihpTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
+        m_ihp->set( m_crosshair->get() );
+        initTalairachConverter();
+        infoLog() << "Set new IHP point.";
+    }
+    m_dirty = true;
 }
 
 void WMCoordinateSystem::activate()
@@ -431,4 +201,529 @@ void WMCoordinateSystem::activate()
 
     // Always call WModule's activate!
     WModule::activate();
+}
+
+void WMCoordinateSystem::createGeometry()
+{
+    m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+
+//    m_rootNode->insert( wge::generateBoundingBoxGeode( m_coordConverter->getBoundingBox().first, m_coordConverter->getBoundingBox().second, WColor(
+//            0.3, 0.3, 0.3, 1 ) ) );
+
+    m_rulerNode = osg::ref_ptr< osg::Group >( new osg::Group() );
+    m_rootNode->insert( m_rulerNode );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
+    m_rootNode->setUserData( this );
+    m_rootNode->addUpdateCallback( new coordinateNodeCallback );
+
+    if ( m_active->get() )
+    {
+        m_rootNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_rootNode->setNodeMask( 0x0 );
+    }
+}
+
+void WMCoordinateSystem::updateGeometry()
+{
+    wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    wmath::WPosition cho = m_crosshair->get();
+    if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] || m_dirty )
+    {
+        m_crosshair->set( ch );
+    }
+    else
+    {
+        return;
+    }
+
+    // *******************************************************************************************************
+    //    osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_boxNode->getDrawable( 0 ) );
+    //    m_boxNode->replaceDrawable( old, createGeometryNode() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+
+    double xOff = grid->getOffsetX();
+    double yOff = grid->getOffsetY();
+    double zOff = grid->getOffsetZ();
+
+    m_rulerNode->removeChildren( 0, m_rulerNode->getNumChildren() );
+
+    if ( m_showSagittal->get() )
+    {
+        addRulersSagittal();
+    }
+    if ( m_showGridSagittal->get() )
+    {
+        addSagittalGrid( m_crosshair->get()[0] + 0.5 * xOff + m_drawOffset );
+        addSagittalGrid( m_crosshair->get()[0] + 0.5 * xOff - m_drawOffset );
+    }
+
+    if ( m_showCoronal->get() )
+    {
+        addRulersCoronal();
+    }
+    if ( m_showGridCoronal->get() )
+    {
+        addCoronalGrid( m_crosshair->get()[1] + 0.5 * yOff + m_drawOffset );
+        addCoronalGrid( m_crosshair->get()[1] + 0.5 * yOff - m_drawOffset );
+    }
+
+    if ( m_showAxial->get() )
+    {
+        addRulersAxial();
+    }
+    if ( m_showGridAxial->get() )
+    {
+        addAxialGrid( m_crosshair->get()[2] + 0.5 * zOff + m_drawOffset );
+        addAxialGrid( m_crosshair->get()[2] + 0.5 * zOff - m_drawOffset );
+    }
+
+    // *******************************************************************************************************
+    m_dirty = false;
+}
+
+void WMCoordinateSystem::findBoundingBox()
+{
+    // get bounding from dataset
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+
+    double xOff = grid->getOffsetX();
+    double yOff = grid->getOffsetY();
+    double zOff = grid->getOffsetZ();
+
+    wmath::WVector3D offset( xOff, yOff, zOff );
+    m_coordConverter = boost::shared_ptr< WCoordConverter >( new WCoordConverter( grid->getTransformationMatrix(), grid->getOrigin(), offset ) );
+
+    WItemSelector s = m_csSelection->get( true );
+    m_coordConverter->setCoordinateSystemMode( static_cast< coordinateSystemMode > ( s.getItemIndexOfSelected( 0 ) ) );
+    m_coordConverter->setBoundingBox( m_dataSet->getGrid()->getBoundingBox() );
+
+    // now compute the innerBoundingBox for the actual data
+    wmath::WPosition flt = m_flt->get();
+    wmath::WPosition brb = m_brb->get();
+
+    for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
+    {
+        int count = 0;
+        for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
+        {
+            for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
+            {
+                double v = m_dataSet->getValueAt( x, y, z );
+                if ( v > 0 )
+                {
+                    ++count;
+                }
+            }
+        }
+        if ( count > 5 )
+        {
+            flt[0] = static_cast< float > ( x * xOff );
+            break;
+        }
+    }
+    for ( int x = grid->getNbCoordsX() - 1; x > -1; --x )
+    {
+        int count = 0;
+        for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
+        {
+            for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
+            {
+                double v = m_dataSet->getValueAt( x, y, z );
+                if ( v > 0 )
+                {
+                    ++count;
+                }
+            }
+        }
+        if ( count > 5 )
+        {
+            brb[0] = static_cast< float > ( x * xOff );
+            break;
+        }
+    }
+
+    for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
+    {
+        int count = 0;
+        for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
+        {
+            for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
+            {
+                double v = m_dataSet->getValueAt( x, y, z );
+                if ( v > 0 )
+                {
+                    ++count;
+                }
+            }
+        }
+        if ( count > 5 )
+        {
+            flt[1] = static_cast< float > ( y * yOff );
+            break;
+        }
+    }
+    for ( int y = grid->getNbCoordsY() - 1; y > -1; --y )
+    {
+        int count = 0;
+        for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
+        {
+            for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
+            {
+                double v = m_dataSet->getValueAt( x, y, z );
+                if ( v > 0 )
+                {
+                    ++count;
+                }
+            }
+        }
+        if ( count > 5 )
+        {
+            brb[1] = static_cast< float > ( y * yOff );
+            break;
+        }
+    }
+
+    for ( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
+    {
+        int count = 0;
+        for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
+        {
+            for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
+            {
+                double v = m_dataSet->getValueAt( x, y, z );
+                if ( v > 0 )
+                {
+                    ++count;
+                }
+            }
+        }
+        if ( count > 5 )
+        {
+            flt[2] = static_cast< float > ( z * zOff );
+            break;
+        }
+    }
+    for ( int z = grid->getNbCoordsZ() - 1; z > -1; --z )
+    {
+        int count = 0;
+        for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
+        {
+            for ( size_t y = 0; y < grid->getNbCoordsY(); ++y )
+            {
+                double v = m_dataSet->getValueAt( x, y, z );
+                if ( v > 0 )
+                {
+                    ++count;
+                }
+            }
+        }
+        if ( count > 5 )
+        {
+            brb[2] = static_cast< float > ( z * zOff );
+            break;
+        }
+    }
+
+    wmath::WPosition tmpflt = m_coordConverter->worldCoordTransformed( flt );
+    wmath::WPosition tmpbrb = m_coordConverter->worldCoordTransformed( brb );
+
+    flt[0] = std::min( tmpflt[0], tmpbrb[0] );
+    flt[1] = std::max( tmpflt[1], tmpbrb[1] );
+    flt[2] = std::max( tmpflt[2], tmpbrb[2] );
+    brb[0] = std::max( tmpflt[0], tmpbrb[0] );
+    brb[1] = std::min( tmpflt[1], tmpbrb[1] );
+    brb[2] = std::min( tmpflt[2], tmpbrb[2] );
+
+    m_flt->set( flt );
+    m_brb->set( brb );
+
+    initTalairachConverter();
+}
+
+void WMCoordinateSystem::initTalairachConverter()
+{
+    wmath::WVector3D ac_c( m_coordConverter->w2c( m_ac->get() ) );
+    wmath::WVector3D pc_c( m_coordConverter->w2c( m_pc->get() ) );
+    wmath::WVector3D ihp_c( m_coordConverter->w2c( m_ihp->get() ) );
+    boost::shared_ptr< WTalairachConverter > talairachConverter =
+        boost::shared_ptr< WTalairachConverter >( new WTalairachConverter( ac_c, pc_c, ihp_c ) );
+
+    wmath::WVector3D flt_c( m_coordConverter->w2c( m_flt->get() ) );
+    wmath::WVector3D brb_c( m_coordConverter->w2c( m_brb->get() ) );
+
+    wmath::WVector3D ap( flt_c[0], 0., 0. );
+    wmath::WVector3D pp( brb_c[0], 0., 0. );
+    wmath::WVector3D lp( 0., flt_c[1], 0. );
+    wmath::WVector3D rp( 0., brb_c[1], 0. );
+    wmath::WVector3D sp( 0., 0., flt_c[2] );
+    wmath::WVector3D ip( 0., 0., brb_c[2] );
+
+    talairachConverter->setAp( ap );
+    talairachConverter->setPp( pp );
+    talairachConverter->setSp( sp );
+    talairachConverter->setIp( ip );
+    talairachConverter->setLp( lp );
+    talairachConverter->setRp( rp );
+
+    m_coordConverter->setTalairachConverter( talairachConverter );
+}
+
+void WMCoordinateSystem::addRulersSagittal()
+{
+    osg::ref_ptr< WRulerOrtho > ruler1 = osg::ref_ptr< WRulerOrtho >(
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+                    RULER_ALONG_Y_AXIS_SCALE_Z, m_showNumbersOnRulers->get() ) );
+    osg::ref_ptr< WRulerOrtho > ruler2 = osg::ref_ptr< WRulerOrtho >(
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+                    RULER_ALONG_Z_AXIS_SCALE_Y, m_showNumbersOnRulers->get() ) );
+
+    m_rulerNode->addChild( ruler1 );
+    m_rulerNode->addChild( ruler2 );
+}
+
+void WMCoordinateSystem::addRulersAxial()
+{
+    osg::ref_ptr< WRulerOrtho > ruler1 = osg::ref_ptr< WRulerOrtho >(
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            RULER_ALONG_X_AXIS_SCALE_Y, m_showNumbersOnRulers->get() ) );
+    osg::ref_ptr< WRulerOrtho > ruler2 = osg::ref_ptr< WRulerOrtho >(
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            RULER_ALONG_Y_AXIS_SCALE_X, m_showNumbersOnRulers->get() ) );
+
+    m_rulerNode->addChild( ruler1 );
+    m_rulerNode->addChild( ruler2 );
+}
+
+void WMCoordinateSystem::addRulersCoronal()
+{
+    osg::ref_ptr< WRulerOrtho > ruler1 = osg::ref_ptr< WRulerOrtho >(
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+                    RULER_ALONG_X_AXIS_SCALE_Z, m_showNumbersOnRulers->get() ) );
+    osg::ref_ptr< WRulerOrtho > ruler2 = osg::ref_ptr< WRulerOrtho >(
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+                    RULER_ALONG_Z_AXIS_SCALE_X, m_showNumbersOnRulers->get() ) );
+
+    m_rulerNode->addChild( ruler1 );
+    m_rulerNode->addChild( ruler2 );
+}
+
+void WMCoordinateSystem::addSagittalGrid( float position )
+{
+    osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.first;
+    wmath::WPosition p2 = boundingBox.second;
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+            for ( int i = p1[1]; i < p2[1] + 2; ++i )
+            {
+                if ( m_coordConverter->numberToCsY( i ) % 10 == 0 )
+                {
+                    vertices->push_back( osg::Vec3( position, i, p1[2] ) );
+                    vertices->push_back( osg::Vec3( position, i, p2[2] + 1 ) );
+                }
+            }
+            for ( int i = p1[2]; i < p2[2] + 2; ++i )
+            {
+                if ( m_coordConverter->numberToCsZ( i ) % 10 == 0 )
+                {
+                    vertices->push_back( osg::Vec3( position, p1[1], i ) );
+                    vertices->push_back( osg::Vec3( position, p2[1] + 1, i ) );
+                }
+            }
+            break;
+        case CS_TALAIRACH:
+        {
+            boost::shared_ptr< WTalairachConverter > tc = m_coordConverter->getTalairachConverter();
+
+            for ( int i = -110; i < 81; i += 10 )
+            {
+                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( i, 0, -50 ) );
+                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( i, 0, 80 ) );
+
+                vertices->push_back( osg::Vec3( position, tmpPoint1[1], tmpPoint1[2] ) );
+                vertices->push_back( osg::Vec3( position, tmpPoint2[1], tmpPoint2[2] ) );
+            }
+            for ( int i = -50; i < 81; i += 10 )
+            {
+                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( -110, 0, i ) );
+                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 80, 0, i ) );
+
+                vertices->push_back( osg::Vec3( position, tmpPoint1[1], tmpPoint1[2] ) );
+                vertices->push_back( osg::Vec3( position, tmpPoint2[1], tmpPoint2[2] ) );
+            }
+        }
+            break;
+    }
+
+    geometry->setVertexArray( vertices );
+    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
+
+    for ( size_t i = 0; i < vertices->size(); ++i )
+    {
+        lines->push_back( i );
+    }
+    geometry->addPrimitiveSet( lines );
+
+    osg::StateSet* state = geometry->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    gridGeode->addDrawable( geometry );
+
+    m_rulerNode->addChild( gridGeode );
+}
+
+void WMCoordinateSystem::addCoronalGrid( float position )
+{
+    osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.first;
+    wmath::WPosition p2 = boundingBox.second;
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+            for ( int i = p1[0]; i < p2[0] + 2; ++i )
+            {
+                if ( m_coordConverter->numberToCsX( i ) % 10 == 0 )
+                {
+                    vertices->push_back( osg::Vec3( i, position, p1[2] ) );
+                    vertices->push_back( osg::Vec3( i, position, p2[2] + 1 ) );
+                }
+            }
+            for ( int i = p1[2]; i < p2[2] + 2; ++i )
+            {
+                if ( m_coordConverter->numberToCsZ( i ) % 10 == 0 )
+                {
+                    vertices->push_back( osg::Vec3( p1[1], position, i ) );
+                    vertices->push_back( osg::Vec3( p2[1] + 1, position, i ) );
+                }
+            }
+            break;
+        case CS_TALAIRACH:
+        {
+            boost::shared_ptr< WTalairachConverter > tc = m_coordConverter->getTalairachConverter();
+
+            for ( int i = -80; i < 81; i += 10 )
+            {
+                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( 0, i, -50 ) );
+                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 0, i, 80 ) );
+
+                vertices->push_back( osg::Vec3( tmpPoint1[0], position, tmpPoint1[2] ) );
+                vertices->push_back( osg::Vec3( tmpPoint2[0], position, tmpPoint2[2] ) );
+            }
+            for ( int i = -50; i < 81; i += 10 )
+            {
+                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( 0, -80, i ) );
+                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 0, 80, i ) );
+
+                vertices->push_back( osg::Vec3( tmpPoint1[0], position, tmpPoint1[2] ) );
+                vertices->push_back( osg::Vec3( tmpPoint2[0], position, tmpPoint2[2] ) );
+            }
+        }
+            break;
+    }
+
+    geometry->setVertexArray( vertices );
+    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
+
+    for ( size_t i = 0; i < vertices->size(); ++i )
+    {
+        lines->push_back( i );
+    }
+    geometry->addPrimitiveSet( lines );
+
+    osg::StateSet* state = geometry->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    gridGeode->addDrawable( geometry );
+
+    m_rulerNode->addChild( gridGeode );
+}
+
+void WMCoordinateSystem::addAxialGrid( float position )
+{
+    osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+
+    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.first;
+    wmath::WPosition p2 = boundingBox.second;
+
+    switch ( m_coordConverter->getCoordinateSystemMode() )
+    {
+        case CS_WORLD:
+        case CS_CANONICAL:
+            for ( int i = p1[1]; i < p2[1] + 2; ++i )
+            {
+                if ( m_coordConverter->numberToCsY( i ) % 10 == 0 )
+                {
+                    vertices->push_back( osg::Vec3( p1[0], i, position ) );
+                    vertices->push_back( osg::Vec3( p2[0] + 1, i, position ) );
+                }
+            }
+            for ( int i = p1[0]; i < p2[0] + 2; ++i )
+            {
+                if ( m_coordConverter->numberToCsZ( i ) % 10 == 0 )
+                {
+                    vertices->push_back( osg::Vec3( i, p1[1], position ) );
+                    vertices->push_back( osg::Vec3( i, p2[1] + 1, position ) );
+                }
+            }
+            break;
+        case CS_TALAIRACH:
+        {
+            boost::shared_ptr< WTalairachConverter > tc = m_coordConverter->getTalairachConverter();
+
+            for ( int i = -80; i < 81; i += 10 )
+            {
+                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( -110, i, 0 ) );
+                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 80, i, 0 ) );
+
+                vertices->push_back( osg::Vec3( tmpPoint1[0], tmpPoint1[1], position ) );
+                vertices->push_back( osg::Vec3( tmpPoint2[0], tmpPoint2[1], position ) );
+            }
+            for ( int i = -110; i < 81; i += 10 )
+            {
+                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( i, -80, 0 ) );
+                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( i, 80, 0 ) );
+
+                vertices->push_back( osg::Vec3( tmpPoint1[0], tmpPoint1[1], position ) );
+                vertices->push_back( osg::Vec3( tmpPoint2[0], tmpPoint2[1], position ) );
+            }
+        }
+            break;
+    }
+
+    geometry->setVertexArray( vertices );
+    osg::DrawElementsUInt* lines = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
+
+    for ( size_t i = 0; i < vertices->size(); ++i )
+    {
+        lines->push_back( i );
+    }
+    geometry->addPrimitiveSet( lines );
+
+    osg::StateSet* state = geometry->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    gridGeode->addDrawable( geometry );
+
+    m_rulerNode->addChild( gridGeode );
 }

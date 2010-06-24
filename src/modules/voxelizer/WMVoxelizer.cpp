@@ -44,7 +44,6 @@
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "../../modules/fiberDisplay/WMFiberDisplay.h"
 #include "voxelizer.xpm"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
@@ -72,7 +71,6 @@ const char** WMVoxelizer::getXPMIcon() const
 {
     return voxelizer_xpm;
 }
-
 
 void WMVoxelizer::moduleMain()
 {
@@ -332,9 +330,9 @@ void WMVoxelizer::update()
     else if ( algo == 1 )
     {
         debugLog() << "Parameterization algorithm: by longest line.";
-        paramAlgo = boost::shared_ptr< WRasterParameterization >(
-            new WCenterlineParameterization( grid, m_clusters->getLongestLine() )
-        );
+//        paramAlgo = boost::shared_ptr< WRasterParameterization >(
+//            new WCenterlineParameterization( grid, m_clusters->getLongestLine() )
+//        );
     }
     else if ( algo == 2 )
     {

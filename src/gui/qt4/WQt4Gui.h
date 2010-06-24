@@ -45,7 +45,6 @@ class WKernel;
 class WQt4Gui : public WGUI
 {
 public:
-
     /**
      * Constructor.
      *
@@ -180,6 +179,8 @@ private:
      * At the moment it seems reasonable that different GUIs might have
      * different command line options, thus we implement their parsing
      * in the GUI implemntation itself, i.e. here.
+     *
+     * \return True if and only if the parsing was successful.
      */
     bool parseOptions();
 };

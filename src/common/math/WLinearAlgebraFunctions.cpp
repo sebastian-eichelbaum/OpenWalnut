@@ -45,6 +45,22 @@ WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec )
 {
     WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Matrix has wrong size." );
     std::vector< double > resultVec4D( 4 );
+    resultVec4D[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2] /* + mat( 0, 3 ) * 0 */;
+    resultVec4D[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2] /* + mat( 1, 3 ) * 0 */;
+    resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] /* + mat( 2, 3 ) * 0 */;
+    resultVec4D[3] = mat( 3, 0 ) * vec[0] + mat( 3, 1 ) * vec[1] + mat( 3, 2 ) * vec[2] /* + mat( 3, 3 ) * 0 */;
+
+    wmath::WVector3D result;
+    result[0] = resultVec4D[0] / resultVec4D[3];
+    result[1] = resultVec4D[1] / resultVec4D[3];
+    result[2] = resultVec4D[2] / resultVec4D[3];
+    return result;
+}
+
+WPosition transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec )
+{
+    WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Matrix has wrong size." );
+    std::vector< double > resultVec4D( 4 );
     resultVec4D[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2] + mat( 0, 3 ) * 1;
     resultVec4D[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2] + mat( 1, 3 ) * 1;
     resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] + mat( 2, 3 ) * 1;

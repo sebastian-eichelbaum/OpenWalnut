@@ -37,6 +37,7 @@
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
 #include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../WQtCombinerToolbar.h"
 #include "WQtDSBWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
 #include "WQtModuleTreeItem.h"
@@ -56,21 +57,19 @@ class WQtDatasetBrowser : public QDockWidget
 
 public:
     /**
-     * Default constructor.
+     * Constructor.
      *
      * \param parent Parent widget.
-     *
-     * \return
      */
     explicit WQtDatasetBrowser( WMainWindow* parent = 0 );
 
     /**
-     * Destructor.
+     * Default Destructor.
      */
     virtual ~WQtDatasetBrowser();
 
     /**
-     * adds a page to the context widget
+     * Adds a page to the context widget
      *
      * \param content A widget with controls
      *
@@ -79,7 +78,7 @@ public:
     int addTabWidgetContent( WQtDSBWidget* content );
 
     /**
-     * adds a subject entry to the tree widget
+     * Adds a subject entry to the tree widget
      *
      * \param name The entry name of the subjectin the tree widget
      * \return A pointer to the tree widget item
@@ -87,7 +86,7 @@ public:
     WQtSubjectTreeItem* addSubject( std::string name );
 
     /**
-     * adds a dataset entry to any given subject in the tree widget
+     * Adds a dataset entry to any given subject in the tree widget
      *
      * \param module shared pointer to the module associated with this tree widget entry
      * \param subjectId subject id this dataset belongs to
@@ -145,6 +144,16 @@ public:
      */
     boost::shared_ptr< WRMROIRepresentation > getFirstRoiInSelectedBranch();
 
+    /**
+     * Returns a checkable action that can be used to show or close this dock widget.
+     * The action's text is set to the dock widget's window title.
+     *
+     * This member function is overwritten to add a keyboard shortcut to this action.
+     *
+     * \return Modified QAction
+     */
+    QAction* toggleViewAction() const;
+
 protected:
 
     /**
@@ -167,8 +176,10 @@ protected:
      * selected dataset
      *
      * \param module pointer to the currently selected module
+     *
+     * \return the new toolbar instance
      */
-    void createCompatibleButtons( boost::shared_ptr< WModule >module );
+    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
 
     /**
      * Reference to the main window of the application.

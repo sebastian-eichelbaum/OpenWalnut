@@ -24,31 +24,39 @@
 
 #include <string>
 
-#include "WQtApplyModulePushButton.h"
+#include "WQtApplyModuleAction.h"
 
-WQtApplyModulePushButton::WQtApplyModulePushButton( QWidget* parent, WIconManager* iconManager,
-                                                    boost::shared_ptr< WApplyPrototypeCombiner > combiner, bool useText ):
-    QPushButton( parent ),
+WQtApplyModuleAction::WQtApplyModuleAction( QWidget* parent, WIconManager* iconManager, boost::shared_ptr< WApplyPrototypeCombiner > combiner,
+                                            bool advancedText ):
+    QAction( parent ),
     m_combiner( combiner )
 {
-    setIcon( iconManager->getIcon( combiner->getTargetPrototype()->getName().c_str() ) );
-    setToolTip( combiner->getTargetPrototype()->getName().c_str() );
+    // nice tooltip
+    std::string from = "";
 
-    if ( useText )
+    // NOTE: all the tooltips and so on for this action are used from the first combiner in the group
+
+    // might be null ( for example if a module should be added that does not require an input)
+    if ( m_combiner->getSrcModule() )
     {
-        setText( combiner->getTargetPrototype()->getName().c_str() );
+        from = m_combiner->getSrcModule()->getName() + ":" + m_combiner->getSrcConnector() + " -> ";
     }
+    std::string tooltip = from + m_combiner->getTargetPrototype()->getName() + ":" + m_combiner->getTargetConnector();
+    setToolTip( tooltip.c_str() );
+    setText( advancedText ? tooltip.c_str() : m_combiner->getTargetPrototype()->getName().c_str() );
+    setIconText( advancedText ? tooltip.c_str() : m_combiner->getTargetPrototype()->getName().c_str() );
+    setIcon( iconManager->getIcon( m_combiner->getTargetPrototype()->getName().c_str() ) );
 
     // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
     // pressed left button.
-    connect( this, SIGNAL( released() ), this, SLOT( emitPressed() ) );
+    connect( this, SIGNAL( triggered() ), this, SLOT( applyCombiner() ) );
 }
 
-WQtApplyModulePushButton::~WQtApplyModulePushButton()
+WQtApplyModuleAction::~WQtApplyModuleAction()
 {
 }
 
-void WQtApplyModulePushButton::emitPressed()
+void WQtApplyModuleAction::applyCombiner()
 {
     m_combiner->run();
 }

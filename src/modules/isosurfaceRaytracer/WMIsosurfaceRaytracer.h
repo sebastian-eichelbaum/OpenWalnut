@@ -140,9 +140,26 @@ private:
     WPropInt m_alpha;
 
     /**
-     * If true, the shader will only color using the depth of the point on the surface.
+     * Types of shading supported.
      */
-    WPropBool m_useSimpleDepthColoring;
+    enum
+    {
+        Cortex = 0,
+        Depth,
+        Phong,
+        PhongDepth
+    }
+    SHADING_ALGORITHMS;
+
+    /**
+     * The available shading algorithms.
+     */
+    boost::shared_ptr< WItemSelection > m_shadingSelections;
+
+    /**
+     * The actually selected shading algorithm.
+     */
+    WPropSelection m_shadingAlgo;
 
     /**
      * A condition used to notify about changes in several properties.

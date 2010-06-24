@@ -22,57 +22,45 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTAPPLYMODULEPUSHBUTTON_H
-#define WQTAPPLYMODULEPUSHBUTTON_H
+#ifndef WQTCOMBINERTOOLBAR_H
+#define WQTCOMBINERTOOLBAR_H
 
-#include <string>
+#include <QtGui/QToolBar>
 
-#include <boost/shared_ptr.hpp>
+#include "../../kernel/WModuleFactory.h"
 
-#include <QtGui/QPushButton>
-
-#include "../WIconManager.h"
-#include "../../../kernel/combiner/WApplyPrototypeCombiner.h"
+class WMainWindow;
 
 /**
- * Implements a QPushButton with a boost signal for convenience.
+ * This is a toolbar. Its main usage for now is the "compatible modules" toolbar.
  */
-class WQtApplyModulePushButton : public QPushButton
+class WQtCombinerToolbar : public QToolBar
 {
     Q_OBJECT
 
 public:
-
     /**
-     * Constructor creating a module application button.
-     *
-     * \param parent the parent
-     * \param iconManager the icon manager to use
-     * \param combiner the combiner that is represented by this button
-     * \param useText  true if a text should be shown.
+     * Constructs the toolbar.
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
+     * \param compatibles the list of combiners
      */
-    WQtApplyModulePushButton( QWidget* parent, WIconManager* iconManager,
-                              boost::shared_ptr< WApplyPrototypeCombiner > combiner, bool useText = true );
+    explicit WQtCombinerToolbar( WMainWindow* parent, WModuleFactory::CompatiblesList compatibles );
 
     /**
      * destructor
      */
-    virtual ~WQtApplyModulePushButton();
+    virtual ~WQtCombinerToolbar();
+
+    /**
+     * Returns the preferred position of compatibles toolbars. This overrides WMainWindow::getToolbarPos().
+     *
+     * \return QT Position for the compatibles toolbars
+     */
+    static Qt::ToolBarArea getCompatiblesToolbarPos();
 
 protected:
 
-    /**
-     * The combiner used in this button.
-     */
-    boost::shared_ptr< WApplyPrototypeCombiner > m_combiner;
-
 private:
-public slots:
-
-    /**
-     * Slot getting called when the button got pressed. It applies the combiner.
-     */
-    void emitPressed();
 };
 
-#endif  // WQTAPPLYMODULEPUSHBUTTON_H
+#endif  // WQTCOMBINERTOOLBAR_H

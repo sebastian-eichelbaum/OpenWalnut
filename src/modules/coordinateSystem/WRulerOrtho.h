@@ -27,6 +27,11 @@
 
 #include <string>
 
+#include <osgText/Text>
+
+#include "../../common/math/WPosition.h"
+
+#include "WCoordConverter.h"
 #include "WRuler.h"
 
 typedef enum
@@ -48,24 +53,44 @@ class WRulerOrtho : public WRuler
 public:
     /**
      * standard constructor
+     * \param coordConverter
+     * \param origin
+     * \param mode
+     * \param showNumbers
      */
-    WRulerOrtho();
+    WRulerOrtho( boost::shared_ptr<WCoordConverter>coordConverter, osg::Vec3 origin, scaleMode mode, bool showNumbers = true );
 
     /**
      * destructor
      */
     ~WRulerOrtho();
 
-    /**
-     *
-     * \param start start point in space
-     * \param length lenght of ruler in milimeter
-     * \param mode orientation of the ruler
-     */
-    void create( osg::Vec3 start, float length, scaleMode mode );
 
 protected:
 private:
+    boost::shared_ptr<WCoordConverter>m_coordConverter; //!< stores pointer to a coordinate converter
+
+    /**
+     * Origin of the ruler, it will be drawn in the positive direction
+     */
+    osg::Vec3 m_origin;
+
+    /**
+     * orientation of ruler
+     */
+    scaleMode m_scaleMode;
+
+    bool m_showNumbers; //!< flag to indicate wether to show number labels
+
+    wmath::WVector3D m_lb; //!< = m_coordConverter->getBoundingBox().first;
+    wmath::WVector3D m_ub; //!< = m_coordConverter->getBoundingBox().second;
+
+
+    /**
+     * creates the osg node for the ruler representation
+     */
+    void create();
+
     /**
      * helper function to add a label to the ruler
      *
@@ -74,10 +99,19 @@ private:
      */
     void addLabel( osg::Vec3 position, std::string text );
 
+    osg::ref_ptr< osg::Geometry > createXY(); //!< helper function to create the ruler along the x axis
+    osg::ref_ptr< osg::Geometry > createXZ(); //!< helper function to create the ruler along the x axis
+    osg::ref_ptr< osg::Geometry > createYX(); //!< helper function to create the ruler along the y axis
+    osg::ref_ptr< osg::Geometry > createYZ(); //!< helper function to create the ruler along the y axis
+    osg::ref_ptr< osg::Geometry > createZX(); //!< helper function to create the ruler along the z axis
+    osg::ref_ptr< osg::Geometry > createZY(); //!< helper function to create the ruler along the z axis
+
     /**
-     * orientation of ruler
+     * converts a number into a string according to the currently selected coordinate system
+     * \param number
+     * \return string
      */
-    scaleMode m_scaleMode;
+    std::string numberToString( int number );
 };
 
 #endif  // WRULERORTHO_H
