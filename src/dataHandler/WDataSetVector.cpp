@@ -117,7 +117,7 @@ wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool 
 
 wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
 {
-        switch( getValueSet()->getDataType() )
+    switch( getValueSet()->getDataType() )
     {
         case W_DT_UNSIGNED_CHAR:
         {
@@ -148,5 +148,5 @@ wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
 
 bool WDataSetVector::isTexture() const
 {
-    return false;
+    return true;
 }
