@@ -225,7 +225,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int components )
 {
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if ( components == 1)
     {
