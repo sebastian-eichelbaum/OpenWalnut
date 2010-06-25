@@ -59,6 +59,8 @@ void WMClusterParamDisplay::connectors()
 void WMClusterParamDisplay::properties()
 {
     m_isoValue = m_properties->addProperty( "Iso Value", "", 0.2 );
+    m_isoValue->setMin( 0.0 );
+    m_isoValue->setMax( 100.0 );
     m_drawISOSurface = m_properties->addProperty( "ISO Surface", "En/Disables the display of the ISO Surface", true );
 }
 

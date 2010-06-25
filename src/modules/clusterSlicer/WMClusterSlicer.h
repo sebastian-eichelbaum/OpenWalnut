@@ -143,6 +143,24 @@ protected:
      */
     osg::ref_ptr< osg::Geode > generateISOVoxelGeode() const;
 
+    /**
+     * Computes how much percent of the points of the cluster are enclosed by the isosurface.
+     *
+     * \param isoValue The isovalue associated with the surface
+     *
+     * \return coverage in percent
+     */
+    double countTractPointsInsideVolume( double isoValue ) const;
+
+    /**
+     * Computes the isovalue for the given coverage. That means almost $coverage percent of the points of the tracts will be enclosed by the isosurface.
+     *
+     * \param coverage A value between 0.0 and 1.0 specifying the enclosion of the points of the cluster by the isosurface.
+     *
+     * \return the isovalue associated with the given coverage.
+     */
+    double computeOptimalIsoValue( double coverage = 0.9 ) const;
+
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
     osg::ref_ptr< osg::Geode >   m_isoVoxelGeode; //!< Separate geode for voxels of the cluster volume
     osg::ref_ptr< WGEGroupNode > m_sliceGeode; //!< Separate geode for slices

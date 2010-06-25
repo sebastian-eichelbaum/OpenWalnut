@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <list>
 #include <map>
 #include <numeric>
 #include <set>
@@ -40,6 +41,7 @@
 #include "../../common/math/WPlane.h"
 #include "../../common/WAssert.h"
 #include "../../common/WColor.h"
+#include "../../common/WHistogram.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -115,6 +117,8 @@ void WMClusterSlicer::properties()
 
     m_meanSelector->setMin( 0 );
     m_meanSelector->setMax( 2 );
+    m_isoValue->setMin( 0.0 );
+    m_isoValue->setMax( 100.0 );
     m_planeNumX->setMin( 1 );
     m_planeNumY->setMin( 1 );
     m_planeStepWidth->setMin( 0.0 );
@@ -172,6 +176,12 @@ void WMClusterSlicer::moduleMain()
         {
             debugLog() << "Invalid data. Waiting for data change again.";
             continue;
+        }
+
+        if( dataChanged )
+        {
+//            double coverage = countTractPointsInsideVolume( m_isoValue->get() );
+            infoLog() << "Recommended isovalue for specified coverage: " << computeOptimalIsoValue();
         }
 
         if( dataChanged )
@@ -568,6 +578,62 @@ osg::ref_ptr< osg::Geode > WMClusterSlicer::generateISOVoxelGeode() const
         points->insert( grid->getPosition( *cit ) );
     }
     return wge::genPointBlobs< std::set< wmath::WPosition > >( points, grid->getOffsetX() );
+}
+
+
+double WMClusterSlicer::countTractPointsInsideVolume( double isoValue ) const
+{
+    const std::list< size_t >& indices = m_cluster->getIndices();
+    boost::shared_ptr< const WDataSetFiberVector > tracts = m_cluster->getDataSetReference();
+    std::list< size_t >::const_iterator iter;
+    size_t pointCounter = 0;
+    size_t pointsInside = 0;
+    for( iter = indices.begin(); iter != indices.end(); ++iter )
+    {
+        const wmath::WFiber& tract = ( *tracts )[ *iter ];
+        wmath::WFiber::const_iterator pos;
+        for( pos = tract.begin(); pos != tract.end(); ++pos, ++pointCounter )
+        {
+            bool inGrid = false;
+            double value = m_clusterDS->interpolate( *pos, &inGrid );
+            if( inGrid && value >= isoValue )
+            {
+                ++pointsInside;
+            }
+        }
+    }
+    return static_cast< double >( pointsInside ) / static_cast< double >( pointCounter );
+}
+
+double WMClusterSlicer::computeOptimalIsoValue( double coverage ) const
+{
+    const std::list< size_t >& indices = m_cluster->getIndices();
+    boost::shared_ptr< const WDataSetFiberVector > tracts = m_cluster->getDataSetReference();
+    std::list< size_t >::const_iterator iter;
+
+    WHistogram h( m_clusterDS->getMin(), m_clusterDS->getMax() );
+
+    for( iter = indices.begin(); iter != indices.end(); ++iter )
+    {
+        const wmath::WFiber& tract = ( *tracts )[ *iter ];
+        wmath::WFiber::const_iterator pos;
+        for( pos = tract.begin(); pos != tract.end(); ++pos )
+        {
+            bool inGrid = false;
+            double value = m_clusterDS->interpolate( *pos, &inGrid );
+            if( inGrid )
+            {
+                h.insert( value );
+            }
+        }
+    }
+    size_t valuesSoFar = 0;
+    int64_t index = h.binSize() - 1;
+    while( static_cast< double >( valuesSoFar ) / static_cast< double >( h.valuesSize() ) < coverage && index >= 0 )
+    {
+        valuesSoFar += h[index--];
+    }
+    return  m_clusterDS->getMin() + std::abs( m_clusterDS->getMin() - m_clusterDS->getMax() ) * index / static_cast< double >( h.binSize() );
 }
 
 void WMClusterSlicer::activate()
