@@ -71,8 +71,6 @@ void WMClusterParamDisplay::moduleMain()
     initSubModules();
 
     // initial values
-    m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
-    m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
     m_detTractClustering->getProperties()->getProperty( "Start clustering" )->toPropTrigger()->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED );
 
     ready();
@@ -88,6 +86,7 @@ void WMClusterParamDisplay::moduleMain()
 
         if( m_isoValue->changed() )
         {
+            std::cout <<  m_isoValue->get() << std::endl;
             m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
             m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
         }
@@ -128,15 +127,17 @@ void WMClusterParamDisplay::initSubModules()
 
     // preset properties
     debugLog() << "Start step submodule properties";
-    m_detTractClustering->getProperties()->getProperty( "active" )->toPropBool()->set( false );
-    m_voxelizer->getProperties()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
-    m_voxelizer->getProperties()->getProperty( "Display Voxels" )->toPropBool()->set( false );
-    m_voxelizer->getProperties()->getProperty( "Bounding Box Enable Feature" )->toPropBool()->set( false );
-    m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false );
-    m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3 );
+    m_detTractClustering->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
+    m_voxelizer->getProperties()->getProperty( "Fiber Tracts" )->toPropBool()->set( false, true );
+    m_voxelizer->getProperties()->getProperty( "Display Voxels" )->toPropBool()->set( false, true );
+    m_voxelizer->getProperties()->getProperty( "Bounding Box Enable Feature" )->toPropBool()->set( false, true );
+    m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false, true );
+    m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3, true );
     m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" )->toPropBool()->set( false );
     m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( true );
-    m_isoSurface->getProperties()->getProperty( "active" )->toPropBool()->set( false );
+    m_isoSurface->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
+    m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( 0.2, true );
+    m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set(  0.2, true );
     debugLog() << "Submodule properties set";
 
     // wiring
