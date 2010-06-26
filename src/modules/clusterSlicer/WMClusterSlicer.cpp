@@ -180,7 +180,7 @@ void WMClusterSlicer::moduleMain()
 
         if( dataChanged )
         {
-//            double coverage = countTractPointsInsideVolume( m_isoValue->get() );
+            infoLog() << "Coverage for isovalue: " << m_isoValue->get() << " is: " << countTractPointsInsideVolume( m_isoValue->get() );
             infoLog() << "Recommended isovalue for specified coverage: " << computeOptimalIsoValue();
         }
 
