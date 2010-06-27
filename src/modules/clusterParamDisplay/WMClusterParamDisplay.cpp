@@ -136,7 +136,7 @@ void WMClusterParamDisplay::initSubModules()
     m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false, true );
     m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3, true );
     m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" )->toPropBool()->set( false );
-    m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( true );
+    m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( false );
     m_isoSurface->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
     m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( 0.2, true );
     m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set(  0.2, true );
