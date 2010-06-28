@@ -199,7 +199,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mes
     osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
 
-    if( !colorMap.get() )
+    if( !colorMap.get() || m_meshColor->changed() )
     {
         debugLog() << "No Color Map found, using a single color";
         colors->push_back( wge::osgColor( m_meshColor->get( true ) ) );
