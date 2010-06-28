@@ -81,7 +81,7 @@ void WMFiberTransform::properties()
     m_savePath = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     m_run      = m_properties->addProperty( "Run", "Do the transformation", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
-    WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
 
     m_translationProp = m_properties->addProperty( "Translation",
                                                    "Translation part of the transformation. You need to press enter to make the values effective.",
