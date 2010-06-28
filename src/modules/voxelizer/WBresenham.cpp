@@ -182,8 +182,8 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
 
 double WBresenham::composeValue( double newValue, double existingValue ) const
 {
-    // return std::max( newValue, existingValue );
-    return newValue + existingValue;
+    return std::max( newValue, existingValue );
+    // return newValue + existingValue;
 }
 
 void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, const wmath::WPosition& start, const wmath::WPosition& end )

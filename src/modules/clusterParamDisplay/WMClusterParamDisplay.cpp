@@ -165,6 +165,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Tracts" ) );
     m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Center Line" ) );
     m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Lighting" ) );
+    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Transparency" ) );
     m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
     m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Opacity %" ) );
     m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Mesh Color" ) );

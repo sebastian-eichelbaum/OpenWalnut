@@ -54,8 +54,11 @@
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
-      m_fullUpdate( new WCondition() ),
-      m_osgNode( new WGEGroupNode )
+      m_osgNode( new WGEGroupNode ),
+      m_fiberGeode( new osg::Geode ),
+      m_centerLineGeode( new osg::Geode ),
+      m_boundingBoxGeode( new osg::Geode ),
+      m_fullUpdate( new WCondition() )
 {
 }
 
@@ -84,7 +87,6 @@ void WMVoxelizer::moduleMain()
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        m_moduleState.wait();
         if ( !m_input->getData() ) // ok, the output has not yet sent data
         {
             // since there is no data yet we will eat property changes
@@ -106,12 +108,8 @@ void WMVoxelizer::moduleMain()
 
         ++*progress;
         // full update
-        if( m_antialiased->changed() ||
-            m_drawVoxels->changed() ||
-            m_rasterAlgo->changed() ||
-            m_voxelsPerUnit->changed() ||
-            m_clusters != m_input->getData() ||
-            m_parameterAlgo->changed() )
+        if( m_antialiased->changed() || m_drawVoxels->changed() || m_rasterAlgo->changed() || m_voxelsPerUnit->changed() ||
+                m_clusters != m_input->getData() || m_parameterAlgo->changed() )
         {
             m_drawVoxels->get( true );
             m_rasterAlgo->get( true );
@@ -250,10 +248,11 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
 
 void WMVoxelizer::updateFibers()
 {
+    debugLog() << "Fiber Update";
     assert( m_osgNode );
-    // TODO(math): instead of recompute the fiber geode, hide/unhide would be cool, but when data has changed recomputation is necessary
     if( m_drawfibers->get( true ) )
     {
+        m_osgNode->remove( m_fiberGeode );
         m_fiberGeode = genFiberGeode();
         m_osgNode->insert( m_fiberGeode );
     }
