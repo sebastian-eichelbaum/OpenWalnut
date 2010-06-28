@@ -58,6 +58,7 @@ WMDetTractClustering::WMDetTractClustering()
       m_dLtTableExists( false ),
       m_update( new WCondition() )
 {
+    m_osgNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
 }
 
 WMDetTractClustering::~WMDetTractClustering()

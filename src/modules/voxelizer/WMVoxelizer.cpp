@@ -54,7 +54,8 @@
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
-      m_fullUpdate( new WCondition() )
+      m_fullUpdate( new WCondition() ),
+      m_osgNode( new WGEGroupNode )
 {
 }
 
