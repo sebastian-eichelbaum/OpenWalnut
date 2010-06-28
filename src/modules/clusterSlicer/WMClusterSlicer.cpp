@@ -116,7 +116,7 @@ void WMClusterSlicer::properties()
     m_alternateColoring = m_properties->addProperty( "Alternate Mesh Coloring", "En/Disables the alternative mesh colorer", true, m_fullUpdate );
 
     m_meanSelector->setMin( 0 );
-    m_meanSelector->setMax( 2 );
+    m_meanSelector->setMax( 4 );
     m_isoValue->setMin( 0.0 );
     m_isoValue->setMax( 100.0 );
     m_planeNumX->setMin( 1 );
@@ -266,6 +266,9 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
         }
         samplePoints->erase( pos++ ); // erase in case the pos is not in main component or in paramDS or in clusterDS
     }
+    double max = *std::max_element( samples.begin(), samples.end() );
+    double min = *std::min_element( samples.begin(), samples.end() );
+
     double arithmeticMean = std::accumulate( samples.begin(), samples.end(), 0.0 );
     arithmeticMean = arithmeticMean / ( samples.empty() ? 1.0 : samples.size() );
 
@@ -278,10 +281,12 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
     double geometricMean = std::accumulate( samples.begin(), newEnd, 1.0, std::multiplies< double >() );
     geometricMean = std::pow( geometricMean, ( samples.empty() ? 0.0 : 1.0 / samples.size() ) );
 
-    wmath::WValue< double > result( 3 );
+    wmath::WValue< double > result( 5 );
     result[0] = arithmeticMean;
     result[1] = geometricMean;
     result[2] = median;
+    result[3] = max;
+    result[4] = min;
     return result;
 }
 
