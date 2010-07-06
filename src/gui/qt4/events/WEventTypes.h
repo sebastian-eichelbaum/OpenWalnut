@@ -60,4 +60,10 @@
 // when a module should be deleted finally.
 #define WQT_MODULE_DELETE_EVENT QEvent::User + 9
 
+// when a module connection got established.
+#define WQT_MODULE_CONNECT_EVENT QEvent::User + 10
+
+// when a module connection got closed.
+#define WQT_MODULE_DISCONNECT_EVENT QEvent::User + 11
+
 #endif  // WEVENTTYPES_H

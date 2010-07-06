@@ -72,7 +72,7 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
             for ( WCombinerTypes::WOneToOneCombiners::iterator combiner = ( *groups ).second.begin();
                                                                combiner != ( *groups ).second.end(); ++combiner )
             {
-                WQtModuleOneToOneCombinerAction* a = new WQtModuleOneToOneCombinerAction( parent, icons, *groups->second.begin(), true );
+                WQtModuleOneToOneCombinerAction* a = new WQtModuleOneToOneCombinerAction( parent, icons, *combiner, true );
 
                 a->setIconVisibleInMenu( true );
                 groupMenu->addAction( a );
@@ -102,7 +102,7 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
             for ( WCombinerTypes::WOneToOneCombiners::iterator combiner = ( *groups ).second.begin();
                                                                combiner != ( *groups ).second.end(); ++combiner )
             {
-                WQtModuleOneToOneCombinerAction* a = new WQtModuleOneToOneCombinerAction( parent, icons, *groups->second.begin(), true );
+                WQtModuleOneToOneCombinerAction* a = new WQtModuleOneToOneCombinerAction( parent, icons, *combiner, true );
 
                 a->setIconVisibleInMenu( true );
                 groupMenu->addAction( a );
