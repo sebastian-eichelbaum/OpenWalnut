@@ -52,7 +52,11 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 )
+      m_matrixOrig( 4, 4 ),
+      m_matrixInverse( 3, 3 ),
+      m_translate( 0, 0, 0 ),
+      m_stretch( 1, 1, 1 ),
+      m_rotation( 0, 0, 0 )
 {
     m_matrix( 0, 0 ) = directionX[0];
     m_matrix( 0, 1 ) = directionY[0];
@@ -68,6 +72,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = originZ;
 
     m_matrix( 3, 3 ) = 1.;
+    m_matrixOrig = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -83,7 +88,11 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
       m_matrix( wmath::WMatrix<double>( mat ) ),
-      m_matrixInverse( 3, 3 )
+      m_matrixOrig( 4, 4 ),
+      m_matrixInverse( 3, 3 ),
+      m_translate( 0, 0, 0 ),
+      m_stretch( 1, 1, 1 ),
+      m_rotation( 0, 0, 0 )
 {
     WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Transformation matrix has wrong dimensions." );
     // only affine transformations are allowed
@@ -96,6 +105,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_directionZ = WVector3D( mat( 0, 2 ) / mat( 3, 3 ), mat( 1, 2 ) / mat( 3, 3 ), mat( 2, 2 ) / mat( 3, 3 ) );
 
     m_matrix = mat;
+    m_matrixOrig = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -116,7 +126,11 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 )
+      m_matrixOrig( 4, 4 ),
+      m_matrixInverse( 3, 3 ),
+      m_translate( 0, 0, 0 ),
+      m_stretch( 1, 1, 1 ),
+      m_rotation( 0, 0, 0 )
 {
     m_matrix( 0, 0 ) = offsetX;
     m_matrix( 1, 1 ) = offsetY;
@@ -126,6 +140,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = originZ;
 
     m_matrix( 3, 3 ) = 1.;
+    m_matrixOrig = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -145,7 +160,11 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 )
+      m_matrixOrig( 4, 4 ),
+      m_matrixInverse( 3, 3 ),
+      m_translate( 0, 0, 0 ),
+      m_stretch( 1, 1, 1 ),
+      m_rotation( 0, 0, 0 )
 {
     m_matrix( 0, 0 ) = offsetX;
     m_matrix( 1, 1 ) = offsetY;
@@ -155,6 +174,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = origin[2];
 
     m_matrix( 3, 3 ) = 1.;
+    m_matrixOrig = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -173,13 +193,18 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 )
+      m_matrixOrig( 4, 4 ),
+      m_matrixInverse( 3, 3 ),
+      m_translate( 0, 0, 0 ),
+      m_stretch( 1, 1, 1 ),
+      m_rotation( 0, 0, 0 )
 {
     m_matrix( 0, 0 ) = offsetX;
     m_matrix( 1, 1 ) = offsetY;
     m_matrix( 2, 2 ) = offsetZ;
 
     m_matrix( 3, 3 ) = 1.;
+    m_matrixOrig = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -434,4 +459,59 @@ std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox()
     }
 
     return std::make_pair( minBB, maxBB );
+}
+
+void WGridRegular3D::translate( wmath::WPosition translation )
+{
+    m_translate = translation;
+    doCustomTransformations();
+}
+
+void WGridRegular3D::stretch( wmath::WPosition str )
+{
+    m_stretch = str;
+    doCustomTransformations();
+}
+
+void WGridRegular3D::rotate( wmath::WPosition rot )
+{
+    m_rotation = rot;
+    doCustomTransformations();
+}
+
+void WGridRegular3D::doCustomTransformations()
+{
+    m_matrix = m_matrixOrig;
+
+    wmath::WMatrix<double> rotmat( 4, 4 );
+    rotmat.makeIdentity();
+    rotmat( 1, 1 ) = cos( m_rotation[0] );
+    rotmat( 1, 2 ) = -sin( m_rotation[0] );
+    rotmat( 2, 1 ) = sin( m_rotation[0] );
+    rotmat( 2, 2 ) = cos( m_rotation[0] );
+    m_matrix = m_matrix * rotmat;
+
+    rotmat.makeIdentity();
+    rotmat( 0, 0 ) = cos( m_rotation[1] );
+    rotmat( 0, 2 ) = sin( m_rotation[1] );
+    rotmat( 2, 0 ) = -sin( m_rotation[1] );
+    rotmat( 2, 2 ) = cos( m_rotation[1] );
+    m_matrix = m_matrix * rotmat;
+
+    rotmat.makeIdentity();
+    rotmat( 0, 0 ) = cos( m_rotation[2] );
+    rotmat( 0, 1 ) = -sin( m_rotation[2] );
+    rotmat( 1, 0 ) = sin( m_rotation[2] );
+    rotmat( 1, 1 ) = cos( m_rotation[2] );
+    m_matrix = m_matrix * rotmat;
+
+    m_matrix( 0, 3 ) = m_matrix( 0, 3 ) + m_translate[0];
+    m_matrix( 1, 3 ) = m_matrix( 1, 3 ) + m_translate[1];
+    m_matrix( 2, 3 ) = m_matrix( 2, 3 ) + m_translate[2];
+
+    m_matrix( 0, 0 ) = m_matrix( 0, 0 ) * m_stretch[0];
+    m_matrix( 1, 1 ) = m_matrix( 1, 1 ) * m_stretch[1];
+    m_matrix( 2, 2 ) = m_matrix( 2, 2 ) * m_stretch[2];
+
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }

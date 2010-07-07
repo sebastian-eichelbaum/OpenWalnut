@@ -749,9 +749,6 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
 
 void WMNavSlices::updateGeometry()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
     if ( m_textureChanged // Depends on call order of update routines in callback.
          || m_sagittalPos->changed()
          || m_coronalPos->changed()
@@ -816,8 +813,6 @@ void WMNavSlices::updateGeometry()
     {
         m_xSliceNode->setNodeMask( 0x0 );
     }
-
-    slock.unlock();
 }
 
 
