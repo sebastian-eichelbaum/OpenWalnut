@@ -53,6 +53,7 @@ uniform int useCmap6;
 uniform int useCmap7;
 
 uniform bool highlighted;
+uniform bool showComplete;
 
 
 #include "colorMaps.fs"
@@ -104,6 +105,7 @@ void main()
         }
         else
         {
+            if ( !showComplete )
             discard;
         }
     }
