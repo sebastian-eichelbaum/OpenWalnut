@@ -197,6 +197,29 @@ bool WQtDatasetBrowser::event( QEvent* event )
         m_textureSorter->update();
     }
 
+    if ( event->type() == WQT_ROI_ASSOC_EVENT )
+    {
+        WRoiAssocEvent* e2 = dynamic_cast< WRoiAssocEvent* >( event );     // NOLINT
+        if ( e2 )
+        {
+            addRoi( e2->getRoi() );
+            WLogger::getLogger()->addLogMessage( "Inserting roi to dataset browser.", "DatasetBrowser", LL_DEBUG );
+        }
+
+        return true;
+    }
+    if( event->type() == WQT_ROI_REMOVE_EVENT )
+    {
+        WRoiRemoveEvent* e3 = dynamic_cast< WRoiRemoveEvent* >( event );
+        if( e3 )
+        {
+            removeRoi( e3->getRoi() );
+            WLogger::getLogger()->addLogMessage( "Removing roi from dataset browser.", "DatasetBrowser", LL_DEBUG );
+        }
+
+        return true;
+    }
+
     // a module got associated with the root container -> add it to the list
     if ( event->type() == WQT_ASSOC_EVENT )
     {
@@ -220,24 +243,51 @@ bool WQtDatasetBrowser::event( QEvent* event )
         }
         return true;
     }
-    if ( event->type() == WQT_ROI_ASSOC_EVENT )
+
+    // a module changed its state to "ready" -> activate it in dataset browser
+    if ( event->type() == WQT_READY_EVENT )
     {
-        WRoiAssocEvent* e2 = dynamic_cast< WRoiAssocEvent* >( event );     // NOLINT
-        if ( e2 )
+        // convert event to assoc event
+        WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
+        if ( !e )
         {
-            addRoi( e2->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Inserting roi to dataset browser.", "DatasetBrowser", LL_DEBUG );
+            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
+
+            return true;
         }
 
-        return true;
-    }
-    if( event->type() == WQT_ROI_REMOVE_EVENT )
-    {
-        WRoiRemoveEvent* e3 = dynamic_cast< WRoiRemoveEvent* >( event );
-        if( e3 )
+        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
+                                             "DatasetBrowser", LL_DEBUG );
+
+        // iterate tree items and find proper one
+        QTreeWidgetItemIterator it( m_moduleTreeWidget );
+        while ( *it )
         {
-            removeRoi( e3->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Removing roi from dataset browser.", "DatasetBrowser", LL_DEBUG );
+            WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
+            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >();
+            if ( item )
+            {
+                module = item->getModule();
+            }
+
+            // if the pointer is NULL the item was none of the above
+            if ( !module.get() )
+            {
+                ++it;
+                continue;
+            }
+
+            // we found it
+            if ( e->getModule() == module )
+            {
+                // activate it
+                item->setDisabled( false );
+                selectTreeItem();
+            }
+
+            ++it;
         }
 
         return true;
@@ -319,55 +369,6 @@ bool WQtDatasetBrowser::event( QEvent* event )
         e->getModule()->requestStop();
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + e->getModule()->getName() + "\" to finish before deleting.",
                                              "DatasetBrowser", LL_DEBUG );
-
-        return true;
-    }
-
-    // a module changed its state to "ready" -> activate it in dataset browser
-    if ( event->type() == WQT_READY_EVENT )
-    {
-        // convert event to assoc event
-        WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
-        if ( !e )
-        {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
-            WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
-
-            return true;
-        }
-
-        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
-                                             "DatasetBrowser", LL_DEBUG );
-
-        // iterate tree items and find proper one
-        QTreeWidgetItemIterator it( m_moduleTreeWidget );
-        while ( *it )
-        {
-            WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
-            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >();
-            if ( item )
-            {
-                module = item->getModule();
-            }
-
-            // if the pointer is NULL the item was none of the above
-            if ( !module.get() )
-            {
-                ++it;
-                continue;
-            }
-
-            // we found it
-            if ( e->getModule() == module )
-            {
-                // activate it
-                item->setDisabled( false );
-                selectTreeItem();
-            }
-
-            ++it;
-        }
 
         return true;
     }
