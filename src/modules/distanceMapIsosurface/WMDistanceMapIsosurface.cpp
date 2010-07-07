@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "WMDistanceMap.h"
 #include "WMDistanceMapIsosurface.h"
 #include "distancemapIsosurface.xpm"
 
@@ -105,10 +104,7 @@ void WMDistanceMapIsosurface::moduleMain()
     //////////////////////////////////////////////////////////////////////////////////
 
     // create a new instance of WMDistanceMap
-    // NOTE: as the distance map is a "local" module, we can't use the module factory (as WMDistanceMap is not a prototype there).
-    m_distanceMapModule = boost::shared_ptr< WModule >( new WMDistanceMap() );
-    // The initialization of the module has to be done by the ModuleFactory to ensure proper initialization.
-    WModuleFactory::initializeModule( m_distanceMapModule );
+    m_distanceMapModule = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Distance Map" ) );
 
     // add it to the container
     add( m_distanceMapModule );
