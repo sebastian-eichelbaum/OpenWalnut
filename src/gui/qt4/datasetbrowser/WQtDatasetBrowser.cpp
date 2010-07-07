@@ -47,6 +47,8 @@
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WModuleRemovedEvent.h"
+#include "../events/WModuleConnectEvent.h"
+#include "../events/WModuleDisconnectEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
 #include "../WMainWindow.h"
@@ -261,36 +263,51 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
                                              "DatasetBrowser", LL_DEBUG );
 
-        // iterate tree items and find proper one
-        QTreeWidgetItemIterator it( m_moduleTreeWidget );
-        while ( *it )
+        // search all the item matching the module
+        std::list< WQtTreeItem* > items = findItemsByModule( e->getModule() );
+        for ( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
         {
-            WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
-            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >();
-            if ( item )
-            {
-                module = item->getModule();
-            }
+            ( *iter )->setSelected( true );
+            ( *iter )->setDisabled( false );
+        }
 
-            // if the pointer is NULL the item was none of the above
-            if ( !module.get() )
-            {
-                ++it;
-                continue;
-            }
-
-            // we found it
-            if ( e->getModule() == module )
-            {
-                // activate it
-                item->setDisabled( false );
-                selectTreeItem();
-            }
-
-            ++it;
+        // update property tab too
+        if ( !items.size() )
+        {
+            selectTreeItem();
         }
 
         return true;
+    }
+
+    // a module tree item was connected to another one
+    if ( event->type() == WQT_MODULE_CONNECT_EVENT )
+    {
+        WModuleConnectEvent* e = dynamic_cast< WModuleConnectEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleConnectEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
+            return true;
+        }
+
+        // TODO(ebaum): handle it and place tree items appropriately
+    }
+
+    // a module tree item was disconnected from another one
+    if ( event->type() == WQT_MODULE_DISCONNECT_EVENT )
+    {
+        WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleDisconnectEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
+            return true;
+        }
+
+        // TODO(ebaum): handle it and place tree items appropriately
     }
 
     // a module tree item should be deleted
@@ -313,8 +330,9 @@ bool WQtDatasetBrowser::event( QEvent* event )
         // remove it from the tree and free last ref count
         m_moduleTreeWidget->deleteItem( e->getTreeItem() );
 
-        // ref count != 1?
-        if ( module.use_count() != 1 )
+        // ref count != 1? (only if there are now tree items left)
+        bool lastTreeItem = !findItemsByModule( module ).size();
+        if ( lastTreeItem && ( module.use_count() != 1 ) )
         {
             wlog::warn( "DatasetBrowser" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
                                               "Module reference is held by someone else.";
@@ -336,30 +354,10 @@ bool WQtDatasetBrowser::event( QEvent* event )
         }
 
         // iterate tree items and find proper one
-        QTreeWidgetItemIterator it( m_moduleTreeWidget );
-        while ( *it )
+        std::list< WQtTreeItem* > items = findItemsByModule( e->getModule() );
+        for ( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
         {
-            WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
-            boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >();
-            if ( item )
-            {
-                module = item->getModule();
-            }
-
-            // if the pointer is NULL the item was none of the above
-            if ( !module.get() )
-            {
-                ++it;
-                continue;
-            }
-
-            // we found it
-            if ( e->getModule() == module )
-            {
-                item->gotRemoved();
-            }
-
-            ++it;
+            ( *iter )->gotRemoved();
         }
 
         // be nice and print some info
@@ -374,6 +372,39 @@ bool WQtDatasetBrowser::event( QEvent* event )
     }
 
     return QDockWidget::event( event );
+}
+
+std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_ptr< WModule > module )
+{
+    std::list< WQtTreeItem* > l;
+
+    // iterate tree items and find proper one
+    QTreeWidgetItemIterator it( m_moduleTreeWidget );
+    while ( *it )
+    {
+        WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
+        boost::shared_ptr< WModule > itemModule = boost::shared_ptr< WModule >();
+        if ( item )
+        {
+            itemModule = item->getModule();
+        }
+
+        // if the pointer is NULL the item was none of the above
+        if ( !itemModule.get() )
+        {
+            ++it;
+            continue;
+        }
+
+        // we found it
+        if ( module == itemModule )
+        {
+            l.push_back( item );
+        }
+
+        ++it;
+    }
+    return l;
 }
 
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
@@ -391,7 +422,7 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item;
-    if( m_moduleTreeWidget->selectedItems().size()
+    /*if( m_moduleTreeWidget->selectedItems().size()
         && module->getName() != "Navigation Slices"
         && module->getName() != "Fiber Display" )
     {
@@ -400,7 +431,9 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
     else
     {
         item = m_tiModules->addModuleItem( module );
-    }
+    }*/
+    item = m_tiModules->addModuleItem( module );
+    m_tiModules->addModuleItem( module );
     m_moduleTreeWidget->setCurrentItem( item );
     item->setDisabled( true );
     return item;

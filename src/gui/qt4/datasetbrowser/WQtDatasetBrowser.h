@@ -193,6 +193,15 @@ protected:
      */
     WMainWindow* m_mainWindow;
 
+    /**
+     * Searches the tree for all tree items matching the specified module.
+     *
+     * \param module the module uses as search criteria.
+     *
+     * \return a list of all matching items.
+     */
+    std::list< WQtTreeItem* > findItemsByModule( boost::shared_ptr< WModule > module );
+
 private:
     WQtTreeWidget* m_moduleTreeWidget; //!< pointer to the tree widget
 
