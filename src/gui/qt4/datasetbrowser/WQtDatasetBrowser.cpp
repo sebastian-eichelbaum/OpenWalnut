@@ -62,7 +62,8 @@
 #include "WQtDatasetBrowser.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
-    : QDockWidget( "Dataset Browser", parent )
+    : QDockWidget( "Dataset Browser", parent ),
+    m_ignoreSelectionChange( false )
 {
     m_mainWindow = parent;
 
@@ -271,11 +272,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
             ( *iter )->setDisabled( false );
         }
 
-        // update property tab too
-        if ( !items.size() )
-        {
-            selectTreeItem();
-        }
+        selectTreeItem();
 
         return true;
     }
@@ -292,7 +289,32 @@ bool WQtDatasetBrowser::event( QEvent* event )
             return true;
         }
 
-        // TODO(ebaum): handle it and place tree items appropriately
+        // get the module of the input involved in this connection
+        boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
+        boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
+
+        // at this moment items for each input connector are inside the tree.
+        // search the items not yet associated with some other module for the first item
+        std::list< WQtTreeItem* > items = findItemsByModule( mIn, m_tiModules );
+        for ( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
+        {
+            ( *iter )->setHidden( false );
+            ( *iter )->setHandledInput( e->getInput()->getName() );
+            ( *iter )->setHandledOutput( e->getOutput()->getName() );
+
+            // move it to the module with the involved output
+            std::list< WQtTreeItem* > possibleParents = findItemsByModule( mOut );
+            for ( std::list< WQtTreeItem* >::const_iterator parIter = possibleParents.begin(); parIter != possibleParents.end(); ++parIter )
+            {
+                // remove child from tiModules
+                m_tiModules->removeChild( *iter );
+                ( *parIter )->addChild( *iter );
+                ( *parIter )->setExpanded( true );
+            }
+
+            // job done.
+            break;
+        }
     }
 
     // a module tree item was disconnected from another one
@@ -374,12 +396,12 @@ bool WQtDatasetBrowser::event( QEvent* event )
     return QDockWidget::event( event );
 }
 
-std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_ptr< WModule > module )
+std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_ptr< WModule > module, QTreeWidgetItem* where )
 {
     std::list< WQtTreeItem* > l;
 
     // iterate tree items and find proper one
-    QTreeWidgetItemIterator it( m_moduleTreeWidget );
+    QTreeWidgetItemIterator it( where );
     while ( *it )
     {
         WQtTreeItem* item = dynamic_cast< WQtTreeItem* >( *it );
@@ -407,6 +429,11 @@ std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_pt
     return l;
 }
 
+std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_ptr< WModule > module )
+{
+    return findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
+}
+
 WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
     int c = getFirstSubject();
@@ -415,6 +442,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
     m_moduleTreeWidget->setCurrentItem( item );
     item->setDisabled( true );
+
     return item;
 }
 
@@ -422,20 +450,33 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item;
-    /*if( m_moduleTreeWidget->selectedItems().size()
-        && module->getName() != "Navigation Slices"
-        && module->getName() != "Fiber Display" )
+    // for each input, create an item
+    m_moduleTreeWidget->setCurrentItem( NULL );
+    bool firstItem = true;
+    WModule::InputConnectorList cons = module->getInputConnectors();
+    for ( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
     {
-        item = new WQtModuleTreeItem( m_moduleTreeWidget->selectedItems().at( 0 ), module );
+        // every module gets added to tiModules first. The connection events then move these things to the right parent
+        item = m_tiModules->addModuleItem( module );
+        item->setDisabled( true );
+        item->setExpanded( true );
+
+        // all but the first item get hidden by default. They get visible after a connection event has been fired
+        if ( !firstItem )
+        {
+            item->setHidden( true );
+        }
+
+        firstItem = false;
     }
-    else
+
+    // this module has not inputs. So we simply add it to the tiModules
+    if ( firstItem )
     {
         item = m_tiModules->addModuleItem( module );
-    }*/
-    item = m_tiModules->addModuleItem( module );
-    m_tiModules->addModuleItem( module );
-    m_moduleTreeWidget->setCurrentItem( item );
-    item->setDisabled( true );
+        item->setDisabled( true );
+    }
+
     return item;
 }
 
@@ -518,6 +559,11 @@ boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
 
 void WQtDatasetBrowser::selectTreeItem()
 {
+    if ( m_ignoreSelectionChange )
+    {
+        return;
+    }
+
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
 
@@ -574,25 +620,38 @@ void WQtDatasetBrowser::selectTreeItem()
 
                 break;
             case MODULE:
-                module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
-                // NOTE: this hack prevents the navigation slices to be removed as they are buggy and crash OpenWalnut if they get removed
-                if ( module->getName() == "Navigation Slices" )
                 {
-                    m_deleteModuleAction->setEnabled( false );
-                }
-                else
-                {
-                    m_deleteModuleAction->setEnabled( true );
-                }
+                    module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
+                    // NOTE: this hack prevents the navigation slices to be removed as they are buggy and crash OpenWalnut if they get removed
+                    if ( module->getName() == "Navigation Slices" )
+                    {
+                        m_deleteModuleAction->setEnabled( false );
+                    }
+                    else
+                    {
+                        m_deleteModuleAction->setEnabled( true );
+                    }
 
-                // crashed modules should not provide any props
-                if ( module->isCrashed()() )
-                {
-                    return;
+                    // this is ugly since it causes the property tab to update multiple times if multiple items get selected by this call
+                    // but it highlights all the same items which is nice and wanted here
+                    // Set the ignore flag to avoid that this method gets called several times
+                    m_ignoreSelectionChange = true;
+                    std::list< WQtTreeItem* > items = findItemsByModule( module );
+                    for ( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
+                    {
+                        ( *iter )->setSelected( true );
+                    }
+                    m_ignoreSelectionChange = false;
+
+                    // crashed modules should not provide any props
+                    if ( module->isCrashed()() )
+                    {
+                        return;
+                    }
+                    props = module->getProperties();
+                    infoProps = module->getInformationProperties();
+                    newToolbar = createCompatibleButtons( module );
                 }
-                props = module->getProperties();
-                infoProps = module->getInformationProperties();
-                newToolbar = createCompatibleButtons( module );
                 break;
             case ROIHEADER:
             case ROIBRANCH:
