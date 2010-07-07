@@ -25,51 +25,54 @@
 #ifndef WMODULELOADER_H
 #define WMODULELOADER_H
 
-#include <dlfcn.h>
-#include <string>
 #include <set>
+#include <string>
+#include <vector>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem.hpp>
 
+#include "../common/WSharedLib.h"
 #include "../common/WSharedAssociativeContainer.h"
 #include "../common/WLogger.h"
 #include "WModule.h"
 
 /**
- * \class WModuleLoader
- * 
- * Loads module prototypes from shared objects in a given directory. 
+ * Loads module prototypes from shared objects in a given directory and injects it into the module factory.
  */
 class WModuleLoader
 {
 public:
+
 	/**
-	 * Constructor.
-	 * 
+	 * Constructor. It does not load any files. Use load to do this.
+	 *
 	 * \param relPath The relative path of the module lib directory.
 	 */
-	WModuleLoader( const boost::filesystem::path& relPath );
-	
+    explicit WModuleLoader( const boost::filesystem::path& relPath );
+
 	/**
 	 * Destructor, closes all handles to shared libraries.
 	 */
-	~WModuleLoader();
-	
+    ~WModuleLoader();
+
 	/**
 	 * Load the module prototypes from the shared libraries.
-	 * 
+	 *
 	 * \param ticket A write ticket to a shared container.
 	 */
-	void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket );
+    void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket );
 
 private:
 
-	//! the handles to the shared objects ( linux! )
-	std::vector< void* > m_handles;
-	
-	//! the module path
-	const boost::filesystem::path m_path;
+    /**
+     * All the loaded shared libraries. Get freed on destruction. So do NOT free this instance while the libs are used.
+     */
+    std::vector< WSharedLib > m_libs;
+
+    /**
+     * Path to the modules. This is used during load to find all libMODULENAME.{so,dll,dylib} files.
+     */
+    const boost::filesystem::path m_path;
 };
 
 #endif  // WMODULELOADER_H

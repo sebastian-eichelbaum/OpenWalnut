@@ -22,70 +22,73 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
+#include <string>
+
 #include "../common/WIOTools.h"
+#include "../common/WSharedLib.h"
 
 #include "WModuleLoader.h"
 
-WModuleLoader::WModuleLoader( const boost::filesystem::path& relPath )
-	: m_path( relPath )
+WModuleLoader::WModuleLoader( const boost::filesystem::path& relPath ):
+    m_path( relPath )
 {
+    // initialize members
 }
 
 WModuleLoader::~WModuleLoader()
 {
-	for( std::vector< void* >::iterator it = m_handles.begin(); it != m_handles.end(); ++it )
-	{
-		if( dlclose( *it ) != 0 )
-		{
-			WLogger::getLogger()->addLogMessage( "Couldn't close shared object handle!", "Module Loader", LL_ERROR );
-		}
-	}
-	m_handles.clear();
+    // cleanup all the handles
+    m_libs.clear();
 }
 
 void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket )
 {
-	// iterate module directory, look for .so files
-	WAssert( boost::filesystem::exists( m_path ), "" );
-	
-	for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( m_path ); i != boost::filesystem::directory_iterator(); ++i )
-	{
-		if( !boost::filesystem::is_directory( *i ) && wiotools::getSuffix( i->leaf() ) == ".so" ) // linux!
-		{
-			void* handle = dlopen( i->path().native_file_string().c_str(), RTLD_NOW );
+    // iterate module directory, look for .so,.dll,.dylib files
+    WAssert( boost::filesystem::exists( m_path ), "" );
 
-			if( !handle )
-			{
-				WLogger::getLogger()->addLogMessage( "Couldn't load shared object: " + i->path().native_file_string(), "Module Loader", LL_ERROR );
-				WLogger::getLogger()->addLogMessage( std::string( dlerror() ), "Module Loader", LL_ERROR );
-				continue;
-			}
-		
-			// try to get module prototype instance
-			typedef boost::shared_ptr< WModule > ( *createInstanceFunc )( void );
-			createInstanceFunc createInstance = reinterpret_cast< createInstanceFunc >( dlsym( handle, "createModuleInstance" ) );
-			
-			if( !createInstance )
-			{
-				WLogger::getLogger()->addLogMessage( "Couldn't load prototype creator from " + i->path().native_file_string(), "Module Loader", LL_ERROR );
-				WLogger::getLogger()->addLogMessage( std::string( dlerror() ), "Module Loader", LL_ERROR );
-				continue;
-			}
-			
-			boost::shared_ptr< WModule > m = createInstance();
-			
-			if( !m )
-			{
-				WLogger::getLogger()->addLogMessage( "Couldn't aquire prototype of module from " + i->path().native_file_string(), "Module Loader", LL_ERROR );
-				WLogger::getLogger()->addLogMessage( std::string( dlerror() ), "Module Loader", LL_ERROR );
-				continue;
-			}
-			else
-			{
-				WLogger::getLogger()->addLogMessage( "Successfully loaded " + i->path().native_file_string(), "Module Loader", LL_INFO );
-				ticket->get().insert( m );
-				m_handles.push_back( handle );
-			}
-		}
-	}
+    for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( m_path );
+         i != boost::filesystem::directory_iterator(); ++i )
+    {
+        std::string suffix = wiotools::getSuffix( i->leaf() );
+        if( !boost::filesystem::is_directory( *i ) &&
+            ( ( suffix == ".so" ) || ( suffix == ".dll" ) || ( suffix == ".dylib" ) )
+          ) // This prefix has been defined by our build system
+        {
+            try
+            {
+                WSharedLib l( i->path() );
+
+                // get instantiation function
+                typedef boost::shared_ptr< WModule > ( *createInstanceFunc )( void );
+                createInstanceFunc f;
+                l.fetchFunction< createInstanceFunc >( W_LOADABLE_MODULE_SYMBOL, f );
+
+                // get the first prototype
+                boost::shared_ptr< WModule > m = f();
+
+                // could the prototype be created?
+                if( !m )
+                {
+                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().native_file_string() + "\". Could not create " +
+                                                         "prototype instance.", "Module Loader", LL_ERROR );
+                    continue;
+                }
+                else
+                {
+                    // yes, add it to the list of prototypes
+                    WLogger::getLogger()->addLogMessage( "Loaded " + i->path().native_file_string(), "Module Loader", LL_INFO );
+                    ticket->get().insert( m );
+                    m_libs.push_back( l );
+                }
+
+                // lib gets closed if l looses focus
+            }
+            catch( const WException& e )
+            {
+                WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().native_file_string() + "\". " + e.what() + ". Ignoring.",
+                                                     "Module Loader", LL_ERROR );
+            }
+        }
+    }
 }

@@ -38,7 +38,7 @@
 #include "WMApplyMask.h"
 #include "apply_mask.xpm"
 
-W_SHARED_LIB_ENTRY( WMApplyMask )
+W_LOADABLE_MODULE( WMApplyMask );
 
 WMApplyMask::WMApplyMask() :
     WModule()

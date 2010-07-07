@@ -65,7 +65,8 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
 
-	m_moduleLoader.load( m_prototypeAccess );
+    // Load the dynamic modules here:
+    m_moduleLoader.load( m_prototypeAccess );
 
     // unlock as read lock is sufficient for the further steps
     m_prototypeAccess.reset();
@@ -78,7 +79,7 @@ void WModuleFactory::load()
     for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
-        WLogger::getLogger()->addLogMessage( "Loading module: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_INFO );
+        WLogger::getLogger()->addLogMessage( "Initializing module prototype: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_INFO );
 
         // that should not happen. Names should not occur multiple times since they are unique
         if ( names.count( ( *listIter )->getName() ) )

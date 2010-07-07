@@ -69,6 +69,9 @@
 #include "icons/steak.xpm"
 #include "WMTemplate.h"
 
+// This line is needed by the module loader to actually find your module. You need to add this to your module too.
+W_LOADABLE_MODULE( WMTemplate );
+
 WMTemplate::WMTemplate():
     WModule()
 {

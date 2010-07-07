@@ -197,8 +197,10 @@ protected:
 
 private:
 
-	//! Keeps handles to shared libraries and destroys them on destruction.
-	WModuleLoader m_moduleLoader;
+    /**
+     * Loader class managing dynamically loaded modules in open walnut.
+     */
+    WModuleLoader m_moduleLoader;
 
     /**
      * Singleton instance of WModuleFactory.
