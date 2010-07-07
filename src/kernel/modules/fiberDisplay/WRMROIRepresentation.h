@@ -34,8 +34,8 @@
 #include <boost/thread/thread.hpp>
 
 #include "WKdTree.h"
-#include "./../../common/WProperties.h"
-#include "../../graphicsEngine/WROI.h"
+#include "./../../../common/WProperties.h"
+#include "../../../graphicsEngine/WROI.h"
 class WRMBranch;
 /**
  * class encapsulates rois for the roi manager class

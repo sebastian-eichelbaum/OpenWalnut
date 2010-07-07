@@ -22,49 +22,54 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WUPDATETHREAD_H
-#define WUPDATETHREAD_H
+#ifndef WMODULELOADER_H
+#define WMODULELOADER_H
 
-#include "../../common/WThreadedRunner.h"
+#include <dlfcn.h>
+#include <string>
+#include <set>
 
-class WROIManagerFibers;
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/fstream.hpp>
+
+#include "../common/WSharedAssociativeContainer.h"
+#include "../common/WLogger.h"
+#include "WModule.h"
+
 /**
- * implements a thread that updates the fiber selection bit field
+ * \class WModuleLoader
+ * 
+ * Loads module prototypes from shared objects in a given directory. 
  */
-class WUpdateThread: public WThreadedRunner
+class WModuleLoader
 {
 public:
-    /**
-     * default constructor
-     *
-     * \param roiManager
-     */
-    explicit WUpdateThread( boost::shared_ptr< WROIManagerFibers >roiManager );
+	/**
+	 * Constructor.
+	 * 
+	 * \param relPath The relative path of the module lib directory.
+	 */
+	WModuleLoader( const boost::filesystem::path& relPath );
+	
+	/**
+	 * Destructor, closes all handles to shared libraries.
+	 */
+	~WModuleLoader();
+	
+	/**
+	 * Load the module prototypes from the shared libraries.
+	 * 
+	 * \param ticket A write ticket to a shared container.
+	 */
+	void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket );
 
-    /**
-     * destructor
-     */
-    virtual ~WUpdateThread();
-
-    /**
-     * entry for the run command
-     */
-    virtual void threadMain();
-
-    /**
-     * Return the value of the finished flag.
-     */
-    inline bool isFinished();
-
-protected:
 private:
-    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores pointer to the roi manager
-    bool m_myThreadFinished; //!< Has the thread finished?
+
+	//! the handles to the shared objects ( linux! )
+	std::vector< void* > m_handles;
+	
+	//! the module path
+	const boost::filesystem::path m_path;
 };
 
-bool WUpdateThread::isFinished()
-{
-    return m_myThreadFinished;
-}
-
-#endif  // WUPDATETHREAD_H
+#endif  // WMODULELOADER_H

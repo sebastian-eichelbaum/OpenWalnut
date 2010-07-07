@@ -31,7 +31,7 @@
 #include <boost/program_options.hpp>
 
 #include "../../kernel/WModule.h"
-#include "../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "../WGUI.h"
 
 class WMainWindow;

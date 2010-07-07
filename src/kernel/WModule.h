@@ -570,6 +570,15 @@ private:
 };
 
 /**
+ * The following macro is used by modules so the factory can aquire a prototype instance.
+ */
+#define W_SHARED_LIB_ENTRY( MODULECLASS ) \
+extern "C" boost::shared_ptr< WModule > createModuleInstance() \
+{\
+	return boost::shared_ptr< WModule >( new MODULECLASS );\
+}\
+
+/**
  * \defgroup modules Modules
  *
  * \brief

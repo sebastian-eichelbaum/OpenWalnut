@@ -36,7 +36,7 @@
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/WGUI.h"
-#include "../modules/fiberDisplay/WROIManagerFibers.h"
+#include "modules/fiberDisplay/WROIManagerFibers.h"
 #include "WSelectionManager.h"
 #include "WModule.h"
 #include "WModuleContainer.h"

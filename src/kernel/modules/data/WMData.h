@@ -30,13 +30,13 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "../../WKernel.h"
+#include "../../WModule.h"
+#include "../../WModuleConnector.h"
+#include "../../WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSet.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../../dataHandler/WDataSet.h"
+#include "../../../dataHandler/WDataSetSingle.h"
 
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its

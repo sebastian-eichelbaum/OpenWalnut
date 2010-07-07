@@ -1,12 +1,12 @@
 FILE( GLOB KERNEL_SRC "*.cpp" "*.h" )
 
-FILE( GLOB_RECURSE MODULES_SRC "../modules/*.cpp" "../modules/*.h" )
+FILE( GLOB_RECURSE MODULES_SRC "modules/*.cpp" "modules/*.h" )
 
 FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
 FILE( GLOB KERNEL_COMBINER_SRC "combiner/*.cpp" "combiner/*.h" )
 
 ADD_LIBRARY( kernel ${KERNEL_SRC} ${MODULES_SRC} ${KERNEL_EXCEPTIONS_SRC} ${KERNEL_COMBINER_SRC} )
-TARGET_LINK_LIBRARIES( kernel common dataHandler ge ${OPENSCENEGRAPH_LIBRARIES} )
+TARGET_LINK_LIBRARIES( kernel common dataHandler ge ${OPENSCENEGRAPH_LIBRARIES} ${CMAKE_DL_LIBS} )
 
 
 # Unit tests

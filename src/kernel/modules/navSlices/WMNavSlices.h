@@ -32,13 +32,13 @@
 
 #include <osg/Node>
 
-#include "../../dataHandler/WDataSet.h"
-#include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WPickInfo.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleInputData.h"
+#include "../../../dataHandler/WDataSet.h"
+#include "../../../graphicsEngine/WShader.h"
+#include "../../../graphicsEngine/WGEGroupNode.h"
+#include "../../../graphicsEngine/WPickInfo.h"
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleConnector.h"
+#include "../../../kernel/WModuleInputData.h"
 
 /**
  * Navigation slice module

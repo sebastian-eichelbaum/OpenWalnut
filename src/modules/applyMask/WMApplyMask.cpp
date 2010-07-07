@@ -38,6 +38,8 @@
 #include "WMApplyMask.h"
 #include "apply_mask.xpm"
 
+W_SHARED_LIB_ENTRY( WMApplyMask )
+
 WMApplyMask::WMApplyMask() :
     WModule()
 {

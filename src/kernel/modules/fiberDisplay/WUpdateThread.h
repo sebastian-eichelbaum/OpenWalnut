@@ -22,48 +22,49 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WROIREMOVEEVENT_H
-#define WROIREMOVEEVENT_H
+#ifndef WUPDATETHREAD_H
+#define WUPDATETHREAD_H
 
-#include <boost/shared_ptr.hpp>
+#include "../../../common/WThreadedRunner.h"
 
-#include <QtCore/QEvent>
-
-#include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
-
-
+class WROIManagerFibers;
 /**
- * Event signalling a roi has been removed from the roi manager in the kernel.
+ * implements a thread that updates the fiber selection bit field
  */
-class WRoiRemoveEvent : public QEvent
+class WUpdateThread: public WThreadedRunner
 {
 public:
     /**
-     * constructor
-     * \param roi
+     * default constructor
+     *
+     * \param roiManager
      */
-    explicit WRoiRemoveEvent( boost::shared_ptr< WRMROIRepresentation > roi );
+    explicit WUpdateThread( boost::shared_ptr< WROIManagerFibers >roiManager );
 
     /**
      * destructor
      */
-    virtual ~WRoiRemoveEvent();
+    virtual ~WUpdateThread();
 
     /**
-     * Getter for the roi that got removed.
-     *
-     * \return the roi.
+     * entry for the run command
      */
-    boost::shared_ptr< WRMROIRepresentation > getRoi();
+    virtual void threadMain();
+
+    /**
+     * Return the value of the finished flag.
+     */
+    inline bool isFinished();
 
 protected:
-    /**
-     * The roi that got removed.
-     */
-    boost::shared_ptr< WRMROIRepresentation > m_roi;
-
 private:
+    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores pointer to the roi manager
+    bool m_myThreadFinished; //!< Has the thread finished?
 };
 
-#endif  // WROIREMOVEEVENT_H
+bool WUpdateThread::isFinished()
+{
+    return m_myThreadFinished;
+}
+
+#endif  // WUPDATETHREAD_H

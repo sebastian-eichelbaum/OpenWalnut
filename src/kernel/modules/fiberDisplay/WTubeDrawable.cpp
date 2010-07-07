@@ -24,8 +24,8 @@
 
 #include <vector>
 
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../kernel/WKernel.h"
+#include "../../../dataHandler/WDataSetFibers.h"
+#include "../../../kernel/WKernel.h"
 #include "WTubeDrawable.h"
 
 // The constructor here does nothing. One thing that may be necessary is

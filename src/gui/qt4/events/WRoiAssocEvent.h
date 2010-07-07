@@ -30,7 +30,7 @@
 #include <QtCore/QEvent>
 
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 
 /**
  * Event signalling a new roi has been associated with the roi manager in the kernel.
