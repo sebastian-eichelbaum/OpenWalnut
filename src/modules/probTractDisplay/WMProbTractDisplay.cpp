@@ -41,6 +41,9 @@
 #include "WMProbTractDisplay.h"
 #include "directvolumerendering.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMProbTractDisplay )
+
 WMProbTractDisplay::WMProbTractDisplay():
     WModule(),
     m_rootNode( new osg::Node() )

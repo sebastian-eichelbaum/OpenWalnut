@@ -55,6 +55,8 @@
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "WMMarchingCubes.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMMarchingCubes )
 
 WMMarchingCubes::WMMarchingCubes():
     WModule(),

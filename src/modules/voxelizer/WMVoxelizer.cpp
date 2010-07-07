@@ -52,6 +52,9 @@
 #include "WCenterlineParameterization.h"
 #include "voxelizer.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMVoxelizer )
+
 WMVoxelizer::WMVoxelizer()
     : WModule(),
       m_fullUpdate( new WCondition() )

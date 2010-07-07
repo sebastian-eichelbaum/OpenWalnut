@@ -41,6 +41,9 @@
 #include "WMBoundingBox.h"
 #include "boundingbox.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMBoundingBox )
+
 WMBoundingBox::WMBoundingBox():
     WModule()
 {

@@ -33,6 +33,9 @@
 #include "WMTriangleMeshRenderer.h"
 #include "trianglemeshrenderer.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMTriangleMeshRenderer )
+
 WMTriangleMeshRenderer::WMTriangleMeshRenderer():
     WModule(),
     m_moduleNode( new WGEGroupNode() ),

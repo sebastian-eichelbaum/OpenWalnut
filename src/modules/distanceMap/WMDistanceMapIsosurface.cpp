@@ -36,6 +36,9 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDistanceMapIsosurface )
+
 WMDistanceMapIsosurface::WMDistanceMapIsosurface():
     WModuleContainer( "Distance Map Isosurface",
                       "Computes a smoothed version of the dataset"

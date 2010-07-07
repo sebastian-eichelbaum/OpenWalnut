@@ -41,6 +41,9 @@
 #include "WMDataTypeConversion.h"
 #include "datatypeconversion.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDataTypeConversion )
+
 WMDataTypeConversion::WMDataTypeConversion() :
     WModule()
 {

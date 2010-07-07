@@ -56,6 +56,9 @@
 #include "WSurface.h"
 #include "WMSplineSurface.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMSplineSurface )
+
 WMSplineSurface::WMSplineSurface() :
     WModule(), m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ), m_shaderUseLighting( false ), m_shaderUseTransparency( false ),
             m_moduleNode( new WGEGroupNode() ), m_surfaceGeode( 0 )

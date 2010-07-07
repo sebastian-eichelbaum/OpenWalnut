@@ -44,6 +44,9 @@
 
 #include "WMCoordinateSystem.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMCoordinateSystem )
+
 WMCoordinateSystem::WMCoordinateSystem() :
     WModule(), m_dirty( false ), m_drawOffset( 0.02 )
 {
