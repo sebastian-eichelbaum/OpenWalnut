@@ -75,7 +75,6 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     m_moduleTreeWidget->setDragEnabled( false );
     m_moduleTreeWidget->viewport()->setAcceptDrops( true );
     m_moduleTreeWidget->setDropIndicatorShown( true );
-    m_moduleTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_moduleTreeWidget->setMinimumHeight( 250 );
 
     // create context menu for tree items
@@ -293,6 +292,8 @@ bool WQtDatasetBrowser::event( QEvent* event )
         boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
         boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
 
+        // NOTE: the following is ugly. We definitely should rethink our GUI
+
         // at this moment items for each input connector are inside the tree.
         // search the items not yet associated with some other module for the first item
         std::list< WQtTreeItem* > items = findItemsByModule( mIn, m_tiModules );
@@ -329,7 +330,45 @@ bool WQtDatasetBrowser::event( QEvent* event )
             return true;
         }
 
-        // TODO(ebaum): handle it and place tree items appropriately
+        // get the module of the input involved in this connection
+        boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
+        boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
+
+        // NOTE: the following is ugly. We definitely should rethink our GUI
+
+        // at this moment items for each input connector are inside the tree.
+        // search all items an find those containing a children which belongs to the connection input
+        std::list< WQtTreeItem* > items = findItemsByModule( mOut );
+        for ( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
+        {
+            // each of them can contain a child with the involved input
+            std::list< WQtTreeItem* > childs = findItemsByModule( mIn, *iter );
+            for ( std::list< WQtTreeItem* >::const_iterator citer = childs.begin(); citer != childs.end(); ++citer )
+            {
+                if ( ( *citer )->getHandledInput() == e->getInput()->getName() )
+                {
+                    ( *iter )->removeChild( *citer );
+
+                    // move it back to the reservoir in m_tiModules
+                    m_tiModules->addChild( *citer );
+                    ( *citer )->setHidden( true );
+                    ( *citer )->setHandledInput( "" );
+                    ( *citer )->setHandledOutput( "" );
+                }
+            }
+        }
+
+        // we need to ensure that at least one item for mIn is visible somewhere
+        items = findItemsByModule( mIn );
+        bool oneVisible = false;
+        for ( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
+        {
+            oneVisible = oneVisible || !( *iter )->isHidden();
+        }
+        if ( !oneVisible )
+        {
+            ( *items.begin() )->setHidden( false );
+        }
     }
 
     // a module tree item should be deleted
