@@ -104,7 +104,7 @@ struct WSharedLib::data
      */
     void* findVariable( const std::string& name )
     {
-        return reinterpret_cast< void* >( find_func( name ) );
+        return reinterpret_cast< void* >( findFunction( name ) );
     }
 
     /**
