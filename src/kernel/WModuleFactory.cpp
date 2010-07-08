@@ -37,6 +37,7 @@
 #include "../modules/boundingBox/WMBoundingBox.h"
 #include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
 #include "../modules/clusterSlicer/WMClusterSlicer.h"
+#include "../modules/coordinateHUD/WMCoordinateHUD.h"
 #include "../modules/coordinateSystem/WMCoordinateSystem.h"
 #include "../modules/dataTypeConversion/WMDataTypeConversion.h"
 #include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
@@ -100,6 +101,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
+    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMCoordinateHUD() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMCoordinateSystem() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
