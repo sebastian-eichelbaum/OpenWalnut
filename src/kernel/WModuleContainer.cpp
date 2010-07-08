@@ -142,7 +142,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
         ( *iter )( module );
     }
     slock = boost::shared_lock<boost::shared_mutex>( m_connectorNotifiersLock );
-    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorEstablishedNotifiers.begin(); iter != m_connectorEstablishedNotifiers.end(); ++iter)
+    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorEstablishedNotifiers.begin();
+                                                            iter != m_connectorEstablishedNotifiers.end(); ++iter)
     {
         // subscribe on each input
         for ( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )
@@ -151,7 +152,8 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
             subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
         }
     }
-    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorClosedNotifiers.begin(); iter != m_connectorClosedNotifiers.end(); ++iter)
+    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorClosedNotifiers.begin();
+                                                            iter != m_connectorClosedNotifiers.end(); ++iter)
     {
         // subscribe on each input
         for ( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )

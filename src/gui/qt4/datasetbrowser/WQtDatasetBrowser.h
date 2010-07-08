@@ -25,6 +25,7 @@
 #ifndef WQTDATASETBROWSER_H
 #define WQTDATASETBROWSER_H
 
+#include <list>
 #include <string>
 #include <vector>
 
