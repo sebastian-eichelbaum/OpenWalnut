@@ -263,3 +263,14 @@ void* WSharedLib::findVariable( const std::string& name ) const
 {
     return m_data->findVariable( name );
 }
+
+std::string WSharedLib::getSystemPrefix()
+{
+    return W_LIB_PREFIX;
+}
+
+std::string WSharedLib::getSystemSuffix()
+{
+    return W_LIB_SUFFIX;
+}
+

@@ -51,9 +51,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
          i != boost::filesystem::directory_iterator(); ++i )
     {
         std::string suffix = wiotools::getSuffix( i->leaf() );
-        if( !boost::filesystem::is_directory( *i ) &&
-            ( ( suffix == ".so" ) || ( suffix == ".dll" ) || ( suffix == ".dylib" ) )
-          ) // This prefix has been defined by our build system
+        if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) )
         {
             try
             {
@@ -70,14 +68,14 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 // could the prototype be created?
                 if( !m )
                 {
-                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().native_file_string() + "\". Could not create " +
+                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->leaf() + "\". Could not create " +
                                                          "prototype instance.", "Module Loader", LL_ERROR );
                     continue;
                 }
                 else
                 {
                     // yes, add it to the list of prototypes
-                    WLogger::getLogger()->addLogMessage( "Loaded " + i->path().native_file_string(), "Module Loader", LL_INFO );
+                    WLogger::getLogger()->addLogMessage( "Loaded " + i->leaf(), "Module Loader", LL_INFO );
                     ticket->get().insert( m );
                     m_libs.push_back( l );
                 }
@@ -86,7 +84,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
             }
             catch( const WException& e )
             {
-                WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().native_file_string() + "\". " + e.what() + ". Ignoring.",
+                WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->leaf() + "\". " + e.what() + ". Ignoring.",
                                                      "Module Loader", LL_ERROR );
             }
         }

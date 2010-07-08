@@ -8,8 +8,13 @@ ADD_SUBDIRECTORY( constraints )
 ADD_SUBDIRECTORY( math )
 
 ADD_LIBRARY( common ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} ${MATH_SRC} ${FIBERSIMILARITY_SRC} )
-TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} "dl" )
+TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} )
 
+# Set the prefix and suffix of dynamically loadable modules to match
+# CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
+# with these defines.
+add_definitions( '-DW_LIB_PREFIX="${CMAKE_SHARED_MODULE_PREFIX}"' )
+add_definitions( '-DW_LIB_SUFFIX="${CMAKE_SHARED_MODULE_SUFFIX}"' )
 
 # Unit tests
 IF( OW_COMPILE_TESTS )

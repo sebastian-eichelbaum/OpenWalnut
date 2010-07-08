@@ -110,6 +110,20 @@ public:
     template < typename PtrType >
     void fetchVariable( const std::string& name, PtrType& variable ) const;
 
+    /**
+     * Returns the prefix used for libraries on the system. On Unix this mostly is "lib".
+     *
+     * \return the prefix.
+     */
+    static std::string getSystemPrefix();
+
+    /**
+     * Returns the suffix for libraries used on the system. On Unix this mostly is "so", Windows uses "dll" and Mac something like "dylib".
+     *
+     * \return the suffix.
+     */
+    static std::string getSystemSuffix();
+
 protected:
 
 private:
