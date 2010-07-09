@@ -31,13 +31,13 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/WColor.h"
-#include "../../common/WLogger.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
+#include "../../../common/WColor.h"
+#include "../../../common/WLogger.h"
+#include "../../../dataHandler/WDataHandler.h"
+#include "../../../dataHandler/WDataTexture3D.h"
+#include "../../../dataHandler/WSubject.h"
+#include "../../../graphicsEngine/WGEUtils.h"
+#include "../../../kernel/WKernel.h"
 #include "fiberdisplay.xpm"
 #include "WMFiberDisplay.h"
 

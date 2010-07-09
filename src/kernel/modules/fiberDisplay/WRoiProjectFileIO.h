@@ -22,49 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WUPDATETHREAD_H
-#define WUPDATETHREAD_H
+#ifndef WROIPROJECTFILEIO_H
+#define WROIPROJECTFILEIO_H
 
-#include "../../common/WThreadedRunner.h"
+#include <string>
 
-class WROIManagerFibers;
+#include "../../../common/WProjectFileIO.h"
+
 /**
- * implements a thread that updates the fiber selection bit field
+ * IO Class for writing the ROI structure to a project file.
  */
-class WUpdateThread: public WThreadedRunner
+class WRoiProjectFileIO: public WProjectFileIO
 {
 public:
+
     /**
-     * default constructor
+     * Default constructor.
+     */
+    WRoiProjectFileIO();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WRoiProjectFileIO();
+
+    /**
+     * This method parses the specified line and interprets it. It gets called line by line by WProjectFile.
      *
-     * \param roiManager
+     * \param line the current line as string
+     * \param lineNumber the current line number. Useful for error/warning/debugging output.
+     *
+     * \return true if the line could be parsed.
      */
-    explicit WUpdateThread( boost::shared_ptr< WROIManagerFibers >roiManager );
+    virtual bool parse( std::string line, unsigned int lineNumber );
 
     /**
-     * destructor
+     * Called whenever the end of the project file has been reached. This is useful if your specific parser class wants to do some post
+     * processing after parsing line by line.
      */
-    virtual ~WUpdateThread();
+    virtual void done();
 
     /**
-     * entry for the run command
+     * Saves the state to the specified stream.
+     *
+     * \param output the stream to print the state to.
      */
-    virtual void threadMain();
-
-    /**
-     * Return the value of the finished flag.
-     */
-    inline bool isFinished();
+    virtual void save( std::ostream& output );   // NOLINT
 
 protected:
+
 private:
-    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores pointer to the roi manager
-    bool m_myThreadFinished; //!< Has the thread finished?
 };
 
-bool WUpdateThread::isFinished()
-{
-    return m_myThreadFinished;
-}
+#endif  // WROIPROJECTFILEIO_H
 
-#endif  // WUPDATETHREAD_H

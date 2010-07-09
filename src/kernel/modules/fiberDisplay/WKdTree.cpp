@@ -25,8 +25,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "../../common/WAssert.h"
-#include "../../common/WLogger.h"
+#include "../../../common/WAssert.h"
+#include "../../../common/WLogger.h"
 
 #include "WKdTree.h"
 

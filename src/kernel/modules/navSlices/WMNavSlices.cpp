@@ -49,10 +49,10 @@
 #include "../../../graphicsEngine/WShader.h"
 #include "../../../graphicsEngine/WGraphicsEngine.h"
 #include "../../../graphicsEngine/WGEUtils.h"
-#include "../../../kernel/WKernel.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleConnector.h"
-#include "../../../kernel/WModuleInputData.h"
+#include "../../WKernel.h"
+#include "../../WModule.h"
+#include "../../WModuleConnector.h"
+#include "../../WModuleInputData.h"
 #include "WMNavSlices.h"
 #include "navslices.xpm"
 
@@ -131,6 +131,7 @@ void WMNavSlices::properties()
     m_sagittalPos    = m_properties->addProperty( "Sagittal Slice",    "Position of sagittal slice.", 80 );
     m_sagittalPos->setMin( 0 );
     m_sagittalPos->setMax( 160 );
+    m_showComplete = m_properties->addProperty( "show complete", "Slice should be drawn complete even if the texture value is zero.", false );
 
     m_axialPos->setHidden();
     m_coronalPos->setHidden();
@@ -749,9 +750,6 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
 
 void WMNavSlices::updateGeometry()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
     if ( m_textureChanged // Depends on call order of update routines in callback.
          || m_sagittalPos->changed()
          || m_coronalPos->changed()
@@ -816,8 +814,6 @@ void WMNavSlices::updateGeometry()
     {
         m_xSliceNode->setNodeMask( 0x0 );
     }
-
-    slock.unlock();
 }
 
 
@@ -882,6 +878,8 @@ void WMNavSlices::updateTextures()
     m_highlightUniformCoronal->set( m_isPickedCoronal );
     m_highlightUniformAxial->set( m_isPickedAxial );
 
+    m_showCompleteUniform->set( m_showComplete->get() );
+
     m_xSliceNode->getOrCreateStateSet()->merge( *rootState );
     m_ySliceNode->getOrCreateStateSet()->merge( *rootState );
     m_zSliceNode->getOrCreateStateSet()->merge( *rootState );
@@ -889,9 +887,6 @@ void WMNavSlices::updateTextures()
 
 void WMNavSlices::initUniforms( osg::StateSet* rootState )
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type2", 0 ) ) );
@@ -964,7 +959,11 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     m_ySliceNode->getOrCreateStateSet()->addUniform( m_highlightUniformCoronal );
     m_zSliceNode->getOrCreateStateSet()->addUniform( m_highlightUniformAxial );
 
-    slock.unlock();
+    m_showCompleteUniform = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "showComplete", 0 ) );
+
+    m_xSliceNode->getOrCreateStateSet()->addUniform( m_showCompleteUniform );
+    m_ySliceNode->getOrCreateStateSet()->addUniform( m_showCompleteUniform );
+    m_zSliceNode->getOrCreateStateSet()->addUniform( m_showCompleteUniform );
 }
 
 void WMNavSlices::updateViewportMatrix()

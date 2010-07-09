@@ -126,16 +126,20 @@ void WMData::properties()
     // use this callback for the other properties
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
 
+
+    m_groupTex = m_properties->addPropertyGroup( "Texture Properties",  "Properties only related to the texture representation." );
+    m_groupTexManip = m_properties->addPropertyGroup( "Texture Manipulation",  "Properties only related to the texture manipulation." );
+
     // several other properties
-    m_interpolation = m_properties->addProperty( "Interpolation",
+    m_interpolation = m_groupTex->addProperty( "Interpolation",
                                                   "If active, the boundaries of single voxels"
                                                   " will not be visible in colormaps. The transition between"
                                                   " them will be smooth by using interpolation then.",
                                                   true,
                                                   propertyCallback );
-    m_threshold = m_properties->addProperty( "Threshold", "Values below this threshold will not be "
+    m_threshold = m_groupTex->addProperty( "Threshold", "Values below this threshold will not be "
                                               "shown in colormaps.", 0., propertyCallback );
-    m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
+    m_opacity = m_groupTex->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
                                             " values from several data sets.", 100, propertyCallback );
     m_opacity->setMax( 100 );
     m_opacity->setMin( 0 );
@@ -148,8 +152,38 @@ void WMData::properties()
     m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
 
-    m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
+    m_colorMapSelection = m_groupTex->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
+
+    m_translationX = m_groupTexManip->addProperty( "X translation", "", 0, propertyCallback );
+    m_translationX->setMax( 300 );
+    m_translationX->setMin( -300 );
+    m_translationY = m_groupTexManip->addProperty( "Y translation", "", 0, propertyCallback );
+    m_translationY->setMax( 300 );
+    m_translationY->setMin( -300 );
+    m_translationZ = m_groupTexManip->addProperty( "Z translation", "", 0, propertyCallback );
+    m_translationZ->setMax( 300 );
+    m_translationZ->setMin( -300 );
+
+    m_stretchX = m_groupTexManip->addProperty( "voxel size X", "", 1.0, propertyCallback );
+    m_stretchX->setMax( 10. );
+    m_stretchX->setMin( 0.1 );
+    m_stretchY = m_groupTexManip->addProperty( "voxel size Y", "", 1.0, propertyCallback );
+    m_stretchY->setMax( 10. );
+    m_stretchY->setMin( 0.1 );
+    m_stretchZ = m_groupTexManip->addProperty( "voxel size Z", "", 1.0, propertyCallback );
+    m_stretchZ->setMax( 10. );
+    m_stretchZ->setMin( 0.1 );
+
+    m_rotationX = m_groupTexManip->addProperty( "X rotation", "", 0, propertyCallback );
+    m_rotationX->setMax( 180 );
+    m_rotationX->setMin( -180 );
+    m_rotationY = m_groupTexManip->addProperty( "Y rotation", "", 0, propertyCallback );
+    m_rotationY->setMax( 180 );
+    m_rotationY->setMin( -180 );
+    m_rotationZ = m_groupTexManip->addProperty( "Z rotation", "", 0, propertyCallback );
+    m_rotationZ->setMax( 180 );
+    m_rotationZ->setMin( -180 );
 }
 
 void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
@@ -175,6 +209,32 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
         else if ( property == m_colorMapSelection )
         {
             m_dataSet->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
+        }
+        else if ( property == m_translationX || property == m_translationY || property == m_translationZ )
+        {
+            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
+            wmath::WPosition pos( m_translationX->get(), m_translationY->get(), m_translationZ->get() );
+            grid->translate( pos );
+            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+        }
+        else if ( property == m_stretchX || property == m_stretchY || property == m_stretchZ )
+        {
+            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
+            wmath::WPosition str( m_stretchX->get(), m_stretchY->get(), m_stretchZ->get() );
+            grid->stretch( str );
+            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+        }
+        else if ( property == m_rotationX || property == m_rotationY || property == m_rotationZ )
+        {
+            float pi = 3.14159265;
+            float rotx = static_cast<float>( m_rotationX->get() ) / 180. * pi;
+            float roty = static_cast<float>( m_rotationY->get() ) / 180. * pi;
+            float rotz = static_cast<float>( m_rotationZ->get() ) / 180. * pi;
+
+            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
+            wmath::WPosition rot( rotx, roty, rotz );
+            grid->rotate( rot );
+            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
         }
     }
     else
@@ -236,11 +296,8 @@ void WMData::moduleMain()
         || suffix == ".edf" )
     {
         // hide other properties since they make no sense fo these data set types.
-        m_interpolation->setHidden();
-        m_threshold->setHidden();
-        m_opacity->setHidden();
-        m_active->setHidden();
-        m_colorMapSelection->setHidden();
+        m_groupTex->setHidden();
+        m_groupTexManip->setHidden();
     }
 
     if( suffix == ".nii"

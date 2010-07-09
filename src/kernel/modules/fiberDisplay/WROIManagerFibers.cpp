@@ -25,10 +25,10 @@
 #include <list>
 #include <vector>
 
-#include "../../common/WAssert.h"
+#include "../../../common/WAssert.h"
 #include "WUpdateThread.h"
 #include "WROIManagerFibers.h"
-#include "../../graphicsEngine/WROIBox.h"
+#include "../../../graphicsEngine/WROIBox.h"
 
 WROIManagerFibers::WROIManagerFibers()
 {

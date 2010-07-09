@@ -36,9 +36,9 @@
 #include "../../../graphicsEngine/WShader.h"
 #include "../../../graphicsEngine/WGEGroupNode.h"
 #include "../../../graphicsEngine/WPickInfo.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleConnector.h"
-#include "../../../kernel/WModuleInputData.h"
+#include "../../WModule.h"
+#include "../../WModuleConnector.h"
+#include "../../WModuleInputData.h"
 
 /**
  * Navigation slice module
@@ -202,6 +202,11 @@ private:
     WPropBool m_showSagittal;
 
     /**
+     * True if the shader shouldn't discard a fragment when the value is zero
+     */
+    WPropBool m_showComplete;
+
+    /**
      * The current position as information property.
      */
     WPropPosition m_currentPosition;
@@ -320,6 +325,8 @@ private:
     osg::ref_ptr<osg::Uniform> m_highlightUniformSagittal; //!< Determines whether the slice is highlighted
     osg::ref_ptr<osg::Uniform> m_highlightUniformCoronal; //!< Determines whether the slice is highlighted
     osg::ref_ptr<osg::Uniform> m_highlightUniformAxial; //!< Determines whether the slice is highlighted
+
+    osg::ref_ptr<osg::Uniform> m_showCompleteUniform; //!< Determines whether the slices should be drawn completely
 
     /**
      * To avoid multiple instances of the nav slices.
