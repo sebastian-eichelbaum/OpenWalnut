@@ -50,6 +50,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
     for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( m_path );
          i != boost::filesystem::directory_iterator(); ++i )
     {
+        // all modules need to begin with this
         std::string suffix = wiotools::getSuffix( i->leaf() );
         if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) )
         {

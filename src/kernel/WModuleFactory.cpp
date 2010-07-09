@@ -42,7 +42,7 @@ boost::shared_ptr< WModuleFactory > WModuleFactory::m_instance = boost::shared_p
 
 WModuleFactory::WModuleFactory():
     m_prototypes(),
-    m_moduleLoader( "modules/" )
+    m_moduleLoader( "../lib/modules" )
 {
     // initialize members
 }
