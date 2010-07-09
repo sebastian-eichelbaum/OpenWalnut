@@ -167,13 +167,13 @@ void WMData::properties()
 
     m_stretchX = m_groupTexManip->addProperty( "voxel size X", "", 1.0, propertyCallback );
     m_stretchX->setMax( 10. );
-    m_stretchX->setMin( 0.1 );
+    m_stretchX->setMin( -10. );
     m_stretchY = m_groupTexManip->addProperty( "voxel size Y", "", 1.0, propertyCallback );
     m_stretchY->setMax( 10. );
-    m_stretchY->setMin( 0.1 );
+    m_stretchY->setMin( -10. );
     m_stretchZ = m_groupTexManip->addProperty( "voxel size Z", "", 1.0, propertyCallback );
     m_stretchZ->setMax( 10. );
-    m_stretchZ->setMin( 0.1 );
+    m_stretchZ->setMin( -10. );
 
     m_rotationX = m_groupTexManip->addProperty( "X rotation", "", 0, propertyCallback );
     m_rotationX->setMax( 180 );
