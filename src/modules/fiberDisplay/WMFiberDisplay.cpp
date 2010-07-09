@@ -139,8 +139,6 @@ void WMFiberDisplay::moduleMain()
 
 void WMFiberDisplay::update()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
     if( m_noData.changed() )
     {
         if( m_osgNode && m_noData.get( true ) )
@@ -152,8 +150,6 @@ void WMFiberDisplay::update()
             m_osgNode->setNodeMask( 0xFFFFFFFF );
         }
     }
-
-    slock.unlock();
 }
 
 void WMFiberDisplay::create()
@@ -233,6 +229,7 @@ void WMFiberDisplay::properties()
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 300 );
+
     m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
     m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WKernel::getAppPathObject() );
     m_updateOC = m_properties->addProperty( "Update Output Conn.",
@@ -296,9 +293,12 @@ void WMFiberDisplay::toggleColoring()
 
 void WMFiberDisplay::adjustTubes()
 {
-    if ( m_tubeThickness->changed() && m_useTubesProp->get( true ) )
+    if ( m_tubeThickness.get() && m_useTubesProp.get() )
     {
-        m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
+        if ( m_tubeThickness->changed() && m_useTubesProp->get( true ) )
+        {
+            m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
+        }
     }
 }
 
@@ -326,8 +326,6 @@ void WMFiberDisplay::updateOutput() const
             }
             indices.push_back( fibs.size() );
             fibs.push_back( f );
-            // construct index'th fiber and put index into fiberCluster
-            std::cout << "size: " << fibs.size() << " :: " << fibs.back().size() << std::endl;
         }
     }
     boost::shared_ptr< WFiberCluster > result( new WFiberCluster );

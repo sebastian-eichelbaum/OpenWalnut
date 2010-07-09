@@ -32,13 +32,15 @@
 
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "WBresenhamDBL.h"
 #include "WRasterAlgorithm.h"
 
 /**
- * TODO(math): document this
+ * Traces a given set of deterministic tracts as given by a WFiberCluster in a voxelwise manner.
+ * Every voxel which is hit by one or more tracts or tract-segements is marked with a scalar.
  * \ingroup modules
  */
 class WMVoxelizer : public WModule
@@ -46,12 +48,12 @@ class WMVoxelizer : public WModule
 friend class WMVoxelizerTest;
 public:
     /**
-     * Constructs new FiberTestModule
+     * Default Constructor.
      */
     WMVoxelizer();
 
     /**
-     * Destructs this FiberTestModule
+     * Default Destructor.
      */
     virtual ~WMVoxelizer();
 
@@ -168,8 +170,15 @@ protected:
 
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< Output connector for a voxelized cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< Output connector for a voxelized cluster
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+
+    /**
+     * Output providing parameterization to other algorithms. It provides a scalar field which gets filled with the parameterization of the
+     * fibers, i.e. current integrated length.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_parameterizationOutput;
+
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
     osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module
@@ -188,6 +197,16 @@ private:
     WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
     WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
     WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
+
+    /**
+     * The available parameterization algorithms.
+     */
+    boost::shared_ptr< WItemSelection > m_paramAlgoSelections;
+
+    /**
+     * The actually selected parameterization algorithm.
+     */
+    WPropSelection m_parameterAlgo;
 
     /**
      * Node callback to hide unhide bounding box

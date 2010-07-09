@@ -26,6 +26,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
@@ -39,8 +40,7 @@
 #include "WProperties.h"
 
 WProperties::WProperties( std::string name, std::string description ):
-    WPropertyBase( name, description ),
-    m_propAccess( m_properties.getAccessObject() )
+    WPropertyBase( name, description )
 {
     m_updateCondition->add( m_properties.getChangeCondition() );
 }
@@ -51,18 +51,25 @@ WProperties::~WProperties()
 
 WProperties::WProperties( const WProperties& from ):
     WPropertyBase( from ),
-    m_properties(),
-    m_propAccess( m_properties.getAccessObject() )
+    m_properties()
 {
     // copy the properties inside
-    from.m_propAccess->beginRead();
+
+    // lock, unlocked if l looses focus
+    PropertySharedContainerType::ReadTicket l = from.m_properties.getReadTicket();
+
     // we need to make a deep copy here.
-    for ( PropertyIterator iter = from.m_propAccess->get().begin(); iter != from.m_propAccess->get().end(); ++iter )
+    for ( PropertyConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
         // clone them to keep dynamic type
         addProperty( ( *iter )->clone() );
     }
-    from.m_propAccess->endRead();
+
+    // unlock explicitly
+    l.reset();
+
+    // add the change condition of the prop list
+    m_updateCondition->add( m_properties.getChangeCondition() );
 }
 
 boost::shared_ptr< WPropertyBase > WProperties::clone()
@@ -100,15 +107,18 @@ bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, b
 
 void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
-    m_propAccess->beginWrite();
+    // lock, unlocked if l looses focus
+    PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
 
     // NOTE: WPropertyBase already prohibits invalid property names -> no check needed here
 
     // check uniqueness:
-    if ( std::count_if( m_propAccess->get().begin(), m_propAccess->get().end(),
+    if ( std::count_if( l->get().begin(), l->get().end(),
             boost::bind( boost::mem_fn( &WProperties::propNamePredicate ), this, prop, _1 ) ) )
     {
-        m_propAccess->endWrite();
+        // unlock explicitly
+        l.reset();
+
         // oh oh, this property name is not unique in this group
         if ( !getName().empty() )
         {
@@ -127,17 +137,25 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     }
     // INFORMATION properties are allowed inside PARAMETER groups -> do not set the properties purpose.
 
-    m_propAccess->get().push_back( prop );
-    m_propAccess->endWrite();
+    l->get().push_back( prop );
+}
+
+void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
+{
+    // lock, unlocked if l looses focus
+    PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
+    l->get().erase( std::remove( l->get().begin(), l->get().end(), prop ), l->get().end() );
 }
 
 boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
 {
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
-    props->m_propAccess->beginRead();
+
+    // lock, unlocked if l looses focus
+    PropertySharedContainerType::ReadTicket l = props->m_properties.getReadTicket();
 
     // iterate over the items
-    for ( PropertyContainerType::const_iterator it = props->m_propAccess->get().begin(); it != props->m_propAccess->get().end(); ++it )
+    for ( PropertyContainerType::const_iterator it = l->get().begin(); it != l->get().end(); ++it )
     {
         if ( ( *it )->getName() == name )
         {
@@ -146,9 +164,7 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props
         }
     }
 
-    // done.
-    props->m_propAccess->endRead();
-
+    // done. Unlocked after l looses focus.
     return result;
 }
 
@@ -205,8 +221,14 @@ boost::shared_ptr< WPropertyBase > WProperties::getProperty( std::string name )
     return p;
 }
 
+WProperties::PropertySharedContainerType::ReadTicket WProperties::getProperties() const
+{
+    return m_properties.getReadTicket();
+}
+
 WProperties::PropertySharedContainerType::WSharedAccess WProperties::getAccessObject()
 {
+    // TODO(ebaum): deprecated. Clean up if not needed anymore.
     return m_properties.getAccessObject();
 }
 
@@ -220,9 +242,9 @@ WPropGroup WProperties::addPropertyGroup( std::string name, std::string descript
 
 void WProperties::clear()
 {
-    m_propAccess->beginWrite();
-    m_propAccess->get().clear();
-    m_propAccess->endWrite();
+    // lock, unlocked if l looses focus
+    PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
+    l->get().clear();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

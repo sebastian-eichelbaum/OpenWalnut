@@ -30,35 +30,33 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
+#include <QtGui/QCloseEvent>
 #include <QtGui/QIcon>
 #include <QtGui/QMainWindow>
 #include <QtGui/QSlider>
 #include <QtGui/QWidget>
-#include <QtGui/QCloseEvent>
 
-#include "WQtNavGLWidget.h"
-#include "WQtConfigWidget.h"
-#include "ribbonMenu/WQtRibbonMenu.h"
-#include "WQtCustomDockWidget.h"
-#include "WQtToolBar.h"
-
-#include "WIconManager.h"
-#include "datasetbrowser/WQtDatasetBrowser.h"
-
-#include "../../kernel/WModule.h"
 #include "../../common/WProjectFileIO.h"
+#include "../../kernel/WModule.h"
+#include "datasetbrowser/WQtDatasetBrowser.h"
+#include "ribbonMenu/WQtRibbonMenu.h"
+#include "WIconManager.h"
+#include "WQtConfigWidget.h"
+#include "WQtCustomDockWidget.h"
+#include "WQtNavGLWidget.h"
+#include "WQtToolBar.h"
+#include "WQtCombinerToolbar.h"
 
 // forward declarations
 class QMenuBar;
 class WQtGLWidget;
 
 /**
- * This class contains the main window and the layout
- * of the widgets within the window.
+ * This class contains the main window and the layout of the widgets within the window.
  * \ingroup gui
  */
 class WMainWindow : public QMainWindow
@@ -87,11 +85,6 @@ public:
     WQtRibbonMenu* getRibbonMenu();
 
     /**
-     *  returns a pointer to the tool bar showing the compatible modules
-     */
-    WQtToolBar* getCompatiblesToolBar();
-
-    /**
      * Return icon manager
      */
     WIconManager* getIconManager();
@@ -118,6 +111,56 @@ public:
      * \param title the title of the widget to close
      */
     void closeCustomDockWidget( std::string title );
+
+    /**
+     * This method returns the default style for ALL toolbars.
+     *
+     * \return the toolbar style
+     */
+    Qt::ToolButtonStyle getToolbarStyle() const;
+
+    /**
+     * All possible positions of the toolbars.
+     */
+    typedef enum
+    {
+        Top = 0,
+        Bottom,
+        Left,
+        Right,
+        Hide,
+        InDSB
+    }
+    ToolBarPosition;
+
+    /**
+     * Returns the preferred position of toolbars.
+     *
+     * \return QT Position for the toolbars used as default for all toolbars.
+     */
+    static ToolBarPosition getToolbarPos();
+
+    /**
+     * Returns the preferred position of toolbars.
+     *
+     * \return QT Position for the toolbars used as default for the compatibles toolbars.
+     */
+    static ToolBarPosition getCompatiblesToolbarPos();
+
+    /**
+     * Converts the specified position to the appropriate qt toolbar area constant. Unknown positions (InDSB, Hide) are converted to
+     * Qt::NoToolBarArea.
+     *
+     * \param pos the position to convert.
+     */
+    static Qt::ToolBarArea toQtToolBarArea( ToolBarPosition pos );
+
+    /**
+     * This method removes the old compatibles toolbar and sets the specified one.
+     *
+     * \param toolbar the toolbar to set. If NULL, the toolbar gets reset.
+     */
+    void setCompatiblesToolbar( WQtCombinerToolbar* toolbar = NULL );
 
 protected:
 
@@ -173,6 +216,41 @@ public slots:
     void openAboutDialog();
 
     /**
+     * Sets the left preset view of the main viewer.
+     */
+    void setPresetViewLeft();
+
+    /**
+     * Sets the right preset view of the main viewer.
+     */
+    void setPresetViewRight();
+
+    /**
+     * Sets the superior preset view of the main viewer.
+     */
+    void setPresetViewSuperior();
+
+    /**
+     * Sets the inferior preset view of the main viewer.
+     */
+    void setPresetViewInferior();
+
+    /**
+     * Sets the anterior preset view of the main viewer.
+     */
+    void setPresetViewAnterior();
+
+    /**
+     * Sets the posterior preset view of the main viewer.
+     */
+    void setPresetViewPosterior();
+
+    /**
+     * Gets called when a menu entry that has no functionality yet is activated.
+     */
+    void openNotImplementedDialog();
+
+    /**
      * gets called when the button new roi is pressed
      */
     void newRoi();
@@ -208,9 +286,10 @@ public slots:
     void setFibersLoaded();
 
     /**
-    * gets called when menu option or toolbar button load is activated
-    */
+     * Gets called when menu option or toolbar button load is activated
+     */
     void openConfigDialog();
+
 private:
     /**
      * Sets up the permanent tool bar.
@@ -218,19 +297,17 @@ private:
     void setupPermanentToolBar();
 
     /**
-     * Sets up the initial state of the tool bar showing the compatible modules
+     * The currently set compatibles toolbar
      */
-    void setupCompatiblesToolBar();
+    WQtCombinerToolbar* m_currentCompatiblesToolbar;
 
     WIconManager m_iconManager; //!< manager to provide icons in the gui thread
 
     QMenuBar* m_menuBar; //!< The main menu bar of the GUI.
 
-    QWidget* m_centralwidget; //!< the central widget of the docking facility. This can not be moved.
-
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
-    WQtToolBar* m_compatiblesToolBar; //!< This toolbar shows the compatible modules if a module is selected in the dataset browser
+    WQtPushButton* m_loadButton; //!< the load Data Button
 
     WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
 
@@ -241,11 +318,15 @@ private:
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
 
     /**
-    * shared pointer for the configuration widget
-    */
+     * shared pointer for the configuration widget
+     */
     boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
-    bool m_fibLoaded; //!< Indicates whether a fiber data set is already loaded.
+    /**
+     * Used to ensure that only one fiber dataset can be loaded since the
+     * ROIManager is not known to work with more than one fiber dataset
+     */
+    bool m_fibLoaded; // TODO(all): remove this when its possible to display more than one fiber dataset
 
     /**
      * All registered WQtCustomDockWidgets.

@@ -221,10 +221,30 @@ void WMWriteNIfTI::writeToFile()
             castData< unsigned char > ( data );
             outField->nbyper = 1;
             break;
+        case W_DT_INT8:
+            outField->datatype = DT_INT8;
+            castData< char > ( data );
+            outField->nbyper = 1;
+            break;
         case W_DT_UINT16:
             outField->datatype = DT_UINT16;
             castData< uint16_t > ( data );
             outField->nbyper = 2;
+            break;
+        case W_DT_INT16:
+            outField->datatype = DT_INT16;
+            castData< int16_t > ( data );
+            outField->nbyper = 2;
+            break;
+        case W_DT_UINT32:
+            outField->datatype = DT_UINT32;
+            castData< uint32_t > ( data );
+            outField->nbyper = 4;
+            break;
+        case W_DT_SIGNED_INT:
+            outField->datatype = DT_SIGNED_INT;
+            castData< int32_t > ( data );
+            outField->nbyper = 4;
             break;
         default:
             WAssert( false, "Data set type not yet supported." );

@@ -37,6 +37,18 @@ class WSharedSequenceContainer: public WSharedObject< S >
 {
 public:
 
+    // Some helpful typedefs
+
+    /**
+     * A typedef for the correct const iterator useful to traverse this sequence container.
+     */
+    typedef typename S::const_iterator   ConstIterator;
+
+    /**
+     * A typedef for the correct iterator to traverse this sequence container.
+     */
+    typedef typename S::iterator         Iterator;
+
     /**
      * Default constructor.
      */

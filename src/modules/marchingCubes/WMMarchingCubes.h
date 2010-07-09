@@ -141,6 +141,8 @@ private:
      */
     void generateSurfacePre( double isoValue );
 
+    WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
+    WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
 
     WPropDouble m_isoValueProp; //!< Property holding the iso value
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface

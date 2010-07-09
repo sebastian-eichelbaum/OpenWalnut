@@ -171,7 +171,7 @@ template< typename T > wmath::WValue< T > WValueSet< T >::getWValue( size_t inde
     wmath::WValue< T > result( m_dimension );
 
     // copying values
-    for ( uint i = 0; i < m_dimension; i++ )
+    for ( std::size_t i = 0; i < m_dimension; i++ )
       result[i] = m_data[ offset+i ];
 
     return result;

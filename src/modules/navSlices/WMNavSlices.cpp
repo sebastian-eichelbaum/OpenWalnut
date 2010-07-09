@@ -131,10 +131,15 @@ void WMNavSlices::properties()
     m_sagittalPos    = m_properties->addProperty( "Sagittal Slice",    "Position of sagittal slice.", 80 );
     m_sagittalPos->setMin( 0 );
     m_sagittalPos->setMax( 160 );
+    m_showComplete = m_properties->addProperty( "show complete", "Slice should be drawn complete even if the texture value is zero.", false );
 
     m_axialPos->setHidden();
     m_coronalPos->setHidden();
     m_sagittalPos->setHidden();
+
+    // Print some nice output: the current nav slice position
+    m_currentPosition = m_infoProperties->addProperty( "Position", "Current position of the navigation slices.",
+            wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -467,7 +472,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
             }
             if ( pickInfo.getName() == "Coronal Slice" )
             {
-                m_coronalPos->set( m_coronalPos->get() + diff );
+                m_coronalPos->set( m_coronalPos->get() - diff ); // minus here because of the order of the points of the slice
             }
             if ( pickInfo.getName() == "Sagittal Slice" )
             {
@@ -591,10 +596,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             case 1:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( m_bb.first[0],  yPos, m_bb.first[2]  ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0], yPos, m_bb.first[2]  ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0], yPos, m_bb.second[2] ) );
-                vertices.push_back( wmath::WPosition( m_bb.first[0],  yPos, m_bb.second[2] ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],   yPos, m_bb.first[2]  ) );
+                vertices.push_back( wmath::WPosition( m_bb.first[0],   yPos, m_bb.second[2] ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.second[2] ) );
+                vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.first[2]  ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
@@ -713,7 +718,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
         }
     }
 
-    for( size_t i = 0; i < 4; ++i )
+    for( size_t i = 0; i < vertices.size(); ++i )
     {
         crossVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
     }
@@ -745,15 +750,15 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
 
 void WMNavSlices::updateGeometry()
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
     if ( m_textureChanged // Depends on call order of update routines in callback.
          || m_sagittalPos->changed()
          || m_coronalPos->changed()
          || m_axialPos->changed()
         )
     {
+        // update the information property
+        m_currentPosition->set( wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
+
         // if the texture got changed we want to rearange the scene Matrix for the SliceViewports to be centered
         updateViewportMatrix();
 
@@ -809,8 +814,6 @@ void WMNavSlices::updateGeometry()
     {
         m_xSliceNode->setNodeMask( 0x0 );
     }
-
-    slock.unlock();
 }
 
 
@@ -875,6 +878,8 @@ void WMNavSlices::updateTextures()
     m_highlightUniformCoronal->set( m_isPickedCoronal );
     m_highlightUniformAxial->set( m_isPickedAxial );
 
+    m_showCompleteUniform->set( m_showComplete->get() );
+
     m_xSliceNode->getOrCreateStateSet()->merge( *rootState );
     m_ySliceNode->getOrCreateStateSet()->merge( *rootState );
     m_zSliceNode->getOrCreateStateSet()->merge( *rootState );
@@ -882,9 +887,6 @@ void WMNavSlices::updateTextures()
 
 void WMNavSlices::initUniforms( osg::StateSet* rootState )
 {
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
     m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type2", 0 ) ) );
@@ -957,7 +959,11 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     m_ySliceNode->getOrCreateStateSet()->addUniform( m_highlightUniformCoronal );
     m_zSliceNode->getOrCreateStateSet()->addUniform( m_highlightUniformAxial );
 
-    slock.unlock();
+    m_showCompleteUniform = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "showComplete", 0 ) );
+
+    m_xSliceNode->getOrCreateStateSet()->addUniform( m_showCompleteUniform );
+    m_ySliceNode->getOrCreateStateSet()->addUniform( m_showCompleteUniform );
+    m_zSliceNode->getOrCreateStateSet()->addUniform( m_showCompleteUniform );
 }
 
 void WMNavSlices::updateViewportMatrix()
@@ -989,31 +995,20 @@ void WMNavSlices::updateViewportMatrix()
             scale = windowHeight / height;
         }
 
-
         // 1. translate to center
         // 2. rotate around center
         // 3. scale to maximum
-
-        // 4. translate to camera center
-        // this is necessary because of some reason, which i couldn't determine,
-        // the viewmatrix of the camera is:
-        // 1 0  0 -80
-        // 0 0 -1 -80
-        // 0 1  0 -250
-
         osg::Matrix sm;
         osg::Matrix rm;
         osg::Matrix tm;
-        osg::Matrix tm2;
 
-        tm.makeTranslate( osg::Vec3( -left - width / 2, -top - height / 2, 0.0 ) );
-        rm.makeRotate( 90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
+        tm.makeTranslate( osg::Vec3(
+          -0.5 * ( m_bb.first[ 0 ] + m_bb.second[ 0 ] ),
+          -0.5 * ( m_bb.first[ 1 ] + m_bb.second[ 1 ] ),
+          -m_bb.second[ 2 ] + m_bb.first[ 2 ] - 0.5 ) );
         sm.makeScale( scale, scale, scale );
-        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
 
-        tm *= rm;
         tm *= sm;
-        tm *= tm2;
 
         currentScene->setMatrix( tm );
     }
@@ -1030,27 +1025,31 @@ void WMNavSlices::updateViewportMatrix()
         height = m_bb.second[2] - m_bb.first[2];
         if ( width > height )
         {
-            double windowWidht = 240 * aspectR;
-            scale = windowWidht / width;
+            double windowWidht = 240;
+            scale = windowWidht / height;
         }
         else
         {
-            double windowHeight = 240;
-            scale = windowHeight / height;
+            double windowHeight = 240 / aspectR;
+            scale = windowHeight / width;
         }
 
         osg::Matrix rm;
+        osg::Matrix rm2;
         osg::Matrix sm;
         osg::Matrix tm;
-        osg::Matrix tm2;
-        tm.makeTranslate( osg::Vec3( 0.0, -left - width / 2, -top - height / 2 ) );
-        rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
+
+        tm.makeTranslate( osg::Vec3(
+          m_bb.second[ 0 ] - m_bb.first[ 0 ] + 0.5,
+          -0.5 * ( m_bb.first[ 1 ] + m_bb.second[ 1 ] ),
+          -0.5 * ( m_bb.first[ 2 ] + m_bb.second[ 2 ] ) ) );
+        rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 1.0, 0.0 );
+        rm2.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
         sm.makeScale( scale, scale, scale );
-        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
 
         tm *= rm;
+        tm *= rm2;
         tm *= sm;
-        tm *= tm2;
 
         currentScene->setMatrix( tm );
     }
@@ -1077,13 +1076,18 @@ void WMNavSlices::updateViewportMatrix()
         }
 
         osg::Matrix sm;
+        osg::Matrix rm;
         osg::Matrix tm;
-        osg::Matrix tm2;
-        tm.makeTranslate( osg::Vec3( -left - width / 2, 0.0, -top - height / 2 ) );
+
+        tm.makeTranslate( osg::Vec3(
+          -0.5 * ( m_bb.first[ 0 ] + m_bb.second[ 0 ] ),
+          m_bb.second[ 1 ] - m_bb.first[ 1 ] + 0.5,
+          -0.5 * ( m_bb.first[ 2 ] + m_bb.second[ 2 ] ) ) );
+        rm.makeRotate( -90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
         sm.makeScale( scale, scale, scale );
-        tm2.makeTranslate( osg::Vec3( 80.0, 250.0, 80.0 ) );
+
+        tm *= rm;
         tm *= sm;
-        tm *= tm2;
 
         currentScene->setMatrix( tm );
     }

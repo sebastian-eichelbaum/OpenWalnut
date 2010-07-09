@@ -82,7 +82,7 @@ public:
     WDataSetFiberVector& operator=( const WDataSetFiberVector& other ); // defined since rule of three
 
     /**
-     * Sort fibers descending on their length.
+     * Sort fibers descending on their length and update
      */
     void sortDescLength();
 

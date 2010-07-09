@@ -74,13 +74,13 @@ public:
     virtual void reload();
 
     /**
-     * Sets a define which is include into the shader source code.
-     * Not yet fully operational
+     * Sets a define which is include into the shader source code. This allows the preprocessor to turn on/off several parts of your code. In GLSL
+     * defines are a better choice when compared with a lot of branches (if-statements).
      *
      * \param key The name of the define
-     * \param value The value of the define.
+     * \param value The value of the define. If this is not specified, the define can be used as simple ifdef switch.
      */
-    void setDefine( std::string key, float value );
+    void setDefine( std::string key, float value = 1.0 );
 
     /**
      * Deletes a define from the internal list
@@ -88,6 +88,11 @@ public:
      * \param key The name of the define
      */
     void eraseDefine( std::string key );
+
+    /**
+     * Removes all existing defines.
+     */
+    void eraseAllDefines();
 
 protected:
 

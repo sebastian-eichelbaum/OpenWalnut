@@ -202,6 +202,7 @@ public:
         TS_ASSERT( flag->get() != flagClone->get() );
 
         // the conditions need to be different
+        // This is because the flag is another one and you won't expect to wake up if someone changes a Flag you do not know
         TS_ASSERT( flag->getCondition() != flagClone->getCondition() );
         TS_ASSERT( flag->getValueChangeCondition() != flagClone->getValueChangeCondition() );
     }

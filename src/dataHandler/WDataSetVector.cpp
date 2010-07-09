@@ -68,11 +68,7 @@ wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
     WAssert( grid,  "This data set has a grid whose type is not yet supported for interpolation." );
-    // TODO(wiebel): change this to WAssert.
-//    if( grid->getTransformationMatrix() != wmath::WMatrix<double>( 4, 4 ).makeIdentity()  )
-//    {
-//        throw WException( std::string( "Only feasible for untranslated grid so far." ) );
-//    }
+    WAssert( grid->isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
     WAssert( ( m_valueSet->order() == 1 &&  m_valueSet->dimension() == 3 ),
              "Only implemented for 3D Vectors so far." );
 
@@ -121,7 +117,7 @@ wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool 
 
 wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
 {
-        switch( getValueSet()->getDataType() )
+    switch( getValueSet()->getDataType() )
     {
         case W_DT_UNSIGNED_CHAR:
         {
@@ -148,4 +144,9 @@ wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
     }
 
     return wmath::WVector3D( 0, 0, 0 );
+}
+
+bool WDataSetVector::isTexture() const
+{
+    return true;
 }

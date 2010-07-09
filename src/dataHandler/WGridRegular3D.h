@@ -243,10 +243,10 @@ public:
                 |    :        |    |
                 |    :    *<--|--------- grid point (0, 0, 0)
                 |    :........|....|__
-         dz == 1|   ´         |   /
-                |  ´          |  / dy == 1
-                | ´           | /
-               _|´____________|/__
+         dz == 1|   /         |   /
+                |  /          |  / dy == 1
+                | /           | /
+               _|/____________|/__
                 |<- dx == 1 ->|
          -0.5,-0.5,-0.5
        \endverbatim
@@ -388,7 +388,34 @@ public:
      */
     bool encloses( const wmath::WPosition& pos ) const;
 
+    /**
+     * Return whether the transformations of the grid are only translation and/or scaling
+     */
+    bool isNotRotatedOrSheared() const;
+
+    /**
+     * translates the texture along a given vector
+     *
+     * \param translation the translation vector
+     */
+    void translate( wmath::WPosition translation );
+
+    /**
+     * stretches the texture
+     *
+     * \param str the stretch factors in x,y,z direction
+     */
+    void stretch( wmath::WPosition str );
+
+    /**
+     * rotates the texture around the x,y,z axis
+     *
+     * \param rot the angles for each axis
+     */
+    void rotate( wmath::WPosition rot );
+
 protected:
+
 private:
     /**
      * Computes for the n'th component of the voxel coordinate where the voxel
@@ -403,9 +430,10 @@ private:
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
 
     /**
-     * Return whether the transformations of the grid are only translation and/or scaling
+     * execute the texture transformation on the original transformation matrix with the stored
+     * translate, stretch and rotate vectors
      */
-    bool isNotRotatedOrSheared() const;
+    void doCustomTransformations();
 
     wmath::WPosition m_origin; //!< Origin of the grid.
 
@@ -425,10 +453,27 @@ private:
      * Matrix storing the transformation of the grid. This is redundant.
      * Please use m_origin and m_direction? for all normal computations.
      * Use matrix only where you really need a matrix for multiplication.
+     *
+     * This is the matrix we are working with
      */
     wmath::WMatrix<double> m_matrix;
 
+    /**
+     * Matrix storing the transformation of the grid. This is redundant.
+     * Please use m_origin and m_direction? for all normal computations.
+     * Use matrix only where you really need a matrix for multiplication.
+     *
+     * This matrix is used to store the initial value
+     */
+    wmath::WMatrix<double> m_matrixOrig;
+
     wmath::WMatrix<double> m_matrixInverse; //!< Inverse of m_matrix
+
+    wmath::WPosition m_translate; //!< stores the translation vector
+
+    wmath::WPosition m_stretch; //!< stores the stretch vector
+
+    wmath::WPosition m_rotation; //!< stores the rotation vector
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const

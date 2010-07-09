@@ -36,6 +36,9 @@
 #include "../../../kernel/WModuleOutputConnector.h"
 
 #include "../events/WModuleDeleteEvent.h"
+#include "../events/WEventTypes.h"
+#include "../events/WPropertyChangedEvent.h"
+
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
@@ -45,7 +48,8 @@
 WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
     QTreeWidgetItem( parent, type ),
     m_deleteInProgress( false ),
-    m_needPostDeleteEvent( true )
+    m_needPostDeleteEvent( true ),
+    m_handledInput( "" )
 {
     m_module = module;
     m_name = module->getName();
@@ -60,6 +64,23 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::s
     }
 
     this->setFlags( Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+
+    // grab the runtime name property
+    // replace the name by the filename
+    boost::shared_ptr< WPropertyBase > p = module->getProperties()->findProperty( "Name" );
+
+    // always ensure that findProperty really found something
+    if ( p )
+    {
+        m_nameProp = p->toPropString();
+    }
+
+    // was it a string prop?
+    if ( m_nameProp )
+    {
+        m_name = m_nameProp->get( true );
+        m_nameProp->getUpdateCondition()->subscribeSignal( boost::bind( &WQtTreeItem::nameChanged, this ) );
+    }
 
     m_updateTimer = boost::shared_ptr< QTimer >( new QTimer() );
     connect( m_updateTimer.get(), SIGNAL( timeout() ), this, SLOT( update() ) );
@@ -93,18 +114,18 @@ void WQtTreeItem::updateTooltip( std::string progress )
 
     // also list the connectors
     std::string conList = "";
-    std::set< boost::shared_ptr< WModuleInputConnector > > cons = m_module->getInputConnectors();
-    std::set< boost::shared_ptr< WModuleOutputConnector > > consOut = m_module->getOutputConnectors();
+    WModule::InputConnectorList cons = m_module->getInputConnectors();
+    WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
     conList += "<table><tr><th>Name</th><th>Description</th><th>Connected</th></tr>";
     int conCount = 0;
-    for ( std::set< boost::shared_ptr< WModuleInputConnector > >::const_iterator it = cons.begin(); it != cons.end(); ++it )
+    for ( WModule::InputConnectorList::const_iterator it = cons.begin(); it != cons.end(); ++it )
     {
         ++conCount;
         conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>&nbsp;" + ( *it )->getDescription() + "&nbsp;</td>";
         conList += ( *it )->isConnected() ? "<td>&nbsp;yes&nbsp;</td>" : "<td>&nbsp;no&nbsp;</td>";
         conList += "</tr>";
     }
-    for ( std::set< boost::shared_ptr< WModuleOutputConnector > >::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
+    for ( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
     {
         ++conCount;
         conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>&nbsp;" + ( *it )->getDescription() + "&nbsp;</td>";
@@ -131,11 +152,17 @@ void WQtTreeItem::updateState()
     // update the progress combiners internal state
     p->update();
 
+    std::string connInfo = "";
+    if ( ( m_handledOutput != "" ) && ( m_handledInput != "" ) )
+    {
+        connInfo = "(" + m_handledOutput + "->" + m_handledInput + ") ";
+    }
+
     // is it pending?
     std::string progress = "waiting";
     if ( m_module->isCrashed()() )
     {
-        setText( 0, ( m_name + " (problem occurred)" ).c_str() );
+        setText( 0, ( connInfo + m_name + " (problem occurred)" ).c_str() );
 
         // strike out the name of the module to show the crash visually.
         QFont curFont = font( 0 );
@@ -161,12 +188,12 @@ void WQtTreeItem::updateState()
             title << "Pending";
         }
 
-        setText( 0, ( m_name + " - " + title.str() ).c_str() );
+        setText( 0, ( connInfo + m_name + " - " + title.str() ).c_str() );
     }
     else
     {
         setIcon( 0, QIcon() );
-        setText( 0, m_name.c_str() );
+        setText( 0, ( connInfo + m_name ).c_str() );
     }
 
     // if the user requested it to be deleted: disable and color it
@@ -193,5 +220,31 @@ void WQtTreeItem::gotRemoved()
 
     // update tree item state
     m_deleteInProgress = true;
+}
+
+void WQtTreeItem::nameChanged()
+{
+    // luckily, the update mechanism of WQtTreeItem regularly sets the name using m_name. So we do not even need to post some kind of event.
+    m_name = m_nameProp->get( true );
+}
+
+std::string WQtTreeItem::getHandledInput() const
+{
+    return m_handledInput;
+}
+
+void WQtTreeItem::setHandledInput( std::string in )
+{
+    m_handledInput = in;
+}
+
+std::string WQtTreeItem::getHandledOutput() const
+{
+    return m_handledOutput;
+}
+
+void WQtTreeItem::setHandledOutput( std::string out )
+{
+    m_handledOutput = out;
 }
 

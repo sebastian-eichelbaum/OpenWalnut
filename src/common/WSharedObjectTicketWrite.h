@@ -46,7 +46,18 @@ public:
      */
     virtual ~WSharedObjectTicketWrite()
     {
+        // explicitly unlock to ensure the WSharedObjectTicket destructor can call the update callback AFTER the lock has been released
         unlock();
+    };
+
+    /**
+     * Returns the protected data. As long as you own the ticket, you are allowed to use it.
+     *
+     * \return the data
+     */
+    Data& get() const
+    {
+        return WSharedObjectTicket< Data >::m_data;
     };
 
 protected:

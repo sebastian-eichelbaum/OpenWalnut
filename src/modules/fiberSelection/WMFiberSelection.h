@@ -170,6 +170,11 @@ private:
      * Cut the fibers when they are outside the VOI?
      */
     WPropBool     m_cutFibers;
+
+    /**
+     * Should the fibers be cut to avoid having them inside the VOI
+     */
+    WPropBool     m_preferShortestPath;
 };
 
 #endif  // WMFIBERSELECTION_H

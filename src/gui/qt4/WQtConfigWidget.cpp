@@ -81,16 +81,14 @@ WQtConfigWidget::~WQtConfigWidget()
 
 void WQtConfigWidget::getAvailableModuleNames()
 {
-    WModuleFactory::PrototypeSharedContainerType::WSharedAccess pa = WModuleFactory::getModuleFactory()->getAvailablePrototypes();
     m_moduleNames.clear();
 
-    // Temporarily disabled since locking causes several problems here :-/
-    // pa->beginRead();
+    // read all prototypes
+    WModuleFactory::PrototypeSharedContainerType::ReadTicket pa = WModuleFactory::getModuleFactory()->getPrototypes();
     for ( WModuleFactory::PrototypeContainerConstIteratorType itr = pa->get().begin(); itr != pa->get().end(); ++itr )
     {
         m_moduleNames.push_back( ( *itr )->getName() );
     }
-    // pa->endRead();
 }
 
 void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > properties, std::string groupName, bool fromConfig )
@@ -264,7 +262,29 @@ void WQtConfigWidget::registerComponents()
     m_defaultProperties->addProperty( "qt4gui.useAutoDisplay", "use Auto Display", true, m_propCondition );
     m_defaultProperties->addProperty( "qt4gui.useToolBarBreak", "use ToolBarBreak", true, m_propCondition );
     m_defaultProperties->addProperty( "general.allowOnlyOneFiberDataSet", "allow only one FiberDataSet", false, m_propCondition );
-    m_defaultProperties->addProperty( "qt4gui.toolBarIconText", "show toolBarIconText" , true, m_propCondition );
+    WPropInt tbs = m_defaultProperties->addProperty( "qt4gui.toolBarStyle", "The style of all toolbars in OpenWalnut", 0, m_propCondition );
+    WPropInt ctbs = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarStyle", "The style of all compatibles toolbar in OpenWalnut", 0,
+                                                      m_propCondition );
+    tbs->setMin( 0 );
+    tbs->setMax( 3 );
+    ctbs->setMin( 0 );
+    ctbs->setMax( 3 );
+    WPropInt tbpos = m_defaultProperties->addProperty( "qt4gui.toolBarPos", "The position of the toolbar in OpenWalnut", 0,
+                                                       m_propCondition );
+    WPropInt ctbpos = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarPos", "The position of the compatibles toolbar in OpenWalnut", 0,
+                                                        m_propCondition );
+    tbpos->setMin( 0 );
+    tbpos->setMax( 5 );
+    ctbpos->setMin( 0 );
+    ctbpos->setMax( 5 );
+    m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
+
+    WPropInt dsbWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the dataset browser.", 250, m_propCondition );
+    dsbWidth->setMin( 0 );
+    dsbWidth->setMax( 1000 );
+
+    m_defaultProperties->addProperty( "qt4gui.dsbInvisibleByDefault", "Hide the dataset browser on startup?", false, m_propCondition );
+    m_defaultProperties->addProperty( "qt4gui.dsbFloatingByDefault", "Undock the dataset browser on startup?", false, m_propCondition );
 
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );
     m_skipPropertyWrite.push_back( "modules.whiteListGroup" );
@@ -342,7 +362,7 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
         default:
             {
                 // copy value
-                ( *iter )->set( *iter2 );
+                ( *iter2 )->set( *iter );
 
                 break;
             }
@@ -638,7 +658,7 @@ void WQtConfigWidget::saveToConfig()
                         while ( !propertyStack.empty() )
                         {
                             // check if at the end of group, if so pop and continue
-                            if ( iteratorStack.back() == accessObject->get().end() )
+                            if ( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
                             {
                                 propertyStack.pop_back();
                                 iteratorStack.pop_back();
@@ -650,7 +670,7 @@ void WQtConfigWidget::saveToConfig()
                             {
                                 propertyStack.push_back( ( *iteratorStack.back() )->toPropGroup() );
                                 ++iteratorStack.back();
-                                iteratorStack.push_back( accessObject->get().begin() );
+                                iteratorStack.push_back( propertyStack.back()->getAccessObject()->get().begin() );
                                 continue;
                             }
                             else
@@ -685,9 +705,9 @@ void WQtConfigWidget::saveToConfig()
                                     // has the same section name as the section we just left and its value does not equal the default value
                                     if ( !skip && !written )
                                     {
+                                        propertyWriten.push_back( propName );
                                         propName = propName.erase( 0, propName.find( '.' ) + 1 );
                                         configOut.push_back( propName + " = " + WCfgOperations::getPropValAsString( prop ) );
-                                        propertyWriten.push_back( propName );
                                     }
                                 }
                             } // END property is not a group
@@ -928,6 +948,7 @@ void WQtConfigWidget::loadConfigFile()
 
     m_configState.setResetable( true, true );
     m_configState.add( m_propCondition );
+    m_configState.add( m_shutdownFlag.getCondition() );
 }
 
 void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )

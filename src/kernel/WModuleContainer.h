@@ -38,6 +38,8 @@
 
 #include "../common/WSharedObject.h"
 
+#include "WModuleCombinerTypes.h"
+#include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
@@ -160,6 +162,16 @@ public:
     virtual void addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
 
     /**
+     * Add a specified notifier to the list of default notifiers which get connected to each added module. This is especially used for all the
+     * connector related events like connect and disconnect.
+     * \note This signal is only called for input connectors!
+     *
+     * \param signal    the signal the notifier should get connected to
+     * \param notifier  the notifier function
+     */
+    virtual void addDefaultNotifier( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
+
+    /**
      * Function combines two modules. This runs synchronously. It might take some time to finish since combination of modules is
      * allowed only with modules marked as "ready" which might take some time.
      *
@@ -219,6 +231,13 @@ public:
     void finishedPendingThread( boost::shared_ptr< WThreadedRunner > thread );
 
     /**
+     * Sets a flag denoting whether the container (which also is a module) should be marked as "crashed" if a nested module crashes.
+     *
+     * \param crashIfCrashed true if it also should crash.
+     */
+    void setCrashIfModuleCrashes( bool crashIfCrashed = true );
+
+    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
      *
@@ -239,18 +258,23 @@ public:
     DataModuleListType getDataModules();
 
     /**
-     * Sets a flag denoting whether the container (which also is a module) should be marked as "crashed" if a nested module crashes.
+     * Method returns a read ticket allowing read-access to the list of modules.
+     * \note If done, ensure the ticket gets destroyed.
      *
-     * \param crashIfCrashed true if it also should crash.
+     * \return the read ticket.
      */
-    void setCrashIfModuleCrashes( bool crashIfCrashed = true );
+    ModuleSharedContainerType::ReadTicket getModules() const;
 
     /**
-     * Returns the access object usable to iterate the module list in a thread safe manner. DO not modify the list.
+     * This method creates a list of combiner instances, for each possible connection that can be made between the specified module and the
+     * module currently inside the container. It might be possible that a module which is contained in the returned list is not associated
+     * anymore if the combiner gets applied.
      *
-     * \return the access control object.
+     * \param module the module to which the possible connections should be returned
+     *
+     * \return the possible combinations of connectors.
      */
-    ModuleSharedContainerType::WSharedAccess getAccessObject();
+    WCombinerTypes::WCompatiblesList getPossibleConnections( boost::shared_ptr< WModule > module );
 
 protected:
 
@@ -264,11 +288,6 @@ protected:
      * The modules associated with this container.
      */
     ModuleSharedContainerType m_modules;
-
-    /**
-     * Access to the above module set.
-     */
-    ModuleSharedContainerType::WSharedAccess m_moduleAccess;
 
     /**
      * Name of the module.
@@ -321,6 +340,21 @@ protected:
     std::list< t_ModuleGenericSignalHandlerType > m_removedNotifiers;
 
     /**
+     * Lock for connector-notifiers set.
+     */
+    boost::shared_mutex m_connectorNotifiersLock;
+
+    /**
+     * The notifiers connected to added modules by default and fired whenever the module connectors got connected.
+     */
+    std::list< t_GenericSignalHandlerType > m_connectorEstablishedNotifiers;
+
+    /**
+     * The notifiers connected to added modules by default and fired whenever the module connectors got disconnected.
+     */
+    std::list< t_GenericSignalHandlerType > m_connectorClosedNotifiers;
+
+    /**
      * Set of all threads that currently depend upon this container.
      */
     std::set< boost::shared_ptr< WThreadedRunner > > m_pendingThreads;
@@ -366,11 +400,6 @@ private:
     typedef WSharedObject< ModuleSubscriptionsType > ModuleSubscriptionsSharedType;
 
     /**
-     * The access type
-     */
-    typedef ModuleSubscriptionsSharedType::WSharedAccess ModuleSubscriptionsAccessType;
-
-    /**
      * The const iterator type of the container.
      */
     typedef ModuleSubscriptionsType::const_iterator ModuleSubscriptionsConstIterator;
@@ -384,11 +413,6 @@ private:
      * The module's signal subscriptions.
      */
     ModuleSubscriptionsSharedType m_moduleSubscriptions;
-
-    /**
-     * Access to the above module subscriptions map.
-     */
-    ModuleSubscriptionsAccessType m_moduleSubscriptionsAccess;
 };
 
 #endif  // WMODULECONTAINER_H

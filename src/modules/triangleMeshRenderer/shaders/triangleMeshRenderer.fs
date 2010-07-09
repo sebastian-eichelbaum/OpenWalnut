@@ -18,7 +18,7 @@ void main()
 
     col = clamp(col, 0.0, 1.0);
 
-    col.a = opacity * .01;
+    col.a = float( opacity ) * 0.01; // MacOS X has old shader spec, no implicit conversion to float takes place
 
     gl_FragColor = col;
 }

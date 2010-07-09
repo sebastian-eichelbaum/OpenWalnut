@@ -52,7 +52,7 @@ public:
     /**
      * destructor
      */
-    ~WQtBranchTreeItem();
+    virtual ~WQtBranchTreeItem();
 
     /**
      * Add a roi to the tree view.

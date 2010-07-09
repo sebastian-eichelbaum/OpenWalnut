@@ -32,8 +32,8 @@ WTalairachConverter::WTalairachConverter( wmath::WVector3D ac, wmath::WVector3D 
     m_pc( pc ),
     m_ihp( ihp )
 {
-    // initalize the bounding box of the head with some arbitrary values, these have to set real values
-    // befor any coordinate conversion
+    // initalize the bounding box of the head with some arbitrary values, these have to be set to real values
+    // before any coordinate conversion
     // the point of origin in the canonical system is the right inferior posterior corner
 
     m_ap = wmath::WVector3D( 255, 0, 0 );
@@ -76,21 +76,26 @@ wmath::WVector3D WTalairachConverter::Talairach2Canonical( const wmath::WVector3
 
 wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D point )
 {
-    wmath::WVector3D ac( 0, 0, 0 );
-    wmath::WVector3D pc( -30, 0, 0 );
-
     // declare some variables for readability
     double x = point[0];
     double y = point[1];
     double z = point[2];
 
-    double X1 = ( m_pp - pc ).norm();
-    double X2 = ( ac - pc ).norm();
-    double X3 = ( m_ap - ac ).norm();
-    double Y1 = ( ac - m_rp ).norm();
-    double Y2 = ( m_lp - ac ).norm();
-    double Z1 = ( ac - m_ip ).norm();
-    double Z2 = ( m_sp - ac ).norm();
+//    double X1 = ( m_pp - m_pc ).norm();
+//    double X2 = ( m_ac - m_pc ).norm();
+//    double X3 = ( m_ap - m_ac ).norm();
+//    double Y1 = ( m_ac - m_rp ).norm();
+//    double Y2 = ( m_lp - m_ac ).norm();
+//    double Z1 = ( m_ac - m_ip ).norm();
+//    double Z2 = ( m_sp - m_ac ).norm();
+
+    double X1 = fabs( m_pp[0] - m_pc[0] );
+    double X2 = fabs( m_ac[0] - m_pc[0] );
+    double X3 = fabs( m_ap[0] - m_ac[0] );
+    double Y1 = fabs( m_ac[1] - m_rp[1] );
+    double Y2 = fabs( m_lp[1] - m_ac[1] );
+    double Z1 = fabs( m_ac[2] - m_ip[2] );
+    double Z2 = fabs( m_sp[2] - m_ac[2] );
 
     double X1T = 79.0;
     double X2T = 23.0;
@@ -140,21 +145,27 @@ wmath::WVector3D WTalairachConverter::ACPC2Talairach( const wmath::WVector3D poi
 
 wmath::WVector3D WTalairachConverter::Talairach2ACPC( const wmath::WVector3D point )
 {
-    wmath::WVector3D ac( 0, 0, 0 );
-    wmath::WVector3D pc( -30, 0, 0 );
-
     // declare some variables for readability
     double xt = point[0];
     double yt = point[1];
     double zt = point[2];
 
-    double X1 = ( m_pp - pc ).norm();
-    double X2 = ( ac - pc ).norm();
-    double X3 = ( m_ap - ac ).norm();
-    double Y1 = ( ac - m_rp ).norm();
-    double Y2 = ( m_lp - ac ).norm();
-    double Z1 = ( ac - m_ip ).norm();
-    double Z2 = ( m_sp - ac ).norm();
+//    double X1 = ( m_pp - m_pc ).norm();
+//    double X2 = ( m_ac - m_pc ).norm();
+//    double X3 = ( m_ap - m_ac ).norm();
+//    double Y1 = ( m_ac - m_rp ).norm();
+//    double Y2 = ( m_lp - m_ac ).norm();
+//    double Z1 = ( m_ac - m_ip ).norm();
+//    double Z2 = ( m_sp - m_ac ).norm();
+
+    double X1 = fabs( m_pp[0] - m_pc[0] );
+    double X2 = fabs( m_ac[0] - m_pc[0] );
+    double X3 = fabs( m_ap[0] - m_ac[0] );
+    double Y1 = fabs( m_ac[1] - m_rp[1] );
+    double Y2 = fabs( m_lp[1] - m_ac[1] );
+    double Z1 = fabs( m_ac[2] - m_ip[2] );
+    double Z2 = fabs( m_sp[2] - m_ac[2] );
+
 
     double X1T = 79.0;
     double X2T = 23.0;

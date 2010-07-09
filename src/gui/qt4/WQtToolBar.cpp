@@ -24,6 +24,8 @@
 
 #include <list>
 
+#include <QtGui/QAction>
+
 #include "WQtToolBar.h"
 
 WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
@@ -56,6 +58,11 @@ QAction* WQtToolBar::addWidget( QWidget* widget )
 {
     m_widgets.push_back( widget );
     return QToolBar::addWidget( widget );
+}
+
+void WQtToolBar::addAction( QAction* action )
+{
+    QToolBar::addAction( action );
 }
 
 void WQtToolBar::clearButtons()

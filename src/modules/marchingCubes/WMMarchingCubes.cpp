@@ -26,6 +26,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include "iso_surface.xpm"
 #include "../../common/WLimits.h"
@@ -186,6 +187,12 @@ void WMMarchingCubes::connectors()
 
 void WMMarchingCubes::properties()
 {
+    m_nbTriangles = m_infoProperties->addProperty( "Triangles", "The number of triangles in the produced mesh.", 0 );
+    m_nbTriangles->setMax( std::numeric_limits< int >::max() );
+
+    m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the produced mesh.", 0 );
+    m_nbVertices->setMax( std::numeric_limits< int >::max() );
+
     m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
@@ -289,6 +296,10 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         default:
             WAssert( false, "Unknow data type in MarchingCubes module" );
     }
+
+    // Set the info properties
+    m_nbTriangles->set( m_triMesh->triangleSize() );
+    m_nbVertices->set( m_triMesh->vertSize() );
 }
 
 void WMMarchingCubes::renderMesh()
@@ -301,7 +312,6 @@ void WMMarchingCubes::renderMesh()
     m_surfaceGeode->setName( "iso surface" );
 
     surfaceGeometry->setVertexArray( m_triMesh->getVertexArray() );
-
     osg::DrawElementsUInt* surfaceElement;
 
     surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
@@ -346,6 +356,9 @@ void WMMarchingCubes::renderMesh()
         material->setShininess( osg::Material::FRONT, 25.0 );
         state->setAttribute( material );
     }
+
+    surfaceGeometry->setUseDisplayList( false );
+    surfaceGeometry->setUseVertexBufferObjects( true );
 
     // ------------------------------------------------
     // Shader stuff

@@ -228,18 +228,16 @@ boost::shared_ptr< WDataSetVector > WMLIC::searchVectorDS() const
         return result;
     }
 
-    WSubject::DatasetAccess da = subject->getAccessObject();
-    da->beginRead();
+    // This lock gets unlocked if it is destroyed ( looses scope )
+    WSubject::DatasetSharedContainerType::ReadTicket da = subject->getDatasets();
 
-    for( std::vector< boost::shared_ptr< WDataSet > >::iterator it = da->get().begin(); it != da->get().end(); ++it )
+    for( WSubject::DatasetConstIterator it = da->get().begin(); it != da->get().end(); ++it )
     {
         if( ( *it )->isVectorDataSet() )
         {
-            da->endRead();
             return ( *it )->isVectorDataSet();
         }
     }
-    da->endRead();
 
     return result;
 }

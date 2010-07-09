@@ -61,8 +61,12 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../graphicsEngine/WGEUtils.h"
 
 #include "template.xpm"
+#include "icons/bier.xpm"
+#include "icons/wurst.xpm"
+#include "icons/steak.xpm"
 #include "WMTemplate.h"
 
 WMTemplate::WMTemplate():
@@ -191,6 +195,7 @@ void WMTemplate::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_aTrigger         = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
                                                     m_propCondition );
+
     m_enableFeature    = m_properties->addProperty( "Enable Feature",           "Description.", true );
     m_anInteger        = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
     m_anIntegerClone   = m_properties->addProperty( "CLONE!Number of Shape Rows",
@@ -199,6 +204,7 @@ void WMTemplate::properties()
     m_aString          = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
     m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
     m_aColor           = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all
@@ -219,9 +225,9 @@ void WMTemplate::properties()
     // algorithms to run on some data and you want the user to select which one should do the work. This might be done with integer properties but it
     // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_possibleSelections->addItem( "Beer", "Cold and fresh." );
-    m_possibleSelections->addItem( "Steaks", "Medium please" );
-    m_possibleSelections->addItem( "Sausages", "With Sauerkraut" );
+    m_possibleSelections->addItem( "Beer", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
+    m_possibleSelections->addItem( "Steaks", "Medium please",  template_steak_xpm );
+    m_possibleSelections->addItem( "Sausages", "With Sauerkraut", template_wurst_xpm );
 
     // This list of alternatives is NOT the actual property value. It is the list on which so called "WItemSelector" instances work. These
     // selectors are the actual property. After you created the first selector instance from the list, it can't be modified anymore. This ensures
@@ -348,6 +354,21 @@ void WMTemplate::moduleMain()
     ready();
     debugLog() << "Module is now ready.";
 
+    // Most probably, your module will be a module providing some kind of visual output. In this case, the WGEManagedGroupNode is very handy.
+    // It allows you to insert several nodes and transform them as the WGEGroupNode (from which WGEManagedGroupNode is derived from) is also
+    // an osg::MatrixTransform. The transformation feature comes in handy if you want to transform your whole geometry according to a dataset
+    // coordinate system for example. Another nice feature in WGEManagedGroupNode is that it can handle the m_active flag for you. Read the
+    // documentation of WMTemplate::activate for more details.
+    // First, create the node and add it to the main scene. If you insert something into the scene, you HAVE TO remove it after your module
+    // has finished!
+    m_rootNode = new WGEManagedGroupNode( m_active );
+    // Set a new callback for this node which basically transforms the geometry according to m_aPosition. Update callbacks are the thread safe
+    // way to manipulate an OSG node while it is inside the scene. This module contains several of these callbacks as an example. The one used
+    // here is to translate the root node coordinate system in space according to m_aPosition:
+    m_rootNode->addUpdateCallback( new TranslateCallback( this ) );
+    // Insert to the scene:
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
@@ -457,39 +478,37 @@ void WMTemplate::moduleMain()
 
             // This block will be executed whenever we have a new dataset or the m_anInteger property has changed. This example codes produces
             // some shapes and replaces the existing root node by a new (updated) one. Therefore, a new root node is needed:
-            osg::ref_ptr< osg::Geode > newRootNode = new osg::Geode();
+            osg::ref_ptr< osg::Geode > newGeode = new osg::Geode();
             // When working with the OpenSceneGraph, always use ref_ptr to store pointers to OSG objects. This allows OpenSceneGraph to manage
             // its resources automatically.
             for ( int32_t i = 0; i < rows; ++i )
             {
-                newRootNode->addDrawable(
+                newGeode->addDrawable(
                         new osg::ShapeDrawable( new osg::Box(             osg::Vec3(  25, 128, i * 15 ), radii ) ) );
-                newRootNode->addDrawable(
+                newGeode->addDrawable(
                         new osg::ShapeDrawable( new osg::Sphere(          osg::Vec3(  75, 128, i * 15 ), radii ) ) );
-                newRootNode->addDrawable(
+                newGeode->addDrawable(
                         new osg::ShapeDrawable( new osg::Cone(            osg::Vec3( 125, 128, i * 15 ), radii, radii ) ) );
-                newRootNode->addDrawable(
+                newGeode->addDrawable(
                         new osg::ShapeDrawable( new osg::Cylinder(        osg::Vec3( 175, 128, i * 15 ), radii, radii ) ) );
-                newRootNode->addDrawable(
+                newGeode->addDrawable(
                         new osg::ShapeDrawable( new osg::Capsule(         osg::Vec3( 225, 128, i * 15 ), radii, radii ) ) );
             }
 
             // The old root node needs to be removed safely. The OpenSceneGraph traverses the graph at every frame. This traversion is done in a
-            // separate thread. Therefore, adding a Node directly may cause the OpenSceneGraph to crash. Thats why the Group node provided by
-            // getScene offers safe remove and insert methods. Use them to manipulate the scene node.
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-            m_rootNode = newRootNode;
-
-            // please also ensure that, according to m_active, the node is active or not. Setting it here allows the user to deactivate modules
-            // in project files for example.
-            m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
+            // separate thread. Therefore, adding a node directly may cause the OpenSceneGraph to crash. Thats why the Group node (WGEGroupNode)
+            // offers safe remove and insert methods. Use them to manipulate the scene node.
+            // First remove the old node:
+            m_rootNode->remove( m_geode );
+            m_geode = newGeode;
 
             // OSG allows you to add custom callbacks. These callbacks get executed on each update traversal. They can be used to modify several
             // attributes and modes of existing nodes. You do not want to remove the node and recreate another one to simply change some color,
             // right? Setting the color can be done in such an update callback. See in the header file, how this class is defined.
-            m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
+            m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
 
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+            // And insert the new node
+            m_rootNode->insert( m_geode );
         }
 
         // Now we updated the visualization after the dataset has changed. Your module might also calculate some other datasets basing on the
@@ -570,19 +589,23 @@ void WMTemplate::moduleMain()
             // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
             // is trivial:
             WItemSelector s = m_aSingleSelection->get( true );
-            infoLog() << "The user likes " << s.at( 0 ).first << " the most.";
+            infoLog() << "The user likes " << s.at( 0 ).name << " the most.";
 
             // The multi property allows the selection of several items. So, iteration needs to be done here:
             s = m_aMultiSelection->get( true );
             for ( size_t i = 0; i < s.size(); ++i )
             {
-                infoLog() << "The user likes " << s.at( i ).first;
+                infoLog() << "The user likes " << s.at( i ).name;
             }
         }
     }
 
-    // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
-    // allocated memory and remove all OSG nodes.
+    // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up:
+    //
+    //  * remove allocated memory
+    //  * remove all OSG nodes
+    //  * stop any pending threads you may have started earlier
+    //  * ...
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
@@ -600,6 +623,26 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
         osg::ref_ptr< osg::Material > mat = new osg::Material();
         mat->setDiffuse( osg::Material::FRONT, osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() ) );
         node->getOrCreateStateSet()->setAttribute( mat, osg::StateAttribute::ON );
+    }
+    traverse( node, nv );
+}
+
+void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+{
+    // Update the transformation matrix according to m_aPosition if it has changed.
+    if ( m_module->m_aPosition->changed() || m_initialUpdate )
+    {
+        // The node to which this callback has been attached needs to be an osg::MatrixTransform:
+        osg::ref_ptr< osg::MatrixTransform > transform = static_cast< osg::MatrixTransform* >( node );
+
+        // Build a translation matrix (to comfortably convert between WPosition and osg::Vec3 use the convenience methods in "wge::" namespace)
+        osg::Matrixd translate = osg::Matrixd::translate( wge::osgVec3( m_module->m_aPosition->get( true  ) ) );
+
+        // and set the translation matrix
+        transform->setMatrix( translate );
+
+        // First update done
+        m_initialUpdate = false;
     }
     traverse( node, nv );
 }
@@ -625,24 +668,18 @@ boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstra
 
 void WMTemplate::activate()
 {
-    // This method gets called, whenever the m_active property changes. Your module should always handle this. For more details, see the
-    // documentation in properties(). The most simple way is to activate or deactivate your OSG root node in this function according to
-    // m_active's value. At the moment, we are not 100% sure whether deactivating a node, which is currently used, is thread-safe and complies to
-    // OSG's requirements. Activating an inactive node is not the problem, as OSG does not traverse these nodes (and therefore could possibly
-    // produce issues), but deactivating an active node, which might be traversed at the same time, COULD cause problems. We'll see in the future
-    // whether this is problematic or not.
-
-    if ( m_rootNode )   // always ensure the root node exists
+    // This method gets called, whenever the m_active property changes. Your module should always handle this if you do not use the
+    // WGEManagedGroupNode for your scene. The user can (de-)activate modules in his GUI and you can handle this case here:
+    if ( m_active->get() )
     {
-        if ( m_active->get() )
-        {
-            m_rootNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_rootNode->setNodeMask( 0x0 );
-        }
+        debugLog() << "Activate.";
     }
+    else
+    {
+        debugLog() << "Deactivate.";
+    }
+
+    // The simpler way is by using WGEManagedGroupNode which deactivates itself according to m_active. See moduleMain for details.
 
     // Always call WModule's activate!
     WModule::activate();

@@ -67,6 +67,14 @@ public:
     QAction* addWidget( QWidget* widget );
 
     /**
+     * Allows addition of new actions to the toolbar. See the Qt Doc of QToolBar for details. Actions have the advantage that they build a
+     * uniform interface for menus, toolbars, buttons and menued toolbuttons.
+     *
+     * \param action the action to add.
+     */
+    void addAction( QAction* action );
+
+    /**
      * Removes all buttons,
      */
     void clearButtons();

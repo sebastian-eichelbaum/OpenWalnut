@@ -32,6 +32,8 @@
 #include "../../common/WItemSelection.h"
 #include "../../common/WItemSelector.h"
 
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -101,7 +103,12 @@ protected:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-    osg::ref_ptr<osg::Geode> m_rootNode;
+    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+
+    /**
+     * The geometry rendered by this module.
+     */
+    osg::ref_ptr< osg::Geode > m_geode;
 
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
@@ -210,7 +217,7 @@ private:
     /**
      * A property simply providing a double value to the outside world.
      */
-    WPropDouble    m_aDoubleOutput;
+    WPropDouble   m_aDoubleOutput;
 
     /**
      * A property simply providing some text to the outside world.
@@ -221,6 +228,11 @@ private:
      * A Property used to show some color to the user.
      */
     WPropColor    m_aColorOutput;
+
+    /**
+     * A Property used to store some position.
+     */
+    WPropPosition   m_aPosition;
 
     /**
      * A Property used to show some filename to the user.
@@ -269,11 +281,54 @@ private:
 
         /**
          * Pointer used to access members of the module to modify the node.
+         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
+         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
          */
         WMTemplate* m_module;
 
         /**
-         * Denotes whether the update callback is called the first time.
+         * Denotes whether the update callback is called the first time. It is especially useful
+         * to set some initial value even if the property has not yet changed.
+         */
+        bool m_initialUpdate;
+    };
+
+
+    /**
+     * Node callback to change the position of the shapes in the coordinate system of the scene.
+     * For more details on this class, refer to the documentation in moduleMain().
+     */
+    class TranslateCallback : public osg::NodeCallback
+    {
+    public: // NOLINT
+
+        /**
+         * Constructor.
+         *
+         * \param module just set the creating module as pointer for later reference.
+         */
+        explicit TranslateCallback( WMTemplate* module ): m_module( module ), m_initialUpdate( true )
+        {
+        };
+
+        /**
+         * operator () - called during the update traversal.
+         *
+         * \param node the osg node
+         * \param nv the node visitor
+         */
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+
+        /**
+         * Pointer used to access members of the module to modify the node.
+         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
+         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
+         */
+        WMTemplate* m_module;
+
+        /**
+         * Denotes whether the update callback is called the first time. It is especially useful
+         * to set some initial value even if the property has not yet changed.
          */
         bool m_initialUpdate;
     };

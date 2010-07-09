@@ -64,9 +64,9 @@ public:
                   boost::shared_ptr< std::vector< wmath::WVector3D > > eigenVectors,
                   boost::shared_ptr< std::vector< double > > fa );
 
-/**
- * Destructor.
- */
+    /**
+     * Destructor.
+     */
     virtual ~WEigenThread();
 
 protected:
