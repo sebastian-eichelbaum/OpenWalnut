@@ -137,30 +137,22 @@ void WMCoordinateHUD::moduleMain()
     debugLog() << "Module is now ready.";
 
 
-    m_rootNode = new WGEManagedGroupNode( m_active );
+    //m_rootNode = new WGEManagedGroupNode( m_active );
+    m_rootNode = osg::ref_ptr< osg::Projection >( new osg::Projection );
+    m_rootNode->setName("coordHUDNode");
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     debugLog() << "Entering main loop";
 
-    while ( !m_shutdownFlag() )
-    {
-        // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
-        // or an property changes. The main loop now waits until something happens.
 
-        // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
-        {
-            break;
-        }
-
-
-        osg::ref_ptr< osg::Geode > newGeode = new osg::Geode();
-        osg::Geometry*  geom = new osg::Geometry;
+        osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
+        osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
 	
         //Eckpunkte
         float size = 100;
         osg::Vec3Array* vertices = new osg::Vec3Array;
-	    vertices->push_back(osg::Vec3(0, 0, 0));
+/*
+ 	    vertices->push_back(osg::Vec3(0, 0, 0));
 	    vertices->push_back(osg::Vec3(size, 0, 0));
 	    vertices->push_back(osg::Vec3(0, 0, 0));
 	    vertices->push_back(osg::Vec3(0, size, 0));
@@ -172,7 +164,20 @@ void WMCoordinateHUD::moduleMain()
 	    vertices->push_back(osg::Vec3(0, -size, 0));
 	    vertices->push_back(osg::Vec3(0, 0, 0));
 	    vertices->push_back(osg::Vec3(0, 0, -size));
+*/
 
+ 	    vertices->push_back(osg::Vec3(100, 100,100));
+	    vertices->push_back(osg::Vec3(100+size, 100, 100));
+	    vertices->push_back(osg::Vec3(100, 100, 100));
+	    vertices->push_back(osg::Vec3(100, 100+size, 100));
+	    vertices->push_back(osg::Vec3(100, 100, 100));
+	    vertices->push_back(osg::Vec3(100, 100, 100+size));	
+        vertices->push_back(osg::Vec3(100, 100, 100));
+	    vertices->push_back(osg::Vec3(100-size, 100, 100));
+	    vertices->push_back(osg::Vec3(100, 100, 100));
+	    vertices->push_back(osg::Vec3(100, 100-size, 100));
+	    vertices->push_back(osg::Vec3(100, 100, 100));
+	    vertices->push_back(osg::Vec3(100, 100, 100-size));
         //colors
 	    osg::Vec4 x_color(1.0f,0.0f,0.0f,1.0f);     //red
 	    osg::Vec4 y_color(0.0f,1.0f,0.0f,1.0f);     //green
@@ -193,27 +198,117 @@ void WMCoordinateHUD::moduleMain()
 	    (*color)[10] = z_color;
 	    (*color)[11] = neg_color;
  
-        geom->setColorArray(color);
-        geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+        coordGeom->setColorArray(color);
+        coordGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
  
         osg::DrawArrays *da = new osg::DrawArrays(osg::PrimitiveSet::LINES,0,vertices->size());
 
-        geom->setVertexArray( vertices );
-        geom->addPrimitiveSet( da);
-        newGeode->addDrawable( geom);
-        newGeode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        coordGeom->setVertexArray( vertices );
+        coordGeom->addPrimitiveSet( da);
+        coordGeode->addDrawable( coordGeom);
+        coordGeode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-        m_rootNode->remove( m_geode );
+        //HUD
+        int sizeX = 1024;
+        int sizeY = 768;
+        int sizeZ = 768;
+        m_rootNode->setMatrix(osg::Matrix::ortho(0,sizeX,0,sizeY,0,sizeZ));
+        // For the HUD model view matrix use an identity matrix:
+        osg::MatrixTransform* HUDModelViewMatrix = new osg::MatrixTransform;
+        HUDModelViewMatrix->setMatrix(osg::Matrix::identity());
+
+        // Make sure the model view matrix is not affected by any transforms
+        // above it in the scene graph:
+        HUDModelViewMatrix->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+
+        // Add the HUD projection matrix as a child of the root node
+        // and the HUD model view matrix as a child of the projection matrix
+        // Anything under this node will be viewed using this projection matrix
+        // and positioned with this model view matrix.
+        m_rootNode->addChild( HUDModelViewMatrix );
+
+        
+
+        // Add the Geometry node to contain HUD geometry as a child of the
+        // HUD model view matrix.
+        m_HUDs = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+        // A geometry node for our HUD
+        osg::ref_ptr<osg::Geode> HUDGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
+
+        HUDModelViewMatrix->addChild( m_HUDs );
+        m_HUDs->insert( HUDGeode );
+        m_HUDs->insert( coordGeode );
+
+        // Set up geometry for the HUD and add it to the HUD
+        osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();
+        osg::ref_ptr< osg::Vec3Array > HUDBackgroundVertices = new osg::Vec3Array;
+        HUDBackgroundVertices->push_back( osg::Vec3( 0, 0, -1 ) );
+        HUDBackgroundVertices->push_back( osg::Vec3( 200, 0, -1 ) );
+        HUDBackgroundVertices->push_back( osg::Vec3( 200, 200, -1 ) );
+        HUDBackgroundVertices->push_back( osg::Vec3( 0, 200, -1 ) );
+        osg::ref_ptr< osg::DrawElementsUInt > HUDBackgroundIndices = new osg::DrawElementsUInt( osg::PrimitiveSet::POLYGON, 0 );
+        HUDBackgroundIndices->push_back( 0 );
+        HUDBackgroundIndices->push_back( 1 );
+        HUDBackgroundIndices->push_back( 2 );
+        HUDBackgroundIndices->push_back( 3 );
+
+        osg::ref_ptr< osg::Vec4Array > HUDcolors = new osg::Vec4Array;
+        HUDcolors->push_back( osg::Vec4( 0.8f, 0.8f, 0.8f, 0.8f ) );
+
+        osg::ref_ptr< osg::Vec3Array > HUDnormals = new osg::Vec3Array;
+        HUDnormals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
+        HUDBackgroundGeometry->setNormalArray( HUDnormals );
+        HUDBackgroundGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+        HUDBackgroundGeometry->addPrimitiveSet( HUDBackgroundIndices );
+        HUDBackgroundGeometry->setVertexArray( HUDBackgroundVertices );
+        HUDBackgroundGeometry->setColorArray( HUDcolors );
+        HUDBackgroundGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        HUDGeode->addDrawable( HUDBackgroundGeometry );
+        HUDGeode->addDrawable( coordGeom);
+
+        // Create and set up a state set using the texture from above:
+        osg::StateSet* HUDStateSet = new osg::StateSet();
+        HUDGeode->setStateSet(HUDStateSet);
+
+        // For this state set, turn blending on (so alpha texture looks right)
+        HUDStateSet->setMode(GL_BLEND,osg::StateAttribute::ON);
+
+        // Disable depth testing so geometry is draw regardless of depth values
+        // of geometry already draw.
+        HUDStateSet->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
+        HUDStateSet->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+        // Need to make sure this geometry is draw last. RenderBins are handled
+        // in numerical order so set bin number to 11
+        HUDStateSet->setRenderBinDetails( 11, "RenderBin");
+
+       /////////////////
+
+
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
+ 
+
+        //add to root
+/*        m_rootNode->remove( m_geode );
         m_geode = newGeode;
         m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
         m_rootNode->insert( m_geode );    
-        std::cout << "drawing shape" << std::endl;
-
-        debugLog() << "Waiting ...";
-        m_moduleState.wait();  
+*/           
+    if ( m_active->get() )
+    {
+        m_rootNode->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_rootNode->setNodeMask( 0x0 );
     }
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    // connect updateGFX with picking
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+
+   // WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
 void WMCoordinateHUD::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )

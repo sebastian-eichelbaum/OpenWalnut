@@ -103,7 +103,7 @@ protected:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+    //osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
 
     /**
      * The geometry rendered by this module.
@@ -137,7 +137,15 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
+    /**
+     * Projection node for defining view frustrum for HUD
+     */
+    osg::ref_ptr<osg::Projection> m_rootNode;
 
+    /**
+     * Geometry group for all HUD realted things
+     */
+    osg::ref_ptr< WGEGroupNode > m_HUDs;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
