@@ -7,6 +7,8 @@
 ## An example could be
 # default=HUD
 #whiteList =Isosurface,Bounding Box, Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
+# path = /some/directory # this is useful to define the path where OpenWalnut searches modules for loading. It can be relative to the bin
+# directory.
 
 [qt4gui]
 ####################################################################

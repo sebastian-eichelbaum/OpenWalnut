@@ -26,14 +26,18 @@
 #include <string>
 
 #include "../common/WIOTools.h"
+#include "../common/WPreferences.h"
 #include "../common/WSharedLib.h"
 
 #include "WModuleLoader.h"
 
-WModuleLoader::WModuleLoader( const boost::filesystem::path& relPath ):
-    m_path( relPath )
+WModuleLoader::WModuleLoader( ):
+    m_path( "." )
 {
     // initialize members
+    std::string libPath = "../lib/modules";
+    WPreferences::getPreference( "modules.path", &libPath );
+    m_path = boost::filesystem::path( libPath );
 }
 
 WModuleLoader::~WModuleLoader()

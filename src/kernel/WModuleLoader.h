@@ -46,9 +46,8 @@ public:
 	/**
 	 * Constructor. It does not load any files. Use load to do this.
 	 *
-	 * \param relPath The relative path of the module lib directory.
-	 */
-    explicit WModuleLoader( const boost::filesystem::path& relPath );
+     */
+    explicit WModuleLoader();
 
 	/**
 	 * Destructor, closes all handles to shared libraries.
@@ -72,7 +71,7 @@ private:
     /**
      * Path to the modules. This is used during load to find all libMODULENAME.{so,dll,dylib} files.
      */
-    const boost::filesystem::path m_path;
+    boost::filesystem::path m_path;
 };
 
 #endif  // WMODULELOADER_H
