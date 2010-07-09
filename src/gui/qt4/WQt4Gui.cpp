@@ -46,6 +46,8 @@
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
+#include "events/WModuleConnectEvent.h"
+#include "events/WModuleDisconnectEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WRoiAssocEvent.h"
 #include "events/WRoiRemoveEvent.h"
@@ -171,6 +173,14 @@ int WQt4Gui::run()
     t_ModuleGenericSignalHandlerType removedSignal = boost::bind( &WQt4Gui::slotRemoveDatasetOrModuleInBrowser, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_REMOVED, removedSignal );
 
+    // Connect Event
+    t_GenericSignalHandlerType connectionEstablishedSignal = boost::bind( &WQt4Gui::slotConnectionEstablished, this, _1, _2 );
+    m_kernel->getRootContainer()->addDefaultNotifier( CONNECTION_ESTABLISHED, connectionEstablishedSignal );
+
+    // Disconnect Event
+    t_GenericSignalHandlerType connectionClosedSignal = boost::bind( &WQt4Gui::slotConnectionClosed, this, _1, _2 );
+    m_kernel->getRootContainer()->addDefaultNotifier( CONNECTION_CLOSED, connectionClosedSignal );
+
     boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > assocRoiSignal =
             boost::bind( &WQt4Gui::slotAddRoiToBrowser, this, _1 );
     m_kernel->getRoiManager()->addAddNotifier( assocRoiSignal );
@@ -283,6 +293,32 @@ void WQt4Gui::slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > m
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleRemovedEvent( module ) );
+}
+
+void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
+{
+    // create a new event for this and insert it into event queue
+    if ( in->isInputConnector() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleConnectEvent( in, out ) );
+    }
+    else
+    {
+        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleConnectEvent( out, in ) );
+    }
+}
+
+void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
+{
+    // create a new event for this and insert it into event queue
+    if ( in->isInputConnector() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( in, out ) );
+    }
+    else
+    {
+        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( out, in ) );
+    }
 }
 
 boost::shared_ptr< WModule > WQt4Gui::getSelectedModule()

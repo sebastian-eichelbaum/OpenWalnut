@@ -22,49 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WUPDATETHREAD_H
-#define WUPDATETHREAD_H
+#include <string>
 
-#include "../../../common/WThreadedRunner.h"
+#include "../../common/WLogger.h"
 
-class WROIManagerFibers;
-/**
- * implements a thread that updates the fiber selection bit field
- */
-class WUpdateThread: public WThreadedRunner
+#include "WRoiProjectFileIO.h"
+
+WRoiProjectFileIO::WRoiProjectFileIO():
+    WProjectFileIO()
 {
-public:
-    /**
-     * default constructor
-     *
-     * \param roiManager
-     */
-    explicit WUpdateThread( boost::shared_ptr< WROIManagerFibers >roiManager );
-
-    /**
-     * destructor
-     */
-    virtual ~WUpdateThread();
-
-    /**
-     * entry for the run command
-     */
-    virtual void threadMain();
-
-    /**
-     * Return the value of the finished flag.
-     */
-    inline bool isFinished();
-
-protected:
-private:
-    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores pointer to the roi manager
-    bool m_myThreadFinished; //!< Has the thread finished?
-};
-
-bool WUpdateThread::isFinished()
-{
-    return m_myThreadFinished;
+    // initialize members
 }
 
-#endif  // WUPDATETHREAD_H
+WRoiProjectFileIO::~WRoiProjectFileIO()
+{
+    // cleanup
+}
+
+bool WRoiProjectFileIO::parse( std::string /* line */, unsigned int /* lineNumber */ )
+{
+    // read something
+    return false;
+}
+
+void WRoiProjectFileIO::done()
+{
+    // apply
+}
+
+void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
+{
+    // save here
+    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              "// ROI Structure" << std::endl <<
+              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              std::endl;
+    output << "// Sorry. Not Yet Implemented." << std::endl;
+
+    wlog::info( "ROI Project File" ) << "Not yet implemented. Sorry.";
+}
+

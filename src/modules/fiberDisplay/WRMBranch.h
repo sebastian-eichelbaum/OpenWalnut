@@ -31,7 +31,7 @@
 
 #include <boost/enable_shared_from_this.hpp>
 
-#include "./../../../common/WProperties.h"
+#include "./../../common/WProperties.h"
 #include "WRMROIRepresentation.h"
 
 class WROIManagerFibers;

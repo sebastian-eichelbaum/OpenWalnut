@@ -39,6 +39,7 @@
 #include "../common/WSharedObject.h"
 
 #include "WModuleCombinerTypes.h"
+#include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
@@ -159,6 +160,16 @@ public:
      * \param notifier  the notifier function
      */
     virtual void addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
+
+    /**
+     * Add a specified notifier to the list of default notifiers which get connected to each added module. This is especially used for all the
+     * connector related events like connect and disconnect.
+     * \note This signal is only called for input connectors!
+     *
+     * \param signal    the signal the notifier should get connected to
+     * \param notifier  the notifier function
+     */
+    virtual void addDefaultNotifier( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
 
     /**
      * Function combines two modules. This runs synchronously. It might take some time to finish since combination of modules is
@@ -327,6 +338,21 @@ protected:
      * The notifiers connected to added modules by default and fired whenever the module got removed again.
      */
     std::list< t_ModuleGenericSignalHandlerType > m_removedNotifiers;
+
+    /**
+     * Lock for connector-notifiers set.
+     */
+    boost::shared_mutex m_connectorNotifiersLock;
+
+    /**
+     * The notifiers connected to added modules by default and fired whenever the module connectors got connected.
+     */
+    std::list< t_GenericSignalHandlerType > m_connectorEstablishedNotifiers;
+
+    /**
+     * The notifiers connected to added modules by default and fired whenever the module connectors got disconnected.
+     */
+    std::list< t_GenericSignalHandlerType > m_connectorClosedNotifiers;
 
     /**
      * Set of all threads that currently depend upon this container.

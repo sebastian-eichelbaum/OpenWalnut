@@ -29,11 +29,11 @@
 
 #include <osg/Geode>
 
-#include "../../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../../dataHandler/WDataSetFibers.h"
-#include "../../../graphicsEngine/WShader.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleInputData.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../graphicsEngine/WShader.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.h"
 #include "WTubeDrawable.h"
 
 /**

@@ -26,11 +26,11 @@
 #include <string>
 #include <vector>
 
-#include "../../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetScalar.h"
 
-#include "../../../graphicsEngine/WGraphicsEngine.h"
-#include "../../../graphicsEngine/WROIBox.h"
-#include "../../../graphicsEngine/WROIArbitrary.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../graphicsEngine/WROIBox.h"
+#include "../../graphicsEngine/WROIArbitrary.h"
 
 #include "WRMBranch.h"
 #include "WROIManagerFibers.h"

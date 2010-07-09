@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "../../../common/WThreadedRunner.h"
+#include "../../common/WThreadedRunner.h"
 
 /**
  * implements the compare function for std::nth_element on a point array

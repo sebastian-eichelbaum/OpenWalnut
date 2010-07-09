@@ -74,3 +74,12 @@ void WModuleOutputConnector::propagateDataChange()
     signal_DataChanged( boost::shared_ptr<WModuleConnector>(), shared_from_this() );
 }
 
+bool WModuleOutputConnector::isInputConnector() const
+{
+    return false;
+}
+
+bool WModuleOutputConnector::isOutputConnector() const
+{
+    return true;
+}

@@ -22,57 +22,63 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WROIPROJECTFILEIO_H
-#define WROIPROJECTFILEIO_H
+#ifndef WMODULECONNECTEVENT_H
+#define WMODULECONNECTEVENT_H
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
-#include "../../../common/WProjectFileIO.h"
+#include <QtCore/QEvent>
+
+#include "../../../kernel/WModuleConnector.h"
 
 /**
- * IO Class for writing the ROI structure to a project file.
+ * Event signalling a module connection was established.
  */
-class WRoiProjectFileIO: public WProjectFileIO
+class WModuleConnectEvent: public QEvent
 {
 public:
 
     /**
-     * Default constructor.
+     * Creates a new event denoting the established connection between both connectors.
+     *
+     * \param in the input
+     * \param out the output
      */
-    WRoiProjectFileIO();
+    WModuleConnectEvent( boost::shared_ptr< WModuleConnector > in, boost::shared_ptr< WModuleConnector > out );
 
     /**
      * Destructor.
      */
-    virtual ~WRoiProjectFileIO();
+    virtual ~WModuleConnectEvent();
 
     /**
-     * This method parses the specified line and interprets it. It gets called line by line by WProjectFile.
+     * Gets the input connector involved in this connection event.
      *
-     * \param line the current line as string
-     * \param lineNumber the current line number. Useful for error/warning/debugging output.
-     *
-     * \return true if the line could be parsed.
+     * \return the connector.
      */
-    virtual bool parse( std::string line, unsigned int lineNumber );
+    boost::shared_ptr< WModuleConnector > getInput() const;
 
     /**
-     * Called whenever the end of the project file has been reached. This is useful if your specific parser class wants to do some post
-     * processing after parsing line by line.
-     */
-    virtual void done();
-
-    /**
-     * Saves the state to the specified stream.
+     * Gets the output connector involved in this connection event.
      *
-     * \param output the stream to print the state to.
+     * \return the connector.
      */
-    virtual void save( std::ostream& output );   // NOLINT
+    boost::shared_ptr< WModuleConnector > getOutput() const;
 
 protected:
+
+    /**
+     * The input.
+     */
+    boost::shared_ptr< WModuleConnector > m_in;
+
+    /**
+     * The output.
+     */
+    boost::shared_ptr< WModuleConnector > m_out;
 
 private:
 };
 
-#endif  // WROIPROJECTFILEIO_H
+#endif  // WMODULECONNECTEVENT_H
 

@@ -22,43 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WEventTypes.h"
 
-#include "../../../common/WLogger.h"
+#include "WModuleConnectEvent.h"
 
-#include "WRoiProjectFileIO.h"
-
-WRoiProjectFileIO::WRoiProjectFileIO():
-    WProjectFileIO()
+WModuleConnectEvent::WModuleConnectEvent( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
+    : QEvent( static_cast< QEvent::Type >( WQT_MODULE_CONNECT_EVENT ) ),
+    m_in( in ),
+    m_out( out )
 {
     // initialize members
 }
 
-WRoiProjectFileIO::~WRoiProjectFileIO()
+WModuleConnectEvent::~WModuleConnectEvent()
 {
     // cleanup
 }
 
-bool WRoiProjectFileIO::parse( std::string /* line */, unsigned int /* lineNumber */ )
+boost::shared_ptr< WModuleConnector > WModuleConnectEvent::getInput() const
 {
-    // read something
-    return false;
+    return m_in;
 }
 
-void WRoiProjectFileIO::done()
+boost::shared_ptr< WModuleConnector > WModuleConnectEvent::getOutput() const
 {
-    // apply
-}
-
-void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
-{
-    // save here
-    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
-              "// ROI Structure" << std::endl <<
-              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
-              std::endl;
-    output << "// Sorry. Not Yet Implemented." << std::endl;
-
-    wlog::info( "ROI Project File" ) << "Not yet implemented. Sorry.";
+    return m_out;
 }
 

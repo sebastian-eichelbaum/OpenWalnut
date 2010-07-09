@@ -59,7 +59,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     update();
 
     // connect the modification signal of the edit and slider with our callback
-    connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
+    connect( &m_slider, SIGNAL( sliderMoved( int ) ), this, SLOT( sliderChanged( int ) ) );
     connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
@@ -170,17 +170,17 @@ void WPropertyDoubleWidget::editChanged()
     // set the value in the line edit
     bool valid;
     double value = m_edit.text().toDouble( &valid );
+
     if ( !valid )
     {
         invalidate();
         return;
     }
+    // set to the property
+    invalidate( !m_doubleProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
 
     // update slider
     m_slider.setValue( toPercent( value ) );
-
-    // set to the property
-    invalidate( !m_doubleProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
 }
 
 void WPropertyDoubleWidget::textEdited( const QString& text )
