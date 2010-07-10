@@ -28,34 +28,36 @@
 #include "WMTensorGlyphs.h"
 
 WMTensorGlyphs::WMTensorGlyphs()
-{}
+{
+	m_output = new osg::Geode();
+}
 
 WMTensorGlyphs::~WMTensorGlyphs()
 {}
 
 boost::shared_ptr<WModule> WMTensorGlyphs::factory() const
 {
-    return boost::shared_ptr<WModule>(new WMTensorGlyphs());
+	return boost::shared_ptr<WModule>(new WMTensorGlyphs());
 }
 
 const char** WMTensorGlyphs::getXPMIcon() const
 {
-    return glyph_xpm;
+	return glyph_xpm;
 }
 
 const std::string WMTensorGlyphs::getName() const
 {
-    return "Tensor Glyphs";
+	return "Tensor Glyphs";
 }
 
 const std::string WMTensorGlyphs::getDescription() const
 {
-    return "GPU based raytracing of high order tensor glyphs.";
+	return "GPU based raytracing of high order tensor glyphs.";
 }
 
 void WMTensorGlyphs::connectors()
 {
-    m_input = boost::shared_ptr<WModuleInputData<WDataSetSingle>>
+	m_input = boost::shared_ptr<WModuleInputData<WDataSetSingle>>
 	(
 		new WModuleInputData<WDataSetSingle>
 		(
@@ -65,14 +67,14 @@ void WMTensorGlyphs::connectors()
 		)
 	);
 
-    addConnector(m_input);
+	addConnector(m_input);
 
-    WModule::connectors();
+	WModule::connectors();
 }
 
 void WMTensorGlyphs::properties()
 {
-    m_propertyChanged = boost::shared_ptr<WCondition>(new WCondition());
+	m_propertyChanged = boost::shared_ptr<WCondition>(new WCondition());
 
 	// etc. pp.
 }
@@ -81,11 +83,11 @@ void WMTensorGlyphs::moduleMain()
 {
 	/* set conditions for data and property changes */
 
-    m_moduleState.setResetable(true,true);
-    m_moduleState.add(m_input->getDataChangedCondition());
-    //m_moduleState.add(m_propertyChanged);
+	m_moduleState.setResetable(true,true);
+	m_moduleState.add(m_input->getDataChangedCondition());
+	//m_moduleState.add(m_propertyChanged);
 
-    ready();
+	ready();
 
 	/* add render object */
 
@@ -98,26 +100,26 @@ void WMTensorGlyphs::moduleMain()
 	boost::shared_ptr<WDataSetSingle> newDataSet;
 	unsigned int newDimension;
 	unsigned int newOrder;
-    bool dataChanged;
-    bool dataValid;
+	bool dataChanged;
+	bool dataValid;
 
 	/* main loop */
 
-    while (!m_shutdownFlag())
-    {
-        m_moduleState.wait();
+	while (!m_shutdownFlag())
+	{
+		m_moduleState.wait();
 
-        if (m_shutdownFlag()) break;
+		if (m_shutdownFlag()) break;
 
 		/* test for data changes */
 
-        newDataSet = m_input->getData();
-        dataChanged = (m_dataSet != newDataSet);
+		newDataSet = m_input->getData();
+		dataChanged = (m_dataSet != newDataSet);
 
 		/* test for data validity */
 
-        dataValid = (newDataSet != 0);
-		
+		dataValid = (newDataSet != 0);
+
 		if (dataValid)
 		{
 			/* check the order of the new tensor data */
@@ -161,16 +163,16 @@ void WMTensorGlyphs::moduleMain()
 			}
 		}
 		
-        /* handle data */
+		/* handle data */
 
-        if (dataChanged && dataValid)
-        {
-            debugLog() << "Received Data.";
+		if (dataChanged && dataValid)
+		{
+			debugLog() << "Received Data.";
 
-            m_dataSet = newDataSet;
+			m_dataSet = newDataSet;
 
 			renderObject->setTensorData(m_dataSet.get());
-        }
+		}
 		else
 		{
 			if (!m_dataSet) continue;
@@ -179,25 +181,25 @@ void WMTensorGlyphs::moduleMain()
 		/* property changes */
 
 		// etc. pp.
-    }
+	}
 
-    // remove allocated memory and all OSG nodes
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(m_output);
+	// remove allocated memory and all OSG nodes
+	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(m_output);
 }
 
 void WMTensorGlyphs::activate()
 {
-    if (m_output)
-    {
-        if (m_active->get())
-        {
-            m_output->setNodeMask(0xFFFFFFFF);
-        }
-        else
-        {
-            m_output->setNodeMask(0x0);
-        }
-    }
+	if (m_output)
+	{
+		if (m_active->get())
+		{
+			m_output->setNodeMask(0xFFFFFFFF);
+		}
+		else
+		{
+			m_output->setNodeMask(0x0);
+		}
+	}
 
-    WModule::activate();
+	WModule::activate();
 }

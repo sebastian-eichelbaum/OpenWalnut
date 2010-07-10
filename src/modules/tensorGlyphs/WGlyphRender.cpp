@@ -24,11 +24,22 @@
 
 #include <fstream>
 
+#include <boost/filesystem.hpp>
+
+#include "../../graphicsEngine/WGraphicsEngine.h"
+
 #include "WGlyphRender.h"
+
+WGlyphRender::CLObjects::CLObjects(): dataCreated(false)
+{}
 
 WGlyphRender::CLObjects::~CLObjects()
 {
-	clReleaseMemObject(tensorData);
+	if (dataCreated)
+	{
+		clReleaseMemObject(tensorData);
+	}
+
 	clReleaseKernel(clKernel);
 	clReleaseProgram(clProgram);
 }
@@ -43,18 +54,22 @@ WGlyphRender::WGlyphRender():
 {
 	/* load kernel source code */
 
-	std::ifstream sFile("GlyphKernel.cl");
+	std::string filePath = WGraphicsEngine::getGraphicsEngine()->getShaderPath() + "/GlyphKernel.cl";
+
+	filePath = boost::filesystem::path(filePath).file_string();
+
+	std::ifstream sourceFile(filePath.c_str());
 
 	std::string line;
 
-	while (!sFile.eof())
+	while (!sourceFile.eof())
 	{
-		getline(sFile,line);
+		std::getline(sourceFile,line);
 
 		m_kernelSource += line + '\n';
 	}
 
-	sFile.close();
+	sourceFile.close();
 }
 
 WGlyphRender::WGlyphRender(const WGlyphRender& wGlyphRender,const osg::CopyOp& copyop): 
@@ -123,15 +138,13 @@ void WGlyphRender::setTensorData(WDataSetSingle* data)
 
 OpenCLRender::CLProgramDataSet* WGlyphRender::initProgram(const OpenCLRender::CLViewInformation& clViewInfo) const
 {
-	CLObjects* clObjects = new CLObjects();
-
 	cl_int clError;
 
 	const char* cSource = m_kernelSource.c_str();
 	size_t sourceLength = m_kernelSource.length();
 
-	cl_program& clProgram = clObjects->clProgram;
-	cl_kernel& clKernel = clObjects->clKernel;
+	cl_program clProgram;
+	cl_kernel clKernel;
 
 	const cl_context& clContext = clViewInfo.clContext;
 	const cl_device_id& clDevice = clViewInfo.clDevice;
@@ -143,8 +156,6 @@ OpenCLRender::CLProgramDataSet* WGlyphRender::initProgram(const OpenCLRender::CL
 	if (clError != CL_SUCCESS)
 	{
 		osg::notify(osg::FATAL) << "Could not create the program with source: " << getCLError(clError) << std::endl;
-
-		delete clObjects;
 
 		return 0;
 	}
@@ -174,8 +185,6 @@ OpenCLRender::CLProgramDataSet* WGlyphRender::initProgram(const OpenCLRender::CL
 
 		clReleaseProgram(clProgram);
 
-		delete clObjects;
-
 		return 0;
 	}
 
@@ -189,10 +198,13 @@ OpenCLRender::CLProgramDataSet* WGlyphRender::initProgram(const OpenCLRender::CL
 
 		clReleaseProgram(clProgram);
 
-		delete clObjects;
-
 		return 0;
 	}
+
+	CLObjects* clObjects = new CLObjects();
+
+	clObjects->clProgram = clProgram;
+	clObjects->clKernel = clKernel;
 
 	return clObjects;
 }

@@ -94,11 +94,15 @@ class WGlyphRender: public OpenCLRender
 		{
 			public:
 
+				CLObjects();
+
 				~CLObjects();
 
 				cl_program clProgram;
 				cl_kernel clKernel;
 				cl_mem tensorData;
+
+				bool dataCreated;
 		};
 
 		/**

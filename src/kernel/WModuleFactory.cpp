@@ -60,6 +60,7 @@
 #include "../modules/scalarSegmentation/WMScalarSegmentation.h"
 #include "../modules/superquadricGlyphs/WMSuperquadricGlyphs.h"
 #include "../modules/template/WMTemplate.h"
+#include "../modules/tensorGlyphs/WMTensorGlyphs.h"
 #include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
 #include "../modules/vectorPlot/WMVectorPlot.h"
 #include "../modules/voxelizer/WMVoxelizer.h"
@@ -124,6 +125,7 @@ void WModuleFactory::load()
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMScalarSegmentation() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSuperquadricGlyphs() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTemplate() ) );
+	m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTensorGlyphs() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTriangleMeshRenderer() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );

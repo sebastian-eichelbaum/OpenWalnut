@@ -256,7 +256,7 @@ static const char *glyph_xpm[] = {
 "KX c #EBE8EA",
 "LX c #F0EEEE",
 "PX c #F4F3F3",
-"IX c #FFFFFF",
+"IX c None",
 "UX c #F8F7F8",
 /* pixels */
 "IXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIXIX",

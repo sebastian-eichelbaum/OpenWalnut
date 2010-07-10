@@ -123,7 +123,7 @@ class OpenCLRender: public osg::Drawable
 
 		/**
 		*	Basic class to store your CL objects. Derive from it and add your data. Also add a destructor that releases all
-		*	CL objects.
+		*	CL objects if they have been successfully created.
 		*/
 		class CLProgramDataSet {};
 
