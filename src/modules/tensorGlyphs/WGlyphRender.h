@@ -74,6 +74,11 @@ class WGlyphRender: public OpenCLRender
         virtual const char* className() const;
 
 		/**
+		*	Has the kernel source code successfully been read?
+		*/
+		bool isSourceRead() const;
+
+		/**
 		*	Set the new tensor data to render. This method assumes data validity.
 		*/
 		void setTensorData(WDataSetSingle* data);
@@ -130,6 +135,7 @@ class WGlyphRender: public OpenCLRender
 
 		float* m_tensorData;
 
+		bool m_sourceRead;
 		bool m_dataInitialized;
 		bool m_dataChanged;
 

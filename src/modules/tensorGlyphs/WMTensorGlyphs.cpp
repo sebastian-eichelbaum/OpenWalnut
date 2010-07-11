@@ -93,6 +93,11 @@ void WMTensorGlyphs::moduleMain()
 
 	osg::ref_ptr<WGlyphRender> renderObject = new WGlyphRender();
 
+	if (!renderObject->isSourceRead())
+	{
+		return;
+	}
+
 	m_output->addDrawable(renderObject.get());
 
 	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(m_output);

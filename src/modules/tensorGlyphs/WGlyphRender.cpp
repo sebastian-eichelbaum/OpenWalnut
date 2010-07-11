@@ -27,6 +27,7 @@
 #include <boost/filesystem.hpp>
 
 #include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../common/WLogger.h"
 
 #include "WGlyphRender.h"
 
@@ -48,6 +49,7 @@ WGlyphRender::WGlyphRender():
 	OpenCLRender(),
 	m_numOfCoeffs(0),
 	m_numOfTensors(0),
+	m_sourceRead(false),
 	m_dataInitialized(false),
 	m_dataChanged(false),
 	m_tensorData(0)
@@ -60,6 +62,17 @@ WGlyphRender::WGlyphRender():
 
 	std::ifstream sourceFile(filePath.c_str());
 
+	if (!sourceFile.is_open())
+	{
+		WLogger::getLogger()->addLogMessage
+		(
+			"Can not open kernel file \"" + filePath + "\".",
+			"WGlyphRender",LL_ERROR
+		);
+
+		return;
+	}
+
 	std::string line;
 
 	while (!sourceFile.eof())
@@ -70,6 +83,8 @@ WGlyphRender::WGlyphRender():
 	}
 
 	sourceFile.close();
+
+	m_sourceRead = true;
 }
 
 WGlyphRender::WGlyphRender(const WGlyphRender& wGlyphRender,const osg::CopyOp& copyop): 
@@ -77,6 +92,7 @@ WGlyphRender::WGlyphRender(const WGlyphRender& wGlyphRender,const osg::CopyOp& c
 	m_numOfCoeffs(wGlyphRender.m_numOfCoeffs),
 	m_numOfTensors(wGlyphRender.m_numOfTensors),
 	m_kernelSource(wGlyphRender.m_kernelSource),
+	m_sourceRead(wGlyphRender.m_sourceRead),
 	m_dataInitialized(false),
 	m_dataChanged(false)
 {
@@ -103,6 +119,11 @@ WGlyphRender::~WGlyphRender()
 	{
 		delete[] m_tensorData;
 	}
+}
+
+bool WGlyphRender::isSourceRead() const
+{
+	return m_sourceRead;
 }
 
 void WGlyphRender::setTensorData(WDataSetSingle* data)
@@ -138,6 +159,11 @@ void WGlyphRender::setTensorData(WDataSetSingle* data)
 
 OpenCLRender::CLProgramDataSet* WGlyphRender::initProgram(const OpenCLRender::CLViewInformation& clViewInfo) const
 {
+	if (!m_sourceRead)
+	{
+		return 0;
+	}
+
 	cl_int clError;
 
 	const char* cSource = m_kernelSource.c_str();
