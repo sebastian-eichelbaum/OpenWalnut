@@ -274,3 +274,8 @@ std::string WSharedLib::getSystemSuffix()
     return W_LIB_SUFFIX;
 }
 
+std::string WSharedLib::getSystemLibPath()
+{
+    return W_LIB_PATH;
+}
+

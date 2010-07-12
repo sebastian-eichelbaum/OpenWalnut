@@ -15,6 +15,11 @@ TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} )
 # with these defines.
 add_definitions( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
 add_definitions( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
+IF( CMAKE_HOST_WIN32 )
+    add_definitions( '-DW_LIB_PATH="."' )               # use relative paths here
+ELSE()
+    add_definitions( '-DW_LIB_PATH="../lib"' )
+ENDIF()
 
 # Unit tests
 IF( OW_COMPILE_TESTS )

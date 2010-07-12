@@ -124,6 +124,14 @@ public:
      */
     static std::string getSystemSuffix();
 
+    /**
+     * Returns the default path for libraries on the current system. This is the directory where to search for .so,.dll or .dylib files. On Unix,
+     * this will be "../lib", on Windows ".".
+     *
+     * \return the path on the system.
+     */
+    static std::string getSystemLibPath();
+
 protected:
 
 private:

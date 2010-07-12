@@ -61,6 +61,13 @@ public:
 	 */
     void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket );
 
+    /**
+     * Returns the prefix of a shared module library filename.
+     *
+     * \return the prefix.
+     */
+    static std::string getModulePrefix();
+
 private:
 
     /**

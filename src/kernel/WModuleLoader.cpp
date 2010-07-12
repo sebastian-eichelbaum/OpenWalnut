@@ -35,7 +35,7 @@ WModuleLoader::WModuleLoader( ):
     m_path( "." )
 {
     // initialize members
-    std::string libPath = "../lib/modules";
+    std::string libPath = WSharedLib::getSystemLibPath();
     WPreferences::getPreference( "modules.path", &libPath );
     m_path = boost::filesystem::path( libPath );
 }
@@ -51,12 +51,18 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
     // iterate module directory, look for .so,.dll,.dylib files
     WAssert( boost::filesystem::exists( m_path ), "" );
 
+    WLogger::getLogger()->addLogMessage( "Searching modules in \"" + m_path.file_string() + "\" with prefix \"" + getModulePrefix() + "\".",
+                                         "Module Loader", LL_INFO );
+
     for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( m_path );
          i != boost::filesystem::directory_iterator(); ++i )
     {
         // all modules need to begin with this
         std::string suffix = wiotools::getSuffix( i->leaf() );
-        if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) )
+        std::string stem = i->path().stem();
+
+        if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) &&
+            ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 ) )
         {
             try
             {
@@ -95,3 +101,10 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         }
     }
 }
+
+std::string WModuleLoader::getModulePrefix()
+{
+    // all module file names need to have this prefix:
+    return WSharedLib::getSystemPrefix() + "module_";
+}
+
