@@ -258,7 +258,7 @@ static OpenThreads::Mutex mutex;
 
 static unsigned int glInitializedInstances = 0;
 
-static osg::buffered_object<PerContextGLObjects> perContextGLObjects;
+static osg::buffered_object<PerContextGLObjects> perContextGLObjects(0);
 
 const char* vertexShaderSource = 
 "void main()"
@@ -282,15 +282,43 @@ OpenCLRender::CLViewInformation::CLViewInformation(): width(0),height(0)
 
 OpenCLRender::PerContextInformation::PerContextInformation(): 
 	contextSharing(true),
-	glInitialized(false),
-	clInitialized(false),
+	cglInitialized(false),
 	buffersInitialized(false),
+	initializationError(false),
 	clProgramDataSet(0)
 {}
 
 OpenCLRender::PerContextInformation::~PerContextInformation()
 {
 	reset();
+}
+
+void OpenCLRender::PerContextInformation::reset()
+{
+	if (buffersInitialized)
+	{
+		clReleaseMemObject(clViewInfo.colorBuffer);
+		clReleaseMemObject(clViewInfo.depthBuffer);
+
+		buffersInitialized = false;
+	}
+
+	if (cglInitialized)
+	{
+		delete clProgramDataSet;
+
+		clProgramDataSet = 0;
+
+		clReleaseCommandQueue(clViewInfo.clCommQueue);
+		clReleaseContext(clViewInfo.clContext);
+
+		glInitializedInstances--;
+
+		cglInitialized = false;
+	}
+
+	initializationError = false;
+	contextSharing = true;
 }
 
 OpenCLRender::OpenCLRender(): Drawable()
@@ -314,25 +342,50 @@ void OpenCLRender::drawImplementation(osg::RenderInfo& renderInfo) const
 	unsigned int contextID = state.getContextID();
 
 	PerContextInformation& perContextInfo = perContextInformation[contextID];
+
+	/* do nothing if an initialization attempt has already failed */
+
+	if (perContextInfo.initializationError) return;
+
+	/* initialize CL and GL objects of required */
+
 	PerContextGLObjects& perContextGLObs = perContextGLObjects[contextID];
 
-	/* initialize GL objects if required */
+	if (!perContextInfo.cglInitialized)
+	{
+		/* initialize GL objects */
 
-	if (!perContextInfo.glInitialized) initGL(perContextInfo,perContextGLObs);
+		if (!initGL(perContextInfo,perContextGLObs))
+		{
+			perContextInfo.initializationError = true;
 
-	if (!perContextInfo.glInitialized) return;
+			return;
+		}
 
-	/* initialize CL objects if required */
+		/* initialize CL objects */
 
-	if (!perContextInfo.clInitialized) initCL(perContextInfo);
+		if (!initCL(perContextInfo))
+		{
+			perContextInfo.initializationError = true;
 
-	if (!perContextInfo.clInitialized) return;
+			return;
+		}
 
-	/* initialize program(s) if required */
+		/* initialize program(s) */
 
-	if (perContextInfo.clProgramDataSet == 0) perContextInfo.clProgramDataSet = initProgram(perContextInfo.clViewInfo);
+		perContextInfo.clProgramDataSet = initProgram(perContextInfo.clViewInfo);
 
-	if (perContextInfo.clProgramDataSet == 0) return;
+		if (perContextInfo.clProgramDataSet == 0)
+		{
+			perContextInfo.initializationError = true;
+
+			return;
+		}
+
+		/* set CL and GL initialized */
+
+		perContextInfo.cglInitialized = true;
+	}
 
 	/* initialize or reset buffers if required */
 
@@ -490,9 +543,9 @@ void OpenCLRender::resizeGLObjectBuffers(unsigned int maxSize)
 
 void OpenCLRender::reset() const
 {
-	unsigned int size = perContextGLObjects.size();
-
 	/* release CL objects */
+
+	unsigned int size = perContextInformation.size();
 
 	for (unsigned int i = 0;i < size;i++) perContextInformation[i].reset();
 
@@ -502,6 +555,8 @@ void OpenCLRender::reset() const
 
 	if (glInitializedInstances == 0)
 	{
+		size = perContextGLObjects.size();
+
 		for (unsigned int i = 0;i < size;i++)
 		{
 			PerContextGLObjects& perContextGLObs = perContextGLObjects[i];
@@ -673,7 +728,7 @@ void OpenCLRender::getViewProperties(ViewProperties& properties,const osg::State
 	);
 }
 
-void OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObjects& perContextGLObjects) const
+bool OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObjects& perContextGLObjects) const
 {
 	if (!perContextGLObjects.renderExtensions.isInitialized())
 	{
@@ -683,7 +738,7 @@ void OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObje
 		{
 			osg::notify(osg::FATAL) << "Could not initialize OpenGL extensions." << std::endl;
 
-			return;
+			return false;
 		}
 
 		/* create shaders and program */
@@ -744,10 +799,10 @@ void OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObje
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
-	perContextInfo.glInitialized = true;
+	return true;
 }
 
-void OpenCLRender::initCL(PerContextInformation& perContextInfo) const
+bool OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 {
 	cl_int clError;
 
@@ -761,7 +816,7 @@ void OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 	{
 		osg::notify(osg::FATAL) << "Could not find OpenCL platforms." << std::endl;
 
-		return;
+		return false;
 	}
 
 	platforms = new cl_platform_id[numOfPlatforms];
@@ -874,7 +929,7 @@ void OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 	{
 		osg::notify(osg::FATAL) << "Could not create an OpenCL context: " << getCLError(clError) << std::endl;
 
-		return;
+		return false;
 	}
 
 	/* create CL command queue */
@@ -892,10 +947,10 @@ void OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 
 		clReleaseContext(perContextInfo.clViewInfo.clContext);
 
-		return;
+		return false;
 	}
 
-	perContextInfo.clInitialized = true;
+	return true;
 }
 
 void OpenCLRender::initBuffers(PerContextInformation& perContextInfo) const
@@ -1011,41 +1066,6 @@ void OpenCLRender::initBuffers(PerContextInformation& perContextInfo) const
 	setBuffers(perContextInfo.clViewInfo,perContextInfo.clProgramDataSet);
 
 	perContextInfo.buffersInitialized = true;
-}
-
-void OpenCLRender::PerContextInformation::reset()
-{
-	if (clProgramDataSet)
-	{
-		delete clProgramDataSet;
-
-		clProgramDataSet = 0;
-	}
-
-	if (buffersInitialized)
-	{
-		clReleaseMemObject(clViewInfo.colorBuffer);
-		clReleaseMemObject(clViewInfo.depthBuffer);
-
-		buffersInitialized = false;
-	}
-
-	if (clInitialized)
-	{
-		clReleaseCommandQueue(clViewInfo.clCommQueue);
-		clReleaseContext(clViewInfo.clContext);
-
-		clInitialized = false;
-	}
-
-	if (glInitialized)
-	{
-		glInitialized = false;
-
-		glInitializedInstances--;
-	}
-
-	contextSharing = true;
 }
 
 std::string getCLError(cl_int clError)

@@ -32,7 +32,7 @@
 #include "OpenCLRender.h"
 
 /**
-*	lol
+*	An osg::Drawable for rendering high order tensor glyphs with OpenCL.
 */
 class WGlyphRender: public OpenCLRender
 {

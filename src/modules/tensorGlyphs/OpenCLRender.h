@@ -212,9 +212,9 @@ class OpenCLRender: public osg::Drawable
 				CLProgramDataSet* clProgramDataSet;
 
 				bool contextSharing;
-				bool glInitialized;
-				bool clInitialized;
+				bool cglInitialized;
 				bool buffersInitialized;
+				bool initializationError;
 
 				GLuint colorTexture;
 				GLuint depthTexture;
@@ -223,12 +223,12 @@ class OpenCLRender: public osg::Drawable
 		/**
 		*	Initializes necessary GL objects.
 		*/
-		void initGL(PerContextInformation& perContextInfo,PerContextGLObjects& perContextGLObjects) const;
+		bool initGL(PerContextInformation& perContextInfo,PerContextGLObjects& perContextGLObjects) const;
 
 		/**
 		*	Initializes necessary CL objects.
 		*/
-		void initCL(PerContextInformation& perContextInfo) const;
+		bool initCL(PerContextInformation& perContextInfo) const;
 
 		/**
 		*	Initializes colorBuffer and depthBuffer.
