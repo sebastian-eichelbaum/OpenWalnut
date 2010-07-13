@@ -66,8 +66,9 @@ public:
      *
      * \param ge initialized graphics engine.
      * \param gui initialized gui.
+     * \param progPath the path for the executable. Used later on to find resources and modules.
      */
-    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
+    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui, boost::filesystem::path progPath );
 
     /**
      * Destructor.
@@ -258,6 +259,11 @@ private:
      * The location of the modules.
      */
     static boost::filesystem::path m_modulePath;
+
+    /**
+     * True if the above paths have been initialized already.
+     */
+    static bool m_pathsFound;
 };
 
 #endif  // WKERNEL_H

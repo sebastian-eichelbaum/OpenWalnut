@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -133,13 +134,19 @@ int WQt4Gui::run()
     WLogger::getLogger()->run();
     wlog::info( "GUI" ) << "Bringing up GUI";
 
+    // the call path of the application
+    boost::filesystem::path walnutBin = boost::filesystem::path( std::string( m_argv[0] ) );
+    boost::filesystem::path appPath = walnutBin.parent_path();
+    // init preference system
+    WPreferences::setPreferenceFile( appPath / "walnut.cfg" );
+
     QApplication appl( m_argc, m_argv, true );
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
 
     // and startup kernel
-    m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
+    m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this(), appPath ) );
     m_kernel->run();
     t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );

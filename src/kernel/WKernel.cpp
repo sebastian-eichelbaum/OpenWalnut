@@ -68,13 +68,20 @@ boost::filesystem::path WKernel::m_appPath = boost::filesystem::path();
 boost::filesystem::path WKernel::m_fontPath = boost::filesystem::path();
 
 /**
+ * Sets whether the above paths have been found already.
+ */
+bool WKernel::m_pathsFound = false;
+
+/**
  * The path for modules.
  */
 boost::filesystem::path WKernel::m_modulePath = boost::filesystem::path();
 
-WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
+WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui, boost::filesystem::path progPath ):
     WThreadedRunner()
 {
+    m_appPath = progPath;
+
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
 
     // init the singleton
@@ -197,33 +204,29 @@ void WKernel::threadMain()
 void WKernel::findAppPath()
 {
     // only get the path if not already done
-    if ( !m_appPath.empty() )
+    if ( m_pathsFound )
     {
         return;
     }
 
-    // unified version with boost::filesystem
-    namespace fs = boost::filesystem;
-    fs::path currentDir( fs::initial_path<fs::path>() );
-
-    m_appPath = currentDir;
     WLogger::getLogger()->addLogMessage( "Application path: " + m_appPath.file_string(), "Kernel", LL_DEBUG );
 
-    m_shaderPath = fs::path( currentDir / "shaders" );
+    m_shaderPath = boost::filesystem::path( m_appPath / "shaders" );
     WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath.file_string(), "Kernel", LL_DEBUG );
 
     // NOTE: currently, OpenSceneGraph has hard-coded its search path for fonts. So we can't change it to somewhere else currently.
-    m_fontPath = fs::path( currentDir / "fonts" );
+    m_fontPath = boost::filesystem::path( m_appPath / "fonts" );
     WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath.file_string(), "Kernel", LL_DEBUG );
 
     // the module path. use WSharedLib to find it basing on the bin- dir
     std::string libPath = "";
     if ( !WPreferences::getPreference( "modules.path", &libPath ) )
     {
-        m_modulePath =  fs::path( currentDir / WSharedLib::getSystemLibPath() );
+        m_modulePath =  boost::filesystem::path( m_appPath / WSharedLib::getSystemLibPath() );
     }
     WLogger::getLogger()->addLogMessage( "Module path: " + m_modulePath.file_string(), "Kernel", LL_DEBUG );
 
+    m_pathsFound = true;
 }
 
 const WBoolFlag& WKernel::isFinishRequested() const
@@ -248,13 +251,11 @@ boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > 
 
 boost::filesystem::path WKernel::getAppPathObject()
 {
-    findAppPath();
     return WKernel::m_appPath;
 }
 
 std::string WKernel::getAppPath()
 {
-    findAppPath();
     return WKernel::m_appPath.file_string();
 }
 
