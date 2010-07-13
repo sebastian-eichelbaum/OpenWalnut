@@ -1,7 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( OpenWalnut )
 
-
 # append search path for FindModules:
 #------------------------------------
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
@@ -13,6 +12,7 @@ INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
 SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
+SET( SHARED_FILES_RELATIVE "../share/${CMAKE_PROJECT_NAME}" CACHE PATH "Relative path to bin/ denoting the destination for shaders and cfg files." )  # this path us the relative path to bin/ used for all shared files like shaders and config file
 
 # CMAKE automatism to select static vs. shared building:
 #-------------------------------------------------------
@@ -133,6 +133,8 @@ ENDIF()
 
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 
+add_definitions( '-DW_SHARED_FILES_RELATIVE="${SHARED_FILES_RELATIVE}"' )   # this relative path is used for all shared files like shaders and config files
+
 ADD_SUBDIRECTORY( dataHandler )
 ADD_SUBDIRECTORY( graphicsEngine )
 ADD_SUBDIRECTORY( gui )
@@ -147,7 +149,7 @@ option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON 
 if( OW_COPY_SHADERS )
   add_custom_target( shaderDirectoryConfiguration
     ALL
-    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
+    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
     COMMENT "Put all shaders to the right place or update them if they are already there."
     )
 endif( OW_COPY_SHADERS )
@@ -175,9 +177,9 @@ ELSE()
 ENDIF()
 
 #---------- walnut.cfg file -------------
-IF( NOT EXISTS ${PROJECT_BINARY_DIR}/bin/walnut.cfg )
-  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi ${PROJECT_BINARY_DIR}/bin/walnut.cfg COPYONLY )
-  MESSAGE( STATUS "Copied ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi to ${PROJECT_BINARY_DIR}/bin/walnut.cfg" )
+IF( NOT EXISTS ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg )
+  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg COPYONLY )
+  MESSAGE( STATUS "Copied ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi to ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg" )
 ENDIF()
 
 # Special targets:

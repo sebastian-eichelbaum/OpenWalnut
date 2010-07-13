@@ -138,7 +138,7 @@ int WQt4Gui::run()
     boost::filesystem::path walnutBin = boost::filesystem::path( std::string( m_argv[0] ) );
     boost::filesystem::path appPath = walnutBin.parent_path();
     // init preference system
-    WPreferences::setPreferenceFile( appPath / "walnut.cfg" );
+    WPreferences::setPreferenceFile( appPath / W_SHARED_FILES_RELATIVE / "walnut.cfg" );
 
     QApplication appl( m_argc, m_argv, true );
 
