@@ -27,7 +27,10 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WValueSet.h"
 
 #include "OpenCLRender.h"
 
@@ -133,11 +136,12 @@ class WGlyphRender: public OpenCLRender
 		unsigned int m_numOfCoeffs;
 		unsigned int m_numOfTensors;
 
-		float* m_tensorData;
+		boost::shared_ptr<WValueSet<float>> m_tensorData;
 
-		bool m_sourceRead;
 		bool m_dataInitialized;
-		bool m_dataChanged;
+
+		mutable bool m_sourceRead;
+		mutable bool m_dataChanged;
 
 		std::string m_kernelSource;
 };

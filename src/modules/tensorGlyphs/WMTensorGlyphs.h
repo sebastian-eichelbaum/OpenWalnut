@@ -25,6 +25,8 @@
 #ifndef WMTENSORGLYPHS_H
 #define WMTENSORGLYPHS_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <osg/Geode>
 
 #include "../../kernel/WModule.h"

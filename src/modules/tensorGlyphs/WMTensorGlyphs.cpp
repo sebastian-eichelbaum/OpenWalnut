@@ -103,6 +103,7 @@ void WMTensorGlyphs::moduleMain()
 	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(m_output);
 
 	boost::shared_ptr<WDataSetSingle> newDataSet;
+	WValueSetBase* newValueSet;
 	unsigned int newDimension;
 	unsigned int newOrder;
 	bool dataChanged;
@@ -114,7 +115,10 @@ void WMTensorGlyphs::moduleMain()
 	{
 		m_moduleState.wait();
 
-		if (m_shutdownFlag()) break;
+		if (m_shutdownFlag())
+		{
+			break;
+		}
 
 		/* test for data changes */
 
@@ -123,7 +127,14 @@ void WMTensorGlyphs::moduleMain()
 
 		/* test for data validity */
 
-		dataValid = (newDataSet != 0);
+		newValueSet = newDataSet->getValueSet().get();
+
+		dataValid = (dynamic_cast<WValueSet<float>*>(newValueSet) != 0);
+
+		if (!dataValid)
+		{
+			warnLog()<<"Dataset does not have a valid data set. Ignoring Data.";
+		}
 
 		if (dataValid)
 		{
@@ -131,11 +142,14 @@ void WMTensorGlyphs::moduleMain()
 			/* TODO: substitute this bullshit as soon as there is a working tensor data set class */
 
 			newOrder = 0;
-			newDimension = newDataSet->getValueSet()->dimension();
+			newDimension = newValueSet->dimension();
 
 			while (true)
 			{
-				if (newDimension == (((newOrder + 1) * (newOrder + 2)) / 2)) break;
+				if (newDimension == (((newOrder + 1) * (newOrder + 2)) / 2))
+				{
+					break;
+				}
 
 				if (newDimension < (((newOrder + 1) * (newOrder + 2)) / 2)) 
 				{
@@ -147,9 +161,15 @@ void WMTensorGlyphs::moduleMain()
 				newOrder += 2;
 			}
 
-			if (newOrder == 0) dataValid = false;
+			if (newOrder == 0) 
+			{
+				dataValid = false;
+			}
 
-			if (newDataSet->getValueSet()->order() != 1) dataValid = false;
+			if (newValueSet->order() != 1)
+			{
+				dataValid = false;
+			}
 
 			if (!dataValid)
 			{
@@ -160,7 +180,7 @@ void WMTensorGlyphs::moduleMain()
 
 			/* check the grid validity */
 
-			dataValid = boost::shared_dynamic_cast<WGridRegular3D>(newDataSet->getGrid());
+			dataValid = (dynamic_cast<WGridRegular3D*>(newDataSet->getGrid().get()) != 0);
 
 			if (!dataValid)
 			{
@@ -180,7 +200,10 @@ void WMTensorGlyphs::moduleMain()
 		}
 		else
 		{
-			if (!m_dataSet) continue;
+			if (!m_dataSet)
+			{
+				continue;
+			}
 		}
 
 		/* property changes */
@@ -188,7 +211,6 @@ void WMTensorGlyphs::moduleMain()
 		// etc. pp.
 	}
 
-	// remove allocated memory and all OSG nodes
 	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(m_output);
 }
 

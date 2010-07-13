@@ -312,9 +312,35 @@ void OpenCLRender::PerContextInformation::reset()
 		clReleaseCommandQueue(clViewInfo.clCommQueue);
 		clReleaseContext(clViewInfo.clContext);
 
+		cglInitialized = false;
+
+		OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+
 		glInitializedInstances--;
 
-		cglInitialized = false;
+		/* release GL objects if required */
+
+		if (glInitializedInstances == 0)
+		{
+			unsigned int size = perContextGLObjects.size();
+
+			for (unsigned int i = 0;i < size;i++)
+			{
+				PerContextGLObjects& perContextGLObs = perContextGLObjects[i];
+
+				GLRenderExtensions& gl = perContextGLObs.renderExtensions;
+
+				if (gl.isInitialized())
+				{
+					gl.deleteProgram(perContextGLObs.program);
+					gl.deleteShader(perContextGLObs.vertexShader);
+					gl.deleteShader(perContextGLObs.fragmentShader);
+					gl.deleteBuffers(1,&perContextGLObs.quadDataVBO);
+
+					gl.reset();
+				}
+			}
+		}
 	}
 
 	initializationError = false;
@@ -543,37 +569,21 @@ void OpenCLRender::resizeGLObjectBuffers(unsigned int maxSize)
 
 void OpenCLRender::reset() const
 {
-	/* release CL objects */
-
 	unsigned int size = perContextInformation.size();
 
 	for (unsigned int i = 0;i < size;i++) perContextInformation[i].reset();
+}
 
-	/* release GL objects if required */
+bool OpenCLRender::initializationFailed() const
+{
+	unsigned int size = perContextInformation.size();
 
-	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-
-	if (glInitializedInstances == 0)
+	for (unsigned int i = 0;i < size;i++)
 	{
-		size = perContextGLObjects.size();
-
-		for (unsigned int i = 0;i < size;i++)
-		{
-			PerContextGLObjects& perContextGLObs = perContextGLObjects[i];
-
-			GLRenderExtensions& gl = perContextGLObs.renderExtensions;
-
-			if (gl.isInitialized())
-			{
-				gl.deleteProgram(perContextGLObs.program);
-				gl.deleteShader(perContextGLObs.vertexShader);
-				gl.deleteShader(perContextGLObs.fragmentShader);
-				gl.deleteBuffers(1,&perContextGLObs.quadDataVBO);
-
-				gl.reset();
-			}
-		}
+		if (perContextInformation[i].initializationError) return true;
 	}
+
+	return false;
 }
 
 void OpenCLRender::getViewProperties(ViewProperties& properties,const osg::State& state) const
@@ -730,6 +740,8 @@ void OpenCLRender::getViewProperties(ViewProperties& properties,const osg::State
 
 bool OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObjects& perContextGLObjects) const
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+
 	if (!perContextGLObjects.renderExtensions.isInitialized())
 	{
 		GLRenderExtensions& gl = perContextGLObjects.renderExtensions;
@@ -783,8 +795,6 @@ bool OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObje
 		gl.genBuffers(1,&perContextGLObjects.quadDataVBO);
 		gl.bindBuffer(GL_ARRAY_BUFFER,perContextGLObjects.quadDataVBO);
 		gl.bufferData(GL_ARRAY_BUFFER,sizeof(quadData),quadData,GL_STATIC_DRAW);
-
-		glInitializedInstances++;
 	}
 
 	/* generate the textures containing color and depth information */
@@ -798,6 +808,8 @@ bool OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObje
 	glBindTexture(GL_TEXTURE_2D,perContextInfo.depthTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+
+	glInitializedInstances++;
 
 	return true;
 }

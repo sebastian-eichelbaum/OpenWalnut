@@ -49,10 +49,9 @@ WGlyphRender::WGlyphRender():
 	OpenCLRender(),
 	m_numOfCoeffs(0),
 	m_numOfTensors(0),
-	m_sourceRead(false),
 	m_dataInitialized(false),
-	m_dataChanged(false),
-	m_tensorData(0)
+	m_sourceRead(false),
+	m_dataChanged(false)
 {
 	/* load kernel source code */
 
@@ -91,35 +90,15 @@ WGlyphRender::WGlyphRender(const WGlyphRender& wGlyphRender,const osg::CopyOp& c
 	OpenCLRender(wGlyphRender,copyop),
 	m_numOfCoeffs(wGlyphRender.m_numOfCoeffs),
 	m_numOfTensors(wGlyphRender.m_numOfTensors),
-	m_kernelSource(wGlyphRender.m_kernelSource),
-	m_sourceRead(wGlyphRender.m_sourceRead),
+	m_tensorData(wGlyphRender.m_tensorData),
 	m_dataInitialized(false),
-	m_dataChanged(false)
-{
-	unsigned int length = m_numOfCoeffs * m_numOfTensors;
-
-	if (length == 0)
-	{
-		m_tensorData = 0;
-
-		return;
-	}
-
-	m_tensorData = new float[length];
-
-	for (unsigned int i = 0;i < length;i++)
-	{
-		m_tensorData[i] = wGlyphRender.m_tensorData[i];
-	}
-}
+	m_sourceRead(wGlyphRender.m_sourceRead),
+	m_dataChanged(false),
+	m_kernelSource(wGlyphRender.m_kernelSource)
+{}
 
 WGlyphRender::~WGlyphRender()
-{
-	if (m_dataInitialized)
-	{
-		delete[] m_tensorData;
-	}
-}
+{}
 
 bool WGlyphRender::isSourceRead() const
 {
@@ -128,33 +107,17 @@ bool WGlyphRender::isSourceRead() const
 
 void WGlyphRender::setTensorData(WDataSetSingle* data)
 {
-	WValueSetBase* values = data->getValueSet().get();
-	WGridRegular3D* grid = static_cast<WGridRegular3D*>(data->getGrid().get());
+	m_tensorData = boost::static_pointer_cast<WValueSet<float>>(data->getValueSet());
 
-	m_numOfCoeffs = values->dimension();
-	m_numOfTensors = values->size();
+	//WGridRegular3D* grid = static_cast<WGridRegular3D*>(data->getGrid().get());
+	// read dimension sizes individually from grid instead
 
-	unsigned int length = m_numOfTensors * m_numOfCoeffs;
-
-	if (m_dataInitialized)
-	{
-		delete[] m_tensorData;
-	}
-	else
-	{
-		m_dataInitialized = true;
-	}
-
-	m_tensorData = new float[length];
-
-	// etc. pp.
-
-	for (unsigned int i = 0;i < length;i++)
-	{
-		m_tensorData[i] = values->getScalarDouble(i);
-	}
-
+	m_numOfCoeffs = m_tensorData->dimension();
+	m_numOfTensors = m_tensorData->size();
+	m_dataInitialized = true;
 	m_dataChanged = true;
+
+	// reorder tensors for spatial locality ? O.o
 }
 
 OpenCLRender::CLProgramDataSet* WGlyphRender::initProgram(const OpenCLRender::CLViewInformation& clViewInfo) const
@@ -262,6 +225,8 @@ void WGlyphRender::render(const OpenCLRender::CLViewInformation& clViewInfo,
 	if (m_dataChanged)
 	{
 		loadCLData(clViewInfo,clObjects);
+
+		m_dataChanged = false;
 	}
 
 	/* get view properties */
@@ -289,17 +254,22 @@ void WGlyphRender::render(const OpenCLRender::CLViewInformation& clViewInfo,
 	clSetKernelArg(clObjects.clKernel,14,sizeof(unsigned int),&clViewInfo.width);
 	clSetKernelArg(clObjects.clKernel,15,sizeof(unsigned int),&clViewInfo.height);
 
-	/* run kernel */
+	/* global work size has to be a multiple of local work size */
 
-	size_t gwsX = clViewInfo.width;
-	size_t gwsY = clViewInfo.height;
+	size_t gwsX = clViewInfo.width / 16;
+	size_t gwsY = clViewInfo.height / 16;
 
-	if ((gwsX % 16) != 0) gwsX += 16 - (gwsX % 16);
-	if ((gwsY % 16) != 0) gwsY += 16 - (gwsY % 16);
+	if ((gwsX * 16) != clViewInfo.width) gwsX++;
+	if ((gwsY * 16) != clViewInfo.height) gwsY++;
+
+	gwsX *= 16;
+	gwsY *= 16;
 
 	size_t gws[2] = {gwsX,gwsY};
 
 	size_t lws[2] = {16,16};
+
+	/* run kernel */
 
 	cl_int clError;
 
@@ -313,29 +283,33 @@ void WGlyphRender::render(const OpenCLRender::CLViewInformation& clViewInfo,
 
 void WGlyphRender::loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const
 {
-	/* release existing data if required */
-
-	if (m_dataInitialized)
-	{
-		clReleaseMemObject(clObjects.tensorData);
-	}
-
 	cl_int clError;
 
 	/* load new data */
 
-	clObjects.tensorData = clCreateBuffer
+	cl_mem tensorData = clCreateBuffer
 	(
 		clViewInfo.clContext,
 		CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR,
-		m_numOfCoeffs * m_numOfTensors,
-		m_tensorData,&clError
+		m_tensorData->rawSize(),const_cast<float*>(m_tensorData->rawData()),&clError
 	);
 
 	if (clError != CL_SUCCESS)
 	{
 		osg::notify(osg::FATAL) << "Could not load the data to GPU memory: " << getCLError(clError) << std::endl;
+
+		return;
 	}
+
+	/* release existing data if required */
+
+	if (clObjects.dataCreated)
+	{
+		clReleaseMemObject(clObjects.tensorData);
+	}
+
+	clObjects.tensorData = tensorData;
+	clObjects.dataCreated = true;
 
 	/* set new kernel arguments */
 

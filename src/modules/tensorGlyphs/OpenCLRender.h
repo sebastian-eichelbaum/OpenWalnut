@@ -67,6 +67,11 @@ class OpenCLRender: public osg::Drawable
 		*/
 		void reset() const;
 
+		/**
+		*	Check whether the initialization for any context failed. If so, you have to invoke reset() to start a new attempt.
+		*/
+		bool initializationFailed() const;
+
 	protected:
 
 		/**
