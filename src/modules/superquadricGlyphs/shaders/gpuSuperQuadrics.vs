@@ -25,7 +25,7 @@
 #version 120
 
 // include some utility functions
-#include "tensorTools.fs"
+#include "WGETensorTools.glsl"
 
 // commonly used variables
 #include "gpuSuperQuadrics.varyings"

@@ -10,8 +10,8 @@ uniform float threshold;
 uniform int cMap;
 
 
-#include "colorMaps.fs"
-#include "utils.fs"
+#include "WGEColorMaps.glsl"
+#include "WGEUtils.glsl"
 
 float lookupTex()
 {

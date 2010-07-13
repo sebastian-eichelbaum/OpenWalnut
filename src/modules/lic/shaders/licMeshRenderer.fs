@@ -70,8 +70,8 @@ uniform int useCmap8;
 uniform int useCmap9;
 
 
-#include "colorMaps.fs"
-#include "lighting.fs"
+#include "WGEColorMaps.glsl"
+#include "WGELighting.glsl"
 
 void lookupTex(inout vec4 col, in int type, in sampler3D tex,  in float threshold, in vec3 v, in float alpha, in int cmap)
 {

@@ -2,7 +2,7 @@ varying vec4 VaryingTexCoord0;
 
 uniform int opacity;
 
-#include "lighting.fs"
+#include "WGELighting.glsl"
 
 void main()
 {

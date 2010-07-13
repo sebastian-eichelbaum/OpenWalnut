@@ -56,7 +56,7 @@ uniform bool highlighted;
 uniform bool showComplete;
 
 
-#include "colorMaps.fs"
+#include "WGEColorMaps.glsl"
 
 
 void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha, in int cmap)

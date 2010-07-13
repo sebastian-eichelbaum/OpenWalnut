@@ -24,7 +24,7 @@
 
 #version 120
 
-#include "shadingTools.fs"
+#include "WGEShadingTools.glsl"
 
 // commonly used variables
 #include "gpuSuperQuadrics.varyings"
