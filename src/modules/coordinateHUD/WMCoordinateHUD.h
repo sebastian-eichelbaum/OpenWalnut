@@ -44,7 +44,7 @@
  *
  * \ingroup modules
  */
-class WMCoordinateHUD: public WModule
+class WMCoordinateHUD: public WModule, public osg::Referenced
 {
 public:
 
@@ -116,26 +116,6 @@ protected:
     virtual void activate();
 
 private:
-
-    /**
-     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
-
-    /**
-     * The output connector used to provide the calculated data to other modules.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
-
-    /**
-     * This is a pointer to the dataset the module is currently working on.
-     */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
-
-    /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
      * Projection node for defining view frustrum for HUD

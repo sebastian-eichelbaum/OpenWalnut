@@ -103,47 +103,26 @@ const std::string WMCoordinateHUD::getDescription() const
 void WMCoordinateHUD::connectors()
 {
 
-//    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-//        new WModuleInputData< WDataSetSingle >( shared_from_this(),
-//                                                               "in", "The dataset to display" )
-//        );
-//    addConnector( m_input );
-
-
-//    m_output = boost::shared_ptr< WModuleOutputData < WDataSetSingle  > >(
-//       new WModuleOutputData< WDataSetSingle >( shared_from_this(),
-//                                                               "out", "The calculated dataset" )
-//      );
-//    addConnector( m_output );
-
-    // call WModules initialization
-    WModule::connectors();
 }
 
 void WMCoordinateHUD::properties()
 {
-//    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
 }
 
 void WMCoordinateHUD::moduleMain()
 {
 
-    debugLog() << "Entering moduleMain()";
-    m_moduleState.setResetable( true, true );
-//    m_moduleState.add( m_input->getDataChangedCondition() );
-//    m_moduleState.add( m_propCondition );
-  
-    ready();
-    debugLog() << "Module is now ready.";
+        debugLog() << "Entering moduleMain()";
+        m_moduleState.setResetable( true, true );
+
+        ready();
+        debugLog() << "Module is now ready.";
 
 
-    //m_rootNode = new WGEManagedGroupNode( m_active );
-    m_rootNode = osg::ref_ptr< osg::Projection >( new osg::Projection );
-    m_rootNode->setName("coordHUDNode");
-
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-    debugLog() << "Entering main loop";
-
+        //m_rootNode = new WGEManagedGroupNode( m_active ); 
+        m_rootNode = osg::ref_ptr< osg::Projection >( new osg::Projection );
+        m_rootNode->setName("coordHUDNode");
 
         osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
         osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
@@ -151,7 +130,7 @@ void WMCoordinateHUD::moduleMain()
         //Eckpunkte
         float size = 100;
         osg::Vec3Array* vertices = new osg::Vec3Array;
-/*
+
  	    vertices->push_back(osg::Vec3(0, 0, 0));
 	    vertices->push_back(osg::Vec3(size, 0, 0));
 	    vertices->push_back(osg::Vec3(0, 0, 0));
@@ -164,8 +143,8 @@ void WMCoordinateHUD::moduleMain()
 	    vertices->push_back(osg::Vec3(0, -size, 0));
 	    vertices->push_back(osg::Vec3(0, 0, 0));
 	    vertices->push_back(osg::Vec3(0, 0, -size));
-*/
 
+/*
  	    vertices->push_back(osg::Vec3(100, 100,100));
 	    vertices->push_back(osg::Vec3(100+size, 100, 100));
 	    vertices->push_back(osg::Vec3(100, 100, 100));
@@ -178,6 +157,8 @@ void WMCoordinateHUD::moduleMain()
 	    vertices->push_back(osg::Vec3(100, 100-size, 100));
 	    vertices->push_back(osg::Vec3(100, 100, 100));
 	    vertices->push_back(osg::Vec3(100, 100, 100-size));
+*/
+
         //colors
 	    osg::Vec4 x_color(1.0f,0.0f,0.0f,1.0f);     //red
 	    osg::Vec4 y_color(0.0f,1.0f,0.0f,1.0f);     //green
@@ -200,26 +181,35 @@ void WMCoordinateHUD::moduleMain()
  
         coordGeom->setColorArray(color);
         coordGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
- 
+  
+//        osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
+//        normals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
+//        coordGeom->setNormalArray( normals );
+//        coordGeom->setNormalBinding( osg::Geometry::BIND_OVERALL );
+
         osg::DrawArrays *da = new osg::DrawArrays(osg::PrimitiveSet::LINES,0,vertices->size());
 
         coordGeom->setVertexArray( vertices );
         coordGeom->addPrimitiveSet( da);
-        coordGeode->addDrawable( coordGeom);
+        coordGeode->addDrawable( coordGeom );
         coordGeode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
         //HUD
-        int sizeX = 1024;
-        int sizeY = 768;
-        int sizeZ = 768;
-        m_rootNode->setMatrix(osg::Matrix::ortho(0,sizeX,0,sizeY,0,sizeZ));
+        // Initialize the projection matrix for viewing everything we
+        // will add as descendants of this node. Use screen coordinates
+        // to define the horizontal and vertical extent of the projection
+        // matrix. Positions described under this node will equate to
+        // pixel coordinates
+        m_rootNode->setMatrix( osg::Matrix::ortho2D( -150, 1024, -100, 768 ) );
+        //m_rootNode->setMatrix(osg::Matrix::ortho(0,1024,0,768,0,768));
+        
         // For the HUD model view matrix use an identity matrix:
         osg::MatrixTransform* HUDModelViewMatrix = new osg::MatrixTransform;
         HUDModelViewMatrix->setMatrix(osg::Matrix::identity());
 
         // Make sure the model view matrix is not affected by any transforms
         // above it in the scene graph:
-        HUDModelViewMatrix->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+//HUDModelViewMatrix->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 
         // Add the HUD projection matrix as a child of the root node
         // and the HUD model view matrix as a child of the projection matrix
@@ -227,20 +217,24 @@ void WMCoordinateHUD::moduleMain()
         // and positioned with this model view matrix.
         m_rootNode->addChild( HUDModelViewMatrix );
 
-        
-
         // Add the Geometry node to contain HUD geometry as a child of the
         // HUD model view matrix.
         m_HUDs = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
-        // A geometry node for our HUD
+        HUDModelViewMatrix->addChild( m_HUDs );
+
+        // A geometry node for our HUD 
         osg::ref_ptr<osg::Geode> HUDGeode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
 
-        HUDModelViewMatrix->addChild( m_HUDs );
-        m_HUDs->insert( HUDGeode );
-        m_HUDs->insert( coordGeode );
 
+        m_HUDs->insert( HUDGeode );
+        //m_HUDs->insert( coordGeode );
+
+    //frame
+    //if no osg::Transform::ABSOLUTE_RF, just a plane in x,y direction → not needed
+    //or seperate?
         // Set up geometry for the HUD and add it to the HUD
-        osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();
+/*
+        osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();      
         osg::ref_ptr< osg::Vec3Array > HUDBackgroundVertices = new osg::Vec3Array;
         HUDBackgroundVertices->push_back( osg::Vec3( 0, 0, -1 ) );
         HUDBackgroundVertices->push_back( osg::Vec3( 200, 0, -1 ) );
@@ -254,19 +248,25 @@ void WMCoordinateHUD::moduleMain()
 
         osg::ref_ptr< osg::Vec4Array > HUDcolors = new osg::Vec4Array;
         HUDcolors->push_back( osg::Vec4( 0.8f, 0.8f, 0.8f, 0.8f ) );
-
         osg::ref_ptr< osg::Vec3Array > HUDnormals = new osg::Vec3Array;
         HUDnormals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
         HUDBackgroundGeometry->setNormalArray( HUDnormals );
-        HUDBackgroundGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+        HUDBackgroundGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );       
         HUDBackgroundGeometry->addPrimitiveSet( HUDBackgroundIndices );
         HUDBackgroundGeometry->setVertexArray( HUDBackgroundVertices );
         HUDBackgroundGeometry->setColorArray( HUDcolors );
         HUDBackgroundGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
         HUDGeode->addDrawable( HUDBackgroundGeometry );
-        HUDGeode->addDrawable( coordGeom);
+*/
+        HUDGeode->addDrawable( coordGeom );
+        HUDGeode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+             
+        m_geode = coordGeode;
+        //m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
+        //m_HUDs->insert( m_geode );
 
+/*        
         // Create and set up a state set using the texture from above:
         osg::StateSet* HUDStateSet = new osg::StateSet();
         HUDGeode->setStateSet(HUDStateSet);
@@ -282,16 +282,15 @@ void WMCoordinateHUD::moduleMain()
         // Need to make sure this geometry is draw last. RenderBins are handled
         // in numerical order so set bin number to 11
         HUDStateSet->setRenderBinDetails( 11, "RenderBin");
-
-       /////////////////
-
+*/        
 
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_geode );
 
  
-
-        //add to root
-/*        m_rootNode->remove( m_geode );
+//add to root
+/*        
+        m_rootNode->remove( m_geode );
         m_geode = newGeode;
         m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
         m_rootNode->insert( m_geode );    
@@ -304,9 +303,6 @@ void WMCoordinateHUD::moduleMain()
     {
         m_rootNode->setNodeMask( 0x0 );
     }
-
-    // connect updateGFX with picking
-    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
 
    // WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
@@ -321,23 +317,9 @@ void WMCoordinateHUD::TranslateCallback::operator()( osg::Node* node, osg::NodeV
     traverse(node, nv);
 }
 
-bool WMCoordinateHUD::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > > /* property */,
-                                       WPVBaseTypes::PV_STRING value )
-{
-    return ( value.length() <= 10 ) && ( value.length() >= 5 );
-}
-
-boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint > WMCoordinateHUD::StringLength::clone()
-{
-    // If you write your own constraints, you NEED to provide a clone function. It creates a new copied instance of the constraints with the
-    // correct runtime type.
-    return boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint >( new WMCoordinateHUD::StringLength( *this ) );
-}
 
 void WMCoordinateHUD::activate()
 {
-    // This method gets called, whenever the m_active property changes. Your module should always handle this if you do not use the
-    // WGEManagedGroupNode for your scene. The user can (de-)activate modules in his GUI and you can handle this case here:
     if ( m_active->get() )
     {
         debugLog() << "Activate.";
@@ -347,9 +329,6 @@ void WMCoordinateHUD::activate()
         debugLog() << "Deactivate.";
     }
 
-    // The simpler way is by using WGEManagedGroupNode which deactivates itself according to m_active. See moduleMain for details.
-
-    // Always call WModule's activate!
     WModule::activate();
 }
 
