@@ -105,6 +105,6 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
 std::string WModuleLoader::getModulePrefix()
 {
     // all module file names need to have this prefix:
-    return WSharedLib::getSystemPrefix() + "module_";
+    return WSharedLib::getSystemPrefix() + W_MODULE_PREFIX;
 }
 

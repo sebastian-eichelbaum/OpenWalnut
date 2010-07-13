@@ -5,9 +5,10 @@ FILE( GLOB_RECURSE MODULES_SRC "modules/*.cpp" "modules/*.h" )
 FILE( GLOB KERNEL_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
 FILE( GLOB KERNEL_COMBINER_SRC "combiner/*.cpp" "combiner/*.h" )
 
+add_definitions( '-DW_MODULE_PREFIX="OWmodule"' )   # this prefix is used to define the filename of module libs
+
 ADD_LIBRARY( OWkernel ${KERNEL_SRC} ${MODULES_SRC} ${KERNEL_EXCEPTIONS_SRC} ${KERNEL_COMBINER_SRC} )
 TARGET_LINK_LIBRARIES( OWkernel OWcommon OWdataHandler OWge ${OPENSCENEGRAPH_LIBRARIES} ${CMAKE_DL_LIBS} )
-
 
 # Unit tests
 IF( OW_COMPILE_TESTS )
