@@ -128,8 +128,8 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
 
             // reload the sources and set the shader
             // vertex shader
-            WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_shader->m_name + ".vs\"", "WShader", LL_DEBUG );
-            std::string source = m_shader->processShader( m_shader->m_name + ".vs" );
+            WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_shader->m_name + "-vertex.glsl\"", "WShader", LL_DEBUG );
+            std::string source = m_shader->processShader( m_shader->m_name + "-vertex.glsl" );
             if ( source != "" )
             {
                 m_shader->m_vertexShader->setShaderSource( source );
@@ -137,8 +137,8 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
             }
 
             // fragment shader
-            WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_shader->m_name + ".fs\"", "WShader", LL_DEBUG );
-            source = m_shader->processShader( m_shader->m_name + ".fs" );
+            WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_shader->m_name + "-fragment.glsl\"", "WShader", LL_DEBUG );
+            source = m_shader->processShader( m_shader->m_name + "-fragment.glsl" );
             if ( source != "" )
             {
                 m_shader->m_fragmentShader->setShaderSource( source );
@@ -146,8 +146,8 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
             }
 
             // Geometry Shader
-            WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_shader->m_name + ".gs\"", "WShader", LL_DEBUG );
-            source = m_shader->processShader( m_shader->m_name + ".gs", true );
+            WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_shader->m_name + "-geometry.glsl\"", "WShader", LL_DEBUG );
+            source = m_shader->processShader( m_shader->m_name + "-geometry.glsl", true );
             if ( source != "" )
             {
                 m_shader->m_geometryShader->setShaderSource( source );

@@ -42,7 +42,7 @@ W_LOADABLE_MODULE( WMVectorPlot )
 WMVectorPlot::WMVectorPlot():
     WModule()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "vectorplot" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMVectorPlot" ) );
 }
 
 WMVectorPlot::~WMVectorPlot()

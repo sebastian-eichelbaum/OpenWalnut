@@ -28,7 +28,7 @@
 #include "WGETensorTools.glsl"
 
 // commonly used variables
-#include "gpuSuperQuadrics.varyings"
+#include "WMSuperquadricGlyphs-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // GPU Super Quadrics -- vertex shader -- main

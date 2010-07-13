@@ -71,7 +71,7 @@ WMNavSlices::WMNavSlices():
 
     // initialize members
     std::string shaderPath = WKernel::getRunningKernel()->getGraphicsEngine()->getShaderPath();
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "slice" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMNavSlices" ) );
 }
 
 WMNavSlices::~WMNavSlices()

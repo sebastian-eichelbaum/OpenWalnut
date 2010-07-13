@@ -190,7 +190,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mes
     }
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "triangleMeshRenderer" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTriangleMeshRenderer" ) );
     m_shader->apply( m_surfaceGeode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );

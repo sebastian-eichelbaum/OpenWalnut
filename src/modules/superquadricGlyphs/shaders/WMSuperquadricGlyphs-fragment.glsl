@@ -27,7 +27,7 @@
 #include "WGEShadingTools.glsl"
 
 // commonly used variables
-#include "gpuSuperQuadrics.varyings"
+#include "WMSuperquadricGlyphs-varyings.glsl"
 
 // tollerance value for float comparisons
 float zeroTollerance = 0.01;

@@ -48,8 +48,8 @@ WMFiberDisplay::WMFiberDisplay()
       m_noData( new WCondition, true ),
       m_osgNode( osg::ref_ptr< osg::Group >() )
 {
-    m_shaderTubes = osg::ref_ptr< WShader > ( new WShader( "fake-tubes" ) );
-    m_shaderTexturedFibers = osg::ref_ptr< WShader > ( new WShader( "texturedFibers" ) );
+    m_shaderTubes = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay-FakeTubes" ) );
+    m_shaderTexturedFibers = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay-Textured" ) );
     m_textureChanged = true;
 }
 
