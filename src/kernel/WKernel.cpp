@@ -67,6 +67,11 @@ boost::filesystem::path WKernel::m_appPath = boost::filesystem::path();
  */
 boost::filesystem::path WKernel::m_fontPath = boost::filesystem::path();
 
+/**
+ * The path for modules.
+ */
+boost::filesystem::path WKernel::m_modulePath = boost::filesystem::path();
+
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
 {
@@ -207,8 +212,18 @@ void WKernel::findAppPath()
     m_shaderPath = fs::path( currentDir / "shaders" );
     WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath.file_string(), "Kernel", LL_DEBUG );
 
+    // NOTE: currently, OpenSceneGraph has hard-coded its search path for fonts. So we can't change it to somewhere else currently.
     m_fontPath = fs::path( currentDir / "fonts" );
     WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath.file_string(), "Kernel", LL_DEBUG );
+
+    // the module path. use WSharedLib to find it basing on the bin- dir
+    std::string libPath = "";
+    if ( !WPreferences::getPreference( "modules.path", &libPath ) )
+    {
+        m_modulePath =  fs::path( currentDir / WSharedLib::getSystemLibPath() );
+    }
+    WLogger::getLogger()->addLogMessage( "Module path: " + m_modulePath.file_string(), "Kernel", LL_DEBUG );
+
 }
 
 const WBoolFlag& WKernel::isFinishRequested() const
@@ -247,6 +262,12 @@ std::string WKernel::getShaderPath()
 {
     findAppPath();
     return WKernel::m_shaderPath.file_string();
+}
+
+std::string WKernel::getModulePath()
+{
+    findAppPath();
+    return WKernel::m_modulePath.file_string();
 }
 
 boost::shared_ptr< WROIManagerFibers> WKernel::getRoiManager()

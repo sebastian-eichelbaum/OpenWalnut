@@ -29,15 +29,13 @@
 #include "../common/WPreferences.h"
 #include "../common/WSharedLib.h"
 
+#include "WKernel.h"
+
 #include "WModuleLoader.h"
 
-WModuleLoader::WModuleLoader( ):
-    m_path( "." )
+WModuleLoader::WModuleLoader( )
 {
     // initialize members
-    std::string libPath = WSharedLib::getSystemLibPath();
-    WPreferences::getPreference( "modules.path", &libPath );
-    m_path = boost::filesystem::path( libPath );
 }
 
 WModuleLoader::~WModuleLoader()
@@ -48,13 +46,12 @@ WModuleLoader::~WModuleLoader()
 
 void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket )
 {
-    // iterate module directory, look for .so,.dll,.dylib files
-    WAssert( boost::filesystem::exists( m_path ), "" );
+    std::string modulePath = WKernel::getModulePath();
 
-    WLogger::getLogger()->addLogMessage( "Searching modules in \"" + m_path.file_string() + "\" with prefix \"" + getModulePrefix() + "\".",
+    WLogger::getLogger()->addLogMessage( "Searching modules in \"" + modulePath + "\" with prefix \"" + getModulePrefix() + "\".",
                                          "Module Loader", LL_INFO );
 
-    for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( m_path );
+    for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( modulePath );
          i != boost::filesystem::directory_iterator(); ++i )
     {
         // all modules need to begin with this

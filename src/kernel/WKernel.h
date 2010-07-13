@@ -164,6 +164,13 @@ public:
     static std::string getShaderPath();
 
     /**
+     * Getter for the module path. This is the directory where to search for modules.
+     *
+     * \return the module search path
+     */
+    static std::string getModulePath();
+
+    /**
      * get for roi manager
      */
     boost::shared_ptr< WROIManagerFibers>getRoiManager();
@@ -242,10 +249,15 @@ private:
      */
     static boost::filesystem::path m_shaderPath;
 
-   /**
+    /**
      * The location of the font files.
      */
     static boost::filesystem::path m_fontPath;
+
+    /**
+     * The location of the modules.
+     */
+    static boost::filesystem::path m_modulePath;
 };
 
 #endif  // WKERNEL_H

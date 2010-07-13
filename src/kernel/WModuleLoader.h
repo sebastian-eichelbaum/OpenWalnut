@@ -75,10 +75,6 @@ private:
      */
     std::vector< WSharedLib > m_libs;
 
-    /**
-     * Path to the modules. This is used during load to find all libMODULENAME.{so,dll,dylib} files.
-     */
-    boost::filesystem::path m_path;
 };
 
 #endif  // WMODULELOADER_H
