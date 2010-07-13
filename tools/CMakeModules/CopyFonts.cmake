@@ -8,7 +8,3 @@ FOREACH( fname ${ALL_GE_FONTS} )
   configure_file(  ${fname} ${CMAKE_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/fonts/ COPYONLY)
 ENDFOREACH( fname )
 
-# this is kind of a hack as the osgViewer::StatsHandler does not allow us to change the font path -> copy the file he needs to the destination he
-# needs
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/fonts)
-configure_file( ${OW_SOURCE_DIR}/graphicsEngine/fonts/arial.ttf ${CMAKE_BINARY_DIR}/bin/fonts/ COPYONLY)
