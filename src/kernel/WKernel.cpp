@@ -215,7 +215,7 @@ void WKernel::findAppPath()
     WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath.file_string(), "Kernel", LL_DEBUG );
 
     // NOTE: currently, OpenSceneGraph has hard-coded its search path for fonts. So we can't change it to somewhere else currently.
-    m_fontPath = boost::filesystem::path( m_appPath / "fonts" );
+    m_fontPath = boost::filesystem::path( m_appPath / W_SHARED_FILES_RELATIVE / "fonts" );
     WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath.file_string(), "Kernel", LL_DEBUG );
 
     // the module path. use WSharedLib to find it basing on the bin- dir

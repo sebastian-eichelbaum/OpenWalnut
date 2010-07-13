@@ -157,7 +157,7 @@ endif( OW_COPY_SHADERS )
 #---------- fonts -------------
 add_custom_target( fontsDirectoryConfiguration
   ALL
-  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
+  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
   COMMENT "Put all fonts to the right place."
   )
 
