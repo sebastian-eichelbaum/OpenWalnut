@@ -147,6 +147,7 @@ ADD_SUBDIRECTORY( modules )
 add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
                     MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
                     COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     COMMENT "Creating version.h"
                  )
 
@@ -253,6 +254,7 @@ FOREACH( dirname ${EXCLUDE_DIRS} )
         LIST( REMOVE_ITEM STYLE_CPP ${fname} )
     ENDFOREACH( fname )
 ENDFOREACH( dirname )
+LIST( REMOVE_ITEM STYLE_H ${PROJECT_SOURCE_DIR}/version.h )
 
 IF( CMAKE_COLOR_MAKEFILE )
     SET( STYLECHECK_OPTIONS "--color" )

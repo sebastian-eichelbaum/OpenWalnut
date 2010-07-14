@@ -74,7 +74,6 @@ private:
      * All the loaded shared libraries. Get freed on destruction. So do NOT free this instance while the libs are used.
      */
     std::vector< WSharedLib > m_libs;
-
 };
 
 #endif  // WMODULELOADER_H
