@@ -141,8 +141,18 @@ ADD_SUBDIRECTORY( gui )
 ADD_SUBDIRECTORY( kernel )
 ADD_SUBDIRECTORY( common )
 ADD_SUBDIRECTORY( modules )
-ADD_EXECUTABLE( walnut-bin OpenWalnut.cpp )
-TARGET_LINK_LIBRARIES( walnut-bin OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
+
+#-------------------------------------------------------------------------------------------------------------
+# Writes information about the revision of the current code to the file version.h which then gets included by OpenWalnut.cpp
+add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+                    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                    COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
+                    COMMENT "Creating version.h"
+                 )
+
+# finally, build walnut
+ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
+TARGET_LINK_LIBRARIES( walnut OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
@@ -266,14 +276,6 @@ ADD_CUSTOM_TARGET( stylecheck
 				   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 				   COMMENT "Check if code complies to CodingStandard"
 				 )
-
-#-------------------------------------------------------------------------------------------------------------
-# Writes information about the revision of the current code to a file
-ADD_CUSTOM_TARGET( identify
-                   ALL
-                   COMMAND hg identify --cwd ${PROJECT_SOURCE_DIR} -n -i -b -t > ${PROJECT_BINARY_DIR}/bin/revision
-                   COMMENT "Write information about the revision of the current code to a file"
-                 )
 
 #-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
