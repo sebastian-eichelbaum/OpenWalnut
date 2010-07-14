@@ -41,7 +41,6 @@
 #include <osgDB/ReadFile>
 
 #include "exceptions/WGEInitFailed.h"
-#include "ext/OpenSceneGraph/WGEStatsHandler.h"
 #include "WGE2DManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
@@ -82,7 +81,7 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
         }
 
         // add the stats handler
-        m_View->addEventHandler( new WGEStatsHandler );
+        m_View->addEventHandler( new osgViewer::StatsHandler );
     }
     catch( ... )
     {

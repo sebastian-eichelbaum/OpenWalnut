@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <stdlib.h>
+
 #include <string>
 
 #include <boost/filesystem.hpp>
@@ -54,6 +56,9 @@ boost::shared_ptr< WGEResourceManager > WGEResourceManager::getResourceManager()
 
 std::string WGEResourceManager::getDefaultFont()
 {
+    // NOTE: as osgVoewer::StatsHandler uses hard coded font names, we need to ensure that our default font also is available as file "arial.ttf"
+    // in the fonts subdirectory. So, if you change the default font here please also ensure arial.ttf points to/is the same as the new default
+    // font.
     return m_boldFont;
 }
 
@@ -74,9 +79,9 @@ std::string WGEResourceManager::getBoldFont()
 
 void WGEResourceManager::setFontPath( std::string path )
 {
-    // NOTE: the osgViewer::StatsHandler uses a hard coded font filename. :-(. To keep the look equal we use the same font as
-    // default font. Since Arial is underlying some weird licence we simply link/copy a font from the liberation package
-    // (https://fedorahosted.org/liberation-fonts/) to "arial.ttf"
+    // NOTE: the osgViewer::StatsHandler uses a hard coded font filename. :-(. Fortunately OSG allows us to modify the search path using
+    // environment variables:
+    setenv( "OSGFILEPATH", path.c_str(), 1 );
 
     namespace fs = boost::filesystem;
     fs::path fontPath = path;
