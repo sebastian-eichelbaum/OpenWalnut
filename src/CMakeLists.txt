@@ -159,7 +159,7 @@ if( OW_COPY_SHADERS )
   add_custom_target( shaderDirectoryConfiguration
     ALL
     COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
-    COMMENT "Put all shaders to the right place or update them if they are already there."
+    COMMENT "Put all global shaders to the right place or update them if they are already there."
     )
 endif( OW_COPY_SHADERS )
 
@@ -290,29 +290,6 @@ ADD_CUSTOM_TARGET( cicheck
                    COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
                    COMMENT "Checks if all is well to commit"
                  )
-
-
-#-------------------------------------------------------------------------------------------------------------
-# Copies fixtures used for tests to the binary directory (where they are expected).
-
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_CUSTOM_TARGET( fixtures
-                       ALL
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/io/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/io
-                       # TODO(wiebel): we need to find a way to do this automatically
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/modules/marchingCubes/test/fixtures ${PROJECT_BINARY_DIR}/modules/marchingCubes
-                       COMMENT "Copy fixtures to the right place."
-                 )
-ELSE()
-	ADD_CUSTOM_TARGET( fixtures
-					   ALL
-					   COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/FixturesWin.cmake
-					
-    COMMENT "Copy fixtures to the right place."
-  )
-
-ENDIF()
 
 #-------------------------------------------------------------------------------------------------------------
 # Makes many special make targets in combination. Default number of cores is 1.
