@@ -24,6 +24,7 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include "../common/WIOTools.h"
 #include "../common/WPathHelper.h"
@@ -114,7 +115,8 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         // does the directory exist?
         if ( !boost::filesystem::is_directory( *path ) || !boost::filesystem::exists( *path ) )
         {
-            WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() + "\" failed. It is not a directory or does not exist." +
+            WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() +
+                                                 "\" failed. It is not a directory or does not exist." +
                                                  " Ignoring.", "Module Loader", LL_WARNING );
 
             continue;

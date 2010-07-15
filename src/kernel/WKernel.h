@@ -200,7 +200,6 @@ private:
      * Initializes the graphics engine, data handler and so on.
      */
     void init();
-
 };
 
 #endif  // WKERNEL_H

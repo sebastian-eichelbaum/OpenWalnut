@@ -88,9 +88,24 @@ public:
      */
     typedef struct
     {
+        /**
+         * The default font to use in most cases.
+         */
         boost::filesystem::path Default;
+
+        /**
+         * The Regular font (not bold, not italic)
+         */
         boost::filesystem::path Regular;
+
+        /**
+         * Italic font.
+         */
         boost::filesystem::path Italic;
+
+        /**
+         * Bold font.
+         */
         boost::filesystem::path Bold;
     }
     Fonts;
