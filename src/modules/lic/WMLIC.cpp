@@ -155,7 +155,7 @@ void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     }
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMLIC" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMLIC", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );

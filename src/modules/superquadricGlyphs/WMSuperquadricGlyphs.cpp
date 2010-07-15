@@ -45,7 +45,7 @@ W_LOADABLE_MODULE( WMSuperquadricGlyphs )
 WMSuperquadricGlyphs::WMSuperquadricGlyphs():
     WModule()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs", m_localPath ) );
     m_output = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
 }
 

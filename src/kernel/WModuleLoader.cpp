@@ -26,6 +26,7 @@
 #include <string>
 
 #include "../common/WIOTools.h"
+#include "../common/WPathHelper.h"
 #include "../common/WPreferences.h"
 #include "../common/WSharedLib.h"
 
@@ -44,14 +45,10 @@ WModuleLoader::~WModuleLoader()
     m_libs.clear();
 }
 
-void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket )
+void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket,
+                          boost::filesystem::path dir, unsigned int level )
 {
-    std::string modulePath = WKernel::getModulePath();
-
-    WLogger::getLogger()->addLogMessage( "Searching modules in \"" + modulePath + "\" with prefix \"" + getModulePrefix() + "\".",
-                                         "Module Loader", LL_INFO );
-
-    for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( modulePath );
+    for( boost::filesystem::directory_iterator i = boost::filesystem::directory_iterator( dir );
          i != boost::filesystem::directory_iterator(); ++i )
     {
         // all modules need to begin with this
@@ -76,14 +73,15 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 // could the prototype be created?
                 if( !m )
                 {
-                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->leaf() + "\". Could not create " +
+                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().file_string() + "\". Could not create " +
                                                          "prototype instance.", "Module Loader", LL_ERROR );
                     continue;
                 }
                 else
                 {
                     // yes, add it to the list of prototypes
-                    WLogger::getLogger()->addLogMessage( "Loaded " + i->leaf(), "Module Loader", LL_INFO );
+                    WLogger::getLogger()->addLogMessage( "Loaded " + i->path().file_string(), "Module Loader", LL_INFO );
+                    m->setLocalPath( i->path().parent_path() );
                     ticket->get().insert( m );
                     m_libs.push_back( l );
                 }
@@ -92,16 +90,44 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
             }
             catch( const WException& e )
             {
-                WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->leaf() + "\". " + e.what() + ". Ignoring.",
+                WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().file_string() + "\". " + e.what() + ". Ignoring.",
                                                      "Module Loader", LL_ERROR );
             }
         }
+        else if ( ( level == 0 ) && boost::filesystem::is_directory( *i ) )     // this only traverses down one level
+        {
+            // if it a dir -> traverse down
+            load( ticket, *i, level + 1 );
+        }
+    }
+}
+
+void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket )
+{
+    std::vector< boost::filesystem::path > allPaths = WPathHelper::getAllModulePaths();
+
+    // go through each of the paths
+    for ( std::vector< boost::filesystem::path >::const_iterator path = allPaths.begin(); path != allPaths.end(); ++path )
+    {
+        WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() + "\".", "Module Loader", LL_INFO );
+
+        // does the directory exist?
+        if ( !boost::filesystem::is_directory( *path ) || !boost::filesystem::exists( *path ) )
+        {
+            WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() + "\" failed. It is not a directory or does not exist." +
+                                                 " Ignoring.", "Module Loader", LL_WARNING );
+
+            continue;
+        }
+
+        // directly search the path for libOWmodule_ files
+        load( ticket, *path );
     }
 }
 
 std::string WModuleLoader::getModulePrefix()
 {
     // all module file names need to have this prefix:
-    return WSharedLib::getSystemPrefix() + W_MODULE_PREFIX;
+    return WSharedLib::getSystemPrefix() + "OWmodule";
 }
 

@@ -60,6 +60,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
+#include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
@@ -205,7 +206,7 @@ void WMTemplate::properties()
                                                     "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
     m_aDouble          = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
     m_aString          = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
+    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WPathHelper::getAppPath(), m_propCondition );
     m_aColor           = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
 
@@ -320,7 +321,7 @@ void WMTemplate::properties()
     m_aTriggerOutput = m_infoProperties->addProperty( "A Trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
     m_aDoubleOutput = m_infoProperties->addProperty( "Some Double", "a Double. Nice isn't it?", 3.1415 );
     m_aColorOutput = m_infoProperties->addProperty( "A Color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
-    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WKernel::getAppPathObject() );
+    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
     m_aSelectionOutput = m_infoProperties->addProperty( "A Selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
 }
 

@@ -128,7 +128,7 @@ void WMProbTractDisplay::properties()
 
 void WMProbTractDisplay::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMProbTractDisplay" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMProbTractDisplay", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );

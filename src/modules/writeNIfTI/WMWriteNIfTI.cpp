@@ -33,6 +33,7 @@
 #include <cmath>
 
 #include "../../common/WAssert.h"
+#include "../../common/WPathHelper.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
@@ -130,7 +131,7 @@ void WMWriteNIfTI::connectors()
 void WMWriteNIfTI::properties()
 {
     m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
-                                             WKernel::getAppPathObject() );
+                                             WPathHelper::getAppPath() );
     m_saveTriggerProp = m_properties->addProperty( "Do Save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );

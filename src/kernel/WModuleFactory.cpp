@@ -122,6 +122,7 @@ boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule 
 
     // call prototypes factory function
     boost::shared_ptr< WModule > clone = boost::shared_ptr< WModule >( prototype->factory() );
+    clone->setLocalPath( prototype->getLocalPath() );   // prototype and clone have the same local path.
     initializeModule( clone );
 
     return clone;

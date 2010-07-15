@@ -276,6 +276,6 @@ std::string WSharedLib::getSystemSuffix()
 
 std::string WSharedLib::getSystemLibPath()
 {
-    return W_LIB_PATH;
+    return "../lib";
 }
 

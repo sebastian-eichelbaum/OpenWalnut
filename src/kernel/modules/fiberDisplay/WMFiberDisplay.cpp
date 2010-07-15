@@ -33,6 +33,7 @@
 
 #include "../../../common/WColor.h"
 #include "../../../common/WLogger.h"
+#include "../../../common/WPathHelper.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
 #include "../../../dataHandler/WSubject.h"
@@ -231,7 +232,7 @@ void WMFiberDisplay::properties()
     m_tubeThickness->setMax( 300 );
 
     m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
-    m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WKernel::getAppPathObject() );
+    m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WPathHelper::getAppPath() );
     m_updateOC = m_properties->addProperty( "Update Output Conn.",
                                             "Updates the output connector with the currently selected fibers",
                                             WPVBaseTypes::PV_TRIGGER_READY,

@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "../../common/WPathHelper.h"
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WTriangleMesh2.h"
 
@@ -84,7 +85,7 @@ void WMMeshReader::properties()
     // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_meshFile = m_properties->addProperty( "Mesh File", "", WKernel::getAppPathObject() );
+    m_meshFile = m_properties->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
     m_readTriggerProp = m_properties->addProperty( "Do Read",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 }

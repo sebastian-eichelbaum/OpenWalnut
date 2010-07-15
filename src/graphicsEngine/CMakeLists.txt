@@ -14,7 +14,6 @@ IF( OW_COMPILE_TESTS )
           "WGESignals.cpp"
           "WGraphicsEngine.cpp"
           "WGEScene.cpp"
-          "WGEResourceManager.cpp"
           "WGEViewer.cpp"
           "WGEGraphicsWindow.cpp"
           "WGEGroupNode.cpp"

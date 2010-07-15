@@ -125,7 +125,7 @@ void WMIsosurfaceRaytracer::properties()
 
 void WMIsosurfaceRaytracer::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMIsosurfaceRaytracer" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMIsosurfaceRaytracer", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );

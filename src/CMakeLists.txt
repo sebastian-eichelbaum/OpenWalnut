@@ -12,7 +12,7 @@ INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
 SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
-SET( SHARED_FILES_RELATIVE "../share/${CMAKE_PROJECT_NAME}" CACHE PATH "Relative path to bin/ denoting the destination for shaders and cfg files." )  # this path us the relative path to bin/ used for all shared files like shaders and config file
+SET( SHARED_FILES_RELATIVE "../share/${CMAKE_PROJECT_NAME}" CACHE INTERNAL "Relative path to bin/ denoting the destination for shaders and cfg files." )  # this path us the relative path to bin/ used for all shared files like shaders and config file
 
 # CMAKE automatism to select static vs. shared building:
 #-------------------------------------------------------
@@ -132,8 +132,6 @@ ELSE()
 ENDIF()
 
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
-
-add_definitions( '-DW_SHARED_FILES_RELATIVE="${SHARED_FILES_RELATIVE}"' )   # this relative path is used for all shared files like shaders and config files
 
 ADD_SUBDIRECTORY( dataHandler )
 ADD_SUBDIRECTORY( graphicsEngine )

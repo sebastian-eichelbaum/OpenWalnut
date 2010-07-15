@@ -52,36 +52,9 @@
  */
 WKernel* kernel = NULL;
 
-/**
- * Define shader path.
- */
-boost::filesystem::path WKernel::m_shaderPath = boost::filesystem::path();
-
-/**
- * Define app path.
- */
-boost::filesystem::path WKernel::m_appPath = boost::filesystem::path();
-
-/**
- * Define font path.
- */
-boost::filesystem::path WKernel::m_fontPath = boost::filesystem::path();
-
-/**
- * Sets whether the above paths have been found already.
- */
-bool WKernel::m_pathsFound = false;
-
-/**
- * The path for modules.
- */
-boost::filesystem::path WKernel::m_modulePath = boost::filesystem::path();
-
-WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui, boost::filesystem::path progPath ):
+WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
 {
-    m_appPath = progPath;
-
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
 
     // init the singleton
@@ -104,7 +77,6 @@ WKernel::~WKernel()
 void WKernel::init()
 {
     // initialize
-    findAppPath();
     m_roiManager = boost::shared_ptr< WROIManagerFibers >( new WROIManagerFibers() );
 
     m_selectionManager = boost::shared_ptr< WSelectionManager >( new WSelectionManager() );
@@ -120,10 +92,6 @@ void WKernel::init()
                 "Root module container in Kernel." ) );
     // this avoids the root container to be marked as "crashed" if a contained module crashes.
     m_moduleContainer->setCrashIfModuleCrashes( false );
-
-    // initialize graphics engine, or, at least set some stuff
-    m_graphicsEngine->setShaderPath( m_shaderPath.file_string() );
-    m_graphicsEngine->setFontPath( m_fontPath.file_string() );
 
     // load all modules
     m_moduleFactory->load();
@@ -201,34 +169,6 @@ void WKernel::threadMain()
     WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_INFO );
 }
 
-void WKernel::findAppPath()
-{
-    // only get the path if not already done
-    if ( m_pathsFound )
-    {
-        return;
-    }
-
-    WLogger::getLogger()->addLogMessage( "Application path: " + m_appPath.file_string(), "Kernel", LL_DEBUG );
-
-    m_shaderPath = boost::filesystem::path( m_appPath / W_SHARED_FILES_RELATIVE / "shaders" );
-    WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath.file_string(), "Kernel", LL_DEBUG );
-
-    // NOTE: currently, OpenSceneGraph has hard-coded its search path for fonts. So we can't change it to somewhere else currently.
-    m_fontPath = boost::filesystem::path( m_appPath / W_SHARED_FILES_RELATIVE / "fonts" );
-    WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath.file_string(), "Kernel", LL_DEBUG );
-
-    // the module path. use WSharedLib to find it basing on the bin- dir
-    std::string libPath = "";
-    if ( !WPreferences::getPreference( "modules.path", &libPath ) )
-    {
-        m_modulePath =  boost::filesystem::path( m_appPath / WSharedLib::getSystemLibPath() );
-    }
-    WLogger::getLogger()->addLogMessage( "Module path: " + m_modulePath.file_string(), "Kernel", LL_DEBUG );
-
-    m_pathsFound = true;
-}
-
 const WBoolFlag& WKernel::isFinishRequested() const
 {
     return m_shutdownFlag;
@@ -249,37 +189,9 @@ boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > 
     return getRootContainer()->applyModule( applyOn, prototype );
 }
 
-boost::filesystem::path WKernel::getAppPathObject()
-{
-    return WKernel::m_appPath;
-}
-
-std::string WKernel::getAppPath()
-{
-    return WKernel::m_appPath.file_string();
-}
-
-std::string WKernel::getShaderPath()
-{
-    findAppPath();
-    return WKernel::m_shaderPath.file_string();
-}
-
-std::string WKernel::getModulePath()
-{
-    findAppPath();
-    return WKernel::m_modulePath.file_string();
-}
-
 boost::shared_ptr< WROIManagerFibers> WKernel::getRoiManager()
 {
     return m_roiManager;
-}
-
-std::string WKernel::getFontPath()
-{
-    findAppPath();
-    return WKernel::m_fontPath.file_string();
 }
 
 boost::shared_ptr< WSelectionManager>WKernel::getSelectionManager()

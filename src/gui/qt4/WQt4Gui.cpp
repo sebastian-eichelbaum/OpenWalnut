@@ -38,6 +38,7 @@
 #include "../../common/WConditionOneShot.h"
 #include "../../common/WIOTools.h"
 #include "../../common/WPreferences.h"
+#include "../../common/WPathHelper.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
@@ -136,9 +137,12 @@ int WQt4Gui::run()
 
     // the call path of the application
     boost::filesystem::path walnutBin = boost::filesystem::path( std::string( m_argv[0] ) );
-    boost::filesystem::path appPath = walnutBin.parent_path();
+
+    // setup path helper which provides several paths to others
+    WPathHelper::getPathHelper()->setAppPath( walnutBin.parent_path() );
+
     // init preference system
-    WPreferences::setPreferenceFile( appPath / W_SHARED_FILES_RELATIVE / "walnut.cfg" );
+    WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
 
     QApplication appl( m_argc, m_argv, true );
 
@@ -146,7 +150,7 @@ int WQt4Gui::run()
     m_ge = WGraphicsEngine::getGraphicsEngine();
 
     // and startup kernel
-    m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this(), appPath ) );
+    m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
     m_kernel->run();
     t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );

@@ -45,7 +45,6 @@
 #include "WGraphicsEngine.h"
 #include "exceptions/WGEInitFailed.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
-#include "WGEResourceManager.h"
 
 // graphics engine instance as singleton
 boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::m_instance = boost::shared_ptr< WGraphicsEngine >();
@@ -57,12 +56,6 @@ WGraphicsEngine::WGraphicsEngine():
 
     // initialize members
     m_rootNode = new WGEScene();
-
-    m_shaderPath = "";
-    m_fontPath = "";
-
-    // init resource manager ( it is a singleton and gets created during first "getResourceManager" request.
-    WGEResourceManager::getResourceManager();
 }
 
 WGraphicsEngine::~WGraphicsEngine()
@@ -85,29 +78,6 @@ boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::getGraphicsEngine()
 osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
 {
     return m_rootNode;
-}
-
-std::string WGraphicsEngine::getShaderPath() const
-{
-    return m_shaderPath;
-}
-
-void WGraphicsEngine::setShaderPath( std::string path )
-{
-    m_shaderPath = path;
-}
-
-std::string WGraphicsEngine::getFontPath() const
-{
-    return m_fontPath;
-}
-
-void WGraphicsEngine::setFontPath( std::string path )
-{
-    m_fontPath = path;
-
-    // we need to propagate the change to the resource manager
-    WGEResourceManager::getResourceManager()->setFontPath( path );
 }
 
 boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, int x, int y,

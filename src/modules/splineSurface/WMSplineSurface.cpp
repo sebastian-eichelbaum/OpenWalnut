@@ -42,6 +42,7 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
+#include "../../common/WPathHelper.h"
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
 #include "../../common/math/WVector3D.h"
@@ -163,7 +164,7 @@ void WMSplineSurface::properties()
     m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save", "Press!", WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMSplineSurface::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WKernel::getAppPathObject() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
 }
 
 void WMSplineSurface::renderMesh()
@@ -303,7 +304,7 @@ void WMSplineSurface::renderMesh()
     // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
     m_textureChanged = true;
 
-    m_shader = osg::ref_ptr< WShader >( new WShader( "surface" ) );
+    m_shader = osg::ref_ptr< WShader >( new WShader( "surface", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );

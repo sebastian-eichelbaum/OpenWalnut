@@ -74,6 +74,17 @@ private:
      * All the loaded shared libraries. Get freed on destruction. So do NOT free this instance while the libs are used.
      */
     std::vector< WSharedLib > m_libs;
+
+   	/**
+	 * Load the module prototypes from the shared libraries from the specified directory. It traverses the subdirectories and searches there.
+     * Traversion depth is 1.
+	 *
+	 * \param ticket A write ticket to a shared container.
+     * \param dir the directory to load
+     * \param level the traversion level
+	 */
+    void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket, boost::filesystem::path dir,
+               unsigned int level = 0 );
 };
 
 #endif  // WMODULELOADER_H

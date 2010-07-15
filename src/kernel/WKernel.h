@@ -66,9 +66,8 @@ public:
      *
      * \param ge initialized graphics engine.
      * \param gui initialized gui.
-     * \param progPath the path for the executable. Used later on to find resources and modules.
      */
-    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui, boost::filesystem::path progPath );
+    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
 
     /**
      * Destructor.
@@ -144,34 +143,6 @@ public:
     boost::shared_ptr< WGUI > getGui() const;
 
     /**
-     * Gets the current application path.
-     *
-     * \return the path
-     */
-    static boost::filesystem::path getAppPathObject();
-
-    /**
-     * get for application path
-     *
-     * \return the application path
-     */
-    static std::string getAppPath();
-
-    /**
-     * getter for shader path
-     *
-     * \return the shader path
-     */
-    static std::string getShaderPath();
-
-    /**
-     * Getter for the module path. This is the directory where to search for modules.
-     *
-     * \return the module search path
-     */
-    static std::string getModulePath();
-
-    /**
      * get for roi manager
      */
     boost::shared_ptr< WROIManagerFibers>getRoiManager();
@@ -180,11 +151,6 @@ public:
      * get for selection manager
      */
     boost::shared_ptr< WSelectionManager>getSelectionManager();
-
-    /**
-     * getter for font path
-     */
-    static std::string getFontPath();
 
 protected:
 
@@ -235,35 +201,6 @@ private:
      */
     void init();
 
-    /**
-     * Determine and store the application path
-     */
-    static void findAppPath();
-
-    /**
-     * The location of the openwalnut executable.
-     */
-    static boost::filesystem::path m_appPath;
-
-    /**
-     * The location of the shaders.
-     */
-    static boost::filesystem::path m_shaderPath;
-
-    /**
-     * The location of the font files.
-     */
-    static boost::filesystem::path m_fontPath;
-
-    /**
-     * The location of the modules.
-     */
-    static boost::filesystem::path m_modulePath;
-
-    /**
-     * True if the above paths have been initialized already.
-     */
-    static bool m_pathsFound;
 };
 
 #endif  // WKERNEL_H
