@@ -251,6 +251,17 @@ protected:
      */
     WPropInt m_rotationZ;
 
+    /**
+     * A list of color map selection types
+     */
+    boost::shared_ptr< WItemSelection > m_matrixSelectionsList;
+
+    /**
+     * Selection property for color map
+     */
+    WPropSelection m_matrixSelection;
+
+
     bool m_isTexture; //!< Indicates whether the loaded dataSet will be available as texture.
 
     /**

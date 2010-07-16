@@ -155,6 +155,15 @@ void WMData::properties()
     m_colorMapSelection = m_groupTex->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
 
+    m_matrixSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_matrixSelectionsList->addItem( "no matrix", "" );
+    m_matrixSelectionsList->addItem( "qform", "" );
+    m_matrixSelectionsList->addItem( "sform", "" );
+
+    m_matrixSelection = m_groupTexManip->addProperty( "Transformation Matrix",  "matrix",
+            m_matrixSelectionsList->getSelectorFirst(), propertyCallback );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_matrixSelection );
+
     m_translationX = m_groupTexManip->addProperty( "X translation", "", 0, propertyCallback );
     m_translationX->setMax( 300 );
     m_translationX->setMin( -300 );
@@ -234,6 +243,12 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
             boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
             wmath::WPosition rot( rotx, roty, rotz );
             grid->rotate( rot );
+            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+        }
+        else if ( property == m_matrixSelection )
+        {
+            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
+            grid->setActiveMatrix( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
         }
     }
@@ -346,6 +361,8 @@ void WMData::moduleMain()
         {
             WAssert( false, "WDataSetSingle needed at this position." );
         }
+        boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
+        m_matrixSelection->set( m_matrixSelectionsList->getSelector( grid->getActiveMatrix() ) );
     }
     else if( suffix == ".edf" )
     {
