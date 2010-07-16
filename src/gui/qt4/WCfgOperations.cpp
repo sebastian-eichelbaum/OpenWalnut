@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <Qt/qstring.h>
+#include <QtCore/QString>
 
 #include <fstream>
 #include <iostream>
