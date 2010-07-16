@@ -133,7 +133,7 @@ private:
     /**
      * The histogram for later use.
      **/
-    WHistogram histogram;
+    boost::shared_ptr< WHistogram > m_histogram;
 };
 
 template< typename T > T WDataSetScalar::getValueAt( int x, int y, int z ) const

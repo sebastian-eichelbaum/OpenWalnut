@@ -22,135 +22,198 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream> // test() -> std::cout
-#include <cmath> // test() -> log()
-#include <map>
-#include <utility>
-#include <list>
+#include <cmath> // test() -> log() ?
+//#include <limits> // std::numeric_limits<double>
+#include <cstring> // memset(), remove when using C++0x and {0} to initiate the arrays to zero
+#include <iostream> // test() -> std::cout ?
+//#include <map>
+//#include <list>
+//#include <utility>
+
+#include "WAssert.h"
+#include "WLimits.h"
 
 #include "WHistogram.h"
 
-WHistogram::WHistogram() : uniformInterval( 0 )
+WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned int nBuckets )
 {
-    mappingPointer.first = mapping.begin();
-    mappingPointer.second = 0;
+    m_nInitialBuckets = nBuckets;
+    m_initialBuckets = new unsigned int[m_nInitialBuckets];
+    m_mappedBuckets = 0;
+
+    // initiate array to zero
+    memset( m_initialBuckets, 0, m_nInitialBuckets * sizeof( unsigned int ) );
+    //*m_initialBuckets = {0}; // this should works with C++0x (instead memset), TEST IT!
+
+    // calculate min max
+    m_minimum = wlimits::MAX_DOUBLE; //std::numeric_limits<double>::max(); // double min ?
+    m_maximum = wlimits::MIN_DOUBLE; //std::numeric_limits<double>::min(); // double max ?
+    for( size_t i = 0; i < valueSet->size(); ++i )
+    {
+        double tmp = valueSet->getScalarDouble( i );
+        m_maximum = m_maximum < tmp ? tmp : m_maximum;
+        m_minimum = m_minimum > tmp ? tmp : m_minimum;
+    }
+
+    // create base histogram
+    m_bucketSize = ( m_maximum - m_minimum ) / static_cast<double>( m_nInitialBuckets ); // rounding ? static_cast needed ?
+    for( size_t i = 0; i < valueSet->size(); ++i )
+    {
+        double tmp = valueSet->getScalarDouble( i );
+        increment( tmp );
+    }
 }
 
-WHistogram::WHistogram( unsigned int interval ) : uniformInterval( interval )
+WHistogram::WHistogram( const WHistogram& histogram )
 {
-    mappingPointer.first = mapping.begin();
-    mappingPointer.second = 0;
+    // copy constructor
+    m_nInitialBuckets = histogram.getNInitialBuckets();
+    m_initialBuckets = new unsigned int[m_nInitialBuckets];
+    memcpy( m_initialBuckets, histogram.getInitialBuckets(), m_nInitialBuckets * sizeof( unsigned int ) );
+    m_bucketSize = histogram.getBucketSize();
+
+    m_mappedBuckets = 0;
+    m_nMappedBuckets = 0;
+
+    m_minimum = histogram.getMin();
+    m_maximum = histogram.getMax();
 }
 
 WHistogram::~WHistogram()
 {
+    delete[] m_initialBuckets;
+    delete[] m_mappedBuckets;
 }
 
-void WHistogram::add( double value )
+unsigned int* WHistogram::getInitialBuckets() const
 {
-    // IF( MIN || MAX needed ) : here!
-    elements[value]++;
+    return m_initialBuckets;
 }
 
-void WHistogram::setUniformInterval( unsigned int interval )
+unsigned int WHistogram::getNInitialBuckets() const
 {
-    // negativ ?
-    //WAssert( elements.size > 0, "No elements in WHistogram." );
-    uniformInterval = interval;
-    calculateMapping();
+    return m_nInitialBuckets;
 }
 
-void WHistogram::calculateMapping()
+double WHistogram::getBucketSize() const
 {
-    if( mapping.size() != 0 ) // is there already a mapping ?
+    return m_bucketSize;
+}
+
+void WHistogram::increment( double value )
+{
+    WAssert( m_bucketSize > 0.0, "bucket size to small." ); // ? test & output correct ?
+    unsigned int index = static_cast<unsigned int>( value / m_bucketSize ); // round down correctly?
+    ( *( m_initialBuckets + index ) )++;
+}
+
+void WHistogram::setInterval( double intervalSize )
+{
+    calculateMapping( intervalSize );
+}
+
+void WHistogram::calculateMapping( double intervalSize )
+{
+    unsigned int ratio = static_cast<unsigned int>( intervalSize / m_bucketSize );
+    WAssert( ratio > 1, "the new interval size has to be greater than the original size." );
+    // number of elements in the new mapped histogram = division + (round up)
+    m_nMappedBuckets = m_nInitialBuckets / ratio + ( m_nInitialBuckets % ratio > 0 ? 1 : 0 );
+
+    if( m_mappedBuckets )
     {
-        mapping.clear();
+        delete[] m_mappedBuckets;
+        m_mappedBuckets = 0;
     }
 
-    unsigned int count = 0;
-    unsigned int value = 0;
-    for( std::map< double, WBar >::const_iterator iter = elements.begin(); iter != elements.end(); ++iter )
+    m_mappedBuckets = new unsigned int[m_nMappedBuckets];
+    memset( m_mappedBuckets, 0, m_nMappedBuckets * sizeof( unsigned int ) );
+    //*m_mappedBuckets = {0}; // works with C++0x
+    unsigned int index = 0;
+    for( unsigned int i = 0; i != m_nInitialBuckets; ++i )
     {
-        if( count == uniformInterval )
+        if( i % ratio == 0 && i != 0 )
         {
-            mapping.push_back( std::pair< const WBar*, unsigned int >( &iter->second, value ) );
-            count = 0;
-            value = iter->second.getValue();
+            index++;
         }
-        else
-        {
-            value += iter->second.getValue();
-            count++;
-        }
+        *( m_mappedBuckets + index ) += *( m_initialBuckets + i );
     }
 }
 
 unsigned int WHistogram::operator[]( unsigned int position )
 {
-    // out of range ?
-    if(mappingPointer.second == 0 || mappingPointer.second > position )
+    unsigned int* ptr = 0;
+    if( m_mappedBuckets )
     {
-        mappingPointer.first = mapping.begin();
-        mappingPointer.second = 0;
+        ptr = m_mappedBuckets;
     }
-
-    for( unsigned int t = mappingPointer.second; t != position; ++t )
+    else
     {
-        mappingPointer.first++;
+        ptr = m_initialBuckets;
     }
-    mappingPointer.second = position; // == mappingPointer.second++
-    return mappingPointer.first->second;
+    return *(ptr + position);
 }
 
-void WHistogram::setInterval( const std::list<unsigned int>& rangeList )
+unsigned int WHistogram::at( unsigned int index )
 {
-    if( mapping.size() != 0 ) // is there already a mapping ?
+    WAssert( index > m_nMappedBuckets, "WHistogram: index out of range." );
+    unsigned int* ptr = 0;
+    if( m_mappedBuckets )
     {
-        mapping.clear();
+        ptr = m_mappedBuckets;
+    }
+    else
+    {
+        ptr = m_initialBuckets;
     }
 
-    std::list<unsigned int>::const_iterator iter;
-    for( iter = rangeList.begin(); iter != rangeList.end(); ++iter )
-    {
-        std::map< double, WBar >::const_iterator elementsIter = elements.begin();
-        unsigned int barHeight = elementsIter->second.getValue();
-        for( unsigned int i = 0; i != *iter; ++i )
-        {
-            elementsIter++;
-            barHeight += elementsIter->second.getValue();
-        }
-        // elementsIter has to point at the first element of the next bucket
-        elementsIter++;
-        mapping.push_back( std::pair< const WBar*, unsigned int >( &elementsIter->second, barHeight ) );
-    }
+    return *(m_mappedBuckets + index);
+}
+
+unsigned int WHistogram::size() const
+{
+    return m_mappedBuckets ? m_nMappedBuckets : m_nInitialBuckets;
+}
+
+double WHistogram::getMin() const
+{
+    return m_minimum;
+}
+
+double WHistogram::getMax() const
+{
+    return m_maximum;
 }
 
 void WHistogram::test()
 {
-    calculateMapping();
+    unsigned int* ptr;
+    unsigned int histSize;
+    if( m_mappedBuckets )
+    {
+        ptr = m_mappedBuckets;
+        histSize = m_nMappedBuckets;
+    }
+    else
+    {
+        ptr = m_initialBuckets;
+        histSize = m_nInitialBuckets;
+    }
+
     // unsigned int rangeStart= 0;
-    // std::list< std:pair< WBar*, unsigned int > >::iterator iter;
+    // std::list< std:pair< WBucket*, unsigned int > >::iterator iter;
     // for(iter = mapping.begin(); iter != mapping.end(); iter++ )
     // {
     //     std::cout << iter->second << ": " << rangeStart << " - " << rangeStart+uniformInterval;
     //     rangeStart += uniformInterval;
     // }
 
-    std::cout << mapping.size() << std::endl;
-    std::list< std::pair< const WBar*, unsigned int > >::iterator it = mapping.begin();
-    for(it = mapping.begin(); it != mapping.end(); ++it)
-    {
-        std::cout << it->second << " ";
-    }
-    std::cout << std::endl;
-
     for( unsigned int y = 10; y != 0; --y )
     {
         std::cout << "|";
-        std::list< std::pair< const WBar*, unsigned int > >::iterator iter = mapping.begin();
-        for( unsigned int x = 0; x != mapping.size(); ++x )
+        unsigned int* h_ptr = ptr;
+        for( unsigned int x = 0; x != histSize; ++x )
         {
-            if( log( static_cast<double>( iter->second ) ) > static_cast<double>( (y-1)*2 ) )
+            if( log( static_cast<double>( *h_ptr ) ) > static_cast<double>( (y-1)*2 ) )
             {
                 std::cout << " #";
             }
@@ -158,12 +221,12 @@ void WHistogram::test()
             {
                 std::cout << "  ";
             }
-            iter++;
+            h_ptr++;
         }
         std::cout << " |\n";
     }
     std::cout << "-";
-    for(unsigned int i = 0; i != mapping.size(); ++i)
+    for(unsigned int i = 0; i != histSize; ++i)
     {
         std::cout << "--";
     }

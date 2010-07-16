@@ -29,187 +29,160 @@
 #include <list>
 #include <utility>
 
+#include <boost/shared_ptr.hpp>
+
+#include "../dataHandler/WValueSet.h"
+//#include "../dataHandler/WDataSetScalar.h"
+
 /**
  * Used to track (later: display) the occurrence frequencies of values in a value set.
  **/
 class WHistogram
 {
-    /**
-     * To compare the elements of the std::map used in WHistogram.
-     **/
-    class cmp
-    {
-        public:
-            /**
-             * Compares two double values.
-             *
-             * \param p1 first value
-             * \param p2 second value
-             *
-             * \return the same bolean value as applying the less-than operator (a<b)
-             **/
-            bool operator()( double const& p1, double const& p2 ) const
-            {
-                return p1 < p2;
-            }
-    };
-
-    /**
-     * WBar is an element of WHistogram, where the range of monitored values equals 1.
-     * Meaning WBar represents the amount of each specific value in the value set.
-     **/
-    class WBar
-    {
-        private:
-            /**
-             * Represents this bars height.
-             **/
-            unsigned int value;
-            //unsigned int distance;
-            //std::pair<int, int> range;
-
-        public:
-            /**
-             * Default constructor.
-             **/
-            WBar() : value( 0 )
-            {
-            }
-
-            /**
-             * Clones this WBar from another WBar.
-             *
-             * \param bar WBar which serves as the origin of the height.
-             **/
-            explicit WBar( WBar const& bar ) : value( bar.value )
-            {
-            }
-
-
-            /**
-             * Destroys this Bar instance.
-             **/
-            ~WBar()
-            {
-            }
-
-            /**
-             * Postfix inkrement (x++) the bar by one.
-             **/
-            WBar& operator++( int ) // x++
-            {
-                WBar* tmp = this;
-                tmp->value++;
-                return *tmp;
-            }
-
-            /**
-             * Prefix inkrement (++x) the bar by one.
-             **/
-            WBar& operator++() // ++x
-            {
-                WBar* tmp = this;
-                tmp->value++;
-                return *tmp;
-            }
-
-            /**
-             * To access the height of the specific bar.
-             *
-             * \return the value of the bar.
-             **/
-            unsigned int getValue() const
-            {
-                return value;
-            }
-    };
-
     private:
         /**
-         * Describes the uniform size of a bucket in the mapped histogram.
+         * The smalest value in the ValueSet
          **/
-        unsigned int uniformInterval;
+        double m_minimum;
 
         /**
-         * Pointer used to speed up operator[]( unsigned int ) if the parameter increases by 1
-         * each call (supposed standard behaviour).
+         * The biggest value in the ValueSet
          **/
-        std::pair< std::list<std::pair< const WBar*, unsigned int > >::iterator, unsigned int > mappingPointer;
+        double m_maximum;
 
         /**
-         * Orderd sequence of WBar, which only account for specific values(the
-         * double value).
+         * Size of one bucket in the initial histogram.
          **/
-        std::map< double, WBar, cmp > elements;
+        double m_bucketSize;
 
         /**
-         * The Mapping, to gain bar's with a range greater than 1, is stored as
-         * std::pair<WBar, unsigned int>.
-         * Where the unsigned int is the the height of the specific bar.
-         * The *WBar is the initial point (related to the std::map<> elements)
-         * of the next bar.
+         * Pointer to all initial buckets of the histogram.
          **/
-        std::list< std::pair< const WBar*, unsigned int > > mapping;
+        unsigned int* m_initialBuckets;
 
         /**
-         * Creates the mapping from the given range.
+         * Number of buckets in the initial histogram.
          **/
-        void calculateMapping(); // for uniformInterval only
+        unsigned int m_nInitialBuckets;
+
+        /**
+         * Pointer to all the buckets in the mapped histogram.
+         **/
+        unsigned int* m_mappedBuckets;
+
+        /**
+         * Tracks the number of a buckets in the mapped histogram.
+         **/
+        unsigned int m_nMappedBuckets;
+
+        /**
+         * To calculate the new buckets
+         *
+         * \param intervalSize the size of one bucket
+         **/
+        void calculateMapping( double intervalSize );
+
+        /**
+         * increment the value by one, contains the logic to find the element place in the array.
+         * Should only be used in the constructor ie. while iterating over WValueSet.
+         *
+         * \param value value to increment
+         **/
+        void increment( double value );
+
+    protected:
+        /**
+         * Return the initial buckets.
+         *
+         * \return m_initialBuckets
+         **/
+        unsigned int* getInitialBuckets() const;
+
+        /**
+         * Return the number of initial buckets.
+         *
+         * \return m_nInitialBuckets
+         **/
+        unsigned int getNInitialBuckets() const;
+
+        /**
+         * Return the size of one initial bucket.
+         *
+         * \return m_bucketSize
+         **/
+        double getBucketSize() const;
 
     public:
         /**
-         * Default constructor.
-         **/
-        WHistogram();
-
-        /**
-         * Constructs a histogram with a given uniform intervall.
+         * Constructor.
          *
-         * \param interval the interval size if uniform intervals are used
+         * \param valueSet source of the data for the histogram
+         * \param nBuckets number of buckets this histogram should display
          **/
-        explicit WHistogram( unsigned int interval );
+        WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned int nBuckets = 1000 );
 
         /**
-         * Destroys this Histogram instance.
+         * Copy constructor.
+         *
+         * \param histogram another WHisogram
+         **/
+        explicit WHistogram( const WHistogram& histogram );
+
+        /**
+         * Destructor.
          **/
         ~WHistogram();
 
         /**
-         * Add an element to one of the WBar.
+         * Set the new intervall size.
          *
-         * \param value the bar that represents value in the histogram is increased bye one
+         * \param intervalSize size of the interval for each mapped bucket.
          **/
-        void add( double value );
+        void setInterval( double intervalSize );
 
         /**
-         * Set and change the uniform interval.
-         * Each time a new mapping is created.
+         * Get the size of the bucket.
          *
-         * \param interval the new bucket size
+         * \param index which buckets size is to be returned, starts with 0 which is the bucket
+         * containing the smalest values.
+         *
+         * \return elements in the bucket
          **/
-        void setUniformInterval( unsigned int interval );
+        unsigned int operator[]( unsigned int index );
 
         /**
-         * Sets intervals that are not uniform.
-         * A new mapping is created each time.
+         * Get the size of the bucket. Testing if the position is valid.
          *
-         * \param rangeList list that represents the size of each bucket starting with the lowest
-         * value
-         **/
-        void setInterval( const std::list<unsigned int>& rangeList );
-
-        /**
-         * Get the height of a bar.
-         *
-         * \param position which bars height is to be returned, starts with 0 which is the bar with
+         * \param index which buckets size is to be returned, starts with 0 which is the bar with
          * the smalest values
          *
-         * \return height of the bar i.e. size of the bucket
+         * \return elements in the bucket
          **/
-        unsigned int operator[]( unsigned int position ); // const;
+        unsigned int at( unsigned int index );
 
         /**
-         * Simple output to std::cout to test functionality.
+         * Returns the number of bars in the histogram with the actual mapping.
+         *
+         * \return number of buckets
+         **/
+        unsigned int size() const;
+
+        /**
+         * Retruns the minimum value in the value set.
+         *
+         * \return minimum
+         **/
+        double getMin() const;
+
+        /**
+         * Retruns the maximum value in the value set.
+         *
+         * \return maximum
+         **/
+        double getMax() const;
+
+        /**
+         * to test if the histogram works
          **/
         void test();
 };
