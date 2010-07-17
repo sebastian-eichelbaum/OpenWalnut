@@ -137,8 +137,10 @@ class WHistogram
          * Set the new intervall size.
          *
          * \param intervalSize size of the interval for each mapped bucket.
+         *
+         * \return size of the new (mapped) histogram.
          **/
-        void setInterval( double intervalSize );
+        unsigned int setInterval( double intervalSize );
 
         /**
          * Get the size of the bucket.
@@ -146,7 +148,7 @@ class WHistogram
          * \param index which buckets size is to be returned, starts with 0 which is the bucket
          * containing the smalest values.
          *
-         * \return elements in the bucket
+         * \return elements in the bucket.
          **/
         unsigned int operator[]( unsigned int index );
 

@@ -107,9 +107,10 @@ void WHistogram::increment( double value )
     ( *( m_initialBuckets + index ) )++;
 }
 
-void WHistogram::setInterval( double intervalSize )
+unsigned int WHistogram::setInterval( double intervalSize )
 {
     calculateMapping( intervalSize );
+    return m_nMappedBuckets;
 }
 
 void WHistogram::calculateMapping( double intervalSize )
@@ -171,7 +172,7 @@ unsigned int WHistogram::at( unsigned int index )
 
 unsigned int WHistogram::size() const
 {
-    return m_mappedBuckets ? m_nMappedBuckets : m_nInitialBuckets;
+    return (m_mappedBuckets ? m_nMappedBuckets : m_nInitialBuckets);
 }
 
 double WHistogram::getMin() const
