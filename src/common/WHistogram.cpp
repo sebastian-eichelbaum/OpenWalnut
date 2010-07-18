@@ -22,13 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cmath> // test() -> log() ?
-//#include <limits> // std::numeric_limits<double>
-#include <cstring> // memset(), remove when using C++0x and {0} to initiate the arrays to zero
-#include <iostream> // test() -> std::cout ?
-//#include <map>
-//#include <list>
-//#include <utility>
+#include <cmath> // test() -> log()
+#include <cstring> // memset(), memcpy()
+#include <iostream> // test() -> std::cout
 
 #include "WAssert.h"
 #include "WLimits.h"
@@ -37,6 +33,7 @@
 
 WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned int nBuckets )
 {
+    WAssert( nBuckets > 0, "WHistogram::WHistogram : nBuckets has to be greater then zero." );
     m_nInitialBuckets = nBuckets;
     m_initialBuckets = new unsigned int[m_nInitialBuckets];
     m_mappedBuckets = 0;
@@ -46,8 +43,8 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned in
     //*m_initialBuckets = {0}; // this should works with C++0x (instead memset), TEST IT!
 
     // calculate min max
-    m_minimum = wlimits::MAX_DOUBLE; //std::numeric_limits<double>::max(); // double min ?
-    m_maximum = wlimits::MIN_DOUBLE; //std::numeric_limits<double>::min(); // double max ?
+    m_minimum = wlimits::MAX_DOUBLE;
+    m_maximum = wlimits::MIN_DOUBLE;
     for( size_t i = 0; i < valueSet->size(); ++i )
     {
         double tmp = valueSet->getScalarDouble( i );
@@ -56,7 +53,7 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned in
     }
 
     // create base histogram
-    m_bucketSize = ( m_maximum - m_minimum ) / static_cast<double>( m_nInitialBuckets ); // rounding ? static_cast needed ?
+    m_bucketSize = ( m_maximum - m_minimum ) / static_cast<double>( m_nInitialBuckets );
     for( size_t i = 0; i < valueSet->size(); ++i )
     {
         double tmp = valueSet->getScalarDouble( i );
@@ -64,7 +61,7 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned in
     }
 }
 
-WHistogram::WHistogram( const WHistogram& histogram )
+WHistogram::WHistogram( const WHistogram& histogram, double intervalSize )
 {
     // copy constructor
     m_nInitialBuckets = histogram.getNInitialBuckets();
@@ -77,6 +74,12 @@ WHistogram::WHistogram( const WHistogram& histogram )
 
     m_minimum = histogram.getMin();
     m_maximum = histogram.getMax();
+
+    if( intervalSize != 0.0 )
+    {
+        WAssert( intervalSize > 0.0, "WHistogram::WHistogram : intervalSize has to be greater then zero." );
+        calculateMapping( intervalSize );
+    }
 }
 
 WHistogram::~WHistogram()
@@ -102,8 +105,8 @@ double WHistogram::getBucketSize() const
 
 void WHistogram::increment( double value )
 {
-    WAssert( m_bucketSize > 0.0, "bucket size to small." ); // ? test & output correct ?
-    unsigned int index = static_cast<unsigned int>( value / m_bucketSize ); // round down correctly?
+    WAssert( m_bucketSize > 0.0, "WHistogram::increment() : m_bucketSize to small." );
+    unsigned int index = static_cast<unsigned int>( value / m_bucketSize );
     ( *( m_initialBuckets + index ) )++;
 }
 
@@ -116,7 +119,7 @@ unsigned int WHistogram::setInterval( double intervalSize )
 void WHistogram::calculateMapping( double intervalSize )
 {
     unsigned int ratio = static_cast<unsigned int>( intervalSize / m_bucketSize );
-    WAssert( ratio > 1, "the new interval size has to be greater than the original size." );
+    WAssert( ratio > 1, "WHistogram::calculateMapping() : intervalSize has to be greater then the original size." );
     // number of elements in the new mapped histogram = division + (round up)
     m_nMappedBuckets = m_nInitialBuckets / ratio + ( m_nInitialBuckets % ratio > 0 ? 1 : 0 );
 
@@ -156,14 +159,15 @@ unsigned int WHistogram::operator[]( unsigned int position )
 
 unsigned int WHistogram::at( unsigned int index )
 {
-    WAssert( index > m_nMappedBuckets, "WHistogram: index out of range." );
     unsigned int* ptr = 0;
     if( m_mappedBuckets )
     {
+        WAssert( index <= m_nMappedBuckets, "WHistogram::at() : index out of range." );
         ptr = m_mappedBuckets;
     }
     else
     {
+        WAssert( index <= m_nInitialBuckets, "WHistogram::at() : index out of range." );
         ptr = m_initialBuckets;
     }
 
@@ -200,14 +204,6 @@ void WHistogram::test()
         histSize = m_nInitialBuckets;
     }
 
-    // unsigned int rangeStart= 0;
-    // std::list< std:pair< WBucket*, unsigned int > >::iterator iter;
-    // for(iter = mapping.begin(); iter != mapping.end(); iter++ )
-    // {
-    //     std::cout << iter->second << ": " << rangeStart << " - " << rangeStart+uniformInterval;
-    //     rangeStart += uniformInterval;
-    // }
-
     for( unsigned int y = 10; y != 0; --y )
     {
         std::cout << "|";
@@ -232,5 +228,6 @@ void WHistogram::test()
         std::cout << "--";
     }
     std::cout << "--\n";
+    std::cout << at( 10 ) << "  " << (*this)[10] << std::endl;
 }
 

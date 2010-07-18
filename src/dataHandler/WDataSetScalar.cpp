@@ -55,11 +55,14 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     //    min = min > tmp ? tmp : min;
     //    //histogram.add( tmp );
     //}
-    //boost::shared_ptr< WHistogram > hist( new WHistogram(*m_histogram) );
+
     m_maximum = m_histogram->getMax();
     m_minimum = m_histogram->getMin();
-    m_histogram->setInterval( 20.0 );
-    m_histogram->test();
+
+    // TEST
+    //boost::shared_ptr< WHistogram > hist( new WHistogram( *m_histogram, 15 ) );
+    //m_histogram->setInterval( 20.0 );
+    //m_histogram->test();
     //hist->setInterval(15.0);
     //hist->test();
 }
