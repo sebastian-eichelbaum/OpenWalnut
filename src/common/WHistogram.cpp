@@ -33,8 +33,6 @@
 
 WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet ) //, unsigned int nBuckets )
 {
-    //WAssert( nBuckets > 0, "WHistogram::WHistogram : nBuckets has to be greater then zero." );
-
     // calculate min max
     m_minimum = wlimits::MAX_DOUBLE;
     m_maximum = wlimits::MIN_DOUBLE;
@@ -55,24 +53,17 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet ) //, unsign
         }
     }
 
+    // create base histogram
     m_nInitialBuckets = ( m_maximum - m_minimum ) / minDistance;
     m_bucketSize = minDistance;
-    //if( nBuckets > m_nInitialBuckets )
-    //{
-    //    m_nInitialBuckets = nBuckets;
-    //}
     unsigned int* initialBuckets = new unsigned int[m_nInitialBuckets];
     // initiate array to zero
     memset( initialBuckets, 0, m_nInitialBuckets * sizeof( unsigned int ) );
     //*m_initialBuckets = {0}; // this should works with C++0x (instead memset), TEST IT!
     m_initialBuckets = boost::shared_array<unsigned int>( initialBuckets );
 
-    //m_mappedBuckets = boost::scoped_array<unsigned int>( 0 );
     m_nMappedBuckets = 0;
 
-
-    // create base histogram
-    //m_bucketSize = ( m_maximum - m_minimum ) / static_cast<double>( m_nInitialBuckets );
     for( size_t i = 0; i < valueSet->size(); ++i )
     {
         double tmp = valueSet->getScalarDouble( i );
@@ -85,10 +76,8 @@ WHistogram::WHistogram( const WHistogram& histogram, double intervalSize )
     // copy constructor
     m_nInitialBuckets = histogram.getNInitialBuckets();
     m_initialBuckets = boost::shared_array<unsigned int>( histogram.getInitialBuckets() );
-    //memcpy( m_initialBuckets, histogram.getInitialBuckets(), m_nInitialBuckets * sizeof( unsigned int ) );
     m_bucketSize = histogram.getBucketSize();
 
-    //m_mappedBuckets = boost::scoped_array<unsigned int>( 0 );
     m_nMappedBuckets = 0;
 
     m_minimum = histogram.getMin();
@@ -103,8 +92,6 @@ WHistogram::WHistogram( const WHistogram& histogram, double intervalSize )
 
 WHistogram::~WHistogram()
 {
-    //delete[] m_initialBuckets;
-    //delete[] m_mappedBuckets;
 }
 
 boost::shared_array<unsigned int> WHistogram::getInitialBuckets() const
