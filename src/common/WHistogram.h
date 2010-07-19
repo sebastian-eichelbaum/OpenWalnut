@@ -30,6 +30,8 @@
 #include <utility>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_array.hpp>
+#include <boost/shared_array.hpp>
 
 #include "../dataHandler/WValueSet.h"
 
@@ -57,7 +59,7 @@ class WHistogram
         /**
          * Pointer to all initial buckets of the histogram.
          **/
-        unsigned int* m_initialBuckets;
+        boost::shared_array<unsigned int> m_initialBuckets;
 
         /**
          * Number of buckets in the initial histogram.
@@ -67,7 +69,7 @@ class WHistogram
         /**
          * Pointer to all the buckets in the mapped histogram.
          **/
-        unsigned int* m_mappedBuckets;
+        boost::scoped_array<unsigned int> m_mappedBuckets;
 
         /**
          * Tracks the number of a buckets in the mapped histogram.
@@ -95,7 +97,7 @@ class WHistogram
          *
          * \return m_initialBuckets
          **/
-        unsigned int* getInitialBuckets() const;
+        boost::shared_array<unsigned int> getInitialBuckets() const;
 
         /**
          * Return the number of initial buckets.
