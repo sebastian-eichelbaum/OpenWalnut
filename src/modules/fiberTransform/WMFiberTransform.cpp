@@ -41,6 +41,9 @@
 #include "WMFiberTransform.h"
 #include "fiberTransform.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMFiberTransform )
+
 WMFiberTransform::WMFiberTransform()
     : WModule(),
       m_recompute( new WCondition() )

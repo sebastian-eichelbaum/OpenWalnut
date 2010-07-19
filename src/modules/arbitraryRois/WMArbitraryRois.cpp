@@ -45,6 +45,9 @@
 #include "WMArbitraryRois.h"
 #include "arbitraryROI.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMArbitraryRois )
+
 WMArbitraryRois::WMArbitraryRois():
     WModule(),
     m_textureChanged( true ),

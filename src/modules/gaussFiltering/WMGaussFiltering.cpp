@@ -38,9 +38,12 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "../data/WMData.h"
+// #include "../data/WMData.h"
 #include "WMGaussFiltering.h"
 #include "gaussfiltering.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMGaussFiltering )
 
 WMGaussFiltering::WMGaussFiltering() :
     WModule()

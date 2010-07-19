@@ -52,21 +52,6 @@
  */
 WKernel* kernel = NULL;
 
-/**
- * Define shader path.
- */
-boost::filesystem::path WKernel::m_shaderPath = boost::filesystem::path();
-
-/**
- * Define app path.
- */
-boost::filesystem::path WKernel::m_appPath = boost::filesystem::path();
-
-/**
- * Define font path.
- */
-boost::filesystem::path WKernel::m_fontPath = boost::filesystem::path();
-
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
 {
@@ -92,7 +77,6 @@ WKernel::~WKernel()
 void WKernel::init()
 {
     // initialize
-    findAppPath();
     m_roiManager = boost::shared_ptr< WROIManagerFibers >( new WROIManagerFibers() );
 
     m_selectionManager = boost::shared_ptr< WSelectionManager >( new WSelectionManager() );
@@ -108,10 +92,6 @@ void WKernel::init()
                 "Root module container in Kernel." ) );
     // this avoids the root container to be marked as "crashed" if a contained module crashes.
     m_moduleContainer->setCrashIfModuleCrashes( false );
-
-    // initialize graphics engine, or, at least set some stuff
-    m_graphicsEngine->setShaderPath( m_shaderPath.file_string() );
-    m_graphicsEngine->setFontPath( m_fontPath.file_string() );
 
     // load all modules
     m_moduleFactory->load();
@@ -189,28 +169,6 @@ void WKernel::threadMain()
     WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_INFO );
 }
 
-void WKernel::findAppPath()
-{
-    // only get the path if not already done
-    if ( !m_appPath.empty() )
-    {
-        return;
-    }
-
-    // unified version with boost::filesystem
-    namespace fs = boost::filesystem;
-    fs::path currentDir( fs::initial_path<fs::path>() );
-
-    m_appPath = currentDir;
-    WLogger::getLogger()->addLogMessage( "Application path: " + m_appPath.file_string(), "Kernel", LL_DEBUG );
-
-    m_shaderPath = fs::path( currentDir / "shaders" );
-    WLogger::getLogger()->addLogMessage( "Shader path: " + m_shaderPath.file_string(), "Kernel", LL_DEBUG );
-
-    m_fontPath = fs::path( currentDir / "fonts" );
-    WLogger::getLogger()->addLogMessage( "Font path: " + m_fontPath.file_string(), "Kernel", LL_DEBUG );
-}
-
 const WBoolFlag& WKernel::isFinishRequested() const
 {
     return m_shutdownFlag;
@@ -231,33 +189,9 @@ boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > 
     return getRootContainer()->applyModule( applyOn, prototype );
 }
 
-boost::filesystem::path WKernel::getAppPathObject()
-{
-    findAppPath();
-    return WKernel::m_appPath;
-}
-
-std::string WKernel::getAppPath()
-{
-    findAppPath();
-    return WKernel::m_appPath.file_string();
-}
-
-std::string WKernel::getShaderPath()
-{
-    findAppPath();
-    return WKernel::m_shaderPath.file_string();
-}
-
 boost::shared_ptr< WROIManagerFibers> WKernel::getRoiManager()
 {
     return m_roiManager;
-}
-
-std::string WKernel::getFontPath()
-{
-    findAppPath();
-    return WKernel::m_fontPath.file_string();
 }
 
 boost::shared_ptr< WSelectionManager>WKernel::getSelectionManager()

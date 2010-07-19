@@ -7,14 +7,19 @@ ADD_SUBDIRECTORY( datastructures )
 ADD_SUBDIRECTORY( constraints )
 ADD_SUBDIRECTORY( math )
 
-ADD_LIBRARY( common ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} ${MATH_SRC} ${FIBERSIMILARITY_SRC} )
-TARGET_LINK_LIBRARIES( common ${Boost_LIBRARIES} )
+ADD_LIBRARY( OWcommon ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} ${MATH_SRC} ${FIBERSIMILARITY_SRC} )
+TARGET_LINK_LIBRARIES( OWcommon ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} )
 
+# Set the prefix and suffix of dynamically loadable modules to match
+# CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
+# with these defines.
+add_definitions( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
+add_definitions( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 
 # Unit tests
 IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
-                               "common"
+                               "OWcommon"
                                "WSegmentationFault.cpp" # can't test seg-faults ;-)
                                "WTransferable.cpp"  # its an empty class
                                "WPropertyBase.cpp" # its an abstract class. Its small functionality is tested in WPropertyVariable_test.h

@@ -12,6 +12,5 @@ PARAMS="$*"
 echo "Parameters: $PARAMS"
 
 # run walnut
-echo "OpenWalnut built from: $(cat ./revision)"
-kdbg -a "$PARAMS" walnut-bin
+kdbg -a "$PARAMS" walnut
 

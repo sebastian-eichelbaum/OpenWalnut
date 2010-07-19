@@ -30,6 +30,8 @@
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "WMJoinTreeTester.h"
 
+W_LOADABLE_MODULE( WMJoinTreeTester )
+
 WMJoinTreeTester::WMJoinTreeTester():
     WModule()
 {

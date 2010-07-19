@@ -29,6 +29,9 @@
 #include "../../kernel/WKernel.h"
 #include "WMClusterParamDisplay.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMClusterParamDisplay )
+
 WMClusterParamDisplay::WMClusterParamDisplay()
     : WModuleContainer( "Cluster Param Display", "Displays various parameters on a cluster surface." )
 {

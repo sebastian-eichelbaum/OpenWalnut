@@ -12,7 +12,6 @@ echo run $@ > $PARAM_FILENAME
 cd "$BINDIR"
 
 # run walnut
-echo "OpenWalnut built from: $(cat ./revision)"
-gdb ./walnut-bin -command=$PARAM_FILENAME
+gdb ./walnut -command=$PARAM_FILENAME
 
 rm $PARAM_FILENAME

@@ -26,18 +26,18 @@
 #include <vector>
 #include <utility>
 
-#include "../../kernel/WKernel.h"
-
-#include "WMLineGuidedSlice.h"
-
 #include "../../common/math/WVector3D.h"
-#include "../../common/WLogger.h"
 #include "../../common/WAssert.h"
+#include "../../common/WLogger.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../kernel/WKernel.h"
+#include "WMLineGuidedSlice.h"
+
+W_LOADABLE_MODULE( WMLineGuidedSlice )
 
 WMLineGuidedSlice::WMLineGuidedSlice():
     WModule(),

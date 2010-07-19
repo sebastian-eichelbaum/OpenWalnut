@@ -37,6 +37,9 @@
 #include "WMLIC.h"
 #include "lic.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMLIC )
+
 WMLIC::WMLIC()
     : WModule(),
       m_moduleNode( new WGEGroupNode() ),
@@ -152,7 +155,7 @@ void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     }
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "licMeshRenderer" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMLIC", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );

@@ -164,4 +164,3 @@ boost::shared_ptr< WCondition > WSubject::getListChangeCondition() const
 {
     return m_listChangeCondition;
 }
-

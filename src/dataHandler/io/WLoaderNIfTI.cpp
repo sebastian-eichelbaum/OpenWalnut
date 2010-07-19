@@ -156,13 +156,21 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
             newValueSet = boost::shared_ptr< WValueSetBase >();
     }
 
-    if( header->sform_code > 0 )
+    if ( header->sform_code > 0  && header->qform_code > 0 )
+    {
+        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
+            columns, rows, frames,
+            convertMatrix( header->qto_xyz ),
+            convertMatrix( header->sto_xyz ),
+            header->dx, header->dy, header->dz ) );
+    }
+    else if( header->sform_code > 0 && header->qform_code == 0 )
     {
         // method 3 (affine transform)
         newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
             columns, rows, frames, convertMatrix( header->sto_xyz ), header->dx, header->dy, header->dz ) );
     }
-    else if( header->qform_code > 0 )
+    else if( header->qform_code > 0 && header->sform_code == 0 )
     {
         // method 2 (rigid body transform)
         newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
