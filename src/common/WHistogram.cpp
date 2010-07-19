@@ -31,29 +31,47 @@
 
 #include "WHistogram.h"
 
-WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned int nBuckets )
+WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet ) //, unsigned int nBuckets )
 {
-    WAssert( nBuckets > 0, "WHistogram::WHistogram : nBuckets has to be greater then zero." );
-    m_nInitialBuckets = nBuckets;
+    //WAssert( nBuckets > 0, "WHistogram::WHistogram : nBuckets has to be greater then zero." );
+
+    // calculate min max
+    m_minimum = wlimits::MAX_DOUBLE;
+    m_maximum = wlimits::MIN_DOUBLE;
+    double minDistance = wlimits::MAX_DOUBLE;
+    for( size_t i = 0; i != valueSet->size(); ++i )
+    {
+        double tmp = valueSet->getScalarDouble( i );
+        m_maximum = m_maximum < tmp ? tmp : m_maximum;
+        m_minimum = m_minimum > tmp ? tmp : m_minimum;
+
+        if( m_minimum != tmp )
+        {
+            minDistance = tmp - m_minimum < minDistance ? m_minimum - tmp : minDistance;
+        }
+        if( m_maximum != tmp )
+        {
+            minDistance = m_maximum - tmp < minDistance ? m_maximum - tmp : minDistance;
+        }
+    }
+
+    m_nInitialBuckets = ( m_maximum - m_minimum ) / minDistance;
+    m_bucketSize = minDistance;
+    //if( nBuckets > m_nInitialBuckets )
+    //{
+    //    m_nInitialBuckets = nBuckets;
+    //}
     m_initialBuckets = new unsigned int[m_nInitialBuckets];
+
     m_mappedBuckets = 0;
+    m_nMappedBuckets = 0;
 
     // initiate array to zero
     memset( m_initialBuckets, 0, m_nInitialBuckets * sizeof( unsigned int ) );
     //*m_initialBuckets = {0}; // this should works with C++0x (instead memset), TEST IT!
 
-    // calculate min max
-    m_minimum = wlimits::MAX_DOUBLE;
-    m_maximum = wlimits::MIN_DOUBLE;
-    for( size_t i = 0; i < valueSet->size(); ++i )
-    {
-        double tmp = valueSet->getScalarDouble( i );
-        m_maximum = m_maximum < tmp ? tmp : m_maximum;
-        m_minimum = m_minimum > tmp ? tmp : m_minimum;
-    }
-
     // create base histogram
-    m_bucketSize = ( m_maximum - m_minimum ) / static_cast<double>( m_nInitialBuckets );
+    //m_bucketSize = ( m_maximum - m_minimum ) / static_cast<double>( m_nInitialBuckets );
     for( size_t i = 0; i < valueSet->size(); ++i )
     {
         double tmp = valueSet->getScalarDouble( i );
@@ -228,6 +246,5 @@ void WHistogram::test()
         std::cout << "--";
     }
     std::cout << "--\n";
-    std::cout << at( 10 ) << "  " << (*this)[10] << std::endl;
 }
 

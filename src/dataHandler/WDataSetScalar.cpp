@@ -63,7 +63,7 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     //boost::shared_ptr< WHistogram > hist( new WHistogram( *m_histogram, 15 ) );
     //m_histogram->setInterval( 20.0 );
     //m_histogram->test();
-    //hist->setInterval(15.0);
+    //hist->setInterval( 15.0 );
     //hist->test();
 }
 

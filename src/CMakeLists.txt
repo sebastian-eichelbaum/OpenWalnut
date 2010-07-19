@@ -304,7 +304,7 @@ ELSE()
 	ADD_CUSTOM_TARGET( fixtures
 					   ALL
 					   COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/FixturesWin.cmake
-					
+
     COMMENT "Copy fixtures to the right place."
   )
 

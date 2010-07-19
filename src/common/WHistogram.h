@@ -32,7 +32,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../dataHandler/WValueSet.h"
-//#include "../dataHandler/WDataSetScalar.h"
 
 /**
  * Used to track (later: display) the occurrence frequencies of values in a value set.
@@ -119,14 +118,14 @@ class WHistogram
          * \param valueSet source of the data for the histogram
          * \param nBuckets number of buckets this histogram should display
          **/
-        WHistogram( boost::shared_ptr< WValueSetBase > valueSet, unsigned int nBuckets = 1000 );
+        explicit WHistogram( boost::shared_ptr< WValueSetBase > valueSet ); //, unsigned int nBuckets = 1000 );
 
         /**
          * Copy constructor. If another interval size is given setInterval() is called and a
          * the mapped histogram is calculated.
          *
          * \param histogram another WHisogram
-         * \param  intervalSize the size of one bucket in the mapped histogram
+         * \param intervalSize the size of one bucket in the mapped histogram
          **/
         explicit WHistogram( const WHistogram& histogram, double intervalSize = 0.0 );
 
