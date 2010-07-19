@@ -30,7 +30,7 @@
 #include <QtCore/QEvent>
 
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 
 
 /**

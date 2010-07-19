@@ -44,7 +44,7 @@
 #include "exceptions/WModuleAlreadyAssociated.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleUninitialized.h"
-#include "../modules/data/WMData.h"
+#include "modules/data/WMData.h"
 
 #include "WModuleContainer.h"
 

@@ -41,6 +41,7 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
+#include "../../common/WPathHelper.h"
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
 #include "../../common/math/WVector3D.h"
@@ -55,6 +56,8 @@
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "WMMarchingCubes.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMMarchingCubes )
 
 WMMarchingCubes::WMMarchingCubes():
     WModule(),
@@ -218,7 +221,7 @@ void WMMarchingCubes::properties()
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WKernel::getAppPathObject() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -441,7 +444,7 @@ void WMMarchingCubes::renderMesh()
     // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
     m_textureChanged = true;
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "surface" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMMarchingCubes", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );

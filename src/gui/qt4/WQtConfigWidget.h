@@ -25,7 +25,7 @@
 #ifndef WQTCONFIGWIDGET_H
 #define WQTCONFIGWIDGET_H
 
-#include <Qt/qobject.h>
+#include <QtCore/QObject>
 
 #include <map>
 #include <string>

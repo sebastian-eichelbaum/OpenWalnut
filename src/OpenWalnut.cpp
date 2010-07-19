@@ -29,6 +29,8 @@
 
 #include "gui/qt4/WQt4Gui.h"
 
+#include "version.h"    // this header gets created by our build system.
+
 /**
  * \mainpage OpenWalnut Inline Documentation
  * \par
@@ -43,7 +45,8 @@
  */
 int main( int argc, char** argv )
 {
-    std::cout << "OpenWalnut ( http://www.openwalnut.org )\n"
+    std::cout << "OpenWalnut ( http://www.openwalnut.org )" << std::endl <<
+    "Build from: " << W_VERSION << std::endl << std::endl <<
     "Copyright (C) 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
     "For more information see http://www.openwalnut.org/copying\n"
     "This program comes with ABSOLUTELY NO WARRANTY.\n"

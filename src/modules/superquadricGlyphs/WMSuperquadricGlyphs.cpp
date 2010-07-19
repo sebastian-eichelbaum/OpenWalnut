@@ -39,10 +39,13 @@
 #include "WMSuperquadricGlyphs.h"
 #include "superquadricglyphs.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMSuperquadricGlyphs )
+
 WMSuperquadricGlyphs::WMSuperquadricGlyphs():
     WModule()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "gpuSuperQuadrics" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs", m_localPath ) );
     m_output = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
 }
 

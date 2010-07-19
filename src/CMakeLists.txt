@@ -1,7 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( OpenWalnut )
 
-
 # append search path for FindModules:
 #------------------------------------
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
@@ -13,6 +12,7 @@ INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
 SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
+SET( SHARED_FILES_RELATIVE "../share/${CMAKE_PROJECT_NAME}" CACHE INTERNAL "Relative path to bin/ denoting the destination for shaders and cfg files." )  # this path us the relative path to bin/ used for all shared files like shaders and config file
 
 # CMAKE automatism to select static vs. shared building:
 #-------------------------------------------------------
@@ -139,23 +139,34 @@ ADD_SUBDIRECTORY( gui )
 ADD_SUBDIRECTORY( kernel )
 ADD_SUBDIRECTORY( common )
 ADD_SUBDIRECTORY( modules )
-ADD_EXECUTABLE( walnut-bin OpenWalnut.cpp )
-TARGET_LINK_LIBRARIES( walnut-bin kernel dataHandler gui guiqt4 common ge ${Boost_LIBRARIES} )
+
+#-------------------------------------------------------------------------------------------------------------
+# Writes information about the revision of the current code to the file version.h which then gets included by OpenWalnut.cpp
+add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+                    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                    COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                    COMMENT "Creating version.h"
+                 )
+
+# finally, build walnut
+ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
+TARGET_LINK_LIBRARIES( walnut OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
 if( OW_COPY_SHADERS )
   add_custom_target( shaderDirectoryConfiguration
     ALL
-    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
-    COMMENT "Put all shaders to the right place or update them if they are already there."
+    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
+    COMMENT "Put all global shaders to the right place or update them if they are already there."
     )
 endif( OW_COPY_SHADERS )
 
 #---------- fonts -------------
 add_custom_target( fontsDirectoryConfiguration
   ALL
-  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
+  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
   COMMENT "Put all fonts to the right place."
   )
 
@@ -175,9 +186,9 @@ ELSE()
 ENDIF()
 
 #---------- walnut.cfg file -------------
-IF( NOT EXISTS ${PROJECT_BINARY_DIR}/bin/walnut.cfg )
-  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi ${PROJECT_BINARY_DIR}/bin/walnut.cfg COPYONLY )
-  MESSAGE( STATUS "Copied ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi to ${PROJECT_BINARY_DIR}/bin/walnut.cfg" )
+IF( NOT EXISTS ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg )
+  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg COPYONLY )
+  MESSAGE( STATUS "Copied ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi to ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg" )
 ENDIF()
 
 # Special targets:
@@ -241,6 +252,7 @@ FOREACH( dirname ${EXCLUDE_DIRS} )
         LIST( REMOVE_ITEM STYLE_CPP ${fname} )
     ENDFOREACH( fname )
 ENDFOREACH( dirname )
+LIST( REMOVE_ITEM STYLE_H ${PROJECT_SOURCE_DIR}/version.h )
 
 IF( CMAKE_COLOR_MAKEFILE )
     SET( STYLECHECK_OPTIONS "--color" )
@@ -266,14 +278,6 @@ ADD_CUSTOM_TARGET( stylecheck
 				 )
 
 #-------------------------------------------------------------------------------------------------------------
-# Writes information about the revision of the current code to a file
-ADD_CUSTOM_TARGET( identify
-                   ALL
-                   COMMAND hg identify --cwd ${PROJECT_SOURCE_DIR} -n -i -b -t > ${PROJECT_BINARY_DIR}/bin/revision
-                   COMMENT "Write information about the revision of the current code to a file"
-                 )
-
-#-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET( vtest
                    COMMAND $(MAKE) test ARGS="-V"
@@ -286,29 +290,6 @@ ADD_CUSTOM_TARGET( cicheck
                    COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
                    COMMENT "Checks if all is well to commit"
                  )
-
-
-#-------------------------------------------------------------------------------------------------------------
-# Copies fixtures used for tests to the binary directory (where they are expected).
-
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_CUSTOM_TARGET( fixtures
-                       ALL
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/io/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/io
-                       # TODO(wiebel): we need to find a way to do this automatically
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/modules/marchingCubes/test/fixtures ${PROJECT_BINARY_DIR}/modules/marchingCubes
-                       COMMENT "Copy fixtures to the right place."
-                 )
-ELSE()
-	ADD_CUSTOM_TARGET( fixtures
-					   ALL
-					   COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/FixturesWin.cmake
-					
-    COMMENT "Copy fixtures to the right place."
-  )
-
-ENDIF()
 
 #-------------------------------------------------------------------------------------------------------------
 # Makes many special make targets in combination. Default number of cores is 1.

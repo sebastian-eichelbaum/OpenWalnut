@@ -37,9 +37,12 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "../data/WMData.h"
+#include "../../kernel/modules/data/WMData.h"
 #include "WMBoundingBox.h"
 #include "boundingbox.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMBoundingBox )
 
 WMBoundingBox::WMBoundingBox():
     WModule()

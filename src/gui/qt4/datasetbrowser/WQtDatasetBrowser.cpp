@@ -42,7 +42,7 @@
 #include "../../../kernel/WModuleCombiner.h"
 #include "../../../kernel/WModuleCombinerTypes.h"
 #include "../../../kernel/WModuleFactory.h"
-#include "../../../modules/data/WMData.h"
+#include "../../../kernel/modules/data/WMData.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
 #include "../events/WModuleDeleteEvent.h"

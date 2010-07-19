@@ -43,6 +43,9 @@
 #include "WMIsosurfaceRaytracer.h"
 #include "isosurfaceraytracer.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMIsosurfaceRaytracer )
+
 WMIsosurfaceRaytracer::WMIsosurfaceRaytracer():
     WModule(),
     m_rootNode( new osg::Node() )
@@ -122,7 +125,7 @@ void WMIsosurfaceRaytracer::properties()
 
 void WMIsosurfaceRaytracer::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "IsosurfaceRaytracer" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMIsosurfaceRaytracer", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );

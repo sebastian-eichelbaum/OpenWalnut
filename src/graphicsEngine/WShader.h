@@ -34,6 +34,8 @@
 #include <osg/Shader>
 #include <osg/Program>
 
+#include "../common/WPathHelper.h"
+
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.
  */
@@ -42,11 +44,13 @@ class WShader: public osg::Program
 public:
 
     /**
-     * Default constructor. Loads the specified shader programs.
+     * Default constructor. Loads the specified shader programs. The path that can be specified is optional but allows modules to load their own
+     * local shaders. The search order for shader files is as follows: 1. search, 2. search/shaders, 3. WPathHelper::getShaderPath()
      *
      * \param name the name of the shader. It gets searched in the shader path.
+     * \param search the local search path. If not specified, the global shader path is used.
      */
-    explicit WShader( std::string name );
+    WShader( std::string name, boost::filesystem::path search = WPathHelper::getShaderPath() );
 
     /**
      * Destructor.
@@ -111,7 +115,7 @@ protected:
     /**
      * String that stores the location of all shader files
      */
-    std::string m_shaderPath;
+    boost::filesystem::path m_shaderPath;
 
     /**
      * The name of the shader. It is used to construct the actual filename to load.

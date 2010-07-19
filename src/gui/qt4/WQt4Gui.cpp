@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -37,6 +38,7 @@
 #include "../../common/WConditionOneShot.h"
 #include "../../common/WIOTools.h"
 #include "../../common/WPreferences.h"
+#include "../../common/WPathHelper.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
@@ -132,6 +134,15 @@ int WQt4Gui::run()
 
     WLogger::getLogger()->run();
     wlog::info( "GUI" ) << "Bringing up GUI";
+
+    // the call path of the application
+    boost::filesystem::path walnutBin = boost::filesystem::path( std::string( m_argv[0] ) );
+
+    // setup path helper which provides several paths to others
+    WPathHelper::getPathHelper()->setAppPath( walnutBin.parent_path() );
+
+    // init preference system
+    WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
 
     QApplication appl( m_argc, m_argv, true );
 
