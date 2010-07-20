@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <cmath> // test() -> log()
-#include <cstring> // memset(), memcpy()
+#include <cstring> // memset()
 #include <iostream> // test() -> std::cout
 
 #include "WAssert.h"
@@ -43,11 +43,11 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet ) //, unsign
         m_maximum = m_maximum < tmp ? tmp : m_maximum;
         m_minimum = m_minimum > tmp ? tmp : m_minimum;
 
-        if( m_minimum != tmp )
+        if( m_minimum != tmp && m_minimum != wlimits::MAX_DOUBLE )
         {
-            minDistance = tmp - m_minimum < minDistance ? m_minimum - tmp : minDistance;
+            minDistance = tmp - m_minimum < minDistance ? tmp - m_minimum : minDistance;
         }
-        if( m_maximum != tmp )
+        if( m_maximum != tmp && m_maximum != wlimits::MIN_DOUBLE )
         {
             minDistance = m_maximum - tmp < minDistance ? m_maximum - tmp : minDistance;
         }
@@ -57,9 +57,9 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet ) //, unsign
     m_nInitialBuckets = ( m_maximum - m_minimum ) / minDistance;
     m_bucketSize = minDistance;
     unsigned int* initialBuckets = new unsigned int[m_nInitialBuckets];
-    // initiate array to zero
+    // initialize array to zero
     memset( initialBuckets, 0, m_nInitialBuckets * sizeof( unsigned int ) );
-    //*m_initialBuckets = {0}; // this should works with C++0x (instead memset), TEST IT!
+    //*initialBuckets = { 0 }; // this should works with C++0x (instead memset), TEST IT!
     m_initialBuckets = boost::shared_array<unsigned int>( initialBuckets );
 
     m_nMappedBuckets = 0;
@@ -136,8 +136,8 @@ void WHistogram::calculateMapping( double intervalSize )
 
     unsigned int* mappedBuckets = new unsigned int[m_nMappedBuckets];
     memset( mappedBuckets, 0, m_nMappedBuckets * sizeof( unsigned int ) );
+    //*mappedBuckets = { 0 }; // works with C++0x
     m_mappedBuckets.swap( *new boost::scoped_array<unsigned int>( mappedBuckets ) );
-    //*m_mappedBuckets = {0}; // works with C++0x
     unsigned int index = 0;
     for( unsigned int i = 0; i != m_nInitialBuckets; ++i )
     {
@@ -168,12 +168,12 @@ unsigned int WHistogram::at( unsigned int index )
     unsigned int value = 0;
     if( m_mappedBuckets )
     {
-        WAssert( index <= m_nMappedBuckets, "WHistogram::at() : index out of range." );
+        WAssert( index < m_nMappedBuckets, "WHistogram::at() : index out of range." );
         value = m_mappedBuckets[index];
     }
     else
     {
-        WAssert( index <= m_nInitialBuckets, "WHistogram::at() : index out of range." );
+        WAssert( index < m_nInitialBuckets, "WHistogram::at() : index out of range." );
         value = m_initialBuckets[index];
     }
     return value;
