@@ -165,23 +165,19 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixQForm = qFormMat;
     m_matrixSForm = sFormMat;
 
-    m_matrix = qFormMat;
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
-    m_matrixActive = 1;
-
-    m_directionX = WVector3D( m_matrix( 0, 0 ) / m_matrix( 3, 3 ), m_matrix( 1, 0 ) / m_matrix( 3, 3 ), m_matrix( 2, 0 ) / m_matrix( 3, 3 ) );
-    m_directionY = WVector3D( m_matrix( 0, 1 ) / m_matrix( 3, 3 ), m_matrix( 1, 1 ) / m_matrix( 3, 3 ), m_matrix( 2, 1 ) / m_matrix( 3, 3 ) );
-    m_directionZ = WVector3D( m_matrix( 0, 2 ) / m_matrix( 3, 3 ), m_matrix( 1, 2 ) / m_matrix( 3, 3 ), m_matrix( 2, 2 ) / m_matrix( 3, 3 ) );
-
-    m_origin = WPosition( m_matrix( 0, 3 ) / m_matrix( 3, 3 ),
-                          m_matrix( 1, 3 ) / m_matrix( 3, 3 ),
-                          m_matrix( 2, 3 ) / m_matrix( 3, 3 ) );
-
-
     m_matrixNoMatrix.makeIdentity();
     m_matrixNoMatrix( 0, 0 ) = fabs( m_offsetX );
     m_matrixNoMatrix( 1, 1 ) = fabs( m_offsetY );
     m_matrixNoMatrix( 2, 2 ) = fabs( m_offsetZ );
+
+    m_matrix = m_matrixNoMatrix;
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    m_matrixActive = 0;
+
+    m_directionX = WVector3D( 1, 0, 0 );
+    m_directionY = WVector3D( 0, 1, 0 );
+    m_directionZ = WVector3D( 0, 0, 1 );
+    m_origin = WPosition( 0. , 0. , 0. );
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -599,9 +595,13 @@ void WGridRegular3D::doCustomTransformations()
     m_offsetY = m_offsetYorig * m_stretch[1];
     m_offsetZ = m_offsetZorig * m_stretch[2];
 
-    m_matrix( 0, 0 ) = m_matrix( 0, 0 ) * m_stretch[0];
-    m_matrix( 1, 1 ) = m_matrix( 1, 1 ) * m_stretch[1];
-    m_matrix( 2, 2 ) = m_matrix( 2, 2 ) * m_stretch[2];
+    wmath::WMatrix<double> stretchmat( 4, 4 );
+    stretchmat.makeIdentity();
+    stretchmat( 0, 0 ) = m_stretch[0];
+    stretchmat( 1, 1 ) = m_stretch[1];
+    stretchmat( 2, 2 ) = m_stretch[2];
+
+    m_matrix = m_matrix * stretchmat;
 
     wmath::WMatrix<double> rotmat( 4, 4 );
     rotmat.makeIdentity();
@@ -644,11 +644,11 @@ void WGridRegular3D::setActiveMatrix( int matrix )
             break;
         case 1:
             m_matrix = m_matrixQForm;
-            std::cout << "qform" << std::endl;
+            //std::cout << "qform" << std::endl;
             break;
         case 2:
             m_matrix = m_matrixSForm;
-            std::cout << "sform" << std::endl;
+            //std::cout << "sform" << std::endl;
             break;
     }
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
@@ -658,8 +658,10 @@ void WGridRegular3D::setActiveMatrix( int matrix )
     m_directionZ = WVector3D( m_matrix( 0, 2 ) / m_matrix( 3, 3 ), m_matrix( 1, 2 ) / m_matrix( 3, 3 ), m_matrix( 2, 2 ) / m_matrix( 3, 3 ) );
 
     m_origin = WPosition( m_matrix( 0, 3 ) / m_matrix( 3, 3 ),
-            m_matrix( 1, 3 ) / m_matrix( 3, 3 ),
-            m_matrix( 2, 3 ) / m_matrix( 3, 3 ) );
+                          m_matrix( 1, 3 ) / m_matrix( 3, 3 ),
+                          m_matrix( 2, 3 ) / m_matrix( 3, 3 ) );
+
+    doCustomTransformations();
 }
 
 int WGridRegular3D::getActiveMatrix()

@@ -30,6 +30,10 @@
 
 #include <cmath>
 
+#include <osg/MatrixTransform>
+#include <osg/PositionAttitudeTransform>
+#include <osgText/Text>
+
 #include "../../common/WAssert.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -111,6 +115,18 @@ void WMBoundingBox::moduleMain()
 
         m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
 
+        wmath::WVector3D pos1 = bb.first;
+        wmath::WVector3D pos2 = bb.second;
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos2[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos2[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos2[2] ) ) );
+
+
         WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_bBoxNode );
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
@@ -160,4 +176,3 @@ void WMBoundingBox::activate()
     }
     WModule::activate();
 }
-
