@@ -116,6 +116,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( unsigned char* sourc
 
     if ( components == 1 )
     {
+        wlog::debug( "WDataTexture3D" ) << "Texture for scalar char data set.";
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
 
         unsigned char* data = ima->data();
@@ -127,6 +128,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( unsigned char* sourc
     }
     else if ( components == 3 )
     {
+        wlog::debug( "WDataTexture3D" ) << "Texture for vector char data set.";
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGB, GL_UNSIGNED_BYTE );
 
         unsigned char* data = ima->data();
@@ -152,6 +154,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if( components == 1 )
     {
+        wlog::debug( "WDataTexture3D" ) << "Texture for scalar int16 data set.";
         int nSize = m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ();
 
         std::vector<int16_t> tempSource( nSize );
@@ -222,11 +225,11 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int components )
 {
-    findMinMax( source, components );
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if ( components == 1)
     {
+        findMinMax( source, components );
+        wlog::debug( "WDataTexture3D" ) << "Texture for scalar float data set.";
         // OpenGL just supports float textures
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
         float* data = reinterpret_cast< float* >( ima->data() );
@@ -237,8 +240,14 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
             data[i] = scaleInterval( source[i] );
         }
     }
-    else if ( components == 3)
+    else if ( components == 3 )
     {
+        // we cannot use findMinMax her because of the possibly negative values.
+        m_scale = 1.;
+        m_minValue = 0.;
+        m_maxValue = 1.;
+
+        wlog::debug( "WDataTexture3D" ) << "Texture for 3-vector float data set.";
         // OpenGL just supports float textures
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, GL_FLOAT );
         ima->setInternalTextureFormat( GL_RGBA );
@@ -247,14 +256,16 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[ ( 4 * i ) ]     = scaleInterval( source[ ( 3 * i ) ] );
-            data[ ( 4 * i ) + 1 ] = scaleInterval( source[ ( 3 * i ) + 1 ] );
-            data[ ( 4 * i ) + 2 ] = scaleInterval( source[ ( 3 * i ) + 2 ] );
+            data[ ( 4 * i ) ]     = fabs( scaleInterval( source[ ( 3 * i ) ] ) );
+            data[ ( 4 * i ) + 1 ] = fabs( scaleInterval( source[ ( 3 * i ) + 1 ] ) );
+            data[ ( 4 * i ) + 2 ] = fabs( scaleInterval( source[ ( 3 * i ) + 2 ] ) );
             data[ ( 4 * i ) + 3 ] = 1.0;
         }
     }
-    else if ( components == 4)
+    else if ( components == 4 )
     {
+        findMinMax( source, components );
+        wlog::debug( "WDataTexture3D" ) << "Texture for 4-vector float data set.";
         // OpenGL just supports float textures
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, GL_FLOAT );
         ima->setInternalTextureFormat( GL_RGBA );
