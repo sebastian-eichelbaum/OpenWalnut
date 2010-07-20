@@ -173,14 +173,14 @@ void WMMarchingCubes::connectors()
     // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar > >(
         new WModuleInputData< WDataSetScalar >( shared_from_this(),
-                                                               "in", "Dataset to compute isosurface for." )
+                                                               "values", "Dataset to compute isosurface for." )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
     m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >(
-            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(), "out", "The mesh representing the isosurface." ) );
+            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(), "surface mesh", "The mesh representing the isosurface." ) );
 
     addConnector( m_output );
 
