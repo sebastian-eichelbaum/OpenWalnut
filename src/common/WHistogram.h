@@ -120,7 +120,7 @@ class WHistogram
          * \param valueSet source of the data for the histogram
          * \param nBuckets number of buckets this histogram should display
          **/
-        explicit WHistogram( boost::shared_ptr< WValueSetBase > valueSet ); //, unsigned int nBuckets = 1000 );
+        explicit WHistogram( boost::shared_ptr< WValueSetBase > valueSet );
 
         /**
          * Copy constructor. If another interval size is given setInterval() is called and a

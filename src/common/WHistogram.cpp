@@ -31,7 +31,7 @@
 
 #include "WHistogram.h"
 
-WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet ) //, unsigned int nBuckets )
+WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet )
 {
     // calculate min max
     m_minimum = wlimits::MAX_DOUBLE;
@@ -137,7 +137,8 @@ void WHistogram::calculateMapping( double intervalSize )
     unsigned int* mappedBuckets = new unsigned int[m_nMappedBuckets];
     memset( mappedBuckets, 0, m_nMappedBuckets * sizeof( unsigned int ) );
     //*mappedBuckets = { 0 }; // works with C++0x
-    m_mappedBuckets.swap( *new boost::scoped_array<unsigned int>( mappedBuckets ) );
+    boost::scoped_array<unsigned int> scoped( mappedBuckets );
+    m_mappedBuckets.swap( scoped );
     unsigned int index = 0;
     for( unsigned int i = 0; i != m_nInitialBuckets; ++i )
     {
