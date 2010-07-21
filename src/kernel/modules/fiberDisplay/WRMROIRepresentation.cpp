@@ -63,6 +63,11 @@ WRMROIRepresentation::~WRMROIRepresentation()
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_roi );
 }
 
+void WRMROIRepresentation::removeFromGE()
+{
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_roi );
+}
+
 osg::ref_ptr< WROI > WRMROIRepresentation::getROI()
 {
     return m_roi;

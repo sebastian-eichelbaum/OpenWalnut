@@ -112,6 +112,12 @@ public:
      */
     bool isActive();
 
+    /**
+     * removes the graphical representation from the graphics engine
+     * this a workaround for a remove issue
+     */
+    void removeFromGE();
+
 protected:
     /**
      * slot gets called when a property has changed
