@@ -165,6 +165,22 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixQForm = qFormMat;
     m_matrixSForm = sFormMat;
 
+    if ( m_matrixQForm( 0, 0 ) + m_matrixQForm( 0, 1 ) + m_matrixQForm( 0, 2 ) + m_matrixQForm( 0, 3 ) +
+         m_matrixQForm( 1, 0 ) + m_matrixQForm( 1, 1 ) + m_matrixQForm( 1, 2 ) + m_matrixQForm( 1, 3 ) +
+         m_matrixQForm( 2, 0 ) + m_matrixQForm( 2, 1 ) + m_matrixQForm( 2, 2 ) + m_matrixQForm( 2, 3 ) +
+         m_matrixQForm( 3, 0 ) + m_matrixQForm( 3, 1 ) + m_matrixQForm( 3, 2 ) + m_matrixQForm( 3, 3 ) == 0 )
+    {
+        m_matrixQForm.makeIdentity();
+    }
+
+    if ( m_matrixSForm( 0, 0 ) + m_matrixSForm( 0, 1 ) + m_matrixSForm( 0, 2 ) + m_matrixSForm( 0, 3 ) +
+         m_matrixSForm( 1, 0 ) + m_matrixSForm( 1, 1 ) + m_matrixSForm( 1, 2 ) + m_matrixSForm( 1, 3 ) +
+         m_matrixSForm( 2, 0 ) + m_matrixSForm( 2, 1 ) + m_matrixSForm( 2, 2 ) + m_matrixSForm( 2, 3 ) +
+         m_matrixSForm( 3, 0 ) + m_matrixSForm( 3, 1 ) + m_matrixSForm( 3, 2 ) + m_matrixSForm( 3, 3 ) == 0 )
+    {
+        m_matrixSForm.makeIdentity();
+    }
+
     m_matrixNoMatrix.makeIdentity();
     m_matrixNoMatrix( 0, 0 ) = fabs( m_offsetX );
     m_matrixNoMatrix( 1, 1 ) = fabs( m_offsetY );
