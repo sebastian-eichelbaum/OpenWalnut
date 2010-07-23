@@ -438,14 +438,16 @@ public:
     void rotate( wmath::WPosition rot );
 
     /**
-     * Resets the active matrix.
+     * sets the active matrix
      *
      * \param matrix which matrix to use
      */
     void setActiveMatrix( int matrix );
 
     /**
-     * Gets the active matrix.
+     * gets the active matrix
+     *
+     * \return matrix in use
      */
     int getActiveMatrix();
 

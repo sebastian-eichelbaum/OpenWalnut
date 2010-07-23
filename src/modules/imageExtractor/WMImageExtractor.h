@@ -97,6 +97,11 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Callback for m_active.
+     */
+    virtual void activate();
+
 private:
 
     /**
