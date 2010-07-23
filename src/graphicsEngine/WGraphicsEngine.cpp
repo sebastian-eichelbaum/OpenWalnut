@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <stdlib.h>
+
 #include <iostream>
 #include <list>
 #include <string>
@@ -39,6 +41,7 @@
 
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
+#include "../common/WPathHelper.h"
 #include "../common/WPreferences.h"
 #include "../common/math/WPosition.h"
 #include "WGEViewer.h"
@@ -53,6 +56,10 @@ WGraphicsEngine::WGraphicsEngine():
     WThreadedRunner()
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_INFO );
+
+    // NOTE: the osgViewer::StatsHandler uses a hard coded font filename. :-(. Fortunately OSG allows us to modify the search path using
+    // environment variables:
+    setenv( "OSGFILEPATH", WPathHelper::getFontPath().file_string().c_str(), 1 );
 
     // initialize members
     m_rootNode = new WGEScene();

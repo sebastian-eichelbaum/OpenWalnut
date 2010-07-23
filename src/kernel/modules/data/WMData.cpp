@@ -43,7 +43,6 @@
 #include "../../../dataHandler/io/WPagerEEGLibeep.h"
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
-#include "../../../dataHandler/io/WReaderEEGPotentials.h"
 #include "WMData.h"
 #include "data.xpm"
 
@@ -391,11 +390,6 @@ void WMData::moduleMain()
     {
         WReaderFiberVTK fibReader( fileName );
         m_dataSet = fibReader.read();
-    }
-    else if( suffix == ".pot" )
-    {
-        WReaderEEGPotentials potReader( fileName );
-        m_dataSet = potReader.read();
     }
     else
     {
