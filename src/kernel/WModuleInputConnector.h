@@ -78,7 +78,21 @@ public:
      * \param signal the signal to connect to.
      * \param notifier the notifier function to bind.
      */
-     boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
+    boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
+
+    /**
+     * Returns true if this instance is an WModuleInputConnector.
+     *
+     * \return true if castable to WModuleInputConnector.
+     */
+    virtual bool isInputConnector() const;
+
+    /**
+     * Returns true if this instance is an WModuleOutputConnector.
+     *
+     * \return true if castable to WModuleOutputConnector.
+     */
+    virtual bool isOutputConnector() const;
 
 protected:
 

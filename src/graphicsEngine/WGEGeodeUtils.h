@@ -25,7 +25,12 @@
 #ifndef WGEGEODEUTILS_H
 #define WGEGEODEUTILS_H
 
+#include <string>
+
 #include <osg/Geode>
+#include <osg/MatrixTransform>
+#include <osg/PositionAttitudeTransform>
+#include <osgText/Text>
 
 #include "../common/datastructures/WTriangleMesh.h"
 #include "../common/WColor.h"
@@ -92,6 +97,24 @@ namespace wge
     osg::ref_ptr< osg::Geode > generateLineStripGeode( const wmath::WLine& line,
                                                        const float thickness = 3.0f,
                                                        const WColor& color = WColor( 0, 0, 0, 0 ) );
+
+    /**
+     * helper function to add a label somewhere
+     *
+     * \param position position of the label
+     * \param text text
+     * \return a positionattitudetransfom object containing the label
+     */
+    osg::ref_ptr< osg::PositionAttitudeTransform > addLabel( osg::Vec3 position, std::string text );
+
+    /**
+     * helper function to add a label with it's position vector
+     *
+     * \param position position of the label
+     * \return a positionattitudetransfom object containing the label
+     */
+    osg::ref_ptr< osg::PositionAttitudeTransform > vector2label( osg::Vec3 position );
+
 } // end of namespace wge
 
 #endif  // WGEGEODEUTILS_H

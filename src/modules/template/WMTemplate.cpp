@@ -31,10 +31,10 @@
 //   * think about a name for your module
 //   * rename the files from WMTemplate.cpp and WMTemplate.h to WMYourModuleName.cpp and WMYourModuleName.h
 //   * rename the class inside these files to WMYourModuleName
+//   * rename the class inside "W_LOADABLE_MODULE" to WMYourModuleName
 //   * change WMYourModuleName::getName() to a unique name, like "Your Module Name"
-//   * add a new prototype of your module to src/kernel/WModuleFactory.cpp -> search for m_prototypes.insert
+//   * add a your module to src/modules/CMakeLists.txt
 //     * analogously to the other modules, add yours
-//     * Note: this step will be automated in some time
 //   * run CMake and compile
 //   * read the documentation in this module and modify it to your needs
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
+#include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
@@ -68,6 +69,9 @@
 #include "icons/wurst.xpm"
 #include "icons/steak.xpm"
 #include "WMTemplate.h"
+
+// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
+W_LOADABLE_MODULE( WMTemplate )
 
 WMTemplate::WMTemplate():
     WModule()
@@ -202,7 +206,7 @@ void WMTemplate::properties()
                                                     "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
     m_aDouble          = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
     m_aString          = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
+    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WPathHelper::getAppPath(), m_propCondition );
     m_aColor           = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
 
@@ -317,7 +321,7 @@ void WMTemplate::properties()
     m_aTriggerOutput = m_infoProperties->addProperty( "A Trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
     m_aDoubleOutput = m_infoProperties->addProperty( "Some Double", "a Double. Nice isn't it?", 3.1415 );
     m_aColorOutput = m_infoProperties->addProperty( "A Color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
-    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WKernel::getAppPathObject() );
+    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
     m_aSelectionOutput = m_infoProperties->addProperty( "A Selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
 }
 

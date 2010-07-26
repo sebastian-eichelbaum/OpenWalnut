@@ -25,6 +25,7 @@
 #ifndef WQTDATASETBROWSER_H
 #define WQTDATASETBROWSER_H
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -36,7 +37,7 @@
 
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "../WQtCombinerToolbar.h"
 #include "WQtDSBWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
@@ -193,6 +194,25 @@ protected:
      */
     WMainWindow* m_mainWindow;
 
+    /**
+     * Searches the specified tree for all tree items matching the specified module.
+     *
+     * \param module the module uses as search criteria.
+     * \param where in which subtree to search.
+     *
+     * \return a list of all matching items.
+     */
+    std::list< WQtTreeItem* > findItemsByModule( boost::shared_ptr< WModule > module, QTreeWidgetItem* where );
+
+    /**
+     * Searches the tree for all tree items matching the specified module.
+     *
+     * \param module the module uses as search criteria.
+          *
+     * \return a list of all matching items.
+     */
+    std::list< WQtTreeItem* > findItemsByModule( boost::shared_ptr< WModule > module );
+
 private:
     WQtTreeWidget* m_moduleTreeWidget; //!< pointer to the tree widget
 
@@ -233,6 +253,12 @@ private:
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
+
+    /**
+     * If true, a selection change does not cause the property tab to rebuild. This is useful if multiple items get selected at once
+     * programatically.
+     */
+    bool m_ignoreSelectionChange;
 
 private slots:
     /**

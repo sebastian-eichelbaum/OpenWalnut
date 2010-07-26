@@ -29,11 +29,12 @@
 #include <string>
 #include <typeinfo>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/signals2/signal.hpp>
-#include <boost/function.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/thread.hpp>
 
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
@@ -44,19 +45,19 @@
 #include "../dataHandler/WDataSetSingle.h"
 #include "../dataHandler/WValueSet.h"
 
-#include "../common/WLogger.h"
-#include "../common/WProperties.h"
-#include "../common/WProgressCombiner.h"
-#include "../common/WProgress.h"
-#include "../common/WThreadedRunner.h"
-#include "../common/WPrototyped.h"
 #include "../common/WConditionSet.h"
+#include "../common/WLogger.h"
+#include "../common/WProgress.h"
+#include "../common/WProgressCombiner.h"
+#include "../common/WProperties.h"
+#include "../common/WPrototyped.h"
+#include "../common/WThreadedRunner.h"
 
 class WModuleConnector;
-class WModuleInputConnector;
-class WModuleOutputConnector;
 class WModuleContainer;
 class WModuleFactory;
+class WModuleInputConnector;
+class WModuleOutputConnector;
 
 /**
  * Class representing a single module of OpenWalnut.
@@ -303,6 +304,20 @@ public:
      */
     WCombinerTypes::WDisconnectList getPossibleDisconnections();
 
+    /**
+     * Sets the local module path. This gets called by the module loader.
+     *
+     * \param path the local path.
+     */
+    void setLocalPath( boost::filesystem::path path );
+
+    /**
+     * Returns the local path of the module. Whenever you try to load local resources, use this path. It is especially useful for shader loading.
+     *
+     * \return the local module path.
+     */
+    boost::filesystem::path getLocalPath() const;
+
 protected:
 
     /**
@@ -546,6 +561,12 @@ protected:
      */
     WPropString m_runtimeName;
 
+    /**
+     * The path where the module binary resides in. This path should be used whenever the module needs to load resources. It gets set by the
+     * module loader. Use this to load shaders and so on.
+     */
+    boost::filesystem::path m_localPath;
+
 private:
 
      /**
@@ -568,6 +589,17 @@ private:
      */
     t_ModuleErrorSignalType signal_error;
 };
+
+/**
+ * The following macro is used by modules so the factory can aquire a prototype instance from a shared library using the symbol.
+ */
+#define W_LOADABLE_MODULE( MODULECLASS ) \
+extern "C" boost::shared_ptr< WModule > WLoadModule() { return boost::shared_ptr< WModule >( new MODULECLASS ); } // NOLINT
+
+/**
+ * The corresponding symbol name.
+ */
+#define W_LOADABLE_MODULE_SYMBOL "WLoadModule"
 
 /**
  * \defgroup modules Modules

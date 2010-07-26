@@ -44,7 +44,7 @@
 #include "exceptions/WModuleAlreadyAssociated.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleUninitialized.h"
-#include "../modules/data/WMData.h"
+#include "modules/data/WMData.h"
 
 #include "WModuleContainer.h"
 
@@ -128,7 +128,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     boost::signals2::connection signalCon = module->subscribeSignal( WM_ERROR, func );
     subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
 
-    // connect default ready/error notifiers
+    // connect default notifiers:
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
     for ( std::list< t_ModuleErrorSignalHandlerType >::iterator iter = m_errorNotifiers.begin(); iter != m_errorNotifiers.end(); ++iter)
     {
@@ -140,6 +140,27 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     {
         // call associated notifier
         ( *iter )( module );
+    }
+    slock = boost::shared_lock<boost::shared_mutex>( m_connectorNotifiersLock );
+    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorEstablishedNotifiers.begin();
+                                                            iter != m_connectorEstablishedNotifiers.end(); ++iter )
+    {
+        // subscribe on each input
+        for ( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )
+        {
+            signalCon = ( *ins )->subscribeSignal( CONNECTION_ESTABLISHED, ( *iter ) );
+            subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
+        }
+    }
+    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorClosedNotifiers.begin();
+                                                            iter != m_connectorClosedNotifiers.end(); ++iter )
+    {
+        // subscribe on each input
+        for ( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )
+        {
+            signalCon = ( *ins )->subscribeSignal( CONNECTION_CLOSED, ( *iter ) );
+            subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
+        }
     }
     slock = boost::shared_lock<boost::shared_mutex>( m_readyNotifiersLock );
     for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_readyNotifiers.begin(); iter != m_readyNotifiers.end(); ++iter)
@@ -324,6 +345,29 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSi
         case WM_ERROR:
             lock = boost::unique_lock<boost::shared_mutex>( m_errorNotifiersLock );
             m_errorNotifiers.push_back( notifier );
+            lock.unlock();
+            break;
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WModuleSignalSubscriptionFailed( s.str() );
+            break;
+    }
+}
+
+void WModuleContainer::addDefaultNotifier( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier )
+{
+    boost::unique_lock<boost::shared_mutex> lock;
+    switch (signal)
+    {
+        case CONNECTION_ESTABLISHED:
+            lock = boost::unique_lock<boost::shared_mutex>( m_connectorNotifiersLock );
+            m_connectorEstablishedNotifiers.push_back( notifier );
+            lock.unlock();
+            break;
+        case CONNECTION_CLOSED:
+            lock = boost::unique_lock<boost::shared_mutex>( m_connectorNotifiersLock );
+            m_connectorClosedNotifiers.push_back( notifier );
             lock.unlock();
             break;
         default:

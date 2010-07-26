@@ -33,6 +33,7 @@
 #include <cmath>
 
 #include "../../common/WAssert.h"
+#include "../../common/WPathHelper.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
@@ -40,6 +41,9 @@
 #include "../../common/math/WVector3D.h"
 #include "../../dataHandler/io/nifti/nifti1_io.h"
 #include "WMWriteNIfTI.h"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMWriteNIfTI )
 
 WMWriteNIfTI::WMWriteNIfTI() :
     WModule()
@@ -127,7 +131,7 @@ void WMWriteNIfTI::connectors()
 void WMWriteNIfTI::properties()
 {
     m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
-                                             WKernel::getAppPathObject() );
+                                             WPathHelper::getAppPath() );
     m_saveTriggerProp = m_properties->addProperty( "Do Save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );

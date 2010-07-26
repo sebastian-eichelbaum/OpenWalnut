@@ -22,16 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include <Qt/qstring.h>
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "../../common/WStringUtils.h"
+#include <QtCore/QString>
 
+#include "../../common/WStringUtils.h"
 #include "WCfgOperations.h"
 
 std::vector< std::string > WCfgOperations::readCfg( const std::string fileName )

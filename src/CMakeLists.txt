@@ -1,7 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( OpenWalnut )
 
-
 # append search path for FindModules:
 #------------------------------------
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
@@ -13,6 +12,7 @@ INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
 SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
+SET( SHARED_FILES_RELATIVE "../share/${CMAKE_PROJECT_NAME}" CACHE INTERNAL "Relative path to bin/ denoting the destination for shaders and cfg files." )  # this path us the relative path to bin/ used for all shared files like shaders and config file
 
 # CMAKE automatism to select static vs. shared building:
 #-------------------------------------------------------
@@ -139,23 +139,34 @@ ADD_SUBDIRECTORY( gui )
 ADD_SUBDIRECTORY( kernel )
 ADD_SUBDIRECTORY( common )
 ADD_SUBDIRECTORY( modules )
-ADD_EXECUTABLE( walnut-bin OpenWalnut.cpp )
-TARGET_LINK_LIBRARIES( walnut-bin kernel dataHandler gui guiqt4 common ge ${Boost_LIBRARIES} )
+
+#-------------------------------------------------------------------------------------------------------------
+# Writes information about the revision of the current code to the file version.h which then gets included by OpenWalnut.cpp
+add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+                    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                    COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                    COMMENT "Creating version.h"
+                 )
+
+# finally, build walnut
+ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
+TARGET_LINK_LIBRARIES( walnut OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
 if( OW_COPY_SHADERS )
   add_custom_target( shaderDirectoryConfiguration
     ALL
-    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
-    COMMENT "Put all shaders to the right place or update them if they are already there."
+    COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/UpdateShaders.cmake
+    COMMENT "Put all global shaders to the right place or update them if they are already there."
     )
 endif( OW_COPY_SHADERS )
 
 #---------- fonts -------------
 add_custom_target( fontsDirectoryConfiguration
   ALL
-  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
+  COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
   COMMENT "Put all fonts to the right place."
   )
 
@@ -175,9 +186,9 @@ ELSE()
 ENDIF()
 
 #---------- walnut.cfg file -------------
-IF( NOT EXISTS ${PROJECT_BINARY_DIR}/bin/walnut.cfg )
-  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi ${PROJECT_BINARY_DIR}/bin/walnut.cfg COPYONLY )
-  MESSAGE( STATUS "Copied ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi to ${PROJECT_BINARY_DIR}/bin/walnut.cfg" )
+IF( NOT EXISTS ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg )
+  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg COPYONLY )
+  MESSAGE( STATUS "Copied ${PROJECT_SOURCE_DIR}/../doc/user/walnut.cfg.mpi to ${PROJECT_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/walnut.cfg" )
 ENDIF()
 
 # Special targets:
@@ -222,6 +233,18 @@ ADD_CUSTOM_COMMAND( OUTPUT cscope
 ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 
 #-------------------------------------------------------------------------------------------------------------
+# Determines the number of cores available on this machine
+SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+ADD_CUSTOM_TARGET( numCores
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
+                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
+                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
+                   COMMENT "Determines the number of cores available on this machine"
+                 )
+
+#-------------------------------------------------------------------------------------------------------------
 # Checks style guide lines via the BrainLint tool against all source code files
 #    The output is colored when variable CMAKE_COLOR_MAKEFILE is set to ON,
 #    noncolored if it is set to OFF
@@ -241,6 +264,7 @@ FOREACH( dirname ${EXCLUDE_DIRS} )
         LIST( REMOVE_ITEM STYLE_CPP ${fname} )
     ENDFOREACH( fname )
 ENDFOREACH( dirname )
+LIST( REMOVE_ITEM STYLE_H ${PROJECT_SOURCE_DIR}/version.h )
 
 IF( CMAKE_COLOR_MAKEFILE )
     SET( STYLECHECK_OPTIONS "--color" )
@@ -249,28 +273,23 @@ ELSE()
 ENDIF()
 
 IF( CMAKE_HOST_WIN32 )
-	SET( XARGS_OPTIONS "-n 128" )
+    SET( XARGS_OPTIONS "-n 128" )
+ELSEIF( CMAKE_HOST_UNIX )
+    SET( XARGS_OPTIONS -P \$\$\(${NUM_CORES_BINARY}\) -n 64 )
 ELSE()
-	SET( XARGS_OPTIONS "" )
+    SET( XARGS_OPTIONS "" )
 ENDIF()
 
 FILE( WRITE ${PROJECT_BINARY_DIR}/brainlintlist "" )
 FOREACH( fname ${STYLE_CPP} ${STYLE_H} )
-	FILE( APPEND ${PROJECT_BINARY_DIR}/brainlintlist "${fname}\n" )
+    FILE( APPEND ${PROJECT_BINARY_DIR}/brainlintlist "${fname}\n" )
 ENDFOREACH()
 
 ADD_CUSTOM_TARGET( stylecheck
-				   COMMAND  cat ${PROJECT_BINARY_DIR}/brainlintlist | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLECHECK_OPTIONS}
-				   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-				   COMMENT "Check if code complies to CodingStandard"
-				 )
-
-#-------------------------------------------------------------------------------------------------------------
-# Writes information about the revision of the current code to a file
-ADD_CUSTOM_TARGET( identify
-                   ALL
-                   COMMAND hg identify --cwd ${PROJECT_SOURCE_DIR} -n -i -b -t > ${PROJECT_BINARY_DIR}/bin/revision
-                   COMMENT "Write information about the revision of the current code to a file"
+                   COMMAND  cat ${PROJECT_BINARY_DIR}/brainlintlist | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLECHECK_OPTIONS} 2>&1 | grep -iv 'Total errors found: 0$$' | cat
+                   DEPENDS numCores
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                   COMMENT "Check if code complies to CodingStandard"
                  )
 
 #-------------------------------------------------------------------------------------------------------------
@@ -287,43 +306,14 @@ ADD_CUSTOM_TARGET( cicheck
                    COMMENT "Checks if all is well to commit"
                  )
 
-
-#-------------------------------------------------------------------------------------------------------------
-# Copies fixtures used for tests to the binary directory (where they are expected).
-
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_CUSTOM_TARGET( fixtures
-                       ALL
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/dataHandler/io/test/fixtures ${PROJECT_BINARY_DIR}/dataHandler/io
-                       # TODO(wiebel): we need to find a way to do this automatically
-                       COMMAND cp -rf ${PROJECT_SOURCE_DIR}/modules/marchingCubes/test/fixtures ${PROJECT_BINARY_DIR}/modules/marchingCubes
-                       COMMENT "Copy fixtures to the right place."
-                 )
-ELSE()
-	ADD_CUSTOM_TARGET( fixtures
-					   ALL
-					   COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/FixturesWin.cmake
-					
-    COMMENT "Copy fixtures to the right place."
-  )
-
-ENDIF()
-
 #-------------------------------------------------------------------------------------------------------------
 # Makes many special make targets in combination. Default number of cores is 1.
-SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
-SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
 ADD_CUSTOM_TARGET( many
-                   COMMAND ${CMAKE_COMMAND} ${PROJECT_SOURCE_DIR}
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
-                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
-                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
-                   COMMAND if [ -e ${NUM_CORES_BINARY} ]\; then echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; $(MAKE) all -j\$\$\(${NUM_CORES_BINARY}\)\; else echo WARNING: No binary for numCores found: ${NUM_CORES_BINARY}. Using 1 core.\; $(MAKE) all -j1\; fi
+                   COMMAND echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; $(MAKE) all -j\$\$\(${NUM_CORES_BINARY}\)
                    COMMAND $(MAKE) test
                    COMMAND $(MAKE) stylecheck
                    COMMAND $(MAKE) doc
+                   DEPENDS numCores
                    COMMENT "Make many special make targets in combination."
                  )
 

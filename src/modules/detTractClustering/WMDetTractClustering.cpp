@@ -52,6 +52,9 @@
 #include "detTractClustering.xpm"
 #include "WMDetTractClustering.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDetTractClustering )
+
 WMDetTractClustering::WMDetTractClustering()
     : WModule(),
       m_lastTractsSize( 0 ),
