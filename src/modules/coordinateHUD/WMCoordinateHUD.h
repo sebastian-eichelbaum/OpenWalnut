@@ -104,9 +104,9 @@ protected:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-//    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
-    osg::ref_ptr< osg::Geode > m_rootNode;   
-    
+    //osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+    osg::ref_ptr< osg::Geode > m_rootNode;
+
     /**
      * The geometry rendered by this module.
      */
@@ -123,111 +123,7 @@ private:
      * the shader
      */
     osg::ref_ptr< WShader > m_shader;
-
-    /**
-     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
-     * moduleMain().
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMCoordinateHUD* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
-         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
-         */
-        WMCoordinateHUD* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time. It is especially useful
-         * to set some initial value even if the property has not yet changed.
-         */
-        bool m_initialUpdate;
-    };
-
-
-    /**
-     * Node callback to change the position of the shapes in the coordinate system of the scene.
-     * For more details on this class, refer to the documentation in moduleMain().
-     */
-    class TranslateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit TranslateCallback( WMCoordinateHUD* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
-         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
-         */
-        WMCoordinateHUD* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time. It is especially useful
-         * to set some initial value even if the property has not yet changed.
-         */
-        bool m_initialUpdate;
-    };
-
-    /**
-     * This shows how to write custom constraints for your modules. Please refer to the documentation in properties() for more details.
-     *
-     * \note: always use WPVBaseTypes to specialize the PropertyVariable template.
-     */
-    class StringLength: public WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint
-    {
-        /**
-         * You need to overwrite this method. It decides whether the specified new value should be accepted or not.
-         *
-         * \param property the property thats going to be changed.
-         * \param value the new value
-         *
-         * \return true if the new value is OK.
-         */
-        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > >  property, WPVBaseTypes::PV_STRING value );
-
-        /**
-         * Method to clone the constraint and create a new one with the correct dynamic type.
-         *
-         * \return the constraint.
-         */
-        virtual boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint > clone();
-    };
 };
 
-#endif  // WMTEMPLATE_H
+#endif //WMCOORDINATEHUD_H
 

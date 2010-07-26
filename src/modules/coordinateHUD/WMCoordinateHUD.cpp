@@ -69,15 +69,15 @@
 #include "coordinateHUD.xpm"
 #include "WMCoordinateHUD.h"
 
+W_LOADABLE_MODULE( WMCoordinateHUD )
+
 WMCoordinateHUD::WMCoordinateHUD():
     WModule()
 {
-
 }
 
 WMCoordinateHUD::~WMCoordinateHUD()
 {
-
 }
 
 boost::shared_ptr< WModule > WMCoordinateHUD::factory() const
@@ -102,24 +102,21 @@ const std::string WMCoordinateHUD::getDescription() const
 
 void WMCoordinateHUD::connectors()
 {
-
 }
 
 void WMCoordinateHUD::properties()
 {
-
 }
 
 void WMCoordinateHUD::moduleMain()
 {
-
     debugLog() << "Entering moduleMain()";
     m_moduleState.setResetable( true, true );
 
     ready();
     debugLog() << "Module is now ready.";
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "coordinatehud" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMCoordinateHUD" , m_localPath ) );
 
     //m_rootNode =  new WGEManagedGroupNode( m_active );
     m_rootNode = new osg::Geode;
@@ -135,21 +132,21 @@ void WMCoordinateHUD::moduleMain()
     vertices->push_back( osg::Vec3( 0, 0, 0 ) );
     vertices->push_back( osg::Vec3( size, 0, 0 ) );
     vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, size, 0) );
+    vertices->push_back( osg::Vec3( 0, size, 0 ) );
     vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, 0, size ) );	
+    vertices->push_back( osg::Vec3( 0, 0, size ) );
     vertices->push_back( osg::Vec3( 0, 0, 0 ) );
     vertices->push_back( osg::Vec3( -size, 0, 0 ) );
     vertices->push_back( osg::Vec3( 0, 0, 0 ) );
     vertices->push_back( osg::Vec3( 0, -size, 0 ) );
     vertices->push_back( osg::Vec3( 0, 0, 0 ) );
     vertices->push_back( osg::Vec3( 0, 0, -size ) );
-  
+
     //colors
-    osg::Vec4 x_color( 1.0f,0.0f,0.0f,1.0f );     //red
-    osg::Vec4 y_color( 0.0f,1.0f,0.0f,1.0f );     //green
-    osg::Vec4 z_color( 0.0f,0.0f,1.0f,1.0f );     //blue
-    osg::Vec4 neg_color( 1.0f,1.0f,1.0f,1.0f );   //white
+    osg::Vec4 x_color( 1.0f, 0.0f, 0.0f, 1.0f );     //red
+    osg::Vec4 y_color( 0.0f, 1.0f, 0.0f, 1.0f );     //green
+    osg::Vec4 z_color( 0.0f, 0.0f, 1.0f, 1.0f );     //blue
+    osg::Vec4 neg_color( 1.0f, 1.0f, 1.0f, 1.0f );   //white
 
     osg::Vec4Array* color = new osg::Vec4Array( 12 );
     (*color)[0] = x_color;
@@ -165,19 +162,19 @@ void WMCoordinateHUD::moduleMain()
     (*color)[10] = z_color;
     (*color)[11] = neg_color;
 
-    coordGeom->setColorArray(color);
-    coordGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    coordGeom->setColorArray( color );
+    coordGeom->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
-    osg::DrawArrays *da = new osg::DrawArrays(osg::PrimitiveSet::LINES,0,vertices->size());
+    osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size( ) );
 
     coordGeom->setVertexArray( vertices );
-    coordGeom->addPrimitiveSet( da);
+    coordGeom->addPrimitiveSet( da );
     coordGeode->addDrawable( coordGeom );
-    coordGeode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-    //m_rootNode->remove( coordGeode );    
+    //m_rootNode->remove( coordGeode );
     //m_rootNode->insert( coordGeode );
-    
+
     m_rootNode = coordGeode;
 
     //m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
@@ -187,7 +184,7 @@ void WMCoordinateHUD::moduleMain()
 
     //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( coordGeode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-       
+
     if ( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
@@ -199,17 +196,6 @@ void WMCoordinateHUD::moduleMain()
 
     //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( coordGeode );
 }
-
-void WMCoordinateHUD::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    traverse(node, nv);
-}
-
-void WMCoordinateHUD::TranslateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    traverse(node, nv);
-}
-
 
 void WMCoordinateHUD::activate()
 {
