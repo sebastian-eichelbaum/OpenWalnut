@@ -112,11 +112,6 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
 
     /**
-     * The input for the volumized fiber directions.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_directionInput;
-
-    /**
      * The input for the volumized fiber traces. Mostly, this is some kind of integrated length data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_tracesInput;

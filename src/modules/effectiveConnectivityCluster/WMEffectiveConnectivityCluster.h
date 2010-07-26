@@ -32,6 +32,7 @@
 #include <osg/Node>
 
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../common/math/WPosition.h"
 
 #include "../../kernel/WModule.h"
@@ -130,6 +131,17 @@ private:
      * The volume of interest 2.
      */
     boost::shared_ptr< WModuleInputForwardData< WDataSetSingle > > m_VOI2;
+
+    /**
+     * The parameter dataset used.
+     */
+    boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > > m_paramOutput;
+
+    /**
+     * The voxelized fibers used.
+     */
+    boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > > m_voxelOutput;
+
 
     boost::shared_ptr< WModule > m_fiberSelection;       //!< The fiber selection module.
     boost::shared_ptr< WModule > m_voxelizer;            //!< The voxelizer module.

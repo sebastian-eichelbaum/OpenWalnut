@@ -24,7 +24,7 @@
 
 #version 120
 
-#include "WGETransformationTools.fs"
+#include "WGETransformationTools.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Varyings

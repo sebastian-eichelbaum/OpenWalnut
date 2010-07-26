@@ -178,7 +178,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     props->getProperty( "Center Line" )->toPropBool()->set( true );
     props->getProperty( "active" )->toPropBool()->set( false );
     props->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
-    props->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    props->getProperty( "Display Voxels" )->toPropBool()->set( true );
     props->getProperty( "Lighting" )->toPropBool()->set( false );
 
     // set longest line based parameterization
@@ -256,6 +256,10 @@ void WMEffectiveConnectivityCluster::moduleMain()
     m_fiberInput->forward( m_fiberSelection->getInputConnector( "fibers" ) );
     m_VOI1->forward( m_fiberSelection->getInputConnector( "VOI1" ) );
     m_VOI2->forward( m_fiberSelection->getInputConnector( "VOI2" ) );
+
+    // forward some results
+    m_paramOutput->forward( m_voxelizer->getOutputConnector( "parameterizationOutput" ) );
+    m_voxelOutput->forward( m_gauss->getOutputConnector( "out" ) );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Done!
@@ -363,6 +367,21 @@ void WMEffectiveConnectivityCluster::connectors()
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_fiberInput );
+
+    // forwarder for some results
+    // this is the parameter field
+    m_paramOutput = boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > >(
+        new WModuleOutputForwardData< WDataSetScalar >( shared_from_this(),
+                              "param", "The voxelized fiber parameterization field." )
+        );
+    addConnector( m_paramOutput );
+
+    // this is the parameter field
+    m_voxelOutput = boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > >(
+        new WModuleOutputForwardData< WDataSetScalar >( shared_from_this(),
+                              "voxels", "The voxelized fibers." )
+        );
+    addConnector( m_voxelOutput );
 
     // call WModules initialization
     WModule::connectors();

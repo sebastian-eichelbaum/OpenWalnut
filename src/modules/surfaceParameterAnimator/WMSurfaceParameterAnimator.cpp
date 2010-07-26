@@ -92,15 +92,6 @@ void WMSurfaceParameterAnimator::connectors()
     addConnector( m_input );
 
     // and the fiber directions inside the volume
-    m_directionInput = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "directions", "The voxelized fiber directions for each voxel in the input"
-                                                                                  "\"in\"." )
-    );
-
-    // As properties, every connector needs to be added to the list of connectors.
-    addConnector( m_directionInput );
-
-    // and the fiber directions inside the volume
     m_tracesInput = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
         new WModuleInputData< WDataSetSingle >( shared_from_this(), "traces", "The voxelized fiber traces for each voxel in the input \"in\"." )
     );
@@ -219,12 +210,11 @@ osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( std::pair< 
 
 void WMSurfaceParameterAnimator::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSurfaceParameterAnimator-Beams" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSurfaceParameterAnimator-Beams", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
-    m_moduleState.add( m_directionInput->getDataChangedCondition() );
     m_moduleState.add( m_tracesInput->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
