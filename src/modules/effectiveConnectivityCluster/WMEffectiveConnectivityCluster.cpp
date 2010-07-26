@@ -212,7 +212,9 @@ void WMEffectiveConnectivityCluster::moduleMain()
     //////////////////////////////////////////////////////////////////////
 
     // create an instance using the prototypes
-    m_animation = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Surface Parameter Animator" ) );
+    m_animation = WModuleFactory::getModuleFactory()->create(
+            WModuleFactory::getModuleFactory()->getPrototypeByName( "Surface Parameter Animator" )
+    );
 
     // add to container
     add( m_animation );

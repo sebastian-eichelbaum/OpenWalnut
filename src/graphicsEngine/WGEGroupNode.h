@@ -113,7 +113,8 @@ protected:
         INSERT = 0,         //! insert the specified node
         REMOVE,             //! remove the specified node
         CLEAR               //! clear group node completely
-    }   ChildOperationType;
+    }
+    ChildOperationType;
 
     /**
      * A pair denoting an operation on this group. The boolean denotes deletion (false) or insertion (true).
