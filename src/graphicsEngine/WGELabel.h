@@ -28,10 +28,14 @@
 #include <osgText/Text>
 #include <osgText/FadeText>
 
+#include "WGELayoutableItem.h"
+
 /**
- * TODO(ebaum): write.
+ * Label layout-item. An layoutable item which displays text. This is nice for labeling elements on the screen. It can be used stand-alone (as it
+ * simply is an osgText::Text instance or in conjunction with an WGEItemLayouter.
  */
-class WGELabel: public osgText::Text
+class WGELabel: public osgText::Text,
+                       WGELayoutableItem
 {
 public:
 
@@ -50,7 +54,7 @@ public:
      *
      * \return the anchor.
      */
-    virtual osg::Vec3& getAnchor();
+    virtual osg::Vec3 getAnchor() const;
 
     /**
      * Sets the anchor point in world coordinates of this labels.

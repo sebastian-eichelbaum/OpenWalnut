@@ -22,17 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEResourceManager.h"
+#include "../common/WPathHelper.h"
 
 #include "WGELabel.h"
 
 WGELabel::WGELabel():
     osgText::Text(),
+    WGELayoutableItem(),
     m_anchor( 0.0, 0.0, 0.0 )
 {
     // initialize members
     setCharacterSize( 21 );
-    setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+    setFont( WPathHelper::getAllFonts().Default.file_string() );
     setAxisAlignment( osgText::Text::SCREEN );
     setAlignment( osgText::Text::LEFT_BOTTOM );
     setBackdropType( osgText::Text::OUTLINE );
@@ -44,7 +45,7 @@ WGELabel::~WGELabel()
     // cleanup
 }
 
-osg::Vec3& WGELabel::getAnchor()
+osg::Vec3 WGELabel::getAnchor() const
 {
     return m_anchor;
 }

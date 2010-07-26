@@ -34,7 +34,8 @@
 #include "WGELabel.h"
 
 /**
- * TODO(ebaum): write.
+ * This class contains a label layout for positioning labels at the side of the screen. There is a line from the point of interest to the label
+ * on the side of the screen.
  */
 class WGEBorderLayout: public WGEGroupNode
 {

@@ -26,7 +26,6 @@
 #include <osg/LineWidth>
 
 #include "WGraphicsEngine.h"
-#include "WGEResourceManager.h"
 
 #include "WGEBorderLayout.h"
 
