@@ -142,6 +142,11 @@ private:
      */
     boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > > m_voxelOutput;
 
+    /**
+     * The fibers used.
+     */
+    boost::shared_ptr< WModuleOutputForwardData< WDataSetFibers > > m_fiberOutput;
+
 
     boost::shared_ptr< WModule > m_fiberSelection;       //!< The fiber selection module.
     boost::shared_ptr< WModule > m_voxelizer;            //!< The voxelizer module.

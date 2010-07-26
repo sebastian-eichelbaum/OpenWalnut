@@ -175,10 +175,10 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
     // set/forward some props
     props = m_voxelizer->getProperties();
-    props->getProperty( "Center Line" )->toPropBool()->set( true );
+    props->getProperty( "Center Line" )->toPropBool()->set( false );
     props->getProperty( "active" )->toPropBool()->set( false );
     props->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
-    props->getProperty( "Display Voxels" )->toPropBool()->set( true );
+    props->getProperty( "Display Voxels" )->toPropBool()->set( false );
     props->getProperty( "Lighting" )->toPropBool()->set( false );
 
     // set longest line based parameterization
@@ -260,6 +260,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // forward some results
     m_paramOutput->forward( m_voxelizer->getOutputConnector( "parameterizationOutput" ) );
     m_voxelOutput->forward( m_gauss->getOutputConnector( "out" ) );
+    m_fiberOutput->forward( m_fiberSelection->getOutputConnector( "out" ) );
 
     //////////////////////////////////////////////////////////////////////////////////
     // Done!
@@ -290,14 +291,12 @@ void WMEffectiveConnectivityCluster::moduleMain()
         {
             break;
         }
-
         // has one of the properties changed?
         if ( m_labelActive && (
                     ( lastLabelActiveState != m_labelActive ) || m_voi1Name->changed() || m_voi2Name->changed() || m_labelCharacterSize->changed() )
            )
         {
             lastLabelActiveState = true;
-
             osg::ref_ptr< WGEBorderLayout > layouter = new WGEBorderLayout();
 
             std::string voi1 = m_voi1Name->get( true );
@@ -372,16 +371,23 @@ void WMEffectiveConnectivityCluster::connectors()
     // this is the parameter field
     m_paramOutput = boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > >(
         new WModuleOutputForwardData< WDataSetScalar >( shared_from_this(),
-                              "param", "The voxelized fiber parameterization field." )
+                              "paramOut", "The voxelized fiber parameterization field." )
         );
     addConnector( m_paramOutput );
 
-    // this is the parameter field
+    // this is the voxel field
     m_voxelOutput = boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > >(
         new WModuleOutputForwardData< WDataSetScalar >( shared_from_this(),
-                              "voxels", "The voxelized fibers." )
+                              "voxelsOut", "The voxelized fibers." )
         );
     addConnector( m_voxelOutput );
+
+    // these are the fibers
+    m_fiberOutput = boost::shared_ptr< WModuleOutputForwardData< WDataSetFibers > >(
+        new WModuleOutputForwardData< WDataSetFibers >( shared_from_this(),
+                              "fibersOut", "The voxelized fibers." )
+        );
+    addConnector( m_fiberOutput );
 
     // call WModules initialization
     WModule::connectors();
