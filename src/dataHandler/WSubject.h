@@ -70,6 +70,16 @@ public:
     typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType;
 
     /**
+     * The dataset iterator.
+     */
+    typedef DatasetContainerType::iterator DatasetIterator;
+
+    /**
+     * The dataset const iterator.
+     */
+    typedef DatasetContainerType::const_iterator DatasetConstIterator;
+
+    /**
      * Alias for the proper access object
      */
     typedef DatasetSharedContainerType::WSharedAccess DatasetAccess;
@@ -124,20 +134,19 @@ public:
      */
     void clear();
 
-// TODO(all): rethink this
-//  wiebel: I deactivated this as we want to resort thes list ... so we have to rethinks this.
-//     /**
-//      * Returns the dataset which corresponds to the specified ID. It throws an exception, if the dataset does not exists anymore.
-//      *
-//      * \ param datasetID the ID to search the dataset for
-//      *
-//      * \return the dataset.
-//      *
-//      * \throw WNoSuchDataSet in case the dataset can't be found.
-//      *
-//      * \note you should avoid this function. Do NOT store ID's. They may change.
-//      */
-//     boost::shared_ptr< WDataSet > getDataSetByID( size_t datasetID );
+    /**
+     * Returns read-access to the dataset list. As long as the returned ticket exists, the list of datasets can't be changed by others.
+     *
+     * \return the read ticket.
+     */
+    DatasetSharedContainerType::ReadTicket getDatasets() const;
+
+    /**
+     * Returns write-access to the dataset list. As long as the returned ticket exists, the list of datasets can't be changed by others.
+     *
+     * \return the write ticket.
+     */
+    DatasetSharedContainerType::WriteTicket getDatasetsForWriting() const;
 
     /**
      * This gives a list of data textures from all supporting datasets in this subject.
@@ -146,13 +155,6 @@ public:
      * \return the list of textures.
      */
     std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures( bool onlyActive = false );
-
-    /**
-     * Gets an access object which allows thread save iteration over the datasets.
-     *
-     * \return the access object.
-     */
-    DatasetAccess getAccessObject();
 
     /**
      * This condition fires whenever the list of datasets changes, or one dataset got marked as "dirty" (threshold, opacity, ...).
@@ -174,11 +176,6 @@ protected:
      * A container for all WDataSet.
      */
     DatasetSharedContainerType m_datasets;
-
-    /**
-     * The access object used for thread safe access.
-     */
-    DatasetSharedContainerType::WSharedAccess m_datasetAccess;
 
     /**
      * This condition set fires whenever one dataset gets dirty or the list of datasets changes.

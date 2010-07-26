@@ -34,6 +34,8 @@
 #include <osg/Shader>
 #include <osg/Program>
 
+#include "../common/WPathHelper.h"
+
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.
  */
@@ -42,11 +44,13 @@ class WShader: public osg::Program
 public:
 
     /**
-     * Default constructor. Loads the specified shader programs.
+     * Default constructor. Loads the specified shader programs. The path that can be specified is optional but allows modules to load their own
+     * local shaders. The search order for shader files is as follows: 1. search, 2. search/shaders, 3. WPathHelper::getShaderPath()
      *
      * \param name the name of the shader. It gets searched in the shader path.
+     * \param search the local search path. If not specified, the global shader path is used.
      */
-    explicit WShader( std::string name );
+    WShader( std::string name, boost::filesystem::path search = WPathHelper::getShaderPath() );
 
     /**
      * Destructor.
@@ -74,13 +78,13 @@ public:
     virtual void reload();
 
     /**
-     * Sets a define which is include into the shader source code.
-     * Not yet fully operational
+     * Sets a define which is include into the shader source code. This allows the preprocessor to turn on/off several parts of your code. In GLSL
+     * defines are a better choice when compared with a lot of branches (if-statements).
      *
      * \param key The name of the define
-     * \param value The value of the define.
+     * \param value The value of the define. If this is not specified, the define can be used as simple ifdef switch.
      */
-    void setDefine( std::string key, float value );
+    void setDefine( std::string key, float value = 1.0 );
 
     /**
      * Deletes a define from the internal list
@@ -88,6 +92,11 @@ public:
      * \param key The name of the define
      */
     void eraseDefine( std::string key );
+
+    /**
+     * Removes all existing defines.
+     */
+    void eraseAllDefines();
 
 protected:
 
@@ -106,7 +115,7 @@ protected:
     /**
      * String that stores the location of all shader files
      */
-    std::string m_shaderPath;
+    boost::filesystem::path m_shaderPath;
 
     /**
      * The name of the shader. It is used to construct the actual filename to load.

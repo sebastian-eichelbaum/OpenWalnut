@@ -44,7 +44,6 @@
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "../../modules/fiberDisplay/WMFiberDisplay.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
 #include "WMVoxelizer.h"
@@ -52,6 +51,9 @@
 #include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
 #include "voxelizer.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMVoxelizer )
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
@@ -293,17 +295,17 @@ void WMVoxelizer::update()
     boost::shared_ptr< WRasterAlgorithm > rasterAlgo;
     if( m_rasterAlgo->get() == std::string( "WBresenham" ) )
     {
-        rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased ) );
+        rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased->get() ) );
     }
     else if( m_rasterAlgo->get() == std::string( "WBresenhamDBL" ) )
     {
-        rasterAlgo =  boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, m_antialiased ) );
+        rasterAlgo =  boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, m_antialiased->get() ) );
     }
     else
     {
         errorLog() << "Invalid rasterization algorithm: " << m_rasterAlgo->get();
         m_rasterAlgo->set( std::string( "WBresenham" ) );
-        rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased ) );
+        rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased->get() ) );
     }
     debugLog() << "Using: " << m_rasterAlgo->get() << " as rasterization Algo.";
 

@@ -52,6 +52,9 @@
 #include "detTractClustering.xpm"
 #include "WMDetTractClustering.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDetTractClustering )
+
 WMDetTractClustering::WMDetTractClustering()
     : WModule(),
       m_lastTractsSize( 0 ),
@@ -177,7 +180,7 @@ void WMDetTractClustering::update()
         }
         catch( const WDHIOFailure& e )
         {
-            errorLog() << "Could not write dlt file. check permissions! " << e.what();
+            errorLog() << "Could not write dlt file: " << e.what();
         }
     }
     saveProgress->finish();
@@ -265,7 +268,7 @@ void WMDetTractClustering::cluster()
     {
         for( size_t r = q + 1;  r < numTracts; ++r )
         {
-            if( m_clusterIDs[q] != m_clusterIDs[r] )  // both fibs are in different clusters
+            if( m_clusterIDs[q] != m_clusterIDs[r] )  // both tracts are in different clusters
             {
                 if( !m_dLtTableExists )
                 {

@@ -37,6 +37,9 @@
 #include "../WDataSetSingle.h"
 #include "../WDataSetVector.h"
 #include "../WDataSetScalar.h"
+// TODO(philips): polish WDataSetSegmentation for check in
+// #include "../WDataSetSegmentation.h"
+#include "../WDataSetSphericalHarmonics.h"
 #include "../WDataSetRawHARDI.h"
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
@@ -88,6 +91,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 
     WAssert( header->ndim >= 3,
              "The NIfTI file contains data that has less than the three spatial dimension. OpenWalnut is not able to handle this." );
+
     int columns = header->dim[1];
     int rows = header->dim[2];
     int frames = header->dim[3];
@@ -153,89 +157,94 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
             newValueSet = boost::shared_ptr< WValueSetBase >();
     }
 
-    if( header->sform_code > 0 )
-    {
-        // method 3 (affine transform)
-        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, convertMatrix( header->sto_xyz ), header->dx, header->dy, header->dz ) );
-    }
-    else if( header->qform_code > 0 )
-    {
-        // method 2 (rigid body transform)
-        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, convertMatrix( header->qto_xyz ), header->dx, header->dy, header->dz ) );
-    }
-    else
-    {
-        // method 1 (only scaling)
-        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, header->dx, header->dy, header->dz ) );
-    }
+    newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
+                                                    columns, rows, frames,
+                                                    convertMatrix( header->qto_xyz ),
+                                                    convertMatrix( header->sto_xyz ),
+                                                    header->dx, header->dy, header->dz ) );
 
     boost::shared_ptr< WDataSet > newDataSet;
-    if( vDim == 3 )
+    // known description
+    std::string description( header->descrip );
+// TODO(philips): polish WDataSetSegmentation for check in
+//     if ( !description.compare( "WDataSetSegmentation" ) )
+//     {
+//         wlog::debug( "WLoaderNIfTI" ) << "Load as segmentation" << std::endl;
+//         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
+//     }
+//     else
+    if ( !description.compare( "WDataSetSphericalHarmonics" ) )
     {
-        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetVector( newValueSet, newGrid ) );
+        wlog::debug( "WLoaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
+        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );
     }
-    else if( vDim == 1 )
+    // unknown description
+    else
     {
-        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetScalar( newValueSet, newGrid ) );
-    }
-    else if( vDim > 20 && header->dim[ 5 ] == 1 ) // hardi data, order 1
-    {
-        std::string gradientFileName = m_fileName;
-        using wiotools::getSuffix;
-        std::string suffix = getSuffix( m_fileName );
-
-        if( suffix == ".gz" )
+        if( vDim == 3 )
         {
-            WAssert( gradientFileName.length() > 3, "" );
-            gradientFileName.resize( gradientFileName.length() - 3 );
-            suffix = getSuffix( gradientFileName );
+            newDataSet = boost::shared_ptr< WDataSet >( new WDataSetVector( newValueSet, newGrid ) );
         }
-        WAssert( suffix == ".nii", "Input file is not a nifti file." );
-
-        WAssert( gradientFileName.length() > 4, "" );
-        gradientFileName.resize( gradientFileName.length() - 4 );
-        gradientFileName += ".bvec";
-
-        // check if the file exists
-        std::ifstream i( gradientFileName.c_str() );
-        if( i.bad() || !i.is_open() )
+        else if( vDim == 1 )
         {
-            if( i.is_open() )
+            newDataSet = boost::shared_ptr< WDataSet >( new WDataSetScalar( newValueSet, newGrid ) );
+        }
+        else if( vDim > 20 && header->dim[ 5 ] == 1 ) // hardi data, order 1
+        {
+            std::string gradientFileName = m_fileName;
+            using wiotools::getSuffix;
+            std::string suffix = getSuffix( m_fileName );
+
+            if( suffix == ".gz" )
             {
-                i.close();
+                WAssert( gradientFileName.length() > 3, "" );
+                gradientFileName.resize( gradientFileName.length() - 3 );
+                suffix = getSuffix( gradientFileName );
             }
-            // cannot find the appropriate gradient vectors, build a dataSetSingle instead of hardi
-            newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
+            WAssert( suffix == ".nii", "Input file is not a nifti file." );
+
+            WAssert( gradientFileName.length() > 4, "" );
+            gradientFileName.resize( gradientFileName.length() - 4 );
+            gradientFileName += ".bvec";
+
+            // check if the file exists
+            std::ifstream i( gradientFileName.c_str() );
+            if( i.bad() || !i.is_open() )
+            {
+                if( i.is_open() )
+                {
+                    i.close();
+                }
+                // cannot find the appropriate gradient vectors, build a dataSetSingle instead of hardi
+                newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
+            }
+            else
+            {
+                // read gradients, there should be 3 * vDim values in the file
+                typedef std::vector< wmath::WVector3D > GradVec;
+                boost::shared_ptr< GradVec > newGradients = boost::shared_ptr< GradVec >( new GradVec( vDim ) );
+
+                // the file should contain the x-coordinates in line 0, y-coordinates in line 1,
+                // z-coordinates in line 2
+                for( unsigned int j = 0; j < 3; ++j )
+                {
+                    for( unsigned int k = 0; k < vDim; ++k )
+                    {
+                        i >> newGradients->operator[] ( k )[ j ];
+                    }
+                }
+                bool success = !i.eof();
+                i.close();
+
+                WAssert( success, "Gradient file did not contain enough gradients." );
+
+                newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients ) );
+            }
         }
         else
         {
-            // read gradients, there should be 3 * vDim values in the file
-            typedef std::vector< wmath::WVector3D > GradVec;
-            boost::shared_ptr< GradVec > newGradients = boost::shared_ptr< GradVec >( new GradVec( vDim ) );
-
-            // the file should contain the x-coordinates in line 0, y-coordinates in line 1,
-            // z-coordinates in line 2
-            for( unsigned int j = 0; j < 3; ++j )
-            {
-                for( unsigned int k = 0; k < vDim; ++k )
-                {
-                    i >> newGradients->operator[] ( k )[ j ];
-                }
-            }
-            bool success = !i.eof();
-            i.close();
-
-            WAssert( success, "Gradient file did not contain enough gradients." );
-
-            newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients ) );
+            newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
         }
-    }
-    else
-    {
-        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
     }
     newDataSet->setFileName( m_fileName );
 

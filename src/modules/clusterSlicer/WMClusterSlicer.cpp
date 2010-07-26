@@ -33,6 +33,9 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WMClusterSlicer.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMClusterSlicer )
+
 WMClusterSlicer::WMClusterSlicer()
     : WModule(),
       m_rootNode( osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() ) )

@@ -76,6 +76,35 @@ public:
      */
     virtual void gotRemoved();
 
+    /**
+     * The name of the input represented by this item.
+     *
+     * \return handled input
+     */
+    std::string getHandledInput() const;
+
+    /**
+     * Sets the name of the input represented by this item.
+     *
+     * \param in the input name.
+     */
+    void setHandledInput( std::string in );
+
+    /**
+     * The name of the output represented by this item.
+     *
+     * \return handled output
+     */
+    std::string getHandledOutput() const;
+
+    /**
+     * Sets the name of the output represented by this item.
+     *
+     * \param out the output name.
+     */
+    void setHandledOutput( std::string out );
+
+
 public slots:
 
     /**
@@ -117,12 +146,32 @@ protected:
      */
     bool m_needPostDeleteEvent;
 
+    /**
+     * The property containing the name of the module.
+     */
+    WPropString m_nameProp;
+
+    /**
+     * The name of the input connector represented by this item.
+     */
+    std::string m_handledInput;
+
+    /**
+     * The output name handled by this item
+     */
+    std::string m_handledOutput;
+
 private:
 
     /**
      * The module represented by this tree item.
      */
     boost::shared_ptr< WModule > m_module;
+
+    /**
+     * Called when the name property changes.
+     */
+    void nameChanged();
 };
 
 #endif  // WQTTREEITEM_H

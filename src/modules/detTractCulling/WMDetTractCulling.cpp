@@ -42,6 +42,9 @@
 #include "detTractCulling.xpm"
 #include "WMDetTractCulling.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDetTractCulling )
+
 WMDetTractCulling::WMDetTractCulling()
     : WModule(),
       m_recompute( new WCondition() )

@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -33,6 +35,7 @@
 #include "WGEGeodeUtils.h"
 #include "WGEUtils.h"
 #include "../common/math/WPosition.h"
+#include "../common/WPathHelper.h"
 
 
 osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color )
@@ -261,4 +264,39 @@ osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const wmath::WLine& line
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
     return geode;
+}
+
+osg::ref_ptr< osg::PositionAttitudeTransform > wge::addLabel( osg::Vec3 position, std::string text )
+{
+    osg::ref_ptr< osgText::Text > label = osg::ref_ptr< osgText::Text >( new osgText::Text() );
+    osg::ref_ptr< osg::Geode > labelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
+
+    labelGeode->addDrawable( label );
+
+    // setup font
+    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    label->setBackdropType( osgText::Text::OUTLINE );
+    label->setCharacterSize( 6 );
+
+    label->setText( text );
+    label->setAxisAlignment( osgText::Text::SCREEN );
+    label->setDrawMode( osgText::Text::TEXT );
+    label->setAlignment( osgText::Text::CENTER_TOP );
+    label->setPosition( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    label->setColor( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
+    osg::ref_ptr< osg::PositionAttitudeTransform > labelXform =
+        osg::ref_ptr< osg::PositionAttitudeTransform >( new osg::PositionAttitudeTransform() );
+    labelXform->setPosition( position );
+
+    labelXform->addChild( labelGeode );
+
+    return labelXform;
+}
+
+osg::ref_ptr< osg::PositionAttitudeTransform > wge::vector2label( osg::Vec3 position )
+{
+    std::string label = "(" + boost::lexical_cast< std::string >( position[0] ) + "," +
+    boost::lexical_cast< std::string >( position[1] ) + "," + boost::lexical_cast< std::string >( position[2] ) + ")";
+    return ( addLabel( position, label ) );
 }

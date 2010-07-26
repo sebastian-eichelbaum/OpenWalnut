@@ -33,6 +33,7 @@
 #include <cmath>
 
 #include "../../common/WAssert.h"
+#include "../../common/WPathHelper.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
@@ -40,6 +41,9 @@
 #include "../../common/math/WVector3D.h"
 #include "../../dataHandler/io/nifti/nifti1_io.h"
 #include "WMWriteNIfTI.h"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMWriteNIfTI )
 
 WMWriteNIfTI::WMWriteNIfTI() :
     WModule()
@@ -127,7 +131,7 @@ void WMWriteNIfTI::connectors()
 void WMWriteNIfTI::properties()
 {
     m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
-                                             WKernel::getAppPathObject() );
+                                             WPathHelper::getAppPath() );
     m_saveTriggerProp = m_properties->addProperty( "Do Save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
@@ -221,10 +225,30 @@ void WMWriteNIfTI::writeToFile()
             castData< unsigned char > ( data );
             outField->nbyper = 1;
             break;
+        case W_DT_INT8:
+            outField->datatype = DT_INT8;
+            castData< char > ( data );
+            outField->nbyper = 1;
+            break;
         case W_DT_UINT16:
             outField->datatype = DT_UINT16;
             castData< uint16_t > ( data );
             outField->nbyper = 2;
+            break;
+        case W_DT_INT16:
+            outField->datatype = DT_INT16;
+            castData< int16_t > ( data );
+            outField->nbyper = 2;
+            break;
+        case W_DT_UINT32:
+            outField->datatype = DT_UINT32;
+            castData< uint32_t > ( data );
+            outField->nbyper = 4;
+            break;
+        case W_DT_SIGNED_INT:
+            outField->datatype = DT_SIGNED_INT;
+            castData< int32_t > ( data );
+            outField->nbyper = 4;
             break;
         default:
             WAssert( false, "Data set type not yet supported." );

@@ -31,27 +31,28 @@
 #include <QtGui/QIcon>
 
 /**
- * class to store and handle access to all available icons
+ * Manages icon access. Icons stored either here inside or inside of modules.
  */
 class WIconManager
 {
 public:
     /**
-     * function to add an Icon to the icon store
-     * \param name the icon's name
-     * \param xpm the icon itself in XPM format
+     * Adds an Icon to the icon store
+     * \param name The icon's name
+     * \param xpm The icon itself in XPM format
      */
     void addIcon( std::string name, const char* const xpm[] );
 
     /**
-     * returns a previously stored icon
-     * \param name name of the requested icon
+     * Searches icons in the internal map and all modules for the given icon name.
+     * \param name Name of the requested icon
+     * \return A QIcon copy if the icon name was found otherwise a WAssert will fail.
      */
     QIcon getIcon( const std::string name );
 
 protected:
 private:
-    std::map< std::string, QIcon* >m_iconList; //!< A map storing icons and the names used to identify them
+    std::map< std::string, QIcon* > m_iconList; //!< A map storing icons and the names used to identify them
 };
 
 #endif  // WICONMANAGER_H

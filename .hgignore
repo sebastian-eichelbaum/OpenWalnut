@@ -24,6 +24,9 @@ syntax: regexp
 ^src/tags
 ^src/cscope.out
 
+# files geneterated by build system
+^src/version.h
+
 # local vim rc
 ^lvimrc
 

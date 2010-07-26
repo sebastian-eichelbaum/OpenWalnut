@@ -102,8 +102,7 @@ public:
         TS_ASSERT_THROWS( p->addProperty( "4/5", "test4", 1.0 ), WPropertyNameMalformed );
 
         // this should have created 3 props
-        // NOTE: we can use the propAccess directly here since there is no multi--threading in this test
-        TS_ASSERT( p->m_propAccess->get().size() == 3 );
+        TS_ASSERT( p->m_properties.getReadTicket()->get().size() == 3 );
 
         // ensure that it has created the correct types:
         TS_ASSERT( p1->getType() == PV_BOOL );
@@ -129,12 +128,11 @@ public:
         boost::shared_ptr< WPropertyBase > p3 = p->addProperty( "3", "test3", 1.0 );
 
         // this should have created 3 props
-        // NOTE: we can use the propAccess directly here since there is no multi--threading in this test
-        TS_ASSERT( p->m_propAccess->get().size() == 3 );
+        TS_ASSERT( p->m_properties.getReadTicket()->get().size() == 3 );
 
         // clear
         TS_ASSERT_THROWS_NOTHING( p->clear() );
-        TS_ASSERT( p->m_propAccess->get().size() == 0 );
+        TS_ASSERT( p->m_properties.getReadTicket()->get().size() == 0 );
 
         // multiple clear should not cause any error
         TS_ASSERT_THROWS_NOTHING( p->clear() );
@@ -155,16 +153,15 @@ public:
         boost::shared_ptr< WPropertyBase > p3 = p->addProperty( "3", "test3", 1.0 );
 
         // this should have created 3 props
-        // NOTE: we can use the propAccess directly here since there is no multi--threading in this test
-        TS_ASSERT( p->m_propAccess->get().size() == 3 );
+        TS_ASSERT( p->m_properties.getReadTicket()->get().size() == 3 );
 
         // remove a property
         TS_ASSERT_THROWS_NOTHING( p->removeProperty( p2 ) );
-        TS_ASSERT( p->m_propAccess->get().size() == 2 );
+        TS_ASSERT( p->m_properties.getReadTicket()->get().size() == 2 );
 
         // remove a prop which is not in the list
         TS_ASSERT_THROWS_NOTHING( p->removeProperty( p2 ) );
-        TS_ASSERT( p->m_propAccess->get().size() == 2 );
+        TS_ASSERT( p->m_properties.getReadTicket()->get().size() == 2 );
     }
 
 
@@ -291,8 +288,8 @@ public:
 
         // update of property list does not modify the original
         clone->addProperty( "1", "test1", 1.0 );
-        TS_ASSERT( clone->m_propAccess->get().size() == 1 );
-        TS_ASSERT( orig->m_propAccess->get().size() == 0 );
+        TS_ASSERT( clone->m_properties.getReadTicket()->get().size() == 1 );
+        TS_ASSERT( orig->m_properties.getReadTicket()->get().size() == 0 );
 
         // does the condition fire on add?
         // first, register some callbacks to test it
@@ -323,11 +320,13 @@ public:
         boost::shared_ptr< WProperties > cloneClone = clone->clone()->toPropGroup();
 
         // same size?
-        TS_ASSERT( clone->m_propAccess->get().size() == 2 );
-        TS_ASSERT( cloneClone->m_propAccess->get().size() == 2 );
+        TS_ASSERT( clone->m_properties.getReadTicket()->get().size() == 2 );
+        TS_ASSERT( cloneClone->m_properties.getReadTicket()->get().size() == 2 );
+
+        WProperties::PropertySharedContainerType::ReadTicket t = clone->getProperties();
 
         // iterate the original and check that there exists a cloned property in the cloned one
-        for ( WProperties::PropertyConstIterator iter = clone->m_propAccess->get().begin(); iter != clone->m_propAccess->get().end(); ++iter )
+        for ( WProperties::PropertyConstIterator iter = t->get().begin(); iter != t->get().end(); ++iter )
         {
             // ensure there is a corresponding property in cloneClone
             boost::shared_ptr< WPropertyBase > p = cloneClone->findProperty( ( *iter )->getName() );

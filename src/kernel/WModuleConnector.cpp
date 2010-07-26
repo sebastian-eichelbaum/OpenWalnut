@@ -39,13 +39,16 @@
 #include <boost/signals2/connection.hpp>
 
 #include "WModule.h"
+#include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
+#include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
+#include "combiner/WDisconnectCombiner.h"
 #include "exceptions/WModuleConnectionFailed.h"
 #include "exceptions/WModuleConnectionInvalid.h"
+#include "exceptions/WModuleConnectorsIncompatible.h"
 #include "exceptions/WModuleDisconnectFailed.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
-#include "exceptions/WModuleConnectorsIncompatible.h"
-#include "WModuleConnectorSignals.h"
 
 #include "WModuleConnector.h"
 
@@ -127,13 +130,15 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     // check whether they are already connected
     if ( isConnectedTo( con ) )
     {
-        // is this worth an exception?
+        WLogger::getLogger()->addLogMessage( con->getCanonicalName() + " and " + getCanonicalName() + " are already connected.",
+                                             "ModuleContainer (" + containerName + ")", LL_INFO );
         return;
     }
 
     boost::unique_lock<boost::shared_mutex> lock;
     try
     {
+        // TODO(ebaum): really ensure that only one connection is possible for inputs...
         // add to list
         lock = boost::unique_lock<boost::shared_mutex>( m_connectionListLock );
         m_connected.insert( con );
@@ -215,12 +220,26 @@ const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONN
     return module->getSignalHandler( signal );
 }
 
+boost::shared_ptr< WModule > WModuleConnector::getModule() const
+{
+    return m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+}
+
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
 {
+    boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+    boost::shared_ptr< WModuleContainer > container = module->getAssociatedContainer();
+    std::string containerName = container.get() ? container->getName() : "Unknown";
+
     if ( !isConnectedTo( con ) )
     {
+        WLogger::getLogger()->addLogMessage( "Could not disconnect " + con->getCanonicalName() + " from " + getCanonicalName() + " as they are"+
+                                             " not connected.", "ModuleContainer (" + containerName + ")", LL_INFO );
         return;
     }
+
+    WLogger::getLogger()->addLogMessage( "Disconnecting " + con->getCanonicalName() + " from " + getCanonicalName(),
+                                         "ModuleContainer (" + containerName + ")", LL_INFO );
 
     // write lock
     boost::unique_lock<boost::shared_mutex> lock;
@@ -315,6 +334,24 @@ void WModuleConnector::setName( std::string name )
     m_name = name;
 }
 
+WCombinerTypes::WOneToOneCombiners WModuleConnector::getPossibleDisconnections()
+{
+    WCombinerTypes::WOneToOneCombiners l;
+
+    // acquire read lock
+    boost::shared_lock<boost::shared_mutex> rlock( m_connectionListLock );
+
+    // for each connector
+    for( std::set<boost::shared_ptr<WModuleConnector> >::iterator listIter = m_connected.begin(); listIter != m_connected.end(); ++listIter )
+    {
+        // simply create the combiner
+        l.push_back( boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner( shared_from_this(), ( *listIter ) ) ) );
+    }
+    rlock.unlock();
+
+    return l;
+}
+
 void WModuleConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
 {
     // by default: do nothing.
@@ -323,5 +360,15 @@ void WModuleConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleCon
 void WModuleConnector::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
 {
     // do nothing by default
+}
+
+boost::shared_ptr< WModuleInputConnector > WModuleConnector::toInputConnector()
+{
+    return boost::shared_dynamic_cast< WModuleInputConnector >( shared_from_this() );
+}
+
+boost::shared_ptr< WModuleOutputConnector > WModuleConnector::toOutputConnector()
+{
+    return boost::shared_dynamic_cast< WModuleOutputConnector >( shared_from_this() );
 }
 

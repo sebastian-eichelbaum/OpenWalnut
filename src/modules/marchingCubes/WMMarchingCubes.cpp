@@ -41,6 +41,7 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
+#include "../../common/WPathHelper.h"
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
 #include "../../common/math/WVector3D.h"
@@ -55,6 +56,8 @@
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "WMMarchingCubes.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMMarchingCubes )
 
 WMMarchingCubes::WMMarchingCubes():
     WModule(),
@@ -170,14 +173,14 @@ void WMMarchingCubes::connectors()
     // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar > >(
         new WModuleInputData< WDataSetScalar >( shared_from_this(),
-                                                               "in", "Dataset to compute isosurface for." )
+                                                               "values", "Dataset to compute isosurface for." )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
     m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >(
-            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(), "out", "The mesh representing the isosurface." ) );
+            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(), "surface mesh", "The mesh representing the isosurface." ) );
 
     addConnector( m_output );
 
@@ -218,7 +221,7 @@ void WMMarchingCubes::properties()
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WKernel::getAppPathObject() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -441,7 +444,7 @@ void WMMarchingCubes::renderMesh()
     // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
     m_textureChanged = true;
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "surface" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMMarchingCubes", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );

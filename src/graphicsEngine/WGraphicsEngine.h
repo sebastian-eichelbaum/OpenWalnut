@@ -79,38 +79,9 @@ public:
     osg::ref_ptr<WGEScene> getScene();
 
     /**
-     * Return the path where the shaders are expected to be located.
-     *
-     * \return shader path
-     */
-    std::string getShaderPath() const;
-
-    /**
-     * Sets the shader path.
-     *
-     * \param path path to shaders.
-     */
-    void setShaderPath( std::string path );
-
-    /**
-     * Return the path where the fonts are expected to be located.
-     *
-     * \return font path
-     */
-    std::string getFontPath() const;
-
-    /**
-     * Sets the font path.
-     *
-     * \param path path to fonts.
-     */
-    void setFontPath( std::string path );
-
-    /**
      * Creates a new viewer. Does basic initialization and sets the default scene.
      *
      * \param name the name of the viewer
-     * \param wdata the WindowData instance for the widget to use as render widget
      * \param x X coordinate of widget where to create the context.
      * \param y Y coordinate of widget where to create the context.
      * \param width Width of the widget.
@@ -120,7 +91,7 @@ public:
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    boost::shared_ptr< WGEViewer > createViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
+    boost::shared_ptr< WGEViewer > createViewer( std::string name, int x, int y,
                                                int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
                                                WColor bgColor = WColor( .9, .9, .9 ) );
 
@@ -145,15 +116,6 @@ public:
      * \return the viewer for the default scene.
      */
     boost::shared_ptr< WGEViewer > getViewer();
-
-    /**
-     * Returns the currently selected default font usable in osgText nodes.
-     *
-     * \return Filename of the default font.
-     *
-     * \note this also contains the absolute path.
-     */
-    std::string getDefaultFont();
 
     /**
      * Returns instance of the graphics engine. If it does not exists, it will be created.
@@ -203,13 +165,6 @@ protected:
      * Mutex used to lock the map of viewers.
      */
     boost::mutex m_viewersLock;
-
-    /**
-     * Path to the shaders.
-     */
-    std::string m_shaderPath;
-
-    std::string m_fontPath; //!< Path where the fonts are expected.
 
     /**
      * OpenSceneGraph composite viewer. Contains all created osgViewer::Views.

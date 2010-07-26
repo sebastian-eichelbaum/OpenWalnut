@@ -37,6 +37,9 @@
 #include "WMLIC.h"
 #include "lic.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMLIC )
+
 WMLIC::WMLIC()
     : WModule(),
       m_moduleNode( new WGEGroupNode() ),
@@ -152,7 +155,7 @@ void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     }
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "licMeshRenderer" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMLIC", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
@@ -228,18 +231,16 @@ boost::shared_ptr< WDataSetVector > WMLIC::searchVectorDS() const
         return result;
     }
 
-    WSubject::DatasetAccess da = subject->getAccessObject();
-    da->beginRead();
+    // This lock gets unlocked if it is destroyed ( looses scope )
+    WSubject::DatasetSharedContainerType::ReadTicket da = subject->getDatasets();
 
-    for( std::vector< boost::shared_ptr< WDataSet > >::iterator it = da->get().begin(); it != da->get().end(); ++it )
+    for( WSubject::DatasetConstIterator it = da->get().begin(); it != da->get().end(); ++it )
     {
         if( ( *it )->isVectorDataSet() )
         {
-            da->endRead();
             return ( *it )->isVectorDataSet();
         }
     }
-    da->endRead();
 
     return result;
 }

@@ -23,49 +23,53 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <boost/thread.hpp>
 
 #include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QSlider>
-#include <QtGui/QShortcut>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenuBar>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
+#include <QtGui/QMessageBox>
+#include <QtGui/QShortcut>
+#include <QtGui/QSlider>
+#include <QtGui/QVBoxLayout>
 
-#include "WMainWindow.h"
-#include "WOpenCustomDockWidgetEvent.h"
-#include "WQtGLWidget.h"
-#include "WQtNavGLWidget.h"
-#include "WQtCustomDockWidget.h"
-#include "events/WModuleReadyEvent.h"
-#include "events/WModuleCrashEvent.h"
-#include "events/WEventTypes.h"
-#include "datasetbrowser/WPropertyBoolWidget.h"
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WProjectFile.h"
-#include "../../modules/data/WMData.h"
-#include "../../modules/navSlices/WMNavSlices.h"
-
-#include "../../dataHandler/WEEG2.h"
-#include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataSetFibers.h"
-
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WEEG2.h"
 #include "../../graphicsEngine/WROIBox.h"
-
+#include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleCombiner.h"
+#include "../../kernel/WModuleCombinerTypes.h"
+#include "../../kernel/WProjectFile.h"
+#include "../../kernel/modules/data/WMData.h"
+#include "../../kernel/modules/navSlices/WMNavSlices.h"
 #include "../icons/WIcons.h"
+#include "datasetbrowser/WPropertyBoolWidget.h"
+#include "events/WEventTypes.h"
+#include "events/WModuleCrashEvent.h"
+#include "events/WModuleReadyEvent.h"
+#include "events/WOpenCustomDockWidgetEvent.h"
+#include "guiElements/WQtPropertyBoolAction.h"
+#include "WQtCustomDockWidget.h"
+#include "WQtGLWidget.h"
+#include "WQtNavGLWidget.h"
+
+#include "WMainWindow.h"
 
 WMainWindow::WMainWindow() :
     QMainWindow(),
+    m_currentCompatiblesToolbar( NULL ),
     m_iconManager(),
     m_fibLoaded( false )
 {
@@ -82,11 +86,13 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
     m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
+    m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
 
     if( objectName().isEmpty() )
     {
         setObjectName( QString::fromUtf8( "MainWindow" ) );
     }
+    // TODO(all): what is this?
     resize( 946, 632 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
@@ -97,12 +103,41 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "Default Subject" );
 
+    // set the size of the dsb according to config file
+    int dsbWidth = 250;
+    if ( WPreferences::getPreference( "qt4gui.dsbWidth", &dsbWidth ) )
+    {
+        m_datasetBrowser->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+        m_datasetBrowser->setMinimumWidth( dsbWidth );
+    }
+
+    // hide the DSB by default?
+    bool dsbInvisibleByDefault = false;
+    if ( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &dsbInvisibleByDefault ) )
+    {
+        m_datasetBrowser->setVisible( !dsbInvisibleByDefault );
+    }
+
+    // undock the DSB by default?
+    bool dsbFloatingByDefault = false;
+    if ( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &dsbFloatingByDefault ) )
+    {
+        m_datasetBrowser->setFloating( dsbFloatingByDefault );
+    }
+
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
     // QKeySequence::StandardKey defaults and avoid ambiguities like Ctrl-C for the configure dialog is not the best choice as Ctrl-C, for the
     // most users is the Copy shortcut.
 
     m_menuBar = new QMenuBar( this );
+
+    // hide menu?
+    bool hideMenu = false;
+    WPreferences::getPreference( "qt4gui.hideMenuBar", &hideMenu );
+    m_menuBar->setVisible( !hideMenu );
+
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
+
     fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load Dataset", this, SLOT( openLoadDialog() ), QKeySequence(  QKeySequence::Open ) );
     fileMenu->addSeparator();
     fileMenu->addAction( "Load Project", this, SLOT( projectLoad() ) );
@@ -128,16 +163,17 @@ void WMainWindow::setupGUI()
     dsbTrigger->setShortcuts( dsbShortcut );
     viewMenu->addAction( dsbTrigger );
     viewMenu->addSeparator();
+    this->addAction( dsbTrigger );  // this enables the action even if the menu bar is invisible
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
-    viewMenu->addAction( "Left", this, SLOT( openNotImplementedDialog() ),      QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
-    viewMenu->addAction( "Right", this, SLOT( openNotImplementedDialog() ),     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
-    viewMenu->addAction( "Superior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
-    viewMenu->addAction( "Inferior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
-    viewMenu->addAction( "Anterior", this, SLOT( openNotImplementedDialog() ),  QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
-    viewMenu->addAction( "Posterior", this, SLOT( openNotImplementedDialog() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    viewMenu->addAction( "Left", this, SLOT( setPresetViewLeft() ),           QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
+    viewMenu->addAction( "Right", this, SLOT( setPresetViewRight() ),         QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    viewMenu->addAction( "Superior", this, SLOT( setPresetViewSuperior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    viewMenu->addAction( "Inferior", this, SLOT( setPresetViewInferior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    viewMenu->addAction( "Anterior", this, SLOT( setPresetViewAnterior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ),
@@ -146,12 +182,7 @@ void WMainWindow::setupGUI()
 
     setMenuBar( m_menuBar );
 
-    m_centralwidget = new QWidget( this );
-    m_centralwidget->setObjectName( QString::fromUtf8( "centralwidget" ) );
-    setCentralWidget( m_centralwidget );
-
     m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    m_mainGLWidget->initialize();
     setCentralWidget( m_mainGLWidget.get() );
 
     // initially 3 navigation views
@@ -215,21 +246,23 @@ void WMainWindow::setupGUI()
     }
 
     setupPermanentToolBar();
-
-    setupCompatiblesToolBar();
 }
 
 void WMainWindow::setupPermanentToolBar()
 {
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
 
+    // Set the style of the toolbar
+    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
+    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
+
     m_iconManager.addIcon( std::string( "ROI" ), box_xpm );
     m_iconManager.addIcon( std::string( "axial" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
 
-
-    WQtPushButton* loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    // TODO(all): this should be QActions to allow the toolbar style to work properly
+    m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
@@ -243,26 +276,38 @@ void WMainWindow::setupPermanentToolBar()
     projectSaveButton->setPopupMode( QToolButton::MenuButtonPopup );
     projectSaveButton->setMenu( saveMenu );
 
-    connect( loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( m_loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
     connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
 
-    loadButton->setToolTip( "Load Data" );
+    m_loadButton->setToolTip( "Load Data" );
     roiButton->setToolTip( "Create New ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
 
-    m_permanentToolBar->addWidget( loadButton );
+    m_permanentToolBar->addWidget( m_loadButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( projectLoadButton );
     m_permanentToolBar->addWidget( projectSaveButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addWidget( roiButton );
-
     m_permanentToolBar->addSeparator();
 
-    addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+    if ( getToolbarPos() == InDSB )
+    {
+        m_datasetBrowser->addToolbar( m_permanentToolBar );
+        //m_datasetBrowser->setTitleBarWidget( m_permanentToolBar );
+    }
+    else if ( getToolbarPos() == Hide )
+    {
+        m_permanentToolBar->setVisible( false );
+        addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+    }
+    else
+    {
+        addToolBar( toQtToolBarArea( getToolbarPos() ), m_permanentToolBar );
+    }
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
@@ -333,11 +378,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
-            button->setToolTip( "Toggle Axial Slice" );
-            button->getButton()->setMaximumSize( 24, 24 );
-            button->getButton()->setIcon( m_iconManager.getIcon( "axial" ) );
-            m_permanentToolBar->addWidget( button );
+            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
+            a->setToolTip( "Toggle Axial Slice" );
+            a->setText( "Toggle Axial Slice" );
+            a->setIcon( m_iconManager.getIcon( "axial" ) );
+            m_permanentToolBar->addAction( a );
         }
 
         prop = module->getProperties()->findProperty( "showCoronal" );
@@ -349,11 +394,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
-            button->setToolTip( "Toggle Coronal Slice" );
-            button->getButton()->setMaximumSize( 24, 24 );
-            button->getButton()->setIcon( m_iconManager.getIcon( "coronal" ) );
-            m_permanentToolBar->addWidget( button );
+            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
+            a->setToolTip( "Toggle Coronal Slice" );
+            a->setText( "Toggle Coronal Slice" );
+            a->setIcon( m_iconManager.getIcon( "coronal" ) );
+            m_permanentToolBar->addAction( a );
         }
 
         prop = module->getProperties()->findProperty( "showSagittal" );
@@ -365,11 +410,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
         else
         {
-            WPropertyBoolWidget* button = new WPropertyBoolWidget( prop->toPropBool(), NULL, m_permanentToolBar, true );
-            button->setToolTip( "Toggle Sagittal Slice" );
-            button->getButton()->setMaximumSize( 24, 24 );
-            button->getButton()->setIcon( m_iconManager.getIcon( "sagittal" ) );
-            m_permanentToolBar->addWidget( button );
+            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
+            a->setToolTip( "Toggle Saggital Slice" );
+            a->setText( "Toggle Saggital Slice" );
+            a->setIcon( m_iconManager.getIcon( "sagittal" ) );
+            m_permanentToolBar->addAction( a );
         }
 
         // now setup the nav widget sliders
@@ -420,11 +465,86 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     }
 }
 
-void WMainWindow::setupCompatiblesToolBar()
+Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
 {
-    m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
+    // this sets the toolbar style
+    int toolBarStyle = 0;
+    WPreferences::getPreference( "qt4gui.toolBarStyle", &toolBarStyle );
+    if ( ( toolBarStyle < 0 ) || ( toolBarStyle > 3 ) ) // ensure a valid value
+    {
+        toolBarStyle = 0;
+    }
 
-    m_compatiblesToolBar = new WQtToolBar( "Compatible Modules Toolbar", this );
+    // cast and return
+    return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
+}
+
+WMainWindow::ToolBarPosition WMainWindow::getToolbarPos()
+{
+    int toolbarPos = 0;
+    WPreferences::getPreference( "qt4gui.toolBarPos", &toolbarPos );
+    return static_cast< ToolBarPosition >( toolbarPos );
+}
+
+WMainWindow::ToolBarPosition WMainWindow::getCompatiblesToolbarPos()
+{
+    int compatiblesToolbarPos = 0;
+    if ( !WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos ) )
+    {
+        return getToolbarPos();
+    }
+
+    return static_cast< ToolBarPosition >( compatiblesToolbarPos );
+}
+
+Qt::ToolBarArea WMainWindow::toQtToolBarArea( ToolBarPosition pos )
+{
+    switch ( pos )
+    {
+        case Top:
+            return Qt::TopToolBarArea;
+            break;
+        case Bottom:
+            return Qt::BottomToolBarArea;
+            break;
+        case Left:
+            return Qt::LeftToolBarArea;
+            break;
+        case Right:
+            return Qt::RightToolBarArea;
+            break;
+        case InDSB:
+            return Qt::RightToolBarArea;
+        default:
+            return Qt::NoToolBarArea;
+            break;
+      }
+}
+
+void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
+{
+    if ( m_currentCompatiblesToolbar )
+    {
+        delete m_currentCompatiblesToolbar;
+    }
+    m_currentCompatiblesToolbar = toolbar;
+
+    // hide it?
+    if ( getCompatiblesToolbarPos() == Hide )
+    {
+        if ( toolbar )
+        {
+            toolbar->setVisible( false );
+        }
+        return;
+    }
+
+    if ( !toolbar )
+    {
+        // ok, reset the toolbar
+        // So create a dummy to permanently reserve the space
+        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this, WCombinerTypes::WCompatiblesList() );
+    }
 
     // optional toolbar break
     {
@@ -432,25 +552,17 @@ void WMainWindow::setupCompatiblesToolBar()
         WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
         if( useToolBarBreak )
         {
-            // Blank toolbar for nicer layout in case of toolbar break
-            // This can be done nicer very probably.
-            WQtToolBar* blankToolBar = new WQtToolBar( "Blank Toolbar", this );
-            addToolBar( Qt::TopToolBarArea, blankToolBar );
-            addToolBarBreak( Qt::TopToolBarArea );
+            addToolBarBreak( toQtToolBarArea( getCompatiblesToolbarPos() ) );
         }
     }
 
-    addToolBar( Qt::TopToolBarArea, m_compatiblesToolBar );
+    // and the position of the toolbar
+    addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
 }
 
 WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
 {
     return m_datasetBrowser;
-}
-
-WQtToolBar* WMainWindow::getCompatiblesToolBar()
-{
-    return m_compatiblesToolBar;
 }
 
 void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
@@ -584,7 +696,7 @@ void WMainWindow::openLoadDialog()
     }
 
     //
-    // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
+    // WE KNOW THAT THIS IS KIND OF A HACK. It is only provided to prevent naive users from having trouble.
     //
     bool allowOnlyOneFiberDataSet = false;
     bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
@@ -610,6 +722,9 @@ void WMainWindow::openLoadDialog()
     {
         m_loaderSignal( stdFileNames );
     }
+
+    // walkaround that a button keeps his down state after invoking a dialog
+    m_loadButton->setDown( false );
 }
 
 void WMainWindow::openAboutDialog()
@@ -625,6 +740,60 @@ void WMainWindow::openAboutDialog()
                         "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
                         "\n"
                         "Thank you for using OpenWalnut." );
+}
+
+void WMainWindow::setPresetViewLeft()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0.5, -0.5, -0.5, 0.5 );
+    cm->setRotation( q );
+}
+
+void WMainWindow::setPresetViewRight()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( -0.5, -0.5, -0.5, -0.5 );
+    cm->setRotation( q );
+}
+
+void WMainWindow::setPresetViewSuperior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0., 0., 0., 1 );
+    cm->setRotation( q );
+}
+
+void WMainWindow::setPresetViewInferior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0., -1., 0., 0. );
+    cm->setRotation( q );
+}
+
+void WMainWindow::setPresetViewAnterior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0., -0.707107, -0.707107, 0. );
+    cm->setRotation( q );
+}
+
+void WMainWindow::setPresetViewPosterior()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0.707107, 0., 0., 0.707107 );
+    cm->setRotation( q );
 }
 
 void WMainWindow::openNotImplementedDialog()

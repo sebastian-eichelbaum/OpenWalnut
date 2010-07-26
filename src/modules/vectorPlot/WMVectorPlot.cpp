@@ -36,10 +36,13 @@
 #include "WMVectorPlot.h"
 #include "vectorplot.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMVectorPlot )
+
 WMVectorPlot::WMVectorPlot():
     WModule()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "vectorplot" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMVectorPlot", m_localPath ) );
 }
 
 WMVectorPlot::~WMVectorPlot()
@@ -145,7 +148,10 @@ void WMVectorPlot::moduleMain()
             osg::ref_ptr< osg::Geode > newRootNode = new osg::Geode();
 
             newRootNode->addDrawable( buildPlotSlices() );
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+            if( m_rootNode )
+            {
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+            }
 
             ++*progress;
 

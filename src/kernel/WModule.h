@@ -29,12 +29,14 @@
 #include <string>
 #include <typeinfo>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/signals2/signal.hpp>
-#include <boost/function.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/thread.hpp>
 
+#include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 #include "WModuleTypes.h"
@@ -43,19 +45,19 @@
 #include "../dataHandler/WDataSetSingle.h"
 #include "../dataHandler/WValueSet.h"
 
-#include "../common/WLogger.h"
-#include "../common/WProperties.h"
-#include "../common/WProgressCombiner.h"
-#include "../common/WProgress.h"
-#include "../common/WThreadedRunner.h"
-#include "../common/WPrototyped.h"
 #include "../common/WConditionSet.h"
+#include "../common/WLogger.h"
+#include "../common/WProgress.h"
+#include "../common/WProgressCombiner.h"
+#include "../common/WProperties.h"
+#include "../common/WPrototyped.h"
+#include "../common/WThreadedRunner.h"
 
 class WModuleConnector;
-class WModuleInputConnector;
-class WModuleOutputConnector;
 class WModuleContainer;
 class WModuleFactory;
+class WModuleInputConnector;
+class WModuleOutputConnector;
 
 /**
  * Class representing a single module of OpenWalnut.
@@ -110,6 +112,16 @@ public:
     boost::shared_ptr< WModuleInputConnector > getInputConnector( std::string name );
 
     /**
+     * Finds the named connector for the module. This is similar to getInputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found
+     */
+    boost::shared_ptr< WModuleInputConnector > findInputConnector( std::string name );
+
+    /**
      * Gives back output connectors.
      *
      * \return the output connectors.
@@ -125,6 +137,36 @@ public:
      * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
      */
     boost::shared_ptr< WModuleOutputConnector > getOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This is similar to getOutputConnector but it does not throw an exception if the connector could
+     * not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleOutputConnector > findOutputConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector.
+     * \throw WModuleConnectorNotFound thrown whenever the module does not provide the specified connector.
+     */
+    boost::shared_ptr< WModuleConnector > getConnector( std::string name );
+
+    /**
+     * Finds the named connector for the module. This searches for inputs and outputs. This is similar to getConnector but it does not throw an
+     * exception if the connector could not be found.
+     *
+     * \param name the name. This can be a canonical name or the connector name.
+     *
+     * \return the connector or NULL if not found.
+     */
+    boost::shared_ptr< WModuleConnector > findConnector( std::string name );
 
     /**
      * Return a pointer to the properties object of the module.
@@ -254,6 +296,27 @@ public:
      * and so on.)
      */
     void disconnect();
+
+    /**
+     * Gives a list of all WDisconnectCombiners possible. Please note that while the list exists, connections might change.
+     *
+     * \return the list of possible disconnect operations
+     */
+    WCombinerTypes::WDisconnectList getPossibleDisconnections();
+
+    /**
+     * Sets the local module path. This gets called by the module loader.
+     *
+     * \param path the local path.
+     */
+    void setLocalPath( boost::filesystem::path path );
+
+    /**
+     * Returns the local path of the module. Whenever you try to load local resources, use this path. It is especially useful for shader loading.
+     *
+     * \return the local module path.
+     */
+    boost::filesystem::path getLocalPath() const;
 
 protected:
 
@@ -493,6 +556,17 @@ protected:
      */
     WPropBool m_active;
 
+    /**
+     * This property holds a user specified name for the current module instance.
+     */
+    WPropString m_runtimeName;
+
+    /**
+     * The path where the module binary resides in. This path should be used whenever the module needs to load resources. It gets set by the
+     * module loader. Use this to load shaders and so on.
+     */
+    boost::filesystem::path m_localPath;
+
 private:
 
      /**
@@ -515,6 +589,17 @@ private:
      */
     t_ModuleErrorSignalType signal_error;
 };
+
+/**
+ * The following macro is used by modules so the factory can aquire a prototype instance from a shared library using the symbol.
+ */
+#define W_LOADABLE_MODULE( MODULECLASS ) \
+extern "C" boost::shared_ptr< WModule > WLoadModule() { return boost::shared_ptr< WModule >( new MODULECLASS ); } // NOLINT
+
+/**
+ * The corresponding symbol name.
+ */
+#define W_LOADABLE_MODULE_SYMBOL "WLoadModule"
 
 /**
  * \defgroup modules Modules

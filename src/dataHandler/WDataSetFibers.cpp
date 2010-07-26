@@ -57,16 +57,6 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     m_verticesReverse( verticesReverse )
 
 {
-    // TODO(schurade): replace this with a permanent solution
-    for ( size_t i = 0; i < m_vertices->size(); ++i )
-    {
-        m_vertices->at( i ) = 160 - m_vertices->at( i );
-        ++i;
-        m_vertices->at( i ) = 200 - m_vertices->at( i );
-        ++i;
-        //m_pointArray[i] = m_dh->frames - m_pointArray[i];
-    }
-
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_tangents->resize( m_vertices->size() );
     m_globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
@@ -74,14 +64,13 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     m_localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_localColors->resize( m_vertices->size() );
 
-
     WCreateColorArraysThread* t1 = new WCreateColorArraysThread( 0, m_lineLengths->size()/4, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
     WCreateColorArraysThread* t2 = new WCreateColorArraysThread( m_lineLengths->size()/4+1, m_lineLengths->size()/2, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
     WCreateColorArraysThread* t3 = new WCreateColorArraysThread( m_lineLengths->size()/2+1, m_lineLengths->size()/4*3, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
-    WCreateColorArraysThread* t4 = new WCreateColorArraysThread( m_lineLengths->size()/4*3+1, m_lineLengths->size(), m_vertices,
+    WCreateColorArraysThread* t4 = new WCreateColorArraysThread( m_lineLengths->size()/4*3+1, m_lineLengths->size()-1, m_vertices,
             m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
     t1->run();
     t2->run();

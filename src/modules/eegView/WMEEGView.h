@@ -36,7 +36,7 @@
 #include "../../gui/WCustomWidget.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../fiberDisplay/WRMROIRepresentation.h"
+#include "../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "WEEGEvent.h"
 #include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
