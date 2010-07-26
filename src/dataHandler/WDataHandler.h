@@ -63,7 +63,7 @@ public:
     /**
      * The alias for a shared container.
      */
-    typedef WSharedSequenceContainer< boost::shared_ptr< WSubject >, SubjectContainerType > SubjectSharedContainerType;
+    typedef WSharedSequenceContainer< SubjectContainerType > SubjectSharedContainerType;
 
     /**
      * Iterator for subjects.

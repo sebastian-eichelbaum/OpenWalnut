@@ -29,8 +29,8 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QTreeWidgetItem>
 
-#include "../../../modules/fiberDisplay/WRMBranch.h"
-#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../kernel/modules/fiberDisplay/WRMBranch.h"
+#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "WQtTreeItem.h"
 
 class WQtRoiTreeItem;

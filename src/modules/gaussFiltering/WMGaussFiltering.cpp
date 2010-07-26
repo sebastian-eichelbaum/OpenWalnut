@@ -24,22 +24,24 @@
 
 #include <stdint.h>
 
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
-#include <cmath>
-
-#include "../../common/WStringUtils.h"
-#include "../../common/WProgress.h"
-#include "../../common/WAssert.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "WMGaussFiltering.h"
+#include "../../common/WAssert.h"
+#include "../../common/WProgress.h"
+#include "../../common/WStringUtils.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../kernel/WKernel.h"
 #include "gaussfiltering.xpm"
+#include "WMGaussFiltering.h"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMGaussFiltering )
 
 WMGaussFiltering::WMGaussFiltering() :
     WModule()

@@ -41,6 +41,8 @@
 #include "WModule.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
+#include "WModuleInputConnector.h"
+#include "WModuleOutputConnector.h"
 #include "combiner/WDisconnectCombiner.h"
 #include "exceptions/WModuleConnectionFailed.h"
 #include "exceptions/WModuleConnectionInvalid.h"
@@ -358,5 +360,15 @@ void WModuleConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleCon
 void WModuleConnector::notifyConnectionClosed( boost::shared_ptr<WModuleConnector> /*here*/, boost::shared_ptr<WModuleConnector> /*there*/ )
 {
     // do nothing by default
+}
+
+boost::shared_ptr< WModuleInputConnector > WModuleConnector::toInputConnector()
+{
+    return boost::shared_dynamic_cast< WModuleInputConnector >( shared_from_this() );
+}
+
+boost::shared_ptr< WModuleOutputConnector > WModuleConnector::toOutputConnector()
+{
+    return boost::shared_dynamic_cast< WModuleOutputConnector >( shared_from_this() );
 }
 

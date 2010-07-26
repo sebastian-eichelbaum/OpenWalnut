@@ -28,11 +28,14 @@
 #include <osg/Projection>
 
 #include "../../common/WAssert.h"
+#include "../../common/WPathHelper.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WGEResourceManager.h"
 
 #include "WMHud.h"
 #include "hud.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMHud )
 
 WMHud::WMHud()
 {
@@ -179,7 +182,7 @@ void WMHud::init()
     // when setting the font, a variable is cleared which osg is already using -> crash
 
     m_osgPickText->setCharacterSize( 14 );
-    m_osgPickText->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+    m_osgPickText->setFont( WPathHelper::getAllFonts().Default.file_string() );
     m_osgPickText->setText( "nothing picked" );
     m_osgPickText->setAxisAlignment( osgText::Text::SCREEN );
     m_osgPickText->setPosition( osg::Vec3( 600, 80, -1.5 ) );

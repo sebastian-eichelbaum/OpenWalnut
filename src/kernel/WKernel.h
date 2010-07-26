@@ -36,7 +36,7 @@
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/WGUI.h"
-#include "../modules/fiberDisplay/WROIManagerFibers.h"
+#include "modules/fiberDisplay/WROIManagerFibers.h"
 #include "WSelectionManager.h"
 #include "WModule.h"
 #include "WModuleContainer.h"
@@ -143,27 +143,6 @@ public:
     boost::shared_ptr< WGUI > getGui() const;
 
     /**
-     * Gets the current application path.
-     *
-     * \return the path
-     */
-    static boost::filesystem::path getAppPathObject();
-
-    /**
-     * get for application path
-     *
-     * \return the application path
-     */
-    static std::string getAppPath();
-
-    /**
-     * getter for shader path
-     *
-     * \return the shader path
-     */
-    static std::string getShaderPath();
-
-    /**
      * get for roi manager
      */
     boost::shared_ptr< WROIManagerFibers>getRoiManager();
@@ -172,11 +151,6 @@ public:
      * get for selection manager
      */
     boost::shared_ptr< WSelectionManager>getSelectionManager();
-
-    /**
-     * getter for font path
-     */
-    static std::string getFontPath();
 
 protected:
 
@@ -226,26 +200,6 @@ private:
      * Initializes the graphics engine, data handler and so on.
      */
     void init();
-
-    /**
-     * Determine and store the application path
-     */
-    static void findAppPath();
-
-    /**
-     * The location of the openwalnut executable.
-     */
-    static boost::filesystem::path m_appPath;
-
-    /**
-     * The location of the shaders.
-     */
-    static boost::filesystem::path m_shaderPath;
-
-   /**
-     * The location of the font files.
-     */
-    static boost::filesystem::path m_fontPath;
 };
 
 #endif  // WKERNEL_H

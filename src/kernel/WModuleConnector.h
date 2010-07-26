@@ -38,6 +38,9 @@
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 
+class WModuleInputConnector;
+class WModuleOutputConnector;
+
 /**
  * Base class for modelling connections between kernel modules. It contains several pure virtual member functions and can
  * therefore not instantiated directly.
@@ -169,7 +172,7 @@ public:
      *
      * \return true if compatible.
      */
-    virtual bool connectable( boost::shared_ptr<WModuleConnector> con )=0;
+    virtual bool connectable( boost::shared_ptr<WModuleConnector> con ) = 0;
 
     /**
      * Returns a list of possible disconnections for this connector. Please be aware that the connections might change during the life-time of
@@ -178,6 +181,34 @@ public:
      * \return the possible disconnections.
      */
     WCombinerTypes::WOneToOneCombiners getPossibleDisconnections();
+
+    /**
+     * Tries to convert this instance to an input connector.
+     *
+     * \return this as  input connector
+     */
+    boost::shared_ptr< WModuleInputConnector > toInputConnector();
+
+    /**
+     * Tries to convert this instance to an output connector.
+     *
+     * \return this as output connector
+     */
+    boost::shared_ptr< WModuleOutputConnector > toOutputConnector();
+
+    /**
+     * Returns true if this instance is an WModuleInputConnector.
+     *
+     * \return true if castable to WModuleInputConnector.
+     */
+    virtual bool isInputConnector() const = 0;
+
+    /**
+     * Returns true if this instance is an WModuleOutputConnector.
+     *
+     * \return true if castable to WModuleOutputConnector.
+     */
+    virtual bool isOutputConnector() const = 0;
 
 protected:
 

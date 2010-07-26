@@ -38,6 +38,9 @@
 #include "WMDeterministicFTMori.h"
 #include "moriTracking.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDeterministicFTMori )
+
 WMDeterministicFTMori::WMDeterministicFTMori()
     : WModule(),
       m_dataSet(),

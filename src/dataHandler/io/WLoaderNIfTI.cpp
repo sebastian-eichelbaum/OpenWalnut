@@ -91,6 +91,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 
     WAssert( header->ndim >= 3,
              "The NIfTI file contains data that has less than the three spatial dimension. OpenWalnut is not able to handle this." );
+
     int columns = header->dim[1];
     int rows = header->dim[2];
     int frames = header->dim[3];
@@ -156,24 +157,11 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
             newValueSet = boost::shared_ptr< WValueSetBase >();
     }
 
-    if( header->sform_code > 0 )
-    {
-        // method 3 (affine transform)
-        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, convertMatrix( header->sto_xyz ), header->dx, header->dy, header->dz ) );
-    }
-    else if( header->qform_code > 0 )
-    {
-        // method 2 (rigid body transform)
-        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, convertMatrix( header->qto_xyz ), header->dx, header->dy, header->dz ) );
-    }
-    else
-    {
-        // method 1 (only scaling)
-        newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-            columns, rows, frames, header->dx, header->dy, header->dz ) );
-    }
+    newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
+                                                    columns, rows, frames,
+                                                    convertMatrix( header->qto_xyz ),
+                                                    convertMatrix( header->sto_xyz ),
+                                                    header->dx, header->dy, header->dz ) );
 
     boost::shared_ptr< WDataSet > newDataSet;
     // known description

@@ -39,12 +39,13 @@
 
 #include "WGraphicsEngine.h"
 #include "../common/WLogger.h"
+#include "../common/WPathHelper.h"
 
 #include "WShader.h"
 
-WShader::WShader( std::string name ):
+WShader::WShader( std::string name, boost::filesystem::path search ):
     osg::Program(),
-    m_shaderPath( WGraphicsEngine::getGraphicsEngine()->getShaderPath() ),
+    m_shaderPath( search ),
     m_name( name ),
     m_reload( true ),
     m_shaderLoaded( false ),
@@ -128,8 +129,8 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
 
             // reload the sources and set the shader
             // vertex shader
-            WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_shader->m_name + ".vs\"", "WShader", LL_DEBUG );
-            std::string source = m_shader->processShader( m_shader->m_name + ".vs" );
+            WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_shader->m_name + "-vertex.glsl\"", "WShader", LL_DEBUG );
+            std::string source = m_shader->processShader( m_shader->m_name + "-vertex.glsl" );
             if ( source != "" )
             {
                 m_shader->m_vertexShader->setShaderSource( source );
@@ -137,8 +138,8 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
             }
 
             // fragment shader
-            WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_shader->m_name + ".fs\"", "WShader", LL_DEBUG );
-            source = m_shader->processShader( m_shader->m_name + ".fs" );
+            WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_shader->m_name + "-fragment.glsl\"", "WShader", LL_DEBUG );
+            source = m_shader->processShader( m_shader->m_name + "-fragment.glsl" );
             if ( source != "" )
             {
                 m_shader->m_fragmentShader->setShaderSource( source );
@@ -146,8 +147,8 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
             }
 
             // Geometry Shader
-            WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_shader->m_name + ".gs\"", "WShader", LL_DEBUG );
-            source = m_shader->processShader( m_shader->m_name + ".gs", true );
+            WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_shader->m_name + "-geometry.glsl\"", "WShader", LL_DEBUG );
+            source = m_shader->processShader( m_shader->m_name + "-geometry.glsl", true );
             if ( source != "" )
             {
                 m_shader->m_geometryShader->setShaderSource( source );
@@ -209,8 +210,44 @@ std::string WShader::processShader( const std::string filename, bool optional, i
     // this is an expression for the #version statement
     static const boost::regex ver( "^[ ]*#[ ]*version[ ]+[123456789][0123456789]+.*$" );
 
-    // the input stream
-    std::string fn = ( boost::filesystem::path( m_shaderPath ) / filename ).file_string();
+    // the input stream, first check existence of shader
+    // search these places in this order:
+    // 1. m_shaderPath
+    // 2. m_shaderPath / shaders
+    // 3. WPathHelper::getShaderPath()
+
+    // use one of the following paths
+    std::string fn = filename;
+    std::string fnLocal = ( m_shaderPath / filename ).file_string();
+    std::string fnLocalShaders = ( m_shaderPath / "shaders" / filename ).file_string();
+    std::string fnGlobal = ( WPathHelper::getShaderPath() / filename ).file_string();
+
+    if ( boost::filesystem::exists( m_shaderPath / filename ) )
+    {
+        fn = fnLocal;
+    }
+    else if ( boost::filesystem::exists( m_shaderPath / "shaders" / filename ) )
+    {
+        fn = fnLocalShaders;
+    }
+    else if ( boost::filesystem::exists( WPathHelper::getShaderPath() / filename ) )
+    {
+        fn = fnGlobal;
+    }
+    else if ( !optional )
+    {
+        WLogger::getLogger()->addLogMessage( "The requested shader \"" + filename + "\" does not exist in \"" +
+                                             m_shaderPath.file_string() + "\", \"" + ( m_shaderPath / "shaders" ).file_string() + "\" or \"" +
+                                             WPathHelper::getShaderPath().file_string() + "\".", "WShader (" + filename + ")", LL_ERROR
+        );
+
+        return "";
+    }
+    else
+    {
+        return "";
+    }
+
     std::ifstream input( fn.c_str() );
     if ( !input.is_open() )
     {
@@ -222,13 +259,13 @@ std::string WShader::processShader( const std::string filename, bool optional, i
         // file does not exist. Do not throw an exception to avoid OSG crash
         if ( level == 0 )
         {
-            WLogger::getLogger()->addLogMessage( "Can't open shader file \"" + fn + "\".",
+            WLogger::getLogger()->addLogMessage( "Can't open shader file \"" + filename + "\".",
                     "WShader (" + filename + ")", LL_ERROR
             );
         }
         else
         {
-            WLogger::getLogger()->addLogMessage( "Can't open shader file for inclusion \"" + fn + "\".",
+            WLogger::getLogger()->addLogMessage( "Can't open shader file for inclusion \"" + filename + "\".",
                     "WShader (" + filename + ")", LL_ERROR
             );
         }
