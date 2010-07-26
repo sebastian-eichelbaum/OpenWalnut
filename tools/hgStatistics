@@ -18,7 +18,7 @@ echo "count of commits per hour"
 hg churn -f '%H' -s -c
 echo "==============================================================="
 echo "count of changed lines for every committer"
-hg churn|grep -v "Sebastian Eichelbaum"
+hg churn
 echo "==============================================================="
 echo "count of commits for every committer"
-hg churn -c|grep -v "Sebastian Eichelbaum"
+hg churn -c
