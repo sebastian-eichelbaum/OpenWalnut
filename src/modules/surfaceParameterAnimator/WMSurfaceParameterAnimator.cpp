@@ -72,14 +72,13 @@ const char** WMSurfaceParameterAnimator::getXPMIcon() const
 const std::string WMSurfaceParameterAnimator::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "Surface Bars";
+    return "Surface Parameter Animator";
 }
 
 const std::string WMSurfaceParameterAnimator::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "This module can show moving bars of different sizes in two different directions. The sizes and speed parameters can be set using "
-           "properties.";
+    return "This module can show parameters defined on surfaces using various types of animation.";
 }
 
 void WMSurfaceParameterAnimator::connectors()
