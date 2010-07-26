@@ -41,45 +41,48 @@
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEShaderAnimationCallback.h"
 
-#include "WMSurfaceBars.h"
-#include "surfaceBars.xpm"
+#include "WMSurfaceParameterAnimator.h"
+#include "surfaceParameterAnimator.xpm"
 
-WMSurfaceBars::WMSurfaceBars():
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMSurfaceParameterAnimator )
+
+WMSurfaceParameterAnimator::WMSurfaceParameterAnimator():
     WModule(),
     m_rootNode( new WGEGroupNode() )
 {
     // Initialize members
 }
 
-WMSurfaceBars::~WMSurfaceBars()
+WMSurfaceParameterAnimator::~WMSurfaceParameterAnimator()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMSurfaceBars::factory() const
+boost::shared_ptr< WModule > WMSurfaceParameterAnimator::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMSurfaceBars() );
+    return boost::shared_ptr< WModule >( new WMSurfaceParameterAnimator() );
 }
 
-const char** WMSurfaceBars::getXPMIcon() const
+const char** WMSurfaceParameterAnimator::getXPMIcon() const
 {
     return surfaceBars_xpm;
 }
 
-const std::string WMSurfaceBars::getName() const
+const std::string WMSurfaceParameterAnimator::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
     return "Surface Bars";
 }
 
-const std::string WMSurfaceBars::getDescription() const
+const std::string WMSurfaceParameterAnimator::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     return "This module can show moving bars of different sizes in two different directions. The sizes and speed parameters can be set using "
            "properties.";
 }
 
-void WMSurfaceBars::connectors()
+void WMSurfaceParameterAnimator::connectors()
 {
     // needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
@@ -110,7 +113,7 @@ void WMSurfaceBars::connectors()
     WModule::connectors();
 }
 
-void WMSurfaceBars::properties()
+void WMSurfaceParameterAnimator::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -136,10 +139,10 @@ void WMSurfaceBars::properties()
     m_speed1         = m_properties->addProperty( "Beam1 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
     m_speed2         = m_properties->addProperty( "Beam2 Speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
     m_parameterScale = m_properties->addProperty( "Parameter Scale", "Scaling the parameter space on the fly creates consistently sized and fast "
-                                                                      "beams over multiple WMSurfaceBars instances.", 1.0 );
+                                                                      "beams over multiple WMSurfaceParameterAnimator instances.", 1.0 );
 }
 
-osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
+osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
 {
     // use the OSG Shapes, create unit cube
     osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bbox.first, bbox.second, m_isoColor->get( true ) );
@@ -215,9 +218,9 @@ osg::ref_ptr< osg::Node > WMSurfaceBars::renderSurface( std::pair< wmath::WPosit
     return cube;
 }
 
-void WMSurfaceBars::moduleMain()
+void WMSurfaceParameterAnimator::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "GPUSurfaceBars" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSurfaceParameterAnimator-Beams" ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -289,7 +292,7 @@ void WMSurfaceBars::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-void WMSurfaceBars::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMSurfaceParameterAnimator::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // update material info
     if ( m_module->m_isoColor->changed() || m_initialUpdate )
@@ -308,7 +311,7 @@ void WMSurfaceBars::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
     traverse( node, nv );
 }
 
-void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
+void WMSurfaceParameterAnimator::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
     if ( m_module->m_isoValue->changed()  && ( uniform->getName() == "u_isovalue" ) )
@@ -353,7 +356,7 @@ void WMSurfaceBars::SafeUniformCallback::operator()( osg::Uniform* uniform, osg:
     }
 }
 
-void WMSurfaceBars::activate()
+void WMSurfaceParameterAnimator::activate()
 {
     // Activate/Deactivate the rendering
     if ( m_rootNode )

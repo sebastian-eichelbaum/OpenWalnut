@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMSURFACEBARS_H
-#define WMSURFACEBARS_H
+#ifndef WMSURFACEPARAMETERANIMATOR_H
+#define WMSURFACEPARAMETERANIMATOR_H
 
 #include <string>
 #include <utility>
@@ -43,19 +43,19 @@
  * needs a corresponding scalar dataset which contains the parameterization of the track on which the bars should move.
  * \ingroup modules
  */
-class WMSurfaceBars: public WModule
+class WMSurfaceParameterAnimator: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMSurfaceBars();
+    WMSurfaceParameterAnimator();
 
     /**
      * Destructor.
      */
-    virtual ~WMSurfaceBars();
+    virtual ~WMSurfaceParameterAnimator();
 
     /**
      * Gives back the name of this module.
@@ -178,7 +178,7 @@ private:
     WPropInt m_saturation;
 
     /**
-     * Scaling the parameter space ensures consistent sizes and speeds along multiple WMSurfaceBars instances.
+     * Scaling the parameter space ensures consistent sizes and speeds along multiple WMSurfaceParameterAnimator instances.
      */
     WPropDouble m_parameterScale;
 
@@ -228,7 +228,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUpdateCallback( WMSurfaceBars* module ): m_module( module ), m_initialUpdate( true )
+        explicit SafeUpdateCallback( WMSurfaceParameterAnimator* module ): m_module( module ), m_initialUpdate( true )
         {
         };
 
@@ -243,7 +243,7 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMSurfaceBars* m_module;
+        WMSurfaceParameterAnimator* m_module;
 
         /**
          * Denotes whether the update callback is called the first time.
@@ -263,7 +263,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUniformCallback( WMSurfaceBars* module ): m_module( module )
+        explicit SafeUniformCallback( WMSurfaceParameterAnimator* module ): m_module( module )
         {
         };
 
@@ -278,9 +278,9 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMSurfaceBars* m_module;
+        WMSurfaceParameterAnimator* m_module;
     };
 };
 
-#endif  // WMSURFACEBARS_H
+#endif  // WMSURFACEPARAMETERANIMATOR_H
 

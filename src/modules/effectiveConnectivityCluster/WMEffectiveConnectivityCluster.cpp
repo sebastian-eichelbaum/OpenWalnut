@@ -53,13 +53,14 @@
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "../../graphicsEngine/WGEBorderLayout.h"
-#include "../../graphicsEngine/WGEResourceManager.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../graphicsEngine/WGELabel.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
-#include "../data/WMData.h"
 #include "effectiveConnectivityCluster.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMEffectiveConnectivityCluster )
 
 WMEffectiveConnectivityCluster::WMEffectiveConnectivityCluster():
     WModuleContainer( "Effective Connectivity Cluster", "This module is able to visualize effective connectivity cluster." ),
@@ -211,7 +212,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     //////////////////////////////////////////////////////////////////////
 
     // create an instance using the prototypes
-    m_animation = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Surface Bars" ) );
+    m_animation = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Surface Parameter Animator" ) );
 
     // add to container
     add( m_animation );
