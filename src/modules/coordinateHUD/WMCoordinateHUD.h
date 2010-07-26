@@ -33,6 +33,7 @@
 #include "../../common/WItemSelector.h"
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/WShader.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -103,8 +104,9 @@ protected:
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
-    //osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
-
+//    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+    osg::ref_ptr< osg::Geode > m_rootNode;   
+    
     /**
      * The geometry rendered by this module.
      */
@@ -118,14 +120,9 @@ protected:
 private:
 
     /**
-     * Projection node for defining view frustrum for HUD
+     * the shader
      */
-    osg::ref_ptr<osg::Projection> m_rootNode;
-
-    /**
-     * Geometry group for all HUD realted things
-     */
-    osg::ref_ptr< WGEGroupNode > m_HUDs;
+    osg::ref_ptr< WShader > m_shader;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
