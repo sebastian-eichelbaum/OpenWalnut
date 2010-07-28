@@ -39,17 +39,22 @@ void WGEZoomTrackballManipulator::setByMatrix( const osg::Matrixd& matrix )
     m_zoom = 1.0 / matrix.getScale()[0];
 
     // The zoom needs to be undone before forwarding the matrix.
-    TrackballManipulator::setByMatrix( osg::Matrixd::inverse( osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 ) ) * matrix );
+    TrackballManipulator::setByMatrix( osg::Matrixd::inverse( osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 / m_zoom ) ) * matrix );
 }
 
 osg::Matrixd WGEZoomTrackballManipulator::getMatrix() const
 {
-    return osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 ) * TrackballManipulator::getMatrix();
+    return osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 / m_zoom ) * TrackballManipulator::getMatrix();
+}
+
+osg::Matrixd WGEZoomTrackballManipulator::getMatrixWithoutZoom() const
+{
+    return TrackballManipulator::getMatrix();
 }
 
 osg::Matrixd WGEZoomTrackballManipulator::getInverseMatrix() const
 {
-    return TrackballManipulator::getInverseMatrix() * osg::Matrixd::scale( m_zoom, m_zoom, 1.0 );
+    return TrackballManipulator::getInverseMatrix() * osg::Matrixd::scale( m_zoom, m_zoom, m_zoom );
 }
 
 void WGEZoomTrackballManipulator::home( double /* currentTime */ )

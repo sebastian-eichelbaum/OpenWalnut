@@ -26,6 +26,10 @@
 
 void main()
 {
+    // simply set the color. All the magic happens in vertex shader.
     gl_FragColor = gl_Color;
+
+    // this line ensures that the coordinate system is always on top.
+    gl_FragDepth = 0.0;
 }
 

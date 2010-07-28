@@ -50,6 +50,13 @@ public:
     virtual osg::Matrixd getMatrix() const;
 
     /**
+     * Get the manipulator only containing rotation and translation.
+     *
+     * \return the matrix with translation and rotation.
+     */
+    virtual osg::Matrixd getMatrixWithoutZoom() const;
+
+    /**
      * Get the position of the manipulator as a inverse matrix of the
      * manipulator, typically used as a model view matrix.
      */

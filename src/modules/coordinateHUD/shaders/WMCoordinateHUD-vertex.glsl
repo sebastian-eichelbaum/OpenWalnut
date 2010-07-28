@@ -23,52 +23,21 @@
 //--------------------------------------------------------------------------
 
 #version 120
-
-mat4 mv;
 	
 void main ()
 {   
-    //gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	//gl_Position = ftransform();
+    // keep color
+    gl_FrontColor = gl_Color;
 
-	gl_FrontColor = gl_Color;
+    // get the scaling applied during transformation from model space to camera space
+    vec4 vertexScale = gl_ModelViewMatrix * vec4( 1.0, 0.0, 0.0, 0.0 ); // <- needs to be of length 1
+    float s = 1.0 / length( vertexScale );
 
-    //remove translation
-    //matrixCompMult(rt, gl_ModelViewProjectionMatrix)
-    mat4 rt = mat4( 1.0, 1.0, 1.0, 1.0,
-                    1.0, 1.0, 1.0, 1.0,
-                    1.0, 1.0, 1.0, 1.0,
-                    0.0, 0.0, 0.0, 1.0
-                    );
-    //mat4 mv = matrixCompMult(rt, gl_ModelViewProjectionMatrix);
-    mat4 mv = gl_ModelViewProjectionMatrix;
+    float size = 25.0;
 
-    vec4 e1 = vec4(1.0, 0.0, 0.0, 0.0);
-    vec4 e2 = vec4(0.0, 1.0, 0.0, 0.0);
-    vec4 e3 = vec4(0.0, 0.0, 1.0, 0.0);
-    float l1 = 1/length( e1*mv);
-    float l2 = 1/length( e2*mv);
-    float l3 = 1/length( e3*mv); 
-/*    float l1 = 1/length( mv*e1);
-    float l2 = 1/length( mv*e2);
-    float l3 = 1/length( mv*e3);
-*/
-    
-
-    mat4 temp = mat4( l1, 0.0, 0.0, 0.0,
-                      0.0, l2, 0.0, 0.0,
-                      0.0, 0.0, l3, 0.0,
-                      0.0, 0.0, 0.0, 1.0);
-    
-    vec4 v = temp * gl_Vertex;
- 
-    mv = matrixCompMult(rt, gl_ModelViewProjectionMatrix);
-
-    //mv = matrixCompMult(mv, temp);
-    //mv *= temp;
-
-    gl_Position =  matrixCompMult(rt, gl_ModelViewProjectionMatrix) * gl_Vertex;
-    //gl_Position = mv * v;
+    // project
+    vec4 vertexInScreenSpace = gl_ModelViewProjectionMatrix * vec4( s * size * gl_Vertex.xyz, 0.0  );
+    vertexInScreenSpace.w = 1.0;
+    gl_Position = vec4( -0.75, -0.75, 0.0, 0.0 ) + vertexInScreenSpace;
 }
-
 

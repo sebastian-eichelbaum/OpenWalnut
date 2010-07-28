@@ -55,6 +55,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 #include <osg/Geode>
+#include <osg/MatrixTransform>
 #include <osg/Material>
 #include <osg/StateAttribute>
 
@@ -118,15 +119,15 @@ void WMCoordinateHUD::moduleMain()
 
     m_shader = osg::ref_ptr< WShader > ( new WShader( "WMCoordinateHUD" , m_localPath ) );
 
-    //m_rootNode =  new WGEManagedGroupNode( m_active );
-    m_rootNode = new osg::Geode;
+    m_rootNode = new WGEManagedGroupNode( m_active );
+    m_shader->apply( m_rootNode );
     m_rootNode->setName( "coordHUDNode" );
 
     osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
     osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
 
     //Eckpunkte
-    float size = 50;
+    float size = 1.0;
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     vertices->push_back( osg::Vec3( 0, 0, 0 ) );
@@ -172,42 +173,13 @@ void WMCoordinateHUD::moduleMain()
     coordGeode->addDrawable( coordGeom );
     coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-    //m_rootNode->remove( coordGeode );
-    //m_rootNode->insert( coordGeode );
+    m_rootNode->clear();
+    m_rootNode->insert( coordGeode );
 
-    m_rootNode = coordGeode;
-
-    //m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
-    //m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
-
-    m_shader->apply( m_rootNode );
-
-    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( coordGeode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    if ( m_active->get() )
-    {
-        m_rootNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_rootNode->setNodeMask( 0x0 );
-    }
+    waitForStop();
 
-    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( coordGeode );
-}
-
-void WMCoordinateHUD::activate()
-{
-    if ( m_active->get() )
-    {
-        debugLog() << "Activate.";
-    }
-    else
-    {
-        debugLog() << "Deactivate.";
-    }
-
-    WModule::activate();
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
