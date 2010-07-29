@@ -40,8 +40,6 @@
  * Creates threads that compute a function in a multithreaded fashion.
  *
  * \note This class is NOT thread-safe, do not access it from different threads simultaneously.
- *
- * \inGroup common
  */
 template< class Function_T >
 class WThreadedFunction
