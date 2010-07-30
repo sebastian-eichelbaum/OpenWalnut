@@ -181,7 +181,7 @@ void WMTemplate::connectors()
     // As above: make it known.
     addConnector( m_output );
 
-    // call WModules initialization
+    // call WModule's initialization
     WModule::connectors();
 }
 
