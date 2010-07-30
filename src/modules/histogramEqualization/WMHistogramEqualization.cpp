@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 
@@ -63,13 +65,27 @@ const std::string WMHistogramEqualization::getDescription() const
 
 void WMHistogramEqualization::connectors()
 {
-    // call WModules initialization
+    // the dataset to process. Only accept scalar data.
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
+        new WModuleInputData< WDataSetScalar >( shared_from_this(),
+                                                               "in", "The dataset whose histogram gets equalized." )
+        );
+    addConnector( m_input );
+
+    // the output containing the equalized data.
+    m_output = boost::shared_ptr< WModuleOutputData < WDataSetScalar  > >(
+        new WModuleOutputData< WDataSetScalar >( shared_from_this(),
+                                                               "out", "The dataset which has a linear cumulative histogram." )
+        );
+    addConnector( m_output );
+
+    // call WModule's initialization
     WModule::connectors();
 }
 
 void WMHistogramEqualization::properties()
 {
-    // call WModules initialization
+    // call WModule's initialization
     WModule::properties();
 }
 

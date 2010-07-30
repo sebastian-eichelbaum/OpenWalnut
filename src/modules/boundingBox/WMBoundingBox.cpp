@@ -94,8 +94,8 @@ void WMBoundingBox::moduleMain()
     while ( !m_shutdownFlag() )
     {
         // acquire data from the input connector
-        m_dataSet = m_input->getData();
-        if ( !m_dataSet.get() )
+        boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
+        if ( !dataSet )
         {
             // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
@@ -104,9 +104,11 @@ void WMBoundingBox::moduleMain()
             continue;
         }
 
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
 
         WAssert( grid, "Seems that grid is of wrong type." );
+
+        WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_bBoxNode );
 
         std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
 

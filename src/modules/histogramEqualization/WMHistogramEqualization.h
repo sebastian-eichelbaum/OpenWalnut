@@ -25,6 +25,8 @@
 #ifndef WMHISTOGRAMEQUALIZATION_H
 #define WMHISTOGRAMEQUALIZATION_H
 
+#include <string>
+
 #include "../../dataHandler/WDataSetScalar.h"
 
 #include "../../kernel/WModule.h"
