@@ -45,6 +45,11 @@ public:
      */
     explicit WReaderLibeep( std::string fileName );
 
+    /**
+     * Loads the dataset.
+     *
+     * \return the dataset loaded.
+     */
     virtual boost::shared_ptr< WDataSet > load();
 protected:
 private:
