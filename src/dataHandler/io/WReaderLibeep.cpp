@@ -34,17 +34,17 @@ extern "C"
 #include "../../common/WLogger.h"
 #include "../WEEG.h"
 #include "../exceptions/WDHNoSuchFile.h"
-#include "WLoaderLibeep.h"
+#include "WReaderLibeep.h"
 
 
-WLoaderLibeep::WLoaderLibeep( std::string fileName )
-    : WLoaderEEG( fileName )
+WReaderLibeep::WReaderLibeep( std::string fileName )
+    : WReaderEEG( fileName )
 {
 }
 
-boost::shared_ptr< WDataSet > WLoaderLibeep::load()
+boost::shared_ptr< WDataSet > WReaderLibeep::load()
 {
-    wlog::debug( "Libeep Loader" ) << "Opening " << m_fname;
+    wlog::debug( "Libeep Reader" ) << "Opening " << m_fname;
 
     // libeep needs the standard C locale to load float values from ASCII
     setlocale( LC_NUMERIC, "C" );

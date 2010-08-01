@@ -28,7 +28,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WLoaderBiosig.h"
+#include "WReaderBiosig.h"
 #include "../WEEG.h"
 #include "../WSubject.h"
 #include "../../common/WAssert.h"
@@ -37,14 +37,14 @@
 #include "../../common/WStringUtils.h"
 
 
-WLoaderBiosig::WLoaderBiosig( std::string fileName )
-    : WLoaderEEG( fileName ),
+WReaderBiosig::WReaderBiosig( std::string fileName )
+    : WReaderEEG( fileName ),
       m_columns( 0 ),
       m_rows( 0 )
 {
 }
 
-void WLoaderBiosig::fillSegmentColumnBased( std::vector<std::vector<double> >* segment, biosig_data_type* data )
+void WReaderBiosig::fillSegmentColumnBased( std::vector<std::vector<double> >* segment, biosig_data_type* data )
 {
     for( unsigned int i = 0; i < m_columns; ++i )
     {
@@ -57,7 +57,7 @@ void WLoaderBiosig::fillSegmentColumnBased( std::vector<std::vector<double> >* s
     }
 }
 
-void WLoaderBiosig::fillSegmentRowBased( std::vector<std::vector<double> >* segment, biosig_data_type* data )
+void WReaderBiosig::fillSegmentRowBased( std::vector<std::vector<double> >* segment, biosig_data_type* data )
 {
     for( unsigned int j = 0; j < m_rows; ++j )
     {
@@ -70,7 +70,7 @@ void WLoaderBiosig::fillSegmentRowBased( std::vector<std::vector<double> >* segm
     }
 }
 
-boost::shared_ptr< WDataSet > WLoaderBiosig::load()
+boost::shared_ptr< WDataSet > WReaderBiosig::load()
 {
     WAssert( m_fname.substr( m_fname.size() - 4 ) == ".edf", "We expect only EDF for the biosig loader so far." );
 

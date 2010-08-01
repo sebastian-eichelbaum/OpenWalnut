@@ -30,15 +30,15 @@
 
 #include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
-#include "WLoaderEEG.h"
+#include "WReaderEEG.h"
 
 
-WLoaderEEG::WLoaderEEG( std::string fileName ) throw( WDHIOFailure )
+WReaderEEG::WReaderEEG( std::string fileName ) throw( WDHIOFailure )
     : WReader( fileName )
 {
 }
 
-WEEGElectrodeLibrary WLoaderEEG::extractElectrodePositions()
+WEEGElectrodeLibrary WReaderEEG::extractElectrodePositions()
 {
     namespace su = string_utils;
 
@@ -50,7 +50,7 @@ WEEGElectrodeLibrary WLoaderEEG::extractElectrodePositions()
     ifs.open( elcFileName.c_str(), std::ifstream::in );
     if( !ifs || ifs.bad() )
     {
-        WLogger::getLogger()->addLogMessage( "Try load broken file '" + elcFileName + "'", "EEG Loader", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Try load broken file '" + elcFileName + "'", "EEG Reader", LL_ERROR );
         throw std::runtime_error( "Problem during reading file. Probably file not found." );
     }
 
@@ -61,7 +61,7 @@ WEEGElectrodeLibrary WLoaderEEG::extractElectrodePositions()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "EEG Loader", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "EEG Reader", LL_ERROR );
         }
     }
     std::vector< std::string > tokens = su::tokenize( line );
@@ -72,7 +72,7 @@ WEEGElectrodeLibrary WLoaderEEG::extractElectrodePositions()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "EEG Loader", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "EEG Reader", LL_ERROR );
         }
     }
 
@@ -83,7 +83,7 @@ WEEGElectrodeLibrary WLoaderEEG::extractElectrodePositions()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "EEG Loader", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + elcFileName, "EEG Reader", LL_ERROR );
         }
         else
         {

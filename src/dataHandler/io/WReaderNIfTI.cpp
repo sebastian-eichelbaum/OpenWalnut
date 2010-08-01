@@ -30,7 +30,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "WLoaderNIfTI.h"
+#include "WReaderNIfTI.h"
 #include "../../common/WIOTools.h"
 #include "../WDataSet.h"
 #include "../WSubject.h"
@@ -49,13 +49,13 @@
 #include "../../common/WLogger.h"
 
 
-WLoaderNIfTI::WLoaderNIfTI( std::string fileName )
+WReaderNIfTI::WReaderNIfTI( std::string fileName )
     : WReader( fileName )
 {
 }
 
 
-template< typename T > std::vector< T > WLoaderNIfTI::copyArray( const T* dataArray, const size_t countVoxels,
+template< typename T > std::vector< T > WReaderNIfTI::copyArray( const T* dataArray, const size_t countVoxels,
         const size_t vDim )
 {
     std::vector< T > data( countVoxels * vDim );
@@ -70,7 +70,7 @@ template< typename T > std::vector< T > WLoaderNIfTI::copyArray( const T* dataAr
 }
 
 
-wmath::WMatrix< double > WLoaderNIfTI::convertMatrix( const mat44& in )
+wmath::WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
 {
     wmath::WMatrix< double > out( 4, 4 );
     for( size_t i = 0; i < 4; ++i )
@@ -83,7 +83,7 @@ wmath::WMatrix< double > WLoaderNIfTI::convertMatrix( const mat44& in )
     return out;
 }
 
-boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
+boost::shared_ptr< WDataSet > WReaderNIfTI::load()
 {
     nifti_image* header = nifti_image_read( m_fname.c_str(), 0 );
 
@@ -153,7 +153,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
         }
 
         default:
-            wlog::error( "WLoaderNIfTI" ) << "unknown data type " << header->datatype << std::endl;
+            wlog::error( "WReaderNIfTI" ) << "unknown data type " << header->datatype << std::endl;
             newValueSet = boost::shared_ptr< WValueSetBase >();
     }
 
@@ -169,13 +169,13 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 // TODO(philips): polish WDataSetSegmentation for check in
 //     if ( !description.compare( "WDataSetSegmentation" ) )
 //     {
-//         wlog::debug( "WLoaderNIfTI" ) << "Load as segmentation" << std::endl;
+//         wlog::debug( "WReaderNIfTI" ) << "Load as segmentation" << std::endl;
 //         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
 //     }
 //     else
     if ( !description.compare( "WDataSetSphericalHarmonics" ) )
     {
-        wlog::debug( "WLoaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
+        wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );
     }
     // unknown description

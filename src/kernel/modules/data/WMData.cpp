@@ -36,10 +36,10 @@
 #include "../../../dataHandler/WDataTexture3D.h"
 #include "../../../dataHandler/WEEG2.h"
 #include "../../../dataHandler/exceptions/WDHException.h"
-#include "../../../dataHandler/io/WLoaderBiosig.h"
-#include "../../../dataHandler/io/WLoaderEEGASCII.h"
-#include "../../../dataHandler/io/WLoaderLibeep.h"
-#include "../../../dataHandler/io/WLoaderNIfTI.h"
+#include "../../../dataHandler/io/WReaderBiosig.h"
+#include "../../../dataHandler/io/WReaderEEGASCII.h"
+#include "../../../dataHandler/io/WReaderLibeep.h"
+#include "../../../dataHandler/io/WReaderNIfTI.h"
 #include "../../../dataHandler/io/WPagerEEGLibeep.h"
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
@@ -328,7 +328,7 @@ void WMData::moduleMain()
 
         m_isTexture = true;
 
-        WLoaderNIfTI niiLoader( fileName );
+        WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
 
         if( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet ) )
@@ -366,12 +366,12 @@ void WMData::moduleMain()
     }
     else if( suffix == ".edf" )
     {
-        WLoaderBiosig biosigLoader( fileName );
+        WReaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
     else if( suffix == ".asc" )
     {
-        WLoaderEEGASCII eegAsciiLoader( fileName );
+        WReaderEEGASCII eegAsciiLoader( fileName );
         m_dataSet = eegAsciiLoader.load();
     }
     else if( suffix == ".cnt" )

@@ -34,15 +34,15 @@
 #include "../../common/WStringUtils.h"
 #include "../WEEG.h"
 #include "../WSubject.h"
-#include "WLoaderEEGASCII.h"
+#include "WReaderEEGASCII.h"
 
 
-WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName )
-    : WLoaderEEG( fileName )
+WReaderEEGASCII::WReaderEEGASCII( std::string fileName )
+    : WReaderEEG( fileName )
 {
 }
 
-boost::shared_ptr< WDataSet > WLoaderEEGASCII::load()
+boost::shared_ptr< WDataSet > WReaderEEGASCII::load()
 {
     std::ifstream in( m_fname.c_str() );
     if( in.fail() )

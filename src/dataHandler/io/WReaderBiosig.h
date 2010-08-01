@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WLoaderEEG.h"
+#include "WReaderEEG.h"
 #ifdef _MSC_VER
 #include "biosigWin/biosig.h"
 #else
@@ -39,11 +39,11 @@
 
 
 /**
- * Loader for several formats for biological signal.
+ * Reader for several formats for biological signal.
  * Uses BiosigC++ 4.
  * \ingroup dataHandler
  */
-class WLoaderBiosig : public WLoaderEEG
+class WReaderBiosig : public WReaderEEG
 {
 public:
     /**
@@ -51,7 +51,7 @@ public:
      * for the loader when executed in its own thread.
      * \param fileName this file will be loaded
      */
-    explicit WLoaderBiosig( std::string fileName );
+    explicit WReaderBiosig( std::string fileName );
 
     /**
      * Loads the dataset.

@@ -29,14 +29,14 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WLoaderEEG.h"
+#include "WReaderEEG.h"
 
 
 /**
- * Loader for EEG data in ASCII fromat.
+ * Reader for EEG data in ASCII fromat.
  * \ingroup dataHandler
  */
-class WLoaderEEGASCII : public WLoaderEEG
+class WReaderEEGASCII : public WReaderEEG
 {
 public:
     /**
@@ -44,7 +44,7 @@ public:
      * for the loader when executed in its own thread.
      * \param fileName this file will be loaded
      */
-    explicit WLoaderEEGASCII( std::string fileName );
+    explicit WReaderEEGASCII( std::string fileName );
 
     /**
      * Loads the dataset.

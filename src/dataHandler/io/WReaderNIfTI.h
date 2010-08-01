@@ -36,15 +36,15 @@
 #include "nifti/nifti1_io.h"
 
 /**
- * Loader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
+ * Reader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
  * \ingroup dataHandler
  */
-class WLoaderNIfTI : public WReader
+class WReaderNIfTI : public WReader
 {
 /**
  * Only UnitTests may be friends.
  */
-friend class WLoaderNIfTITest;
+friend class WReaderNIfTITest;
 
 public:
     /**
@@ -52,7 +52,7 @@ public:
      * for the loader when executed in its own thread.
      * \param fileName this file will be loaded
      */
-    explicit WLoaderNIfTI( std::string fileName );
+    explicit WReaderNIfTI( std::string fileName );
 
     /**
      * Loads the dataset.
