@@ -28,14 +28,15 @@
 #include <string>
 
 #include "../WEEG.h"
-#include "../WLoader.h"
+#include "../exceptions/WDHIOFailure.h"
+#include "WReader.h"
 
 
 /**
  * Abstract base class for all Loaders who handle with EEG data
  * \ingroup dataHandler
  */
-class WLoaderEEG : public WLoader
+class WLoaderEEG : public WReader
 {
 public:
 protected:

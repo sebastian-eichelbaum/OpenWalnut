@@ -34,7 +34,7 @@
 
 
 WLoaderEEG::WLoaderEEG( std::string fileName ) throw( WDHIOFailure )
-    : WLoader( fileName )
+    : WReader( fileName )
 {
 }
 
@@ -42,7 +42,7 @@ WEEGElectrodeLibrary WLoaderEEG::extractElectrodePositions()
 {
     namespace su = string_utils;
 
-    std::string elcFileName = m_fileName;
+    std::string elcFileName = m_fname;
     elcFileName.resize( elcFileName.size() - 3 ); // drop suffix
     elcFileName += "elc"; // add new suffix
 

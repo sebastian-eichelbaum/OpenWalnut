@@ -50,7 +50,7 @@
 
 
 WLoaderNIfTI::WLoaderNIfTI( std::string fileName )
-    : WLoader( fileName )
+    : WReader( fileName )
 {
 }
 
@@ -85,7 +85,7 @@ wmath::WMatrix< double > WLoaderNIfTI::convertMatrix( const mat44& in )
 
 boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
 {
-    nifti_image* header = nifti_image_read( m_fileName.c_str(), 0 );
+    nifti_image* header = nifti_image_read( m_fname.c_str(), 0 );
 
     WAssert( header, "Error during file access to NIfTI file. This probably means that the file is corrupted." );
 
@@ -99,7 +99,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
     boost::shared_ptr< WValueSetBase > newValueSet;
     boost::shared_ptr< WGrid > newGrid;
 
-    nifti_image* filedata = nifti_image_read( m_fileName.c_str(), 1 );
+    nifti_image* filedata = nifti_image_read( m_fname.c_str(), 1 );
 
     unsigned int vDim;
     if( header->ndim >= 4 )
@@ -191,9 +191,9 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
         }
         else if( vDim > 20 && header->dim[ 5 ] == 1 ) // hardi data, order 1
         {
-            std::string gradientFileName = m_fileName;
+            std::string gradientFileName = m_fname;
             using wiotools::getSuffix;
-            std::string suffix = getSuffix( m_fileName );
+            std::string suffix = getSuffix( m_fname );
 
             if( suffix == ".gz" )
             {
@@ -246,7 +246,7 @@ boost::shared_ptr< WDataSet > WLoaderNIfTI::load()
             newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
         }
     }
-    newDataSet->setFileName( m_fileName );
+    newDataSet->setFileName( m_fname );
 
     return newDataSet;
 }

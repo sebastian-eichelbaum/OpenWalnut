@@ -44,23 +44,23 @@ WLoaderLibeep::WLoaderLibeep( std::string fileName )
 
 boost::shared_ptr< WDataSet > WLoaderLibeep::load()
 {
-    wlog::debug( "Libeep Loader" ) << "Opening " << m_fileName;
+    wlog::debug( "Libeep Loader" ) << "Opening " << m_fname;
 
     // libeep needs the standard C locale to load float values from ASCII
     setlocale( LC_NUMERIC, "C" );
 
     // initialize
-    FILE* file = fopen( m_fileName.c_str(), "rb" );
+    FILE* file = fopen( m_fname.c_str(), "rb" );
     if( !file )
     {
-        throw WDHNoSuchFile( m_fileName + " could not be opened" );
+        throw WDHNoSuchFile( m_fname + " could not be opened" );
     }
     int status;
-    eeg_t* eeg = eep_init_from_file( m_fileName.c_str(), file, &status );
+    eeg_t* eeg = eep_init_from_file( m_fname.c_str(), file, &status );
     if( status != CNTERR_NONE || !eeg )
     {
         std::ostringstream stream;
-        stream << m_fileName << " could not be initialized. Libeep status code: " << status;
+        stream << m_fname << " could not be initialized. Libeep status code: " << status;
         throw WDHIOFailure( stream.str() );
     }
 
@@ -114,6 +114,6 @@ boost::shared_ptr< WDataSet > WLoaderLibeep::load()
         electrodeLibrary,
         channelLabels
     ) );
-    out->setFileName( m_fileName );
+    out->setFileName( m_fname );
     return out;
 }

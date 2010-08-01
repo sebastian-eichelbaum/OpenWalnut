@@ -72,12 +72,12 @@ void WLoaderBiosig::fillSegmentRowBased( std::vector<std::vector<double> >* segm
 
 boost::shared_ptr< WDataSet > WLoaderBiosig::load()
 {
-    WAssert( m_fileName.substr( m_fileName.size() - 4 ) == ".edf", "We expect only EDF for the biosig loader so far." );
+    WAssert( m_fname.substr( m_fname.size() - 4 ) == ".edf", "We expect only EDF for the biosig loader so far." );
 
 #ifdef _MSC_VER
-    hd =  biosig_sopen( m_fileName.c_str(), "r", 0 );
+    hd =  biosig_sopen( m_fname.c_str(), "r", 0 );
 #else
-    hd =  sopen( m_fileName.c_str(), "r", 0 );
+    hd =  sopen( m_fname.c_str(), "r", 0 );
 #endif
 
     switch( B4C_ERRNUM )
@@ -156,7 +156,7 @@ boost::shared_ptr< WDataSet > WLoaderBiosig::load()
     }
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
-    eeg->setFileName( m_fileName );
+    eeg->setFileName( m_fname );
 
 
     wlog::info( "BIOSIG loading done." );

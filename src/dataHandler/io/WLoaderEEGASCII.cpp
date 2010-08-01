@@ -44,9 +44,9 @@ WLoaderEEGASCII::WLoaderEEGASCII( std::string fileName )
 
 boost::shared_ptr< WDataSet > WLoaderEEGASCII::load()
 {
-    std::ifstream in( m_fileName.c_str() );
+    std::ifstream in( m_fname.c_str() );
     if( in.fail() )
-        throw WException( "Could not read file \"" + m_fileName + "\"" );
+        throw WException( "Could not read file \"" + m_fname + "\"" );
 
     std::string tmp;
     getline( in, tmp );
@@ -85,6 +85,6 @@ boost::shared_ptr< WDataSet > WLoaderEEGASCII::load()
     WEEGElectrodeLibrary lib;  // TODO(wiebel): this is a dummy
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
-    eeg->setFileName( m_fileName );
+    eeg->setFileName( m_fname );
     return eeg;
 }

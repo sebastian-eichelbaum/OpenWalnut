@@ -29,7 +29,8 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "../WLoader.h"
+#include "WReader.h"
+#include "../WDataSet.h"
 #include "../../common/math/WMatrix.h"
 
 #include "nifti/nifti1_io.h"
@@ -38,7 +39,7 @@
  * Loader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
  * \ingroup dataHandler
  */
-class WLoaderNIfTI : public WLoader
+class WLoaderNIfTI : public WReader
 {
 /**
  * Only UnitTests may be friends.
