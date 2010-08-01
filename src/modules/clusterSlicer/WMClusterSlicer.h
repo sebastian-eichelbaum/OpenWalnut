@@ -36,9 +36,7 @@
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
- * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
- *
+ * Creates slices of a fiber cluster along its center line.
  * \warning ATM there are race conditions possible, e.g. a new FiberCluster arrives while the corresponding dataset is still in processing some
  * where. Hence we need an ensurance that the given dataset belongs to the given cluster!
  * \ingroup modules
