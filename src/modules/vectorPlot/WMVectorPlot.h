@@ -39,8 +39,8 @@
 #include "../../common/math/WVector3D.h"
 
 /**
- * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
- * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
+ * Show an arrow plot of a vector data set.
+ * \warning Selectable slices are limited to [0,160]x[0,200]x[0,160] so far.
  * \ingroup modules
  */
 class WMVectorPlot: public WModule
