@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_H
-#define WLOADERNIFTI_H
+#ifndef WREADERNIFTI_H
+#define WREADERNIFTI_H
 
 #include <string>
 #include <vector>
@@ -80,4 +80,4 @@ private:
     wmath::WMatrix< double > convertMatrix( const mat44& in );
 };
 
-#endif  // WLOADERNIFTI_H
+#endif  // WREADERNIFTI_H

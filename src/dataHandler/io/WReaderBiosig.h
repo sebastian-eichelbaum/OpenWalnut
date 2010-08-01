@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERBIOSIG_H
-#define WLOADERBIOSIG_H
+#ifndef WREADERBIOSIG_H
+#define WREADERBIOSIG_H
 
 #include <string>
 #include <vector>
@@ -83,4 +83,4 @@ private:
     size_t m_rows; //!< rows of the storage in the file
 };
 
-#endif  // WLOADERBIOSIG_H
+#endif  // WREADERBIOSIG_H

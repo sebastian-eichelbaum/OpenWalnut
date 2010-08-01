@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADEREEG_H
-#define WLOADEREEG_H
+#ifndef WREADEREEG_H
+#define WREADEREEG_H
 
 #include <string>
 
@@ -57,4 +57,4 @@ protected:
 private:
 };
 
-#endif  // WLOADEREEG_H
+#endif  // WREADEREEG_H

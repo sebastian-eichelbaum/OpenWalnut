@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERLIBEEP_H
-#define WLOADERLIBEEP_H
+#ifndef WREADERLIBEEP_H
+#define WREADERLIBEEP_H
 
 #include <string>
 
@@ -50,4 +50,4 @@ protected:
 private:
 };
 
-#endif  // WLOADERLIBEEP_H
+#endif  // WREADERLIBEEP_H

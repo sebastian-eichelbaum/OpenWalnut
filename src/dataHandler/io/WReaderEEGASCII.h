@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADEREEGASCII_H
-#define WLOADEREEGASCII_H
+#ifndef WREADEREEGASCII_H
+#define WREADEREEGASCII_H
 
 #include <string>
 
@@ -62,4 +62,4 @@ protected:
 private:
 };
 
-#endif  // WLOADEREEGASCII_H
+#endif  // WREADEREEGASCII_H
