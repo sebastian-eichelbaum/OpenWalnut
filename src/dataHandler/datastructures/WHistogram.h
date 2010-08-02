@@ -118,9 +118,15 @@ class WHistogram
          * Constructor.
          *
          * \param valueSet source of the data for the histogram
-         * \param nBuckets number of buckets this histogram should display
          **/
         explicit WHistogram( boost::shared_ptr< WValueSetBase > valueSet );
+
+
+        /**
+         * Constructor.
+         *
+         * \param valueSet source of the data for the histogram
+         **/
         explicit WHistogram( const WValueSetBase& valueSet );
 
         /**
