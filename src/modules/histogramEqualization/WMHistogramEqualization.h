@@ -115,6 +115,11 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * If true, histogram equalization is turned on.
+     */
+    WPropBool m_equalize;
 };
 
 #endif  // WMHISTOGRAMEQUALIZATION_H
