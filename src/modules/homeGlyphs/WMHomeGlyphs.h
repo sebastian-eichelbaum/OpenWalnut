@@ -110,12 +110,19 @@ private:
      */
     boost::shared_ptr< WCondition > m_recompute;
 
-    WPropInt m_glyphIdProp; //!< Property holding the glyph ID
+    WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
+    WPropInt m_sliceIdProp; //!< Property holding the slice ID
 
     /**
      * Just a preliminary function to avoid polluting moduleMain()
      */
     void execute();
+
+    /**
+     * Renders all glyphs for the given slice
+     * \param sliceId The number of the slice to be rendered.
+     */
+    void renderSlice( size_t sliceId );
 
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
 

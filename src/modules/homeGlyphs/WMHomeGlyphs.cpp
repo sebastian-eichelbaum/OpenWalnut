@@ -82,9 +82,14 @@ void WMHomeGlyphs::connectors()
 
 void WMHomeGlyphs::properties()
 {
-    m_glyphIdProp = m_properties->addProperty( "Glyph Id", "Number of the glyph to display", 0, m_recompute );
-    m_glyphIdProp->setMin( 0 );
-    m_glyphIdProp->setMax( 1000000 );
+    m_glyphSizeProp = m_properties->addProperty( "Glyph Size", "Size of the displayed glyphs.", 0.5, m_recompute );
+    m_glyphSizeProp->setMin( 0 );
+    m_glyphSizeProp->setMax( 100. );
+
+    m_sliceIdProp = m_properties->addProperty( "Slice Id", "Number of the slice to display", 0, m_recompute );
+    m_sliceIdProp->setMin( 0 );
+    m_sliceIdProp->setMax( 128 );
+
     m_usePolarPlotProp = m_properties->addProperty( "Use Polar Plot", "Use polar plot for glyph instead of HOME?", false, m_recompute );
 }
 
@@ -105,137 +110,171 @@ void WMHomeGlyphs::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        execute();
+//        execute();
+        renderSlice( m_sliceIdProp->get() );
 
         m_moduleState.wait();
     }
 }
 
-void WMHomeGlyphs::execute()
+void  WMHomeGlyphs::renderSlice( size_t sliceId )
 {
+    debugLog() << "Rendering slice ... " << sliceId;
     // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
-     if( m_glyphsGeode )
-     {
-         m_moduleNode->remove( m_glyphsGeode );
-     }
+    if( m_moduleNode )
+    {
+       WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+    }
 
     boost::shared_ptr< WDataSetSphericalHarmonics > dataSet = boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() );
-    wmath::WValue< double > coeffs = dataSet->getSphericalHarmonicAt( m_glyphIdProp->get() ).getCoefficients();
 
-    WAssert( coeffs.size() == 15, "This module can handle only 4th order spherical harmonics. Thus the input has to 15 dimensional vectors." );
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
 
-    unsigned int level = 3;
+    // convenience names for grid dimensions
+    size_t nX =  grid->getNbCoordsX();
+    size_t nY =  grid->getNbCoordsY();
+    size_t nZ =  grid->getNbCoordsZ();
+    WAssert( sliceId < nX, "Slice id to large." );
+
+    unsigned int level = 3; // subdivision level of sphere
     unsigned int infoBitFlag = ( 1 << limnPolyDataInfoNorm ) | ( 1 << limnPolyDataInfoRGBA );
     limnPolyData *sphere = limnPolyDataNew();
     limnPolyDataIcoSphere( sphere, infoBitFlag, level );
 
     const tijk_type *type = tijk_4o3d_sym;
 
+    // memory for the tensor and spherical harmonics data.
     float* ten = new float[type->num];
     float* res = new float[type->num];
     float* esh = new float[type->num];
 
-    for( size_t i = 0; i < 15; i++ )
-    {
-        esh[i] = coeffs[i];
-    }
-
-
-    /* convert even-order spherical harmonics to higher-order tensor */
-    tijk_esh_to_3d_sym_f( ten, esh, 4 );
-
-    /* create positive approximation of the tensor */
-    tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
-    parm->pos = 1;
-    tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
-    parm = tijk_refine_rankk_parm_nix( parm );
-    tijk_sub_f( ten, ten, res, type );
-
-
-
-    const char normalize = 0;
-    limnPolyData *glyph = limnPolyDataNew();
-    limnPolyDataCopy( glyph, sphere );
-
-    float radius;
-    if( m_usePolarPlotProp->get() )
-    {
-        radius = elfGlyphPolar( glyph, 1, ten, type, NULL, NULL, normalize, NULL, NULL );
-    }
-    else
-    {
-        radius = elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
-    }
-
-    //
-    // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
-    //
-
-    //-------------------------------
-    // DRAW
+    // preparation of osg stuff for the glyphs
     m_moduleNode = new WGEGroupNode();
-    osg::Geometry* glyphGeometry = new osg::Geometry();
-    m_glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
-    m_glyphsGeode->setName( "glyphs" );
-
-    osg::ref_ptr< osg::Vec3Array > vertArray = new osg::Vec3Array( glyph->xyzwNum );
-    wmath::WPosition glyphPos = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() )->getPosition(  m_glyphIdProp->get() );
-    m_glyphIdProp->setMax( dataSet->getGrid()->size() - 1 );
-
-    for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
+    // run through the positions in the slice and draw the glyphs
+    for( size_t yId = 0; yId < nY; ++yId )
     {
-        ( *vertArray )[vertId][0] = glyph->xyzw[4*vertId  ] / radius + glyphPos[0];
-        ( *vertArray )[vertId][1] = glyph->xyzw[4*vertId+1] / radius + glyphPos[1];
-        ( *vertArray )[vertId][2] = glyph->xyzw[4*vertId+2] / radius + glyphPos[2];
+        for( size_t zId = 0; zId < nZ; ++zId )
+        {
+            size_t posId = sliceId + yId * nX + zId * nX * nY;
+            wmath::WValue< double > coeffs = dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
+            WAssert( coeffs.size() == 15,
+                     "This module can handle only 4th order spherical harmonics."
+                     "Thus the input has to be 15 dimensional vectors." );
+
+            for( size_t coeffId = 0; coeffId < 15; coeffId++ )
+            {
+                esh[coeffId] = coeffs[coeffId];
+            }
+            // convert even-order spherical harmonics to higher-order tensor
+            tijk_esh_to_3d_sym_f( ten, esh, 4 );
+
+            // create positive approximation of the tensor
+            tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
+            parm->pos = 1;
+            tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
+            parm = tijk_refine_rankk_parm_nix( parm );
+            tijk_sub_f( ten, ten, res, type );
+
+            const char normalize = 0;
+            limnPolyData *glyph = limnPolyDataNew();
+            limnPolyDataCopy( glyph, sphere );
+
+            float radius;
+            if( m_usePolarPlotProp->get() )
+            {
+                radius = elfGlyphPolar( glyph, 1, ten, type, NULL, NULL, normalize, NULL, NULL );
+            }
+            else
+            {
+                radius = elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
+            }
+
+            radius *= 1.0 / m_glyphSizeProp->get();
+
+            // -------------------------------------------------------------------------------------------------------
+            // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
+            // -------------------------------------------------------------------------------------------------------
+
+            //-------------------------------
+            // DRAW
+
+            osg::Geometry* glyphGeometry = new osg::Geometry();
+            m_glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+            m_glyphsGeode->setName( "glyphs" );
+            osg::StateSet* state = m_glyphsGeode->getOrCreateStateSet();
+            osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+            lightModel->setTwoSided( true );
+            state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+            state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+
+            osg::ref_ptr< osg::Vec3Array > vertArray = new osg::Vec3Array( glyph->xyzwNum );
+            wmath::WPosition glyphPos = grid->getPosition( posId );
+
+            for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
+            {
+                ( *vertArray )[vertId][0] = glyph->xyzw[4*vertId  ] / radius + glyphPos[0];
+                ( *vertArray )[vertId][1] = glyph->xyzw[4*vertId+1] / radius + glyphPos[1];
+                ( *vertArray )[vertId][2] = glyph->xyzw[4*vertId+2] / radius + glyphPos[2];
+            }
+            glyphGeometry->setVertexArray( vertArray );
+
+            osg::DrawElementsUInt* glyphElement;
+
+            glyphElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+
+            glyphElement->reserve( glyph->indxNum );
+
+
+            for( unsigned int vertId = 0; vertId < glyph->indxNum; ++vertId )
+            {
+                glyphElement->push_back( glyph->indx[vertId] );
+            }
+
+            glyphGeometry->addPrimitiveSet( glyphElement );
+
+            // ------------------------------------------------
+            // normals
+            osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( glyph->normNum ) );
+
+
+            for( unsigned int vertId = 0; vertId < glyph->normNum; ++vertId )
+            {
+                ( *normals )[vertId][0] = glyph->norm[3*vertId];
+                ( *normals )[vertId][1] = glyph->norm[3*vertId+1];
+                ( *normals )[vertId][2] = glyph->norm[3*vertId+2];
+                ( *normals )[vertId].normalize();
+            }
+
+            glyphGeometry->setNormalArray( normals );
+            glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+
+            // ------------------------------------------------
+            // colors
+            osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( glyph->rgbaNum ) );
+
+            for( unsigned int vertId = 0; vertId < glyph->rgbaNum; ++vertId )
+            {
+                ( *colors )[vertId][0] = glyph->rgba[4*vertId] / 255.0;
+                ( *colors )[vertId][1] = glyph->rgba[4*vertId+1] / 255.0;
+                ( *colors )[vertId][2] = glyph->rgba[4*vertId+2] / 255.0;
+                ( *colors )[vertId][3] = glyph->rgba[4*vertId+3] / 255.0;
+            }
+
+            glyphGeometry->setColorArray( colors );
+            glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+            m_glyphsGeode->addDrawable( glyphGeometry );
+
+            // free memory
+            glyph = limnPolyDataNix( glyph );
+            m_moduleNode->insert( m_glyphsGeode );
+        }
     }
-    glyphGeometry->setVertexArray( vertArray );
-
-    osg::DrawElementsUInt* glyphElement;
-
-    glyphElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-
-    glyphElement->reserve( glyph->indxNum );
 
 
-    for( unsigned int vertId = 0; vertId < glyph->indxNum; ++vertId )
-    {
-        glyphElement->push_back( glyph->indx[vertId] );
-    }
-
-    glyphGeometry->addPrimitiveSet( glyphElement );
-
-    // ------------------------------------------------
-    // normals
-    osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( glyph->normNum ) );
-
-
-    for( unsigned int vertId = 0; vertId < glyph->normNum; ++vertId )
-    {
-        ( *normals )[vertId][0] = glyph->norm[3*vertId];
-        ( *normals )[vertId][1] = glyph->norm[3*vertId+1];
-        ( *normals )[vertId][2] = glyph->norm[3*vertId+2];
-        ( *normals )[vertId].normalize();
-    }
-
-    glyphGeometry->setNormalArray( normals );
-    glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-
-    // ------------------------------------------------
-    // colors
-    osg::Vec4Array* colors = new osg::Vec4Array;
-
-    WColor c( 0.0, 0.0, 1.0 );
-    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
-    glyphGeometry->setColorArray( colors );
-    glyphGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-    m_glyphsGeode->addDrawable( glyphGeometry );
-    m_moduleNode->insert( m_glyphsGeode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
-    // free memory
-    glyph = limnPolyDataNix( glyph );
 
     // free memory
     sphere = limnPolyDataNix( sphere );
