@@ -33,7 +33,7 @@
 #include <boost/scoped_array.hpp>
 #include <boost/shared_array.hpp>
 
-#include "../dataHandler/WValueSet.h"
+#include "../WValueSet.h"
 
 /**
  * Used to track (later: display) the occurrence frequencies of values in a value set.
@@ -59,7 +59,7 @@ class WHistogram
         /**
          * Pointer to all initial buckets of the histogram.
          **/
-        boost::shared_array<unsigned int> m_initialBuckets;
+        boost::shared_array< unsigned int > m_initialBuckets;
 
         /**
          * Number of buckets in the initial histogram.
@@ -69,7 +69,7 @@ class WHistogram
         /**
          * Pointer to all the buckets in the mapped histogram.
          **/
-        boost::scoped_array<unsigned int> m_mappedBuckets;
+        boost::scoped_array< unsigned int > m_mappedBuckets;
 
         /**
          * Tracks the number of a buckets in the mapped histogram.
@@ -97,7 +97,7 @@ class WHistogram
          *
          * \return m_initialBuckets
          **/
-        boost::shared_array<unsigned int> getInitialBuckets() const;
+        boost::shared_array< unsigned int > getInitialBuckets() const;
 
         /**
          * Return the number of initial buckets.
@@ -121,6 +121,7 @@ class WHistogram
          * \param nBuckets number of buckets this histogram should display
          **/
         explicit WHistogram( boost::shared_ptr< WValueSetBase > valueSet );
+        explicit WHistogram( const WValueSetBase& valueSet );
 
         /**
          * Copy constructor. If another interval size is given setInterval() is called and a

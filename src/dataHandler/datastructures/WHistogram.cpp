@@ -26,8 +26,8 @@
 #include <cstring> // memset()
 #include <iostream> // test() -> std::cout
 
-#include "WAssert.h"
-#include "WLimits.h"
+#include "../../common/WAssert.h"
+#include "../../common/WLimits.h"
 
 #include "WHistogram.h"
 
@@ -54,13 +54,13 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet )
     }
 
     // create base histogram
-    m_nInitialBuckets = ( m_maximum - m_minimum ) / minDistance;
+    m_nInitialBuckets = ( ( m_maximum - m_minimum ) / minDistance ) + 1 ;
     m_bucketSize = minDistance;
     unsigned int* initialBuckets = new unsigned int[m_nInitialBuckets];
     // initialize array to zero
     memset( initialBuckets, 0, m_nInitialBuckets * sizeof( unsigned int ) );
     //*initialBuckets = { 0 }; // this should works with C++0x (instead memset), TEST IT!
-    m_initialBuckets = boost::shared_array<unsigned int>( initialBuckets );
+    m_initialBuckets = boost::shared_array< unsigned int >( initialBuckets );
 
     m_nMappedBuckets = 0;
 
@@ -71,11 +71,51 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet )
     }
 }
 
+WHistogram::WHistogram( const WValueSetBase& valueSet )
+{
+    // calculate min max
+    m_minimum = wlimits::MAX_DOUBLE;
+    m_maximum = wlimits::MIN_DOUBLE;
+    double minDistance = wlimits::MAX_DOUBLE;
+    for( size_t i = 0; i != valueSet.size(); ++i )
+    {
+        double tmp = valueSet.getScalarDouble( i );
+        m_maximum = m_maximum < tmp ? tmp : m_maximum;
+        m_minimum = m_minimum > tmp ? tmp : m_minimum;
+
+        if( m_minimum != tmp && m_minimum != wlimits::MAX_DOUBLE )
+        {
+            minDistance = tmp - m_minimum < minDistance ? tmp - m_minimum : minDistance;
+        }
+        if( m_maximum != tmp && m_maximum != wlimits::MIN_DOUBLE )
+        {
+            minDistance = m_maximum - tmp < minDistance ? m_maximum - tmp : minDistance;
+        }
+    }
+
+    // create base histogram
+    m_nInitialBuckets = ( ( m_maximum - m_minimum ) / minDistance ) + 1 ;
+    m_bucketSize = minDistance;
+    unsigned int* initialBuckets = new unsigned int[m_nInitialBuckets];
+    // initialize array to zero
+    memset( initialBuckets, 0, m_nInitialBuckets * sizeof( unsigned int ) );
+    //*initialBuckets = { 0 }; // this should works with C++0x (instead memset), TEST IT!
+    m_initialBuckets = boost::shared_array< unsigned int >( initialBuckets );
+
+    m_nMappedBuckets = 0;
+
+    for( size_t i = 0; i < valueSet.size(); ++i )
+    {
+        double tmp = valueSet.getScalarDouble( i );
+        increment( tmp );
+    }
+}
+
 WHistogram::WHistogram( const WHistogram& histogram, double intervalSize )
 {
     // copy constructor
     m_nInitialBuckets = histogram.getNInitialBuckets();
-    m_initialBuckets = boost::shared_array<unsigned int>( histogram.getInitialBuckets() );
+    m_initialBuckets = boost::shared_array< unsigned int >( histogram.getInitialBuckets() );
     m_bucketSize = histogram.getBucketSize();
 
     m_nMappedBuckets = 0;
@@ -94,7 +134,7 @@ WHistogram::~WHistogram()
 {
 }
 
-boost::shared_array<unsigned int> WHistogram::getInitialBuckets() const
+boost::shared_array< unsigned int > WHistogram::getInitialBuckets() const
 {
     return m_initialBuckets;
 }
@@ -118,7 +158,18 @@ void WHistogram::increment( double value )
 
 unsigned int WHistogram::setInterval( double intervalSize )
 {
-    calculateMapping( intervalSize );
+    if( m_bucketSize == intervalSize )
+    {
+        if( m_mappedBuckets )
+        {
+            m_mappedBuckets.reset();
+            m_nMappedBuckets = 0;
+        }
+    }
+    else
+    {
+        calculateMapping( intervalSize );
+    }
     return m_nMappedBuckets;
 }
 
@@ -137,7 +188,7 @@ void WHistogram::calculateMapping( double intervalSize )
     unsigned int* mappedBuckets = new unsigned int[m_nMappedBuckets];
     memset( mappedBuckets, 0, m_nMappedBuckets * sizeof( unsigned int ) );
     //*mappedBuckets = { 0 }; // works with C++0x
-    boost::scoped_array<unsigned int> scoped( mappedBuckets );
+    boost::scoped_array< unsigned int > scoped( mappedBuckets );
     m_mappedBuckets.swap( scoped );
     unsigned int index = 0;
     for( unsigned int i = 0; i != m_nInitialBuckets; ++i )

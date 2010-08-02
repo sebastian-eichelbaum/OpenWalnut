@@ -25,7 +25,7 @@
 #ifndef WDATASETSCALAR_H
 #define WDATASETSCALAR_H
 
-#include "../common/WHistogram.h"
+#include "datastructures/WHistogram.h"
 
 #include "WDataSetSingle.h"
 
