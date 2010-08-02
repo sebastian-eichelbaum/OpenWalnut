@@ -67,9 +67,14 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
-#include "coordinateHUD.xpm"
 #include "WMCoordinateHUD.h"
+#include "coordinateHUD.xpm"
+#include "option_1.xpm"
+#include "option_2.xpm"
+#include "option_3.xpm"
+#include "option_4.xpm"
 
+// This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMCoordinateHUD )
 
 WMCoordinateHUD::WMCoordinateHUD():
@@ -107,79 +112,353 @@ void WMCoordinateHUD::connectors()
 
 void WMCoordinateHUD::properties()
 {
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    //list of alternatives:
+    m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_possibleSelections->addItem( "colorfull axis", "colorfull coordinate axis", option_1_xpm );
+    m_possibleSelections->addItem( "b/w axis", "black & white coordinate axis", option_2_xpm );
+    m_possibleSelections->addItem( "colorfull cube", "colorfull coordinate cube", option_3_xpm );
+    m_possibleSelections->addItem( "b/w cube", "black & white coordinate cube", option_4_xpm );
+
+    m_aSingleSelection = m_properties->addProperty( "HUD structure",  "Which look should the coordinateHUD have?", m_possibleSelections->getSelectorFirst(), m_propCondition );
+    
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
+   
 }
 
 void WMCoordinateHUD::moduleMain()
-{
+{ 
+
+    // added own shader for visualisation as HUD
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMCoordinateHUD" , m_localPath ) );
+ 
+    m_rootNode = new WGEManagedGroupNode( m_active );
+    //m_shader->apply( m_rootNode );
+    m_rootNode->setName( "coordHUDNode" );
+
+    // let the main loop awake if the properties changed.
     debugLog() << "Entering moduleMain()";
     m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
 
+    // signal ready state
     ready();
     debugLog() << "Module is now ready.";
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMCoordinateHUD" , m_localPath ) );
+        //default visualisation
+        buildColorAxis();
+        m_rootNode->insert( m_geode );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    m_rootNode = new WGEManagedGroupNode( m_active );
-    m_shader->apply( m_rootNode );
-    m_rootNode->setName( "coordHUDNode" );
+    while( !m_shutdownFlag() )
+    {
+ 
 
-    osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
-    osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
 
-    //Eckpunkte
-    float size = 1.0;
-    osg::Vec3Array* vertices = new osg::Vec3Array;
+        // Now, the moduleState variable comes into play. 
+        // The module can wait for the condition, which gets fired whenever the input receives data
+        // or an property changes. The main loop now waits until something happens.
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
 
-    vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( size, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, size, 0 ) );
-    vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, 0, size ) );
-    vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( -size, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, -size, 0 ) );
-    vertices->push_back( osg::Vec3( 0, 0, 0 ) );
-    vertices->push_back( osg::Vec3( 0, 0, -size ) );
+        // quit if requested
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
 
-    //colors
-    osg::Vec4 x_color( 1.0f, 0.0f, 0.0f, 1.0f );     //red
-    osg::Vec4 y_color( 0.0f, 1.0f, 0.0f, 1.0f );     //green
-    osg::Vec4 z_color( 0.0f, 0.0f, 1.0f, 1.0f );     //blue
-    osg::Vec4 neg_color( 1.0f, 1.0f, 1.0f, 1.0f );   //white
+        if ( m_aSingleSelection->changed() )
+        { 
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 
-    osg::Vec4Array* color = new osg::Vec4Array( 12 );
-    (*color)[0] = x_color;
-    (*color)[1] = x_color;
-    (*color)[2] = y_color;
-    (*color)[3] = y_color;
-    (*color)[4] = z_color;
-    (*color)[5] = z_color;
-    (*color)[6] = x_color;
-    (*color)[7] = neg_color;
-    (*color)[8] = y_color;
-    (*color)[9] = neg_color;
-    (*color)[10] = z_color;
-    (*color)[11] = neg_color;
+            WItemSelector s = m_aSingleSelection->get( true );
+            infoLog() << "New mode selected: " << s.at( 0 ).name ;
 
-    coordGeom->setColorArray( color );
-    coordGeom->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+            if ( s.at( 0 ).name == "colorfull axis" )
+            {            
+                buildColorAxis();
+            } else if ( s.at( 0 ).name == "b/w axis" )
+            {
+                buildBWAxis();
+            } else if ( s.at( 0 ).name == "colorfull cube" )
+            {
+                buildColorCube();
+            } else if ( s.at( 0 ).name == "b/w cube" )
+            {
+                buildBWCube();
+            }
 
-    osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size( ) );
+            //update node
+            m_rootNode->clear();
+            m_rootNode->insert( m_geode );
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+            debugLog() << "rdy...";
+        }
+    }
 
-    coordGeom->setVertexArray( vertices );
-    coordGeom->addPrimitiveSet( da );
-    coordGeode->addDrawable( coordGeom );
-    coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-
-    m_rootNode->clear();
-    m_rootNode->insert( coordGeode );
-
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-
+    // Since the modules run in a separate thread: wait
     waitForStop();
-
+    //remove the node from the graph
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+}
+
+void WMCoordinateHUD::buildColorAxis()
+{
+        //build the geometry & geode for the coordinate axis
+        osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
+        osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
+
+        //Vertices 
+        float size = 1.0;
+        osg::Vec3Array* vertices = new osg::Vec3Array;
+
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( size, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, size, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, size ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( -size, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, -size, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, -size ) );
+
+        //Colors
+        osg::Vec4 x_color( 1.0f, 0.0f, 0.0f, 1.0f );     //red
+        osg::Vec4 y_color( 0.0f, 1.0f, 0.0f, 1.0f );     //green
+        osg::Vec4 z_color( 0.0f, 0.0f, 1.0f, 1.0f );     //blue
+        osg::Vec4 neg_color( 1.0f, 1.0f, 1.0f, 1.0f );   //white
+        
+        //x direction transition from red to white
+        //y direction transition from green to white
+        //z direction transition from blue to white
+        osg::Vec4Array* color = new osg::Vec4Array( 12 );
+        (*color)[0] = x_color;
+        (*color)[1] = x_color;
+        (*color)[2] = y_color;
+        (*color)[3] = y_color;
+        (*color)[4] = z_color;
+        (*color)[5] = z_color;
+        (*color)[6] = x_color;
+        (*color)[7] = neg_color;
+        (*color)[8] = y_color;
+        (*color)[9] = neg_color;
+        (*color)[10] = z_color;
+        (*color)[11] = neg_color;
+
+        //add color to geometry
+        coordGeom->setColorArray( color );
+        coordGeom->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        //primitives = draw lines between vertices
+        osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size( ) );
+
+        //add geometry to geode
+        coordGeom->setVertexArray( vertices );
+        coordGeom->addPrimitiveSet( da );
+        coordGeode->addDrawable( coordGeom );
+        coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+        m_geode = coordGeode;
+}
+
+void WMCoordinateHUD::buildBWAxis()
+{
+        //build the geometry & geode for the coordinate axis
+        osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
+        osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
+
+        //Vertices 
+        float size = 1.0;
+        osg::Vec3Array* vertices = new osg::Vec3Array;
+
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( size, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, size, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, size ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( -size, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, -size, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, 0 ) );
+        vertices->push_back( osg::Vec3( 0, 0, -size ) );
+
+        //Colors
+        osg::Vec4 b_color( 0.0f, 0.0f, 0.0f, 1.0f );     //black
+        osg::Vec4 w_color( 1.0f, 1.0f, 1.0f, 1.0f );   //white
+        
+        //x direction transition from red to white
+        //y direction transition from green to white
+        //z direction transition from blue to white
+        osg::Vec4Array* color = new osg::Vec4Array( 12 );
+        (*color)[0] = b_color;
+        (*color)[1] = b_color;
+        (*color)[2] = b_color;
+        (*color)[3] = b_color;
+        (*color)[4] = b_color;
+        (*color)[5] = b_color;
+        (*color)[6] = b_color;
+        (*color)[7] = w_color;
+        (*color)[8] = b_color;
+        (*color)[9] = w_color;
+        (*color)[10] = b_color;
+        (*color)[11] = w_color;
+
+        //add color to geometry
+        coordGeom->setColorArray( color );
+        coordGeom->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        //primitives = draw lines between vertices
+        osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size( ) );
+
+        //add geometry to geode
+        coordGeom->setVertexArray( vertices );
+        coordGeom->addPrimitiveSet( da );
+        coordGeode->addDrawable( coordGeom );
+        coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+        m_geode = coordGeode;
+}
+
+void WMCoordinateHUD::buildBWCube()
+{
+        //build the geometry & geode for the coordinate axis
+        osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
+        osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
+
+       //Vertices 
+        float s = 0.5;
+        osg::Vec3Array* vertices = new osg::Vec3Array( 36 );
+
+        (*vertices)[15] = (*vertices)[12] = (*vertices)[9] = 
+            (*vertices)[6] = (*vertices)[0] = osg::Vec3( s, s, s );         //1
+
+        (*vertices)[33] = (*vertices)[30] = (*vertices)[8] = 
+            (*vertices)[3] = (*vertices)[1] = osg::Vec3( s, -s, s );        //2
+        
+        (*vertices)[26] = (*vertices)[17] = (*vertices)[5] =
+            (*vertices)[2] = osg::Vec3( s, s, -s );                         //3
+        
+        (*vertices)[32] = (*vertices)[29] = (*vertices)[25] =
+            (*vertices)[4] = osg::Vec3( s, -s, -s );                        //4
+        
+        (*vertices)[18] = (*vertices)[13] = (*vertices)[10] =
+             osg::Vec3( -s, s, s );                                         //5
+        
+        (*vertices)[19] = (*vertices)[34] = (*vertices)[21] = 
+            (*vertices)[11] = (*vertices)[7] =  osg::Vec3( -s, -s, s );     //6
+        
+        (*vertices)[27] = (*vertices)[24] = (*vertices)[23] = 
+            (*vertices)[20] = (*vertices)[16] = 
+            (*vertices)[14] = osg::Vec3( -s, s, -s );                       //7
+
+       (*vertices)[31] = (*vertices)[28] = (*vertices)[22] = 
+           (*vertices)[35] = osg::Vec3( -s, -s, -s );                       //8
+
+
+        //Colors
+        osg::Vec4 b_color( 0.0f, 0.0f, 0.0f, 1.0f );     //black
+        osg::Vec4 w_color( 1.0f, 1.0f, 1.0f, 1.0f );   //white
+        
+        //x direction transition from red to white
+        //y direction transition from green to white
+        //z direction transition from blue to white
+        osg::Vec4Array* color = new osg::Vec4Array( 12 );
+        (*color)[0] = (*color)[1] = (*color)[2] = (*color)[3] = 
+            (*color)[4] = (*color)[5] = b_color;
+
+        (*color)[6] = (*color)[7] = (*color)[8] = (*color)[9] = 
+            (*color)[10] = (*color)[11] = w_color;
+        
+        //add color to geometry
+        coordGeom->setColorArray( color );
+        coordGeom->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+        //primitives = draw lines between vertices
+        osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::TRIANGLES, 0, vertices->size( ) );
+
+        //add geometry to geode
+        coordGeom->setVertexArray( vertices );
+        coordGeom->addPrimitiveSet( da );
+        coordGeode->addDrawable( coordGeom );
+        coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+        m_geode = coordGeode;
+}
+
+void WMCoordinateHUD::buildColorCube()
+{
+        //build the geometry & geode for the coordinate axis
+        osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
+        osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
+
+       //Vertices 
+        float s = 0.5;
+        osg::Vec3Array* vertices = new osg::Vec3Array( 36 );
+
+        (*vertices)[15] = (*vertices)[12] = (*vertices)[9] = 
+            (*vertices)[6] = (*vertices)[0] = osg::Vec3( s, s, s );         //1
+
+        (*vertices)[33] = (*vertices)[30] = (*vertices)[8] = 
+            (*vertices)[3] = (*vertices)[1] = osg::Vec3( s, -s, s );        //2
+        
+        (*vertices)[26] = (*vertices)[17] = (*vertices)[5] =
+            (*vertices)[2] = osg::Vec3( s, s, -s );                         //3
+        
+        (*vertices)[32] = (*vertices)[29] = (*vertices)[25] =
+            (*vertices)[4] = osg::Vec3( s, -s, -s );                        //4
+        
+        (*vertices)[18] = (*vertices)[13] = (*vertices)[10] =
+             osg::Vec3( -s, s, s );                                         //5
+        
+        (*vertices)[19] = (*vertices)[34] = (*vertices)[21] = 
+            (*vertices)[11] = (*vertices)[7] =  osg::Vec3( -s, -s, s );     //6
+        
+        (*vertices)[27] = (*vertices)[24] = (*vertices)[23] = 
+            (*vertices)[20] = (*vertices)[16] = 
+            (*vertices)[14] = osg::Vec3( -s, s, -s );                       //7
+
+       (*vertices)[31] = (*vertices)[28] = (*vertices)[22] = 
+           (*vertices)[35] = osg::Vec3( -s, -s, -s );                       //8
+
+
+        //Colors
+        osg::Vec4 x_color( 1.0f, 0.0f, 0.0f, 1.0f );     //red
+        osg::Vec4 y_color( 0.0f, 1.0f, 0.0f, 1.0f );     //green
+        osg::Vec4 z_color( 0.0f, 0.0f, 1.0f, 1.0f );     //blue
+        osg::Vec4 neg_color( 1.0f, 1.0f, 1.0f, 1.0f );   //white
+
+        //x direction transition from red to white
+        //y direction transition from green to white
+        //z direction transition from blue to white
+        osg::Vec4Array* color = new osg::Vec4Array( 12 );
+        (*color)[0] = (*color)[1] = x_color;
+        (*color)[2] = (*color)[3] = y_color;
+        (*color)[4] = (*color)[5] = z_color;
+
+
+        (*color)[6] = (*color)[7] = (*color)[8] = (*color)[9] = 
+            (*color)[10] = (*color)[11] = neg_color;
+        
+        //add color to geometry
+        coordGeom->setColorArray( color );
+        coordGeom->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+        //primitives = draw lines between vertices
+        osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::TRIANGLES, 0, vertices->size( ) );
+
+        //add geometry to geode
+        coordGeom->setVertexArray( vertices );
+        coordGeom->addPrimitiveSet( da );
+        coordGeode->addDrawable( coordGeom );
+        coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+        m_geode = coordGeode;
 }
 

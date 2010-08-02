@@ -103,6 +103,27 @@ protected:
     virtual void properties();
 
     /**
+     * Build the geometry for colorfull coordinate axis
+     */
+    virtual void buildColorAxis();
+ 
+    /**
+     * build the geometry for black & white coordinate axis
+     */
+    virtual void buildBWAxis(); 
+  
+    /**
+     * build the geometry for black & white coordinate cube
+     */
+    virtual void buildColorCube();
+
+    /**
+     * build the geometry for black & white coordinate cube
+     */
+    virtual void buildBWCube();
+
+
+    /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
     osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
@@ -118,6 +139,21 @@ private:
      * the shader
      */
     osg::ref_ptr< WShader > m_shader;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * A property allowing the user to select ONE item of some list
+     */
+    WPropSelection m_aSingleSelection;
+
+    /**
+     * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
+     */
+    boost::shared_ptr< WItemSelection > m_possibleSelections;
 };
 
 #endif //WMCOORDINATEHUD_H
