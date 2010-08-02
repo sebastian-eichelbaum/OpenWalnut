@@ -128,21 +128,23 @@ public:
         {
             WThreadedFunction< FuncType > f( 1, func );
 
-            TS_ASSERT( !f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_INITIALIZED );
             f.run();
-            TS_ASSERT( !f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_RUNNING );
             f.wait();
-            TS_ASSERT( f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_FINISHED );
 
             TS_ASSERT_EQUALS( func->getResult(), 15 );
             func->reset();
 
             f.run();
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_RUNNING );
             f.wait();
 
             TS_ASSERT_EQUALS( func->getResult(), 15 );
 
             f.run();
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_RUNNING );
             f.wait();
 
             TS_ASSERT_EQUALS( func->getResult(), 30 );
@@ -152,11 +154,11 @@ public:
         {
             WThreadedFunction< FuncType > f( 2, func );
 
-            TS_ASSERT( !f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_INITIALIZED );
             f.run();
-            TS_ASSERT( !f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_RUNNING );
             f.wait();
-            TS_ASSERT( f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_FINISHED );
 
             TS_ASSERT_EQUALS( func->getResult(), 30 );
             func->reset();
@@ -165,11 +167,11 @@ public:
         {
             WThreadedFunction< FuncType > f( 5, func );
 
-            TS_ASSERT( !f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_INITIALIZED );
             f.run();
-            TS_ASSERT( !f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_RUNNING );
             f.wait();
-            TS_ASSERT( f.done() );
+            TS_ASSERT_EQUALS( f.status(), W_THREADS_FINISHED );
 
             TS_ASSERT_EQUALS( func->getResult(), 75 );
             func->reset();
@@ -184,13 +186,13 @@ public:
         boost::shared_ptr< FuncType > func( new FuncType( 100 ) );
         WThreadedFunction< FuncType > f( 6, func );
 
-        TS_ASSERT( !f.done() );
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_INITIALIZED );
         f.run();
-        TS_ASSERT( !f.done() );
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_RUNNING );
         f.stop();
-        TS_ASSERT( !f.done() );
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_STOP_REQUESTED );
         f.wait();
-        TS_ASSERT( f.done() );
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_ABORTED );
 
         TS_ASSERT_EQUALS( func->getResult(), -1 );
         func->reset();
@@ -204,11 +206,12 @@ public:
         boost::shared_ptr< FuncType > func( new FuncType( 5 ) );
         WThreadedFunction< FuncType > f( 6, func );
 
-        TS_ASSERT( !f.done() );
+
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_INITIALIZED );
         f.run();
-        TS_ASSERT( !f.done() );
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_RUNNING );
         f.getThreadsDoneCondition()->wait();
-        TS_ASSERT( f.done() );
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_FINISHED );
 
         TS_ASSERT_EQUALS( func->getResult(), 90 );
         func->reset();
@@ -228,7 +231,7 @@ public:
         f.run();
         f.wait();
 
-        TS_ASSERT( f.done() );
+        TS_ASSERT_EQUALS( f.status(), W_THREADS_ABORTED );
         TS_ASSERT_EQUALS( m_exceptionCounter.getReadTicket()->get(), 7 );
     }
 

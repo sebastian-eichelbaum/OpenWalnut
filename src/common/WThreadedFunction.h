@@ -34,6 +34,16 @@
 #include "WWorkerThread.h"
 #include "WSharedObject.h"
 
+//! an enum indicating the status of a multithreaded computation
+enum WThreadedFunctionStatus
+{
+    W_THREADS_INITIALIZED,      // the status after constructing the function
+    W_THREADS_RUNNING,          // the threads were started
+    W_THREADS_STOP_REQUESTED,   // a stop was requested and not all threads have stopped yet
+    W_THREADS_ABORTED,          // at least one thread was aborted due to a stop request or an exception
+    W_THREADS_FINISHED          // all threads completed their work successfully
+};
+
 /**
  * \class WThreadedFunction
  *
@@ -86,9 +96,11 @@ public:
     void wait();
 
     /**
-     * Check if all threads have finisched.
+     * Get the status of the threads.
+     *
+     * \return The current status.
      */
-    bool done();
+    WThreadedFunctionStatus status();
 
     /**
      * Returns a condition that gets fired when all threads have finished.
@@ -145,6 +157,9 @@ private:
 
     //! a signal for exceptions
     ExceptionSignal m_exceptionSignal;
+
+    //! the current status
+    WSharedObject< WThreadedFunctionStatus > m_status;
 };
 
 template< class Function_T >
@@ -154,7 +169,8 @@ WThreadedFunction< Function_T >::WThreadedFunction( std::size_t numThreads, boos
       m_func( function ),
       m_doneCondition( new WCondition ),
       m_threadsDone(),
-      m_exceptionSignal()
+      m_exceptionSignal(),
+      m_status()
 {
     if( !m_func )
     {
@@ -171,6 +187,12 @@ WThreadedFunction< Function_T >::WThreadedFunction( std::size_t numThreads, boos
         }
     }
 
+    // set number of finished threads to 0
+    m_threadsDone.getWriteTicket()->get() = 0;
+
+    // set initial status
+    m_status.getWriteTicket()->get() = W_THREADS_INITIALIZED;
+
     // create threads
     for( std::size_t k = 0; k < m_numThreads; ++k )
     {
@@ -179,9 +201,6 @@ WThreadedFunction< Function_T >::WThreadedFunction( std::size_t numThreads, boos
         t->subscribeExceptionSignal( boost::bind( &WThreadedFunction::handleThreadException, this, _1 ) );
         m_threads.push_back( t );
     }
-
-    // set number of finished threads to 0
-    m_threadsDone.getWriteTicket()->get() = 0;
 }
 
 template< class Function_T >
@@ -196,6 +215,8 @@ void WThreadedFunction< Function_T >::run()
 {
     // set the number of finished threads to 0
     m_threadsDone.getWriteTicket()->get() = 0;
+    // change status
+    m_status.getWriteTicket()->get() = W_THREADS_RUNNING;
     // start threads
     for( std::size_t k = 0; k < m_numThreads; ++k )
     {
@@ -206,6 +227,9 @@ void WThreadedFunction< Function_T >::run()
 template< class Function_T >
 void WThreadedFunction< Function_T >::stop()
 {
+    // change status
+    m_status.getWriteTicket()->get() = W_THREADS_STOP_REQUESTED;
+
     typename std::vector< boost::shared_ptr< WWorkerThread< Function_T > > >::iterator it;
     // tell the threads to stop
     for( it = m_threads.begin(); it != m_threads.end(); ++it )
@@ -226,9 +250,9 @@ void WThreadedFunction< Function_T >::wait()
 }
 
 template< class Function_T >
-bool WThreadedFunction< Function_T >::done()
+WThreadedFunctionStatus WThreadedFunction< Function_T >::status()
 {
-    return m_numThreads == m_threadsDone.getReadTicket()->get();
+    return m_status.getReadTicket()->get();
 }
 
 template< class Function_T >
@@ -249,11 +273,30 @@ void WThreadedFunction< Function_T >::subscribeExceptionSignal( ExceptionFunctio
 template< class Function_T >
 void WThreadedFunction< Function_T >::handleThreadDone()
 {
-    typename WSharedObject< std::size_t >::WriteTicket t = m_threadsDone.getWriteTicket();
+    typedef typename WSharedObject< std::size_t >::WriteTicket WT;
+
+    WT t = m_threadsDone.getWriteTicket();
     WAssert( t->get() < m_numThreads, "" );
     ++t->get();
-    if( m_numThreads == t->get() )
+    std::size_t k = t->get();
+    t = WT();
+
+    if( m_numThreads == k )
     {
+        typedef typename WSharedObject< WThreadedFunctionStatus >::WriteTicket ST;
+        ST s = m_status.getWriteTicket();
+        if( s->get() == W_THREADS_RUNNING )
+        {
+            s->get() = W_THREADS_FINISHED;
+        }
+        else if( s->get() == W_THREADS_STOP_REQUESTED )
+        {
+            s->get() = W_THREADS_ABORTED;
+        }
+        else
+        {
+            throw WException( "Invalid status change." );
+        }
         m_doneCondition->notify();
     }
 }
@@ -261,6 +304,20 @@ void WThreadedFunction< Function_T >::handleThreadDone()
 template< class Function_T >
 void WThreadedFunction< Function_T >::handleThreadException( WException const& e )
 {
+    // change status
+    typedef typename WSharedObject< WThreadedFunctionStatus >::WriteTicket WT;
+    WT w = m_status.getWriteTicket();
+    WAssert( w->get() != W_THREADS_FINISHED &&
+             w->get() != W_THREADS_ABORTED, "" );
+    if( w->get() == W_THREADS_RUNNING )
+    {
+        w->get() = W_THREADS_STOP_REQUESTED;
+    }
+    // force destruction of the write ticket
+    w = WT();
+    // update the number of finished threads
+    handleThreadDone();
+
     m_exceptionSignal( e );
 }
 

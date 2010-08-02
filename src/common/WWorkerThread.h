@@ -172,16 +172,19 @@ void WWorkerThread< Function_T >::threadMain()
         catch( WException const& e )
         {
             m_exceptionSignal( e );
+            return;
         }
         catch( std::exception const& e )
         {
             WException w( e.what() );
             m_exceptionSignal( w );
+            return;
         }
         catch( ... )
         {
             WException w( "An exception was thrown." );
             m_exceptionSignal( w );
+            return;
         }
     }
     m_stopSignal();
