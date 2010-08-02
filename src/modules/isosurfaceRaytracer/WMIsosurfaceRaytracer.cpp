@@ -152,33 +152,25 @@ void WMIsosurfaceRaytracer::moduleMain()
             break;
         }
 
-        // has the data changed?
-        boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
-        bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
-
-        // are there new valid data?
-        if ( dataChanged && dataValid )
-        {
-            // The data is different. Copy it to our internal data variable:
-            debugLog() << "Received Data.";
-            m_dataSet = newDataSet;
-        }
+        // was there an update?
+        bool dataUpdated = m_input->updated();
+        boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
+        bool dataValid   = ( dataSet );
 
         // m_isoColor or shading changed
         if ( m_isoColor->changed() || m_shadingAlgo->changed() )
         {
             // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
-            dataChanged = true;
+            dataUpdated = true;
         }
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataChanged && dataValid )
+        if ( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
             // First, grab the grid
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
             if ( !grid )
             {
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
@@ -197,7 +189,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             m_shader->apply( cube );
 
             // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
+            osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
 

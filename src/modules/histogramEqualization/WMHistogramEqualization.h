@@ -22,40 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMBOUNDINGBOX_H
-#define WMBOUNDINGBOX_H
+#ifndef WMHISTOGRAMEQUALIZATION_H
+#define WMHISTOGRAMEQUALIZATION_H
 
-#include <map>
 #include <string>
-#include <vector>
 
-#include <osg/Node>
-#include <osg/Geode>
-#include <osg/Uniform>
+#include "../../dataHandler/WDataSetScalar.h"
 
-#include "../../common/math/WVector3D.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-
-class WPickHandler;
+#include "../../kernel/WModuleOutputData.h"
 
 /**
- * Show the bounding box of a WDataSetSingle
+ * This modules takes a dataset and equalizes its histogram.
+ *
  * \ingroup modules
  */
-class WMBoundingBox : public WModule
+class WMHistogramEqualization: public WModule
 {
 public:
+
     /**
-     * Standard constructor.
+     * Default constructor.
      */
-    WMBoundingBox();
+    WMHistogramEqualization();
 
     /**
      * Destructor.
      */
-    ~WMBoundingBox();
+    virtual ~WMHistogramEqualization();
 
     /**
      * Gives back the name of this module.
@@ -65,15 +60,9 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description of module.
+     * \return description to module.
      */
     virtual const std::string getDescription() const;
-
-    /**
-     * Determine what to do if a property was changed.
-     * \param propertyName Name of the property.
-     */
-    void slotPropertyChanged( std::string propertyName );
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -89,6 +78,7 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
+
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -107,17 +97,25 @@ protected:
 private:
 
     /**
-     * Gets signaled from the properties object when something was changed. Now, only m_active is used. This method therefore simply
-     * activates/deactivates the BBox.
+     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
-    void activate();
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
-     * creates the actual bounding box graphics with coordinate labels at the corners
+     * The output connector used to provide the calculated data to other modules.
      */
-    void createGFX();
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
-    osg::ref_ptr< WGEGroupNode > m_bBoxNode; //!< OSG root node for this module
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    /**
+     * This is a pointer to the dataset the module is currently working on.
+     */
+    boost::shared_ptr< WDataSetScalar > m_dataSet;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
 };
-#endif  // WMBOUNDINGBOX_H
+
+#endif  // WMHISTOGRAMEQUALIZATION_H
+

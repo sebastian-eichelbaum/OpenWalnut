@@ -225,6 +225,7 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
             wmath::WPosition pos( m_translationX->get(), m_translationY->get(), m_translationZ->get() );
             grid->translate( pos );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
         else if ( property == m_stretchX || property == m_stretchY || property == m_stretchZ )
         {
@@ -232,6 +233,7 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
             wmath::WPosition str( m_stretchX->get(), m_stretchY->get(), m_stretchZ->get() );
             grid->stretch( str );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
         else if ( property == m_rotationX || property == m_rotationY || property == m_rotationZ )
         {
@@ -244,12 +246,14 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
             wmath::WPosition rot( rotx, roty, rotz );
             grid->rotate( rot );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
         else if ( property == m_matrixSelection )
         {
             boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
             grid->setActiveMatrix( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
     }
     else

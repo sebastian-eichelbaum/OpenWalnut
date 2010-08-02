@@ -22,38 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMISOSURFACERAYTRACER_H
-#define WMISOSURFACERAYTRACER_H
+#ifndef WMSURFACEPARAMETERANIMATOR_H
+#define WMSURFACEPARAMETERANIMATOR_H
 
 #include <string>
+#include <utility>
 
 #include <osg/Node>
 #include <osg/Uniform>
-
-#include "../../graphicsEngine/WShader.h"
+#include <osgDB/WriteFile>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "../../graphicsEngine/WShader.h"
 
 /**
- * This module builds the base for fast raytracing of isosurfacesin OpenWalnut. It uses shader based raytracing.
- *
+ * This module is a ray-tracing based isosurface using special methods for animating particle flow on its surface. The modules needs a scalar
+ * dataset as input and renders an isosurface on it. This isosurface is furthermore used to show an animation of moving bars on it. The module
+ * needs a corresponding scalar dataset which contains the parameterization of the track on which the bars should move.
  * \ingroup modules
  */
-class WMIsosurfaceRaytracer: public WModule
+class WMSurfaceParameterAnimator: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMIsosurfaceRaytracer();
+    WMSurfaceParameterAnimator();
 
     /**
      * Destructor.
      */
-    virtual ~WMIsosurfaceRaytracer();
+    virtual ~WMSurfaceParameterAnimator();
 
     /**
      * Gives back the name of this module.
@@ -98,11 +100,6 @@ protected:
     virtual void properties();
 
     /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr< osg::Node > m_rootNode;
-
-    /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
      */
     virtual void activate();
@@ -112,17 +109,31 @@ private:
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+
+    /**
+     * The input for the volumized fiber traces. Mostly, this is some kind of integrated length data.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_tracesInput;
+
+    /**
+     * This is a pointer to the dataset the module is currently working on.
+     */
+    boost::shared_ptr< WDataSetSingle > m_dataSet;
+
+    /**
+     * The dataset containing the fiber traces in each voxel in m_dataSet.
+     */
+    boost::shared_ptr< WDataSetSingle > m_tracesDataSet;
+
+    /////////////////////////////////////////////////////////////////////
+    // The Properties
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * The Isovalue used in the case m_isoSurface is true.
      */
     WPropInt m_isoValue;
-
-    /**
-     * The color used when in isosurface mode for blending.
-     */
-    WPropColor m_isoColor;
 
     /**
      * The number of steps to walk along the ray.
@@ -135,31 +146,64 @@ private:
     WPropInt m_alpha;
 
     /**
-     * Types of shading supported.
+     * The size of beam 1. A value of 0 denotes the smallest size and a value of 100 the largest, which typically is one third of the length of
+     * the fiber cluster.
      */
-    enum
-    {
-        Cortex = 0,
-        Depth,
-        Phong,
-        PhongDepth
-    }
-    SHADING_ALGORITHMS;
+    WPropInt m_size1;
 
     /**
-     * The available shading algorithms.
+     * The size of beam 1. A value of 0 denotes the smallest size and a value of 100 the largest, which typically is one third of the length of
+     * the fiber cluster.
      */
-    boost::shared_ptr< WItemSelection > m_shadingSelections;
+    WPropInt m_size2;
 
     /**
-     * The actually selected shading algorithm.
+     * The speed of beam 1 on the surface. This is relative to the clock which ticks 25 times per second.
      */
-    WPropSelection m_shadingAlgo;
+    WPropInt m_speed1;
+
+    /**
+     * The speed of beam 2 on the surface. This is relative to the clock which ticks 25 times per second.
+     */
+    WPropInt m_speed2;
+
+    /**
+     * Saturation of final rendering.
+     */
+    WPropInt m_saturation;
+
+    /**
+     * Scaling the parameter space ensures consistent sizes and speeds along multiple WMSurfaceParameterAnimator instances.
+     */
+    WPropDouble m_parameterScale;
+
+    /**
+     * The color used when in isosurface mode for blending.
+     */
+    WPropColor m_isoColor;
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /////////////////////////////////////////////////////////////////////
+    // OSG Stuff
+    /////////////////////////////////////////////////////////////////////
+
+    /**
+     * Renders the surface to an FBO.
+     *
+     * \param bbox the bounding box that should be used
+     *
+     * \return the node which contains the cube with the surface rendering
+     */
+    osg::ref_ptr< osg::Node > renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox );
+
+    /**
+     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     */
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
      * the DVR shader.
@@ -179,7 +223,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUpdateCallback( WMIsosurfaceRaytracer* module ): m_module( module ), m_initialUpdate( true )
+        explicit SafeUpdateCallback( WMSurfaceParameterAnimator* module ): m_module( module ), m_initialUpdate( true )
         {
         };
 
@@ -194,7 +238,7 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMIsosurfaceRaytracer* m_module;
+        WMSurfaceParameterAnimator* m_module;
 
         /**
          * Denotes whether the update callback is called the first time.
@@ -214,7 +258,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUniformCallback( WMIsosurfaceRaytracer* module ): m_module( module )
+        explicit SafeUniformCallback( WMSurfaceParameterAnimator* module ): m_module( module )
         {
         };
 
@@ -229,9 +273,9 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMIsosurfaceRaytracer* m_module;
+        WMSurfaceParameterAnimator* m_module;
     };
 };
 
-#endif  // WMISOSURFACERAYTRACER_H
+#endif  // WMSURFACEPARAMETERANIMATOR_H
 

@@ -93,9 +93,11 @@ void WMBoundingBox::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        // acquire data from the input connector
-        m_dataSet = m_input->getData();
-        if ( !m_dataSet.get() )
+        bool dataUpdated = m_input->updated();
+        boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
+        bool dataValid = ( dataSet );
+
+        if ( !dataValid )
         {
             // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
@@ -104,30 +106,10 @@ void WMBoundingBox::moduleMain()
             continue;
         }
 
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-
-        WAssert( grid, "Seems that grid is of wrong type." );
-
-        std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
-
-        m_bBoxNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-        m_bBoxNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
-
-        m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
-
-        wmath::WVector3D pos1 = bb.first;
-        wmath::WVector3D pos2 = bb.second;
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos2[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos2[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos2[2] ) ) );
-
-
-        WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_bBoxNode );
+        if ( dataUpdated )
+        {
+            createGFX();
+        }
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
@@ -135,6 +117,38 @@ void WMBoundingBox::moduleMain()
     }
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_bBoxNode );
+}
+
+void WMBoundingBox::createGFX()
+{
+    boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
+
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
+
+    WAssert( grid, "Seems that grid is of wrong type." );
+
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_bBoxNode );
+
+    std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
+
+    m_bBoxNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
+    m_bBoxNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
+
+    m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
+
+    wmath::WVector3D pos1 = bb.first;
+    wmath::WVector3D pos2 = bb.second;
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos1[2] ) ) );
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos1[2] ) ) );
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos2[2] ) ) );
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos2[2] ) ) );
+    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos2[2] ) ) );
+
+
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_bBoxNode );
 }
 
 void WMBoundingBox::connectors()

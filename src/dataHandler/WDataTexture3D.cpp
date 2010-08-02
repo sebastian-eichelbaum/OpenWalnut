@@ -340,6 +340,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
             data[i] = scaleInterval( static_cast< float >( source[i] ) );
+            //std::cout << static_cast< float >( source[i] ) << " - " << data[i] << std::endl;
         }
     }
     else if ( components == 3)
