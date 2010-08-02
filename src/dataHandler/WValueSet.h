@@ -83,9 +83,8 @@ public:
          * (no access to elements not in the subarray's range).
          * Only a valueset may construct a SubArray.
          *
-         * \param vs The valueset.
          * \param p A pointer to the first element.
-         * \param The size of the subarray.
+         * \param size The size of the subarray.
          */
         SubArray( T const* const p, std::size_t size )
             : m_ptr( p ),

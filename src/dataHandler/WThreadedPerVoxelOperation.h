@@ -105,7 +105,7 @@ public:
     /**
      * Perform the computation for a specific voxel.
      *
-     * \param The input dataset.
+     * \param input The input dataset.
      * \param job The job to be done (in this case the voxel to be processed).
      */
     virtual void compute( boost::shared_ptr< ValueSetType const > input, std::size_t const& job );
