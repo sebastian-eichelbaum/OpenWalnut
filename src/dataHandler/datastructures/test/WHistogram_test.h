@@ -81,11 +81,11 @@ class WHistogramTest : public CxxTest::TestSuite
             const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
             WValueSet< double >* valueSet = new WValueSet< double >( 0, 1, v, W_DT_DOUBLE );
             WHistogram hist( *valueSet );
-            TS_ASSERT_EQUALS( hist.at(0), 1 ); // 0.0
-            TS_ASSERT_EQUALS( hist.at(1), 2 ); // 1.0
-            TS_ASSERT_EQUALS( hist.at(2), 0 ); // 2.0
-            TS_ASSERT_EQUALS( hist.at(3), 0 ); // 3.0
-            TS_ASSERT_EQUALS( hist.at(4), 1 ); // 4.0
+            TS_ASSERT_EQUALS( hist.at( 0 ), 1 ); // 0.0
+            TS_ASSERT_EQUALS( hist.at( 1 ), 2 ); // 1.0
+            TS_ASSERT_EQUALS( hist.at( 2 ), 0 ); // 2.0
+            TS_ASSERT_EQUALS( hist.at( 3 ), 0 ); // 3.0
+            TS_ASSERT_EQUALS( hist.at( 4 ), 1 ); // 4.0
             TS_ASSERT_THROWS_ANYTHING( hist.at( 5 ) );
         }
 
@@ -113,9 +113,9 @@ class WHistogramTest : public CxxTest::TestSuite
             WHistogram hist( *valueSet );
             TS_ASSERT_EQUALS( hist.size(), 5 ); // 0.0, 1.0, 2.0, 3.0 and 4.0
             TS_ASSERT_EQUALS( hist.setInterval( 2 ), 3 ); // setInterval() returns new size()
-            TS_ASSERT_EQUALS( hist.at(0), 2 ); // 0.0, 1.0
-            TS_ASSERT_EQUALS( hist.at(1), 1 ); // 2.0, 3.0
-            TS_ASSERT_EQUALS( hist.at(2), 1 ); // 4.0
+            TS_ASSERT_EQUALS( hist.at( 0 ), 2 ); // 0.0, 1.0
+            TS_ASSERT_EQUALS( hist.at( 1 ), 1 ); // 2.0, 3.0
+            TS_ASSERT_EQUALS( hist.at( 2 ), 1 ); // 4.0
             hist.setInterval( 1 );
             TS_ASSERT_EQUALS( hist.size(), 5 );
         }

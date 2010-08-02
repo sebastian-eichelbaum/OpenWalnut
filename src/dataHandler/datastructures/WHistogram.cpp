@@ -54,7 +54,7 @@ WHistogram::WHistogram( boost::shared_ptr< WValueSetBase > valueSet )
     }
 
     // create base histogram
-    m_nInitialBuckets = ( ( m_maximum - m_minimum ) / minDistance ) + 1 ;
+    m_nInitialBuckets = ( ( m_maximum - m_minimum ) / minDistance ) + 1;
     m_bucketSize = minDistance;
     unsigned int* initialBuckets = new unsigned int[m_nInitialBuckets];
     // initialize array to zero
@@ -94,7 +94,7 @@ WHistogram::WHistogram( const WValueSetBase& valueSet )
     }
 
     // create base histogram
-    m_nInitialBuckets = ( ( m_maximum - m_minimum ) / minDistance ) + 1 ;
+    m_nInitialBuckets = ( ( m_maximum - m_minimum ) / minDistance ) + 1;
     m_bucketSize = minDistance;
     unsigned int* initialBuckets = new unsigned int[m_nInitialBuckets];
     // initialize array to zero
