@@ -44,7 +44,6 @@ class WDataTexture3D;
 class WDataSetSingle : public WDataSet
 {
 public:
-
     /**
      * Constructs an instance out of a value set and a grid.
      *

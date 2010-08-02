@@ -178,6 +178,11 @@ void WWorkerThread< Function_T >::threadMain()
             WException w( e.what() );
             m_exceptionSignal( w );
         }
+        catch( ... )
+        {
+            WException w( "An exception was thrown." );
+            m_exceptionSignal( w );
+        }
     }
     m_stopSignal();
 }
