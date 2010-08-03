@@ -53,11 +53,12 @@ WValueSetHistogram::WValueSetHistogram( boost::shared_ptr< WValueSetBase > value
 
     // create base histogram
     m_nInitialBuckets = ( ( m_maximum - m_minimum ) / minDistance ) + 1;
+    std::cout << "m_nInitialBuckets"  <<m_nInitialBuckets << std::endl;
     m_bucketSize = minDistance;
     unsigned int* initialBuckets = new unsigned int[m_nInitialBuckets];
     // initialize array to zero
     memset( initialBuckets, 0, m_nInitialBuckets * sizeof( unsigned int ) );
-    //*initialBuckets = { 0 }; // this should works with C++0x (instead memset), TEST IT!
+    //initialBuckets = { 0 }; // this should works with C++0x (instead memset), TEST IT!
     m_initialBuckets = boost::shared_array< unsigned int >( initialBuckets );
 
     m_nMappedBuckets = 0;
@@ -65,10 +66,10 @@ WValueSetHistogram::WValueSetHistogram( boost::shared_ptr< WValueSetBase > value
     for( size_t i = 0; i < valueSet->size(); ++i )
     {
         double tmp = valueSet->getScalarDouble( i );
-        increment( tmp );
+    //    increment( tmp );
     }
 }
-
+/*
 WValueSetHistogram::WValueSetHistogram( const WValueSetBase& valueSet )
 {
     // calculate min max
@@ -126,7 +127,7 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetHistogram& histogram, dou
         WAssert( intervalSize > 0.0, "WValueSetHistogram::WValueSetHistogram : intervalSize has to be greater then zero." );
         calculateMapping( intervalSize );
     }
-}
+}*/
 
 WValueSetHistogram::~WValueSetHistogram()
 {

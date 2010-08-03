@@ -57,7 +57,7 @@ public:
      *
      * \param valueSet source of the data for the histogram
      */
-    explicit WValueSetHistogram( const WValueSetBase& valueSet );
+    //explicit WValueSetHistogram( const WValueSetBase& valueSet );
 
     /**
      * Copy constructor. If another interval size is given setInterval() is called and
@@ -66,7 +66,7 @@ public:
      * \param histogram another WValueSetHistogram
      * \param intervalSize the size of one bucket in the mapped histogram
      */
-    explicit WValueSetHistogram( const WValueSetHistogram& histogram, double intervalSize = 0.0 );
+    //explicit WValueSetHistogram( const WValueSetHistogram& histogram, double intervalSize = 0.0 );
 
     /**
      * Destructor.
