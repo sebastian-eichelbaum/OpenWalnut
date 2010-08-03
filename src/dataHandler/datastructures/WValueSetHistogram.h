@@ -57,15 +57,15 @@ public:
      *
      * \param valueSet source of the data for the histogram
      */
-    //explicit WValueSetHistogram( const WValueSetBase& valueSet );
+    explicit WValueSetHistogram( const WValueSetBase& valueSet );
 
     /**
      * Copy constructor. If another interval size is given the histogram gets matched to it using the initial bucket data.
      *
      * \param histogram another WValueSetHistogram
-     * \param intervalSize the size of one bucket in the mapped histogram
+     * \param buckets the new number of buckets.
      */
-    //explicit WValueSetHistogram( const WValueSetHistogram& histogram, double intervalSize = 0.0 );
+    explicit WValueSetHistogram( const WValueSetHistogram& histogram, size_t buckets = 0 );
 
     /**
      * Destructor.
@@ -80,7 +80,7 @@ public:
      *
      * \return elements in the bucket.
      */
-    size_t operator[]( size_t index );
+    size_t operator[]( size_t index ) const;
 
     /**
      * Get the size of the bucket. Testing if the position is valid.
@@ -90,7 +90,7 @@ public:
      *
      * \return elements in the bucket
      */
-    size_t at( size_t index );
+    size_t at( size_t index ) const;
 
     /**
      * Returns the number of buckets in the histogram with the actual mapping.
@@ -119,6 +119,16 @@ public:
      * \return the size of a bucket.
      */
     double getBucketSize() const;
+
+    /**
+     * Returns the actual interval associated with the given index. The interval is
+     * getIntervalForIndex( i ).second == getIntervalForIndex( i + 1 ).first
+     *
+     * \param index the intex
+     *
+     * \return the open interval in [getMinimum(),getMaximum].
+     */
+    std::pair< double, double > getIntervalForIndex( size_t index ) const;
 
 protected:
     /**
@@ -184,13 +194,6 @@ private:
     double m_mappedBucketSize;
 
     /**
-     * To calculate the new buckets
-     *
-     * \param intervalSize the size of one bucket
-     */
-    void calculateMapping( double intervalSize );
-
-    /**
      * increment the value by one, contains the logic to find the element place in the array.
      * Should only be used in the constructor i.e. while iterating over WValueSet.
      *
@@ -198,6 +201,11 @@ private:
      */
     void insert( double value );
 };
+
+/**
+ * Write a histogram in string representation to the given output stream.
+ */
+std::ostream& operator<<( std::ostream& out, const WValueSetHistogram& h );
 
 #endif  // WVALUESETHISTOGRAM_H
 

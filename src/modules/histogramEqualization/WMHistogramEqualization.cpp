@@ -134,7 +134,8 @@ void WMHistogramEqualization::moduleMain()
         debugLog() << "Recalculating";
 
         // Grab the histogram
-
+        boost::shared_ptr< const WValueSetHistogram > hist = dataSet->getHistogram();
+        debugLog() << *hist;
 
     }
 }

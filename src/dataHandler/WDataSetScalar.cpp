@@ -146,8 +146,7 @@ boost::shared_ptr< const WValueSetHistogram > WDataSetScalar::getHistogram()
     }
 
     boost::lock_guard<boost::mutex> lock( m_histogramLock );
-    std::cout << " -------------------------------------------------- " << std::endl;
-    //m_histogram = boost::shared_ptr< WValueSetHistogram >( new WValueSetHistogram( m_valueSet ) );
+    m_histogram = boost::shared_ptr< WValueSetHistogram >( new WValueSetHistogram( m_valueSet ) );
 
     return m_histogram;
 }
