@@ -39,6 +39,8 @@
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../common/math/WVector3D.h"
 #include "../../common/math/WMatrix.h"
+#include "../../common/WThreadedFunction.h"
+#include "../../dataHandler/WThreadedPerVoxelOperation.h"
 
 /**
  * This module implements the simple fiber tracking algorithm by Mori et al.
@@ -111,14 +113,33 @@ protected:
 
 private:
 
+    //! the threaded per-voxel function
+    typedef WThreadedPerVoxelOperation< float, 6, double, 4 > TPVO;
+
+    //! the thread pool type
+    typedef WThreadedFunction< TPVO > EigenFunctionType;
+
+    //! the input of the per-voxel operation
+    typedef TPVO::TransmitType EigenInArrayType;
+
+    //! the output of the per-voxel operation
+    typedef TPVO::OutTransmitType EigenOutArrayType;
+
+    //! the valueset type
+    typedef WValueSet< double > FloatValueSetType;
+
     /**
-     * Computes the largest eigenvector as well as the fractional anisotropy (FA)
-     * for every position in the input dataset. The calculation is spread over
-     * multiple threads.
+     * The function that computes the eigenvectors.
      *
-     * \see WEigenThread
+     * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
+     * \return The components of the largest eigenvector and the fa value in a 4-float array.
      */
-    void doEigen();
+    EigenOutArrayType const eigenFunc( EigenInArrayType const& input );
+
+    /**
+     * Resets the threaded function/threadpool.
+     */
+    void resetEigenFunction();
 
     /**
      * Calculate fibers using the fiber tracking algorithm by Mori et al.
@@ -133,59 +154,47 @@ private:
     void doMori( double const minFA, unsigned int const minPoints, double minCos );
 
     /**
-     * A condition for property changes.
+     * Resets the current progress to 0.
+     *
+     * \param todo The number of operations of the new progress.
      */
+    void resetProgress( std::size_t todo );
+
+    //! A condition for property changes.
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * A pointer to the input tensor dataset.
-     */
+    //! A pointer to the input tensor dataset.
     boost::shared_ptr< WDataSetSingle > m_dataSet;
 
-    /**
-     * The output dataset. Stores all fibers extracted from the input tensor field.
-     */
+    //! The output dataset. Stores all fibers extracted from the input tensor field.
     boost::shared_ptr< WDataSetFibers > m_fiberSet;
 
-    /**
-     * The output Connector.
-     */
+    //! The output Connector.
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output;
 
-    /**
-     * The input Connector.
-     */
+    //! The input Connector.
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
 
-    /**
-     * Stores the eigenvectors extracted from the input tensor field.
-     */
-    boost::shared_ptr< std::vector< wmath::WVector3D > > m_eigenVectors;
+    //! Stores eigenvectors and fractional anisotropy of the input dataset.
+    boost::shared_ptr< WDataSetSingle > m_eigenField;
 
-    /**
-     * Stores the fractional anisotropy of the input tensor field.
-     */
-    boost::shared_ptr< std::vector< double > > m_FA;
+    //! the functor used for the calculation of the eigenvectors
+    boost::shared_ptr< TPVO > m_eigenOperation;
 
-    /**
-     * The minimum FA property.
-     */
+    //! the object that keeps track of the current progress
+    boost::shared_ptr< WProgress > m_currentProgress;
+
+    //! The threadpool for the eigenvector and fa computations.
+    boost::shared_ptr< EigenFunctionType > m_eigenPool;
+
+    //! The minimum FA property.
     WPropDouble m_minFA;
 
-    /**
-     * The minimum number of points property.
-     */
+    //! The minimum number of points property.
     WPropInt m_minPoints;
 
-    /**
-     * The minimum cosine property.
-     */
+    //! The minimum cosine property.
     WPropDouble m_minCos;
-
-    /**
-     * Run the algorithm.
-     */
-    WPropBool m_run;
 };
 
 #endif  // WMDETERMINISTICFTMORI_H

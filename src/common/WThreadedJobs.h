@@ -71,7 +71,7 @@ public:
     /**
      * Abstract function for the job aquisition.
      *
-     * \param [out]job The job.
+     * \param job The job (output).
      * \return false, iff no more jobs need to be processed.
      */
     virtual bool getJob( JobType& job ) = 0; // NOLINT

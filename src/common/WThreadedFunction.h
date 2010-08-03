@@ -26,6 +26,7 @@
 #define WTHREADEDFUNCTION_H
 
 #include <memory.h>
+#include <iostream>
 
 #include <vector>
 #include <boost/thread.hpp>
@@ -50,6 +51,8 @@ enum WThreadedFunctionStatus
  * Creates threads that compute a function in a multithreaded fashion.
  *
  * \note This class is NOT thread-safe, do not access it from different threads simultaneously.
+ *
+ * \ingroup common
  */
 template< class Function_T >
 class WThreadedFunction
@@ -288,15 +291,18 @@ void WThreadedFunction< Function_T >::handleThreadDone()
         if( s->get() == W_THREADS_RUNNING )
         {
             s->get() = W_THREADS_FINISHED;
+            std::cout << "All threads finished." << std::endl;
         }
         else if( s->get() == W_THREADS_STOP_REQUESTED )
         {
             s->get() = W_THREADS_ABORTED;
+            std::cout << "All threads aborted." << std::endl;
         }
         else
         {
             throw WException( "Invalid status change." );
         }
+        std::cout << "Notifiing condition." << std::endl;
         m_doneCondition->notify();
     }
 }

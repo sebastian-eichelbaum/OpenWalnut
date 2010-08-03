@@ -30,7 +30,6 @@
 #include "../WValueSetBase.h"
 #include "../WDataHandlerEnums.h"
 
-
 /**
  * Dummy class for testing the abstract class WValueSetBase
  */
@@ -40,7 +39,7 @@ friend class WValueSetBaseTest;
 
 public:
     /**
-     * Standar constructor of Dummy class.
+     * Standard constructor of Dummy class.
      */
     Dummy()
         : WValueSetBase( 0, 1, W_DT_INT8 )
@@ -56,20 +55,39 @@ public:
     {
     }
 
+    /**
+     * Destructor.
+     */
     virtual ~Dummy()
     {
     }
 
+    /**
+     * Get the size.
+     *
+     * \return The size.
+     */
     virtual size_t size() const
     {
         return 255;
     }
 
+    /**
+     * Get the raw size.
+     *
+     * \return The raw size.
+     */
     virtual size_t rawSize() const
     {
         return 255;
     }
 
+    /**
+     * Get the value.
+     *
+     * \param i The position of the value.
+     * \return The value at position i.
+     */
     virtual double getScalarDouble( size_t i ) const
     {
         return 255;
