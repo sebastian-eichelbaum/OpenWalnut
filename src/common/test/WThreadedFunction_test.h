@@ -74,6 +74,7 @@ class WThreadedFunctionTest : public CxxTest::TestSuite
             {
                 m_stopped.getWriteTicket()->get() = true;
             }
+            sleep( 1 );
         }
 
         /**
