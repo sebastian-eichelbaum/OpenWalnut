@@ -43,17 +43,16 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     WAssert( newValueSet->size() == newGrid->size(), "Number of values unequal number of positions in grid." );
     WAssert( newValueSet->order() == 0, "The value set does not contain scalars." );
 
-    double max = wlimits::MIN_DOUBLE;
-    double min = wlimits::MAX_DOUBLE;
+    m_histogram = boost::shared_ptr< WHistogram >( new WHistogram( newValueSet ) );
+    m_maximum = m_histogram->getMax();
+    m_minimum = m_histogram->getMin();
 
-    for( size_t i = 0; i < newValueSet->size(); ++i )
-    {
-        double tmp = newValueSet->getScalarDouble( i );
-        max = max < tmp ? tmp : max;
-        min = min > tmp ? tmp : min;
-    }
-    m_maximum = max;
-    m_minimum = min;
+    // TEST
+    //boost::shared_ptr< WHistogram > hist( new WHistogram( *m_histogram, 15 ) );
+    //m_histogram->setInterval( 20.0 );
+    //m_histogram->test();
+    //hist->setInterval( 15.0 );
+    //hist->test();
 }
 
 WDataSetScalar::WDataSetScalar()
@@ -74,6 +73,8 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     WAssert( newValueSet->order() == 0, "The value set does not contain scalars." );
 
     WAssert( max >= min, "max must be at least as large as min." );
+    // TODO(ebaum, rfrohl): WHistogram calculates min/max, change constructor
+    m_histogram = boost::shared_ptr< WHistogram >( new WHistogram( newValueSet ) );
     m_maximum = max;
     m_minimum = min;
 }
@@ -84,11 +85,13 @@ WDataSetScalar::~WDataSetScalar()
 
 double WDataSetScalar::getMax() const
 {
+    //change to whistogram->getMax()?
     return m_maximum;
 }
 
 double WDataSetScalar::getMin() const
 {
+    //change to whistogram->getMin()?
     return m_minimum;
 }
 

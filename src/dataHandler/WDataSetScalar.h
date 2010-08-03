@@ -25,6 +25,8 @@
 #ifndef WDATASETSCALAR_H
 #define WDATASETSCALAR_H
 
+#include "datastructures/WHistogram.h"
+
 #include "WDataSetSingle.h"
 
 /**
@@ -127,6 +129,11 @@ protected:
 private:
     double m_maximum; //!< Largest scalar of data set.
     double m_minimum; //!< Smallest scalar of data set.
+
+    /**
+     * The histogram for later use.
+     **/
+    boost::shared_ptr< WHistogram > m_histogram;
 };
 
 template< typename T > T WDataSetScalar::getValueAt( int x, int y, int z ) const
