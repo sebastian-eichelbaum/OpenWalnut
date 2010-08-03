@@ -73,6 +73,7 @@ class WThreadedFunctionTest : public CxxTest::TestSuite
             {
                 m_result.getWriteTicket()->get() = -1;
             }
+            sleep( 1 );
         }
 
         /**
