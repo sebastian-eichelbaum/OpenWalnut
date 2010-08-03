@@ -60,8 +60,7 @@ public:
     //explicit WValueSetHistogram( const WValueSetBase& valueSet );
 
     /**
-     * Copy constructor. If another interval size is given setInterval() is called and
-     * the mapped histogram is calculated.
+     * Copy constructor. If another interval size is given the histogram gets matched to it using the initial bucket data.
      *
      * \param histogram another WValueSetHistogram
      * \param intervalSize the size of one bucket in the mapped histogram
@@ -74,15 +73,6 @@ public:
     ~WValueSetHistogram();
 
     /**
-     * Set the new interval size.
-     *
-     * \param intervalSize size of the interval for each mapped bucket.
-     *
-     * \return size of the new (mapped) histogram.
-     */
-    unsigned int setInterval( double intervalSize );
-
-    /**
      * Get the size of the bucket.
      *
      * \param index which buckets size is to be returned, starts with 0 which is the bucket
@@ -90,7 +80,7 @@ public:
      *
      * \return elements in the bucket.
      */
-    unsigned int operator[]( unsigned int index );
+    size_t operator[]( size_t index );
 
     /**
      * Get the size of the bucket. Testing if the position is valid.
@@ -100,28 +90,35 @@ public:
      *
      * \return elements in the bucket
      */
-    unsigned int at( unsigned int index );
+    size_t at( size_t index );
 
     /**
-     * Returns the number of bars in the histogram with the actual mapping.
+     * Returns the number of buckets in the histogram with the actual mapping.
      *
      * \return number of buckets
      */
-    unsigned int size() const;
+    size_t size() const;
 
     /**
      * Returns the minimum value in the value set.
      *
      * \return minimum
      */
-    double getMin() const;
+    double getMinimum() const;
 
     /**
      * Returns the maximum value in the value set.
      *
      * \return maximum
      */
-    double getMax() const;
+    double getMaximum() const;
+
+    /**
+     * Return the size of one bucket.
+     *
+     * \return the size of a bucket.
+     */
+    double getBucketSize() const;
 
 protected:
     /**
@@ -129,21 +126,21 @@ protected:
      *
      * \return m_initialBuckets
      */
-    boost::shared_array< unsigned int > getInitialBuckets() const;
+    boost::shared_array< size_t > getInitialBuckets() const;
 
     /**
      * Return the number of initial buckets.
      *
      * \return m_nInitialBuckets
      */
-    unsigned int getNInitialBuckets() const;
+    size_t getNInitialBuckets() const;
 
     /**
      * Return the size of one initial bucket.
      *
      * \return m_bucketSize
      */
-    double getBucketSize() const;
+    double getInitialBucketSize() const;
 
 private:
     /**
@@ -159,27 +156,32 @@ private:
     /**
      * Size of one bucket in the initial histogram.
      */
-    double m_bucketSize;
+    double m_initialBucketSize;
 
     /**
      * Pointer to all initial buckets of the histogram.
      */
-    boost::shared_array< unsigned int > m_initialBuckets;
+    boost::shared_array< size_t > m_initialBuckets;
 
     /**
      * Number of buckets in the initial histogram.
      */
-    unsigned int m_nInitialBuckets;
+    size_t m_nInitialBuckets;
 
     /**
-     * Pointer to all the buckets in the mapped histogram.
+     * Pointer to all initial buckets of the histogram.
      */
-    boost::scoped_array< unsigned int > m_mappedBuckets;
+    boost::shared_array< size_t > m_mappedBuckets;
 
     /**
      * Tracks the number of a buckets in the mapped histogram.
      */
-    unsigned int m_nMappedBuckets;
+    size_t m_nMappedBuckets;
+
+    /**
+     * Size of one bucket in the mapped histogram.
+     */
+    double m_mappedBucketSize;
 
     /**
      * To calculate the new buckets
@@ -194,7 +196,7 @@ private:
      *
      * \param value value to increment
      */
-    void increment( double value );
+    void insert( double value );
 };
 
 #endif  // WVALUESETHISTOGRAM_H
