@@ -106,9 +106,20 @@ protected:
     osg::ref_ptr< SafeUpdaterCallback > m_nodeUpdater;
 
     /**
+     * The type of operation to perform.
+     */
+    typedef enum
+    {
+        INSERT = 0,         //! insert the specified node
+        REMOVE,             //! remove the specified node
+        CLEAR               //! clear group node completely
+    }
+    ChildOperationType;
+
+    /**
      * A pair denoting an operation on this group. The boolean denotes deletion (false) or insertion (true).
      */
-    typedef std::pair< bool, osg::ref_ptr< osg::Node > > ChildOperation;
+    typedef std::pair< ChildOperationType, osg::ref_ptr< osg::Node > > ChildOperation;
 
     /**
      * Queue of childs that need to be added/removed during the next update cycle. It is a pair per operation, where the bool is denoting removal

@@ -48,6 +48,7 @@
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
 #include "../common/WConditionSet.h"
+#include "../common/WPathHelper.h"
 #include "../common/WProgressCombiner.h"
 
 #include "WModule.h"
@@ -63,7 +64,8 @@ WModule::WModule():
     m_isReadyOrCrashed( new WConditionSet(), false ),
     m_isRunning( new WCondition(), false ),
     m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
-    m_moduleState()
+    m_moduleState(),
+    m_localPath( WPathHelper::getSharePath() )
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
@@ -520,3 +522,14 @@ wlog::WStreamedLogger WModule::warnLog() const
 {
     return wlog::warn( getName() );
 }
+
+void WModule::setLocalPath( boost::filesystem::path path )
+{
+    m_localPath = path;
+}
+
+boost::filesystem::path WModule::getLocalPath() const
+{
+    return m_localPath;
+}
+

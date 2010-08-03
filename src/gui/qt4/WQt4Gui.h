@@ -31,7 +31,7 @@
 #include <boost/program_options.hpp>
 
 #include "../../kernel/WModule.h"
-#include "../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "../WGUI.h"
 
 class WMainWindow;
@@ -113,6 +113,22 @@ public:
      * \param module the module
      */
     virtual void slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
+
+    /**
+     * Slot gets called whenever a connector pair got connected.
+     *
+     * \param in input connector
+     * \param out output connector
+     */
+    virtual void slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out );
+
+    /**
+     * Slot gets called whenever a connector pair got disconnected.
+     *
+     * \param in input connector
+     * \param out output connector
+     */
+    virtual void slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out );
 
     /**
      * getter functions for the signales proved by the gui

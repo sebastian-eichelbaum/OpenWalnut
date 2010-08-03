@@ -133,6 +133,71 @@ public:
         WValueSet< int8_t > set2( 2, dim, v, W_DT_INT8 );
         TS_ASSERT_THROWS_ANYTHING( set2.getWValue( 0 ) );
     }
+
+    /**
+     * A subarray should never exceed the valuesets boundaries and should not have a length of 0.
+     */
+    void testSubArrayInstantiation()
+    {
+        int8_t a[4] = { 0, -5, 1, 2 };
+        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        WValueSet< int8_t > set( 1, 2, v, W_DT_INT8 );
+        TS_ASSERT_THROWS_NOTHING( set.getSubArray( 0, 2 ) );
+        TS_ASSERT_THROWS_NOTHING( set.getSubArray( 3, 1 ) );
+        TS_ASSERT_THROWS( set.getSubArray( 4, 1 ), WException );
+        TS_ASSERT_THROWS( set.getSubArray( 3, 2 ), WException );
+        TS_ASSERT_THROWS( set.getSubArray( 2, 0 ), WException );
+    }
+
+    /**
+     * A subarray should return the correct elements.
+     */
+    void testSubArrayAccess()
+    {
+        int8_t a[ 8 ] = { 0, -5, 1, 2, -27, 6, 29, 8 };
+        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        WValueSet< int8_t > set( 1, 2, v, W_DT_INT8 );
+
+        {
+            WValueSet< int8_t >::SubArray const s = set.getSubArray( 0, 2 );
+
+            TS_ASSERT_THROWS_NOTHING( s[ 0 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 1 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 2 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 100 ] );
+
+            TS_ASSERT_EQUALS( s[ 0 ], 0 );
+            TS_ASSERT_EQUALS( s[ 1 ], -5 );
+            TS_ASSERT_EQUALS( s[ 2 ], 0 );
+            TS_ASSERT_EQUALS( s[ 100 ], 0 );
+        }
+        {
+            WValueSet< int8_t >::SubArray const s = set.getSubArray( 1, 3 );
+
+            TS_ASSERT_THROWS_NOTHING( s[ 0 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 1 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 2 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 100 ] );
+
+            TS_ASSERT_EQUALS( s[ 0 ], -5 );
+            TS_ASSERT_EQUALS( s[ 1 ], 1 );
+            TS_ASSERT_EQUALS( s[ 2 ], 2 );
+            TS_ASSERT_EQUALS( s[ 100 ], -5 );
+        }
+        {
+            WValueSet< int8_t >::SubArray const s = set.getSubArray( 5, 3 );
+
+            TS_ASSERT_THROWS_NOTHING( s[ 0 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 1 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 2 ] );
+            TS_ASSERT_THROWS_NOTHING( s[ 100 ] );
+
+            TS_ASSERT_EQUALS( s[ 0 ], 6 );
+            TS_ASSERT_EQUALS( s[ 1 ], 29 );
+            TS_ASSERT_EQUALS( s[ 2 ], 8 );
+            TS_ASSERT_EQUALS( s[ 100 ], 6 );
+        }
+    }
 };
 
 #endif  // WVALUESET_TEST_H

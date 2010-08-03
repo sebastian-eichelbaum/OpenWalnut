@@ -31,8 +31,9 @@
 
 /**
  * This class provides a common interface for thread-safe access to sequence containers (list, vector, dequeue ).
+ * \param S the sequence container to use. Everything is allowed here which privides push_back and pop_back as well as size functionality.
  */
-template < typename T, typename S >
+template < typename S >
 class WSharedSequenceContainer: public WSharedObject< S >
 {
 public:
@@ -71,7 +72,7 @@ public:
      *
      * \param x the new element.
      */
-    void push_back( const T& x );
+    void push_back( const typename S::value_type& x );
 
     /**
      * Removes an element from the end.
@@ -98,45 +99,45 @@ protected:
 private:
 };
 
-template < typename T, typename S >
-WSharedSequenceContainer< T, S >::WSharedSequenceContainer():
+template < typename S >
+WSharedSequenceContainer< S >::WSharedSequenceContainer():
     WSharedObject< S >()
 {
     // init members
 }
 
-template < typename T, typename S >
-WSharedSequenceContainer< T, S >::~WSharedSequenceContainer()
+template < typename S >
+WSharedSequenceContainer< S >::~WSharedSequenceContainer()
 {
     // clean up
 }
 
-template < typename T, typename S >
-void WSharedSequenceContainer< T, S >::push_back( const T& x )
+template < typename S >
+void WSharedSequenceContainer< S >::push_back( const typename S::value_type& x )
 {
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().push_back( x );
 }
 
-template < typename T, typename S >
-void WSharedSequenceContainer< T, S >::pop_back()
+template < typename S >
+void WSharedSequenceContainer< S >::pop_back()
 {
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().pop_back();
 }
 
-template < typename T, typename S >
-void WSharedSequenceContainer< T, S >::clear()
+template < typename S >
+void WSharedSequenceContainer< S >::clear()
 {
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().clear();
 }
 
-template < typename T, typename S >
-size_t WSharedSequenceContainer< T, S >::size()
+template < typename S >
+size_t WSharedSequenceContainer< S >::size()
 {
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();

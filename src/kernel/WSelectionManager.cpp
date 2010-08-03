@@ -22,7 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
+#include <osg/Matrix>
+
+#include "WKernel.h"
+#include "../common/math/WLinearAlgebraFunctions.h"
+
 #include "WSelectionManager.h"
+
+using wmath::WVector3D;
+using wmath::WPosition;
+using wmath::WMatrix;
+
 
 WSelectionManager::WSelectionManager()
 {
@@ -36,4 +48,61 @@ WSelectionManager::~WSelectionManager()
 boost::shared_ptr< WCrosshair >WSelectionManager::getCrosshair()
 {
     return m_crosshair;
+}
+
+int WSelectionManager::getFrontSector()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer->getCamera()->getViewMatrix();
+    osg::Matrix rm = viewer->getCamera()->getViewMatrix();
+
+    WMatrix< double > rotMat( 4, 4 );
+    for( size_t i = 0; i < 4; ++i )
+    {
+        for( size_t j = 0; j < 4; ++j )
+        {
+            rotMat( i, j ) = rm( i, j );
+        }
+    }
+    WPosition v1( 0, 0, 1 );
+    WPosition view;
+    view = transformPosition3DWithMatrix4D( rotMat, v1 );
+
+    std::vector<float> dots( 8 );
+    WPosition v2( 1, 1, 1 );
+    dots[0] = v2.dotProduct( view );
+
+    v2[2] = -1;
+    dots[1] = v2.dotProduct( view );
+
+    v2[1] = -1;
+    dots[2] = v2.dotProduct( view );
+
+    v2[2] = 1;
+    dots[3] = v2.dotProduct( view );
+
+    v2[0] = -1;
+    dots[4] = v2.dotProduct( view );
+
+    v2[2] = -1;
+    dots[5] = v2.dotProduct( view );
+
+    v2[1] = 1;
+    dots[6] = v2.dotProduct( view );
+
+    v2[2] = 1;
+    dots[7] = v2.dotProduct( view );
+
+    float max = 0.0;
+    int quadrant = 0;
+    for ( int i = 0; i < 8; ++i )
+    {
+        if ( dots[i] > max )
+        {
+            max = dots[i];
+            quadrant = i;
+        }
+    }
+    return quadrant;
 }

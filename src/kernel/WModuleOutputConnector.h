@@ -94,6 +94,20 @@ public:
      */
     virtual const boost::shared_ptr< WTransferable > getRawData() const = 0;
 
+    /**
+     * Returns true if this instance is an WModuleInputConnector.
+     *
+     * \return true if castable to WModuleInputConnector.
+     */
+    virtual bool isInputConnector() const;
+
+    /**
+     * Returns true if this instance is an WModuleOutputConnector.
+     *
+     * \return true if castable to WModuleOutputConnector.
+     */
+    virtual bool isOutputConnector() const;
+
 protected:
 
     // If you want to add additional signals an output connector should subscribe FROM an input connector, overwrite

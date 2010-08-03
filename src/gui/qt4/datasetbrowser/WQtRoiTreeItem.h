@@ -30,7 +30,7 @@
 #include <QtGui/QTreeWidgetItem>
 
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "WQtTreeItem.h"
 
 /**

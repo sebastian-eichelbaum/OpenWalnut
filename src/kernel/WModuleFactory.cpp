@@ -32,41 +32,6 @@
 #include "WModule.h"
 #include "WModuleCombiner.h"
 #include "../common/WLogger.h"
-#include "../modules/applyMask/WMApplyMask.h"
-#include "../modules/arbitraryRois/WMArbitraryRois.h"
-#include "../modules/boundingBox/WMBoundingBox.h"
-#include "../modules/clusterParamDisplay/WMClusterParamDisplay.h"
-#include "../modules/clusterSlicer/WMClusterSlicer.h"
-#include "../modules/coordinateSystem/WMCoordinateSystem.h"
-#include "../modules/dataTypeConversion/WMDataTypeConversion.h"
-#include "../modules/deterministicFTMori/WMDeterministicFTMori.h"
-#include "../modules/isosurfaceRaytracer/WMIsosurfaceRaytracer.h"
-#include "../modules/distanceMap/WMDistanceMap.h"
-#include "../modules/distanceMap/WMDistanceMapIsosurface.h"
-#include "../modules/eegView/WMEEGView.h"
-#include "../modules/detTractClustering/WMDetTractClustering.h"
-#include "../modules/detTractCulling/WMDetTractCulling.h"
-#include "../modules/fiberDisplay/WMFiberDisplay.h"
-#include "../modules/fiberSelection/WMFiberSelection.h"
-#include "../modules/fiberTransform/WMFiberTransform.h"
-#include "../modules/gaussFiltering/WMGaussFiltering.h"
-#include "../modules/imageExtractor/WMImageExtractor.h"
-#include "../modules/hud/WMHud.h"
-#include "../modules/lic/WMLIC.h"
-#include "../modules/marchingCubes/WMMarchingCubes.h"
-#include "../modules/meshReader/WMMeshReader.h"
-#include "../modules/navSlices/WMNavSlices.h"
-#include "../modules/probTractDisplay/WMProbTractDisplay.h"
-#include "../modules/scalarSegmentation/WMScalarSegmentation.h"
-#include "../modules/superquadricGlyphs/WMSuperquadricGlyphs.h"
-#include "../modules/template/WMTemplate.h"
-#include "../modules/triangleMeshRenderer/WMTriangleMeshRenderer.h"
-#include "../modules/vectorPlot/WMVectorPlot.h"
-#include "../modules/voxelizer/WMVoxelizer.h"
-#include "../modules/writeNIfTI/WMWriteNIfTI.h"
-#include "../modules/writeTracts/WMWriteTracts.h"
-#include "../modules/splineSurface/WMSplineSurface.h"
-#include "../modules/atlasSurfaces/WMAtlasSurfaces.h"
 #include "combiner/WApplyCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
@@ -76,7 +41,8 @@
 boost::shared_ptr< WModuleFactory > WModuleFactory::m_instance = boost::shared_ptr< WModuleFactory >();
 
 WModuleFactory::WModuleFactory():
-    m_prototypes()
+    m_prototypes(),
+    m_moduleLoader()
 {
     // initialize members
 }
@@ -94,43 +60,13 @@ void WModuleFactory::load()
     // operation must be exclusive
     PrototypeSharedContainerType::WriteTicket m_prototypeAccess = m_prototypes.getWriteTicket();
 
-    // currently the prototypes are added by hand. This will be done automatically later.
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMApplyMask() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMArbitraryRois() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMBoundingBox() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterParamDisplay() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMClusterSlicer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMCoordinateSystem() ) );
+    // These modules need to be added by hand. They are special, obviously.
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDataTypeConversion() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDeterministicFTMori() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMIsosurfaceRaytracer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMap() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDistanceMapIsosurface() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMEEGView() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDetTractClustering() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMDetTractCulling() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberSelection() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberTransform() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMGaussFiltering() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMHud() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMImageExtractor() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMLIC() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMarchingCubes() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMMeshReader() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMProbTractDisplay() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMScalarSegmentation() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSuperquadricGlyphs() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTemplate() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMTriangleMeshRenderer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVectorPlot() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMVoxelizer() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteNIfTI() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMWriteTracts() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMSplineSurface() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMAtlasSurfaces() ) );
+
+    // Load the dynamic modules here:
+    m_moduleLoader.load( m_prototypeAccess );
 
     // unlock as read lock is sufficient for the further steps
     m_prototypeAccess.reset();
@@ -143,7 +79,7 @@ void WModuleFactory::load()
     for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
-        WLogger::getLogger()->addLogMessage( "Loading module: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_INFO );
+        WLogger::getLogger()->addLogMessage( "Initializing module prototype: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_INFO );
 
         // that should not happen. Names should not occur multiple times since they are unique
         if ( names.count( ( *listIter )->getName() ) )
@@ -186,6 +122,7 @@ boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule 
 
     // call prototypes factory function
     boost::shared_ptr< WModule > clone = boost::shared_ptr< WModule >( prototype->factory() );
+    clone->setLocalPath( prototype->getLocalPath() );   // prototype and clone have the same local path.
     initializeModule( clone );
 
     return clone;

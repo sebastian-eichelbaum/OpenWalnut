@@ -95,6 +95,29 @@ public:
                    double offsetX, double offsetY, double offsetZ );
 
     /**
+     * Defines the number of samples in each coordinate direction as ints,
+     * and the position of the origin of the grid and the offset between the
+     * samples in the different coordinate directions as one 4x4 transformation
+     * matrix using homogeneous coordinates (but only affine transformations are
+     * allowed).
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param qFormMat 4x4 transformation matrix using homogeneous coordinates
+     * \param sFormMat 4x4 transformation matrix using homogeneous coordinates
+     * \param offsetX distance of samples along first axis
+     * \param offsetY distance of samples along second axis
+     * \param offsetZ distance of samples along third axis
+     */
+    WGridRegular3D(
+                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                   const wmath::WMatrix< double >& qFormMat,
+                   const wmath::WMatrix< double >& sFormMat,
+                   double offsetX, double offsetY, double offsetZ );
+
+
+
+    /**
      * Defines the position of the origin of the grid, the number of
      * samples in each coordinate direction and the offset between the
      * samples in the different coordinate directions as scalar.
@@ -393,6 +416,41 @@ public:
      */
     bool isNotRotatedOrSheared() const;
 
+    /**
+     * translates the texture along a given vector
+     *
+     * \param translation the translation vector
+     */
+    void translate( wmath::WPosition translation );
+
+    /**
+     * stretches the texture
+     *
+     * \param str the stretch factors in x,y,z direction
+     */
+    void stretch( wmath::WPosition str );
+
+    /**
+     * rotates the texture around the x,y,z axis
+     *
+     * \param rot the angles for each axis
+     */
+    void rotate( wmath::WPosition rot );
+
+    /**
+     * sets the active matrix
+     *
+     * \param matrix which matrix to use
+     */
+    void setActiveMatrix( int matrix );
+
+    /**
+     * gets the active matrix
+     *
+     * \return matrix in use
+     */
+    int getActiveMatrix();
+
 protected:
 
 private:
@@ -408,6 +466,11 @@ private:
      */
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
 
+    /**
+     * execute the texture transformation on the original transformation matrix with the stored
+     * translate, stretch and rotate vectors
+     */
+    void doCustomTransformations();
 
     wmath::WPosition m_origin; //!< Origin of the grid.
 
@@ -423,14 +486,50 @@ private:
     double m_offsetY; //!< Offset between samples along y axis
     double m_offsetZ; //!< Offset between samples along z axis
 
+    double m_offsetXorig; //!< Offset between samples along x axis, stores the original value for manipulation
+    double m_offsetYorig; //!< Offset between samples along y axis, stores the original value for manipulation
+    double m_offsetZorig; //!< Offset between samples along z axis, stores the original value for manipulation
+
     /**
      * Matrix storing the transformation of the grid. This is redundant.
      * Please use m_origin and m_direction? for all normal computations.
      * Use matrix only where you really need a matrix for multiplication.
+     *
+     * This is the matrix we are working with
      */
     wmath::WMatrix<double> m_matrix;
 
     wmath::WMatrix<double> m_matrixInverse; //!< Inverse of m_matrix
+
+    /**
+     * Matrix storing the original stretch and translation
+     */
+    wmath::WMatrix<double> m_matrixNoMatrix;
+
+    /**
+     * Matrix storing the original qform matrix from the niftii file header
+     */
+    wmath::WMatrix<double> m_matrixQForm;
+
+    /**
+     * Matrix storing the original sform matrix from the niftii file header
+     */
+    wmath::WMatrix<double> m_matrixSForm;
+
+    /**
+     * indicates which transformation matrix is used
+     *
+     * 0 = no matrix, just stretch and translation
+     * 1 = matrix 0, usually the qform matrix
+     * 2 = matrix 1, usually the sform matrix
+     */
+    int m_matrixActive;
+
+    wmath::WPosition m_translate; //!< stores the translation vector
+
+    wmath::WPosition m_stretch; //!< stores the stretch vector
+
+    wmath::WPosition m_rotation; //!< stores the rotation vector
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const

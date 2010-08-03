@@ -40,6 +40,9 @@
 #include "WMFiberSelection.h"
 #include "fiberSelection.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMFiberSelection )
+
 WMFiberSelection::WMFiberSelection():
     WModule()
 {
@@ -382,10 +385,8 @@ void WMFiberSelection::moduleMain()
                 {
                     curVertIdx++;
 
-                    // TODO(ebaum): fix this crappy stuff translating the vertices just because the WDataSetFibers has another even
-                    // more crappy hack :-(
-                    newFibVerts->push_back( 160 - fibVerts->at( sidx + ( 3 * vi ) ) );
-                    newFibVerts->push_back( 200 - fibVerts->at( sidx + ( 3 * vi ) + 1 ) );
+                    newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) ) );
+                    newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) + 1 ) );
                     newFibVerts->push_back( fibVerts->at( sidx + ( 3 * vi ) + 2 ) );
                     newFibVertsRev->push_back( curRealFibIdx );
                     newFibVertsRev->push_back( curRealFibIdx );

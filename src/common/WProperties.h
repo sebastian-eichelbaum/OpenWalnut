@@ -61,7 +61,7 @@ public:
     /**
      * The alias for a shared container.
      */
-    typedef WSharedSequenceContainer< boost::shared_ptr< WPropertyBase >, PropertyContainerType > PropertySharedContainerType;
+    typedef WSharedSequenceContainer< PropertyContainerType > PropertySharedContainerType;
 
     /**
      * The const iterator type of the container.

@@ -78,6 +78,15 @@ public:
         m_data = data;
 
         // broadcast this event
+        triggerUpdate();
+    };
+
+    /**
+     * This method simply propagates an update but does not actually change the data.
+     */
+    virtual void triggerUpdate()
+    {
+        // broadcast this event
         propagateDataChange();
     };
 

@@ -32,7 +32,7 @@
 #include <osg/PositionAttitudeTransform>
 #include <osgText/Text>
 
-#include "../../graphicsEngine/WGEResourceManager.h"
+#include "../../common/WPathHelper.h"
 
 #include "WRulerOrtho.h"
 
@@ -103,7 +103,7 @@ void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
     labelGeode->addDrawable( label );
 
     // setup font
-    label->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
     label->setBackdropType( osgText::Text::OUTLINE );
     label->setCharacterSize( 6 );
 
