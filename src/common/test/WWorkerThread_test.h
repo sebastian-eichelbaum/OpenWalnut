@@ -51,6 +51,7 @@ class WWorkerThreadTest : public CxxTest::TestSuite
         {
             // init stuff here
             m_result.getWriteTicket()->get() = 0;
+            m_stopped.getWriteTicket()->get() = false;
 
             if( value < 0 )
             {
@@ -71,8 +72,17 @@ class WWorkerThreadTest : public CxxTest::TestSuite
             }
             if( shutdown() )
             {
-                m_result.getWriteTicket()->get() = -1;
+                m_stopped.getWriteTicket()->get() = true;
             }
+        }
+
+        /**
+         * Check if the thread was ordered to stop.
+         * \return true, if the thread was ordered to stop
+         */
+        bool stopped()
+        {
+            return m_stopped.getReadTicket()->get();
         }
 
         /**
@@ -85,6 +95,14 @@ class WWorkerThreadTest : public CxxTest::TestSuite
             return m_result.getReadTicket()->get();
         }
 
+        /**
+         * Reset everything.
+         */
+        void reset()
+        {
+            m_result.getWriteTicket()->get() = 0;
+        }
+
     private:
 
         //! the input data
@@ -92,6 +110,9 @@ class WWorkerThreadTest : public CxxTest::TestSuite
 
         //! the result
         WSharedObject< int > m_result;
+
+        //! thread stopped?
+        WSharedObject< bool > m_stopped;
     };
 
     /**
@@ -137,7 +158,7 @@ public:
     {
         m_stopped = false;
 
-        boost::shared_ptr< FuncType > func( new FuncType( 60 ) );
+        boost::shared_ptr< FuncType > func( new FuncType( 100000000 ) );
         WWorkerThread< FuncType > w( func, 0, 1 );
         w.subscribeStopSignal( boost::bind( &WWorkerThreadTest::stopTestDone, this ) );
 
@@ -145,7 +166,7 @@ public:
         w.requestStop();
         w.wait();
 
-        TS_ASSERT_EQUALS( func->getResult(), -1 );
+        TS_ASSERT( func->stopped() );
         TS_ASSERT_EQUALS( m_stopped, true );
     }
 
