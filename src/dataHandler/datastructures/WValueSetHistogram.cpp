@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <cstring> // memset()
+#include <utility>
 
 #include "../../common/WAssert.h"
 #include "../../common/WLimits.h"
@@ -117,7 +118,8 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetHistogram& histogram, siz
     }
 
     WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
-    WAssert( buckets < m_nInitialBuckets, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be smaller than the initial bucket count." );
+    WAssert( buckets < m_nInitialBuckets,
+                          "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be smaller than the initial bucket count." );
 
     // number of elements in the new mapped histogram = division + (round up)
     m_nMappedBuckets = buckets - 1;

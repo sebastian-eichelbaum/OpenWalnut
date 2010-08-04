@@ -85,7 +85,6 @@ public:
     /**
      * Get the value.
      *
-     * \param i The position of the value.
      * \return The value at position i.
      */
     virtual double getScalarDouble( size_t /* i */ ) const

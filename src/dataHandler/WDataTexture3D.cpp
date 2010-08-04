@@ -46,7 +46,8 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     m_scale( m_maxValue - m_minValue )
 {
     // initialize members
-    wlog::debug( "WDataTexture3D" ) << "Texture scaling information for data in [" << m_minValue << ", "<< m_maxValue << "]: scaling factor=" << m_scale;
+    wlog::debug( "WDataTexture3D" ) << "Texture scaling information for data in [" << m_minValue << ", "<< m_maxValue <<
+                                       "]: scaling factor=" << m_scale;
 }
 
 WDataTexture3D::~WDataTexture3D()

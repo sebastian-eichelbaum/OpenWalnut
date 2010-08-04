@@ -88,8 +88,8 @@ void WMHistogramEqualization::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // enable histogram equalization?
-    m_equalize = m_properties->addProperty( "Equalize Histogram", "If true, the dataset's histogram will be equalized which ensures that the\
-                                                                   cumulative histogram is a linear function.", true, m_propCondition );
+    m_equalize = m_properties->addProperty( "Equalize Histogram", "If true, the dataset's histogram will be equalized which ensures that the " +
+                                                                  "cumulative histogram is a linear function.", true, m_propCondition );
 
     // call WModule's initialization
     WModule::properties();
@@ -136,7 +136,6 @@ void WMHistogramEqualization::moduleMain()
         // Grab the histogram
         boost::shared_ptr< const WValueSetHistogram > hist = dataSet->getHistogram();
         debugLog() << *hist;
-
     }
 }
 
