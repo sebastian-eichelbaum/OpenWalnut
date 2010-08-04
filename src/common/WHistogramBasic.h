@@ -22,16 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WHISTOGRAM_H
-#define WHISTOGRAM_H
+#ifndef WHISTOGRAMBASIC_H
+#define WHISTOGRAMBASIC_H
 
 #include <utility>
+#include <vector>
+
+#include "WHistogram.h"
 
 /**
- * Container which associate values with (uniform width) bins (aka intervals or buckets). This class implements the abstract interface and
- * therefore builds the base class for all histogram classes. The interface also allows programming histogram of different bucket sizes.
+ * Container which associate values with (uniform width) bins (aka intervals or buckets). This class implements a very simple and easy to use
+ * generic histogram with uniform bucket sizes.
  */
-class WHistogram
+class WHistogramBasic: public WHistogram
 {
 public:
     /**
@@ -41,19 +44,19 @@ public:
      * \param max the largest value
      * \param buckets the number of buckets
      */
-    WHistogram( double min, double max, size_t buckets = 1000 );
+    WHistogramBasic( double min, double max, size_t buckets = 1000 );
 
     /**
      * Copy constructor. Creates a deep copy of the specified histogram.
      *
      * \param hist the histogram to copy.
      */
-    WHistogram( const WHistogram& hist );
+    WHistogramBasic( const WHistogramBasic& hist );
 
     /**
      * Default destructor.
      */
-    virtual ~WHistogram();
+    ~WHistogramBasic();
 
     /**
      * Get the count of the specified bucket.
@@ -62,7 +65,7 @@ public:
      *
      * \return elements in the bucket.
      */
-    virtual size_t operator[]( size_t index ) const = 0;
+    virtual size_t operator[]( size_t index ) const;
 
     /**
      * Get the count of the specified bucket. Testing if the position is valid.
@@ -71,28 +74,7 @@ public:
      *
      * \return elements in the bucket
      */
-    virtual size_t at( size_t index ) const = 0;
-
-    /**
-     * Returns the number of buckets in the histogram with the actual mapping.
-     *
-     * \return number of buckets
-     */
-    virtual size_t size() const;
-
-    /**
-     * Returns the minimum value.
-     *
-     * \return minimum
-     */
-    virtual double getMinimum() const;
-
-    /**
-     * Returns the maximum value.
-     *
-     * \return maximum
-     */
-    virtual double getMaximum() const;
+    virtual size_t at( size_t index ) const;
 
     /**
      * Return the size of one specific bucket.
@@ -101,7 +83,7 @@ public:
      *
      * \return the size of a bucket.
      */
-    virtual double getBucketSize( size_t index = 0 ) const = 0;
+    virtual double getBucketSize( size_t index = 0 ) const;
 
     /**
      * Returns the actual interval associated with the given index. The interval is open, meaning that
@@ -112,26 +94,34 @@ public:
      *
      * \return the open interval.
      */
-    virtual std::pair< double, double > getIntervalForIndex( size_t index ) const = 0;
+    virtual std::pair< double, double > getIntervalForIndex( size_t index ) const;
+
+    /**
+     * Computes the number of inserted values so far.
+     *
+     * \return Number of values so far.
+     */
+    size_t valuesSize() const;
+
+    /**
+     * Inserts a given value within the given range (min, max) into exactly one bin and increment its size.
+     *
+     * \param value Value to insert.
+     */
+    virtual void insert( double value );
 
 protected:
 
-    /**
-     * The smallest value
-     */
-    double m_minimum;
-
-    /**
-     * The biggest value
-     */
-    double m_maximum;
-
-    /**
-     * The number of buckets.
-     */
-    double m_nbBuckets;
-
 private:
+    /**
+     * Bins to associate with the values. Each bin has the width of m_intervalWidth;
+     */
+    std::vector< size_t > m_bins;
+
+    /**
+     * The width of an interval is precomputed to save performance.
+     */
+    double m_intervalWidth;
 };
 
-#endif  // WHISTOGRAM_H
+#endif  // WHISTOGRAMBASIC_H

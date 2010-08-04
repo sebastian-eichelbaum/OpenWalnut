@@ -22,21 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WHISTOGRAM_TEST_H
-#define WHISTOGRAM_TEST_H
+#ifndef WHISTOGRAMBASIC_TEST_H
+#define WHISTOGRAMBASIC_TEST_H
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WHistogram.h"
+#include "../WHistogramBasic.h"
 #include "../WLimits.h"
 #include "../WLogger.h"
 
 static WLogger logger;
 
 /**
- * Unit tests the WHistogram class.
+ * Unit tests the WHistogramBasic class.
  */
-class WHistogramTest : public CxxTest::TestSuite
+class WHistogramBasicTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -44,8 +44,8 @@ public:
      */
     void testInitialization( void )
     {
-        WHistogram h( 0.0, 1.0 );
-        TS_ASSERT_EQUALS( h.binSize(), 1000 );
+        WHistogramBasic h( 0.0, 1.0 );
+        TS_ASSERT_EQUALS( h.size(), 1000 );
         TS_ASSERT_EQUALS( h.valuesSize(), 0 );
     }
 
@@ -54,9 +54,9 @@ public:
      */
     void testInsert( void )
     {
-        WHistogram h( 0.0, 1.0 );
+        WHistogramBasic h( 0.0, 1.0 );
         h.insert( 0.7234 );
-        TS_ASSERT_EQUALS( h.binSize(), 1000 );
+        TS_ASSERT_EQUALS( h.size(), 1000 );
         TS_ASSERT_EQUALS( h.valuesSize(), 1 );
         TS_ASSERT_EQUALS( h[723], 1 );
     }
@@ -66,7 +66,7 @@ public:
      */
     void testInsertOnIntervalBorder( void )
     {
-        WHistogram h( 0.0, 1.0 );
+        WHistogramBasic h( 0.0, 1.0 );
         h.insert( 0.001 );
         TS_ASSERT_EQUALS( h[1], 1 );
         h.insert( 0.0039999 );
@@ -80,7 +80,7 @@ public:
      */
     void testInsertMin( void )
     {
-        WHistogram h( 0.0, 1.0 );
+        WHistogramBasic h( 0.0, 1.0 );
         h.insert( 0.0 );
         TS_ASSERT_EQUALS( h[0], 1 );
         TS_ASSERT_EQUALS( h[1], 0 );
@@ -91,7 +91,7 @@ public:
      */
     void testInsertMax( void )
     {
-        WHistogram h( 0.0, 1.0 );
+        WHistogramBasic h( 0.0, 1.0 );
         h.insert( 0.0 );
         h.insert( 1.0 );
         TS_ASSERT_EQUALS( h[999], 1 );
@@ -103,10 +103,10 @@ public:
      */
     void testInsertOutOfBounds( void )
     {
-        WHistogram h( 0.0, 1.0 );
+        WHistogramBasic h( 0.0, 1.0 );
         h.insert( 1.0 + wlimits::DBL_EPS );
         h.insert( 0.0 - wlimits::DBL_EPS );
-        for( size_t i = 0; i < h.binSize(); ++i )
+        for( size_t i = 0; i < h.size(); ++i )
         {
             TS_ASSERT_EQUALS( h[i], 0 );
         }
@@ -117,8 +117,8 @@ public:
      */
     void testOperatorToGetNumberOfElementsInsideTheBin( void )
     {
-        WHistogram h( 0.0, 1.0 );
-        for( size_t i = 0; i < h.binSize(); ++i )
+        WHistogramBasic h( 0.0, 1.0 );
+        for( size_t i = 0; i < h.size(); ++i )
         {
             TS_ASSERT_EQUALS( h[i], 0 );
         }
@@ -128,4 +128,4 @@ public:
     }
 };
 
-#endif  // WHISTOGRAM_TEST_H
+#endif  // WHISTOGRAMBASIC_TEST_H

@@ -32,8 +32,7 @@
 #include "WValueSetHistogram.h"
 
 WValueSetHistogram::WValueSetHistogram( boost::shared_ptr< WValueSetBase > valueSet, size_t buckets ):
-    m_minimum( valueSet->getMinimumValue() ),
-    m_maximum( valueSet->getMaximumValue() )
+    WHistogram( valueSet->getMinimumValue(), valueSet->getMaximumValue(), buckets )
 {
     // create base histogram
     WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
@@ -67,8 +66,7 @@ WValueSetHistogram::WValueSetHistogram( boost::shared_ptr< WValueSetBase > value
 }
 
 WValueSetHistogram::WValueSetHistogram( const WValueSetBase& valueSet, size_t buckets ):
-    m_minimum( valueSet.getMinimumValue() ),
-    m_maximum( valueSet.getMaximumValue() )
+    WHistogram( valueSet.getMinimumValue(), valueSet.getMaximumValue(), buckets )
 {
     // create base histogram
     WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
@@ -102,8 +100,7 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetBase& valueSet, size_t bu
 }
 
 WValueSetHistogram::WValueSetHistogram( const WValueSetHistogram& histogram, size_t buckets ):
-    m_minimum( histogram.m_minimum ),
-    m_maximum( histogram.m_maximum ),
+    WHistogram( histogram ),
     m_initialBucketSize( histogram.m_initialBucketSize ),
     m_initialBuckets( histogram.m_initialBuckets ),
     m_nInitialBuckets( histogram.m_nInitialBuckets ),
@@ -188,8 +185,9 @@ double WValueSetHistogram::getInitialBucketSize() const
     return m_initialBucketSize;
 }
 
-double WValueSetHistogram::getBucketSize() const
+double WValueSetHistogram::getBucketSize( size_t /* index */ ) const
 {
+    // ignore index as each bucket has the same width
     return m_mappedBucketSize;
 }
 
@@ -215,17 +213,7 @@ size_t WValueSetHistogram::at( size_t index ) const
 
 size_t WValueSetHistogram::size() const
 {
-    return m_nMappedBuckets;
-}
-
-double WValueSetHistogram::getMinimum() const
-{
-    return m_minimum;
-}
-
-double WValueSetHistogram::getMaximum() const
-{
-    return m_maximum;
+    return m_nMappedBuckets;    // overwrite the WHistogram::size here as we have our own size.
 }
 
 std::pair< double, double > WValueSetHistogram::getIntervalForIndex( size_t index ) const

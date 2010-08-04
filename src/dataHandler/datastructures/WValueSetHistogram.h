@@ -33,6 +33,7 @@
 #include <boost/scoped_array.hpp>
 #include <boost/shared_array.hpp>
 
+#include "../../common/WHistogram.h"
 #include "../WValueSet.h"
 
 /**
@@ -42,7 +43,7 @@
  *
  * \note This histogram is different from from WValueSetHistogram which is a generic histogram class.
  */
-class WValueSetHistogram
+class WValueSetHistogram: public WHistogram
 {
 friend class WValueSetHistogramTest;
 public:
@@ -87,52 +88,38 @@ public:
     WValueSetHistogram& operator=( const WValueSetHistogram& other );
 
     /**
-     * Get the size of the bucket.
+     * Get the count of the bucket.
      *
-     * \param index which buckets size is to be returned, starts with 0 which is the bucket
-     * containing the smallest values.
+     * \param index which buckets count is to be returned; starts with 0 which is the bucket containing the smallest values.
      *
      * \return elements in the bucket.
      */
-    size_t operator[]( size_t index ) const;
+    virtual size_t operator[]( size_t index ) const;
 
     /**
-     * Get the size of the bucket. Testing if the position is valid.
+     * Get the count of the bucket. Testing if the position is valid.
      *
-     * \param index which buckets size is to be returned, starts with 0 which is the bar with
-     * the smallest values
+     * \param index which buckets count is to be returned; starts with 0 which is the bucket containing the smallest values.
      *
      * \return elements in the bucket
      */
-    size_t at( size_t index ) const;
+    virtual size_t at( size_t index ) const;
 
     /**
      * Returns the number of buckets in the histogram with the actual mapping.
      *
      * \return number of buckets
      */
-    size_t size() const;
-
-    /**
-     * Returns the minimum value in the value set.
-     *
-     * \return minimum
-     */
-    double getMinimum() const;
-
-    /**
-     * Returns the maximum value in the value set.
-     *
-     * \return maximum
-     */
-    double getMaximum() const;
+    virtual size_t size() const;
 
     /**
      * Return the size of one bucket.
      *
+     * \param index the width for this bucket is queried.
+     *
      * \return the size of a bucket.
      */
-    double getBucketSize() const;
+    virtual double getBucketSize( size_t index = 0 ) const;
 
     /**
      * Returns the actual interval associated with the given index. The interval is open, meaning that
@@ -141,9 +128,9 @@ public:
      *
      * \param index the intex
      *
-     * \return the open interval in [getMinimum(),getMaximum].
+     * \return the open interval.
      */
-    std::pair< double, double > getIntervalForIndex( size_t index ) const;
+    virtual std::pair< double, double > getIntervalForIndex( size_t index ) const;
 
 protected:
     /**
@@ -167,16 +154,15 @@ protected:
      */
     double getInitialBucketSize() const;
 
-private:
     /**
-     * The smallest value in the ValueSet
+     * increment the value by one, contains the logic to find the element place in the array.
+     * Should only be used in the constructor i.e. while iterating over WValueSet.
+     *
+     * \param value value to increment
      */
-    double m_minimum;
+    virtual void insert( double value );
 
-    /**
-     * The biggest value in the ValueSet
-     */
-    double m_maximum;
+private:
 
     /**
      * Size of one bucket in the initial histogram.
@@ -207,14 +193,6 @@ private:
      * Size of one bucket in the mapped histogram.
      */
     double m_mappedBucketSize;
-
-    /**
-     * increment the value by one, contains the logic to find the element place in the array.
-     * Should only be used in the constructor i.e. while iterating over WValueSet.
-     *
-     * \param value value to increment
-     */
-    void insert( double value );
 };
 
 /**

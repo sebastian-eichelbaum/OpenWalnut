@@ -23,64 +23,45 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
-#include <iomanip>
-#include <numeric>
 
 #include "WAssert.h"
 #include "WHistogram.h"
-#include "WLimits.h"
-#include "WLogger.h"
 
-WHistogram::WHistogram( double min, double max, size_t size )
-    : m_bins( size, 0 ),
-      m_min( min ),
-      m_max( max )
+WHistogram::WHistogram( double min, double max, size_t buckets ):
+      m_minimum( min ),
+      m_maximum( max ),
+      m_nbBuckets( buckets )
 {
     if( min > max )
     {
-        std::swap( m_min, m_max );
+        std::swap( m_minimum, m_maximum );
     }
-    WAssert( m_bins.size() > 0, "Error: A histogram with a size of 0 does not make any sense" );
-    m_intervalWidth = std::abs( m_min - m_max ) / m_bins.size();
+
+    WAssert( buckets > 0, "Error: A histogram with a size of 0 does not make any sense." );
+}
+
+WHistogram::WHistogram( const WHistogram& hist ):
+      m_minimum( hist.m_minimum ),
+      m_maximum( hist.m_maximum ),
+      m_nbBuckets( hist.m_nbBuckets )
+{
 }
 
 WHistogram::~WHistogram()
 {
 }
 
-void WHistogram::insert( double value )
+size_t WHistogram::size() const
 {
-    if( value > m_max || value < m_min )
-    {
-        wlog::warn( "WHistogram" ) << std::scientific << std::setprecision( 16 ) << "Inserted value out of bounds, thread: "
-                                   << value << " as min, resp. max: " << m_min << "," << m_max;
-        return; // value = ( value > m_max ? m_max : m_min );
-    }
-
-    if( value == m_max )
-    {
-        value = m_max - wlimits::DBL_EPS;
-    }
-
-    m_bins.at( static_cast< size_t >( std::abs( value - m_min ) / m_intervalWidth ) )++;
+    return m_nbBuckets;
 }
 
-size_t WHistogram::binSize() const
+double WHistogram::getMinimum() const
 {
-    return m_bins.size();
+    return m_minimum;
 }
 
-size_t WHistogram::valuesSize() const
+double WHistogram::getMaximum() const
 {
-    return std::accumulate( m_bins.begin(), m_bins.end(), 0 );
-}
-
-size_t WHistogram::operator[]( size_t index ) const
-{
-    if( index >= m_bins.size() )
-    {
-        wlog::error( "WHistogram" ) << index << "th interval is not available, there are only: " << m_bins.size();
-        return 0;
-    }
-    return m_bins[ index ];
+    return m_maximum;
 }
