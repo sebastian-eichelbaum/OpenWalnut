@@ -25,6 +25,8 @@
 #ifndef WDATASETSCALAR_H
 #define WDATASETSCALAR_H
 
+#include <map>
+
 #include <boost/thread.hpp>
 
 #include "datastructures/WValueSetHistogram.h"
