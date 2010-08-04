@@ -206,7 +206,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if ( e2 )
         {
             addRoi( e2->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Inserting roi to dataset browser.", "DatasetBrowser", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Inserting ROI to dataset browser.", "DatasetBrowser", LL_DEBUG );
         }
 
         return true;
@@ -217,7 +217,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if( e3 )
         {
             removeRoi( e3->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Removing roi from dataset browser.", "DatasetBrowser", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Removing ROI from dataset browser.", "DatasetBrowser", LL_DEBUG );
         }
 
         return true;
