@@ -245,13 +245,14 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             tijk_sub_f( ten, ten, res, type );
 
             const char normalize = 0;
+
             limnPolyData *glyph = limnPolyDataNew();
             limnPolyDataCopy( glyph, sphere );
 
             float radius;
             if( m_usePolarPlotProp->get() )
             {
-                radius = elfGlyphPolar( glyph, 1, ten, type, NULL, NULL, normalize, NULL, NULL );
+                radius = elfGlyphPolar( glyph, 1, ten, type, NULL, 0, normalize, NULL, NULL );
             }
             else
             {
