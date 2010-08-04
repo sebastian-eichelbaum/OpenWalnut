@@ -118,7 +118,7 @@ void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
     // create a scrollbox and group box containing the widget
     QWidget* group = new QWidget( this );
 
-    QScrollArea* scrollArea;
+    QScrollArea* scrollArea = 0;
     QGridLayout* grid = new QGridLayout();
     grid->addWidget( widget, 0, 0 );
 
