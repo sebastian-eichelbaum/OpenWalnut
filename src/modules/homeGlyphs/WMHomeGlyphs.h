@@ -119,6 +119,12 @@ private:
     void execute();
 
     /**
+     * Gets signaled from the properties object when something was changed. Now, only m_active is used. This method therefore simply
+     * activates/deactivates the glyphs.
+     */
+    void activate();
+
+    /**
      * Renders all glyphs for the given slice
      * \param sliceId The number of the slice to be rendered.
      */

@@ -119,6 +119,15 @@ void WMHomeGlyphs::moduleMain()
 
 void  WMHomeGlyphs::renderSlice( size_t sliceId )
 {
+    enum sliceTypeEnum
+    {
+        xSlice,
+        ySlice,
+        zSlice
+    };
+
+    sliceTypeEnum sliceType = ySlice;
+
     debugLog() << "Rendering slice ... " << sliceId;
     // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
     if( m_moduleNode )
@@ -151,12 +160,48 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
     // preparation of osg stuff for the glyphs
     m_moduleNode = new WGEGroupNode();
 
-    // run through the positions in the slice and draw the glyphs
-    for( size_t yId = 0; yId < nY; ++yId )
+    debugLog() << "start loop ... " << sliceId;
+    size_t nA;
+    size_t nB;
+    switch( sliceType )
     {
-        for( size_t zId = 0; zId < nZ; ++zId )
+        case xSlice:
+            nA = nY;
+            nB = nZ;
+            break;
+        case ySlice:
+            nA = nX;
+            nB = nZ;
+            break;
+        case zSlice:
+            nA = nX;
+            nB = nY;
+            break;
+    }
+
+    size_t nbGlyphs = nA *nB;
+    // std::cout<< "sphere->xyzwNum" << sphere->xyzwNum << std::endl;
+
+
+    // run through the positions in the slice and draw the glyphs
+    for( size_t aId = 0; aId < nA; ++aId )
+    {
+        for( size_t bId = 0; bId < nB; ++bId )
         {
-            size_t posId = sliceId + yId * nX + zId * nX * nY;
+            size_t posId;
+            switch( sliceType )
+            {
+                case xSlice:
+                    posId = sliceId + aId * nX + bId * nX * nY;
+                    break;
+                case ySlice:
+                    posId = aId + sliceId * nX + bId * nX * nY;
+                    break;
+                case zSlice:
+                    posId = aId + bId * nX + sliceId * nX * nY;
+                    break;
+            }
+
             wmath::WValue< double > coeffs = dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
             WAssert( coeffs.size() == 15,
                      "This module can handle only 4th order spherical harmonics."
@@ -211,6 +256,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             osg::ref_ptr< osg::Vec3Array > vertArray = new osg::Vec3Array( glyph->xyzwNum );
             wmath::WPosition glyphPos = grid->getPosition( posId );
 
+            // std::cout<< "xyzwNum" << glyph->xyzwNum<<std::endl;
             for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
             {
                 ( *vertArray )[vertId][0] = glyph->xyzw[4*vertId  ] / radius + glyphPos[0];
@@ -237,7 +283,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             // normals
             osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( glyph->normNum ) );
 
-
+            // std::cout<< "normNum" << glyph->normNum<<std::endl;
             for( unsigned int vertId = 0; vertId < glyph->normNum; ++vertId )
             {
                 ( *normals )[vertId][0] = glyph->norm[3*vertId];
@@ -253,6 +299,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             // colors
             osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( glyph->rgbaNum ) );
 
+                // std::cout<< "rgbaNum" << glyph->rgbaNum<<std::endl;
             for( unsigned int vertId = 0; vertId < glyph->rgbaNum; ++vertId )
             {
                 ( *colors )[vertId][0] = glyph->rgba[4*vertId] / 255.0;
@@ -272,6 +319,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
         }
     }
 
+    debugLog() << "end loop ... " << sliceId;
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
@@ -282,4 +330,21 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
     delete[] ten;
     delete[] res;
     delete[] esh;
+}
+
+
+void WMHomeGlyphs::activate()
+{
+    if ( m_moduleNode )
+    {
+        if ( m_active->get() )
+        {
+            m_moduleNode->setNodeMask( 0xFFFFFFFF );
+        }
+        else
+        {
+            m_moduleNode->setNodeMask( 0x0 );
+        }
+    }
+    WModule::activate();
 }
