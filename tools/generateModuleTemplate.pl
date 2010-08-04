@@ -196,7 +196,14 @@ EOF
 
 die "Need exactly one command line argument (module name)\n" unless $#ARGV == 0;
 
-$modulename = $ARGV[0];
+$dirname = lcfirst($ARGV[0]); # directory has to have lower case first letter
+use Cwd;
+$parentdir = getcwd."/";
+$modulename = ucfirst($ARGV[0]); # name has to have upper case first letter
+
+print "Generating for ".$modulename." in ".$parentdir.$dirname.".\n";
+
+mkdir $dirname;
 
 $header =~ s/\#name\#/$modulename/gm;
 $impl   =~ s/\#name\#/$modulename/gm;
@@ -204,10 +211,14 @@ $impl   =~ s/\#name\#/$modulename/gm;
 # Set the header guards in capitals
 $header =~ s/\#NAME\#/\U$modulename/gm;
 
-open( FILE, ">WM${modulename}.h" ) or die;
+open( FILE, ">${dirname}/WM${modulename}.h" ) or die;
 print FILE $header;
 close( FILE );
 
-open( FILE, ">WM${modulename}.cpp" ) or die;
+open( FILE, ">${dirname}/WM${modulename}.cpp" ) or die;
 print FILE $impl;
 close( FILE );
+
+print "Generating completed.\n";
+print "\n";
+print "Please make sure to copy an appropriate CMakeLists.txt file to the module directory.\n";
