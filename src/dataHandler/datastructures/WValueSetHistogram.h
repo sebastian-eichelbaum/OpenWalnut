@@ -37,7 +37,8 @@
 
 /**
  * Used to find the occurrence frequencies of values in a value set. It implements a classical histogram but allows easy modification of bucket
- * sizes without unnecessary recalculation of the whole histogram.
+ * sizes without unnecessary recalculation of the whole histogram. This histogram uses right-open intervals for counting, which is why there
+ * always is a bucket at the end from max to infinity which holds all the max values.
  *
  * \note This histogram is different from from WValueSetHistogram which is a generic histogram class.
  */
@@ -49,16 +50,15 @@ public:
      * Constructor. Creates the histogram for the specified value set.
      *
      * \param valueSet source of the data for the histogram
-     * \param buckets the number of buckets to use. If not specified, 1000 is used as default
+     * \param buckets the number of buckets to use. If not specified, 1000 is used as default. Must be larger than 1.
      */
     explicit WValueSetHistogram( boost::shared_ptr< WValueSetBase > valueSet, size_t buckets = 1000 );
-
 
     /**
      * Constructor. Creates the histogram for the specified value set.
      *
      * \param valueSet source of the data for the histogram
-     * \param buckets the number of buckets to use. If not specified, 1000 is used as default
+     * \param buckets the number of buckets to use. If not specified, 1000 is used as default. Must be larger than 1.
      */
     explicit WValueSetHistogram( const WValueSetBase& valueSet, size_t buckets = 1000 );
 
@@ -67,7 +67,7 @@ public:
      * \note this does not deep copy the m_initialBuckets and m_mappedBuckets array as these are shared_array instances.
      *
      * \param histogram another WValueSetHistogram
-     * \param buckets the new number of buckets.
+     * \param buckets the new number of buckets. Must be larger than 1 if specified.
      */
     WValueSetHistogram( const WValueSetHistogram& histogram, size_t buckets = 0 );
 

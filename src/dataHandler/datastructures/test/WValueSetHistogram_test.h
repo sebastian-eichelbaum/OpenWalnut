@@ -166,6 +166,7 @@ class WValueSetHistogramTest : public CxxTest::TestSuite
             TS_ASSERT_EQUALS( hist.m_nInitialBuckets, hist3.m_nInitialBuckets );
             TS_ASSERT_EQUALS( hist.m_mappedBuckets, hist3.m_mappedBuckets );
             TS_ASSERT_EQUALS( hist.m_nMappedBuckets, hist3.m_nMappedBuckets );
+            TS_ASSERT_EQUALS( hist.m_nMappedBuckets, 10 );
             TS_ASSERT_EQUALS( hist.m_mappedBucketSize, hist3.m_mappedBucketSize );
         }
 
@@ -174,6 +175,31 @@ class WValueSetHistogramTest : public CxxTest::TestSuite
          **/
         void testCopyWithIntervalChanges( void )
         {
+            // create some test data
+            double a[5] = { 0.0, 4.0, 1.0, 2.0, 1.0 };
+            const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
+            WValueSet< double >* valueSet = new WValueSet< double >( 0, 1, v, W_DT_DOUBLE );
+
+            // create histogram
+            WValueSetHistogram hist( *valueSet, 4 );
+            WValueSetHistogram hist2( hist, 2 );    // create a copy of hist but change the number of intervals.
+            TS_ASSERT_THROWS_ANYTHING( WValueSetHistogram hist2( hist, 1 ) ); // number of buckets must be at least 1
+
+            // it needs to keep the original initialBucket stuff
+            TS_ASSERT_EQUALS( hist.m_minimum, hist2.m_minimum );
+            TS_ASSERT_EQUALS( hist.m_maximum, hist2.m_maximum );
+            TS_ASSERT_EQUALS( hist.m_initialBucketSize, hist2.m_initialBucketSize );
+            TS_ASSERT_EQUALS( hist.m_initialBuckets.get(), hist2.m_initialBuckets.get() ); // initial buckets must be the same as it is a shared array
+            TS_ASSERT_EQUALS( hist.m_nInitialBuckets, hist2.m_nInitialBuckets );
+
+            // test the mapped stuff
+            TS_ASSERT_EQUALS( hist2.m_mappedBucketSize, 4.0 );
+            TS_ASSERT_EQUALS( hist2.m_nMappedBuckets, 2 );
+            TS_ASSERT( hist2.m_mappedBuckets != hist.m_mappedBuckets );
+
+            // test values
+            TS_ASSERT_EQUALS( hist2.at( 0 ), 4 );   // 0.0, 1.0, 2.0 and 1.0
+            TS_ASSERT_EQUALS( hist2.at( 1 ), 1 );   // 4.0
         }
 };
 

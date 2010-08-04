@@ -35,6 +35,7 @@ WValueSetHistogram::WValueSetHistogram( boost::shared_ptr< WValueSetBase > value
     m_maximum( valueSet->getMaximumValue() )
 {
     // create base histogram
+    WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
     m_nInitialBuckets = buckets - 1;
     m_initialBucketSize = ( m_maximum - m_minimum ) / static_cast< double >( m_nInitialBuckets );
     WAssert( m_initialBucketSize > 0.0, "WValueSetHistogram::WValueSetHistogram() : m_initialBucketSize to small." );
@@ -69,6 +70,7 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetBase& valueSet, size_t bu
     m_maximum( valueSet.getMaximumValue() )
 {
     // create base histogram
+    WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
     m_nInitialBuckets = buckets - 1;
     m_initialBucketSize = ( m_maximum - m_minimum ) / static_cast< double >( m_nInitialBuckets );
     WAssert( m_initialBucketSize > 0.0, "WValueSetHistogram::WValueSetHistogram() : m_initialBucketSize to small." );
@@ -109,40 +111,40 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetHistogram& histogram, siz
     m_mappedBucketSize( histogram.m_mappedBucketSize )
 {
     // apply modification of the histogram bucket size?
-    if( buckets == 0 )
+    if( ( buckets == 0 ) || ( buckets == m_nMappedBuckets ) )
     {
         return;
     }
 
-    WAssert( buckets > 0, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than zero." );
+    WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
     WAssert( buckets < m_nInitialBuckets, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be smaller than the initial bucket count." );
 
     // number of elements in the new mapped histogram = division + (round up)
-    m_nMappedBuckets = buckets;
+    m_nMappedBuckets = buckets - 1;
     m_mappedBucketSize = ( m_maximum - m_minimum ) / static_cast< double >( m_nMappedBuckets );
-
-    size_t ratio = static_cast<size_t>( buckets / m_nInitialBuckets );
-
-    // map it
-    m_mappedBuckets.reset();
 
     // NOTE: as all the intervals are right-open, we need an additional slot in our array for the last interval [m_maximum,\infinity). For the
     // calculation of interval sizes, the value must not be incremented
     m_nMappedBuckets++;
+
+    size_t ratio = static_cast<size_t>( m_nInitialBuckets / m_nMappedBuckets );
+
+    m_mappedBuckets.reset();
 
     size_t* mappedBuckets = new size_t[ m_nMappedBuckets ];
     memset( mappedBuckets, 0, m_nMappedBuckets * sizeof( size_t ) );
     // *mappedBuckets = { 0 }; // works with C++0x
     m_mappedBuckets = boost::shared_array< size_t >( mappedBuckets );
 
+    // map it
     size_t index = 0;
-    for( size_t i = 0; i != m_nInitialBuckets; ++i )
+    for( size_t i = 0; i < m_nInitialBuckets; ++i )
     {
-        if( i % ratio == 0 && i != 0 )
+        if( ( i % ratio == 0 ) && ( i != 0 ) && ( i != m_nInitialBuckets - 1 ) )
         {
             index++;
         }
-        m_mappedBuckets[index] += m_initialBuckets[i];
+        m_mappedBuckets[ index ] += m_initialBuckets[i];
     }
 }
 
