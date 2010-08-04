@@ -311,6 +311,10 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
     glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
     m_glyphsGeode->addDrawable( glyphGeometry );
+
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMHomeGlyphs", m_localPath ) );
+    m_shader->apply( m_glyphsGeode );
+
     m_moduleNode->insert( m_glyphsGeode );
 
 

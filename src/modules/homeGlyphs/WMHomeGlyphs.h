@@ -30,6 +30,7 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetSphericalHarmonics.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -129,6 +130,8 @@ private:
      * \param sliceId The number of the slice to be rendered.
      */
     void renderSlice( size_t sliceId );
+    osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
+
 
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
 
