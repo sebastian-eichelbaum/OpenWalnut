@@ -70,11 +70,15 @@ public:
     double getMin() const;
 
     /**
-     * Returns the histogram of this dataset's valueset. If it does not exist yet, it will be created.
+     * Returns the histogram of this dataset's valueset. If it does not exist yet, it will be created and cached. It does NOT make use of the
+     * WValueSetHistogram down scaling feature even though the number of buckets might be lower than the default as the down scaling might
+     * introduce errors. To use down-scaling, grab the default histogram and call WValueSetHistogram( getHistogram(), buckets ) manually.
+     *
+     * \param buckets the number of buckets inside the histogram.
      *
      * \return the histogram.
      */
-    boost::shared_ptr< const WValueSetHistogram > getHistogram();
+    boost::shared_ptr< const WValueSetHistogram > getHistogram( size_t buckets = 1000 );
 
     /**
      * Interpolate the value fo the valueset at the given position.
@@ -124,9 +128,9 @@ protected:
 private:
 
     /**
-     * The histogram for later use.
+     * The histograms for later use. Each histogram for a requested bucket count gets cached.
      **/
-    boost::shared_ptr< WValueSetHistogram > m_histogram;
+    std::map< size_t, boost::shared_ptr< WValueSetHistogram > > m_histograms;
 
     /**
      * The lock used for securely creating m_histogram on demand.

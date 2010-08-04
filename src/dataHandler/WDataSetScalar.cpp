@@ -43,9 +43,6 @@ WDataSetScalar::WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
     WAssert( newGrid, "No grid given." );
     WAssert( newValueSet->size() == newGrid->size(), "Number of values unequal number of positions in grid." );
     WAssert( newValueSet->order() == 0, "The value set does not contain scalars." );
-
-    // the histogram gets calculated on demand
-    m_histogram = boost::shared_ptr< WValueSetHistogram >();
 }
 
 WDataSetScalar::WDataSetScalar()
@@ -138,16 +135,18 @@ double WDataSetScalar::getValueAt( int x, int y, int z ) const
     return WDataSetSingle::getValueAt( id );
 }
 
-boost::shared_ptr< const WValueSetHistogram > WDataSetScalar::getHistogram()
+boost::shared_ptr< const WValueSetHistogram > WDataSetScalar::getHistogram( size_t buckets )
 {
-    if ( m_histogram )
+    boost::lock_guard<boost::mutex> lock( m_histogramLock );
+
+    if ( m_histograms.count( buckets ) != 0 )
     {
-        return m_histogram;
+        return m_histograms[ buckets ];
     }
 
-    boost::lock_guard<boost::mutex> lock( m_histogramLock );
-    m_histogram = boost::shared_ptr< WValueSetHistogram >( new WValueSetHistogram( m_valueSet ) );
+    // create if not yet existing
+    m_histograms[ buckets ] = boost::shared_ptr< WValueSetHistogram >( new WValueSetHistogram( m_valueSet, buckets ) );
 
-    return m_histogram;
+    return m_histograms[ buckets ];
 }
 
