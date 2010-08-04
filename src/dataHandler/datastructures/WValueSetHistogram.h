@@ -43,34 +43,48 @@
  */
 class WValueSetHistogram
 {
+friend class WValueSetHistogramTest;
 public:
     /**
      * Constructor. Creates the histogram for the specified value set.
      *
      * \param valueSet source of the data for the histogram
+     * \param buckets the number of buckets to use. If not specified, 1000 is used as default
      */
-    explicit WValueSetHistogram( boost::shared_ptr< WValueSetBase > valueSet );
+    explicit WValueSetHistogram( boost::shared_ptr< WValueSetBase > valueSet, size_t buckets = 1000 );
 
 
     /**
      * Constructor. Creates the histogram for the specified value set.
      *
      * \param valueSet source of the data for the histogram
+     * \param buckets the number of buckets to use. If not specified, 1000 is used as default
      */
-    explicit WValueSetHistogram( const WValueSetBase& valueSet );
+    explicit WValueSetHistogram( const WValueSetBase& valueSet, size_t buckets = 1000 );
 
     /**
      * Copy constructor. If another interval size is given the histogram gets matched to it using the initial bucket data.
+     * \note this does not deep copy the m_initialBuckets and m_mappedBuckets array as these are shared_array instances.
      *
      * \param histogram another WValueSetHistogram
      * \param buckets the new number of buckets.
      */
-    explicit WValueSetHistogram( const WValueSetHistogram& histogram, size_t buckets = 0 );
+    WValueSetHistogram( const WValueSetHistogram& histogram, size_t buckets = 0 );
 
     /**
      * Destructor.
      */
     ~WValueSetHistogram();
+
+    /**
+     * Copy assignment. Copies the contents of the specified histogram to this instance.
+     *
+     * \param other the other instance
+     *
+     * \return this instance with the contents of the other one.
+     * \note this does not deep copy the m_initialBuckets and m_mappedBuckets array as these are shared_array instances.
+     */
+    WValueSetHistogram& operator=( const WValueSetHistogram& other );
 
     /**
      * Get the size of the bucket.
