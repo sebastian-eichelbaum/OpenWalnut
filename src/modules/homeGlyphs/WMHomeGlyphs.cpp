@@ -180,14 +180,37 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
     }
 
     size_t nbGlyphs = nA *nB;
-    // std::cout<< "sphere->xyzwNum" << sphere->xyzwNum << std::endl;
 
+
+    osg::Geometry* glyphGeometry = new osg::Geometry();
+    m_glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    m_glyphsGeode->setName( "glyphs" );
+    osg::StateSet* state = m_glyphsGeode->getOrCreateStateSet();
+    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+    lightModel->setTwoSided( true );
+    state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+
+    WAssert( sphere->xyzwNum == sphere->normNum, "Wrong size of arrays." );
+    WAssert( sphere->xyzwNum == sphere->rgbaNum, "Wrong size of arrays." );
+    size_t nbVerts = sphere->xyzwNum;
+
+    osg::ref_ptr< osg::Vec3Array > vertArray = new osg::Vec3Array( nbVerts * nbGlyphs );
+    osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( nbVerts * nbGlyphs ) );
+    osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( nbVerts * nbGlyphs ) );
+
+    osg::ref_ptr< osg::DrawElementsUInt > glyphElements =
+        osg::ref_ptr< osg::DrawElementsUInt >( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 ) );
+    glyphElements->reserve( sphere->indxNum * nbGlyphs );
 
     // run through the positions in the slice and draw the glyphs
     for( size_t aId = 0; aId < nA; ++aId )
     {
         for( size_t bId = 0; bId < nB; ++bId )
         {
+            size_t glyphId = aId * nB + bId;
+            size_t vertsUpToCurrentIteration = glyphId * nbVerts;
+
             size_t posId;
             switch( sliceType )
             {
@@ -241,85 +264,54 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
             // -------------------------------------------------------------------------------------------------------
 
-            //-------------------------------
-            // DRAW
-
-            osg::Geometry* glyphGeometry = new osg::Geometry();
-            m_glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-            m_glyphsGeode->setName( "glyphs" );
-            osg::StateSet* state = m_glyphsGeode->getOrCreateStateSet();
-            osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
-            lightModel->setTwoSided( true );
-            state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-            state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
-
-            osg::ref_ptr< osg::Vec3Array > vertArray = new osg::Vec3Array( glyph->xyzwNum );
             wmath::WPosition glyphPos = grid->getPosition( posId );
 
-            // std::cout<< "xyzwNum" << glyph->xyzwNum<<std::endl;
-            for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
-            {
-                ( *vertArray )[vertId][0] = glyph->xyzw[4*vertId  ] / radius + glyphPos[0];
-                ( *vertArray )[vertId][1] = glyph->xyzw[4*vertId+1] / radius + glyphPos[1];
-                ( *vertArray )[vertId][2] = glyph->xyzw[4*vertId+2] / radius + glyphPos[2];
-            }
-            glyphGeometry->setVertexArray( vertArray );
-
-            osg::DrawElementsUInt* glyphElement;
-
-            glyphElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-
-            glyphElement->reserve( glyph->indxNum );
-
-
+            //-------------------------------
+            // vertex indices
             for( unsigned int vertId = 0; vertId < glyph->indxNum; ++vertId )
             {
-                glyphElement->push_back( glyph->indx[vertId] );
+                glyphElements->push_back( vertsUpToCurrentIteration + glyph->indx[vertId] );
             }
 
-            glyphGeometry->addPrimitiveSet( glyphElement );
-
-            // ------------------------------------------------
-            // normals
-            osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( glyph->normNum ) );
-
-            // std::cout<< "normNum" << glyph->normNum<<std::endl;
-            for( unsigned int vertId = 0; vertId < glyph->normNum; ++vertId )
+            for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
             {
-                ( *normals )[vertId][0] = glyph->norm[3*vertId];
-                ( *normals )[vertId][1] = glyph->norm[3*vertId+1];
-                ( *normals )[vertId][2] = glyph->norm[3*vertId+2];
-                ( *normals )[vertId].normalize();
+                //-------------------------------
+                // vertices
+                ( *vertArray )[vertsUpToCurrentIteration+vertId][0] = glyph->xyzw[4*vertId  ] / radius + glyphPos[0];
+                ( *vertArray )[vertsUpToCurrentIteration+vertId][1] = glyph->xyzw[4*vertId+1] / radius + glyphPos[1];
+                ( *vertArray )[vertsUpToCurrentIteration+vertId][2] = glyph->xyzw[4*vertId+2] / radius + glyphPos[2];
+
+                // ------------------------------------------------
+                // normals
+                ( *normals )[vertsUpToCurrentIteration+vertId][0] = glyph->norm[3*vertId];
+                ( *normals )[vertsUpToCurrentIteration+vertId][1] = glyph->norm[3*vertId+1];
+                ( *normals )[vertsUpToCurrentIteration+vertId][2] = glyph->norm[3*vertId+2];
+                ( *normals )[vertsUpToCurrentIteration+vertId].normalize();
+
+                // ------------------------------------------------
+                // colors
+                ( *colors )[vertsUpToCurrentIteration+vertId][0] = glyph->rgba[4*vertId] / 255.0;
+                ( *colors )[vertsUpToCurrentIteration+vertId][1] = glyph->rgba[4*vertId+1] / 255.0;
+                ( *colors )[vertsUpToCurrentIteration+vertId][2] = glyph->rgba[4*vertId+2] / 255.0;
+                ( *colors )[vertsUpToCurrentIteration+vertId][3] = glyph->rgba[4*vertId+3] / 255.0;
             }
-
-            glyphGeometry->setNormalArray( normals );
-            glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-
-            // ------------------------------------------------
-            // colors
-            osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( glyph->rgbaNum ) );
-
-                // std::cout<< "rgbaNum" << glyph->rgbaNum<<std::endl;
-            for( unsigned int vertId = 0; vertId < glyph->rgbaNum; ++vertId )
-            {
-                ( *colors )[vertId][0] = glyph->rgba[4*vertId] / 255.0;
-                ( *colors )[vertId][1] = glyph->rgba[4*vertId+1] / 255.0;
-                ( *colors )[vertId][2] = glyph->rgba[4*vertId+2] / 255.0;
-                ( *colors )[vertId][3] = glyph->rgba[4*vertId+3] / 255.0;
-            }
-
-            glyphGeometry->setColorArray( colors );
-            glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-
-            m_glyphsGeode->addDrawable( glyphGeometry );
 
             // free memory
             glyph = limnPolyDataNix( glyph );
-            m_moduleNode->insert( m_glyphsGeode );
         }
     }
-
     debugLog() << "end loop ... " << sliceId;
+
+    glyphGeometry->setVertexArray( vertArray );
+    glyphGeometry->addPrimitiveSet( glyphElements );
+    glyphGeometry->setNormalArray( normals );
+    glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+    glyphGeometry->setColorArray( colors );
+    glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+    m_glyphsGeode->addDrawable( glyphGeometry );
+    m_moduleNode->insert( m_glyphsGeode );
+
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
