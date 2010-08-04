@@ -111,9 +111,6 @@ private:
      */
     boost::shared_ptr< WCondition > m_recompute;
 
-    WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
-    WPropInt m_sliceIdProp; //!< Property holding the slice ID
-
     /**
      * Just a preliminary function to avoid polluting moduleMain()
      */
@@ -130,10 +127,14 @@ private:
      * \param sliceId The number of the slice to be rendered.
      */
     void renderSlice( size_t sliceId );
+
     osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
 
-
+    boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
+    WPropSelection m_sliceOrientationSelection; //!< To choose whether to x, y or z slice.
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
+    WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
+    WPropInt m_sliceIdProp; //!< Property holding the slice ID
 
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.

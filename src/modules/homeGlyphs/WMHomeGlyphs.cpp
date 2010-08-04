@@ -29,6 +29,7 @@
 #include <osg/LightModel>
 
 #include "../../common/WAssert.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../kernel/WKernel.h"
 #include "home.xpm"
 
@@ -82,6 +83,16 @@ void WMHomeGlyphs::connectors()
 
 void WMHomeGlyphs::properties()
 {
+    m_sliceOrientations = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_sliceOrientations->addItem( "x", "x-slice" );
+    m_sliceOrientations->addItem( "y", "y-slice" );
+    m_sliceOrientations->addItem( "z", "z-slice" );
+    m_sliceOrientationSelection = m_properties->addProperty( "Slice Orientation",
+                                                             "Which slice will be shown?",
+                                                             m_sliceOrientations->getSelectorFirst(),
+                                                             m_recompute );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelection );
+
     m_glyphSizeProp = m_properties->addProperty( "Glyph Size", "Size of the displayed glyphs.", 0.5, m_recompute );
     m_glyphSizeProp->setMin( 0 );
     m_glyphSizeProp->setMax( 100. );
@@ -121,12 +132,12 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
 {
     enum sliceTypeEnum
     {
-        xSlice,
+        xSlice = 0,
         ySlice,
         zSlice
     };
 
-    sliceTypeEnum sliceType = ySlice;
+    size_t sliceType = m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 );
 
     debugLog() << "Rendering slice ... " << sliceId;
     // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
