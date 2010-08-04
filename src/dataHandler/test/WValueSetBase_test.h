@@ -85,12 +85,33 @@ public:
     /**
      * Get the value.
      *
-     * \param i The position of the value.
      * \return The value at position i.
      */
-    virtual double getScalarDouble( size_t i ) const
+    virtual double getScalarDouble( size_t /* i */ ) const
     {
         return 255;
+    }
+
+    /**
+     * This method returns the smallest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * smallest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the smallest value in the data.
+     */
+    virtual double getMinimumValue() const
+    {
+        return 0.0;
+    }
+
+    /**
+     * This method returns the largest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * largest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the largest value in the data.
+     */
+    virtual double getMaximumValue() const
+    {
+        return 255.0;
     }
 };
 

@@ -29,7 +29,19 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../common/WLogger.h"
+
 #include "../WDataSetScalar.h"
+
+/**
+ * The logger instance used by some tests
+ */
+static WLogger logger;
+
+/**
+ * True if the logger has been initialized in the past.
+ */
+static bool loggerInitialized = false;
 
 /**
  * Tests for the data set type containing only scalars.
@@ -37,6 +49,23 @@
 class WDataSetScalarTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * Constructs unit test environment.
+     */
+    void setUp( void )
+    {
+        if ( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.setColored( false );
+
+            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
+            // debug mode, the messages will be printed directly, without the logger thread.
+            //logger.run();
+            loggerInitialized = true;
+        }
+    }
+
     /**
      * Test if the interpolate function works reasonable.
      */

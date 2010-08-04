@@ -302,47 +302,6 @@ protected:
     int m_cmap;
 
     /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( float* source, int components );
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( double* source, int components );
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( unsigned char* source, int components );
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( int16_t* source, int components );
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( int* source, int components );
-
-
-    /**
      * The smallest value inside the dataset
      */
     float m_minValue;

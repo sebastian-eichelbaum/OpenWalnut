@@ -85,14 +85,57 @@ void WMHistogramEqualization::connectors()
 
 void WMHistogramEqualization::properties()
 {
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    // enable histogram equalization?
+    m_equalize = m_properties->addProperty( "Equalize Histogram", "If true, the dataset's cumulative histogram gets linearized.",
+                                            true, m_propCondition );
+
     // call WModule's initialization
     WModule::properties();
 }
 
 void WMHistogramEqualization::moduleMain()
 {
+    // get notified about data changes
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_input->getDataChangedCondition() );
+    // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
+    m_moduleState.add( m_propCondition );
+
     ready();
 
-    waitForStop();
+    // main loop
+    while ( !m_shutdownFlag() )
+    {
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        // woke up since the module is requested to finish?
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // To query whether an input was updated, simply ask the input:
+        bool dataUpdated = m_input->updated();
+
+        // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
+        boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
+        dataUpdated = dataUpdated && dataSet;
+
+        // this ensures the below code only gets executed upon data or property change
+        if ( !dataUpdated && !m_equalize->changed() )
+        {
+            continue;
+        }
+
+        // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
+        debugLog() << "Recalculating";
+
+        // Grab the histogram
+        boost::shared_ptr< const WValueSetHistogram > hist = dataSet->getHistogram();
+        debugLog() << *hist;
+    }
 }
 
