@@ -591,7 +591,10 @@ private:
 };
 
 /**
- * The following macro is used by modules so the factory can aquire a prototype instance from a shared library using the symbol.
+ * The following macro is used by modules so the factory can acquire a prototype instance from a shared library using the symbol.
+ *
+ * \note we need the module instance to be created using a shared_ptr as WModule is derived from enable_shared_from_this. Removing the shared
+ *       pointer causes segmentation faults during load.
  */
 #define W_LOADABLE_MODULE( MODULECLASS ) \
 extern "C" boost::shared_ptr< WModule > WLoadModule() { return boost::shared_ptr< WModule >( new MODULECLASS ); } // NOLINT
