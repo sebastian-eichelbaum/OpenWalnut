@@ -1,13 +1,22 @@
 varying vec4 myColor;
 varying vec4 VaryingTexCoord0;
 
-
 uniform int dimX, dimY, dimZ;
 
 uniform sampler3D tex;
 uniform int type;
 uniform float threshold;
 uniform int cMap;
+
+uniform bool useTexture;
+uniform bool useCullBox;
+uniform bool insideCullBox;
+uniform float cullBoxLBX;
+uniform float cullBoxLBY;
+uniform float cullBoxLBZ;
+uniform float cullBoxUBX;
+uniform float cullBoxUBY;
+uniform float cullBoxUBZ;
 
 
 #include "WGEColorMaps.glsl"
@@ -31,19 +40,43 @@ float lookupTex()
         return col1.r;
 }
 
+void checkCullBox()
+{
+    vec3 pos = VaryingTexCoord0.xyz;
+    
+    if ( insideCullBox )
+    {
+        if ( pos.x < cullBoxLBX || pos.x > cullBoxUBX )
+            discard;
+        if ( pos.y < cullBoxLBY || pos.y > cullBoxUBY )
+            discard; 
+        if ( pos.z < cullBoxLBZ || pos.z > cullBoxUBZ )
+            discard;
+    }
+    else
+    {
+        if ( ( pos.x > cullBoxLBX && pos.x < cullBoxUBX ) && ( pos.y > cullBoxLBY && pos.y < cullBoxUBY ) && ( pos.z > cullBoxLBZ && pos.z < cullBoxUBZ ) )
+            discard;
+    } 
+}
 
 /*
  * simple fragment shader that uses a texture on fibers
  */
 void main()
 {
-    vec4 color = vec4( 1.0 );
+    if ( useCullBox )
+        checkCullBox();
 
-    float value = lookupTex();
+    vec4 color = myColor;
 
-    colorMap(color.rgb, value, cMap );
-
-    color.a = 1.0;
+    if ( useTexture )
+    {
+        float value = lookupTex();
+        colorMap(color.rgb, value, cMap );
+        color.a = 1.0;
+    }
+    
     gl_FragColor = color;
 }
 
