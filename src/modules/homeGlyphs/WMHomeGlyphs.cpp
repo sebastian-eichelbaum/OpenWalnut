@@ -172,8 +172,8 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
     m_moduleNode = new WGEGroupNode();
 
     debugLog() << "start loop ... " << sliceId;
-    size_t nA;
-    size_t nB;
+    size_t nA = 0; // initialized to quiet compiler
+    size_t nB = 0; // initialized to quiet compiler
     switch( sliceType )
     {
         case xSlice:
@@ -222,7 +222,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             size_t glyphId = aId * nB + bId;
             size_t vertsUpToCurrentIteration = glyphId * nbVerts;
 
-            size_t posId;
+            size_t posId = 0; // initialized to quiet compiler
             switch( sliceType )
             {
                 case xSlice:
