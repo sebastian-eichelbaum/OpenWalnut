@@ -238,6 +238,8 @@ void WMNavSlices::create()
     m_rootNode->setDataVariance( osg::Object::DYNAMIC );
     m_slicesNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
     m_slicesNode->setDataVariance( osg::Object::DYNAMIC );
+    m_slicesSwitchNode = osg::ref_ptr< osg::Switch >( new osg::Switch() );
+    m_slicesSwitchNode->setDataVariance( osg::Object::DYNAMIC );
 
     m_xSliceNode = osg::ref_ptr<osg::Geode>( new osg::Geode() );
     m_xSliceNode->setDataVariance( osg::Object::DYNAMIC );
@@ -269,9 +271,11 @@ void WMNavSlices::create()
 
     m_rootNode->insert( m_slicesNode );
 
-    m_slicesNode->insert( m_xSliceNode );
-    m_slicesNode->insert( m_ySliceNode );
-    m_slicesNode->insert( m_zSliceNode );
+    m_slicesSwitchNode->addChild( m_xSliceNode );
+    m_slicesSwitchNode->addChild( m_ySliceNode );
+    m_slicesSwitchNode->addChild( m_zSliceNode );
+
+    m_slicesNode->insert( m_slicesSwitchNode );
 
     m_shader->apply( m_slicesNode );
     m_shader->apply( m_xSliceNode );
@@ -787,32 +791,9 @@ void WMNavSlices::updateGeometry()
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
     bool noSlices = ( tex.size() == 0 ) || !m_active->get();
 
-    if ( m_showAxial->get() && !noSlices )
-    {
-        m_zSliceNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_zSliceNode->setNodeMask( 0x0 );
-    }
-
-    if ( m_showCoronal->get() && !noSlices )
-    {
-        m_ySliceNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_ySliceNode->setNodeMask( 0x0 );
-    }
-
-    if ( m_showSagittal->get() && !noSlices )
-    {
-        m_xSliceNode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_xSliceNode->setNodeMask( 0x0 );
-    }
+    m_slicesSwitchNode->setChildValue( m_zSliceNode, m_showAxial->get() && !noSlices );
+    m_slicesSwitchNode->setChildValue( m_ySliceNode, m_showCoronal->get() && !noSlices );
+    m_slicesSwitchNode->setChildValue( m_xSliceNode, m_showSagittal->get() && !noSlices );
 }
 
 
