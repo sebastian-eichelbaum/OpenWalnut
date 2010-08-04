@@ -121,8 +121,9 @@ public:
     double getBucketSize() const;
 
     /**
-     * Returns the actual interval associated with the given index. The interval is
-     * getIntervalForIndex( i ).second == getIntervalForIndex( i + 1 ).first
+     * Returns the actual interval associated with the given index. The interval is open, meaning that
+     * getIntervalForIndex( i ).second == getIntervalForIndex( i + 1 ).first but does not belong anymore to the interval itself but every value
+     * smaller than getIntervalForIndex( i ).second.
      *
      * \param index the intex
      *
