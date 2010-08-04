@@ -84,6 +84,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**
@@ -137,6 +142,7 @@ $impl = <<EOF
 #include <string>
 
 #include "../../kernel/WKernel.h"
+#include "../emptyIcon.xpm" // Please put a real icon here.
 
 #include "WM#name#.h"
 
@@ -159,6 +165,10 @@ boost::shared_ptr< WModule > WM#name#::factory() const
     return boost::shared_ptr< WModule >( new WM#name#() );
 }
 
+const char** WM#name#::getXPMIcon() const
+{
+    return emptyIcon_xpm; // Please put a real icon here.
+}
 const std::string WM#name#::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
