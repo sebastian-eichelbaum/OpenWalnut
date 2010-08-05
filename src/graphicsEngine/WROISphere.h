@@ -37,13 +37,13 @@
 #include "WROI.h"
 
 /**
- * A box representing a region of interest.
+ * A sphere representing a region of interest.
  */
 class WROISphere : public WROI
 {
 public:
     /**
-     * Yields box with desired extremal points minPos and maxPos
+     * Yields sphere with desired center point and radius
      * \param position position of the center of the sphere
      * \param radius radius of the sphere
      */
@@ -67,14 +67,14 @@ public:
     void setPosition( wmath::WPosition position );
 
     /**
-     * setter
-     * \param color
+     * Setter for standard color
+     * \param color The new color.
      */
     void setColor( osg::Vec4 color );
 
     /**
-     * setter
-     * \param color
+     * Setter for color in negated state
+     * \param color The new color.
      */
     void setNotColor( osg::Vec4 color );
 
