@@ -41,144 +41,137 @@
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
- * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
- *
- * \ingroup modules
+ * This module shows a coordinatesystem as HUD.
+ * The attenuation can be customized to users needs.
  */
 class WMCoordinateHUD: public WModule, public osg::Referenced
 {
-public:
+    public:
 
-    /**
-     * Default constructor.
-     */
-    WMCoordinateHUD();
+        /**
+         * Default constructor.
+         */
+        WMCoordinateHUD();
 
-    /**
-     * Destructor.
-     */
-    virtual ~WMCoordinateHUD();
+        /**
+         * Destructor.
+         */
+        virtual ~WMCoordinateHUD();
 
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
+        /**
+         * Gives back the name of this module.
+         * \return the module's name.
+         */
+        virtual const std::string getName() const;
 
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
+        /**
+         * Gives back a description of this module.
+         * \return description to module.
+         */
+        virtual const std::string getDescription() const;
 
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual boost::shared_ptr< WModule > factory() const;
+        /**
+         * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+         * should never be initialized or modified in some other way. A simple new instance is required.
+         *
+         * \return the prototype used to create every module in OpenWalnut.
+         */
+        virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     */
-    virtual const char** getXPMIcon() const;
+        /**
+         * Get the icon for this module in XPM format.
+         */
+        virtual const char** getXPMIcon() const;
 
-protected:
+    protected:
 
-    /**
-     * Entry point after loading the module. Runs in separate thread.
-     */
-    virtual void moduleMain();
+        /**
+         * Entry point after loading the module. Runs in separate thread.
+         */
+        virtual void moduleMain();
 
-    /**
-     * Initialize the connectors this module is using.
-     */
-    virtual void connectors();
+        /**
+         * Initialize the connectors this module is using.
+         */
+        virtual void connectors();
 
-    /**
-     * Initialize the properties for this module.
-     */
-    virtual void properties();
+        /**
+         * Initialize the properties for this module.
+         */
+        virtual void properties();
 
-    /**
-     * Build the geode for colorfull coordinate axis
-     */
-    virtual void buildColorAxis();
+        /**
+         * Build the geode for colorfull coordinate axis
+         */
+        virtual void buildColorAxis();
 
-    /**
-     * build the geode for black & white coordinate axis
-     */
-    virtual void buildBWAxis();
+        /**
+         * build the geode for black & white coordinate axis
+         */
+        virtual void buildBWAxis();
 
-    /**
-     * build the geode for black & white coordinate cube
-     */
-    virtual void buildColorCube();
+        /**
+         * build the geode for black & white coordinate cube
+         */
+        virtual void buildColorCube();
 
-    /**
-     * build the geode for black & white coordinate cube
-     */
-    virtual void buildBWCube();
+        /**
+         * build the geode for black & white coordinate cube
+         */
+        virtual void buildBWCube();
 
-    /**
-     * build the geometry of the cube
-     */
-    virtual osg::Vec3Array* buildCubeVertices();
+        /**
+         * build the geometry of the cube
+         */
+        virtual osg::Vec3Array* buildCubeVertices();
 
-    /**
-     * build the geometry of the axis
-     */
-    virtual osg::Vec3Array* buildAxisVertices();
+        /**
+         * build the geometry of the axis
+         */
+        virtual osg::Vec3Array* buildAxisVertices();
 
-    /**
-     * create caption for medical plane
-     */
-    virtual void buildCaption();
+        /**
+         * create caption for medical plane
+         */
+        virtual void buildCaption();
 
-    /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+        /**
+         * The root node used for this modules graphics.
+         */
+        osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
 
-    /**
-     * The geometry rendered by this module.
-     */
-    osg::ref_ptr< osg::Geode > m_geode;
+        /**
+         * The geometry rendered by this module.
+         */
+        osg::ref_ptr< osg::Geode > m_geode;
 
-    /**
-     * The geometry rendered by this module.
-     */
-    osg::ref_ptr< osg::Geode > m_txtGeode;
+        /**
+         * The caption rendered by this module.
+         */
+        osg::ref_ptr< osg::Geode > m_txtGeode;
 
 
-private:
+    private:
 
-    /**
-     * the shader
-     */
-    osg::ref_ptr< WShader > m_shader;
+        /**
+         * the shader
+         */
+        osg::ref_ptr< WShader > m_shader;
 
-    /**
-     * the shader
-     */
-    osg::ref_ptr< WShader > m_txtShader;
+        /**
+         * A condition used to notify about changes in several properties.
+         */
+        boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
+        /**
+         * A property allowing the user to select ONE item of some list
+         */
+        WPropSelection m_aSingleSelection;
 
-    /**
-     * A property allowing the user to select ONE item of some list
-     */
-    WPropSelection m_aSingleSelection;
-
-    /**
-     * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
-     */
-    boost::shared_ptr< WItemSelection > m_possibleSelections;
+        /**
+         * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
+         */
+        boost::shared_ptr< WItemSelection > m_possibleSelections;
 };
 
 #endif  // WMCOORDINATEHUD_H
