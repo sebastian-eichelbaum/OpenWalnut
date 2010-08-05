@@ -42,7 +42,6 @@
 
 #include "box.xpm"
 #include "question.xpm"
-#include "o.xpm"
 
 #include "moduleBusy.xpm"
 #include "moduleCrashed.xpm"
