@@ -7,7 +7,7 @@ varying vec4 VaryingTexCoord5;
 varying vec4 VaryingTexCoord6;
 varying vec4 VaryingTexCoord7;
 
-#include "WGELighting.glsl"
+#include "WGELighting-vertex.glsl"
 
 void main()
 {

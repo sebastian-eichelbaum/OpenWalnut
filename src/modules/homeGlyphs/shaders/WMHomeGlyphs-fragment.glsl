@@ -1,5 +1,5 @@
 #include "WGEColorMaps.glsl"
-#include "WGELighting.glsl"
+#include "WGELighting-fragment.glsl"
 
 
 void main()
