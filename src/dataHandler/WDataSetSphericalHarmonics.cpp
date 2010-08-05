@@ -69,13 +69,17 @@ wmath::WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( cons
 
     *success = grid->encloses( pos );
 
-    if( !*success )
+    bool isInside = true;
+    size_t cellId = grid->getCellId( pos, &isInside );
+
+    if( !isInside )
     {
+        *success = false;
         return wmath::WSymmetricSphericalHarmonic();
     }
 
     // ids of vertices for interpolation
-    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
+    std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
 
     wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 
