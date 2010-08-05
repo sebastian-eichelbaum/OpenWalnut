@@ -165,6 +165,8 @@ private:
     osg::ref_ptr< osg::Geode > m_geode;
 
     wmath::WPosition m_p0; //!< stores the last position of the center manipulator
+    wmath::WPosition m_p1; //!< stores the last position of  manipulator 1
+    wmath::WPosition m_p2; //!< stores the last position of  manipulator 2
 
     boost::shared_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
     boost::shared_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1
