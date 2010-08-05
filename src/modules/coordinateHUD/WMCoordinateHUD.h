@@ -103,25 +103,39 @@ protected:
     virtual void properties();
 
     /**
-     * Build the geometry for colorfull coordinate axis
+     * Build the geode for colorfull coordinate axis
      */
     virtual void buildColorAxis();
  
     /**
-     * build the geometry for black & white coordinate axis
+     * build the geode for black & white coordinate axis
      */
     virtual void buildBWAxis(); 
   
     /**
-     * build the geometry for black & white coordinate cube
+     * build the geode for black & white coordinate cube
      */
     virtual void buildColorCube();
 
     /**
-     * build the geometry for black & white coordinate cube
+     * build the geode for black & white coordinate cube
      */
     virtual void buildBWCube();
 
+    /**
+     * build the geometry of the cube
+     */
+    virtual osg::Vec3Array* buildCubeVertices();
+    
+    /**
+     * build the geometry of the axis
+     */
+    virtual osg::Vec3Array* buildAxisVertices();
+ 
+    /**
+     * create caption for medical plane
+     */
+    virtual void buildCaption();
 
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
@@ -131,7 +145,13 @@ protected:
     /**
      * The geometry rendered by this module.
      */
-    osg::ref_ptr< osg::Geode > m_geode;
+    osg::ref_ptr< osg::Geode > m_geode; 
+ 
+    /**
+     * The geometry rendered by this module.
+     */
+    osg::ref_ptr< osg::Geode > m_txtGeode;
+
 
 private:
 
@@ -139,6 +159,11 @@ private:
      * the shader
      */
     osg::ref_ptr< WShader > m_shader;
+ 
+    /**
+     * the shader
+     */
+    osg::ref_ptr< WShader > m_txtShader;
 
     /**
      * A condition used to notify about changes in several properties.
