@@ -67,7 +67,7 @@ public:
     /**
      * The alias for a shared container.
      */
-    typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType;
+    typedef WSharedSequenceContainer< DatasetContainerType > DatasetSharedContainerType;
 
     /**
      * The dataset iterator.

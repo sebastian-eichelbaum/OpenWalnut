@@ -30,7 +30,6 @@
 #include "../WValueSetBase.h"
 #include "../WDataHandlerEnums.h"
 
-
 /**
  * Dummy class for testing the abstract class WValueSetBase
  */
@@ -40,7 +39,7 @@ friend class WValueSetBaseTest;
 
 public:
     /**
-     * Standar constructor of Dummy class.
+     * Standard constructor of Dummy class.
      */
     Dummy()
         : WValueSetBase( 0, 1, W_DT_INT8 )
@@ -56,23 +55,63 @@ public:
     {
     }
 
+    /**
+     * Destructor.
+     */
     virtual ~Dummy()
     {
     }
 
+    /**
+     * Get the size.
+     *
+     * \return The size.
+     */
     virtual size_t size() const
     {
         return 255;
     }
 
+    /**
+     * Get the raw size.
+     *
+     * \return The raw size.
+     */
     virtual size_t rawSize() const
     {
         return 255;
     }
 
-    virtual double getScalarDouble( size_t i ) const
+    /**
+     * Get the value.
+     *
+     * \return The value at position i.
+     */
+    virtual double getScalarDouble( size_t /* i */ ) const
     {
         return 255;
+    }
+
+    /**
+     * This method returns the smallest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * smallest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the smallest value in the data.
+     */
+    virtual double getMinimumValue() const
+    {
+        return 0.0;
+    }
+
+    /**
+     * This method returns the largest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * largest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the largest value in the data.
+     */
+    virtual double getMaximumValue() const
+    {
+        return 255.0;
     }
 };
 

@@ -58,7 +58,7 @@ const char** WMScalarSegmentation::getXPMIcon() const
 
 const std::string WMScalarSegmentation::getName() const
 {
-    return "ScalarSegmentation";
+    return "Scalar Segmentation";
 }
 
 const std::string WMScalarSegmentation::getDescription() const

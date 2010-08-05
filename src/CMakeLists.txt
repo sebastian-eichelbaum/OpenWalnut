@@ -233,6 +233,18 @@ ADD_CUSTOM_COMMAND( OUTPUT cscope
 ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 
 #-------------------------------------------------------------------------------------------------------------
+# Determines the number of cores available on this machine
+SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+ADD_CUSTOM_TARGET( numCores
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
+                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
+                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
+                   COMMENT "Determines the number of cores available on this machine"
+                 )
+
+#-------------------------------------------------------------------------------------------------------------
 # Checks style guide lines via the BrainLint tool against all source code files
 #    The output is colored when variable CMAKE_COLOR_MAKEFILE is set to ON,
 #    noncolored if it is set to OFF
@@ -261,21 +273,24 @@ ELSE()
 ENDIF()
 
 IF( CMAKE_HOST_WIN32 )
-	SET( XARGS_OPTIONS "-n 128" )
+    SET( XARGS_OPTIONS "-n 128" )
+ELSEIF( CMAKE_HOST_UNIX )
+    SET( XARGS_OPTIONS -P \$\$\(${NUM_CORES_BINARY}\) -n 64 )
 ELSE()
-	SET( XARGS_OPTIONS "" )
+    SET( XARGS_OPTIONS "" )
 ENDIF()
 
 FILE( WRITE ${PROJECT_BINARY_DIR}/brainlintlist "" )
 FOREACH( fname ${STYLE_CPP} ${STYLE_H} )
-	FILE( APPEND ${PROJECT_BINARY_DIR}/brainlintlist "${fname}\n" )
+    FILE( APPEND ${PROJECT_BINARY_DIR}/brainlintlist "${fname}\n" )
 ENDFOREACH()
 
 ADD_CUSTOM_TARGET( stylecheck
-				   COMMAND  cat ${PROJECT_BINARY_DIR}/brainlintlist | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLECHECK_OPTIONS}
-				   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-				   COMMENT "Check if code complies to CodingStandard"
-				 )
+                   COMMAND  cat ${PROJECT_BINARY_DIR}/brainlintlist | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLECHECK_OPTIONS} 2>&1 | grep -iv 'Total errors found: 0$$' | cat
+                   DEPENDS numCores
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                   COMMENT "Check if code complies to CodingStandard"
+                 )
 
 #-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
@@ -293,18 +308,12 @@ ADD_CUSTOM_TARGET( cicheck
 
 #-------------------------------------------------------------------------------------------------------------
 # Makes many special make targets in combination. Default number of cores is 1.
-SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
-SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
 ADD_CUSTOM_TARGET( many
-                   COMMAND ${CMAKE_COMMAND} ${PROJECT_SOURCE_DIR}
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
-                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
-                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
-                   COMMAND if [ -e ${NUM_CORES_BINARY} ]\; then echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; $(MAKE) all -j\$\$\(${NUM_CORES_BINARY}\)\; else echo WARNING: No binary for numCores found: ${NUM_CORES_BINARY}. Using 1 core.\; $(MAKE) all -j1\; fi
+                   COMMAND echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; $(MAKE) all -j\$\$\(${NUM_CORES_BINARY}\)
                    COMMAND $(MAKE) test
                    COMMAND $(MAKE) stylecheck
                    COMMAND $(MAKE) doc
+                   DEPENDS numCores
                    COMMENT "Make many special make targets in combination."
                  )
 

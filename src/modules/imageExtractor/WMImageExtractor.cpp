@@ -113,6 +113,15 @@ void WMImageExtractor::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
 }
 
+void WMImageExtractor::activate()
+{
+    if( m_outData )
+    {
+        m_outData->getTexture()->setGloballyActive( m_active->get() );
+    }
+    WModule::activate();
+}
+
 void WMImageExtractor::moduleMain()
 {
     m_moduleState.setResetable( true, true );

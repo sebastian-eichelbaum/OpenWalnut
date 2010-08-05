@@ -26,17 +26,21 @@
 #define WGEGEODEUTILS_H
 
 #include <vector>
+#include <string>
 
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/MatrixTransform>
+#include <osg/PositionAttitudeTransform>
+#include <osgText/Text>
 #include <osg/Vec3>
 
-#include "../common/WColor.h"
 #include "../common/datastructures/WTriangleMesh.h"
 #include "../common/math/WLine.h"
 #include "../common/math/WPlane.h"
 #include "../common/math/WPosition.h"
+#include "../common/WColor.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
 
@@ -101,6 +105,23 @@ namespace wge
                                                        const WColor& color = WColor( 0, 0, 0, 0 ) );
 
     /**
+     * helper function to add a label somewhere
+     *
+     * \param position position of the label
+     * \param text text
+     * \return a positionattitudetransfom object containing the label
+     */
+    osg::ref_ptr< osg::PositionAttitudeTransform > addLabel( osg::Vec3 position, std::string text );
+
+    /**
+     * helper function to add a label with it's position vector
+     *
+     * \param position position of the label
+     * \return a positionattitudetransfom object containing the label
+     */
+    osg::ref_ptr< osg::PositionAttitudeTransform > vector2label( osg::Vec3 position );
+
+    /**
      * Generates a geode out of a Plane with a fixed size in direction of the vectors which span that plane.
      *
      * \param xSize how far the plane from its center along the x-axis should be drawn (both directions)
@@ -111,6 +132,7 @@ namespace wge
      *
      * \return The new assembled geode for this plane
      */
+
     osg::ref_ptr< osg::Geode > genFinitePlane( double xSize,
                                                double ySize,
                                                const WPlane& p,

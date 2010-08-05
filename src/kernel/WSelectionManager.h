@@ -50,6 +50,13 @@ public:
      */
     boost::shared_ptr< WCrosshair >getCrosshair();
 
+    /**
+     * function returns an index of the direction one is currently looking at the scene
+     *
+     * \return index
+     */
+    int getFrontSector();
+
 protected:
 private:
     boost::shared_ptr< WCrosshair >m_crosshair; //!< stores pointer to crosshair

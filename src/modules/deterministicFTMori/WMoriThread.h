@@ -116,8 +116,7 @@ public:
     /**
      * Constructor.
      * \param grid The regular 3D grid of the input dataset.
-     * \param eigenVectors A vector storing the eigenvector that belongs to the eigenvalue of largest magnitude for every grid position.
-     * \param fa A vector that stores the fractional anisotropy for every grid position.
+     * \param eigenField A vector storing the largest eigenvector and the fa for every voxel.
      * \param minFA The minimum fractional anisotropy threshold needed by the tracking algorithm.
      * \param minPoints The minimum length of a fiber.
      * \param minCos The minimum cosine of the angle of bends between adjacent fiber segments.
@@ -126,8 +125,7 @@ public:
      * \param fiberAccu A WFiberAccumulator.
      */
     WMoriThread( boost::shared_ptr< WGridRegular3D > grid,
-                 boost::shared_ptr< std::vector< wmath::WVector3D > > eigenVectors,
-                 boost::shared_ptr< std::vector< double > > fa,
+                 boost::shared_ptr< WDataSetSingle > eigenField,
                  double const minFA,
                  unsigned int const minPoints,
                  double const minCos,
@@ -231,74 +229,43 @@ private:
      */
     double distanceToBorder( double const& pos, size_t const& coord, double const& eigen ) const;
 
-    /**
-     * A shared pointer to the grid.
-     */
+    //! A shared pointer to the grid.
     boost::shared_ptr< WGridRegular3D > m_grid;
 
-    /**
-     * A shared pointer to the vector of eigenvectors.
-     */
-    boost::shared_ptr< std::vector< wmath::WVector3D > > m_eigenVectors;
+    //! the type of valueset used
+    boost::shared_ptr< WValueSet< double > > m_eigenSet;
 
-    /**
-     * A shared poiter to the vector of fractional anisotropy values.
-     */
-    boost::shared_ptr< std::vector< double > > m_FA;
-
-    /**
-     * The fractional anisotropy threshold.
-     */
+    //! The fractional anisotropy threshold.
     double const m_minFA;
 
-    /**
-     * Minimum of points per fiber.
-     */
+    //! Minimum of points per fiber.
     unsigned int const m_minPoints;
 
-    /**
-     * The minimum angle between two adjacent segments of a fiber.
-     */
+    //! The minimum angle between two adjacent segments of a fiber.
     double const m_minCos;
 
-    /**
-     * A shared pointer to a WProgress object.
-     */
+    //! A shared pointer to a WProgress object.
     boost::shared_ptr< WProgress > m_progress;
 
-    /**
-     * Determines what part of the grid the seedpoints should be placed in.
-     */
+    //! Determines what part of the grid the seedpoints should be placed in.
     uint32_t const m_index;
 
-    /**
-     * A WFiberAccumulator.
-     */
+    //! A WFiberAccumulator.
     boost::shared_ptr< WFiberAccumulator > m_fiberAccu;
 
-    /**
-     * A constant needed for comparations.
-     */
+    //! A constant needed for comparations.
     double const m_eps;
 
-    /**
-     * The extent of the grid in each axis' direction.
-     */
+    //! The extent of the grid in each axis' direction.
     wmath::WValue< size_t > m_gridSize;
 
-    /**
-     * The grid's transformation matrix.
-     */
+    //! The grid's transformation matrix.
     wmath::WMatrix< double > m_gridTransform;
 
-    /**
-     * The inverse of the grid's tranformation matrix.
-     */
+    //! The inverse of the grid's tranformation matrix.
     wmath::WMatrix< double > m_invGridTransform;
 
-    /**
-     * The translation vector of the grid.
-     */
+    //! The translation vector of the grid.
     wmath::WVector3D m_gridTranslation;
 };
 

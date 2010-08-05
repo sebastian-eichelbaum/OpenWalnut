@@ -46,6 +46,7 @@
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WEEG2.h"
 #include "../../graphicsEngine/WROIBox.h"
+#include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleCombiner.h"
@@ -745,70 +746,54 @@ void WMainWindow::setPresetViewLeft()
 {
     boost::shared_ptr< WGEViewer > viewer;
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    osg::ref_ptr< WGEGroupNode > currentScene;
-    currentScene = viewer->getScene();
-    osg::Matrix rm;
-    osg::Matrix tm;
-    tm.makeTranslate( osg::Vec3( -79.0, -99.0, -79.0 ) );
-    rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
-    tm *= rm;
-    viewer->reset();
-    currentScene->setMatrix( tm );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0.5, -0.5, -0.5, 0.5 );
+    cm->setRotation( q );
 }
 
 void WMainWindow::setPresetViewRight()
 {
     boost::shared_ptr< WGEViewer > viewer;
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    osg::ref_ptr< WGEGroupNode > currentScene;
-    currentScene = viewer->getScene();
-    osg::Matrix rm;
-    rm.makeRotate( 90.0 * ( 3.141 / 180 ), 0.0, 0.0, -1.0 );
-    currentScene->setMatrix( rm );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( -0.5, -0.5, -0.5, -0.5 );
+    cm->setRotation( q );
 }
 
 void WMainWindow::setPresetViewSuperior()
 {
     boost::shared_ptr< WGEViewer > viewer;
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    osg::ref_ptr< WGEGroupNode > currentScene;
-    currentScene = viewer->getScene();
-    osg::Matrix rm;
-    rm.makeRotate( 90.0 * ( 3.141 / 180 ), 1.0, 0.0, 0.0 );
-    currentScene->setMatrix( rm );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0., 0., 0., 1 );
+    cm->setRotation( q );
 }
 
 void WMainWindow::setPresetViewInferior()
 {
     boost::shared_ptr< WGEViewer > viewer;
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    osg::ref_ptr< WGEGroupNode > currentScene;
-    currentScene = viewer->getScene();
-    osg::Matrix rm;
-    rm.makeRotate( 90.0 * ( 3.141 / 180 ), -1.0, 0.0, 0.0 );
-    currentScene->setMatrix( rm );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0., -1., 0., 0. );
+    cm->setRotation( q );
 }
 
 void WMainWindow::setPresetViewAnterior()
 {
     boost::shared_ptr< WGEViewer > viewer;
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    osg::ref_ptr< WGEGroupNode > currentScene;
-    currentScene = viewer->getScene();
-    osg::Matrix rm;
-    rm.makeRotate( 3.141, 0.0, 0.0, 1.0 );
-    currentScene->setMatrix( rm );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0., -0.707107, -0.707107, 0. );
+    cm->setRotation( q );
 }
 
 void WMainWindow::setPresetViewPosterior()
 {
     boost::shared_ptr< WGEViewer > viewer;
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    osg::ref_ptr< WGEGroupNode > currentScene;
-    currentScene = viewer->getScene();
-    osg::Matrix rm;
-//    rm.makeRotate( 90.0 * ( 3.141 / 180 ), 0.0, 0.0, 0.0 );
-    currentScene->setMatrix( rm );
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
+    osg::Quat q( 0.707107, 0., 0., 0.707107 );
+    cm->setRotation( q );
 }
 
 void WMainWindow::openNotImplementedDialog()

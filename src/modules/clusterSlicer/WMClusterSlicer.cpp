@@ -41,7 +41,7 @@
 #include "../../common/math/WPlane.h"
 #include "../../common/WAssert.h"
 #include "../../common/WColor.h"
-#include "../../common/WHistogram.h"
+#include "../../common/WHistogramBasic.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -619,7 +619,7 @@ double WMClusterSlicer::computeOptimalIsoValue( double coverage ) const
     boost::shared_ptr< const WDataSetFiberVector > tracts = m_cluster->getDataSetReference();
     std::list< size_t >::const_iterator iter;
 
-    WHistogram h( m_clusterDS->getMin(), m_clusterDS->getMax() );
+    WHistogramBasic h( m_clusterDS->getMin(), m_clusterDS->getMax() );
 
     for( iter = indices.begin(); iter != indices.end(); ++iter )
     {
@@ -636,12 +636,12 @@ double WMClusterSlicer::computeOptimalIsoValue( double coverage ) const
         }
     }
     size_t valuesSoFar = 0;
-    int64_t index = h.binSize() - 1;
+    int64_t index = h.size() - 1;
     while( static_cast< double >( valuesSoFar ) / static_cast< double >( h.valuesSize() ) < coverage && index >= 0 )
     {
         valuesSoFar += h[index--];
     }
-    return  m_clusterDS->getMin() + std::abs( m_clusterDS->getMin() - m_clusterDS->getMax() ) * index / static_cast< double >( h.binSize() );
+    return  m_clusterDS->getMin() + std::abs( m_clusterDS->getMin() - m_clusterDS->getMax() ) * index / static_cast< double >( h.size() );
 }
 
 void WMClusterSlicer::activate()

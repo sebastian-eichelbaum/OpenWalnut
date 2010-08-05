@@ -31,6 +31,7 @@
 #include "../common/math/WValue.h"
 #include "../common/math/WVector3D.h"
 #include "../common/WAssert.h"
+#include "../common/WLimits.h"
 #include "WDataHandlerEnums.h"
 #include "WValueSetBase.h"
 
@@ -47,6 +48,59 @@ friend class WValueSetTest;
 
 public:
     /**
+     * \class SubArray
+     *
+     * A helper class granting safe access to a certain part of the valueset.
+     */
+    class SubArray
+    {
+    public:
+        //! make the valueset a friend
+        friend class WValueSet;
+
+        /**
+         * Destructor.
+         */
+        ~SubArray()
+        {
+        }
+
+        /**
+         * Safe access. Only the const version is allowed.
+         *
+         * \param i The relative position of the element in the subarray's range.
+         *
+         * \note If i is not in ( 0, size - 1 ), the first element will be returned.
+         */
+        T const& operator[] ( std::size_t i ) const
+        {
+            return *( m_ptr + i * static_cast< std::size_t >( i < m_size ) );
+        }
+
+        // use the standard copy constructor and operator
+    private:
+        /**
+         * Construct an object that allows safe access.
+         * (no access to elements not in the subarray's range).
+         * Only a valueset may construct a SubArray.
+         *
+         * \param p A pointer to the first element.
+         * \param size The size of the subarray.
+         */
+        SubArray( T const* const p, std::size_t size )
+            : m_ptr( p ),
+              m_size( size )
+        {
+        }
+
+        //! the pointer to the first element
+        T const* const m_ptr;
+
+        //! the size of the subarray
+        std::size_t const m_size;
+    };
+
+    /**
      * Constructs a value set with values of type T. Sets order and dimension
      * to allow to interprete the values as tensors of a certain order and dimension.
      * \param order tensor order of values stored in the value set
@@ -58,6 +112,15 @@ public:
         : WValueSetBase( order, dimension, inDataType ),
           m_data( data )
     {
+        // calculate min and max
+        // Calculating this once simply ensures that it does not need to be recalculated in textures, histograms ...
+        m_minimum = wlimits::MAX_DOUBLE;
+        m_maximum = wlimits::MIN_DOUBLE;
+        for ( typename std::vector< T >::const_iterator iter = data.begin(); iter != data.end(); ++iter )
+        {
+            m_minimum = m_minimum > *iter ? *iter : m_minimum;
+            m_maximum = m_maximum < *iter ? *iter : m_maximum;
+        }
     }
 
     /**
@@ -143,8 +206,56 @@ public:
         return &m_data;
     }
 
+    /**
+     * Request (read-) access object to a subarray of this valueset.
+     * The object returned by this function can be used as an array
+     * ( starting at index 0 ), whose elements are the data elements
+     * at positions start to ( including ) start + size - 1 of the valueset.
+     *
+     * \param start The position of the first element of the subarray.
+     * \param size The number of elements in the subarray.
+     * \return The subarray.
+     */
+    SubArray const getSubArray( std::size_t start, std::size_t size ) const
+    {
+        WAssert( start + size <= rawSize(), "" );
+        WAssert( size != 0, "" );
+        return SubArray( rawData() + start, size );
+    }
+
+    /**
+     * This method returns the smallest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * smallest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the smallest value in the data.
+     */
+    virtual double getMinimumValue() const
+    {
+        return m_minimum;
+    }
+
+    /**
+     * This method returns the largest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * largest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the largest value in the data.
+     */
+    virtual double getMaximumValue() const
+    {
+        return m_maximum;
+    }
 
 protected:
+
+    /**
+     * The smallest value in m_data.
+     */
+    T m_minimum;
+
+    /**
+     * The largest value in m_data.
+     */
+    T m_maximum;
 
 private:
     /**

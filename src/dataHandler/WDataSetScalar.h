@@ -25,6 +25,12 @@
 #ifndef WDATASETSCALAR_H
 #define WDATASETSCALAR_H
 
+#include <map>
+
+#include <boost/thread.hpp>
+
+#include "datastructures/WValueSetHistogram.h"
+
 #include "WDataSetSingle.h"
 
 /**
@@ -46,20 +52,6 @@ public:
                     boost::shared_ptr< WGrid > newGrid );
 
     /**
-     * Constructs an instance out of an appropriate value set and a grid.
-     * Computes the maximum an minimum values stored as member variables.
-     *
-     * \param newValueSet the scalar value set to use
-     * \param newGrid the grid which maps world space to the value set
-     * \param min a priori known smallest scalar value in newValueSet
-     * \param max a priori known largest scalar value in newValueSet
-     */
-    WDataSetScalar( boost::shared_ptr< WValueSetBase > newValueSet,
-                    boost::shared_ptr< WGrid > newGrid,
-                    double min,
-                    double max );
-
-    /**
      * Construct an empty and unusable instance. This is needed for the prototype mechanism.
      */
     WDataSetScalar();
@@ -78,6 +70,17 @@ public:
      * Returns the smallest of the scalars stored in the data set
      */
     double getMin() const;
+
+    /**
+     * Returns the histogram of this dataset's valueset. If it does not exist yet, it will be created and cached. It does NOT make use of the
+     * WValueSetHistogram down scaling feature even though the number of buckets might be lower than the default as the down scaling might
+     * introduce errors. To use down-scaling, grab the default histogram and call WValueSetHistogram( getHistogram(), buckets ) manually.
+     *
+     * \param buckets the number of buckets inside the histogram.
+     *
+     * \return the histogram.
+     */
+    boost::shared_ptr< const WValueSetHistogram > getHistogram( size_t buckets = 1000 );
 
     /**
      * Interpolate the value fo the valueset at the given position.
@@ -125,8 +128,16 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
-    double m_maximum; //!< Largest scalar of data set.
-    double m_minimum; //!< Smallest scalar of data set.
+
+    /**
+     * The histograms for later use. Each histogram for a requested bucket count gets cached.
+     **/
+    std::map< size_t, boost::shared_ptr< WValueSetHistogram > > m_histograms;
+
+    /**
+     * The lock used for securely creating m_histogram on demand.
+     */
+    boost::mutex m_histogramLock;
 };
 
 template< typename T > T WDataSetScalar::getValueAt( int x, int y, int z ) const

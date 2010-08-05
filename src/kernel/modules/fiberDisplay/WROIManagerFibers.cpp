@@ -95,6 +95,8 @@ void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
         return;
     m_recalcLock = true;
 
+    roi->removeFromGE();
+
     for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
         ( *iter )->removeRoi( roi );

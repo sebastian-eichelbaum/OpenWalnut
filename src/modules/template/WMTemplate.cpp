@@ -181,7 +181,7 @@ void WMTemplate::connectors()
     // As above: make it known.
     addConnector( m_output );
 
-    // call WModules initialization
+    // call WModule's initialization
     WModule::connectors();
 }
 
@@ -404,33 +404,36 @@ void WMTemplate::moduleMain()
         // After collection, the calculation work can be done.
 
 
-        // Now, we can check the input, whether it changed the data. Therefore, we try to grab some data and check whether it is different from
-        // the currently used data. Of course, you do not need to check whether the data really is different, but you should do it as you do not
-        // want permanent recalculation which is actually not needed.
-        //
-        // Note: do not call m_input->getData() twice; one for checking if it is different and on for copying the pointer, since the result of
-        // getData might be different among both calls.
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
-        bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
+        // Now, we can check the input, whether there is an update enqueued for us. But first, we need to understand the meaning of an update on
+        // an input connector:
+        //  * a module updates its output connector with some new data -> updated
+        //  * a module triggers an update on its output connector without an actual data change -> updated
+        //  * our own input connector got connected to an output connector -> updated
+        //  * our own input connector got DISconnected from an output connector -> NO update
+        // You now might ask: "Why can modules trigger updates if they did not change the data?". The answer is simple. Some modules change the
+        // grid without actually changing the data for example. They translate the grid in space. This results in an update although the actual
+        // data stayed the same.
 
-        // To check validity of multiple inputs at once, you can also use dataChanged and dataValid:
-        // bool dataChanged = ( m_dataSet != newDataSet ) || ( m_dataSet2 != newDataSet2 ) || ( m_dataSet3 != newDataSet3 );
-        // bool dataValid   = newDataSet && newDataSet2 && newDataSet3;
-        // This way, you can easily ensure that ALL your inputs are set and the module can do its job
+        // To query whether an input was updated, simply ask the input:
+        bool dataUpdated = m_input->updated();
 
-        // now, copy the new data to out local member variables
-        if ( dataChanged && dataValid )
-        // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
-        // cases.
+        // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
+        boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
+        bool dataValid = ( dataSet );
+        // After calling getData(), the update flag is reset and false again. Please keep in mind, that the module lives in an multi-threaded
+        // world where the update flag and data can change at any time. DO NEVER use getData directly in several places of your module as the
+        // data returned may change between two consecutive calls! Always grab it into a local variable and use this variable.
+
+        // Another important hint. For grabbing the data, use a local variable wherever possible. If you use a member variable, the data might
+        // never be freed if nobody uses the data anymore because your module holds the last reference. If you need to use a member variable for
+        // the received data, subscribe the your input's disconnect signal or overwrite WModule::notifyConnectionClosed and reset your variable
+        // there to ensure its proper deletion.
+
+        // do something with the data
+        if ( dataUpdated && dataValid )
         {
-            // The data is different. Copy it to our internal data variable:
+            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
             debugLog() << "Received Data.";
-            m_dataSet = newDataSet;
-
-            // For multiple inputs:
-            // m_dataSet2 = newDataSet2;
-            // m_dataSet3 = newDataSet3;
         }
 
         // Here we collect our properties. You, as with input connectors, always check if a property really has changed. You most probably do not
@@ -447,7 +450,7 @@ void WMTemplate::moduleMain()
             // This is a simple example for doing an operation which is not depending on any other property.
             debugLog() << "Doing an operation on the file \"" << m_aFile->get( true ).file_string() << "\".";
 
-            // NOTE: be careful if you want to use m_dataSet here, as it might be unset. Verify data validity using dataChanged && dataValid.
+            // NOTE: be careful if you want to use dataSet here, as it might be unset. Verify data validity using dataUpdated && dataValid.
         }
 
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
@@ -457,12 +460,12 @@ void WMTemplate::moduleMain()
             debugLog() << "Doing an operation basing on m_aString ... ";
             debugLog() << "m_aString: " << m_aString->get( true );
 
-            // NOTE: be careful if you want to use m_dataSet here, as it might be unset. Verify data validity using dataChanged && dataValid.
+            // NOTE: be careful if you want to use dataSet here, as it might be unset. Verify data validity using dataUpdated && dataValid.
         }
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
         // The if statement also checks for data validity as it uses the data! You should also always do that.
-        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataChanged  ) && dataValid )
+        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataUpdated  ) && dataValid )
         {
             debugLog() << "Creating new OSG node";
 
@@ -478,7 +481,7 @@ void WMTemplate::moduleMain()
 
             debugLog() << "Number of Rows: " << rows;
             debugLog() << "Radii: " << radii;
-            debugLog() << "Current dataset: " << m_dataSet->getFileName() << " with name: " << m_dataSet->getName();
+            debugLog() << "Current dataset: " << dataSet->getFileName() << " with name: " << dataSet->getName();
 
             // This block will be executed whenever we have a new dataset or the m_anInteger property has changed. This example codes produces
             // some shapes and replaces the existing root node by a new (updated) one. Therefore, a new root node is needed:
@@ -517,13 +520,13 @@ void WMTemplate::moduleMain()
 
         // Now we updated the visualization after the dataset has changed. Your module might also calculate some other datasets basing on the
         // input data.
-        // To ensure that all datasets are valid, check dataChanged and dataValid. If both are true, you can safely use the data.
-        if ( dataChanged && dataValid )
+        // To ensure that all datasets are valid, check dataUpdated and dataValid. If both are true, you can safely use the data.
+        if ( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Recalculating output.";
 
             // Calculate your new data here. This example just forwards the input to the output ;-).
-            boost::shared_ptr< WDataSetSingle > newData = m_dataSet;
+            boost::shared_ptr< WDataSetSingle > newData = dataSet;
 
             // Doing a lot of work without notifying the user visually is not a good idea. So how is it possible to report progress? Therefore,
             // the WModule class provides a member m_progress which is of type WPropgressCombiner. You can create own progress objects and count

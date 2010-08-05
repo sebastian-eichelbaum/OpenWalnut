@@ -2,7 +2,7 @@ varying vec4 VaryingTexCoord0;
 
 uniform int opacity;
 
-#include "WGELighting.glsl"
+#include "WGELighting-fragment.glsl"
 
 void main()
 {
