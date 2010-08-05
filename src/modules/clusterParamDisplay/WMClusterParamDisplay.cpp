@@ -150,10 +150,10 @@ void WMClusterParamDisplay::initSubModules()
     m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramDS" ) );
 
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
-    m_isoSurface->getInputConnector( "in" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+    m_isoSurface->getInputConnector( "values" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
     m_clusterSlicer->getInputConnector( "cluster" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
     m_clusterSlicer->getInputConnector( "clusterDS" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
-    m_clusterSlicer->getInputConnector( "meshIN" )->connect( m_isoSurface->getOutputConnector( "out" ) );
+    m_clusterSlicer->getInputConnector( "meshIN" )->connect( m_isoSurface->getOutputConnector( "surface mesh" ) );
     m_meshRenderer->getInputConnector( "mesh" )->connect( m_clusterSlicer->getOutputConnector( "meshOUT" ) );
     m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMap" ) );
 
