@@ -128,3 +128,8 @@ const std::string WDataSetSphericalHarmonics::getDescription() const
 {
     return "Contains factors for spherical harmonics.";
 }
+
+bool WDataSetSphericalHarmonics::isTexture() const
+{
+    return false;
+}
