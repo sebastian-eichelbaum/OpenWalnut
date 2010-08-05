@@ -89,6 +89,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
     m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
 
+
     if( objectName().isEmpty() )
     {
         setObjectName( QString::fromUtf8( "MainWindow" ) );
@@ -981,9 +982,9 @@ void WMainWindow::newRoi()
     }
 }
 
-void WMainWindow::setFibersLoaded()
+void WMainWindow::setFibersLoaded( bool flag )
 {
-    m_fibLoaded = true;
+    m_fibLoaded = flag;
 }
 
 void WMainWindow::openConfigDialog()

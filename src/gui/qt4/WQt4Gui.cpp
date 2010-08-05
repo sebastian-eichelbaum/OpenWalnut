@@ -216,8 +216,7 @@ int WQt4Gui::run()
             std::vector< std::string > tmpFiles = m_optionsMap["input"].as< std::vector< std::string > >();
             for( std::vector< std::string >::iterator it = tmpFiles.begin(); it != tmpFiles.end(); ++it )
             {
-                using wiotools::getSuffix;
-                std::string suffix = getSuffix( *it );
+                std::string suffix = wiotools::getSuffix( *it );
                 bool isFib = ( suffix == ".fib" );
                 if( fibFound && isFib )
                 {
@@ -232,7 +231,7 @@ int WQt4Gui::run()
             {
                 // Found exactly one fiber data set. So signal this to main window.
                 // If more than one are found we do not load them anyways. Thus we can allow to load a new one.
-                m_mainWindow->setFibersLoaded();
+                m_mainWindow->setFibersLoaded( true );
             }
         }
 
@@ -303,6 +302,16 @@ void WQt4Gui::slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule >
 void WQt4Gui::slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
+    if( module->getName() == "Data Module" )
+    {
+        boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
+        WAssert( dataModule, "Internal failure." );
+        std::string suffix = wiotools::getSuffix( dataModule->getFilename().file_string() );
+        if(  suffix == ".fib" )
+        {
+            m_mainWindow->setFibersLoaded( false );
+        }
+    }
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleRemovedEvent( module ) );
 }
 
