@@ -86,6 +86,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
     m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
+    m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
     m_iconManager.addIcon( std::string( "o" ), o_xpm ); // duumy icon for modules
 
     if( objectName().isEmpty() )
@@ -140,14 +141,14 @@ void WMainWindow::setupGUI()
 
     fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load Dataset", this, SLOT( openLoadDialog() ), QKeySequence(  QKeySequence::Open ) );
     fileMenu->addSeparator();
-    fileMenu->addAction( "Load Project", this, SLOT( projectLoad() ) );
-    QMenu* saveMenu = fileMenu->addMenu( "Save" );
-    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
+    fileMenu->addAction( m_iconManager.getIcon( "loadProject" ), "Load Project", this, SLOT( projectLoad() ) );
+    QMenu* saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save" );
+    saveMenu->addAction("Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
     saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
     saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     fileMenu->addSeparator();
-    fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ) );
+    fileMenu->addAction( m_iconManager.getIcon( "config" ), "Config", this, SLOT( openConfigDialog() ) );
     fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );

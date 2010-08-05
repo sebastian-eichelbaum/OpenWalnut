@@ -47,4 +47,6 @@
 #include "moduleBusy.xpm"
 #include "moduleCrashed.xpm"
 
+#include "tango/preferences-system.xpm"
+
 #endif  // WICONS_H
