@@ -141,6 +141,14 @@ protected:
      */
     void notifyTextureChange();
 
+    /**
+     * getter for the position of the center manipulator
+     *
+     * \return center position
+     */
+    wmath::WPosition getCenterPosition();
+
+
 private:
     /**
      * A condition used to notify about changes in several properties.
@@ -157,6 +165,12 @@ private:
      * True if the manipulator spheres should be shown
      */
     WPropBool m_showManipulators;
+
+    /**
+     * If true the center position will move with the nav slice selection
+     */
+    WPropBool m_attach2Crosshair;
+
 
     /**
      * When triggered the center manipulator is set to the nav slice position and the plane is aligned along

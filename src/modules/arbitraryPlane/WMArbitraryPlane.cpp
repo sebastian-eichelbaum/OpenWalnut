@@ -97,6 +97,8 @@ void WMArbitraryPlane::properties()
             false, m_propCondition );
     m_showManipulators = m_properties->addProperty( "show manipulators", "Hide/Show manipulators.", true, m_propCondition );
 
+    m_attach2Crosshair = m_properties->addProperty( "attach to crosshair", "Attach to Crosshair", false, m_propCondition );
+
     m_buttonReset2Axial = m_properties->addProperty( "Axial", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonReset2Coronal = m_properties->addProperty( "Coronal", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonReset2Sagittal = m_properties->addProperty( "Sagittal", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
@@ -238,6 +240,11 @@ void WMArbitraryPlane::updatePlane()
 {
     m_geode->removeDrawables( 0, 1 );
 
+    if ( m_attach2Crosshair->get() )
+    {
+        m_s0->setPosition( WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition() );
+    }
+
     wmath::WPosition p0 = m_s0->getPosition();
 
     if ( p0 != m_p0 )
@@ -297,6 +304,13 @@ void WMArbitraryPlane::updatePlane()
 
 void WMArbitraryPlane::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
+    wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    wmath::WPosition cho = m_module->getCenterPosition();
+    if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] )
+    {
+        m_module->setDirty();
+    }
+
     if ( m_module->isDirty() )
     {
         m_module->updatePlane();
@@ -451,4 +465,9 @@ void WMArbitraryPlane::initUniforms( osg::StateSet* rootState )
     m_showCompleteUniform = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "showComplete", 0 ) );
 
     rootState->addUniform( m_showCompleteUniform );
+}
+
+wmath::WPosition WMArbitraryPlane::getCenterPosition()
+{
+    return m_s0->getPosition();
 }
