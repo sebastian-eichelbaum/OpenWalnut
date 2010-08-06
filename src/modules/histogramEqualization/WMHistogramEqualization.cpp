@@ -90,18 +90,34 @@ void WMHistogramEqualization::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_histogramResolution = m_properties->addProperty( "Histogram Resolution", "How many buckets should be used for the initial data histogram?",
+    // clamping related stuff
+    m_clamping = m_properties->addPropertyGroup( "Clamping",  "Clamping values in the dataset." );
+
+    m_clamp = m_clamping->addProperty( "Clamp values?", "Values below the specified threshold are clamped to min and max respectively.",
+                                        true, m_propCondition );
+
+    m_histogramResolution = m_clamping->addProperty( "Histogram Resolution", "How many buckets should be used for the initial data histogram?",
                                                        10000, m_propCondition );
     m_histogramResolution->setMin( 10 );
     m_histogramResolution->setMax( 1000000 );
 
-    m_clampPerc = m_properties->addProperty( "Min-Max clamping in %", "Percent that are clamped from the beginning and the end of the histogram.",
-                                             10, m_propCondition );
-    m_clampPerc->setMin( 0 );
-    m_clampPerc->setMax( 100 );
+    m_clampPerc = m_clamping->addProperty( "Min-Max clamping in %", "Percent that are clamped from the beginning and the end of the histogram.",
+                                             10.0, m_propCondition );
+    m_clampPerc->setMin( 0.0 );
+    m_clampPerc->setMax( 100.0 );
 
-    m_equalize  = m_properties->addProperty( "Equalize Histogram", "If true, the dataset's cumulative histogram gets linearized.",
+    // equalizing related props
+    m_equalizing = m_properties->addPropertyGroup( "Equalizing",  "Equalizing values in the dataset." );
+
+    m_equalize  = m_equalizing->addProperty( "Equalize Histogram", "If true, the dataset's cumulative histogram gets linearized.",
                                              true, m_propCondition );
+
+    m_cdfResolution = m_equalizing->addProperty( "CDF Histogram Resolution",
+                                                 "How many buckets should be used for the data histogram used for equalizing?",
+                                                 10000, m_propCondition );
+    m_cdfResolution->setMin( 10 );
+    m_cdfResolution->setMax( 1000000 );
+
 
     // call WModule's initialization
     WModule::properties();
@@ -137,12 +153,18 @@ void WMHistogramEqualization::moduleMain()
         boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
         dataUpdated = dataUpdated && dataSet;
 
+        // prepare progress indicators
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Processing", 4 ) );
+        m_progress->addSubProgress( progress );
+
         // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
         size_t histRes = m_histogramResolution->get( true );
+        size_t cdfHistRes = m_cdfResolution->get( true );
         debugLog() << "Calculating histogram with resolution " << histRes;
 
         // Grab the histogram whose modus (interval with most of the action) is used as interval for histogram equalization
         boost::shared_ptr< const WValueSetHistogram > hist = dataSet->getHistogram( histRes );
+        ++*progress;
 
         // find interval borders and remove first and last p%
         double lower = hist->getMinimum();
@@ -151,7 +173,8 @@ void WMHistogramEqualization::moduleMain()
         size_t perc = m_clampPerc->get( true );
 
         // should the histogram be clamped before processing?
-        if ( perc > 0 )
+        ++*progress;
+        if ( m_clamp->get( true ) )
         {
             debugLog() << "Clamping histogram";
 
@@ -187,7 +210,7 @@ void WMHistogramEqualization::moduleMain()
             debugLog() << "Clamped " << perc << "% resulting in new interval ["<< lower << ", " << upper <<").";
 
             // with this new interval, extract a new histogram and use it for equalization
-            hist = boost::shared_ptr< const WValueSetHistogram >( new WValueSetHistogram( valueSet, lower, upper, histRes ) );
+            hist = boost::shared_ptr< const WValueSetHistogram >( new WValueSetHistogram( valueSet, lower, upper, cdfHistRes ) );
         }
 
         // the new data
@@ -195,6 +218,7 @@ void WMHistogramEqualization::moduleMain()
         newData.resize( hist->getTotalElementCount(), 0 );
 
         // equalize?
+        ++*progress;
         if ( m_equalize->get( true ) )
         {
             // calculate the cumulative distribution function
@@ -235,6 +259,7 @@ void WMHistogramEqualization::moduleMain()
                 newData[ vi ] = static_cast< unsigned char >( idx / maxI * 255 );
             }
         }
+        ++*progress;
 
         // update output with a new dataset, reuse grid
         debugLog() << "Updating output";
@@ -251,13 +276,16 @@ void WMHistogramEqualization::moduleMain()
                 new WValueSet< unsigned char >( 0, 1, newData, W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
         );
 
-        m_lastOutputDataSet->getTexture()->setSelectedColormap( 0 );
+        m_lastOutputDataSet->getTexture()->setSelectedColormap( 4 );
 
         // register new
         WDataHandler::registerDataSet( m_lastOutputDataSet );
         m_output->updateData( m_lastOutputDataSet );
 
         debugLog() << "Done";
+
+        progress->finish();
+        m_progress->removeSubProgress( progress );
     }
 }
 

@@ -122,14 +122,34 @@ private:
     WPropBool m_equalize;
 
     /**
+     * True if the values should be clamped before further processing
+     */
+    WPropBool m_clamp;
+
+    /**
      * How many percent should be clamped from the histogram.
      */
-    WPropInt m_clampPerc;
+    WPropDouble m_clampPerc;
 
     /**
      * Resolution of the initial histogram.
      */
     WPropInt m_histogramResolution;
+
+    /**
+     * Resolution with which the CDF gets calculated.
+     */
+    WPropInt m_cdfResolution;
+
+    /**
+     * Group for keeping all the clamping related props
+     */
+    WPropGroup m_clamping;
+
+    /**
+     * Group for keeping all the equalizing-related props
+     */
+    WPropGroup m_equalizing;
 };
 
 #endif  // WMHISTOGRAMEQUALIZATION_H
