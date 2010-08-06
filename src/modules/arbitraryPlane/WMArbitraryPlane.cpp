@@ -122,6 +122,7 @@ void WMArbitraryPlane::moduleMain()
 
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_active->getUpdateCondition() );
 
     while ( !m_shutdownFlag() )
     {
@@ -132,13 +133,32 @@ void WMArbitraryPlane::moduleMain()
             m_dirty = true;
         }
 
-        if ( m_showManipulators->changed() )
+        if ( m_active->changed() )
         {
-            if ( m_showManipulators->get( true ) )
+            if ( m_active->get() && m_showManipulators->get() )
             {
                 m_s0->unhide();
                 m_s1->unhide();
                 m_s2->unhide();
+            }
+            else
+            {
+                m_s0->hide();
+                m_s1->hide();
+                m_s2->hide();
+            }
+        }
+
+        if ( m_showManipulators->changed() )
+        {
+            if ( m_showManipulators->get( true ) )
+            {
+                if ( m_active->get() )
+                {
+                    m_s0->unhide();
+                    m_s1->unhide();
+                    m_s2->unhide();
+                }
             }
             else
             {
