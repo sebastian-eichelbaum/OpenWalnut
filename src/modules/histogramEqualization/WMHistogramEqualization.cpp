@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
 #include <string>
 
 #include "../../kernel/WKernel.h"
@@ -161,6 +162,8 @@ void WMHistogramEqualization::moduleMain()
             bool foundU = false;
             size_t curI = 0;
             size_t maxI = hist->size() - 1; // the largest index in hist
+
+            // search the histogram until the bucket with needed accumulative value is found
             while ( curI <= maxI )
             {
                 accumL += ( *hist )[ curI ];
@@ -216,7 +219,9 @@ void WMHistogramEqualization::moduleMain()
             {
                 double cdfVI = cdf[ hist->getIndexForValue( valueSet->getScalarDouble( vi ) ) ];
 
-                newData[ vi ] = static_cast< unsigned char >( 255.0 * ( cdfVI - cdfMin ) / ( double( valueSet->rawSize() ) - cdfMin ) );
+                newData[ vi ] = static_cast< unsigned char >(
+                        255.0 * ( cdfVI - cdfMin ) / (  static_cast< double >( valueSet->rawSize() ) - cdfMin )
+                );
             }
         }
         else

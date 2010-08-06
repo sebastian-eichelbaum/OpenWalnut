@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cstring> // memset()
 #include <numeric>
 #include <utility>
