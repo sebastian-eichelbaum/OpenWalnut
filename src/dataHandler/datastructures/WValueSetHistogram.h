@@ -64,6 +64,30 @@ public:
     explicit WValueSetHistogram( const WValueSetBase& valueSet, size_t buckets = 1000 );
 
     /**
+     * Constructor. Creates a histogram from the specified value set but allows cropping of values below the given min and above the given max.
+     * It actually interprets all values below min and above max to be exactly min and exactly max and sorts them into the appropriate bin. This
+     * is especially useful to filter out outliers in data.
+     *
+     * \param valueSet source data
+     * \param min the new minimum to use
+     * \param max the maximum to use
+     * \param buckets the number of buckets to use. If not specified, 1000 is used as default. Must be larger than 1.
+     */
+     WValueSetHistogram( boost::shared_ptr< WValueSetBase > valueSet, double min, double max, size_t buckets = 1000 );
+
+    /**
+     * Constructor. Creates a histogram from the specified value set but allows cropping of values below the given min and above the given max.
+     * It actually interprets all values below min and above max to be exactly min and exactly max and sorts them into the appropriate bin. This
+     * is especially useful to filter out outliers in data.
+     *
+     * \param valueSet source data
+     * \param min the new minimum to use
+     * \param max the maximum to use
+     * \param buckets the number of buckets to use. If not specified, 1000 is used as default. Must be larger than 1.
+     */
+    WValueSetHistogram( const WValueSetBase& valueSet, double min, double max, size_t buckets = 1000 );
+
+    /**
      * Copy constructor. If another interval size is given the histogram gets matched to it using the initial bucket data.
      * \note this does not deep copy the m_initialBuckets and m_mappedBuckets array as these are shared_array instances.
      *
@@ -132,6 +156,34 @@ public:
      */
     virtual std::pair< double, double > getIntervalForIndex( size_t index ) const;
 
+    /**
+     * Returns the right index to the bucket containing the given value. If a value larger than the maximum, the maximum index is returned. Same
+     * for minimum; if the value is smaller than the minimum, 0 is returned.
+     *
+     * \param value the value to search the index for
+     *
+     * \return the index of the bucket
+     */
+    virtual size_t getIndexForValue( double value ) const;
+
+    /**
+     * This returns the number of value set entries added to the histogram. This is especially useful to normalize the histogram counts.
+     *
+     * \return the number of elements distributed in the buckets.
+     */
+    virtual size_t getTotalElementCount() const;
+
+    /**
+     * Sums up the buckets in the specified interval. Especially useful for cumulative distribution functions or similar.
+     *
+     * \param startIndex the index where to start counting including this one
+     * \param endIndex the index where to end summing up excluding this one.
+     *
+     * \return the sum of all buckets in the interval.
+     * \throw WOutOfBounds if one of the indices is invalid.
+     */
+    virtual size_t accumulate( size_t startIndex, size_t endIndex ) const;
+
 protected:
     /**
      * Return the initial buckets.
@@ -193,12 +245,42 @@ private:
      * Size of one bucket in the mapped histogram.
      */
     double m_mappedBucketSize;
+
+    /**
+     * The number of elements distributed in the buckets.
+     */
+    size_t m_nbTotalElements;
+
+    /**
+     * Actually builds the histogram. This function is simply used for avoiding code duplication in all these constructors.
+     *
+     * \param valueSet the value set.
+     */
+    void buildHistogram( const WValueSetBase& valueSet );
 };
 
 /**
  * Write a histogram in string representation to the given output stream.
  */
 std::ostream& operator<<( std::ostream& out, const WValueSetHistogram& h );
+
+inline size_t WValueSetHistogram::getIndexForValue( double value ) const
+{
+    // the position on the scala
+    double pos = ( value - m_minimum ) / static_cast< double >( m_mappedBucketSize );
+    // the index is the floor( position )
+    size_t idx = static_cast< size_t >( pos );
+
+    // is the index larger than the size?
+    bool inU = ( idx < m_nMappedBuckets );
+    // is the index smaller than the size?
+    bool inL = ( pos > 0.0 );
+
+    // the trick done here is to clamp value into [m_minimum,m_maximum] without using if statements. The C++ Standard says that booleans are
+    // always 1 if true.
+    // NOTE: this is integral arithmetic
+    return ( inL && inU ) * idx + ( !inU && inL ) * ( m_nMappedBuckets - 1 );
+}
 
 #endif  // WVALUESETHISTOGRAM_H
 

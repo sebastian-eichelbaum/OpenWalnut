@@ -133,6 +133,53 @@ class WValueSetHistogramTest : public CxxTest::TestSuite
         }
 
         /**
+         * Test getIndexForValue()
+         */
+        void testIndex( void )
+        {
+            // create some test data
+            double a[5] = { 0.0, 4.0, 1.0, 2.0, 1.0 };
+            const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
+            WValueSet< double >* valueSet = new WValueSet< double >( 0, 1, v, W_DT_DOUBLE );
+
+            // create histogram
+            WValueSetHistogram hist( *valueSet, 5 );
+            // 0 = [0, 1) = 1
+            // 1 = [1, 2) = 2
+            // 2 = [2, 3) = 1
+            // 3 = [3, 4) = 0
+            // 4 = [4, inf) = 1
+
+            TS_ASSERT_EQUALS( hist.getIndexForValue( 4.0 ), 4 );
+            TS_ASSERT_EQUALS( hist.getIndexForValue( 3.999 ), 3 );
+            TS_ASSERT_EQUALS( hist.getIndexForValue( 0.0 ), 0 );
+            TS_ASSERT_EQUALS( hist.getIndexForValue( 122.0 ), 4 );  // test values above maximum
+            TS_ASSERT_EQUALS( hist.getIndexForValue( -122.0 ), 0 ); // test values below minumum
+        }
+
+        /**
+         * Test accumulate
+         */
+        void testAccum( void )
+        {
+            // create some test data
+            double a[5] = { 0.0, 4.0, 1.0, 2.0, 1.0 };
+            const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
+            WValueSet< double >* valueSet = new WValueSet< double >( 0, 1, v, W_DT_DOUBLE );
+
+            // create histogram
+            WValueSetHistogram hist( *valueSet, 5 );
+            std::cout << hist << std::endl;
+
+            TS_ASSERT_EQUALS( hist.accumulate( 0, 2 ), 3 );
+            TS_ASSERT_EQUALS( hist.accumulate( 2, 0 ), 3 ); // it also needs to handle switched indices
+            TS_ASSERT_EQUALS( hist.accumulate( 2, 2 ), 0 ); // exclude second index properly?
+            TS_ASSERT( hist.accumulate( 2, 2 ) != hist[ 2 ] ); // exclude second index properly?
+
+            TS_ASSERT_THROWS_ANYTHING( hist.accumulate( 0, 123 ) );
+        }
+
+        /**
          * Test copy construction.
          **/
         void testCopyWithoutIntervalChanges( void )
