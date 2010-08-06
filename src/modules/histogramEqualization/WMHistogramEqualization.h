@@ -109,7 +109,7 @@ private:
     /**
      * This is a pointer to the dataset the module is currently working on.
      */
-    boost::shared_ptr< WDataSetScalar > m_dataSet;
+    boost::shared_ptr< WDataSetScalar > m_lastOutputDataSet;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -120,6 +120,16 @@ private:
      * If true, histogram equalization is turned on.
      */
     WPropBool m_equalize;
+
+    /**
+     * How many percent should be clamped from the histogram.
+     */
+    WPropInt m_clampPerc;
+
+    /**
+     * Resolution of the initial histogram.
+     */
+    WPropInt m_histogramResolution;
 };
 
 #endif  // WMHISTOGRAMEQUALIZATION_H
