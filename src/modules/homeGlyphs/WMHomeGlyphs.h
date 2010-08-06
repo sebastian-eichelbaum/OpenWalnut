@@ -128,6 +128,13 @@ private:
      */
     void renderSlice( size_t sliceId );
 
+    /**
+     * Makes the radii of the glyph be distributed between [0,1]
+     * \param glyph The glyph thta will be normalized given as teem's limnPolyData.
+     */
+    void minMaxNormalization( limnPolyData *glyph );
+
+
     osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
 
     boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
@@ -138,6 +145,7 @@ private:
 
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
+    static const size_t m_nbVertCoords; //!< The teem limn data structure has 4 values for a coordinate: x, y, z, w.
 };
 
 #endif  // WMHOMEGLYPHS_H

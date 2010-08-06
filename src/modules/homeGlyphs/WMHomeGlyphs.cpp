@@ -30,6 +30,7 @@
 
 #include "../../common/WAssert.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../common/WLimits.h"
 #include "../../kernel/WKernel.h"
 #include "home.xpm"
 
@@ -37,6 +38,8 @@
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMHomeGlyphs )
+
+const size_t WMHomeGlyphs::m_nbVertCoords = 4;
 
 WMHomeGlyphs::WMHomeGlyphs():
     WModule(),
@@ -89,7 +92,7 @@ void WMHomeGlyphs::properties()
     m_sliceOrientations->addItem( "z", "z-slice" );
     m_sliceOrientationSelection = m_properties->addProperty( "Slice Orientation",
                                                              "Which slice will be shown?",
-                                                             m_sliceOrientations->getSelectorFirst(),
+                                                             m_sliceOrientations->getSelector( 1 ),
                                                              m_recompute );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelection );
 
@@ -214,6 +217,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
         osg::ref_ptr< osg::DrawElementsUInt >( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 ) );
     glyphElements->reserve( sphere->indxNum * nbGlyphs );
 
+    bool usePolar = m_usePolarPlotProp->get();
     // run through the positions in the slice and draw the glyphs
     for( size_t aId = 0; aId < nA; ++aId )
     {
@@ -251,7 +255,8 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             // create positive approximation of the tensor
             tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
             parm->pos = 1;
-            tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
+            int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
+            WAssert( ret == 0, "Error condition in call." );
             parm = tijk_refine_rankk_parm_nix( parm );
             tijk_sub_f( ten, ten, res, type );
 
@@ -260,23 +265,25 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
             limnPolyData *glyph = limnPolyDataNew();
             limnPolyDataCopy( glyph, sphere );
 
-            float radius;
-            if( m_usePolarPlotProp->get() )
+            if( usePolar )
             {
-                radius = elfGlyphPolar( glyph, 1, ten, type, NULL, 0, normalize, NULL, NULL );
+                char isdef = 3; // some initialization
+                elfGlyphPolar( glyph, 1, ten, type, &isdef, 0, normalize, NULL, NULL );
+                WAssert( isdef != 0, "Tensor is non positive definite. Think about that." );
             }
             else
             {
-                radius = elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
+                elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
             }
-
-            radius *= 1.0 / m_glyphSizeProp->get();
 
             // -------------------------------------------------------------------------------------------------------
             // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
             // -------------------------------------------------------------------------------------------------------
 
+            minMaxNormalization( glyph );
+
             wmath::WPosition glyphPos = grid->getPosition( posId );
+
 
             //-------------------------------
             // vertex indices
@@ -285,13 +292,15 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
                 glyphElements->push_back( vertsUpToCurrentIteration + glyph->indx[vertId] );
             }
 
+            float radius = 1.0 / m_glyphSizeProp->get(); // glyph size
+
             for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
             {
                 //-------------------------------
                 // vertices
-                ( *vertArray )[vertsUpToCurrentIteration+vertId][0] = glyph->xyzw[4*vertId  ] / radius + glyphPos[0];
-                ( *vertArray )[vertsUpToCurrentIteration+vertId][1] = glyph->xyzw[4*vertId+1] / radius + glyphPos[1];
-                ( *vertArray )[vertsUpToCurrentIteration+vertId][2] = glyph->xyzw[4*vertId+2] / radius + glyphPos[2];
+                ( *vertArray )[vertsUpToCurrentIteration+vertId][0] = glyph->xyzw[m_nbVertCoords*vertId  ] / radius + glyphPos[0];
+                ( *vertArray )[vertsUpToCurrentIteration+vertId][1] = glyph->xyzw[m_nbVertCoords*vertId+1] / radius + glyphPos[1];
+                ( *vertArray )[vertsUpToCurrentIteration+vertId][2] = glyph->xyzw[m_nbVertCoords*vertId+2] / radius + glyphPos[2];
 
                 // ------------------------------------------------
                 // normals
@@ -302,10 +311,11 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
 
                 // ------------------------------------------------
                 // colors
-                ( *colors )[vertsUpToCurrentIteration+vertId][0] = glyph->rgba[4*vertId] / 255.0;
-                ( *colors )[vertsUpToCurrentIteration+vertId][1] = glyph->rgba[4*vertId+1] / 255.0;
-                ( *colors )[vertsUpToCurrentIteration+vertId][2] = glyph->rgba[4*vertId+2] / 255.0;
-                ( *colors )[vertsUpToCurrentIteration+vertId][3] = glyph->rgba[4*vertId+3] / 255.0;
+                const size_t nbColCoords = 4;
+                ( *colors )[vertsUpToCurrentIteration+vertId][0] = glyph->rgba[nbColCoords*vertId] / 255.0;
+                ( *colors )[vertsUpToCurrentIteration+vertId][1] = glyph->rgba[nbColCoords*vertId+1] / 255.0;
+                ( *colors )[vertsUpToCurrentIteration+vertId][2] = glyph->rgba[nbColCoords*vertId+2] / 255.0;
+                ( *colors )[vertsUpToCurrentIteration+vertId][3] = glyph->rgba[nbColCoords*vertId+3] / 255.0;
             }
 
             // free memory
@@ -355,4 +365,40 @@ void WMHomeGlyphs::activate()
         }
     }
     WModule::activate();
+}
+
+void WMHomeGlyphs::minMaxNormalization( limnPolyData *glyph )
+{
+    double min = wlimits::MAX_DOUBLE;
+    double max = -wlimits::MAX_DOUBLE;
+    for( size_t i = 0; i < glyph->xyzwNum; ++i )
+    {
+        wmath::WPosition pos( glyph->xyzw[m_nbVertCoords*i], glyph->xyzw[m_nbVertCoords*i+1],  glyph->xyzw[m_nbVertCoords*i+2] );
+        double norm = pos.norm();
+        if( norm < min )
+        {
+            min = norm;
+        }
+        if( norm > max )
+        {
+            max = norm;
+        }
+    }
+    double dist = max - min;
+
+    if( dist != 0 )
+    {
+        WAssert( dist > 0, "Max has to be larger than min." );
+
+        for( size_t i = 0; i < glyph->xyzwNum; ++i )
+        {
+            wmath::WPosition pos( glyph->xyzw[m_nbVertCoords*i], glyph->xyzw[m_nbVertCoords*i+1],  glyph->xyzw[m_nbVertCoords*i+2] );
+            double norm = pos.norm();
+            wmath::WPosition newPos = ( ( norm - min ) / dist ) * pos.normalized();
+            glyph->xyzw[m_nbVertCoords*i] = newPos[0];
+            glyph->xyzw[m_nbVertCoords*i+1] = newPos[1];
+            glyph->xyzw[m_nbVertCoords*i+2] = newPos[2];
+        }
+    }
+    // else do nothing because all values are equal.
 }
