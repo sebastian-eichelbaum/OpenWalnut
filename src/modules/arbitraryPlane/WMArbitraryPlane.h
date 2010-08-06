@@ -158,6 +158,24 @@ private:
      */
     WPropBool m_showManipulators;
 
+    /**
+     * When triggered the center manipulator is set to the nav slice position and the plane is aligned along
+     * the axial slice
+     */
+    WPropTrigger m_buttonReset2Axial;
+
+    /**
+     * When triggered the center manipulator is set to the nav slice position and the plane is aligned along
+     * the coronal slice
+     */
+    WPropTrigger m_buttonReset2Coronal;
+
+    /**
+     * When triggered the center manipulator is set to the nav slice position and the plane is aligned along
+     * the axial slice
+     */
+    WPropTrigger m_buttonReset2Sagittal;
+
 
     /**
      * The root node used for this modules graphics.

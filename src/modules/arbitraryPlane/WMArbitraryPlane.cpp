@@ -96,6 +96,10 @@ void WMArbitraryPlane::properties()
     m_showComplete = m_properties->addProperty( "show complete", "Slice should be drawn complete even if the texture value is zero.",
             false, m_propCondition );
     m_showManipulators = m_properties->addProperty( "show manipulators", "Hide/Show manipulators.", true, m_propCondition );
+
+    m_buttonReset2Axial = m_properties->addProperty( "Axial", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_buttonReset2Coronal = m_properties->addProperty( "Coronal", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_buttonReset2Sagittal = m_properties->addProperty( "Sagittal", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
 }
 
 void WMArbitraryPlane::moduleMain()
@@ -168,6 +172,36 @@ void WMArbitraryPlane::moduleMain()
             }
         }
 
+        if ( m_buttonReset2Axial->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            m_s0->setPosition( center );
+            m_s1->setPosition( wmath::WPosition( center[0] - 100, center[1], center[2] ) );
+            m_s2->setPosition( wmath::WPosition( center[0], center[1] - 100, center[2] ) );
+            m_buttonReset2Axial->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+            m_dirty = true;
+        }
+
+        if ( m_buttonReset2Coronal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            m_s0->setPosition( center );
+            m_s1->setPosition( wmath::WPosition( center[0] - 100, center[1], center[2] ) );
+            m_s2->setPosition( wmath::WPosition( center[0], center[1], center[2] - 100 ) );
+            m_buttonReset2Coronal->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+            m_dirty = true;
+        }
+
+        if ( m_buttonReset2Sagittal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            m_s0->setPosition( center );
+            m_s1->setPosition( wmath::WPosition( center[0], center[1], center[2] - 100 ) );
+            m_s2->setPosition( wmath::WPosition( center[0], center[1] - 100, center[2] ) );
+            m_buttonReset2Sagittal->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+            m_dirty = true;
+        }
+
         if ( m_shutdownFlag() )
         {
             break;
@@ -184,9 +218,10 @@ void WMArbitraryPlane::initPlane()
     m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
     m_rootNode->insert( m_geode );
 
-    m_p0 = wmath::WPosition( 80, 100, 80 );
-    m_p1 = wmath::WPosition( 0, 100, 80 );
-    m_p2 = wmath::WPosition( 80, 0, 80 );
+    wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    m_p0 = wmath::WPosition( center );
+    m_p1 = wmath::WPosition( center[0] - 100, center[1], center[2] );
+    m_p2 = wmath::WPosition( center[0], center[1] - 100, center[2] );
 
     m_s0 = boost::shared_ptr<WROISphere>( new WROISphere( m_p0, 2.5 ) );
     m_s1 = boost::shared_ptr<WROISphere>( new WROISphere( m_p1, 2.5 ) );
