@@ -102,7 +102,7 @@ void WMHistogramEqualization::properties()
     m_histogramResolution->setMax( 1000000 );
 
     m_clampPerc = m_clamping->addProperty( "Min-Max clamping in %", "Percent that are clamped from the beginning and the end of the histogram.",
-                                             10.0, m_propCondition );
+                                             1.0, m_propCondition );
     m_clampPerc->setMin( 0.0 );
     m_clampPerc->setMax( 100.0 );
 
@@ -170,7 +170,7 @@ void WMHistogramEqualization::moduleMain()
         double lower = hist->getMinimum();
         double upper = hist->getMaximum();
 
-        size_t perc = m_clampPerc->get( true );
+        double perc = m_clampPerc->get( true );
 
         // should the histogram be clamped before processing?
         ++*progress;
@@ -180,7 +180,7 @@ void WMHistogramEqualization::moduleMain()
 
             size_t accumL = 0;  // accumulation of values from below
             size_t accumU = 0;  // accumulation of values from upper side
-            size_t accumMax = hist->getTotalElementCount() * perc / 100;
+            size_t accumMax = static_cast< size_t >( static_cast< double >( hist->getTotalElementCount() ) * perc / 100.0 );
             bool foundL = false;
             bool foundU = false;
             size_t curI = 0;
