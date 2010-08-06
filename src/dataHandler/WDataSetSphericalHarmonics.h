@@ -102,6 +102,13 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Determines whether this dataset can be used as a texture.
+     *
+     * \return true if usable as texture.
+     */
+    virtual bool isTexture() const;
+
 protected:
 
     /**

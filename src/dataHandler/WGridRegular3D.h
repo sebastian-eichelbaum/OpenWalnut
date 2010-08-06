@@ -41,6 +41,8 @@
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
  * the samples along a single axis are equidistant. The distance of samples may
  * vary between axes.
+ *
+ * \warning Positions on the upper bounddaries in x, y and z are considered outside the grid.
  * \ingroup dataHandler
  */
 class WGridRegular3D : public WGrid
@@ -339,8 +341,9 @@ public:
      * Computes the id of the cell containing the position pos.
      *
      * \param pos The position selecting the cell.
+     * \param success True if the position pos is inside the grid.
      */
-    size_t getCellId( const wmath::WPosition& pos ) const;
+    size_t getCellId( const wmath::WPosition& pos, bool* success ) const;
 
     /**
      * Computes the ids of the vertices of a cell given by its id.

@@ -254,7 +254,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_READY_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
 
@@ -283,7 +283,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WModuleConnectEvent* e = dynamic_cast< WModuleConnectEvent* >( event );     // NOLINT
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_CONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleConnectEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
@@ -325,7 +325,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_DISCONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleDisconnectEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
@@ -375,10 +375,10 @@ bool WQtDatasetBrowser::event( QEvent* event )
     // a module tree item should be deleted
     if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
-        WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );     // NOLINT
+        WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_DELETE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleDeleteEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
@@ -406,10 +406,10 @@ bool WQtDatasetBrowser::event( QEvent* event )
     // a module was removed from the container
     if ( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
-        WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );     // NOLINT
+        WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;

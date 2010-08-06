@@ -85,6 +85,16 @@ public:
     void setActive( bool active );
 
     /**
+     * hides the roi in the scene
+     */
+    void hide();
+
+    /**
+     * unhides the roi in the scene
+     */
+    void unhide();
+
+    /**
      * Getter for modified flag
      */
     bool isModified();

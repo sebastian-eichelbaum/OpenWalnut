@@ -7,8 +7,6 @@ varying vec4 VaryingTexCoord5;
 varying vec4 VaryingTexCoord6;
 varying vec4 VaryingTexCoord7;
 
-#include "WGELighting-vertex.glsl"
-
 void main()
 {
     VaryingTexCoord0 = gl_MultiTexCoord0;
@@ -19,10 +17,5 @@ void main()
     VaryingTexCoord5 = gl_MultiTexCoord5;
     VaryingTexCoord6 = gl_MultiTexCoord6;
     VaryingTexCoord7 = gl_MultiTexCoord7;
-
-    prepareLight();
-
-    gl_FrontColor = gl_Color;
-
     gl_Position = ftransform();
 }

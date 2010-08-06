@@ -1,4 +1,4 @@
-#include "WGELighting.glsl"
+#include "WGELighting-vertex.glsl"
 
 void main()
 {

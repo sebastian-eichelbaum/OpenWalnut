@@ -1,4 +1,5 @@
 ADD_SUBDIRECTORY( applyMask )
+ADD_SUBDIRECTORY( arbitraryPlane )
 ADD_SUBDIRECTORY( arbitraryRois )
 ADD_SUBDIRECTORY( atlasSurfaces )
 ADD_SUBDIRECTORY( boundingBox )

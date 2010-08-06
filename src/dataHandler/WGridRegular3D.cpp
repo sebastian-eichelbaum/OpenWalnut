@@ -441,15 +441,17 @@ bool WGridRegular3D::isNotRotatedOrSheared() const
     return onlyTranslatedOrScaled;
 }
 
-size_t WGridRegular3D::getCellId( const wmath::WPosition& pos ) const
+size_t WGridRegular3D::getCellId( const wmath::WPosition& pos, bool* success ) const
 {
     WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
 
     wmath::WPosition posRelativeToOrigin = pos - m_origin;
 
-    size_t xCellId = floor( posRelativeToOrigin[0] / m_offsetX );
-    size_t yCellId = floor( posRelativeToOrigin[1] / m_offsetY );
-    size_t zCellId = floor( posRelativeToOrigin[2] / m_offsetZ );
+    double xCellId = floor( posRelativeToOrigin[0] / m_offsetX );
+    double yCellId = floor( posRelativeToOrigin[1] / m_offsetY );
+    double zCellId = floor( posRelativeToOrigin[2] / m_offsetZ );
+
+    *success = xCellId >= 0 && yCellId >=0 && zCellId >= 0 && xCellId < m_nbPosX - 1 && yCellId < m_nbPosY -1 && zCellId < m_nbPosZ -1;
 
     return xCellId + yCellId * ( m_nbPosX - 1 ) + zCellId * ( m_nbPosX - 1 ) * ( m_nbPosY - 1 );
 }

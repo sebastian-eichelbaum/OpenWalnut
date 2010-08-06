@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WROIBOX_H
-#define WROIBOX_H
+#ifndef WROISPHERE_H
+#define WROISPHERE_H
 
 #include <string>
 #include <utility>
@@ -37,29 +37,34 @@
 #include "WROI.h"
 
 /**
- * A box representing a region of interest.
+ * A sphere representing a region of interest.
  */
-class WROIBox : public WROI
+class WROISphere : public WROI
 {
 public:
     /**
-     * Yields box with desired extremal points minPos and maxPos
-     * \param minPos Left, lower, front corner. Minimal x, y and z coordinates.
-     * \param maxPos Right, upper, back corner. Maximal x, y and z coordinates.
+     * Yields sphere with desired center point and radius
+     * \param position position of the center of the sphere
+     * \param radius radius of the sphere
      */
-    WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos );
-
-    virtual ~WROIBox();
+    WROISphere(  wmath::WPosition position, float radius = 5.0 );
 
     /**
-     * Get the corner of the box that has minimal x, y and z values
+     * standard destructor
      */
-    wmath::WPosition getMinPos() const;
+    virtual ~WROISphere();
 
     /**
-     * Get the corner of the box that has maximal x, y and z values
+     * getter
+     * \return position
      */
-    wmath::WPosition getMaxPos() const;
+    wmath::WPosition getPosition() const;
+
+    /**
+     * setter
+     * \param position
+     */
+    void setPosition( wmath::WPosition position );
 
     /**
      * Setter for standard color
@@ -73,19 +78,62 @@ public:
      */
     void setNotColor( osg::Vec4 color );
 
-protected:
-private:
-    static size_t maxBoxId; //!< Current maximum boxId over all boxes.
-    size_t boxId; //!< Id of the current box.
+    /**
+     * removes the old drawable from the osg geode and adds a new one at the current position and size
+     */
+    void redrawSphere();
 
-    wmath::WPosition m_minPos; //!< The minimum position of the box
-    wmath::WPosition m_maxPos; //!< The maximum position of the box
+    /**
+     * sets the flag that allows or disallows movement along the x axis
+     *
+     * \param value the flag
+     */
+    void setLockX( bool value = true );
+
+    /**
+     * sets the flag that allows or disallows movement along the y axis
+     *
+     * \param value the flag
+     */
+    void setLockY( bool value = true );
+
+    /**
+     * sets the flag that allows or disallows movement along the z axis
+     *
+     * \param value the flag
+     */
+    void setLockZ( bool value = true );
+
+    /**
+     * move the sphere with a given offset
+     *
+     * \param offset the distance to move
+     */
+    void moveSphere( wmath::WVector3D offset );
+
+protected:
+
+private:
+    static size_t maxSphereId; //!< Current maximum boxId over all spheres.
+    size_t sphereId; //!< Id of the current sphere.
+
+    wmath::WPosition m_position; //!< The position of the sphere
+
+    wmath::WPosition m_originalPosition; //!< The position of the sphere when created, used for locking
+
+    float m_radius; //!< The radius  of the sphere
+
+    bool m_lockX; //!< if true disallows changing of the X component of the position
+    bool m_lockY; //!< if true disallows changing of the Y component of the position
+    bool m_lockZ; //!< if true disallows changing of the Z component of the position
+
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
-    wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
+
+    wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for comparison
+
     wmath::WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
+
     std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
-    boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
-    osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates
 
     WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
 
@@ -109,7 +157,7 @@ private:
     /**
      * Node callback to handle updates properly
      */
-    class ROIBoxNodeCallback : public osg::NodeCallback
+    class ROISphereNodeCallback : public osg::NodeCallback
     {
     public: // NOLINT
         /**
@@ -120,7 +168,7 @@ private:
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            osg::ref_ptr< WROIBox > module = static_cast< WROIBox* > ( node->getUserData() );
+            osg::ref_ptr< WROISphere > module = static_cast< WROISphere* > ( node->getUserData() );
             if ( module )
             {
                 module->updateGFX();
@@ -130,4 +178,4 @@ private:
     };
 };
 
-#endif  // WROIBOX_H
+#endif  // WROISPHERE_H

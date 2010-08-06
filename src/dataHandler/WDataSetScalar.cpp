@@ -84,14 +84,16 @@ double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
     WAssert( ( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ),
              "Only implemented for scalar values so far." );
 
-    *success = grid->encloses( pos );
+    bool isInside = true;
+    size_t cellId = grid->getCellId( pos, &isInside );
 
-    if( !*success )
+    if( !isInside )
     {
-        return 0;
+        *success = false;
+        return 0.0;
     }
 
-    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
+    std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
 
     wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 
