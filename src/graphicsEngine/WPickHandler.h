@@ -48,11 +48,12 @@
 
 #include "../common/math/WPosition.h"
 #include "WPickInfo.h"
+#include "WExport_GEDLL.h"
 
 /**
  * class to handle events with a pick
  */
-class WPickHandler: public osgGA::GUIEventHandler
+class EXPORT_OWGE_DLL WPickHandler: public osgGA::GUIEventHandler
 {
 public:
 

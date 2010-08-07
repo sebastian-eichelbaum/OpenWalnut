@@ -127,11 +127,11 @@ WWorkerThread< Function_T >::WWorkerThread( boost::shared_ptr< Function_T > func
 {
     if( id >= numThreads )
     {
-        throw WException( "The id of this thread is not valid." );
+        throw WException( std::string( "The id of this thread is not valid." ) );
     }
     if( !m_func )
     {
-        throw WException( "No thread function provided!" );
+        throw WException( std::string( "No thread function provided!" ) );
     }
 }
 
@@ -176,13 +176,13 @@ void WWorkerThread< Function_T >::threadMain()
         }
         catch( std::exception const& e )
         {
-            WException w( e.what() );
+            WException w( std::string( e.what() ) );
             m_exceptionSignal( w );
             return;
         }
         catch( ... )
         {
-            WException w( "An exception was thrown." );
+            WException w( std::string( "An exception was thrown." ) );
             m_exceptionSignal( w );
             return;
         }

@@ -47,6 +47,7 @@
 #include "WPickHandler.h"
 #include "WGEGroupNode.h"
 
+#include "WExport_GEDLL.h"
 
 
 /**
@@ -54,8 +55,8 @@
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
-class WGEViewer: public WGEGraphicsWindow,
-                 public boost::enable_shared_from_this< WGEViewer >
+class EXPORT_OWGE_DLL WGEViewer: public WGEGraphicsWindow,
+                                 public boost::enable_shared_from_this< WGEViewer >
 {
 public:
     /**

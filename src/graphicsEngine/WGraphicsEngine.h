@@ -51,13 +51,14 @@
 #include "WGEScene.h"
 #include "WGEViewer.h"
 #include "WGESignals.h"
+#include "WExport_GEDLL.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
  * engine.
  * \ingroup ge
  */
-class WGraphicsEngine: public WThreadedRunner
+class EXPORT_OWGE_DLL WGraphicsEngine: public WThreadedRunner
 {
 public:
 

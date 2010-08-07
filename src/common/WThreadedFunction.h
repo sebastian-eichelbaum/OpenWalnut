@@ -28,6 +28,7 @@
 #include <memory.h>
 #include <iostream>
 
+#include <string>
 #include <vector>
 #include <boost/thread.hpp>
 
@@ -177,7 +178,7 @@ WThreadedFunction< Function_T >::WThreadedFunction( std::size_t numThreads, boos
 {
     if( !m_func )
     {
-        throw WException( "No valid thread function pointer." );
+        throw WException( std::string( "No valid thread function pointer." ) );
     }
 
     // find a suitable number of threads
@@ -300,7 +301,7 @@ void WThreadedFunction< Function_T >::handleThreadDone()
         }
         else
         {
-            throw WException( "Invalid status change." );
+            throw WException( std::string( "Invalid status change." ) );
         }
         std::cout << "Notifiing condition." << std::endl;
         m_doneCondition->notify();

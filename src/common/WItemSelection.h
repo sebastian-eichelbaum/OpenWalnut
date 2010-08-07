@@ -33,6 +33,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "WExport_CommonDLL.h"
+
 class WItemSelector;
 
 /**
@@ -42,7 +44,7 @@ class WItemSelector;
  * not implement any function that might change the item list. The would cause odd behaviour of all the WItemSelector instances. Items can only
  * be added until the first Selector instance is created.
  */
-class WItemSelection: public boost::enable_shared_from_this< WItemSelection >
+class EXPORT_OWCOMMON_DLL WItemSelection: public boost::enable_shared_from_this< WItemSelection >
 {
 public:
     /**

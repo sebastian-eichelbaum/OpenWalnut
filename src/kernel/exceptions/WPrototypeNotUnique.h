@@ -29,11 +29,13 @@
 
 #include "WKernelException.h"
 
+#include "../WExport_KernelDLL.h"
+
 /**
  * Thrown whenever an prototype name is not unique.
  * \ingroup kernel
  */
-class WPrototypeNotUnique: public WKernelException
+class EXPORT_KERNEL_DLL WPrototypeNotUnique: public WKernelException
 {
 public:
 

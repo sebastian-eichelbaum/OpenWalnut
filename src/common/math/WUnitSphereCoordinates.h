@@ -29,12 +29,14 @@
 
 #include "../../common/math/WVector3D.h"
 
+#include "../../common/WExport_CommonDLL.h"
+
 namespace wmath
 {
 /**
  * This class stores coordinates on the unit sphere.
  */
-class WUnitSphereCoordinates
+class EXPORT_OWCOMMON_DLL WUnitSphereCoordinates // NOLINT
 {
 // TODO(all): implement test
 // friend class WUnitSphereCoordinatesTest;

@@ -40,13 +40,14 @@
 #include "WTriangleMesh2.h"
 
 #include "WROI.h"
+#include "WExport_GEDLL.h"
 
 class WDataSetScalar;
 
 /**
  * A box representing a region of interest.
  */
-class WROIArbitrary : public WROI
+class EXPORT_OWGE_DLL WROIArbitrary : public WROI
 {
 public:
     /**

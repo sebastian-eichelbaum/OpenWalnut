@@ -30,11 +30,12 @@
 
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
+#include "WExport_GEDLL.h"
 
 /**
  * Encapsulates info for pick action.
  */
-class WPickInfo
+class EXPORT_OWGE_DLL WPickInfo
 {
 public:
     /**

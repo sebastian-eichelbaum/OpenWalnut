@@ -22,33 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLIBRARYLOADFAILED_H
-#define WLIBRARYLOADFAILED_H
+#ifndef WEXPORT_COMMONDLL_H
+#define WEXPORT_COMMONDLL_H
 
-#include <string>
+#ifdef _MSC_VER
 
-#include "../WException.h"
-#include "../WExport_CommonDLL.h"
+    #pragma warning( disable: 4251 )
 
-/**
- * Thrown whenever a library could not been loaded. This may be caused by a file not found error or link errors.
- */
-class EXPORT_OWCOMMON_DLL WLibraryLoadFailed : public WException
-{
-public:
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WLibraryLoadFailed( const std::string& msg = "The library could not be loaded." );
+    #ifdef OWcommon_EXPORTS
+    #define EXPORT_OWCOMMON_DLL __declspec( dllexport )
+    #else
+    #define EXPORT_OWCOMMON_DLL __declspec( dllimport )
+    #endif
 
-    /**
-     * Destructor.
-     */
-    virtual ~WLibraryLoadFailed() throw();
+#else
 
-protected:
-private:
-};
+    #define EXPORT_OWCOMMON_DLL
 
-#endif  // WLIBRARYLOADFAILED_H
+#endif // _MSC_VER
+
+#endif  // WEXPORT_COMMONDLL_H
+

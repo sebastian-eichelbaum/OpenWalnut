@@ -26,12 +26,13 @@
 #define WGESCENE_H
 
 #include "WGEGroupNode.h"
+#include "WExport_GEDLL.h"
 
 /**
  * Class for managing the OpenSceneGraph root node. It can handle new nodes, removing nodes and so on.
  * \ingroup ge
  */
-class WGEScene: public WGEGroupNode
+class EXPORT_OWGE_DLL WGEScene: public WGEGroupNode
 {
 public:
 

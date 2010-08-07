@@ -28,11 +28,12 @@
 #include <string>
 
 #include "../WException.h"
+#include "../WExport_CommonDLL.h"
 
 /**
  * Indicates invalid element access of a container.
  */
-class WPropertyUnknown : public WException
+class EXPORT_OWCOMMON_DLL WPropertyUnknown : public WException
 {
 public:
     /**

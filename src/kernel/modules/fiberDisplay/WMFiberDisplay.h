@@ -38,12 +38,14 @@
 #include "../../WModuleInputData.h"
 #include "WTubeDrawable.h"
 
+#include "../../WExport_KernelDLL.h"
+
 /**
  * Module for drawing fibers
  *
  * \ingroup modules
  */
-class WMFiberDisplay : public WModule, public osg::Referenced
+class EXPORT_KERNEL_DLL WMFiberDisplay : public WModule, public osg::Referenced
 {
 public:
     /**

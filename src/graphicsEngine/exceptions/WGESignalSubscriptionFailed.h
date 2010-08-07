@@ -28,12 +28,13 @@
 #include <string>
 
 #include "WGEException.h"
+#include "../WExport_GEDLL.h"
 
 /**
  * Exception thrown if a notifier could not be subscribed to a signal.
  * \ingroup ge
  */
-class WGESignalSubscriptionFailed: public WGEException
+class EXPORT_OWGE_DLL WGESignalSubscriptionFailed: public WGEException
 {
 public:
 

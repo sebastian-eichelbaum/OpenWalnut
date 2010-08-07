@@ -29,13 +29,14 @@
 #include <osgText/FadeText>
 
 #include "WGELayoutableItem.h"
+#include "WExport_GEDLL.h"
 
 /**
  * Label layout-item. An layoutable item which displays text. This is nice for labeling elements on the screen. It can be used stand-alone (as it
  * simply is an osgText::Text instance or in conjunction with an WGEItemLayouter.
  */
-class WGELabel: public osgText::Text,
-                       WGELayoutableItem
+class EXPORT_OWGE_DLL WGELabel: public osgText::Text,
+                                WGELayoutableItem
 {
 public:
 

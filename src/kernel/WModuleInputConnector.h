@@ -35,10 +35,12 @@
 
 #include "../common/WCondition.h"
 
+#include "WExport_KernelDLL.h"
+
 /**
  * Class implementing input connection functionality between modules.
  */
-class WModuleInputConnector: public WModuleConnector
+class EXPORT_KERNEL_DLL WModuleInputConnector: public WModuleConnector
 {
 public:
 

@@ -24,7 +24,7 @@
 
 #include <ctime>
 
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include <boost/date_time/local_time/local_time_types.hpp>
 
 #include "WGEShaderAnimationCallback.h"
 
@@ -33,10 +33,14 @@ WGEShaderAnimationCallback::WGEShaderAnimationCallback( int ticksPerSecond ):
     m_ticksPerSec( ticksPerSecond )
 {
     // TODO(ebaum): make this stuff compatible to windows
+#ifndef _MSC_VER
     timeval tv;
     gettimeofday( &tv, 0L );
 
     m_startUsec = tv.tv_sec * 1000000 + tv.tv_usec;
+#else
+    m_timer.restart();
+#endif
 }
 
 WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
@@ -47,11 +51,15 @@ WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
 void WGEShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
     // TODO(ebaum): make this stuff compatible to windows
+#ifndef _MSC_VER
     timeval tv;
     gettimeofday( &tv, 0L );
 
     int64_t currentUSecs = tv.tv_sec * 1000000 + tv.tv_usec;
     int milli = static_cast< int >( ( currentUSecs - m_startUsec ) / ( 1000000 / m_ticksPerSec ) );
+#else
+    int milli = static_cast< int >( m_timer.elapsed() * 1000 );
+#endif
     uniform->set( milli );
 }
 

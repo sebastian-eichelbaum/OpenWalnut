@@ -25,6 +25,8 @@
 #ifndef WLINEARALGEBRAFUNCTIONS_H
 #define WLINEARALGEBRAFUNCTIONS_H
 
+#include "../WExport_CommonDLL.h"
+
 namespace wmath
 {
     class WVector3D;
@@ -37,7 +39,7 @@ namespace wmath
      * \param mat 3x3 matrix
      * \param vec vector
      */
-    WVector3D multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec );
+    WVector3D EXPORT_OWCOMMON_DLL multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec );
 
     /**
      * Applies a coordinate transformation in homogenous coordinates to a vector.
@@ -46,7 +48,7 @@ namespace wmath
      * \param mat 4x4 matrix
      * \param vec vector
      */
-    WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec );
+    WVector3D EXPORT_OWCOMMON_DLL transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec );
 
     /**
      * Applies a coordinate transformation in homogenous coordinates to a position.
@@ -55,7 +57,7 @@ namespace wmath
      * \param mat 4x4 matrix
      * \param vec vector
      */
-    WVector3D transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec );
+    WVector3D EXPORT_OWCOMMON_DLL transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec );
 
     /**
      * helper routine to invert a 3x3 matrix
@@ -64,7 +66,7 @@ namespace wmath
      *
      * \return inverted 3x3 matrix
      */
-    WMatrix<double> invertMatrix3x3( WMatrix<double> mat );
+    WMatrix<double> EXPORT_OWCOMMON_DLL invertMatrix3x3( WMatrix<double> mat );
 
     /**
      * helper routine to invert a 4x4 matrix
@@ -73,7 +75,7 @@ namespace wmath
      *
      * \return inverted 4x4 matrix
      */
-    WMatrix<double> invertMatrix4x4( WMatrix<double> mat );
+    WMatrix<double> EXPORT_OWCOMMON_DLL invertMatrix4x4( WMatrix<double> mat );
 
     /**
      * Checks if the given two vectors are linearly independent.
@@ -85,7 +87,7 @@ namespace wmath
      *
      * \note This check is performed with the cross product != (0,0,0) but in numerical stability with FLT_EPS.
      */
-    bool linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v );
+    bool EXPORT_OWCOMMON_DLL linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v );
 }
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H

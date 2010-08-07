@@ -95,7 +95,7 @@ WThreadedJobs< Input_T, Job_T >::WThreadedJobs( boost::shared_ptr< InputType > i
 {
     if( !m_input )
     {
-        throw WException( "Invalid input." );
+        throw WException( std::string( "Invalid input." ) );
     }
 }
 

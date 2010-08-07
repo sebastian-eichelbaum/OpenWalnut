@@ -36,10 +36,12 @@
 
 #include "WROI.h"
 
+#include "WExport_GEDLL.h"
+
 /**
  * A sphere representing a region of interest.
  */
-class WROISphere : public WROI
+class EXPORT_OWGE_DLL WROISphere : public WROI
 {
 public:
     /**

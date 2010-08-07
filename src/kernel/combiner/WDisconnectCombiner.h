@@ -38,10 +38,12 @@
 
 #include "../WModuleConnector.h"
 
+#include "../WExport_KernelDLL.h"
+
 /**
  * Combiner which disconnects the specified connection.
  */
-class WDisconnectCombiner: public WModuleOneToOneCombiner
+class EXPORT_KERNEL_DLL WDisconnectCombiner: public WModuleOneToOneCombiner
 {
 public:
 

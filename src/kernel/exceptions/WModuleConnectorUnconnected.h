@@ -29,11 +29,13 @@
 
 #include "WModuleException.h"
 
+#include "../WExport_KernelDLL.h"
+
 /**
  * Exception thrown whenever something is requested from an connector which is not connected.
  * \ingroup kernel
  */
-class WModuleConnectorUnconnected: public WModuleException
+class EXPORT_KERNEL_DLL WModuleConnectorUnconnected: public WModuleException
 {
 public:
 

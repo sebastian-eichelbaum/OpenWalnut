@@ -27,11 +27,13 @@
 
 #include "../../../common/WThreadedRunner.h"
 
+#include "../../WExport_KernelDLL.h"
+
 class WROIManagerFibers;
 /**
  * implements a thread that updates the fiber selection bit field
  */
-class WUpdateThread: public WThreadedRunner
+class EXPORT_KERNEL_DLL WUpdateThread: public WThreadedRunner
 {
 public:
     /**

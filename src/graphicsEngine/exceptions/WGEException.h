@@ -29,11 +29,13 @@
 
 #include "../../common/WException.h"
 
+#include "../WExport_GEDLL.h"
+
 /**
  * General purpose exception and therefore base class for all graphics engine related exceptions.
  * \ingroup ge
  */
-class WGEException: public WException
+class EXPORT_OWGE_DLL WGEException: public WException
 {
 public:
 

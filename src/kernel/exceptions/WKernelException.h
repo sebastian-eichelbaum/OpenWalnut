@@ -29,11 +29,13 @@
 
 #include "../../common/WException.h"
 
+#include "../WExport_KernelDLL.h"
+
 /**
  * General purpose exception and therefore base class for all kernel related exceptions.
  * \ingroup kernel
  */
-class WKernelException: public WException
+class EXPORT_KERNEL_DLL WKernelException: public WException
 {
 public:
 

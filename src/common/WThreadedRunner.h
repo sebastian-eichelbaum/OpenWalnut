@@ -33,11 +33,12 @@
 #include <boost/thread/thread.hpp>
 
 #include "WFlag.h"
+#include "WExport_CommonDLL.h"
 
 /**
  * Base class for all classes needing to be executed in a separate thread.
  */
-class WThreadedRunner
+class EXPORT_OWCOMMON_DLL WThreadedRunner // NOLINT
 {
 public:
 

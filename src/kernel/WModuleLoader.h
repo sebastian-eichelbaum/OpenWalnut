@@ -36,10 +36,12 @@
 #include "../common/WLogger.h"
 #include "WModule.h"
 
+#include "WExport_KernelDLL.h"
+
 /**
  * Loads module prototypes from shared objects in a given directory and injects it into the module factory.
  */
-class WModuleLoader
+class EXPORT_KERNEL_DLL WModuleLoader
 {
 public:
 

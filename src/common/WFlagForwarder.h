@@ -29,6 +29,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "WFlag.h"
+#include "WExport_CommonDLL.h"
 
 /**
  * This class helps especially container module programmers to easily synchronize the value of one flag with several other
@@ -49,7 +50,7 @@
  * \param T the encapsulated type inside the flag. I.e. for WFlag< int32_t > use T=int32_t
  */
 template < typename T >
-class WFlagForwarder
+class EXPORT_OWCOMMON_DLL WFlagForwarder // NOLINT
 {
 public:
 

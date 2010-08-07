@@ -31,6 +31,7 @@
 #include "../../common/WProgressCombiner.h"
 #include "../WTriangleMesh2.h"
 #include "marchingCubesCaseTables.h"
+#include "../WExport_GEDLL.h"
 
 /**
  * A point consisting of its coordinates and ID
@@ -81,7 +82,7 @@ typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
 /**
  * This class does the actual computation of marching cubes.
  */
-class WMarchingCubesAlgorithm
+class EXPORT_OWGE_DLL WMarchingCubesAlgorithm
 {
 /**
  * Only UnitTests may be friends.

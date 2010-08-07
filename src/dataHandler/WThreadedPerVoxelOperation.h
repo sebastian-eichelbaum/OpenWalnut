@@ -26,6 +26,7 @@
 #define WTHREADEDPERVOXELOPERATION_H
 
 #include <vector>
+#include <string>
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -145,27 +146,27 @@ WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::WThreade
 {
     if( !dataset )
     {
-        throw WException( "No input dataset." );
+        throw WException( std::string( "No input dataset." ) );
     }
     if( !dataset->getValueSet() )
     {
-        throw WException( "The input dataset has no valueset." );
+        throw WException( std::string( "The input dataset has no valueset." ) );
     }
     if( !dataset->getGrid() )
     {
-        throw WException( "The input dataset has no grid." );
+        throw WException( std::string( "The input dataset has no grid." ) );
     }
     if( dataset->getValueSet()->order() > 1 )
     {
-        throw WException( "An order of 2 or more is currently not supported." );
+        throw WException( std::string( "An order of 2 or more is currently not supported." ) );
     }
     if( dataset->getValueSet()->dimension() != numValues )
     {
-        throw WException( "Invalid valueset dimension." );
+        throw WException( std::string( "Invalid valueset dimension." ) );
     }
     if( !func )
     {
-        throw WException( "No valid function provided." );
+        throw WException( std::string( "No valid function provided." ) );
     }
 
     m_position.getWriteTicket()->get() = 0;
@@ -177,7 +178,7 @@ WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::WThreade
     }
     catch( std::exception const& e )
     {
-        throw WException( e.what() );
+        throw WException( std::string( e.what() ) );
     }
     m_func = func;
     m_grid = dataset->getGrid();

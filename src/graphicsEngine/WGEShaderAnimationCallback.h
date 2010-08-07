@@ -25,12 +25,20 @@
 #ifndef WGESHADERANIMATIONCALLBACK_H
 #define WGESHADERANIMATIONCALLBACK_H
 
+#include "stdint.h"
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+#ifdef _MSC_VER
+#include <boost/timer.hpp>
+#endif
 #include <osg/Uniform>
+
+#include "WExport_GEDLL.h"
 
 /**
  * This is a uniform callback setting the uniform to the current time in milliseconds, hundredth of a second or tenth of a second.
  */
-class WGEShaderAnimationCallback: public osg::Uniform::Callback
+class EXPORT_OWGE_DLL WGEShaderAnimationCallback: public osg::Uniform::Callback
 {
 public:
 
@@ -61,6 +69,12 @@ protected:
      */
     int64_t m_startUsec;
 
+    /**
+    * Timer that stops the time hopefully OS independent
+    */
+#ifdef _MSC_VER
+    boost::timer m_timer;
+#endif
     /**
      * Number of ticks to count per second.
      */

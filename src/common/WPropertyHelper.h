@@ -33,6 +33,7 @@
 #include "constraints/WPropertyConstraintPathExists.h"
 #include "constraints/WPropertyConstraintIsDirectory.h"
 #include "constraints/WPropertyConstraintSelectOnlyOne.h"
+#include "WExport_CommonDLL.h"
 
 /**
  * This namespace contains several utility functions to handle properties. Especially constraint helper to easily create constraints.
@@ -49,7 +50,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void addTo( WPropSelection prop );
+        void EXPORT_OWCOMMON_DLL addTo( WPropSelection prop );
     }
 
     /**
@@ -62,21 +63,21 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void addTo( WPropSelection prop );
+        void EXPORT_OWCOMMON_DLL addTo( WPropSelection prop );
 
         /**
          * Add the PC_NOTEMPTY constraint to the property.
          *
          * \param prop the property where to add the constraint.
          */
-        void addTo( WPropString prop );
+        void EXPORT_OWCOMMON_DLL addTo( WPropString prop );
 
         /**
          * Add the PC_NOTEMPTY constraint to the property.
          *
          * \param prop the property where to add the constraint.
          */
-        void addTo( WPropFilename prop );
+        void EXPORT_OWCOMMON_DLL addTo( WPropFilename prop );
     }
 
     /**
@@ -89,7 +90,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void addTo( WPropFilename prop );
+        void EXPORT_OWCOMMON_DLL addTo( WPropFilename prop );
     }
 
     /**
@@ -102,7 +103,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void addTo( WPropFilename prop );
+        void EXPORT_OWCOMMON_DLL addTo( WPropFilename prop );
     }
 }
 

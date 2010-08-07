@@ -28,6 +28,7 @@
 #include <string>
 
 #include "WTerminalColor.h"
+#include "WExport_CommonDLL.h"
 
 /**
  * Various log levels, to distinguish output on its level.
@@ -44,7 +45,7 @@ LogLevel;
 /**
  * Represents a simple log message with some attributes.
  */
-class WLogEntry
+class EXPORT_OWCOMMON_DLL WLogEntry // NOLINT
 {
 public:
 

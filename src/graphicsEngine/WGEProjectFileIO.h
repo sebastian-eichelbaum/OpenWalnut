@@ -31,12 +31,13 @@
 #include <osg/Matrixd>
 
 #include "../common/WProjectFileIO.h"
+#include "WExport_GEDLL.h"
 
 /**
  * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings for the main view with the
  * WGEZoomTrackbalManipulator.
  */
-class WGEProjectFileIO: public WProjectFileIO
+class EXPORT_OWGE_DLL WGEProjectFileIO: public WProjectFileIO
 {
 public:
 

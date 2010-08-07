@@ -27,10 +27,12 @@
 
 #include <string>
 
+#include "WExport_CommonDLL.h"
+
 /**
  * Helper class to provide a convenient way to colorize output on the console.
  */
-class WTerminalColor
+class EXPORT_OWCOMMON_DLL WTerminalColor // NOLINT
 {
 friend class WTerminalColorTest;
 public:

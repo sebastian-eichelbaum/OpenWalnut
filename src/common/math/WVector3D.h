@@ -33,12 +33,14 @@
 #include "../WLimits.h"
 #include "WValue.h"
 
+#include "../WExport_CommonDLL.h"
+
 namespace wmath
 {
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations
  */
-class WVector3D : public WValue< double >
+class EXPORT_OWCOMMON_DLL WVector3D : public WValue< double >
 {
     /**
      * Only UnitTests are allowed to be friends of this class

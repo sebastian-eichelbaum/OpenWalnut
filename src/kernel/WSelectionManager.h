@@ -29,10 +29,12 @@
 
 #include "WCrosshair.h"
 
+#include "WExport_KernelDLL.h"
+
 /**
  * manages the several selection tools
  */
-class WSelectionManager
+class EXPORT_KERNEL_DLL WSelectionManager // NOLINT
 {
 public:
     /**

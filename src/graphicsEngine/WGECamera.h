@@ -27,12 +27,14 @@
 
 #include <osg/Camera>
 
+#include "WExport_GEDLL.h"
+
 /**
  * Class for wrapping around the OSG Camera class. It adds some utility
  * functions for simply setting some camera defaults.
  * \ingroup ge
  */
-class WGECamera: public osg::Camera
+class EXPORT_OWGE_DLL WGECamera: public osg::Camera
 {
 public:
     /**

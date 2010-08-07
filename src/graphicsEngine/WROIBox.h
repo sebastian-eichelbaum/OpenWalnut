@@ -35,11 +35,12 @@
 #include "WGEViewer.h"
 
 #include "WROI.h"
+#include "WExport_GEDLL.h"
 
 /**
  * A box representing a region of interest.
  */
-class WROIBox : public WROI
+class EXPORT_OWGE_DLL WROIBox : public WROI
 {
 public:
     /**

@@ -26,11 +26,12 @@
 #define WGEZOOMTRACKBALLMANIPULATOR_H
 
 #include <osgGA/TrackballManipulator>
+#include "WExport_GEDLL.h"
 
 /**
  * New OSG manipulator: TrackballManipulator with added mouse wheel zoom.
  */
-class WGEZoomTrackballManipulator: public osgGA::TrackballManipulator
+class EXPORT_OWGE_DLL WGEZoomTrackballManipulator: public osgGA::TrackballManipulator
 {
 public:
     /**

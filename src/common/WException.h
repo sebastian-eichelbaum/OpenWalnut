@@ -31,11 +31,12 @@
 #include <sstream>
 
 #include "WTerminalColor.h"
+#include "WExport_CommonDLL.h"
 
 /**
  * Basic exception handler.
  */
-class WException: public std::exception
+class EXPORT_OWCOMMON_DLL WException: public std::exception
 {
 /**
  * Only UnitTests are allowed to be a friend of this class.

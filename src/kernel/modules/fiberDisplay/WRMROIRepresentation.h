@@ -36,11 +36,14 @@
 #include "WKdTree.h"
 #include "../../../common/WProperties.h"
 #include "../../../graphicsEngine/WROI.h"
+
+#include "../../WExport_KernelDLL.h"
+
 class WRMBranch;
 /**
  * class encapsulates rois for the roi manager class
  */
-class WRMROIRepresentation
+class EXPORT_KERNEL_DLL WRMROIRepresentation
 {
 public:
     /**

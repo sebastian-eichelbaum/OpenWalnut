@@ -31,12 +31,13 @@
 #include <boost/thread.hpp>
 
 #include "WProgress.h"
+#include "WExport_CommonDLL.h"
 
 /**
  * Base class for all kinds of progress combinations. You might want to derive from this class to implement some special progress
  * combination.
  */
-class WProgressCombiner: public WProgress
+class EXPORT_OWCOMMON_DLL WProgressCombiner: public WProgress
 {
 friend class WProgressCombinerTest;
 public:

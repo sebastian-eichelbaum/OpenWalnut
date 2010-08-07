@@ -33,13 +33,14 @@
 #include <osg/Geode>
 
 #include "../common/WColor.h"
+#include "WExport_GEDLL.h"
 
 class WPickHandler;
 
 /**
  * Superclass for different ROI (region of interest) types.
  */
-class WROI : public osg::Geode
+class EXPORT_OWGE_DLL WROI : public osg::Geode
 {
 public:
     WROI();

@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "WExport_CommonDLL.h"
 /**
  * Class managing progress inside of modules. It interacts with the abstract WGUI class to present those information to the user.
  * At the same time, it also is a simple tree structure, allowing the programmer to arrange complex sub progress. This is
@@ -37,7 +38,7 @@
  *
  * \see WGUI
  */
-class WProgress
+class EXPORT_OWCOMMON_DLL WProgress // NOLINT
 {
 friend class WProgressTest;
 public:

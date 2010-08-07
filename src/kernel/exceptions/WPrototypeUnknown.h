@@ -29,11 +29,13 @@
 
 #include "WKernelException.h"
 
+#include "../WExport_KernelDLL.h"
+
 /**
  * Thrown whenever an unknown prototype is specified.
  * \ingroup kernel
  */
-class WPrototypeUnknown: public WKernelException
+class EXPORT_KERNEL_DLL WPrototypeUnknown: public WKernelException
 {
 public:
 

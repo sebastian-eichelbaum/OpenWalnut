@@ -30,6 +30,7 @@
 #include "WMath.h"
 #include "WUnitSphereCoordinates.h"
 #include "WValue.h"
+#include "../WExport_CommonDLL.h"
 
 namespace wmath
 {
@@ -37,7 +38,7 @@ namespace wmath
  * Class for symmetric spherical harmonics
  * The index scheme of the coefficients/basis values is like in the Descoteaux paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging".
  */
-class WSymmetricSphericalHarmonic
+class EXPORT_OWCOMMON_DLL WSymmetricSphericalHarmonic  // NOLINT
 {
 // TODO(all): implement test
 // friend class WSymmetricSphericalHarmonicTest;

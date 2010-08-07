@@ -35,11 +35,12 @@
 #include "../common/WAssert.h"
 #include "../common/WColor.h"
 #include "../common/WTransferable.h"
+#include "WExport_GEDLL.h"
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class WTriangleMesh2  : public WTransferable
+class EXPORT_OWGE_DLL WTriangleMesh2  : public WTransferable
 {
 public:
     /**

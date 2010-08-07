@@ -33,13 +33,15 @@
 
 #include "../common/WThreadedRunner.h"
 
+#include "WExport_KernelDLL.h"
+
 class WModuleContainer;
 
 /**
  * Class for loading many datasets. It runs in a separate thread.
  */
-class WBatchLoader: public WThreadedRunner,
-                    public boost::enable_shared_from_this< WBatchLoader >
+class EXPORT_KERNEL_DLL WBatchLoader: public WThreadedRunner,
+                                  public boost::enable_shared_from_this< WBatchLoader >
 {
 public:
 

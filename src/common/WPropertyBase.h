@@ -36,11 +36,12 @@
 #include "WPropertyTypes.h"
 #include "WCondition.h"
 #include "WConditionSet.h"
+#include "WExport_CommonDLL.h"
 
 /**
  * Abstract base class for all properties. Simply provides name and type information.
  */
-class WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
+class EXPORT_OWCOMMON_DLL WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
 {
 public:
 
