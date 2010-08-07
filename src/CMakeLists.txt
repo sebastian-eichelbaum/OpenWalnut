@@ -90,6 +90,9 @@ ELSE()
   INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 ENDIF()
 
+# some modules need the teem library (http://teem.sourceforge.net/)
+find_package( Teem PATHS /usr/local/lib QUIET )
+
 # other options:
 #---------------
 # Set default build type
