@@ -31,8 +31,6 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-
-
 /**
  * Transforms a fiber dataset
  * \ingroup modules

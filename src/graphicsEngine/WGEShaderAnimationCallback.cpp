@@ -32,7 +32,7 @@ WGEShaderAnimationCallback::WGEShaderAnimationCallback( int ticksPerSecond ):
     osg::Uniform::Callback(),
     m_ticksPerSec( ticksPerSecond )
 {
-    // TODO(ebaum): make this stuff compatible to windows
+    // TODO(ledig): gettimeofday should be available on windows too in sys/time.h
 #ifndef _MSC_VER
     timeval tv;
     gettimeofday( &tv, 0L );
@@ -50,7 +50,6 @@ WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
 
 void WGEShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
-    // TODO(ebaum): make this stuff compatible to windows
 #ifndef _MSC_VER
     timeval tv;
     gettimeofday( &tv, 0L );
@@ -58,6 +57,7 @@ void WGEShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVi
     int64_t currentUSecs = tv.tv_sec * 1000000 + tv.tv_usec;
     int milli = static_cast< int >( ( currentUSecs - m_startUsec ) / ( 1000000 / m_ticksPerSec ) );
 #else
+    // boost::timer measures seconds ... :-(
     int milli = static_cast< int >( m_timer.elapsed() * 1000 );
 #endif
     uniform->set( milli );

@@ -30,9 +30,7 @@
 #include "fiberTransform.xpm"
 
 // This line is needed by the module loader to actually find your module.
-//#ifndef _MSC_VER // don't export it on visual studio because it doesn't compile there
 W_LOADABLE_MODULE( WMFiberTransform )
-//#endif
 
 WMFiberTransform::WMFiberTransform()
     : WModule(),

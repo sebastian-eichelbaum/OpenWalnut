@@ -12,7 +12,10 @@ TARGET_LINK_LIBRARIES( OWcommon ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} )
 
 # Set the prefix and suffix of dynamically loadable modules to match
 # CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
-# with these defines.
+# with these defines. Unfortunately, the Visual Studio has problems handling
+# the quotes on the command line. WSharedLib::getSystemPrefix and 
+# getSystemSuffix hard codes the right strings for VC.
+# Maybe you have to spend another 500 bucks to have your VC support quotes.
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
 	add_definitions( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
 	add_definitions( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )

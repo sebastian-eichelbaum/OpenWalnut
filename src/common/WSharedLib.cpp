@@ -269,7 +269,8 @@ void* WSharedLib::findVariable( const std::string& name ) const
 }
 
 #ifdef _MSC_VER
-// easier this way because VC has problems with quote in command line
+// easier this way because VC has problems with quote in command line. So we can not get this information by #define from CMake.
+// Maybe you have to spend another 500 bucks to have your VC support nearly trivial stuff.
 std::string WSharedLib::getSystemPrefix()
 {
     return "";
@@ -279,7 +280,6 @@ std::string WSharedLib::getSystemSuffix()
 {
     return ".dll";
 }
-
 #else
 std::string WSharedLib::getSystemPrefix()
 {
