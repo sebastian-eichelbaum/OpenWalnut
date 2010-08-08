@@ -29,7 +29,7 @@
 
 #include "WKernelException.h"
 
-#include "../WExport_KernelDLL.h"
+#include "../WExportKernel.h"
 
 /**
  * Thrown whenever an prototype name is not unique.

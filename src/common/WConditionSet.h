@@ -32,7 +32,7 @@
 #include <boost/thread.hpp>
 
 #include "WCondition.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Class allowing multiple conditions to be used for one waiting cycle. Since wait() can not be used for waiting on multiple

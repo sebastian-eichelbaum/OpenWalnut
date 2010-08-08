@@ -36,7 +36,7 @@
 #include "WRMBranch.h"
 #include "WUpdateThread.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 /**
  * Class to store and manage different ROI's for fiber selection

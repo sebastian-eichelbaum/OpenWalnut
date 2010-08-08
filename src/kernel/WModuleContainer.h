@@ -47,7 +47,7 @@ class WBatchLoader;
 class WModule;
 class WMData;
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 /**
  * Class able to contain other modules. It manages several tasks like finding appropriate modules, managing data modules and

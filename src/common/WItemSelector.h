@@ -33,7 +33,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WItemSelection.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * This class represents a subset of a WItemSelection. It is a class for managing selections. The class is kept very restrictive. The selection

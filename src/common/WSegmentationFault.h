@@ -35,7 +35,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "WException.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 #ifdef __linux__
 // This is highly platform dependent. Used for backtrace functionality.

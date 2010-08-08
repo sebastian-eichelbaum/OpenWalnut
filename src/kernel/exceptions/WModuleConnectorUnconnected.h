@@ -29,7 +29,7 @@
 
 #include "WModuleException.h"
 
-#include "../WExport_KernelDLL.h"
+#include "../WExportKernel.h"
 
 /**
  * Exception thrown whenever something is requested from an connector which is not connected.

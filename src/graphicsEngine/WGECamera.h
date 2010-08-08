@@ -27,7 +27,7 @@
 
 #include <osg/Camera>
 
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Class for wrapping around the OSG Camera class. It adds some utility

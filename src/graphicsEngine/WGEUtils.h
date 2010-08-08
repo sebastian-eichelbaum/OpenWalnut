@@ -34,7 +34,7 @@
 
 #include "../common/WColor.h"
 #include "../common/math/WPosition.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 namespace wge
 {

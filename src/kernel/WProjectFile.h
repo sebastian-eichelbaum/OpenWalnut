@@ -33,7 +33,7 @@
 
 #include "../common/WProjectFileIO.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 /**
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known

@@ -32,7 +32,7 @@
 #include "WGEGroupNode.h"
 #include "../common/WCondition.h"
 #include "../common/WFlag.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * This class adds some convenience methods to WGEGroupNode. It can handle bool properties which switch the node on and off.

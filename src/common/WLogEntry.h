@@ -28,7 +28,7 @@
 #include <string>
 
 #include "WTerminalColor.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Various log levels, to distinguish output on its level.

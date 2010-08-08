@@ -37,7 +37,7 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WLine.h"
 
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 namespace wge
 {

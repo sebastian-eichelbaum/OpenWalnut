@@ -31,7 +31,7 @@
 #include <osg/Matrixd>
 
 #include "../common/WProjectFileIO.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings for the main view with the

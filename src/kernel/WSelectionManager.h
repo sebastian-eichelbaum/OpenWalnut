@@ -29,7 +29,7 @@
 
 #include "WCrosshair.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 /**
  * manages the several selection tools

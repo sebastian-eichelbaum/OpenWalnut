@@ -35,7 +35,7 @@
 #include "WGEViewer.h"
 
 #include "WROI.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * A box representing a region of interest.

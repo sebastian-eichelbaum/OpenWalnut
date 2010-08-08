@@ -27,7 +27,7 @@
 
 #include <osgGA/MatrixManipulator>
 
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 /**
  * A manipulator which changes the view of a 2D scene. Does things like panning
  * and zooming.

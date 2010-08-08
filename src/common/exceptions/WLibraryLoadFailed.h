@@ -28,7 +28,7 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 /**
  * Thrown whenever a library could not been loaded. This may be caused by a file not found error or link errors.

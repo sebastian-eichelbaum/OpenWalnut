@@ -22,24 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEXPORT_COMMONDLL_H
-#define WEXPORT_COMMONDLL_H
+#ifndef WEXPORTKERNEL_H
+#define WEXPORTKERNEL_H
 
 #ifdef _MSC_VER
 
-    #pragma warning( disable: 4251 )
+#pragma warning( disable: 4251 )
 
-    #ifdef OWcommon_EXPORTS
-    #define EXPORT_OWCOMMON_DLL __declspec( dllexport )
-    #else
-    #define EXPORT_OWCOMMON_DLL __declspec( dllimport )
-    #endif
+#ifdef OWkernel_EXPORTS
+#define EXPORT_KERNEL_DLL __declspec( dllexport )
+#else
+#define EXPORT_KERNEL_DLL __declspec( dllimport )
+#endif
 
 #else
 
-    #define EXPORT_OWCOMMON_DLL
+#define EXPORT_KERNEL_DLL
 
 #endif // _MSC_VER
 
-#endif  // WEXPORT_COMMONDLL_H
+#endif  // WEXPORTKERNEL_H
 

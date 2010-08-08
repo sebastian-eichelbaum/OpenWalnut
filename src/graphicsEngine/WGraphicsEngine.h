@@ -51,7 +51,7 @@
 #include "WGEScene.h"
 #include "WGEViewer.h"
 #include "WGESignals.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics

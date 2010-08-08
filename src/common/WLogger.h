@@ -38,7 +38,7 @@
 #include "WLogEntry.h"
 #include "WStringUtils.h"
 #include "WThreadedRunner.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Does actual logging of WLogEntries down to stdout or something similar.

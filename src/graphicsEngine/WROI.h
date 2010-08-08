@@ -33,7 +33,7 @@
 #include <osg/Geode>
 
 #include "../common/WColor.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 class WPickHandler;
 

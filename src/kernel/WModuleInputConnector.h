@@ -35,7 +35,7 @@
 
 #include "../common/WCondition.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 /**
  * Class implementing input connection functionality between modules.

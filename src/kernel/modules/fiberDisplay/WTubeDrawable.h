@@ -33,7 +33,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 class WDataSetFibers;
 /**

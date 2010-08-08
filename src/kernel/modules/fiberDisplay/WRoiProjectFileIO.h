@@ -29,7 +29,7 @@
 
 #include "../../../common/WProjectFileIO.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 /**
  * IO Class for writing the ROI structure to a project file.

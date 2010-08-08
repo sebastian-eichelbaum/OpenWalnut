@@ -35,7 +35,7 @@
 #include "../common/WAssert.h"
 #include "../common/WColor.h"
 #include "../common/WTransferable.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.

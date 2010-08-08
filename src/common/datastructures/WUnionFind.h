@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 /**
  * Implements a very simple union-find datastructure aka disjoint_sets.
  * \note I know there is a boost solution on that:

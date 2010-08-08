@@ -36,7 +36,7 @@
 
 #include "WROI.h"
 
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * A sphere representing a region of interest.

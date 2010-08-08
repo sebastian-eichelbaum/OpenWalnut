@@ -26,7 +26,7 @@
 #define WTRANSFERABLE_H
 
 #include "../common/WPrototyped.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Class building the interface for classes that might be transferred using WModuleConnector.

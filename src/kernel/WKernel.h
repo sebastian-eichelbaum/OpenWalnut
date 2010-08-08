@@ -42,7 +42,7 @@
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 class WThreadedRunner;
 

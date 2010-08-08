@@ -31,7 +31,7 @@
 #include <boost/thread.hpp>
 
 #include "WProgress.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Base class for all kinds of progress combinations. You might want to derive from this class to implement some special progress

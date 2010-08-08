@@ -28,7 +28,7 @@
 #include <string>
 
 #include "WGEException.h"
-#include "../WExport_GEDLL.h"
+#include "../WExportWGE.h"
 
 /**
  * Exception thrown if initialization of the graphics engine fails.

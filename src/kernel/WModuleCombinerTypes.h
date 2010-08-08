@@ -31,7 +31,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 class WModule;
 class WModuleOneToOneCombiner;

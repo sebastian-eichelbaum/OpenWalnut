@@ -40,7 +40,7 @@
 #include "../../WModuleConnector.h"
 #include "../../WModuleInputData.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 /**
  * Navigation slice module

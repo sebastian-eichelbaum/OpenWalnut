@@ -31,7 +31,7 @@
 
 #include "../WMixinVector.h"
 #include "WPosition.h"
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 // we need this to find the WLineTest class which is not inside wmath namespace
 class WLineTest;

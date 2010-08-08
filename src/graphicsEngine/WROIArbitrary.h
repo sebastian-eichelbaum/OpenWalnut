@@ -40,7 +40,7 @@
 #include "WTriangleMesh2.h"
 
 #include "WROI.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 class WDataSetScalar;
 

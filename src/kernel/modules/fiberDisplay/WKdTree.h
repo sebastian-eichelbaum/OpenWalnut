@@ -30,7 +30,7 @@
 
 #include "../../../common/WThreadedRunner.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 /**
  * implements the compare function for std::nth_element on a point array

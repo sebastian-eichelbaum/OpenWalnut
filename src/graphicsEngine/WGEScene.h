@@ -26,7 +26,7 @@
 #define WGESCENE_H
 
 #include "WGEGroupNode.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Class for managing the OpenSceneGraph root node. It can handle new nodes, removing nodes and so on.

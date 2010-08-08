@@ -27,7 +27,7 @@
 
 #include <utility>
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Container which associate values with (uniform width) bins (aka intervals or buckets). This class implements the abstract interface and

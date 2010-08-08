@@ -38,7 +38,7 @@
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WDataSetSingle.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its

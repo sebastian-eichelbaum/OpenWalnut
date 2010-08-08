@@ -38,7 +38,7 @@
 #include "../../WModuleInputData.h"
 #include "WTubeDrawable.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 /**
  * Module for drawing fibers

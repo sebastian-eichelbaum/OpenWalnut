@@ -28,7 +28,7 @@
 #include <boost/shared_ptr.hpp>
 #include "../common/math/WVector3D.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 /**
  * This class stores the position of the crossing navigation slices,

@@ -36,7 +36,7 @@
 #include "WPropertyTypes.h"
 #include "WCondition.h"
 #include "WConditionSet.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Abstract base class for all properties. Simply provides name and type information.

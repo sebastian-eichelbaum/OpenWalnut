@@ -25,7 +25,7 @@
 #ifndef WLINEARALGEBRAFUNCTIONS_H
 #define WLINEARALGEBRAFUNCTIONS_H
 
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 namespace wmath
 {

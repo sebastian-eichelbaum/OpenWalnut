@@ -37,7 +37,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Some utilities for string manipulation and output operations. Please note

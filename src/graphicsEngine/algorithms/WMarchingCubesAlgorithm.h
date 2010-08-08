@@ -31,7 +31,7 @@
 #include "../../common/WProgressCombiner.h"
 #include "../WTriangleMesh2.h"
 #include "marchingCubesCaseTables.h"
-#include "../WExport_GEDLL.h"
+#include "../WExportWGE.h"
 
 /**
  * A point consisting of its coordinates and ID

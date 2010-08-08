@@ -37,7 +37,7 @@
 #include "../math/WVector3D.h"
 #include "../WTransferable.h"
 
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 /**
  * A triangle consisting of 3 id of vertices that represent its corners

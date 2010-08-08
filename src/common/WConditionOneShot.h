@@ -28,7 +28,7 @@
 #include <boost/thread.hpp>
 
 #include "WCondition.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Implements a WCondition, but can be fired only ONCE. This is useful if you want to have a thread waiting for a condition but

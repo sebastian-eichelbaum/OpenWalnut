@@ -28,7 +28,7 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 /**
  * Indicates invalid property name.

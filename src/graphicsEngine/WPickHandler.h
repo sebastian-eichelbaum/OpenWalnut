@@ -48,7 +48,7 @@
 
 #include "../common/math/WPosition.h"
 #include "WPickInfo.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * class to handle events with a pick

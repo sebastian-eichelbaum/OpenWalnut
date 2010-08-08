@@ -34,7 +34,7 @@
 #include <osg/NodeCallback>
 
 #include "../common/WCondition.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Class to wrap around the osg Group node and providing a thread safe add/removal mechanism. Please be sure to use

@@ -30,7 +30,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * This class loads shared libraries and provides function pointers. This is especially useful for dynamic loading of shared libraries during

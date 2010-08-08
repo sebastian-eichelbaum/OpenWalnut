@@ -29,7 +29,7 @@
 
 #include "WKernelException.h"
 
-#include "../WExport_KernelDLL.h"
+#include "../WExportKernel.h"
 
 /**
  * General purpose exception and therefore base class for all kernel related exceptions.

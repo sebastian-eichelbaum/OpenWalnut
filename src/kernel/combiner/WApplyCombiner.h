@@ -39,7 +39,7 @@
 #include "../WModuleInputConnector.h"
 #include "../WModuleOutputConnector.h"
 
-#include "../WExport_KernelDLL.h"
+#include "../WExportKernel.h"
 /**
  * Base class for all combiners which apply one connection between two connectors of two modules.
  */

@@ -30,7 +30,7 @@
 
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Encapsulates info for pick action.

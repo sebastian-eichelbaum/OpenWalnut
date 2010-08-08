@@ -53,7 +53,7 @@
 #include "../common/WPrototyped.h"
 #include "../common/WThreadedRunner.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 class WModuleConnector;
 class WModuleContainer;

@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Represents a RGBA Color

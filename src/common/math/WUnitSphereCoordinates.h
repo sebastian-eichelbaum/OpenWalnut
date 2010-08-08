@@ -29,7 +29,7 @@
 
 #include "../../common/math/WVector3D.h"
 
-#include "../../common/WExport_CommonDLL.h"
+#include "../../common/WExportCommon.h"
 
 namespace wmath
 {

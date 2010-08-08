@@ -33,7 +33,7 @@
 #include "../WLimits.h"
 #include "WValue.h"
 
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 namespace wmath
 {

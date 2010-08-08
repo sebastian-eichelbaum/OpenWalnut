@@ -29,7 +29,7 @@
 
 #include "../../common/WException.h"
 
-#include "../WExport_GEDLL.h"
+#include "../WExportWGE.h"
 
 /**
  * General purpose exception and therefore base class for all graphics engine related exceptions.

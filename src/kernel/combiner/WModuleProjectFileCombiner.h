@@ -37,7 +37,7 @@
 
 #include "../WModuleCombiner.h"
 
-#include "../WExport_KernelDLL.h"
+#include "../WExportKernel.h"
 
 /**
  * This class is able to parse project files and create the appropriate module graph inside a specified container. It is also derived from

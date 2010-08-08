@@ -29,7 +29,7 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/thread.hpp>
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Class to encapsulate boost::condition_variable_any. You may use it to efficiently wait for events (a condition comes true). It

@@ -37,7 +37,7 @@
 #include "../../../common/WProperties.h"
 #include "../../../graphicsEngine/WROI.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 class WRMBranch;
 /**

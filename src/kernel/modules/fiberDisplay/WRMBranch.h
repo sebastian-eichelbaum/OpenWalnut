@@ -34,7 +34,7 @@
 #include "./../../../common/WProperties.h"
 #include "WRMROIRepresentation.h"
 
-#include "../../WExport_KernelDLL.h"
+#include "../../WExportKernel.h"
 
 class WROIManagerFibers;
 

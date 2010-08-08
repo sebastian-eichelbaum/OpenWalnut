@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEXPORT_GEDLL_H
-#define WEXPORT_GEDLL_H
+#ifndef WEXPORTWGE_H
+#define WEXPORTWGE_H
 
 #ifdef _MSC_VER
 
@@ -41,5 +41,5 @@
 
 #endif // _MSC_VER
 
-#endif  // WEXPORT_GEDLL_H
+#endif  // WEXPORTWGE_H
 

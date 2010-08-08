@@ -31,7 +31,7 @@
 #include <sstream>
 
 #include "WTerminalColor.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Basic exception handler.

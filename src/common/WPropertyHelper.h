@@ -33,7 +33,7 @@
 #include "constraints/WPropertyConstraintPathExists.h"
 #include "constraints/WPropertyConstraintIsDirectory.h"
 #include "constraints/WPropertyConstraintSelectOnlyOne.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * This namespace contains several utility functions to handle properties. Especially constraint helper to easily create constraints.

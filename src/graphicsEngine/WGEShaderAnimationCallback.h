@@ -33,7 +33,7 @@
 #endif
 #include <osg/Uniform>
 
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * This is a uniform callback setting the uniform to the current time in milliseconds, hundredth of a second or tenth of a second.

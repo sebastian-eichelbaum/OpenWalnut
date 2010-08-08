@@ -36,7 +36,7 @@
 #include "WProperties.h"
 #include "WLogger.h"
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 /**
  * Fetches and caches preferences set in file.
  */

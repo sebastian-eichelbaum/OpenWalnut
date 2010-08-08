@@ -38,7 +38,7 @@
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 class WModuleInputConnector;
 class WModuleOutputConnector;

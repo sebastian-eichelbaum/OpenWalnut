@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Helper class to provide a convenient way to colorize output on the console.

@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Interface class for the concept "Prototype". The requirements are a zero-parameter constructor.

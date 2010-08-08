@@ -35,7 +35,7 @@
 #include <osg/Program>
 
 #include "../common/WPathHelper.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.

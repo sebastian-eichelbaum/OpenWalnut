@@ -32,7 +32,7 @@
 
 #include "WGEGroupNode.h"
 #include "WGELabel.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * This class contains a label layout for positioning labels at the side of the screen. There is a line from the point of interest to the label

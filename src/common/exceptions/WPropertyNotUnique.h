@@ -28,7 +28,7 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 /**
  * Indicates that a given property is not unique in a group of properties.

@@ -47,7 +47,7 @@
 #include "WPickHandler.h"
 #include "WGEGroupNode.h"
 
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 
 /**

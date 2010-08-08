@@ -36,7 +36,7 @@
 #include "../common/WPrototyped.h"
 #include "../common/WTransferable.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 /**
  * Class implementing output connection functionality between modules.

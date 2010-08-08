@@ -38,7 +38,7 @@
 #include "WPropertyBase.h"
 #include "WPropertyTypes.h"
 #include "WPropertyVariable.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * Class to manage properties of an object and to provide convenience methods for easy access and manipulation. It also allows

@@ -31,7 +31,7 @@
 
 #include "WModuleContainer.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 /**
  * This is a base class for all module combination classes. The basic idea is to hide the actual combination work from others. These classes may
  * be useful in the GUI. The GUI can create a module combiner instance in a special way, with an interface the GUI wants to have. Then, the

@@ -41,7 +41,7 @@
 #include "WModule.h"
 #include "WModuleLoader.h"
 
-#include "WExport_KernelDLL.h"
+#include "WExportKernel.h"
 
 /**
  * Class able to create a new copy of an arbitrary module. It uses the Factory and Prototype design pattern.

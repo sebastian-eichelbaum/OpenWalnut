@@ -29,7 +29,7 @@
 #include <osgText/FadeText>
 
 #include "WGELayoutableItem.h"
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * Label layout-item. An layoutable item which displays text. This is nice for labeling elements on the screen. It can be used stand-alone (as it

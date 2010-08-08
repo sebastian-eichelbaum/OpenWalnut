@@ -29,7 +29,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "WFlag.h"
-#include "WExport_CommonDLL.h"
+#include "WExportCommon.h"
 
 /**
  * This class helps especially container module programmers to easily synchronize the value of one flag with several other

@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"
-#include "../WExport_CommonDLL.h"
+#include "../WExportCommon.h"
 
 /**
  * Represents a symmetric matrix-like look up table, meaning it stores only

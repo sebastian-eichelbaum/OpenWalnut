@@ -38,7 +38,7 @@
 
 #include "../WModuleConnector.h"
 
-#include "../WExport_KernelDLL.h"
+#include "../WExportKernel.h"
 
 /**
  * Combiner which disconnects the specified connection.

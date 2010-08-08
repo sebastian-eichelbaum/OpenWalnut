@@ -26,7 +26,7 @@
 #define WGEZOOMTRACKBALLMANIPULATOR_H
 
 #include <osgGA/TrackballManipulator>
-#include "WExport_GEDLL.h"
+#include "WExportWGE.h"
 
 /**
  * New OSG manipulator: TrackballManipulator with added mouse wheel zoom.
