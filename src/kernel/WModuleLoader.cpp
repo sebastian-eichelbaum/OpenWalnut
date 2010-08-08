@@ -64,13 +64,11 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 WSharedLib l( i->path() );
 
                 // get instantiation function
-//                typedef boost::shared_ptr< WModule > ( *createInstanceFunc )( void );
                 typedef void ( *createInstanceFunc )( boost::shared_ptr< WModule > & );
                 createInstanceFunc f;
                 l.fetchFunction< createInstanceFunc >( W_LOADABLE_MODULE_SYMBOL, f );
 
                 // get the first prototype
-//                boost::shared_ptr< WModule > m = f();
                 boost::shared_ptr< WModule > m;
                 f( m );
 

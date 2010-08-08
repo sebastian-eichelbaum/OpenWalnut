@@ -66,8 +66,8 @@ class WModuleOutputConnector;
  * \ingroup kernel
  */
 class EXPORT_KERNEL_DLL WModule: public WThreadedRunner,
-                             public WPrototyped,
-                             public boost::enable_shared_from_this< WModule >
+                                 public WPrototyped,
+                                 public boost::enable_shared_from_this< WModule >
 {
 friend class WModuleConnector;  // requires access to notify members
 friend class WModuleFactory;    // for proper creation of module instaces, the factory needs access to protected functions.
@@ -601,10 +601,9 @@ private:
 #ifdef _MSC_VER
 #define W_LOADABLE_MODULE( MODULECLASS ) \
 extern "C" __declspec(dllexport) void WLoadModule( boost::shared_ptr< WModule > &m ) { m = boost::shared_ptr< WModule >( new MODULECLASS ); }  // NOLINT
-// extern "C" __declspec(dllexport) boost::shared_ptr< WModule > WLoadModule() { return boost::shared_ptr< WModule >( new MODULECLASS ); }  // NOLINT
 #else
 #define W_LOADABLE_MODULE( MODULECLASS ) \
-extern "C" boost::shared_ptr< WModule > WLoadModule() { return boost::shared_ptr< WModule >( new MODULECLASS ); } // NOLINT
+extern "C"                       void WLoadModule( boost::shared_ptr< WModule > &m ) { m = boost::shared_ptr< WModule >( new MODULECLASS ); }  // NOLINT
 #endif
 
 /**
