@@ -32,7 +32,7 @@
  * A manipulator which changes the view of a 2D scene. Does things like panning
  * and zooming.
  */
-class EXPORT_OWGE_DLL WGE2DManipulator : public osgGA::MatrixManipulator
+class WGE_EXPORT WGE2DManipulator : public osgGA::MatrixManipulator
 {
 public:
     /**

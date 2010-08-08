@@ -43,7 +43,7 @@
 /**
  * Combiner which disconnects the specified connection.
  */
-class EXPORT_KERNEL_DLL WDisconnectCombiner: public WModuleOneToOneCombiner
+class OWKERNEL_EXPORT WDisconnectCombiner: public WModuleOneToOneCombiner
 {
 public:
 

@@ -41,7 +41,7 @@
  * \warning Because the POSIX standard does not enforce thread safety for the functions dlopen, dlclose, dlerror, and dlsym, these should not
  *          be used simultaneously with variables of this class.
  */
-class EXPORT_OWCOMMON_DLL WSharedLib // NOLINT
+class OWCOMMON_EXPORT WSharedLib // NOLINT
 {
 public:
 

@@ -41,7 +41,7 @@
 /**
  * Loads module prototypes from shared objects in a given directory and injects it into the module factory.
  */
-class EXPORT_KERNEL_DLL WModuleLoader
+class OWKERNEL_EXPORT WModuleLoader
 {
 public:
 

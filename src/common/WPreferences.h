@@ -40,7 +40,7 @@
 /**
  * Fetches and caches preferences set in file.
  */
-class EXPORT_OWCOMMON_DLL WPreferences
+class OWCOMMON_EXPORT WPreferences
 {
 public:
     /**

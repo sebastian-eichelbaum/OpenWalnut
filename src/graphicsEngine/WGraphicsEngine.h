@@ -58,7 +58,7 @@
  * engine.
  * \ingroup ge
  */
-class EXPORT_OWGE_DLL WGraphicsEngine: public WThreadedRunner
+class WGE_EXPORT WGraphicsEngine: public WThreadedRunner
 {
 public:
 

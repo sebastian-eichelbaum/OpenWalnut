@@ -35,7 +35,7 @@
  * General purpose exception and therefore base class for all graphics engine related exceptions.
  * \ingroup ge
  */
-class EXPORT_OWGE_DLL WGEException: public WException
+class WGE_EXPORT WGEException: public WException
 {
 public:
 

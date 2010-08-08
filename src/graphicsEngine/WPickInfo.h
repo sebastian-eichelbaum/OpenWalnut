@@ -35,7 +35,7 @@
 /**
  * Encapsulates info for pick action.
  */
-class EXPORT_OWGE_DLL WPickInfo
+class WGE_EXPORT WPickInfo
 {
 public:
     /**

@@ -34,7 +34,7 @@
 /**
  * IO Class for writing the ROI structure to a project file.
  */
-class EXPORT_KERNEL_DLL WRoiProjectFileIO: public WProjectFileIO
+class OWKERNEL_EXPORT WRoiProjectFileIO: public WProjectFileIO
 {
 public:
 

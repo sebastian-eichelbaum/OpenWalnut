@@ -41,7 +41,7 @@
 /**
  * Class to store and manage different ROI's for fiber selection
  */
-class EXPORT_KERNEL_DLL WROIManagerFibers: public boost::enable_shared_from_this< WROIManagerFibers >
+class OWKERNEL_EXPORT WROIManagerFibers: public boost::enable_shared_from_this< WROIManagerFibers >
 {
 public:
     /**

@@ -38,7 +38,7 @@
  *
  * \see WGUI
  */
-class EXPORT_OWCOMMON_DLL WProgress // NOLINT
+class OWCOMMON_EXPORT WProgress // NOLINT
 {
 friend class WProgressTest;
 public:

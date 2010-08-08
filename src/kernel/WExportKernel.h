@@ -30,14 +30,14 @@
 #pragma warning( disable: 4251 )
 
 #ifdef OWkernel_EXPORTS
-#define EXPORT_KERNEL_DLL __declspec( dllexport )
+#define OWKERNEL_EXPORT __declspec( dllexport )
 #else
-#define EXPORT_KERNEL_DLL __declspec( dllimport )
+#define OWKERNEL_EXPORT __declspec( dllimport )
 #endif
 
 #else
 
-#define EXPORT_KERNEL_DLL
+#define OWKERNEL_EXPORT
 
 #endif // _MSC_VER
 

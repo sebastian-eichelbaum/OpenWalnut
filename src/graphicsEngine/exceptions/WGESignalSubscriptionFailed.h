@@ -34,7 +34,7 @@
  * Exception thrown if a notifier could not be subscribed to a signal.
  * \ingroup ge
  */
-class EXPORT_OWGE_DLL WGESignalSubscriptionFailed: public WGEException
+class WGE_EXPORT WGESignalSubscriptionFailed: public WGEException
 {
 public:
 

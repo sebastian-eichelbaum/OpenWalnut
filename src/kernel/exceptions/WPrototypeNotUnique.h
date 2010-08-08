@@ -35,7 +35,7 @@
  * Thrown whenever an prototype name is not unique.
  * \ingroup kernel
  */
-class EXPORT_KERNEL_DLL WPrototypeNotUnique: public WKernelException
+class OWKERNEL_EXPORT WPrototypeNotUnique: public WKernelException
 {
 public:
 

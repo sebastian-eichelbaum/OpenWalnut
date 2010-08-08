@@ -32,7 +32,7 @@
  * Class for managing the OpenSceneGraph root node. It can handle new nodes, removing nodes and so on.
  * \ingroup ge
  */
-class EXPORT_OWGE_DLL WGEScene: public WGEGroupNode
+class WGE_EXPORT WGEScene: public WGEGroupNode
 {
 public:
 

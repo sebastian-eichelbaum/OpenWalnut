@@ -38,7 +38,7 @@
 /**
  * This is a uniform callback setting the uniform to the current time in milliseconds, hundredth of a second or tenth of a second.
  */
-class EXPORT_OWGE_DLL WGEShaderAnimationCallback: public osg::Uniform::Callback
+class WGE_EXPORT WGEShaderAnimationCallback: public osg::Uniform::Callback
 {
 public:
 

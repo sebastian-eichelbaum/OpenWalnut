@@ -34,7 +34,7 @@
  * Exception thrown if initialization of the graphics engine fails.
  * \ingroup ge
  */
-class EXPORT_OWGE_DLL WGEInitFailed: public WGEException
+class WGE_EXPORT WGEInitFailed: public WGEException
 {
 public:
 

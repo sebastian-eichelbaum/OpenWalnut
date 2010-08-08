@@ -33,7 +33,7 @@
 /**
  * Thrown whenever a file could not be opened.
  */
-class EXPORT_OWCOMMON_DLL WFileOpenFailed : public WException
+class OWCOMMON_EXPORT WFileOpenFailed : public WException
 {
 public:
     /**

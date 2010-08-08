@@ -33,7 +33,7 @@
 /**
  * Thrown whenever a symbol could not be fetched.
  */
-class EXPORT_OWCOMMON_DLL WLibraryFetchFailed : public WException
+class OWCOMMON_EXPORT WLibraryFetchFailed : public WException
 {
 public:
 

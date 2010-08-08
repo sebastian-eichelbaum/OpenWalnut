@@ -36,7 +36,7 @@ namespace wmath
 /**
  * This class stores coordinates on the unit sphere.
  */
-class EXPORT_OWCOMMON_DLL WUnitSphereCoordinates // NOLINT
+class OWCOMMON_EXPORT WUnitSphereCoordinates // NOLINT
 {
 // TODO(all): implement test
 // friend class WUnitSphereCoordinatesTest;

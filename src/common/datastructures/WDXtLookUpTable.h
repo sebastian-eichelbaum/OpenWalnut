@@ -39,7 +39,7 @@
  * The reason why this is named DXt look up table is, since is it used as
  * look up table for dSt and dLt fiber distance metrics.
  */
-class EXPORT_OWCOMMON_DLL WDXtLookUpTable
+class OWCOMMON_EXPORT WDXtLookUpTable
 {
 friend class WDXtLookUpTableTest;
 public:

@@ -36,7 +36,7 @@
 /**
  * Represents a RGBA Color
  */
-class EXPORT_OWCOMMON_DLL WColor
+class OWCOMMON_EXPORT WColor
 {
 public:
 

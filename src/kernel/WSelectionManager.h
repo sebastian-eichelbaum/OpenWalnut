@@ -34,7 +34,7 @@
 /**
  * manages the several selection tools
  */
-class EXPORT_KERNEL_DLL WSelectionManager // NOLINT
+class OWKERNEL_EXPORT WSelectionManager // NOLINT
 {
 public:
     /**

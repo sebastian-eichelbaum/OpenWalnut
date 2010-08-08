@@ -35,7 +35,7 @@
  * Thrown whenever an unknown prototype is specified.
  * \ingroup kernel
  */
-class EXPORT_KERNEL_DLL WPrototypeUnknown: public WKernelException
+class OWKERNEL_EXPORT WPrototypeUnknown: public WKernelException
 {
 public:
 

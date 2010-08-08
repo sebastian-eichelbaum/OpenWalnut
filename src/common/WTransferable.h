@@ -34,7 +34,7 @@
  *
  * \ingroup Kernel
  */
-class EXPORT_OWCOMMON_DLL WTransferable: public WPrototyped
+class OWCOMMON_EXPORT WTransferable: public WPrototyped
 {
 public:
 

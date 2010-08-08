@@ -44,7 +44,7 @@
  *
  * \ingroup GE
  */
-class EXPORT_OWGE_DLL WGEGroupNode: public osg::MatrixTransform
+class WGE_EXPORT WGEGroupNode: public osg::MatrixTransform
 {
 public:
 

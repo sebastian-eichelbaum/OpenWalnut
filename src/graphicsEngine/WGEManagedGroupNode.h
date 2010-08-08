@@ -39,7 +39,7 @@
  *
  * \ingroup GE
  */
-class EXPORT_OWGE_DLL WGEManagedGroupNode: public WGEGroupNode
+class WGE_EXPORT WGEManagedGroupNode: public WGEGroupNode
 {
 public:
 

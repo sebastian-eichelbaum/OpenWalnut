@@ -35,7 +35,7 @@
  * Exception thrown whenever something is requested from an connector which is not connected.
  * \ingroup kernel
  */
-class EXPORT_KERNEL_DLL WModuleConnectorUnconnected: public WModuleException
+class OWKERNEL_EXPORT WModuleConnectorUnconnected: public WModuleException
 {
 public:
 

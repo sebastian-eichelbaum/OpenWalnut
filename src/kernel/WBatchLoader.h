@@ -40,7 +40,7 @@ class WModuleContainer;
 /**
  * Class for loading many datasets. It runs in a separate thread.
  */
-class EXPORT_KERNEL_DLL WBatchLoader: public WThreadedRunner,
+class OWKERNEL_EXPORT WBatchLoader: public WThreadedRunner,
                                   public boost::enable_shared_from_this< WBatchLoader >
 {
 public:

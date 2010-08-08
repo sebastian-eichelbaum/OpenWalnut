@@ -65,7 +65,7 @@ class WModuleOutputConnector;
  * Class representing a single module of OpenWalnut.
  * \ingroup kernel
  */
-class EXPORT_KERNEL_DLL WModule: public WThreadedRunner,
+class OWKERNEL_EXPORT WModule: public WThreadedRunner,
                              public WPrototyped,
                              public boost::enable_shared_from_this< WModule >
 {

@@ -31,7 +31,7 @@
 /**
  * New OSG manipulator: TrackballManipulator with added mouse wheel zoom.
  */
-class EXPORT_OWGE_DLL WGEZoomTrackballManipulator: public osgGA::TrackballManipulator
+class WGE_EXPORT WGEZoomTrackballManipulator: public osgGA::TrackballManipulator
 {
 public:
     /**

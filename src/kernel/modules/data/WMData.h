@@ -45,7 +45,7 @@
  * inherited classes. This class builds a "source" in OpenWalnut's DataFlow Network.
  * \ingroup modules
  */
-class EXPORT_KERNEL_DLL WMData: public WModule
+class OWKERNEL_EXPORT WMData: public WModule
 {
 public:
 

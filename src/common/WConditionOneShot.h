@@ -37,7 +37,7 @@
  * on a mutex. All waiting threads try to get a read lock which is not possible as long it is write-locked. The notify method
  * releases the write lock and all waiting threads can continue.
  */
-class EXPORT_OWCOMMON_DLL WConditionOneShot: public WCondition
+class OWCOMMON_EXPORT WConditionOneShot: public WCondition
 {
     friend class WConditionOneShot_test;
 public:

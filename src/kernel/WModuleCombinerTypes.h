@@ -72,7 +72,7 @@ namespace WCombinerTypes
      *
      * \return true if lhs < rhs
      */
-    bool EXPORT_KERNEL_DLL compatiblesSort( WCompatiblesGroup lhs, WCompatiblesGroup rhs );
+    bool OWKERNEL_EXPORT compatiblesSort( WCompatiblesGroup lhs, WCompatiblesGroup rhs );
 }
 
 #endif  // WMODULECOMBINERTYPES_H

@@ -33,7 +33,7 @@ class WROIManagerFibers;
 /**
  * implements a thread that updates the fiber selection bit field
  */
-class EXPORT_KERNEL_DLL WUpdateThread: public WThreadedRunner
+class OWKERNEL_EXPORT WUpdateThread: public WThreadedRunner
 {
 public:
     /**

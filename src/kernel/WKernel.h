@@ -59,7 +59,7 @@ class WThreadedRunner;
  * GUI, GE and DataHandler
  * \ingroup kernel
  */
-class EXPORT_KERNEL_DLL WKernel: public WThreadedRunner
+class OWKERNEL_EXPORT WKernel: public WThreadedRunner
 {
 public:
 

@@ -46,7 +46,7 @@
 /**
  * Class able to create a new copy of an arbitrary module. It uses the Factory and Prototype design pattern.
  */
-class EXPORT_KERNEL_DLL WModuleFactory // NOLINT
+class OWKERNEL_EXPORT WModuleFactory // NOLINT
 {
 friend class WModuleFactoryTest;
 public:

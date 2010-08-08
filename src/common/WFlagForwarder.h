@@ -50,7 +50,7 @@
  * \param T the encapsulated type inside the flag. I.e. for WFlag< int32_t > use T=int32_t
  */
 template < typename T >
-class EXPORT_OWCOMMON_DLL WFlagForwarder // NOLINT
+class OWCOMMON_EXPORT WFlagForwarder // NOLINT
 {
 public:
 

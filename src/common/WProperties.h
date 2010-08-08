@@ -47,7 +47,7 @@
  * is the property with the name "property" in the group "you" which against is in the group "hello".
  * \note The root group of each module does not have a name.
  */
-class EXPORT_OWCOMMON_DLL WProperties: public WPropertyBase
+class OWCOMMON_EXPORT WProperties: public WPropertyBase
 {
 friend class WPropertiesTest;
 public:

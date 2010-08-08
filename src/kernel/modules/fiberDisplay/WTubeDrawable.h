@@ -39,7 +39,7 @@ class WDataSetFibers;
 /**
  * TODO(schurade): Document this!
  */
-class EXPORT_KERNEL_DLL WTubeDrawable: public osg::Drawable
+class OWKERNEL_EXPORT WTubeDrawable: public osg::Drawable
 {
 public:
 

@@ -41,7 +41,7 @@
 /**
  * Class implementing output connection functionality between modules.
  */
-class EXPORT_KERNEL_DLL WModuleOutputConnector: public WModuleConnector
+class OWKERNEL_EXPORT WModuleOutputConnector: public WModuleConnector
 {
 public:
 

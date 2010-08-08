@@ -38,7 +38,7 @@
 /**
  * Base class for all combiners which apply one connection between two connectors of two modules.
  */
-class EXPORT_KERNEL_DLL WModuleOneToOneCombiner: public WModuleCombiner
+class OWKERNEL_EXPORT WModuleOneToOneCombiner: public WModuleCombiner
 {
 public:
 

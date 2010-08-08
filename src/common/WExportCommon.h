@@ -30,14 +30,14 @@
     #pragma warning( disable: 4251 )
 
     #ifdef OWcommon_EXPORTS
-    #define EXPORT_OWCOMMON_DLL __declspec( dllexport )
+    #define OWCOMMON_EXPORT __declspec( dllexport )
     #else
-    #define EXPORT_OWCOMMON_DLL __declspec( dllimport )
+    #define OWCOMMON_EXPORT __declspec( dllimport )
     #endif
 
 #else
 
-    #define EXPORT_OWCOMMON_DLL
+    #define OWCOMMON_EXPORT
 
 #endif // _MSC_VER
 

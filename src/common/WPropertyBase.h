@@ -41,7 +41,7 @@
 /**
  * Abstract base class for all properties. Simply provides name and type information.
  */
-class EXPORT_OWCOMMON_DLL WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
+class OWCOMMON_EXPORT WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
 {
 public:
 

@@ -36,7 +36,7 @@
  * It can be used for placing things. An example are the ROIBoxes which
  * are placed at the crosshairs position at the moment I am writing this.
  */
-class EXPORT_KERNEL_DLL WCrosshair
+class OWKERNEL_EXPORT WCrosshair
 {
 public:
     /**

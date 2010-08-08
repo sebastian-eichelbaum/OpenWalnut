@@ -40,7 +40,7 @@
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.
  */
-class EXPORT_OWGE_DLL WShader: public osg::Program
+class WGE_EXPORT WShader: public osg::Program
 {
 public:
 

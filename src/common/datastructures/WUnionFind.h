@@ -70,7 +70,7 @@
    dset.find_set( u ); // find the set owning u. A representative of the set is returned
    \endverbatim
  */
-class EXPORT_OWCOMMON_DLL WUnionFind
+class OWCOMMON_EXPORT WUnionFind
 {
 friend class WUnionFindTest;
 public:

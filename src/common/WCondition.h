@@ -35,7 +35,7 @@
  * Class to encapsulate boost::condition_variable_any. You may use it to efficiently wait for events (a condition comes true). It
  * is a very simple implementation. It might be extended easily. Timed wait functions and so on.
  */
-class EXPORT_OWCOMMON_DLL WCondition // NOLINT
+class OWCOMMON_EXPORT WCondition // NOLINT
 {
     friend class WCondition_test;
 public:

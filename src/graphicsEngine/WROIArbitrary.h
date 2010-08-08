@@ -47,7 +47,7 @@ class WDataSetScalar;
 /**
  * A box representing a region of interest.
  */
-class EXPORT_OWGE_DLL WROIArbitrary : public WROI
+class WGE_EXPORT WROIArbitrary : public WROI
 {
 public:
     /**

@@ -55,7 +55,7 @@
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
-class EXPORT_OWGE_DLL WGEViewer: public WGEGraphicsWindow,
+class WGE_EXPORT WGEViewer: public WGEGraphicsWindow,
                                  public boost::enable_shared_from_this< WGEViewer >
 {
 public:

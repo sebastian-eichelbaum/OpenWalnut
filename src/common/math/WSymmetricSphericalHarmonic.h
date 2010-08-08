@@ -38,7 +38,7 @@ namespace wmath
  * Class for symmetric spherical harmonics
  * The index scheme of the coefficients/basis values is like in the Descoteaux paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging".
  */
-class EXPORT_OWCOMMON_DLL WSymmetricSphericalHarmonic  // NOLINT
+class OWCOMMON_EXPORT WSymmetricSphericalHarmonic  // NOLINT
 {
 // TODO(all): implement test
 // friend class WSymmetricSphericalHarmonicTest;

@@ -46,7 +46,7 @@
  * Navigation slice module
  * \ingroup modules
  */
-class EXPORT_KERNEL_DLL WMNavSlices: public WModule, public osg::Referenced
+class OWKERNEL_EXPORT WMNavSlices: public WModule, public osg::Referenced
 {
 public:
 

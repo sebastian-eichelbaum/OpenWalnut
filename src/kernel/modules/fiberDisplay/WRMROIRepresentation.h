@@ -43,7 +43,7 @@ class WRMBranch;
 /**
  * class encapsulates rois for the roi manager class
  */
-class EXPORT_KERNEL_DLL WRMROIRepresentation
+class OWKERNEL_EXPORT WRMROIRepresentation
 {
 public:
     /**

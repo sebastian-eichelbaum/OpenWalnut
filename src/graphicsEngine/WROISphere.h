@@ -41,7 +41,7 @@
 /**
  * A sphere representing a region of interest.
  */
-class EXPORT_OWGE_DLL WROISphere : public WROI
+class WGE_EXPORT WROISphere : public WROI
 {
 public:
     /**

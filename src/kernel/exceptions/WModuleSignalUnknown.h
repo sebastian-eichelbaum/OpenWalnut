@@ -35,7 +35,7 @@
  * General purpose exception and therefore base class for all kernel related exceptions.
  * \ingroup kernel
  */
-class EXPORT_KERNEL_DLL WModuleSignalUnknown: public WModuleException
+class OWKERNEL_EXPORT WModuleSignalUnknown: public WModuleException
 {
 public:
 

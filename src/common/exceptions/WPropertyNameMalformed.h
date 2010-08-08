@@ -33,7 +33,7 @@
 /**
  * Indicates invalid property name.
  */
-class EXPORT_OWCOMMON_DLL WPropertyNameMalformed : public WException
+class OWCOMMON_EXPORT WPropertyNameMalformed : public WException
 {
 public:
     /**

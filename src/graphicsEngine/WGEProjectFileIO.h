@@ -37,7 +37,7 @@
  * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings for the main view with the
  * WGEZoomTrackbalManipulator.
  */
-class EXPORT_OWGE_DLL WGEProjectFileIO: public WProjectFileIO
+class WGE_EXPORT WGEProjectFileIO: public WProjectFileIO
 {
 public:
 

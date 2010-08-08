@@ -33,7 +33,7 @@
 /**
  * Indicates invalid element access of a container.
  */
-class EXPORT_OWCOMMON_DLL WNotImplemented : public WException
+class OWCOMMON_EXPORT WNotImplemented : public WException
 {
 public:
     /**

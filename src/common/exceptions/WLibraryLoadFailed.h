@@ -33,7 +33,7 @@
 /**
  * Thrown whenever a library could not been loaded. This may be caused by a file not found error or link errors.
  */
-class EXPORT_OWCOMMON_DLL WLibraryLoadFailed : public WException
+class OWCOMMON_EXPORT WLibraryLoadFailed : public WException
 {
 public:
     /**

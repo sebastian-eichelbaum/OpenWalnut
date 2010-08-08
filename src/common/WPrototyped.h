@@ -34,7 +34,7 @@
 /**
  * Interface class for the concept "Prototype". The requirements are a zero-parameter constructor.
  */
-class EXPORT_OWCOMMON_DLL WPrototyped // NOLINT
+class OWCOMMON_EXPORT WPrototyped // NOLINT
 {
 public:
 

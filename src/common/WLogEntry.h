@@ -45,7 +45,7 @@ LogLevel;
 /**
  * Represents a simple log message with some attributes.
  */
-class EXPORT_OWCOMMON_DLL WLogEntry // NOLINT
+class OWCOMMON_EXPORT WLogEntry // NOLINT
 {
 public:
 

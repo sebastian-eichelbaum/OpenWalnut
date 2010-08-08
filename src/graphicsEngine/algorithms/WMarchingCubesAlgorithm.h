@@ -82,7 +82,7 @@ typedef std::vector<WMCTriangle> WMCTriangleVECTOR;
 /**
  * This class does the actual computation of marching cubes.
  */
-class EXPORT_OWGE_DLL WMarchingCubesAlgorithm
+class WGE_EXPORT WMarchingCubesAlgorithm
 {
 /**
  * Only UnitTests may be friends.

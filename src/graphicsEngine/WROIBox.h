@@ -40,7 +40,7 @@
 /**
  * A box representing a region of interest.
  */
-class EXPORT_OWGE_DLL WROIBox : public WROI
+class WGE_EXPORT WROIBox : public WROI
 {
 public:
     /**

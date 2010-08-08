@@ -50,7 +50,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void EXPORT_OWCOMMON_DLL addTo( WPropSelection prop );
+        void OWCOMMON_EXPORT addTo( WPropSelection prop );
     }
 
     /**
@@ -63,21 +63,21 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void EXPORT_OWCOMMON_DLL addTo( WPropSelection prop );
+        void OWCOMMON_EXPORT addTo( WPropSelection prop );
 
         /**
          * Add the PC_NOTEMPTY constraint to the property.
          *
          * \param prop the property where to add the constraint.
          */
-        void EXPORT_OWCOMMON_DLL addTo( WPropString prop );
+        void OWCOMMON_EXPORT addTo( WPropString prop );
 
         /**
          * Add the PC_NOTEMPTY constraint to the property.
          *
          * \param prop the property where to add the constraint.
          */
-        void EXPORT_OWCOMMON_DLL addTo( WPropFilename prop );
+        void OWCOMMON_EXPORT addTo( WPropFilename prop );
     }
 
     /**
@@ -90,7 +90,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void EXPORT_OWCOMMON_DLL addTo( WPropFilename prop );
+        void OWCOMMON_EXPORT addTo( WPropFilename prop );
     }
 
     /**
@@ -103,7 +103,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void EXPORT_OWCOMMON_DLL addTo( WPropFilename prop );
+        void OWCOMMON_EXPORT addTo( WPropFilename prop );
     }
 }
 

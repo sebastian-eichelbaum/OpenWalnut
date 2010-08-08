@@ -40,7 +40,7 @@
 /**
  * Class implementing input connection functionality between modules.
  */
-class EXPORT_KERNEL_DLL WModuleInputConnector: public WModuleConnector
+class OWKERNEL_EXPORT WModuleInputConnector: public WModuleConnector
 {
 public:
 

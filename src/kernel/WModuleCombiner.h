@@ -39,7 +39,7 @@
  * loads projects files and creates a module graph out of it. The only think which all the combiners need to know: the target container. Derive
  * all specific combiner classes from this one.
  */
-class EXPORT_KERNEL_DLL WModuleCombiner: public WThreadedRunner,
+class OWKERNEL_EXPORT WModuleCombiner: public WThreadedRunner,
                                          public boost::enable_shared_from_this< WModuleCombiner >
 {
 public:

@@ -33,7 +33,7 @@
 /**
  * Indicates that a given property is not unique in a group of properties.
  */
-class EXPORT_OWCOMMON_DLL WPropertyNotUnique : public WException
+class OWCOMMON_EXPORT WPropertyNotUnique : public WException
 {
 public:
     /**

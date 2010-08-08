@@ -40,7 +40,7 @@
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class EXPORT_OWGE_DLL WTriangleMesh2  : public WTransferable
+class WGE_EXPORT WTriangleMesh2  : public WTransferable
 {
 public:
     /**

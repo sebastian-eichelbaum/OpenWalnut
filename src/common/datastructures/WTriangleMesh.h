@@ -42,7 +42,7 @@
 /**
  * A triangle consisting of 3 id of vertices that represent its corners
  */
-struct EXPORT_OWCOMMON_DLL Triangle
+struct OWCOMMON_EXPORT Triangle
 {
     size_t pointID[3]; //!< the ID of the vertices representing the triangle corners
 
@@ -75,7 +75,7 @@ namespace tm_utils
      *
      * \return List of components where each of them is a WTriangleMesh again.
      */
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > EXPORT_OWCOMMON_DLL componentDecomposition( const WTriangleMesh& mesh );
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > OWCOMMON_EXPORT componentDecomposition( const WTriangleMesh& mesh );
 
     /**
      * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
@@ -91,7 +91,7 @@ namespace tm_utils
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class EXPORT_OWCOMMON_DLL WTriangleMesh : public WTransferable
+class OWCOMMON_EXPORT WTriangleMesh : public WTransferable
 {
 /**
  * Only UnitTests may be friends.

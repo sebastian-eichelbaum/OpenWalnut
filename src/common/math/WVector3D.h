@@ -40,7 +40,7 @@ namespace wmath
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations
  */
-class EXPORT_OWCOMMON_DLL WVector3D : public WValue< double >
+class OWCOMMON_EXPORT WVector3D : public WValue< double >
 {
     /**
      * Only UnitTests are allowed to be friends of this class

@@ -41,7 +41,7 @@ class WROIManagerFibers;
 /**
  * implements a branch in the tree like structure for rois
  */
-class EXPORT_KERNEL_DLL WRMBranch : public boost::enable_shared_from_this< WRMBranch >
+class OWKERNEL_EXPORT WRMBranch : public boost::enable_shared_from_this< WRMBranch >
 {
 public:
     /**

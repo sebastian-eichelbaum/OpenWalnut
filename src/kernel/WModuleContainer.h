@@ -55,7 +55,7 @@ class WMData;
  *
  * \ingroup Kernel
  */
-class EXPORT_KERNEL_DLL WModuleContainer: public WModule
+class OWKERNEL_EXPORT WModuleContainer: public WModule
 {
 public:
 

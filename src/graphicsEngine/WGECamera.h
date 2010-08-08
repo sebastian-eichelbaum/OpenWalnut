@@ -34,7 +34,7 @@
  * functions for simply setting some camera defaults.
  * \ingroup ge
  */
-class EXPORT_OWGE_DLL WGECamera: public osg::Camera
+class WGE_EXPORT WGECamera: public osg::Camera
 {
 public:
     /**

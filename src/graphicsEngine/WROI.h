@@ -40,7 +40,7 @@ class WPickHandler;
 /**
  * Superclass for different ROI (region of interest) types.
  */
-class EXPORT_OWGE_DLL WROI : public osg::Geode
+class WGE_EXPORT WROI : public osg::Geode
 {
 public:
     WROI();

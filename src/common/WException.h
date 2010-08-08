@@ -36,7 +36,7 @@
 /**
  * Basic exception handler.
  */
-class EXPORT_OWCOMMON_DLL WException: public std::exception
+class OWCOMMON_EXPORT WException: public std::exception
 {
 /**
  * Only UnitTests are allowed to be a friend of this class.

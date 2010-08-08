@@ -39,7 +39,7 @@
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known
  * WProjectFileIO instances which then do their job.
  */
-class EXPORT_KERNEL_DLL WProjectFile: public WThreadedRunner,
+class OWKERNEL_EXPORT WProjectFile: public WThreadedRunner,
                                       public boost::enable_shared_from_this< WProjectFile >
 {
 public:

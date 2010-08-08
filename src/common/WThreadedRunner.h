@@ -38,7 +38,7 @@
 /**
  * Base class for all classes needing to be executed in a separate thread.
  */
-class EXPORT_OWCOMMON_DLL WThreadedRunner // NOLINT
+class OWCOMMON_EXPORT WThreadedRunner // NOLINT
 {
 public:
 

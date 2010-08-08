@@ -41,7 +41,7 @@ namespace wmath
 /**
  * Represents a neural pathway.
  */
-class EXPORT_OWCOMMON_DLL WFiber : public WLine
+class OWCOMMON_EXPORT WFiber : public WLine
 {
 friend class WFiberTest;
 public:

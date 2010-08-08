@@ -43,7 +43,7 @@
  * This class is able to parse project files and create the appropriate module graph inside a specified container. It is also derived from
  * WProjectFileIO to allow WProjectFile to fill this combiner.
  */
-class EXPORT_KERNEL_DLL WModuleProjectFileCombiner: public WModuleCombiner,
+class OWKERNEL_EXPORT WModuleProjectFileCombiner: public WModuleCombiner,
                                                     public WProjectFileIO
 {
 public:

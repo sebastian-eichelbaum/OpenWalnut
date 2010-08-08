@@ -47,7 +47,7 @@
  * \note the protected constructor avoids instance creation of classes not the WItemSelection. This is restrictive but needed. Nobody can create
  * instances of it, changing the underlying WItemSelection and using it as selector for another ItemSelection instance.
  */
-class EXPORT_OWCOMMON_DLL WItemSelector // NOLINT
+class OWCOMMON_EXPORT WItemSelector // NOLINT
 {
 friend class WItemSelection;
 public:

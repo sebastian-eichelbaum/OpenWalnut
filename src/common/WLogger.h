@@ -43,7 +43,7 @@
 /**
  * Does actual logging of WLogEntries down to stdout or something similar.
  */
-class EXPORT_OWCOMMON_DLL WLogger: public WThreadedRunner
+class OWCOMMON_EXPORT WLogger: public WThreadedRunner
 {
 public:
     /**

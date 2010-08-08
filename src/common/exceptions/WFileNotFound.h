@@ -33,7 +33,7 @@
 /**
  * Thrown whenever a file was not found.
  */
-class EXPORT_OWCOMMON_DLL WFileNotFound : public WException
+class OWCOMMON_EXPORT WFileNotFound : public WException
 {
 public:
     /**

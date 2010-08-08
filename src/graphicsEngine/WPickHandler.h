@@ -53,7 +53,7 @@
 /**
  * class to handle events with a pick
  */
-class EXPORT_OWGE_DLL WPickHandler: public osgGA::GUIEventHandler
+class WGE_EXPORT WPickHandler: public osgGA::GUIEventHandler
 {
 public:
 

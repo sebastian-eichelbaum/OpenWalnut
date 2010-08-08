@@ -77,7 +77,7 @@ private:
  * recoverable, which means it can NOT be catched!
  * Also note that this will only work on Linux.
  */
-class EXPORT_OWCOMMON_DLL WSegmentationFault: public WException
+class OWCOMMON_EXPORT WSegmentationFault: public WException
 {
 public:
 

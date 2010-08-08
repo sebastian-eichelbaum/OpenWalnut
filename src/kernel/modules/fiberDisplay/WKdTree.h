@@ -64,7 +64,7 @@ struct lessy
 /**
  * class to provide threaded computation of parts of the kd tree
  */
-class EXPORT_KERNEL_DLL WKdTreeThread: public WThreadedRunner
+class OWKERNEL_EXPORT WKdTreeThread: public WThreadedRunner
 {
 public:
     /**

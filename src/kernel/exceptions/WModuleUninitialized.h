@@ -35,7 +35,7 @@
  * General purpose exception and therefore base class for all kernel related exceptions.
  * \ingroup kernel
  */
-class EXPORT_KERNEL_DLL WModuleUninitialized: public WKernelException
+class OWKERNEL_EXPORT WModuleUninitialized: public WKernelException
 {
 public:
 

@@ -35,7 +35,7 @@
  * Label layout-item. An layoutable item which displays text. This is nice for labeling elements on the screen. It can be used stand-alone (as it
  * simply is an osgText::Text instance or in conjunction with an WGEItemLayouter.
  */
-class EXPORT_OWGE_DLL WGELabel: public osgText::Text,
+class WGE_EXPORT WGELabel: public osgText::Text,
                                 WGELayoutableItem
 {
 public:

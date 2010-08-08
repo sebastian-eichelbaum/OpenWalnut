@@ -30,14 +30,14 @@
 #pragma warning( disable: 4251 )
 
     #ifdef OWge_EXPORTS
-    #define EXPORT_OWGE_DLL __declspec( dllexport )
+    #define WGE_EXPORT __declspec( dllexport )
     #else
-    #define EXPORT_OWGE_DLL __declspec( dllimport )
+    #define WGE_EXPORT __declspec( dllimport )
     #endif
 
 #else
 
-    #define EXPORT_OWGE_DLL
+    #define WGE_EXPORT
 
 #endif // _MSC_VER
 

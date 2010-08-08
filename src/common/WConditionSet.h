@@ -39,7 +39,7 @@
  * conditions, this class can encapsulate multiple conditions and offer a wait() command to wait for one of them to change its
  * state. Please not that this class can also be used as condition.
  */
-class EXPORT_OWCOMMON_DLL WConditionSet: public WCondition
+class OWCOMMON_EXPORT WConditionSet: public WCondition
 {
 friend class WConditionSetTest;
 public:

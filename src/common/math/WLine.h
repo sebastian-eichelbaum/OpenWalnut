@@ -42,7 +42,7 @@ namespace wmath
      * A line is an ordered sequence of WPositions.
      */
 //    typedef WMixinVector< WPosition > WLine;
-    class EXPORT_OWCOMMON_DLL WLine : public WMixinVector< WPosition >
+    class OWCOMMON_EXPORT WLine : public WMixinVector< WPosition >
     {
     public:
         /**
