@@ -91,7 +91,12 @@ ELSE()
 ENDIF()
 
 # some modules need the teem library (http://teem.sourceforge.net/)
-find_package( Teem PATHS /usr/local/lib QUIET )
+find_package( Teem PATHS /usr/local/lib /opt/teem/lib QUIET )
+IF( Teem_FOUND )    # we need to add the include path and lib path to allow the compiler and linker to find teem even if it was not installed to
+                    # /usr/local
+    INCLUDE_DIRECTORIES( ${Teem_INCLUDE_DIRS} )
+    LINK_DIRECTORIES( ${LINK_DIRECTORIES} ${Teem_LIBRARY_DIRS} )
+ENDIF()
 
 # other options:
 #---------------
