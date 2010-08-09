@@ -180,25 +180,32 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         assert( intersections.size() );
         hitr = intersections.begin();
 
-        // if ctrl is pressed we skip the first thing that gets hit by the pick
-        if ( m_ctrl && ( hitr != intersections.end() ) )
-        {
-            ++hitr;
-        }
+        bool ignoreFirst = m_ctrl;
 
-        // now we skip everything that starts with an underscore
         while ( hitr != intersections.end() )
         {
             std::string nodeName = extractSuitableName( hitr );
-
+            // now we skip everything that starts with an underscore
             if(  nodeName[0] == '_' )
             {
                 ++hitr;
+            }
+            // if ctrl is pressed we skip the first thing that gets hit by the pick
+            else if ( ignoreFirst )
+            {
+                ++hitr;
+                ignoreFirst = false;
             }
             else
             {
                 break;
             }
+        }
+
+        if ( hitr == intersections.end() )
+        {
+            // after everything was ignored nothing pickable remained
+            return;
         }
 
         // if we have a previous pick we search for it in the list
