@@ -180,15 +180,32 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         assert( intersections.size() );
         hitr = intersections.begin();
 
-        // Skip proxy geometry of Direct Volume Rendering
-        if(  extractSuitableName( intersections.begin() ) == "DVR Proxy Cube" )
+        bool ignoreFirst = m_ctrl;
+
+        while ( hitr != intersections.end() )
         {
-            ++hitr;
+            std::string nodeName = extractSuitableName( hitr );
+            // now we skip everything that starts with an underscore
+            if(  nodeName[0] == '_' )
+            {
+                ++hitr;
+            }
+            // if ctrl is pressed we skip the first thing that gets hit by the pick
+            else if ( ignoreFirst )
+            {
+                ++hitr;
+                ignoreFirst = false;
+            }
+            else
+            {
+                break;
+            }
         }
 
-        if ( m_ctrl && ( hitr != intersections.end() ) )
+        if ( hitr == intersections.end() )
         {
-            ++hitr;
+            // after everything was ignored nothing pickable remained
+            return;
         }
 
         // if we have a previous pick we search for it in the list

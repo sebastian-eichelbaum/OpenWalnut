@@ -217,6 +217,7 @@ void WMArbitraryPlane::initPlane()
     m_rootNode = new WGEManagedGroupNode( m_active );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_geode = new osg::Geode();
+    m_geode->setName( "_arbitraryPlane" );
     m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
     m_rootNode->insert( m_geode );
 
