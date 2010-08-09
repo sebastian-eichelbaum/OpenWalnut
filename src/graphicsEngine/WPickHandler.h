@@ -113,6 +113,7 @@ protected:
     WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
     WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
     bool m_shift; //!< is shift pressed?
+    bool m_ctrl; //!< is ctrl pressed?
     std::string m_viewerName; //!< which viewer sends the signal
 
 private:

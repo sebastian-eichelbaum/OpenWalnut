@@ -34,6 +34,7 @@ WPickHandler::WPickHandler()
     : m_hitResult( WPickInfo() ),
       m_startPick( WPickInfo() ),
       m_shift( false ),
+      m_ctrl( false ),
       m_viewerName( "" )
 {
 }
@@ -42,6 +43,7 @@ WPickHandler::WPickHandler( std::string viewerName )
     : m_hitResult( WPickInfo() ),
       m_startPick( WPickInfo() ),
       m_shift( false ),
+      m_ctrl( false ),
       m_viewerName( viewerName )
 {
 }
@@ -90,6 +92,7 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
         case osgGA::GUIEventAdapter::KEYUP : // Key on keyboard released.
         {
             m_shift = false;
+            m_ctrl = false;
             return false;
         }
         case osgGA::GUIEventAdapter::KEYDOWN : // Key on keyboard pushed.
@@ -108,6 +111,10 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
             if ( ea.getKey() == osgGA::GUIEventAdapter::KEY_Shift_L )
             {
                 m_shift = true;
+            }
+            if ( ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_L ||  ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_R )
+            {
+                m_ctrl = true;
             }
             return false;
         }
@@ -175,6 +182,11 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
 
         // Skip proxy geometry of Direct Volume Rendering
         if(  extractSuitableName( intersections.begin() ) == "DVR Proxy Cube" )
+        {
+            ++hitr;
+        }
+
+        if ( m_ctrl && ( hitr != intersections.end() ) )
         {
             ++hitr;
         }
