@@ -339,9 +339,16 @@ wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
     wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_matrixInverse, point ) );
 
+    // Scale to [0,1]
     r[0] = r[0] / m_nbPosX;
     r[1] = r[1] / m_nbPosY;
     r[2] = r[2] / m_nbPosZ;
+
+    // Correct the coordinates to have the position at the center of the texture voxel.
+    r[0] += 0.5 / m_nbPosX;
+    r[1] += 0.5 / m_nbPosY;
+    r[2] += 0.5 / m_nbPosZ;
+
 
     return r;
 }
