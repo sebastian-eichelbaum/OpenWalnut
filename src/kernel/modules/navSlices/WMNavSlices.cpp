@@ -130,7 +130,7 @@ void WMNavSlices::properties()
     m_sagittalPos    = m_properties->addProperty( "Sagittal Slice",    "Position of sagittal slice.", 80 );
     m_sagittalPos->setMin( 0 );
     m_sagittalPos->setMax( 160 );
-    m_showComplete = m_properties->addProperty( "show complete", "Slice should be drawn complete even if the texture value is zero.", false );
+    m_showComplete = m_properties->addProperty( "Show complete", "Slice should be drawn complete even if the texture value is zero.", false );
 
     m_axialPos->setHidden();
     m_coronalPos->setHidden();

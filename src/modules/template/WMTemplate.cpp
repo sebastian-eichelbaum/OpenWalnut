@@ -197,17 +197,17 @@ void WMTemplate::properties()
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_aTrigger         = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
+    m_aTrigger         = m_properties->addProperty( "Do it now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
                                                     m_propCondition );
 
-    m_enableFeature    = m_properties->addProperty( "Enable Feature",           "Description.", true );
-    m_anInteger        = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
-    m_anIntegerClone   = m_properties->addProperty( "CLONE!Number of Shape Rows",
+    m_enableFeature    = m_properties->addProperty( "Enable feature",           "Description.", true );
+    m_anInteger        = m_properties->addProperty( "Number of shape rows",     "Number of shape rows.", 10, m_propCondition );
+    m_anIntegerClone   = m_properties->addProperty( "CLONE!Number of shape rows",
                                                     "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
-    m_aDouble          = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
-    m_aString          = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WPathHelper::getAppPath(), m_propCondition );
-    m_aColor           = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    m_aDouble          = m_properties->addProperty( "Shape radii",              "Shape radii.", 20.0, m_propCondition );
+    m_aString          = m_properties->addProperty( "A string",                 "Something.", std::string( "hello" ), m_propCondition );
+    m_aFile            = m_properties->addProperty( "A filenname",              "Description.", WPathHelper::getAppPath(), m_propCondition );
+    m_aColor           = m_properties->addProperty( "A color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
@@ -230,8 +230,8 @@ void WMTemplate::properties()
     // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_possibleSelections->addItem( "Beer", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
-    m_possibleSelections->addItem( "Steaks", "Medium please",  template_steak_xpm );
-    m_possibleSelections->addItem( "Sausages", "With Sauerkraut", template_wurst_xpm );
+    m_possibleSelections->addItem( "Steaks", "Medium please.",  template_steak_xpm );
+    m_possibleSelections->addItem( "Sausages", "With Sauerkraut.", template_wurst_xpm );
 
     // This list of alternatives is NOT the actual property value. It is the list on which so called "WItemSelector" instances work. These
     // selectors are the actual property. After you created the first selector instance from the list, it can't be modified anymore. This ensures
@@ -245,9 +245,9 @@ void WMTemplate::properties()
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
 
-    m_group1        = m_properties->addPropertyGroup( "Group 1",  "A nice group for grouping stuff." );
+    m_group1        = m_properties->addPropertyGroup( "First Group",  "A nice group for grouping stuff." );
     m_group1a       = m_group1->addPropertyGroup(     "Group 1a", "A group nested into \"Group 1\"." );
-    m_group2        = m_properties->addPropertyGroup( "Group 2",  "Another nice group for grouping stuff." );
+    m_group2        = m_properties->addPropertyGroup( "Second Group",  "Another nice group for grouping stuff." );
 
     // To understand how the groups can be used, you should consider that m_properties itself is a WPropGroup! This means, you can use your newly
     // created groups exactly in the same way as you would use m_properties.
@@ -302,7 +302,7 @@ void WMTemplate::properties()
     // special properties serve another purpose. They are used for information output. Your module already provides another property list only
     // for these kind of properties. m_infoProperties can be used in the same way as m_properties. The only difference is that each property and
     // property group added here can't be modified from the outside world. Here is an example:
-    m_aIntegerOutput = m_infoProperties->addProperty( "Run Count", "Number of run cycles the module made so far.", 0 );
+    m_aIntegerOutput = m_infoProperties->addProperty( "Run count", "Number of run cycles the module made so far.", 0 );
     // Later on, we will use this property to provide the number of run cycles to the user.
     // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
     // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
@@ -310,7 +310,7 @@ void WMTemplate::properties()
                           std::string( "<font color=\"#00f\" size=15>html</font> formatted strings, colors and " ) +
                           std::string( "so on using <font color=\"#ff0000\">properties</font>! Isn't it <b>amazing</b>?" );
 
-    m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
+    m_aStringOutput = m_group1a->addProperty( "A message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
     // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
@@ -318,11 +318,11 @@ void WMTemplate::properties()
     //
     // Some more examples. Please note: Although every property type can be used as information property, not everything is really useful.
     m_infoProperties->addProperty( m_aStringOutput );   // we can also re-add properties
-    m_aTriggerOutput = m_infoProperties->addProperty( "A Trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
-    m_aDoubleOutput = m_infoProperties->addProperty( "Some Double", "a Double. Nice isn't it?", 3.1415 );
-    m_aColorOutput = m_infoProperties->addProperty( "A Color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
-    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
-    m_aSelectionOutput = m_infoProperties->addProperty( "A Selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
+    m_aTriggerOutput = m_infoProperties->addProperty( "A trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
+    m_aDoubleOutput = m_infoProperties->addProperty( "Some double", "a Double. Nice isn't it?", 3.1415 );
+    m_aColorOutput = m_infoProperties->addProperty( "A color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
+    m_aFilenameOutput = m_infoProperties->addProperty( "Nice file", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
+    m_aSelectionOutput = m_infoProperties->addProperty( "A selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
 }
 
 void WMTemplate::moduleMain()

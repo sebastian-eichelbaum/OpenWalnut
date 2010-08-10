@@ -93,15 +93,15 @@ void WMArbitraryPlane::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_showComplete = m_properties->addProperty( "show complete", "Slice should be drawn complete even if the texture value is zero.",
+    m_showComplete = m_properties->addProperty( "Show complete", "Slice should be drawn complete even if the texture value is zero.",
             false, m_propCondition );
-    m_showManipulators = m_properties->addProperty( "show manipulators", "Hide/Show manipulators.", true, m_propCondition );
+    m_showManipulators = m_properties->addProperty( "Show manipulators", "Hide/Show manipulators.", true, m_propCondition );
 
-    m_attach2Crosshair = m_properties->addProperty( "attach to crosshair", "Attach to Crosshair", false, m_propCondition );
+    m_attach2Crosshair = m_properties->addProperty( "Attach to crosshair", "Attach to Crosshair", false, m_propCondition );
 
-    m_buttonReset2Axial = m_properties->addProperty( "Axial", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
-    m_buttonReset2Coronal = m_properties->addProperty( "Coronal", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
-    m_buttonReset2Sagittal = m_properties->addProperty( "Sagittal", "resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_buttonReset2Axial = m_properties->addProperty( "Axial", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_buttonReset2Coronal = m_properties->addProperty( "Coronal", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_buttonReset2Sagittal = m_properties->addProperty( "Sagittal", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
 }
 
 void WMArbitraryPlane::moduleMain()
