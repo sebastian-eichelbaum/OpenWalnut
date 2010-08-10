@@ -22,25 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
-#include <ctime>
-
-#include <boost/date_time/local_time/local_time_types.hpp>
-
 #include "WGEShaderAnimationCallback.h"
 
 WGEShaderAnimationCallback::WGEShaderAnimationCallback( int ticksPerSecond ):
     osg::Uniform::Callback(),
     m_ticksPerSec( ticksPerSecond )
 {
-    // TODO(ledig): gettimeofday should be available on windows too in sys/time.h
-#ifndef _MSC_VER
-    timeval tv;
-    gettimeofday( &tv, 0L );
-
-    m_startUsec = tv.tv_sec * 1000000 + tv.tv_usec;
-#else
     m_timer.restart();
-#endif
 }
 
 WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
@@ -50,16 +38,8 @@ WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
 
 void WGEShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
-#ifndef _MSC_VER
-    timeval tv;
-    gettimeofday( &tv, 0L );
-
-    int64_t currentUSecs = tv.tv_sec * 1000000 + tv.tv_usec;
-    int milli = static_cast< int >( ( currentUSecs - m_startUsec ) / ( 1000000 / m_ticksPerSec ) );
-#else
-    // boost::timer measures seconds ... :-(
-    int milli = static_cast< int >( m_timer.elapsed() * 1000 );
-#endif
-    uniform->set( milli );
+    // boost::timer measures seconds ...
+    int ticks = static_cast< int >( m_timer.elapsed() * m_ticksPerSec );
+    uniform->set( ticks );
 }
 

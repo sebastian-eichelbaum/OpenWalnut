@@ -27,10 +27,7 @@
 
 #include "stdint.h"
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-#ifdef _MSC_VER
 #include <boost/timer.hpp>
-#endif
 #include <osg/Uniform>
 
 #include "WExportWGE.h"
@@ -65,16 +62,10 @@ public:
 protected:
 
     /**
-     * The microseconds where the callback has been created ( in unix time )
-     */
-    int64_t m_startUsec;
-
-    /**
     * Timer that stops the time hopefully OS independent
     */
-#ifdef _MSC_VER
     boost::timer m_timer;
-#endif
+
     /**
      * Number of ticks to count per second.
      */
