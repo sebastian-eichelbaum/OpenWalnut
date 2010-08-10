@@ -156,11 +156,11 @@ void WMData::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
 
     m_matrixSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_matrixSelectionsList->addItem( "no matrix", "" );
+    m_matrixSelectionsList->addItem( "No matrix", "" );
     m_matrixSelectionsList->addItem( "qform", "" );
     m_matrixSelectionsList->addItem( "sform", "" );
 
-    m_matrixSelection = m_groupTexManip->addProperty( "Transformation Matrix",  "matrix",
+    m_matrixSelection = m_groupTexManip->addProperty( "Transformation matrix",  "matrix",
             m_matrixSelectionsList->getSelectorFirst(), propertyCallback );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_matrixSelection );
 
@@ -174,13 +174,13 @@ void WMData::properties()
     m_translationZ->setMax( 300 );
     m_translationZ->setMin( -300 );
 
-    m_stretchX = m_groupTexManip->addProperty( "voxel size X", "", 1.0, propertyCallback );
+    m_stretchX = m_groupTexManip->addProperty( "Voxel size X", "", 1.0, propertyCallback );
     m_stretchX->setMax( 10. );
     m_stretchX->setMin( -10. );
-    m_stretchY = m_groupTexManip->addProperty( "voxel size Y", "", 1.0, propertyCallback );
+    m_stretchY = m_groupTexManip->addProperty( "Voxel size Y", "", 1.0, propertyCallback );
     m_stretchY->setMax( 10. );
     m_stretchY->setMin( -10. );
-    m_stretchZ = m_groupTexManip->addProperty( "voxel size Z", "", 1.0, propertyCallback );
+    m_stretchZ = m_groupTexManip->addProperty( "Voxel size Z", "", 1.0, propertyCallback );
     m_stretchZ->setMax( 10. );
     m_stretchZ->setMin( -10. );
 
