@@ -39,6 +39,9 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QGraphicsView>
+#include <QtGui/QGraphicsScene>
+#include <QtGui/QGraphicsEllipseItem>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
@@ -149,7 +152,7 @@ void WMainWindow::setupGUI()
     fileMenu->addSeparator();
     fileMenu->addAction( "Config", this, SLOT( openConfigDialog() ) );
     fileMenu->addSeparator();
-    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
+    // TODO(all): If all distributions provide a newer QT version we should  use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
@@ -246,6 +249,10 @@ void WMainWindow::setupGUI()
     }
 
     setupPermanentToolBar();
+
+    m_networkEditor = new WQtNetworkEditor( "Network Editor", this );
+    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
 }
 
 void WMainWindow::setupPermanentToolBar()

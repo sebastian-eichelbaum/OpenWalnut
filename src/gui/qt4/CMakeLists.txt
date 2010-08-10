@@ -15,6 +15,7 @@ SET(GUI_QT4_MOC_HDRS
 	WQtConfigWidget.h
     WQtNavGLWidget.h
     WQtCombinerToolbar.h
+    WQtNetworkEditor.h
     guiElements/WQtPushButton.h
     guiElements/WQtModuleOneToOneCombinerAction.h
     guiElements/WQtPropertyBoolAction.h
