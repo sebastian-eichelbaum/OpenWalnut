@@ -269,7 +269,7 @@ ADD_CUSTOM_TARGET( numCores
 FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
 # Set dirs to exclude from stylecheck
-SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/ext/libeep/avr/;/ext/libeep/cnt/;/ext/libeep/eep/;/common/platformDependent/visualStudio/;/modules/lic/fibernavigator/;/modules/lic/fantom/" )
+SET( EXCLUDE_DIRS "/ext/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/ext/libeep/avr/;/ext/libeep/cnt/;/ext/libeep/eep/;/common/platformDependent/visualStudio/;/modules/lic/fibernavigator/;/modules/lic/fantom/" )
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
     FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
