@@ -4,7 +4,6 @@ IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
 ELSE ()
     ADD_SUBDIRECTORY( biosigWin )
 ENDIF()
-ADD_SUBDIRECTORY( libeep )
 
 FILE( GLOB DATAHANDLER_IO_SRC "*.cpp" "*.h" )
 
