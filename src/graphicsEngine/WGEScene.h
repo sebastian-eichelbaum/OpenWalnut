@@ -41,6 +41,13 @@ public:
      */
     WGEScene();
 
+    /**
+     * Indicates whether we want the widget showing the scene to be
+     * tranferred to its home position. This is the case if we have the
+     * <b>first</b> child added to the scene.
+     */
+    bool isHomePositionRequested();
+
 protected:
 
     /**
@@ -49,31 +56,7 @@ protected:
     virtual ~WGEScene();
 
 private:
-//    /**
-//     * Node callback to handle updates properly
-//     */
-//    class bbCallback : public osg::Node::ComputeBoundingSphereCallback
-//    {
-//    public: // NOLINT
-//        /**
-//         * operator ()
-//         *
-//         * \param node the osg node
-//         * \param nv the node visitor
-//         */
-//        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-//        {
-//            osg::ref_ptr< WMFiberDisplay > module = static_cast< WMFiberDisplay* > ( node->getUserData() );
-//
-//            if ( module )
-//            {
-//                module->update();
-//                module->toggleTubes();
-//                module->toggleColoring();
-//            }
-//            traverse( node, nv );
-//        }
-//    };
+    bool firstHomePositionRequest; //!< Indicates whether we still have the first request for home position (isHomePositionRequested()).
 };
 
 

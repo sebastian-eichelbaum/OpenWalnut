@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEZoomTrackballManipulator.h"
 #include "../common/WPreferences.h"
+#include "WGEZoomTrackballManipulator.h"
+#include "WGraphicsEngine.h"
 
 WGEZoomTrackballManipulator::WGEZoomTrackballManipulator():
     TrackballManipulator(),
@@ -116,7 +117,14 @@ bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgG
 {
     _thrown &= m_allowThrow; // By default we do not want the auto-rotation thingy.
 
-    if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
+    if( WGraphicsEngine::getGraphicsEngine()->getScene()->isHomePositionRequested() )
+    {
+        // We set the scene to the manipulator home position if the scene
+        // requests to do so. See WGEScene for more details.
+        home( 0 );
+        return true;
+    }
+    else if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
     {
         return zoom( ea, us );
     }
