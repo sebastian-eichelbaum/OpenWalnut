@@ -575,7 +575,7 @@ public:
         TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0 - wlimits::FLT_EPS, 0 ) ) );
         TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
         TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 1.0 - wlimits::FLT_EPS, 0.5 ) ) );
-        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 1.0 ,0.5 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 1.0, 0.5 ) ) );
 
         // Test bounds for Z direction
         TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0, 0 - wlimits::FLT_EPS ) ) );
