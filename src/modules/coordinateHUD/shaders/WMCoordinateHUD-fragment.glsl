@@ -30,6 +30,6 @@ void main()
     gl_FragColor = gl_Color;
 
     // this line ensures that the coordinate system is always on top.
-    gl_FragDepth = 0.0;
+    gl_FragDepth = 0.001 * gl_FragCoord.z;
 }
 

@@ -116,11 +116,6 @@ class WMCoordinateHUD: public WModule, public osg::Referenced
         virtual void buildColorCube();
 
         /**
-         * build the geode for black & white coordinate cube
-         */
-        virtual void buildBWCube();
-
-        /**
          * build the geometry of the cube
          */
         virtual osg::Vec3Array* buildCubeVertices();

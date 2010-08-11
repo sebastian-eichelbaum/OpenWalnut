@@ -44,7 +44,6 @@
 #include "option_1.xpm"
 #include "option_2.xpm"
 #include "option_3.xpm"
-#include "option_4.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMCoordinateHUD )
@@ -90,7 +89,6 @@ void WMCoordinateHUD::properties()
     m_possibleSelections->addItem( "colored axis", "colorfull coordinate axis", option_1_xpm );
     m_possibleSelections->addItem( "b/w axis", "black & white coordinate axis", option_2_xpm );
     m_possibleSelections->addItem( "colored cube", "colorfull coordinate cube", option_3_xpm );
-    m_possibleSelections->addItem( "b/w cube", "black & white coordinate cube", option_4_xpm );
 
     m_aSingleSelection = m_properties->addProperty( "HUD structure",
             "Which look should the coordinateHUD have?", m_possibleSelections->getSelectorFirst(),
@@ -108,8 +106,8 @@ void WMCoordinateHUD::moduleMain()
     m_shader = osg::ref_ptr< WShader > ( new WShader( "WMCoordinateHUD" , m_localPath ) );
 
     m_rootNode = new WGEManagedGroupNode( m_active );
-    m_shader->apply( m_rootNode );
     m_rootNode->setName( "coordHUDNode" );
+    m_shader->apply( m_rootNode );
 
     // let the main loop awake if the properties changed.
     debugLog() << "Entering moduleMain()";
@@ -159,15 +157,12 @@ void WMCoordinateHUD::moduleMain()
             {
                 buildColorCube();
             }
-            else if ( s.at( 0 ).name == "b/w cube" )
-            {
-                buildBWCube();
-            }
 
             //update node
             m_rootNode->clear();
-            m_rootNode->setCullingActive( false ); // this disables frustrum culling for the geode to avoid the coordinate system to disappear.
+            m_geode->setCullingActive( false ); // this disables frustrum culling for the geode to avoid the coordinate system to disappear.
             m_rootNode->insert( m_geode );
+
             //m_rootNode->insert( m_txtGeode );
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
         }
@@ -264,49 +259,6 @@ void WMCoordinateHUD::buildBWAxis()
     osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size( ) );
 
     //add geometry to geode
-    coordGeom->setVertexArray( vertices );
-    coordGeom->addPrimitiveSet( da );
-    coordGeode->addDrawable( coordGeom );
-    coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-
-    m_geode = coordGeode;
-}
-
-void WMCoordinateHUD::buildBWCube()
-{
-    // build the geometry & geode for the coordinate axis
-    osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
-    osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
-
-    // Vertices
-    osg::Vec3Array* vertices = new osg::Vec3Array( 36 );
-    vertices = buildCubeVertices();
-
-    // Colors
-    osg::Vec4 b_color( 0.0f, 0.0f, 0.0f, 1.0f );       // black
-    osg::Vec4 bl_color( 0.2f, 0.2f, 0.2f, 1.0f );      // nearly black
-    osg::Vec4 bll_color( 0.4f, 0.4f, 0.4f, 1.0f );     // dark grey
-    osg::Vec4 w_color( 1.0f, 1.0f, 1.0f, 1.0f );       // white
-    osg::Vec4 wl_color( 0.97f, 0.97f, 0.97f, 1.0f );   // nearly white
-    osg::Vec4 wll_color( 0.93f, 0.93f, 0.93f, 1.0f );  // light grey white
-
-    osg::Vec4Array* color = new osg::Vec4Array( 12 );
-    (*color)[0] = (*color)[1] = bl_color;
-    (*color)[2] = (*color)[3] = bll_color;
-    (*color)[4] = (*color)[5] = b_color;
-
-    (*color)[6] = (*color)[7] = wl_color;
-    (*color)[8] = (*color)[9] = wll_color;
-    (*color)[10] = (*color)[11] = w_color;
-
-    // add color to geometry
-    coordGeom->setColorArray( color );
-    coordGeom->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
-
-    // primitives = draw lines between vertices
-    osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::TRIANGLES, 0, vertices->size( ) );
-
-    // add geometry to geode
     coordGeom->setVertexArray( vertices );
     coordGeom->addPrimitiveSet( da );
     coordGeode->addDrawable( coordGeom );
